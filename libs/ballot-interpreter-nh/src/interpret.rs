@@ -22,13 +22,15 @@ use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
 use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
-use crate::metadata::BallotPageMetadata;
-use crate::metadata::BallotPageMetadataError;
+use crate::qr_code_metadata::BallotPageQrCodeMetadataError;
 use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
+use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
+use crate::timing_mark_metadata::BallotPageTimingMarkMetadataError;
 use crate::timing_marks::find_timing_mark_grid;
+use crate::timing_marks::BallotPageMetadata;
 use crate::timing_marks::TimingMarkGrid;
 
 #[derive(Debug, Clone)]
@@ -80,9 +82,9 @@ pub struct InterpretedBallotCard {
     pub front: InterpretedBallotPage,
     pub back: InterpretedBallotPage,
 }
-pub type Result = core::result::Result<InterpretedBallotCard, Error>;
+pub type InterpretResult = Result<InterpretedBallotCard, Error>;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BallotPageAndGeometry {
     pub label: String,
@@ -90,7 +92,7 @@ pub struct BallotPageAndGeometry {
     pub geometry: Geometry,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum Error {
     BorderInsetNotFound {
@@ -101,9 +103,13 @@ pub enum Error {
         side_a: BallotPageMetadata,
         side_b: BallotPageMetadata,
     },
-    InvalidMetadata {
+    InvalidTimingMarkMetadata {
         label: String,
-        error: BallotPageMetadataError,
+        error: BallotPageTimingMarkMetadataError,
+    },
+    InvalidQrCodeMetadata {
+        label: String,
+        error: BallotPageQrCodeMetadataError,
     },
     #[serde(rename_all = "camelCase")]
     MismatchedBallotCardGeometries {
@@ -139,8 +145,11 @@ impl Display for Error {
                 f,
                 "Invalid card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
             ),
-            Self::InvalidMetadata { label, error } => {
-                write!(f, "Invalid metadata for {label}: {error:?}")
+            Self::InvalidTimingMarkMetadata { label, error } => {
+                write!(f, "Invalid timing mark metadata for {label}: {error:?}")
+            }
+            Self::InvalidQrCodeMetadata { label, error } => {
+                write!(f, "Invalid QR code metadata for {label}: {error:?}")
             }
             Self::MismatchedBallotCardGeometries { side_a, side_b } => write!(
                 f,
@@ -209,7 +218,7 @@ pub fn prepare_ballot_card_images(
     side_b_image: GrayImage,
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
-) -> core::result::Result<BallotCard, Error> {
+) -> Result<BallotCard, Error> {
     let (side_a_result, side_b_result) = rayon::join(
         || {
             prepare_ballot_page_image(
@@ -289,7 +298,7 @@ fn prepare_ballot_page_image(
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
-) -> core::result::Result<BallotPage, Error> {
+) -> Result<BallotPage, Error> {
     let Some(BallotImage {
         image,
         threshold,
@@ -321,12 +330,35 @@ fn prepare_ballot_page_image(
     })
 }
 
+fn is_side_a_the_front_side(
+    side_a_metadata: &BallotPageMetadata,
+    side_b_metadata: &BallotPageMetadata,
+) -> Result<bool, Error> {
+    match (side_a_metadata, side_b_metadata) {
+        (BallotPageMetadata::QrCode(side_a_metadata), BallotPageMetadata::QrCode(_)) => {
+            Ok(side_a_metadata.page_number % 2 == 1)
+        }
+        (
+            BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Front(_)),
+            BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Back(_)),
+        ) => Ok(true),
+        (
+            BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Back(_)),
+            BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Front(_)),
+        ) => Ok(false),
+        (side_a_metadata, side_b_metadata) => Err(Error::InvalidCardMetadata {
+            side_a: side_a_metadata.clone(),
+            side_b: side_b_metadata.clone(),
+        }),
+    }
+}
+
 #[time]
 pub fn interpret_ballot_card(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     options: &Options,
-) -> Result {
+) -> InterpretResult {
     let BallotCard {
         side_a,
         side_b,
@@ -354,6 +386,7 @@ pub fn interpret_ballot_card(
                 &geometry,
                 &side_a.image,
                 side_a.border_inset,
+                Some(&options.election),
                 &mut side_a_debug,
             )
         },
@@ -363,50 +396,37 @@ pub fn interpret_ballot_card(
                 &geometry,
                 &side_b.image,
                 side_b.border_inset,
+                Some(&options.election),
                 &mut side_b_debug,
             )
         },
     );
 
-    let (side_a_grid, side_a_normalized_img) = side_a_result?;
-    let (side_b_grid, side_b_normalized_img) = side_b_result?;
+    // TODO - To increase resiliency, if we successfully read a QR code from one
+    // side but not the other, we could correct the other side's metadata before
+    // unwrapping the results below.
+
+    let (side_a_grid, side_a_normalized_image) = side_a_result?;
+    let (side_b_grid, side_b_normalized_image) = side_b_result?;
+    let side_a_image = side_a_normalized_image.unwrap_or(side_a.image);
+    let side_b_image = side_b_normalized_image.unwrap_or(side_b.image);
 
     let ((front_image, front_grid, front_debug), (back_image, back_grid, back_debug)) =
-        match (&side_a_grid.metadata, &side_b_grid.metadata) {
-            (BallotPageMetadata::Front(_), BallotPageMetadata::Back(_)) => (
-                (
-                    side_a_normalized_img.unwrap_or(side_a.image),
-                    side_a_grid,
-                    side_a_debug,
-                ),
-                (
-                    side_b_normalized_img.unwrap_or(side_b.image),
-                    side_b_grid,
-                    side_b_debug,
-                ),
-            ),
-            (BallotPageMetadata::Back(_), BallotPageMetadata::Front(_)) => (
-                (
-                    side_b_normalized_img.unwrap_or(side_b.image),
-                    side_b_grid,
-                    side_b_debug,
-                ),
-                (
-                    side_a_normalized_img.unwrap_or(side_a.image),
-                    side_a_grid,
-                    side_a_debug,
-                ),
-            ),
-            _ => {
-                return Err(Error::InvalidCardMetadata {
-                    side_a: side_a_grid.metadata,
-                    side_b: side_b_grid.metadata,
-                })
-            }
+        if is_side_a_the_front_side(&side_a_grid.metadata, &side_b_grid.metadata)? {
+            (
+                (side_a_image, side_a_grid, side_a_debug),
+                (side_b_image, side_b_grid, side_b_debug),
+            )
+        } else {
+            (
+                (side_b_image, side_b_grid, side_b_debug),
+                (side_a_image, side_a_grid, side_a_debug),
+            )
         };
 
     let ballot_style_id = match &front_grid.metadata {
-        BallotPageMetadata::Front(metadata) => {
+        BallotPageMetadata::QrCode(metadata) => metadata.ballot_style_id.clone(),
+        BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Front(metadata)) => {
             // If the election is using "card-number-{n}" ballot style IDs, use
             // the card number in the metadata to create that ballot style ID.
             if options
@@ -425,7 +445,7 @@ pub fn interpret_ballot_card(
                     .clone()
             }
         }
-        BallotPageMetadata::Back(_) => unreachable!(),
+        BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Back(_)) => unreachable!(),
     };
 
     let Some(grid_layout) = options

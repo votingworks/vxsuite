@@ -20,6 +20,25 @@ use crate::{
     timing_marks::{Partial, TimingMarkGrid},
 };
 
+pub fn draw_qr_code_debug_image_mut(canvas: &mut RgbImage, qr_code: Option<Rect>) {
+    match qr_code {
+        Some(qr_code) => {
+            draw_hollow_rect_mut(canvas, qr_code.into(), DARK_GREEN);
+        }
+        None => {
+            draw_text_mut(
+                canvas,
+                DARK_RED,
+                0,
+                0,
+                Scale::uniform(20.0),
+                &monospace_font(),
+                "No QR code found",
+            );
+        }
+    }
+}
+
 pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rect]) {
     for (i, rect) in contour_rects.iter().enumerate() {
         draw_hollow_rect_mut(canvas, (*rect).into(), RAINBOW[i % RAINBOW.len()]);

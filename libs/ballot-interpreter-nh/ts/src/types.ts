@@ -1,4 +1,8 @@
-import { BallotPaperSize, GridPosition } from '@votingworks/types';
+import {
+  BallotPaperSize,
+  GridPosition,
+  HmpbBallotPageMetadata,
+} from '@votingworks/types';
 import { Optional, Result } from '@votingworks/basics';
 
 /*
@@ -159,17 +163,28 @@ export interface TimingMarkGrid {
   /** Areas of the ballot card that contain shapes that may be timing marks. */
   candidateTimingMarks: Rect[];
 
-  /** Metadata from the ballot card bottom timing marks. */
+  /** Metadata from the ballot card. */
   metadata: BallotPageMetadata;
 }
 
-/** Metadata from the ballot card bottom timing marks. */
+/** Metadata from the ballot card. */
 export type BallotPageMetadata =
-  | BallotPageMetadataFront
-  | BallotPageMetadataBack;
+  | BallotPageTimingMarkMetadata
+  | BallotPageQrCodeMetadata;
+
+/** Metadata from a ballot card QR code. */
+export interface BallotPageQrCodeMetadata extends HmpbBallotPageMetadata {
+  source: 'qr-code';
+}
+
+/** Metadata from the ballot card bottom timing marks. */
+export type BallotPageTimingMarkMetadata = (
+  | BallotPageTimingMarkMetadataFront
+  | BallotPageTimingMarkMetadataBack
+) & { source: 'timing-marks' };
 
 /** Metadata encoded on the front side of a ballot card. */
-export interface BallotPageMetadataFront {
+export interface BallotPageTimingMarkMetadataFront {
   side: 'front';
 
   /** Raw bits 0-31 in LSB-MSB order (right to left). */
@@ -202,7 +217,7 @@ export interface BallotPageMetadataFront {
 }
 
 /** Metadata encoded on the front side of a ballot card. */
-export interface BallotPageMetadataBack {
+export interface BallotPageTimingMarkMetadataBack {
   side: 'back';
 
   /** Raw bits 0-31 in LSB-MSB order (right-to-left). */
@@ -404,8 +419,8 @@ export type InterpretError =
   | { type: 'borderInsetNotFound'; path: string }
   | {
       type: 'invalidCardMetadata';
-      side_a: BallotPageMetadata;
-      side_b: BallotPageMetadata;
+      side_a: BallotPageTimingMarkMetadata;
+      side_b: BallotPageTimingMarkMetadata;
     }
   | { type: 'invalidMetadata'; path: string; error: BallotPageMetadataError }
   | {
@@ -415,8 +430,8 @@ export type InterpretError =
     }
   | {
       type: 'missingGridLayout';
-      front: BallotPageMetadata;
-      back: BallotPageMetadata;
+      front: BallotPageTimingMarkMetadata;
+      back: BallotPageTimingMarkMetadata;
     }
   | { type: 'missingTimingMarks'; rects: Rect[] }
   | { type: 'unexpectedDimensions'; path: string; dimensions: Size<PixelUnit> }
@@ -440,13 +455,13 @@ export type BallotPageMetadataError =
       value: u32;
       min: u32;
       max: u32;
-      metadata: BallotPageMetadata;
+      metadata: BallotPageTimingMarkMetadata;
     }
-  | { type: 'invalidChecksum'; metadata: BallotPageMetadataFront }
-  | { type: 'invalidEnderCode'; metadata: BallotPageMetadataBack }
+  | { type: 'invalidChecksum'; metadata: BallotPageTimingMarkMetadataFront }
+  | { type: 'invalidEnderCode'; metadata: BallotPageTimingMarkMetadataBack }
   | { type: 'invalidTimingMarkCount'; expected: usize; actual: usize }
   | {
       type: 'ambiguousMetadata';
-      front_metadata: BallotPageMetadataFront;
-      back_metadata: BallotPageMetadataBack;
+      front_metadata: BallotPageTimingMarkMetadataFront;
+      back_metadata: BallotPageTimingMarkMetadataBack;
     };

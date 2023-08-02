@@ -32,7 +32,7 @@ import {
   convertMarksToVotesDict,
 } from '@votingworks/utils';
 import {
-  BallotPageMetadataFront,
+  BallotPageTimingMarkMetadataFront,
   Geometry,
   InterpretedBallotCard,
   InterpretResult as NextInterpretResult,
@@ -215,7 +215,7 @@ function convertMarksToMarkInfo(
 function buildInterpretedHmpbPageMetadata(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  frontMetadata: BallotPageMetadataFront,
+  frontMetadata: BallotPageTimingMarkMetadataFront,
   side: 'front' | 'back'
 ): HmpbBallotPageMetadata {
   const { election } = electionDefinition;
@@ -321,12 +321,19 @@ function convertNextInterpretedBallotPage(
     options.markThresholds ?? electionDefinition.election.markThresholds;
   assert(markThresholds, 'markThresholds must be defined');
 
-  const metadata = buildInterpretedHmpbPageMetadata(
-    electionDefinition,
-    options,
-    interpretedBallotCard.front.grid.metadata as BallotPageMetadataFront,
-    side
-  );
+  const sideMetadata = interpretedBallotCard[side].grid.metadata;
+  const metadata =
+    sideMetadata.source === 'qr-code'
+      ? sideMetadata
+      : buildInterpretedHmpbPageMetadata(
+          electionDefinition,
+          options,
+          // For timing mark metadata, always use the front, since it contains
+          // the info we need
+          interpretedBallotCard.front.grid
+            .metadata as BallotPageTimingMarkMetadataFront,
+          side
+        );
 
   const interpretation = interpretedBallotCard[side];
   const markInfo = convertMarksToMarkInfo(

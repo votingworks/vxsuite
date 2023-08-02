@@ -30,7 +30,7 @@ fn print_boolean_slice_as_binary(slice: &[bool]) -> String {
 /// Metadata encoded by the bottom row of the front of a ballot card.
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BallotPageMetadataFront {
+pub struct BallotPageTimingMarkMetadataFront {
     /// Raw bits 0-31 in LSB-MSB order (right to left).
     pub bits: [bool; METADATA_BITS],
 
@@ -58,7 +58,7 @@ pub struct BallotPageMetadataFront {
     pub start_bit: u8,
 }
 
-impl Debug for BallotPageMetadataFront {
+impl Debug for BallotPageTimingMarkMetadataFront {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("FrontMetadata")
             .field("bits", &print_boolean_slice_as_binary(&self.bits))
@@ -100,7 +100,7 @@ impl Serialize for IndexedCapitalLetter {
 /// Metadata encoded by the bottom row of the back of a ballot card.
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BallotPageMetadataBack {
+pub struct BallotPageTimingMarkMetadataBack {
     /// Raw bits 0-31 in LSB-MSB order (right-to-left).
     pub bits: [bool; METADATA_BITS],
 
@@ -125,7 +125,7 @@ pub struct BallotPageMetadataBack {
     pub expected_ender_code: [bool; 11],
 }
 
-impl Debug for BallotPageMetadataBack {
+impl Debug for BallotPageTimingMarkMetadataBack {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("BackMetadata")
             .field("bits", &print_boolean_slice_as_binary(&self.bits))
@@ -145,36 +145,37 @@ impl Debug for BallotPageMetadataBack {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(tag = "side", rename_all = "camelCase")]
-pub enum BallotPageMetadata {
-    Front(BallotPageMetadataFront),
-    Back(BallotPageMetadataBack),
+// Metadata encoded in the bottom row of timing marks on Accuvote-style ballots.
+pub enum BallotPageTimingMarkMetadata {
+    Front(BallotPageTimingMarkMetadataFront),
+    Back(BallotPageTimingMarkMetadataBack),
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type", rename_all = "camelCase")]
-pub enum BallotPageMetadataError {
+pub enum BallotPageTimingMarkMetadataError {
     ValueOutOfRange {
         field: String,
         value: u32,
         min: u32,
         max: u32,
-        metadata: BallotPageMetadata,
+        metadata: BallotPageTimingMarkMetadata,
     },
     InvalidChecksum {
-        metadata: BallotPageMetadataFront,
+        metadata: BallotPageTimingMarkMetadataFront,
     },
     InvalidEnderCode {
-        metadata: BallotPageMetadataBack,
+        metadata: BallotPageTimingMarkMetadataBack,
     },
     InvalidTimingMarkCount {
         expected: usize,
         actual: usize,
     },
     AmbiguousMetadata {
-        front_metadata: BallotPageMetadataFront,
-        back_metadata: BallotPageMetadataBack,
+        front_metadata: BallotPageTimingMarkMetadataFront,
+        back_metadata: BallotPageTimingMarkMetadataBack,
     },
 }
 
@@ -182,12 +183,12 @@ pub enum BallotPageMetadataError {
 pub fn compute_bits_from_bottom_timing_marks(
     geometry: &Geometry,
     bottom_timing_marks: &[Option<Rect>],
-) -> Result<[bool; METADATA_BITS], BallotPageMetadataError> {
+) -> Result<[bool; METADATA_BITS], BallotPageTimingMarkMetadataError> {
     // Validate the number of timing marks.
     if bottom_timing_marks.len() != geometry.grid_size.width as usize
         || geometry.grid_size.width as usize != METADATA_BORDER_MARK_COUNT
     {
-        return Err(BallotPageMetadataError::InvalidTimingMarkCount {
+        return Err(BallotPageTimingMarkMetadataError::InvalidTimingMarkCount {
             expected: geometry.grid_size.width as usize,
             actual: bottom_timing_marks.len(),
         });
@@ -199,13 +200,13 @@ pub fn compute_bits_from_bottom_timing_marks(
             // both timing marks are present
         }
         (Some(None), Some(None)) => {
-            return Err(BallotPageMetadataError::InvalidTimingMarkCount {
+            return Err(BallotPageTimingMarkMetadataError::InvalidTimingMarkCount {
                 expected: 2,
                 actual: 0,
             });
         }
         (Some(None), _) | (_, Some(None)) => {
-            return Err(BallotPageMetadataError::InvalidTimingMarkCount {
+            return Err(BallotPageTimingMarkMetadataError::InvalidTimingMarkCount {
                 expected: 2,
                 actual: 1,
             });
@@ -224,17 +225,18 @@ pub fn compute_bits_from_bottom_timing_marks(
     let bit_count = bits.len();
 
     // try to convert the bits into a fixed-size array
-    bits.try_into()
-        .map_err(|_| BallotPageMetadataError::InvalidTimingMarkCount {
+    bits.try_into().map_err(
+        |_| BallotPageTimingMarkMetadataError::InvalidTimingMarkCount {
             expected: METADATA_BITS,
             actual: bit_count,
-        })
+        },
+    )
 }
 
 /// Decodes the metadata bits assuming it's the front page of a ballot card.
 pub fn decode_front_metadata_from_bits(
     bits_rtl: &[bool; METADATA_BITS],
-) -> Result<BallotPageMetadataFront, BallotPageMetadataError> {
+) -> Result<BallotPageTimingMarkMetadataFront, BallotPageTimingMarkMetadataError> {
     let computed_mod_4_checksum = bits_rtl[2..].iter().map(|&bit| u8::from(bit)).sum::<u8>() % 4;
 
     let mod_4_checksum = bits_rtl[0..2]
@@ -259,7 +261,7 @@ pub fn decode_front_metadata_from_bits(
 
     let start_bit = u8::from(bits_rtl[31]);
 
-    let front_metadata = BallotPageMetadataFront {
+    let front_metadata = BallotPageTimingMarkMetadataFront {
         bits: *bits_rtl,
         mod_4_checksum,
         computed_mod_4_checksum,
@@ -270,18 +272,18 @@ pub fn decode_front_metadata_from_bits(
     };
 
     if computed_mod_4_checksum != mod_4_checksum {
-        return Err(BallotPageMetadataError::InvalidChecksum {
+        return Err(BallotPageTimingMarkMetadataError::InvalidChecksum {
             metadata: front_metadata,
         });
     }
 
     if start_bit != 1 {
-        return Err(BallotPageMetadataError::ValueOutOfRange {
+        return Err(BallotPageTimingMarkMetadataError::ValueOutOfRange {
             field: "start_bit".to_string(),
             value: u32::from(start_bit),
             min: 1,
             max: 1,
-            metadata: BallotPageMetadata::Front(front_metadata),
+            metadata: BallotPageTimingMarkMetadata::Front(front_metadata),
         });
     }
 
@@ -291,7 +293,7 @@ pub fn decode_front_metadata_from_bits(
 /// Decodes the metadata bits assuming it's the back page of a ballot card.
 pub fn decode_back_metadata_from_bits(
     bits_rtl: &[bool; METADATA_BITS],
-) -> Result<BallotPageMetadataBack, BallotPageMetadataError> {
+) -> Result<BallotPageTimingMarkMetadataBack, BallotPageTimingMarkMetadataError> {
     let election_day = bits_rtl[0..5]
         .iter()
         .rev()
@@ -317,7 +319,7 @@ pub fn decode_back_metadata_from_bits(
         .try_into()
         .expect("slice with correct length");
 
-    let back_metadata = BallotPageMetadataBack {
+    let back_metadata = BallotPageTimingMarkMetadataBack {
         bits: *bits_rtl,
         election_day,
         election_month,
@@ -328,7 +330,7 @@ pub fn decode_back_metadata_from_bits(
     };
 
     if ender_code != ENDER_CODE {
-        return Err(BallotPageMetadataError::InvalidEnderCode {
+        return Err(BallotPageTimingMarkMetadataError::InvalidEnderCode {
             metadata: back_metadata,
         });
     }
@@ -342,7 +344,7 @@ pub fn decode_back_metadata_from_bits(
 pub fn decode_metadata_from_timing_marks(
     geometry: &Geometry,
     bottom_timing_marks: &[Option<Rect>],
-) -> Result<BallotPageMetadata, BallotPageMetadataError> {
+) -> Result<BallotPageTimingMarkMetadata, BallotPageTimingMarkMetadataError> {
     let bits = compute_bits_from_bottom_timing_marks(geometry, bottom_timing_marks)?;
 
     let front_metadata_result = decode_front_metadata_from_bits(&bits);
@@ -350,13 +352,13 @@ pub fn decode_metadata_from_timing_marks(
 
     match (front_metadata_result, back_metadata_result) {
         (Ok(front_metadata), Ok(back_metadata)) => {
-            Err(BallotPageMetadataError::AmbiguousMetadata {
+            Err(BallotPageTimingMarkMetadataError::AmbiguousMetadata {
                 front_metadata,
                 back_metadata,
             })
         }
-        (Ok(front_metadata), Err(_)) => Ok(BallotPageMetadata::Front(front_metadata)),
-        (Err(_), Ok(back_metadata)) => Ok(BallotPageMetadata::Back(back_metadata)),
+        (Ok(front_metadata), Err(_)) => Ok(BallotPageTimingMarkMetadata::Front(front_metadata)),
+        (Err(_), Ok(back_metadata)) => Ok(BallotPageTimingMarkMetadata::Back(back_metadata)),
         (Err(front_metadata_error), Err(_)) => Err(front_metadata_error),
     }
 }

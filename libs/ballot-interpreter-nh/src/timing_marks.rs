@@ -12,14 +12,17 @@ use crate::{
     ballot_card::{Geometry, Orientation},
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
-    election::UnitIntervalValue,
+    election::{Election, UnitIntervalValue},
     geometry::{
         find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
         PixelUnit, Point, Rect, Segment, Size, SubPixelUnit,
     },
     image_utils::{expand_image, match_template, Inset, WHITE},
     interpret::Error,
-    metadata::{decode_metadata_from_timing_marks, BallotPageMetadata},
+    qr_code_metadata::{
+        detect_qr_code_metadata, BallotPageQrCodeMetadata, BallotPageQrCodeMetadataError,
+    },
+    timing_mark_metadata::{decode_metadata_from_timing_marks, BallotPageTimingMarkMetadata},
 };
 
 /// Represents partial timing marks found in a ballot card.
@@ -79,6 +82,13 @@ pub struct Complete {
     pub bottom_right_rect: Rect,
 }
 
+#[derive(Debug, Serialize, Clone)]
+#[serde(tag = "source", rename_all = "kebab-case")]
+pub enum BallotPageMetadata {
+    TimingMarks(BallotPageTimingMarkMetadata),
+    QrCode(BallotPageQrCodeMetadata),
+}
+
 /// Represents a grid of timing marks and provides access to the expected
 /// location of bubbles in the grid. Note that all coordinates are based in an
 /// image that may have been rotated, cropped, and scaled. To recreate the image
@@ -110,7 +120,7 @@ pub struct TimingMarkGrid {
     /// Areas of the ballot card that contain shapes that may be timing marks.
     pub candidate_timing_marks: Vec<Rect>,
 
-    /// Metadata from the ballot card bottom timing marks.
+    /// Metadata from either the ballot card bottom timing marks or a QR code.
     pub metadata: BallotPageMetadata,
 }
 
@@ -196,8 +206,25 @@ pub fn find_timing_mark_grid(
     geometry: &Geometry,
     img: &GrayImage,
     border_inset: Inset,
+    election: Option<&Election>,
     debug: &mut ImageDebugWriter,
 ) -> Result<(TimingMarkGrid, Option<GrayImage>), Error> {
+    // Detect a QR code if one is present (VX-style ballots)
+    let detected_qr_code = if let Some(election) = election {
+        match detect_qr_code_metadata(election, img, geometry, debug) {
+            Ok(metadata) => Some(metadata),
+            Err(BallotPageQrCodeMetadataError::NoQrCodeDetected) => None,
+            Err(error) => {
+                return Err(Error::InvalidQrCodeMetadata {
+                    label: label.to_string(),
+                    error,
+                })
+            }
+        }
+    } else {
+        None
+    };
+
     let threshold = otsu_level(img);
     // Find shapes that look like timing marks but may not be.
     let candidate_timing_marks = find_timing_mark_shapes(geometry, img, threshold, debug);
@@ -215,15 +242,18 @@ pub fn find_timing_mark_grid(
         })
     };
 
-    // Assumes that we will find most of the timing marks and that there will be
-    // more missing on the bottom than the top. If that's not the case, then
-    // we'll need to rotate the image.
-    let orientation =
-        if partial_timing_marks.top_rects.len() >= partial_timing_marks.bottom_rects.len() {
-            Orientation::Portrait
-        } else {
-            Orientation::PortraitReversed
-        };
+    // If we detected a QR code, we can use that to determine the orientation.
+    let orientation = if let Some((_, orientation)) = detected_qr_code {
+        orientation
+    } else
+    // Otherwise, for Accuvote-style ballots, assume that we will find most of
+    // the timing marks and that there will be more missing on the bottom than
+    // the top. If that's not the case, then we'll need to rotate the image.
+    if partial_timing_marks.top_rects.len() >= partial_timing_marks.bottom_rects.len() {
+        Orientation::Portrait
+    } else {
+        Orientation::PortraitReversed
+    };
 
     // Handle rotating the image and our partial timing marks if necessary.
     let (partial_timing_marks, normalized_img, border_inset) =
@@ -265,14 +295,23 @@ pub fn find_timing_mark_grid(
         threshold,
     );
 
-    let metadata = match decode_metadata_from_timing_marks(geometry, &filled_bottom_timing_marks) {
-        Ok(metadata) => metadata,
-        Err(error) => {
-            return Err(Error::InvalidMetadata {
-                label: label.to_string(),
-                error,
-            })
-        }
+    let metadata = if let Some((metadata, _)) = detected_qr_code {
+        //  For VX-style ballots, we use the metadata from the QR code.
+        BallotPageMetadata::QrCode(metadata)
+    } else {
+        // For Accuvote-style ballots which don't have a QR code, we decode the
+        // metadata from the timing marks.
+        BallotPageMetadata::TimingMarks(
+            match decode_metadata_from_timing_marks(geometry, &filled_bottom_timing_marks) {
+                Ok(metadata) => metadata,
+                Err(error) => {
+                    return Err(Error::InvalidTimingMarkMetadata {
+                        label: label.to_string(),
+                        error,
+                    })
+                }
+            },
+        )
     };
 
     let scaled_size = Size {

@@ -62,6 +62,7 @@ pub fn find_template_grid_and_bubbles(
                 &geometry,
                 &side_a.image,
                 side_a.border_inset,
+                None,
                 &mut ImageDebugWriter::disabled(),
             )
         },
@@ -71,6 +72,7 @@ pub fn find_template_grid_and_bubbles(
                 &geometry,
                 &side_b.image,
                 side_b.border_inset,
+                None,
                 &mut ImageDebugWriter::disabled(),
             )
         },
@@ -126,7 +128,9 @@ pub fn find_template_grid_and_bubbles(
 mod test {
     use std::path::PathBuf;
 
-    use crate::metadata::BallotPageMetadata;
+    use crate::{
+        timing_mark_metadata::BallotPageTimingMarkMetadata, timing_marks::BallotPageMetadata,
+    };
 
     use super::find_template_grid_and_bubbles;
 
@@ -141,11 +145,11 @@ mod test {
             find_template_grid_and_bubbles(side_a_image, side_b_image, "side A", "side B").unwrap();
         assert!(matches!(
             side_a_grid_and_bubbles.grid.metadata,
-            BallotPageMetadata::Front(_)
+            BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Front(_))
         ));
         assert!(matches!(
             side_b_grid_and_bubbles.grid.metadata,
-            BallotPageMetadata::Back(_)
+            BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Back(_))
         ));
         assert_eq!(side_a_grid_and_bubbles.bubbles.len(), 32);
         assert_eq!(side_b_grid_and_bubbles.bubbles.len(), 20);

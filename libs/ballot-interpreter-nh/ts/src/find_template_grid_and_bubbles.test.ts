@@ -1,4 +1,4 @@
-import { err, typedAs } from '@votingworks/basics';
+import { assert, err, typedAs } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
   sampleBallotImages,
@@ -19,6 +19,8 @@ test('find layout from template images', async () => {
   expect([front, back]).toEqual(
     typedAs<SheetOf<TimingMarkGrid>>([expect.any(Object), expect.any(Object)])
   );
+  assert(front.grid.metadata.source === 'timing-marks');
+  assert(back.grid.metadata.source === 'timing-marks');
   expect(front.grid.metadata.side).toEqual('front');
   expect(back.grid.metadata.side).toEqual('back');
   expect(front.bubbles).toBeDefined();

@@ -1,5 +1,5 @@
 import {
-  BallotPageMetadataFront,
+  BallotPageTimingMarkMetadataFront,
   findTemplateGridAndBubbles,
 } from '@votingworks/ballot-interpreter-nh';
 import {
@@ -58,6 +58,8 @@ export function convertElectionDefinition(
     let [frontGridAndBubbles, backGridAndBubbles] =
       findTemplateGridAndBubblesResult.ok();
 
+    assert(frontGridAndBubbles.grid.metadata.source === 'timing-marks');
+    assert(backGridAndBubbles.grid.metadata.source === 'timing-marks');
     if (
       frontGridAndBubbles.grid.metadata.side === 'back' &&
       backGridAndBubbles.grid.metadata.side === 'front'
@@ -66,6 +68,8 @@ export function convertElectionDefinition(
         backGridAndBubbles,
         frontGridAndBubbles,
       ];
+      assert(frontGridAndBubbles.grid.metadata.source === 'timing-marks');
+      assert(backGridAndBubbles.grid.metadata.source === 'timing-marks');
     }
 
     let { paperSize } = election.ballotLayout;
@@ -128,7 +132,7 @@ export function convertElectionDefinition(
     }
 
     const frontMetadata = frontGridAndBubbles.grid
-      .metadata as BallotPageMetadataFront;
+      .metadata as BallotPageTimingMarkMetadataFront;
     const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
     const frontTemplateBubbles = frontGridAndBubbles.bubbles;
