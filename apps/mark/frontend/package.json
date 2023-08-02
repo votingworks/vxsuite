@@ -48,9 +48,6 @@
       "last 1 safari version"
     ]
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "dependencies": {
     "@rooks/use-interval": "^4.5.0",
     "@tanstack/react-query": "^4.22.0",
@@ -107,7 +104,6 @@
     "style-loader": "1.3.0",
     "styled-components": "^5.2.3",
     "ts-pnp": "1.2.0",
-    "typescript": "4.6.3",
     "url-loader": "4.1.1",
     "use-interval": "^1.2.1"
   },
@@ -123,8 +119,6 @@
     "@types/react-gamepad": "^1.0.0",
     "@types/setimmediate": "^1.0.2",
     "@types/testing-library__jest-dom": "^5.14.3",
-    "@typescript-eslint/eslint-plugin": "5.37.0",
-    "@typescript-eslint/parser": "5.37.0",
     "@vitejs/plugin-react": "^1.3.2",
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/mark-backend": "workspace:*",
@@ -132,17 +126,6 @@
     "@votingworks/test-utils": "workspace:*",
     "chalk": "^4.1.2",
     "concurrently": "^7.3.0",
-    "eslint": "8.23.1",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-config-react-app": "^7.0.1",
-    "eslint-import-resolver-node": "^0.3.4",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "^27.2.3",
-    "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-react": "^7.31.8",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-testing-library": "^5.6.4",
     "eslint-plugin-vx": "workspace:*",
     "fetch-mock": "^9.5.0",
     "is-ci-cli": "^2.0.0",
