@@ -18,7 +18,7 @@ run-all:
 	(trap 'kill 0' SIGINT SIGHUP; make -C $(BACKEND) run & cd prodserver && node index.js)
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install --filter {.}... --filter {./prodserver}... && pnpm build
 
 bootstrap: install build
 

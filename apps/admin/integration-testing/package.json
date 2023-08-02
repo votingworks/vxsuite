@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "pnpm install && make build",
+    "build": "pnpm install --filter {.}... && make build",
     "cypress:open": "DISPLAY=:0 cypress open --e2e --browser chromium",
     "cypress:run": "is-ci cypress:run:ci cypress:run:local",
     "cypress:run:ci": "cypress run --browser chrome --reporter junit",

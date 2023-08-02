@@ -8,7 +8,7 @@ install:
 	sudo apt -y install libpcsclite1 libpcsclite-dev
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install --filter {.}... --filter {.}... --filter {.}... --filter {.}... --filter {.}... --filter {.}... --filter {.}... && pnpm build
 
 bootstrap: install build
 

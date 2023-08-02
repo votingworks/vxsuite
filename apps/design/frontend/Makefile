@@ -6,7 +6,7 @@ FORCE:
 install:
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install --filter {.}... --filter {./prodserver}... && pnpm build
 
 bootstrap: install build
 

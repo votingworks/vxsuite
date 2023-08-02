@@ -7,7 +7,7 @@ install:
 	sudo apt install -y fdisk dosfstools exfat-utils
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install --filter {.}... --filter {./prodserver}... && pnpm build
 
 bootstrap: install build
 

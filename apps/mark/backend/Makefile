@@ -2,7 +2,7 @@
 FORCE:
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install --filter {.}... && pnpm build
 
 bootstrap: build
 
