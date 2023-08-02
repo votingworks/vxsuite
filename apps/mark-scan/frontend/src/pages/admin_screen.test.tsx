@@ -107,7 +107,7 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('can switch the precinct', () => {
+test('can switch the precinct', async () => {
   const precinctSelection = singlePrecinctSelectionFor(
     election.precincts[0].id
   );
@@ -118,7 +118,7 @@ test('can switch the precinct', () => {
   apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
   renderScreen();
 
-  const precinctSelect = screen.getByLabelText('Precinct');
+  const precinctSelect = await screen.findByLabelText('Precinct');
   const allPrecinctsOption =
     within(precinctSelect).getByText<HTMLOptionElement>('All Precincts');
   fireEvent.change(precinctSelect, {
@@ -126,11 +126,11 @@ test('can switch the precinct', () => {
   });
 });
 
-test('precinct change disabled if polls closed', () => {
+test('precinct change disabled if polls closed', async () => {
   apiMock.expectGetPrecinctSelection();
   renderScreen({ pollsState: 'polls_closed_final' });
 
-  const precinctSelect = screen.getByLabelText('Precinct');
+  const precinctSelect = await screen.findByLabelText('Precinct');
   expect(precinctSelect).toBeDisabled();
 });
 
