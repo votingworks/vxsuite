@@ -138,7 +138,8 @@ ${[...jobs.values()]
     executor: nodejs
     resource_class: xlarge
     steps:
-      - checkout-and-install
+      - checkout-and-install:
+          path: libs/monorepo-utils
       - run:
           name: Build
           command: |
