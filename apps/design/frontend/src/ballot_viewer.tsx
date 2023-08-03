@@ -242,7 +242,7 @@ export function BallotViewer({
   const exportBallotMutation = exportBallot.useMutation();
   const [showGridLines, setShowGridLines] = useState(false);
 
-  const paperSize = election.ballotLayout?.paperSize ?? BallotPaperSize.Letter;
+  const { paperSize } = election.ballotLayout;
   const grid = gridForPaper(paperSize);
 
   const [dimensions, setDimensions] = useState<{

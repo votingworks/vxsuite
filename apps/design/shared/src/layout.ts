@@ -707,7 +707,7 @@ function CandidateContest({
   assert(contest.type === 'candidate');
 
   const bubblePosition =
-    election.ballotLayout?.targetMarkPosition ?? BallotTargetMarkPosition.Left;
+    election.ballotLayout.targetMarkPosition ?? BallotTargetMarkPosition.Left;
 
   // Temp hack until we can change the timing mark grid dimensions since they
   // don't evenly divide into three columns: expand the last contest column (if
@@ -981,7 +981,7 @@ function BallotMeasure({
 
   const optionPositions: GridPosition[] = [];
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
-  const bubblePosition = election.ballotLayout?.targetMarkPosition ?? 'left';
+  const bubblePosition = election.ballotLayout.targetMarkPosition ?? 'left';
 
   const choices = [
     { id: 'yes', label: 'Yes' },
@@ -1372,8 +1372,8 @@ function layOutBallotHelper(
   precinct: Precinct,
   ballotStyle: BallotStyle
 ) {
-  const paperSize = election.ballotLayout?.paperSize ?? BallotPaperSize.Letter;
-  const density = election.ballotLayout?.layoutDensity ?? 0;
+  const { paperSize } = election.ballotLayout;
+  const density = election.ballotLayout.layoutDensity ?? 0;
   assert(density <= 2);
   const m = measurements(paperSize, density);
 
@@ -1440,7 +1440,7 @@ function layOutBallotHelper(
             // within CandidateContest, we need to trigger the smallest width
             // option to get the largest possible height of the contest here,
             // regardless of which column it ends up in.
-            election.ballotLayout?.targetMarkPosition === 'left' ? 0 : 20,
+            election.ballotLayout.targetMarkPosition === 'left' ? 0 : 20,
           pageNumber: 0,
           m,
         });

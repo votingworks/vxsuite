@@ -626,7 +626,7 @@ export function HandMarkedPaperBallot({
                 <div>
                   <Text small left as="div">
                     {ballotStyle?.partyId && primaryPartyName
-                      ? `${ballotStyle?.partyId && primaryPartyName} ${title}`
+                      ? `${ballotStyle.partyId && primaryPartyName} ${title}`
                       : election.title}
                   </Text>
                 </div>
@@ -764,7 +764,7 @@ export function HandMarkedPaperBallot({
                       vote={votes?.[contest.id] as CandidateVote | undefined}
                       density={layoutDensity}
                       targetMarkPosition={
-                        election.ballotLayout?.targetMarkPosition
+                        election.ballotLayout.targetMarkPosition
                       }
                     />
                   </React.Fragment>
@@ -800,7 +800,7 @@ export function HandMarkedPaperBallot({
 
                       <Text bold>
                         <BubbleMark
-                          position={election.ballotLayout?.targetMarkPosition}
+                          position={election.ballotLayout.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'yes')}
                         >
                           <span>{contest.yesOption?.label || 'Yes'}</span>
@@ -808,7 +808,7 @@ export function HandMarkedPaperBallot({
                       </Text>
                       <Text bold>
                         <BubbleMark
-                          position={election.ballotLayout?.targetMarkPosition}
+                          position={election.ballotLayout.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'no')}
                         >
                           <span>{contest.noOption?.label || 'No'}</span>

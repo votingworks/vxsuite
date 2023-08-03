@@ -320,7 +320,7 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
         const election: Election = {
           ...electionSample,
           ballotLayout: {
-            ...assertDefined(electionSample.ballotLayout),
+            ...electionSample.ballotLayout,
             targetMarkPosition,
             paperSize,
           },
