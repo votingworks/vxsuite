@@ -9,6 +9,7 @@ import {
   Id,
   Precinct as VxPrecinct,
   safeParseElection,
+  BallotPaperSize,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, ok, Result } from '@votingworks/basics';
@@ -32,6 +33,9 @@ function createBlankElection(): Election {
     contests: [],
     parties: [],
     ballotStyles: [],
+    ballotLayout: {
+      paperSize: BallotPaperSize.Letter,
+    },
   };
 }
 
