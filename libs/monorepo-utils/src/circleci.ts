@@ -139,7 +139,7 @@ ${[...jobs.values()]
     resource_class: xlarge
     steps:
       - checkout-and-install:
-          path: libs/monorepo-utils
+          path: script
       - run:
           name: Build
           command: |
