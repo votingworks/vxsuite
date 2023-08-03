@@ -362,7 +362,7 @@ export function PollWorkerScreen({
                   </React.Fragment>
                 )}
                 <H6 as="h3">
-                  {precinctSelection?.kind === 'AllPrecincts' ? '2. ' : ''}
+                  {precinctSelection.kind === 'AllPrecincts' ? '2. ' : ''}
                   Select Voter’s Ballot Style
                 </H6>
                 {selectedCardlessVoterPrecinctId ? (
