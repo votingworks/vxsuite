@@ -539,7 +539,9 @@ test('getDisplayElectionHash', () => {
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(election)
   ).unsafeUnwrap();
-  expect(getDisplayElectionHash(electionDefinition)).toEqual('7dcbb8f101');
+  expect(getDisplayElectionHash(electionDefinition)).toMatchInlineSnapshot(
+    `"b470e13247"`
+  );
 });
 
 test('safeParseElection converts CDF to VXF', () => {

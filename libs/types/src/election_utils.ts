@@ -6,6 +6,7 @@ import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import {
   AdjudicationReason,
   AnyContest,
+  BallotPaperSize,
   BallotStyle,
   BallotStyleId,
   Candidate,
@@ -520,6 +521,13 @@ function preprocessElection(value: unknown): unknown {
         }),
       };
     }
+  }
+
+  if (!('ballotLayout' in election)) {
+    election = {
+      ...election,
+      ballotLayout: { paperSize: BallotPaperSize.Letter },
+    };
   }
 
   return election;

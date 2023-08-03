@@ -58,6 +58,7 @@ function normalizeVxf(vxfElection: Election) {
     parties,
     contests,
     ballotStyles,
+    ballotLayout,
   } = vxfElection;
   const dateWithoutTime = new Date(date.split('T')[0]);
   const isoDateString = `${dateWithoutTime.toISOString().split('.')[0]}Z`;
@@ -86,6 +87,7 @@ function normalizeVxf(vxfElection: Election) {
         : contest
     ),
     ballotStyles,
+    ballotLayout,
   };
 }
 

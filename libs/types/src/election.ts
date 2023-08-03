@@ -462,7 +462,7 @@ export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
 });
 
 export interface Election {
-  readonly ballotLayout?: BallotLayout;
+  readonly ballotLayout: BallotLayout;
   readonly ballotStyles: readonly BallotStyle[];
   readonly centralScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly contests: Contests;
@@ -482,7 +482,7 @@ export interface Election {
 }
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
-    ballotLayout: BallotLayoutSchema.optional(),
+    ballotLayout: BallotLayoutSchema,
     ballotStyles: BallotStylesSchema,
     centralScanAdjudicationReasons: z
       .array(z.lazy(() => AdjudicationReasonSchema))

@@ -406,6 +406,10 @@ export function convertCdfBallotDefinitionToVxfElection(
         partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
       };
     }),
+
+    ballotLayout: {
+      paperSize: Vxf.BallotPaperSize.Letter,
+    },
   };
 }
 
