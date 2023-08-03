@@ -40,7 +40,6 @@
     "@types/debug": "^4.1.7",
     "@types/jest": "^29.5.3",
     "@types/node": "16.18.23",
-    "@types/styled-components": "^5.1.9",
     "@types/tmp": "^0.2.3",
     "esbuild": "^0.17.11",
     "esbuild-runner": "^2.2.2",
