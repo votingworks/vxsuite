@@ -43,7 +43,7 @@ pub enum BallotPageQrCodeMetadataError {
 const ELECTION_HASH_LENGTH: u32 = 20;
 const HEX_BYTES_PER_CHAR: u32 = 2;
 const MAXIMUM_PAGE_NUMBERS: u32 = 30;
-const BALLOT_TYPE_MAXIMUM_VALUE: u32 = (2 as u32).pow(4) - 1;
+const BALLOT_TYPE_MAXIMUM_VALUE: u32 = 2_u32.pow(4) - 1;
 
 fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotPageQrCodeMetadata> {
     let mut bits = BigEndianReader::new(bytes);
@@ -72,19 +72,20 @@ fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotPageQ
         _ => return None,
     };
 
-    return Some(BallotPageQrCodeMetadata {
+    let precinct = election.precincts.get(precinct_index as usize)?;
+    let ballot_style = election.ballot_styles.get(ballot_style_index as usize)?;
+
+    Some(BallotPageQrCodeMetadata {
         election_hash,
-        precinct_id: election.precincts[precinct_index as usize].id.clone(),
-        ballot_style_id: election.ballot_styles[ballot_style_index as usize]
-            .id
-            .clone(),
+        precinct_id: precinct.id.clone(),
+        ballot_style_id: ballot_style.id.clone(),
         page_number,
         is_test_mode,
         ballot_type,
-    });
+    })
 }
 
-fn bit_size(n: u32) -> u32 {
+const fn bit_size(n: u32) -> u32 {
     if n == 0 {
         1
     } else {
@@ -100,7 +101,7 @@ pub fn detect_qr_code_metadata(
 ) -> Result<(BallotPageQrCodeMetadata, Orientation), BallotPageQrCodeMetadataError> {
     let mut prepared_img = PreparedImage::prepare(img.clone());
     let grids = prepared_img.detect_grids();
-    let qr_code = grids.iter().next();
+    let qr_code = grids.first();
 
     debug.write("qr_code", |canvas| {
         debug::draw_qr_code_debug_image_mut(
@@ -134,7 +135,7 @@ pub fn detect_qr_code_metadata(
         Orientation::PortraitReversed
     };
 
-    return Ok((metadata, orientation));
+    Ok((metadata, orientation))
 }
 
 #[cfg(test)]

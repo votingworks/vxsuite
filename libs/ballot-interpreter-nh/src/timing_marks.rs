@@ -245,11 +245,11 @@ pub fn find_timing_mark_grid(
     // If we detected a QR code, we can use that to determine the orientation.
     let orientation = if let Some((_, orientation)) = detected_qr_code {
         orientation
-    } else
+    }
     // Otherwise, for Accuvote-style ballots, assume that we will find most of
     // the timing marks and that there will be more missing on the bottom than
     // the top. If that's not the case, then we'll need to rotate the image.
-    if partial_timing_marks.top_rects.len() >= partial_timing_marks.bottom_rects.len() {
+    else if partial_timing_marks.top_rects.len() >= partial_timing_marks.bottom_rects.len() {
         Orientation::Portrait
     } else {
         Orientation::PortraitReversed
