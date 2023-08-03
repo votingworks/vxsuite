@@ -365,6 +365,7 @@ export function arbitraryParty({
 export function arbitraryBallotLayout(): fc.Arbitrary<BallotLayout> {
   return fc.record({
     paperSize: fc.constantFrom(...Object.values(BallotPaperSize)),
+    metadataEncoding: fc.constantFrom('qr-code', 'timing-marks'),
   });
 }
 

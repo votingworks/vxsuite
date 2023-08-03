@@ -83,6 +83,7 @@ function createElection(): Election {
   return {
     ballotLayout: {
       paperSize: BallotPaperSize.Letter,
+      metadataEncoding: 'qr-code',
     },
     ballotStyles: [
       {

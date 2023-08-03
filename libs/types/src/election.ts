@@ -360,11 +360,13 @@ export interface BallotLayout {
   paperSize: BallotPaperSize;
   layoutDensity?: number;
   targetMarkPosition?: BallotTargetMarkPosition;
+  metadataEncoding: 'qr-code' | 'timing-marks';
 }
 export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
   paperSize: BallotPaperSizeSchema,
   layoutDensity: z.number().min(0).max(2).optional(),
   targetMarkPosition: BallotTargetMarkPositionSchema.optional(),
+  metadataEncoding: z.enum(['qr-code', 'timing-marks']),
 });
 
 // Hand-marked paper & adjudication

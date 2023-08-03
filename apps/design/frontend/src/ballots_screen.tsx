@@ -28,12 +28,6 @@ import { paperSizeLabels } from './ballot_viewer';
 import { RadioGroup } from './radio';
 import { TabBar, TabPanel } from './tabs';
 
-const defaultBallotLayout: Required<BallotLayout> = {
-  targetMarkPosition: BallotTargetMarkPosition.Left,
-  paperSize: BallotPaperSize.Letter,
-  layoutDensity: 0,
-};
-
 function BallotDesignForm({
   electionId,
   savedElection,
@@ -43,7 +37,8 @@ function BallotDesignForm({
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState<Required<BallotLayout>>({
-    ...defaultBallotLayout,
+    targetMarkPosition: BallotTargetMarkPosition.Left,
+    layoutDensity: 0,
     ...savedElection.ballotLayout,
   });
   const updateElectionMutation = updateElection.useMutation();

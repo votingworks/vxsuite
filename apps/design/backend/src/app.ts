@@ -36,6 +36,7 @@ function createBlankElection(): Election {
     ballotStyles: [],
     ballotLayout: {
       paperSize: BallotPaperSize.Letter,
+      metadataEncoding: 'qr-code',
     },
   };
 }
