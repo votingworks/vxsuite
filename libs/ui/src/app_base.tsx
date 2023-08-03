@@ -1,11 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
-import { ThemeProvider } from 'styled-components';
+import React, { useCallback } from 'react';
 
 import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
 
 import { GlobalStyles } from './global_styles';
-import { makeTheme } from './themes/make_theme';
 import { ThemeManagerContext } from './theme_manager_context';
+import { VxThemeProvider } from './themes/vx_theme_provider';
 
 declare module 'styled-components' {
   /**
@@ -56,11 +55,6 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     setSizeMode(defaultSizeMode);
   }, [defaultColorMode, defaultSizeMode]);
 
-  const theme = useMemo(
-    () => makeTheme({ colorMode, screenType, sizeMode }),
-    [colorMode, screenType, sizeMode]
-  );
-
   return (
     <ThemeManagerContext.Provider
       value={{
@@ -69,7 +63,11 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         setSizeMode,
       }}
     >
-      <ThemeProvider theme={theme}>
+      <VxThemeProvider
+        colorMode={colorMode}
+        screenType={screenType}
+        sizeMode={sizeMode}
+      >
         <GlobalStyles
           enableScroll={enableScroll}
           isTouchscreen={isTouchscreen}
@@ -77,7 +75,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
           legacyPrintFontSizePx={legacyPrintFontSizePx}
         />
         {children}
-      </ThemeProvider>
+      </VxThemeProvider>
     </ThemeManagerContext.Provider>
   );
 }

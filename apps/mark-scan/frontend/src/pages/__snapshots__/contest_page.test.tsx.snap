@@ -942,6 +942,45 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   white-space: nowrap;
 }
 
+.c18 {
+  fill: currentColor;
+  height: 1em;
+  width: 1em;
+}
+
+.c12 {
+  display: inline-block;
+  border: none;
+  border-radius: 0.25em;
+  box-sizing: border-box;
+  background: #d3d3d3;
+  padding: 0.75em 1em;
+  text-align: center;
+  line-height: 1.25;
+  color: #000000;
+  touch-action: manipulation;
+}
+
+.c12:hover,
+.c12:active {
+  outline: none;
+}
+
+.c27 {
+  display: none;
+}
+
+.c14 {
+  display: inline-block;
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  -webkit-flex-shrink: 1;
+  -ms-flex-negative: 1;
+  flex-shrink: 1;
+}
+
 .c25 {
   max-width: 66ch;
   line-height: 1.2;
@@ -1110,45 +1149,6 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 .c34 hr {
   border: 0;
   border-top: 0.1em solid #666;
-}
-
-.c18 {
-  fill: currentColor;
-  height: 1em;
-  width: 1em;
-}
-
-.c12 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #d3d3d3;
-  padding: 0.75em 1em;
-  text-align: center;
-  line-height: 1.25;
-  color: #000000;
-  touch-action: manipulation;
-}
-
-.c12:hover,
-.c12:active {
-  outline: none;
-}
-
-.c27 {
-  display: none;
-}
-
-.c14 {
-  display: inline-block;
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-  -ms-flex-positive: 1;
-  flex-grow: 1;
-  -webkit-flex-shrink: 1;
-  -ms-flex-negative: 1;
-  flex-shrink: 1;
 }
 
 .c17 {

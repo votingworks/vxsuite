@@ -1,202 +1,107 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests 1`] = `
-.c11 {
-  word-break: break-word;
-}
-
-.c12 {
-  font-weight: 600;
-}
-
-.c13 {
-  color: gray;
-  font-style: italic;
-}
-
-.c14 {
-  font-weight: 600;
-  word-break: break-word;
-}
-
-.c5 {
+.c7 {
   white-space: nowrap;
 }
 
-.c2 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c2 p {
-  font-size: 1em;
-}
-
-.c2 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c2 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c2 h3 {
-  font-size: 1.17em;
-}
-
-.c2 h4 {
-  font-size: 1em;
-}
-
-.c2 h5 {
-  font-size: 0.9em;
-}
-
-.c2 h3,
-.c2 h4,
-.c2 h5,
-.c2 p,
-.c2 ol,
-.c2 ul,
-.c2 hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h1 + ol,
-.c2 h2 + ol,
-.c2 h1 + ul,
-.c2 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c2 h3 + p,
-.c2 h4 + p,
-.c2 h5 + p,
-.c2 h3 + ol,
-.c2 h4 + ol,
-.c2 h5 + ol,
-.c2 h3 + ul,
-.c2 h4 + ul,
-.c2 h5 + ul {
-  margin-top: -1em;
-}
-
-.c2 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c2 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c2 dl {
-  margin: 1em 0;
-}
-
-.c2 hr {
-  border: 0;
-  border-top: 0.1em solid #666;
-}
-
-.c9 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c9 p {
-  font-size: 1em;
-}
-
-.c9 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c9 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c9 h3 {
-  font-size: 1.17em;
-}
-
-.c9 h4 {
-  font-size: 1em;
-}
-
-.c9 h5 {
-  font-size: 0.9em;
-}
-
-.c9 h3,
-.c9 h4,
-.c9 h5,
-.c9 p,
-.c9 ol,
-.c9 ul,
-.c9 hr {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.c9 h1 + p,
-.c9 h2 + p,
-.c9 h1 + ol,
-.c9 h2 + ol,
-.c9 h1 + ul,
-.c9 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c9 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c9 h3 + p,
-.c9 h4 + p,
-.c9 h5 + p,
-.c9 h3 + ol,
-.c9 h4 + ol,
-.c9 h5 + ol,
-.c9 h3 + ul,
-.c9 h4 + ul,
-.c9 h5 + ul {
-  margin-top: 0;
-}
-
-.c9 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c9 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c9 dl {
-  margin: 1em 0;
-}
-
-.c9 hr {
-  border: 0;
-  border-top: 0.1em solid #666;
-}
-
-.c4 > svg {
+.c6 > svg {
   display: block;
   width: 100%;
   height: auto;
+}
+
+.c14 {
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.c15 {
+  font-size: 1em;
+  font-weight: 200;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.c4 {
+  font-size: 1em;
+  line-height: 1.3;
+  margin: 0;
+  font-size: 1rem;
+  margin-bottom: 0.5em;
+}
+
+.c2 {
+  font-size: 1em;
+  line-height: 1.3;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.1700000000000002;
+  margin-bottom: 0.3em;
+  font-size: 1.25rem;
+}
+
+.c2:not(:first-child) {
+  margin-top: 1.25em;
+}
+
+.c2 + h1,
+.c2 + h2,
+.c2 + h3,
+.c2 + h4,
+.c2 + h5,
+.c2 + h6 {
+  margin-top: 0 !important;
+}
+
+.c3 {
+  font-size: 1em;
+  line-height: 1.3;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.1700000000000002;
+  margin-bottom: 0.3em;
+  font-size: 1.125rem;
+}
+
+.c3:not(:first-child) {
+  margin-top: 1.25em;
+}
+
+.c3 + h1,
+.c3 + h2,
+.c3 + h3,
+.c3 + h4,
+.c3 + h5,
+.c3 + h6 {
+  margin-top: 0 !important;
+}
+
+.c11 {
+  font-size: 1em;
+  line-height: 1.3;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.1700000000000002;
+  margin-bottom: 0.3em;
+  font-size: 1rem;
+  line-height: 1.105;
+  font-weight: 600;
+}
+
+.c11:not(:first-child) {
+  margin-top: 1.25em;
+}
+
+.c11 + h1,
+.c11 + h2,
+.c11 + h3,
+.c11 + h4,
+.c11 + h5,
+.c11 + h6 {
+  margin-top: 0 !important;
 }
 
 .c0 {
@@ -243,7 +148,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   max-width: 100%;
 }
 
-.c3 {
+.c5 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -263,12 +168,12 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   padding: 0.25em;
 }
 
-.c3 > div:first-child {
+.c5 > div:first-child {
   margin-right: 0.25em;
   width: 1.1in;
 }
 
-.c3 > div:last-child {
+.c5 > div:last-child {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -278,7 +183,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   flex: 1;
 }
 
-.c3 > div:last-child > div {
+.c5 > div:last-child > div {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -295,33 +200,33 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   font-size: 0.8em;
 }
 
-.c3 > div:last-child > div > div {
+.c5 > div:last-child > div > div {
   margin-bottom: 0.9375em;
 }
 
-.c3 > div:last-child > div > div:last-child {
+.c5 > div:last-child > div > div:last-child {
   margin-bottom: 0;
 }
 
-.c3 > div:last-child > div strong {
+.c5 > div:last-child > div strong {
   font-size: 1.25em;
   word-break: break-word;
 }
 
-.c6 {
+.c8 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c7 {
+.c9 {
   -webkit-columns: 2;
   columns: 2;
   -webkit-column-gap: 2em;
   column-gap: 2em;
 }
 
-.c8 {
+.c10 {
   border-bottom: 0.01em solid #000;
   padding: 0.5em 0;
   -webkit-break-inside: avoid;
@@ -329,9 +234,16 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   page-break-inside: avoid;
 }
 
-.c10 > h3 {
-  font-size: 0.875em;
-  font-weight: 400;
+.c12 {
+  font-weight: normal;
+}
+
+.c13 {
+  display: block;
+}
+
+.c13:not(:last-child) {
+  margin-bottom: 0.125em;
 }
 
 @media print {
@@ -340,24 +252,6 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
 
 @media print {
 
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-  .c13 {
-    color: black;
-  }
 }
 
 @media print {
@@ -547,17 +441,23 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         </svg>
       </div>
       <div
-        class="c2 ballot-header-content"
+        class="ballot-header-content"
       >
-        <h2>
+        <h4
+          class="c2"
+        >
           Unofficial TEST Ballot
-        </h2>
-        <h3>
+        </h4>
+        <h5
+          class="c3"
+        >
           
            
           General Election
-        </h3>
-        <p>
+        </h5>
+        <p
+          class="c4"
+        >
           November 3, 2020
           <br />
           Franklin County
@@ -566,10 +466,10 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         </p>
       </div>
       <div
-        class="c3"
+        class="c5"
       >
         <div
-          class="c4"
+          class="c6"
         >
           <svg
             height="128"
@@ -611,7 +511,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
                 Ballot ID
               </div>
               <strong
-                class="c5"
+                class="c7"
               >
                 CHhgYxfN5GeqnK8KaVOt1w
               </strong>
@@ -621,197 +521,233 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
       </div>
     </div>
     <div
-      class="c6"
+      class="c8"
     >
       <div
-        class="c7"
+        class="c9"
       >
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               President and Vice-President
-            </h3>
-            <p
-              class="c11"
+            </h6>
+            <span
+              class="c13"
             >
               <span
-                class="c12"
+                class="c14"
               >
                 Joseph Barchi and Joseph Hallaren
               </span>
                
               / Federalist
-            </p>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Representative, District 6
-            </h3>
-            <p
+            </h6>
+            <span
               class="c13"
             >
-              [no selection]
-            </p>
+              <span
+                class="c15"
+              >
+                [no selection]
+              </span>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Lieutenant Governor
-            </h3>
-            <p
-              class="c11"
+            </h6>
+            <span
+              class="c13"
             >
               <span
-                class="c12"
+                class="c14"
               >
                 Chris Norberg
               </span>
                
               / Federalist
-            </p>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Senator, District 31
-            </h3>
-            <p
+            </h6>
+            <span
               class="c13"
             >
-              [no selection]
-            </p>
+              <span
+                class="c15"
+              >
+                [no selection]
+              </span>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Assembly Member, District 54
-            </h3>
-            <p
+            </h6>
+            <span
               class="c13"
             >
-              [no selection]
-            </p>
+              <span
+                class="c15"
+              >
+                [no selection]
+              </span>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Registrar of Wills
-            </h3>
-            <p
+            </h6>
+            <span
               class="c13"
             >
-              [no selection]
-            </p>
+              <span
+                class="c15"
+              >
+                [no selection]
+              </span>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Retain Robert Demergue as Chief Justice?
-            </h3>
-            <p
+            </h6>
+            <span
               class="c13"
             >
-              [no selection]
-            </p>
+              <span
+                class="c15"
+              >
+                [no selection]
+              </span>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Question A: Recovery of Property Damages
-            </h3>
-            <p
-              class="c14"
+            </h6>
+            <span
+              class="c13"
             >
-              Yes
-            </p>
+              <span
+                class="c14"
+              >
+                Yes
+              </span>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Question B: Separation of Powers
-            </h3>
-            <p
-              class="c14"
+            </h6>
+            <span
+              class="c13"
             >
-              No
-            </p>
+              <span
+                class="c14"
+              >
+                No
+              </span>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Proposition 1: Gambling in Franklin and Fromwit Counties
-            </h3>
-            <p
+            </h6>
+            <span
               class="c13"
             >
-              [no selection]
-            </p>
+              <span
+                class="c15"
+              >
+                [no selection]
+              </span>
+            </span>
           </div>
         </div>
         <div
-          class="c8"
+          class="c10"
         >
-          <div
-            class="c9 c10"
-          >
-            <h3>
+          <div>
+            <h6
+              class="c11 c12"
+            >
               Measure 102: Vehicle Abatement Program
-            </h3>
-            <p
+            </h6>
+            <span
               class="c13"
             >
-              [no selection]
-            </p>
+              <span
+                class="c15"
+              >
+                [no selection]
+              </span>
+            </span>
           </div>
         </div>
       </div>
