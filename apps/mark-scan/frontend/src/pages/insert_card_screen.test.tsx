@@ -1,6 +1,5 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { err } from '@votingworks/basics';
 import { screen } from '../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { render } from '../../test/test_utils';
@@ -20,10 +19,10 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('returns null if getPrecinctSelectionQuery is not successful', () => {
+test('InsertCardScreen renders nothing if getPrecinctSelectionQuery is not successful', () => {
   apiMock.mockApiClient.getPrecinctSelection
     .expectCallWith()
-    .resolves(err(new Error('not ok')));
+    .throws('test error');
 
   render(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
@@ -39,4 +38,23 @@ test('returns null if getPrecinctSelectionQuery is not successful', () => {
     </ApiClientContext.Provider>
   );
   expect(screen.queryByText('Election ID')).toBeNull();
+});
+
+test('InsertCardScreen renders correctly if getPrecinctSelectionQuery returns null', async () => {
+  apiMock.mockApiClient.getPrecinctSelection.expectCallWith().resolves(null);
+
+  render(
+    <ApiClientContext.Provider value={apiMock.mockApiClient}>
+      <QueryClientProvider client={createQueryClient()}>
+        <InsertCardScreen
+          electionDefinition={electionDefinition}
+          showNoChargerAttachedWarning={false}
+          isLiveMode={false}
+          pollsState="polls_closed_initial"
+          showNoAccessibleControllerWarning={false}
+        />
+      </QueryClientProvider>
+    </ApiClientContext.Provider>
+  );
+  expect(await screen.findByText('Election ID')).toBeDefined();
 });

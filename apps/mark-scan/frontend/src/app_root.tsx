@@ -577,7 +577,7 @@ export function AppRoot({
     return null;
   }
   const machineConfig = machineConfigQuery.data;
-  const precinctSelection = getPrecinctSelectionQuery.data.ok();
+  const precinctSelection = getPrecinctSelectionQuery.data;
 
   if (!cardReader) {
     return <SetupCardReaderPage />;

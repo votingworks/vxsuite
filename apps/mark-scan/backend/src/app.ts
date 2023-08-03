@@ -4,7 +4,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert, ok, Optional, Result } from '@votingworks/basics';
+import { assert, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
 import {
@@ -114,8 +114,8 @@ function buildApi(
       workspace.store.setPrecinctSelection(input.precinctSelection);
     },
 
-    getPrecinctSelection(): Result<Optional<PrecinctSelection>, Error> {
-      return ok(workspace.store.getPrecinctSelection());
+    getPrecinctSelection(): PrecinctSelection | null {
+      return workspace.store.getPrecinctSelection() || null;
     },
 
     unconfigureMachine() {

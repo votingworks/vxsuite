@@ -155,7 +155,7 @@ export interface PollworkerScreenProps {
   screenReader: ScreenReader;
   updatePollsState: (pollsState: PollsState) => void;
   reload: () => void;
-  precinctSelection?: PrecinctSelection;
+  precinctSelection: PrecinctSelection;
 }
 
 export function PollWorkerScreen({
@@ -185,7 +185,7 @@ export function PollWorkerScreen({
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
-      precinctSelection?.kind === 'SinglePrecinct'
+      precinctSelection.kind === 'SinglePrecinct'
         ? precinctSelection.precinctId
         : undefined
     );
@@ -337,7 +337,7 @@ export function PollWorkerScreen({
             <React.Fragment>
               <VotingSession>
                 <H4 as="h2">Start a New Voting Session</H4>
-                {precinctSelection?.kind === 'AllPrecincts' && (
+                {precinctSelection.kind === 'AllPrecincts' && (
                   <React.Fragment>
                     <H6 as="h3">1. Select Voter’s Precinct</H6>
                     <ButtonList data-testid="precincts">

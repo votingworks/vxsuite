@@ -28,6 +28,7 @@ import {
 import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
+import { Optional } from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
 import { getPrecinctSelection, logOut, setPrecinctSelection } from '../api';
 
@@ -76,7 +77,9 @@ export function AdminScreen({
   if (!getPrecinctSelectionQuery.isSuccess) {
     return null;
   }
-  const precinctSelection = getPrecinctSelectionQuery.data.ok();
+
+  const precinctSelection: Optional<PrecinctSelection> =
+    getPrecinctSelectionQuery.data || undefined;
 
   return (
     <Screen>
