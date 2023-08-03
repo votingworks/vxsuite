@@ -114,7 +114,7 @@ test('precinct selection can be written/read to/from store', async () => {
   await setUpUsbAndConfigureElection(electionDefinition);
 
   let precinctSelectionFromStore = await apiClient.getPrecinctSelection();
-  expect(precinctSelectionFromStore).toEqual(undefined);
+  expect(precinctSelectionFromStore).toBeNull();
 
   const precinct = electionDefinition.election.precincts[0].id;
   const precinctSelection = singlePrecinctSelectionFor(precinct);
@@ -169,7 +169,7 @@ test('configureBallotPackageFromUsb does not automatically write precinct select
   await setUpUsbAndConfigureElection(electionDefinition);
 
   const precinctSelection = await apiClient.getPrecinctSelection();
-  expect(precinctSelection).toBeUndefined();
+  expect(precinctSelection).toBeNull();
 });
 
 test('unconfigureMachine deletes system settings and election definition', async () => {
