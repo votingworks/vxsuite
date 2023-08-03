@@ -171,7 +171,8 @@ export function encodeBallotConfigInto(
  */
 export function decodeBallotConfigFromReader(
   election: Election,
-  bits: BitReader
+  bits: BitReader,
+  { readPageNumber = false }: { readPageNumber?: boolean } = {}
 ): BallotConfig {
   const { precincts, ballotStyles, contests } = election;
   const precinctCount = bits.readUint8();
@@ -199,6 +200,9 @@ export function decodeBallotConfigFromReader(
     );
   }
 
+  const pageNumber = readPageNumber
+    ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
+    : undefined;
   const isTestMode = bits.readBoolean();
   const ballotType = bits.readUint({ max: BallotTypeMaximumValue });
   const ballotId = bits.readBoolean()
@@ -214,9 +218,10 @@ export function decodeBallotConfigFromReader(
   return {
     ballotId,
     ballotStyleId: ballotStyle.id,
-    ballotType,
-    isTestMode,
     precinctId: precinct.id,
+    pageNumber,
+    isTestMode,
+    ballotType,
   };
 }
 
