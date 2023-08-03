@@ -157,6 +157,10 @@
       "path": "libs/message-coder"
     },
     {
+      "name": "libs/monorepo-utils",
+      "path": "libs/monorepo-utils"
+    },
+    {
       "name": "libs/custom-scanner",
       "path": "libs/custom-scanner"
     },
