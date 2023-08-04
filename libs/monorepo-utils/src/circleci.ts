@@ -95,7 +95,7 @@ export function generateConfig(pkgs: ReadonlyMap<string, PackageInfo>): string {
 version: 2.1
 
 orbs:
-  browser-tools: circleci/browser-tools@1.4.1
+  browser-tools: circleci/browser-tools@1.4.3
 
 executors:
   nodejs-browsers:
