@@ -61,7 +61,6 @@
     "react-idle-timer": "^5.7.2",
     "react-modal": "^3.16.1",
     "react-router-dom": "^5.3.4",
-    "styled-components": "^5.2.3",
     "use-interval": "^1.4.0",
     "zod": "3.14.4"
   },
@@ -87,7 +86,7 @@
     "@types/react-dom": "^18.0.6",
     "@types/react-modal": "^3.13.1",
     "@types/react-router-dom": "^5.3.3",
-    "@types/styled-components": "^5.1.9",
+    "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.3",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
@@ -114,12 +113,14 @@
     "react": "17.0.1",
     "sort-package-json": "^1.50.0",
     "stream-browserify": "^3.0.0",
+    "styled-components": "^5.3.11",
     "ts-jest": "^29.1.1",
     "util": "^0.12.4",
     "vite": "^4.0.4"
   },
   "peerDependencies": {
-    "react": "17.0.1"
+    "react": "17.0.1",
+    "styled-components": "^5.3.11"
   },
   "packageManager": "pnpm@8.1.0"
 }

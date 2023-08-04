@@ -37,8 +37,7 @@
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
-    "styled-components": "^5.2.3"
+    "@votingworks/utils": "workspace:*"
   },
   "devDependencies": {
     "@tanstack/react-query": "^4.32.1",
@@ -50,7 +49,7 @@
     "@types/kiosk-browser": "workspace:*",
     "@types/node": "16.18.23",
     "@types/react": "17.0.39",
-    "@types/styled-components": "^5.1.9",
+    "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.3",
     "@votingworks/auth": "workspace:*",
     "@votingworks/grout-test-utils": "workspace:*",
@@ -65,12 +64,14 @@
     "lint-staged": "^11.0.0",
     "react": "17.0.1",
     "sort-package-json": "^1.50.0",
+    "styled-components": "^5.3.11",
     "ts-jest": "^29.1.1"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^4.22.0",
     "@tanstack/react-query-devtools": "^4.3.9",
-    "react": "^17.0.1"
+    "react": "^17.0.1",
+    "styled-components": "^5.3.11"
   },
   "packageManager": "pnpm@8.1.0"
 }
