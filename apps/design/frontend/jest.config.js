@@ -16,4 +16,5 @@ module.exports = {
   },
   setupFiles: ['react-app-polyfill/jsdom'],
   testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
 };
