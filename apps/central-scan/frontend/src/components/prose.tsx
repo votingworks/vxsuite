@@ -12,7 +12,7 @@ export const Prose = styled('div')<Props>`
   text-align: ${({ textCenter }) => (textCenter ? 'center' : undefined)};
   line-height: 1.2;
 
-  @media (width >= 480px) {
+  @media (min-width: 480px) {
     line-height: 1.3;
   }
 
