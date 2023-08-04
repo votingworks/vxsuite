@@ -36,7 +36,7 @@ exports[`Modal can configure a wider max width 1`] = `
   padding: 0.5rem 0.75rem;
 }
 
-@media (width >= 480px) {
+@media (min-width:480px) {
   .c0 {
     position: static;
     border-radius: 0.5rem;
@@ -51,7 +51,7 @@ exports[`Modal can configure a wider max width 1`] = `
   }
 }
 
-@media (width >= 480px) {
+@media (min-width:480px) {
 
 }
 
@@ -122,7 +122,7 @@ exports[`Modal can configure fullscreen 1`] = `
   overflow: auto;
 }
 
-@media (width >= 480px) {
+@media (min-width:480px) {
   .c0 {
     position: static;
     border-radius: 0;
@@ -137,7 +137,7 @@ exports[`Modal can configure fullscreen 1`] = `
   }
 }
 
-@media (width >= 480px) {
+@media (min-width:480px) {
 
 }
 

@@ -3,11 +3,11 @@ import styled from 'styled-components';
 export const ButtonList = styled.p`
   column-gap: 1rem;
 
-  @media (width >= 1024px) {
+  @media (min-width: 1024px) {
     columns: 2;
   }
 
-  @media (width >= 1440px) {
+  @media (min-width: 1440px) {
     columns: 3;
   }
 

@@ -493,7 +493,7 @@ exports[`Single Seat Contest 1`] = `
 
 }
 
-@media (width >= 480px) {
+@media (min-width:480px) {
 
 }
 
@@ -507,7 +507,7 @@ exports[`Single Seat Contest 1`] = `
   }
 }
 
-@media (width >= 480px) {
+@media (min-width:480px) {
 
 }
 
@@ -515,7 +515,7 @@ exports[`Single Seat Contest 1`] = `
 
 }
 
-@media (width >= 480px) {
+@media (min-width:480px) {
 
 }
 

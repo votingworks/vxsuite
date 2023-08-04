@@ -24,7 +24,7 @@ export const ButtonBar = styled('nav')<Props>`
     flex: 1;
     margin: 0.25rem;
 
-    @media (width >= 480px) {
+    @media (min-width: 480px) {
       flex: ${({ separatePrimaryButton }) =>
         separatePrimaryButton ? '0' : undefined};
     }
@@ -33,7 +33,7 @@ export const ButtonBar = styled('nav')<Props>`
   & > *:first-child {
     order: ${({ naturalOrder = false }) => (naturalOrder ? undefined : '2')};
 
-    @media (width >= 480px) {
+    @media (min-width: 480px) {
       margin-right: ${({ naturalOrder = false, separatePrimaryButton }) =>
         separatePrimaryButton && naturalOrder ? 'auto' : undefined};
       margin-left: ${({ naturalOrder = false, separatePrimaryButton }) =>
@@ -42,7 +42,7 @@ export const ButtonBar = styled('nav')<Props>`
   }
 
   & > *:only-child {
-    @media (width >= 480px) {
+    @media (min-width: 480px) {
       flex: ${({ centerOnlyChild = true }) => (centerOnlyChild ? 0 : 1)};
       margin: ${({ centerOnlyChild = true }) =>
         centerOnlyChild ? 'auto' : undefined};

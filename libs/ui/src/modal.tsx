@@ -39,7 +39,7 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   font-size: ${({ themeDeprecated }) => themeDeprecated?.fontSize};
   -webkit-overflow-scrolling: touch;
 
-  @media (width >= 480px) {
+  @media (min-width: 480px) {
     position: static;
     border-radius: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
     max-width: ${({ fullscreen, modalWidth = ModalWidth.Standard }) =>
@@ -62,7 +62,7 @@ const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
   z-index: 999; /* Should be above all default UI */
   background: ${(p) => rgba(p.theme.colors.foreground, 0.9)};
 
-  @media (width >= 480px) {
+  @media (min-width: 480px) {
     padding: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
   }
 
