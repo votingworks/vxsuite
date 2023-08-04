@@ -321,7 +321,7 @@ function convertNextInterpretedBallotPage(
     options.markThresholds ?? electionDefinition.election.markThresholds;
   assert(markThresholds, 'markThresholds must be defined');
 
-  const sideMetadata = interpretedBallotCard[side].grid.metadata;
+  const sideMetadata = interpretedBallotCard[side].metadata;
   const metadata =
     sideMetadata.source === 'qr-code'
       ? sideMetadata
@@ -330,7 +330,7 @@ function convertNextInterpretedBallotPage(
           options,
           // For timing mark metadata, always use the front, since it contains
           // the info we need
-          interpretedBallotCard.front.grid
+          interpretedBallotCard.front
             .metadata as BallotPageTimingMarkMetadataFront,
           side
         );

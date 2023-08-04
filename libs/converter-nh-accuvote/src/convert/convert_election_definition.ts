@@ -58,18 +58,14 @@ export function convertElectionDefinition(
     let [frontGridAndBubbles, backGridAndBubbles] =
       findTemplateGridAndBubblesResult.ok();
 
-    assert(frontGridAndBubbles.grid.metadata.source === 'timing-marks');
-    assert(backGridAndBubbles.grid.metadata.source === 'timing-marks');
     if (
-      frontGridAndBubbles.grid.metadata.side === 'back' &&
-      backGridAndBubbles.grid.metadata.side === 'front'
+      frontGridAndBubbles.metadata.side === 'back' &&
+      backGridAndBubbles.metadata.side === 'front'
     ) {
       [frontGridAndBubbles, backGridAndBubbles] = [
         backGridAndBubbles,
         frontGridAndBubbles,
       ];
-      assert(frontGridAndBubbles.grid.metadata.source === 'timing-marks');
-      assert(backGridAndBubbles.grid.metadata.source === 'timing-marks');
     }
 
     let { paperSize } = election.ballotLayout;
@@ -102,24 +98,24 @@ export function convertElectionDefinition(
       paperSize = frontExpectedPaperSize;
     }
 
-    if (frontGridAndBubbles.grid.metadata.side !== 'front') {
+    if (frontGridAndBubbles.metadata.side !== 'front') {
       success = false;
       issues.push({
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.grid.metadata.side}`,
+        message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.metadata.side}`,
         side: 'front',
-        timingMarkBits: frontGridAndBubbles.grid.metadata.bits,
+        timingMarkBits: frontGridAndBubbles.metadata.bits,
         timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
       });
     }
 
-    if (backGridAndBubbles.grid.metadata.side !== 'back') {
+    if (backGridAndBubbles.metadata.side !== 'back') {
       success = false;
       issues.push({
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.grid.metadata.side}`,
+        message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.metadata.side}`,
         side: 'back',
-        timingMarkBits: backGridAndBubbles.grid.metadata.bits,
+        timingMarkBits: backGridAndBubbles.metadata.bits,
         timingMarks: backGridAndBubbles.grid.partialTimingMarks,
       });
     }
@@ -131,8 +127,8 @@ export function convertElectionDefinition(
       });
     }
 
-    const frontMetadata = frontGridAndBubbles.grid
-      .metadata as BallotPageTimingMarkMetadataFront;
+    const frontMetadata =
+      frontGridAndBubbles.metadata as BallotPageTimingMarkMetadataFront;
     const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
     const frontTemplateBubbles = frontGridAndBubbles.bubbles;

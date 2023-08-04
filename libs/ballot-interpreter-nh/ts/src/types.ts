@@ -98,6 +98,7 @@ export interface InterpretedBallotCard {
 /** A successfully imported ballot page. */
 export interface InterpretedBallotPage {
   grid: TimingMarkGrid;
+  metadata: BallotPageMetadata;
   marks: ScoredBubbleMarks;
   writeIns: ScoredPositionArea[];
   normalizedImage: ImageData;
@@ -142,18 +143,6 @@ export interface TimingMarkGrid {
   /** The geometry of the ballot card. */
   geometry: Geometry;
 
-  /** The orientation of the ballot card. */
-  orientation: Orientation;
-
-  /**
-   * Inset to crop to exclude the border. The units are in pixels, and the
-   * inset is applied after the image is rotated but before it is scaled.
-   */
-  borderInset: Inset;
-
-  /** The size of the image after scaling. */
-  scaledSize: Size<PixelUnit>;
-
   /** Timing marks found by examining the image. */
   partialTimingMarks: PartialTimingMarks;
 
@@ -162,9 +151,6 @@ export interface TimingMarkGrid {
 
   /** Areas of the ballot card that contain shapes that may be timing marks. */
   candidateTimingMarks: Rect[];
-
-  /** Metadata from the ballot card. */
-  metadata: BallotPageMetadata;
 }
 
 /** Metadata from the ballot card. */

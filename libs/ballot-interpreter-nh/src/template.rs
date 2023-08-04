@@ -5,7 +5,9 @@ use crate::ballot_card::{load_ballot_template_bubble_image, PaperInfo};
 use crate::debug::ImageDebugWriter;
 use crate::geometry::{GridUnit, Point};
 use crate::interpret::{prepare_ballot_card_images, BallotCard, ResizeStrategy};
+use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_marks::{
+    detect_metadata_and_normalize_orientation_from_timing_marks,
     find_empty_bubbles_matching_template, find_timing_mark_grid, TimingMarkGrid,
 };
 
@@ -13,6 +15,7 @@ use crate::timing_marks::{
 pub struct TemplateGridAndBubbles {
     pub grid: TimingMarkGrid,
     pub bubbles: Vec<Point<GridUnit>>,
+    pub metadata: BallotPageTimingMarkMetadata,
 }
 
 #[derive(Debug, Serialize)]
@@ -57,28 +60,33 @@ pub fn find_template_grid_and_bubbles(
     } = ballot_card;
     let (side_a_result, side_b_result) = rayon::join(
         || {
-            find_timing_mark_grid(
+            let mut debug = ImageDebugWriter::disabled();
+            let grid = find_timing_mark_grid(&geometry, &side_a.image, &mut debug)?;
+            detect_metadata_and_normalize_orientation_from_timing_marks(
                 side_a_label,
                 &geometry,
+                grid,
                 &side_a.image,
-                side_a.border_inset,
-                None,
-                &mut ImageDebugWriter::disabled(),
+                &mut debug,
             )
         },
         || {
-            find_timing_mark_grid(
+            let mut debug = ImageDebugWriter::disabled();
+            let grid = find_timing_mark_grid(&geometry, &side_b.image, &mut debug)?;
+            detect_metadata_and_normalize_orientation_from_timing_marks(
                 side_b_label,
                 &geometry,
+                grid,
                 &side_b.image,
-                side_b.border_inset,
-                None,
-                &mut ImageDebugWriter::disabled(),
+                &mut debug,
             )
         },
     );
 
-    let ((side_a_grid, _), (side_b_grid, _)) = match (side_a_result, side_b_result) {
+    let (
+        (side_a_grid, side_a_image, side_a_metadata),
+        (side_b_grid, side_b_image, side_b_metadata),
+    ) = match (side_a_result, side_b_result) {
         (Ok(a), Ok(b)) => (a, b),
         (Err(err), _) | (_, Err(err)) => {
             return Err(Error::TimingMarkGridError(format!(
@@ -94,7 +102,7 @@ pub fn find_template_grid_and_bubbles(
     let (side_a_bubbles, side_b_bubbles) = rayon::join(
         || {
             find_empty_bubbles_matching_template(
-                &side_a.image,
+                &side_a_image,
                 &bubble_template,
                 &side_a_grid,
                 BUBBLE_MATCH_THRESHOLD,
@@ -103,7 +111,7 @@ pub fn find_template_grid_and_bubbles(
         },
         || {
             find_empty_bubbles_matching_template(
-                &side_b.image,
+                &side_b_image,
                 &bubble_template,
                 &side_b_grid,
                 BUBBLE_MATCH_THRESHOLD,
@@ -116,10 +124,12 @@ pub fn find_template_grid_and_bubbles(
         TemplateGridAndBubbles {
             grid: side_a_grid,
             bubbles: side_a_bubbles,
+            metadata: side_a_metadata,
         },
         TemplateGridAndBubbles {
             grid: side_b_grid,
             bubbles: side_b_bubbles,
+            metadata: side_b_metadata,
         },
     ))
 }
@@ -127,10 +137,6 @@ pub fn find_template_grid_and_bubbles(
 #[cfg(test)]
 mod test {
     use std::path::PathBuf;
-
-    use crate::{
-        timing_mark_metadata::BallotPageTimingMarkMetadata, timing_marks::BallotPageMetadata,
-    };
 
     use super::find_template_grid_and_bubbles;
 
@@ -143,14 +149,6 @@ mod test {
         let side_b_image = image::open(template_back_path).unwrap().to_luma8();
         let (side_a_grid_and_bubbles, side_b_grid_and_bubbles) =
             find_template_grid_and_bubbles(side_a_image, side_b_image, "side A", "side B").unwrap();
-        assert!(matches!(
-            side_a_grid_and_bubbles.grid.metadata,
-            BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Front(_))
-        ));
-        assert!(matches!(
-            side_b_grid_and_bubbles.grid.metadata,
-            BallotPageMetadata::TimingMarks(BallotPageTimingMarkMetadata::Back(_))
-        ));
         assert_eq!(side_a_grid_and_bubbles.bubbles.len(), 32);
         assert_eq!(side_b_grid_and_bubbles.bubbles.len(), 20);
     }

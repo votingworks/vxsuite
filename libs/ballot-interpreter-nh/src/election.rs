@@ -24,6 +24,20 @@ pub struct Election {
     pub precincts: Vec<Precinct>,
     pub grid_layouts: Vec<GridLayout>,
     pub mark_thresholds: Option<MarkThresholds>,
+    pub ballot_layout: BallotLayout,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum MetadataEncoding {
+    QrCode,
+    TimingMarks,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BallotLayout {
+    pub metadata_encoding: MetadataEncoding,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
