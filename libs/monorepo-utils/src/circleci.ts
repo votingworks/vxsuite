@@ -95,7 +95,7 @@ export function generateConfig(pkgs: ReadonlyMap<string, PackageInfo>): string {
 version: 2.1
 
 orbs:
-  browser-tools: circleci/browser-tools@1.4.1
+  browser-tools: circleci/browser-tools@1.4.3
 
 executors:
   nodejs-browsers:
@@ -183,9 +183,7 @@ commands:
   install-cypress-browser:
     description: Installs a browser for Cypress tests.
     steps:
-      - run: sudo apt update # TODO: remove -> https://github.com/CircleCI-Public/browser-tools-orb/issues/75
-      - browser-tools/install-chrome:
-          chrome-version: 114.0.5735.90 # TODO: remove -> https://github.com/CircleCI-Public/browser-tools-orb/issues/75
+      - browser-tools/install-chrome
       - browser-tools/install-chromedriver
 
 `.trim();
