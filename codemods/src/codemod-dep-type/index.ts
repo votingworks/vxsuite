@@ -9,7 +9,7 @@
  *   codemods/bin/codemod-dep-type --dev ts-jest
  *
  * If you want to see what would be moved without actually moving it, run with
- * the --dry-run flag:
+ * the --dry-run flag.
  *
  *
  */
