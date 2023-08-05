@@ -448,7 +448,6 @@ exports[`no votes 1`] = `
         <h5
           class="c3"
         >
-          
            
           General Election
         </h5>
@@ -1204,7 +1203,6 @@ exports[`with votes 1`] = `
         <h5
           class="c3"
         >
-          
            
           General Election
         </h5>
@@ -1957,7 +1955,6 @@ exports[`without votes and inline seal 1`] = `
         <h5
           class="c3"
         >
-          
            
           General Election
         </h5>
@@ -2538,7 +2535,6 @@ exports[`without votes and no seal 1`] = `
         <h5
           class="c3"
         >
-          
            
           General Election
         </h5>
