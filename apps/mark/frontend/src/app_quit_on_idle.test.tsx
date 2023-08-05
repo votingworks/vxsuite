@@ -71,7 +71,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
   });
 });
 
-test.skip('Voter idle timeout', async () => {
+test('Voter idle timeout', async () => {
   const electionDefinition = electionSampleDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
