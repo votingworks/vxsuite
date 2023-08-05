@@ -162,7 +162,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   apiMock.expectSaveBallotPackageToUsb();
   userEvent.click(getByRole('button', { name: /Save/ }));
 
-  await waitFor(() => screen.findByText('Ballot Package Saved'));
+  await screen.findByText('Ballot Package Saved');
 
   expect(queryAllByTestId('modal')).toHaveLength(1);
   expect(

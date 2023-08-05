@@ -47,7 +47,7 @@ export function UnconfiguredScreen(): JSX.Element {
   const setSystemSettingsMutation = setSystemSettings.useMutation();
 
   const configureMutateAsync = useCallback(
-    async (electionData) => {
+    async (electionData: string) => {
       return new Promise<ConfigureResult>((resolve) => {
         configureMutation.mutate(
           {
