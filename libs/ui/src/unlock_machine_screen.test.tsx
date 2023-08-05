@@ -5,9 +5,8 @@ import {
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
-import { act } from '@testing-library/react-hooks';
 
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { UnlockMachineScreen } from './unlock_machine_screen';
 
 beforeEach(() => {
@@ -56,7 +55,7 @@ test('PIN submission', async () => {
 
   userEvent.click(screen.getButton('5'));
   await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '012345'));
-  screen.getByText('- - - - - -');
+  await screen.findByText('- - - - - -');
 });
 
 test('Incorrect PIN', () => {

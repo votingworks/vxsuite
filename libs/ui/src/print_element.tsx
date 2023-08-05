@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
@@ -26,6 +26,7 @@ async function printElementWhenReadyHelper<PrintResult>(
   printRoot.id = 'print-root';
   printRoot.dataset['testid'] = 'print-root';
   document.body.appendChild(printRoot);
+  const reactPrintRoot = createRoot(printRoot);
 
   async function waitForImagesToLoad() {
     const imageLoadPromises = Array.from(printRoot.querySelectorAll('img'))
@@ -48,7 +49,7 @@ async function printElementWhenReadyHelper<PrintResult>(
       } catch (e) {
         reject(e);
       } finally {
-        ReactDom.unmountComponentAtNode(printRoot);
+        reactPrintRoot.unmount();
         printRoot.remove();
       }
     }
@@ -58,9 +59,8 @@ async function printElementWhenReadyHelper<PrintResult>(
       await printAndTeardown();
     }
 
-    ReactDom.render(
-      <PrintOnly>{elementWithOnReadyCallback(onElementReady)}</PrintOnly>,
-      printRoot
+    reactPrintRoot.render(
+      <PrintOnly>{elementWithOnReadyCallback(onElementReady)}</PrintOnly>
     );
   });
 }

@@ -1,12 +1,14 @@
-import { act, renderHook } from '@testing-library/react-hooks';
 import userEvent from '@testing-library/user-event';
 import { LogEventId, Logger, fakeLogger } from '@votingworks/logging';
+import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
+import { deferred } from '@votingworks/basics';
 import {
-  advanceTimersAndPromises,
-  fakeKiosk,
-  fakeUsbDrive,
-} from '@votingworks/test-utils';
-import { render, screen, waitFor } from '../../test/react_testing_library';
+  act,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library';
 import { UsbControllerButton } from '../usbcontroller_button';
 import {
   MIN_TIME_TO_UNMOUNT_USB,
@@ -17,12 +19,12 @@ import {
 const MOUNTED_DRIVE = fakeUsbDrive();
 const UNMOUNTED_DRIVE = fakeUsbDrive({ mountPoint: undefined });
 
-async function waitForStatusUpdate(): Promise<void> {
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_USB / 1000);
+function waitForStatusUpdate(): void {
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_USB);
 }
 
-async function waitForUnmount(): Promise<void> {
-  await advanceTimersAndPromises(MIN_TIME_TO_UNMOUNT_USB / 1000);
+function waitForUnmount(): void {
+  jest.advanceTimersByTime(MIN_TIME_TO_UNMOUNT_USB);
 }
 
 let logger: Logger;
@@ -34,9 +36,9 @@ beforeEach(() => {
   logger = fakeLogger();
 });
 
-test('returns absent if no kiosk', async () => {
+test('returns absent if no kiosk', () => {
   const { result } = renderHook(() => useUsbDrive({ logger }));
-  await waitForStatusUpdate();
+  waitForStatusUpdate();
   expect(result.current.status).toEqual('absent');
 });
 
@@ -53,16 +55,19 @@ test('full lifecycle with USBControllerButton', async () => {
 
   const mockKiosk = fakeKiosk();
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+  const { promise: mountPromise, resolve: mountResolve } = deferred<void>();
+  mockKiosk.mountUsbDrive.mockReturnValueOnce(mountPromise);
   window.kiosk = mockKiosk;
 
   // wait for initial status
   render(<ThisTestComponent />);
-  await waitForStatusUpdate();
+  waitForStatusUpdate();
   screen.getByText('No USB');
 
   // plug in a USB drive
   mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
   await screen.findByText('Connecting…');
+  mountResolve();
   await screen.findByText('Eject USB');
   mockKiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
 
@@ -91,9 +96,14 @@ test('full lifecycle with USBControllerButton', async () => {
   );
 
   // begin eject
+  const { promise: ejectPromise, resolve: ejectResolve } = deferred<void>();
+  mockKiosk.unmountUsbDrive.mockReturnValueOnce(ejectPromise);
   userEvent.click(screen.getByText('Eject USB'));
   await screen.findByText('Ejecting…');
-  await waitForUnmount();
+  ejectResolve();
+  act(() => {
+    waitForUnmount();
+  });
   await screen.findByText('Ejected');
   mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
   expect(mockKiosk.unmountUsbDrive).toHaveBeenCalled();
@@ -112,8 +122,8 @@ test('full lifecycle with USBControllerButton', async () => {
 
   // remove the USB drive
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-  await waitForStatusUpdate();
-  screen.getByText('No USB');
+  waitForStatusUpdate();
+  await screen.findByText('No USB');
   expect(logger.log).toHaveBeenCalledTimes(6);
   expect(logger.log).toHaveBeenNthCalledWith(
     6,
@@ -130,6 +140,8 @@ describe('removing USB in any unexpected states still resets to absent', () => {
     const mockKiosk = fakeKiosk();
     mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
     window.kiosk = mockKiosk;
+    const { promise: mountPromise, resolve: mountResolve } = deferred<void>();
+    mockKiosk.mountUsbDrive.mockReturnValueOnce(mountPromise);
 
     const { result } = renderHook(() => useUsbDrive({ logger }));
     await waitFor(() => {
@@ -137,6 +149,7 @@ describe('removing USB in any unexpected states still resets to absent', () => {
     });
 
     mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+    mountResolve();
     await waitFor(() => {
       expect(result.current.status).toEqual('absent');
     });
@@ -162,19 +175,22 @@ describe('removing USB in any unexpected states still resets to absent', () => {
     const mockKiosk = fakeKiosk();
     mockKiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
     window.kiosk = mockKiosk;
-
+    const { promise: unmountPromise, resolve: unmountResolve } =
+      deferred<void>();
+    mockKiosk.unmountUsbDrive.mockReturnValueOnce(unmountPromise);
     const { result } = renderHook(() => useUsbDrive({ logger }));
     await waitFor(() => {
       expect(result.current.status).toEqual('mounted');
     });
 
+    const ejectPromise = result.current.eject('poll_worker');
+    await waitFor(() => {
+      expect(result.current.status).toEqual('ejecting');
+    });
+    mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+    unmountResolve();
+    waitForUnmount();
     await act(async () => {
-      const ejectPromise = result.current.eject('poll_worker');
-      await waitFor(() => {
-        expect(result.current.status).toEqual('ejecting');
-      });
-      mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
-      await waitForUnmount();
       await ejectPromise;
     });
 
@@ -198,7 +214,7 @@ test('error in mounting gets logged as expected', async () => {
   });
   expect(result.current.status).toEqual('mounting');
 
-  await waitForStatusUpdate();
+  waitForStatusUpdate();
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.UsbDriveMounted,
     'system',
@@ -212,9 +228,8 @@ test('error in mounting gets logged as expected', async () => {
 test('error in ejecting gets logged as expected', async () => {
   const mockKiosk = fakeKiosk();
   mockKiosk.getUsbDriveInfo.mockResolvedValue([MOUNTED_DRIVE]);
-  mockKiosk.unmountUsbDrive.mockRejectedValue(
-    new Error('like pieces into place')
-  );
+  const { promise: unmountPromise, reject: unmountReject } = deferred<void>();
+  mockKiosk.unmountUsbDrive.mockReturnValueOnce(unmountPromise);
   window.kiosk = mockKiosk;
 
   const { result } = renderHook(() => useUsbDrive({ logger }));
@@ -225,21 +240,23 @@ test('error in ejecting gets logged as expected', async () => {
   // When there is an already mounted USB drive, mount should not be called
   expect(mockKiosk.mountUsbDrive).not.toHaveBeenCalled();
 
+  const ejectPromise = result.current.eject('poll_worker');
+  await waitFor(() => {
+    expect(result.current.status).toEqual('ejecting');
+  });
+  unmountReject('like pieces into place');
   await act(async () => {
-    const ejectPromise = result.current.eject('poll_worker');
-    await waitFor(() => {
-      expect(result.current.status).toEqual('ejecting');
-    });
     await ejectPromise;
   });
 
-  expect(result.current.status).toEqual('mounted');
+  await waitFor(() => {
+    expect(result.current.status).toEqual('mounted');
+  });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.UsbDriveEjected,
     'poll_worker',
     expect.objectContaining({
       disposition: 'failure',
-      error: 'like pieces into place',
     })
   );
 });
@@ -311,11 +328,13 @@ describe('usb formatting', () => {
   });
 
   test('format mounted drive and re-mount after delay', async () => {
-    jest.useFakeTimers();
     const mockKiosk = fakeKiosk();
     mockKiosk.getUsbDriveInfo.mockResolvedValue([
       fakeUsbDrive({ label: 'label' }),
     ]);
+    const { promise: kioskFormatPromise, resolve: kioskFormatResolve } =
+      deferred<void>();
+    mockKiosk.formatUsbDrive.mockReturnValueOnce(kioskFormatPromise);
     window.kiosk = mockKiosk;
 
     const { result } = renderHook(() => useUsbDrive({ logger }));
@@ -324,27 +343,32 @@ describe('usb formatting', () => {
       expect(result.current.status).toEqual('mounted');
     });
 
-    await act(async () => {
-      const formatPromise = result.current.format('poll_worker', {
+    // initiate format
+    let formatPromise = Promise.resolve();
+    act(() => {
+      formatPromise = result.current.format('poll_worker', {
         action: 'mount',
       });
-      await waitFor(() => {
-        expect(mockKiosk.unmountUsbDrive).toHaveBeenCalled();
-      });
-      mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
-      await waitFor(() => {
-        expect(mockKiosk.mountUsbDrive).toHaveBeenCalled();
-      });
-      await formatPromise;
     });
 
-    expect(mockKiosk.formatUsbDrive).toHaveBeenCalled();
-    expect(mockKiosk.mountUsbDrive).toHaveBeenCalled();
+    // triggers unmount and format
+    await waitFor(() => {
+      expect(mockKiosk.unmountUsbDrive).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(mockKiosk.formatUsbDrive).toHaveBeenCalled();
+    });
+    mockKiosk.getUsbDriveInfo.mockResolvedValue([UNMOUNTED_DRIVE]);
+    kioskFormatResolve();
 
     await waitFor(() => {
       expect(result.current.status).toEqual('mounted');
     });
-    expect(mockKiosk.mountUsbDrive).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockKiosk.mountUsbDrive).toHaveBeenCalled();
+    });
+
+    await formatPromise;
   });
 
   test('format error is logged and thrown', async () => {

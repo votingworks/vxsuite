@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '../../test/react_testing_library';
 import { useNow } from './use_now';
 
 beforeEach(() => {
