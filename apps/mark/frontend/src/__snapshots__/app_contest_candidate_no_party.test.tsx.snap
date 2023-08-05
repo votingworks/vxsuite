@@ -15,19 +15,19 @@ exports[`Single Seat Contest 1`] = `
   font-size: 0.75rem;
 }
 
-.c6 {
-  font-size: 1em;
-  line-height: 1.15;
-  margin: 0;
-  white-space: nowrap;
-  font-size: 0.75rem;
-}
-
 .c5 {
   font-size: 1em;
   font-weight: 500;
   line-height: 1.15;
   margin: 0;
+  font-size: 0.75rem;
+}
+
+.c6 {
+  font-size: 1em;
+  line-height: 1.15;
+  margin: 0;
+  white-space: nowrap;
   font-size: 0.75rem;
 }
 
@@ -557,7 +557,6 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Joseph Barchi and Joseph Hallaren
                     </p>
-                    
                   </span>
                 </span>
               </span>
@@ -603,7 +602,6 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Adam Cramer and Greg Vuocolo
                     </p>
-                    
                   </span>
                 </span>
               </span>
@@ -649,7 +647,6 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Daniel Court and Amy Blumhardt
                     </p>
-                    
                   </span>
                 </span>
               </span>
@@ -695,7 +692,6 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Alvin Boone and James Lian
                     </p>
-                    
                   </span>
                 </span>
               </span>
@@ -741,7 +737,6 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Ashley Hildebrand-McDougall and James Garritty
                     </p>
-                    
                   </span>
                 </span>
               </span>
@@ -787,7 +782,6 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Martin Patterson and Clay Lariviere
                     </p>
-                    
                   </span>
                 </span>
               </span>
