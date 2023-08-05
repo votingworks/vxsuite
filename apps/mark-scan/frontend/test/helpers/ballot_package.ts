@@ -27,7 +27,6 @@ export async function configureFromUsbThenRemove(
   kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   // Remove USB after configuration is done
-  await screen.findByText('Configuring VxMarkScan from USB drive…');
   await screen.findByText('Election Definition is loaded.');
   kiosk.getUsbDriveInfo.mockResolvedValue([]);
 }
