@@ -33,10 +33,6 @@
       "path": "apps/design/frontend"
     },
     {
-      "name": "apps/design/shared",
-      "path": "apps/design/shared"
-    },
-    {
       "name": "apps/mark/backend",
       "path": "apps/mark/backend"
     },
@@ -139,6 +135,14 @@
     {
       "name": "libs/grout/test-utils",
       "path": "libs/grout/test-utils"
+    },
+    {
+      "name": "libs/hmpb/layout",
+      "path": "libs/hmpb/layout"
+    },
+    {
+      "name": "libs/hmpb/render-backend",
+      "path": "libs/hmpb/render-backend"
     },
     {
       "name": "libs/image-utils",

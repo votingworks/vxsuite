@@ -14,7 +14,7 @@ import {
   Page,
   SvgImageProps,
   PPI,
-} from '@votingworks/design-shared';
+} from '@votingworks/hmpb-layout';
 import { join } from 'path';
 
 const ASSETS_DIR = join(__dirname, '../assets');

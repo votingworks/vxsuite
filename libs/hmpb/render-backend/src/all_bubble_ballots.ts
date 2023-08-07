@@ -15,7 +15,7 @@ import {
   measurements,
   range,
   TimingMarkGrid,
-} from '@votingworks/design-shared';
+} from '@votingworks/hmpb-layout';
 
 const m = measurements(BallotPaperSize.Letter, 0);
 const { DOCUMENT_HEIGHT, DOCUMENT_WIDTH, GRID } = m;

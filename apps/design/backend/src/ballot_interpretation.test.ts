@@ -16,7 +16,7 @@ import {
   AnyElement,
   measurements,
   layOutAllBallots,
-} from '@votingworks/design-shared';
+} from '@votingworks/hmpb-layout';
 import {
   electionFamousNames2021Fixtures,
   electionSample,
@@ -38,13 +38,13 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { renderDocumentToPdf } from './render_ballot';
 import {
+  renderDocumentToPdf,
   allBubbleBallotBlankBallot,
   allBubbleBallotCyclingTestDeck,
   allBubbleBallotElectionDefinition,
   allBubbleBallotFilledBallot,
-} from './all_bubble_ballots';
+} from '@votingworks/hmpb-render-backend';
 
 const isTestMode = true;
 

@@ -50,8 +50,8 @@
   "dependencies": {
     "@tanstack/react-query": "^4.32.1",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/design-shared": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/hmpb-layout": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",

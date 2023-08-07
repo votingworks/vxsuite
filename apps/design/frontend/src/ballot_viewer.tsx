@@ -20,7 +20,7 @@ import {
   GridDimensions,
   layOutBallot,
   gridForPaper,
-} from '@votingworks/design-shared';
+} from '@votingworks/hmpb-layout';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { exportBallot } from './api';

@@ -17,7 +17,7 @@
   "include": ["src"],
   "references": [
     { "path": "../backend/tsconfig.build.json" },
-    { "path": "../shared/tsconfig.build.json" },
+    { "path": "../../../libs/hmpb/layout/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },
     { "path": "../../../libs/types/tsconfig.build.json" },

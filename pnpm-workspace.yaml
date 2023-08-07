@@ -4,13 +4,13 @@ packages:
   - 'apps/*/frontend/prodserver'
   - 'apps/*/backend'
   - 'apps/*/integration-testing'
-  - 'apps/*/shared'
 
   # include all the libraries and our custom types
   - 'libs/*'
   - 'libs/@types/*'
   - 'libs/grout/*'
   - 'libs/dev-dock/*'
+  - 'libs/hmpb/*'
 
   # include top-level development project
   - 'codemods'
