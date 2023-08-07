@@ -68,7 +68,7 @@ export function convertElectionDefinition(
       ];
     }
 
-    let paperSize = election.ballotLayout?.paperSize;
+    let { paperSize } = election.ballotLayout;
 
     const frontExpectedPaperSize =
       frontGridAndBubbles.grid.geometry.ballotPaperSize;
@@ -194,7 +194,7 @@ export function convertElectionDefinition(
     const result: Election = {
       ...election,
       ballotLayout: {
-        ...(election.ballotLayout ?? {}),
+        ...election.ballotLayout,
         paperSize,
       },
       ballotStyles: [

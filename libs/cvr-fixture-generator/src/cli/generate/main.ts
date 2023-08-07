@@ -262,7 +262,7 @@ export async function main(
       const pageWidthInches = 8.5;
       let pageHeightInches: number;
 
-      switch (election.ballotLayout?.paperSize) {
+      switch (election.ballotLayout.paperSize) {
         case BallotPaperSize.Legal:
           pageHeightInches = 14;
           break;

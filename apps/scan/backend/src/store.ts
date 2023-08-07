@@ -300,7 +300,7 @@ export class Store {
   getBallotPaperSizeForElection(): BallotPaperSize {
     const electionDefinition = this.getElectionDefinition();
     return (
-      electionDefinition?.election.ballotLayout?.paperSize ??
+      electionDefinition?.election.ballotLayout.paperSize ??
       BallotPaperSize.Letter
     );
   }

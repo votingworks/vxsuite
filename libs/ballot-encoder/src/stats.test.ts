@@ -1,5 +1,6 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import {
+  BallotPaperSize,
   BallotType,
   DistrictIdSchema,
   Election,
@@ -28,6 +29,9 @@ const election: Election = {
       description: 'See ya round, kid.',
     },
   ],
+  ballotLayout: {
+    paperSize: BallotPaperSize.Letter,
+  },
 };
 const { electionHash } = asElectionDefinition(election);
 

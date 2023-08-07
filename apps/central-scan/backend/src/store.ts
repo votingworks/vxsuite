@@ -315,7 +315,7 @@ export class Store {
   getBallotPaperSizeForElection(): BallotPaperSize {
     const electionDefinition = this.getElectionDefinition();
     return (
-      electionDefinition?.election.ballotLayout?.paperSize ??
+      electionDefinition?.election.ballotLayout.paperSize ??
       BallotPaperSize.Letter
     );
   }
@@ -539,7 +539,7 @@ export class Store {
       return undefined;
     }
 
-    return dateTimeFromNoOffsetSqliteDate(row?.scannerBackedUpAt);
+    return dateTimeFromNoOffsetSqliteDate(row.scannerBackedUpAt);
   }
 
   /**
@@ -553,7 +553,7 @@ export class Store {
       return undefined;
     }
 
-    return dateTimeFromNoOffsetSqliteDate(row?.cvrsBackedUpAt);
+    return dateTimeFromNoOffsetSqliteDate(row.cvrsBackedUpAt);
   }
 
   getBallotsCounted(): number {

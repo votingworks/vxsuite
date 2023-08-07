@@ -31,7 +31,7 @@ test('letter-size card definition', () => {
     hudsonBallotCardDefinition
   ).unsafeUnwrap();
 
-  expect(header.election?.ballotLayout?.paperSize).toEqual(
+  expect(header.election.ballotLayout.paperSize).toEqual(
     BallotPaperSize.Letter
   );
 });
@@ -175,7 +175,7 @@ test('multi-party endorsement', () => {
 
   expect(
     convertElectionDefinitionHeader(amherstBallotCardDefinition).unsafeUnwrap()
-      .election?.contests
+      .election.contests
   ).toEqual(
     expect.arrayContaining([
       expect.objectContaining(
@@ -246,9 +246,7 @@ test('constitutional questions become yesno contests', async () => {
     amherstBallotCardDefinition.definition
   ).unsafeUnwrap();
 
-  expect(
-    converted.election?.contests.filter((c) => c.type === 'yesno')
-  ).toEqual(
+  expect(converted.election.contests.filter((c) => c.type === 'yesno')).toEqual(
     typedAs<YesNoContest[]>([
       {
         type: 'yesno',

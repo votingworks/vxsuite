@@ -1,7 +1,7 @@
 import { BallotPaperSize, Election } from '@votingworks/types';
 
 export function getBallotLayoutPageSize(election: Election): BallotPaperSize {
-  return election.ballotLayout?.paperSize || BallotPaperSize.Letter;
+  return election.ballotLayout.paperSize;
 }
 
 export function getBallotLayoutPageSizeReadableString(

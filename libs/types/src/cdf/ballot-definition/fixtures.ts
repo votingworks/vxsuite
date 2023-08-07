@@ -5,7 +5,7 @@ import {
   ReportingUnitType,
   BallotDefinitionVersion,
 } from '.';
-import { DistrictId, Election, PartyId } from '../../election';
+import { BallotPaperSize, DistrictId, Election, PartyId } from '../../election';
 
 export const mockNow = '2023-02-08T00:00:00Z';
 
@@ -124,6 +124,9 @@ export const testVxfElection: Election = {
       districts: ['district-1' as DistrictId],
     },
   ],
+  ballotLayout: {
+    paperSize: BallotPaperSize.Letter,
+  },
 };
 
 export const testCdfBallotDefinition: BallotDefinition = {

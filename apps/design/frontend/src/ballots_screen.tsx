@@ -44,7 +44,7 @@ function BallotDesignForm({
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState<Required<BallotLayout>>({
     ...defaultBallotLayout,
-    ...(savedElection.ballotLayout ?? {}),
+    ...savedElection.ballotLayout,
   });
   const updateElectionMutation = updateElection.useMutation();
 
