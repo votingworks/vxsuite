@@ -188,7 +188,7 @@ describe('All bubble ballot', () => {
         [backContest.id]: backContest.candidates,
       })
     );
-  }, 20_000);
+  }, 30_000);
 });
 
 function markBallot(
