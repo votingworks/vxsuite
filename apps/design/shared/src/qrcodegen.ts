@@ -1,5 +1,6 @@
 /* eslint-disable */
-/* 
+/* Raw source file from https://github.com/nayuki/QR-Code-generator/commit/22fac31bdf81da68730c177c0e931c93234d2a30 */
+/*
  * QR Code generator library (TypeScript)
  * 
  * Copyright (c) Project Nayuki. (MIT License)
