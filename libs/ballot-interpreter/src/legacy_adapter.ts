@@ -219,24 +219,12 @@ function buildInterpretedHmpbPageMetadata(
   side: 'front' | 'back'
 ): HmpbBallotPageMetadata {
   const { election } = electionDefinition;
-  const isUsingCardNumberBallotStyles = election.ballotStyles.every(({ id }) =>
-    id.startsWith('card-number-')
-  );
-  const ballotStyle =
-    // If the election is using "card-number-{n}" ballot style IDs, use
-    // the card number in the metadata to create that ballot style ID.
-    isUsingCardNumberBallotStyles
-      ? getBallotStyle({
-          election,
-          ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
-        })
-      : // If not, use the card number in the metadata as an index into the
-        // list of ballot styles.
-        election.ballotStyles[frontMetadata.cardNumber];
+  const ballotStyle = getBallotStyle({
+    election,
+    ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
+  });
   assert(ballotStyle, `Ballot style ${frontMetadata.cardNumber} not found`);
-  const precinctId = isUsingCardNumberBallotStyles
-    ? ballotStyle.precincts[0]
-    : election.precincts[frontMetadata.batchOrPrecinctNumber]?.id;
+  const precinctId = ballotStyle.precincts[0];
   assert(
     precinctId !== undefined,
     `Precinct ${frontMetadata.batchOrPrecinctNumber} not found`
