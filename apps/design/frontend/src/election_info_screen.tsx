@@ -147,8 +147,7 @@ export function ElectionInfoScreen(): JSX.Element | null {
     return null;
   }
 
-  const { electionDefinition } = getElectionQuery.data;
-  const { election } = electionDefinition;
+  const { election } = getElectionQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>

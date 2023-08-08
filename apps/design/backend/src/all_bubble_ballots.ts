@@ -6,6 +6,7 @@ import {
   Election,
   ElectionDefinition,
   GridLayout,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
 import {
   Bubble,
@@ -15,7 +16,6 @@ import {
   range,
   TimingMarkGrid,
 } from '@votingworks/design-shared';
-import { sha256 } from 'js-sha256';
 
 const m = measurements(BallotPaperSize.Letter, 0);
 const { DOCUMENT_HEIGHT, DOCUMENT_WIDTH, GRID } = m;
@@ -126,11 +126,8 @@ function createElection(): Election {
 
 export const allBubbleBallotElection = createElection();
 const electionData = JSON.stringify(allBubbleBallotElection);
-export const allBubbleBallotElectionDefinition: ElectionDefinition = {
-  electionData,
-  election: allBubbleBallotElection,
-  electionHash: sha256(electionData),
-};
+export const allBubbleBallotElectionDefinition: ElectionDefinition =
+  safeParseElectionDefinition(electionData).unsafeUnwrap();
 
 interface AllBubbleBallotOptions {
   fillBubble: (page: number, row: number, column: number) => boolean;
@@ -159,12 +156,13 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
           TimingMarkGrid({ m }),
           ...bubbles(1),
           Footer({
-            electionDefinition: allBubbleBallotElectionDefinition,
+            election: allBubbleBallotElection,
             ballotStyle: allBubbleBallotElection.ballotStyles[0],
             precinct: allBubbleBallotElection.precincts[0],
             isTestMode: true,
             pageNumber: 1,
             totalPages: 2,
+            electionHash: allBubbleBallotElectionDefinition.electionHash,
             m,
           }),
         ],
@@ -174,12 +172,13 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
           TimingMarkGrid({ m }),
           ...bubbles(2),
           Footer({
-            electionDefinition: allBubbleBallotElectionDefinition,
+            election: allBubbleBallotElection,
             ballotStyle: allBubbleBallotElection.ballotStyles[0],
             precinct: allBubbleBallotElection.precincts[0],
             isTestMode: true,
             pageNumber: 2,
             totalPages: 2,
+            electionHash: allBubbleBallotElectionDefinition.electionHash,
             m,
           }),
         ],

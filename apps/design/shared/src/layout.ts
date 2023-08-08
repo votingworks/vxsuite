@@ -18,9 +18,11 @@ import {
   ElectionDefinition,
   getCandidatePartiesDescription,
   getContests,
+  getPrecinctById,
   GridLayout,
   GridPosition,
   Precinct,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
 import makeDebug from 'debug';
 import {
@@ -30,7 +32,11 @@ import {
   Rectangle,
   TextBox,
 } from './document_types';
-import { encodeMetadataInQrCode, QrCodeData } from './encode_metadata';
+import {
+  encodeInQrCode,
+  encodeMetadataInQrCode,
+  QrCodeData,
+} from './encode_metadata';
 import { range } from './util';
 
 const debug = makeDebug('layout');
@@ -533,12 +539,14 @@ function QrCode({
   width,
   height,
   qrCodeData,
+  fill = 'black',
 }: {
   x: number;
   y: number;
   width: number;
   height: number;
   qrCodeData: QrCodeData;
+  fill?: string;
 }): Rectangle {
   const moduleSize = width / qrCodeData.length + 0.1;
   return {
@@ -554,27 +562,73 @@ function QrCode({
         y: y + row * moduleSize,
         width: moduleSize,
         height: moduleSize,
-        fill: bit === 1 ? 'black' : 'white',
+        fill: bit === 1 ? fill : 'white',
       }))
     ),
   };
 }
 
+function PlaceholderQrCode({
+  x,
+  y,
+  width,
+  height,
+  m,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  m: Measurements;
+}): Rectangle {
+  return {
+    type: 'Rectangle',
+    x,
+    y,
+    width,
+    height,
+    children: [
+      // Grayed-out fake QR code
+      QrCode({
+        x: 0,
+        y: 0,
+        width,
+        height,
+        qrCodeData: encodeInQrCode(Uint8Array.of()),
+        fill: '#ededed',
+      }),
+      TextBlock({
+        x: 2,
+        y: 0,
+        width,
+        textGroups: [
+          {
+            text: 'Sample Ballot',
+            fontStyle: { ...m.FontStyles.SMALL, fontWeight: 700 },
+          },
+        ],
+      }),
+    ],
+  };
+}
+
 export function Footer({
-  electionDefinition,
+  election,
   ballotStyle,
   precinct,
   isTestMode,
   pageNumber,
   totalPages,
+  electionHash,
   m,
 }: {
-  electionDefinition: ElectionDefinition;
+  election: Election;
   ballotStyle: BallotStyle;
   precinct: Precinct;
   isTestMode: boolean;
   pageNumber: number;
   totalPages: number;
+  electionHash?: string;
   m: Measurements;
 }): Rectangle {
   const isFront = pageNumber % 2 === 1;
@@ -654,15 +708,16 @@ export function Footer({
   const endOfPageInstruction =
     pageNumber === totalPages ? ballotComplete : continueVoting;
 
-  const { election, electionHash } = electionDefinition;
-  const qrCodeData = encodeMetadataInQrCode(election, {
-    electionHash,
-    precinctId: precinct.id,
-    ballotStyleId: ballotStyle.id,
-    pageNumber,
-    ballotType: BallotType.Standard,
-    isTestMode,
-  });
+  const qrCodeData =
+    electionHash &&
+    encodeMetadataInQrCode(election, {
+      electionHash,
+      precinctId: precinct.id,
+      ballotStyleId: ballotStyle.id,
+      pageNumber,
+      ballotType: BallotType.Standard,
+      isTestMode,
+    });
 
   return {
     type: 'Rectangle',
@@ -679,12 +734,20 @@ export function Footer({
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
     children: [
-      QrCode({
-        ...gridPosition({ row: 0, column: 0 }, m),
-        width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
-        height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
-        qrCodeData,
-      }),
+      qrCodeData
+        ? QrCode({
+            ...gridPosition({ row: 0, column: 0 }, m),
+            width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
+            height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+            qrCodeData,
+          })
+        : PlaceholderQrCode({
+            ...gridPosition({ row: 0, column: 0 }, m),
+            width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
+            height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+            m,
+          }),
+
       // Inner footer with gray background
       {
         type: 'Rectangle',
@@ -1425,19 +1488,20 @@ export interface BallotLayout {
 }
 
 interface LayOutBallotParams {
-  electionDefinition: ElectionDefinition;
+  election: Election;
   precinct: Precinct;
   ballotStyle: BallotStyle;
   isTestMode: boolean;
+  electionHash?: string;
 }
 
 function layOutBallotHelper({
-  electionDefinition,
+  election,
   ballotStyle,
   precinct,
   isTestMode,
-}: LayOutBallotParams) {
-  const { election } = electionDefinition;
+  electionHash,
+}: LayOutBallotParams): BallotLayout {
   const { paperSize, layoutDensity = 0 } = election.ballotLayout;
   assert(layoutDensity <= 2);
   const m = measurements(paperSize, layoutDensity);
@@ -1591,12 +1655,13 @@ function layOutBallotHelper({
   for (const [pageIndex, page] of pages.entries()) {
     page.children.push(
       Footer({
-        electionDefinition,
+        election,
         ballotStyle,
         precinct,
         isTestMode,
         pageNumber: pageIndex + 1,
         totalPages: pages.length,
+        electionHash,
         m,
       })
     );
@@ -1637,6 +1702,77 @@ export function layOutBallot(
 ): Result<BallotLayout, Error> {
   try {
     return ok(layOutBallotHelper(params));
+  } catch (e) {
+    return wrapException(e);
+  }
+}
+
+interface LayoutAllBallotsParams {
+  election: Election;
+  isTestMode: boolean;
+}
+
+function layOutAllBallotsHelper({
+  election,
+  isTestMode,
+  electionHash,
+}: LayoutAllBallotsParams & { electionHash?: string }): BallotLayout[] {
+  return election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.map((precinctId) => {
+      const precinct = assertDefined(getPrecinctById({ election, precinctId }));
+      return layOutBallotHelper({
+        election,
+        precinct,
+        ballotStyle,
+        isTestMode,
+        electionHash,
+      });
+    })
+  );
+}
+
+/**
+ * Given an election without gridLayouts, lays out all of the ballots for the
+ * election (for every ballot style/precinct combo). Returns the laid out
+ * ballots as well as the election definition with gridLayouts.
+ *
+ * We have to lay out all of the ballots at once in order to make sure the
+ * correct election hash is encoded in the ballot metadata. The election hash
+ * needs to be from the completed election with gridLayouts defined.
+ *
+ * To do this, we lay out the ballots once just to compute gridLayouts,
+ * add those gridLayouts to the election, hash the resulting election, and then
+ * lay out the ballots again with the resulting election hash.
+ */
+export function layOutAllBallots({
+  election,
+  isTestMode,
+}: LayoutAllBallotsParams): Result<
+  { ballots: BallotLayout[]; electionDefinition: ElectionDefinition },
+  Error
+> {
+  try {
+    const gridLayouts = layOutAllBallotsHelper({ election, isTestMode }).map(
+      (layout) => layout.gridLayout
+    );
+
+    const electionWithGridLayouts: Election = {
+      ...election,
+      gridLayouts,
+    };
+
+    const electionDefinition = safeParseElectionDefinition(
+      JSON.stringify(electionWithGridLayouts)
+    ).unsafeUnwrap();
+
+    return ok({
+      ballots: layOutAllBallotsHelper({
+        election: electionWithGridLayouts,
+        isTestMode,
+        electionHash: electionDefinition.electionHash,
+      }),
+      electionDefinition,
+    });
   } catch (e) {
     return wrapException(e);
   }

@@ -54,8 +54,9 @@ function DistrictsTab(): JSX.Element | null {
     return null;
   }
 
-  const { electionDefinition } = getElectionQuery.data;
-  const { districts } = electionDefinition.election;
+  const {
+    election: { districts },
+  } = getElectionQuery.data;
   const districtsRoutes = routes.election(electionId).geography.districts;
 
   return (
@@ -246,8 +247,7 @@ function AddDistrictForm(): JSX.Element | null {
     return null;
   }
 
-  const { electionDefinition } = getElectionQuery.data;
-  const { election } = electionDefinition;
+  const { election } = getElectionQuery.data;
 
   return (
     <React.Fragment>
@@ -274,8 +274,7 @@ function EditDistrictForm(): JSX.Element | null {
     return null;
   }
 
-  const { electionDefinition, precincts } = getElectionQuery.data;
-  const { election } = electionDefinition;
+  const { election, precincts } = getElectionQuery.data;
 
   return (
     <React.Fragment>
@@ -305,8 +304,7 @@ function PrecinctsTab(): JSX.Element | null {
     return null;
   }
 
-  const { precincts, electionDefinition } = getElectionQuery.data;
-  const { election } = electionDefinition;
+  const { precincts, election } = getElectionQuery.data;
 
   const districtIdToName = Object.fromEntries(
     election.districts.map((district) => [district.id, district.name])
@@ -643,8 +641,7 @@ function AddPrecinctForm(): JSX.Element | null {
     return null;
   }
 
-  const { precincts, electionDefinition } = getElectionQuery.data;
-  const { election } = electionDefinition;
+  const { precincts, election } = getElectionQuery.data;
 
   return (
     <React.Fragment>
@@ -675,8 +672,7 @@ function EditPrecinctForm(): JSX.Element | null {
     return null;
   }
 
-  const { precincts, electionDefinition } = getElectionQuery.data;
-  const { election } = electionDefinition;
+  const { precincts, election } = getElectionQuery.data;
 
   return (
     <React.Fragment>

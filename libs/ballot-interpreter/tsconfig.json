@@ -15,6 +15,7 @@
     "resolveJsonModule": true
   },
   "references": [
+    { "path": "../../libs/ballot-encoder/tsconfig.build.json" },
     { "path": "../../libs/ballot-interpreter-nh/tsconfig.build.json" },
     { "path": "../../libs/ballot-interpreter-vx/tsconfig.build.json" },
     { "path": "../../libs/basics/tsconfig.build.json" },
