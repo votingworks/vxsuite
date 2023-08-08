@@ -12,7 +12,12 @@ import { mocked } from 'jest-mock';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { screen, RenderResult, render } from '../../test/react_testing_library';
+import {
+  screen,
+  RenderResult,
+  render,
+  act,
+} from '../../test/react_testing_library';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
   ApiMock,
@@ -203,6 +208,9 @@ describe('transitions from polls open', () => {
     apiMock.expectGetConfig({ pollsState: 'polls_paused' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Pause Voting'));
+    await act(async () => {
+      await screen.findByText('Pausing Voting…');
+    });
     await expectPrint();
     await screen.findByText('Voting paused.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -232,6 +240,9 @@ describe('transitions from polls paused', () => {
     apiMock.expectSetPollsState('polls_open');
     apiMock.expectGetConfig({ pollsState: 'polls_open' });
     userEvent.click(screen.getByText('Yes, Resume Voting'));
+    await act(async () => {
+      await screen.findByText('Resuming Voting…');
+    });
     await expectPrint();
     await screen.findByText('Voting resumed.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -249,6 +260,9 @@ describe('transitions from polls paused', () => {
     apiMock.expectGetConfig({ pollsState: 'polls_open' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Resume Voting'));
+    await act(async () => {
+      await screen.findByText('Resuming Voting…');
+    });
     await expectPrint();
     await screen.findByText('Voting resumed.');
     expect(logger.log).toHaveBeenCalledWith(
