@@ -1,4 +1,3 @@
-import { randomBytes } from 'crypto';
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
@@ -451,7 +450,7 @@ export class JavaCard implements Card {
     const cardDetails = await parseCardDetailsFromCert(cardVxAdminCert);
     assert(
       cardDetails.user.jurisdiction ===
-      vxAdminCertAuthorityCertDetails.jurisdiction
+        vxAdminCertAuthorityCertDetails.jurisdiction
     );
 
     /**
@@ -496,12 +495,12 @@ export class JavaCard implements Card {
   /**
    * Retrieves a cert in PEM format
    */
-  private async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
+  async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
     const data = await this.getData(certObjectId);
     const certTlv = data.subarray(0, -5); // Trim metadata
     const [, , certInDerFormat] = parseTlv(PUT_DATA.CERT_TAG, certTlv);
     const certInPemFormat = await certDerToPem(certInDerFormat);
-    console.log("pem format", certInPemFormat);
+    console.log('pem format', certInPemFormat);
     return certInPemFormat;
   }
 
@@ -553,11 +552,14 @@ export class JavaCard implements Card {
       : /* istanbul ignore next */ `VotingWorks/${new Date().toISOString()}/${uuid()}`;
     const challengeHash = Buffer.from(sha256(challenge), 'hex');
 
-    const asn1Sha256MagicValue = Buffer.from(
-      [0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20]
-    );
+    const asn1Sha256MagicValue = Buffer.from([
+      0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03,
+      0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20,
+    ]);
 
-    const allFsPadding = Buffer.from(new Uint8Array(256 - 19 - 2 - 1 - 32).fill(0xff));
+    const allFsPadding = Buffer.from(
+      new Uint8Array(256 - 19 - 2 - 1 - 32).fill(0xff)
+    );
 
     // now we pad
     const paddedMessage = Buffer.concat([
@@ -567,11 +569,12 @@ export class JavaCard implements Card {
       asn1Sha256MagicValue,
       challengeHash,
     ]);
+    assert(paddedMessage.length === 256);
 
     const generalAuthenticateResponse = await this.cardReader.transmit(
       new CardCommand({
         ins: GENERAL_AUTHENTICATE.INS,
-        p1: 0x07,//CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,
+        p1: 0x07, // CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,
         p2: privateKeyId,
         data: constructTlv(
           GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
