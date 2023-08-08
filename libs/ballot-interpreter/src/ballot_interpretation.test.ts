@@ -7,7 +7,6 @@ import {
 } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { interpretSheet } from '@votingworks/ballot-interpreter';
 import {
   Document,
   TextBox,
@@ -45,6 +44,7 @@ import {
   allBubbleBallotElectionDefinition,
   allBubbleBallotFilledBallot,
 } from '@votingworks/hmpb-render-backend';
+import { interpretSheet } from './interpret';
 
 const isTestMode = true;
 
@@ -80,8 +80,8 @@ async function interpretBallot({
     tmpNameSync({ postfix: '.jpg' }),
     tmpNameSync({ postfix: '.jpg' }),
   ];
-  await writeImageData(pageImagePaths[0], pageImages[0].page);
-  await writeImageData(pageImagePaths[1], pageImages[1].page);
+  await writeImageData(pageImagePaths[0], pageImages[0]!.page);
+  await writeImageData(pageImagePaths[1], pageImages[1]!.page);
 
   return interpretSheet(
     {
@@ -115,11 +115,11 @@ function sortVotesDict(votes: VotesDict) {
 describe('All bubble ballot', () => {
   const electionDefinition = allBubbleBallotElectionDefinition;
   const { election } = electionDefinition;
-  const precinctId = election.precincts[0].id;
+  const precinctId = election.precincts[0]!.id;
 
   const [frontContest, backContest] = election.contests;
-  assert(frontContest.type === 'candidate');
-  assert(backContest.type === 'candidate');
+  assert(frontContest?.type === 'candidate');
+  assert(backContest?.type === 'candidate');
 
   test('Blank ballot interpretation', async () => {
     const [frontResult, backResult] = await interpretBallot({
@@ -178,7 +178,7 @@ describe('All bubble ballot', () => {
         ...frontResult.interpretation.votes,
         ...backResult.interpretation.votes,
       })) {
-        votes[contestId].push(
+        votes[contestId]!.push(
           ...((candidates as Optional<CandidateVote>) ?? [])
         );
       }
@@ -261,7 +261,7 @@ describe('Laid out ballots - Famous Names', () => {
   const { election } = electionDefinition;
 
   test('Blank ballot interpretation', async () => {
-    const { document: ballot, gridLayout } = ballots[0];
+    const { document: ballot, gridLayout } = ballots[0]!;
     const { precinctId } = gridLayout;
     const [frontResult, backResult] = await interpretBallot({
       electionDefinition,
@@ -276,14 +276,14 @@ describe('Laid out ballots - Famous Names', () => {
   });
 
   test('Marked ballot interpretation', async () => {
-    const { document: ballot, gridLayout } = ballots[0];
+    const { document: ballot, gridLayout } = ballots[0]!;
     const { precinctId } = gridLayout;
 
     const votes: VotesDict = Object.fromEntries(
       electionDefinition.election.contests.map((contest, i) => {
         assert(contest.type === 'candidate');
         const candidates = range(0, contest.seats).map(
-          (j) => contest.candidates[(i + j) % contest.candidates.length]
+          (j) => contest.candidates[(i + j) % contest.candidates.length]!
         );
         return [contest.id, candidates];
       })
@@ -314,7 +314,7 @@ describe('Laid out ballots - Famous Names', () => {
   });
 
   test('Wrong election', async () => {
-    const { document: ballot, gridLayout } = ballots[0];
+    const { document: ballot, gridLayout } = ballots[0]!;
     const { precinctId } = gridLayout;
 
     const [frontResult, backResult] = await interpretBallot({
@@ -331,13 +331,13 @@ describe('Laid out ballots - Famous Names', () => {
   });
 
   test('Wrong precinct', async () => {
-    const { document: ballot, gridLayout } = ballots[0];
+    const { document: ballot, gridLayout } = ballots[0]!;
     const { precinctId } = gridLayout;
-    assert(precinctId !== election.precincts[1].id);
+    assert(precinctId !== election.precincts[1]!.id);
 
     const [frontResult, backResult] = await interpretBallot({
       electionDefinition,
-      precinctId: election.precincts[1].id,
+      precinctId: election.precincts[1]!.id,
       ballot,
     });
 
@@ -346,7 +346,7 @@ describe('Laid out ballots - Famous Names', () => {
   });
 
   test('Wrong test mode', async () => {
-    const { document: ballot, gridLayout } = ballots[0];
+    const { document: ballot, gridLayout } = ballots[0]!;
     const { precinctId } = gridLayout;
 
     const [frontResult, backResult] = await interpretBallot({
@@ -384,7 +384,7 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
         const ballotStyle = assertDefined(
           getBallotStyle({ election, ballotStyleId: '5' })
         );
-        const precinctId = ballotStyle.precincts[0];
+        const precinctId = ballotStyle.precincts[0]!;
         const { document: ballot, gridLayout } = find(
           ballots,
           (b) =>

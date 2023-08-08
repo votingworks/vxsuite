@@ -50,6 +50,8 @@
     "@types/jest": "^29.5.3",
     "@types/node": "16.18.23",
     "@types/tmp": "^0.2.3",
+    "@votingworks/hmpb-layout": "workspace:*",
+    "@votingworks/hmpb-render-backend": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "fs-extra": "^11.1.1",
     "is-ci-cli": "^2.2.0",
