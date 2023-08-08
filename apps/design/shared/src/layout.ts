@@ -1736,13 +1736,10 @@ function layOutAllBallotsHelper({
  * election (for every ballot style/precinct combo). Returns the laid out
  * ballots as well as the election definition with gridLayouts.
  *
- * We have to lay out all of the ballots at once in order to make sure the
- * correct election hash is encoded in the ballot metadata. The election hash
- * needs to be from the completed election with gridLayouts defined.
- *
- * To do this, we lay out the ballots once just to compute gridLayouts,
- * add those gridLayouts to the election, hash the resulting election, and then
- * lay out the ballots again with the resulting election hash.
+ * We lay out the ballots once just to compute gridLayouts, add those
+ * gridLayouts to the election, hash the resulting election, and then lay out
+ * the ballots again with the resulting election hash (which is encoded in the
+ * ballot metadata).
  */
 export function layOutAllBallots({
   election,
