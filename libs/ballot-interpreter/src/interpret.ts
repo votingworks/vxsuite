@@ -1,5 +1,6 @@
 import { interpret as interpretVxBmdBallotSheet } from '@votingworks/ballot-interpreter-vx';
 import { interpret as interpretNhHmpbBallotSheet } from '@votingworks/ballot-interpreter-nh';
+import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { Result, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { loadImageData } from '@votingworks/image-utils';
 import {
@@ -7,6 +8,7 @@ import {
   BallotMetadata,
   BallotType,
   ElectionDefinition,
+  InvalidElectionHashPage,
   InvalidPrecinctPage,
   InvalidTestModePage,
   mapSheet,
@@ -65,9 +67,14 @@ export type SheetInterpretationWithPages = SheetInterpretation & {
 function validateInterpretResults(
   results: SheetOf<InterpretFileResult>,
   {
+    electionHash,
     precinctSelection,
     testMode,
-  }: { precinctSelection: PrecinctSelection; testMode: boolean }
+  }: {
+    electionHash: string;
+    precinctSelection: PrecinctSelection;
+    testMode: boolean;
+  }
 ): SheetOf<InterpretFileResult> {
   return mapSheet(results, ({ interpretation, normalizedImage }) => {
     if (!('metadata' in interpretation)) {
@@ -99,6 +106,22 @@ function validateInterpretResults(
       };
     }
 
+    // metadata.electionHash may be a sliced hash or a full hash, so we need to
+    // slice both hashes before comparing them.
+    if (
+      sliceElectionHash(metadata.electionHash) !==
+      sliceElectionHash(electionHash)
+    ) {
+      return {
+        interpretation: typedAs<InvalidElectionHashPage>({
+          type: 'InvalidElectionHashPage',
+          expectedElectionHash: sliceElectionHash(electionHash),
+          actualElectionHash: sliceElectionHash(metadata.electionHash),
+        }),
+        normalizedImage,
+      };
+    }
+
     return { interpretation, normalizedImage };
   });
 }
@@ -116,9 +139,14 @@ function interpretAndConvertNhHmpbResult(
       (electionDefinition.election.markThresholds?.writeInTextArea ??
         options.markThresholds?.writeInTextArea) !== undefined,
   });
+
   return validateInterpretResults(
     convertNhInterpretResultToLegacyResult(options, result).unsafeUnwrap(),
-    { precinctSelection: options.precinctSelection, testMode: options.testMode }
+    {
+      electionHash: electionDefinition.electionHash,
+      precinctSelection: options.precinctSelection,
+      testMode: options.testMode,
+    }
   );
 }
 
@@ -246,6 +274,7 @@ export async function interpretSheet(
     };
 
     return validateInterpretResults([front, back], {
+      electionHash: electionDefinition.electionHash,
       precinctSelection,
       testMode,
     });

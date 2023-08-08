@@ -11,14 +11,13 @@ import { interpretSheet } from '@votingworks/ballot-interpreter';
 import {
   Document,
   TextBox,
-  layOutBallot,
   gridPosition,
   range,
   AnyElement,
   measurements,
+  layOutAllBallots,
 } from '@votingworks/design-shared';
 import {
-  asElectionDefinition,
   electionFamousNames2021Fixtures,
   electionSample,
 } from '@votingworks/fixtures';
@@ -30,11 +29,11 @@ import {
   Candidate,
   CandidateVote,
   Election,
+  ElectionDefinition,
   getBallotStyle,
   getContests,
-  getPrecinctById,
   GridLayout,
-  Precinct,
+  PrecinctId,
   SheetOf,
   Vote,
   VotesDict,
@@ -43,7 +42,7 @@ import { renderDocumentToPdf } from './render_ballot';
 import {
   allBubbleBallotBlankBallot,
   allBubbleBallotCyclingTestDeck,
-  allBubbleBallotElection,
+  allBubbleBallotElectionDefinition,
   allBubbleBallotFilledBallot,
 } from './all_bubble_ballots';
 
@@ -61,13 +60,15 @@ async function pdfToBuffer(pdf: PDFKit.PDFDocument): Promise<Buffer> {
 }
 
 async function interpretBallot({
-  election,
-  precinct,
+  electionDefinition,
+  precinctId,
   ballot,
+  testMode = true,
 }: {
-  election: Election;
-  precinct: Precinct;
+  electionDefinition: ElectionDefinition;
+  precinctId: PrecinctId;
   ballot: Document;
+  testMode?: boolean;
 }) {
   const pdfStream = renderDocumentToPdf(ballot);
   const pdfBuffer = await pdfToBuffer(pdfStream);
@@ -84,9 +85,9 @@ async function interpretBallot({
 
   return interpretSheet(
     {
-      electionDefinition: asElectionDefinition(election),
-      precinctSelection: singlePrecinctSelectionFor(precinct.id),
-      testMode: true,
+      electionDefinition,
+      precinctSelection: singlePrecinctSelectionFor(precinctId),
+      testMode,
     },
     pageImagePaths
   );
@@ -112,8 +113,9 @@ function sortVotesDict(votes: VotesDict) {
 }
 
 describe('All bubble ballot', () => {
-  const election = allBubbleBallotElection;
-  const precinct = assertDefined(election.precincts[0]);
+  const electionDefinition = allBubbleBallotElectionDefinition;
+  const { election } = electionDefinition;
+  const precinctId = election.precincts[0].id;
 
   const [frontContest, backContest] = election.contests;
   assert(frontContest.type === 'candidate');
@@ -121,8 +123,8 @@ describe('All bubble ballot', () => {
 
   test('Blank ballot interpretation', async () => {
     const [frontResult, backResult] = await interpretBallot({
-      election,
-      precinct,
+      electionDefinition,
+      precinctId,
       ballot: allBubbleBallotBlankBallot,
     });
 
@@ -135,8 +137,8 @@ describe('All bubble ballot', () => {
 
   test('Filled ballot interpretation', async () => {
     const [frontResult, backResult] = await interpretBallot({
-      election,
-      precinct,
+      electionDefinition,
+      precinctId,
       ballot: allBubbleBallotFilledBallot,
     });
 
@@ -159,8 +161,8 @@ describe('All bubble ballot', () => {
 
     for (const card of range(0, 6)) {
       const [frontResult, backResult] = await interpretBallot({
-        election,
-        precinct,
+        electionDefinition,
+        precinctId,
         ballot: {
           ...allBubbleBallotCyclingTestDeck,
           pages: allBubbleBallotCyclingTestDeck.pages.slice(
@@ -252,24 +254,18 @@ function markBallot(
 }
 
 describe('Laid out ballots - Famous Names', () => {
-  const { electionDefinition, election } = electionFamousNames2021Fixtures;
-  const ballotStyle = election.ballotStyles[0];
+  const { ballots, electionDefinition } = layOutAllBallots({
+    election: electionFamousNames2021Fixtures.election,
+    isTestMode,
+  }).unsafeUnwrap();
+  const { election } = electionDefinition;
 
   test('Blank ballot interpretation', async () => {
-    const precinct = election.precincts[1];
-
-    const ballotResult = layOutBallot({
-      electionDefinition,
-      precinct,
-      ballotStyle,
-      isTestMode,
-    });
-    assert(ballotResult.isOk());
-    const { document: ballot, gridLayout } = ballotResult.ok();
-
+    const { document: ballot, gridLayout } = ballots[0];
+    const { precinctId } = gridLayout;
     const [frontResult, backResult] = await interpretBallot({
-      election: { ...election, gridLayouts: [gridLayout] },
-      precinct,
+      electionDefinition,
+      precinctId,
       ballot,
     });
 
@@ -280,10 +276,11 @@ describe('Laid out ballots - Famous Names', () => {
   });
 
   test('Marked ballot interpretation', async () => {
-    const precinct = election.precincts[2];
+    const { document: ballot, gridLayout } = ballots[0];
+    const { precinctId } = gridLayout;
 
     const votes: VotesDict = Object.fromEntries(
-      election.contests.map((contest, i) => {
+      electionDefinition.election.contests.map((contest, i) => {
         assert(contest.type === 'candidate');
         const candidates = range(0, contest.seats).map(
           (j) => contest.candidates[(i + j) % contest.candidates.length]
@@ -292,14 +289,6 @@ describe('Laid out ballots - Famous Names', () => {
       })
     );
 
-    const ballotResult = layOutBallot({
-      electionDefinition,
-      precinct,
-      ballotStyle,
-      isTestMode,
-    });
-    assert(ballotResult.isOk());
-    const { document: ballot, gridLayout } = ballotResult.ok();
     const markedBallot = markBallot(
       ballot,
       gridLayout,
@@ -309,8 +298,8 @@ describe('Laid out ballots - Famous Names', () => {
     );
 
     const [frontResult, backResult] = await interpretBallot({
-      election: { ...election, gridLayouts: [gridLayout] },
-      precinct,
+      electionDefinition,
+      precinctId,
       ballot: markedBallot,
     });
 
@@ -322,6 +311,53 @@ describe('Laid out ballots - Famous Names', () => {
         ...backResult.interpretation.votes,
       })
     ).toEqual(sortVotesDict(votes));
+  });
+
+  test('Wrong election', async () => {
+    const { document: ballot, gridLayout } = ballots[0];
+    const { precinctId } = gridLayout;
+
+    const [frontResult, backResult] = await interpretBallot({
+      electionDefinition: {
+        ...electionDefinition,
+        electionHash: 'wrong election hash',
+      },
+      precinctId,
+      ballot,
+    });
+
+    expect(frontResult.interpretation.type).toEqual('InvalidElectionHashPage');
+    expect(backResult.interpretation.type).toEqual('InvalidElectionHashPage');
+  });
+
+  test('Wrong precinct', async () => {
+    const { document: ballot, gridLayout } = ballots[0];
+    const { precinctId } = gridLayout;
+    assert(precinctId !== election.precincts[1].id);
+
+    const [frontResult, backResult] = await interpretBallot({
+      electionDefinition,
+      precinctId: election.precincts[1].id,
+      ballot,
+    });
+
+    expect(frontResult.interpretation.type).toEqual('InvalidPrecinctPage');
+    expect(backResult.interpretation.type).toEqual('InvalidPrecinctPage');
+  });
+
+  test('Wrong test mode', async () => {
+    const { document: ballot, gridLayout } = ballots[0];
+    const { precinctId } = gridLayout;
+
+    const [frontResult, backResult] = await interpretBallot({
+      electionDefinition,
+      precinctId,
+      ballot,
+      testMode: false,
+    });
+
+    expect(frontResult.interpretation.type).toEqual('InvalidTestModePage');
+    expect(backResult.interpretation.type).toEqual('InvalidTestModePage');
   });
 });
 
@@ -340,30 +376,28 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
           markThresholds:
             electionFamousNames2021Fixtures.election.markThresholds,
         };
-        const electionDefinition = asElectionDefinition(election);
+        const { ballots, electionDefinition } = layOutAllBallots({
+          election,
+          isTestMode,
+        }).unsafeUnwrap();
         // Has ballot measures
         const ballotStyle = assertDefined(
           getBallotStyle({ election, ballotStyleId: '5' })
         );
-        const precinct = assertDefined(
-          getPrecinctById({ election, precinctId: ballotStyle.precincts[0] })
+        const precinctId = ballotStyle.precincts[0];
+        const { document: ballot, gridLayout } = find(
+          ballots,
+          (b) =>
+            b.gridLayout.precinctId === precinctId &&
+            b.gridLayout.ballotStyleId === ballotStyle.id
         );
+        // We only support single-sheet ballots for now
+        ballot.pages = ballot.pages.slice(0, 2);
 
         test(`Blank ballot interpretation`, async () => {
-          const ballotResult = layOutBallot({
-            electionDefinition,
-            precinct,
-            ballotStyle,
-            isTestMode,
-          });
-          assert(ballotResult.isOk());
-          const { document: ballot, gridLayout } = ballotResult.ok();
-          // We only support single-sheet ballots for now
-          ballot.pages = ballot.pages.slice(0, 2);
-
           const [frontResult, backResult] = await interpretBallot({
-            election: { ...election, gridLayouts: [gridLayout] },
-            precinct,
+            electionDefinition,
+            precinctId,
             ballot,
           });
 
@@ -406,16 +440,6 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
             })
           );
 
-          const ballotResult = layOutBallot({
-            electionDefinition,
-            precinct,
-            ballotStyle,
-            isTestMode,
-          });
-          assert(ballotResult.isOk());
-          const { document: ballot, gridLayout } = ballotResult.ok();
-          // We only support single-sheet ballots for now
-          ballot.pages = ballot.pages.slice(0, 2);
           const markedBallot = markBallot(
             ballot,
             gridLayout,
@@ -425,8 +449,8 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
           );
 
           const [frontResult, backResult] = await interpretBallot({
-            election: { ...election, gridLayouts: [gridLayout] },
-            precinct,
+            electionDefinition,
+            precinctId,
             ballot: markedBallot,
           });
 
