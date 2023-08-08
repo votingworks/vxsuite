@@ -72,7 +72,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
   });
 });
 
-test.skip('Voter idle timeout', async () => {
+test('Voter idle timeout', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
@@ -108,7 +108,7 @@ test.skip('Voter idle timeout', async () => {
   screen.getByText('Are you still voting?');
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   await advanceTimersAndPromises(IDLE_RESET_TIMEOUT_SECONDS);
-  screen.getByText('Clearing ballot');
+  await screen.findByText('Clearing ballot');
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 });
