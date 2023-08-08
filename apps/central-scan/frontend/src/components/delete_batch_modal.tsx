@@ -30,7 +30,7 @@ export function DeleteBatchModal({
         <React.Fragment>
           <P>This action cannot be undone.</P>
           {deleteBatchMutation.error ? (
-            <P color="danger">{deleteBatchMutation.error as string}</P>
+            <P color="danger">{`${deleteBatchMutation.error}`}</P>
           ) : null}
         </React.Fragment>
       }
