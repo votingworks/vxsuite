@@ -129,12 +129,12 @@ paper ballot. See `HMPBBallotPageMetadata` in [index.ts](./index.ts). Given
 metadata `H` and election definition `ED`, `H` is encoded as follows:
 
 - **Prelude:** This is the literal string `VP` encoded as UTF-8 bytes, followed
-  by the integer 1 encoded as uint8. In binary, this is
+  by the version number encoded as uint8 (e.g. 1). In binary, this is
   `01010110 01011000 00000001`. This must be at the start of the encoded data,
   or the data does not represent a valid v1-encoded HMPB metadata.
   - Size: 24 bits.
-- **Election Hash:** This is a dynamic-length hexadecimal string long
-  (`ED.electionHash`).
-  - Size: `(1 + bytes(ED.electionHash) / 2) * 8` bits.
+- **Election Hash:** This is a fixed-length hexadecimal string 20 characters
+  long (`ED.electionHash.slice(0, 20)`).
+  - Size: `20 * 4` bits.
 - **Ballot Config:** The encoding of a `BallotConfig` derived from `H` and `ED`
   goes here.

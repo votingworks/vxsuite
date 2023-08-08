@@ -311,6 +311,7 @@ test('supports ballot layout paper size', () => {
         ...electionSample,
         ballotLayout: {
           paperSize: 'A4',
+          metadataEncoding: 'qr-code',
         },
       })
       .unsafeUnwrapErr()

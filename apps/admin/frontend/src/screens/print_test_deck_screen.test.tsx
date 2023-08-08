@@ -237,6 +237,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
     ...electionWithMsEitherNeitherDefinition.election,
     ballotLayout: {
       paperSize: BallotPaperSize.Legal,
+      metadataEncoding: 'qr-code',
     },
   });
 
@@ -311,6 +312,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     ...electionWithMsEitherNeitherDefinition.election,
     ballotLayout: {
       paperSize: BallotPaperSize.Legal,
+      metadataEncoding: 'qr-code',
     },
   });
 

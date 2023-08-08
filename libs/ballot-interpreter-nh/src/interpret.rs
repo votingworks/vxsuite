@@ -14,6 +14,7 @@ use crate::ballot_card::PaperInfo;
 use crate::debug::ImageDebugWriter;
 use crate::election::BallotStyleId;
 use crate::election::Election;
+use crate::election::MetadataEncoding;
 use crate::geometry::PixelUnit;
 use crate::geometry::Rect;
 use crate::geometry::Size;
@@ -22,13 +23,18 @@ use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
 use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
-use crate::metadata::BallotPageMetadata;
-use crate::metadata::BallotPageMetadataError;
+use crate::qr_code_metadata::detect_qr_code_metadata;
+use crate::qr_code_metadata::BallotPageQrCodeMetadataError;
 use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
+use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
+use crate::timing_mark_metadata::BallotPageTimingMarkMetadataError;
+use crate::timing_marks::detect_metadata_and_normalize_orientation_from_timing_marks;
 use crate::timing_marks::find_timing_mark_grid;
+use crate::timing_marks::normalize_orientation;
+use crate::timing_marks::BallotPageMetadata;
 use crate::timing_marks::TimingMarkGrid;
 
 #[derive(Debug, Clone)]
@@ -68,6 +74,7 @@ pub struct NormalizedImageBuffer {
 #[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
     pub grid: TimingMarkGrid,
+    pub metadata: BallotPageMetadata,
     pub marks: ScoredBubbleMarks,
     pub write_ins: ScoredPositionAreas,
     #[serde(skip_serializing)] // `normalized_image` is returned separately.
@@ -80,9 +87,9 @@ pub struct InterpretedBallotCard {
     pub front: InterpretedBallotPage,
     pub back: InterpretedBallotPage,
 }
-pub type Result = core::result::Result<InterpretedBallotCard, Error>;
+pub type InterpretResult = Result<InterpretedBallotCard, Error>;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BallotPageAndGeometry {
     pub label: String,
@@ -90,7 +97,7 @@ pub struct BallotPageAndGeometry {
     pub geometry: Geometry,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum Error {
     BorderInsetNotFound {
@@ -101,9 +108,13 @@ pub enum Error {
         side_a: BallotPageMetadata,
         side_b: BallotPageMetadata,
     },
-    InvalidMetadata {
+    InvalidTimingMarkMetadata {
         label: String,
-        error: BallotPageMetadataError,
+        error: BallotPageTimingMarkMetadataError,
+    },
+    InvalidQrCodeMetadata {
+        label: String,
+        error: BallotPageQrCodeMetadataError,
     },
     #[serde(rename_all = "camelCase")]
     MismatchedBallotCardGeometries {
@@ -139,8 +150,11 @@ impl Display for Error {
                 f,
                 "Invalid card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
             ),
-            Self::InvalidMetadata { label, error } => {
-                write!(f, "Invalid metadata for {label}: {error:?}")
+            Self::InvalidTimingMarkMetadata { label, error } => {
+                write!(f, "Invalid timing mark metadata for {label}: {error:?}")
+            }
+            Self::InvalidQrCodeMetadata { label, error } => {
+                write!(f, "Invalid QR code metadata for {label}: {error:?}")
             }
             Self::MismatchedBallotCardGeometries { side_a, side_b } => write!(
                 f,
@@ -209,7 +223,7 @@ pub fn prepare_ballot_card_images(
     side_b_image: GrayImage,
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
-) -> core::result::Result<BallotCard, Error> {
+) -> Result<BallotCard, Error> {
     let (side_a_result, side_b_result) = rayon::join(
         || {
             prepare_ballot_page_image(
@@ -289,7 +303,7 @@ fn prepare_ballot_page_image(
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
-) -> core::result::Result<BallotPage, Error> {
+) -> Result<BallotPage, Error> {
     let Some(BallotImage {
         image,
         threshold,
@@ -320,13 +334,12 @@ fn prepare_ballot_page_image(
         geometry,
     })
 }
-
 #[time]
 pub fn interpret_ballot_card(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     options: &Options,
-) -> Result {
+) -> InterpretResult {
     let BallotCard {
         side_a,
         side_b,
@@ -347,85 +360,172 @@ pub fn interpret_ballot_card(
         None => ImageDebugWriter::disabled(),
     };
 
-    let (side_a_result, side_b_result) = rayon::join(
-        || {
-            find_timing_mark_grid(
-                SIDE_A_LABEL,
-                &geometry,
-                &side_a.image,
-                side_a.border_inset,
-                &mut side_a_debug,
-            )
-        },
-        || {
-            find_timing_mark_grid(
-                SIDE_B_LABEL,
-                &geometry,
-                &side_b.image,
-                side_b.border_inset,
-                &mut side_b_debug,
-            )
-        },
+    let (side_a_grid_result, side_b_grid_result) = rayon::join(
+        || find_timing_mark_grid(&geometry, &side_a.image, &mut side_a_debug),
+        || find_timing_mark_grid(&geometry, &side_b.image, &mut side_b_debug),
     );
 
-    let (side_a_grid, side_a_normalized_img) = side_a_result?;
-    let (side_b_grid, side_b_normalized_img) = side_b_result?;
+    let side_a_grid = side_a_grid_result?;
+    let side_b_grid = side_b_grid_result?;
 
-    let ((front_image, front_grid, front_debug), (back_image, back_grid, back_debug)) =
-        match (&side_a_grid.metadata, &side_b_grid.metadata) {
-            (BallotPageMetadata::Front(_), BallotPageMetadata::Back(_)) => (
+    // Branch for VX-style ballots (with QR code metadata) vs. Accuvote-style
+    // ballots (with timing mark encoded metadata).
+    //
+    // We'll find the appropriate metadata, use it to normalize the image and
+    // grid orientation, and extract the ballot style from it.
+    let (
+        (front_grid, front_image, front_metadata, front_debug),
+        (back_grid, back_image, back_metadata, back_debug),
+        ballot_style_id,
+    ) = match options.election.ballot_layout.metadata_encoding {
+        MetadataEncoding::QrCode => {
+            let (side_a_qr_code_result, side_b_qr_code_result) = rayon::join(
+                || {
+                    detect_qr_code_metadata(
+                        &options.election,
+                        &side_a.image,
+                        &geometry,
+                        &mut side_a_debug,
+                    )
+                    .map_err(|error| Error::InvalidQrCodeMetadata {
+                        label: SIDE_A_LABEL.to_string(),
+                        error,
+                    })
+                },
+                || {
+                    detect_qr_code_metadata(
+                        &options.election,
+                        &side_b.image,
+                        &geometry,
+                        &mut side_b_debug,
+                    )
+                    .map_err(|error| Error::InvalidQrCodeMetadata {
+                        label: SIDE_B_LABEL.to_string(),
+                        error,
+                    })
+                },
+            );
+
+            // TODO - To increase resiliency, if we successfully read a QR code from one
+            // side but not the other, we could correct the other side's metadata before
+            // unwrapping the results below.
+
+            let (side_a_metadata, side_a_orientation) = side_a_qr_code_result?;
+            let (side_b_metadata, side_b_orientation) = side_b_qr_code_result?;
+
+            let (
+                (side_a_normalized_grid, side_a_normalized_image),
+                (side_b_normalized_grid, side_b_normalized_image),
+            ) = rayon::join(
+                || {
+                    normalize_orientation(
+                        &geometry,
+                        side_a_grid,
+                        &side_a.image,
+                        side_a_orientation,
+                        &mut side_a_debug,
+                    )
+                },
+                || {
+                    normalize_orientation(
+                        &geometry,
+                        side_b_grid,
+                        &side_b.image,
+                        side_b_orientation,
+                        &mut side_b_debug,
+                    )
+                },
+            );
+
+            let (side_a, side_b) = (
                 (
-                    side_a_normalized_img.unwrap_or(side_a.image),
-                    side_a_grid,
+                    side_a_normalized_grid,
+                    side_a_normalized_image,
+                    BallotPageMetadata::QrCode(side_a_metadata.clone()),
                     side_a_debug,
                 ),
                 (
-                    side_b_normalized_img.unwrap_or(side_b.image),
-                    side_b_grid,
+                    side_b_normalized_grid,
+                    side_b_normalized_image,
+                    BallotPageMetadata::QrCode(side_b_metadata),
                     side_b_debug,
                 ),
-            ),
-            (BallotPageMetadata::Back(_), BallotPageMetadata::Front(_)) => (
-                (
-                    side_b_normalized_img.unwrap_or(side_b.image),
-                    side_b_grid,
-                    side_b_debug,
-                ),
-                (
-                    side_a_normalized_img.unwrap_or(side_a.image),
-                    side_a_grid,
-                    side_a_debug,
-                ),
-            ),
-            _ => {
-                return Err(Error::InvalidCardMetadata {
-                    side_a: side_a_grid.metadata,
-                    side_b: side_b_grid.metadata,
-                })
-            }
-        };
+            );
 
-    let ballot_style_id = match &front_grid.metadata {
-        BallotPageMetadata::Front(metadata) => {
-            // If the election is using "card-number-{n}" ballot style IDs, use
-            // the card number in the metadata to create that ballot style ID.
-            if options
-                .election
-                .ballot_styles
-                .iter()
-                .all(|ballot_style| ballot_style.id.to_string().starts_with("card-number-"))
-            {
-                BallotStyleId::from(format!("card-number-{}", metadata.card_number))
-            }
-            // If not, use the card number in the metadata as an index into the
-            // list of ballot styles.
-            else {
-                options.election.ballot_styles[metadata.card_number as usize]
-                    .id
-                    .clone()
+            let ballot_style_id = side_a_metadata.ballot_style_id.clone();
+
+            if side_a_metadata.page_number % 2 == 1 {
+                (side_a, side_b, ballot_style_id)
+            } else {
+                (side_b, side_a, ballot_style_id)
             }
         }
-        BallotPageMetadata::Back(_) => unreachable!(),
+
+        MetadataEncoding::TimingMarks => {
+            let (side_a_result, side_b_result) = rayon::join(
+                || {
+                    detect_metadata_and_normalize_orientation_from_timing_marks(
+                        SIDE_A_LABEL,
+                        &geometry,
+                        side_a_grid,
+                        &side_a.image,
+                        &mut side_a_debug,
+                    )
+                },
+                || {
+                    detect_metadata_and_normalize_orientation_from_timing_marks(
+                        SIDE_B_LABEL,
+                        &geometry,
+                        side_b_grid,
+                        &side_b.image,
+                        &mut side_b_debug,
+                    )
+                },
+            );
+
+            let (side_a_normalized_grid, side_a_normalized_image, side_a_metadata) = side_a_result?;
+            let (side_b_normalized_grid, side_b_normalized_image, side_b_metadata) = side_b_result?;
+
+            let (side_a, side_b) = (
+                (
+                    side_a_normalized_grid,
+                    side_a_normalized_image,
+                    BallotPageMetadata::TimingMarks(side_a_metadata.clone()),
+                    side_a_debug,
+                ),
+                (
+                    side_b_normalized_grid,
+                    side_b_normalized_image,
+                    BallotPageMetadata::TimingMarks(side_b_metadata.clone()),
+                    side_b_debug,
+                ),
+            );
+
+            match (&side_a_metadata, &side_b_metadata) {
+                (
+                    BallotPageTimingMarkMetadata::Front(front_metadata),
+                    BallotPageTimingMarkMetadata::Back(_),
+                ) => (
+                    side_a,
+                    side_b,
+                    BallotStyleId::from(format!("card-number-{}", front_metadata.card_number)),
+                ),
+                (
+                    BallotPageTimingMarkMetadata::Back(_),
+                    BallotPageTimingMarkMetadata::Front(front_metadata),
+                ) => (
+                    side_b,
+                    side_a,
+                    BallotStyleId::from(format!("card-number-{}", front_metadata.card_number)),
+                ),
+                _ => {
+                    return Err(Error::InvalidCardMetadata {
+                        side_a: BallotPageMetadata::TimingMarks(side_a_metadata),
+                        side_b: BallotPageMetadata::TimingMarks(side_b_metadata),
+                    })
+                }
+            }
+        }
     };
 
     let Some(grid_layout) = options
@@ -434,8 +534,8 @@ pub fn interpret_ballot_card(
         .iter()
         .find(|layout| layout.ballot_style_id == ballot_style_id) else {
             return Err(Error::MissingGridLayout {
-                front: front_grid.metadata,
-                back: back_grid.metadata,
+                front: front_metadata,
+                back: back_metadata,
             })
     };
 
@@ -503,6 +603,7 @@ pub fn interpret_ballot_card(
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
             grid: front_grid,
+            metadata: front_metadata,
             marks: front_scored_bubble_marks,
             write_ins: front_write_in_area_scores,
             normalized_image: front_image,
@@ -510,6 +611,7 @@ pub fn interpret_ballot_card(
         },
         back: InterpretedBallotPage {
             grid: back_grid,
+            metadata: back_metadata,
             marks: back_scored_bubble_marks,
             write_ins: back_write_in_area_scores,
             normalized_image: back_image,

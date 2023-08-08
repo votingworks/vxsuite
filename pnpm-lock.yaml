@@ -1216,6 +1216,9 @@ importers:
       fs-extra:
         specifier: ^9.0.1
         version: 9.1.0
+      js-sha256:
+        specifier: ^0.9.0
+        version: 0.9.0
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
@@ -1470,11 +1473,14 @@ importers:
 
   apps/design/shared:
     dependencies:
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../../../libs/ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
       '@votingworks/types':
-        specifier: workspace:^1.0.0
+        specifier: workspace:*
         version: link:../../../libs/types
       buffer:
         specifier: ^6.0.3

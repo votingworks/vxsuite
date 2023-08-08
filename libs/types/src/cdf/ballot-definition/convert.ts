@@ -409,6 +409,7 @@ export function convertCdfBallotDefinitionToVxfElection(
 
     ballotLayout: {
       paperSize: Vxf.BallotPaperSize.Letter,
+      metadataEncoding: 'qr-code',
     },
   };
 }

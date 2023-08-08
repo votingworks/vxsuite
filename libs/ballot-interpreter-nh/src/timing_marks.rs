@@ -17,9 +17,10 @@ use crate::{
         find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
         PixelUnit, Point, Rect, Segment, Size, SubPixelUnit,
     },
-    image_utils::{expand_image, match_template, Inset, WHITE},
+    image_utils::{expand_image, match_template, WHITE},
     interpret::Error,
-    metadata::{decode_metadata_from_timing_marks, BallotPageMetadata},
+    qr_code_metadata::BallotPageQrCodeMetadata,
+    timing_mark_metadata::{decode_metadata_from_timing_marks, BallotPageTimingMarkMetadata},
 };
 
 /// Represents partial timing marks found in a ballot card.
@@ -79,27 +80,20 @@ pub struct Complete {
     pub bottom_right_rect: Rect,
 }
 
+#[derive(Debug, Serialize, Clone)]
+#[serde(tag = "source", rename_all = "kebab-case")]
+pub enum BallotPageMetadata {
+    TimingMarks(BallotPageTimingMarkMetadata),
+    QrCode(BallotPageQrCodeMetadata),
+}
+
 /// Represents a grid of timing marks and provides access to the expected
-/// location of bubbles in the grid. Note that all coordinates are based in an
-/// image that may have been rotated, cropped, and scaled. To recreate the image
-/// that corresponds to the grid, follow these steps starting with the original:
-///   1. rotate 180 degrees if `orientation` is `PortraitReversed`.
-///   2. crop the image edges by `border_inset`.
-///   3. scale the image to `scaled_size`.
+/// location of bubbles in the grid.
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimingMarkGrid {
     /// The geometry of the ballot card.
     pub geometry: Geometry,
-
-    /// The orientation of the ballot card.
-    pub orientation: Orientation,
-
-    /// Inset to crop to exclude the border.
-    pub border_inset: Inset,
-
-    /// The size of the image after scaling.
-    pub scaled_size: Size<u32>,
 
     /// Timing marks found by examining the image.
     pub partial_timing_marks: Partial,
@@ -109,31 +103,20 @@ pub struct TimingMarkGrid {
 
     /// Areas of the ballot card that contain shapes that may be timing marks.
     pub candidate_timing_marks: Vec<Rect>,
-
-    /// Metadata from the ballot card bottom timing marks.
-    pub metadata: BallotPageMetadata,
 }
 
 impl TimingMarkGrid {
     pub fn new(
         geometry: Geometry,
-        orientation: Orientation,
-        border_inset: Inset,
-        scaled_size: Size<u32>,
         partial_timing_marks: Partial,
         complete_timing_marks: Complete,
         candidate_timing_marks: Vec<Rect>,
-        metadata: BallotPageMetadata,
     ) -> Self {
         Self {
             geometry,
-            orientation,
-            border_inset,
-            scaled_size,
             partial_timing_marks,
             complete_timing_marks,
             candidate_timing_marks,
-            metadata,
         }
     }
 
@@ -192,12 +175,10 @@ impl TimingMarkGrid {
 /// marks, i.e. the locations of all the possible bubbles.
 #[time]
 pub fn find_timing_mark_grid(
-    label: &str,
     geometry: &Geometry,
     img: &GrayImage,
-    border_inset: Inset,
     debug: &mut ImageDebugWriter,
-) -> Result<(TimingMarkGrid, Option<GrayImage>), Error> {
+) -> Result<TimingMarkGrid, Error> {
     let threshold = otsu_level(img);
     // Find shapes that look like timing marks but may not be.
     let candidate_timing_marks = find_timing_mark_shapes(geometry, img, threshold, debug);
@@ -215,40 +196,6 @@ pub fn find_timing_mark_grid(
         })
     };
 
-    // Assumes that we will find most of the timing marks and that there will be
-    // more missing on the bottom than the top. If that's not the case, then
-    // we'll need to rotate the image.
-    let orientation =
-        if partial_timing_marks.top_rects.len() >= partial_timing_marks.bottom_rects.len() {
-            Orientation::Portrait
-        } else {
-            Orientation::PortraitReversed
-        };
-
-    // Handle rotating the image and our partial timing marks if necessary.
-    let (partial_timing_marks, normalized_img, border_inset) =
-        if orientation == Orientation::Portrait {
-            (partial_timing_marks, None, border_inset)
-        } else {
-            let (width, height) = img.dimensions();
-            debug.rotate180();
-            (
-                rotate_partial_timing_marks(&Size { width, height }, partial_timing_marks),
-                Some(rotate180(img)),
-                Inset {
-                    top: border_inset.bottom,
-                    bottom: border_inset.top,
-                    left: border_inset.right,
-                    right: border_inset.left,
-                },
-            )
-        };
-
-    debug.write(
-        "partial_timing_marks_after_orientation_correction",
-        |canvas| draw_timing_mark_debug_image_mut(canvas, geometry, &partial_timing_marks),
-    );
-
     let Some(complete_timing_marks) = find_complete_timing_marks_from_partial_timing_marks(
         geometry,
         &partial_timing_marks,
@@ -259,46 +206,21 @@ pub fn find_timing_mark_grid(
         })
     };
 
-    let filled_bottom_timing_marks = find_actual_bottom_timing_marks(
-        &complete_timing_marks,
-        normalized_img.as_ref().unwrap_or(img),
-        threshold,
-    );
-
-    let metadata = match decode_metadata_from_timing_marks(geometry, &filled_bottom_timing_marks) {
-        Ok(metadata) => metadata,
-        Err(error) => {
-            return Err(Error::InvalidMetadata {
-                label: label.to_string(),
-                error,
-            })
-        }
-    };
-
-    let scaled_size = Size {
-        width: img.width(),
-        height: img.height(),
-    };
-
     let timing_mark_grid = TimingMarkGrid::new(
         *geometry,
-        orientation,
-        border_inset,
-        scaled_size,
         partial_timing_marks,
         complete_timing_marks,
         candidate_timing_marks,
-        metadata,
     );
 
     debug.write("timing_mark_grid", |canvas| {
         debug::draw_timing_mark_grid_debug_image_mut(canvas, &timing_mark_grid, geometry);
     });
 
-    Ok((timing_mark_grid, normalized_img))
+    Ok(timing_mark_grid)
 }
 
-fn find_actual_bottom_timing_marks(
+pub fn find_actual_bottom_timing_marks(
     complete_timing_marks: &Complete,
     image: &GrayImage,
     threshold: u8,
@@ -616,11 +538,11 @@ impl Rotator180 {
 }
 
 #[time]
-pub fn rotate_partial_timing_marks(
+pub fn rotate_complete_timing_marks(
     image_size: &Size<u32>,
-    partial_timing_marks: Partial,
-) -> Partial {
-    let Partial {
+    complete_timing_marks: Complete,
+) -> Complete {
+    let Complete {
         geometry,
         top_left_corner,
         top_right_corner,
@@ -634,7 +556,7 @@ pub fn rotate_partial_timing_marks(
         bottom_rects,
         left_rects,
         right_rects,
-    } = partial_timing_marks;
+    } = complete_timing_marks;
 
     let rotator = Rotator180::new(*image_size);
 
@@ -646,10 +568,10 @@ pub fn rotate_partial_timing_marks(
     );
 
     let (top_left_rect, top_right_rect, bottom_left_rect, bottom_right_rect) = (
-        bottom_right_rect.map(|r| rotator.rotate_rect(&r)),
-        bottom_left_rect.map(|r| rotator.rotate_rect(&r)),
-        top_right_rect.map(|r| rotator.rotate_rect(&r)),
-        top_left_rect.map(|r| rotator.rotate_rect(&r)),
+        rotator.rotate_rect(&bottom_right_rect),
+        rotator.rotate_rect(&bottom_left_rect),
+        rotator.rotate_rect(&top_right_rect),
+        rotator.rotate_rect(&top_left_rect),
     );
 
     let mut rotated_top_rects: Vec<Rect> =
@@ -668,7 +590,7 @@ pub fn rotate_partial_timing_marks(
     rotated_left_rects.sort_by_key(Rect::top);
     rotated_right_rects.sort_by_key(Rect::top);
 
-    Partial {
+    Complete {
         geometry,
         top_left_corner,
         top_right_corner,
@@ -896,6 +818,17 @@ pub fn rect_could_be_timing_mark(geometry: &Geometry, rect: &Rect) -> bool {
         && rect.height() <= max_timing_mark_height
 }
 
+pub fn detect_orientation_from_grid(grid: &TimingMarkGrid) -> Orientation {
+    // For Accuvote-style ballots, assume that we will find most of
+    // the timing marks and that there will be more missing on the bottom than
+    // the top. If that's not the case, then we'll need to rotate the image.
+    if grid.partial_timing_marks.top_rects.len() >= grid.partial_timing_marks.bottom_rects.len() {
+        Orientation::Portrait
+    } else {
+        Orientation::PortraitReversed
+    }
+}
+
 /// Gets all the distances between adjacent rects in a list of rects.
 pub fn distances_between_rects(rects: &[Rect]) -> Vec<f32> {
     let mut distances = rects
@@ -973,4 +906,68 @@ pub fn find_empty_bubbles_matching_template(
         }
     }
     empty_bubbles
+}
+
+pub fn normalize_orientation(
+    geometry: &Geometry,
+    grid: TimingMarkGrid,
+    image: &GrayImage,
+    orientation: Orientation,
+    debug: &mut ImageDebugWriter,
+) -> (TimingMarkGrid, GrayImage) {
+    // Handle rotating the image and our timing marks if necessary.
+    let (complete_timing_marks, normalized_image) = if orientation == Orientation::Portrait {
+        (grid.complete_timing_marks, image.clone())
+    } else {
+        let (width, height) = image.dimensions();
+        debug.rotate180();
+        (
+            rotate_complete_timing_marks(&Size { width, height }, grid.complete_timing_marks),
+            rotate180(image),
+        )
+    };
+
+    debug.write(
+        "complete_timing_marks_after_orientation_correction",
+        |canvas| {
+            draw_timing_mark_debug_image_mut(
+                canvas,
+                geometry,
+                &Partial {
+                    ..complete_timing_marks.clone().into()
+                },
+            )
+        },
+    );
+
+    let grid = TimingMarkGrid {
+        complete_timing_marks,
+        ..grid
+    };
+    (grid, normalized_image)
+}
+
+pub fn detect_metadata_and_normalize_orientation_from_timing_marks(
+    label: &str,
+    geometry: &Geometry,
+    grid: TimingMarkGrid,
+    image: &GrayImage,
+    debug: &mut ImageDebugWriter,
+) -> Result<(TimingMarkGrid, GrayImage, BallotPageTimingMarkMetadata), Error> {
+    let orientation = detect_orientation_from_grid(&grid);
+    let (normalized_grid, normalized_image) =
+        normalize_orientation(geometry, grid, image, orientation, debug);
+    let metadata = decode_metadata_from_timing_marks(
+        geometry,
+        &find_actual_bottom_timing_marks(
+            &normalized_grid.complete_timing_marks,
+            &normalized_image,
+            otsu_level(&normalized_image),
+        ),
+    )
+    .map_err(|error| Error::InvalidTimingMarkMetadata {
+        label: label.to_string(),
+        error,
+    })?;
+    Ok((normalized_grid, normalized_image, metadata))
 }

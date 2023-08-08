@@ -12,6 +12,7 @@ import {
   getBallotStyle,
   getContests,
   getPrecinctById,
+  HmpbBallotPageMetadata,
   isVotePresent,
   PrecinctId,
   unsafeParse,
@@ -40,6 +41,11 @@ export const MAXIMUM_WRITE_IN_LENGTH = 40;
 export const ELECTION_HASH_LENGTH = 20;
 
 /**
+ * Maximum number of pages in a hand-marked paper ballot.
+ */
+export const MAXIMUM_PAGE_NUMBERS = 30;
+
+/**
  * Slices an election hash down to the length used in ballot encoding. Useful
  * to have this as a utility function so it can be mocked in other modules' tests.
  */
@@ -65,18 +71,25 @@ export const HexEncoding = new CustomEncoding('0123456789abcdef');
 /**
  * The bytes we expect a BMD ballot to start with.
  */
-export const Prelude: readonly Uint8[] = [
+export const BmdPrelude: readonly Uint8[] = [
   /* V */ 86, /* X */ 88, /* version = */ 2,
+];
+
+/**
+ * The bytes we expect a hand-marked paper ballot to start with.
+ */
+export const HmpbPrelude: readonly Uint8[] = [
+  /* V */ 86, /* P = Paper */ 80, /* version = */ 2,
 ];
 
 /**
  * Detects whether `data` is a v1-encoded ballot.
  */
 export function detectRawBytesBmdBallot(data: Uint8Array): boolean {
-  const prelude = data.slice(0, Prelude.length);
+  const prelude = data.slice(0, BmdPrelude.length);
   return (
-    prelude.length === Prelude.length &&
-    prelude.every((byte, i) => byte === Prelude[i])
+    prelude.length === BmdPrelude.length &&
+    prelude.every((byte, i) => byte === BmdPrelude[i])
   );
 }
 
@@ -96,6 +109,7 @@ export interface BallotConfig {
   ballotType: BallotType;
   isTestMode: boolean;
   precinctId: PrecinctId;
+  pageNumber?: number; // For HMPB only
 }
 
 /**
@@ -103,7 +117,14 @@ export interface BallotConfig {
  */
 export function encodeBallotConfigInto(
   election: Election,
-  { ballotId, ballotStyleId, ballotType, isTestMode, precinctId }: BallotConfig,
+  {
+    ballotId,
+    ballotStyleId,
+    ballotType,
+    isTestMode,
+    precinctId,
+    pageNumber,
+  }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
   const { precincts, ballotStyles, contests } = election;
@@ -128,6 +149,10 @@ export function encodeBallotConfigInto(
     .writeUint(precinctIndex, { max: precinctCount - 1 })
     .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 });
 
+  if (pageNumber !== undefined) {
+    bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
+  }
+
   bits
     .writeBoolean(isTestMode)
     .writeUint(ballotType, { max: BallotTypeMaximumValue });
@@ -146,7 +171,8 @@ export function encodeBallotConfigInto(
  */
 export function decodeBallotConfigFromReader(
   election: Election,
-  bits: BitReader
+  bits: BitReader,
+  { readPageNumber = false }: { readPageNumber?: boolean } = {}
 ): BallotConfig {
   const { precincts, ballotStyles, contests } = election;
   const precinctCount = bits.readUint8();
@@ -174,6 +200,9 @@ export function decodeBallotConfigFromReader(
     );
   }
 
+  const pageNumber = readPageNumber
+    ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
+    : undefined;
   const isTestMode = bits.readBoolean();
   const ballotType = bits.readUint({ max: BallotTypeMaximumValue });
   const ballotId = bits.readBoolean()
@@ -189,9 +218,10 @@ export function decodeBallotConfigFromReader(
   return {
     ballotId,
     ballotStyleId: ballotStyle.id,
-    ballotType,
-    isTestMode,
     precinctId: precinct.id,
+    pageNumber,
+    isTestMode,
+    ballotType,
   };
 }
 
@@ -297,8 +327,8 @@ export function encodeBallotInto(
   const contests = getContests({ ballotStyle, election });
 
   return bits
-    .writeUint8(...Prelude)
-    .writeString(electionHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeUint8(...BmdPrelude)
+    .writeString(sliceElectionHash(electionHash), {
       encoding: HexEncoding,
       includeLength: false,
       length: ELECTION_HASH_LENGTH,
@@ -414,7 +444,7 @@ export function decodeBallotFromReader(
   election: Election,
   bits: BitReader
 ): CompletedBallot {
-  if (!bits.skipUint8(...Prelude)) {
+  if (!bits.skipUint8(...BmdPrelude)) {
     throw new Error(
       "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
     );
@@ -465,7 +495,7 @@ export function decodeBallot(
 export function decodeElectionHashFromReader(
   bits: BitReader
 ): string | undefined {
-  if (bits.skipUint8(...Prelude)) {
+  if (bits.skipUint8(...BmdPrelude) || bits.skipUint8(...HmpbPrelude)) {
     return bits.readString({
       encoding: HexEncoding,
       length: ELECTION_HASH_LENGTH,
@@ -478,4 +508,57 @@ export function decodeElectionHashFromReader(
  */
 export function decodeElectionHash(data: Uint8Array): string | undefined {
   return decodeElectionHashFromReader(new BitReader(data));
+}
+
+/**
+ * Encodes a hand-marked paper ballot's metadata into a bit writer.
+ */
+export function encodeHmpbBallotPageMetadataInto(
+  election: Election,
+  {
+    ballotId,
+    ballotStyleId,
+    ballotType,
+    electionHash,
+    isTestMode,
+    pageNumber,
+    precinctId,
+  }: HmpbBallotPageMetadata,
+  bits: BitWriter
+): BitWriter {
+  return bits
+    .writeUint8(...HmpbPrelude)
+    .writeString(sliceElectionHash(electionHash), {
+      encoding: HexEncoding,
+      includeLength: false,
+      length: ELECTION_HASH_LENGTH,
+    })
+    .with(() =>
+      encodeBallotConfigInto(
+        election,
+        {
+          ballotId,
+          ballotStyleId,
+          ballotType,
+          isTestMode,
+          pageNumber,
+          precinctId,
+        },
+        bits
+      )
+    );
+}
+
+/**
+ * Encodes hand-marked paper ballot page metadata as a byte array.
+ */
+export function encodeHmpbBallotPageMetadata(
+  election: Election,
+  metadata: HmpbBallotPageMetadata
+): Uint8Array {
+  return encodeHmpbBallotPageMetadataInto(
+    election,
+    metadata,
+    new BitWriter()
+  ).toUint8Array();
 }

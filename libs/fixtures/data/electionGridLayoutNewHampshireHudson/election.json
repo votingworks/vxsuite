@@ -1,7 +1,8 @@
 {
   "ballotLayout": {
     "paperSize": "legal",
-    "targetMarkPosition": "right"
+    "targetMarkPosition": "right",
+    "metadataEncoding": "timing-marks"
   },
   "ballotStyles": [
     {

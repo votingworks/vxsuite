@@ -7,7 +7,8 @@
   },
   "date": "2020-11-03T00:00:00-08:00",
   "ballotLayout": {
-    "paperSize": "letter"
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
   },
   "districts": [
     {

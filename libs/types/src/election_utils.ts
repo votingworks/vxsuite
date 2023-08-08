@@ -526,7 +526,10 @@ function preprocessElection(value: unknown): unknown {
   if (!('ballotLayout' in election)) {
     election = {
       ...election,
-      ballotLayout: { paperSize: BallotPaperSize.Letter },
+      ballotLayout: {
+        paperSize: BallotPaperSize.Letter,
+        metadataEncoding: 'qr-code',
+      },
     };
   }
 

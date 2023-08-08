@@ -148,7 +148,8 @@ export function TabulationScreen(): JSX.Element | null {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const { electionDefinition } = getElectionQuery.data;
+  const { election } = electionDefinition;
 
   return (
     <ElectionNavScreen electionId={electionId}>

@@ -142,8 +142,7 @@ const validCastVoteRecord: CVR.CVR = {
   BallotStyleUnitId: 'precinct-1',
   PartyIds: ['0'],
   CreatingDeviceId: 'scanner',
-  ElectionId:
-    'e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08',
+  ElectionId: electionDefinition.electionHash,
   BatchId: 'batch-1',
   vxBallotType: CVR.vxBallotType.Absentee,
   BallotSheetId: '1',

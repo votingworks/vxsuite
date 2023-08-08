@@ -5,13 +5,14 @@ import {
   BallotTypeMaximumValue,
   CompletedBallot,
   getContests,
+  HmpbBallotPageMetadata,
   isVotePresent,
   unsafeParse,
   vote,
   VotesDict,
 } from '@votingworks/types';
 import '../test/expect';
-import { BitWriter, toUint8 } from './bits';
+import { BitReader, BitWriter, toUint8 } from './bits';
 import {
   decodeBallot,
   decodeElectionHash,
@@ -22,10 +23,13 @@ import {
   encodeBallotInto,
   HexEncoding,
   MAXIMUM_WRITE_IN_LENGTH,
-  Prelude,
+  BmdPrelude,
   WriteInEncoding,
   sliceElectionHash,
   encodeBallotConfigInto,
+  encodeHmpbBallotPageMetadata,
+  decodeElectionHashFromReader,
+  decodeBallotConfigFromReader,
 } from './index';
 
 function falses(count: number): boolean[] {
@@ -39,17 +43,19 @@ test('sliceElectionHash', () => {
 });
 
 test('can detect an encoded ballot', () => {
-  expect(detectRawBytesBmdBallot(Uint8Array.of(...Prelude))).toEqual(true);
+  expect(detectRawBytesBmdBallot(Uint8Array.of(...BmdPrelude))).toEqual(true);
   expect(detectRawBytesBmdBallot(Uint8Array.of())).toEqual(false);
-  expect(detectRawBytesBmdBallot(Uint8Array.of(0, ...Prelude))).toEqual(false);
+  expect(detectRawBytesBmdBallot(Uint8Array.of(0, ...BmdPrelude))).toEqual(
+    false
+  );
   expect(
-    detectRawBytesBmdBallot(Uint8Array.of(...Prelude.slice(0, -2)))
+    detectRawBytesBmdBallot(Uint8Array.of(...BmdPrelude.slice(0, -2)))
   ).toEqual(false);
 
-  expect(isVxBallot(Uint8Array.of(...Prelude))).toEqual(true);
+  expect(isVxBallot(Uint8Array.of(...BmdPrelude))).toEqual(true);
   expect(isVxBallot(Uint8Array.of())).toEqual(false);
-  expect(isVxBallot(Uint8Array.of(0, ...Prelude))).toEqual(false);
-  expect(isVxBallot(Uint8Array.of(...Prelude.slice(0, -2)))).toEqual(false);
+  expect(isVxBallot(Uint8Array.of(0, ...BmdPrelude))).toEqual(false);
+  expect(isVxBallot(Uint8Array.of(...BmdPrelude.slice(0, -2)))).toEqual(false);
 });
 
 test('encodes & decodes with Uint8Array as the standard encoding interface', () => {
@@ -915,4 +921,59 @@ test('decode election hash from BMD metadata', () => {
 
 test('fails to find the election hash with garbage data', () => {
   expect(decodeElectionHash(Uint8Array.of(1, 2, 3))).toBeUndefined();
+});
+
+test('encode HMPB ballot page metadata', () => {
+  const { election } = electionDefinition;
+  const ballotMetadata: HmpbBallotPageMetadata = {
+    electionHash: electionDefinition.electionHash,
+    precinctId: election.ballotStyles[0]!.precincts[0]!,
+    ballotStyleId: election.ballotStyles[0]!.id,
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  };
+
+  const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
+
+  const { electionHash, ...ballotConfig } = ballotMetadata;
+  const reader = new BitReader(encoded);
+  expect(decodeElectionHashFromReader(reader)).toEqual(
+    sliceElectionHash(electionHash)
+  );
+  expect(
+    decodeBallotConfigFromReader(election, reader, { readPageNumber: true })
+  ).toEqual(ballotConfig);
+});
+
+test('encode HMPB ballot page metadata with bad precinct fails', () => {
+  const { election, electionHash } = electionDefinition;
+  const ballotMetadata: HmpbBallotPageMetadata = {
+    electionHash,
+    precinctId: 'SanDimas', // not an actual precinct ID
+    ballotStyleId: election.ballotStyles[0]!.id,
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  };
+
+  expect(() =>
+    encodeHmpbBallotPageMetadata(election, ballotMetadata)
+  ).toThrowError('precinct ID not found: SanDimas');
+});
+
+test('encode HMPB ballot page metadata with bad ballot style fails', () => {
+  const { election, electionHash } = electionDefinition;
+  const ballotMetadata: HmpbBallotPageMetadata = {
+    electionHash,
+    precinctId: election.ballotStyles[0]!.precincts[0]!,
+    ballotStyleId: '42', // not a good ballot style
+    pageNumber: 3,
+    isTestMode: true,
+    ballotType: BallotType.Standard,
+  };
+
+  expect(() =>
+    encodeHmpbBallotPageMetadata(election, ballotMetadata)
+  ).toThrowError('ballot style ID not found: 42');
 });

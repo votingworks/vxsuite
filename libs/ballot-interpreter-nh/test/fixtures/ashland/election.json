@@ -1,22 +1,17 @@
 {
   "ballotLayout": {
     "paperSize": "letter",
-    "targetMarkPosition": "right"
+    "targetMarkPosition": "right",
+    "metadataEncoding": "timing-marks"
   },
   "ballotStyles": [
     {
       "id": "card-number-5",
-      "precincts": [
-        "town-id-01001-precinct-id-"
-      ],
-      "districts": [
-        "town-id-01001-precinct-id-"
-      ]
+      "precincts": ["town-id-01001-precinct-id-"],
+      "districts": ["town-id-01001-precinct-id-"]
     }
   ],
-  "centralScanAdjudicationReasons": [
-    "Overvote"
-  ],
+  "centralScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
       "id": "Governor-061a401b",
@@ -29,30 +24,22 @@
         {
           "id": "Chris-Sununu-130124f7",
           "name": "Chris Sununu",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Kelly-Halldorson-f95c61f0",
           "name": "Kelly Halldorson",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         },
         {
           "id": "Karlyn-Borysenko-bea8579f",
           "name": "Karlyn Borysenko",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         },
         {
           "id": "Tom-Sherman-dffdfae0",
           "name": "Tom Sherman",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -68,23 +55,17 @@
         {
           "id": "Donald-C-Bolduc-33c014c1",
           "name": "Donald C. Bolduc",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Jeremy-Kauffman-0f3b7602",
           "name": "Jeremy Kauffman",
-          "partyIds": [
-            "OC-3a386d2b"
-          ]
+          "partyIds": ["OC-3a386d2b"]
         },
         {
           "id": "Maggie-Hassan-8a1e064f",
           "name": "Maggie Hassan",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -100,16 +81,12 @@
         {
           "id": "Robert-Burns-411cf3d0",
           "name": "Robert Burns",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Ann-McLane-Kuster-67fdf060",
           "name": "Ann McLane Kuster",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -125,16 +102,12 @@
         {
           "id": "Harold-F-French-a19ebb94",
           "name": "Harold F. French",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Cinde-Warmington-2b89ceee",
           "name": "Cinde Warmington",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -150,16 +123,12 @@
         {
           "id": "Timothy-Lang-f0638d6e",
           "name": "Timothy Lang",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Kate-Miller-332a6254",
           "name": "Kate Miller",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -175,44 +144,32 @@
         {
           "id": "Kendall-B-Hughes-eeffda79",
           "name": "Kendall B. Hughes",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "George-Kirk-ba87e45e",
           "name": "George Kirk",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Mike-McLaughlin-1e5856b4",
           "name": "Mike McLaughlin",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Bill-Bolton-05d3d937",
           "name": "Bill Bolton",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Sallie-Fellows-9b2ed704",
           "name": "Sallie Fellows",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
           "id": "Peter-Lovett-1f2f8a77",
           "name": "Peter Lovett",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -228,16 +185,12 @@
         {
           "id": "Steve-Tatham-3679d759",
           "name": "Steve Tatham",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Jeffrey-F-Stiegler-64d89e78",
           "name": "Jeffrey F. Stiegler",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -253,9 +206,7 @@
         {
           "id": "Martha-Ann-Hornick-9f5887a3",
           "name": "Martha Ann Hornick",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -271,16 +222,12 @@
         {
           "id": "Brian-Dear-efa39ba4",
           "name": "Brian Dear",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Karen-Liot-Hill-b7b2ea05",
           "name": "Karen Liot Hill",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -296,16 +243,12 @@
         {
           "id": "John-H-Randlett-907075c6",
           "name": "John H. Randlett",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Kelley-Jean-Monahan-ee6b5707",
           "name": "Kelley Jean Monahan",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -321,16 +264,12 @@
         {
           "id": "Paul-Ingbretson-9af8a6ce",
           "name": "Paul Ingbretson",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Chuck-Townsend-1bce6e19",
           "name": "Chuck Townsend",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -346,16 +285,12 @@
         {
           "id": "Omer-C-Ahern-Jr--518d2f66",
           "name": "Omer C. Ahern, Jr.",
-          "partyIds": [
-            "Republican-f0167ce7"
-          ]
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
           "id": "Marcia-Morris-d64569a8",
           "name": "Marcia Morris",
-          "partyIds": [
-            "Democratic-aea20adb"
-          ]
+          "partyIds": ["Democratic-aea20adb"]
         }
       ],
       "allowWriteIns": true
@@ -812,9 +747,7 @@
       "abbrev": "Democratic"
     }
   ],
-  "precinctScanAdjudicationReasons": [
-    "Overvote"
-  ],
+  "precinctScanAdjudicationReasons": ["Overvote"],
   "precincts": [
     {
       "id": "town-id-01001-precinct-id-",

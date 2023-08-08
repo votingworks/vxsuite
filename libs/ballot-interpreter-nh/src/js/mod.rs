@@ -162,8 +162,8 @@ pub fn find_template_grid_and_bubbles(mut cx: FunctionContext) -> JsResult<JsArr
     let template_grid_and_bubbles = match crate::template::find_template_grid_and_bubbles(
         side_a_image,
         side_b_image,
-        side_a_label.as_str(),
-        side_b_label.as_str(),
+        &side_a_label,
+        &side_b_label,
     ) {
         Ok(template_grid_and_bubbles) => template_grid_and_bubbles,
         Err(err) => {

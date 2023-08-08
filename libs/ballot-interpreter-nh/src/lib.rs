@@ -8,9 +8,10 @@ mod image_utils;
 mod interpret;
 mod js;
 mod layout;
-mod metadata;
+mod qr_code_metadata;
 mod scoring;
 mod template;
+mod timing_mark_metadata;
 mod timing_marks;
 mod types;
 

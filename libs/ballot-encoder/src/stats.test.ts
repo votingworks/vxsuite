@@ -31,6 +31,7 @@ const election: Election = {
   ],
   ballotLayout: {
     paperSize: BallotPaperSize.Letter,
+    metadataEncoding: 'qr-code',
   },
 };
 const { electionHash } = asElectionDefinition(election);

@@ -32,7 +32,7 @@ import {
   convertMarksToVotesDict,
 } from '@votingworks/utils';
 import {
-  BallotPageMetadataFront,
+  BallotPageTimingMarkMetadataFront,
   Geometry,
   InterpretedBallotCard,
   InterpretResult as NextInterpretResult,
@@ -215,28 +215,16 @@ function convertMarksToMarkInfo(
 function buildInterpretedHmpbPageMetadata(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  frontMetadata: BallotPageMetadataFront,
+  frontMetadata: BallotPageTimingMarkMetadataFront,
   side: 'front' | 'back'
 ): HmpbBallotPageMetadata {
   const { election } = electionDefinition;
-  const isUsingCardNumberBallotStyles = election.ballotStyles.every(({ id }) =>
-    id.startsWith('card-number-')
-  );
-  const ballotStyle =
-    // If the election is using "card-number-{n}" ballot style IDs, use
-    // the card number in the metadata to create that ballot style ID.
-    isUsingCardNumberBallotStyles
-      ? getBallotStyle({
-          election,
-          ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
-        })
-      : // If not, use the card number in the metadata as an index into the
-        // list of ballot styles.
-        election.ballotStyles[frontMetadata.cardNumber];
+  const ballotStyle = getBallotStyle({
+    election,
+    ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
+  });
   assert(ballotStyle, `Ballot style ${frontMetadata.cardNumber} not found`);
-  const precinctId = isUsingCardNumberBallotStyles
-    ? ballotStyle.precincts[0]
-    : election.precincts[frontMetadata.batchOrPrecinctNumber]?.id;
+  const precinctId = ballotStyle.precincts[0];
   assert(
     precinctId !== undefined,
     `Precinct ${frontMetadata.batchOrPrecinctNumber} not found`
@@ -321,12 +309,19 @@ function convertNextInterpretedBallotPage(
     options.markThresholds ?? electionDefinition.election.markThresholds;
   assert(markThresholds, 'markThresholds must be defined');
 
-  const metadata = buildInterpretedHmpbPageMetadata(
-    electionDefinition,
-    options,
-    interpretedBallotCard.front.grid.metadata as BallotPageMetadataFront,
-    side
-  );
+  const sideMetadata = interpretedBallotCard[side].metadata;
+  const metadata =
+    sideMetadata.source === 'qr-code'
+      ? sideMetadata
+      : buildInterpretedHmpbPageMetadata(
+          electionDefinition,
+          options,
+          // For timing mark metadata, always use the front, since it contains
+          // the info we need
+          interpretedBallotCard.front
+            .metadata as BallotPageTimingMarkMetadataFront,
+          side
+        );
 
   const interpretation = interpretedBallotCard[side];
   const markInfo = convertMarksToMarkInfo(

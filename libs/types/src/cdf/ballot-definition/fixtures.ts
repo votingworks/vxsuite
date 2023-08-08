@@ -126,6 +126,7 @@ export const testVxfElection: Election = {
   ],
   ballotLayout: {
     paperSize: BallotPaperSize.Letter,
+    metadataEncoding: 'qr-code',
   },
 };
 

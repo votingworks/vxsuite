@@ -12,8 +12,10 @@ import {
   BallotPaperSize,
   BallotStyle,
   BallotTargetMarkPosition,
+  BallotType,
   Contests,
   Election,
+  ElectionDefinition,
   getCandidatePartiesDescription,
   getContests,
   GridLayout,
@@ -28,7 +30,8 @@ import {
   Rectangle,
   TextBox,
 } from './document_types';
-import { encodeMetadata } from './encode_metadata';
+import { encodeMetadataInQrCode, QrCodeData } from './encode_metadata';
+import { range } from './util';
 
 const debug = makeDebug('layout');
 
@@ -44,10 +47,6 @@ interface FontStyle {
   fontSize: number;
   fontWeight: FontWeight;
   lineHeight: number;
-}
-
-export function range(start: number, end: number): number[] {
-  return Array.from({ length: end - start }, (_, i) => i + start);
 }
 
 // TODO more accurate text measurement
@@ -354,22 +353,7 @@ function TimingMark({
   };
 }
 
-export function TimingMarkGrid({
-  pageNumber,
-  ballotStyleIndex,
-  precinctIndex,
-  m,
-}: {
-  pageNumber: number;
-  ballotStyleIndex: number;
-  precinctIndex: number;
-  m: Measurements;
-}): AnyElement {
-  const sheetMetadata = encodeMetadata(ballotStyleIndex, precinctIndex);
-  const pageMetadata =
-    pageNumber % 2 === 1
-      ? sheetMetadata.frontTimingMarks
-      : sheetMetadata.backTimingMarks;
+export function TimingMarkGrid({ m }: { m: Measurements }): AnyElement {
   return {
     type: 'Rectangle',
     x: 0,
@@ -382,11 +366,9 @@ export function TimingMarkGrid({
         TimingMark({ row: 1, column, m })
       ),
       // Bottom
-      [...pageMetadata.entries()]
-        .filter(([, bit]) => bit === 1)
-        .map(([column]) =>
-          TimingMark({ row: m.GRID.rows, column: column + 1, m })
-        ),
+      range(1, m.GRID.columns + 1).map((column) =>
+        TimingMark({ row: m.GRID.rows, column, m })
+      ),
       // Left
       range(1, m.GRID.rows + 1).map((row) => TimingMark({ row, column: 1, m })),
       // Right
@@ -545,13 +527,52 @@ function HeaderAndInstructions({
   };
 }
 
-function Footer({
+function QrCode({
+  x,
+  y,
+  width,
+  height,
+  qrCodeData,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  qrCodeData: QrCodeData;
+}): Rectangle {
+  const moduleSize = width / qrCodeData.length + 0.1;
+  return {
+    type: 'Rectangle',
+    x,
+    y,
+    width,
+    height,
+    children: qrCodeData.flatMap((columnData, column) =>
+      columnData.map((bit, row) => ({
+        type: 'Rectangle',
+        x: x + column * moduleSize,
+        y: y + row * moduleSize,
+        width: moduleSize,
+        height: moduleSize,
+        fill: bit === 1 ? 'black' : 'white',
+      }))
+    ),
+  };
+}
+
+export function Footer({
+  electionDefinition,
+  ballotStyle,
   precinct,
+  isTestMode,
   pageNumber,
   totalPages,
   m,
 }: {
+  electionDefinition: ElectionDefinition;
+  ballotStyle: BallotStyle;
   precinct: Precinct;
+  isTestMode: boolean;
   pageNumber: number;
   totalPages: number;
   m: Measurements;
@@ -575,6 +596,7 @@ function Footer({
             yToRow(m.FontStyles.H3.fontSize + 2, m) / 2,
           column:
             m.CONTENT_AREA_COLUMN_WIDTH -
+            m.FOOTER_ROW_HEIGHT -
             xToColumn(continueVotingTextWidth, m) -
             3,
         },
@@ -589,7 +611,10 @@ function Footer({
     {
       type: 'Image',
       ...gridPosition(
-        { row: (m.FOOTER_ROW_HEIGHT - arrowImageHeight) / 2, column: 29 },
+        {
+          row: (m.FOOTER_ROW_HEIGHT - arrowImageHeight) / 2,
+          column: m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 2,
+        },
         m
       ),
       width: gridWidth(arrowImageHeight, m),
@@ -613,8 +638,9 @@ function Footer({
             yToRow(m.FontStyles.H3.fontSize + 2, m) / 2,
           column:
             m.CONTENT_AREA_COLUMN_WIDTH -
+            m.FOOTER_ROW_HEIGHT -
             xToColumn(ballotCompleteTextWidth, m) -
-            1.5,
+            0.5,
         },
         m
       ),
@@ -627,6 +653,16 @@ function Footer({
 
   const endOfPageInstruction =
     pageNumber === totalPages ? ballotComplete : continueVoting;
+
+  const { election, electionHash } = electionDefinition;
+  const qrCodeData = encodeMetadataInQrCode(election, {
+    electionHash,
+    precinctId: precinct.id,
+    ballotStyleId: ballotStyle.id,
+    pageNumber,
+    ballotType: BallotType.Standard,
+    isTestMode,
+  });
 
   return {
     type: 'Rectangle',
@@ -642,47 +678,68 @@ function Footer({
     ),
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
-    fill: '#ededed',
-    stroke: 'black',
-    strokeWidth: 0.5,
     children: [
-      // Thicker top border
+      QrCode({
+        ...gridPosition({ row: 0, column: 0 }, m),
+        width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
+        height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+        qrCodeData,
+      }),
+      // Inner footer with gray background
       {
         type: 'Rectangle',
-        ...gridPosition({ row: 0, column: 0 }, m),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
-        height: 2,
-        fill: 'black',
+        ...gridPosition({ row: 0, column: m.FOOTER_ROW_HEIGHT + 0.5 }, m),
+        width: gridWidth(
+          m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 0.5,
+          m
+        ),
+        height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+        fill: '#ededed',
+        stroke: 'black',
+        strokeWidth: 0.5,
+        children: [
+          // Thicker top border
+          {
+            type: 'Rectangle',
+            ...gridPosition({ row: 0, column: 0 }, m),
+            width: gridWidth(
+              m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 0.5,
+              m
+            ),
+            height: 2,
+            fill: 'black',
+          },
+          TextBlock({
+            ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
+            width: gridWidth(5, m),
+            textGroups: [
+              {
+                text: 'Page',
+                fontStyle: m.FontStyles.SMALL,
+              },
+              {
+                text: `${pageNumber}/${totalPages}`,
+                fontStyle: m.FontStyles.H2,
+              },
+            ],
+          }),
+          TextBlock({
+            ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
+            width: gridWidth(12, m),
+            textGroups: [
+              {
+                text: 'Precinct',
+                fontStyle: m.FontStyles.SMALL,
+              },
+              {
+                text: precinct.name,
+                fontStyle: m.FontStyles.H2,
+              },
+            ],
+          }),
+          ...endOfPageInstruction,
+        ],
       },
-      TextBlock({
-        ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
-        width: gridWidth(5, m),
-        textGroups: [
-          {
-            text: 'Page',
-            fontStyle: m.FontStyles.SMALL,
-          },
-          {
-            text: `${pageNumber}/${totalPages}`,
-            fontStyle: m.FontStyles.H2,
-          },
-        ],
-      }),
-      TextBlock({
-        ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
-        width: gridWidth(12, m),
-        textGroups: [
-          {
-            text: 'Precinct',
-            fontStyle: m.FontStyles.SMALL,
-          },
-          {
-            text: precinct.name,
-            fontStyle: m.FontStyles.H2,
-          },
-        ],
-      }),
-      ...endOfPageInstruction,
     ],
   };
 }
@@ -1367,22 +1424,24 @@ export interface BallotLayout {
   gridLayout: GridLayout;
 }
 
-function layOutBallotHelper(
-  election: Election,
-  precinct: Precinct,
-  ballotStyle: BallotStyle
-) {
-  const { paperSize } = election.ballotLayout;
-  const density = election.ballotLayout.layoutDensity ?? 0;
-  assert(density <= 2);
-  const m = measurements(paperSize, density);
+interface LayOutBallotParams {
+  electionDefinition: ElectionDefinition;
+  precinct: Precinct;
+  ballotStyle: BallotStyle;
+  isTestMode: boolean;
+}
 
-  const ballotStyleIndex = election.ballotStyles.findIndex(
-    (bs) => bs.id === ballotStyle.id
-  );
-  const precinctIndex = election.precincts.findIndex(
-    (p) => p.id === precinct.id
-  );
+function layOutBallotHelper({
+  electionDefinition,
+  ballotStyle,
+  precinct,
+  isTestMode,
+}: LayOutBallotParams) {
+  const { election } = electionDefinition;
+  const { paperSize, layoutDensity = 0 } = election.ballotLayout;
+  assert(layoutDensity <= 2);
+  const m = measurements(paperSize, layoutDensity);
+
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
   const contests = getContests({ election, ballotStyle });
@@ -1521,7 +1580,7 @@ function layOutBallotHelper(
 
     pages.push({
       children: [
-        TimingMarkGrid({ pageNumber, ballotStyleIndex, precinctIndex, m }),
+        TimingMarkGrid({ m }),
         headerAndInstructions,
         ...contestObjects,
       ].filter((child): child is AnyElement => child !== null),
@@ -1532,7 +1591,10 @@ function layOutBallotHelper(
   for (const [pageIndex, page] of pages.entries()) {
     page.children.push(
       Footer({
+        electionDefinition,
+        ballotStyle,
         precinct,
+        isTestMode,
         pageNumber: pageIndex + 1,
         totalPages: pages.length,
         m,
@@ -1571,12 +1633,10 @@ function layOutBallotHelper(
  * parameterized.
  */
 export function layOutBallot(
-  election: Election,
-  precinct: Precinct,
-  ballotStyle: BallotStyle
+  params: LayOutBallotParams
 ): Result<BallotLayout, Error> {
   try {
-    return ok(layOutBallotHelper(election, precinct, ballotStyle));
+    return ok(layOutBallotHelper(params));
   } catch (e) {
     return wrapException(e);
   }

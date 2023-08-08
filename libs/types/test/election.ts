@@ -128,7 +128,8 @@ const electionMinimalExhaustiveData = `
   },
   "date": "2021-09-08T00:00:00-08:00",
   "ballotLayout": {
-    "paperSize": "letter"
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
   },
   "districts": [
     {

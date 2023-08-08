@@ -9,6 +9,7 @@ test('getBallotLayoutDensity', () => {
     ballotLayout: {
       paperSize: BallotPaperSize.Legal,
       layoutDensity: 20,
+      metadataEncoding: 'qr-code',
     },
   };
 

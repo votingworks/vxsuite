@@ -448,6 +448,7 @@ export function convertElectionDefinitionHeader(
     contests,
     ballotLayout: {
       paperSize,
+      metadataEncoding: 'timing-marks',
       targetMarkPosition: BallotTargetMarkPosition.Right,
     },
     markThresholds: DefaultMarkThresholds,

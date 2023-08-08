@@ -73,7 +73,7 @@ export function ElectionsScreen(): JSX.Element | null {
           </P>
         ) : (
           <ElectionList>
-            {elections.map(({ id, election }) => (
+            {elections.map(({ id, electionDefinition: { election } }) => (
               <li key={id}>
                 <LinkButton to={`/elections/${id}`}>
                   {election.title

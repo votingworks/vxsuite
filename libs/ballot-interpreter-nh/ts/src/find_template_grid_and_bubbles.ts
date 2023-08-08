@@ -2,7 +2,12 @@ import { Result, err, ok } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 // eslint-disable-next-line import/no-unresolved -- `./rust-addon` is a native module
 import { findTemplateGridAndBubbles as findTemplateGridAndBubblesImpl } from './rust-addon';
-import { Point, TimingMarkGrid, u32 } from './types';
+import {
+  BallotPageTimingMarkMetadata,
+  Point,
+  TimingMarkGrid,
+  u32,
+} from './types';
 
 /**
  * The result of calling {@link findTemplateGridAndBubbles}.
@@ -10,6 +15,7 @@ import { Point, TimingMarkGrid, u32 } from './types';
 export type TemplateGridAndBubbles = SheetOf<{
   grid: TimingMarkGrid;
   bubbles: Array<Point<u32>>;
+  metadata: BallotPageTimingMarkMetadata;
 }>;
 
 /**
