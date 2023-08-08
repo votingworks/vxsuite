@@ -1,8 +1,9 @@
+import { assertDefined } from '@votingworks/basics';
 import { otsu } from '@votingworks/image-utils';
 import { Rect } from '@votingworks/types';
 import makeDebug from 'debug';
 
-const debug = makeDebug('ballot-interpreter-vx:threshold');
+const debug = makeDebug('ballot-interpreter:bmd:luminosity');
 
 export interface Stats {
   threshold: number;
@@ -34,7 +35,7 @@ export function stats(
   let foreground = 0;
   for (let { x } = bounds; x < bounds.x + bounds.width; x += 1) {
     for (let { y } = bounds; y < bounds.y + bounds.height; y += 1) {
-      const pixel = data[(y * width + x) * channels];
+      const pixel = assertDefined(data[(y * width + x) * channels]);
       if (pixel < threshold) {
         foreground += 1;
       }

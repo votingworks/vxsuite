@@ -1,4 +1,3 @@
-import { interpret as interpretVxBmdBallotSheet } from '@votingworks/ballot-interpreter-vx';
 import { interpret as interpretNhHmpbBallotSheet } from '@votingworks/ballot-interpreter-nh';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { Result, throwIllegalValue, typedAs } from '@votingworks/basics';
@@ -21,6 +20,7 @@ import {
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION, time } from '@votingworks/utils';
 import makeDebug from 'debug';
+import { interpret as interpretVxBmdBallotSheet } from './bmd';
 import { convertNhInterpretResultToLegacyResult } from './legacy_adapter';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');

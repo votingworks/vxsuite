@@ -885,9 +885,6 @@ importers:
       '@votingworks/api':
         specifier: workspace:*
         version: link:../../../libs/api
-      '@votingworks/ballot-interpreter-vx':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-interpreter-vx
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2407,9 +2404,6 @@ importers:
       '@votingworks/ballot-interpreter':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter
-      '@votingworks/ballot-interpreter-vx':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-interpreter-vx
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -3254,9 +3248,6 @@ importers:
       '@votingworks/ballot-interpreter-nh':
         specifier: workspace:*
         version: link:../ballot-interpreter-nh
-      '@votingworks/ballot-interpreter-vx':
-        specifier: workspace:*
-        version: link:../ballot-interpreter-vx
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -3266,6 +3257,9 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
+      '@votingworks/qrdetect':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
@@ -3275,6 +3269,9 @@ importers:
       debug:
         specifier: ^4.3.2
         version: 4.3.4(supports-color@8.1.1)
+      node-quirc:
+        specifier: ^2.2.1
+        version: 2.3.0
     devDependencies:
       '@types/debug':
         specifier: ^4.1.7
@@ -3288,6 +3285,9 @@ importers:
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
+      '@types/node-quirc':
+        specifier: workspace:*
+        version: link:../@types/node-quirc
       '@types/tmp':
         specifier: ^0.2.3
         version: 0.2.3
@@ -3397,118 +3397,6 @@ importers:
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.17.11)(jest@29.6.2)(typescript@4.6.3)
-
-  libs/ballot-interpreter-vx:
-    dependencies:
-      '@votingworks/ballot-encoder':
-        specifier: workspace:*
-        version: link:../ballot-encoder
-      '@votingworks/basics':
-        specifier: workspace:*
-        version: link:../basics
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../image-utils
-      '@votingworks/qrdetect':
-        specifier: ^1.0.1
-        version: 1.0.1
-      '@votingworks/types':
-        specifier: workspace:*
-        version: link:../types
-      '@votingworks/utils':
-        specifier: workspace:*
-        version: link:../utils
-      buffer:
-        specifier: ^6.0.3
-        version: 6.0.3
-      canvas:
-        specifier: 2.9.1
-        version: 2.9.1
-      debug:
-        specifier: ^4.2.0
-        version: 4.3.1
-      jsfeat:
-        specifier: ^0.0.8
-        version: 0.0.8
-      jsqr:
-        specifier: ^1.3.1
-        version: 1.3.1
-      node-quirc:
-        specifier: ^2.2.1
-        version: 2.3.0
-      util:
-        specifier: ^0.12.4
-        version: 0.12.4
-      uuid:
-        specifier: ^8.3.1
-        version: 8.3.2
-    devDependencies:
-      '@types/benchmark':
-        specifier: ^1.0.33
-        version: 1.0.33
-      '@types/debug':
-        specifier: ^4.1.5
-        version: 4.1.5
-      '@types/jest':
-        specifier: ^29.5.3
-        version: 29.5.3
-      '@types/jsfeat':
-        specifier: workspace:*
-        version: link:../@types/jsfeat
-      '@types/node':
-        specifier: 16.18.23
-        version: 16.18.23
-      '@types/node-quirc':
-        specifier: workspace:*
-        version: link:../@types/node-quirc
-      '@types/tmp':
-        specifier: ^0.2.0
-        version: 0.2.0
-      '@types/uuid':
-        specifier: ^8.3.0
-        version: 8.3.0
-      '@votingworks/fixtures':
-        specifier: workspace:*
-        version: link:../fixtures
-      benchmark:
-        specifier: ^2.1.4
-        version: 2.1.4
-      esbuild:
-        specifier: ^0.14.25
-        version: 0.14.25
-      esbuild-runner:
-        specifier: ^2.2.1
-        version: 2.2.1(esbuild@0.14.25)
-      eslint-plugin-vx:
-        specifier: workspace:*
-        version: link:../eslint-plugin-vx
-      is-ci-cli:
-        specifier: ^2.2.0
-        version: 2.2.0
-      jest:
-        specifier: ^29.6.2
-        version: 29.6.2(@types/node@16.18.23)
-      jest-junit:
-        specifier: ^16.0.0
-        version: 16.0.0
-      jest-watch-typeahead:
-        specifier: ^2.2.2
-        version: 2.2.2(jest@29.6.2)
-      js-sha256:
-        specifier: ^0.9.0
-        version: 0.9.0
-      lint-staged:
-        specifier: ^10.4.2
-        version: 10.5.3
-      sort-package-json:
-        specifier: ^1.50.0
-        version: 1.50.0
-      tmp:
-        specifier: ^0.2.1
-        version: 0.2.1
-      ts-jest:
-        specifier: ^29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.6)(jest@29.6.2)(typescript@4.6.3)
 
   libs/basics:
     dependencies:
@@ -10982,10 +10870,6 @@ packages:
     resolution: {integrity: sha512-ZmI0sZGAUNXUfMWboWwi4LcfpoVUYldyN6Oe0oJ5cCsHDU/LlRq8nQKPXhYLOx36QYSW9bNIb1vvRrD6K7Llgw==}
     dev: true
 
-  /@types/benchmark@1.0.33:
-    resolution: {integrity: sha512-rG7Ieasa9UfZJnL72qiFvY9ivhEIYjCGgfcLLb5tJ/EL9+Mcxernj6W3HVCv/cOfJYuwNUwvVVhnrKl8iT8aqA==}
-    dev: true
-
   /@types/better-sqlite3@7.5.0:
     resolution: {integrity: sha512-G9ZbMjydW2yj1AgiPlUtdgF3a1qNpLJLudc9ynJCeJByS3XFWpmT9LT+VSHrKHFbxb31CvtYwetLTOvG9zdxdg==}
     dependencies:
@@ -11054,10 +10938,6 @@ packages:
 
   /@types/dashify@1.0.0:
     resolution: {integrity: sha512-uyYom3SM48jvowobcby+1z3r/sDX+5N8lAdPoNLKYMhF819pNjV6K5g8lAUGrwj80n+P7Qf10GcA9h7aIO2GJw==}
-    dev: true
-
-  /@types/debug@4.1.5:
-    resolution: {integrity: sha512-Q1y515GcOdTHgagaVFhHnIFQ38ygs/kmxdNpvpou+raI9UO3YZcHDngBSYKQklcKlvA7iuQlmIKbzvmxcOE9CQ==}
     dev: true
 
   /@types/debug@4.1.7:
@@ -11541,10 +11421,6 @@ packages:
     resolution: {integrity: sha512-jfo/A88XIiAweUa8np+1mPbm3h2w0s425YrI8t3wk5QxhH6UI7w517MboNVnGDeMSuoFwA8Rwmklno+FicvV4g==}
     dev: true
 
-  /@types/tmp@0.2.0:
-    resolution: {integrity: sha512-flgpHJjntpBAdJD43ShRosQvNC0ME97DCfGvZEDlAThQmnerRXrLbX6YgzRBQCZTthET9eAWFAMaYP0m0Y4HzQ==}
-    dev: true
-
   /@types/tmp@0.2.3:
     resolution: {integrity: sha512-dDZH/tXzwjutnuk4UacGgFRwV+JSLaXL1ikvidfJprkb7L9Nx1njcRHHmi3Dsvt7pgqqTEeucQuOrWHPFgzVHA==}
     dev: true
@@ -11563,10 +11439,6 @@ packages:
 
   /@types/unist@2.0.3:
     resolution: {integrity: sha512-FvUupuM3rlRsRtCN+fDudtmytGO6iHJuuRKS1Ss0pG5z8oX0diNEw94UEL7hgDbpN94rgaK5R7sWm6RrSkZuAQ==}
-    dev: true
-
-  /@types/uuid@8.3.0:
-    resolution: {integrity: sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==}
     dev: true
 
   /@types/uuid@8.3.4:
@@ -12847,13 +12719,6 @@ packages:
     dependencies:
       tweetnacl: 0.14.5
     dev: false
-
-  /benchmark@2.1.4:
-    resolution: {integrity: sha1-CfPeMckWQl1JjMLuVloOvzwqVik=}
-    dependencies:
-      lodash: 4.17.21
-      platform: 1.3.6
-    dev: true
 
   /better-opn@2.1.1:
     resolution: {integrity: sha512-kIPXZS5qwyKiX/HcRvDYfmBQUa8XP17I0mYZZ0y4UhpYOSvtsLHDYqmomS+Mj20aDvD3knEiQ0ecQy2nhio3yA==}
@@ -14219,18 +14084,6 @@ packages:
     dependencies:
       ms: 2.1.3
       supports-color: 8.1.1
-
-  /debug@4.3.1:
-    resolution: {integrity: sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-    dependencies:
-      ms: 2.1.2
-    dev: false
 
   /debug@4.3.2:
     resolution: {integrity: sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==}
@@ -19529,6 +19382,7 @@ packages:
 
   /js-sha256@0.9.0:
     resolution: {integrity: sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==}
+    dev: false
 
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -19673,10 +19527,6 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  /jsfeat@0.0.8:
-    resolution: {integrity: sha1-ese1mwneExSNnqybul7bPvWh6GI=}
-    dev: false
-
   /json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
@@ -19729,10 +19579,6 @@ packages:
       extsprintf: 1.3.0
       json-schema: 0.4.0
       verror: 1.10.0
-    dev: false
-
-  /jsqr@1.3.1:
-    resolution: {integrity: sha512-zCTP6Qd/WwjrpuHFkJuXc5opRdKprUr7eI7+JCCtcetThJt45qptu82MWQ+eET+FtDrMo7+BYjo3iD0XIq1L9Q==}
     dev: false
 
   /jsx-ast-utils@3.3.3:
@@ -20583,10 +20429,6 @@ packages:
       xtend: 4.0.2
     dev: false
 
-  /nan@2.14.2:
-    resolution: {integrity: sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==}
-    dev: false
-
   /nan@2.16.0:
     resolution: {integrity: sha512-UdAqHyFngu7TfQKsCBgAA6pWDkT8MAO7d0jyOecVhN5354xbLqdn8mV9Tat9gepAupm0bt2DbeaSC8vS52MuFA==}
     requiresBuild: true
@@ -20594,7 +20436,6 @@ packages:
   /nan@2.17.0:
     resolution: {integrity: sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==}
     requiresBuild: true
-    optional: true
 
   /nanoid@3.3.6:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
@@ -20731,7 +20572,7 @@ packages:
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
-      nan: 2.14.2
+      nan: 2.17.0
     dev: false
 
   /node-releases@1.1.77:
@@ -21340,10 +21181,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 3.0.0
-
-  /platform@1.3.6:
-    resolution: {integrity: sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==}
-    dev: true
 
   /please-upgrade-node@3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}

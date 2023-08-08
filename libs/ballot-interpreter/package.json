@@ -36,19 +36,21 @@
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/ballot-interpreter-nh": "workspace:*",
-    "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
+    "@votingworks/qrdetect": "^1.0.1",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "debug": "^4.3.2"
+    "debug": "^4.3.2",
+    "node-quirc": "^2.2.1"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^29.5.3",
     "@types/node": "16.18.23",
+    "@types/node-quirc": "workspace:*",
     "@types/tmp": "^0.2.3",
     "@votingworks/hmpb-layout": "workspace:*",
     "@votingworks/hmpb-render-backend": "workspace:*",

@@ -8,14 +8,14 @@ import { crop } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
-import { Optional, Result, err, ok } from '@votingworks/basics';
+import { Optional, Result, err, ok, assertDefined } from '@votingworks/basics';
 import { DetectedQrCode } from '../types';
 import { stats, Stats } from './luminosity';
 
 const LETTER_WIDTH_TO_HEIGHT_RATIO = 8.5 / 11;
 const LEGAL_WIDTH_TO_HEIGHT_RATIO = 8.5 / 14;
 
-const debug = makeDebug('ballot-interpreter-vx:qrcode');
+const debug = makeDebug('ballot-interpreter:bmd:qrcode');
 
 function isBase64(string: string): boolean {
   return Buffer.from(string, 'base64').toString('base64') === string;
@@ -202,7 +202,7 @@ export async function detect(
         '%s found pre-filtered QR code in %s! data length=%d',
         detector.name,
         position,
-        results[0].length
+        results[0]?.length
       );
 
       // Sometimes, our QR code detectors hallucinate and see QR codes in the noise
@@ -220,10 +220,14 @@ export async function detect(
         '%s found QR code in %s! data length=%d',
         detector.name,
         position,
-        recognizedResults[0].length
+        recognizedResults[0]?.length
       );
 
-      return { data: recognizedResults[0], position, detector: detector.name };
+      return {
+        data: assertDefined(recognizedResults[0]),
+        position,
+        detector: detector.name,
+      };
     }
   }
 
