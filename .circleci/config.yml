@@ -215,29 +215,6 @@ jobs:
       - store_test_results:
           path: apps/design/frontend/reports/
 
-  # @votingworks/design-shared
-  test-apps-design-shared:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/design/shared build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/design/shared lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/design/shared test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/design/shared/reports/
-
   # @votingworks/mark-scan-backend
   test-apps-mark-scan-backend:
     executor: nodejs
@@ -570,52 +547,6 @@ jobs:
       - store_test_results:
           path: libs/ballot-interpreter/reports/
 
-  # @votingworks/ballot-interpreter-nh
-  test-libs-ballot-interpreter-nh:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/ballot-interpreter-nh test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/ballot-interpreter-nh/reports/
-
-  # @votingworks/ballot-interpreter-vx
-  test-libs-ballot-interpreter-vx:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/ballot-interpreter-vx build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/ballot-interpreter-vx lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/ballot-interpreter-vx test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/ballot-interpreter-vx/reports/
-
   # @votingworks/basics
   test-libs-basics:
     executor: nodejs
@@ -915,6 +846,52 @@ jobs:
       - store_test_results:
           path: libs/grout/test-utils/reports/
 
+  # @votingworks/hmpb-layout
+  test-libs-hmpb-layout:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/hmpb/layout build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/hmpb/layout lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/hmpb/layout test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/hmpb/layout/reports/
+
+  # @votingworks/hmpb-render-backend
+  test-libs-hmpb-render-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/hmpb/render-backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/hmpb/render-backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/hmpb/render-backend test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/hmpb/render-backend/reports/
+
   # @votingworks/image-utils
   test-libs-image-utils:
     executor: nodejs
@@ -1210,7 +1187,6 @@ workflows:
       - test-apps-central-scan-integration-testing
       - test-apps-design-backend
       - test-apps-design-frontend
-      - test-apps-design-shared
       - test-apps-mark-scan-backend
       - test-apps-mark-scan-frontend
       - test-apps-mark-scan-integration-testing
@@ -1225,8 +1201,6 @@ workflows:
       - test-libs-backend
       - test-libs-ballot-encoder
       - test-libs-ballot-interpreter
-      - test-libs-ballot-interpreter-nh
-      - test-libs-ballot-interpreter-vx
       - test-libs-basics
       - test-libs-cdf-schema-builder
       - test-libs-converter-nh-accuvote
@@ -1240,6 +1214,8 @@ workflows:
       - test-libs-fixtures
       - test-libs-grout
       - test-libs-grout-test-utils
+      - test-libs-hmpb-layout
+      - test-libs-hmpb-render-backend
       - test-libs-image-utils
       - test-libs-logging
       - test-libs-mark-flow-ui

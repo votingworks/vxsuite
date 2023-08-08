@@ -282,7 +282,7 @@ mod test {
 
     #[test]
     fn test_find_scanned_document_inset_ballot_image() {
-        let image_bytes = include_bytes!("../test/fixtures/scan-inset.jpeg");
+        let image_bytes = include_bytes!("../../test/fixtures/scan-inset.jpeg");
         let image = image::load(Cursor::new(image_bytes), image::ImageFormat::Jpeg)
             .unwrap()
             .into_luma8();

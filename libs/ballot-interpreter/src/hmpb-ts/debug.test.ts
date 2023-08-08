@@ -1,9 +1,9 @@
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
-// eslint-disable-next-line import/no-unresolved -- `./rust-addon` is a native module
-import { interpret as interpretImpl } from './rust-addon';
+// eslint-disable-next-line import/no-unresolved -- `./rust_addon` is a native module
+import { interpret as interpretImpl } from './rust_addon';
 import { interpret } from './interpret';
 
-jest.mock('./rust-addon');
+jest.mock('./rust_addon');
 
 const interpretImplMock = interpretImpl as jest.MockedFunction<
   typeof interpretImpl

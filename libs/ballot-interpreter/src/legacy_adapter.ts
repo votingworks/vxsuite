@@ -35,13 +35,13 @@ import {
   BallotPageTimingMarkMetadataFront,
   Geometry,
   InterpretedBallotCard,
-  InterpretResult as NextInterpretResult,
+  HmpbInterpretResult as NextInterpretResult,
   Rect as NextRect,
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
   ScoredBubbleMarks,
   ScoredPositionArea,
-} from '@votingworks/ballot-interpreter-nh';
+} from './hmpb-ts';
 import type {
   InterpretFileResult,
   InterpretResult,

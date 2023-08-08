@@ -1,11 +1,11 @@
 import { assert, err, ok } from '@votingworks/basics';
 import { ElectionDefinition, safeParseJson, SheetOf } from '@votingworks/types';
-// eslint-disable-next-line import/no-unresolved -- `./rust-addon` is a native module
-import { interpret as interpretImpl } from './rust-addon';
+// eslint-disable-next-line import/no-unresolved -- `./rust_addon` is a native module
+import { interpret as interpretImpl } from './rust_addon';
 import {
   InterpretedBallotCard,
   InterpretError,
-  InterpretResult,
+  HmpbInterpretResult,
 } from './types';
 
 function assertImageData(imageData: unknown): asserts imageData is ImageData {
@@ -77,7 +77,7 @@ export function interpret(
   electionDefinition: ElectionDefinition,
   ballotImagePaths: SheetOf<string>,
   options?: { scoreWriteIns?: boolean; debug?: boolean }
-): InterpretResult;
+): HmpbInterpretResult;
 /**
  * Interprets a scanned ballot.
  */
@@ -85,7 +85,7 @@ export function interpret(
   electionDefinition: ElectionDefinition,
   ballotImages: SheetOf<ImageData>,
   options?: { scoreWriteIns?: boolean; debugBasePaths?: SheetOf<string> }
-): InterpretResult;
+): HmpbInterpretResult;
 /**
  * Interprets a scanned ballot.
  */
@@ -95,7 +95,7 @@ export function interpret(
   options:
     | { scoreWriteIns?: boolean; debug?: boolean }
     | { scoreWriteIns?: boolean; debugBasePaths?: SheetOf<string> } = {}
-): InterpretResult {
+): HmpbInterpretResult {
   const args = normalizeArgumentsForBridge(
     electionDefinition,
     ballotImageSources,

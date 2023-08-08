@@ -193,7 +193,7 @@ pub fn get_matching_paper_info_for_image_size(
 
 #[time]
 pub fn load_ballot_scan_bubble_image() -> Option<GrayImage> {
-    let bubble_image_bytes = include_bytes!("../data/bubble_scan.png");
+    let bubble_image_bytes = include_bytes!("../../data/bubble_scan.png");
     let inner = io::Cursor::new(bubble_image_bytes);
     image::load(inner, image::ImageFormat::Png)
         .ok()
@@ -202,7 +202,7 @@ pub fn load_ballot_scan_bubble_image() -> Option<GrayImage> {
 
 #[time]
 pub fn load_ballot_template_bubble_image() -> Option<GrayImage> {
-    let bubble_image_bytes = include_bytes!("../data/bubble_template.png");
+    let bubble_image_bytes = include_bytes!("../../data/bubble_template.png");
     let inner = io::Cursor::new(bubble_image_bytes);
     image::load(inner, image::ImageFormat::Png)
         .ok()

@@ -362,7 +362,7 @@ pub fn draw_timing_mark_grid_debug_image_mut(
 }
 
 fn monospace_font() -> Font<'static> {
-    Font::try_from_bytes(include_bytes!("../data/fonts/Inconsolata-Regular.ttf"))
+    Font::try_from_bytes(include_bytes!("../../data/fonts/Inconsolata-Regular.ttf"))
         .expect("font is valid")
 }
 

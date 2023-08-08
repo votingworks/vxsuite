@@ -5,9 +5,9 @@
 const fs = require('fs');
 const { join } = require('path');
 
-if (!fs.existsSync(join(__dirname, '../build/rust-addon.node'))) {
+if (!fs.existsSync(join(__dirname, '../build/hmpb-ts/rust_addon.node'))) {
   process.stderr.write(
-    'Error: native rust-addon has not been built. Please run `pnpm build` first.\n'
+    'Error: native rust_addon has not been built. Please run `pnpm build` first.\n'
   );
   process.exit(1);
 }
@@ -16,7 +16,7 @@ require('esbuild-runner').install({
   type: 'transform',
 });
 
-require('../ts/src/cli')
+require('../src/hmpb-ts/cli')
   .main(process.argv.slice(2))
   .then(
     (code) => {

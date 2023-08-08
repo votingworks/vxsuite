@@ -87,7 +87,7 @@ export interface Inset {
 }
 
 /** Top-level result of interpretation. */
-export type InterpretResult = Result<InterpretedBallotCard, InterpretError>;
+export type HmpbInterpretResult = Result<InterpretedBallotCard, InterpretError>;
 
 /** A successfully interpreted ballot card. */
 export interface InterpretedBallotCard {
