@@ -517,6 +517,14 @@ export function AppRoot({
     resetBallotOnLogout();
   }, [authStatus, resetBallot, initializedFromStorage]);
 
+  const endVoterSession = useCallback(async () => {
+    try {
+      await endCardlessVoterSessionMutation.mutateAsync();
+    } catch {
+      // Handled by default query client error handling
+    }
+  }, [endCardlessVoterSessionMutation]);
+
   // Handle Hardware Observer Subscription
   useEffect(() => {
     function resetBallotOnPrinterDetach() {
@@ -746,6 +754,7 @@ export function AppRoot({
                 updateTally,
                 isCardlessVoter: isCardlessVoterAuth(authStatus),
                 isLiveMode,
+                endVoterSession,
                 resetBallot,
                 updateVote,
                 forceSaveVote,

@@ -24,6 +24,7 @@ export function render(
     ballotStyleId,
     electionDefinition = electionSampleNoSealDefinition,
     contests = electionDefinition.election.contests,
+    endVoterSession = jest.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),
     generateBallotId = randomBallotId,
     isCardlessVoter = false,
@@ -40,6 +41,7 @@ export function render(
     ballotStyleId?: BallotStyleId;
     electionDefinition?: ElectionDefinition;
     contests?: Contests;
+    endVoterSession?: () => Promise<void>;
     history?: History;
     generateBallotId?: () => string;
     isCardlessVoter?: boolean;
@@ -65,6 +67,7 @@ export function render(
           isCardlessVoter,
           isLiveMode,
           machineConfig,
+          endVoterSession,
           precinctId,
           resetBallot,
           updateTally,

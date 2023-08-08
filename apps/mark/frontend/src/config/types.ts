@@ -30,6 +30,7 @@ export interface BallotContextInterface {
   generateBallotId: () => string;
   isCardlessVoter: boolean;
   isLiveMode: boolean;
+  endVoterSession: () => Promise<void>;
   precinctId?: PrecinctId;
   resetBallot: (showPostVotingInstructions?: boolean) => void;
   updateTally: () => void;
