@@ -6,7 +6,7 @@ import {
   Size,
 } from '@votingworks/types';
 import { ZodError } from 'zod';
-import { PartialTimingMarks } from '@votingworks/ballot-interpreter-nh';
+import { PartialTimingMarks } from '@votingworks/ballot-interpreter';
 import { ParseConstitutionalQuestionError } from './parse_constitutional_questions';
 
 /**

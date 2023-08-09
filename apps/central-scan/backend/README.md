@@ -1,7 +1,6 @@
-# Scan Module
+# VxCentralScan Backend
 
-This web server component provides a web interface to the for use by the VxSuite
-[Ballot Scanning Device (BSD)](../bsd).
+Backend server for VxCentralScan.
 
 ## Setup
 
@@ -42,7 +41,7 @@ EOS
 MOCK_SCANNER_FILES=@manifest pnpm start
 
 # scanning from an election backup file
-../../../services/scan/bin/extract-backup /path/to/election-backup.zip
+./bin/extract-backup /path/to/election-backup.zip
 MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm start
 ```
 
@@ -50,47 +49,21 @@ If you are seeing unhandled promise rejection errors you may have an issue with
 where your image files are located, try moving them into the local scope of the
 app.
 
-### Using Fixtures Data
+### Testing Adjudication
 
-To force `requires_adjudication` of ballots, run this in `services/scan`:
+To force `requires_adjudication` of ballots, run this in
+`apps/central-scan/backend`:
 
 ```
 sqlite3 dev-workspace/ballots.db 'update sheets set requires_adjudication = 1;'
 ```
 
-#### Letter-sized ballots
-
-First from `libs/auth` run:
-
-```
-./scripts/mock-card --card-type election-manager --election-definition ../../libs/ballot-interpreter-vx/test/fixtures/choctaw-2020-09-22-f30480cc99/election.json
-```
-
-Then init `services/scan` with:
-
-```
-MOCK_SCANNER_FILES=test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p1.png,test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p2.png pnpm start
-```
-
-#### Legal-sized ballots
-
-First from `libs/auth` run:
-
-```
-./scripts/mock-card --card-type election-manager --election-definition ../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/election.json
-```
-
-Then init `services/scan` with:
-
-```
-MOCK_SCANNER_FILES=../../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm start
-```
-
 ## Switching Workspaces
 
 By default a `ballots.db` file and a `ballot-images` directory will be created
-in a `dev-workspace` folder inside `services/scan` when running this service. To
-choose another location, set `SCAN_WORKSPACE` to the path to another folder:
+in a `dev-workspace` folder inside `apps/central-scan/backend` when running this
+service. To choose another location, set `SCAN_WORKSPACE` to the path to another
+folder:
 
 ```sh
 SCAN_WORKSPACE=/path/to/workspace pnpm start

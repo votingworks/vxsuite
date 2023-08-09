@@ -9,10 +9,10 @@ import {
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, ok, Result } from '@votingworks/basics';
-import { layOutAllBallots } from '@votingworks/design-shared';
+import { layOutAllBallots } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
+import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
 import { ElectionRecord, Precinct, Store } from './store';
-import { renderDocumentToPdf } from './render_ballot';
 
 function createBlankElection(): Election {
   return {

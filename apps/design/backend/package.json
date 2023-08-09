@@ -14,7 +14,6 @@
     "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "generate-fixtures": "./bin/generate-fixtures",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
@@ -40,8 +39,9 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
-    "@votingworks/design-shared": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/hmpb-layout": "workspace:*",
+    "@votingworks/hmpb-render-backend": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "better-sqlite3": "^7.5.0",

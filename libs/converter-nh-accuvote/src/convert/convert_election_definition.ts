@@ -1,7 +1,7 @@
 import {
   BallotPageTimingMarkMetadataFront,
   findTemplateGridAndBubbles,
-} from '@votingworks/ballot-interpreter-nh';
+} from '@votingworks/ballot-interpreter';
 import {
   assert,
   err,
