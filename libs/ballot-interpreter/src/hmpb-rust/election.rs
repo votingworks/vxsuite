@@ -12,7 +12,7 @@ idtype!(PrecinctId);
 // NOTE: This is a subset of the full election definition. We only need the
 // parts that are relevant to interpreting a ballot card. Some of these types
 // are defined in the `@votingworks/types` package, some are defined here and
-// mirrored in `ts/src/types.ts` within this package.
+// mirrored in `hmpb-ts/types.ts` within this package.
 //
 // IF YOU CHANGE ANYTHING HERE, YOU MUST ALSO CHANGE IT THERE.
 
