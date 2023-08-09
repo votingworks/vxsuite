@@ -3,6 +3,7 @@ lockfileVersion: '6.0'
 overrides:
   '@types/eslint': 8.4.1
   typescript: 4.6.3
+  graceful-fs: ^4.2.9
 
 importers:
 
@@ -2924,18 +2925,12 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      fetch-mock:
-        specifier: ^9.10.7
-        version: 9.11.0(node-fetch@2.6.7)
       is-ci-cli:
         specifier: ^2.2.0
         version: 2.2.0
       jest:
         specifier: ^29.6.2
         version: 29.6.2(@types/node@16.18.23)
-      jest-fetch-mock:
-        specifier: ^3.0.3
-        version: 3.0.3
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3036,9 +3031,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      fetch-mock:
-        specifier: ^9.11.0
-        version: 9.11.0(node-fetch@2.6.7)
       is-ci-cli:
         specifier: ^2.2.0
         version: 2.2.0
@@ -4529,9 +4521,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      fetch-mock:
-        specifier: ^9.9.0
-        version: 9.11.0(node-fetch@2.6.7)
       fs-extra:
         specifier: ^10.0.0
         version: 10.0.0
@@ -14469,7 +14458,7 @@ packages:
     resolution: {integrity: sha512-LXYT42KJ7lpIKECr2mAXIaMldcNCh/7E0KBKOu4KSfkHmP+mZmSs+8V5gBAqisWBy0OO4W5Oyys0GO1Y8KtdKg==}
     engines: {node: '>=10.13.0'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       tapable: 2.2.1
 
   /enquirer@2.3.6:
@@ -25104,7 +25093,7 @@ packages:
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       json-parse-even-better-errors: 2.3.1
       loader-runner: 4.3.0
       mime-types: 2.1.35
@@ -25144,7 +25133,7 @@ packages:
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       json-parse-even-better-errors: 2.3.1
       loader-runner: 4.3.0
       mime-types: 2.1.35
