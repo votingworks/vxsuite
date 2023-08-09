@@ -1,7 +1,7 @@
 import { Election, HmpbBallotPageMetadata } from '@votingworks/types';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { range } from '@votingworks/basics';
 import { qrcodegen } from './qrcodegen';
-import { range } from './util';
 
 const { QrCode } = qrcodegen;
 
