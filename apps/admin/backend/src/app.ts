@@ -784,26 +784,18 @@ function buildApi({
       );
     },
 
-    async exportResultsCsv(input: { path: string }): Promise<ExportDataResult> {
-      debug('exporting default results CSV file');
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-      const {
-        electionDefinition: { election },
-      } = assertDefined(store.getElection(electionId));
-
+    async exportResultsCsv(input: {
+      path: string;
+      filter?: Tabulation.Filter;
+      groupBy?: Tabulation.GroupBy;
+    }): Promise<ExportDataResult> {
+      debug('exporting results CSV file: %o', input);
       const exportFileResult = await exportFile({
         path: input.path,
-        data: generateResultsCsv({
-          election,
-          electionResultsByPrecinctAndVotingMethod:
-            await tabulateElectionResults({
-              electionId,
-              store,
-              groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
-              includeManualResults: true,
-              includeWriteInAdjudicationResults: true,
-            }),
-          writeInCandidates: store.getWriteInCandidates({ electionId }),
+        data: await generateResultsCsv({
+          store,
+          filter: input.filter,
+          groupBy: input.groupBy,
         }),
       });
 
