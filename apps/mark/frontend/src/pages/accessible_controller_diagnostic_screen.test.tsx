@@ -1,7 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
 import {
-  act,
   render,
   screen,
   waitFor,
@@ -29,9 +28,11 @@ function renderScreen(
   );
 }
 
+jest.useFakeTimers();
+
 describe('Accessible Controller Diagnostic Screen', () => {
   beforeEach(() => {
-    jest.useFakeTimers().setSystemTime(new Date(now.toISO()));
+    jest.setSystemTime(new Date(now.toISO()));
   });
 
   it('yields a success result when all steps are completed', async () => {
@@ -63,33 +64,33 @@ describe('Accessible Controller Diagnostic Screen', () => {
     expectToHaveIllustrationHighlight('up-button');
     // Try out pressing an incorrect button to make sure we actually detect the
     // right button.
-    act(() => void userEvent.keyboard('{ArrowDown}'));
+    userEvent.keyboard('{ArrowDown}');
     screen.getByText(/Step 1 of 6/);
     // Then press the up button.
     // We have to wrap key presses in act to avoid a warning. This may be due to
     // the fact that the keyDown listener is attached to the document instead of
     // a React component.
-    act(() => void userEvent.keyboard('{ArrowUp}'));
+    userEvent.keyboard('{ArrowUp}');
 
     await screen.findByText(/Step 2 of 6/);
     screen.getByText('Press the down button.');
     expectToHaveIllustrationHighlight('down-button');
-    act(() => void userEvent.keyboard('{ArrowDown}'));
+    userEvent.keyboard('{ArrowDown}');
 
     await screen.findByText(/Step 3 of 6/);
     screen.getByText('Press the left button.');
     expectToHaveIllustrationHighlight('left-button');
-    act(() => void userEvent.keyboard('{ArrowLeft}'));
+    userEvent.keyboard('{ArrowLeft}');
 
     await screen.findByText(/Step 4 of 6/);
     screen.getByText('Press the right button.');
     expectToHaveIllustrationHighlight('right-button');
-    act(() => void userEvent.keyboard('{ArrowRight}'));
+    userEvent.keyboard('{ArrowRight}');
 
     await screen.findByText(/Step 5 of 6/);
     screen.getByText('Press the select button.');
     expectToHaveIllustrationHighlight('select-button');
-    act(() => void userEvent.keyboard('{Enter}'));
+    userEvent.keyboard('{Enter}');
 
     await screen.findByText(/Step 6 of 6/);
     screen.getByText('Confirm sound is working.');
@@ -97,15 +98,15 @@ describe('Accessible Controller Diagnostic Screen', () => {
     expectToHaveIllustrationHighlight('headphones', true);
     // Try pressing the select button before playing sound to make sure it
     // doesn't work
-    act(() => void userEvent.keyboard('{Enter}'));
+    userEvent.keyboard('{Enter}');
     expect(onComplete).not.toHaveBeenCalled();
     // Then play sound and confirm
-    act(() => void userEvent.keyboard('{ArrowRight}'));
+    userEvent.keyboard('{ArrowRight}');
     await waitFor(() => expect(mockTts.speak).toHaveBeenCalled());
     // Should unmute to speak and then restore muted state
     expect(mockTts.unmute).toHaveBeenCalled();
     expect(mockTts.toggleMuted).toHaveBeenCalledWith(true);
-    act(() => void userEvent.keyboard('{Enter}'));
+    userEvent.keyboard('{Enter}');
 
     expect(onComplete).toHaveBeenCalledWith({
       passed: true,
@@ -116,23 +117,23 @@ describe('Accessible Controller Diagnostic Screen', () => {
   async function passUntilStep(step: number) {
     if (step === 1) return;
     screen.getByText(/Step 1 of 6/);
-    act(() => void userEvent.keyboard('{ArrowUp}'));
+    userEvent.keyboard('{ArrowUp}');
 
     if (step === 2) return;
     await screen.findByText(/Step 2 of 6/);
-    act(() => void userEvent.keyboard('{ArrowDown}'));
+    userEvent.keyboard('{ArrowDown}');
 
     if (step === 3) return;
     await screen.findByText(/Step 3 of 6/);
-    act(() => void userEvent.keyboard('{ArrowLeft}'));
+    userEvent.keyboard('{ArrowLeft}');
 
     if (step === 4) return;
     await screen.findByText(/Step 4 of 6/);
-    act(() => void userEvent.keyboard('{ArrowRight}'));
+    userEvent.keyboard('{ArrowRight}');
 
     if (step === 5) return;
     await screen.findByText(/Step 5 of 6/);
-    act(() => void userEvent.keyboard('{Enter}'));
+    userEvent.keyboard('{Enter}');
 
     if (step === 6) return;
     throw new Error('Step must be between 1 and 6');

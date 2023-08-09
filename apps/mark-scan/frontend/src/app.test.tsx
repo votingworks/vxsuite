@@ -107,8 +107,10 @@ it('uses kiosk storage when in kiosk-browser', async () => {
   apiMock.expectGetPrecinctSelection();
   window.kiosk = kiosk;
   render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
-  await advanceTimersAndPromises();
-  expect(kiosk.storage.get).toHaveBeenCalled();
+  await waitFor(() => {
+    expect(kiosk.storage.get).toHaveBeenCalled();
+  });
+  await screen.findByText('Card Reader Not Detected');
   delete window.kiosk;
 });
 

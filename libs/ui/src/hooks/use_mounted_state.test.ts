@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '../../test/react_testing_library';
 import { useMountedState } from './use_mounted_state';
 
 test('useMountedState', () => {

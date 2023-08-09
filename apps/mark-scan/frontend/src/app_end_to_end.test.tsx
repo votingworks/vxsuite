@@ -46,7 +46,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(25000);
+jest.setTimeout(30000);
 
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = fakeLogger();
@@ -71,14 +71,11 @@ test('MarkAndPrint end-to-end flow', async () => {
       apiClient={apiMock.mockApiClient}
     />
   );
-  await advanceTimersAndPromises();
   const getByTextWithMarkup = withMarkup(screen.getByText);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
-  await advanceTimersAndPromises();
-
   // Default Unconfigured
-  screen.getByText('VxMarkScan is Not Configured');
+  await screen.findByText('VxMarkScan is Not Configured');
 
   // ---------------
 
@@ -118,7 +115,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('VxMarkScan is Not Configured');
 
   // ---------------
@@ -164,7 +160,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
@@ -175,18 +170,15 @@ test('MarkAndPrint end-to-end flow', async () => {
     status: 'logged_out',
     reason: 'poll_worker_wrong_election',
   });
-  await advanceTimersAndPromises();
   await screen.findByText('Invalid Card Data');
   screen.getByText('Card is not configured for this election.');
   screen.getByText('Please ask admin for assistance.');
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
 
   // ---------------
 
   // Open Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(
     within(await screen.findByRole('alertdialog')).getByText('Open Polls')
@@ -200,7 +192,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Insert Card');
 
   // ---------------
@@ -209,7 +200,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Start voter session
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
@@ -224,11 +214,10 @@ test('MarkAndPrint end-to-end flow', async () => {
     ballotStyleId: '12',
     precinctId: '23',
   });
-  await advanceTimersAndPromises();
 
+  await findByTextWithMarkup('Your ballot has 20 contests.');
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
-  await findByTextWithMarkup('Your ballot has 20 contests.');
 
   // Start Voting
   userEvent.click(screen.getByText('Start Voting'));
@@ -237,8 +226,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i];
 
-    await advanceTimersAndPromises();
-    screen.getByText(title);
+    await screen.findByText(title);
 
     // Vote for candidate contest
     if (title === presidentContest.title) {
@@ -256,8 +244,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   }
 
   // Review Screen
-  await advanceTimersAndPromises();
-  screen.getByText('Review Your Votes');
+  await screen.findByText('Review Your Votes');
 
   // Check for votes
   screen.getByText(presidentContest.candidates[0].name);
@@ -274,8 +261,7 @@ test('MarkAndPrint end-to-end flow', async () => {
       )}${countyCommissionersContest.title}`
     )
   );
-  await advanceTimersAndPromises();
-  screen.getByText(/Vote for 4/i);
+  await screen.findByText(/Vote for 4/i);
 
   // Select first candidate
   userEvent.click(
@@ -287,8 +273,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Back to Review screen
   userEvent.click(screen.getByText('Review'));
-  await advanceTimersAndPromises();
-  screen.getByText('Review Your Votes');
+  await screen.findByText('Review Your Votes');
   screen.getByText(countyCommissionersContest.candidates[0].name);
   screen.getByText(countyCommissionersContest.candidates[1].name);
   screen.getByText('You may still vote for 2 more candidates.');
@@ -311,8 +296,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Close Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
-  userEvent.click(screen.getByText('View More Actions'));
+  userEvent.click(await screen.findByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
   userEvent.click(
     within(await screen.findByRole('alertdialog')).getByText('Close Polls')
@@ -320,14 +304,12 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Voting is complete.');
 
   // Insert System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   await screen.findByText('Reboot from USB');
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
 
   // ---------------
 
@@ -341,18 +323,15 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetPrecinctSelection();
   userEvent.click(screen.getByText('Unconfigure Machine'));
-  await advanceTimersAndPromises();
 
   // Default Unconfigured
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('VxMarkScan is Not Configured');
 
   // Insert System Administrator card works when unconfigured
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   await screen.findByText('Reboot from USB');
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
 
   // ---------------
 
@@ -362,7 +341,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   await screen.findByText('Election Definition is loaded.');
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Insert Election Manager card to select a precinct.');
 
   // Unconfigure with System Administrator card
@@ -384,7 +362,6 @@ test('MarkAndPrint end-to-end flow', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('VxMarkScan is Not Configured');
 
   // Verify that machine was unconfigured even after election manager reauth

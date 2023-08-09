@@ -473,20 +473,18 @@ export function PrintTestDeckScreen(): JSX.Element {
   );
 
   const renderLogicAndAccuracyPackageToPdfForSinglePrecinct = useCallback(
-    async (
+    (
       precinctId: PrecinctId,
+      tallyReportResults: Tabulation.GroupList<TallyReportResults>,
       handMarkedPaperBallotCallbacks: ElementWithCallback[],
       onRendered: () => void
-    ): Promise<JSX.Element> => {
+    ): JSX.Element => {
       return (
         <React.Fragment key={precinctId}>
           {PrecinctTallyReport({
             election,
             precinctId,
-            tallyReportResults: await generateResultsForPrecinctTallyReport({
-              election,
-              precinctId,
-            }),
+            tallyReportResults,
           })}
           {getBmdPaperBallots({
             electionDefinition,
@@ -525,6 +523,18 @@ export function PrintTestDeckScreen(): JSX.Element {
         return handMarkedPaperBallotsWithCallback;
       });
 
+      const allTallyReportResults: Record<
+        string,
+        Tabulation.GroupList<TallyReportResults>
+      > = {};
+      for (const precinctId of precinctIds) {
+        allTallyReportResults[precinctId] =
+          await generateResultsForPrecinctTallyReport({
+            election,
+            precinctId,
+          });
+      }
+
       return printElementToPdfWhenReady((onAllRendered) => {
         // Printing will wait until all ballots in all precincts have rendered
         let numRendered = 0;
@@ -541,6 +551,7 @@ export function PrintTestDeckScreen(): JSX.Element {
               const callbacksForPrecinct = handMarkedPaperBallotsCallbacks[i];
               return renderLogicAndAccuracyPackageToPdfForSinglePrecinct(
                 precinctId,
+                allTallyReportResults[precinctId],
                 callbacksForPrecinct,
                 onRendered
               );

@@ -45,10 +45,7 @@ describe('loads election', () => {
     await setStateInStorage(storage);
     renderApp();
 
-    // Let the initial hardware detection run.
-    await advanceTimersAndPromises();
-
-    screen.getByText(election.title);
+    await screen.findByText(election.title);
     expect(storage.get(electionStorageKey)).toBeTruthy();
   });
 });

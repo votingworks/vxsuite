@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon';
 import fc from 'fast-check';
 import { arbitraryDateTime, fakeKiosk } from '@votingworks/test-utils';
-import { act } from '@testing-library/react-hooks';
 import {
+  act,
   cleanup,
   fireEvent,
   render,

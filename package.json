@@ -53,5 +53,11 @@
     "postcss-styled-syntax": "^0.4.0",
     "stylelint": "^15.10.2",
     "stylelint-config-standard": "^34.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/eslint": "8.4.1",
+      "typescript": "4.6.3"
+    }
   }
 }

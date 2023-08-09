@@ -2,7 +2,6 @@ import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
-import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
   election,
@@ -42,18 +41,15 @@ test('Shows card backwards screen when card connection error occurs', async () =
       reload={jest.fn()}
     />
   );
-  await advanceTimersAndPromises();
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'card_error',
   });
-  await advanceTimersAndPromises();
   await screen.findByText('Card is Backwards');
   screen.getByText('Remove the card, turn it around, and insert it again.');
 
   apiMock.setAuthStatusLoggedOut();
-  await advanceTimersAndPromises();
   await screen.findByText('Insert Card');
 });

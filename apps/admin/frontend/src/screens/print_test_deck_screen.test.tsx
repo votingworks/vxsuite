@@ -140,7 +140,9 @@ test('Printing L&A package for one precinct', async () => {
   advanceTimers(LAST_PRINT_JOB_SLEEP_MS / 1000);
 
   await screen.findByText('Print District 5');
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });
 
 test('Printing L&A packages for all precincts', async () => {
@@ -229,7 +231,9 @@ test('Printing L&A packages for all precincts', async () => {
   }
 
   await screen.findByText('Print Packages for All Precincts');
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });
 
 test('Printing L&A package for one precinct, when HMPBs are not letter-size', async () => {
@@ -304,7 +308,9 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   advanceTimers(LAST_PRINT_JOB_SLEEP_MS / 1000);
 
   await screen.findByText('Print District 5');
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });
 
 test('Printing L&A packages for all precincts, when HMPBs are not letter-size', async () => {
@@ -411,5 +417,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
   }
 
   await screen.findByText('Print Packages for All Precincts');
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });

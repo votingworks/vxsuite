@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import pluralize from 'pluralize';
 import useInterval from 'use-interval';
 
@@ -34,15 +34,13 @@ export function IdlePage({
   const [countdown, setCountdown] = useState(timeoutSeconds);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
+  useInterval(() => {
     if (countdown === 0 && !isLoading) {
       setIsLoading(true);
       onCountdownEnd();
+    } else if (!isLoading) {
+      setCountdown((previous) => previous - 1);
     }
-  }, [countdown, isLoading, onCountdownEnd]);
-
-  useInterval(() => {
-    setCountdown((previous) => previous - 1);
   }, 1000);
 
   return (

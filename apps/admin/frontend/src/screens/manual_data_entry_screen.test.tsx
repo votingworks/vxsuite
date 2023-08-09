@@ -220,12 +220,6 @@ test('can edit counts, receive validation messages, and save', async () => {
     votingMethod: 'absentee',
     manualResults: mockValidResults,
   });
-  apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults({
-    ballotStyleId: '1M',
-    votingMethod: 'absentee',
-    precinctId: 'precinct-1',
-  });
   userEvent.click(screen.getButton('Save Results'));
 });
 
@@ -403,12 +397,6 @@ test('adding new write-in candidates', async () => {
         },
       },
     }),
-  });
-  apiMock.expectGetWriteInCandidates([]);
-  apiMock.expectGetManualResults({
-    ballotStyleId: '1M',
-    votingMethod: 'precinct',
-    precinctId: 'precinct-1',
   });
   userEvent.click(screen.getButton('Save Results'));
 });

@@ -1,6 +1,6 @@
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen, waitFor } from '../../test/react_testing_library';
 import { IdlePage } from './idle_page';
 import { IDLE_RESET_TIMEOUT_SECONDS } from '../config/globals';
 
@@ -35,5 +35,7 @@ test('calls onCountdownEnd when the timer runs out', async () => {
   const onCountdownEnd = jest.fn();
   render(<IdlePage onCountdownEnd={onCountdownEnd} />);
   await advanceTimersAndPromises(IDLE_RESET_TIMEOUT_SECONDS);
-  expect(onCountdownEnd).toHaveBeenCalled();
+  await waitFor(() => {
+    expect(onCountdownEnd).toHaveBeenCalled();
+  });
 });

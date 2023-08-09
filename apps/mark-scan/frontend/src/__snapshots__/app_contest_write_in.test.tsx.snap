@@ -8,16 +8,16 @@ exports[`Single Seat Contest with Write In 1`] = `
   margin: 0;
 }
 
-.c23 {
+.c9 {
   font-size: 1em;
-  font-weight: 300;
   line-height: 1.15;
   margin: 0;
   font-size: 0.75rem;
 }
 
-.c9 {
+.c5 {
   font-size: 1em;
+  font-weight: 500;
   line-height: 1.15;
   margin: 0;
   font-size: 0.75rem;
@@ -31,9 +31,9 @@ exports[`Single Seat Contest with Write In 1`] = `
   font-size: 0.75rem;
 }
 
-.c5 {
+.c23 {
   font-size: 1em;
-  font-weight: 500;
+  font-weight: 300;
   line-height: 1.15;
   margin: 0;
   font-size: 0.75rem;

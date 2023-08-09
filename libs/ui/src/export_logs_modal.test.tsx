@@ -12,7 +12,7 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DippedSmartCardAuth } from '@votingworks/types';
-import { render, screen, waitFor } from '../test/react_testing_library';
+import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { ExportLogsButton, ExportLogsButtonRow } from './export_logs_modal';
 import { UsbDriveStatus } from './hooks/use_usb_drive';
 
@@ -45,6 +45,8 @@ const electionManagerAuthStatus: DippedSmartCardAuth.ElectionManagerLoggedIn = {
   sessionExpiresAt: fakeSessionExpiresAt(),
 };
 
+jest.useFakeTimers();
+
 test('renders loading screen when usb drive is mounting or ejecting in export modal', async () => {
   const mockKiosk = fakeKiosk();
   mockKiosk.getFileSystemEntries.mockResolvedValue([
@@ -65,7 +67,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     );
     userEvent.click(screen.getByText('Save Log File'));
     await screen.findByText('Loading');
-    userEvent.click(screen.getByText('Cancel'));
+    userEvent.click(await screen.findByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).toBeFalsy();
     unmount();
   }
@@ -133,7 +135,6 @@ test('render no usb found screen when there is not a mounted usb drive', async (
 });
 
 test('successful save raw log flow', async () => {
-  jest.useFakeTimers();
   const mockKiosk = fakeKiosk();
   mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
     { ...fileSystemEntry, name: 'vx-logs.log' },
@@ -168,7 +169,9 @@ test('successful save raw log flow', async () => {
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
   expect(mockKiosk.readFile).toHaveBeenCalled();
-  jest.advanceTimersByTime(2001);
+  act(() => {
+    jest.advanceTimersByTime(2001);
+  });
   await screen.findByText(/Logs Saved/);
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
@@ -195,7 +198,6 @@ test('successful save raw log flow', async () => {
 });
 
 test('successful save cdf log file flow', async () => {
-  jest.useFakeTimers();
   const mockKiosk = fakeKiosk();
   mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
     { ...fileSystemEntry, name: 'vx-logs.log' },
@@ -229,7 +231,9 @@ test('successful save cdf log file flow', async () => {
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
   expect(mockKiosk.readFile).toHaveBeenCalled();
-  jest.advanceTimersByTime(2001);
+  act(() => {
+    jest.advanceTimersByTime(2001);
+  });
   await screen.findByText(/Logs Saved/);
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
@@ -298,7 +302,6 @@ test('failed export flow', async () => {
 });
 
 test('successful save to custom location', async () => {
-  jest.useFakeTimers();
   const mockKiosk = fakeKiosk();
   mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
     { ...fileSystemEntry, name: 'vx-logs.log' },
@@ -344,7 +347,6 @@ test('successful save to custom location', async () => {
 });
 
 test('failed save to custom location', async () => {
-  jest.useFakeTimers();
   const mockKiosk = fakeKiosk();
   mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
     { ...fileSystemEntry, name: 'vx-logs.log' },

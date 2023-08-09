@@ -1,7 +1,9 @@
-import { renderHook } from '@testing-library/react-hooks';
-import { advanceTimersAndPromises } from '@votingworks/test-utils';
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+} from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';
-import { act } from '../../test/react_testing_library';
+import { act, renderHook, waitFor } from '../../test/react_testing_library';
 import { useCancelablePromise } from './use_cancelable_promise';
 
 beforeEach(() => {
@@ -34,8 +36,10 @@ test('rejects when component is still mounted', async () => {
   });
 
   expect(reject).not.toHaveBeenCalled();
-  await advanceTimersAndPromises(10);
-  expect(reject).toHaveBeenCalled();
+  advanceTimers(10);
+  await waitFor(() => {
+    expect(reject).toHaveBeenCalled();
+  });
 });
 
 test('does not resolve when component is unmounted', async () => {
