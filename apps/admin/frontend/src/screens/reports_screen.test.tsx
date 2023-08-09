@@ -183,7 +183,8 @@ test('exporting results csv', async () => {
   );
 
   apiMock.expectExportResultsCsv(
-    '/media/vx/mock-usb-drive/votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
+    '/media/vx/mock-usb-drive/votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv',
+    { groupByPrecinct: true, groupByVotingMethod: true }
   );
   const button = within(modal).getButton('Save');
   await advanceTimersAndPromises(1); // wait for modal to resolve USB path

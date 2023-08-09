@@ -337,8 +337,10 @@ export function createApiMock(
       apiClient.getSemsExportableTallies.expectCallWith().resolves(result);
     },
 
-    expectExportResultsCsv(path: string) {
-      apiClient.exportResultsCsv.expectCallWith({ path }).resolves(ok([]));
+    expectExportResultsCsv(path: string, groupBy?: Tabulation.GroupBy) {
+      apiClient.exportResultsCsv
+        .expectCallWith({ path, groupBy })
+        .resolves(ok([]));
     },
 
     expectGetCardCounts(
