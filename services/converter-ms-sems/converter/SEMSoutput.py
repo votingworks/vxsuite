@@ -208,14 +208,22 @@ def process_tallies_file(election_file_path, vx_results_file_path):
 
 
     sems_io = io.StringIO()
+    is_first_row = True
     for row in rows_to_write:
+        # there can be no trailing newline characters in the file,
+        # so we append newlines at the beginning of the loop for
+        # all but the first row
+        if not is_first_row:
+            sems_io.write("\r\n")
+        is_first_row = False
+        
         # a whole rigamarole because SEMS needs a trailing comma
         row_bytesio = io.StringIO()
         sems_row_writer = csv.writer(row_bytesio, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
         sems_row_writer.writerow(row)
     
         sems_io.write(row_bytesio.getvalue().strip('\r\n'))
-        sems_io.write(",\r\n")
+        sems_io.write(",")
 
     return sems_io.getvalue()
 
