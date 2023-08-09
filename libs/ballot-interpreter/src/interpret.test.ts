@@ -4,6 +4,7 @@ import {
   electionSampleDefinition,
   electionSample,
 } from '@votingworks/fixtures';
+import * as fs from 'fs';
 import {
   AdjudicationReason,
   InvalidElectionHashPage,
@@ -13,14 +14,12 @@ import {
   Candidate,
   CandidateVote,
   Election,
-  ElectionDefinition,
   getBallotStyle,
   getContests,
-  GridLayout,
-  PrecinctId,
   SheetOf,
   Vote,
   VotesDict,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -31,29 +30,24 @@ import {
   assert,
   assertDefined,
   find,
-  iter,
   Optional,
-} from '@votingworks/basics';
-import { Buffer } from 'buffer';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import {
-  Document,
-  TextBox,
-  gridPosition,
+  unique,
   range,
-  AnyElement,
-  measurements,
-  layOutAllBallots,
-} from '@votingworks/hmpb-layout';
-import { tmpNameSync } from 'tmp';
+} from '@votingworks/basics';
+import { layOutAllBallots } from '@votingworks/hmpb-layout';
 import {
-  renderDocumentToPdf,
   allBubbleBallotBlankBallot,
   allBubbleBallotCyclingTestDeck,
   allBubbleBallotElectionDefinition,
   allBubbleBallotFilledBallot,
 } from '@votingworks/hmpb-render-backend';
+import { join } from 'path';
 import { interpretSheet } from './interpret';
+import {
+  markBallot,
+  renderAndInterpretBallot,
+  voteToOptionId,
+} from '../test/helpers/interpretation';
 
 describe('VX BMD interpretation', () => {
   const fixtures = electionFamousNames2021Fixtures;
@@ -498,55 +492,6 @@ describe('NH HMPB interpretation', () => {
   });
 });
 
-async function pdfToBuffer(pdf: PDFKit.PDFDocument): Promise<Buffer> {
-  const promise = new Promise<Buffer>((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    pdf.on('data', (chunk) => chunks.push(chunk));
-    pdf.on('error', reject);
-    pdf.on('end', () => resolve(Buffer.concat(chunks)));
-  });
-  pdf.end();
-  return promise;
-}
-
-async function renderAndInterpretBallot({
-  electionDefinition,
-  precinctId,
-  ballot,
-  testMode = true,
-}: {
-  electionDefinition: ElectionDefinition;
-  precinctId: PrecinctId;
-  ballot: Document;
-  testMode?: boolean;
-}) {
-  const pdfStream = renderDocumentToPdf(ballot);
-  const pdfBuffer = await pdfToBuffer(pdfStream);
-  const pageImages = await iter(
-    pdfToImages(pdfBuffer, { scale: 200 / 72 })
-  ).toArray();
-  expect(pageImages.length).toEqual(2);
-  const pageImagePaths: SheetOf<string> = [
-    tmpNameSync({ postfix: '.jpg' }),
-    tmpNameSync({ postfix: '.jpg' }),
-  ];
-  await writeImageData(pageImagePaths[0], pageImages[0]!.page);
-  await writeImageData(pageImagePaths[1], pageImages[1]!.page);
-
-  return interpretSheet(
-    {
-      electionDefinition,
-      precinctSelection: singlePrecinctSelectionFor(precinctId),
-      testMode,
-    },
-    pageImagePaths
-  );
-}
-
-function voteToOptionId(vote: Vote[number]) {
-  return vote === 'yes' || vote === 'no' ? vote : vote.id;
-}
-
 function sortVotes(vote: Vote) {
   return [...vote].sort((a, b) =>
     voteToOptionId(a).localeCompare(voteToOptionId(b))
@@ -642,66 +587,6 @@ describe('HMPB - All bubble ballot', () => {
     );
   }, 30_000);
 });
-
-function markBallot(
-  ballot: Document,
-  gridLayout: GridLayout,
-  votesToMark: VotesDict,
-  paperSize: BallotPaperSize,
-  density: number
-) {
-  assert(ballot.pages.length === 2, 'Only two page ballots are supported');
-  const m = measurements(paperSize, density);
-  function marksForPage(page: number): AnyElement[] {
-    const side = page === 1 ? 'front' : 'back';
-    const pagePositions = gridLayout.gridPositions.filter(
-      (position) => position.side === side
-    );
-    return Object.entries(votesToMark).flatMap(([contestId, votes]) => {
-      if (!votes) return [];
-      const contestPositions = pagePositions.filter(
-        (position) => position.contestId === contestId
-      );
-      if (contestPositions.length === 0) return []; // Contest not on this page
-      return votes?.map((vote): TextBox => {
-        const optionPosition = find(
-          contestPositions,
-          (position) =>
-            position.type === 'option' &&
-            position.optionId === voteToOptionId(vote)
-        );
-        // Add offset to get bubble center (since interpreter indexes from
-        // timing marks, while layout indexes from ballot edge)
-        const position = gridPosition(
-          {
-            column: optionPosition.column + 1,
-            row: optionPosition.row + 1,
-          },
-          m
-        );
-        return {
-          type: 'TextBox',
-          // Offset by half bubble width/height
-          x: position.x - 3,
-          y: position.y - 5,
-          width: 10,
-          height: 10,
-          textLines: ['X'],
-          lineHeight: 10,
-          fontSize: 10,
-          fontWeight: 700,
-        };
-      });
-    });
-  }
-  return {
-    ...ballot,
-    pages: ballot.pages.map((page, i) => ({
-      ...page,
-      children: page.children.concat(marksForPage(i + 1)),
-    })),
-  };
-}
 
 describe('HMPB - Famous Names', () => {
   const { ballots, electionDefinition } = layOutAllBallots({
@@ -917,3 +802,40 @@ for (const targetMarkPosition of Object.values(BallotTargetMarkPosition)) {
     }
   }
 }
+
+describe('HMPB - m17 backup', () => {
+  const fixtureDir = join(__dirname, '../test/fixtures/m17-backup');
+  const electionDefinition = safeParseElectionDefinition(
+    fs.readFileSync(join(fixtureDir, 'election.json'), 'utf8')
+  ).unsafeUnwrap();
+  const ballotIds = unique(
+    fs
+      .readdirSync(fixtureDir)
+      .filter((f) => f.endsWith('.jpg'))
+      .map((f) => f.replace(/(-front|-back)\.jpg$/, ''))
+  );
+
+  test('Interprets all ballots correctly', async () => {
+    for (const ballotId of ballotIds) {
+      const sheet: SheetOf<string> = [
+        join(fixtureDir, `${ballotId}-front.jpg`),
+        join(fixtureDir, `${ballotId}-back.jpg`),
+      ];
+
+      const interpretationWithImages = await interpretSheet(
+        {
+          electionDefinition,
+          precinctSelection: ALL_PRECINCTS_SELECTION,
+          testMode: false,
+        },
+        sheet
+      );
+
+      const interpretation = mapSheet(
+        interpretationWithImages,
+        (page) => page.interpretation
+      );
+      expect({ [ballotId]: interpretation }).toMatchSnapshot();
+    }
+  });
+});
