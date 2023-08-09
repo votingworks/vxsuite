@@ -199,7 +199,7 @@ describe('System Diagnostics screen: Printer section', () => {
 });
 
 describe('System Diagnostics screen: Accessible Controller section', () => {
-  it.skip('shows the connection status, has a button to open test, and shows test results', async () => {
+  it('shows the connection status, has a button to open test, and shows test results', async () => {
     const mockTts = fakeTts();
     const screenReader = new AriaScreenReader(mockTts);
     const { unmount } = renderScreen({ screenReader });

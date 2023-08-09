@@ -33,7 +33,7 @@ describe('Accessible Controller Diagnostic Screen', () => {
     jest.useFakeTimers().setSystemTime(new Date(now.toISO()));
   });
 
-  it.skip('yields a success result when all steps are completed', async () => {
+  it('yields a success result when all steps are completed', async () => {
     const mockTts = fakeTts();
     const screenReader = new AriaScreenReader(mockTts);
     const onComplete = jest.fn();

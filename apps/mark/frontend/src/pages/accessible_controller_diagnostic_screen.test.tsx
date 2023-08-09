@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
-import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import {
   render,
   screen,
@@ -36,7 +35,7 @@ describe('Accessible Controller Diagnostic Screen', () => {
     jest.setSystemTime(new Date(now.toISO()));
   });
 
-  it.skip('yields a success result when all steps are completed', async () => {
+  it('yields a success result when all steps are completed', async () => {
     const mockTts = fakeTts();
     const screenReader = new AriaScreenReader(mockTts);
     const onComplete = jest.fn();
@@ -107,7 +106,6 @@ describe('Accessible Controller Diagnostic Screen', () => {
     // Should unmute to speak and then restore muted state
     expect(mockTts.unmute).toHaveBeenCalled();
     expect(mockTts.toggleMuted).toHaveBeenCalledWith(true);
-    await advanceTimersAndPromises(1);
     userEvent.keyboard('{Enter}');
 
     expect(onComplete).toHaveBeenCalledWith({
