@@ -57,7 +57,7 @@ export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
 export const LAST_PRINT_JOB_SLEEP_MS = 5000;
 
 interface PrecinctTallyReportProps {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   tallyReportResults: Tabulation.GroupList<TallyReportResults>;
   precinctId: PrecinctId;
 }
@@ -101,7 +101,7 @@ async function generateResultsForPrecinctTallyReport({
 }
 
 function PrecinctTallyReport({
-  election,
+  electionDefinition,
   tallyReportResults,
   precinctId,
 }: PrecinctTallyReportProps): JSX.Element {
@@ -109,7 +109,7 @@ function PrecinctTallyReport({
   // deck because it counts scanning 2 test decks (BMD + HMPB)
   return (
     <TestDeckTallyReport
-      election={election}
+      electionDefinition={electionDefinition}
       tallyReportResults={tallyReportResults}
       precinctId={precinctId}
     />
@@ -329,7 +329,11 @@ export function PrintTestDeckScreen(): JSX.Element {
         precinctId,
       });
       await printElement(
-        PrecinctTallyReport({ election, tallyReportResults, precinctId }),
+        PrecinctTallyReport({
+          electionDefinition,
+          tallyReportResults,
+          precinctId,
+        }),
         {
           sides: 'one-sided',
         }
@@ -341,7 +345,7 @@ export function PrintTestDeckScreen(): JSX.Element {
       });
       await makeCancelable(sleep(numParties * ONE_SIDED_PAGE_PRINT_TIME_MS));
     },
-    [election, logger, makeCancelable, userRole]
+    [election, electionDefinition, logger, makeCancelable, userRole]
   );
 
   const printBmdPaperBallots = useCallback(
@@ -482,7 +486,7 @@ export function PrintTestDeckScreen(): JSX.Element {
       return (
         <React.Fragment key={precinctId}>
           {PrecinctTallyReport({
-            election,
+            electionDefinition,
             precinctId,
             tallyReportResults,
           })}
@@ -498,7 +502,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         </React.Fragment>
       );
     },
-    [election, electionDefinition, generateBallotId]
+    [electionDefinition, generateBallotId]
   );
 
   // printLogicAndAccuracyPackageToPdf prints the L&A package for all precincts to PDF format.
