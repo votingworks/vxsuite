@@ -47,6 +47,44 @@ bin/interpret path/to/workspace d34d-b33f
 bin/interpret -d election.json ballot-side-a.jpeg ballot-side-b.jpeg
 ```
 
+## Benchmarks
+
+This library includes benchmarks designed to:
+
+- Help understand how the interpreter performs in different environments (i.e.
+  different hardware/software stacks)
+- Prevent performance regressions
+
+To run benchmarks for interpretation, run:
+
+```sh
+pnpm benchmark
+```
+
+This will run a series of benchmark tests, which will interpret a ballot many
+times and compute some statistics about the time it takes. The results will be
+compared to saved results from a previous run, and, if they differ by too large
+an amount, show a test failure message.
+
+### Benchmark Environments
+
+By default, the benchmarks will use saved results from a development
+environment. If you'd like to run the benchmarks in a different environment, you
+can set the `BENCHMARK_ENV` environment variable to a name of your choosing. For
+example:
+
+```sh
+BENCHMARK_ENV=production-minipc pnpm benchmark
+```
+
+### Updating Saved Results
+
+To update the saved results for a benchmark, run:
+
+```sh
+UPDATE_BENCHMARKS=1 pnpm benchmark
+```
+
 ## License
 
 AGPLv3

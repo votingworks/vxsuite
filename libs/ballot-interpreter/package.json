@@ -11,6 +11,7 @@
     "build"
   ],
   "scripts": {
+    "benchmark": "jest --runInBand --projects benchmarks",
     "build": "pnpm build:rust-addon && pnpm build:ts",
     "build:rust-addon": "cargo-cp-artifact -nc build/hmpb-ts/rust_addon.node -- cargo build --message-format=json-render-diagnostics --release",
     "build:ts": "tsc --build tsconfig.build.json",
