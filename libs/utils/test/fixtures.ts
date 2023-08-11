@@ -6,7 +6,7 @@ import {
   PartyId,
 } from '@votingworks/types';
 
-function contestFactory(
+function buildContest(
   id: string,
   districtId: string,
   partyId?: string
@@ -52,16 +52,16 @@ export const complexBallotStyleElectionDefinition: ElectionDefinition = {
       },
     ],
     contests: [
-      contestFactory('congressional-1-mammal', 'congressional-1', '0'),
-      contestFactory('congressional-1-fish', 'congressional-1', '1'),
-      contestFactory('congressional-2-mammal', 'congressional-2', '0'),
-      contestFactory('congressional-2-fish', 'congressional-2', '1'),
-      contestFactory('town-mammal', 'town', '0'),
-      contestFactory('town-fish', 'town', '1'),
-      contestFactory('water-1-mammal', 'water-1', '0'),
-      contestFactory('water-1-fish', 'water-1', '1'),
-      contestFactory('water-2-mammal', 'water-2', '0'),
-      contestFactory('water-2-fish', 'water-2', '1'),
+      buildContest('congressional-1-mammal', 'congressional-1', '0'),
+      buildContest('congressional-1-fish', 'congressional-1', '1'),
+      buildContest('congressional-2-mammal', 'congressional-2', '0'),
+      buildContest('congressional-2-fish', 'congressional-2', '1'),
+      buildContest('town-mammal', 'town', '0'),
+      buildContest('town-fish', 'town', '1'),
+      buildContest('water-1-mammal', 'water-1', '0'),
+      buildContest('water-1-fish', 'water-1', '1'),
+      buildContest('water-2-mammal', 'water-2', '0'),
+      buildContest('water-2-fish', 'water-2', '1'),
     ],
     precincts: [
       {

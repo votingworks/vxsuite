@@ -67,6 +67,6 @@ type FalsyValue = false | 0 | -0 | 0n | '' | null | undefined | typeof NaN;
 /**
  * Enables pre-runtime check that a value is not truthy.
  */
-export function throwTruthyValue(value: FalsyValue): void {
+export function assertFalsy(value: FalsyValue): void {
   if (value) throw new Error(`Unexpected truthy value: ${value}`);
 }

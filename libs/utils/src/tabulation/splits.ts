@@ -1,4 +1,4 @@
-import { Optional, assertDefined, throwTruthyValue } from '@votingworks/basics';
+import { Optional, assertDefined, assertFalsy } from '@votingworks/basics';
 import { Election, ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
   getBallotStyleIdsForFilter,
@@ -212,7 +212,7 @@ export function getAllPossibleSplits(
               break;
             /* c8 ignore next 3 */
             default:
-              throwTruthyValue(
+              assertFalsy(
                 groupByPrecinct && groupByParty && groupByBallotStyle
               );
           }

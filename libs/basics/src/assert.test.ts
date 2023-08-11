@@ -3,7 +3,7 @@ import {
   assertDefined,
   fail,
   throwIllegalValue,
-  throwTruthyValue,
+  assertFalsy,
 } from './assert';
 
 test('assert', () => {
@@ -85,9 +85,9 @@ test('throwIllegalValue display name', () => {
   }
 });
 
-test('throwTruthyValue', () => {
+test('assertFalsy', () => {
   const truthyValue = true as unknown as false;
-  expect(() => throwTruthyValue(truthyValue)).toThrowError(
+  expect(() => assertFalsy(truthyValue)).toThrowError(
     `Unexpected truthy value: ${truthyValue}`
   );
 });

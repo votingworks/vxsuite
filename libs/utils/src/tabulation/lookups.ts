@@ -32,10 +32,6 @@ export function createElectionMetadataLookupFunction<T>(
   };
 }
 
-/**
- * Returns the name of the precinct with the given ID. Caches results for
- * repeated lookups.
- */
 export const getPrecinctById = createElectionMetadataLookupFunction(
   (election) => {
     const { precincts } = election;
@@ -47,10 +43,6 @@ export const getPrecinctById = createElectionMetadataLookupFunction(
   }
 );
 
-/**
- * Returns the short name of the party with the given ID. Caches results
- * for repeated lookups.
- */
 export const getPartyById = createElectionMetadataLookupFunction((election) => {
   const { parties } = election;
   const partyLookup: Record<string, Party> = {};
@@ -71,10 +63,6 @@ export const getContestById = createElectionMetadataLookupFunction(
   }
 );
 
-/**
- * Returns the party ID associated with a ballot style, if any. Caches results
- * for repeated lookups.
- */
 export const getBallotStyleById = createElectionMetadataLookupFunction(
   (election) => {
     const { ballotStyles } = election;
