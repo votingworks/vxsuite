@@ -60,3 +60,13 @@ export function throwIllegalValue(value: never, displayKey?: string): never {
     }`
   );
 }
+
+// from https://developer.mozilla.org/en-US/docs/Glossary/Truthy
+type FalsyValue = false | 0 | -0 | 0n | '' | null | undefined | typeof NaN;
+
+/**
+ * Enables pre-runtime check that a value is not truthy.
+ */
+export function assertFalsy(value: FalsyValue): void {
+  if (value) throw new Error(`Unexpected truthy value: ${value}`);
+}

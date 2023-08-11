@@ -1,6 +1,10 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { getRelevantContests, isElectionManagerAuth } from '@votingworks/utils';
+import {
+  getContestIdsForFilter,
+  isElectionManagerAuth,
+  mapContestIdsToContests,
+} from '@votingworks/utils';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -248,7 +252,10 @@ function SingleTallyReportScreen({
         key="tally-report"
         testId="tally-report"
         title={title}
-        contests={getRelevantContests({ election, filter })}
+        contests={mapContestIdsToContests(
+          electionDefinition,
+          getContestIdsForFilter(electionDefinition, filter)
+        )}
         tallyReportResults={reportResultsQuery.data}
         tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
         generatedAtTime={new Date(reportResultsQuery.dataUpdatedAt)}
@@ -256,6 +263,7 @@ function SingleTallyReportScreen({
     );
   }, [
     election,
+    electionDefinition,
     filter,
     isOfficialResults,
     reportResultsQuery.data,
@@ -377,10 +385,12 @@ export function AllPrecinctsTallyReportScreen(): JSX.Element {
           key={`tally-report-${precinct.id}`}
           testId={`tally-report-${precinct.id}`}
           title={`Precinct Tally Report for ${precinct.name}`}
-          contests={getRelevantContests({
-            election,
-            filter: { precinctIds: [precinct.id] },
-          })}
+          contests={mapContestIdsToContests(
+            electionDefinition,
+            getContestIdsForFilter(electionDefinition, {
+              precinctIds: [precinct.id],
+            })
+          )}
           tallyReportResults={reportResultsQuery.data.filter(
             (results) => results.precinctId === precinct.id
           )}
@@ -393,6 +403,7 @@ export function AllPrecinctsTallyReportScreen(): JSX.Element {
     return <React.Fragment>{precinctReports}</React.Fragment>;
   }, [
     election,
+    electionDefinition,
     isOfficialResults,
     reportResultsQuery.data,
     reportResultsQuery.dataUpdatedAt,

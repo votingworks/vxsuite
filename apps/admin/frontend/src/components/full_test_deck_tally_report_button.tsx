@@ -63,11 +63,11 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
 
     return (
       <TestDeckTallyReport
-        election={election}
+        electionDefinition={electionDefinition}
         tallyReportResults={fullTestDeckTallyReportResults}
       />
     );
-  }, [election, fullTestDeckTallyReportResults]);
+  }, [electionDefinition, fullTestDeckTallyReportResults]);
 
   const printFullTestDeckTallyReport = useCallback(async () => {
     assert(fullTestDeckTallyReport);

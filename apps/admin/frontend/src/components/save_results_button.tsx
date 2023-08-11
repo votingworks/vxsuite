@@ -1,6 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
-import { generateFinalExportDefaultFilename } from '@votingworks/utils';
+import {
+  canDistinguishVotingMethods,
+  generateFinalExportDefaultFilename,
+} from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { exportResultsCsv, getCastVoteRecordFileMode } from '../api';
@@ -35,7 +38,15 @@ export function SaveResultsButton({
       {isSaveModalOpen && (
         <SaveBackendFileModal
           saveFileStatus={exportResultsCsvMutation.status}
-          saveFile={exportResultsCsvMutation.mutate}
+          saveFile={({ path }) =>
+            exportResultsCsvMutation.mutate({
+              path,
+              groupBy: {
+                groupByPrecinct: true,
+                groupByVotingMethod: canDistinguishVotingMethods(election),
+              },
+            })
+          }
           saveFileResult={exportResultsCsvMutation.data}
           resetSaveFileResult={exportResultsCsvMutation.reset}
           onClose={() => setIsSaveModalOpen(false)}

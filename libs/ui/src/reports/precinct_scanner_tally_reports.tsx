@@ -7,8 +7,9 @@ import {
 } from '@votingworks/types';
 import {
   combineElectionResults,
+  getContestIdsForFilter,
   getEmptyElectionResults,
-  getRelevantContests,
+  mapContestIdsToContests,
 } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
 import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
@@ -48,15 +49,15 @@ export function PrecinctScannerTallyReports({
     allElectionResults: electionResultsByParty,
   });
   const partyIds = getPartyIdsWithContests(electionDefinition.election);
-  const allContests = getRelevantContests({
-    election,
-    filter: {
+  const allContests = mapContestIdsToContests(
+    electionDefinition,
+    getContestIdsForFilter(electionDefinition, {
       precinctIds:
         precinctSelection.kind === 'SinglePrecinct'
           ? [precinctSelection.precinctId]
           : undefined,
-    },
-  });
+    })
+  );
   const showQuickResults =
     electionDefinition.election.quickResultsReportingUrl &&
     totalBallotsScanned > 0 &&
