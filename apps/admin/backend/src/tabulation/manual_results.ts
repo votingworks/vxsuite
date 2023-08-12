@@ -1,32 +1,28 @@
 import { Election, Id, Tabulation } from '@votingworks/types';
 import {
-  BallotStyleIdPartyIdLookup,
   combineManualElectionResults,
-  getBallotStyleIdPartyIdLookup,
   getGroupKey,
+  getTrivialFundamentalFilter,
+  getTrivialFundamentalGroupBy,
 } from '@votingworks/utils';
 import { Result, assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
-  ManualResultsFilter,
+  ManualResultsFundamentalFilter,
   ManualResultsGroupBy,
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
   ManualResultsRecord,
 } from '../types';
 import { Store } from '../store';
-import { replacePartyIdFilter } from './utils';
 
 function getManualResultsGroupSpecifier(
   manualResultsIdentifier: ManualResultsIdentifier,
-  groupBy: ManualResultsGroupBy,
-  partyIdLookup: BallotStyleIdPartyIdLookup
-): Tabulation.GroupSpecifier {
+  groupBy: ManualResultsGroupBy
+): Tabulation.FundamentalGroupSpecifier {
   return {
+    isFundamental: true,
     ballotStyleId: groupBy.groupByBallotStyle
       ? manualResultsIdentifier.ballotStyleId
-      : undefined,
-    partyId: groupBy.groupByParty
-      ? partyIdLookup[manualResultsIdentifier.ballotStyleId]
       : undefined,
     precinctId: groupBy.groupByPrecinct
       ? manualResultsIdentifier.precinctId
@@ -44,7 +40,7 @@ function getManualResultsGroupSpecifier(
 export function aggregateManualResults({
   election,
   manualResultsRecords,
-  groupBy = {},
+  groupBy = getTrivialFundamentalFilter(),
 }: {
   election: Election;
   manualResultsRecords: Iterable<ManualResultsRecord>;
@@ -52,13 +48,10 @@ export function aggregateManualResults({
 }): Tabulation.ManualResultsGroupMap {
   const manualResultsGroupMap: Tabulation.ManualResultsGroupMap = {};
 
-  const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
-
   for (const manualResultsRecord of manualResultsRecords) {
     const groupSpecifier = getManualResultsGroupSpecifier(
       manualResultsRecord,
-      groupBy,
-      ballotStyleIdPartyIdLookup
+      groupBy
     );
     const groupKey = getGroupKey(groupSpecifier, groupBy);
     const existingGroup = manualResultsGroupMap[groupKey];
@@ -79,18 +72,18 @@ export function aggregateManualResults({
  * Type guard for filters to check if they are compatible with manual results.
  */
 export function isFilterCompatibleWithManualResults(
-  filter: Tabulation.Filter
-): filter is ManualResultsFilter {
-  return !filter.batchIds && !filter.scannerIds;
+  filter: Tabulation.FundamentalFilter
+): filter is ManualResultsFundamentalFilter {
+  return !filter.batchIds;
 }
 
 /**
  * Type guard for group by to check if it is compatible with manual results.
  */
 export function isGroupByCompatibleWithManualResults(
-  groupBy: Tabulation.GroupBy
+  groupBy: Tabulation.FundamentalGroupBy
 ): groupBy is ManualResultsGroupBy {
-  return !groupBy.groupByBatch && !groupBy.groupByScanner;
+  return !groupBy.groupByBatch;
 }
 
 type GetManualResultsError =
@@ -103,13 +96,13 @@ type GetManualResultsError =
 export function tabulateManualResults({
   electionId,
   store,
-  filter = {},
-  groupBy = {},
+  filter = getTrivialFundamentalFilter(),
+  groupBy = getTrivialFundamentalGroupBy(),
 }: {
   electionId: Id;
   store: Store;
-  filter?: Tabulation.Filter;
-  groupBy?: Tabulation.GroupBy;
+  filter?: Tabulation.FundamentalFilter;
+  groupBy?: Tabulation.FundamentalGroupBy;
 }): Result<Tabulation.ManualResultsGroupMap, GetManualResultsError> {
   if (!isFilterCompatibleWithManualResults(filter)) {
     return err({ type: 'incompatible-filter' });
@@ -125,7 +118,7 @@ export function tabulateManualResults({
 
   const manualResultsRecords = store.getManualResults({
     electionId,
-    ...replacePartyIdFilter(filter, election),
+    ...filter,
   });
 
   return ok(
@@ -142,13 +135,12 @@ export function tabulateManualResults({
  * group by is incompatible with manual results.
  */
 export function tabulateManualBallotCounts({
-  election,
   manualResultsMetadataRecords,
-  groupBy = {},
+  groupBy = getTrivialFundamentalGroupBy(),
 }: {
   election: Election;
   manualResultsMetadataRecords: Iterable<ManualResultsMetadataRecord>;
-  groupBy?: Tabulation.GroupBy;
+  groupBy?: Tabulation.FundamentalGroupBy;
 }): Result<Tabulation.ManualBallotCountsGroupMap, GetManualResultsError> {
   if (!isGroupByCompatibleWithManualResults(groupBy)) {
     return err({ type: 'incompatible-group-by' });
@@ -156,19 +148,18 @@ export function tabulateManualBallotCounts({
 
   const manualBallotCountGroupMap: Tabulation.ManualBallotCountsGroupMap = {};
 
-  const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
-
   for (const manualResultsMetadataRecord of manualResultsMetadataRecords) {
     const groupSpecifier = getManualResultsGroupSpecifier(
       manualResultsMetadataRecord,
-      groupBy,
-      ballotStyleIdPartyIdLookup
+      groupBy
     );
     const groupKey = getGroupKey(groupSpecifier, groupBy);
 
-    manualBallotCountGroupMap[groupKey] =
-      (manualBallotCountGroupMap[groupKey] ?? 0) +
-      manualResultsMetadataRecord.ballotCount;
+    manualBallotCountGroupMap[groupKey] = {
+      ballotCount:
+        (manualBallotCountGroupMap[groupKey]?.ballotCount ?? 0) +
+        manualResultsMetadataRecord.ballotCount,
+    };
   }
 
   return ok(manualBallotCountGroupMap);

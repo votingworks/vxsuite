@@ -36,8 +36,9 @@ import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
 import {
   OfficialCandidateNameLookup,
-  getBallotStyleIdPartyIdLookup,
   getOfficialCandidateNameLookup,
+  getTrivialFundamentalFilter,
+  getTrivialFundamentalGroupBy,
 } from '@votingworks/utils';
 import {
   CastVoteRecordFileRecord,
@@ -48,7 +49,6 @@ import {
   ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
-  CastVoteRecordStoreFilter,
   WriteInAdjudicationAction,
   WriteInAdjudicationStatus,
   WriteInCandidateRecord,
@@ -62,11 +62,11 @@ import {
   WriteInAdjudicatedOfficialCandidateTally,
   WriteInAdjudicatedWriteInCandidateTally,
   WriteInPendingTally,
-  ManualResultsStoreFilter,
+  ManualResultsFundamentalFilter,
   CardTally,
   WriteInAdjudicationQueueMetadata,
 } from './types';
-import { isBlankSheet, replacePartyIdFilter } from './tabulation/utils';
+import { isBlankSheet } from './tabulation/utils';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('store');
@@ -432,7 +432,7 @@ export class Store {
     electionId: Id;
     cvrFileId: Id;
     ballotId: BallotId;
-    cvr: Omit<Tabulation.CastVoteRecord, 'scannerId'>;
+    cvr: Tabulation.CastVoteRecord;
   }): Result<
     { cvrId: Id; isNew: boolean },
     {
@@ -826,7 +826,7 @@ export class Store {
 
   private getTabulationFilterAsSql(
     electionId: Id,
-    filter: CastVoteRecordStoreFilter
+    filter: Tabulation.FundamentalFilter
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
@@ -859,15 +859,6 @@ export class Store {
       params.push(...filter.batchIds);
     }
 
-    if (filter.scannerIds) {
-      whereParts.push(
-        `scanner_batches.scanner_id in ${asQueryPlaceholders(
-          filter.scannerIds
-        )}`
-      );
-      params.push(...filter.scannerIds);
-    }
-
     return [whereParts, params];
   }
 
@@ -883,16 +874,15 @@ export class Store {
    */
   *getCastVoteRecords({
     electionId,
-    election,
     filter,
   }: {
     electionId: Id;
     election: Election;
-    filter: Tabulation.Filter;
+    filter: Tabulation.FundamentalFilter;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
-      replacePartyIdFilter(filter, election)
+      filter
     );
 
     for (const row of this.client.each(
@@ -902,11 +892,9 @@ export class Store {
           cvrs.precinct_id as precinctId,
           cvrs.ballot_type as ballotType,
           cvrs.batch_id as batchId,
-          scanner_batches.scanner_id as scannerId,
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes
-        from
-          cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        from cvrs
         where ${whereParts.join(' and ')}
       `,
       ...params
@@ -915,7 +903,6 @@ export class Store {
       ballotType: string;
       batchId: string;
       precinctId: string;
-      scannerId: string;
       sheetNumber: number | null;
       votes: string;
     }>) {
@@ -923,7 +910,6 @@ export class Store {
         ballotStyleId: row.ballotStyleId,
         votingMethod: row.ballotType as Tabulation.VotingMethod,
         batchId: row.batchId,
-        scannerId: row.scannerId,
         precinctId: row.precinctId,
         card: this.convertSheetNumberToCard(row.sheetNumber),
         votes: JSON.parse(row.votes),
@@ -936,22 +922,21 @@ export class Store {
    */
   *getCardTallies({
     electionId,
-    election,
-    groupBy = {},
+    groupBy = getTrivialFundamentalGroupBy(),
     blankBallotsOnly = false,
   }: {
     electionId: Id;
     election: Election;
-    groupBy?: Tabulation.GroupBy;
+    groupBy?: Tabulation.FundamentalGroupBy;
     blankBallotsOnly?: boolean;
-  }): Generator<Tabulation.GroupOf<CardTally>> {
+  }): Generator<Tabulation.FundamentalGroupOf<CardTally>> {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
 
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
-    if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
+    if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_id as ballotStyleId');
       groupByParts.push('cvrs.ballot_style_id');
     }
@@ -966,11 +951,6 @@ export class Store {
       groupByParts.push('cvrs.precinct_id');
     }
 
-    if (groupBy.groupByScanner) {
-      selectParts.push('scanner_batches.scanner_id as scannerId');
-      groupByParts.push('scanner_batches.scanner_id');
-    }
-
     if (groupBy.groupByVotingMethod) {
       selectParts.push('cvrs.ballot_type as votingMethod');
       groupByParts.push('cvrs.ballot_type');
@@ -979,8 +959,6 @@ export class Store {
     if (blankBallotsOnly) {
       whereParts.push('cvrs.is_blank = 1');
     }
-
-    const ballotStylePartyLookup = getBallotStyleIdPartyIdLookup(election);
 
     for (const row of this.client.each(
       `
@@ -998,20 +976,17 @@ export class Store {
         `,
       ...params
     ) as Iterable<
-      Partial<Tabulation.CastVoteRecordAttributes> & {
+      Partial<Tabulation.FundamentalCastVoteRecordAttributes> & {
         sheetNumber: number | null;
         tally: number;
       }
     >) {
-      const groupSpecifier: Tabulation.GroupSpecifier = {
+      const groupSpecifier: Tabulation.FundamentalGroupSpecifier = {
+        isFundamental: true,
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
-        partyId: groupBy.groupByParty
-          ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
-          : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
-        scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
         votingMethod: groupBy.groupByVotingMethod
           ? row.votingMethod
@@ -1278,23 +1253,23 @@ export class Store {
   *getWriteInTalliesForTabulation({
     electionId,
     election,
-    filter = {},
-    groupBy = {},
+    filter = getTrivialFundamentalFilter(),
+    groupBy = getTrivialFundamentalGroupBy(),
   }: {
     electionId: Id;
     election: Election;
-    filter?: CastVoteRecordStoreFilter;
-    groupBy?: Tabulation.GroupBy;
-  }): Generator<Tabulation.GroupOf<WriteInTally>> {
+    filter?: Tabulation.FundamentalFilter;
+    groupBy?: Tabulation.FundamentalGroupBy;
+  }): Generator<Tabulation.FundamentalGroupOf<WriteInTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
-      replacePartyIdFilter(filter, election)
+      filter
     );
 
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
-    if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
+    if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_id as ballotStyleId');
       groupByParts.push('cvrs.ballot_style_id');
     }
@@ -1309,11 +1284,6 @@ export class Store {
       groupByParts.push('cvrs.precinct_id');
     }
 
-    if (groupBy.groupByScanner) {
-      selectParts.push('scanner_batches.scanner_id as scannerId');
-      groupByParts.push('scanner_batches.scanner_id');
-    }
-
     if (groupBy.groupByVotingMethod) {
       selectParts.push('cvrs.ballot_type as votingMethod');
       groupByParts.push('cvrs.ballot_type');
@@ -1321,7 +1291,6 @@ export class Store {
 
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);
-    const ballotStylePartyLookup = getBallotStyleIdPartyIdLookup(election);
 
     for (const row of this.client.each(
       `
@@ -1336,8 +1305,6 @@ export class Store {
           from write_ins
           inner join
             cvrs on write_ins.cvr_id = cvrs.id
-          inner join
-            scanner_batches on scanner_batches.id = cvrs.batch_id
           left join
             write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
           where ${whereParts.join(' and ')}
@@ -1350,17 +1317,14 @@ export class Store {
         `,
       ...params
     ) as Iterable<
-      WriteInTallyRow & Partial<Tabulation.CastVoteRecordAttributes>
+      WriteInTallyRow & Partial<Tabulation.FundamentalCastVoteRecordAttributes>
     >) {
-      const groupSpecifier: Tabulation.GroupSpecifier = {
+      const groupSpecifier: Tabulation.FundamentalGroupSpecifier = {
+        isFundamental: true,
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
-        partyId: groupBy.groupByParty
-          ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
-          : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
-        scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
         votingMethod: groupBy.groupByVotingMethod
           ? row.votingMethod
@@ -1761,7 +1725,7 @@ export class Store {
     votingMethods,
   }: {
     electionId: Id;
-  } & ManualResultsStoreFilter): ManualResultsRecord[] {
+  } & ManualResultsFundamentalFilter): ManualResultsRecord[] {
     const whereParts = ['election_id = ?'];
     const params: Bindable[] = [electionId];
 

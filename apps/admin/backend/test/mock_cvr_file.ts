@@ -10,7 +10,7 @@ import { Buffer } from 'buffer';
 import { Store } from '../src/store';
 
 export type MockCastVoteRecordFile = Array<
-  Tabulation.CastVoteRecord & { multiplier?: number }
+  Tabulation.CastVoteRecord & { scannerId: string; multiplier?: number }
 >;
 
 const mockPageLayout: BallotPageLayout = {

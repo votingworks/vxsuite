@@ -8,7 +8,7 @@ import {
   PrecinctId,
 } from './election';
 import * as CVR from './cdf/cast-vote-records/index';
-import { Id } from './generic';
+import { Id, NewType } from './generic';
 
 export interface ContestResultsMetadata {
   overvotes: number;
@@ -46,29 +46,61 @@ export type ContestResults = YesNoContestResults | CandidateContestResults;
 export type VotingMethod = `${CVR.vxBallotType}`;
 
 /**
- * Indicates what cast vote records to include when calculating results.
- * Omission of a filter attribute indicates *not* filtering on it at all.
- * So an empty `Filter` of `{}` would indicate including all cast
- * vote records in the results.
+ * These attributes are the minimum set of attributes for a cast vote record, meaning
+ * other attributes such as partyId and scannerId can be derived from these. E.g. the
+ * ballot style indicates a party and the batch indicates a scanner.
  */
-export interface Filter {
-  readonly ballotStyleIds?: BallotStyleId[];
-  readonly partyIds?: Id[];
-  readonly precinctIds?: PrecinctId[];
-  readonly votingMethods?: VotingMethod[];
-  readonly batchIds?: Id[];
-  readonly scannerIds?: Id[];
+export interface FundamentalCastVoteRecordAttributes {
+  ballotStyleId: BallotStyleId;
+  batchId: Id;
+  precinctId: PrecinctId;
+  votingMethod: VotingMethod;
 }
 
-/**
- * Attributes that always exist for every cast vote record.
- */
-export interface CastVoteRecordAttributes {
-  readonly ballotStyleId: BallotStyleId;
-  readonly precinctId: PrecinctId;
-  readonly votingMethod: VotingMethod;
-  readonly batchId: Id;
-  readonly scannerId: Id;
+interface Fundamental {
+  isFundamental: true;
+}
+export interface FundamentalFilter extends Fundamental {
+  ballotStyleIds?: BallotStyleId[];
+  batchIds?: Id[];
+  precinctIds?: PrecinctId[];
+  votingMethods?: VotingMethod[];
+}
+export interface FundamentalGroupBy extends Fundamental {
+  groupByBallotStyle?: boolean;
+  groupByBatch?: boolean;
+  groupByPrecinct?: boolean;
+  groupByVotingMethod?: boolean;
+}
+export type FundamentalGroupSpecifier = Fundamental &
+  Partial<FundamentalCastVoteRecordAttributes>;
+
+export type Expanded<T> = Omit<T, 'isFundamental'>;
+export type Filter = Expanded<FundamentalFilter> & {
+  districtIds?: Id[];
+  partyIds?: Id[];
+  scannerIds?: Id[];
+};
+export type GroupBy = Expanded<FundamentalGroupBy> & {
+  groupByParty?: boolean;
+  groupByScanner?: boolean;
+};
+export type GroupSpecifier = Expanded<FundamentalGroupSpecifier> & {
+  partyId?: Id;
+  scannerId?: Id;
+};
+
+export type FundamentalGroupKey = NewType<string, 'FundamentalGroupKey'>;
+export type FundamentalGroupMap<T> = Record<FundamentalGroupKey, T>;
+export type FundamentalGroupOf<T> = T & FundamentalGroupSpecifier;
+export type FundamentalGroupList<T> = Array<FundamentalGroupOf<T>>;
+
+export type GroupOf<T> = T & GroupSpecifier;
+export type GroupList<T> = Array<GroupOf<T>>;
+
+export interface ScannerBatch {
+  batchId: Id;
+  scannerId: Id;
 }
 
 /**
@@ -76,31 +108,6 @@ export interface CastVoteRecordAttributes {
  * indicated by its 1-indexed `sheetNumber`.
  */
 export type Card = { type: 'bmd' } | { type: 'hmpb'; sheetNumber: number };
-
-/**
- * In situations where we're generating grouped results, specifiers can be
- * included in {@link ElectionResults} to indicate what it is a grouping of.
- */
-export type GroupSpecifier = Partial<{
-  -readonly [K in keyof CastVoteRecordAttributes]: CastVoteRecordAttributes[K];
-}> & {
-  partyId?: Id;
-};
-
-/**
- * The cast vote record attributes we can use to group election results. For
- * example, you may have the full election results grouped by ballot style.
- * The grouping options are all based on {@link CastVoteRecordAttributes}
- * except for `party`, which is determined based on `ballotStyle`.
- */
-export interface GroupBy {
-  groupByBallotStyle?: boolean;
-  groupByParty?: boolean;
-  groupByPrecinct?: boolean;
-  groupByVotingMethod?: boolean;
-  groupByBatch?: boolean;
-  groupByScanner?: boolean;
-}
 
 /**
  * Object containing the counts for each scanned sheet.
@@ -115,6 +122,7 @@ export interface CardCounts {
   hmpb: Array<number | undefined>;
   manual?: number;
 }
+export type CardCountsGroupMap = FundamentalGroupMap<CardCounts>;
 
 /**
  * Represents the results of all contests in an election, often filtered by
@@ -124,24 +132,7 @@ export interface ElectionResults {
   readonly contestResults: Record<ContestId, ContestResults>;
   readonly cardCounts: CardCounts;
 }
-
-export type GroupKey = string;
-/**
- * Simply a map of keys to some values relevant to tabulation. The keys contain encoded
- * metadata about the group, defined in `libs/utils`. The consumer can convert the
- * {@link GroupMap} to a {@link GroupList}.
- */
-export type GroupMap<T> = Record<GroupKey, T>;
-
-export type GroupOf<T> = T & GroupSpecifier;
-/**
- * A {@link GroupList} is a list of objects relevant to tabulation with metadata
- * as part of each object identifying the group.
- */
-export type GroupList<T> = Array<GroupOf<T>>;
-
-export type ElectionResultsGroupMap = GroupMap<ElectionResults>;
-export type ElectionResultsGroupList = GroupList<ElectionResults>;
+export type ElectionResultsGroupMap = FundamentalGroupMap<ElectionResults>;
 
 /**
  * Simplified representation of votes on a scanned ballot for tabulation
@@ -152,7 +143,7 @@ export type Votes = Record<ContestId, ContestOptionId[]>;
 export type CastVoteRecord = {
   readonly votes: Votes;
   readonly card: Card;
-} & CastVoteRecordAttributes;
+} & FundamentalCastVoteRecordAttributes;
 
 /**
  * Manually entered results are represented the same as for scanned results,
@@ -162,10 +153,10 @@ export type CastVoteRecord = {
 export type ManualElectionResults = Omit<ElectionResults, 'cardCounts'> & {
   ballotCount: number;
 };
-export type ManualResultsGroupMap = GroupMap<ManualElectionResults>;
-export type ManualResultsGroupList = GroupList<ManualElectionResults>;
-
-export type ManualBallotCountsGroupMap = GroupMap<number>;
+export type ManualResultsGroupMap = FundamentalGroupMap<ManualElectionResults>;
+export type ManualBallotCountsGroupMap = FundamentalGroupMap<{
+  ballotCount: number;
+}>;
 
 /**
  * The write-in summary for a specific contest including the number of total
@@ -186,3 +177,5 @@ export interface ContestWriteInSummary {
 export interface ElectionWriteInSummary {
   contestWriteInSummaries: Record<ContestId, ContestWriteInSummary>;
 }
+export type ElectionWriteInSummaryGroupMap =
+  FundamentalGroupMap<ElectionWriteInSummary>;

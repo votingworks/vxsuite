@@ -42,10 +42,13 @@ import { basename, dirname, join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  combineCardCounts,
+  combineElectionResults,
   generateFilenameForBallotExportPackage,
-  groupMapToGroupList,
   isIntegrationTest,
   parseCastVoteRecordReportDirectoryName,
+  resolveFundamentalGroupMap,
+  resolveGroupByToFundamentalGroupBy,
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
@@ -87,10 +90,8 @@ import { handleEnteredWriteInCandidateData } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
-import {
-  tabulateElectionResults,
-  tabulateTallyReportResults,
-} from './tabulation/full_results';
+import { tabulateElectionResults } from './tabulation/full_results';
+import { tabulateTallyReportResults } from './tabulation/tally_report_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateResultsCsv } from './exports/csv_results';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
@@ -681,6 +682,7 @@ function buildApi({
     ): ManualResultsRecord | null {
       const [manualResultsRecord] = store.getManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
+        isFundamental: true,
         precinctIds: input.precinctId ? [input.precinctId] : undefined,
         ballotStyleIds: input.ballotStyleId ? [input.ballotStyleId] : undefined,
         votingMethods: input.votingMethod ? [input.votingMethod] : undefined,
@@ -700,15 +702,25 @@ function buildApi({
         groupBy?: Tabulation.GroupBy;
         blankBallotsOnly?: boolean;
       } = {}
-    ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
+    ): Tabulation.GroupList<Tabulation.CardCounts> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return groupMapToGroupList(
-        tabulateFullCardCounts({
+      const { electionDefinition } = assertDefined(
+        store.getElection(electionId)
+      );
+      const groupBy = input.groupBy ?? {};
+
+      return resolveFundamentalGroupMap({
+        groupBy: input.groupBy,
+        groupMap: tabulateFullCardCounts({
           electionId,
           store,
-          ...input,
-        })
-      );
+          groupBy: resolveGroupByToFundamentalGroupBy(groupBy),
+          blankBallotsOnly: input.blankBallotsOnly,
+        }),
+        electionDefinition,
+        scannerBatches: store.getScannerBatches(electionId),
+        combineFn: combineCardCounts,
+      });
     },
 
     async getResultsForTallyReports(
@@ -718,14 +730,12 @@ function buildApi({
       } = {}
     ): Promise<Tabulation.GroupList<TallyReportResults>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return groupMapToGroupList(
-        await tabulateTallyReportResults({
-          electionId,
-          store,
-          filter: input.filter,
-          groupBy: input.groupBy,
-        })
-      );
+      return tabulateTallyReportResults({
+        electionId,
+        store,
+        filter: input.filter,
+        groupBy: input.groupBy,
+      });
     },
 
     getScannerBatches(): ScannerBatch[] {
@@ -737,20 +747,33 @@ function buildApi({
     }): Promise<ExportDataResult> {
       debug('exporting batch results CSV file');
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      const {
-        electionDefinition: { election },
-      } = assertDefined(store.getElection(electionId));
+      const { electionDefinition } = assertDefined(
+        store.getElection(electionId)
+      );
+      const { election } = electionDefinition;
+
+      const groupBy: Tabulation.GroupBy = {
+        groupByBatch: true,
+      };
+      const scannerBatches = store.getScannerBatches(electionId);
 
       const exportFileResult = await exportFile({
         path: input.path,
         data: generateBatchResultsFile({
           election,
-          batchGroupedResults: await tabulateElectionResults({
-            electionId,
-            store,
-            groupBy: { groupByBatch: true },
+          batchResultsList: resolveFundamentalGroupMap({
+            groupBy,
+            groupMap: await tabulateElectionResults({
+              electionId,
+              store,
+              groupBy: resolveGroupByToFundamentalGroupBy(groupBy),
+            }),
+            electionDefinition,
+            scannerBatches,
+            combineFn: (allElectionResults) =>
+              combineElectionResults({ election, allElectionResults }),
           }),
-          allBatchMetadata: store.getScannerBatches(electionId),
+          scannerBatches,
         }),
       });
 
@@ -771,15 +794,30 @@ function buildApi({
 
     async getSemsExportableTallies(): Promise<SemsExportableTallies> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const { electionDefinition } = assertDefined(
+        store.getElection(electionId)
+      );
+      const { election } = electionDefinition;
 
       debug('aggregating results for SEMS exportable tallies');
+      const groupBy: Tabulation.GroupBy = {
+        groupByPrecinct: true,
+      };
+
       return getSemsExportableTallies(
-        await tabulateElectionResults({
-          electionId,
-          store,
-          groupBy: { groupByPrecinct: true },
-          includeManualResults: true,
-          includeWriteInAdjudicationResults: false,
+        resolveFundamentalGroupMap({
+          groupBy,
+          groupMap: await tabulateElectionResults({
+            electionId,
+            store,
+            groupBy: resolveGroupByToFundamentalGroupBy(groupBy),
+            includeManualResults: true,
+            includeWriteInAdjudicationResults: false,
+          }),
+          electionDefinition,
+          scannerBatches: store.getScannerBatches(electionId),
+          combineFn: (allElectionResults) =>
+            combineElectionResults({ election, allElectionResults }),
         })
       );
     },

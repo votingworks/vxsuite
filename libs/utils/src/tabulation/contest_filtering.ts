@@ -10,11 +10,14 @@ import {
 import { assert } from '@votingworks/basics';
 import {
   createElectionMetadataLookupFunction,
-  getBallotStylesByPartyId,
   getBallotStylesByPrecinctId,
   getContestById,
 } from './lookups';
 import { doesContestAppearOnPartyBallot } from './election_utils';
+import {
+  createFilterFromGroupSpecifier,
+  resolveFilterToFundamentalFilter,
+} from './parameters';
 
 export function unionSets<T>(sets: Array<Set<T>>): Set<T> {
   const combinedSet = new Set<T>();
@@ -111,42 +114,21 @@ export const getContestIdsForPrecinct = createElectionMetadataLookupFunction(
   buildPrecinctContestIdsLookup
 );
 
-export function getBallotStyleIdsForFilter(
+export function getBallotStyleIdsForFundamentalFilter(
   electionDefinition: ElectionDefinition,
-  filter?: Tabulation.Filter
+  filter?: Tabulation.FundamentalFilter
 ): Set<BallotStyleId> {
   const { election } = electionDefinition;
 
   let ballotStyleIds = new Set(election.ballotStyles.map((bs) => bs.id));
   if (!filter) return ballotStyleIds;
 
-  // Ballot Style, Party, and Precinct filters can all narrow down contests
+  // Ballot Style and Precinct fundamental filters can both narrow down contests.
+  // Batch also can, but we don't currently support that level of granularity.
 
   // narrow down by explicit Ballot Style filter
   if (filter.ballotStyleIds) {
-    ballotStyleIds = intersectSets([
-      ballotStyleIds,
-      new Set(filter.ballotStyleIds),
-    ]);
-  }
-
-  // narrow down by Party filter
-  if (filter.partyIds) {
-    const { partyIds } = filter;
-    const ballotStyleIdsRestrictedByParty: Set<BallotStyleId> = unionSets(
-      partyIds.map((partyId) => {
-        const ballotStyles = getBallotStylesByPartyId(
-          electionDefinition,
-          partyId
-        );
-        return new Set(ballotStyles.map((bs) => bs.id));
-      })
-    );
-
-    ballotStyleIds = intersectSets([
-      ballotStyleIds,
-      ballotStyleIdsRestrictedByParty,
-    ]);
+    ballotStyleIds = new Set(filter.ballotStyleIds);
   }
 
   // narrow down by Precinct filter
@@ -186,12 +168,12 @@ function getContestIdsForBallotStyleIds(
  * Filters can restrict the ballot styles that can appear in a report - if there
  * are no ballot styles in a report, it's not a valid report.
  */
-export function getContestIdsForFilter(
+export function getContestIdsForFundamentalFilter(
   electionDefinition: ElectionDefinition,
-  filter?: Tabulation.Filter
+  filter?: Tabulation.FundamentalFilter
 ): Set<ContestId> {
   return getContestIdsForBallotStyleIds(electionDefinition, [
-    ...getBallotStyleIdsForFilter(electionDefinition, filter),
+    ...getBallotStyleIdsForFundamentalFilter(electionDefinition, filter),
   ]);
 }
 
@@ -208,9 +190,9 @@ export function mapContestIdsToContests(
  * Different splits will have different contests i.e. different ballot styles.
  * An invalid split would contain no contests.
  */
-export function getBallotStyleIdsForSplit(
+export function getBallotStyleIdsForFundamentalSplit(
   electionDefinition: ElectionDefinition,
-  split: Tabulation.GroupSpecifier
+  split: Tabulation.FundamentalGroupSpecifier
 ): Set<ContestId> {
   let ballotStyleIds = new Set(
     electionDefinition.election.ballotStyles.map((bs) => bs.id)
@@ -220,17 +202,6 @@ export function getBallotStyleIdsForSplit(
     // if we assumed that all splits passed to this function were valid, we
     // could short-circuit here, but we're not making that assumption here
     ballotStyleIds = new Set([split.ballotStyleId]);
-  }
-
-  if (split.partyId) {
-    ballotStyleIds = intersectSets([
-      ballotStyleIds,
-      new Set(
-        getBallotStylesByPartyId(electionDefinition, split.partyId).map(
-          (bs) => bs.id
-        )
-      ),
-    ]);
   }
 
   if (split.precinctId) {
@@ -250,11 +221,31 @@ export function getBallotStyleIdsForSplit(
 /**
  * Splits often contain only certain ballot styles and thus only certain contests.
  */
-export function getContestIdsForSplit(
+export function getContestIdsForFundamentalSplit(
   electionDefinition: ElectionDefinition,
-  split: Tabulation.GroupSpecifier
+  split: Tabulation.FundamentalGroupSpecifier
 ): Set<ContestId> {
   return getContestIdsForBallotStyleIds(electionDefinition, [
-    ...getBallotStyleIdsForSplit(electionDefinition, split),
+    ...getBallotStyleIdsForFundamentalSplit(electionDefinition, split),
   ]);
+}
+
+/**
+ * Splits often contain only certain ballot styles and thus only certain contests.
+ */
+export function getContestIdsForSplit(
+  electionDefinition: ElectionDefinition,
+  split: Tabulation.GroupSpecifier,
+  scannerBatches: Tabulation.ScannerBatch[]
+): Set<ContestId> {
+  const splitAsFilter = createFilterFromGroupSpecifier(split);
+
+  return getContestIdsForFundamentalFilter(
+    electionDefinition,
+    resolveFilterToFundamentalFilter(
+      splitAsFilter,
+      electionDefinition,
+      scannerBatches
+    )
+  );
 }

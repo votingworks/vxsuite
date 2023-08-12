@@ -1,11 +1,21 @@
-import { Optional, assertDefined, assertFalsy } from '@votingworks/basics';
-import { Election, ElectionDefinition, Tabulation } from '@votingworks/types';
+import { Optional } from '@votingworks/basics';
 import {
-  getBallotStyleIdsForFilter,
-  getBallotStyleIdsForSplit,
+  BallotStyle,
+  ElectionDefinition,
+  Precinct,
+  Tabulation,
+} from '@votingworks/types';
+import {
+  getBallotStyleIdsForFundamentalFilter,
+  getBallotStyleIdsForFundamentalSplit,
   intersectSets,
 } from './contest_filtering';
-import { getGroupKey } from './tabulation';
+import {
+  getGroupKey,
+  getTrivialFundamentalGroupSpecifier,
+  resolveGroupByToFundamentalGroupBy,
+} from './parameters';
+import { getBallotStylesByPrecinctId } from './lookups';
 
 /**
  * Returns a set of splits (represented as {@link Tabulation.GroupSpecifier}s)
@@ -25,216 +35,115 @@ import { getGroupKey } from './tabulation';
  * precedence, but this usage is highly discouraged.
  */
 function cartesianProductSplits(
-  x: Tabulation.GroupSpecifier[],
-  y: Tabulation.GroupSpecifier[]
-): Tabulation.GroupSpecifier[] {
-  const products: Tabulation.GroupSpecifier[] = [];
+  x: Tabulation.FundamentalGroupSpecifier[],
+  y: Tabulation.FundamentalGroupSpecifier[]
+): Tabulation.FundamentalGroupSpecifier[] {
+  const products: Tabulation.FundamentalGroupSpecifier[] = [];
   for (const xItem of x) {
     for (const yItem of y) {
       products.push({
+        isFundamental: true,
         precinctId: xItem.precinctId || yItem.precinctId,
-        partyId: xItem.partyId || yItem.partyId,
         ballotStyleId: xItem.ballotStyleId || yItem.ballotStyleId,
         votingMethod: xItem.votingMethod || yItem.votingMethod,
         batchId: xItem.batchId || yItem.batchId,
-        scannerId: xItem.scannerId || yItem.scannerId,
       });
     }
   }
   return products;
 }
 
-/**
- * In other words, no splits. The cartesian product of any list of splits with
- * the trivial split is the original list of splits.
- */
-const TRIVIAL_SPLIT: Tabulation.GroupSpecifier = {};
-
-function getAllPrecinctSplits(election: Election): Tabulation.GroupSpecifier[] {
-  const { precincts } = election;
-  const splits: Tabulation.GroupSpecifier[] = [];
+function getSplitsForPrecincts(
+  precincts: Precinct[]
+): Tabulation.FundamentalGroupSpecifier[] {
+  const splits: Tabulation.FundamentalGroupSpecifier[] = [];
   for (const precinct of precincts) {
     splits.push({
+      isFundamental: true,
       precinctId: precinct.id,
     });
   }
   return splits;
 }
 
-/**
- * Return the list of party splits, one for each party with associated ballot
- * styles. If no associated ballot styles, assume it's a general and return
- * the trivial split.
- */
-function getAllPartySplits(election: Election): Tabulation.GroupSpecifier[] {
-  const { ballotStyles } = election;
-  let isPrimary = false;
-  const partyIds = new Set<string>();
-  for (const ballotStyle of ballotStyles) {
-    if (ballotStyle.partyId) {
-      isPrimary = true;
-      partyIds.add(ballotStyle.partyId);
-    }
-  }
-
-  if (!isPrimary) {
-    return [TRIVIAL_SPLIT];
-  }
-
-  return [...partyIds].map((partyId) => ({ partyId }));
-}
-
-function getAllBallotStyleSplits(
-  election: Election,
-  includePartySpecifier?: boolean
-): Tabulation.GroupSpecifier[] {
-  const { ballotStyles } = election;
-  const splits: Tabulation.GroupSpecifier[] = [];
+function getSplitsForBallotStyles(
+  ballotStyles: BallotStyle[]
+): Tabulation.FundamentalGroupSpecifier[] {
+  const splits: Tabulation.FundamentalGroupSpecifier[] = [];
   for (const ballotStyle of ballotStyles) {
     splits.push({
+      isFundamental: true,
       ballotStyleId: ballotStyle.id,
-      partyId: includePartySpecifier ? ballotStyle.partyId : undefined,
     });
   }
   return splits;
 }
 
-/**
- * Getting all splits on ballot style and precinct is not a simple cartesian
- * product because not all ballot styles are associated with all precincts.
- */
-function getAllBallotStylePrecinctSplits(
-  election: Election,
-  includePartySpecifier?: boolean
-): Tabulation.GroupSpecifier[] {
-  const { ballotStyles } = election;
-  const splits: Tabulation.GroupSpecifier[] = [];
-  for (const ballotStyle of ballotStyles) {
-    for (const precinctId of ballotStyle.precincts) {
-      splits.push({
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-        partyId: includePartySpecifier ? ballotStyle.partyId : undefined,
-      });
-    }
-  }
-
-  // give precinct sort priority
-  return [...splits].sort((x, y) =>
-    assertDefined(x.precinctId).localeCompare(assertDefined(y.precinctId))
-  );
-}
-
 // currently hardcoded to only "Absentee" and "Precinct"
-function getVotingMethodSplits(): Tabulation.GroupSpecifier[] {
-  return [
-    {
-      votingMethod: 'precinct',
-    },
-    {
-      votingMethod: 'absentee',
-    },
-  ];
+function getVotingMethodSplits(): Tabulation.FundamentalGroupSpecifier[] {
+  const included: Tabulation.VotingMethod[] = ['absentee', 'precinct'];
+  return included.map((votingMethod) => ({
+    isFundamental: true,
+    votingMethod,
+  }));
 }
 
-/**
- * Currently, if results are split by batch and scanner then they are opportunistic,
- * only including non-zero splits.
- */
-export function groupBySupportsZeroSplits(
-  groupBy: Tabulation.GroupBy
-): boolean {
-  if (groupBy.groupByBatch || groupBy.groupByScanner) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * For a given group by clause, returns all possible splits based on election
- * definition.
- *
- * Default sort order for easily cleaner CSV exports and ballot reports:
- *   1. Precinct
- *   2. Party
- *   3. Ballot Style
- *   4. Voting Method
- *
- * We currently don't support mixing batch and scanner splits with other splits,
- * so we just return undefined if either of those are present.
- */
-export function getAllPossibleSplits(
-  electionDefinition: ElectionDefinition,
-  groupBy: Tabulation.GroupBy
-): Optional<Tabulation.GroupSpecifier[]> {
-  if (!groupBySupportsZeroSplits(groupBy)) {
+export function getAllPossibleFundamentalSplits({
+  groupBy,
+  electionDefinition,
+}: {
+  groupBy: Tabulation.FundamentalGroupBy;
+  electionDefinition: ElectionDefinition;
+}): Optional<Tabulation.FundamentalGroupSpecifier[]> {
+  // TODO: support generating all possible splits for batches. Requires
+  // https://github.com/votingworks/vxsuite/issues/3801
+  if (groupBy.groupByBatch) {
     return undefined;
   }
 
-  const { election } = electionDefinition;
-  let splits: Tabulation.GroupSpecifier[] = [TRIVIAL_SPLIT];
+  let splits: Tabulation.FundamentalGroupSpecifier[] = [
+    getTrivialFundamentalGroupSpecifier(),
+  ];
 
-  // Precinct, Party, and Ballot Style splits are interrelated in such a way
-  // that the cases must be handled individually. Relationships:
-  //     Ballot Style <-> Party  -  each ballot style directly indicates the party (or lack thereof)
-  //     Ballot Style <-> Precinct - each ballot style is limited to a subset of precincts
-  //     Precinct <-> Party - no special relationship
-  const { groupByPrecinct, groupByParty, groupByBallotStyle } = groupBy;
-  switch (groupByBallotStyle) {
-    case true:
-      switch (groupByPrecinct) {
-        case true:
-          splits = getAllBallotStylePrecinctSplits(election, groupByParty);
-          break;
-        default:
-          splits = getAllBallotStyleSplits(election, groupByParty);
-      }
-      break;
-    default:
-      switch (groupByPrecinct) {
-        case true:
-          switch (groupByParty) {
-            case true:
-              splits = cartesianProductSplits(
-                getAllPrecinctSplits(election),
-                getAllPartySplits(election)
-              );
-              break;
-            default:
-              splits = getAllPrecinctSplits(election);
-          }
-          break;
-        default:
-          switch (groupByParty) {
-            case true:
-              splits = getAllPartySplits(election);
-              break;
-            /* c8 ignore next 3 */
-            default:
-              assertFalsy(
-                groupByPrecinct && groupByParty && groupByBallotStyle
-              );
-          }
-      }
+  if (groupBy.groupByPrecinct) {
+    splits = cartesianProductSplits(
+      getSplitsForPrecincts([...electionDefinition.election.precincts]),
+      [getTrivialFundamentalGroupSpecifier()]
+    );
+  }
+
+  if (groupBy.groupByBallotStyle) {
+    const splitsCutByBallotStyle: Tabulation.FundamentalGroupSpecifier[] = [];
+    for (const split of splits) {
+      const ballotStyles = split.precinctId
+        ? getBallotStylesByPrecinctId(electionDefinition, split.precinctId)
+        : electionDefinition.election.ballotStyles;
+      splitsCutByBallotStyle.push(
+        ...cartesianProductSplits(
+          [split],
+          getSplitsForBallotStyles([...ballotStyles])
+        )
+      );
+    }
+    splits = splitsCutByBallotStyle;
   }
 
   if (groupBy.groupByVotingMethod) {
-    return cartesianProductSplits(splits, getVotingMethodSplits());
+    splits = cartesianProductSplits(splits, getVotingMethodSplits());
   }
 
   return splits;
 }
 
-export function filterSplits(
+export function filterFundamentalSplits(
   electionDefinition: ElectionDefinition,
-  splits: Tabulation.GroupSpecifier[],
-  filter?: Tabulation.Filter
-): Tabulation.GroupSpecifier[] {
+  splits: Tabulation.FundamentalGroupSpecifier[],
+  filter?: Tabulation.FundamentalFilter
+): Tabulation.FundamentalGroupSpecifier[] {
   if (!filter) return splits;
 
-  const filteredSplits: Tabulation.GroupSpecifier[] = [];
-  const filterBallotStyleIds = getBallotStyleIdsForFilter(
+  const filteredSplits: Tabulation.FundamentalGroupSpecifier[] = [];
+  const filterBallotStyleIds = getBallotStyleIdsForFundamentalFilter(
     electionDefinition,
     filter
   );
@@ -249,8 +158,8 @@ export function filterSplits(
     }
 
     // excluding splits based on ballot style, which is determined by combining
-    // explicit ballot style attributes, party attributes, and precinct attributes
-    const splitBallotStyleIds = getBallotStyleIdsForSplit(
+    // explicit ballot style and precinct attributes
+    const splitBallotStyleIds = getBallotStyleIdsForFundamentalSplit(
       electionDefinition,
       split
     );
@@ -269,26 +178,21 @@ export function filterSplits(
       continue;
     }
 
-    // TODO: combine batch and scanner attributes into shared batch sets that
-    // can be intersected, which would be more thorough than what we're doing here
-    if (
-      split.batchId &&
-      filter.batchIds &&
-      !filter.batchIds.includes(split.batchId)
-    ) {
-      continue;
-    }
-    if (
-      split.scannerId &&
-      filter.scannerIds &&
-      !filter.scannerIds.includes(split.scannerId)
-    ) {
-      continue;
-    }
+    // TODO: filter by batch once we support generating all possible splits for batches
 
     filteredSplits.push(split);
   }
   return filteredSplits;
+}
+
+/**
+ * Currently, if results are split by batch and scanner then they are opportunistic,
+ * only including non-zero splits.
+ */
+export function groupBySupportsZeroSplits(
+  groupBy: Tabulation.GroupBy
+): boolean {
+  return !resolveGroupByToFundamentalGroupBy(groupBy).groupByBatch;
 }
 
 /**
@@ -297,36 +201,23 @@ export function filterSplits(
  * populated list of all expected splits. Important for interpolating empty splits
  * into reports and exports. Order of expected splits is preserved.
  */
-export function populateSplits<T>({
-  expectedSplits,
+export function populateFundamentalSplits<T>({
   nonEmptySplits,
+  expectedSplits,
   groupBy,
   makeEmptySplit,
 }: {
-  expectedSplits: Tabulation.GroupSpecifier[];
-  nonEmptySplits: Tabulation.GroupMap<T>;
-  groupBy: Tabulation.GroupBy;
+  nonEmptySplits: Tabulation.FundamentalGroupMap<T>;
+  expectedSplits: Tabulation.FundamentalGroupSpecifier[];
+  groupBy: Tabulation.FundamentalGroupBy;
   makeEmptySplit: () => T;
-}): T[] {
-  const allSplits: T[] = [];
+}): Tabulation.FundamentalGroupMap<T> {
+  const populatedSplits: Tabulation.FundamentalGroupMap<T> = {};
 
   for (const expectedSplit of expectedSplits) {
-    const nonEmptySplit = nonEmptySplits[getGroupKey(expectedSplit, groupBy)];
-
-    if (nonEmptySplit) {
-      allSplits.push({
-        // eslint-disable-next-line vx/gts-spread-like-types
-        ...nonEmptySplit,
-        ...expectedSplit,
-      });
-    } else {
-      allSplits.push({
-        // eslint-disable-next-line vx/gts-spread-like-types
-        ...makeEmptySplit(),
-        ...expectedSplit,
-      });
-    }
+    const groupKey = getGroupKey(expectedSplit, groupBy);
+    populatedSplits[groupKey] = nonEmptySplits[groupKey] || makeEmptySplit();
   }
 
-  return allSplits;
+  return populatedSplits;
 }

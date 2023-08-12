@@ -7,7 +7,6 @@ import {
 } from '@votingworks/types';
 import {
   GROUP_KEY_ROOT,
-  extractGroupSpecifier,
   getGroupKey,
   isGroupByEmpty,
 } from '@votingworks/utils';
@@ -54,15 +53,29 @@ export function getEmptyElectionWriteInSummary(
   return electionWriteInSummary;
 }
 
+function extractFundamentalGroupSpecifier<T>(
+  entity: Tabulation.FundamentalGroupOf<T>
+): Tabulation.FundamentalGroupSpecifier {
+  return {
+    isFundamental: true,
+    ballotStyleId: entity.ballotStyleId,
+    batchId: entity.batchId,
+    precinctId: entity.precinctId,
+    votingMethod: entity.votingMethod,
+  };
+}
+
 /**
  * Convert from a contest write-in summary back to the write-in tally records
  * that would be retrieved from the store. For testing purposes only.
  */
 export function convertContestWriteInSummaryToWriteInTallies(
-  contestWriteInSummary: Tabulation.GroupOf<Tabulation.ContestWriteInSummary>
-): Array<Tabulation.GroupOf<WriteInTally>> {
-  const writeInTallies: Array<Tabulation.GroupOf<WriteInTally>> = [];
-  const groupSpecifier = extractGroupSpecifier(contestWriteInSummary);
+  contestWriteInSummary: Tabulation.FundamentalGroupOf<Tabulation.ContestWriteInSummary>
+): Array<Tabulation.FundamentalGroupOf<WriteInTally>> {
+  const writeInTallies: Array<Tabulation.FundamentalGroupOf<WriteInTally>> = [];
+  const groupSpecifier = extractFundamentalGroupSpecifier(
+    contestWriteInSummary
+  );
 
   const { contestId, pendingTally, invalidTally, candidateTallies } =
     contestWriteInSummary;
@@ -167,9 +180,9 @@ export function tabulateWriteInTallies({
 }: {
   electionId: Id;
   store: Store;
-  filter?: Tabulation.Filter;
-  groupBy?: Tabulation.GroupBy;
-}): Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> {
+  filter?: Tabulation.FundamentalFilter;
+  groupBy?: Tabulation.FundamentalGroupBy;
+}): Tabulation.ElectionWriteInSummaryGroupMap {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -181,7 +194,7 @@ export function tabulateWriteInTallies({
     groupBy,
   });
 
-  const electionWriteInSummaryGroupMap: Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> =
+  const electionWriteInSummaryGroupMap: Tabulation.ElectionWriteInSummaryGroupMap =
     {};
 
   // optimized special case, when the results do not need to be grouped

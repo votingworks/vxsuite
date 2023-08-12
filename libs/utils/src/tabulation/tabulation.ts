@@ -1,18 +1,17 @@
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   AnyContest,
-  BallotStyleId,
   CandidateContest,
   CandidateId,
   ContestId,
   ContestOptionId,
   Election,
   Id,
-  PartyId,
   Tabulation,
   YesNoContest,
   writeInCandidate,
 } from '@votingworks/types';
+import { GROUP_KEY_ROOT, getGroupKey, isGroupByEmpty } from './parameters';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -178,24 +177,6 @@ function addCastVoteRecordToElectionResult(
   return electionResult;
 }
 
-export type BallotStyleIdPartyIdLookup = Record<BallotStyleId, PartyId>;
-
-/**
- * Creates a dictionary with keys of ballot style ids and values of their
- * corresponding party ids, if they exist.
- */
-export function getBallotStyleIdPartyIdLookup(
-  election: Election
-): BallotStyleIdPartyIdLookup {
-  const lookup: BallotStyleIdPartyIdLookup = {};
-  for (const ballotStyle of election.ballotStyles) {
-    if (ballotStyle.partyId) {
-      lookup[ballotStyle.id] = ballotStyle.partyId;
-    }
-  }
-  return lookup;
-}
-
 export interface OfficialCandidateNameLookup {
   get: (contestId: ContestId, candidateId: CandidateId) => string;
 }
@@ -223,182 +204,17 @@ export function getOfficialCandidateNameLookup(
   };
 }
 
-export function isGroupByEmpty(groupBy: Tabulation.GroupBy): boolean {
-  return !(
-    groupBy.groupByBallotStyle ||
-    groupBy.groupByBatch ||
-    groupBy.groupByPrecinct ||
-    groupBy.groupByParty ||
-    groupBy.groupByScanner ||
-    groupBy.groupByVotingMethod
-  );
-}
-
 function getCastVoteRecordGroupSpecifier(
   cvr: Tabulation.CastVoteRecord,
-  groupBy: Tabulation.GroupBy,
-  partyIdLookup: BallotStyleIdPartyIdLookup
-): Tabulation.GroupSpecifier {
+  groupBy: Tabulation.FundamentalGroupBy
+): Tabulation.FundamentalGroupSpecifier {
   return {
+    isFundamental: true,
     ballotStyleId: groupBy.groupByBallotStyle ? cvr.ballotStyleId : undefined,
-    precinctId: groupBy.groupByPrecinct ? cvr.precinctId : undefined,
     batchId: groupBy.groupByBatch ? cvr.batchId : undefined,
-    scannerId: groupBy.groupByScanner ? cvr.scannerId : undefined,
+    precinctId: groupBy.groupByPrecinct ? cvr.precinctId : undefined,
     votingMethod: groupBy.groupByVotingMethod ? cvr.votingMethod : undefined,
-    partyId: groupBy.groupByParty
-      ? partyIdLookup[cvr.ballotStyleId]
-      : undefined,
   };
-}
-
-export const GROUP_KEY_ROOT: Tabulation.GroupKey = 'root';
-const GROUP_KEY_PART_TYPES = [
-  'ballotStyleId',
-  'batchId',
-  'partyId',
-  'precinctId',
-  'scannerId',
-  'votingMethod',
-] as const;
-type GroupKeyPartType = typeof GROUP_KEY_PART_TYPES[number];
-
-function escapeGroupKeyValue(groupKeyValue: string): string {
-  return groupKeyValue
-    .replaceAll('\\', '\\\\')
-    .replaceAll('&', '\\&')
-    .replaceAll('=', '\\=');
-}
-
-function unescapeGroupKeyValue(groupKeyValue: string): string {
-  return groupKeyValue
-    .replaceAll('\\=', '=')
-    .replaceAll('\\&', '&')
-    .replaceAll('\\\\', '\\');
-}
-
-function getGroupKeyPart(key: GroupKeyPartType, value?: string): string {
-  assert(value !== undefined);
-  return `${key}=${escapeGroupKeyValue(value)}`;
-}
-
-/**
- * Based on a group's attributes, defines a key which is used to
- * look up and uniquely identify tabulation objects within a grouping.
- *
- * Adds key parts in alphabetical order for consistency.
- */
-export function getGroupKey(
-  groupSpecifier: Tabulation.GroupSpecifier,
-  groupBy: Tabulation.GroupBy
-): Tabulation.GroupKey {
-  const keyParts: string[] = [GROUP_KEY_ROOT];
-  if (groupBy.groupByBallotStyle) {
-    keyParts.push(
-      getGroupKeyPart('ballotStyleId', groupSpecifier.ballotStyleId)
-    );
-  }
-
-  if (groupBy.groupByBatch) {
-    keyParts.push(getGroupKeyPart('batchId', groupSpecifier.batchId));
-  }
-
-  if (groupBy.groupByParty) {
-    keyParts.push(getGroupKeyPart('partyId', groupSpecifier.partyId));
-  }
-
-  if (groupBy.groupByPrecinct) {
-    keyParts.push(getGroupKeyPart('precinctId', groupSpecifier.precinctId));
-  }
-
-  if (groupBy.groupByScanner) {
-    keyParts.push(getGroupKeyPart('scannerId', groupSpecifier.scannerId));
-  }
-
-  if (groupBy.groupByVotingMethod) {
-    keyParts.push(getGroupKeyPart('votingMethod', groupSpecifier.votingMethod));
-  }
-
-  return keyParts.join('&');
-}
-
-export function getGroupSpecifierFromGroupKey(
-  groupKey: Tabulation.GroupKey
-): Tabulation.GroupSpecifier {
-  const parts = groupKey.split(/(?<!\\)&/);
-  const groupSpecifier: Tabulation.GroupSpecifier = {};
-  for (const part of parts) {
-    if (part === GROUP_KEY_ROOT) {
-      continue;
-    }
-
-    const [key, escapedValue] = part.split(/(?<!\\)=/) as [
-      GroupKeyPartType,
-      string
-    ];
-    const value = unescapeGroupKeyValue(escapedValue);
-    switch (key) {
-      case 'ballotStyleId':
-        groupSpecifier.ballotStyleId = unescapeGroupKeyValue(value);
-        break;
-      case 'partyId':
-        groupSpecifier.partyId = unescapeGroupKeyValue(value);
-        break;
-      case 'batchId':
-        groupSpecifier.batchId = unescapeGroupKeyValue(value);
-        break;
-      case 'scannerId':
-        groupSpecifier.scannerId = unescapeGroupKeyValue(value);
-        break;
-      case 'precinctId':
-        groupSpecifier.precinctId = unescapeGroupKeyValue(value);
-        break;
-      case 'votingMethod':
-        groupSpecifier.votingMethod = unescapeGroupKeyValue(
-          value
-        ) as Tabulation.VotingMethod;
-        break;
-      /* c8 ignore next 2 */
-      default:
-        throwIllegalValue(key);
-    }
-  }
-  return groupSpecifier;
-}
-
-/**
- * From any object that includes a group specifier, extract only the group
- * specifier. For testing purposes.
- */
-export function extractGroupSpecifier(
-  entity: Tabulation.GroupSpecifier
-): Tabulation.GroupSpecifier {
-  return {
-    ballotStyleId: entity.ballotStyleId,
-    batchId: entity.batchId,
-    scannerId: entity.scannerId,
-    precinctId: entity.precinctId,
-    partyId: entity.partyId,
-    votingMethod: entity.votingMethod,
-  };
-}
-
-/**
- * Convert a {@link Tabulation.GroupMap} to its corresponding {@link Tabulation.GroupList}.
- * The map format is better for tabulation operations while the list format is easier
- * preferable for most consumers.
- */
-export function groupMapToGroupList<T>(
-  groupMap: Tabulation.GroupMap<T>
-): Tabulation.GroupList<T> {
-  const list: Tabulation.GroupList<T> = [];
-  for (const [groupKey, group] of Object.entries(groupMap)) {
-    list.push({
-      ...getGroupSpecifierFromGroupKey(groupKey),
-      // eslint-disable-next-line vx/gts-spread-like-types
-      ...group,
-    });
-  }
-  return list;
 }
 
 /**
@@ -414,7 +230,7 @@ const YIELD_TO_EVENT_LOOP_EVERY_N_CVRS = 1000;
 
 /**
  * Tabulates iterable cast vote records into election results, grouped by
- * the attributes specified {@link Tabulation.GroupBy} parameter.
+ * the attributes specified {@link Tabulation.FundamentalGroupBy} parameter.
  */
 export async function tabulateCastVoteRecords({
   election,
@@ -423,7 +239,7 @@ export async function tabulateCastVoteRecords({
 }: {
   cvrs: Iterable<Tabulation.CastVoteRecord>;
   election: Election;
-  groupBy?: Tabulation.GroupBy;
+  groupBy?: Tabulation.FundamentalGroupBy;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   const groupedElectionResults: Tabulation.ElectionResultsGroupMap = {};
 
@@ -445,14 +261,9 @@ export async function tabulateCastVoteRecords({
   }
 
   // general case, grouping results by specified group by clause
-  const partyIdLookup = getBallotStyleIdPartyIdLookup(election);
   let i = 0;
   for (const cvr of cvrs) {
-    const groupSpecifier = getCastVoteRecordGroupSpecifier(
-      cvr,
-      groupBy,
-      partyIdLookup
-    );
+    const groupSpecifier = getCastVoteRecordGroupSpecifier(cvr, groupBy);
     const groupKey = getGroupKey(groupSpecifier, groupBy);
     const existingElectionResult = groupedElectionResults[groupKey];
     if (existingElectionResult) {
@@ -899,19 +710,4 @@ export function mergeWriteInTallies<
     ...anyResults,
     contestResults: newElectionContestResults,
   };
-}
-
-export function mergeTabulationGroupMaps<T, U, V>(
-  groupedT: Tabulation.GroupMap<T>,
-  groupedU: Tabulation.GroupMap<U>,
-  merge: (t?: T, u?: U) => V
-): Tabulation.GroupMap<V> {
-  const merged: Tabulation.GroupMap<V> = {};
-  const allGroupKeys = [
-    ...new Set([...Object.keys(groupedT), ...Object.keys(groupedU)]),
-  ];
-  for (const groupKey of allGroupKeys) {
-    merged[groupKey] = merge(groupedT[groupKey], groupedU[groupKey]);
-  }
-  return merged;
 }

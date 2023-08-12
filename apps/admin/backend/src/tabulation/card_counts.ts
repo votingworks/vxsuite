@@ -49,9 +49,9 @@ export function tabulateScannedCardCounts({
 }: {
   electionId: Id;
   store: Store;
-  groupBy?: Tabulation.GroupBy;
+  groupBy?: Tabulation.FundamentalGroupBy;
   blankBallotsOnly?: boolean;
-}): Tabulation.GroupMap<Tabulation.CardCounts> {
+}): Tabulation.CardCountsGroupMap {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -63,7 +63,7 @@ export function tabulateScannedCardCounts({
     blankBallotsOnly,
   });
 
-  const cardCountsGroupMap: Tabulation.GroupMap<Tabulation.CardCounts> = {};
+  const cardCountsGroupMap: Tabulation.CardCountsGroupMap = {};
 
   // optimized special case, when the results do not need to be grouped
   if (!groupBy || isGroupByEmpty(groupBy)) {
@@ -106,9 +106,9 @@ export function tabulateFullCardCounts({
 }: {
   electionId: Id;
   store: Store;
-  groupBy?: Tabulation.GroupBy;
+  groupBy?: Tabulation.FundamentalGroupBy;
   blankBallotsOnly?: boolean;
-}): Tabulation.GroupMap<Tabulation.CardCounts> {
+}): Tabulation.CardCountsGroupMap {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -145,8 +145,9 @@ export function tabulateFullCardCounts({
     groupedManualBallotCounts,
     (scannedCardCounts, manualBallotCount) => {
       return {
+        // eslint-disable-next-line vx/gts-spread-like-types
         ...(scannedCardCounts ?? getEmptyCardCounts()),
-        manual: manualBallotCount ?? 0,
+        manual: manualBallotCount?.ballotCount ?? 0,
       };
     }
   );

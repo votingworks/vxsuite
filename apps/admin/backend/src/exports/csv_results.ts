@@ -6,29 +6,39 @@ import {
   Tabulation,
   electionHasPrimaryContest,
   ElectionDefinition,
-  Id,
   ContestId,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  filterSplits,
-  getAllPossibleSplits,
+  combineElectionResults,
+  filterFundamentalSplits,
+  getAllPossibleFundamentalSplits,
   getBallotStyleById,
-  getContestIdsForFilter,
+  getContestIdsForFundamentalFilter,
   getContestIdsForSplit,
   getEmptyElectionResults,
   getPartyById,
   getPrecinctById,
   groupBySupportsZeroSplits,
-  groupMapToGroupList,
   intersectSets,
   mapContestIdsToContests,
-  populateSplits,
+  populateFundamentalSplits,
+  resolveFilterToFundamentalFilter,
+  resolveFundamentalGroupMap,
+  resolveGroupByToFundamentalGroupBy,
 } from '@votingworks/utils';
 import { Readable } from 'stream';
 import { ScannerBatch, WriteInCandidateRecord } from '../types';
 import { Store } from '../store';
 import { tabulateElectionResults } from '../tabulation/full_results';
+
+function generateBatchLookup(scannerBatches: ScannerBatch[]): BatchLookup {
+  const lookup: BatchLookup = {};
+  for (const scannerBatch of scannerBatches) {
+    lookup[scannerBatch.batchId] = scannerBatch;
+  }
+  return lookup;
+}
 
 function generateHeaders({
   groupBy,
@@ -175,23 +185,25 @@ function* generateRows({
   groupBy,
   electionDefinition,
   writeInCandidates,
-  batchLookup,
+  scannerBatches,
   filterContestIds,
 }: {
-  resultSplits: Tabulation.ElectionResultsGroupList;
+  resultSplits: Tabulation.GroupList<Tabulation.ElectionResults>;
   groupBy: Tabulation.GroupBy;
   electionDefinition: ElectionDefinition;
   writeInCandidates: WriteInCandidateRecord[];
-  batchLookup: BatchLookup;
+  scannerBatches: ScannerBatch[];
   filterContestIds: Set<ContestId>;
 }): Generator<string> {
   const { election } = electionDefinition;
   const isPrimaryElection = electionHasPrimaryContest(election);
+  const batchLookup = generateBatchLookup(scannerBatches);
 
   for (const resultsSplit of resultSplits) {
     const splitContestIds = getContestIdsForSplit(
       electionDefinition,
-      resultsSplit
+      resultsSplit,
+      scannerBatches
     );
 
     const includedContests = mapContestIdsToContests(
@@ -317,15 +329,6 @@ function* generateRows({
   }
 }
 
-function generateBatchLookup(store: Store, electionId: Id): BatchLookup {
-  const batches = store.getScannerBatches(electionId);
-  const lookup: BatchLookup = {};
-  for (const batch of batches) {
-    lookup[batch.batchId] = batch;
-  }
-  return lookup;
-}
-
 /**
  * Converts a tally for an election to a CSV file (represented as a string) of tally
  * results. Results are split according to the `groupBy` parameter. For each
@@ -345,7 +348,7 @@ function generateBatchLookup(store: Store, electionId: Id): BatchLookup {
  */
 export async function generateResultsCsv({
   store,
-  filter,
+  filter = {},
   groupBy = {},
 }: {
   store: Store;
@@ -358,36 +361,62 @@ export async function generateResultsCsv({
   const { election } = electionDefinition;
   const isPrimaryElection = electionHasPrimaryContest(election);
   const writeInCandidates = store.getWriteInCandidates({ electionId });
+  const scannerBatches = store.getScannerBatches(electionId);
 
-  const nonEmptySplits = await tabulateElectionResults({
+  const fundamentalFilter = resolveFilterToFundamentalFilter(
+    filter,
+    electionDefinition,
+    scannerBatches
+  );
+  const fundamentalGroupBy = resolveGroupByToFundamentalGroupBy(groupBy);
+
+  const nonEmptyFundamentalSplits = await tabulateElectionResults({
     electionId,
     store,
-    filter,
-    groupBy,
+    filter: fundamentalFilter,
+    groupBy: fundamentalGroupBy,
     includeManualResults: true,
     includeWriteInAdjudicationResults: true,
   });
 
-  const resultSplits = (() => {
+  const populatedFundamentalSplits = (() => {
+    // TODO: support ability to determine splits when batches are involved, and remove this check
     if (!groupBySupportsZeroSplits(groupBy)) {
-      return groupMapToGroupList(nonEmptySplits);
+      return nonEmptyFundamentalSplits;
     }
 
-    const expectedSplits = filterSplits(
+    const expectedFundamentalSplits = filterFundamentalSplits(
       electionDefinition,
-      assertDefined(getAllPossibleSplits(electionDefinition, groupBy)),
-      filter
+      assertDefined(
+        getAllPossibleFundamentalSplits({
+          electionDefinition,
+          groupBy: fundamentalGroupBy,
+        })
+      ),
+      fundamentalFilter
     );
 
-    return populateSplits({
-      expectedSplits,
-      nonEmptySplits,
-      groupBy,
+    return populateFundamentalSplits({
+      expectedSplits: expectedFundamentalSplits,
+      nonEmptySplits: nonEmptyFundamentalSplits,
+      groupBy: fundamentalGroupBy,
       makeEmptySplit: () => getEmptyElectionResults(election),
     });
   })();
 
-  const filterContestIds = getContestIdsForFilter(electionDefinition, filter);
+  const resultSplits = resolveFundamentalGroupMap({
+    groupBy,
+    groupMap: populatedFundamentalSplits,
+    electionDefinition,
+    scannerBatches,
+    combineFn: (allElectionResults) =>
+      combineElectionResults({ election, allElectionResults }),
+  });
+
+  const filterContestIds = getContestIdsForFundamentalFilter(
+    electionDefinition,
+    fundamentalFilter
+  );
   const headerRow = stringify([
     generateHeaders({ groupBy, isPrimaryElection }),
   ]);
@@ -400,7 +429,7 @@ export async function generateResultsCsv({
       groupBy,
       electionDefinition,
       writeInCandidates,
-      batchLookup: generateBatchLookup(store, assertDefined(electionId)),
+      scannerBatches,
       filterContestIds,
     })) {
       yield dataRow;

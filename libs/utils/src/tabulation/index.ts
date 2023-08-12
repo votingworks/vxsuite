@@ -3,3 +3,4 @@ export * from './election_utils';
 export * from './lookups';
 export * from './tabulation';
 export * from './splits';
+export * from './parameters';

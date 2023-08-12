@@ -62,10 +62,8 @@ export interface CastVoteRecordFileMetadata {
 /**
  * Most basic information about a scanner batch.
  */
-export interface ScannerBatch {
-  batchId: string;
+export interface ScannerBatch extends Tabulation.ScannerBatch {
   label: string;
-  scannerId: string;
   electionId: string;
 }
 
@@ -419,37 +417,20 @@ export interface ManualResultsMetadataRecord extends ManualResultsIdentifier {
 }
 
 /**
- * Subset of cast vote records filters that we support with manual results.
- */
-export type ManualResultsFilter = Pick<
-  Tabulation.Filter,
-  'ballotStyleIds' | 'partyIds' | 'precinctIds' | 'votingMethods'
->;
-
-/**
  * Subset of manual results filter that the store itself can filter on.
  */
-export type ManualResultsStoreFilter = Pick<
-  ManualResultsFilter,
-  'ballotStyleIds' | 'precinctIds' | 'votingMethods'
+export type ManualResultsFundamentalFilter = Omit<
+  Tabulation.FundamentalFilter,
+  'batchIds'
 >;
 
 /**
  * Subset of cast vote record groupings that we can group manual results on.
  */
-export type ManualResultsGroupBy = Pick<
-  Tabulation.GroupBy,
-  | 'groupByBallotStyle'
-  | 'groupByParty'
-  | 'groupByPrecinct'
-  | 'groupByVotingMethod'
+export type ManualResultsGroupBy = Omit<
+  Tabulation.FundamentalGroupBy,
+  'groupByBatch'
 >;
-
-/**
- * Subset of tabulation filters that we can use to directly filter cast
- * vote records.
- */
-export type CastVoteRecordStoreFilter = Omit<Tabulation.Filter, 'partyIds'>;
 
 /**
  * Contest tally format for export to SEMS converter.
