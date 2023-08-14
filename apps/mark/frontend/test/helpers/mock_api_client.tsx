@@ -20,6 +20,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
+import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
@@ -182,10 +183,12 @@ export function provideApi(
   children: React.ReactNode
 ): JSX.Element {
   return (
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        {children}
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <TestErrorBoundary>
+      <ApiClientContext.Provider value={apiMock.mockApiClient}>
+        <QueryClientProvider client={createQueryClient()}>
+          {children}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
+    </TestErrorBoundary>
   );
 }

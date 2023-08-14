@@ -1,7 +1,7 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { LogSource, Logger } from '@votingworks/logging';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
-import { UsbDriveStatus } from '@votingworks/ui';
+import { TestErrorBoundary, UsbDriveStatus } from '@votingworks/ui';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
@@ -70,22 +70,24 @@ export function wrapInAppContext(
   }: RenderInAppContextParams = {}
 ): React.ReactElement {
   return (
-    <ApiClientContext.Provider value={apiClient}>
-      <QueryClientProvider client={queryClient}>
-        <AppContext.Provider
-          value={makeAppContext({
-            electionDefinition,
-            machineConfig: { machineId, codeVersion: 'TEST' },
-            usbDriveStatus,
-            usbDriveEject,
-            auth,
-            logger,
-          })}
-        >
-          <Router history={history}>{component}</Router>
-        </AppContext.Provider>
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <TestErrorBoundary>
+      <ApiClientContext.Provider value={apiClient}>
+        <QueryClientProvider client={queryClient}>
+          <AppContext.Provider
+            value={makeAppContext({
+              electionDefinition,
+              machineConfig: { machineId, codeVersion: 'TEST' },
+              usbDriveStatus,
+              usbDriveEject,
+              auth,
+              logger,
+            })}
+          >
+            <Router history={history}>{component}</Router>
+          </AppContext.Provider>
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
+    </TestErrorBoundary>
   );
 }
 
