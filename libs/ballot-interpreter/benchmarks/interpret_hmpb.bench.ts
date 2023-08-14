@@ -1,5 +1,6 @@
 import { famousNamesFixtures } from '@votingworks/hmpb-render-backend';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import { interpretSheet } from '../src';
 import { ballotPdfToPageImages } from '../test/helpers/interpretation';
 import { benchmarkRegressionTest } from './benchmarking';
@@ -13,6 +14,7 @@ describe('Interpretation benchmark', () => {
 
   test('Blank HMPB', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+    assert(ballotImagePaths.length === 2);
 
     await benchmarkRegressionTest({
       label: 'Blank HMPB interpretation',
@@ -23,7 +25,7 @@ describe('Interpretation benchmark', () => {
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
           },
-          ballotImagePaths
+          ballotImagePaths as [string, string]
         );
       },
       runs: 50,
@@ -32,6 +34,7 @@ describe('Interpretation benchmark', () => {
 
   test('Marked HMPB', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
+    assert(ballotImagePaths.length === 2);
 
     await benchmarkRegressionTest({
       label: 'Marked HMPB interpretation',
@@ -42,7 +45,7 @@ describe('Interpretation benchmark', () => {
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
           },
-          ballotImagePaths
+          ballotImagePaths as [string, string]
         );
       },
       runs: 50,

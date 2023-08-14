@@ -1,10 +1,9 @@
-import { assert, Optional, range } from '@votingworks/basics';
+import { assert, iter, Optional } from '@votingworks/basics';
 import { allBubbleBallotFixtures } from '@votingworks/hmpb-render-backend';
 import { Candidate, CandidateVote } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   ballotPdfToPageImages,
-  renderBallotToPageImages,
   sortVotesDict,
 } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
@@ -14,7 +13,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
     electionDefinition,
     blankBallotPath,
     filledBallotPath,
-    cyclingTestDeck,
+    cyclingTestDeckPath,
   } = allBubbleBallotFixtures;
   const { election } = electionDefinition;
   const precinctId = election.precincts[0]!.id;
@@ -25,13 +24,14 @@ describe('Interpret - HMPB - All bubble ballot', () => {
 
   test('Blank ballot interpretation', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+    expect(ballotImagePaths.length).toEqual(2);
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
       },
-      ballotImagePaths
+      ballotImagePaths as [string, string]
     );
 
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
@@ -43,13 +43,14 @@ describe('Interpret - HMPB - All bubble ballot', () => {
 
   test('Filled ballot interpretation', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(filledBallotPath);
+    expect(ballotImagePaths.length).toEqual(2);
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
       },
-      ballotImagePaths
+      ballotImagePaths as [string, string]
     );
 
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
@@ -69,18 +70,16 @@ describe('Interpret - HMPB - All bubble ballot', () => {
       [backContest.id]: [] as Candidate[],
     } as const;
 
-    for (const card of range(0, 6)) {
-      const ballotImagePaths = await renderBallotToPageImages({
-        ...cyclingTestDeck,
-        pages: cyclingTestDeck.pages.slice(card * 2, (card + 1) * 2),
-      });
+    const ballotImagePaths = await ballotPdfToPageImages(cyclingTestDeckPath);
+    for (const sheetImagePaths of iter(ballotImagePaths).chunks(2)) {
+      expect(sheetImagePaths.length).toEqual(2);
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
           precinctSelection: singlePrecinctSelectionFor(precinctId),
           testMode: true,
         },
-        ballotImagePaths
+        sheetImagePaths as [string, string]
       );
 
       assert(frontResult.interpretation.type === 'InterpretedHmpbPage');

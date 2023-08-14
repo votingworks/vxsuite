@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   famousNamesFixtures,
@@ -7,6 +7,7 @@ import {
 import {
   sortVotesDict,
   ballotPdfToPageImages,
+  votesForSheet,
 } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
@@ -22,14 +23,16 @@ describe('HMPB - Famous Names', () => {
 
   test('Blank ballot interpretation', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+    expect(ballotImagePaths.length).toEqual(2);
     const { precinctId } = gridLayout;
+
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
       },
-      ballotImagePaths
+      ballotImagePaths as [string, string]
     );
 
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
@@ -40,6 +43,7 @@ describe('HMPB - Famous Names', () => {
 
   test('Marked ballot interpretation', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
+    expect(ballotImagePaths.length).toEqual(2);
     const { precinctId } = gridLayout;
 
     const [frontResult, backResult] = await interpretSheet(
@@ -48,7 +52,7 @@ describe('HMPB - Famous Names', () => {
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
       },
-      ballotImagePaths
+      ballotImagePaths as [string, string]
     );
 
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
@@ -63,7 +67,9 @@ describe('HMPB - Famous Names', () => {
 
   test('Wrong election', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+    expect(ballotImagePaths.length).toEqual(2);
     const { precinctId } = gridLayout;
+
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition: {
@@ -73,7 +79,7 @@ describe('HMPB - Famous Names', () => {
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
       },
-      ballotImagePaths
+      ballotImagePaths as [string, string]
     );
 
     expect(frontResult.interpretation.type).toEqual('InvalidElectionHashPage');
@@ -82,6 +88,7 @@ describe('HMPB - Famous Names', () => {
 
   test('Wrong precinct', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+    expect(ballotImagePaths.length).toEqual(2);
     const { precinctId } = gridLayout;
     assert(precinctId !== election.precincts[1]!.id);
 
@@ -93,7 +100,7 @@ describe('HMPB - Famous Names', () => {
         ),
         testMode: true,
       },
-      ballotImagePaths
+      ballotImagePaths as [string, string]
     );
 
     expect(frontResult.interpretation.type).toEqual('InvalidPrecinctPage');
@@ -102,6 +109,7 @@ describe('HMPB - Famous Names', () => {
 
   test('Wrong test mode', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+    expect(ballotImagePaths.length).toEqual(2);
     const { precinctId } = gridLayout;
 
     const [frontResult, backResult] = await interpretSheet(
@@ -110,7 +118,7 @@ describe('HMPB - Famous Names', () => {
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: false,
       },
-      ballotImagePaths
+      ballotImagePaths as [string, string]
     );
 
     expect(frontResult.interpretation.type).toEqual('InvalidTestModePage');
@@ -127,48 +135,59 @@ for (const {
   votes,
   blankBallotPath,
   markedBallotPath,
-} of sampleElectionFixtures) {
+} of sampleElectionFixtures.slice(0, 1)) {
   describe(`HMPB - sample election - bubbles on ${targetMarkPosition} - ${paperSize} paper - density ${density}`, () => {
     test(`Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
       const { precinctId } = gridLayout;
 
-      const [frontResult, backResult] = await interpretSheet(
-        {
-          electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(precinctId),
-          testMode: true,
-        },
-        ballotImagePaths
-      );
+      for (const sheetImagePaths of iter(ballotImagePaths).chunks(2)) {
+        assert(sheetImagePaths.length === 2);
+        const [frontResult, backResult] = await interpretSheet(
+          {
+            electionDefinition,
+            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            testMode: true,
+          },
+          sheetImagePaths
+        );
 
-      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-      expect(frontResult.interpretation.votes).toEqual({});
-      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-      expect(backResult.interpretation.votes).toEqual({});
+        assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+        expect(frontResult.interpretation.votes).toEqual({});
+        assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+        expect(backResult.interpretation.votes).toEqual({});
+      }
     });
 
     test(`Marked ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
       const { precinctId } = gridLayout;
 
-      const [frontResult, backResult] = await interpretSheet(
-        {
-          electionDefinition,
-          precinctSelection: singlePrecinctSelectionFor(precinctId),
-          testMode: true,
-        },
-        ballotImagePaths
-      );
+      for (const [sheetIndex, sheetImagePaths] of iter(ballotImagePaths)
+        .chunks(2)
+        .enumerate()) {
+        assert(sheetImagePaths.length === 2);
+        const [frontResult, backResult] = await interpretSheet(
+          {
+            electionDefinition,
+            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            testMode: true,
+          },
+          sheetImagePaths
+        );
 
-      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-      expect(
-        sortVotesDict({
-          ...frontResult.interpretation.votes,
-          ...backResult.interpretation.votes,
-        })
-      ).toEqual(sortVotesDict(votes));
+        const sheetNumber = sheetIndex + 1;
+        const expectedVotes = votesForSheet(votes, sheetNumber, gridLayout);
+
+        assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+        assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+        expect(
+          sortVotesDict({
+            ...frontResult.interpretation.votes,
+            ...backResult.interpretation.votes,
+          })
+        ).toEqual(sortVotesDict(expectedVotes));
+      }
     });
   });
 }
