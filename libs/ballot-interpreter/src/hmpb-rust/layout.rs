@@ -92,12 +92,15 @@ fn build_option_layout(
 pub fn build_interpreted_page_layout(
     grid: &TimingMarkGrid,
     grid_layout: &GridLayout,
+    sheet_number: u32,
     side: BallotSide,
 ) -> Option<Vec<InterpretedContestLayout>> {
     let contest_ids_in_grid_layout_order = grid_layout
         .grid_positions
         .iter()
-        .filter(|grid_position| grid_position.location().side == side)
+        .filter(|grid_position| {
+            grid_position.sheet_number() == sheet_number && grid_position.location().side == side
+        })
         .map(GridPosition::contest_id)
         .unique()
         .collect::<Vec<_>>();

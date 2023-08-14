@@ -88,6 +88,7 @@ pub enum GridPosition {
     /// A pre-defined labeled option on the ballot.
     #[serde(rename_all = "camelCase", rename = "option")]
     Option {
+        sheet_number: u32,
         side: BallotSide,
         column: GridUnit,
         row: GridUnit,
@@ -98,6 +99,7 @@ pub enum GridPosition {
     /// A write-in option on the ballot.
     #[serde(rename_all = "camelCase", rename = "write-in")]
     WriteIn {
+        sheet_number: u32,
         side: BallotSide,
         column: GridUnit,
         row: GridUnit,
@@ -133,6 +135,12 @@ impl GridPosition {
             Self::WriteIn { write_in_index, .. } => {
                 OptionId::from(format!("write-in-{write_in_index}"))
             }
+        }
+    }
+
+    pub fn sheet_number(&self) -> u32 {
+        match self {
+            Self::Option { sheet_number, .. } | Self::WriteIn { sheet_number, .. } => *sheet_number,
         }
     }
 
@@ -190,6 +198,7 @@ mod tests {
     #[test]
     fn test_grid_position() {
         let position = GridPosition::Option {
+            sheet_number: 1,
             side: BallotSide::Front,
             column: 1,
             row: 2,
@@ -199,12 +208,14 @@ mod tests {
         assert_eq!(position.location().side, BallotSide::Front);
         assert_eq!(position.location().column, 1);
         assert_eq!(position.location().row, 2);
+        assert_eq!(position.sheet_number(), 1);
     }
 
     #[test]
     fn test_grid_position_option_serialization() {
         let json = r#"{
             "type": "option",
+            "sheetNumber": 1,
             "side": "front",
             "column": 1,
             "row": 2,
@@ -213,12 +224,14 @@ mod tests {
         }"#;
         match serde_json::from_str(json).unwrap() {
             GridPosition::Option {
+                sheet_number,
                 side,
                 column,
                 row,
                 contest_id,
                 option_id,
             } => {
+                assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);
                 assert_eq!(column, 1);
                 assert_eq!(row, 2);
@@ -233,6 +246,7 @@ mod tests {
     fn test_grid_position_write_in_serialization() {
         let json = r#"{
             "type": "write-in",
+            "sheetNumber": 1,
             "side": "front",
             "column": 1,
             "row": 2,
@@ -241,12 +255,14 @@ mod tests {
         }"#;
         match serde_json::from_str(json).unwrap() {
             GridPosition::WriteIn {
+                sheet_number,
                 side,
                 column,
                 row,
                 contest_id,
                 write_in_index,
             } => {
+                assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);
                 assert_eq!(column, 1);
                 assert_eq!(row, 2);
