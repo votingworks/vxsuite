@@ -133,6 +133,7 @@ test('constitutional question ovals get placed on the grid correctly', async () 
                   contestId:
                     'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
                   optionId: 'yes',
+                  sheetNumber: 1,
                   side: 'back',
                   column: 26,
                   row: 24,
@@ -142,6 +143,7 @@ test('constitutional question ovals get placed on the grid correctly', async () 
                   contestId:
                     'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
                   optionId: 'no',
+                  sheetNumber: 1,
                   side: 'back',
                   column: 32,
                   row: 24,
