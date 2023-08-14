@@ -616,7 +616,7 @@ export function safeParseElectionDefinition(
 export const ELECTION_HASH_DISPLAY_LENGTH = 10;
 
 export function getDisplayElectionHash(
-  electionDefinition: ElectionDefinition
+  electionDefinition: Pick<ElectionDefinition, 'electionHash'>
 ): string {
   return electionDefinition.electionHash.slice(0, ELECTION_HASH_DISPLAY_LENGTH);
 }

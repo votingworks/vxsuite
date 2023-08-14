@@ -6,6 +6,7 @@ import {
   Id,
   safeParseElection,
   BallotPaperSize,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, ok, Result } from '@votingworks/basics';
@@ -84,9 +85,11 @@ function buildApi({ store }: { store: Store }) {
       store.deleteElection(input.electionId);
     },
 
-    async exportAllBallots(input: { electionId: Id }): Promise<Buffer> {
+    async exportAllBallots(input: {
+      electionId: Id;
+    }): Promise<{ zipContents: Buffer; electionHash: string }> {
       const { election } = store.getElection(input.electionId);
-      const { ballots } = layOutAllBallots({
+      const { ballots, electionDefinition } = layOutAllBallots({
         election,
         isTestMode: true,
       }).unsafeUnwrap();
@@ -107,7 +110,10 @@ function buildApi({ store }: { store: Store }) {
         pdf.end();
       }
 
-      return zip.generateAsync({ type: 'nodebuffer' });
+      return {
+        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
+        electionHash: electionDefinition.electionHash,
+      };
     },
 
     async exportBallot(input: {
@@ -131,13 +137,26 @@ function buildApi({ store }: { store: Store }) {
       return streamToBuffer(pdf);
     },
 
-    exportBallotDefinition(input: { electionId: Id }): Election {
+    async exportSetupPackage(input: {
+      electionId: Id;
+    }): Promise<{ zipContents: Buffer; electionHash: string }> {
       const { election } = store.getElection(input.electionId);
       const { electionDefinition } = layOutAllBallots({
         election,
         isTestMode: true,
       }).unsafeUnwrap();
-      return electionDefinition.election;
+
+      const zip = new JsZip();
+      zip.file('election.json', electionDefinition.electionData);
+      zip.file(
+        'systemSettings.json',
+        JSON.stringify(DEFAULT_SYSTEM_SETTINGS, null, 2)
+      );
+
+      return {
+        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
+        electionHash: electionDefinition.electionHash,
+      };
     },
   });
 }

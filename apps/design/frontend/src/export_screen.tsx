@@ -1,34 +1,38 @@
 import { H1, P, Button } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
-import { exportAllBallots, exportBallotDefinition } from './api';
+import { getDisplayElectionHash } from '@votingworks/types';
+import { exportAllBallots, exportSetupPackage } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 
 export function ExportScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
   const exportAllBallotsMutation = exportAllBallots.useMutation();
-  const exportBallotDefinitionMutation = exportBallotDefinition.useMutation();
+  const exportSetupPackageMutation = exportSetupPackage.useMutation();
 
   function onPressExportAllBallots() {
     exportAllBallotsMutation.mutate(
       { electionId },
       {
-        onSuccess: (zipContents) => {
-          fileDownload(zipContents, 'ballots.zip');
+        onSuccess: ({ zipContents, electionHash }) => {
+          fileDownload(
+            zipContents,
+            `ballots-${getDisplayElectionHash({ electionHash })}.zip`
+          );
         },
       }
     );
   }
 
-  function onPressExportBallotDefinition() {
-    exportBallotDefinitionMutation.mutate(
+  function onPressExportSetupPackage() {
+    exportSetupPackageMutation.mutate(
       { electionId },
       {
-        onSuccess: (ballotDefinition) => {
+        onSuccess: ({ zipContents, electionHash }) => {
           fileDownload(
-            JSON.stringify(ballotDefinition),
-            'ballot-definition.json'
+            zipContents,
+            `setup-package-${getDisplayElectionHash({ electionHash })}.zip`
           );
         },
       }
@@ -50,10 +54,10 @@ export function ExportScreen(): JSX.Element {
       <P>
         <Button
           variant="primary"
-          onPress={onPressExportBallotDefinition}
-          disabled={exportBallotDefinitionMutation.isLoading}
+          onPress={onPressExportSetupPackage}
+          disabled={exportSetupPackageMutation.isLoading}
         >
-          Export Ballot Definition
+          Export Setup Package
         </Button>
       </P>
     </ElectionNavScreen>
