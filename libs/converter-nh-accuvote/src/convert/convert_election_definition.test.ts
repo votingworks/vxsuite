@@ -30,7 +30,7 @@ test('converting the Hudson ballot', async () => {
   //     __dirname,
   //     '../../../fixtures/data/electionGridLayoutNewHampshireHudson/election.json'
   //   ),
-  //   JSON.stringify(convertResult.election, null, 2),
+  //   JSON.stringify(converted.election, null, 2),
   //   'utf8'
   // );
 
@@ -103,7 +103,7 @@ test('constitutional question ovals get placed on the grid correctly', async () 
   //     __dirname,
   //     '../../../fixtures/data/electionGridLayoutNewHampshireAmherst/election.json'
   //   ),
-  //   JSON.stringify(convertResult.election, null, 2),
+  //   JSON.stringify(converted.election, null, 2),
   //   'utf8'
   // );
 
