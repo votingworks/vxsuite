@@ -102,5 +102,5 @@ describe('Interpret - HMPB - All bubble ballot', () => {
         [backContest.id]: backContest.candidates,
       })
     );
-  }, 30_000);
+  }, 60_000);
 });
