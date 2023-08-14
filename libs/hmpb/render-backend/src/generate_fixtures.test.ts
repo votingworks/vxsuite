@@ -1,60 +1,112 @@
-import { join } from 'path';
+import { basename, join } from 'path';
 import * as fs from 'fs';
 import { finished } from 'stream/promises';
 import tmp from 'tmp';
+import { Document } from '@votingworks/hmpb-layout';
 import {
-  allBubbleBallotBlankBallot,
-  allBubbleBallotCyclingTestDeck,
-  allBubbleBallotElection,
-  allBubbleBallotFilledBallot,
-} from './all_bubble_ballots';
+  allBubbleBallotDir,
+  allBubbleBallotFixtures,
+} from './all_bubble_ballot_fixtures';
 import { renderDocumentToPdf } from './render_ballot';
+import {
+  famousNamesDir,
+  famousNamesFixtures,
+  sampleElectionFixtures,
+} from './ballot_fixtures';
 
 function normalizePdf(pdf: string): string {
   return pdf.replace(/ID \[<.+> <.+>\]/, '').replace(/(D:\d+Z)/, '');
 }
 
-test('fixtures are up to date - run `pnpm generate-fixtures` if this test fails', async () => {
-  const fixturesDir = join(__dirname, '../fixtures');
-
-  const savedElection = fs.readFileSync(
-    join(fixturesDir, 'all-bubble-ballot-election.json'),
+async function checkBallotFixture(
+  fixtureDir: string,
+  label: string,
+  document: Document
+) {
+  const savedDocument = fs.readFileSync(
+    join(fixtureDir, `${label}-document.json`),
     'utf8'
   );
-  expect(JSON.parse(savedElection)).toEqual(allBubbleBallotElection);
+  expect(JSON.parse(savedDocument)).toEqual(document);
 
-  const testBallots = {
-    'cycling-test-deck': allBubbleBallotCyclingTestDeck,
-    'blank-ballot': allBubbleBallotBlankBallot,
-    'filled-card': allBubbleBallotFilledBallot,
-  } as const;
-  for (const [testBallotName, testBallotDocument] of Object.entries(
-    testBallots
-  )) {
-    const savedDocument = fs.readFileSync(
-      join(fixturesDir, `all-bubble-ballot-${testBallotName}-document.json`),
+  const savedPdf = fs.readFileSync(join(fixtureDir, `${label}.pdf`), 'utf8');
+
+  // For now, skip PDF comparison on CI because it doesn't seem to work.
+  if (!process.env.CI) {
+    const pdfTmpFile = tmp.fileSync();
+    const fileStream = fs.createWriteStream(pdfTmpFile.name);
+    const pdf = renderDocumentToPdf(document);
+    pdf.pipe(fileStream);
+    pdf.end();
+    await finished(fileStream);
+
+    expect(normalizePdf(savedPdf)).toEqual(
+      normalizePdf(fs.readFileSync(pdfTmpFile.name, 'utf8'))
+    );
+    pdfTmpFile.removeCallback();
+  }
+}
+
+describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fails', () => {
+  test('all bubble ballot fixtures', async () => {
+    const { electionDefinition, blankBallot, filledBallot, cyclingTestDeck } =
+      allBubbleBallotFixtures;
+
+    const savedElection = fs.readFileSync(
+      join(allBubbleBallotDir, 'election.json'),
       'utf8'
     );
-    expect(JSON.parse(savedDocument)).toEqual(testBallotDocument);
+    expect(JSON.parse(savedElection)).toEqual(electionDefinition.election);
 
-    const savedPdf = fs.readFileSync(
-      join(fixturesDir, `all-bubble-ballot-${testBallotName}.pdf`),
-      'utf8'
-    );
-
-    // For now, skip PDF comparison on CI because it doesn't seem to work.
-    if (!process.env.CI) {
-      const pdfTmpFile = tmp.fileSync();
-      const fileStream = fs.createWriteStream(pdfTmpFile.name);
-      const pdf = renderDocumentToPdf(testBallotDocument);
-      pdf.pipe(fileStream);
-      pdf.end();
-      await finished(fileStream);
-
-      expect(normalizePdf(savedPdf)).toEqual(
-        normalizePdf(fs.readFileSync(pdfTmpFile.name, 'utf8'))
-      );
-      pdfTmpFile.removeCallback();
+    const ballots = {
+      'blank-ballot': blankBallot,
+      'filled-ballot': filledBallot,
+      'cycling-test-deck': cyclingTestDeck,
+    } as const;
+    for (const [label, document] of Object.entries(ballots)) {
+      await checkBallotFixture(allBubbleBallotDir, label, document);
     }
+  });
+
+  test('famous names fixtures', async () => {
+    const { electionDefinition, blankBallot, markedBallot } =
+      famousNamesFixtures;
+
+    const savedElection = fs.readFileSync(
+      join(famousNamesDir, 'election.json'),
+      'utf8'
+    );
+    expect(JSON.parse(savedElection)).toEqual(electionDefinition.election);
+
+    const ballots = {
+      'blank-ballot': blankBallot,
+      'marked-ballot': markedBallot,
+    } as const;
+    for (const [label, document] of Object.entries(ballots)) {
+      await checkBallotFixture(famousNamesDir, label, document);
+    }
+  });
+
+  for (const {
+    electionDir,
+    electionDefinition,
+    blankBallot,
+    markedBallot,
+  } of sampleElectionFixtures) {
+    test(`sample election fixtures - ${basename(electionDir)}`, async () => {
+      const savedElection = fs.readFileSync(
+        join(electionDir, 'election.json'),
+        'utf8'
+      );
+      expect(JSON.parse(savedElection)).toEqual(electionDefinition.election);
+
+      const ballots = {
+        'blank-ballot': blankBallot,
+        'marked-ballot': markedBallot,
+      } as const;
+      for (const [label, document] of Object.entries(ballots)) {
+        await checkBallotFixture(electionDir, label, document);
+      }
+    });
   }
 });

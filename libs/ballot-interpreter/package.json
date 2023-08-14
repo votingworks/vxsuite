@@ -11,6 +11,7 @@
     "build"
   ],
   "scripts": {
+    "benchmark": "jest --runInBand --projects benchmarks",
     "build": "pnpm build:rust-addon && pnpm build:ts",
     "build:rust-addon": "cargo-cp-artifact -nc build/hmpb-ts/rust_addon.node -- cargo build --message-format=json-render-diagnostics --release",
     "build:ts": "tsc --build tsconfig.build.json",
@@ -20,9 +21,9 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "test": "pnpm test:rust-addon && pnpm test:ts",
-    "test:ci": "pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:ci": "pnpm build && pnpm test:ts:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
     "test:rust-addon": "cargo test",
-    "test:ts": "is-ci test:ts:coverage test:ts:watch",
+    "test:ts": "is-ci test:ci test:ts:watch",
     "test:ts:coverage": "jest --coverage",
     "test:ts:watch": "jest --watch",
     "type-check": "tsc --build"

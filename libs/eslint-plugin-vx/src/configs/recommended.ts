@@ -114,6 +114,7 @@ export = {
           'cypress/**/*',
           '**/*.stories.ts',
           '**/*.stories.tsx',
+          '**/*.bench.ts',
         ],
       },
     ],

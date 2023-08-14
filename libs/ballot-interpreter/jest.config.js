@@ -13,4 +13,8 @@ module.exports = {
       lines: 95,
     },
   },
+  watchPathIgnorePatterns: [
+    ...shared.watchPathIgnorePatterns,
+    '<rootDir>/benchmarks',
+  ],
 };

@@ -3,6 +3,7 @@ import {
   assertDefined,
   iter,
   ok,
+  range,
   Result,
   throwIllegalValue,
   wrapException,
@@ -37,7 +38,6 @@ import {
   encodeMetadataInQrCode,
   QrCodeData,
 } from './encode_metadata';
-import { range } from './util';
 
 const debug = makeDebug('layout');
 

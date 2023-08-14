@@ -7,6 +7,7 @@ export * from './errors';
 export * from './find';
 export * from './iterators';
 export * from './result';
+export * from './range';
 export * from './sleep';
 export * from './typed_as';
 export * from './types';
