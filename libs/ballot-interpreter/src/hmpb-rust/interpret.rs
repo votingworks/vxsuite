@@ -539,6 +539,11 @@ pub fn interpret_ballot_card(
             })
     };
 
+    let sheet_number = match &front_metadata {
+        BallotPageMetadata::QrCode(metadata) => (metadata.page_number as f32 / 2.0).ceil() as u32,
+        BallotPageMetadata::TimingMarks(_) => 1,
+    };
+
     let (front_scored_bubble_marks, back_scored_bubble_marks) = rayon::join(
         || {
             score_bubble_marks_from_grid_layout(
@@ -546,6 +551,7 @@ pub fn interpret_ballot_card(
                 &options.bubble_template,
                 &front_grid,
                 grid_layout,
+                sheet_number,
                 BallotSide::Front,
                 &front_debug,
             )
@@ -556,6 +562,7 @@ pub fn interpret_ballot_card(
                 &options.bubble_template,
                 &back_grid,
                 grid_layout,
+                sheet_number,
                 BallotSide::Back,
                 &back_debug,
             )
@@ -563,17 +570,15 @@ pub fn interpret_ballot_card(
     );
 
     let front_contest_layouts =
-        build_interpreted_page_layout(&front_grid, grid_layout, BallotSide::Front).ok_or(
-            Error::CouldNotComputeLayout {
+        build_interpreted_page_layout(&front_grid, grid_layout, sheet_number, BallotSide::Front)
+            .ok_or(Error::CouldNotComputeLayout {
                 side: BallotSide::Front,
-            },
-        )?;
+            })?;
     let back_contest_layouts =
-        build_interpreted_page_layout(&back_grid, grid_layout, BallotSide::Back).ok_or(
-            Error::CouldNotComputeLayout {
+        build_interpreted_page_layout(&back_grid, grid_layout, sheet_number, BallotSide::Back)
+            .ok_or(Error::CouldNotComputeLayout {
                 side: BallotSide::Back,
-            },
-        )?;
+            })?;
 
     let (front_write_in_area_scores, back_write_in_area_scores) = if !options.score_write_ins {
         (vec![], vec![])

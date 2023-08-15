@@ -106,6 +106,7 @@ pub fn score_bubble_marks_from_grid_layout(
     bubble_template: &GrayImage,
     timing_mark_grid: &TimingMarkGrid,
     grid_layout: &GridLayout,
+    sheet_number: u32,
     side: BallotSide,
     debug: &ImageDebugWriter,
 ) -> ScoredBubbleMarks {
@@ -117,7 +118,7 @@ pub fn score_bubble_marks_from_grid_layout(
         .flat_map(|grid_position| {
             let location = grid_position.location();
 
-            if location.side != side {
+            if !(grid_position.sheet_number() == sheet_number && location.side == side) {
                 return vec![];
             }
 

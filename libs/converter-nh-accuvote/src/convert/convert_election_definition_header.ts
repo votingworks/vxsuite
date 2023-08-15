@@ -215,8 +215,8 @@ export function convertElectionDefinitionHeader(
   const contests: Array<CandidateContest | YesNoContest> = [];
   const optionMetadataByCandidateElement = new Map<
     Element,
-    | Omit<GridPositionOption, 'row' | 'column' | 'side'>
-    | Omit<GridPositionWriteIn, 'row' | 'column' | 'side'>
+    | Omit<GridPositionOption, 'row' | 'column' | 'sheetNumber' | 'side'>
+    | Omit<GridPositionWriteIn, 'row' | 'column' | 'sheetNumber' | 'side'>
   >();
 
   for (const contestElement of Array.from(
@@ -472,6 +472,7 @@ export function convertElectionDefinitionHeader(
           return metadata.type === 'option'
             ? {
                 type: 'option',
+                sheetNumber: 1,
                 side: 'front',
                 column,
                 row,
@@ -480,6 +481,7 @@ export function convertElectionDefinitionHeader(
               }
             : {
                 type: 'write-in',
+                sheetNumber: 1,
                 side: 'front',
                 column,
                 row,

@@ -533,6 +533,21 @@ function preprocessElection(value: unknown): unknown {
     };
   }
 
+  // Add sheetNumber to grid positions
+  /* istanbul ignore next */
+  if (election.gridLayouts) {
+    election = {
+      ...election,
+      gridLayouts: election.gridLayouts.map((gridLayout) => ({
+        ...gridLayout,
+        gridPositions: gridLayout.gridPositions.map((gridPosition) => ({
+          ...gridPosition,
+          sheetNumber: gridPosition.sheetNumber ?? 1,
+        })),
+      })),
+    };
+  }
+
   return election;
 }
 

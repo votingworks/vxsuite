@@ -871,6 +871,7 @@ function CandidateContest({
   );
 
   const optionPostions: GridPosition[] = [];
+  const sheetNumber = Math.ceil(pageNumber / 2);
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
 
   const bubbleColumn =
@@ -950,6 +951,7 @@ function CandidateContest({
     rowHeightUsed += optionRowHeight;
     optionPostions.push({
       type: 'option',
+      sheetNumber,
       side,
       contestId: contest.id,
       column: gridColumn + bubbleColumn - 1,
@@ -1013,6 +1015,7 @@ function CandidateContest({
       rowHeightUsed += m.WRITE_IN_ROW_HEIGHT;
       optionPostions.push({
         type: 'write-in',
+        sheetNumber,
         side,
         contestId: contest.id,
         column: gridColumn + bubbleColumn - 1,
@@ -1100,6 +1103,7 @@ function BallotMeasure({
   );
 
   const optionPositions: GridPosition[] = [];
+  const sheetNumber = Math.ceil(pageNumber / 2);
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
   const bubblePosition = election.ballotLayout.targetMarkPosition ?? 'left';
 
@@ -1168,6 +1172,7 @@ function BallotMeasure({
 
     optionPositions.push({
       type: 'option',
+      sheetNumber,
       side,
       contestId: contest.id,
       column: gridColumn + bubbleColumn - 1,

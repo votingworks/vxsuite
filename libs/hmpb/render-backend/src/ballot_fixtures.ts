@@ -41,12 +41,13 @@ export function markBallot(
     density: number;
   }
 ): Document {
-  assert(ballot.pages.length === 2, 'Only two page ballots are supported');
   const m = measurements(layoutSettings.paperSize, layoutSettings.density);
   function marksForPage(page: number): AnyElement[] {
-    const side = page === 1 ? 'front' : 'back';
+    const sheetNumber = Math.ceil(page / 2);
+    const side = page % 2 === 1 ? 'front' : 'back';
     const pagePositions = gridLayout.gridPositions.filter(
-      (position) => position.side === side
+      (position) =>
+        position.sheetNumber === sheetNumber && position.side === side
     );
     return Object.entries(votesToMark).flatMap(([contestId, votes]) => {
       if (!votes) return [];
@@ -167,32 +168,9 @@ export const sampleElectionFixtures = (() => {
             b.gridLayout.ballotStyleId === ballotStyle.id
         );
 
-        // We only support single-sheet ballots for now
-        ballot.pages = ballot.pages.slice(0, 2);
-
-        // Since we currently only support interpreting single-sheet ballots, we can
-        // only evaluate interpreting contests that we know will fit on two pages.
-        const contestsOnFirstSheet = assertDefined(
-          getContests({ election, ballotStyle })
-        ).filter((contest) =>
-          paperSize === BallotPaperSize.Letter
-            ? [
-                'president',
-                'representative-district-6',
-                'lieutenant-governor',
-                'state-senator-district-31',
-                'state-assembly-district-54',
-                'county-registrar-of-wills',
-                'judicial-robert-demergue',
-                'question-a',
-                'question-b',
-              ].includes(contest.id)
-            : // All contests fit on one legal-size sheet
-              true
-        );
-
+        const contests = getContests({ election, ballotStyle });
         const votes: VotesDict = Object.fromEntries(
-          contestsOnFirstSheet.map((contest, i) => {
+          contests.map((contest, i) => {
             if (contest.type === 'candidate') {
               const candidates = range(0, contest.seats).map(
                 (j) => contest.candidates[(i + j) % contest.candidates.length]
@@ -207,8 +185,6 @@ export const sampleElectionFixtures = (() => {
           paperSize,
           density,
         });
-        // We only support single-sheet ballots for now
-        markedBallot.pages = markedBallot.pages.slice(0, 2);
 
         const electionDir = join(
           sampleElectionDir,

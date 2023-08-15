@@ -402,6 +402,7 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
 
 export interface GridPositionOption {
   readonly type: 'option';
+  readonly sheetNumber: number;
   readonly side: 'front' | 'back';
   readonly column: number;
   readonly row: number;
@@ -411,6 +412,7 @@ export interface GridPositionOption {
 export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
   z.object({
     type: z.literal('option'),
+    sheetNumber: z.number().int().positive(),
     side: z.union([z.literal('front'), z.literal('back')]),
     column: z.number().int().nonnegative(),
     row: z.number().int().nonnegative(),
@@ -420,6 +422,7 @@ export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
 
 export interface GridPositionWriteIn {
   readonly type: 'write-in';
+  readonly sheetNumber: number;
   readonly side: 'front' | 'back';
   readonly column: number;
   readonly row: number;
@@ -429,6 +432,7 @@ export interface GridPositionWriteIn {
 export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
   z.object({
     type: z.literal('write-in'),
+    sheetNumber: z.number().int().positive(),
     side: z.union([z.literal('front'), z.literal('back')]),
     column: z.number().int().nonnegative(),
     row: z.number().int().nonnegative(),

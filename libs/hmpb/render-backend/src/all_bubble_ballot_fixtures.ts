@@ -75,6 +75,7 @@ function createElection(): Election {
       },
       gridPositions: gridPositions.map(({ page, row, column }) => ({
         type: 'option',
+        sheetNumber: Math.ceil(page / 2),
         side: page % 2 === 1 ? 'front' : 'back',
         column,
         row,
