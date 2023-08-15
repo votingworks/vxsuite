@@ -5,6 +5,7 @@
     "BallotDefinition.BallotDefinition": {
       "required": [
         "@type",
+        "BallotFormat",
         "Election",
         "GeneratedDate",
         "GpUnit",
@@ -26,7 +27,8 @@
           "items": {
             "$ref": "#/definitions/BallotDefinition.BallotFormat"
           },
-          "minItems": 0,
+          "minItems": 1,
+          "maxItems": 1,
           "type": "array"
         },
         "Election": {
@@ -248,6 +250,13 @@
             "refTypes": ["BallotDefinition.ReportingUnit"]
           },
           "minItems": 1,
+          "type": "array"
+        },
+        "OrderedContent": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.OrderedContest"
+          },
+          "minItems": 0,
           "type": "array"
         },
         "PartyIds": {
@@ -619,7 +628,7 @@
       "type": "string"
     },
     "BallotDefinition.OptionPosition": {
-      "required": ["@type", "H", "NumberVotes", "Side", "W", "X", "Y"],
+      "required": ["@type", "H", "NumberVotes", "Side", "W", "X", "Y", "Sheet"],
       "additionalProperties": false,
       "properties": {
         "@type": {
@@ -661,7 +670,7 @@
       "type": "object"
     },
     "BallotDefinition.OrderedContest": {
-      "required": ["@type", "ContestId"],
+      "required": ["@type", "ContestId", "Physical"],
       "additionalProperties": false,
       "properties": {
         "@type": {
@@ -675,51 +684,11 @@
             "BallotDefinition.CandidateContest"
           ]
         },
-        "OrderedContestOptionIds": {
-          "items": {
-            "type": "string",
-            "refTypes": [
-              "BallotDefinition.BallotMeasureOption",
-              "BallotDefinition.CandidateOption"
-            ]
-          },
-          "minItems": 0,
-          "type": "array"
-        },
         "Physical": {
           "items": {
             "$ref": "#/definitions/BallotDefinition.PhysicalContest"
           },
-          "minItems": 0,
-          "type": "array"
-        }
-      },
-      "type": "object"
-    },
-    "BallotDefinition.OrderedHeader": {
-      "required": ["@type", "HeaderId"],
-      "additionalProperties": false,
-      "properties": {
-        "@type": {
-          "enum": ["BallotDefinition.OrderedHeader"],
-          "type": "string"
-        },
-        "HeaderId": {
-          "type": "string",
-          "refTypes": ["BallotDefinition.Header"]
-        },
-        "OrderedContent": {
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/BallotDefinition.OrderedContest"
-              },
-              {
-                "$ref": "#/definitions/BallotDefinition.OrderedHeader"
-              }
-            ]
-          },
-          "minItems": 0,
+          "minItems": 1,
           "type": "array"
         }
       },
@@ -728,6 +697,17 @@
     "BallotDefinition.OrientationType": {
       "enum": ["landscape", "portrait"],
       "type": "string"
+    },
+    "BallotDefinition.vxOutset": {
+      "type": "object",
+      "properties": {
+        "top": { "type": "number" },
+        "bottom": { "type": "number" },
+        "left": { "type": "number" },
+        "right": { "type": "number" }
+      },
+      "required": ["top", "bottom", "left", "right"],
+      "additionalProperties": false
     },
     "BallotDefinition.Party": {
       "required": ["@id", "@type", "Abbreviation", "Name", "vxBallotLabel"],
@@ -754,7 +734,12 @@
       "type": "object"
     },
     "BallotDefinition.PhysicalContest": {
-      "required": ["@type", "BallotFormatId"],
+      "required": [
+        "@type",
+        "BallotFormatId",
+        "PhysicalContestOption",
+        "vxOptionBoundsFromTargetMark"
+      ],
       "additionalProperties": false,
       "properties": {
         "@type": {
@@ -799,14 +784,17 @@
           "items": {
             "$ref": "#/definitions/BallotDefinition.PhysicalContestOption"
           },
-          "minItems": 0,
+          "minItems": 1,
           "type": "array"
+        },
+        "vxOptionBoundsFromTargetMark": {
+          "$ref": "#/definitions/BallotDefinition.vxOutset"
         }
       },
       "type": "object"
     },
     "BallotDefinition.PhysicalContestOption": {
-      "required": ["@type", "OptionPosition"],
+      "required": ["@type", "OptionPosition", "ContestOptionId"],
       "additionalProperties": false,
       "properties": {
         "@type": {
@@ -866,7 +854,7 @@
       "type": "object"
     },
     "BallotDefinition.ReportingUnitType": {
-      "enum": ["county", "precinct", "state", "other"],
+      "enum": ["county", "precinct", "split-precinct", "state", "other"],
       "type": "string"
     },
     "BallotDefinition.SelectionCaptureMethod": {

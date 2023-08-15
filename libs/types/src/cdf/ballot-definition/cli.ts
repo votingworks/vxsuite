@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 import { readFileSync } from 'fs';
 import { stderr } from 'process';
-import { safeParseElection } from '../../election_utils';
+import { safeParseElection } from '../../election_parsing';
 import { convertVxfElectionToCdfBallotDefinition } from './convert';
 
 interface Stdio {

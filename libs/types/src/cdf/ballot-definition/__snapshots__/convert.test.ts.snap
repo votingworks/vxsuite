@@ -3,6 +3,24 @@
 exports[`round trip conversion for election fixture: ELECTION 1`] = `
 {
   "@type": "BallotDefinition.BallotDefinition",
+  "BallotFormat": [
+    {
+      "@id": "ballot-format",
+      "@type": "BallotDefinition.BallotFormat",
+      "ExternalIdentifier": [
+        {
+          "@type": "BallotDefinition.ExternalIdentifier",
+          "Type": "other",
+          "Value": "ballot-format",
+        },
+      ],
+      "LongEdge": 11,
+      "MeasurementUnit": "in",
+      "Orientation": "portrait",
+      "SelectionCaptureMethod": "omr",
+      "ShortEdge": 8.5,
+    },
+  ],
   "Election": [
     {
       "@type": "BallotDefinition.Election",
@@ -19,6 +37,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
           "GpUnitIds": [
             "P",
           ],
+          "OrderedContent": undefined,
           "PartyIds": undefined,
         },
       ],
@@ -199,6 +218,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
     {
       "@id": "P",
       "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": undefined,
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -260,6 +280,24 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
 exports[`round trip conversion for election fixture: Example Primary Election - Minimal Exhaustive 1`] = `
 {
   "@type": "BallotDefinition.BallotDefinition",
+  "BallotFormat": [
+    {
+      "@id": "ballot-format",
+      "@type": "BallotDefinition.BallotFormat",
+      "ExternalIdentifier": [
+        {
+          "@type": "BallotDefinition.ExternalIdentifier",
+          "Type": "other",
+          "Value": "ballot-format",
+        },
+      ],
+      "LongEdge": 11,
+      "MeasurementUnit": "in",
+      "Orientation": "portrait",
+      "SelectionCaptureMethod": "omr",
+      "ShortEdge": 8.5,
+    },
+  ],
   "Election": [
     {
       "@type": "BallotDefinition.Election",
@@ -277,6 +315,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
             "precinct-1",
             "precinct-2",
           ],
+          "OrderedContent": undefined,
           "PartyIds": [
             "0",
           ],
@@ -294,6 +333,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
             "precinct-1",
             "precinct-2",
           ],
+          "OrderedContent": undefined,
           "PartyIds": [
             "1",
           ],
@@ -860,6 +900,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
     {
       "@id": "precinct-1",
       "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": undefined,
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -875,6 +916,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
     {
       "@id": "precinct-2",
       "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": undefined,
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -970,6 +1012,24 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
 exports[`round trip conversion for election fixture: Primary Election 1`] = `
 {
   "@type": "BallotDefinition.BallotDefinition",
+  "BallotFormat": [
+    {
+      "@id": "ballot-format",
+      "@type": "BallotDefinition.BallotFormat",
+      "ExternalIdentifier": [
+        {
+          "@type": "BallotDefinition.ExternalIdentifier",
+          "Type": "other",
+          "Value": "ballot-format",
+        },
+      ],
+      "LongEdge": 11,
+      "MeasurementUnit": "in",
+      "Orientation": "portrait",
+      "SelectionCaptureMethod": "omr",
+      "ShortEdge": 8.5,
+    },
+  ],
   "Election": [
     {
       "@type": "BallotDefinition.Election",
@@ -986,6 +1046,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           "GpUnitIds": [
             "P",
           ],
+          "OrderedContent": undefined,
           "PartyIds": [
             "DEM",
           ],
@@ -1002,6 +1063,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           "GpUnitIds": [
             "P",
           ],
+          "OrderedContent": undefined,
           "PartyIds": [
             "REP",
           ],
@@ -1230,6 +1292,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
     {
       "@id": "P",
       "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": undefined,
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [

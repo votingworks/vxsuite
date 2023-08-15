@@ -1,5 +1,5 @@
 import { Election, PartyIdSchema } from '../src/election';
-import { safeParseElection } from '../src/election_utils';
+import { safeParseElection } from '../src/election_parsing';
 import { unsafeParse } from '../src/generic';
 
 export const electionData = `

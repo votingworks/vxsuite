@@ -4,6 +4,7 @@ import {
   duplicates,
   err,
   find,
+  groupBy,
   naturals,
   ok,
   Result,
@@ -13,7 +14,9 @@ import {
 } from '@votingworks/basics';
 import * as Cdf from '.';
 import * as Vxf from '../../election';
-import { safeParse } from '../../generic';
+import { getContests } from '../../election_utils';
+import { Id, safeParse } from '../../generic';
+import { safeParseInt } from '../../numeric';
 
 function dateString(date: Date) {
   const isoString = date.toISOString();
@@ -25,6 +28,16 @@ function dateTimeString(date: Date) {
   // Need to remove fractional seconds to satisfy CDF schema
   return `${isoString.split('.')[0]}Z`;
 }
+
+const paperSizeDimensionsInches: Record<Vxf.BallotPaperSize, [number, number]> =
+  {
+    [Vxf.BallotPaperSize.Letter]: [8.5, 11],
+    [Vxf.BallotPaperSize.Legal]: [8.5, 14],
+    [Vxf.BallotPaperSize.Custom17]: [8.5, 17],
+    [Vxf.BallotPaperSize.Custom18]: [8.5, 18],
+    [Vxf.BallotPaperSize.Custom21]: [8.5, 21],
+    [Vxf.BallotPaperSize.Custom22]: [8.5, 22],
+  };
 
 export function convertVxfElectionToCdfBallotDefinition(
   vxfElection: Vxf.Election
@@ -44,6 +57,174 @@ export function convertVxfElectionToCdfBallotDefinition(
 
   const stateId = vxfElection.state.toLowerCase().replaceAll(' ', '-');
   const electionDate = dateString(new Date(vxfElection.date));
+
+  const precinctSplits: Record<
+    Vxf.PrecinctId,
+    | Array<{
+        split: Cdf.ReportingUnit;
+        ballotStyles: Vxf.BallotStyle[];
+      }>
+    | undefined
+  > = Object.fromEntries(
+    vxfElection.precincts.map((precinct) => {
+      const precinctBallotStyles = vxfElection.ballotStyles.filter(
+        (ballotStyle) => ballotStyle.precincts.includes(precinct.id)
+      );
+      // There may be multiple ballot styles with the same districts but
+      // different partyIds, but we only want to split precincts that are part
+      // of different districts.
+      const ballotStylesByDistricts = groupBy(
+        precinctBallotStyles,
+        (ballotStyle) => ballotStyle.districts
+      );
+      const splits =
+        ballotStylesByDistricts.length <= 1
+          ? undefined
+          : ballotStylesByDistricts.map(
+              (
+                [, ballotStyles],
+                index
+              ): {
+                split: Cdf.ReportingUnit;
+                ballotStyles: Vxf.BallotStyle[];
+              } => ({
+                split: {
+                  '@type': 'BallotDefinition.ReportingUnit',
+                  '@id': `${precinct.id}-split-${index + 1}`,
+                  Name: text(`${precinct.name} - Split ${index + 1}`),
+                  Type: Cdf.ReportingUnitType.SplitPrecinct,
+                },
+                ballotStyles,
+              })
+            );
+      return [precinct.id, splits];
+    })
+  );
+
+  function precinctsOrSplitsForBallotStyle(ballotStyle: Vxf.BallotStyle): Id[] {
+    return ballotStyle.precincts.map((precinctId) => {
+      const splits = precinctSplits[precinctId];
+      return splits !== undefined
+        ? // If the precinct has splits, only use the split correponding to this ballot style
+          find(splits, (split) =>
+            split.ballotStyles.some((bs) => bs.id === ballotStyle.id)
+          ).split['@id']
+        : // Otherwise, use the precinct itself
+          precinctId;
+    });
+  }
+
+  function candidateOptionId(
+    contestId: Vxf.ContestId,
+    candidateId: Vxf.CandidateId
+  ): string {
+    return `${contestId}-option-${candidateId}`;
+  }
+
+  function writeInOptionId(
+    contestId: Vxf.ContestId,
+    writeInIndex: number
+  ): string {
+    return `${contestId}-option-write-in-${writeInIndex}`;
+  }
+
+  function orderedContentForBallotStyle(
+    ballotStyle: Vxf.BallotStyle
+  ): Cdf.OrderedContest[] | undefined {
+    if (!vxfElection.gridLayouts) return undefined;
+
+    const gridLayout = find(
+      vxfElection.gridLayouts,
+      (layout) => layout.ballotStyleId === ballotStyle.id
+    );
+
+    function optionIdForPosition(
+      contest: Vxf.AnyContest,
+      gridPosition: Vxf.GridPosition
+    ): string {
+      switch (gridPosition.type) {
+        case 'option': {
+          switch (contest.type) {
+            case 'candidate':
+              return candidateOptionId(contest.id, gridPosition.optionId);
+            case 'yesno': {
+              return gridPosition.optionId;
+            }
+            /* istanbul ignore next */
+            default:
+              return throwIllegalValue(contest);
+          }
+        }
+        case 'write-in':
+          return writeInOptionId(contest.id, gridPosition.writeInIndex);
+        /* istanbul ignore next */
+        default:
+          return throwIllegalValue(gridPosition);
+      }
+    }
+
+    const contests = getContests({ election: vxfElection, ballotStyle });
+    return contests.map(
+      (contest): Cdf.OrderedContest => ({
+        '@type': 'BallotDefinition.OrderedContest',
+        ContestId: contest.id,
+        Physical: [
+          {
+            '@type': 'BallotDefinition.PhysicalContest',
+            BallotFormatId: 'ballot-format',
+            vxOptionBoundsFromTargetMark: gridLayout.optionBoundsFromTargetMark,
+            PhysicalContestOption: gridLayout.gridPositions
+              .filter((position) => position.contestId === contest.id)
+              .map(
+                (position): Cdf.PhysicalContestOption => ({
+                  '@type': 'BallotDefinition.PhysicalContestOption',
+                  ContestOptionId: optionIdForPosition(contest, position),
+                  OptionPosition: [
+                    {
+                      '@type': 'BallotDefinition.OptionPosition',
+                      Sheet: position.sheetNumber,
+                      Side: position.side as Cdf.BallotSideType,
+                      // Technically these should be in inches, not grid
+                      // coordinates, since that's the measurement unit
+                      // specified in the ballot format, but grid coordinates
+                      // are what our interpreter uses, and converting to inches
+                      // and back would just add arbitrary confusion.
+                      X: position.column,
+                      Y: position.row,
+                      // It's not clear what the height/width of an
+                      // OptionPosition refer to. Is it the dimensions of the
+                      // bubble? Since we don't actually use this data, just set
+                      // it to a dummy value.
+                      H: 0,
+                      W: 0,
+                      NumberVotes: 1,
+                    },
+                  ],
+                  WriteInPosition:
+                    position.type === 'write-in'
+                      ? [
+                          {
+                            '@type': 'BallotDefinition.WriteInPosition',
+                            Sheet: position.sheetNumber,
+                            Side: position.side as Cdf.BallotSideType,
+                            // We don't currently use the write-in position, so
+                            // setting to a dummy value for now. In the future,
+                            // we might want to use this for detecting unmarked
+                            // write-ins or for write-in adjudication cropping.
+                            H: 0,
+                            W: 0,
+                            X: 0,
+                            Y: 0,
+                          },
+                        ]
+                      : undefined,
+                })
+              ),
+          },
+        ],
+      })
+    );
+  }
 
   return {
     '@type': 'BallotDefinition.BallotDefinition',
@@ -91,7 +272,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                   ...contest.candidates.map(
                     (candidate): Cdf.CandidateOption => ({
                       '@type': 'BallotDefinition.CandidateOption',
-                      '@id': `${contest.id}-option-${candidate.id}`,
+                      '@id': candidateOptionId(contest.id, candidate.id),
                       CandidateIds: [candidate.id],
                       EndorsementPartyIds: candidate.partyIds,
                     })
@@ -103,7 +284,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                         .map(
                           (writeInIndex): Cdf.CandidateOption => ({
                             '@type': 'BallotDefinition.CandidateOption',
-                            '@id': `${contest.id}-option-write-in-${writeInIndex}`,
+                            '@id': writeInOptionId(contest.id, writeInIndex),
                             IsWriteIn: true,
                           })
                         )
@@ -142,14 +323,12 @@ export function convertVxfElectionToCdfBallotDefinition(
           }
         }),
 
-        // TODO Eventually, we might want to list all of the contests included
-        // in the ballot style. Currently, our system infers it from the
-        // associated precincts' districts.
         BallotStyle: vxfElection.ballotStyles.map(
           (ballotStyle): Cdf.BallotStyle => ({
             '@type': 'BallotDefinition.BallotStyle',
-            GpUnitIds: ballotStyle.precincts,
+            GpUnitIds: precinctsOrSplitsForBallotStyle(ballotStyle),
             PartyIds: ballotStyle.partyId ? [ballotStyle.partyId] : undefined,
+            OrderedContent: orderedContentForBallotStyle(ballotStyle),
             // In CDF, ballot styles don't have an id field. I think this might be
             // because each ballot style can be uniquely identified by its
             // GpUnitIds + PartyIds. When multiple ballot styles are used within a
@@ -204,14 +383,14 @@ export function convertVxfElectionToCdfBallotDefinition(
           // Since we represent multiple real-world entities as districts in VXF,
           // we can't know the actual type to use here
           Type: Cdf.ReportingUnitType.Other,
-          // To figure out which precincts are in this district, we look at the
+          // To figure out which precincts/splits are in this district, we look at the
           // associated ballot styles
           ComposingGpUnitIds: unique(
             vxfElection.ballotStyles
               .filter((ballotStyle) =>
                 ballotStyle.districts.includes(district.id)
               )
-              .flatMap((ballotStyle) => ballotStyle.precincts)
+              .flatMap(precinctsOrSplitsForBallotStyle)
           ),
         })
       ),
@@ -221,8 +400,37 @@ export function convertVxfElectionToCdfBallotDefinition(
           '@id': precinct.id,
           Name: text(precinct.name),
           Type: Cdf.ReportingUnitType.Precinct,
+          ComposingGpUnitIds: precinctSplits[precinct.id]?.map(
+            ({ split }) => split['@id']
+          ),
         })
       ),
+      ...Object.values(precinctSplits).flatMap(
+        (splits) => splits?.map(({ split }) => split) ?? []
+      ),
+    ],
+
+    BallotFormat: [
+      {
+        '@type': 'BallotDefinition.BallotFormat',
+        '@id': 'ballot-format',
+        // For some reason, the CDF schema requires at least one external
+        // identifier here
+        ExternalIdentifier: [
+          {
+            '@type': 'BallotDefinition.ExternalIdentifier',
+            Type: Cdf.IdentifierType.Other,
+            Value: 'ballot-format',
+          },
+        ],
+        MeasurementUnit: Cdf.MeasurementUnitType.In,
+        ShortEdge:
+          paperSizeDimensionsInches[vxfElection.ballotLayout.paperSize][0],
+        LongEdge:
+          paperSizeDimensionsInches[vxfElection.ballotLayout.paperSize][1],
+        Orientation: Cdf.OrientationType.Portrait,
+        SelectionCaptureMethod: Cdf.SelectionCaptureMethod.Omr,
+      },
     ],
 
     GeneratedDate: dateTimeString(new Date()),
@@ -235,12 +443,12 @@ export function convertVxfElectionToCdfBallotDefinition(
   };
 }
 
-// TODO Should we make a tighter BallotDefinition type that encodes some of our constraints?
 export function convertCdfBallotDefinitionToVxfElection(
   cdfBallotDefinition: Cdf.BallotDefinition
 ): Vxf.Election {
   const election = cdfBallotDefinition.Election[0];
   const gpUnits = cdfBallotDefinition.GpUnit;
+  const ballotFormat = cdfBallotDefinition.BallotFormat[0];
 
   const state = find(
     gpUnits,
@@ -258,19 +466,54 @@ export function convertCdfBallotDefinitionToVxfElection(
     )
   );
 
-  // Any GpUnit that is associated with a ballot style is a "precinct" in VXF
-  const precincts = gpUnits.filter((gpUnit) =>
-    election.BallotStyle.some((ballotStyle) =>
-      ballotStyle.GpUnitIds.includes(gpUnit['@id'])
-    )
+  const precincts = gpUnits.filter(
+    (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.Precinct
   );
-  // In well-formed CDF, these should all be of type "Precinct" or
-  // "SplitPrecinct" (for now though, we don't support SplitPrecinct)
-  assert(
-    precincts.every(
-      (precinct) => precinct.Type === Cdf.ReportingUnitType.Precinct
-    )
+  const precinctSplits = gpUnits.filter(
+    (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.SplitPrecinct
   );
+
+  function precinctOrSplitIdToPrecinctId(
+    precinctOrSplitId: Id
+  ): Vxf.PrecinctId {
+    return find(
+      precincts,
+      (precinct) =>
+        precinct['@id'] === precinctOrSplitId ||
+        Boolean(precinct['ComposingGpUnitIds']?.includes(precinctOrSplitId))
+    )['@id'];
+  }
+
+  function convertOptionId(contestId: Vxf.ContestId, optionId: string): Id {
+    const contest = find(election.Contest, (c) => c['@id'] === contestId);
+    switch (contest['@type']) {
+      case 'BallotDefinition.CandidateContest': {
+        const candidateOption = find(
+          contest.ContestOption,
+          (option) => option['@id'] === optionId
+        );
+        return assertDefined(candidateOption.CandidateIds)[0];
+      }
+      case 'BallotDefinition.BallotMeasureContest':
+        return optionId;
+      /* istanbul ignore next */
+      default:
+        return throwIllegalValue(contest);
+    }
+  }
+
+  function parseWriteInIndexFromOptionId(
+    contestId: Vxf.ContestId,
+    optionId: string
+  ): number {
+    const match = /^-option-write-in-([0-9]+)$/.exec(
+      optionId.replace(contestId, '')
+    );
+    /* istanbul ignore next */
+    return safeParseInt(match?.[1]).assertOk(
+      `Invalid write-in option id: ${optionId}`
+    );
+  }
 
   function englishText(text: Cdf.InternationalizedText): string {
     const content = find(text.Text, (t) => t.Language === 'en').Content;
@@ -373,14 +616,16 @@ export function convertCdfBallotDefinitionToVxfElection(
     })),
 
     ballotStyles: election.BallotStyle.map((ballotStyle): Vxf.BallotStyle => {
-      // Ballot style GpUnitIds should all be precincts
+      // Ballot style GpUnitIds should all be precincts or splits
       assert(
         ballotStyle.GpUnitIds.every((gpUnitId) =>
-          precincts.some((precinct) => precinct['@id'] === gpUnitId)
+          [...precincts, ...precinctSplits].some(
+            (precinctOrSplit) => precinctOrSplit['@id'] === gpUnitId
+          )
         )
       );
       // To find the districts for a ballot style, we look at the associated
-      // precincts and find the districts that contain them
+      // precincts/splits and find the districts that contain them
       const ballotStyleDistricts = ballotStyle.GpUnitIds.flatMap((gpUnitId) => {
         return districts.filter((district) =>
           assertDefined(district.ComposingGpUnitIds).includes(gpUnitId)
@@ -394,6 +639,10 @@ export function convertCdfBallotDefinitionToVxfElection(
 
       if (ballotStyle.PartyIds) assert(ballotStyle.PartyIds.length <= 1);
 
+      const precinctIds = ballotStyle.GpUnitIds.map(
+        precinctOrSplitIdToPrecinctId
+      );
+
       // For now, we expect exactly one external identifier for each ballot
       // style (see comment on BallotStyles in other conversion function for
       // context).
@@ -402,15 +651,61 @@ export function convertCdfBallotDefinitionToVxfElection(
       return {
         id: ballotStyle.ExternalIdentifier[0].Value,
         districts: districtIds,
-        precincts: ballotStyle.GpUnitIds,
+        precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
       };
     }),
 
     ballotLayout: {
-      paperSize: Vxf.BallotPaperSize.Letter,
+      paperSize: find(
+        Object.entries(paperSizeDimensionsInches),
+        ([, [width, height]]) =>
+          width === ballotFormat.ShortEdge && height === ballotFormat.LongEdge
+      )[0] as Vxf.BallotPaperSize,
       metadataEncoding: 'qr-code',
     },
+
+    gridLayouts: (() => {
+      const gridLayouts = election.BallotStyle.filter(
+        (ballotStyle) => ballotStyle.OrderedContent !== undefined
+      ).map((ballotStyle): Vxf.GridLayout => {
+        const orderedContests = assertDefined(ballotStyle.OrderedContent);
+        const optionBoundsFromTargetMark =
+          orderedContests[0].Physical[0].vxOptionBoundsFromTargetMark;
+        return {
+          ballotStyleId: ballotStyle.ExternalIdentifier[0].Value,
+          optionBoundsFromTargetMark,
+          gridPositions: orderedContests.flatMap(
+            (orderedContest): Vxf.GridPosition[] =>
+              orderedContest.Physical[0].PhysicalContestOption.map(
+                (option): Vxf.GridPosition => ({
+                  contestId: orderedContest.ContestId,
+                  sheetNumber: option.OptionPosition[0].Sheet,
+                  side: option.OptionPosition[0].Side,
+                  column: option.OptionPosition[0].X,
+                  row: option.OptionPosition[0].Y,
+                  ...(option.WriteInPosition
+                    ? {
+                        type: 'write-in',
+                        writeInIndex: parseWriteInIndexFromOptionId(
+                          orderedContest.ContestId,
+                          option.ContestOptionId
+                        ),
+                      }
+                    : {
+                        type: 'option',
+                        optionId: convertOptionId(
+                          orderedContest.ContestId,
+                          option.ContestOptionId
+                        ),
+                      }),
+                })
+              )
+          ),
+        };
+      });
+      return gridLayouts.length > 0 ? gridLayouts : undefined;
+    })(),
   };
 }
 
