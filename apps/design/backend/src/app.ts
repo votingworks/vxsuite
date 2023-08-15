@@ -102,7 +102,7 @@ function buildApi({ store }: { store: Store }) {
           getPrecinctById({ election, precinctId })
         );
         const pdf = renderDocumentToPdf(document);
-        const fileName = `ballot-${precinct.name.replace(
+        const fileName = `ballot-${precinct.name.replaceAll(
           ' ',
           '_'
         )}-${ballotStyleId}.pdf`;

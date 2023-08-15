@@ -5,7 +5,6 @@ const shared = require('../../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  passWithNoTests: true,
   coverageThreshold: {
     /* Experimental package, don't enforce coverage yet */
     global: {
