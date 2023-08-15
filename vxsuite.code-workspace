@@ -194,6 +194,9 @@
     },
     {
       "path": "docs"
+    },
+    {
+      "path": "."
     }
   ],
   "settings": {
@@ -258,7 +261,7 @@
       "**/build": true,
       "**/coverage": true
     },
-    "typescript.tsdk": "libs/types/node_modules/typescript/lib"
+    "typescript.tsdk": "vxsuite/node_modules/typescript/lib"
   },
   "extensions": {
     "recommendations": [
