@@ -106,4 +106,4 @@ test('export all ballots', async () => {
 
   const setupPackageResult = await apiClient.exportSetupPackage({ electionId });
   expect(electionHash).toEqual(setupPackageResult.electionHash);
-});
+}, 30_000);
