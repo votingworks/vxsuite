@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, groupBy } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   DEFAULT_LAYOUT_OPTIONS,
@@ -15,7 +15,6 @@ import {
   SystemSettings,
   safeParseSystemSettings,
 } from '@votingworks/types';
-import deepEqual from 'deep-eql';
 import { join } from 'path';
 
 export interface ElectionRecord {
@@ -87,24 +86,6 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
       })),
     };
   });
-}
-
-/**
- * Groups items by a key function. Uses deepEqual to compare keys in order to support
- * complex key types. For simpler key types, a Map would suffice.
- */
-function groupBy<T, K>(items: T[], keyFn: (item: T) => K): Array<[K, T[]]> {
-  const groups: Array<[K, T[]]> = [];
-  for (const item of items) {
-    const key = keyFn(item);
-    const group = groups.find(([k]) => deepEqual(k, key));
-    if (group) {
-      group[1].push(item);
-    } else {
-      groups.push([key, [item]]);
-    }
-  }
-  return groups;
 }
 
 /**
