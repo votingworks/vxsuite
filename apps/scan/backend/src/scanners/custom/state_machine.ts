@@ -1,4 +1,9 @@
-import { assert, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   CustomScanner,
   DoubleSheetDetectOpt,
@@ -34,6 +39,10 @@ import {
 } from 'xstate';
 import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
 import { CastVoteRecordExporterApi } from '@votingworks/backend';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { PrecinctScannerInterpreter } from '../../interpret';
 import { Store } from '../../store';
 import {
@@ -408,7 +417,11 @@ function storeInterpretedSheet(
   return addedSheetId;
 }
 
-function recordAcceptedSheet(store: Store, { interpretation }: Context) {
+async function recordAcceptedSheet(
+  store: Store,
+  castVoteRecordExporter: CastVoteRecordExporterApi,
+  { interpretation }: Context
+) {
   assert(store);
   assert(interpretation);
   const { sheetId } = interpretation;
@@ -417,6 +430,17 @@ function recordAcceptedSheet(store: Store, { interpretation }: Context) {
   // "adjudicated" (i.e. the voter said to count it without changing anything)
   if (interpretation.type === 'NeedsReviewSheet') {
     store.adjudicateSheet(sheetId);
+  }
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+    )
+  ) {
+    const exportResult =
+      await castVoteRecordExporter.exportCastVoteRecordsToUsbDrive([
+        assertDefined(store.getResultSheet(sheetId)),
+      ]);
+    exportResult.unsafeUnwrap();
   }
   debug('Stored accepted sheet: %s', sheetId);
 }
@@ -450,6 +474,7 @@ function buildMachine({
   workspace,
   interpreter,
   delayOverrides,
+  castVoteRecordExporter,
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
@@ -908,7 +933,12 @@ function buildMachine({
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) => recordAcceptedSheet(workspace.store, context),
+          entry: (context) =>
+            recordAcceptedSheet(
+              workspace.store,
+              castVoteRecordExporter,
+              context
+            ),
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
