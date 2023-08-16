@@ -38,6 +38,9 @@ export enum BooleanEnvironmentVariableName {
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
   // Disables exporting original snapshots with CVRs
   DISABLE_CVR_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS',
+  // Enables continuous export to USB on VxScan, usage of the corresponding export format on
+  // VxCentralScan, and handling of these exports on VxAdmin
+  ENABLE_CONTINUOUS_EXPORT = 'REACT_APP_VX_ENABLE_CONTINUOUS_EXPORT',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -94,6 +97,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
     case BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS:
       return process.env.REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS;
+    case BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT:
+      return process.env.REACT_APP_VX_ENABLE_CONTINUOUS_EXPORT;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
@@ -187,6 +192,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT:
       return {
         name,
         allowInProduction: true,
