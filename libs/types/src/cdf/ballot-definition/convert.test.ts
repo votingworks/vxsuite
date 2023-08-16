@@ -11,15 +11,10 @@ import {
   safeParseCdfBallotDefinition,
 } from './convert';
 import {
-  mockNow,
   normalizeVxf,
   testCdfBallotDefinition,
   testVxfElection,
 } from './fixtures';
-
-beforeAll(() => {
-  jest.useFakeTimers().setSystemTime(new Date(mockNow));
-});
 
 test('VXF fixture is valid', () => {
   expect(safeParseElection(election)).toEqual(ok(election));

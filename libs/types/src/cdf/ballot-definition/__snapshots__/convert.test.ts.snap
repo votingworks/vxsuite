@@ -159,7 +159,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
       "Type": "general",
     },
   ],
-  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GeneratedDate": "2020-11-03T10:00:00Z",
   "GpUnit": [
     {
       "@id": "state",
@@ -840,7 +840,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
       "Type": "primary",
     },
   ],
-  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GeneratedDate": "2021-09-08T08:00:00Z",
   "GpUnit": [
     {
       "@id": "state-of-sample",
@@ -1233,7 +1233,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
       "Type": "primary",
     },
   ],
-  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GeneratedDate": "2020-11-03T10:00:00Z",
   "GpUnit": [
     {
       "@id": "state",

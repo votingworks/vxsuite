@@ -433,7 +433,11 @@ export function convertVxfElectionToCdfBallotDefinition(
       },
     ],
 
-    GeneratedDate: dateTimeString(new Date()),
+    // Since we don't have a generated date in VXF, we use the election date. If
+    // we were to use the current date, it would cause changes every time we
+    // hash the object. We want hashes to be based on the content of the
+    // election, not the date generated.
+    GeneratedDate: dateTimeString(new Date(vxfElection.date)),
     Issuer: 'VotingWorks',
     IssuerAbbreviation: 'VX',
     VendorApplicationId: 'VxSuite',

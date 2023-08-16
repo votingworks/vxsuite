@@ -11,8 +11,6 @@ import {
 } from '.';
 import { BallotPaperSize, DistrictId, Election, PartyId } from '../../election';
 
-export const mockNow = '2023-02-08T00:00:00Z';
-
 /**
  * For testing a round trip from VXF -> CDF -> VXF, we need to normalize a few
  * less strict parts of VXF to match stricter CDF constraints.
@@ -1079,7 +1077,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
     },
   ],
 
-  GeneratedDate: mockNow,
+  GeneratedDate: '2021-06-06T00:00:00Z',
   Issuer: 'VotingWorks',
   IssuerAbbreviation: 'VX',
   VendorApplicationId: 'VxSuite',
