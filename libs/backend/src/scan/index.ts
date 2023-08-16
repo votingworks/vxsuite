@@ -4,4 +4,5 @@ export * from './cast_vote_records/build_report_metadata';
 export * from './cast_vote_records/export';
 export * from './cast_vote_records/canonicalize';
 export * from './cast_vote_records/cast_vote_record_exporter';
+export * from './cast_vote_records/test_utils';
 export { VX_MACHINE_ID } from './globals';

@@ -29,6 +29,7 @@ import { Server } from 'http';
 import { AddressInfo } from 'net';
 import tmp from 'tmp';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { buildMockCastVoteRecordExporter } from '@votingworks/backend';
 import { Api, buildApp } from '../../src/app';
 import {
   PrecinctScannerInterpreter,
@@ -68,6 +69,7 @@ export async function withApp(
   const workspace =
     preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
   const mockScanner = mocks.fakeCustomScanner();
+  const mockCastVoteRecordExporter = buildMockCastVoteRecordExporter();
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<
     Result<CustomScanner, ErrorCode>
@@ -85,6 +87,7 @@ export async function withApp(
     workspace,
     interpreter,
     logger,
+    castVoteRecordExporter: mockCastVoteRecordExporter,
     delays: {
       DELAY_RECONNECT: 100,
       DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
