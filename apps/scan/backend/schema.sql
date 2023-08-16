@@ -63,3 +63,9 @@ create table system_settings (
   overall_session_time_limit_hours integer not null,
   starting_card_lockout_duration_seconds integer not null
 );
+
+create table export_directory_name (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  export_directory_name text not null
+);

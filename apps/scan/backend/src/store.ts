@@ -31,7 +31,7 @@ import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { ResultSheet } from '@votingworks/backend';
+import { ResultSheet, ScannerStore } from '@votingworks/backend';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 
@@ -48,6 +48,47 @@ function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
   return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
     zone: 'GMT',
   });
+}
+
+const getResultSheetsBaseQuery = `
+  select
+    sheets.id as id,
+    batches.id as batchId,
+    batches.label as batchLabel,
+    front_interpretation_json as frontInterpretationJson,
+    back_interpretation_json as backInterpretationJson,
+    front_image_path as frontImagePath,
+    back_image_path as backImagePath
+  from sheets left join batches on
+    sheets.batch_id = batches.id
+  where
+    (requires_adjudication = 0 or finished_adjudication_at is not null)
+    and sheets.deleted_at is null
+    and batches.deleted_at is null
+`;
+
+interface ResultSheetRow {
+  id: string;
+  batchId: string;
+  batchLabel: string | null;
+  frontInterpretationJson: string;
+  backInterpretationJson: string;
+  frontImagePath: string;
+  backImagePath: string;
+}
+
+function resultSheetRowToResultSheet(row: ResultSheetRow): ResultSheet {
+  return {
+    id: row.id,
+    batchId: row.batchId,
+    batchLabel: row.batchLabel ?? undefined,
+    interpretation: mapSheet(
+      [row.frontInterpretationJson, row.backInterpretationJson],
+      (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
+    ),
+    frontImagePath: row.frontImagePath,
+    backImagePath: row.backImagePath,
+  };
 }
 
 /**
@@ -904,44 +945,20 @@ export class Store {
    * Yields all sheets in the database that would be included in a CVR export.
    */
   *forEachResultSheet(): Generator<ResultSheet> {
-    const sql = `
-      select
-        sheets.id as id,
-        batches.id as batchId,
-        batches.label as batchLabel,
-        front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson,
-        front_image_path as frontImagePath,
-        back_image_path as backImagePath
-      from sheets left join batches
-      on sheets.batch_id = batches.id
-      where
-        (requires_adjudication = 0 or finished_adjudication_at is not null)
-        and sheets.deleted_at is null
-        and batches.deleted_at is null
-      order by sheets.id
-    `;
-    for (const row of this.client.each(sql) as Iterable<{
-      id: string;
-      batchId: string;
-      batchLabel: string | null;
-      frontInterpretationJson: string;
-      backInterpretationJson: string;
-      frontImagePath: string;
-      backImagePath: string;
-    }>) {
-      yield {
-        id: row.id,
-        batchId: row.batchId,
-        batchLabel: row.batchLabel ?? undefined,
-        interpretation: mapSheet(
-          [row.frontInterpretationJson, row.backInterpretationJson],
-          (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
-        ),
-        frontImagePath: row.frontImagePath,
-        backImagePath: row.backImagePath,
-      };
+    const sql = `${getResultSheetsBaseQuery} order by sheets.id`;
+    for (const row of this.client.each(sql) as Iterable<ResultSheetRow>) {
+      yield resultSheetRowToResultSheet(row);
     }
+  }
+
+  /**
+   * Gets a single sheet given a sheet ID. Returns undefined if the sheet doesn't exist or wouldn't
+   * be included in a CVR export.
+   */
+  getResultSheet(sheetId: string): ResultSheet | undefined {
+    const sql = `${getResultSheetsBaseQuery} and sheets.id = ?`;
+    const row = this.client.one(sql, sheetId) as ResultSheetRow | undefined;
+    return row ? resultSheetRowToResultSheet(row) : undefined;
   }
 
   /**
@@ -993,4 +1010,48 @@ export class Store {
       arePollWorkerCardPinsEnabled: result.arePollWorkerCardPinsEnabled === 1,
     };
   }
+
+  /**
+   * Gets the name of the directory that we're continuously exporting to, e.g.
+   * TEST__machine_SCAN-0001__2023-08-16_17-02-24. Returns undefined if not yet set.
+   */
+  getExportDirectoryName(): string | undefined {
+    const result = this.client.one(
+      'select export_directory_name as exportDirectoryName from export_directory_name'
+    ) as { exportDirectoryName: string } | undefined;
+    return result?.exportDirectoryName;
+  }
+
+  /**
+   * Stores the name of the directory that we'll be continuously exporting to
+   */
+  setExportDirectoryName(exportDirectoryName: string): void {
+    this.client.run('delete from export_directory_name');
+    this.client.run(
+      'insert into export_directory_name (export_directory_name) values (?)',
+      exportDirectoryName
+    );
+  }
+}
+
+/**
+ * Builds a ScannerStore object to be passed through to a CastVoteRecordExporter
+ */
+export function buildScannerStoreForCastVoteRecordExporter(
+  store: Store
+): ScannerStore {
+  return {
+    clearCastVoteRecordHashes: () => undefined,
+    getBatches: store.batchStatus.bind(store),
+    getCastVoteRecordRootHash: () => '',
+    getDefiniteMarkThreshold: () =>
+      store.getMarkThresholdOverrides()?.definite ??
+      DefaultMarkThresholds.definite,
+    getElectionDefinition: store.getElectionDefinition.bind(store),
+    getExportDirectoryName: store.getExportDirectoryName.bind(store),
+    getMode: () => (store.getTestMode() ? 'test' : 'live'),
+    getPollsState: store.getPollsState.bind(store),
+    updateCastVoteRecordHashes: () => undefined,
+    setExportDirectoryName: store.setExportDirectoryName.bind(store),
+  };
 }
