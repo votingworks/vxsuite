@@ -3,12 +3,19 @@ import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import fs from 'fs';
+import { ArtifactAuthenticator } from '@votingworks/auth';
+import {
+  CastVoteRecordExporter,
+  CastVoteRecordExporterApi,
+} from '@votingworks/backend';
+import { detectUsbDrive } from '@votingworks/usb-drive';
 import { NODE_ENV, SCAN_WORKSPACE } from './globals';
 import { createInterpreter, PrecinctScannerInterpreter } from './interpret';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
 import { PrecinctScannerStateMachine } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
+import { buildScannerStoreForCastVoteRecordExporter } from './store';
 
 export type { Api } from './app';
 export * from './types';
@@ -57,27 +64,40 @@ async function resolveWorkspace(): Promise<Workspace> {
 
 function createPrecinctScannerStateMachine(
   workspace: Workspace,
-  interpreter: PrecinctScannerInterpreter
+  interpreter: PrecinctScannerInterpreter,
+  castVoteRecordExporter: CastVoteRecordExporterApi
 ): PrecinctScannerStateMachine {
   return customStateMachine.createPrecinctScannerStateMachine({
     createCustomClient: customScanner.openScanner,
     workspace,
     interpreter,
     logger,
+    castVoteRecordExporter,
   });
 }
 
 async function main(): Promise<number> {
-  const workspace = await resolveWorkspace();
+  const artifactAuthenticator = new ArtifactAuthenticator();
   const precinctScannerInterpreter = createInterpreter();
+  const usbDrive = detectUsbDrive();
+  const workspace = await resolveWorkspace();
+
+  const castVoteRecordExporter = new CastVoteRecordExporter({
+    artifactAuthenticator,
+    scannerStore: buildScannerStoreForCastVoteRecordExporter(workspace.store),
+    usbDrive,
+  });
   const precinctScannerStateMachine = createPrecinctScannerStateMachine(
     workspace,
-    precinctScannerInterpreter
+    precinctScannerInterpreter,
+    castVoteRecordExporter
   );
 
   server.start({
-    precinctScannerStateMachine,
+    artifactAuthenticator,
     precinctScannerInterpreter,
+    precinctScannerStateMachine,
+    usbDrive,
     workspace,
   });
 

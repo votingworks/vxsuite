@@ -33,6 +33,7 @@ import {
   TransitionConfig,
 } from 'xstate';
 import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
+import { CastVoteRecordExporterApi } from '@votingworks/backend';
 import { PrecinctScannerInterpreter } from '../../interpret';
 import { Store } from '../../store';
 import {
@@ -454,6 +455,7 @@ function buildMachine({
   workspace: Workspace;
   interpreter: PrecinctScannerInterpreter;
   delayOverrides: Partial<Delays>;
+  castVoteRecordExporter: CastVoteRecordExporterApi;
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
 
@@ -1201,18 +1203,21 @@ export function createPrecinctScannerStateMachine({
   workspace,
   interpreter,
   logger,
+  castVoteRecordExporter,
   delays = {},
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
   interpreter: PrecinctScannerInterpreter;
   logger: Logger;
+  castVoteRecordExporter: CastVoteRecordExporterApi;
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
     workspace,
     interpreter,
+    castVoteRecordExporter,
     delayOverrides: delays,
   });
   const machineService = interpret(machine).start();
