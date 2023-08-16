@@ -15,6 +15,7 @@ import {
   BallotStyle,
   BallotType,
   Contests,
+  convertVxfElectionToCdfBallotDefinition,
   Election,
   ElectionDefinition,
   getCandidatePartiesDescription,
@@ -1785,13 +1786,17 @@ export function layOutAllBallots({
       gridLayouts,
     };
 
+    const cdfElection = convertVxfElectionToCdfBallotDefinition(
+      electionWithGridLayouts
+    );
+
     const electionDefinition = safeParseElectionDefinition(
-      JSON.stringify(electionWithGridLayouts)
+      JSON.stringify(cdfElection, null, 2)
     ).unsafeUnwrap();
 
     return ok({
       ballots: layOutAllBallotsHelper({
-        election: electionWithGridLayouts,
+        election: electionDefinition.election,
         isTestMode,
         electionHash: electionDefinition.electionHash,
         layoutOptions,

@@ -196,6 +196,11 @@ test('Export setup package', async () => {
 
   expect(electionDefinition.election).toEqual({
     ...baseElectionDefinition.election,
+    // The date in the election fixture has a timezone, even though it shouldn't
+    date: electionDefinition.election.date,
+
+    // Adds a default seal URL if none is provided.
+    sealUrl: electionDefinition.election.sealUrl,
 
     // Ballot styles are generated in the app, ignoring the ones in the inputted
     // election definition.
@@ -217,6 +222,7 @@ test('Export setup package', async () => {
           "district-1",
         ],
         "id": "ballot-style-1",
+        "partyId": undefined,
         "precincts": [
           "23",
           "22",
