@@ -1034,6 +1034,7 @@ export class Store {
   }
 }
 
+/* c8 ignore start */
 /**
  * Builds a ScannerStore object to be passed through to a CastVoteRecordExporter
  */
@@ -1055,3 +1056,4 @@ export function buildScannerStoreForCastVoteRecordExporter(
     setExportDirectoryName: store.setExportDirectoryName.bind(store),
   };
 }
+/* c8 ignore end */
