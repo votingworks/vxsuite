@@ -127,9 +127,9 @@ export const exportBallot = {
   },
 } as const;
 
-export const exportBallotDefinition = {
+export const exportSetupPackage = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.exportBallotDefinition);
+    return useMutation(apiClient.exportSetupPackage);
   },
 } as const;
