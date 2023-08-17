@@ -24,7 +24,7 @@ import {
   SheetOf,
   SystemSettings,
 } from '@votingworks/types';
-import { Optional } from '@votingworks/basics';
+import { assertDefined, Optional } from '@votingworks/basics';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
@@ -38,11 +38,6 @@ import { rootDebug } from './util/debug';
 const debug = rootDebug.extend('store');
 
 const SchemaPath = join(__dirname, '../schema.sql');
-
-export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
-  marginal: 0.17,
-  definite: 0.25,
-};
 
 function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
   return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
@@ -130,23 +125,7 @@ export class Store {
       return undefined;
     }
 
-    const electionDefinitionParseResult = safeParseElectionDefinition(
-      electionRow.electionData
-    );
-
-    if (electionDefinitionParseResult.isErr()) {
-      throw new Error('Unable to parse stored election data.');
-    }
-
-    const electionDefinition = electionDefinitionParseResult.ok();
-
-    return {
-      ...electionDefinition,
-      election: {
-        markThresholds: DefaultMarkThresholds,
-        ...electionDefinition.election,
-      },
-    };
+    return safeParseElectionDefinition(electionRow.electionData).unsafeUnwrap();
   }
 
   /**
@@ -305,8 +284,8 @@ export class Store {
     );
   }
 
-  getMarkThresholds(): Optional<MarkThresholds> {
-    return this.getElectionDefinition()?.election.markThresholds;
+  getMarkThresholds(): MarkThresholds {
+    return assertDefined(this.getSystemSettings()).markThresholds;
   }
 
   /**

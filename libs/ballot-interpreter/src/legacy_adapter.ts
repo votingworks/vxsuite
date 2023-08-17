@@ -124,10 +124,7 @@ export function convertMarksToAdjudicationInfo(
   options: InterpreterOptions,
   marks: BallotMark[]
 ): AdjudicationInfo {
-  const markThresholds =
-    options.markThresholds ?? electionDefinition.election.markThresholds;
   const enabledReasons = options.adjudicationReasons ?? [];
-  assert(markThresholds, 'markThresholds must be defined');
 
   const contests = electionDefinition.election.contests.filter((c) =>
     marks.some(({ contestId }) => contestId === c.id)
@@ -150,11 +147,11 @@ export function convertMarksToAdjudicationInfo(
         let fallbackStatus = MarkStatus.Unmarked;
 
         for (const mark of contestMarks) {
-          if (mark.score >= markThresholds.definite) {
+          if (mark.score >= options.markThresholds.definite) {
             return MarkStatus.Marked;
           }
 
-          if (mark.score >= markThresholds.marginal) {
+          if (mark.score >= options.markThresholds.marginal) {
             fallbackStatus = MarkStatus.Marginal;
           }
         }
@@ -304,11 +301,6 @@ function convertNextInterpretedBallotPage(
   interpretedBallotCard: InterpretedBallotCard,
   side: 'front' | 'back'
 ): InterpretFileResult {
-  /* istanbul ignore next */
-  const markThresholds =
-    options.markThresholds ?? electionDefinition.election.markThresholds;
-  assert(markThresholds, 'markThresholds must be defined');
-
   const sideMetadata = interpretedBallotCard[side].metadata;
   const metadata =
     sideMetadata.source === 'qr-code'
@@ -326,7 +318,7 @@ function convertNextInterpretedBallotPage(
   const interpretation = interpretedBallotCard[side];
   const markInfo = convertMarksToMarkInfo(
     electionDefinition.election.contests,
-    markThresholds,
+    options.markThresholds,
     interpretation.grid.geometry,
     interpretation.marks,
     interpretation.writeIns
@@ -343,7 +335,7 @@ function convertNextInterpretedBallotPage(
       ),
       votes: convertMarksToVotesDict(
         electionDefinition.election.contests,
-        markThresholds,
+        options.markThresholds,
         markInfo.marks
       ),
       layout: {

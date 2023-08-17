@@ -3,6 +3,7 @@ import makeDebug from 'debug';
 import { Buffer } from 'buffer';
 import {
   ElectionDefinition,
+  MarkThresholds,
   PrecinctSelection,
   SheetOf,
 } from '@votingworks/types';
@@ -160,13 +161,15 @@ export async function interpretScannedBallots(
   electionDefinition: ElectionDefinition,
   precinctSelection: PrecinctSelection,
   testMode: boolean,
+  markThresholds: MarkThresholds,
   sheetOfImagePaths: SheetOf<string>
 ): Promise<SheetOf<InterpretFileResult>> {
-  const interpretation = interpretSheet(
+  const interpretation = await interpretSheet(
     {
       electionDefinition,
       precinctSelection,
       testMode,
+      markThresholds,
     },
     sheetOfImagePaths
   );

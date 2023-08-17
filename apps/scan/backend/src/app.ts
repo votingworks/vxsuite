@@ -38,7 +38,6 @@ import {
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { DefaultMarkThresholds } from './store';
 import { getScannerResults } from './util/results';
 
 function constructAuthMachineState(
@@ -270,9 +269,7 @@ function buildApi(
           ballotsCounted: store.getBallotsCounted(),
           batchInfo: store.batchStatus(),
           getResultSheetGenerator: store.forEachResultSheet.bind(store),
-          definiteMarkThreshold:
-            store.getMarkThresholds()?.definite ??
-            DefaultMarkThresholds.definite,
+          definiteMarkThreshold: store.getMarkThresholds().definite,
           artifactAuthenticator,
           disableOriginalSnapshots: isFeatureFlagEnabled(
             BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS

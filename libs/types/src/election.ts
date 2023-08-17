@@ -384,22 +384,6 @@ export enum AdjudicationReason {
 export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
   z.nativeEnum(AdjudicationReason);
 
-export interface MarkThresholds {
-  readonly marginal: number;
-  readonly definite: number;
-  readonly writeInTextArea?: number;
-}
-export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
-  .object({
-    marginal: z.number().min(0).max(1),
-    definite: z.number().min(0).max(1),
-    writeInTextArea: z.number().min(0).max(1).optional(),
-  })
-  .refine(
-    ({ marginal, definite }) => marginal <= definite,
-    'marginal mark threshold must be less than or equal to definite mark threshold'
-  );
-
 export interface GridPositionOption {
   readonly type: 'option';
   readonly sheetNumber: number;
@@ -476,7 +460,6 @@ export interface Election {
   readonly county: County;
   readonly date: string;
   readonly districts: readonly District[];
-  readonly markThresholds?: MarkThresholds;
   readonly parties: Parties;
   readonly precinctScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly precincts: readonly Precinct[];
@@ -498,7 +481,6 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     county: CountySchema,
     date: Iso8601Date,
     districts: DistrictsSchema,
-    markThresholds: z.lazy(() => MarkThresholdsSchema).optional(),
     parties: PartiesSchema,
     precinctScanAdjudicationReasons: z
       .array(z.lazy(() => AdjudicationReasonSchema))
