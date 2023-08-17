@@ -24,7 +24,7 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import { zeroRect } from '../test/fixtures/zero_rect';
-import { Store } from './store';
+import { DefaultMarkThresholds, Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
@@ -295,6 +295,11 @@ test('get current mark thresholds falls back to election definition defaults', (
   });
 });
 
+test('getMarkThresholds falls back to defaults', () => {
+  const store = Store.memoryStore();
+  expect(store.getMarkThresholds()).toStrictEqual(DefaultMarkThresholds);
+});
+
 test('get/set polls state', () => {
   const store = Store.memoryStore();
 
@@ -355,7 +360,7 @@ test('batch cleanup works correctly', () => {
   store.finishBatch({ batchId: firstBatchId });
   store.cleanupIncompleteBatches();
 
-  const batches = store.batchStatus();
+  const batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].id).toEqual(firstBatchId);
   expect(batches[0].batchNumber).toEqual(1);
@@ -365,7 +370,7 @@ test('batch cleanup works correctly', () => {
   store.addBatch();
   store.finishBatch({ batchId: thirdBatchId });
   store.cleanupIncompleteBatches();
-  const updatedBatches = store.batchStatus();
+  const updatedBatches = store.getBatches();
   expect(
     [...updatedBatches].sort((a, b) => a.label.localeCompare(b.label))
   ).toEqual([
@@ -382,7 +387,7 @@ test('batch cleanup works correctly', () => {
   ]);
 });
 
-test('batchStatus', () => {
+test('getBatches', () => {
   const store = Store.memoryStore();
 
   // Create a batch and add a sheet to it
@@ -417,25 +422,25 @@ test('batchStatus', () => {
       },
     },
   ]);
-  let batches = store.batchStatus();
+  let batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(2);
 
   // Delete one of the sheets
   store.deleteSheet(sheetId);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(1);
 
-  // Delete the last sheet, then confirm that store.batchStatus() results still include the batch
+  // Delete the last sheet, then confirm that store.getBatches() results still include the batch
   store.deleteSheet(sheetId2);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(0);
 
   // Confirm that batches marked as deleted are not included
   store.deleteBatch(batchId);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(0);
 });
 
@@ -802,7 +807,7 @@ test('resetElectionSession', () => {
   store.addBatch();
   expect(
     store
-      .batchStatus()
+      .getBatches()
       .map((batch) => batch.label)
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
@@ -817,14 +822,14 @@ test('resetElectionSession', () => {
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
   // resetElectionSession should clear all batches
-  expect(store.batchStatus()).toEqual([]);
+  expect(store.getBatches()).toEqual([]);
 
   // resetElectionSession should reset the autoincrement in the batch label
   store.addBatch();
   store.addBatch();
   expect(
     store
-      .batchStatus()
+      .getBatches()
       .map((batch) => batch.label)
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);

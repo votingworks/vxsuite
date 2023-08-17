@@ -12,6 +12,7 @@ import {
   BatchInfo,
   CVR,
   ElectionDefinition,
+  MarkThresholds,
   PollsState,
   unsafeParse,
 } from '@votingworks/types';
@@ -47,11 +48,11 @@ export interface ScannerStore {
   clearCastVoteRecordHashes(): void;
   getBatches(): BatchInfo[];
   getCastVoteRecordRootHash(): string;
-  getDefiniteMarkThreshold(): number;
   getElectionDefinition(): ElectionDefinition | undefined;
   getExportDirectoryName(): string | undefined;
-  getMode(): 'live' | 'test';
+  getMarkThresholds(): MarkThresholds;
   getPollsState(): PollsState | undefined;
+  getTestMode(): boolean;
   updateCastVoteRecordHashes(
     castVoteRecordId: string,
     castVoteRecordHash: string
@@ -65,9 +66,9 @@ export interface ScannerStore {
  */
 interface ScannerStateUnchangedByExport {
   batches: BatchInfo[];
-  definiteMarkThreshold: number;
   electionDefinition: ElectionDefinition;
   inTestMode: boolean;
+  markThresholds: MarkThresholds;
   pollsState?: PollsState;
 }
 
@@ -159,11 +160,11 @@ export class CastVoteRecordExporter implements CastVoteRecordExporterApi {
   private getScannerState(): ScannerStateUnchangedByExport {
     return {
       batches: this.scannerStore.getBatches(),
-      definiteMarkThreshold: this.scannerStore.getDefiniteMarkThreshold(),
       electionDefinition: assertDefined(
         this.scannerStore.getElectionDefinition()
       ),
-      inTestMode: this.scannerStore.getMode() === 'test',
+      inTestMode: this.scannerStore.getTestMode(),
+      markThresholds: this.scannerStore.getMarkThresholds(),
       pollsState: this.scannerStore.getPollsState(),
     };
   }
@@ -344,7 +345,7 @@ export class CastVoteRecordExporter implements CastVoteRecordExporterApi {
     resultSheet: ResultSheet,
     canonicalizedSheet: CanonicalizedSheet
   ): CVR.CVR {
-    const { definiteMarkThreshold, electionDefinition } = scannerState;
+    const { electionDefinition, markThresholds } = scannerState;
     const { election, electionHash: electionId } = electionDefinition;
     const electionOptionPositionMap = buildElectionOptionPositionMap(election);
     const scannerId = VX_MACHINE_ID;
@@ -386,7 +387,7 @@ export class CastVoteRecordExporter implements CastVoteRecordExporterApi {
       ballotMarkingMode: 'hand',
       batchId,
       castVoteRecordId,
-      definiteMarkThreshold,
+      definiteMarkThreshold: markThresholds.definite,
       disableOriginalSnapshots: isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
       ),

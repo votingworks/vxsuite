@@ -15,7 +15,6 @@ import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
 import { PrecinctScannerStateMachine } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildScannerStoreForCastVoteRecordExporter } from './store';
 
 export type { Api } from './app';
 export * from './types';
@@ -84,7 +83,7 @@ async function main(): Promise<number> {
 
   const castVoteRecordExporter = new CastVoteRecordExporter({
     artifactAuthenticator,
-    scannerStore: buildScannerStoreForCastVoteRecordExporter(workspace.store),
+    scannerStore: workspace.store,
     usbDrive,
   });
   const precinctScannerStateMachine = createPrecinctScannerStateMachine(

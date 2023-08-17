@@ -31,7 +31,7 @@ import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { ResultSheet, ScannerStore } from '@votingworks/backend';
+import { ResultSheet } from '@votingworks/backend';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 
@@ -380,6 +380,10 @@ export class Store {
       this.getMarkThresholdOverrides() ??
       this.getElectionDefinition()?.election.markThresholds
     );
+  }
+
+  getMarkThresholds(): MarkThresholds {
+    return this.getCurrentMarkThresholds() ?? DefaultMarkThresholds;
   }
 
   /**
@@ -869,7 +873,7 @@ export class Store {
   /**
    * Gets all batches, including their sheet count.
    */
-  batchStatus(): BatchInfo[] {
+  getBatches(): BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
       batchNumber: number;
@@ -1032,28 +1036,24 @@ export class Store {
       exportDirectoryName
     );
   }
-}
 
-/* c8 ignore start */
-/**
- * Builds a ScannerStore object to be passed through to a CastVoteRecordExporter
- */
-export function buildScannerStoreForCastVoteRecordExporter(
-  store: Store
-): ScannerStore {
-  return {
-    clearCastVoteRecordHashes: () => undefined,
-    getBatches: store.batchStatus.bind(store),
-    getCastVoteRecordRootHash: () => '',
-    getDefiniteMarkThreshold: () =>
-      store.getMarkThresholdOverrides()?.definite ??
-      DefaultMarkThresholds.definite,
-    getElectionDefinition: store.getElectionDefinition.bind(store),
-    getExportDirectoryName: store.getExportDirectoryName.bind(store),
-    getMode: () => (store.getTestMode() ? 'test' : 'live'),
-    getPollsState: store.getPollsState.bind(store),
-    updateCastVoteRecordHashes: () => undefined,
-    setExportDirectoryName: store.setExportDirectoryName.bind(store),
-  };
+  //
+  // Stubs
+  //
+
+  /* c8 ignore start */
+
+  getCastVoteRecordRootHash(): string {
+    return '';
+  }
+
+  updateCastVoteRecordHashes(): void {
+    return undefined;
+  }
+
+  clearCastVoteRecordHashes(): void {
+    return undefined;
+  }
+
+  /* c8 ignore end */
 }
-/* c8 ignore end */

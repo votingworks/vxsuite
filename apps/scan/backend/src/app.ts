@@ -279,7 +279,7 @@ function buildApi(
           electionDefinition,
           isTestMode: store.getTestMode(),
           ballotsCounted: store.getBallotsCounted(),
-          batchInfo: store.batchStatus(),
+          batchInfo: store.getBatches(),
           getResultSheetGenerator: store.forEachResultSheet.bind(store),
           definiteMarkThreshold:
             store.getCurrentMarkThresholds()?.definite ??
