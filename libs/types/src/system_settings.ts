@@ -14,11 +14,11 @@ import {
   StartingCardLockoutDurationSeconds,
   StartingCardLockoutDurationSecondsSchema,
 } from './auth';
-import { Id, Iso8601Timestamp } from './generic';
 
 /**
- * System settings as used by frontends and APIs. Several database fields are hidden from the app
- * because they are omitted in this model; see schema.sql.
+ * Settings for various parts of the system that are not part of the election
+ * definition. These settings can be changed without changing the election hash
+ * (and therefore not needing to reprint ballots, for example).
  */
 export interface SystemSettings {
   arePollWorkerCardPinsEnabled: boolean;
@@ -46,16 +46,3 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   startingCardLockoutDurationSeconds:
     DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
 };
-
-/**
- * System settings as used by the db.
- */
-export interface SystemSettingsDbRow {
-  id: Id;
-  created: Iso8601Timestamp;
-  arePollWorkerCardPinsEnabled: 0 | 1; // sqlite3 does not support booleans
-  inactiveSessionTimeLimitMinutes: InactiveSessionTimeLimitMinutes;
-  numIncorrectPinAttemptsAllowedBeforeCardLockout: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
-  overallSessionTimeLimitHours: OverallSessionTimeLimitHours;
-  startingCardLockoutDurationSeconds: StartingCardLockoutDurationSeconds;
-}
