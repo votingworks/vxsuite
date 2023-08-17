@@ -1,10 +1,6 @@
 import { safeParseSystemSettings } from '@votingworks/utils';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import {
-  DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
-  TEST_JURISDICTION,
-} from '@votingworks/types';
+import { TEST_JURISDICTION } from '@votingworks/types';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -49,27 +45,6 @@ test('get/set/delete system settings', () => {
 
   store.deleteSystemSettings();
   expect(store.getSystemSettings()).toBeUndefined();
-});
-
-test('setSystemSettings can handle boolean values in input', () => {
-  const store = Store.memoryStore();
-  const systemSettingsWithTrue: SystemSettings = {
-    ...DEFAULT_SYSTEM_SETTINGS,
-    arePollWorkerCardPinsEnabled: true,
-  };
-
-  store.setSystemSettings(systemSettingsWithTrue);
-  let settings = store.getSystemSettings();
-  expect(settings?.arePollWorkerCardPinsEnabled).toEqual(true);
-
-  store.reset();
-  const systemSettingsWithFalse: SystemSettings = {
-    ...systemSettingsWithTrue,
-    arePollWorkerCardPinsEnabled: false,
-  };
-  store.setSystemSettings(systemSettingsWithFalse);
-  settings = store.getSystemSettings();
-  expect(settings?.arePollWorkerCardPinsEnabled).toEqual(false);
 });
 
 test('errors when election definition cannot be parsed', () => {

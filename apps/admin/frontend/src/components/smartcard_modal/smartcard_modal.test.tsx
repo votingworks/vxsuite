@@ -476,7 +476,10 @@ test('Resetting smartcard PINs', async () => {
   apiMock.apiClient.getSystemSettings.reset();
   apiMock.expectGetSystemSettings({
     ...DEFAULT_SYSTEM_SETTINGS,
-    arePollWorkerCardPinsEnabled: true,
+    auth: {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      arePollWorkerCardPinsEnabled: true,
+    },
   });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
