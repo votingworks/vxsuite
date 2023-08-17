@@ -29,7 +29,7 @@ import { Server } from 'http';
 import { AddressInfo } from 'net';
 import tmp from 'tmp';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
-import { buildMockCastVoteRecordExporter } from '@votingworks/backend';
+import { CastVoteRecordExporter } from '@votingworks/backend';
 import { Api, buildApp } from '../../src/app';
 import {
   PrecinctScannerInterpreter,
@@ -69,7 +69,7 @@ export async function withApp(
   const workspace =
     preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
   const mockScanner = mocks.fakeCustomScanner();
-  const mockCastVoteRecordExporter = buildMockCastVoteRecordExporter();
+  const mockUsbDrive = createMockUsbDrive();
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<
     Result<CustomScanner, ErrorCode>
@@ -82,12 +82,17 @@ export async function withApp(
     return ok(mockScanner);
   }
   const interpreter = createInterpreter();
+  const castVoteRecordExporter = new CastVoteRecordExporter({
+    artifactAuthenticator: mockArtifactAuthenticator,
+    scannerStore: workspace.store,
+    usbDrive: mockUsbDrive.usbDrive,
+  });
   const precinctScannerMachine = createPrecinctScannerStateMachine({
     createCustomClient,
     workspace,
     interpreter,
     logger,
-    castVoteRecordExporter: mockCastVoteRecordExporter,
+    castVoteRecordExporter,
     delays: {
       DELAY_RECONNECT: 100,
       DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
@@ -96,7 +101,6 @@ export async function withApp(
       ...delays,
     },
   });
-  const mockUsbDrive = createMockUsbDrive();
   const app = buildApp(
     mockAuth,
     mockArtifactAuthenticator,
