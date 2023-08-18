@@ -46,6 +46,47 @@ function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
   });
 }
 
+const getResultSheetsBaseQuery = `
+  select
+    sheets.id as id,
+    batches.id as batchId,
+    batches.label as batchLabel,
+    front_interpretation_json as frontInterpretationJson,
+    back_interpretation_json as backInterpretationJson,
+    front_image_path as frontImagePath,
+    back_image_path as backImagePath
+  from sheets left join batches on
+    sheets.batch_id = batches.id
+  where
+    (requires_adjudication = 0 or finished_adjudication_at is not null)
+    and sheets.deleted_at is null
+    and batches.deleted_at is null
+`;
+
+interface ResultSheetRow {
+  id: string;
+  batchId: string;
+  batchLabel: string | null;
+  frontInterpretationJson: string;
+  backInterpretationJson: string;
+  frontImagePath: string;
+  backImagePath: string;
+}
+
+function resultSheetRowToResultSheet(row: ResultSheetRow): ResultSheet {
+  return {
+    id: row.id,
+    batchId: row.batchId,
+    batchLabel: row.batchLabel ?? undefined,
+    interpretation: mapSheet(
+      [row.frontInterpretationJson, row.backInterpretationJson],
+      (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
+    ),
+    frontImagePath: row.frontImagePath,
+    backImagePath: row.backImagePath,
+  };
+}
+
 /**
  * Manages a data store for imported ballot image batches and cast vote records
  * interpreted by reading the sheets.
@@ -758,7 +799,7 @@ export class Store {
   /**
    * Gets all batches, including their sheet count.
    */
-  batchStatus(): BatchInfo[] {
+  getBatches(): BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
       batchNumber: number;
@@ -834,44 +875,20 @@ export class Store {
    * Yields all sheets in the database that would be included in a CVR export.
    */
   *forEachResultSheet(): Generator<ResultSheet> {
-    const sql = `
-      select
-        sheets.id as id,
-        batches.id as batchId,
-        batches.label as batchLabel,
-        front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson,
-        front_image_path as frontImagePath,
-        back_image_path as backImagePath
-      from sheets left join batches
-      on sheets.batch_id = batches.id
-      where
-        (requires_adjudication = 0 or finished_adjudication_at is not null)
-        and sheets.deleted_at is null
-        and batches.deleted_at is null
-      order by sheets.id
-    `;
-    for (const row of this.client.each(sql) as Iterable<{
-      id: string;
-      batchId: string;
-      batchLabel: string | null;
-      frontInterpretationJson: string;
-      backInterpretationJson: string;
-      frontImagePath: string;
-      backImagePath: string;
-    }>) {
-      yield {
-        id: row.id,
-        batchId: row.batchId,
-        batchLabel: row.batchLabel ?? undefined,
-        interpretation: mapSheet(
-          [row.frontInterpretationJson, row.backInterpretationJson],
-          (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
-        ),
-        frontImagePath: row.frontImagePath,
-        backImagePath: row.backImagePath,
-      };
+    const sql = `${getResultSheetsBaseQuery} order by sheets.id`;
+    for (const row of this.client.each(sql) as Iterable<ResultSheetRow>) {
+      yield resultSheetRowToResultSheet(row);
     }
+  }
+
+  /**
+   * Gets a single sheet given a sheet ID. Returns undefined if the sheet doesn't exist or wouldn't
+   * be included in a CVR export.
+   */
+  getResultSheet(sheetId: string): ResultSheet | undefined {
+    const sql = `${getResultSheetsBaseQuery} and sheets.id = ?`;
+    const row = this.client.one(sql, sheetId) as ResultSheetRow | undefined;
+    return row ? resultSheetRowToResultSheet(row) : undefined;
   }
 
   /**
@@ -898,4 +915,46 @@ export class Store {
     if (!result) return undefined;
     return safeParseSystemSettings(result.data).unsafeUnwrap();
   }
+
+  /**
+   * Gets the name of the directory that we're continuously exporting to, e.g.
+   * TEST__machine_SCAN-0001__2023-08-16_17-02-24. Returns undefined if not yet set.
+   */
+  getExportDirectoryName(): string | undefined {
+    const result = this.client.one(
+      'select export_directory_name as exportDirectoryName from export_directory_name'
+    ) as { exportDirectoryName: string } | undefined;
+    return result?.exportDirectoryName;
+  }
+
+  /**
+   * Stores the name of the directory that we'll be continuously exporting to
+   */
+  setExportDirectoryName(exportDirectoryName: string): void {
+    this.client.run('delete from export_directory_name');
+    this.client.run(
+      'insert into export_directory_name (export_directory_name) values (?)',
+      exportDirectoryName
+    );
+  }
+
+  //
+  // Stubs
+  //
+
+  /* c8 ignore start */
+
+  getCastVoteRecordRootHash(): string {
+    return '';
+  }
+
+  updateCastVoteRecordHashes(): void {
+    return undefined;
+  }
+
+  clearCastVoteRecordHashes(): void {
+    return undefined;
+  }
+
+  /* c8 ignore end */
 }

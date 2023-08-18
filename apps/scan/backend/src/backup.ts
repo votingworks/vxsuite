@@ -93,7 +93,7 @@ export class Backup {
         definiteMarkThreshold: this.store.getMarkThresholds()?.definite ?? 0.12,
         isTestMode: this.store.getTestMode(),
         resultSheetGenerator: this.store.forEachResultSheet(),
-        batchInfo: this.store.batchStatus(),
+        batchInfo: this.store.getBatches(),
         reportContext: 'backup',
       })
     );
