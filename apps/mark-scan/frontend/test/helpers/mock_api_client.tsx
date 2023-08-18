@@ -160,7 +160,7 @@ export function createApiMock() {
     expectGetPrecinctSelection(precinctSelection?: PrecinctSelection) {
       mockApiClient.getPrecinctSelection
         .expectCallWith()
-        .resolves(precinctSelection || null);
+        .resolves(precinctSelection);
     },
 
     expectSetPrecinctSelection(

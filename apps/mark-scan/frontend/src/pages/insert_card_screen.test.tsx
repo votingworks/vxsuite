@@ -41,7 +41,9 @@ test('InsertCardScreen renders nothing if getPrecinctSelectionQuery is not succe
 });
 
 test('InsertCardScreen renders correctly if getPrecinctSelectionQuery returns null', async () => {
-  apiMock.mockApiClient.getPrecinctSelection.expectCallWith().resolves(null);
+  apiMock.mockApiClient.getPrecinctSelection
+    .expectCallWith()
+    .resolves(undefined);
 
   render(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
