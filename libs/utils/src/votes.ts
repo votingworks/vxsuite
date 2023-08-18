@@ -520,7 +520,8 @@ export function filterTalliesByParams(
       getEmptyTally()
     );
   }
-  if (partyId && !scannerId && !precinctId && !votingMethod && !batchId) {
+  // HACK ignore precinct ID for purposes of test deck tallying
+  if (partyId && !scannerId && !votingMethod && !batchId) {
     return (
       resultsByCategory.get(TallyCategory.Party)?.[partyId] || getEmptyTally()
     );

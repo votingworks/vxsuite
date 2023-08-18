@@ -43,7 +43,7 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   const fullTestDeckTallyReport = (
     <TestDeckTallyReport
       election={election}
-      votes={[...votes, ...votes, ...votes, ...votes]}
+      testDeckBallots={[...ballots, ...ballots, ...ballots, ...ballots]}
     />
   );
 

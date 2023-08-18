@@ -82,12 +82,14 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
             const electionTitle = party
               ? `${party.fullName} ${election.title}`
               : election.title;
-
+            console.log("full tally", fullElectionTally);
+            console.log("params ",{ precinctId, scannerId, partyId, votingMethod, batchId } );
             const filteredTally = filterTalliesByParams(
               fullElectionTally,
               election,
               { precinctId, scannerId, partyId, votingMethod, batchId }
             );
+            console.log("filtered", filteredTally);
             const tallyForReport = officialCandidateWriteIns
               ? modifyTallyWithWriteInInfo(
                   filteredTally,
