@@ -8,8 +8,8 @@ import {
   gridPosition,
   layOutAllBallots,
   measurements,
-  TextBox,
   Document,
+  Rectangle,
 } from '@votingworks/hmpb-layout';
 import {
   BallotPaperSize,
@@ -55,7 +55,7 @@ export function markBallot(
         (position) => position.contestId === contestId
       );
       if (contestPositions.length === 0) return []; // Contest not on this page
-      return votes?.map((vote): TextBox => {
+      return votes?.map((vote): Rectangle => {
         const optionPosition = find(
           contestPositions,
           (position) =>
@@ -72,16 +72,13 @@ export function markBallot(
           m
         );
         return {
-          type: 'TextBox',
-          // Offset by half bubble width/height
-          x: position.x - 3,
-          y: position.y - 5,
+          type: 'Rectangle',
+          // Offset by half mark width/height
+          x: position.x - 5,
+          y: position.y - 4,
           width: 10,
-          height: 10,
-          textLines: ['X'],
-          lineHeight: 10,
-          fontSize: 10,
-          fontWeight: 700,
+          height: 8,
+          fill: 'black',
         };
       });
     });
@@ -146,9 +143,6 @@ export const sampleElectionFixtures = (() => {
             targetMarkPosition,
             paperSize,
           },
-          // Fill in missing mark thresholds
-          markThresholds:
-            electionFamousNames2021Fixtures.election.markThresholds,
         };
 
         const { ballots, electionDefinition } = layOutAllBallots({

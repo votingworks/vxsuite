@@ -2690,10 +2690,6 @@
       "name": "District 7"
     }
   ],
-  "markThresholds": {
-    "marginal": 0.12,
-    "definite": 0.12
-  },
   "parties": [
     {
       "id": "0",

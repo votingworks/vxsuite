@@ -112,10 +112,6 @@ function createElection(): Election {
       },
     ],
     gridLayouts,
-    markThresholds: {
-      marginal: 0.05,
-      definite: 0.07,
-    },
     parties: [],
     precincts: [
       {
