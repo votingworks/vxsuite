@@ -7,7 +7,7 @@ import {
   MockFileCard,
 } from '@votingworks/auth';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -24,6 +24,7 @@ export interface StartOptions {
   logger?: Logger;
   port?: number | string;
   precinctScannerStateMachine: PrecinctScannerStateMachine;
+  usbDrive?: UsbDrive;
   workspace: Workspace;
 }
 
@@ -35,6 +36,7 @@ export function start({
   artifactAuthenticator,
   logger = new Logger(LogSource.VxScanBackend),
   precinctScannerStateMachine,
+  usbDrive,
   workspace,
 }: StartOptions): void {
   /* c8 ignore start */
@@ -53,7 +55,7 @@ export function start({
   const resolvedArtifactAuthenticator =
     artifactAuthenticator ?? new ArtifactAuthenticator();
 
-  const usbDrive = detectUsbDrive();
+  const resolvedUsbDrive = usbDrive ?? detectUsbDrive();
 
   // Clear any cached data
   workspace.clearUploads();
@@ -63,7 +65,7 @@ export function start({
     resolvedArtifactAuthenticator,
     precinctScannerStateMachine,
     workspace,
-    usbDrive,
+    resolvedUsbDrive,
     logger
   );
 

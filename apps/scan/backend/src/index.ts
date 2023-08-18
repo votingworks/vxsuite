@@ -3,6 +3,7 @@ import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import fs from 'fs';
+import { detectUsbDrive } from '@votingworks/usb-drive';
 import { NODE_ENV, SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
@@ -55,16 +56,20 @@ async function resolveWorkspace(): Promise<Workspace> {
 
 async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
+  const usbDrive = detectUsbDrive();
+
   const precinctScannerStateMachine =
     customStateMachine.createPrecinctScannerStateMachine({
       createCustomClient: customScanner.openScanner,
       workspace,
       logger,
+      usbDrive,
     });
 
   server.start({
     precinctScannerStateMachine,
     workspace,
+    usbDrive,
   });
 
   return 0;

@@ -38,6 +38,12 @@ import {
   TransitionConfig,
 } from 'xstate';
 import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
+import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import { Store } from '../../store';
 import {
@@ -420,7 +426,11 @@ function storeInterpretedSheet(
   return addedSheetId;
 }
 
-function recordAcceptedSheet(store: Store, { interpretation }: Context) {
+async function recordAcceptedSheet(
+  store: Store,
+  usbDrive: UsbDrive,
+  { interpretation }: Context
+) {
   assert(store);
   assert(interpretation);
   const { sheetId } = interpretation;
@@ -429,6 +439,17 @@ function recordAcceptedSheet(store: Store, { interpretation }: Context) {
   // "adjudicated" (i.e. the voter said to count it without changing anything)
   if (interpretation.type === 'NeedsReviewSheet') {
     store.adjudicateSheet(sheetId);
+  }
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+    )
+  ) {
+    (
+      await exportCastVoteRecordsToUsbDrive(store, usbDrive, [
+        assertDefined(store.getResultSheet(sheetId)),
+      ])
+    ).unsafeUnwrap();
   }
   debug('Stored accepted sheet: %s', sheetId);
 }
@@ -461,11 +482,13 @@ function buildMachine({
   createCustomClient = defaultCreateCustomClient,
   workspace,
   interpret,
+  usbDrive,
   delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
   interpret: InterpretFn;
+  usbDrive: UsbDrive;
   delayOverrides: Partial<Delays>;
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
@@ -927,7 +950,8 @@ function buildMachine({
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) => recordAcceptedSheet(workspace.store, context),
+          entry: (context) =>
+            recordAcceptedSheet(workspace.store, usbDrive, context),
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
@@ -1222,18 +1246,21 @@ export function createPrecinctScannerStateMachine({
   workspace,
   interpret = defaultInterpret,
   logger,
+  usbDrive,
   delays = {},
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
   interpret?: InterpretFn;
   logger: Logger;
+  usbDrive: UsbDrive;
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
     workspace,
     interpret,
+    usbDrive,
     delayOverrides: delays,
   });
   const machineService = interpretStateMachine(machine).start();
