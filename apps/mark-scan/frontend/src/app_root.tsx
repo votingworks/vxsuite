@@ -279,7 +279,6 @@ export function AppRoot({
     ? getStateMachineStateQuery.data
     : 'no_hardware';
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
-  const precinctSelection = getPrecinctSelectionQuery.data?.ok();
 
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
@@ -572,11 +571,13 @@ export function AppRoot({
   if (
     !machineConfigQuery.isSuccess ||
     !authStatusQuery.isSuccess ||
-    !getStateMachineStateQuery.isSuccess
+    !getStateMachineStateQuery.isSuccess ||
+    !getPrecinctSelectionQuery.isSuccess
   ) {
     return null;
   }
   const machineConfig = machineConfigQuery.data;
+  const precinctSelection = getPrecinctSelectionQuery.data;
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
@@ -696,6 +697,7 @@ export function AppRoot({
           updatePollsState={updatePollsState}
           hasVotes={!!votes}
           reload={reload}
+          precinctSelection={precinctSelection}
         />
       );
     }

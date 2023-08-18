@@ -70,7 +70,7 @@ export function InsertCardScreen({
   if (!getPrecinctSelectionQuery.isSuccess) {
     return null;
   }
-  const precinctSelection = getPrecinctSelectionQuery.data.ok();
+  const precinctSelection = getPrecinctSelectionQuery.data;
 
   return (
     <Screen white>

@@ -4,7 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
-import { MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   fakePollWorkerUser,
   fakeSessionExpiresAt,
@@ -32,7 +32,6 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
-  apiMock.expectGetPrecinctSelection();
 });
 
 afterEach(() => {
@@ -75,6 +74,9 @@ function renderScreen(
           screenReader={new AriaScreenReader(fakeTts())}
           updatePollsState={jest.fn()}
           reload={jest.fn()}
+          precinctSelection={singlePrecinctSelectionFor(
+            electionDefinition.election.precincts[0].id
+          )}
           {...props}
         />
       </QueryClientProvider>

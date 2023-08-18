@@ -11,7 +11,6 @@ import { fakeLogger } from '@votingworks/logging';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { mockUsbDrive } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
-import { ok } from '@votingworks/basics';
 import {
   act,
   fireEvent,
@@ -113,7 +112,7 @@ test('can switch the precinct', async () => {
   );
   apiMock.mockApiClient.getPrecinctSelection
     .expectRepeatedCallsWith()
-    .resolves(ok(precinctSelection));
+    .resolves(precinctSelection);
 
   apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
   renderScreen();

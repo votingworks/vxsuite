@@ -114,8 +114,8 @@ function buildApi(
       workspace.store.setPrecinctSelection(input.precinctSelection);
     },
 
-    getPrecinctSelection(): Result<Optional<PrecinctSelection>, Error> {
-      return ok(workspace.store.getPrecinctSelection());
+    getPrecinctSelection(): Optional<PrecinctSelection> {
+      return workspace.store.getPrecinctSelection();
     },
 
     unconfigureMachine() {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import {
   P,
@@ -60,14 +60,11 @@ export function AdminScreen({
   const logOutMutation = logOut.useMutation();
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
-  const updatePrecinctSelection = useCallback(
-    (newPrecinctSelection: PrecinctSelection) => {
-      setPrecinctSelectionMutation.mutate({
-        precinctSelection: newPrecinctSelection,
-      });
-    },
-    [setPrecinctSelectionMutation]
-  );
+  function updatePrecinctSelection(newPrecinctSelection: PrecinctSelection) {
+    setPrecinctSelectionMutation.mutate({
+      precinctSelection: newPrecinctSelection,
+    });
+  }
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -79,7 +76,8 @@ export function AdminScreen({
   if (!getPrecinctSelectionQuery.isSuccess) {
     return null;
   }
-  const precinctSelection = getPrecinctSelectionQuery.data.ok();
+
+  const precinctSelection = getPrecinctSelectionQuery.data;
 
   return (
     <Screen>

@@ -62,7 +62,13 @@ export const getPrecinctSelection = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPrecinctSelection());
+    return useQuery(
+      this.queryKey(),
+      // Since query functions are not allowed to return undefined, coalesce undefined to null
+      async () => (await apiClient.getPrecinctSelection()) ?? null,
+      // Convert back to undefined when reading the query results
+      { select: (precinctSelection) => precinctSelection ?? undefined }
+    );
   },
 } as const;
 

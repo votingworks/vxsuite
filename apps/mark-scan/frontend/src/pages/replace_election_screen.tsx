@@ -1,4 +1,4 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
   ElectionInfoBar,
   H2,
@@ -15,6 +15,7 @@ import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import { useEffect } from 'react';
+import { Optional } from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
 import { getPrecinctSelection } from '../api';
 
@@ -74,7 +75,8 @@ export function ReplaceElectionScreen({
   if (!getPrecinctSelectionQuery.isSuccess) {
     return null;
   }
-  const precinctSelection = getPrecinctSelectionQuery.data.ok();
+  const precinctSelection: Optional<PrecinctSelection> =
+    getPrecinctSelectionQuery.data || undefined;
 
   return (
     <Screen>

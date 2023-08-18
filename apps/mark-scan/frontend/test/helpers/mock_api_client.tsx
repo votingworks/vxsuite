@@ -154,13 +154,13 @@ export function createApiMock() {
       );
       mockApiClient.getPrecinctSelection
         .expectCallWith()
-        .resolves(ok(singlePrecinctSelectionFor(election.precincts[0].id)));
+        .resolves(singlePrecinctSelectionFor(election.precincts[0].id));
     },
 
     expectGetPrecinctSelection(precinctSelection?: PrecinctSelection) {
       mockApiClient.getPrecinctSelection
         .expectCallWith()
-        .resolves(ok(precinctSelection));
+        .resolves(precinctSelection);
     },
 
     expectSetPrecinctSelection(
