@@ -66,6 +66,7 @@ export async function withApp(
   const workspace =
     preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
   const mockScanner = mocks.fakeCustomScanner();
+  const mockUsbDrive = createMockUsbDrive();
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<
     Result<CustomScanner, ErrorCode>
@@ -82,6 +83,7 @@ export async function withApp(
     workspace,
     interpret,
     logger,
+    usbDrive: mockUsbDrive.usbDrive,
     delays: {
       DELAY_RECONNECT: 100,
       DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
@@ -90,7 +92,6 @@ export async function withApp(
       ...delays,
     },
   });
-  const mockUsbDrive = createMockUsbDrive();
   const app = buildApp(
     mockAuth,
     mockArtifactAuthenticator,
