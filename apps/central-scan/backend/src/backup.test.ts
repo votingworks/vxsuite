@@ -7,6 +7,7 @@ import {
   BallotIdSchema,
   BallotType,
   CVR,
+  DEFAULT_SYSTEM_SETTINGS,
   safeParseJson,
   TEST_JURISDICTION,
   unsafeParse,
@@ -69,6 +70,7 @@ test('configured', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
   });
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   const result = new WritableStream();
   const onError = jest.fn();
 
@@ -102,6 +104,7 @@ test('has election.json', async () => {
     electionData: asElectionDefinition(election).electionData,
     jurisdiction,
   });
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -120,6 +123,7 @@ test('has ballots.db', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
   });
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   const output = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -145,6 +149,7 @@ test('has all files referenced in the database', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
   });
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   const batchId = store.addBatch();
 
   const frontImagePath = fileSync();
@@ -220,6 +225,7 @@ test('has cast vote record report', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
   });
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   const result = new WritableStream();
 
   const batchId = store.addBatch();
@@ -281,6 +287,7 @@ test('does not have vx-logs.log if file does not exist', async () => {
     electionData: asElectionDefinition(election).electionData,
     jurisdiction,
   });
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -300,6 +307,7 @@ test('has vx-logs.log if file exists', async () => {
     electionData: asElectionDefinition(election).electionData,
     jurisdiction,
   });
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {

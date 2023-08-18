@@ -10,7 +10,12 @@ import {
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { CVR, TEST_JURISDICTION, unsafeParse } from '@votingworks/types';
+import {
+  CVR,
+  DEFAULT_SYSTEM_SETTINGS,
+  TEST_JURISDICTION,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
@@ -122,6 +127,7 @@ test('going through the whole process works', async () => {
     electionFamousNames2021Fixtures.electionDefinition,
     jurisdiction
   );
+  workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
 
   await apiClient.setTestMode({ testMode: true });
 

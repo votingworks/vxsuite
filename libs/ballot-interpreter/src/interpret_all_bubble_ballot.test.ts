@@ -1,6 +1,10 @@
 import { assert, iter, Optional } from '@votingworks/basics';
 import { allBubbleBallotFixtures } from '@votingworks/hmpb-render-backend';
-import { Candidate, CandidateVote } from '@votingworks/types';
+import {
+  Candidate,
+  CandidateVote,
+  DEFAULT_MARK_THRESHOLDS,
+} from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   ballotPdfToPageImages,
@@ -30,6 +34,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       ballotImagePaths as [string, string]
     );
@@ -49,6 +54,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       ballotImagePaths as [string, string]
     );
@@ -78,6 +84,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
           electionDefinition,
           precinctSelection: singlePrecinctSelectionFor(precinctId),
           testMode: true,
+          markThresholds: DEFAULT_MARK_THRESHOLDS,
         },
         sheetImagePaths as [string, string]
       );

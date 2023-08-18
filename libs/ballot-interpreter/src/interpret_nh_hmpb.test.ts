@@ -5,6 +5,7 @@ import {
   mapSheet,
   AdjudicationReason,
   safeParseElectionDefinition,
+  DEFAULT_MARK_THRESHOLDS,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -43,6 +44,7 @@ describe('NH HMPB interpretation', () => {
         electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       validHmpbSheet
     );
@@ -58,21 +60,13 @@ describe('NH HMPB interpretation', () => {
   test('interprets an unmarked write-in with enough of its write-in area filled as a vote', async () => {
     const interpretationResult = await interpretSheet(
       {
-        electionDefinition: {
-          ...electionDefinition,
-          election: {
-            ...electionDefinition.election,
-            markThresholds: {
-              ...(electionDefinition.election.markThresholds ?? {
-                marginal: 1,
-                definite: 1,
-              }),
-              writeInTextArea: 0.05,
-            },
-          },
-        },
+        electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
+        markThresholds: {
+          ...DEFAULT_MARK_THRESHOLDS,
+          writeInTextArea: 0.05,
+        },
       },
       validHmpbUnmarkedWriteInsSheet
     );
@@ -123,22 +117,14 @@ describe('NH HMPB interpretation', () => {
   test('considers an unmarked write-in combined with a marked option as an overvote', async () => {
     const interpretationResult = await interpretSheet(
       {
-        electionDefinition: {
-          ...electionDefinition,
-          election: {
-            ...electionDefinition.election,
-            markThresholds: {
-              ...(electionDefinition.election.markThresholds ?? {
-                marginal: 1,
-                definite: 1,
-              }),
-              writeInTextArea: 0.05,
-            },
-          },
-        },
+        electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
         adjudicationReasons: [AdjudicationReason.Overvote],
+        markThresholds: {
+          ...DEFAULT_MARK_THRESHOLDS,
+          writeInTextArea: 0.05,
+        },
       },
       validHmpbUnmarkedWriteInsOvervoteSheet
     );
@@ -191,6 +177,7 @@ describe('NH HMPB interpretation', () => {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor('20'),
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       validHmpbSheet
     );
@@ -227,6 +214,11 @@ describe('HMPB - m17 backup', () => {
           electionDefinition,
           precinctSelection: ALL_PRECINCTS_SELECTION,
           testMode: false,
+          markThresholds: {
+            marginal: 0.05,
+            definite: 0.07,
+            writeInTextArea: 0.05,
+          },
         },
         sheet
       );

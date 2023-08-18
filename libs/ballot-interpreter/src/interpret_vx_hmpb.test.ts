@@ -4,6 +4,7 @@ import {
   famousNamesFixtures,
   sampleElectionFixtures,
 } from '@votingworks/hmpb-render-backend';
+import { DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
 import {
   sortVotesDict,
   ballotPdfToPageImages,
@@ -31,6 +32,7 @@ describe('HMPB - Famous Names', () => {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       ballotImagePaths as [string, string]
     );
@@ -51,6 +53,7 @@ describe('HMPB - Famous Names', () => {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       ballotImagePaths as [string, string]
     );
@@ -78,6 +81,7 @@ describe('HMPB - Famous Names', () => {
         },
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       ballotImagePaths as [string, string]
     );
@@ -99,6 +103,7 @@ describe('HMPB - Famous Names', () => {
           election.precincts[1]!.id
         ),
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       ballotImagePaths as [string, string]
     );
@@ -117,6 +122,7 @@ describe('HMPB - Famous Names', () => {
         electionDefinition,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: false,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       ballotImagePaths as [string, string]
     );
@@ -148,6 +154,7 @@ for (const {
             electionDefinition,
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
+            markThresholds: DEFAULT_MARK_THRESHOLDS,
           },
           sheetImagePaths
         );
@@ -172,6 +179,7 @@ for (const {
             electionDefinition,
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
+            markThresholds: DEFAULT_MARK_THRESHOLDS,
           },
           sheetImagePaths
         );

@@ -1,6 +1,7 @@
 import { famousNamesFixtures } from '@votingworks/hmpb-render-backend';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
+import { DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
 import { interpretSheet } from '../src';
 import { ballotPdfToPageImages } from '../test/helpers/interpretation';
 import { benchmarkRegressionTest } from './benchmarking';
@@ -24,6 +25,7 @@ describe('Interpretation benchmark', () => {
             electionDefinition,
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
+            markThresholds: DEFAULT_MARK_THRESHOLDS,
           },
           ballotImagePaths as [string, string]
         );
@@ -44,6 +46,7 @@ describe('Interpretation benchmark', () => {
             electionDefinition,
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
+            markThresholds: DEFAULT_MARK_THRESHOLDS,
           },
           ballotImagePaths as [string, string]
         );

@@ -8,6 +8,7 @@ import {
   AdjudicationReason,
   BallotMetadata,
   BallotType,
+  DEFAULT_SYSTEM_SETTINGS,
   InterpretedHmpbPage,
   PageInterpretationWithFiles,
   SheetOf,
@@ -63,6 +64,7 @@ beforeEach(() => {
     jurisdiction,
   });
   workspace.store.setTestMode(false);
+  workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   app = buildCentralScannerApp({
     auth,
     artifactAuthenticator,
