@@ -30,7 +30,7 @@ import {
   getCastVoteRecordReportStream,
   InvalidSheetFoundError,
   ResultSheet,
-} from './export';
+} from './legacy_export';
 
 const electionDefinition: ElectionDefinition = {
   ...electionMinimalExhaustiveSampleDefinition,
