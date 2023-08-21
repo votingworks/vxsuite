@@ -1,6 +1,5 @@
 import {
   ElectionDefinition,
-  MarkThresholds,
   PageInterpretation,
   PollsState,
   PrecinctSelection,
@@ -49,7 +48,6 @@ export interface PrecinctScannerConfig {
   electionDefinition?: ElectionDefinition;
   systemSettings: SystemSettings;
   precinctSelection?: PrecinctSelection;
-  markThresholdOverrides?: MarkThresholds;
   isSoundMuted: boolean;
   isUltrasonicDisabled: boolean;
   // "Config" that is specific to each election session

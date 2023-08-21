@@ -205,32 +205,6 @@ test('cannot toggle to Test Ballot Mode when the machine cannot be unconfigured'
   userEvent.click(screen.getByText('Cancel'));
 });
 
-test('allows overriding mark thresholds', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
-  apiMock.expectGetConfig();
-  renderScreen();
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
-
-  userEvent.click(screen.getByText('Override Mark Thresholds'));
-  userEvent.click(screen.getByText('Proceed to Override Thresholds'));
-  userEvent.clear(screen.getByTestId('definite-text-input'));
-  userEvent.type(screen.getByTestId('definite-text-input'), '.5');
-  userEvent.clear(screen.getByTestId('marginal-text-input'));
-  userEvent.type(screen.getByTestId('marginal-text-input'), '.25');
-
-  apiMock.expectSetMarkThresholdOverrides({
-    definite: 0.5,
-    marginal: 0.25,
-  });
-  apiMock.expectGetConfig({
-    markThresholdOverrides: { definite: 0.5, marginal: 0.25 },
-  });
-  userEvent.click(screen.getByText('Override Thresholds'));
-  await screen.findByText('Reset Mark Thresholds');
-});
-
 test('when sounds are not muted, shows a button to mute sounds', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({ isSoundMuted: false });

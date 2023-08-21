@@ -3,7 +3,6 @@ import {
   AdjudicationReasonInfo,
   ElectionDefinition,
   Id,
-  MarkThresholds,
   PageInterpretationWithFiles,
   PrecinctSelection,
   SheetInterpretation,
@@ -21,7 +20,6 @@ export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;
   readonly precinctSelection: PrecinctSelection;
   readonly ballotImagesPath: string;
-  readonly markThresholdOverrides?: MarkThresholds;
   readonly testMode: boolean;
 }
 
@@ -183,7 +181,7 @@ export function createInterpreter(): PrecinctScannerInterpreter {
           testMode,
           adjudicationReasons:
             electionDefinition.election.precinctScanAdjudicationReasons,
-          markThresholds: config.markThresholdOverrides,
+          markThresholds: electionDefinition.election.markThresholds,
         },
         sheet,
         sheetId,
