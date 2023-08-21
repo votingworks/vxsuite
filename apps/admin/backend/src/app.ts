@@ -681,9 +681,13 @@ function buildApi({
     ): ManualResultsRecord | null {
       const [manualResultsRecord] = store.getManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
-        precinctIds: input.precinctId ? [input.precinctId] : undefined,
-        ballotStyleIds: input.ballotStyleId ? [input.ballotStyleId] : undefined,
-        votingMethods: input.votingMethod ? [input.votingMethod] : undefined,
+        filter: {
+          precinctIds: input.precinctId ? [input.precinctId] : undefined,
+          ballotStyleIds: input.ballotStyleId
+            ? [input.ballotStyleId]
+            : undefined,
+          votingMethods: input.votingMethod ? [input.votingMethod] : undefined,
+        },
       });
 
       return manualResultsRecord ?? null;

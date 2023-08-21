@@ -419,19 +419,11 @@ export interface ManualResultsMetadataRecord extends ManualResultsIdentifier {
 }
 
 /**
- * Subset of cast vote records filters that we support with manual results.
+ * Subset of cast vote record filters that we can filter on for manual results.
  */
-export type ManualResultsFilter = Pick<
+export type ManualResultsFilter = Omit<
   Tabulation.Filter,
-  'ballotStyleIds' | 'partyIds' | 'precinctIds' | 'votingMethods'
->;
-
-/**
- * Subset of manual results filter that the store itself can filter on.
- */
-export type ManualResultsStoreFilter = Pick<
-  ManualResultsFilter,
-  'ballotStyleIds' | 'precinctIds' | 'votingMethods'
+  'scannerIds' | 'batchIds'
 >;
 
 /**

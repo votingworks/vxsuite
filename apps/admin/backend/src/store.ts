@@ -62,7 +62,7 @@ import {
   WriteInAdjudicatedOfficialCandidateTally,
   WriteInAdjudicatedWriteInCandidateTally,
   WriteInPendingTally,
-  ManualResultsStoreFilter,
+  ManualResultsFilter,
   CardTally,
   WriteInAdjudicationQueueMetadata,
 } from './types';
@@ -1794,29 +1794,42 @@ export class Store {
 
   getManualResults({
     electionId,
-    precinctIds,
-    ballotStyleIds,
-    votingMethods,
+    filter = {},
   }: {
     electionId: Id;
-  } & ManualResultsStoreFilter): ManualResultsRecord[] {
-    const whereParts = ['election_id = ?'];
+    filter?: ManualResultsFilter;
+  }): ManualResultsRecord[] {
+    const whereParts = ['manual_results.election_id = ?'];
     const params: Bindable[] = [electionId];
+    const { precinctIds, partyIds, ballotStyleIds, votingMethods } = filter;
 
     if (precinctIds) {
-      whereParts.push(`precinct_id in ${asQueryPlaceholders(precinctIds)}`);
+      whereParts.push(
+        `manual_results.precinct_id in ${asQueryPlaceholders(precinctIds)}`
+      );
       params.push(...precinctIds);
+    }
+
+    if (partyIds) {
+      whereParts.push(
+        `ballot_styles.party_id in ${asQueryPlaceholders(partyIds)}`
+      );
+      params.push(...partyIds);
     }
 
     if (ballotStyleIds) {
       whereParts.push(
-        `ballot_style_id in ${asQueryPlaceholders(ballotStyleIds)}`
+        `manual_results.ballot_style_id in ${asQueryPlaceholders(
+          ballotStyleIds
+        )}`
       );
       params.push(...ballotStyleIds);
     }
 
     if (votingMethods) {
-      whereParts.push(`voting_method in ${asQueryPlaceholders(votingMethods)}`);
+      whereParts.push(
+        `manual_results.voting_method in ${asQueryPlaceholders(votingMethods)}`
+      );
       params.push(...votingMethods);
     }
 
@@ -1824,13 +1837,16 @@ export class Store {
       this.client.all(
         `
           select 
-            precinct_id as precinctId,
-            ballot_style_id as ballotStyleId,
-            voting_method as votingMethod,
-            ballot_count as ballotCount,
-            contest_results as contestResultsData,
-            datetime(created_at, 'localtime') as createdAt
+            manual_results.precinct_id as precinctId,
+            manual_results.ballot_style_id as ballotStyleId,
+            manual_results.voting_method as votingMethod,
+            manual_results.ballot_count as ballotCount,
+            manual_results.contest_results as contestResultsData,
+            datetime(manual_results.created_at, 'localtime') as createdAt
           from manual_results
+          inner join ballot_styles on
+            manual_results.election_id = ballot_styles.election_id and 
+            manual_results.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
         `,
         ...params
