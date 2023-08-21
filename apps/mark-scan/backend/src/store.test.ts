@@ -1,6 +1,5 @@
-import { safeParseSystemSettings } from '@votingworks/utils';
+import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { TEST_JURISDICTION } from '@votingworks/types';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout

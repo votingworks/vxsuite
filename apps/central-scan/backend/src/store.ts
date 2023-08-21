@@ -24,6 +24,7 @@ import {
   SheetOf,
   Side,
   SystemSettings,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import { assertDefined, Optional } from '@votingworks/basics';
 import makeDebug from 'debug';
@@ -33,7 +34,6 @@ import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { ResultSheet } from '@votingworks/backend';
-import { safeParseSystemSettings } from '@votingworks/utils';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { normalizeAndJoin } from './util/path';
 

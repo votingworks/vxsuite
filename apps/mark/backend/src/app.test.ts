@@ -11,17 +11,17 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { safeParseSystemSettings } from '@votingworks/utils';
+import {
+  safeParseSystemSettings,
+  DEFAULT_SYSTEM_SETTINGS,
+  safeParseJson,
+  SystemSettingsSchema,
+} from '@votingworks/types';
 
 import { Buffer } from 'buffer';
 import { createBallotPackageZipArchive, MockUsb } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
-import {
-  DEFAULT_SYSTEM_SETTINGS,
-  safeParseJson,
-  SystemSettingsSchema,
-} from '@votingworks/types';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 

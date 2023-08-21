@@ -32,6 +32,7 @@ import {
   safeParseJson,
   Side,
   SystemSettings,
+  safeParseSystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { join } from 'path';
@@ -40,7 +41,6 @@ import { v4 as uuid } from 'uuid';
 import {
   OfficialCandidateNameLookup,
   getOfficialCandidateNameLookup,
-  safeParseSystemSettings,
 } from '@votingworks/utils';
 import {
   CastVoteRecordFileRecord,

@@ -19,8 +19,9 @@ import {
   safeParseJson,
   SheetOf,
   SystemSettings,
+  safeParseSystemSettings,
 } from '@votingworks/types';
-import { jsonStream, safeParseSystemSettings } from '@votingworks/utils';
+import { jsonStream } from '@votingworks/utils';
 import Sqlite3 from 'better-sqlite3';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';

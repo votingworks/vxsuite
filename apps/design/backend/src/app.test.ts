@@ -2,9 +2,9 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   safeParseElectionDefinition,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import JsZip from 'jszip';
-import { safeParseSystemSettings } from '@votingworks/utils';
 import { testSetupHelpers } from '../test/helpers';
 
 const { setupApp, cleanup } = testSetupHelpers();

@@ -1,3 +1,4 @@
+import { Result } from '@votingworks/basics';
 import { z } from 'zod';
 
 import {
@@ -14,6 +15,7 @@ import {
   StartingCardLockoutDurationSeconds,
   StartingCardLockoutDurationSecondsSchema,
 } from './auth';
+import { safeParseJson } from './generic';
 
 interface AuthSettings {
   readonly arePollWorkerCardPinsEnabled: boolean;
@@ -63,6 +65,15 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   auth: AuthSettingsSchema,
   markThresholds: MarkThresholdsSchema,
 });
+
+/**
+ * Parses `value` as JSON `SystemSettings` or returns an error if input is malformed
+ */
+export function safeParseSystemSettings(
+  value: string
+): Result<SystemSettings, z.ZodError | SyntaxError> {
+  return safeParseJson(value, SystemSettingsSchema);
+}
 
 export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
   marginal: 0.17,

@@ -2,12 +2,15 @@ import {
   electionComplexGeoSample,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
-import { safeParseSystemSettings } from '@votingworks/utils';
+import {
+  safeParseSystemSettings,
+  CandidateContest,
+  Tabulation,
+} from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
-import { CandidateContest, Tabulation } from '@votingworks/types';
 import { Store } from './store';
 import {
   ElectionRecord,
