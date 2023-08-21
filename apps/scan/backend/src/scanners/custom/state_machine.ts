@@ -25,7 +25,7 @@ import {
   Assigner,
   BaseActionObject,
   createMachine,
-  interpret,
+  interpret as interpretStateMachine,
   Interpreter,
   InvokeConfig,
   PropertyAssigner,
@@ -33,7 +33,7 @@ import {
   TransitionConfig,
 } from 'xstate';
 import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
-import { PrecinctScannerInterpreter } from '../../interpret';
+import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import { Store } from '../../store';
 import {
   PrecinctScannerErrorType,
@@ -354,13 +354,23 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
 }
 
 async function interpretSheet(
-  interpreter: PrecinctScannerInterpreter,
-  { scannedSheet }: Context
+  interpret: InterpretFn,
+  { scannedSheet, workspace }: Context
 ): Promise<InterpretationResult> {
   assert(scannedSheet);
   const sheetId = uuid();
+  const { store } = workspace;
+  const electionDefinition = store.getElectionDefinition();
+  const precinctSelection = store.getPrecinctSelection();
+  assert(electionDefinition);
+  assert(precinctSelection);
   const interpretation = (
-    await interpreter.interpret(sheetId, scannedSheet)
+    await interpret(sheetId, scannedSheet, {
+      electionDefinition,
+      precinctSelection,
+      testMode: store.getTestMode(),
+      ballotImagesPath: workspace.ballotImagesPath,
+    })
   ).unsafeUnwrap();
   return {
     ...interpretation,
@@ -447,12 +457,12 @@ const doNothing: TransitionConfig<Context, Event> = { target: undefined };
 function buildMachine({
   createCustomClient = defaultCreateCustomClient,
   workspace,
-  interpreter,
+  interpret,
   delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
-  interpreter: PrecinctScannerInterpreter;
+  interpret: InterpretFn;
   delayOverrides: Partial<Delays>;
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
@@ -837,7 +847,7 @@ function buildMachine({
           states: {
             starting: {
               invoke: {
-                src: (context) => interpretSheet(interpreter, context),
+                src: (context) => interpretSheet(interpret, context),
                 onDone: {
                   target: 'routing_result',
                   actions: assign({
@@ -1199,23 +1209,23 @@ function errorToString(error: NonNullable<Context['error']>) {
 export function createPrecinctScannerStateMachine({
   createCustomClient,
   workspace,
-  interpreter,
+  interpret = defaultInterpret,
   logger,
   delays = {},
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
-  interpreter: PrecinctScannerInterpreter;
+  interpret?: InterpretFn;
   logger: Logger;
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
     workspace,
-    interpreter,
+    interpret,
     delayOverrides: delays,
   });
-  const machineService = interpret(machine).start();
+  const machineService = interpretStateMachine(machine).start();
   setupLogging(machineService, logger);
 
   return {

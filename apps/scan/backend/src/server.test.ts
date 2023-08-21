@@ -7,7 +7,6 @@ import {
 } from '@votingworks/auth';
 import { buildApp } from './app';
 import { PORT } from './globals';
-import { createInterpreter } from './interpret';
 import { start } from './server';
 import { PrecinctScannerStateMachine } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -40,7 +39,6 @@ function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerSta
 
 test('start passes the state machine and workspace to `buildApp`', async () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
-  const precinctScannerInterpreter = createInterpreter();
   const listen = jest.fn();
   const logger = new LoggerMock(LogSource.VxScanBackend);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
@@ -49,7 +47,6 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
     auth: buildMockInsertedSmartCardAuth(),
     artifactAuthenticator: buildMockArtifactAuthenticator(),
     logger,
-    precinctScannerInterpreter,
     precinctScannerStateMachine,
     workspace,
   });
@@ -58,7 +55,6 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
     expect.anything(), // auth
     expect.anything(), // artifactAuthenticator
     precinctScannerStateMachine,
-    expect.anything(), // precinctScannerInterpreter
     workspace,
     expect.anything(), // usb
     logger
@@ -84,7 +80,6 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
 
 test('start uses its own logger if none is provided', async () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
-  const precinctScannerInterpreter = createInterpreter();
   const listen = jest.fn();
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
@@ -92,7 +87,6 @@ test('start uses its own logger if none is provided', async () => {
     auth: buildMockInsertedSmartCardAuth(),
     artifactAuthenticator: buildMockArtifactAuthenticator(),
     precinctScannerStateMachine,
-    precinctScannerInterpreter,
     workspace,
   });
 
@@ -100,7 +94,6 @@ test('start uses its own logger if none is provided', async () => {
     expect.anything(), // auth
     expect.anything(), // artifactAuthenticator
     precinctScannerStateMachine,
-    expect.anything(), // precinctScannerInterpreter
     workspace,
     expect.anything(), // usb
     expect.any(Logger)

@@ -31,7 +31,6 @@ import {
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { backupToUsbDrive } from './backup';
-import { PrecinctScannerInterpreter } from './interpret';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -59,7 +58,6 @@ function buildApi(
   auth: InsertedSmartCardAuthApi,
   artifactAuthenticator: ArtifactAuthenticatorApi,
   machine: PrecinctScannerStateMachine,
-  interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
   usbDrive: UsbDrive,
   logger: Logger
@@ -170,7 +168,6 @@ function buildApi(
         input.ignoreBackupRequirement || store.getCanUnconfigure(),
         'Attempt to unconfigure without backup'
       );
-      interpreter.unconfigure();
       workspace.reset();
     },
 
@@ -315,16 +312,6 @@ function buildApi(
 
     scanBallot(): void {
       assert(store.getPollsState() === 'polls_open');
-      const electionDefinition = store.getElectionDefinition();
-      const precinctSelection = store.getPrecinctSelection();
-      assert(electionDefinition);
-      assert(precinctSelection);
-      interpreter.configure({
-        electionDefinition,
-        precinctSelection,
-        testMode: store.getTestMode(),
-        ballotImagesPath: workspace.ballotImagesPath,
-      });
       machine.scan();
     },
 
@@ -348,7 +335,6 @@ export function buildApp(
   auth: InsertedSmartCardAuthApi,
   artifactAuthenticator: ArtifactAuthenticatorApi,
   machine: PrecinctScannerStateMachine,
-  interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
   usbDrive: UsbDrive,
   logger: Logger
@@ -358,7 +344,6 @@ export function buildApp(
     auth,
     artifactAuthenticator,
     machine,
-    interpreter,
     workspace,
     usbDrive,
     logger

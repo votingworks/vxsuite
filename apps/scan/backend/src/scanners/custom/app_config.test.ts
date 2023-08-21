@@ -443,15 +443,13 @@ test('ballot batching', async () => {
 test('unconfiguring machine', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockUsbDrive, interpreter, workspace, mockAuth }) => {
+    async ({ apiClient, mockUsbDrive, workspace, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      jest.spyOn(interpreter, 'unconfigure');
       jest.spyOn(workspace, 'reset');
 
       await apiClient.unconfigureElection({});
 
-      expect(interpreter.unconfigure).toHaveBeenCalledTimes(1);
       expect(workspace.reset).toHaveBeenCalledTimes(1);
     }
   );

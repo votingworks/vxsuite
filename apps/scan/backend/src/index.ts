@@ -4,10 +4,8 @@ import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import fs from 'fs';
 import { NODE_ENV, SCAN_WORKSPACE } from './globals';
-import { createInterpreter, PrecinctScannerInterpreter } from './interpret';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
-import { PrecinctScannerStateMachine } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
 
 export type { Api } from './app';
@@ -55,29 +53,17 @@ async function resolveWorkspace(): Promise<Workspace> {
   return createWorkspace(workspacePath);
 }
 
-function createPrecinctScannerStateMachine(
-  workspace: Workspace,
-  interpreter: PrecinctScannerInterpreter
-): PrecinctScannerStateMachine {
-  return customStateMachine.createPrecinctScannerStateMachine({
-    createCustomClient: customScanner.openScanner,
-    workspace,
-    interpreter,
-    logger,
-  });
-}
-
 async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
-  const precinctScannerInterpreter = createInterpreter();
-  const precinctScannerStateMachine = createPrecinctScannerStateMachine(
-    workspace,
-    precinctScannerInterpreter
-  );
+  const precinctScannerStateMachine =
+    customStateMachine.createPrecinctScannerStateMachine({
+      createCustomClient: customScanner.openScanner,
+      workspace,
+      logger,
+    });
 
   server.start({
     precinctScannerStateMachine,
-    precinctScannerInterpreter,
     workspace,
   });
 
