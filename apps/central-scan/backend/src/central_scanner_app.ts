@@ -20,7 +20,6 @@ import {
   SystemSettings,
   safeParse,
   TEST_JURISDICTION,
-  MarkThresholds,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -228,16 +227,6 @@ function buildApi({
       });
     },
 
-    getMarkThresholdOverrides(): MarkThresholds | null {
-      return store.getMarkThresholdOverrides() ?? null;
-    },
-
-    setMarkThresholdOverrides(input: {
-      markThresholdOverrides?: MarkThresholds;
-    }) {
-      importer.setMarkThresholdOverrides(input.markThresholdOverrides);
-    },
-
     async clearBallotData(): Promise<void> {
       const userRole = await getUserRole();
       const currentNumberOfBallots = store.getBallotsCounted();
@@ -378,8 +367,7 @@ export function buildCentralScannerApp({
         batchInfo: store.batchStatus(),
         getResultSheetGenerator: store.forEachResultSheet.bind(store),
         definiteMarkThreshold:
-          store.getCurrentMarkThresholds()?.definite ??
-          DefaultMarkThresholds.definite,
+          store.getMarkThresholds()?.definite ?? DefaultMarkThresholds.definite,
         artifactAuthenticator,
         disableOriginalSnapshots: isFeatureFlagEnabled(
           BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS

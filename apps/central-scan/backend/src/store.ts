@@ -25,7 +25,7 @@ import {
   Side,
   SystemSettings,
 } from '@votingworks/types';
-import { assert, Optional } from '@votingworks/basics';
+import { Optional } from '@votingworks/basics';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
@@ -295,63 +295,8 @@ export class Store {
     );
   }
 
-  /**
-   * Gets the current override values for mark thresholds if they are set.
-   * If there are no overrides set, returns undefined.
-   */
-  getMarkThresholdOverrides(): Optional<MarkThresholds> {
-    const electionRow = this.client.one(
-      'select marginal_mark_threshold_override as marginal, definite_mark_threshold_override as definite from election'
-    ) as
-      | {
-          marginal: number | null;
-          definite: number | null;
-        }
-      | undefined;
-
-    if (!electionRow) {
-      return undefined;
-    }
-
-    if (electionRow.definite) {
-      assert(typeof electionRow.marginal === 'number');
-      return {
-        marginal: electionRow.marginal,
-        definite: electionRow.definite,
-      };
-    }
-
-    return undefined;
-  }
-
-  getCurrentMarkThresholds(): Optional<MarkThresholds> {
-    return (
-      this.getMarkThresholdOverrides() ??
-      this.getElectionDefinition()?.election.markThresholds
-    );
-  }
-
-  /**
-   * Sets the current override values for mark thresholds. A value of undefined
-   * will remove overrides and cause thresholds to fallback to the default values
-   * in the election definition.
-   */
-  setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
-    if (!this.hasElection()) {
-      throw new Error('Cannot set mark thresholds without an election.');
-    }
-
-    if (!markThresholds) {
-      this.client.run(
-        'update election set definite_mark_threshold_override = null, marginal_mark_threshold_override = null'
-      );
-    } else {
-      this.client.run(
-        'update election set definite_mark_threshold_override = ?, marginal_mark_threshold_override = ?',
-        markThresholds.definite,
-        markThresholds.marginal
-      );
-    }
+  getMarkThresholds(): Optional<MarkThresholds> {
+    return this.getElectionDefinition()?.election.markThresholds;
   }
 
   /**

@@ -2,7 +2,6 @@ import { Scan } from '@votingworks/api';
 import { Result, assert, ok, sleep } from '@votingworks/basics';
 import {
   ElectionDefinition,
-  MarkThresholds,
   PageInterpretation,
   PageInterpretationWithFiles,
   SheetOf,
@@ -61,11 +60,6 @@ export class Importer {
     debug('setting test mode to %s', testMode);
     this.doZero();
     this.workspace.store.setTestMode(testMode);
-  }
-
-  setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
-    debug('setting mark thresholds overrides to %s', markThresholds);
-    this.workspace.store.setMarkThresholdOverrides(markThresholds);
   }
 
   private async sheetAdded(
@@ -170,7 +164,7 @@ export class Importer {
           testMode: this.workspace.store.getTestMode(),
           adjudicationReasons:
             electionDefinition.election.centralScanAdjudicationReasons,
-          markThresholds: this.workspace.store.getMarkThresholdOverrides(),
+          markThresholds: this.workspace.store.getMarkThresholds(),
         },
         [frontImagePath, backImagePath],
         sheetId,

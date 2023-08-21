@@ -145,7 +145,6 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionSampleDefinition);
 
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
   userEvent.click(screen.getByText('Admin'));
 
   screen.getByText('Toggle to Test Ballot Mode');
@@ -165,7 +164,6 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionSampleDefinition);
 
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
   userEvent.click(screen.getByText('Admin'));
 
   screen.getByText('Toggle to Official Ballot Mode');
@@ -294,7 +292,6 @@ test('configuring election from usb ballot package works end to end', async () =
   // Remove USB drive
   mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
 
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
   fireEvent.click(getByText('Admin'));
   getByText('Admin Actions');
   expect(

@@ -122,46 +122,6 @@ test('get/set precinct selection', () => {
   expect(store.getPrecinctSelection()).toMatchObject(precinctSelection);
 });
 
-test('get/set mark threshold overrides', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getMarkThresholdOverrides()).toEqual(undefined);
-  expect(() => store.setMarkThresholdOverrides()).toThrowError();
-
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
-
-  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(store.getMarkThresholdOverrides()).toStrictEqual({
-    definite: 0.6,
-    marginal: 0.5,
-  });
-
-  store.setMarkThresholdOverrides(undefined);
-  expect(store.getMarkThresholdOverrides()).toEqual(undefined);
-});
-
-test('get current mark thresholds falls back to election definition defaults', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.08,
-    marginal: 0.05,
-  });
-
-  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.6,
-    marginal: 0.5,
-  });
-
-  store.setMarkThresholdOverrides(undefined);
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.08,
-    marginal: 0.05,
-  });
-});
-
 test('get/set polls state', () => {
   const store = Store.memoryStore();
 

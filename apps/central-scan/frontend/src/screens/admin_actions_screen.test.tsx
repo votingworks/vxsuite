@@ -45,7 +45,6 @@ function renderScreen(
 ) {
   return renderInAppContext(
     <AdminActionsScreen
-      hasBatches={false}
       backup={jest.fn()}
       canUnconfigure={false}
       isTestMode={false}
@@ -57,8 +56,6 @@ function renderScreen(
 }
 
 test('clicking "Save Backup" shows progress', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
   renderScreen({ backup });
 
@@ -82,8 +79,6 @@ test('clicking "Save Backup" shows progress', async () => {
 });
 
 test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled when canUnconfigure is falsy', () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   renderScreen({
     canUnconfigure: false,
   });
@@ -96,8 +91,6 @@ test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled
 });
 
 test('clicking "Delete Election Data from VxCentralScan" calls backend', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   const history = createMemoryHistory({ initialEntries: ['/admin'] });
   renderScreen({ canUnconfigure: true }, history);
 
@@ -125,8 +118,6 @@ test('clicking "Delete Election Data from VxCentralScan" calls backend', async (
 });
 
 test('clicking "Delete Ballot Data" calls backend', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   const history = createMemoryHistory({ initialEntries: ['/admin'] });
   renderScreen({ canUnconfigure: true }, history);
 
@@ -146,8 +137,6 @@ test('clicking "Delete Ballot Data" calls backend', async () => {
 });
 
 test('backup error shows message', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
   renderScreen({ backup });
 
@@ -169,52 +158,7 @@ test('backup error shows message', async () => {
   screen.getByText('Permission Denied');
 });
 
-test('override mark thresholds button shows when there are no overrides', async () => {
-  const testCases = [
-    {
-      hasBatches: true,
-      markThresholds: null,
-      expectedText: 'Override Mark Thresholds',
-      expectButtonDisabled: true,
-    },
-    {
-      hasBatches: true,
-      markThresholds: { marginal: 0.3, definite: 0.4 },
-      expectedText: 'Reset Mark Thresholds',
-      expectButtonDisabled: true,
-    },
-    {
-      hasBatches: false,
-      markThresholds: null,
-      expectedText: 'Override Mark Thresholds',
-      expectButtonDisabled: false,
-    },
-    {
-      hasBatches: false,
-      markThresholds: { marginal: 0.3, definite: 0.4 },
-      expectedText: 'Reset Mark Thresholds',
-      expectButtonDisabled: false,
-    },
-  ];
-
-  for (const testCase of testCases) {
-    mockApiClient.getMarkThresholdOverrides
-      .expectCallWith()
-      .resolves(testCase.markThresholds);
-    const { unmount } = renderScreen({
-      hasBatches: testCase.hasBatches,
-    });
-    const button = await screen.findButton(testCase.expectedText);
-    expect(button.hasAttribute('disabled')).toEqual(
-      testCase.expectButtonDisabled
-    );
-    unmount();
-  }
-});
-
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   window.kiosk = fakeKiosk();
 
