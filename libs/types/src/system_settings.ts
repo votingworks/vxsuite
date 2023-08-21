@@ -1,6 +1,6 @@
 import { Result } from '@votingworks/basics';
 import { z } from 'zod';
-
+import { AdjudicationReason, AdjudicationReasonSchema } from './election';
 import {
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -59,11 +59,19 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
 export interface SystemSettings {
   readonly auth: AuthSettings;
   readonly markThresholds: MarkThresholds;
+  readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
+  readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   auth: AuthSettingsSchema,
   markThresholds: MarkThresholdsSchema,
+  centralScanAdjudicationReasons: z.array(
+    z.lazy(() => AdjudicationReasonSchema)
+  ),
+  precinctScanAdjudicationReasons: z.array(
+    z.lazy(() => AdjudicationReasonSchema)
+  ),
 });
 
 /**
@@ -92,4 +100,6 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
       DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   },
   markThresholds: DEFAULT_MARK_THRESHOLDS,
+  precinctScanAdjudicationReasons: [],
+  centralScanAdjudicationReasons: [],
 };

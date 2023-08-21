@@ -4,7 +4,6 @@ import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import {
-  AdjudicationReason,
   AnyContest,
   BallotPaperSize,
   BallotStyle,
@@ -397,27 +396,6 @@ function preprocessElection(value: unknown): unknown {
   // We're casting it here to make it easier to use, but in this function you
   // must assume the type is unknown.
   let election = value as Election;
-
-  // Replace the deprecated `adjudicationReasons` property. Just use the value
-  // for both precinct and central versions. If either of them is set already,
-  // don't do anything and just let validation fail.
-  if (
-    'adjudicationReasons' in election &&
-    !('precinctScanAdjudicationReasons' in election) &&
-    !('centralScanAdjudicationReasons' in election)
-  ) {
-    interface ElectionWithAdjudicationReasons extends Election {
-      readonly adjudicationReasons: AdjudicationReason[];
-    }
-
-    const { adjudicationReasons, ...rest } =
-      election as ElectionWithAdjudicationReasons;
-    election = {
-      ...rest,
-      precinctScanAdjudicationReasons: adjudicationReasons,
-      centralScanAdjudicationReasons: adjudicationReasons,
-    };
-  }
 
   // Handle the renamed `sealURL` property.
   /* eslint-disable vx/gts-identifiers */
