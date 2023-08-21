@@ -11,7 +11,6 @@
       "districts": ["town-id-12101-precinct-id-"]
     }
   ],
-  "centralScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
       "id": "President-and-Vice-President-of-the-United-States-18d1a55a",
@@ -1126,7 +1125,6 @@
       "abbrev": "OC"
     }
   ],
-  "precinctScanAdjudicationReasons": ["Overvote"],
   "precincts": [
     {
       "id": "town-id-12101-precinct-id-",
