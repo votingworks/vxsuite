@@ -26,6 +26,7 @@ describe('Interpretation benchmark', () => {
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
+            adjudicationReasons: [],
           },
           ballotImagePaths as [string, string]
         );
@@ -47,6 +48,7 @@ describe('Interpretation benchmark', () => {
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
+            adjudicationReasons: [],
           },
           ballotImagePaths as [string, string]
         );

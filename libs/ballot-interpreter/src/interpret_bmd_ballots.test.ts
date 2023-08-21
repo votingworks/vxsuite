@@ -30,6 +30,7 @@ describe('VX BMD interpretation', () => {
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       validBmdSheet
     );
@@ -177,6 +178,7 @@ describe('VX BMD interpretation', () => {
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: false, // this is the test mode
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       validBmdSheet
     );
@@ -193,6 +195,7 @@ describe('VX BMD interpretation', () => {
         testMode: true,
         precinctSelection: singlePrecinctSelectionFor('20'),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       validBmdSheet
     );
@@ -209,6 +212,7 @@ describe('VX BMD interpretation', () => {
         testMode: true,
         precinctSelection: singlePrecinctSelectionFor('23'),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       validBmdSheet
     );
@@ -228,6 +232,7 @@ describe('VX BMD interpretation', () => {
         testMode: true,
         precinctSelection: singlePrecinctSelectionFor('23'),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       validBmdSheet
     );
@@ -248,6 +253,7 @@ describe('VX BMD interpretation', () => {
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       [bmdBlankPage, bmdBlankPage]
     );
@@ -263,6 +269,7 @@ describe('VX BMD interpretation', () => {
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       [bmdSummaryBallotPage, bmdSummaryBallotPage]
     );

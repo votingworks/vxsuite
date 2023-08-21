@@ -33,6 +33,7 @@ describe('HMPB - Famous Names', () => {
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       ballotImagePaths as [string, string]
     );
@@ -54,6 +55,7 @@ describe('HMPB - Famous Names', () => {
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       ballotImagePaths as [string, string]
     );
@@ -82,6 +84,7 @@ describe('HMPB - Famous Names', () => {
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       ballotImagePaths as [string, string]
     );
@@ -104,6 +107,7 @@ describe('HMPB - Famous Names', () => {
         ),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       ballotImagePaths as [string, string]
     );
@@ -123,6 +127,7 @@ describe('HMPB - Famous Names', () => {
         precinctSelection: singlePrecinctSelectionFor(precinctId),
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
       },
       ballotImagePaths as [string, string]
     );
@@ -155,6 +160,7 @@ for (const {
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
+            adjudicationReasons: [],
           },
           sheetImagePaths
         );
@@ -180,6 +186,7 @@ for (const {
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
+            adjudicationReasons: [],
           },
           sheetImagePaths
         );
