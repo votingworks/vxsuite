@@ -33,6 +33,8 @@ export * from './insert_ballot_image';
 export * from './insert_card_image';
 export * from './labelled_text';
 export * from './link_button';
+export * from './list';
+export * from './list_item';
 export * from './live_check_modal';
 export * from './loading';
 export * from './loading_animation';

@@ -3,6 +3,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheckCircle,
+  faCircle as faCircleSolid,
   faCircleHalfStroke,
   faCircleLeft,
   faCircleRight,
@@ -72,14 +73,6 @@ export const Icons = {
     return <FaIcon type={faDeleteLeft} />;
   },
 
-  Circle(): JSX.Element {
-    return <FaIcon type={faCircle} />;
-  },
-
-  CircleDot(): JSX.Element {
-    return <FaIcon type={faCircleDot} />;
-  },
-
   Checkbox(): JSX.Element {
     return <FaIcon type={faCheckSquare} />;
   },
@@ -96,6 +89,18 @@ export const Icons = {
         <path d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z" />
       </StyledSvgIcon>
     );
+  },
+
+  Circle(): JSX.Element {
+    return <FaIcon type={faCircle} />;
+  },
+
+  CircleDot(): JSX.Element {
+    return <FaIcon type={faCircleDot} />;
+  },
+
+  CircleSolid(): JSX.Element {
+    return <FaIcon type={faCircleSolid} />;
   },
 
   Closed(): JSX.Element {
