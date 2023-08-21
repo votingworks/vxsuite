@@ -1,10 +1,7 @@
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  ElectionDefinition,
-  MarkThresholds,
   PageInterpretationWithFiles,
-  PrecinctSelection,
   SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
@@ -13,16 +10,9 @@ import { ok, Result } from '@votingworks/basics';
 import {
   SheetInterpretationWithPages,
   interpretSheetAndSaveImages,
+  InterpreterOptions,
 } from '@votingworks/ballot-interpreter';
 import { rootDebug } from './util/debug';
-
-export interface InterpreterConfig {
-  readonly electionDefinition: ElectionDefinition;
-  readonly precinctSelection: PrecinctSelection;
-  readonly ballotImagesPath: string;
-  readonly markThresholds: MarkThresholds;
-  readonly testMode: boolean;
-}
 
 function combinePageInterpretationsForSheet(
   pages: SheetOf<PageInterpretationWithFiles>
@@ -134,29 +124,15 @@ function combinePageInterpretationsForSheet(
 export async function interpret(
   sheetId: string,
   sheet: SheetOf<string>,
-  config: InterpreterConfig
+  options: InterpreterOptions & { ballotImagesPath: string }
 ): Promise<Result<SheetInterpretationWithPages, Error>> {
-  const {
-    electionDefinition,
-    ballotImagesPath,
-    precinctSelection,
-    testMode,
-    markThresholds,
-  } = config;
   const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
 
   const pageInterpretations = await interpretSheetAndSaveImages(
-    {
-      electionDefinition,
-      precinctSelection,
-      testMode,
-      adjudicationReasons:
-        electionDefinition.election.precinctScanAdjudicationReasons,
-      markThresholds,
-    },
+    options,
     sheet,
     sheetId,
-    ballotImagesPath
+    options.ballotImagesPath
   );
 
   timer.end();
