@@ -120,7 +120,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
       );
     }
   }
-  React.useLayoutEffect(updateScrollState);
+  React.useLayoutEffect(updateScrollState, [children, contentRef]);
 
   const onScrollUp = React.useCallback(() => {
     if (contentRef.current) {
