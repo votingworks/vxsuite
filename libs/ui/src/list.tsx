@@ -15,7 +15,6 @@ const Container = styled.ul<ContainerProps>`
   display: grid;
   grid-gap: 0.5rem;
   grid-template-columns: repeat(${(p) => p.numColumns}, 1fr);
-  list-style: none;
   margin: 0;
   padding: 0;
 
