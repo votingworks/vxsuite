@@ -17,6 +17,7 @@ import {
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  BallotStyle,
   ContestId,
   ContestOptionId,
   CVR,
@@ -151,6 +152,7 @@ export class Store {
       id,
       electionData
     );
+    this.createElectionMetadataRecords(id);
     return id;
   }
 
@@ -271,6 +273,52 @@ export class Store {
     ) as { currentElectionId: Id } | null;
 
     return settings?.currentElectionId ?? undefined;
+  }
+
+  /**
+   * Adds a subset of the election definition, normalized, to the database. While
+   * the data is already in the election data blob, we want to be able to join on
+   * and query the data.
+   */
+  private createElectionMetadataRecords(electionId: Id): void {
+    const electionRecord = this.getElection(electionId);
+    assert(electionRecord);
+    const {
+      electionDefinition: { election },
+    } = electionRecord;
+
+    for (const ballotStyle of election.ballotStyles) {
+      this.createBallotStyleRecord({ electionId, ballotStyle });
+    }
+  }
+
+  /**
+   * Adds a row to the `ballot_styles` table for the given ballot style.
+   */
+  private createBallotStyleRecord({
+    electionId,
+    ballotStyle,
+  }: {
+    electionId: Id;
+    ballotStyle: BallotStyle;
+  }): void {
+    const params = [electionId, ballotStyle.id];
+    if (ballotStyle.partyId) {
+      params.push(ballotStyle.partyId);
+    }
+
+    this.client.run(
+      `
+        insert into ballot_styles (
+          election_id,
+          id,
+          party_id
+        ) values (
+          ?, ?, ${ballotStyle.partyId ? '?' : 'null'}
+        )
+      `,
+      ...params
+    );
   }
 
   /**

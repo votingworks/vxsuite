@@ -6,6 +6,15 @@ create table elections (
   deleted_at timestamp
 );
 
+create table ballot_styles (
+  election_id integer not null,
+  id text not null,
+  party_id text,
+  primary key (election_id, id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
 create table write_in_candidates (
   id varchar(36) primary key,
   election_id varchar(36) not null,
