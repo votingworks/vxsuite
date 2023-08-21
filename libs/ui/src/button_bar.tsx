@@ -7,7 +7,7 @@ export const ButtonBar = styled('div')`
   justify-content: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.foreground};
-  padding: 0.75rem;
+  padding: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
   gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
 
   & > * {
