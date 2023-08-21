@@ -79,18 +79,6 @@ export const getElectionDefinition = {
   },
 } as const;
 
-export const getMarkThresholdOverrides = {
-  queryKey(): QueryKey {
-    return ['getMarkThresholdOverrides'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getMarkThresholdOverrides()
-    );
-  },
-} as const;
-
 // Mutations
 
 export const setTestMode = {
@@ -178,19 +166,5 @@ export const clearBallotData = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.clearBallotData);
-  },
-} as const;
-
-export const setMarkThresholdOverrides = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.setMarkThresholdOverrides, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(
-          getMarkThresholdOverrides.queryKey()
-        );
-      },
-    });
   },
 } as const;

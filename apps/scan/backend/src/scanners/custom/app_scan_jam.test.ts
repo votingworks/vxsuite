@@ -3,7 +3,7 @@ import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import {
   configureApp,
-  mockInterpretation,
+  mockInterpret,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -46,22 +46,21 @@ test('jam on scan', async () => {
 });
 
 test('jam on accept', async () => {
+  const interpretation: SheetInterpretation = {
+    type: 'ValidSheet',
+  };
   await withApp(
     {
       delays: {
         DELAY_ACCEPTING_TIMEOUT: 500,
       },
+      interpret: mockInterpret(interpretation),
     },
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation: SheetInterpretation = {
-        type: 'ValidSheet',
-      };
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
@@ -93,16 +92,16 @@ test('jam on accept', async () => {
 });
 
 test('jam on return', async () => {
+  const interpretation = needsReviewInterpretation;
   await withApp(
-    {},
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    {
+      interpret: mockInterpret(interpretation),
+    },
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation = needsReviewInterpretation;
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
@@ -122,19 +121,19 @@ test('jam on return', async () => {
 });
 
 test('jam on reject', async () => {
+  const interpretation: SheetInterpretation = {
+    type: 'InvalidSheet',
+    reason: 'invalid_election_hash',
+  };
   await withApp(
-    {},
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    {
+      interpret: mockInterpret(interpretation),
+    },
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation: SheetInterpretation = {
-        type: 'InvalidSheet',
-        reason: 'invalid_election_hash',
-      };
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.wrongElection());
       await apiClient.scanBallot();

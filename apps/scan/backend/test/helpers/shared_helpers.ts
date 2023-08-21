@@ -20,7 +20,7 @@ import {
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { PrecinctScannerInterpreter } from '../../src/interpret';
+import { InterpretFn } from '../../src/interpret';
 import { Api } from '../../src/app';
 import { PrecinctScannerStatus } from '../../src/types';
 
@@ -115,11 +115,10 @@ export async function configureApp(
  *   ballot interpretation (because the state machine doesn't actually use those
  *   page interpretations, they are just stored for the CVR).
  */
-export function mockInterpretation(
-  interpreter: PrecinctScannerInterpreter,
+export function mockInterpret(
   interpretation: SheetInterpretation
-): void {
-  jest.spyOn(interpreter, 'interpret').mockResolvedValue(
+): jest.MockedFn<InterpretFn> {
+  return jest.fn().mockResolvedValue(
     ok({
       ...interpretation,
       pages: [

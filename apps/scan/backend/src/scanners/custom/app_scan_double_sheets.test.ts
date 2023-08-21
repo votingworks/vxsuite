@@ -5,7 +5,7 @@ import waitForExpect from 'wait-for-expect';
 import {
   configureApp,
   expectStatus,
-  mockInterpretation,
+  mockInterpret,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -62,23 +62,22 @@ test('insert second ballot before first ballot accept', async () => {
 });
 
 test('insert second ballot while first ballot is accepting', async () => {
+  const interpretation: SheetInterpretation = {
+    type: 'ValidSheet',
+  };
   await withApp(
     {
       delays: {
         DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
         DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
       },
+      interpret: mockInterpret(interpretation),
     },
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation: SheetInterpretation = {
-        type: 'ValidSheet',
-      };
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
@@ -105,20 +104,19 @@ test('insert second ballot while first ballot is accepting', async () => {
 });
 
 test('insert second ballot while first ballot needs review', async () => {
+  const interpretation = needsReviewInterpretation;
   await withApp(
     {
       delays: {
         DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 3000,
       },
+      interpret: mockInterpret(interpretation),
     },
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation = needsReviewInterpretation;
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();

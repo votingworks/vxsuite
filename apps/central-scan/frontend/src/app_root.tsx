@@ -461,7 +461,6 @@ export function AppRoot({
         <Route path="/admin">
           <AdminActionsScreen
             backup={backup}
-            hasBatches={status.batches.length > 0}
             isTestMode={isTestMode}
             canUnconfigure={status.canUnconfigure}
             electionDefinition={electionDefinition}

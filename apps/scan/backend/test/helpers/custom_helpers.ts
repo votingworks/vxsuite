@@ -30,10 +30,7 @@ import { AddressInfo } from 'net';
 import tmp from 'tmp';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { Api, buildApp } from '../../src/app';
-import {
-  PrecinctScannerInterpreter,
-  createInterpreter,
-} from '../../src/interpret';
+import { InterpretFn } from '../../src/interpret';
 import {
   Delays,
   createPrecinctScannerStateMachine,
@@ -45,9 +42,11 @@ export async function withApp(
   {
     delays = {},
     preconfiguredWorkspace,
+    interpret,
   }: {
     delays?: Partial<Delays>;
     preconfiguredWorkspace?: Workspace;
+    interpret?: InterpretFn;
   },
   fn: (context: {
     apiClient: grout.Client<Api>;
@@ -58,7 +57,6 @@ export async function withApp(
     workspace: Workspace;
     mockUsbDrive: MockUsbDrive;
     logger: Logger;
-    interpreter: PrecinctScannerInterpreter;
     server: Server;
   }) => Promise<void>
 ): Promise<void> {
@@ -79,11 +77,10 @@ export async function withApp(
     await deferredConnect.promise;
     return ok(mockScanner);
   }
-  const interpreter = createInterpreter();
   const precinctScannerMachine = createPrecinctScannerStateMachine({
     createCustomClient,
     workspace,
-    interpreter,
+    interpret,
     logger,
     delays: {
       DELAY_RECONNECT: 100,
@@ -98,7 +95,6 @@ export async function withApp(
     mockAuth,
     mockArtifactAuthenticator,
     precinctScannerMachine,
-    interpreter,
     workspace,
     mockUsbDrive.usbDrive,
     logger
@@ -124,7 +120,6 @@ export async function withApp(
       workspace,
       mockUsbDrive,
       logger,
-      interpreter,
       server,
     });
     mockUsbDrive.assertComplete();

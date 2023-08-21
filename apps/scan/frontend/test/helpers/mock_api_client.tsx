@@ -5,7 +5,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   InsertedSmartCardAuth,
-  MarkThresholds,
   PollsState,
   PrecinctSelection,
   Tabulation,
@@ -129,14 +128,6 @@ export function createApiMock() {
 
     expectSetTestMode(isTestMode: boolean): void {
       mockApiClient.setTestMode.expectCallWith({ isTestMode }).resolves();
-    },
-
-    expectSetMarkThresholdOverrides(
-      markThresholdOverrides?: MarkThresholds
-    ): void {
-      mockApiClient.setMarkThresholdOverrides
-        .expectCallWith({ markThresholdOverrides })
-        .resolves();
     },
 
     expectGetScannerStatus(status: PrecinctScannerStatus): void {

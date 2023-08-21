@@ -337,16 +337,23 @@ test('scan fail immediately gives up', async () => {
 });
 
 test('unexpected interpretation error retries and eventually fails', async () => {
+  let didInterpret = false;
+  const interpret = jest.fn().mockImplementation(() => {
+    didInterpret = true;
+    throw new Error('unexpected dims');
+  });
+
   await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, interpreter }) => {
+    {
+      interpret,
+    },
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
       let didScan = false;
-      let didInterpret = false;
       mockScanner.getStatus.mockImplementation(() => {
         if (!didScan || didInterpret) {
           return Promise.resolve(ok(mocks.MOCK_READY_TO_SCAN));
@@ -357,16 +364,10 @@ test('unexpected interpretation error retries and eventually fails', async () =>
         didScan = true;
         return Promise.resolve(ok(await ballotImages.blankSheet()));
       });
-      const interpretSpy = jest
-        .spyOn(interpreter, 'interpret')
-        .mockImplementation(() => {
-          didInterpret = true;
-          throw new Error('unexpected dims');
-        });
       await apiClient.scanBallot();
       for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
         await waitForExpect(() => {
-          expect(interpretSpy).toHaveBeenCalledTimes(i + 1);
+          expect(interpret).toHaveBeenCalledTimes(i + 1);
         });
         await waitForExpect(async () => {
           await expectStatus(apiClient, { state: 'ready_to_scan' });
@@ -379,9 +380,7 @@ test('unexpected interpretation error retries and eventually fails', async () =>
         });
       }
       await waitForExpect(() => {
-        expect(interpretSpy).toHaveBeenCalledTimes(
-          MAX_FAILED_SCAN_ATTEMPTS + 1
-        );
+        expect(interpret).toHaveBeenCalledTimes(MAX_FAILED_SCAN_ATTEMPTS + 1);
       });
       await waitForStatus(apiClient, {
         state: 'rejected',

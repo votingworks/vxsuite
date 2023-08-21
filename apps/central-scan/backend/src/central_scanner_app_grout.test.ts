@@ -5,7 +5,6 @@ import {
 import {
   BallotMetadata,
   BallotType,
-  MarkThresholds,
   PageInterpretationWithFiles,
   SheetOf,
   TEST_JURISDICTION,
@@ -114,28 +113,6 @@ test('getElectionDefinition', async () => {
 
     importer.unconfigure();
     expect(await apiClient.getElectionDefinition()).toEqual(null);
-  });
-});
-
-test('get / set mark threshold overrides', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-
-  await withApp(async ({ apiClient, importer }) => {
-    importer.configure(electionDefinition, jurisdiction);
-
-    expect(await apiClient.getMarkThresholdOverrides()).toEqual(null);
-
-    const mockOverrides: MarkThresholds = {
-      definite: 0.5,
-      marginal: 0.4,
-    };
-    await apiClient.setMarkThresholdOverrides({
-      markThresholdOverrides: mockOverrides,
-    });
-    expect(await apiClient.getMarkThresholdOverrides()).toEqual(mockOverrides);
-
-    await apiClient.setMarkThresholdOverrides({});
-    expect(await apiClient.getMarkThresholdOverrides()).toEqual(null);
   });
 });
 

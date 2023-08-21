@@ -15,7 +15,6 @@ import {
 } from '@votingworks/utils';
 import { buildApp } from './app';
 import { PORT } from './globals';
-import { PrecinctScannerInterpreter } from './interpret';
 import { PrecinctScannerStateMachine } from './types';
 import { Workspace } from './util/workspace';
 
@@ -24,7 +23,6 @@ export interface StartOptions {
   artifactAuthenticator?: ArtifactAuthenticatorApi;
   logger?: Logger;
   port?: number | string;
-  precinctScannerInterpreter: PrecinctScannerInterpreter;
   precinctScannerStateMachine: PrecinctScannerStateMachine;
   workspace: Workspace;
 }
@@ -36,7 +34,6 @@ export function start({
   auth,
   artifactAuthenticator,
   logger = new Logger(LogSource.VxScanBackend),
-  precinctScannerInterpreter,
   precinctScannerStateMachine,
   workspace,
 }: StartOptions): void {
@@ -65,7 +62,6 @@ export function start({
     resolvedAuth,
     resolvedArtifactAuthenticator,
     precinctScannerStateMachine,
-    precinctScannerInterpreter,
     workspace,
     usbDrive,
     logger

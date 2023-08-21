@@ -90,8 +90,7 @@ export class Backup {
       CAST_VOTE_RECORD_REPORT_FILENAME,
       getCastVoteRecordReportStream({
         electionDefinition,
-        definiteMarkThreshold:
-          this.store.getCurrentMarkThresholds()?.definite ?? 0.12,
+        definiteMarkThreshold: this.store.getMarkThresholds()?.definite ?? 0.12,
         isTestMode: this.store.getTestMode(),
         resultSheetGenerator: this.store.forEachResultSheet(),
         batchInfo: this.store.batchStatus(),

@@ -22,14 +22,8 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { MainNav } from '../components/main_nav';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
-import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { AppContext } from '../contexts/app_context';
-import {
-  getMarkThresholdOverrides,
-  logOut,
-  unconfigure,
-  clearBallotData,
-} from '../api';
+import { logOut, unconfigure, clearBallotData } from '../api';
 
 const ButtonRow = styled.div`
   &:not(:last-child) {
@@ -39,7 +33,6 @@ const ButtonRow = styled.div`
 
 export interface AdminActionScreenProps {
   backup: () => Promise<Result<string[], Scan.BackupError | Error>>;
-  hasBatches: boolean;
   isTestMode: boolean;
   canUnconfigure: boolean;
   electionDefinition: ElectionDefinition;
@@ -47,7 +40,6 @@ export interface AdminActionScreenProps {
 
 export function AdminActionsScreen({
   backup,
-  hasBatches,
   isTestMode,
   canUnconfigure,
   electionDefinition,
@@ -60,7 +52,6 @@ export function AdminActionsScreen({
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
   const clearBallotDataMutation = clearBallotData.useMutation();
-  const markThresholdOverridesQuery = getMarkThresholdOverrides.useQuery();
 
   function redirectToDashboard() {
     history.replace('/');
@@ -119,11 +110,6 @@ export function AdminActionsScreen({
     setIsBackingUp(false);
   }, [backup, logger, userRole]);
 
-  const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
-    useState(false);
-
-  const markThresholdOverrides = markThresholdOverridesQuery.data ?? undefined;
-
   return (
     <React.Fragment>
       <Screen>
@@ -135,16 +121,6 @@ export function AdminActionsScreen({
                 isTestMode={isTestMode}
                 canUnconfigure={canUnconfigure}
               />
-            </ButtonRow>
-            <ButtonRow>
-              <Button
-                onPress={() => setIsMarkThresholdModalOpen(true)}
-                disabled={hasBatches}
-              >
-                {markThresholdOverrides
-                  ? 'Reset Mark Thresholds'
-                  : 'Override Mark Thresholds'}
-              </Button>
             </ButtonRow>
             {backupError && <P style={{ color: 'red' }}>{backupError}</P>}
             <ButtonRow>
@@ -206,8 +182,7 @@ export function AdminActionsScreen({
           content={
             <P>
               This will permanently delete all scanned ballot data and reset the
-              scanner to only be configured with the current election, with the
-              default mark thresholds.
+              scanner to only be configured with the current election.
             </P>
           }
           actions={
@@ -274,13 +249,6 @@ export function AdminActionsScreen({
         <Modal
           centerContent
           content={<Loading>Deleting ballot data</Loading>}
-        />
-      )}
-      {isSetMarkThresholdModalOpen && (
-        <SetMarkThresholdsModal
-          markThresholds={electionDefinition.election.markThresholds}
-          markThresholdOverrides={markThresholdOverrides}
-          onClose={() => setIsMarkThresholdModalOpen(false)}
         />
       )}
       {isBackingUp && (

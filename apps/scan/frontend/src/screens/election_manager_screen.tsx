@@ -24,7 +24,6 @@ import {
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
-import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import {
   ejectUsbDrive,
   getConfig,
@@ -75,8 +74,6 @@ export function ElectionManagerScreen({
   const [isExportingBackup, setIsExportingBackup] = useState(false);
 
   const [confirmUnconfigure, setConfirmUnconfigure] = useState(false);
-  const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
-    useState(false);
   const [isUnconfiguring, setIsUnconfiguring] = useState(false);
 
   if (!configQuery.isSuccess) return null;
@@ -87,7 +84,6 @@ export function ElectionManagerScreen({
     isTestMode,
     isSoundMuted,
     isUltrasonicDisabled,
-    markThresholdOverrides,
     pollsState,
   } = configQuery.data;
 
@@ -172,16 +168,6 @@ export function ElectionManagerScreen({
     <P>
       <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
       <Button onPress={() => setIsExportingBackup(true)}>Save Backup</Button>
-    </P>
-  );
-
-  const overrideThresholdsButton = (
-    <P>
-      <Button onPress={() => setIsMarkThresholdModalOpen(true)}>
-        {markThresholdOverrides === undefined
-          ? 'Override Mark Thresholds'
-          : 'Reset Mark Thresholds'}
-      </Button>
     </P>
   );
 
@@ -271,7 +257,6 @@ export function ElectionManagerScreen({
             label: 'System Settings',
             content: (
               <React.Fragment>
-                {overrideThresholdsButton}
                 {doubleSheetDetectionToggle}
                 {dateTimeButton}
                 {audioMuteToggle}
@@ -283,13 +268,6 @@ export function ElectionManagerScreen({
           },
         ]}
       />
-      {isMarkThresholdModalOpen && (
-        <SetMarkThresholdsModal
-          markThresholds={electionDefinition.election.markThresholds}
-          markThresholdOverrides={markThresholdOverrides}
-          onClose={() => setIsMarkThresholdModalOpen(false)}
-        />
-      )}
       {isShowingToggleTestModeWarningModal && (
         <Modal
           title="Save Backup to switch to Test Ballot Mode"
