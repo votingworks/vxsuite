@@ -10,12 +10,6 @@
       "districts": ["district-1"]
     }
   ],
-  "centralScanAdjudicationReasons": [
-    "UninterpretableBallot",
-    "Overvote",
-    "Undervote",
-    "BlankBallot"
-  ],
   "contests": [
     {
       "id": "mayor",
@@ -2049,12 +2043,6 @@
       "fullName": "Green Party",
       "abbrev": "G"
     }
-  ],
-  "precinctScanAdjudicationReasons": [
-    "UninterpretableBallot",
-    "Overvote",
-    "Undervote",
-    "BlankBallot"
   ],
   "precincts": [
     {

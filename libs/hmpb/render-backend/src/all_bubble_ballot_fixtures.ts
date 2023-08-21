@@ -1,5 +1,4 @@
 import {
-  AdjudicationReason,
   BallotPaperSize,
   CandidateContest,
   DistrictId,
@@ -97,8 +96,6 @@ function createElection(): Election {
         precincts: [precinctId],
       },
     ],
-    centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
-    precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
     contests,
     county: {
       id: 'test-county',
