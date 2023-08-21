@@ -15,6 +15,10 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
+import {
+  WarningDetails as MisvoteWarningDetails,
+  MisvoteWarnings,
+} from '../components/misvote_warnings';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -23,6 +27,15 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
+jest.mock(
+  '../components/misvote_warnings',
+  (): typeof import('../components/misvote_warnings') => ({
+    ...jest.requireActual('../components/misvote_warnings'),
+    WarningDetails: jest.fn(),
+    MisvoteWarnings: jest.fn(),
+  })
+);
+
 let apiMock: ApiMock;
 
 beforeEach(() => {
@@ -30,6 +43,14 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
+
+  mockOf(MisvoteWarnings).mockImplementation(() => (
+    <div data-testid="mockMisvoteWarnings" />
+  ));
+
+  mockOf(MisvoteWarningDetails).mockImplementation(() => (
+    <div data-testid="mockMisvoteWarningDetails" />
+  ));
 });
 
 afterEach(() => {
@@ -67,13 +88,29 @@ test('overvote', async () => {
     ],
   });
 
-  await screen.findByRole('heading', { name: 'Too Many Votes' });
-  screen.getByText(
-    new RegExp(
-      `There are too many votes marked in the contest: ${contest.title}.`
-    )
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
+  screen.getByTestId('mockMisvoteWarnings');
+  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+    {
+      blankContests: [],
+      overvoteContests: [contest],
+      partiallyVotedContests: [],
+    },
+    {}
   );
+
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+
+  screen.getByTestId('mockMisvoteWarningDetails');
+  expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
+    {
+      blankContests: [],
+      overvoteContests: [contest],
+      partiallyVotedContests: [],
+    },
+    {}
+  );
+
   const confirmButton = screen.getByRole('button', {
     name: 'Yes, Cast Ballot As Is',
   });
@@ -105,12 +142,17 @@ test('overvote when casting overvotes is disallowed', async () => {
     ],
   });
 
-  await screen.findByRole('heading', { name: 'Too Many Votes' });
-  screen.getByText(
-    new RegExp(
-      `There are too many votes marked in the contest: ${contest.title}.`
-    )
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
+  screen.getByTestId('mockMisvoteWarnings');
+  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+    {
+      blankContests: [],
+      overvoteContests: [contest],
+      partiallyVotedContests: [],
+    },
+    {}
   );
+
   expect(
     screen.queryByRole('button', { name: 'Cast Ballot As Is' })
   ).not.toBeInTheDocument();
@@ -155,10 +197,28 @@ test('undervote no votes', async () => {
   });
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
-  screen.getByText(
-    new RegExp(`No votes detected in contest: ${contest.title}.`)
+  screen.getByTestId('mockMisvoteWarnings');
+  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+    {
+      blankContests: [contest],
+      overvoteContests: [],
+      partiallyVotedContests: [],
+    },
+    {}
   );
+
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+
+  screen.getByTestId('mockMisvoteWarningDetails');
+  expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
+    {
+      blankContests: [contest],
+      overvoteContests: [],
+      partiallyVotedContests: [],
+    },
+    {}
+  );
+
   const confirmButton = screen.getByRole('button', {
     name: 'Yes, Cast Ballot As Is',
   });
@@ -187,12 +247,28 @@ test('undervote by 1', async () => {
   });
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
-  screen.getByText(
-    new RegExp(
-      `You may vote for more candidates in the contest: ${contest.title}.`
-    )
+  screen.getByTestId('mockMisvoteWarnings');
+  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+    {
+      blankContests: [],
+      overvoteContests: [],
+      partiallyVotedContests: [contest],
+    },
+    {}
   );
+
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+
+  screen.getByTestId('mockMisvoteWarningDetails');
+  expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
+    {
+      blankContests: [],
+      overvoteContests: [],
+      partiallyVotedContests: [contest],
+    },
+    {}
+  );
+
   userEvent.click(
     screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
   );
@@ -215,12 +291,27 @@ test('multiple undervotes', async () => {
   });
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
-  screen.getByText(
-    new RegExp(
-      `You may vote for more candidates in the contests: ${contests[0].title} and ${contests[1].title}.`
-    )
+  screen.getByTestId('mockMisvoteWarnings');
+  expect(mockOf(MisvoteWarnings)).toBeCalledWith(
+    {
+      blankContests: [],
+      overvoteContests: [],
+      partiallyVotedContests: contests,
+    },
+    {}
   );
+
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  screen.getByTestId('mockMisvoteWarningDetails');
+  expect(mockOf(MisvoteWarningDetails)).toBeCalledWith(
+    {
+      blankContests: [],
+      overvoteContests: [],
+      partiallyVotedContests: contests,
+    },
+    {}
+  );
+
   userEvent.click(
     screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
   );

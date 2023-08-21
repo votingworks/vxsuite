@@ -5,11 +5,11 @@ import styled from 'styled-components';
 interface FullScreenPromptLayoutProps {
   actionButtons?: React.ReactNode;
   children?: React.ReactNode;
-  image: React.ReactNode;
+  image?: React.ReactNode;
   title: React.ReactNode;
 }
 
-const HORIZONTAL_PADDING_REM = 0.75;
+const HORIZONTAL_PADDING_REM = 0.5;
 
 const OuterContainer = styled.div`
   display: flex;
@@ -52,16 +52,12 @@ const Text = styled.div`
 `;
 
 const Footer = styled.div`
-  display: flex;
-  gap: ${HORIZONTAL_PADDING_REM}rem;
+  display: grid;
+  grid-gap: ${HORIZONTAL_PADDING_REM}rem;
+  grid-template-columns: 1fr 1fr;
   justify-content: end;
-  padding: 0 ${HORIZONTAL_PADDING_REM}rem 0.5rem;
+  padding: 0 7.5vw 0.25rem;
   width: 100%;
-
-  & > * {
-    flex-grow: 1;
-    max-width: 50%;
-  }
 `;
 
 export function FullScreenPromptLayout(
@@ -72,7 +68,7 @@ export function FullScreenPromptLayout(
   return (
     <OuterContainer>
       <Body>
-        <ImageContainer>{image}</ImageContainer>
+        {image && <ImageContainer>{image}</ImageContainer>}
         <Content>
           <WithScrollButtons noPadding>
             <Text>
