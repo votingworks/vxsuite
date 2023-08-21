@@ -4,7 +4,6 @@ import {
   electionGridLayoutNewHampshireHudsonFixtures,
 } from '@votingworks/fixtures';
 import {
-  AdjudicationReason,
   BallotPaperSize,
   DistrictIdSchema,
   GridPosition,
@@ -67,23 +66,6 @@ test('mismatched ballot image size', async () => {
         backTemplateSize: { width: 684, height: 1080 },
       }),
     ])
-  );
-});
-
-test('default adjudication reasons', async () => {
-  const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImageData(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImageData()
-  );
-  const converted = convertElectionDefinition(
-    hudsonBallotCardDefinition
-  ).unsafeUnwrap();
-  expect(converted.election?.centralScanAdjudicationReasons).toEqual(
-    typedAs<AdjudicationReason[]>([AdjudicationReason.Overvote])
-  );
-  expect(converted.election?.precinctScanAdjudicationReasons).toEqual(
-    typedAs<AdjudicationReason[]>([AdjudicationReason.Overvote])
   );
 });
 

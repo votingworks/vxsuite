@@ -1,6 +1,5 @@
 import { assert, err, iter, ok } from '@votingworks/basics';
 import {
-  AdjudicationReason,
   BallotPaperSize,
   BallotTargetMarkPosition,
   Candidate,
@@ -481,8 +480,6 @@ export function convertElectionDefinitionHeader(
         }),
       },
     ],
-    centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
-    precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
     sealUrl: '/seals/Seal_of_New_Hampshire.svg',
   };
 
