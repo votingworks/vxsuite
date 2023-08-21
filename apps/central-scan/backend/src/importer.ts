@@ -155,16 +155,16 @@ export class Importer {
     [frontImagePath, backImagePath]: SheetOf<string>
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const electionDefinition = this.getElectionDefinition();
+    const { store } = this.workspace;
 
     return ok(
       await interpretSheetAndSaveImages(
         {
           electionDefinition,
           precinctSelection: ALL_PRECINCTS_SELECTION,
-          testMode: this.workspace.store.getTestMode(),
-          adjudicationReasons:
-            electionDefinition.election.centralScanAdjudicationReasons,
-          markThresholds: this.workspace.store.getMarkThresholds(),
+          testMode: store.getTestMode(),
+          adjudicationReasons: store.getAdjudicationReasons(),
+          markThresholds: store.getMarkThresholds(),
         },
         [frontImagePath, backImagePath],
         sheetId,
