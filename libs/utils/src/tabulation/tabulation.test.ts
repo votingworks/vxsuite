@@ -64,6 +64,7 @@ function loadCastVoteRecordsFromReport(
       ballotStyleId: cvr.BallotStyleId,
       batchId: cvr.BatchId,
       scannerId: cvr.CreatingDeviceId,
+      partyId: cvr.PartyIds?.[0],
       precinctId: cvr.BallotStyleUnitId,
       votingMethod: cvr.vxBallotType as Tabulation.VotingMethod,
       card: cvr.BallotSheetId
