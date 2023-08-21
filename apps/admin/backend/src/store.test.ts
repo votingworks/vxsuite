@@ -200,9 +200,11 @@ test('manual results', () => {
   expect(
     store.getManualResults({
       electionId,
-      precinctIds: [precinctId],
-      ballotStyleIds: [ballotStyleId],
-      votingMethods: [votingMethod],
+      filter: {
+        precinctIds: [precinctId],
+        ballotStyleIds: [ballotStyleId],
+        votingMethods: [votingMethod],
+      },
     })
   ).toMatchObject([{ precinctId, ballotStyleId, votingMethod, manualResults }]);
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
