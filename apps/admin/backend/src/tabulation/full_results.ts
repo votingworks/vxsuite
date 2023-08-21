@@ -38,7 +38,7 @@ export function tabulateCastVoteRecords({
   } = assertDefined(store.getElection(electionId));
 
   return tabulateFilteredCastVoteRecords({
-    cvrs: store.getCastVoteRecords({ electionId, election, filter }),
+    cvrs: store.getCastVoteRecords({ electionId, filter }),
     election,
     groupBy,
   });

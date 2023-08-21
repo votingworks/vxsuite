@@ -69,6 +69,7 @@ export interface CastVoteRecordAttributes {
   readonly votingMethod: VotingMethod;
   readonly batchId: Id;
   readonly scannerId: Id;
+  readonly partyId?: Id;
 }
 
 /**
@@ -83,9 +84,7 @@ export type Card = { type: 'bmd' } | { type: 'hmpb'; sheetNumber: number };
  */
 export type GroupSpecifier = Partial<{
   -readonly [K in keyof CastVoteRecordAttributes]: CastVoteRecordAttributes[K];
-}> & {
-  partyId?: Id;
-};
+}>;
 
 /**
  * The cast vote record attributes we can use to group election results. For

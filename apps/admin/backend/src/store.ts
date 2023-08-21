@@ -36,7 +36,6 @@ import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
 import {
   OfficialCandidateNameLookup,
-  getBallotStyleIdPartyIdLookup,
   getOfficialCandidateNameLookup,
   safeParseSystemSettings,
 } from '@votingworks/utils';
@@ -67,10 +66,17 @@ import {
   CardTally,
   WriteInAdjudicationQueueMetadata,
 } from './types';
-import { isBlankSheet, replacePartyIdFilter } from './tabulation/utils';
+import { isBlankSheet } from './tabulation/utils';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('store');
+
+type StoreCastVoteRecordAttributes = Omit<
+  Tabulation.CastVoteRecordAttributes,
+  'partyId'
+> & {
+  readonly partyId: string | null;
+};
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -849,7 +855,7 @@ export class Store {
 
   private getTabulationFilterAsSql(
     electionId: Id,
-    filter: CastVoteRecordStoreFilter
+    filter: Tabulation.Filter
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
@@ -859,6 +865,13 @@ export class Store {
         `cvrs.ballot_style_id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
       );
       params.push(...filter.ballotStyleIds);
+    }
+
+    if (filter.partyIds) {
+      whereParts.push(
+        `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
+      );
+      params.push(...filter.partyIds);
     }
 
     if (filter.precinctIds) {
@@ -906,45 +919,45 @@ export class Store {
    */
   *getCastVoteRecords({
     electionId,
-    election,
     filter,
   }: {
     electionId: Id;
-    election: Election;
     filter: Tabulation.Filter;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
-      replacePartyIdFilter(filter, election)
+      filter
     );
 
     for (const row of this.client.each(
       `
         select
           cvrs.ballot_style_id as ballotStyleId,
+          ballot_styles.party_id as partyId,
           cvrs.precinct_id as precinctId,
-          cvrs.ballot_type as ballotType,
+          cvrs.ballot_type as votingMethod,
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes
-        from
-          cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        from cvrs 
+        inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        inner join ballot_styles on
+          cvrs.election_id = ballot_styles.election_id and 
+          cvrs.ballot_style_id = ballot_styles.id
         where ${whereParts.join(' and ')}
       `,
       ...params
-    ) as Iterable<{
-      ballotStyleId: string;
-      ballotType: string;
-      batchId: string;
-      precinctId: string;
-      scannerId: string;
-      sheetNumber: number | null;
-      votes: string;
-    }>) {
+    ) as Iterable<
+      StoreCastVoteRecordAttributes & {
+        sheetNumber: number | null;
+        votes: string;
+      }
+    >) {
       yield {
         ballotStyleId: row.ballotStyleId,
-        votingMethod: row.ballotType as Tabulation.VotingMethod,
+        partyId: row.partyId ?? undefined,
+        votingMethod: row.votingMethod,
         batchId: row.batchId,
         scannerId: row.scannerId,
         precinctId: row.precinctId,
@@ -959,12 +972,10 @@ export class Store {
    */
   *getCardTallies({
     electionId,
-    election,
     groupBy = {},
     blankBallotsOnly = false,
   }: {
     electionId: Id;
-    election: Election;
     groupBy?: Tabulation.GroupBy;
     blankBallotsOnly?: boolean;
   }): Generator<Tabulation.GroupOf<CardTally>> {
@@ -974,9 +985,14 @@ export class Store {
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
-    if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
+    if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_id as ballotStyleId');
       groupByParts.push('cvrs.ballot_style_id');
+    }
+
+    if (groupBy.groupByParty) {
+      selectParts.push('ballot_styles.party_id as partyId');
+      groupByParts.push('ballot_styles.party_id');
     }
 
     if (groupBy.groupByBatch) {
@@ -1002,18 +1018,17 @@ export class Store {
     if (blankBallotsOnly) {
       whereParts.push('cvrs.is_blank = 1');
     }
-
-    const ballotStylePartyLookup = getBallotStyleIdPartyIdLookup(election);
-
     for (const row of this.client.each(
       `
           select
             ${selectParts.map((line) => `${line},`).join('\n')}
             cvrs.sheet_number as sheetNumber,
             count(cvrs.id) as tally
-          from cvrs
-          inner join
-            scanner_batches on scanner_batches.id = cvrs.batch_id
+          from cvrs 
+          inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+          inner join ballot_styles on
+            cvrs.election_id = ballot_styles.election_id and 
+            cvrs.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
           group by
             ${groupByParts.map((line) => `${line},`).join('\n')}
@@ -1021,7 +1036,7 @@ export class Store {
         `,
       ...params
     ) as Iterable<
-      Partial<Tabulation.CastVoteRecordAttributes> & {
+      Partial<StoreCastVoteRecordAttributes> & {
         sheetNumber: number | null;
         tally: number;
       }
@@ -1030,9 +1045,7 @@ export class Store {
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
-        partyId: groupBy.groupByParty
-          ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
-          : undefined,
+        partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
@@ -1311,15 +1324,20 @@ export class Store {
   }): Generator<Tabulation.GroupOf<WriteInTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
-      replacePartyIdFilter(filter, election)
+      filter
     );
 
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
-    if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
+    if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_id as ballotStyleId');
       groupByParts.push('cvrs.ballot_style_id');
+    }
+
+    if (groupBy.groupByParty) {
+      selectParts.push('ballot_styles.party_id as partyId');
+      groupByParts.push('ballot_styles.party_id');
     }
 
     if (groupBy.groupByBatch) {
@@ -1344,7 +1362,6 @@ export class Store {
 
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);
-    const ballotStylePartyLookup = getBallotStyleIdPartyIdLookup(election);
 
     for (const row of this.client.each(
       `
@@ -1359,8 +1376,10 @@ export class Store {
           from write_ins
           inner join
             cvrs on write_ins.cvr_id = cvrs.id
-          inner join
-            scanner_batches on scanner_batches.id = cvrs.batch_id
+          inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+          inner join ballot_styles on
+              cvrs.election_id = ballot_styles.election_id and 
+              cvrs.ballot_style_id = ballot_styles.id
           left join
             write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
           where ${whereParts.join(' and ')}
@@ -1372,16 +1391,12 @@ export class Store {
             write_ins.is_invalid
         `,
       ...params
-    ) as Iterable<
-      WriteInTallyRow & Partial<Tabulation.CastVoteRecordAttributes>
-    >) {
+    ) as Iterable<WriteInTallyRow & Partial<StoreCastVoteRecordAttributes>>) {
       const groupSpecifier: Tabulation.GroupSpecifier = {
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
-        partyId: groupBy.groupByParty
-          ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
-          : undefined,
+        partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,

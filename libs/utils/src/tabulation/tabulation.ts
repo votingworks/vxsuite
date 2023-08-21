@@ -236,8 +236,7 @@ export function isGroupByEmpty(groupBy: Tabulation.GroupBy): boolean {
 
 function getCastVoteRecordGroupSpecifier(
   cvr: Tabulation.CastVoteRecord,
-  groupBy: Tabulation.GroupBy,
-  partyIdLookup: BallotStyleIdPartyIdLookup
+  groupBy: Tabulation.GroupBy
 ): Tabulation.GroupSpecifier {
   return {
     ballotStyleId: groupBy.groupByBallotStyle ? cvr.ballotStyleId : undefined,
@@ -245,9 +244,7 @@ function getCastVoteRecordGroupSpecifier(
     batchId: groupBy.groupByBatch ? cvr.batchId : undefined,
     scannerId: groupBy.groupByScanner ? cvr.scannerId : undefined,
     votingMethod: groupBy.groupByVotingMethod ? cvr.votingMethod : undefined,
-    partyId: groupBy.groupByParty
-      ? partyIdLookup[cvr.ballotStyleId]
-      : undefined,
+    partyId: groupBy.groupByParty ? cvr.partyId : undefined,
   };
 }
 
@@ -445,14 +442,9 @@ export async function tabulateCastVoteRecords({
   }
 
   // general case, grouping results by specified group by clause
-  const partyIdLookup = getBallotStyleIdPartyIdLookup(election);
   let i = 0;
   for (const cvr of cvrs) {
-    const groupSpecifier = getCastVoteRecordGroupSpecifier(
-      cvr,
-      groupBy,
-      partyIdLookup
-    );
+    const groupSpecifier = getCastVoteRecordGroupSpecifier(cvr, groupBy);
     const groupKey = getGroupKey(groupSpecifier, groupBy);
     const existingElectionResult = groupedElectionResults[groupKey];
     if (existingElectionResult) {

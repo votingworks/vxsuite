@@ -52,13 +52,8 @@ export function tabulateScannedCardCounts({
   groupBy?: Tabulation.GroupBy;
   blankBallotsOnly?: boolean;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
-  const {
-    electionDefinition: { election },
-  } = assertDefined(store.getElection(electionId));
-
   const cardTallies = store.getCardTallies({
     electionId,
-    election,
     groupBy,
     blankBallotsOnly,
   });
@@ -145,6 +140,7 @@ export function tabulateFullCardCounts({
     groupedManualBallotCounts,
     (scannedCardCounts, manualBallotCount) => {
       return {
+        // eslint-disable-next-line vx/gts-spread-like-types
         ...(scannedCardCounts ?? getEmptyCardCounts()),
         manual: manualBallotCount ?? 0,
       };
