@@ -18,7 +18,7 @@ exports[`renders ButtonBar 1`] = `
   -ms-flex-pack: center;
   justify-content: center;
   border-top: 0.05rem solid #263238;
-  padding: 0.75rem;
+  padding: 7.2px;
   gap: 7.2px;
 }
 
