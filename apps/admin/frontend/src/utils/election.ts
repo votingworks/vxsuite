@@ -18,6 +18,7 @@ import {
 import { assert, find, mapObject } from '@votingworks/basics';
 import type { TallyReportResults } from '@votingworks/admin-backend';
 import {
+  getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
@@ -268,13 +269,16 @@ export async function generateResultsFromTestDeckBallots({
   election: Election;
   testDeckBallots: TestDeckBallot[];
 }): Promise<Tabulation.GroupList<TallyReportResults>> {
+  const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
+
   return groupMapToGroupList(
     mapObject(
       await tabulateCastVoteRecords({
         election,
-        cvrs: testDeckBallots.map((testDeckBallot) =>
-          testDeckBallotToCastVoteRecord(testDeckBallot)
-        ),
+        cvrs: testDeckBallots.map((testDeckBallot) => ({
+          ...testDeckBallotToCastVoteRecord(testDeckBallot),
+          partyId: ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId],
+        })),
         groupBy: electionHasPrimaryContest(election)
           ? { groupByParty: true }
           : undefined,
