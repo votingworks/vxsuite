@@ -137,7 +137,6 @@ export class Store {
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
   withTransaction<T>(fn: () => T): T {
     return this.client.transaction(fn, (result: T) => {
       if (isResult(result)) {
@@ -153,12 +152,15 @@ export class Store {
    */
   addElection(electionData: string): Id {
     const id = uuid();
-    this.client.run(
-      'insert into elections (id, data) values (?, ?)',
-      id,
-      electionData
-    );
-    this.createElectionMetadataRecords(id);
+    this.withTransaction(() => {
+      this.client.run(
+        'insert into elections (id, data) values (?, ?)',
+        id,
+        electionData
+      );
+      this.createElectionMetadataRecords(id);
+    });
+
     return id;
   }
 
