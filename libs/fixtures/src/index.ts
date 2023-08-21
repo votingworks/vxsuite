@@ -7,6 +7,7 @@ export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021
 export * as electionSample2Fixtures from './data/electionSample2';
 export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPrimary';
 export * as electionMinimalExhaustiveSampleFixtures from './data/electionMinimalExhaustiveSample';
+export * as electionComplexGeoSample from './data/electionComplexGeoSample/election.json';
 export * as electionMinimalExhaustiveSampleWithReportingUrlFixtures from './data/electionMinimalExhaustiveSampleWithReportingUrl';
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
 export * as primaryElectionSampleFixtures from './data/electionPrimary';

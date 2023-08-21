@@ -8,6 +8,7 @@ test('has various election definitions', () => {
       .sort()
   ).toMatchInlineSnapshot(`
     [
+      "electionComplexGeoSample",
       "electionFamousNames2021Fixtures",
       "electionGridLayoutNewHampshireAmherstFixtures",
       "electionGridLayoutNewHampshireHudsonFixtures",

@@ -1,0 +1,321 @@
+{
+  "title": "Example Primary Election",
+  "state": "State of Sample",
+  "county": {
+    "id": "sample-county",
+    "name": "Sample County"
+  },
+  "date": "2021-09-08T00:00:00-08:00",
+  "ballotLayout": {
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
+  },
+  "districts": [
+    {
+      "id": "county",
+      "name": "County"
+    },
+    {
+      "id": "congressional-1",
+      "name": "Congressional District 1"
+    },
+    {
+      "id": "congressional-2",
+      "name": "Congressional District 2"
+    },
+    {
+      "id": "water-1",
+      "name": "Water District 1"
+    },
+    {
+      "id": "water-2",
+      "name": "Water District 2"
+    }
+  ],
+  "parties": [
+    {
+      "id": "0",
+      "name": "Mammal",
+      "fullName": "Mammal Party",
+      "abbrev": "Ma"
+    },
+    {
+      "id": "1",
+      "name": "Fish",
+      "fullName": "Fish Party",
+      "abbrev": "F"
+    }
+  ],
+  "contests": [
+    {
+      "id": "county-leader-mammal",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "County Leader Mammal",
+      "seats": 1,
+      "partyId": "0",
+      "candidates": [
+        {
+          "id": "horse",
+          "name": "Horse",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "otter",
+          "name": "Otter",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "fox",
+          "name": "Fox",
+          "partyIds": ["0"]
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "county-leader-fish",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "County Leader Fish",
+      "seats": 1,
+      "partyId": "1",
+      "candidates": [
+        {
+          "id": "seahorse",
+          "name": "Seahorse",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "salmon",
+          "name": "Salmon",
+          "partyIds": ["1"]
+        }
+      ],
+      "allowWriteIns": false
+    },
+    {
+      "id": "congressional-1-mammal",
+      "districtId": "congressional-1",
+      "type": "candidate",
+      "title": "Congressional 1 Representative - Mammal",
+      "seats": 1,
+      "partyId": "0",
+      "candidates": [
+        {
+          "id": "zebra",
+          "name": "Zebra",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "lion",
+          "name": "Lion",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "kangaroo",
+          "name": "Kangaroo",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "elephant",
+          "name": "Elephant",
+          "partyIds": ["0"]
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "congressional-1-fish",
+      "districtId": "congressional-1",
+      "type": "candidate",
+      "title": "Congressional 1 Representative - Fish",
+      "seats": 1,
+      "partyId": "1",
+      "candidates": [
+        {
+          "id": "manta-ray",
+          "name": "Manta Ray",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "pufferfish",
+          "name": "Pufferfish",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "rockfish",
+          "name": "Rockfish",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "triggerfish",
+          "name": "Triggerfish",
+          "partyIds": ["1"]
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "congressional-2-mammal",
+      "districtId": "congressional-2",
+      "type": "candidate",
+      "title": "Congressional 2 Representative - Mammal",
+      "seats": 1,
+      "partyId": "0",
+      "candidates": [
+        {
+          "id": "zebra",
+          "name": "Zebra",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "lion",
+          "name": "Lion",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "kangaroo",
+          "name": "Kangaroo",
+          "partyIds": ["0"]
+        },
+        {
+          "id": "elephant",
+          "name": "Elephant",
+          "partyIds": ["0"]
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "congressional-2-fish",
+      "districtId": "congressional-2",
+      "type": "candidate",
+      "title": "Congressional 2 Representative - Fish",
+      "seats": 1,
+      "partyId": "1",
+      "candidates": [
+        {
+          "id": "manta-ray",
+          "name": "Manta Ray",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "pufferfish",
+          "name": "Pufferfish",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "rockfish",
+          "name": "Rockfish",
+          "partyIds": ["1"]
+        },
+        {
+          "id": "triggerfish",
+          "name": "Triggerfish",
+          "partyIds": ["1"]
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "water-1-fishing",
+      "districtId": "water-1",
+      "type": "yesno",
+      "title": "Water District 1 Fishing",
+      "description": "Should fishing be banned in all city owned lakes and rivers?",
+      "yesOption": {
+        "id": "ban-fishing",
+        "label": "YES"
+      },
+      "noOption": {
+        "id": "allow-fishing",
+        "label": "NO"
+      }
+    },
+    {
+      "id": "water-2-fishing",
+      "districtId": "water-2",
+      "type": "yesno",
+      "title": "Water District 2 Fishing",
+      "description": "Should fishing be banned in all city owned lakes and rivers?",
+      "yesOption": {
+        "id": "ban-fishing",
+        "label": "YES"
+      },
+      "noOption": {
+        "id": "allow-fishing",
+        "label": "NO"
+      }
+    }
+  ],
+  "precincts": [
+    {
+      "id": "precinct-c1-w1-1",
+      "name": "Precinct 1"
+    },
+    {
+      "id": "precinct-c1-w1-2",
+      "name": "Precinct 2"
+    },
+    {
+      "id": "precinct-c1-w2",
+      "name": "Precinct 3"
+    },
+    {
+      "id": "precinct-c2",
+      "name": "Precinct 4"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "m-c1-w1",
+      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
+      "districts": ["county", "congressional-1", "water-1"],
+      "partyId": "0"
+    },
+    {
+      "id": "f-c1-w1",
+      "precincts": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
+      "districts": ["county", "congressional-1", "water-1"],
+      "partyId": "1"
+    },
+    {
+      "id": "m-c1-w2",
+      "precincts": ["precinct-c1-w2"],
+      "districts": ["county", "congressional-1", "water-2"],
+      "partyId": "0"
+    },
+    {
+      "id": "f-c1-w2",
+      "precincts": ["precinct-c1-w2"],
+      "districts": ["county", "congressional-1", "water-2"],
+      "partyId": "1"
+    },
+    {
+      "id": "m-c2-w1",
+      "precincts": ["precinct-c2"],
+      "districts": ["county", "congressional-2", "water-1"],
+      "partyId": "0"
+    },
+    {
+      "id": "f-c2-w1",
+      "precincts": ["precinct-c2"],
+      "districts": ["county", "congressional-2", "water-1"],
+      "partyId": "1"
+    },
+    {
+      "id": "m-c2-w2",
+      "precincts": ["precinct-c2"],
+      "districts": ["county", "congressional-2", "water-2"],
+      "partyId": "0"
+    },
+    {
+      "id": "f-c2-w2",
+      "precincts": ["precinct-c2"],
+      "districts": ["county", "congressional-2", "water-2"],
+      "partyId": "1"
+    }
+  ],
+  "sealUrl": "/seals/Sample-Seal.svg"
+}
