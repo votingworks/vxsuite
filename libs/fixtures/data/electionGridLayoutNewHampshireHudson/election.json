@@ -405,10 +405,7 @@
   ],
   "gridLayouts": [
     {
-      "precinctId": "town-id-12101-precinct-id-",
       "ballotStyleId": "card-number-54",
-      "columns": 34,
-      "rows": 53,
       "optionBoundsFromTargetMark": {
         "top": 1,
         "right": 1,
