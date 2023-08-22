@@ -206,8 +206,6 @@ export function convertElectionDefinition(
       gridLayouts: [
         {
           ...gridLayout,
-          columns: frontGridAndBubbles.grid.geometry.gridSize.width,
-          rows: frontGridAndBubbles.grid.geometry.gridSize.height,
           ballotStyleId,
           gridPositions: mergedGrids.map(([definition, bubble]) => ({
             ...definition,

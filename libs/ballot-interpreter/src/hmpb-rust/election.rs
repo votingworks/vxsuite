@@ -56,8 +56,6 @@ pub struct Precinct {
 #[serde(rename_all = "camelCase")]
 pub struct GridLayout {
     pub ballot_style_id: BallotStyleId,
-    pub columns: GridUnit,
-    pub rows: GridUnit,
     pub option_bounds_from_target_mark: Outset<GridUnit>,
     pub grid_positions: Vec<GridPosition>,
 }

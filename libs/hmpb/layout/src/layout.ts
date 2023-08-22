@@ -1684,8 +1684,6 @@ function layOutBallotHelper({
     },
     gridLayout: {
       ballotStyleId: ballotStyle.id,
-      columns: m.GRID.columns,
-      rows: m.GRID.rows,
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,

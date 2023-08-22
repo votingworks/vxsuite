@@ -63,8 +63,6 @@ function createElection(): Election {
   const gridLayouts: GridLayout[] = [
     {
       ballotStyleId,
-      columns: GRID.columns,
-      rows: GRID.rows,
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,

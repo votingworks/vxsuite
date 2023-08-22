@@ -444,9 +444,6 @@ export function convertElectionDefinitionHeader(
     gridLayouts: [
       {
         ballotStyleId: 'default',
-        // placeholder values to be overridden
-        columns: 0,
-        rows: 0,
         // hardcoded for NH state elections
         optionBoundsFromTargetMark: {
           left: 5,
