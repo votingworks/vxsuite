@@ -69,10 +69,10 @@ export interface InsertedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface InsertedSmartCardAuthMachineState {
-  arePollWorkerCardPinsEnabled?: boolean;
   electionHash?: string;
   jurisdiction?: string;
-  numIncorrectPinAttemptsAllowedBeforeCardLockout?: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
-  overallSessionTimeLimitHours?: OverallSessionTimeLimitHours;
-  startingCardLockoutDurationSeconds?: StartingCardLockoutDurationSeconds;
+  arePollWorkerCardPinsEnabled: boolean;
+  numIncorrectPinAttemptsAllowedBeforeCardLockout: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
+  overallSessionTimeLimitHours: OverallSessionTimeLimitHours;
+  startingCardLockoutDurationSeconds: StartingCardLockoutDurationSeconds;
 }

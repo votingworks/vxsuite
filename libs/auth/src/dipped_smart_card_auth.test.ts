@@ -17,6 +17,9 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import {
+  DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+  DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
+  DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   DippedSmartCardAuth as DippedSmartCardAuthTypes,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -73,6 +76,12 @@ const defaultConfig: DippedSmartCardAuthConfig = {};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
   electionHash,
   jurisdiction,
+  arePollWorkerCardPinsEnabled: false,
+  numIncorrectPinAttemptsAllowedBeforeCardLockout:
+    DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+  startingCardLockoutDurationSeconds:
+    DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
+  overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
 };
 const systemAdministratorUser = fakeSystemAdministratorUser({ jurisdiction });
 const electionManagerUser = fakeElectionManagerUser({
