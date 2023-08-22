@@ -2,8 +2,8 @@ import { mockOf } from '@votingworks/test-utils';
 import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
 import {
-  ArtifactAuthenticatorConfig,
-  constructArtifactAuthenticatorConfig,
+  ArtifactAuthenticationConfig,
+  constructArtifactAuthenticationConfig,
   constructJavaCardConfig,
   constructLiveCheckConfig,
   JavaCardConfig,
@@ -163,7 +163,7 @@ test.each<{
   isVxDev?: true;
   isIntegrationTest?: true;
   machineType: NonNullable<NodeJS.ProcessEnv['VX_MACHINE_TYPE']>;
-  expectedOutput: ArtifactAuthenticatorConfig;
+  expectedOutput: ArtifactAuthenticationConfig;
 }>([
   {
     nodeEnv: 'development',
@@ -303,7 +303,7 @@ test.each<{
       () => isIntegrationTestResult ?? false
     );
 
-    expect(constructArtifactAuthenticatorConfig()).toEqual(expectedOutput);
+    expect(constructArtifactAuthenticationConfig()).toEqual(expectedOutput);
   }
 );
 
