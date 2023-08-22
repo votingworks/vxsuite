@@ -43,12 +43,12 @@ export function FormField({
 }): JSX.Element {
   return (
     <div style={{ marginBottom: '1.5rem' }}>
-      <label
-        style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 'bold' }}
-      >
-        {label}
+      <label style={{ display: 'block' }}>
+        <div style={{ marginBottom: '0.4rem', fontWeight: 'bold' }}>
+          {label}
+        </div>
+        {children}
       </label>
-      {children}
     </div>
   );
 }

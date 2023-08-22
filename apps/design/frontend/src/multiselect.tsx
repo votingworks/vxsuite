@@ -46,7 +46,7 @@ export function MultiSelect({
   disabled = false,
 }: MultiSelectProps): JSX.Element {
   return (
-    <Container>
+    <Container role="listbox">
       {options.map((option) => {
         const isSelected = value.includes(option.value);
         return (
@@ -54,6 +54,7 @@ export function MultiSelect({
             key={option.label}
             isSelected={isSelected}
             disabled={disabled}
+            role="option"
           >
             {isSelected ? <Icons.Checkbox /> : <Icons.Square />}
             <input
