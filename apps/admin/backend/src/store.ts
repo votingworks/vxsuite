@@ -300,8 +300,8 @@ export class Store {
 
     this.addVotingMethodRecords({ electionId });
 
-    for (const [sortIndex, precinct] of election.precincts.entries()) {
-      this.createPrecinctRecord({ electionId, precinct, sortIndex });
+    for (const precinct of election.precincts) {
+      this.createPrecinctRecord({ electionId, precinct });
     }
 
     for (const ballotStyle of election.ballotStyles) {
@@ -322,27 +322,23 @@ export class Store {
   private createPrecinctRecord({
     electionId,
     precinct,
-    sortIndex,
   }: {
     electionId: Id;
     precinct: Precinct;
-    sortIndex: number;
   }): void {
     this.client.run(
       `
         insert into precincts (
           election_id,
           id,
-          name,
-          sort_index
+          name
         ) values (
-          ?, ?, ?, ?
+          ?, ?, ?
         )
       `,
       electionId,
       precinct.id,
-      precinct.name,
-      sortIndex
+      precinct.name
     );
   }
 
@@ -477,9 +473,8 @@ export class Store {
     const sortByParts: string[] = [];
     if (groupBy.groupByPrecinct) {
       selectParts.push('precincts.id as precinctId');
-      selectParts.push('precincts.sort_index as precinctSortIndex');
       groupByParts.push('precinctId');
-      sortByParts.push('precinctSortIndex');
+      sortByParts.push('precinctId');
     }
     if (groupBy.groupByParty) {
       selectParts.push('ballot_styles.party_id as partyId');

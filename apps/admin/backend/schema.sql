@@ -10,7 +10,6 @@ create table precincts(
   election_id integer not null,
   id text not null,
   name text not null,
-  sort_index integer not null,
   primary key (election_id, id),
   foreign key (election_id) references elections(id)
     on delete cascade
