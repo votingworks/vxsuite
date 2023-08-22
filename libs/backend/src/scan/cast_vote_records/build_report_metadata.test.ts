@@ -192,12 +192,12 @@ test('builds well-formed cast vote record report', () => {
           Name: ballotMeasureContest.title,
           ContestSelection: [
             expect.objectContaining({
-              '@id': 'yes',
-              Selection: 'yes',
+              '@id': ballotMeasureContest.yesOption.id,
+              Selection: ballotMeasureContest.yesOption.label,
             }),
             expect.objectContaining({
-              '@id': 'no',
-              Selection: 'no',
+              '@id': ballotMeasureContest.noOption.id,
+              Selection: ballotMeasureContest.noOption.label,
             }),
           ],
         }),
