@@ -579,9 +579,22 @@ export async function main(args: string[]): Promise<number> {
 
     const electionDefinition = parseElectionDefinitionResult.ok();
 
-    const systemSettings = safeParseSystemSettings(
+    const parseSystemSettingsResult = safeParseSystemSettings(
       await fs.readFile(systemSettingsPath, 'utf8')
-    ).ok();
+    );
+
+    // Just warn, don't fail, if the system settings are invalid, since we may
+    // be using old data that doesn't parse anymore, and we may want to allow
+    // the default mark thresholds to be used.
+    if (parseSystemSettingsResult.isErr()) {
+      stderr.write(
+        `Warning: error parsing system settings: ${
+          parseSystemSettingsResult.err().message
+        }\n`
+      );
+    }
+
+    const systemSettings = parseSystemSettingsResult.ok();
 
     return await interpretFiles(
       electionDefinition,
