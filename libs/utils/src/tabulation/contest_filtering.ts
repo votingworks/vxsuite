@@ -6,6 +6,7 @@ import {
   PrecinctId,
   Tabulation,
   AnyContest,
+  Contests,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
@@ -204,57 +205,60 @@ export function mapContestIdsToContests(
   );
 }
 
-/**
- * Different splits will have different contests i.e. different ballot styles.
- * An invalid split would contain no contests.
- */
-export function getBallotStyleIdsForSplit(
-  electionDefinition: ElectionDefinition,
-  split: Tabulation.GroupSpecifier
-): Set<ContestId> {
-  let ballotStyleIds = new Set(
-    electionDefinition.election.ballotStyles.map((bs) => bs.id)
-  );
-
-  if (split.ballotStyleId) {
-    // if we assumed that all splits passed to this function were valid, we
-    // could short-circuit here, but we're not making that assumption here
-    ballotStyleIds = new Set([split.ballotStyleId]);
-  }
-
-  if (split.partyId) {
-    ballotStyleIds = intersectSets([
-      ballotStyleIds,
-      new Set(
-        getBallotStylesByPartyId(electionDefinition, split.partyId).map(
-          (bs) => bs.id
-        )
-      ),
-    ]);
-  }
-
-  if (split.precinctId) {
-    ballotStyleIds = intersectSets([
-      ballotStyleIds,
-      new Set(
-        getBallotStylesByPrecinctId(electionDefinition, split.precinctId).map(
-          (bs) => bs.id
-        )
-      ),
-    ]);
-  }
-
-  return ballotStyleIds;
+export function convertGroupSpecifierToFilter(
+  group: Tabulation.GroupSpecifier
+): Tabulation.Filter {
+  return {
+    ballotStyleIds: group.ballotStyleId ? [group.ballotStyleId] : undefined,
+    partyIds: group.partyId ? [group.partyId] : undefined,
+    precinctIds: group.precinctId ? [group.precinctId] : undefined,
+    scannerIds: group.scannerId ? [group.scannerId] : undefined,
+    batchIds: group.batchId ? [group.batchId] : undefined,
+    votingMethods: group.votingMethod ? [group.votingMethod] : undefined,
+  };
 }
 
-/**
- * Splits often contain only certain ballot styles and thus only certain contests.
- */
-export function getContestIdsForSplit(
+export function mergeFilters(
+  filter1: Tabulation.Filter,
+  filter2: Tabulation.Filter
+): Tabulation.Filter {
+  return {
+    ballotStyleIds:
+      filter1.ballotStyleIds || filter2.ballotStyleIds
+        ? [...(filter1.ballotStyleIds || []), ...(filter2.ballotStyleIds || [])]
+        : undefined,
+    partyIds:
+      filter1.partyIds || filter2.partyIds
+        ? [...(filter1.partyIds || []), ...(filter2.partyIds || [])]
+        : undefined,
+    precinctIds:
+      filter1.precinctIds || filter2.precinctIds
+        ? [...(filter1.precinctIds || []), ...(filter2.precinctIds || [])]
+        : undefined,
+    scannerIds:
+      filter1.scannerIds || filter2.scannerIds
+        ? [...(filter1.scannerIds || []), ...(filter2.scannerIds || [])]
+        : undefined,
+    batchIds:
+      filter1.batchIds || filter2.batchIds
+        ? [...(filter1.batchIds || []), ...(filter2.batchIds || [])]
+        : undefined,
+    votingMethods:
+      filter1.votingMethods || filter2.votingMethods
+        ? [...(filter1.votingMethods || []), ...(filter2.votingMethods || [])]
+        : undefined,
+  };
+}
+
+export function getContestsForPrecinct(
   electionDefinition: ElectionDefinition,
-  split: Tabulation.GroupSpecifier
-): Set<ContestId> {
-  return getContestIdsForBallotStyleIds(electionDefinition, [
-    ...getBallotStyleIdsForSplit(electionDefinition, split),
-  ]);
+  precinctId?: PrecinctId
+): Contests {
+  const { election } = electionDefinition;
+  if (!precinctId) {
+    return election.contests;
+  }
+
+  const contestIds = getContestIdsForPrecinct(electionDefinition, precinctId);
+  return mapContestIdsToContests(electionDefinition, contestIds);
 }

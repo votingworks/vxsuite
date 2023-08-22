@@ -14,6 +14,7 @@ import {
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
+  AnyContest,
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
@@ -22,6 +23,7 @@ import {
   ContestId,
   ContestOptionId,
   CVR,
+  DistrictId,
   Election,
   Id,
   Iso8601Timestamp,
@@ -304,6 +306,10 @@ export class Store {
       this.createPrecinctRecord({ electionId, precinct });
     }
 
+    for (const contest of election.contests) {
+      this.createContestRecord({ electionId, contest });
+    }
+
     for (const ballotStyle of election.ballotStyles) {
       this.createBallotStyleRecord({ electionId, ballotStyle });
       for (const precinctId of ballotStyle.precincts) {
@@ -311,6 +317,13 @@ export class Store {
           electionId,
           ballotStyleId: ballotStyle.id,
           precinctId,
+        });
+      }
+      for (const districtId of ballotStyle.districts) {
+        this.createBallotStyleDistrictLinkRecord({
+          electionId,
+          ballotStyleId: ballotStyle.id,
+          districtId,
         });
       }
     }
@@ -396,6 +409,62 @@ export class Store {
       electionId,
       ballotStyleId,
       precinctId
+    );
+  }
+
+  /**
+   * Adds link record representing the association between a ballot style and a district.
+   */
+  private createBallotStyleDistrictLinkRecord({
+    electionId,
+    ballotStyleId,
+    districtId,
+  }: {
+    electionId: Id;
+    ballotStyleId: BallotStyleId;
+    districtId: DistrictId;
+  }): void {
+    this.client.run(
+      `
+          insert into ballot_styles_to_districts (
+            election_id,
+            ballot_style_id,
+            district_id
+          ) values (
+            ?, ?, ?
+          )
+        `,
+      electionId,
+      ballotStyleId,
+      districtId
+    );
+  }
+
+  /**
+   * Adds record for an election contest.
+   */
+  private createContestRecord({
+    electionId,
+    contest,
+  }: {
+    electionId: Id;
+    contest: AnyContest;
+  }): void {
+    this.client.run(
+      `
+            insert into contests (
+              election_id,
+              id,
+              district_id,
+              party_id
+            ) values (
+              ?, ?, ?, ?
+            )
+          `,
+      electionId,
+      contest.id,
+      contest.districtId,
+      contest.type === 'candidate' ? contest.partyId ?? null : null
     );
   }
 
@@ -521,6 +590,74 @@ export class Store {
       ({ universalGroup, precinctSortIndex, ...groupSpecifier }) =>
         groupSpecifier
     );
+  }
+
+  /**
+   * Given a tabulation filter, returns the set of contests that would be
+   * included on possible ballots.
+   */
+  getFilteredContests({
+    electionId,
+    filter = {},
+  }: {
+    electionId: Id;
+    filter?: Tabulation.Filter;
+  }): ContestId[] {
+    const whereParts = ['contests.election_id = ?'];
+    const ballotStyleParams: Bindable[] = [electionId];
+    if (filter.ballotStyleIds) {
+      whereParts.push(
+        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
+      );
+      ballotStyleParams.push(...filter.ballotStyleIds);
+    }
+    if (filter.partyIds) {
+      whereParts.push(
+        `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
+      );
+      ballotStyleParams.push(...filter.partyIds);
+    }
+    if (filter.precinctIds) {
+      whereParts.push(
+        `ballot_styles_to_precincts.precinct_id in ${asQueryPlaceholders(
+          filter.precinctIds
+        )}`
+      );
+      ballotStyleParams.push(...filter.precinctIds);
+    }
+
+    whereParts.push(
+      `(contests.party_id is null or ballot_styles.party_id = contests.party_id)`
+    );
+
+    const query = `
+      select contests.id as contestId
+      from contests
+      inner join ballot_styles_to_districts on
+        ballot_styles_to_districts.election_id = ? and 
+        ballot_styles_to_districts.district_id = contests.district_id
+      inner join ballot_styles on
+        ballot_styles.election_id = ? and
+        ballot_styles.id = ballot_styles_to_districts.ballot_style_id
+      inner join ballot_styles_to_precincts on
+        ballot_styles_to_precincts.election_id = ? and 
+        ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
+      where
+        ${whereParts.join(' and\n')}
+      group by contestId
+    `;
+
+    return (
+      this.client.all(
+        query,
+        electionId,
+        electionId,
+        electionId,
+        ...ballotStyleParams
+      ) as Array<{
+        contestId: ContestId;
+      }>
+    ).map(({ contestId }) => contestId);
   }
 
   /**

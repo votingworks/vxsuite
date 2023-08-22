@@ -1,8 +1,5 @@
 import { ElectionDefinition, Tabulation } from '@votingworks/types';
-import {
-  mapContestIdsToContests,
-  getContestIdsForFilter,
-} from '@votingworks/utils';
+import { getContestsForPrecinct } from '@votingworks/utils';
 import { find } from '@votingworks/basics';
 import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
@@ -22,16 +19,7 @@ export function TestDeckTallyReport({
   return (
     <AdminTallyReportByParty
       election={election}
-      contests={
-        precinctId
-          ? mapContestIdsToContests(
-              electionDefinition,
-              getContestIdsForFilter(electionDefinition, {
-                precinctIds: [precinctId],
-              })
-            )
-          : election.contests
-      }
+      contests={getContestsForPrecinct(electionDefinition, precinctId)}
       title={
         precinctId
           ? `Precinct Tally Report for ${
