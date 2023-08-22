@@ -4,6 +4,7 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
 import {
+  AdjudicationReason,
   DEFAULT_MARK_THRESHOLDS,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
@@ -50,6 +51,7 @@ test('treats BMD ballot with one blank side as valid', async () => {
     ballotImagesPath,
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
+    adjudicationReasons: [],
   });
   expect(result.ok()?.type).toEqual('ValidSheet');
 });
@@ -62,6 +64,7 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     ballotImagesPath,
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
+    adjudicationReasons: [AdjudicationReason.Overvote],
   });
   expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
@@ -77,6 +80,7 @@ test.each([true, false])(
         ballotImagesPath,
         testMode,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [AdjudicationReason.Overvote],
       })
     ).unsafeUnwrap();
     expect(sheet.type).toEqual('ValidSheet');

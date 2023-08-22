@@ -1,6 +1,7 @@
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
@@ -179,7 +180,12 @@ test('ballot needs review - return', async () => {
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+            {
+              ...DEFAULT_SYSTEM_SETTINGS,
+              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+            }
+          ),
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));

@@ -310,11 +310,5 @@
       "districts": ["district-1"]
     }
   ],
-  "sealUrl": "/seals/state-of-hamilton-official-seal.svg",
-  "adjudicationReasons": [
-    "UninterpretableBallot",
-    "Overvote",
-    "Undervote",
-    "BlankBallot"
-  ]
+  "sealUrl": "/seals/state-of-hamilton-official-seal.svg"
 }

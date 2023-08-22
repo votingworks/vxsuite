@@ -454,14 +454,12 @@ export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
 export interface Election {
   readonly ballotLayout: BallotLayout;
   readonly ballotStyles: readonly BallotStyle[];
-  readonly centralScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly contests: Contests;
   readonly gridLayouts?: readonly GridLayout[];
   readonly county: County;
   readonly date: string;
   readonly districts: readonly District[];
   readonly parties: Parties;
-  readonly precinctScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly precincts: readonly Precinct[];
   readonly quickResultsReportingUrl?: string; // a server where results are posted, enables VxQR if present
   readonly seal?: string;
@@ -473,18 +471,12 @@ export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
     ballotLayout: BallotLayoutSchema,
     ballotStyles: BallotStylesSchema,
-    centralScanAdjudicationReasons: z
-      .array(z.lazy(() => AdjudicationReasonSchema))
-      .optional(),
     contests: ContestsSchema,
     gridLayouts: z.array(GridLayoutSchema).optional(),
     county: CountySchema,
     date: Iso8601Date,
     districts: DistrictsSchema,
     parties: PartiesSchema,
-    precinctScanAdjudicationReasons: z
-      .array(z.lazy(() => AdjudicationReasonSchema))
-      .optional(),
     precincts: PrecinctsSchema,
     quickResultsReportingUrl: z
       .string()

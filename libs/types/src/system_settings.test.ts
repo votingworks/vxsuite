@@ -83,3 +83,69 @@ test('disallows invalid mark thresholds', () => {
     ]]
   `);
 });
+
+test('disallows invalid adjudication reasons', () => {
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        precinctScanAdjudicationReasons: ['abcdefg'],
+        centralScanAdjudicationReasons: ['abcdefg'],
+      })
+    ).unsafeUnwrapErr()
+  ).toMatchInlineSnapshot(`
+    [ZodError: [
+      {
+        "code": "invalid_enum_value",
+        "options": [
+          "UninterpretableBallot",
+          "MarginalMark",
+          "Overvote",
+          "Undervote",
+          "BlankBallot"
+        ],
+        "path": [
+          "centralScanAdjudicationReasons",
+          0
+        ],
+        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot'"
+      },
+      {
+        "code": "invalid_enum_value",
+        "options": [
+          "UninterpretableBallot",
+          "MarginalMark",
+          "Overvote",
+          "Undervote",
+          "BlankBallot"
+        ],
+        "path": [
+          "precinctScanAdjudicationReasons",
+          0
+        ],
+        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot'"
+      }
+    ]]
+  `);
+
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        centralScanAdjudicationReasons: 'foooo',
+      })
+    ).unsafeUnwrapErr()
+  ).toMatchInlineSnapshot(`
+    [ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "array",
+        "received": "string",
+        "path": [
+          "centralScanAdjudicationReasons"
+        ],
+        "message": "Expected array, received string"
+      }
+    ]]
+  `);
+});

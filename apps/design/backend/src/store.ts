@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   Id,
@@ -6,6 +7,9 @@ import {
   DistrictId,
   PrecinctId,
   BallotStyleId,
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import deepEqual from 'deep-eql';
 import { join } from 'path';
@@ -15,6 +19,7 @@ export interface ElectionRecord {
   election: Election;
   precincts: Precinct[];
   ballotStyles: BallotStyle[];
+  systemSettings: SystemSettings;
   createdAt: Iso8601Timestamp;
 }
 
@@ -144,6 +149,7 @@ function hydrateElection(row: {
   id: string;
   electionData: string;
   precinctData: string;
+  systemSettingsData: string;
   createdAt: string;
 }): ElectionRecord {
   const rawElection = JSON.parse(row.electionData);
@@ -164,11 +170,16 @@ function hydrateElection(row: {
       rawElection.sealUrl ?? '/seals/state-of-hamilton-official-seal.svg',
   };
 
+  const systemSettings = safeParseSystemSettings(
+    row.systemSettingsData
+  ).unsafeUnwrap();
+
   return {
-    id: row.id,
+    id: String(row.id),
     election,
     precincts,
     ballotStyles,
+    systemSettings,
     createdAt: convertSqliteTimestampToIso8601(row.createdAt),
   };
 }
@@ -195,12 +206,14 @@ export class Store {
         select
           id,
           election_data as electionData,
+          system_settings_data as systemSettingsData,
           precinct_data as precinctData,
           created_at as createdAt
         from elections
       `) as Array<{
         id: string;
         electionData: string;
+        systemSettingsData: string;
         precinctData: string;
         createdAt: string;
       }>
@@ -212,29 +225,37 @@ export class Store {
       `
       select
         election_data as electionData,
+        system_settings_data as systemSettingsData,
         precinct_data as precinctData,
         created_at as createdAt
       from elections
       where id = ?
       `,
       id
-    ) as { electionData: string; precinctData: string; createdAt: string };
+    ) as {
+      electionData: string;
+      systemSettingsData: string;
+      precinctData: string;
+      createdAt: string;
+    };
+    assert(electionRow !== undefined);
     return hydrateElection({ id, ...electionRow });
   }
 
   createElection(election: Election): Id {
     const row = this.client.one(
       `
-      insert into elections (election_data, precinct_data)
-      values (?, ?)
+      insert into elections (election_data, system_settings_data, precinct_data)
+      values (?, ?, ?)
       returning (id)
       `,
       JSON.stringify(election),
+      JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       JSON.stringify(convertVxfPrecincts(election))
     ) as {
       id: string;
     };
-    return row.id;
+    return String(row.id);
   }
 
   updateElection(id: Id, election: Election): void {
@@ -245,6 +266,18 @@ export class Store {
       where id = ?
       `,
       JSON.stringify(election),
+      id
+    );
+  }
+
+  updateSystemSettings(id: Id, systemSettings: SystemSettings): void {
+    this.client.run(
+      `
+      update elections
+      set system_settings_data = ?
+      where id = ?
+      `,
+      JSON.stringify(systemSettings),
       id
     );
   }

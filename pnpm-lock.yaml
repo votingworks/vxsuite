@@ -1433,6 +1433,9 @@ importers:
       '@votingworks/design-backend':
         specifier: workspace:*
         version: link:../backend
+      '@votingworks/fixtures':
+        specifier: workspace:^
+        version: link:../../../libs/fixtures
       '@votingworks/grout-test-utils':
         specifier: workspace:*
         version: link:../../../libs/grout/test-utils

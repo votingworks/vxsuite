@@ -10,7 +10,6 @@
       "districts": ["test-district"]
     }
   ],
-  "centralScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
       "id": "test-contest-page-1",
@@ -30845,7 +30844,6 @@
     }
   ],
   "parties": [],
-  "precinctScanAdjudicationReasons": ["Overvote"],
   "precincts": [
     {
       "id": "test-precinct",

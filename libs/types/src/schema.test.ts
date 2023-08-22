@@ -176,56 +176,6 @@ test('allows valid adjudication reasons', () => {
   }).unsafeUnwrap();
 });
 
-test('disallows invalid adjudication reasons', () => {
-  expect(
-    t
-      .safeParseVxfElection({
-        ...electionSample,
-        precinctScanAdjudicationReasons: ['abcdefg'],
-      })
-      .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_enum_value",
-        "options": [
-          "UninterpretableBallot",
-          "MarginalMark",
-          "Overvote",
-          "Undervote",
-          "BlankBallot"
-        ],
-        "path": [
-          "precinctScanAdjudicationReasons",
-          0
-        ],
-        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot'"
-      }
-    ]]
-  `);
-
-  expect(
-    t
-      .safeParseVxfElection({
-        ...electionSample,
-        centralScanAdjudicationReasons: 'foooo',
-      })
-      .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_type",
-        "expected": "array",
-        "received": "string",
-        "path": [
-          "centralScanAdjudicationReasons"
-        ],
-        "message": "Expected array, received string"
-      }
-    ]]
-  `);
-});
-
 test('supports ballot layout paper size', () => {
   expect(
     t

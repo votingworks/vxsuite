@@ -11,7 +11,6 @@
       "districts": ["town-id-00701-precinct-id-"]
     }
   ],
-  "centralScanAdjudicationReasons": ["Overvote"],
   "contests": [
     {
       "id": "Governor-061a401b",
@@ -836,7 +835,6 @@
       "abbrev": "OC"
     }
   ],
-  "precinctScanAdjudicationReasons": ["Overvote"],
   "precincts": [
     {
       "id": "town-id-00701-precinct-id-",

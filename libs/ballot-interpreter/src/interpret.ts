@@ -46,7 +46,7 @@ export interface InterpreterOptions {
   precinctSelection: PrecinctSelection;
   testMode: boolean;
   markThresholds: MarkThresholds;
-  adjudicationReasons?: readonly AdjudicationReason[];
+  adjudicationReasons: readonly AdjudicationReason[];
 }
 
 /**

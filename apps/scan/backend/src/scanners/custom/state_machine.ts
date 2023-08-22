@@ -372,6 +372,7 @@ async function interpretSheet(
       testMode: store.getTestMode(),
       ballotImagesPath: workspace.ballotImagesPath,
       markThresholds: store.getMarkThresholds(),
+      adjudicationReasons: store.getAdjudicationReasons(),
     })
   ).unsafeUnwrap();
   return {

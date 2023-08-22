@@ -186,13 +186,16 @@ function loadMetadataAndInterpretBallot(context: Context) {
   const precinct = precincts[precincts.length - 1];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   const testMode = true;
-  const { markThresholds } = assertDefined(store.getSystemSettings());
+  const { markThresholds, precinctScanAdjudicationReasons } = assertDefined(
+    store.getSystemSettings()
+  );
 
   return interpretScannedBallots(
     electionDefinition,
     precinctSelection,
     testMode,
     markThresholds,
+    precinctScanAdjudicationReasons,
     scannedImagePaths
   );
 }

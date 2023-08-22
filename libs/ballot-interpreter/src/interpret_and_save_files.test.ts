@@ -19,6 +19,7 @@ test('interprets ballot images and saves images for storage', async () => {
       precinctSelection: ALL_PRECINCTS_SELECTION,
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
     },
     validBmdSheet,
     'sheet-id',

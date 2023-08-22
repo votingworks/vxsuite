@@ -24,6 +24,7 @@ import {
   SheetOf,
   SystemSettings,
   safeParseSystemSettings,
+  AdjudicationReason,
 } from '@votingworks/types';
 import { assertDefined, Optional } from '@votingworks/basics';
 import * as fs from 'fs-extra';
@@ -286,6 +287,11 @@ export class Store {
 
   getMarkThresholds(): MarkThresholds {
     return assertDefined(this.getSystemSettings()).markThresholds;
+  }
+
+  getAdjudicationReasons(): readonly AdjudicationReason[] {
+    return assertDefined(this.getSystemSettings())
+      .precinctScanAdjudicationReasons;
   }
 
   /**

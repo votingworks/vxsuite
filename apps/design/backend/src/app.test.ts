@@ -1,8 +1,11 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
+  AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
+  Election,
   safeParseElectionDefinition,
   safeParseSystemSettings,
+  SystemSettings,
 } from '@votingworks/types';
 import JsZip from 'jszip';
 import { testSetupHelpers } from '../test/helpers';
@@ -10,6 +13,126 @@ import { testSetupHelpers } from '../test/helpers';
 const { setupApp, cleanup } = testSetupHelpers();
 
 afterAll(cleanup);
+
+test('CRUD elections', async () => {
+  const { apiClient } = setupApp();
+  expect(await apiClient.listElections()).toEqual([]);
+
+  const electionId = (
+    await apiClient.createElection({ electionData: undefined })
+  ).unsafeUnwrap();
+  expect(electionId).toEqual('1');
+
+  const election = await apiClient.getElection({ electionId });
+  // New elections should be blank
+  expect(election).toEqual({
+    id: '1',
+    election: {
+      ballotLayout: {
+        metadataEncoding: 'qr-code',
+        paperSize: 'letter',
+      },
+      ballotStyles: [],
+      contests: [],
+      county: {
+        id: '',
+        name: '',
+      },
+      date: '',
+      districts: [],
+      parties: [],
+      precincts: [],
+      sealUrl: '',
+      state: '',
+      title: '',
+    },
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    ballotStyles: [],
+    precincts: [],
+    createdAt: expect.any(String),
+  });
+
+  expect(await apiClient.listElections()).toEqual([election]);
+
+  const electionId2 = (
+    await apiClient.createElection({
+      electionData:
+        electionFamousNames2021Fixtures.electionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+  expect(electionId2).toEqual('2');
+
+  const election2 = await apiClient.getElection({ electionId: electionId2 });
+  expect(election2).toMatchObject({
+    id: '2',
+    election: {
+      ...electionFamousNames2021Fixtures.electionDefinition.election,
+      ballotStyles: [
+        {
+          id: 'ballot-style-1',
+          precincts: ['23', '22', '21', '20'],
+        },
+      ],
+    },
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    // TODO test that ballot styles/precincts are correct
+    ballotStyles: expect.any(Array),
+    precincts: expect.any(Array),
+    createdAt: expect.any(String),
+  });
+
+  expect(await apiClient.listElections()).toEqual([election, election2]);
+
+  const updatedElection: Election = {
+    ...election.election,
+    title: 'Updated Election',
+  };
+
+  await apiClient.updateElection({
+    electionId,
+    election: updatedElection,
+  });
+
+  expect(await apiClient.getElection({ electionId })).toEqual({
+    ...election,
+    election: updatedElection,
+  });
+
+  await apiClient.deleteElection({ electionId });
+
+  expect(await apiClient.listElections()).toEqual([election2]);
+});
+
+test('Update system settings', async () => {
+  const { apiClient } = setupApp();
+  const electionId = (
+    await apiClient.createElection({ electionData: undefined })
+  ).unsafeUnwrap();
+  const electionRecord = await apiClient.getElection({ electionId });
+
+  const updatedSystemSettings: SystemSettings = {
+    ...electionRecord.systemSettings,
+    markThresholds: {
+      definite: 0.9,
+      marginal: 0.8,
+    },
+    precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+    centralScanAdjudicationReasons: [
+      AdjudicationReason.Undervote,
+      AdjudicationReason.MarginalMark,
+    ],
+  };
+
+  await apiClient.updateSystemSettings({
+    electionId,
+    systemSettings: updatedSystemSettings,
+  });
+
+  expect(await apiClient.getElection({ electionId })).toEqual({
+    ...electionRecord,
+    systemSettings: updatedSystemSettings,
+  });
+});
 
 test('export setup package', async () => {
   const baseElectionDefinition =

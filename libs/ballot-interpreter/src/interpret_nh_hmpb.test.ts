@@ -45,6 +45,7 @@ describe('NH HMPB interpretation', () => {
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [AdjudicationReason.Overvote],
       },
       validHmpbSheet
     );
@@ -67,6 +68,7 @@ describe('NH HMPB interpretation', () => {
           ...DEFAULT_MARK_THRESHOLDS,
           writeInTextArea: 0.05,
         },
+        adjudicationReasons: [],
       },
       validHmpbUnmarkedWriteInsSheet
     );
@@ -120,11 +122,11 @@ describe('NH HMPB interpretation', () => {
         electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
-        adjudicationReasons: [AdjudicationReason.Overvote],
         markThresholds: {
           ...DEFAULT_MARK_THRESHOLDS,
           writeInTextArea: 0.05,
         },
+        adjudicationReasons: [AdjudicationReason.Overvote],
       },
       validHmpbUnmarkedWriteInsOvervoteSheet
     );
@@ -178,6 +180,7 @@ describe('NH HMPB interpretation', () => {
         precinctSelection: singlePrecinctSelectionFor('20'),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [AdjudicationReason.Overvote],
       },
       validHmpbSheet
     );
@@ -219,6 +222,7 @@ describe('HMPB - m17 backup', () => {
             definite: 0.07,
             writeInTextArea: 0.05,
           },
+          adjudicationReasons: [AdjudicationReason.Overvote],
         },
         sheet
       );

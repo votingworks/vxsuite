@@ -2,6 +2,7 @@ import { assert, iter } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
 import {
+  AdjudicationReason,
   ElectionDefinition,
   MarkThresholds,
   PrecinctSelection,
@@ -162,6 +163,7 @@ export async function interpretScannedBallots(
   precinctSelection: PrecinctSelection,
   testMode: boolean,
   markThresholds: MarkThresholds,
+  adjudicationReasons: readonly AdjudicationReason[],
   sheetOfImagePaths: SheetOf<string>
 ): Promise<SheetOf<InterpretFileResult>> {
   const interpretation = await interpretSheet(
@@ -170,6 +172,7 @@ export async function interpretScannedBallots(
       precinctSelection,
       testMode,
       markThresholds,
+      adjudicationReasons,
     },
     sheetOfImagePaths
   );

@@ -7,6 +7,7 @@ import {
   safeParseElection,
   BallotPaperSize,
   DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, ok, Result } from '@votingworks/basics';
@@ -75,6 +76,13 @@ function buildApi({ store }: { store: Store }) {
         ...election,
         ...input.election,
       });
+    },
+
+    updateSystemSettings(input: {
+      electionId: Id;
+      systemSettings: SystemSettings;
+    }): void {
+      store.updateSystemSettings(input.electionId, input.systemSettings);
     },
 
     updatePrecincts(input: { electionId: Id; precincts: Precinct[] }): void {
