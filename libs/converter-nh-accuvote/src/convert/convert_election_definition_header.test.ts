@@ -255,6 +255,15 @@ test('constitutional questions become yesno contests', async () => {
         description:
           'Shall there be a convention to amend or revise the constitution?',
         districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-precinct-id-'),
+        yesOption: {
+          id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+          label: 'Yes',
+        },
+        noOption: {
+          id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
+
+          label: 'No',
+        },
       },
     ])
   );
