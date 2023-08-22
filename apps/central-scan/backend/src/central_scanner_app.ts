@@ -1,6 +1,5 @@
 import { Scan } from '@votingworks/api';
 import {
-  ArtifactAuthenticatorApi,
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -39,7 +38,6 @@ type NoParams = never;
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
-  artifactAuthenticator: ArtifactAuthenticatorApi;
   allowedExportPatterns?: string[];
   importer: Importer;
   workspace: Workspace;
@@ -63,7 +61,6 @@ function constructAuthMachineState(
 
 function buildApi({
   auth,
-  artifactAuthenticator,
   workspace,
   logger,
   usb,
@@ -176,7 +173,6 @@ function buildApi({
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        artifactAuthenticator,
         usbDrive,
         logger
       );
@@ -258,7 +254,6 @@ export type Api = ReturnType<typeof buildApi>;
  */
 export function buildCentralScannerApp({
   auth,
-  artifactAuthenticator,
   allowedExportPatterns = SCAN_ALLOWED_EXPORT_PATTERNS,
   importer,
   workspace,
@@ -270,7 +265,6 @@ export function buildCentralScannerApp({
   const app: Application = express();
   const api = buildApi({
     auth,
-    artifactAuthenticator,
     workspace,
     logger,
     usb,
@@ -367,7 +361,6 @@ export function buildCentralScannerApp({
         batchInfo: store.batchStatus(),
         getResultSheetGenerator: store.forEachResultSheet.bind(store),
         definiteMarkThreshold: store.getMarkThresholds().definite,
-        artifactAuthenticator,
         disableOriginalSnapshots: isFeatureFlagEnabled(
           BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
         ),
