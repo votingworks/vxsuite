@@ -129,8 +129,8 @@ function prettyPrintInterpretation({
             : `Write-In #${gridPosition.writeInIndex + 1}`
           : contest.type === 'yesno'
           ? gridPosition.type === 'option' && gridPosition.optionId === 'yes'
-            ? contest.yesOption?.label ?? 'Yes'
-            : contest.noOption?.label ?? 'No'
+            ? contest.yesOption.label
+            : contest.noOption.label
           : 'Unknown';
 
       stdout.write(

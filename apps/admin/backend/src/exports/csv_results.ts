@@ -287,8 +287,8 @@ function* generateRows({
           isPrimaryElection,
           batchLookup,
           contest,
-          selection: 'Yes',
-          selectionId: contest.yesOption?.id || 'yes',
+          selection: contest.yesOption.label,
+          selectionId: contest.yesOption.id,
           votes: contestResults.yesTally,
         });
         yield buildCsvRow({
@@ -298,8 +298,8 @@ function* generateRows({
           isPrimaryElection,
           batchLookup,
           contest,
-          selection: 'No',
-          selectionId: contest.noOption?.id || 'no',
+          selection: contest.noOption.label,
+          selectionId: contest.noOption.id,
           votes: contestResults.noTally,
         });
       }

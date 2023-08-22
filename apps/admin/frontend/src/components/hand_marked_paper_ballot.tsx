@@ -786,9 +786,8 @@ export function HandMarkedPaperBallot({
                   {contest.type === 'yesno' && (
                     <React.Fragment>
                       <p>
-                        Vote{' '}
-                        <strong>{contest.yesOption?.label || 'Yes'}</strong> or{' '}
-                        <strong>{contest.noOption?.label || 'No'}</strong>
+                        Vote <strong>{contest.yesOption.label}</strong> or{' '}
+                        <strong>{contest.noOption.label}</strong>
                       </p>
                       <Text
                         small
@@ -803,7 +802,7 @@ export function HandMarkedPaperBallot({
                           position={election.ballotLayout.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'yes')}
                         >
-                          <span>{contest.yesOption?.label || 'Yes'}</span>
+                          <span>{contest.yesOption.label}</span>
                         </BubbleMark>
                       </Text>
                       <Text bold>
@@ -811,7 +810,7 @@ export function HandMarkedPaperBallot({
                           position={election.ballotLayout.targetMarkPosition}
                           checked={hasVote(votes?.[contest.id], 'no')}
                         >
-                          <span>{contest.noOption?.label || 'No'}</span>
+                          <span>{contest.noOption.label}</span>
                         </BubbleMark>
                       </Text>
                     </React.Fragment>
