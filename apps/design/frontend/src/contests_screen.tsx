@@ -187,6 +187,14 @@ function createBlankYesNoContest(id: ContestId): YesNoContest {
     districtId: '' as DistrictId,
     title: '',
     description: '',
+    yesOption: {
+      id: `${id}-option-yes`,
+      label: 'Yes',
+    },
+    noOption: {
+      id: `${id}-option-no`,
+      label: 'No',
+    },
   };
 }
 
