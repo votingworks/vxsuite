@@ -1,10 +1,8 @@
-import { ok } from '@votingworks/basics';
 import {
   DippedSmartCardAuth as DippedSmartCardAuthTypes,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
 } from '@votingworks/types';
 
-import { ArtifactAuthenticatorApi } from './artifact_authenticator';
 import { DippedSmartCardAuthApi } from './dipped_smart_card_auth_api';
 import { InsertedSmartCardAuthApi } from './inserted_smart_card_auth_api';
 
@@ -41,15 +39,5 @@ export function buildMockInsertedSmartCardAuth(): jest.Mocked<InsertedSmartCardA
     readCardDataAsString: jest.fn(),
     writeCardData: jest.fn(),
     clearCardData: jest.fn(),
-  };
-}
-
-/**
- * Builds a mock artifact authenticator instance for application-level tests
- */
-export function buildMockArtifactAuthenticator(): jest.Mocked<ArtifactAuthenticatorApi> {
-  return {
-    writeSignatureFile: jest.fn(),
-    authenticateArtifactUsingSignatureFile: jest.fn().mockResolvedValue(ok()),
   };
 }
