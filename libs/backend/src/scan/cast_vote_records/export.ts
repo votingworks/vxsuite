@@ -207,7 +207,7 @@ function buildCastVoteRecord(
  * - If an HMPB, the front interpretation layout (JSON)
  * - If an HMPB, the back interpretation layout (JSON)
  *
- * Also updates the hashes in the scanner's cast vote record hashes table.
+ * Returns the cast vote record ID and a hash of the above contents.
  */
 async function exportCastVoteRecordFilesToUsbDrive(
   exportContext: ExportContext,
