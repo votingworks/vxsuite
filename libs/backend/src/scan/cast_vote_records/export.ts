@@ -76,8 +76,8 @@ interface ScannerStateUnchangedByExport {
  */
 interface ExportContext {
   exporter: Exporter;
-  scannerStore: ScannerStore;
   scannerState: ScannerStateUnchangedByExport;
+  scannerStore: ScannerStore;
 }
 
 interface File {
@@ -213,8 +213,13 @@ async function exportCastVoteRecordFilesToUsbDrive(
   exportContext: ExportContext,
   resultSheet: ResultSheet,
   exportDirectoryPathRelativeToUsbMountPoint: string
-): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
-  const { exporter, scannerStore } = exportContext;
+): Promise<
+  Result<
+    { castVoteRecordId: string; castVoteRecordHash: string },
+    ExportCastVoteRecordToUsbDriveError
+  >
+> {
+  const { exporter } = exportContext;
 
   const canonicalizeSheetResult = canonicalizeSheet(
     resultSheet.interpretation,
@@ -293,9 +298,8 @@ async function exportCastVoteRecordFilesToUsbDrive(
     .sort((f1, f2) => (f1 && f2 ? f1.fileName.localeCompare(f2.fileName) : 0))
     .map(({ fileContents }) => sha256(fileContents));
   const castVoteRecordHash = sha256(fileHashes.join(''));
-  scannerStore.updateCastVoteRecordHashes(castVoteRecordId, castVoteRecordHash);
 
-  return ok();
+  return ok({ castVoteRecordId, castVoteRecordHash });
 }
 
 /**
@@ -303,18 +307,19 @@ async function exportCastVoteRecordFilesToUsbDrive(
  */
 async function exportMetadataFileToUsbDrive(
   exportContext: ExportContext,
-  castVoteRecordReportMetadata: CVR.CastVoteRecordReport,
+  castVoteRecordRootHash: string,
   exportDirectoryPathRelativeToUsbMountPoint: string
 ): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
-  const { exporter, scannerState, scannerStore } = exportContext;
+  const { exporter, scannerState } = exportContext;
   const { pollsState } = scannerState;
 
   const metadata: CastVoteRecordExportMetadata = {
     arePollsClosed: pollsState
       ? pollsState === 'polls_closed_final'
       : undefined, // Irrelevant for VxCentralScan
-    castVoteRecordReportMetadata,
-    castVoteRecordRootHash: scannerStore.getCastVoteRecordRootHash(),
+    castVoteRecordReportMetadata:
+      buildCastVoteRecordReportMetadata(exportContext),
+    castVoteRecordRootHash,
   };
 
   const exportResult = await exporter.exportDataToUsbDrive(
@@ -371,11 +376,19 @@ export async function exportCastVoteRecordsToUsbDrive(
     if (exportCastVoteRecordFilesResult.isErr()) {
       return exportCastVoteRecordFilesResult;
     }
+    const { castVoteRecordId, castVoteRecordHash } =
+      exportCastVoteRecordFilesResult.ok();
+    scannerStore.updateCastVoteRecordHashes(
+      castVoteRecordId,
+      castVoteRecordHash
+    );
   }
 
+  const updatedCastVoteRecordRootHash =
+    scannerStore.getCastVoteRecordRootHash();
   const exportMetadataFileResult = await exportMetadataFileToUsbDrive(
     exportContext,
-    buildCastVoteRecordReportMetadata(exportContext),
+    updatedCastVoteRecordRootHash,
     exportDirectoryPathRelativeToUsbMountPoint
   );
   if (exportMetadataFileResult.isErr()) {
