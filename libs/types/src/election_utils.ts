@@ -1,4 +1,4 @@
-import { Result, ok, err } from '@votingworks/basics';
+import { Result, ok, err, find, assertDefined } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { z } from 'zod';
@@ -456,8 +456,8 @@ function preprocessElection(value: unknown): unknown {
     };
   }
 
-  // Handle single `partyId` on candidates.
   if (election.contests) {
+    // Handle single `partyId` on candidates.
     interface CandidateWithPartyId extends Candidate {
       readonly partyId?: PartyId;
     }
@@ -497,6 +497,53 @@ function preprocessElection(value: unknown): unknown {
             ),
           };
         }),
+      };
+    }
+
+    // Fill in required contest yesOption/noOption
+    const contests = election.contests.map((contest) => {
+      if (contest.type !== 'yesno') return contest;
+      return {
+        ...contest,
+        yesOption: contest.yesOption ?? {
+          label: 'Yes',
+          id: `${contest.id}-option-yes`,
+        },
+        noOption: contest.noOption ?? {
+          label: 'No',
+          id: `${contest.id}-option-no`,
+        },
+      };
+    });
+    election = {
+      ...election,
+      contests,
+    };
+    /* istanbul ignore next */
+    if ('gridLayouts' in election) {
+      election = {
+        ...election,
+        gridLayouts: assertDefined(election.gridLayouts).map((gridLayout) => ({
+          ...gridLayout,
+          gridPositions: gridLayout.gridPositions.map((gridPosition) => {
+            const contest = find(
+              contests,
+              (c) => c.id === gridPosition.contestId
+            );
+            if (contest.type !== 'yesno' || gridPosition.type !== 'option') {
+              return gridPosition;
+            }
+            return {
+              ...gridPosition,
+              optionId:
+                gridPosition.optionId === 'yes'
+                  ? contest.yesOption.id
+                  : gridPosition.optionId === 'no'
+                  ? contest.noOption.id
+                  : gridPosition.optionId,
+            };
+          }),
+        })),
       };
     }
   }

@@ -91,6 +91,28 @@ test('parsing gives specific errors for nested objects', () => {
                   "description"
                 ],
                 "message": "Required"
+              },
+              {
+                "code": "invalid_type",
+                "expected": "object",
+                "received": "undefined",
+                "path": [
+                  "contests",
+                  1,
+                  "yesOption"
+                ],
+                "message": "Required"
+              },
+              {
+                "code": "invalid_type",
+                "expected": "object",
+                "received": "undefined",
+                "path": [
+                  "contests",
+                  1,
+                  "noOption"
+                ],
+                "message": "Required"
               }
             ],
             "name": "ZodError"
@@ -454,6 +476,26 @@ test('validates uniqueness of contest ids', () => {
           "id"
         ],
         "message": "Duplicate contest 'YNC' found."
+      },
+      {
+        "code": "custom",
+        "path": [
+          "contests",
+          2,
+          "yes/noOption",
+          "id"
+        ],
+        "message": "Duplicate yes/no contest option 'YNC-option-yes' found."
+      },
+      {
+        "code": "custom",
+        "path": [
+          "contests",
+          3,
+          "yes/noOption",
+          "id"
+        ],
+        "message": "Duplicate yes/no contest option 'YNC-option-no' found."
       }
     ]]
   `);
