@@ -430,7 +430,6 @@ export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
   GridPositionWriteInSchema,
 ]);
 export interface GridLayout {
-  readonly precinctId: PrecinctId;
   readonly ballotStyleId: BallotStyleId;
   readonly columns: number;
   readonly rows: number;
@@ -443,7 +442,6 @@ export interface GridLayout {
   readonly gridPositions: readonly GridPosition[];
 }
 export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
-  precinctId: PrecinctIdSchema,
   ballotStyleId: BallotStyleIdSchema,
   columns: z.number().int().nonnegative(),
   rows: z.number().int().nonnegative(),
