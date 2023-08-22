@@ -10,6 +10,7 @@ module.exports = {
   // which we should probably make not be there by using smarter
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
+  setupFiles: ['<rootDir>/test/set_env_vars.ts'],
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/node_modules/**',

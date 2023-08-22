@@ -4,8 +4,12 @@ import { dirSync } from 'tmp';
 import { err, ok } from '@votingworks/basics';
 
 import { getTestFilePath } from '../test/utils';
-import { Artifact, ArtifactAuthenticator } from './artifact_authenticator';
-import { ArtifactAuthenticatorConfig } from './config';
+import {
+  Artifact,
+  authenticateArtifactUsingSignatureFile,
+  writeSignatureFile,
+} from './artifact_authentication';
+import { ArtifactAuthenticationConfig } from './config';
 import * as shell from './shell';
 
 let tempDirectoryPath: string;
@@ -31,7 +35,7 @@ afterEach(() => {
   fs.rmSync(tempDirectoryPath, { recursive: true });
 });
 
-const vxAdminTestConfig: ArtifactAuthenticatorConfig = {
+const vxAdminTestConfig: ArtifactAuthenticationConfig = {
   signingMachineCertPath: getTestFilePath({
     fileType: 'vx-admin-cert-authority-cert.pem',
   }),
@@ -44,7 +48,7 @@ const vxAdminTestConfig: ArtifactAuthenticatorConfig = {
   }),
 };
 
-const vxScanTestConfig: ArtifactAuthenticatorConfig = {
+const vxScanTestConfig: ArtifactAuthenticationConfig = {
   signingMachineCertPath: getTestFilePath({
     fileType: 'vx-scan-cert.pem',
   }),
@@ -67,8 +71,8 @@ type ArtifactGenerator = () => Artifact;
 test.each<{
   description: string;
   artifactGenerator: ArtifactGenerator;
-  exportingMachineConfig: ArtifactAuthenticatorConfig;
-  importingMachineConfig: ArtifactAuthenticatorConfig;
+  exportingMachineConfig: ArtifactAuthenticationConfig;
+  importingMachineConfig: ArtifactAuthenticationConfig;
 }>([
   {
     description: 'ballot package',
@@ -96,13 +100,12 @@ test.each<{
     importingMachineConfig,
   }) => {
     const artifact = artifactGenerator();
-    await new ArtifactAuthenticator(exportingMachineConfig).writeSignatureFile(
-      artifact
-    );
+    await writeSignatureFile(artifact, undefined, exportingMachineConfig);
     expect(
-      await new ArtifactAuthenticator(
+      await authenticateArtifactUsingSignatureFile(
+        artifact,
         importingMachineConfig
-      ).authenticateArtifactUsingSignatureFile(artifact)
+      )
     ).toEqual(ok());
   }
 );
@@ -110,8 +113,8 @@ test.each<{
 test.each<{
   description: string;
   artifactGenerator: ArtifactGenerator;
-  exportingMachineConfig: ArtifactAuthenticatorConfig;
-  importingMachineConfig: ArtifactAuthenticatorConfig;
+  exportingMachineConfig: ArtifactAuthenticationConfig;
+  importingMachineConfig: ArtifactAuthenticationConfig;
   tamperFn: () => void;
 }>([
   {
@@ -153,14 +156,13 @@ test.each<{
     tamperFn,
   }) => {
     const artifact = artifactGenerator();
-    await new ArtifactAuthenticator(exportingMachineConfig).writeSignatureFile(
-      artifact
-    );
+    await writeSignatureFile(artifact, undefined, exportingMachineConfig);
     tamperFn();
     expect(
-      await new ArtifactAuthenticator(
+      await authenticateArtifactUsingSignatureFile(
+        artifact,
         importingMachineConfig
-      ).authenticateArtifactUsingSignatureFile(artifact)
+      )
     ).toEqual(
       err(
         new Error(`Error authenticating ${artifact.path} using signature file`)
@@ -174,13 +176,15 @@ test('Writing signature file to a USB drive', async () => {
   fs.mkdirSync(mockUsbDriveMountPoint);
   jest.spyOn(shell, 'runCommand');
 
-  await new ArtifactAuthenticator({
+  const config: ArtifactAuthenticationConfig = {
     ...vxScanTestConfig,
     isFileOnRemovableDeviceOverride: (filePath: string) =>
       filePath.startsWith(mockUsbDriveMountPoint),
-  }).writeSignatureFile(
+  };
+  await writeSignatureFile(
     { type: 'cast_vote_records', path: tempDirectoryPath },
-    mockUsbDriveMountPoint
+    mockUsbDriveMountPoint,
+    config
   );
   expect(shell.runCommand).toHaveBeenCalledWith([
     'sync',

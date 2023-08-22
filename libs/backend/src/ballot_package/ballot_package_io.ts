@@ -15,7 +15,7 @@ import {
   DippedSmartCardAuth,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
-import { ArtifactAuthenticatorApi } from '@votingworks/auth';
+import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '../get_usb_drives';
 
 async function getMostRecentBallotPackageFilepath(
@@ -62,14 +62,12 @@ async function getMostRecentBallotPackageFilepath(
  * readBallotPackageFromUsb validates desired auth and USB state and returns the ballot package
  * from a USB drive if possible, or an error if not possible.
  * @param authStatus AuthStatus representing an inserted card
- * @param artifactAuthenticator An ArtifactAuthenticatorApi instance
  * @param usbDrive UsbDrive representing status of an inserted USB drive
  * @param logger A Logger instance
  * @returns Result<BallotPackage, BallotPackageConfigurationError> intended to be consumed by an API handler
  */
 export async function readBallotPackageFromUsb(
   authStatus: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   usbDrive: UsbDrive,
   logger: Logger
 ): Promise<Result<BallotPackage, BallotPackageConfigurationError>> {
@@ -97,7 +95,7 @@ export async function readBallotPackageFromUsb(
   }
 
   const artifactAuthenticationResult =
-    await artifactAuthenticator.authenticateArtifactUsingSignatureFile({
+    await authenticateArtifactUsingSignatureFile({
       type: 'ballot_package',
       path: filepathResult.ok(),
     });

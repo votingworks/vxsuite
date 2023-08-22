@@ -5,7 +5,10 @@ import {
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
 import { configureApp, createApp } from '../test/app_helpers';
 
@@ -25,6 +28,21 @@ const systemSettings: SystemSettings = {
 
 beforeAll(() => {
   expect(systemSettings.auth).not.toEqual(DEFAULT_SYSTEM_SETTINGS.auth);
+});
+
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
 });
 
 test('getAuthStatus', async () => {

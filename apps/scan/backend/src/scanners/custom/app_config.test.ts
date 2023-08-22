@@ -7,9 +7,11 @@ import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
+  BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
   SCANNER_RESULTS_FOLDER,
   convertCastVoteRecordVotesToTabulationVotes,
+  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { assert, err, find, iter, ok, unique } from '@votingworks/basics';
@@ -41,6 +43,15 @@ import { Api } from '../../app';
 import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
+
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
 
 async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
@@ -103,6 +114,12 @@ function mockLoggedOut(mockAuth: InsertedSmartCardAuthApi) {
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
 }
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+});
 
 test('uses machine config from env', async () => {
   const originalEnv = process.env;
@@ -260,7 +277,10 @@ test('export CVRs to USB', async () => {
       const electionDirs = fs.readdirSync(resultsDirPath);
       expect(electionDirs).toHaveLength(1);
       const electionDirPath = join(resultsDirPath, electionDirs[0]);
-      const cvrReportDirectories = fs.readdirSync(electionDirPath);
+      const cvrReportDirectories = fs
+        .readdirSync(electionDirPath)
+        // Filter out signature files
+        .filter((path) => !path.endsWith('.vxsig'));
       expect(cvrReportDirectories).toHaveLength(1);
       expect(cvrReportDirectories[0]).toMatch(/machine_000__1_ballot__*/);
       const cvrReportDirectoryPath = join(

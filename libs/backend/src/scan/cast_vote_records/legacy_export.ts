@@ -20,7 +20,7 @@ import {
 } from '@votingworks/utils';
 import { basename, join, parse } from 'path';
 import fs from 'fs';
-import { ArtifactAuthenticatorApi } from '@votingworks/auth';
+import { writeSignatureFile } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import { rm } from 'fs/promises';
 import {
@@ -306,7 +306,6 @@ interface ExportCastVoteRecordReportToUsbDriveParams
   > {
   ballotsCounted: number;
   getResultSheetGenerator: () => Generator<ResultSheet>;
-  artifactAuthenticator: ArtifactAuthenticatorApi;
   disableOriginalSnapshots?: boolean;
 }
 
@@ -326,7 +325,6 @@ async function exportCastVoteRecordReportToUsbDriveHelper(
     getResultSheetGenerator,
     definiteMarkThreshold,
     batchInfo,
-    artifactAuthenticator,
     disableOriginalSnapshots,
   }: ExportCastVoteRecordReportToUsbDriveParams,
   getUsbDrives: () => Promise<UsbDrive[]>,
@@ -459,7 +457,7 @@ async function exportCastVoteRecordReportToUsbDriveHelper(
   const signatureFileDirectory = parse(
     join(usbMountPoint, reportDirectory)
   ).dir;
-  await artifactAuthenticator.writeSignatureFile(
+  await writeSignatureFile(
     {
       type: 'cast_vote_records',
       // For protection against compromised/faulty USBs, we sign the CVRs as

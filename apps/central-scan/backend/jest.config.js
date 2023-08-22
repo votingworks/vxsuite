@@ -10,6 +10,7 @@ module.exports = {
   // which we should probably make not be there by using smarter
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
+  setupFiles: ['<rootDir>/test/set_env_vars.ts'],
   coverageProvider: 'v8',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',

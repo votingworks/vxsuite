@@ -3,6 +3,10 @@ import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import waitForExpect from 'wait-for-expect';
 import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import {
   configureApp,
   expectStatus,
   mockInterpret,
@@ -16,10 +20,25 @@ import {
 
 jest.setTimeout(20_000);
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
 const needsReviewInterpretation: SheetInterpretation = {
   type: 'NeedsReviewSheet',
   reasons: [{ type: AdjudicationReason.BlankBallot }],
 };
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+});
 
 test('insert second ballot before first ballot accept', async () => {
   await withApp(

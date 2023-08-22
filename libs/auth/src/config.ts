@@ -100,9 +100,9 @@ export function constructJavaCardConfig(): JavaCardConfig {
 }
 
 /**
- * Config params for an artifact authenticator
+ * Config params for artifact authentication
  */
-export interface ArtifactAuthenticatorConfig {
+export interface ArtifactAuthenticationConfig {
   signingMachineCertPath: string;
   signingMachinePrivateKey: FileKey | TpmKey;
   vxCertAuthorityCertPath: string;
@@ -112,9 +112,9 @@ export interface ArtifactAuthenticatorConfig {
 }
 
 /**
- * Constructs an artifact authenticator config given relevant env vars
+ * Constructs an artifact authentication config given relevant env vars
  */
-export function constructArtifactAuthenticatorConfig(): ArtifactAuthenticatorConfig {
+export function constructArtifactAuthenticationConfig(): ArtifactAuthenticationConfig {
   const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
   return {
     signingMachineCertPath: certPath,

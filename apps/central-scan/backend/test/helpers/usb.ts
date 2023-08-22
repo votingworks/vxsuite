@@ -16,7 +16,10 @@ export function getCastVoteRecordReportPaths(usbDrive: UsbDrive): string[] {
   const electionDirs = readdirSync(resultsDirPath);
   expect(electionDirs).toHaveLength(1);
   const electionDirPath = join(resultsDirPath, electionDirs[0]);
-  const cvrReportDirectories = readdirSync(electionDirPath);
+  const cvrReportDirectories = readdirSync(electionDirPath).filter(
+    // Filter out signature files
+    (path) => !path.endsWith('.vxsig')
+  );
   return cvrReportDirectories
     .map((cvrReportDirectory) => join(electionDirPath, cvrReportDirectory))
     .sort((pathA, pathB) => {

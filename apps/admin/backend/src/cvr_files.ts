@@ -46,7 +46,7 @@ import * as fs from 'fs/promises';
 import { basename, join, normalize, parse } from 'path';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
-import { ArtifactAuthenticatorApi } from '@votingworks/auth';
+import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { Store } from './store';
 import {
   CastVoteRecordFileMetadata,
@@ -459,12 +459,10 @@ export async function addCastVoteRecordReport({
   store,
   reportDirectoryPath,
   exportedTimestamp,
-  artifactAuthenticator,
 }: {
   store: Store;
   reportDirectoryPath: string;
   exportedTimestamp: Iso8601Timestamp;
-  artifactAuthenticator: ArtifactAuthenticatorApi;
 }): Promise<AddCastVoteRecordReportResult> {
   debug('attempting to add a cast vote record report');
   const electionId = store.getCurrentElectionId();
@@ -474,7 +472,7 @@ export async function addCastVoteRecordReport({
   assert(electionDefinition);
 
   const artifactAuthenticationResult =
-    await artifactAuthenticator.authenticateArtifactUsingSignatureFile({
+    await authenticateArtifactUsingSignatureFile({
       type: 'cast_vote_records',
       path: reportDirectoryPath,
     });

@@ -12,10 +12,7 @@ import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-import {
-  ArtifactAuthenticatorApi,
-  buildMockArtifactAuthenticator,
-} from '@votingworks/auth';
+import { writeSignatureFile } from '@votingworks/auth';
 import {
   bestFishContest,
   fishCouncilContest,
@@ -31,6 +28,11 @@ import {
   InvalidSheetFoundError,
   ResultSheet,
 } from './legacy_export';
+
+jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
+  ...jest.requireActual('@votingworks/auth'),
+  writeSignatureFile: jest.fn(),
+}));
 
 const electionDefinition: ElectionDefinition = {
   ...electionMinimalExhaustiveSampleDefinition,
@@ -58,12 +60,6 @@ async function streamToString(stream: NodeJS.ReadableStream) {
   }
   return reportChunks.join('');
 }
-
-let mockArtifactAuthenticator: ArtifactAuthenticatorApi;
-
-beforeEach(() => {
-  mockArtifactAuthenticator = buildMockArtifactAuthenticator();
-});
 
 test('getCastVoteRecordReportStream', async () => {
   jest.useFakeTimers().setSystemTime(new Date(2020, 3, 14));
@@ -258,7 +254,6 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
       batchInfo: [],
       ballotsCounted: 1,
       getResultSheetGenerator,
-      artifactAuthenticator: mockArtifactAuthenticator,
     },
     mockGetUsbDrives
   );
@@ -286,7 +281,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     JSON.stringify(interpretedHmpbPage1WithWriteIn.layout, undefined, 2),
     { machineDirectoryToWriteToFirst: expect.stringContaining('/tmp/') }
   );
-  expect(mockArtifactAuthenticator.writeSignatureFile).toHaveBeenCalledTimes(1);
+  expect(writeSignatureFile).toHaveBeenCalledTimes(1);
 
   const exportStream = exportDataToUsbDriveMock.mock.calls[0][2];
 
@@ -353,7 +348,6 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
     batchInfo: [],
     ballotsCounted: 1,
     getResultSheetGenerator,
-    artifactAuthenticator: mockArtifactAuthenticator,
   });
 
   expect(exportResult.isErr()).toEqual(true);
@@ -371,7 +365,6 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
     batchInfo: [],
     ballotsCounted: 1,
     getResultSheetGenerator,
-    artifactAuthenticator: mockArtifactAuthenticator,
   });
 
   expect(exportResult2.isErr()).toEqual(true);
@@ -392,7 +385,6 @@ test('exportCastVoteRecordReportToUsbDrive errs if no USB drive found when writi
 
   const exportResult = await exportCastVoteRecordReportToUsbDrive(
     {
-      artifactAuthenticator: mockArtifactAuthenticator,
       ballotsCounted: 1,
       batchInfo: [],
       definiteMarkThreshold,

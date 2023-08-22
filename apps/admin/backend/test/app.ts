@@ -1,5 +1,4 @@
 import {
-  buildMockArtifactAuthenticator,
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
@@ -177,7 +176,6 @@ export async function configureMachine(
 export function buildTestEnvironment(workspaceRoot?: string) {
   const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
-  const artifactAuthenticator = buildMockArtifactAuthenticator();
   const resolvedWorkspaceRoot =
     workspaceRoot ||
     (() => {
@@ -189,7 +187,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   const mockUsb = createMockUsb();
   const app = buildApp({
     auth,
-    artifactAuthenticator,
     workspace,
     logger,
     usb: mockUsb.usb,
@@ -207,7 +204,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   return {
     logger,
     auth,
-    artifactAuthenticator,
     workspace,
     app,
     apiClient,

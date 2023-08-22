@@ -12,8 +12,11 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
-
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { createBallotPackageZipArchive, MockUsb } from '@votingworks/backend';
 import { Server } from 'http';
@@ -28,6 +31,15 @@ import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
+
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsb: MockUsb;
@@ -35,6 +47,10 @@ let server: Server;
 let stateMachine: PaperHandlerStateMachine;
 
 beforeEach(async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+
   const result = await createApp();
   apiClient = result.apiClient;
   mockAuth = result.mockAuth;

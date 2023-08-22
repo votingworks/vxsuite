@@ -1,7 +1,5 @@
 import { Server } from 'http';
 import {
-  ArtifactAuthenticator,
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
   JavaCard,
@@ -20,7 +18,6 @@ import { Workspace } from './util/workspace';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
-  artifactAuthenticator?: ArtifactAuthenticatorApi;
   logger: Logger;
   port: number | string;
   workspace: Workspace;
@@ -29,13 +26,7 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
-export function start({
-  auth,
-  artifactAuthenticator,
-  logger,
-  port,
-  workspace,
-}: StartOptions): Server {
+export function start({ auth, logger, port, workspace }: StartOptions): Server {
   /* istanbul ignore next */
   const resolvedAuth =
     auth ??
@@ -51,19 +42,10 @@ export function start({
       },
       logger,
     });
-  /* istanbul ignore next */
-  const resolvedArtifactAuthenticator =
-    artifactAuthenticator ?? new ArtifactAuthenticator();
 
   const usb: Usb = { getUsbDrives };
 
-  const app = buildApp(
-    resolvedAuth,
-    resolvedArtifactAuthenticator,
-    logger,
-    workspace,
-    usb
-  );
+  const app = buildApp(resolvedAuth, logger, workspace, usb);
 
   return app.listen(
     port,

@@ -29,6 +29,9 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
   );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  );
 });
 
 afterEach(() => {
