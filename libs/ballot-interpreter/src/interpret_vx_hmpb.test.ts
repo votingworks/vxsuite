@@ -61,11 +61,14 @@ describe('HMPB - Famous Names', () => {
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
     assert(backResult.interpretation.type === 'InterpretedHmpbPage');
     expect(
-      sortVotesDict({
-        ...frontResult.interpretation.votes,
-        ...backResult.interpretation.votes,
-      })
-    ).toEqual(sortVotesDict(votes));
+      sortVotesDict(
+        {
+          ...frontResult.interpretation.votes,
+          ...backResult.interpretation.votes,
+        },
+        election.contests
+      )
+    ).toEqual(sortVotesDict(votes, election.contests));
   });
 
   test('Wrong election', async () => {
@@ -142,7 +145,7 @@ for (const {
   votes,
   blankBallotPath,
   markedBallotPath,
-} of sampleElectionFixtures.slice(0, 1)) {
+} of sampleElectionFixtures) {
   describe(`HMPB - sample election - bubbles on ${targetMarkPosition} - ${paperSize} paper - density ${density}`, () => {
     test(`Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
@@ -191,11 +194,16 @@ for (const {
         assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
         assert(backResult.interpretation.type === 'InterpretedHmpbPage');
         expect(
-          sortVotesDict({
-            ...frontResult.interpretation.votes,
-            ...backResult.interpretation.votes,
-          })
-        ).toEqual(sortVotesDict(expectedVotes));
+          sortVotesDict(
+            {
+              ...frontResult.interpretation.votes,
+              ...backResult.interpretation.votes,
+            },
+            electionDefinition.election.contests
+          )
+        ).toEqual(
+          sortVotesDict(expectedVotes, electionDefinition.election.contests)
+        );
       }
     });
   });

@@ -871,7 +871,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "row": 24,
           "side": "back",
         },
-        "optionId": "yes",
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
       },
       {
         "bounds": {
@@ -885,7 +885,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
           "row": 24,
           "side": "back",
         },
-        "optionId": "no",
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
       },
     ],
   },
@@ -1763,7 +1763,7 @@ exports[`interpret images from paths 2`] = `
           "row": 24,
           "side": "back",
         },
-        "optionId": "yes",
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
       },
       {
         "bounds": {
@@ -1777,7 +1777,7 @@ exports[`interpret images from paths 2`] = `
           "row": 24,
           "side": "back",
         },
-        "optionId": "no",
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
       },
     ],
   },
