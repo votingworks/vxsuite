@@ -24,8 +24,6 @@ import { v4 as uuid } from 'uuid';
 import path from 'path';
 import { typedAs } from '@votingworks/basics';
 import {
-  ArtifactAuthenticatorApi,
-  buildMockArtifactAuthenticator,
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
@@ -43,7 +41,6 @@ const jurisdiction = TEST_JURISDICTION;
 
 let app: Application;
 let auth: DippedSmartCardAuthApi;
-let artifactAuthenticator: ArtifactAuthenticatorApi;
 let importer: jest.Mocked<Importer>;
 let server: Server;
 let workspace: Workspace;
@@ -52,7 +49,6 @@ let mockUsb: MockUsb;
 
 beforeEach(() => {
   auth = buildMockDippedSmartCardAuth();
-  artifactAuthenticator = buildMockArtifactAuthenticator();
   importer = makeMock(Importer);
   mockUsb = createMockUsb();
   logger = fakeLogger();
@@ -67,7 +63,6 @@ beforeEach(() => {
   workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   app = buildCentralScannerApp({
     auth,
-    artifactAuthenticator,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],
     importer,

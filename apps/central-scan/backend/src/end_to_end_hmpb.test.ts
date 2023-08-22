@@ -30,10 +30,7 @@ import * as fs from 'fs-extra';
 import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import {
-  buildMockArtifactAuthenticator,
-  buildMockDippedSmartCardAuth,
-} from '@votingworks/auth';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { Server } from 'http';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
@@ -76,7 +73,6 @@ jest.mock('./exec', () => ({
 }));
 
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
-let artifactAuthenticator: ReturnType<typeof buildMockArtifactAuthenticator>;
 let workspace: Workspace;
 let scanner: MockScanner;
 let mockUsb: MockUsb;
@@ -89,7 +85,6 @@ let server: Server;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
-  artifactAuthenticator = buildMockArtifactAuthenticator();
   workspace = createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
@@ -97,7 +92,6 @@ beforeEach(async () => {
   logger = fakeLogger();
   app = buildCentralScannerApp({
     auth,
-    artifactAuthenticator,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],
     importer,
@@ -147,6 +141,10 @@ test('going through the whole process works', async () => {
   // sample ballot election hash does not match election hash for this test
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
+  );
+
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
   );
 
   mockUsb.insertUsbDrive({
