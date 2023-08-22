@@ -56,22 +56,7 @@ function normalizeVxf(vxfElection: Election) {
     districts,
     precincts,
     parties,
-    // VXF allows optional yes/no options, but in CDF we always list them explicitly.
-    contests: contests.map((contest) =>
-      contest.type === 'yesno'
-        ? {
-            ...contest,
-            yesOption: contest.yesOption || {
-              label: 'Yes',
-              id: `${contest.id}-option-yes`,
-            },
-            noOption: contest.noOption || {
-              label: 'No',
-              id: `${contest.id}-option-no`,
-            },
-          }
-        : contest
-    ),
+    contests,
     ballotStyles,
     ballotLayout,
   };

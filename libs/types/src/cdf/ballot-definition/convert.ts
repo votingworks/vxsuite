@@ -125,13 +125,13 @@ export function convertVxfElectionToCdfBallotDefinition(
                 ContestOption: [
                   {
                     '@type': 'BallotDefinition.BallotMeasureOption',
-                    '@id': contest.yesOption?.id ?? `${contest.id}-option-yes`,
-                    Selection: text(contest.yesOption?.label ?? 'Yes'),
+                    '@id': contest.yesOption.id,
+                    Selection: text(contest.yesOption.label),
                   },
                   {
                     '@type': 'BallotDefinition.BallotMeasureOption',
-                    '@id': contest.noOption?.id ?? `${contest.id}-option-no`,
-                    Selection: text(contest.noOption?.label ?? 'No'),
+                    '@id': contest.noOption.id,
+                    Selection: text(contest.noOption.label),
                   },
                 ],
               };
