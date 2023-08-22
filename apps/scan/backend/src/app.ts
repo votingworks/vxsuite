@@ -24,7 +24,6 @@ import {
 } from '@votingworks/backend';
 import { assert, ok, Result } from '@votingworks/basics';
 import {
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
   LiveCheck,
@@ -56,7 +55,6 @@ function constructAuthMachineState(
 
 function buildApi(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   machine: PrecinctScannerStateMachine,
   workspace: Workspace,
   usbDrive: UsbDrive,
@@ -115,8 +113,7 @@ function buildApi(
       );
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        artifactAuthenticator,
-        // TODO convert readBallotPackegFromUsb to use UsbDriveStatus
+        // TODO: Update readBallotPackageFromUsb to use UsbDriveStatus
         { deviceName: 'not used', mountPoint: usbDriveStatus.mountPoint },
         logger
       );
@@ -271,7 +268,6 @@ function buildApi(
           batchInfo: store.getBatches(),
           getResultSheetGenerator: store.forEachResultSheet.bind(store),
           definiteMarkThreshold: store.getMarkThresholds().definite,
-          artifactAuthenticator,
           disableOriginalSnapshots: isFeatureFlagEnabled(
             BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
           ),
@@ -331,21 +327,13 @@ export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   machine: PrecinctScannerStateMachine,
   workspace: Workspace,
   usbDrive: UsbDrive,
   logger: Logger
 ): Application {
   const app: Application = express();
-  const api = buildApi(
-    auth,
-    artifactAuthenticator,
-    machine,
-    workspace,
-    usbDrive,
-    logger
-  );
+  const api = buildApi(auth, machine, workspace, usbDrive, logger);
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;
