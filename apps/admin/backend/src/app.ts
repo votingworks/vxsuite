@@ -116,7 +116,7 @@ function constructAuthMachineState(
   const electionDefinition = getCurrentElectionDefinition(workspace);
   const systemSettings = workspace.store.getSystemSettings();
   return {
-    ...(systemSettings ?? {}),
+    ...(systemSettings ?? DEFAULT_SYSTEM_SETTINGS),
     electionHash: electionDefinition?.electionHash,
     jurisdiction: isIntegrationTest()
       ? TEST_JURISDICTION
@@ -293,11 +293,10 @@ function buildApi({
     async setSystemSettings(input: {
       systemSettings: string;
     }): Promise<SetSystemSettingsResult> {
-      await logger.log(
-        LogEventId.SystemSettingsSaveInitiated,
-        assertDefined(await getUserRole()),
-        { disposition: 'na' }
-      );
+      const userRole = assertDefined(await getUserRole());
+      await logger.log(LogEventId.SystemSettingsSaveInitiated, userRole, {
+        disposition: 'na',
+      });
 
       const { systemSettings } = input;
       const validatedSystemSettings = safeParseJson(
@@ -315,19 +314,16 @@ function buildApi({
         store.saveSystemSettings(validatedSystemSettings.ok());
       } catch (error) {
         const typedError = error as Error;
-        await logger.log(
-          LogEventId.SystemSettingsSaved,
-          assertDefined(await getUserRole()),
-          { disposition: 'failure', error: typedError.message }
-        );
+        await logger.log(LogEventId.SystemSettingsSaved, userRole, {
+          disposition: 'failure',
+          error: typedError.message,
+        });
         throw error;
       }
 
-      await logger.log(
-        LogEventId.SystemSettingsSaved,
-        assertDefined(await getUserRole()),
-        { disposition: 'success' }
-      );
+      await logger.log(LogEventId.SystemSettingsSaved, userRole, {
+        disposition: 'success',
+      });
 
       return ok({});
     },

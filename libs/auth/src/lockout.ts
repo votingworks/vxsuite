@@ -1,8 +1,6 @@
 import { DateTime } from 'luxon';
 import { Optional } from '@votingworks/basics';
 import {
-  DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
-  DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   StartingCardLockoutDurationSeconds,
 } from '@votingworks/types';
@@ -11,8 +9,8 @@ import {
  * Config params for card lockout
  */
 export interface CardLockoutConfig {
-  numIncorrectPinAttemptsAllowedBeforeCardLockout?: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
-  startingCardLockoutDurationSeconds?: StartingCardLockoutDurationSeconds;
+  numIncorrectPinAttemptsAllowedBeforeCardLockout: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
+  startingCardLockoutDurationSeconds: StartingCardLockoutDurationSeconds;
 }
 
 /**
@@ -40,8 +38,8 @@ export function computeCardLockoutEndTime(
   cardLockoutStartTime = new Date()
 ): Optional<Date> {
   const {
-    numIncorrectPinAttemptsAllowedBeforeCardLockout = DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
-    startingCardLockoutDurationSeconds = DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
+    numIncorrectPinAttemptsAllowedBeforeCardLockout,
+    startingCardLockoutDurationSeconds,
   } = cardLockoutConfig;
 
   const numRemainingPinAttemptsWithoutCardLockout = Math.max(

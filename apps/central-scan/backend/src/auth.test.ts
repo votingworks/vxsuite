@@ -11,7 +11,11 @@ import {
 import { createMockUsb } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { fakeLogger, Logger } from '@votingworks/logging';
-import { TEST_JURISDICTION } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { makeMockScanner } from '../test/util/mocks';
@@ -59,47 +63,62 @@ afterEach(() => {
 const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
 const { electionData, electionHash } = electionDefinition;
+const systemSettings: SystemSettings = {
+  arePollWorkerCardPinsEnabled: true,
+  inactiveSessionTimeLimitMinutes: 10,
+  overallSessionTimeLimitHours: 1,
+  numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
+  startingCardLockoutDurationSeconds: 15,
+};
 
-function configureMachine(): void {
+beforeAll(() => {
+  expect(systemSettings).not.toEqual(DEFAULT_SYSTEM_SETTINGS);
+});
+
+// eslint-disable-next-line @typescript-eslint/no-shadow
+function configureMachine(systemSettings: SystemSettings): void {
   workspace.store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  workspace.store.setSystemSettings(systemSettings);
 }
 
 test('getAuthStatus', async () => {
-  configureMachine();
+  configureMachine(systemSettings);
 
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     electionHash,
     jurisdiction,
+    ...systemSettings,
   });
 });
 
 test('checkPin', async () => {
-  configureMachine();
+  configureMachine(systemSettings);
 
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction },
+    { electionHash, jurisdiction, ...systemSettings },
     { pin: '123456' }
   );
 });
 
 test('logOut', async () => {
-  configureMachine();
+  configureMachine(systemSettings);
 
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     electionHash,
     jurisdiction,
+    ...systemSettings,
   });
 });
 
 test('updateSessionExpiry', async () => {
-  configureMachine();
+  configureMachine(systemSettings);
 
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
@@ -107,7 +126,7 @@ test('updateSessionExpiry', async () => {
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction },
+    { electionHash, jurisdiction, ...systemSettings },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
@@ -115,19 +134,24 @@ test('updateSessionExpiry', async () => {
 test('getAuthStatus before election definition has been configured', async () => {
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
-  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {});
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(
+    1,
+    DEFAULT_SYSTEM_SETTINGS
+  );
 });
 
 test('checkPin before election definition has been configured', async () => {
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(1, {}, { pin: '123456' });
+  expect(auth.checkPin).toHaveBeenNthCalledWith(1, DEFAULT_SYSTEM_SETTINGS, {
+    pin: '123456',
+  });
 });
 
 test('logOut before election definition has been configured', async () => {
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, {});
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, DEFAULT_SYSTEM_SETTINGS);
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
@@ -137,7 +161,7 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    {},
+    DEFAULT_SYSTEM_SETTINGS,
     { sessionExpiresAt: expect.any(Date) }
   );
 });

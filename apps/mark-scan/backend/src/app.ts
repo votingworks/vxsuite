@@ -43,7 +43,7 @@ function constructAuthMachineState(
   const jurisdiction = workspace.store.getJurisdiction();
   const systemSettings = workspace.store.getSystemSettings();
   return {
-    ...(systemSettings ?? {}),
+    ...(systemSettings ?? DEFAULT_SYSTEM_SETTINGS),
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };

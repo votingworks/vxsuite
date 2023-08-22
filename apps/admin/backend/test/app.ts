@@ -9,7 +9,12 @@ import {
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  DippedSmartCardAuth,
+  ElectionDefinition,
+  SystemSettings,
+} from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import { assert } from '@votingworks/basics';
 import { fakeLogger } from '@votingworks/logging';
@@ -150,15 +155,22 @@ export function mockElectionManagerAuth(
 export async function configureMachine(
   apiClient: grout.Client<Api>,
   auth: DippedSmartCardAuthApi,
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinition,
+  systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<string> {
   mockSystemAdministratorAuth(auth);
   const { electionData } = electionDefinition;
-  const configureResult = await apiClient.configure({
-    electionData,
-  });
-  assert(configureResult.isOk());
-  return configureResult.ok().electionId;
+  const { electionId } = (
+    await apiClient.configure({
+      electionData,
+    })
+  ).unsafeUnwrap();
+  (
+    await apiClient.setSystemSettings({
+      systemSettings: JSON.stringify(systemSettings),
+    })
+  ).unsafeUnwrap();
+  return electionId;
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

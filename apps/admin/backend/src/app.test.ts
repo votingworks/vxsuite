@@ -5,7 +5,7 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   buildTestEnvironment,
@@ -186,6 +186,7 @@ test('setSystemSettings throws error when store.saveSystemSettings fails', async
   const { electionDefinition, systemSettings } =
     electionMinimalExhaustiveSampleFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
+  mockOf(logger.log).mockClear(); // Clear log calls from configureMachine
   const errorString = 'db error at saveSystemSettings';
   workspace.store.saveSystemSettings = jest.fn(() => {
     throw new Error(errorString);
@@ -199,15 +200,14 @@ test('setSystemSettings throws error when store.saveSystemSettings fails', async
     ).rejects.toThrow(errorString);
   });
 
-  // Logger call 1 is made by configureMachine when loading the election definition
   expect(logger.log).toHaveBeenNthCalledWith(
-    2,
+    1,
     LogEventId.SystemSettingsSaveInitiated,
     'system_administrator',
     { disposition: 'na' }
   );
   expect(logger.log).toHaveBeenNthCalledWith(
-    3,
+    2,
     LogEventId.SystemSettingsSaved,
     'system_administrator',
     { disposition: 'failure', error: errorString }

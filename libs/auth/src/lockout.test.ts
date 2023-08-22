@@ -1,4 +1,8 @@
 import { assert } from '@votingworks/basics';
+import {
+  DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+  DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
+} from '@votingworks/types';
 
 import { CardLockoutConfig, computeCardLockoutEndTime } from './lockout';
 
@@ -30,7 +34,12 @@ test.each<{
   ({ numIncorrectPinAttempts, expectedCardLockoutDurationSeconds }) => {
     const startTime = new Date();
     const endTime = computeCardLockoutEndTime(
-      {},
+      {
+        numIncorrectPinAttemptsAllowedBeforeCardLockout:
+          DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+        startingCardLockoutDurationSeconds:
+          DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
+      },
       numIncorrectPinAttempts,
       startTime
     );
