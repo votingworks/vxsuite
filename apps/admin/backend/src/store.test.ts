@@ -449,3 +449,103 @@ describe('getTabulationGroups', () => {
     );
   });
 });
+
+describe('getFilteredContests', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionComplexGeoSample.asText());
+  const { election } = electionComplexGeoSample;
+
+  test('no filter', () => {
+    expectArrayMatch(
+      store.getFilteredContests({ electionId }),
+      election.contests.map((c) => c.id)
+    );
+  });
+
+  test('precinct filter', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          precinctIds: ['precinct-c1-w2'],
+        },
+      }),
+      [
+        'county-leader-mammal',
+        'county-leader-fish',
+        'congressional-1-mammal',
+        'congressional-1-fish',
+        'water-2-fishing',
+      ]
+    );
+  });
+
+  test('ballot style filter', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          ballotStyleIds: ['m-c1-w1'],
+        },
+      }),
+      ['county-leader-mammal', 'congressional-1-mammal', 'water-1-fishing']
+    );
+  });
+
+  test('party filter', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          partyIds: ['0'],
+        },
+      }),
+      [
+        'county-leader-mammal',
+        'congressional-1-mammal',
+        'congressional-2-mammal',
+        'water-1-fishing',
+        'water-2-fishing',
+      ]
+    );
+  });
+
+  test('impossible cross-filter, no matches', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          partyIds: ['0'],
+          ballotStyleIds: ['f-c1-w1'],
+        },
+      }),
+      []
+    );
+  });
+
+  test('party + ballot style cross-filter ', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          partyIds: ['1'],
+          ballotStyleIds: ['f-c1-w1'],
+        },
+      }),
+      ['water-1-fishing', 'congressional-1-fish', 'county-leader-fish']
+    );
+  });
+
+  test('party + precinct cross-filter ', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          partyIds: ['1'],
+          precinctIds: ['precinct-c1-w1-1'],
+        },
+      }),
+      ['water-1-fishing', 'congressional-1-fish', 'county-leader-fish']
+    );
+  });
+});

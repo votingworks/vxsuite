@@ -35,6 +35,31 @@ create table ballot_styles_to_precincts(
     on delete cascade
 );
 
+create index idx_ballot_styles_to_precincts_precinct_id on 
+  ballot_styles_to_precincts(election_id, precinct_id);
+
+create table ballot_styles_to_districts(
+  election_id text not null,
+  ballot_style_id text not null,
+  district_id text not null,
+  primary key (election_id, ballot_style_id, district_id),
+  foreign key (election_id, ballot_style_id) references ballot_styles(election_id, id)
+    on delete cascade
+);
+
+create index idx_ballot_styles_to_districts_district_id on 
+  ballot_styles_to_districts(election_id, district_id);
+
+create table contests(
+  election_id text not null,
+  id text not null,
+  district_id text not null,
+  party_id text,
+  primary key (election_id, id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
 create table voting_methods(
   election_id integer not null,
   voting_method text not null 

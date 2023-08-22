@@ -4,7 +4,6 @@ import {
   getContestIdsForFilter,
   getContestIdsForParty,
   getContestIdsForPrecinct,
-  getContestIdsForSplit,
   intersectSets,
   unionSets,
 } from './contest_filtering';
@@ -193,79 +192,6 @@ describe('getContestIdsForFilter', () => {
         }),
       ],
       ['congressional-1-mammal', 'town-mammal', 'water-2-mammal']
-    );
-  });
-});
-
-describe('getContestIdsForSplit', () => {
-  const electionDefinition = complexBallotStyleElectionDefinition;
-  test('ballot style', () => {
-    expectArrayContentsEqual(
-      [
-        ...getContestIdsForSplit(electionDefinition, {
-          ballotStyleId: 'c1-w1-mammal',
-        }),
-      ],
-      ['congressional-1-mammal', 'town-mammal', 'water-1-mammal']
-    );
-  });
-
-  test('party', () => {
-    expectArrayContentsEqual(
-      [
-        ...getContestIdsForSplit(electionDefinition, {
-          partyId: '0',
-        }),
-      ],
-      [
-        'congressional-1-mammal',
-        'congressional-2-mammal',
-        'town-mammal',
-        'water-1-mammal',
-        'water-2-mammal',
-      ]
-    );
-  });
-
-  test('precinct', () => {
-    expectArrayContentsEqual(
-      [
-        ...getContestIdsForSplit(electionDefinition, {
-          precinctId: 'c1-w1-1',
-        }),
-      ],
-      [
-        'congressional-1-mammal',
-        'town-mammal',
-        'water-1-mammal',
-        'congressional-1-fish',
-        'town-fish',
-        'water-1-fish',
-      ]
-    );
-  });
-
-  test('precinct * party', () => {
-    expectArrayContentsEqual(
-      [
-        ...getContestIdsForSplit(electionDefinition, {
-          partyId: '0',
-          precinctId: 'c1-w1-1',
-        }),
-      ],
-      ['congressional-1-mammal', 'town-mammal', 'water-1-mammal']
-    );
-  });
-
-  test('invalid combo', () => {
-    expectArrayContentsEqual(
-      [
-        ...getContestIdsForSplit(electionDefinition, {
-          ballotStyleId: 'c1-w2-mammal',
-          precinctId: 'c1-w1-1',
-        }),
-      ],
-      []
     );
   });
 });
