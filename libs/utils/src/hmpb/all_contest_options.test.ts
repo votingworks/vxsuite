@@ -112,16 +112,16 @@ test('yesno contest', () => {
         typedAs<ContestOption[]>([
           {
             type: 'yesno',
-            id: 'yes',
+            id: contest.yesOption.id,
             contestId: contest.id,
-            name: 'Yes',
+            name: contest.yesOption.label,
             optionIndex: 0,
           },
           {
             type: 'yesno',
-            id: 'no',
+            id: contest.noOption.id,
             contestId: contest.id,
-            name: 'No',
+            name: contest.noOption.label,
             optionIndex: 1,
           },
         ])
