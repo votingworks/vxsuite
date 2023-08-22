@@ -9,7 +9,6 @@ import {
   Election,
   GridPositionOption,
   GridPositionWriteIn,
-  MarkThresholds,
   Party,
   PartyIdSchema,
   YesNoContest,
@@ -40,14 +39,6 @@ function makeId(text: string): string {
     8
   )}`;
 }
-
-/**
- * Default thresholds for interpreting marks on a ballot as votes.
- */
-export const DefaultMarkThresholds: MarkThresholds = {
-  definite: 0.08,
-  marginal: 0.05,
-};
 
 /**
  * Creates an election definition only from the ballot metadata, ignoring the
@@ -451,7 +442,6 @@ export function convertElectionDefinitionHeader(
       metadataEncoding: 'timing-marks',
       targetMarkPosition: BallotTargetMarkPosition.Right,
     },
-    markThresholds: DefaultMarkThresholds,
     gridLayouts: [
       {
         precinctId,

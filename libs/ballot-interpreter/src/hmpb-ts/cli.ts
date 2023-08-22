@@ -11,11 +11,15 @@ import {
 import tmp from 'tmp';
 import { writeImageData } from '@votingworks/image-utils';
 import {
+  DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
   mapSheet,
+  MarkThresholds,
   safeParseElectionDefinition,
   safeParseJson,
   SheetOf,
+  SystemSettings,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import { jsonStream } from '@votingworks/utils';
 import Sqlite3 from 'better-sqlite3';
@@ -30,7 +34,7 @@ function usage(out: NodeJS.WritableStream): void {
   out.write(
     `${chalk.bold(
       'Usage:'
-    )} interpret [options] <election-definition-path> <image-path> <image-path>\n`
+    )} interpret [options] <election-definition-path> <system-settings-path> <image-path> <image-path>\n`
   );
   out.write(
     `       interpret [options] <scan-workspace-path> [<sheet-id> …]\n`
@@ -43,11 +47,14 @@ function usage(out: NodeJS.WritableStream): void {
   out.write(
     `  -d, --debug  Output debug information (images alongside inputs).\n`
   );
+  out.write(
+    '  --default-mark-thresholds  Use default mark thresholds if none provided.\n'
+  );
   out.write(`\n`);
   out.write(chalk.bold('Examples:\n'));
   out.write(chalk.dim(`  # Interpret a single ballot\n`));
   out.write(
-    `  interpret election.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
+    `  interpret election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
   );
   out.write(`\n`);
   out.write(chalk.dim(`  # Interpret all ballots in a scan workspace\n`));
@@ -61,7 +68,7 @@ function usage(out: NodeJS.WritableStream): void {
     chalk.dim(`  # (i.e. ballot-side-a_debug_scored_bubble_marks.png)\n`)
   );
   out.write(
-    `  interpret -d election.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
+    `  interpret -d election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg\n`
   );
 }
 
@@ -83,23 +90,17 @@ async function writeIterToStream(
 
 function prettyPrintInterpretation({
   electionDefinition,
+  markThresholds,
   paths,
   stdout,
   interpretedBallotCard,
 }: {
   electionDefinition: ElectionDefinition;
+  markThresholds: MarkThresholds;
   paths: SheetOf<string>;
   stdout: NodeJS.WritableStream;
   interpretedBallotCard: InterpretedBallotCard;
 }) {
-  const thresholds = electionDefinition.election.markThresholds;
-
-  if (!thresholds) {
-    stdout.write(
-      `Warning: No mark thresholds defined in election definition; cannot render marks as votes.\n`
-    );
-  }
-
   stdout.write(`${chalk.bold('Paths:')}\n`);
   stdout.write(`- ${paths[0]}\n`);
   stdout.write(`- ${paths[1]}\n`);
@@ -134,11 +135,11 @@ function prettyPrintInterpretation({
 
       stdout.write(
         `${
-          !scoredMark || !thresholds
+          !scoredMark
             ? ' '
-            : scoredMark.fillScore < thresholds.marginal
+            : scoredMark.fillScore < markThresholds.marginal
             ? '⬜️'
-            : scoredMark.fillScore < thresholds.definite
+            : scoredMark.fillScore < markThresholds.definite
             ? '❓'
             : '✅'
         } ${
@@ -182,7 +183,8 @@ async function writeNormalizedImages({
 }
 
 async function interpretFiles(
-  electionDefinitionOrPath: ElectionDefinition | string,
+  electionDefinition: ElectionDefinition,
+  systemSettings: SystemSettings | undefined,
   [ballotPathSideA, ballotPathSideB]: SheetOf<string>,
   {
     stdout,
@@ -190,36 +192,16 @@ async function interpretFiles(
     scoreWriteIns = false,
     json = false,
     debug = false,
+    useDefaultMarkThresholds = false,
   }: {
     stdout: NodeJS.WritableStream;
     stderr: NodeJS.WritableStream;
     scoreWriteIns?: boolean;
     json?: boolean;
     debug?: boolean;
+    useDefaultMarkThresholds?: boolean;
   }
 ): Promise<number> {
-  let electionDefinition: ElectionDefinition;
-
-  if (typeof electionDefinitionOrPath === 'string') {
-    const parseElectionDefinitionResult = safeParseElectionDefinition(
-      await fs.readFile(electionDefinitionOrPath, 'utf8')
-    );
-
-    if (parseElectionDefinitionResult.isErr()) {
-      stderr.write(
-        `Error parsing election definition: ${
-          parseElectionDefinitionResult.err().message
-        }\n`
-      );
-      usage(stderr);
-      return 1;
-    }
-
-    electionDefinition = parseElectionDefinitionResult.ok();
-  } else {
-    electionDefinition = electionDefinitionOrPath;
-  }
-
   const result = interpret(
     electionDefinition,
     [ballotPathSideA, ballotPathSideB],
@@ -258,8 +240,23 @@ async function interpretFiles(
       stdout
     );
   } else {
+    const markThresholds =
+      systemSettings?.markThresholds ??
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (electionDefinition.election as any).markThresholds ??
+      (useDefaultMarkThresholds ? DEFAULT_MARK_THRESHOLDS : undefined);
+
+    if (!markThresholds) {
+      stderr.write(
+        `Could not find markThresholds in system settings or election definition.\n` +
+          `Use --default-mark-thresholds to use default thresholds.\n`
+      );
+      return 1;
+    }
+
     prettyPrintInterpretation({
       electionDefinition,
+      markThresholds,
       paths: [ballotPathSideA, ballotPathSideB],
       interpretedBallotCard: interpreted,
       stdout,
@@ -316,6 +313,24 @@ function readElectionDefinitionFromDatabase(
   );
 }
 
+function readSystemSettingsFromDatabase(
+  db: Sqlite3.Database
+): Optional<SystemSettings> {
+  try {
+    const systemSettingsJson = (
+      db.prepare(`SELECT data FROM system_settings`).get() as Optional<{
+        data: string;
+      }>
+    )?.data;
+
+    return systemSettingsJson
+      ? (safeParseJson(systemSettingsJson).ok() as SystemSettings)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 async function interpretWorkspace(
   workspacePath: string,
   {
@@ -325,6 +340,7 @@ async function interpretWorkspace(
     scoreWriteIns = false,
     json = false,
     debug = false,
+    useDefaultMarkThresholds = false,
   }: {
     stdout: NodeJS.WriteStream;
     stderr: NodeJS.WriteStream;
@@ -332,6 +348,7 @@ async function interpretWorkspace(
     scoreWriteIns?: boolean;
     json?: boolean;
     debug?: boolean;
+    useDefaultMarkThresholds?: boolean;
   }
 ): Promise<number> {
   const dbPath = join(workspacePath, 'ballots.db');
@@ -351,6 +368,8 @@ async function interpretWorkspace(
     );
     return 1;
   }
+
+  const systemSettings = readSystemSettingsFromDatabase(db);
 
   const sheetIdsArray = [...sheetIds];
   const sheets = (
@@ -422,8 +441,9 @@ async function interpretWorkspace(
 
     const exitCode = await interpretFiles(
       electionDefinition,
+      systemSettings,
       correctionResult.ok(),
-      { stdout, stderr, scoreWriteIns, json, debug }
+      { stdout, stderr, scoreWriteIns, json, debug, useDefaultMarkThresholds }
     );
 
     count += 1;
@@ -449,11 +469,13 @@ export async function main(args: string[]): Promise<number> {
   let workspacePath: string | undefined;
   const sheetIds = new Set<string>();
   let electionDefinitionPath: string | undefined;
+  let systemSettingsPath: string | undefined;
   let ballotPathSideA: string | undefined;
   let ballotPathSideB: string | undefined;
   let scoreWriteIns: boolean | undefined;
   let json = false;
   let debug = false;
+  let useDefaultMarkThresholds = false;
 
   for (const arg of args) {
     if (arg === '-h' || arg === '--help') {
@@ -476,6 +498,11 @@ export async function main(args: string[]): Promise<number> {
       continue;
     }
 
+    if (arg === '--default-mark-thresholds') {
+      useDefaultMarkThresholds = true;
+      continue;
+    }
+
     if (arg.startsWith('-')) {
       stderr.write(`Unknown option: ${arg}\n`);
       usage(stderr);
@@ -495,9 +522,19 @@ export async function main(args: string[]): Promise<number> {
         usage(stderr);
         return 1;
       }
-    } else if (electionDefinitionPath && !ballotPathSideA) {
+    } else if (electionDefinitionPath && !systemSettingsPath) {
+      systemSettingsPath = arg;
+    } else if (
+      electionDefinitionPath &&
+      systemSettingsPath &&
+      !ballotPathSideA
+    ) {
       ballotPathSideA = arg;
-    } else if (electionDefinitionPath && !ballotPathSideB) {
+    } else if (
+      electionDefinitionPath &&
+      systemSettingsPath &&
+      !ballotPathSideB
+    ) {
       ballotPathSideB = arg;
     } else if (workspacePath) {
       sheetIds.add(arg);
@@ -516,14 +553,54 @@ export async function main(args: string[]): Promise<number> {
       json,
       scoreWriteIns,
       debug,
+      useDefaultMarkThresholds,
     });
   }
 
-  if (electionDefinitionPath && ballotPathSideA && ballotPathSideB) {
+  if (
+    electionDefinitionPath &&
+    systemSettingsPath &&
+    ballotPathSideA &&
+    ballotPathSideB
+  ) {
+    const parseElectionDefinitionResult = safeParseElectionDefinition(
+      await fs.readFile(electionDefinitionPath, 'utf8')
+    );
+
+    if (parseElectionDefinitionResult.isErr()) {
+      stderr.write(
+        `Error parsing election definition: ${
+          parseElectionDefinitionResult.err().message
+        }\n`
+      );
+      usage(stderr);
+      return 1;
+    }
+
+    const electionDefinition = parseElectionDefinitionResult.ok();
+
+    const parseSystemSettingsResult = safeParseSystemSettings(
+      await fs.readFile(systemSettingsPath, 'utf8')
+    );
+
+    // Just warn, don't fail, if the system settings are invalid, since we may
+    // be using old data that doesn't parse anymore, and we may want to allow
+    // the default mark thresholds to be used.
+    if (parseSystemSettingsResult.isErr()) {
+      stderr.write(
+        `Warning: error parsing system settings: ${
+          parseSystemSettingsResult.err().message
+        }\n`
+      );
+    }
+
+    const systemSettings = parseSystemSettingsResult.ok();
+
     return await interpretFiles(
-      electionDefinitionPath,
+      electionDefinition,
+      systemSettings,
       [ballotPathSideA, ballotPathSideB],
-      { stdout, stderr, scoreWriteIns, json, debug }
+      { stdout, stderr, scoreWriteIns, json, debug, useDefaultMarkThresholds }
     );
   }
 

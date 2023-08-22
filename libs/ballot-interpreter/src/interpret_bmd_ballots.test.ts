@@ -2,12 +2,18 @@ import {
   electionFamousNames2021Fixtures,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
-import { InvalidElectionHashPage, mapSheet, SheetOf } from '@votingworks/types';
+import {
+  DEFAULT_MARK_THRESHOLDS,
+  InvalidElectionHashPage,
+  mapSheet,
+  SheetOf,
+} from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
+import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { interpretSheet } from './interpret';
 
 describe('VX BMD interpretation', () => {
@@ -23,6 +29,7 @@ describe('VX BMD interpretation', () => {
         electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       validBmdSheet
     );
@@ -34,7 +41,7 @@ describe('VX BMD interpretation', () => {
           "metadata": {
             "ballotStyleId": "1",
             "ballotType": 0,
-            "electionHash": "b4e07814b46911211ec7",
+            "electionHash": "95b894cd278da3775fbc",
             "isTestMode": true,
             "precinctId": "23",
           },
@@ -169,6 +176,7 @@ describe('VX BMD interpretation', () => {
         electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: false, // this is the test mode
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       validBmdSheet
     );
@@ -184,6 +192,7 @@ describe('VX BMD interpretation', () => {
         electionDefinition,
         testMode: true,
         precinctSelection: singlePrecinctSelectionFor('20'),
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       validBmdSheet
     );
@@ -199,6 +208,7 @@ describe('VX BMD interpretation', () => {
         electionDefinition,
         testMode: true,
         precinctSelection: singlePrecinctSelectionFor('23'),
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       validBmdSheet
     );
@@ -217,6 +227,7 @@ describe('VX BMD interpretation', () => {
         },
         testMode: true,
         precinctSelection: singlePrecinctSelectionFor('23'),
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       validBmdSheet
     );
@@ -224,7 +235,7 @@ describe('VX BMD interpretation', () => {
     expect(interpretationResult[0].interpretation).toEqual(
       typedAs<InvalidElectionHashPage>({
         type: 'InvalidElectionHashPage',
-        actualElectionHash: 'b4e07814b46911211ec7',
+        actualElectionHash: sliceElectionHash(electionDefinition.electionHash),
         expectedElectionHash: 'd34db33f',
       })
     );
@@ -236,6 +247,7 @@ describe('VX BMD interpretation', () => {
         electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       [bmdBlankPage, bmdBlankPage]
     );
@@ -250,6 +262,7 @@ describe('VX BMD interpretation', () => {
         electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       },
       [bmdSummaryBallotPage, bmdSummaryBallotPage]
     );

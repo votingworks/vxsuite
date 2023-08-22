@@ -20,7 +20,7 @@ import {
 } from 'xstate';
 import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
-import { Optional, assert } from '@votingworks/basics';
+import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { Workspace } from '../util/workspace';
@@ -186,10 +186,13 @@ function loadMetadataAndInterpretBallot(context: Context) {
   const precinct = precincts[precincts.length - 1];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   const testMode = true;
+  const { markThresholds } = assertDefined(store.getSystemSettings());
+
   return interpretScannedBallots(
     electionDefinition,
     precinctSelection,
     testMode,
+    markThresholds,
     scannedImagePaths
   );
 }

@@ -7,8 +7,8 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
   SystemSettings,
+  safeParseSystemSettings,
 } from '@votingworks/types';
-import { safeParseSystemSettings } from '@votingworks/utils';
 import { join } from 'path';
 
 const SchemaPath = join(__dirname, '../schema.sql');

@@ -1,4 +1,9 @@
-import { assert, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   CustomScanner,
   DoubleSheetDetectOpt,
@@ -360,16 +365,13 @@ async function interpretSheet(
   assert(scannedSheet);
   const sheetId = uuid();
   const { store } = workspace;
-  const electionDefinition = store.getElectionDefinition();
-  const precinctSelection = store.getPrecinctSelection();
-  assert(electionDefinition);
-  assert(precinctSelection);
   const interpretation = (
     await interpret(sheetId, scannedSheet, {
-      electionDefinition,
-      precinctSelection,
+      electionDefinition: assertDefined(store.getElectionDefinition()),
+      precinctSelection: assertDefined(store.getPrecinctSelection()),
       testMode: store.getTestMode(),
       ballotImagesPath: workspace.ballotImagesPath,
+      markThresholds: store.getMarkThresholds(),
     })
   ).unsafeUnwrap();
   return {
@@ -658,9 +660,17 @@ function buildMachine({
         '*': {
           target: 'error',
           actions: assign({
-            error: (_context, event) => {
-              console.log(_context);
-              console.log(event);
+            error: (
+              { error, failedScanAttempts, interpretation, scannedSheet },
+              event
+            ) => {
+              // eslint-disable-next-line no-console
+              console.error(event, {
+                error,
+                failedScanAttempts,
+                interpretation,
+                scannedSheet,
+              });
               return new PrecinctScannerError(
                 'unexpected_event',
                 `Unexpected event: ${event.type}`

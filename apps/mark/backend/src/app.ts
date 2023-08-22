@@ -29,9 +29,10 @@ function constructAuthMachineState(
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings = workspace.store.getSystemSettings();
+  const systemSettings =
+    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
-    ...(systemSettings ?? DEFAULT_SYSTEM_SETTINGS),
+    ...systemSettings.auth,
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };

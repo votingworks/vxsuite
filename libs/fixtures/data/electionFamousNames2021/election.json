@@ -316,9 +316,5 @@
     "Overvote",
     "Undervote",
     "BlankBallot"
-  ],
-  "markThresholds": {
-    "definite": 0.12,
-    "marginal": 0.12
-  }
+  ]
 }

@@ -114,9 +114,10 @@ function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
   const electionDefinition = getCurrentElectionDefinition(workspace);
-  const systemSettings = workspace.store.getSystemSettings();
+  const systemSettings =
+    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
-    ...(systemSettings ?? DEFAULT_SYSTEM_SETTINGS),
+    ...systemSettings.auth,
     electionHash: electionDefinition?.electionHash,
     jurisdiction: isIntegrationTest()
       ? TEST_JURISDICTION

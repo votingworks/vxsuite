@@ -2024,10 +2024,6 @@
       "name": "City of Lincoln"
     }
   ],
-  "markThresholds": {
-    "marginal": 0.12,
-    "definite": 0.12
-  },
   "parties": [
     {
       "id": "0",

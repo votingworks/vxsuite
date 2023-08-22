@@ -13,7 +13,6 @@ import { v4 as uuid } from 'uuid';
 import { LogEventId } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { withApp } from '../test/helpers/setup_app';
-import { DefaultMarkThresholds } from './store';
 
 const jurisdiction = TEST_JURISDICTION;
 
@@ -100,16 +99,7 @@ test('getElectionDefinition', async () => {
 
     importer.configure(electionDefinition, jurisdiction);
 
-    // This mess of a comparison is due to `Store#getElectionDefinition` adding
-    // default `markThresholds` if they're not set, so it may not be the same as
-    // we originally set.
-    expect(await apiClient.getElectionDefinition()).toEqual({
-      ...electionDefinition,
-      election: {
-        ...electionDefinition.election,
-        markThresholds: DefaultMarkThresholds,
-      },
-    });
+    expect(await apiClient.getElectionDefinition()).toEqual(electionDefinition);
 
     importer.unconfigure();
     expect(await apiClient.getElectionDefinition()).toEqual(null);

@@ -33,7 +33,6 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
-import { DefaultMarkThresholds } from './store';
 import { SCAN_ALLOWED_EXPORT_PATTERNS } from './globals';
 
 type NoParams = never;
@@ -53,9 +52,10 @@ function constructAuthMachineState(
 ): DippedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings = workspace.store.getSystemSettings();
+  const systemSettings =
+    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
-    ...(systemSettings ?? DEFAULT_SYSTEM_SETTINGS),
+    ...systemSettings.auth,
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };
@@ -366,8 +366,7 @@ export function buildCentralScannerApp({
         ballotsCounted: store.getBallotsCounted(),
         batchInfo: store.batchStatus(),
         getResultSheetGenerator: store.forEachResultSheet.bind(store),
-        definiteMarkThreshold:
-          store.getMarkThresholds()?.definite ?? DefaultMarkThresholds.definite,
+        definiteMarkThreshold: store.getMarkThresholds().definite,
         artifactAuthenticator,
         disableOriginalSnapshots: isFeatureFlagEnabled(
           BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS

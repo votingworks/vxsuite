@@ -4,6 +4,7 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
 import {
+  DEFAULT_MARK_THRESHOLDS,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
 } from '@votingworks/types';
@@ -48,6 +49,7 @@ test('treats BMD ballot with one blank side as valid', async () => {
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,
     testMode: true,
+    markThresholds: DEFAULT_MARK_THRESHOLDS,
   });
   expect(result.ok()?.type).toEqual('ValidSheet');
 });
@@ -59,6 +61,7 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,
     testMode: true,
+    markThresholds: DEFAULT_MARK_THRESHOLDS,
   });
   expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
@@ -73,6 +76,7 @@ test.each([true, false])(
         precinctSelection: ALL_PRECINCTS_SELECTION,
         ballotImagesPath,
         testMode,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
       })
     ).unsafeUnwrap();
     expect(sheet.type).toEqual('ValidSheet');

@@ -2,6 +2,7 @@ import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   ElectionDefinition,
+  MarkThresholds,
   PageInterpretationWithFiles,
   PrecinctSelection,
   SheetInterpretation,
@@ -19,6 +20,7 @@ export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;
   readonly precinctSelection: PrecinctSelection;
   readonly ballotImagesPath: string;
+  readonly markThresholds: MarkThresholds;
   readonly testMode: boolean;
 }
 
@@ -134,8 +136,13 @@ export async function interpret(
   sheet: SheetOf<string>,
   config: InterpreterConfig
 ): Promise<Result<SheetInterpretationWithPages, Error>> {
-  const { electionDefinition, ballotImagesPath, precinctSelection, testMode } =
-    config;
+  const {
+    electionDefinition,
+    ballotImagesPath,
+    precinctSelection,
+    testMode,
+    markThresholds,
+  } = config;
   const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
 
   const pageInterpretations = await interpretSheetAndSaveImages(
@@ -145,7 +152,7 @@ export async function interpret(
       testMode,
       adjudicationReasons:
         electionDefinition.election.precinctScanAdjudicationReasons,
-      markThresholds: electionDefinition.election.markThresholds,
+      markThresholds,
     },
     sheet,
     sheetId,

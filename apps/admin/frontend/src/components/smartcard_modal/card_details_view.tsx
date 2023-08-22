@@ -45,7 +45,7 @@ export function CardDetailsView({
 
   const { role } = programmedUser;
   const arePollWorkerCardPinsEnabled =
-    systemSettingsQuery.data?.arePollWorkerCardPinsEnabled;
+    systemSettingsQuery.data?.auth.arePollWorkerCardPinsEnabled;
   const doesCardElectionHashMatchMachineElectionHash =
     electionDefinition &&
     checkDoesCardElectionHashMatchMachineElectionHash(

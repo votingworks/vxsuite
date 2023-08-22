@@ -2,8 +2,7 @@ import { fakeLogger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   InsertedSmartCardAuth,
-  SystemSettingsSchema,
-  safeParseJson,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import {
   fakeElectionManagerUser,
@@ -19,7 +18,6 @@ import { assert, err } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  safeParseSystemSettings,
 } from '@votingworks/utils';
 import {
   ArtifactAuthenticatorApi,
@@ -85,9 +83,8 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
     },
@@ -165,9 +162,8 @@ test('errors if logged-out auth is passed', async () => {
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
     },
@@ -207,9 +203,8 @@ test('errors if election hash on provided auth is different than ballot package 
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition: otherElectionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
     },
@@ -298,9 +293,8 @@ test('configures using the most recently created ballot package on the usb drive
       ),
       'newer-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
     },
@@ -342,9 +336,8 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
     'ballot-packages': {
       'older-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
       '._newer-hidden-file-ballot-package.zip': Buffer.from('not a zip file'),

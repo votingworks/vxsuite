@@ -12,10 +12,7 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import {
-  safeParseSystemSettings,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
 import { Buffer } from 'buffer';
 import { createBallotPackageZipArchive, MockUsb } from '@votingworks/backend';
@@ -24,9 +21,8 @@ import * as grout from '@votingworks/grout';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
-  safeParseJson,
   SinglePrecinctSelection,
-  SystemSettingsSchema,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
@@ -57,9 +53,8 @@ async function setUpUsbAndConfigureElection(
 ) {
   const zipBuffer = await createBallotPackageZipArchive({
     electionDefinition,
-    systemSettings: safeParseJson(
-      systemSettings.asText(),
-      SystemSettingsSchema
+    systemSettings: safeParseSystemSettings(
+      systemSettings.asText()
     ).unsafeUnwrap(),
   });
   mockUsb.insertUsbDrive({

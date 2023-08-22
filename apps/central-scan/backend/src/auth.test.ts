@@ -64,15 +64,18 @@ const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
 const { electionData, electionHash } = electionDefinition;
 const systemSettings: SystemSettings = {
-  arePollWorkerCardPinsEnabled: true,
-  inactiveSessionTimeLimitMinutes: 10,
-  overallSessionTimeLimitHours: 1,
-  numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
-  startingCardLockoutDurationSeconds: 15,
+  ...DEFAULT_SYSTEM_SETTINGS,
+  auth: {
+    arePollWorkerCardPinsEnabled: true,
+    inactiveSessionTimeLimitMinutes: 10,
+    overallSessionTimeLimitHours: 1,
+    numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
+    startingCardLockoutDurationSeconds: 15,
+  },
 };
 
 beforeAll(() => {
-  expect(systemSettings).not.toEqual(DEFAULT_SYSTEM_SETTINGS);
+  expect(systemSettings.auth).not.toEqual(DEFAULT_SYSTEM_SETTINGS.auth);
 });
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -89,7 +92,7 @@ test('getAuthStatus', async () => {
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     electionHash,
     jurisdiction,
-    ...systemSettings,
+    ...systemSettings.auth,
   });
 });
 
@@ -100,7 +103,7 @@ test('checkPin', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction, ...systemSettings },
+    { electionHash, jurisdiction, ...systemSettings.auth },
     { pin: '123456' }
   );
 });
@@ -113,7 +116,7 @@ test('logOut', async () => {
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     electionHash,
     jurisdiction,
-    ...systemSettings,
+    ...systemSettings.auth,
   });
 });
 
@@ -126,7 +129,7 @@ test('updateSessionExpiry', async () => {
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction, ...systemSettings },
+    { electionHash, jurisdiction, ...systemSettings.auth },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
@@ -136,22 +139,26 @@ test('getAuthStatus before election definition has been configured', async () =>
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(
     1,
-    DEFAULT_SYSTEM_SETTINGS
+    DEFAULT_SYSTEM_SETTINGS.auth
   );
 });
 
 test('checkPin before election definition has been configured', async () => {
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
-  expect(auth.checkPin).toHaveBeenNthCalledWith(1, DEFAULT_SYSTEM_SETTINGS, {
-    pin: '123456',
-  });
+  expect(auth.checkPin).toHaveBeenNthCalledWith(
+    1,
+    DEFAULT_SYSTEM_SETTINGS.auth,
+    {
+      pin: '123456',
+    }
+  );
 });
 
 test('logOut before election definition has been configured', async () => {
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
-  expect(auth.logOut).toHaveBeenNthCalledWith(1, DEFAULT_SYSTEM_SETTINGS);
+  expect(auth.logOut).toHaveBeenNthCalledWith(1, DEFAULT_SYSTEM_SETTINGS.auth);
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
@@ -161,7 +168,7 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    DEFAULT_SYSTEM_SETTINGS,
+    DEFAULT_SYSTEM_SETTINGS.auth,
     { sessionExpiresAt: expect.any(Date) }
   );
 });

@@ -45,7 +45,7 @@ export interface InterpreterOptions {
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
   testMode: boolean;
-  markThresholds?: MarkThresholds;
+  markThresholds: MarkThresholds;
   adjudicationReasons?: readonly AdjudicationReason[];
 }
 
@@ -135,9 +135,7 @@ function interpretAndConvertNhHmpbResult(
   options: InterpreterOptions
 ): SheetOf<InterpretFileResult> {
   const result = interpretNhHmpbBallotSheet(electionDefinition, sheet, {
-    scoreWriteIns:
-      (electionDefinition.election.markThresholds?.writeInTextArea ??
-        options.markThresholds?.writeInTextArea) !== undefined,
+    scoreWriteIns: options.markThresholds.writeInTextArea !== undefined,
   });
 
   return validateInterpretResults(

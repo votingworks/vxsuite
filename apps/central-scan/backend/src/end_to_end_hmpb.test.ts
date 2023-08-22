@@ -11,7 +11,12 @@ import {
   asElectionDefinition,
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
-import { CVR, TEST_JURISDICTION, unsafeParse } from '@votingworks/types';
+import {
+  CVR,
+  DEFAULT_SYSTEM_SETTINGS,
+  TEST_JURISDICTION,
+  unsafeParse,
+} from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import {
   BooleanEnvironmentVariableName,
@@ -137,6 +142,7 @@ test('going through the whole process works', async () => {
   });
 
   importer.configure(asElectionDefinition(election), jurisdiction);
+  workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
 
   // sample ballot election hash does not match election hash for this test
   featureFlagMock.enableFeatureFlag(
@@ -146,7 +152,15 @@ test('going through the whole process works', async () => {
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'ballot-package.zip': await createBallotPackageZipArchive(
-        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage()
+        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+          {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            markThresholds: {
+              definite: 0.08,
+              marginal: 0.05,
+            },
+          }
+        )
       ),
     },
   });

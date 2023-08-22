@@ -1106,10 +1106,6 @@
       "name": "Hudson"
     }
   ],
-  "markThresholds": {
-    "marginal": 0.05,
-    "definite": 0.08
-  },
   "parties": [
     {
       "id": "Republican-f0167ce7",

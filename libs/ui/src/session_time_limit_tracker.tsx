@@ -4,8 +4,6 @@ import pluralize from 'pluralize';
 import React, { useState } from 'react';
 import { useIdleTimer } from 'react-idle-timer';
 import {
-  DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
-  DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DippedSmartCardAuth,
   InsertedSmartCardAuth,
   SystemSettings,
@@ -67,12 +65,8 @@ function SessionTimeLimitTrackerHelper({
   systemSettings,
   updateSessionExpiry,
 }: SessionTimeLimitTrackerHelperProps): JSX.Element | null {
-  const inactiveSessionTimeLimitMinutes =
-    systemSettings?.inactiveSessionTimeLimitMinutes ??
-    DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES;
-  const overallSessionTimeLimitHours =
-    systemSettings?.overallSessionTimeLimitHours ??
-    DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS;
+  const { inactiveSessionTimeLimitMinutes } = systemSettings.auth;
+  const { overallSessionTimeLimitHours } = systemSettings.auth;
 
   const now = useNow().toJSDate();
   const [

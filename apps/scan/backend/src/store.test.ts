@@ -8,6 +8,7 @@ import {
   InterpretedHmpbPage,
   mapSheet,
   PageInterpretationWithFiles,
+  safeParseSystemSettings,
   SheetOf,
   TEST_JURISDICTION,
   YesNoContest,
@@ -15,7 +16,6 @@ import {
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-  safeParseSystemSettings,
 } from '@votingworks/utils';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';

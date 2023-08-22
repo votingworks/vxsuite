@@ -816,10 +816,6 @@
       "name": "Test Ballot"
     }
   ],
-  "markThresholds": {
-    "marginal": 0.05,
-    "definite": 0.08
-  },
   "parties": [
     {
       "id": "Democratic-aea20adb",

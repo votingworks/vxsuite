@@ -34,7 +34,7 @@ Currently, the CLI only works for HMPB.
 
 ```sh
 # Interpret a single ballot
-bin/interpret election.json ballot-side-a.jpeg ballot-side-b.jpeg
+bin/interpret election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg
 
 # Interpret all ballots in a scan workspace
 bin/interpret path/to/workspace
@@ -44,7 +44,7 @@ bin/interpret path/to/workspace d34d-b33f
 
 # Write debug images alongside input images
 # (i.e. ballot-side-a_debug_scored_bubble_marks.png)
-bin/interpret -d election.json ballot-side-a.jpeg ballot-side-b.jpeg
+bin/interpret -d election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg
 ```
 
 ## Benchmarks

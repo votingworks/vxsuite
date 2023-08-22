@@ -639,6 +639,8 @@ test.each<{
 
     mockCardReader.setReaderStatus('ready');
     await waitForExpect(async () => {
+      // This might fail if the test keys and certs are outdated (e.g. if the election hash changes).
+      // Run ./scripts/generate-test-keys-and-certs to update them.
       expect(await javaCard.getCardStatus()).toEqual({
         status: 'ready',
         cardDetails: expectedCardDetails,

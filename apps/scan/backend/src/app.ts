@@ -38,7 +38,6 @@ import {
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { DefaultMarkThresholds } from './store';
 import { getScannerResults } from './util/results';
 
 function constructAuthMachineState(
@@ -46,9 +45,10 @@ function constructAuthMachineState(
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings = workspace.store.getSystemSettings();
+  const systemSettings =
+    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
-    ...(systemSettings ?? DEFAULT_SYSTEM_SETTINGS),
+    ...systemSettings.auth,
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };
@@ -270,9 +270,7 @@ function buildApi(
           ballotsCounted: store.getBallotsCounted(),
           batchInfo: store.batchStatus(),
           getResultSheetGenerator: store.forEachResultSheet.bind(store),
-          definiteMarkThreshold:
-            store.getMarkThresholds()?.definite ??
-            DefaultMarkThresholds.definite,
+          definiteMarkThreshold: store.getMarkThresholds().definite,
           artifactAuthenticator,
           disableOriginalSnapshots: isFeatureFlagEnabled(
             BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS

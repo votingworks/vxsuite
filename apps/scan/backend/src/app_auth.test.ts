@@ -13,17 +13,20 @@ import { configureApp } from '../test/helpers/shared_helpers';
 const jurisdiction = TEST_JURISDICTION;
 const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
 const systemSettings: SystemSettings = {
-  arePollWorkerCardPinsEnabled: true,
-  inactiveSessionTimeLimitMinutes: 10,
-  overallSessionTimeLimitHours: 1,
-  numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
-  startingCardLockoutDurationSeconds: 15,
+  ...DEFAULT_SYSTEM_SETTINGS,
+  auth: {
+    arePollWorkerCardPinsEnabled: true,
+    inactiveSessionTimeLimitMinutes: 10,
+    overallSessionTimeLimitHours: 1,
+    numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
+    startingCardLockoutDurationSeconds: 15,
+  },
 };
 const ballotPackage =
   electionFamousNames2021Fixtures.electionJson.toBallotPackage(systemSettings);
 
 beforeAll(() => {
-  expect(systemSettings).not.toEqual(DEFAULT_SYSTEM_SETTINGS);
+  expect(systemSettings.auth).not.toEqual(DEFAULT_SYSTEM_SETTINGS.auth);
 });
 
 test('getAuthStatus', async () => {
@@ -34,7 +37,7 @@ test('getAuthStatus', async () => {
     await apiClient.getAuthStatus();
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
     expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-      ...systemSettings,
+      ...systemSettings.auth,
       electionHash,
       jurisdiction,
     });
@@ -49,7 +52,7 @@ test('checkPin', async () => {
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
     expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
       1,
-      { ...systemSettings, electionHash, jurisdiction },
+      { ...systemSettings.auth, electionHash, jurisdiction },
       { pin: '123456' }
     );
   });
@@ -62,7 +65,7 @@ test('logOut', async () => {
     await apiClient.logOut();
     expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
     expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
-      ...systemSettings,
+      ...systemSettings.auth,
       electionHash,
       jurisdiction,
     });
@@ -79,7 +82,7 @@ test('updateSessionExpiry', async () => {
     expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
     expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
       1,
-      { ...systemSettings, electionHash, jurisdiction },
+      { ...systemSettings.auth, electionHash, jurisdiction },
       { sessionExpiresAt: expect.any(Date) }
     );
   });
@@ -91,7 +94,7 @@ test('getAuthStatus before election definition has been configured', async () =>
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
     expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(
       1,
-      DEFAULT_SYSTEM_SETTINGS
+      DEFAULT_SYSTEM_SETTINGS.auth
     );
   });
 });
@@ -102,7 +105,7 @@ test('checkPin before election definition has been configured', async () => {
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
     expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
       1,
-      DEFAULT_SYSTEM_SETTINGS,
+      DEFAULT_SYSTEM_SETTINGS.auth,
       { pin: '123456' }
     );
   });
@@ -112,7 +115,10 @@ test('logOut before election definition has been configured', async () => {
   await withApp({}, async ({ apiClient, mockAuth }) => {
     await apiClient.logOut();
     expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
-    expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, DEFAULT_SYSTEM_SETTINGS);
+    expect(mockAuth.logOut).toHaveBeenNthCalledWith(
+      1,
+      DEFAULT_SYSTEM_SETTINGS.auth
+    );
   });
 });
 
@@ -124,7 +130,7 @@ test('updateSessionExpiry before election definition has been configured', async
     expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
     expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
       1,
-      DEFAULT_SYSTEM_SETTINGS,
+      DEFAULT_SYSTEM_SETTINGS.auth,
       { sessionExpiresAt: expect.any(Date) }
     );
   });
