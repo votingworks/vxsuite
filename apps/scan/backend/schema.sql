@@ -57,3 +57,9 @@ create table system_settings (
   id integer primary key check (id = 1),
   data text not null -- JSON blob
 );
+
+create table export_directory_name (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  export_directory_name text not null
+);

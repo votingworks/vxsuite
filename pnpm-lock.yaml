@@ -3097,6 +3097,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../usb-drive
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
@@ -3109,6 +3112,9 @@ importers:
       fs-extra:
         specifier: ^11.1.1
         version: 11.1.1
+      js-sha256:
+        specifier: ^0.9.0
+        version: 0.9.0
       jszip:
         specifier: ^3.9.1
         version: 3.9.1

@@ -100,6 +100,8 @@ export function generateElectionBasedSubfolderName(
 
 /**
  * Generate the directory name for the cast vote record report.
+ *
+ * @deprecated
  */
 export function generateCastVoteRecordReportDirectoryName(
   machineId: string,
@@ -116,6 +118,30 @@ export function generateCastVoteRecordReportDirectoryName(
   const timeInformation = moment(time).format(TIME_FORMAT_STRING);
   const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}`;
   return isTestMode ? `TEST${SECTION_SEPARATOR}${filename}` : filename;
+}
+
+/**
+ * Generates a name for a cast vote record export directory
+ */
+export function generateCastVoteRecordExportDirectoryName({
+  inTestMode,
+  machineId,
+  time = new Date(),
+}: {
+  inTestMode: boolean;
+  machineId: string;
+  time?: Date;
+}): string {
+  const machineString = [
+    'machine',
+    maybeParse(MachineId, machineId) ?? sanitizeString(machineId),
+  ].join(SUBSECTION_SEPARATOR);
+  const timeString = moment(time).format(TIME_FORMAT_STRING);
+  const directoryNameComponents = [machineString, timeString];
+  if (inTestMode) {
+    directoryNameComponents.unshift('TEST');
+  }
+  return directoryNameComponents.join(SECTION_SEPARATOR);
 }
 
 /**

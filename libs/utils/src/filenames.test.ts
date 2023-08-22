@@ -19,6 +19,7 @@ import {
   CastVoteRecordReportListing,
   generateCastVoteRecordReportDirectoryName,
   parseCastVoteRecordReportDirectoryName,
+  generateCastVoteRecordExportDirectoryName,
 } from './filenames';
 
 describe('parseBallotExportPackageInfoFromFilename', () => {
@@ -184,6 +185,39 @@ describe('generateCastVoteRecordReportDirectoryName', () => {
     );
   });
 });
+
+test.each<{
+  inTestMode: boolean;
+  machineId: string;
+  time: Date;
+  expectedDirectoryName: string;
+}>([
+  {
+    inTestMode: true,
+    machineId: 'SCAN-0001',
+    time: new Date(2023, 7, 16, 17, 2, 24),
+    expectedDirectoryName: 'TEST__machine_SCAN-0001__2023-08-16_17-02-24',
+  },
+  {
+    inTestMode: false,
+    machineId: 'SCAN-0001',
+    time: new Date(2023, 7, 16, 17, 2, 24),
+    expectedDirectoryName: 'machine_SCAN-0001__2023-08-16_17-02-24',
+  },
+  {
+    inTestMode: true,
+    machineId: '<3-u!n#icorn<3',
+    time: new Date(2023, 7, 16, 17, 2, 24),
+    expectedDirectoryName: 'TEST__machine_3unicorn3__2023-08-16_17-02-24',
+  },
+])(
+  'generateCastVoteRecordExportDirectoryName',
+  ({ expectedDirectoryName, ...input }) => {
+    expect(generateCastVoteRecordExportDirectoryName(input)).toEqual(
+      expectedDirectoryName
+    );
+  }
+);
 
 test('generates ballot export package names as expected with simple inputs', () => {
   const mockElection: ElectionDefinition = {
