@@ -1,6 +1,5 @@
 import express, { Application } from 'express';
 import {
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -52,7 +51,6 @@ function constructAuthMachineState(
 
 function buildApi(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   usb: Usb,
   logger: Logger,
   workspace: Workspace,
@@ -159,7 +157,6 @@ function buildApi(
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        artifactAuthenticator,
         usbDrive,
         logger
       );
@@ -209,7 +206,6 @@ export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   logger: Logger,
   workspace: Workspace,
   usb: Usb,
@@ -219,7 +215,6 @@ export function buildApp(
   const app: Application = express();
   const api = buildApi(
     auth,
-    artifactAuthenticator,
     usb,
     logger,
     workspace,

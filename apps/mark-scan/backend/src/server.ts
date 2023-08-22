@@ -1,7 +1,5 @@
 import { Server } from 'http';
 import {
-  ArtifactAuthenticator,
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
   JavaCard,
@@ -21,7 +19,6 @@ import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
-  artifactAuthenticator?: ArtifactAuthenticatorApi;
   logger: Logger;
   port: number | string;
   workspace: Workspace;
@@ -34,7 +31,6 @@ export interface StartOptions {
  */
 export function start({
   auth,
-  artifactAuthenticator,
   logger,
   port,
   workspace,
@@ -55,20 +51,10 @@ export function start({
       },
       logger,
     });
-  /* istanbul ignore next */
-  const resolvedArtifactAuthenticator =
-    artifactAuthenticator ?? new ArtifactAuthenticator();
 
   const usb: Usb = { getUsbDrives };
 
-  const app = buildApp(
-    resolvedAuth,
-    resolvedArtifactAuthenticator,
-    logger,
-    workspace,
-    usb,
-    stateMachine
-  );
+  const app = buildApp(resolvedAuth, logger, workspace, usb, stateMachine);
 
   return app.listen(
     port,
