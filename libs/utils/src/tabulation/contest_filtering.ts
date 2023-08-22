@@ -6,6 +6,7 @@ import {
   PrecinctId,
   Tabulation,
   AnyContest,
+  Contests,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
@@ -247,4 +248,17 @@ export function mergeFilters(
         ? [...(filter1.votingMethods || []), ...(filter2.votingMethods || [])]
         : undefined,
   };
+}
+
+export function getContestsForPrecinct(
+  electionDefinition: ElectionDefinition,
+  precinctId?: PrecinctId
+): Contests {
+  const { election } = electionDefinition;
+  if (!precinctId) {
+    return election.contests;
+  }
+
+  const contestIds = getContestIdsForPrecinct(electionDefinition, precinctId);
+  return mapContestIdsToContests(electionDefinition, contestIds);
 }
