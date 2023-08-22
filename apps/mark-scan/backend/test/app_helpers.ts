@@ -1,6 +1,4 @@
 import {
-  ArtifactAuthenticatorApi,
-  buildMockArtifactAuthenticator,
   buildMockInsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
@@ -117,7 +115,6 @@ interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
-  mockArtifactAuthenticator: ArtifactAuthenticatorApi;
   mockUsb: MockUsb;
   server: Server;
   stateMachine: PaperHandlerStateMachine;
@@ -125,7 +122,6 @@ interface MockAppContents {
 
 export async function createApp(): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const mockArtifactAuthenticator = buildMockArtifactAuthenticator();
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
   const mockUsb = createMockUsb();
@@ -136,7 +132,6 @@ export async function createApp(): Promise<MockAppContents> {
 
   const app = buildApp(
     mockAuth,
-    mockArtifactAuthenticator,
     logger,
     workspace,
     mockUsb.mock,
@@ -154,7 +149,6 @@ export async function createApp(): Promise<MockAppContents> {
     apiClient,
     app,
     mockAuth,
-    mockArtifactAuthenticator,
     mockUsb,
     server,
     stateMachine,
