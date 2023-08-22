@@ -431,8 +431,6 @@ export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
 ]);
 export interface GridLayout {
   readonly ballotStyleId: BallotStyleId;
-  readonly columns: number;
-  readonly rows: number;
   /**
    * Area in timing mark units around a target mark (i.e. bubble) to consider
    * part of the option for that target mark. This is used to crop the ballot
@@ -443,8 +441,6 @@ export interface GridLayout {
 }
 export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
   ballotStyleId: BallotStyleIdSchema,
-  columns: z.number().int().nonnegative(),
-  rows: z.number().int().nonnegative(),
   optionBoundsFromTargetMark: OutsetSchema,
   gridPositions: z.array(GridPositionSchema),
 });
