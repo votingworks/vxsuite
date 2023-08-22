@@ -11,8 +11,6 @@ import {
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  filterSplits,
-  getAllPossibleSplits,
   getBallotStyleById,
   getContestIdsForFilter,
   getContestIdsForSplit,
@@ -373,11 +371,11 @@ export async function generateResultsCsv({
       return groupMapToGroupList(nonEmptySplits);
     }
 
-    const expectedSplits = filterSplits(
-      electionDefinition,
-      assertDefined(getAllPossibleSplits(electionDefinition, groupBy)),
-      filter
-    );
+    const expectedSplits = store.getTabulationGroups({
+      electionId,
+      groupBy,
+      filter,
+    });
 
     return populateSplits({
       expectedSplits,

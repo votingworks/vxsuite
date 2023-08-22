@@ -18,12 +18,15 @@ import {
   BallotPageLayout,
   BallotPageLayoutSchema,
   BallotStyle,
+  BallotStyleId,
   ContestId,
   ContestOptionId,
   CVR,
   Election,
   Id,
   Iso8601Timestamp,
+  Precinct,
+  PrecinctId,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
@@ -295,9 +298,48 @@ export class Store {
       electionDefinition: { election },
     } = electionRecord;
 
+    this.addVotingMethodRecords({ electionId });
+
+    for (const precinct of election.precincts) {
+      this.createPrecinctRecord({ electionId, precinct });
+    }
+
     for (const ballotStyle of election.ballotStyles) {
       this.createBallotStyleRecord({ electionId, ballotStyle });
+      for (const precinctId of ballotStyle.precincts) {
+        this.createBallotStylePrecinctLinkRecord({
+          electionId,
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+        });
+      }
     }
+  }
+
+  /**
+   * Adds a row to the `precincts` table for the given ballot style.
+   */
+  private createPrecinctRecord({
+    electionId,
+    precinct,
+  }: {
+    electionId: Id;
+    precinct: Precinct;
+  }): void {
+    this.client.run(
+      `
+        insert into precincts (
+          election_id,
+          id,
+          name
+        ) values (
+          ?, ?, ?
+        )
+      `,
+      electionId,
+      precinct.id,
+      precinct.name
+    );
   }
 
   /**
@@ -326,6 +368,158 @@ export class Store {
         )
       `,
       ...params
+    );
+  }
+
+  /**
+   * Adds link record representing the association between a ballot style and a precinct.
+   */
+  private createBallotStylePrecinctLinkRecord({
+    electionId,
+    ballotStyleId,
+    precinctId,
+  }: {
+    electionId: Id;
+    ballotStyleId: BallotStyleId;
+    precinctId: PrecinctId;
+  }): void {
+    this.client.run(
+      `
+        insert into ballot_styles_to_precincts (
+          election_id,
+          ballot_style_id,
+          precinct_id
+        ) values (
+          ?, ?, ?
+        )
+      `,
+      electionId,
+      ballotStyleId,
+      precinctId
+    );
+  }
+
+  /**
+   * Adds link record representing the association between a ballot style and a precinct.
+   */
+  private addVotingMethodRecords({ electionId }: { electionId: Id }): void {
+    const params: Bindable[] = [];
+    for (const votingMethod of Tabulation.SUPPORTED_VOTING_METHODS) {
+      params.push(electionId, votingMethod);
+    }
+
+    this.client.run(
+      `
+          insert into voting_methods (
+            election_id,
+            voting_method
+          ) 
+          values 
+            ${Tabulation.SUPPORTED_VOTING_METHODS.map(() => '(?, ?)').join(
+              ',\n'
+            )}
+        `,
+      ...params
+    );
+  }
+
+  /**
+   * Given the group by and filter of a tabulation operation, this method returns
+   * what the expected groups would be. Ignores batch and scanner components which
+   * are not currently supported.
+   */
+  getTabulationGroups({
+    electionId,
+    groupBy = {},
+    filter = {},
+  }: {
+    electionId: Id;
+    groupBy?: Tabulation.GroupBy;
+    filter?: Tabulation.Filter;
+  }): Tabulation.GroupSpecifier[] {
+    const whereParts = ['ballot_styles.election_id = ?'];
+    const params: Bindable[] = [electionId];
+    if (filter.ballotStyleIds) {
+      whereParts.push(
+        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
+      );
+      params.push(...filter.ballotStyleIds);
+    }
+    if (filter.partyIds) {
+      whereParts.push(
+        `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
+      );
+      params.push(...filter.partyIds);
+    }
+    if (filter.precinctIds) {
+      whereParts.push(
+        `ballot_styles_to_precincts.precinct_id in ${asQueryPlaceholders(
+          filter.precinctIds
+        )}`
+      );
+      params.push(...filter.precinctIds);
+    }
+    if (filter.votingMethods) {
+      whereParts.push(
+        `voting_methods.voting_method in ${asQueryPlaceholders(
+          filter.votingMethods
+        )}`
+      );
+      params.push(...filter.votingMethods);
+    }
+
+    const selectParts: string[] = [];
+    const groupByParts: string[] = [];
+    const sortByParts: string[] = [];
+    if (groupBy.groupByPrecinct) {
+      selectParts.push('precincts.id as precinctId');
+      groupByParts.push('precinctId');
+      sortByParts.push('precinctId');
+    }
+    if (groupBy.groupByParty) {
+      selectParts.push('ballot_styles.party_id as partyId');
+      groupByParts.push('partyId');
+    }
+    if (groupBy.groupByBallotStyle) {
+      selectParts.push('ballot_styles.id as ballotStyleId');
+      groupByParts.push('ballotStyleId');
+    }
+    if (groupBy.groupByVotingMethod) {
+      selectParts.push('voting_methods.voting_method as votingMethod');
+      groupByParts.push('votingMethod');
+      sortByParts.push('votingMethod DESC'); // absentee last
+    }
+
+    const query = `
+      select
+          ${['1 as universalGroup', ...selectParts].join(',\n')}
+        from ballot_styles
+        inner join ballot_styles_to_precincts on
+          ballot_styles_to_precincts.election_id = ballot_styles.election_id and 
+          ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
+        inner join precincts on
+          ballot_styles_to_precincts.election_id = precincts.election_id and 
+          ballot_styles_to_precincts.precinct_id = precincts.id
+        inner join voting_methods on
+          voting_methods.election_id = ballot_styles.election_id
+        where ${whereParts.join(' and ')}
+        group by
+          ${['universalGroup', ...groupByParts].join(',\n')}
+        order by
+          ${['universalGroup', ...sortByParts].join(',\n')}
+    `;
+
+    return (
+      this.client.all(query, ...params) as Array<
+        Partial<Tabulation.GroupSpecifier> & {
+          universalGroup: number;
+          precinctSortIndex?: number;
+        }
+      >
+    ).map(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ({ universalGroup, precinctSortIndex, ...groupSpecifier }) =>
+        groupSpecifier
     );
   }
 
