@@ -1,11 +1,6 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import {
-  ArtifactAuthenticator,
-  DippedSmartCardAuth,
-  JavaCard,
-  MockFileCard,
-} from '@votingworks/auth';
+import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { getUsbDrives } from '@votingworks/backend';
 import { Server } from 'http';
 import {
@@ -74,13 +69,11 @@ export async function start({
       },
       logger,
     });
-    const artifactAuthenticator = new ArtifactAuthenticator();
 
     const usb: Usb = { getUsbDrives };
 
     resolvedApp = buildApp({
       auth,
-      artifactAuthenticator,
       logger,
       usb,
       workspace: resolvedWorkspace,
