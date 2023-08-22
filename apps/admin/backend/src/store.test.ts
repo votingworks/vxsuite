@@ -1,4 +1,7 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import {
+  electionComplexGeoSample,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
 import { safeParseSystemSettings } from '@votingworks/utils';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'fs';
@@ -262,4 +265,187 @@ test('manual results', () => {
 
   store.deleteAllManualResults({ electionId });
   expect(store.getManualResults({ electionId })).toEqual([]);
+});
+
+function expectArrayMatch<T>(a: T[], b: T[]) {
+  expect(a).toHaveLength(b.length);
+  for (const item of a) {
+    expect(b).toContainEqual(item);
+  }
+}
+
+describe('getTabulationGroups', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(electionComplexGeoSample.asText());
+  const { election } = electionComplexGeoSample;
+
+  test('no groupings', () => {
+    expect(store.getTabulationGroups({ electionId })).toEqual([{}]);
+  });
+
+  test('unsupported groupings', () => {
+    expect(
+      store.getTabulationGroups({ electionId, groupBy: { groupByBatch: true } })
+    ).toEqual([{}]);
+  });
+
+  test('invalid filter', () => {
+    expect(
+      store.getTabulationGroups({
+        electionId,
+        filter: {
+          precinctIds: [],
+        },
+      })
+    ).toEqual([]);
+  });
+
+  test('by precinct', () => {
+    expect(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByPrecinct: true },
+      })
+    ).toEqual(
+      election.precincts.map((precinct) => ({ precinctId: precinct.id }))
+    );
+  });
+
+  test('by ballot style', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByBallotStyle: true },
+      }),
+      election.ballotStyles.map((ballotStyle) => ({
+        ballotStyleId: ballotStyle.id,
+      }))
+    );
+  });
+
+  test('by party', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByParty: true },
+      }),
+      [{ partyId: '0' }, { partyId: '1' }]
+    );
+  });
+
+  test('by voting method', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByVotingMethod: true },
+      }),
+      Tabulation.SUPPORTED_VOTING_METHODS.map((votingMethod) => ({
+        votingMethod,
+      }))
+    );
+  });
+
+  test('by precinct and ballot style', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
+      }),
+      election.ballotStyles.flatMap((ballotStyle) =>
+        ballotStyle.precincts.map((precinctId) => ({
+          precinctId,
+          ballotStyleId: ballotStyle.id,
+        }))
+      )
+    );
+  });
+
+  test('by precinct and voting method', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
+      }),
+      election.precincts.flatMap((precinct) =>
+        Tabulation.SUPPORTED_VOTING_METHODS.map((votingMethod) => ({
+          precinctId: precinct.id,
+          votingMethod,
+        }))
+      )
+    );
+  });
+
+  test('by precinct + filter on precinct', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByPrecinct: true },
+        filter: {
+          precinctIds: ['precinct-c1-w1-1'],
+        },
+      }),
+      [
+        {
+          precinctId: 'precinct-c1-w1-1',
+        },
+      ]
+    );
+  });
+
+  test('by precinct and ballot style + filter on party', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
+        filter: {
+          partyIds: ['0'],
+        },
+      }),
+      election.ballotStyles
+        .filter((bs) => bs.partyId === '0')
+        .flatMap((ballotStyle) =>
+          ballotStyle.precincts.map((precinctId) => ({
+            precinctId,
+            ballotStyleId: ballotStyle.id,
+          }))
+        )
+    );
+  });
+
+  test('by precinct and ballot style + filter on ballot style', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
+        filter: {
+          ballotStyleIds: ['m-c1-w1'],
+        },
+      }),
+      election.ballotStyles
+        .filter((bs) => bs.id === 'm-c1-w1')
+        .flatMap((ballotStyle) =>
+          ballotStyle.precincts.map((precinctId) => ({
+            precinctId,
+            ballotStyleId: ballotStyle.id,
+          }))
+        )
+    );
+  });
+
+  test('by precinct and voting method + filter on voting method', () => {
+    expect(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+        filter: {
+          votingMethods: ['absentee'],
+        },
+      })
+    ).toEqual(
+      election.precincts.map((precinct) => ({
+        precinctId: precinct.id,
+        votingMethod: 'absentee',
+      }))
+    );
+  });
 });

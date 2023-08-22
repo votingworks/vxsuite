@@ -44,6 +44,10 @@ export type CandidateContestResults = ContestResultsBase & {
 export type ContestResults = YesNoContestResults | CandidateContestResults;
 
 export type VotingMethod = `${CVR.vxBallotType}`;
+export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
+  'precinct',
+  'absentee',
+];
 
 /**
  * Indicates what cast vote records to include when calculating results.

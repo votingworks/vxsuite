@@ -6,11 +6,41 @@ create table elections (
   deleted_at timestamp
 );
 
+create table precincts(
+  election_id integer not null,
+  id text not null,
+  name text not null,
+  sort_index integer not null,
+  primary key (election_id, id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
 create table ballot_styles (
   election_id integer not null,
   id text not null,
   party_id text,
   primary key (election_id, id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
+create table ballot_styles_to_precincts(
+  election_id integer not null,
+  ballot_style_id text not null,
+  precinct_id text not null,
+  primary key (election_id, ballot_style_id, precinct_id),
+  foreign key (election_id, ballot_style_id) references ballot_styles(election_id, id)
+    on delete cascade
+  foreign key (election_id, precinct_id) references precincts(election_id, id)
+    on delete cascade
+);
+
+create table voting_methods(
+  election_id integer not null,
+  voting_method text not null 
+    check (voting_method = 'absentee' or voting_method = 'precinct' or voting_method = 'provisional'),
+  primary key (election_id, voting_method),
   foreign key (election_id) references elections(id)
     on delete cascade
 );
