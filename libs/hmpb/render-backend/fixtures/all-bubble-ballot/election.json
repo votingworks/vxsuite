@@ -9506,10 +9506,7 @@
   ],
   "gridLayouts": [
     {
-      "precinctId": "test-precinct",
       "ballotStyleId": "sheet-1",
-      "columns": 34,
-      "rows": 41,
       "optionBoundsFromTargetMark": {
         "top": 1,
         "right": 1,
