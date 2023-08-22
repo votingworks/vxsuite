@@ -116,7 +116,7 @@ function constructAuthMachineState(
   const electionDefinition = getCurrentElectionDefinition(workspace);
   const systemSettings = workspace.store.getSystemSettings();
   return {
-    ...(systemSettings ?? {}),
+    ...(systemSettings ?? DEFAULT_SYSTEM_SETTINGS),
     electionHash: electionDefinition?.electionHash,
     jurisdiction: isIntegrationTest()
       ? TEST_JURISDICTION
