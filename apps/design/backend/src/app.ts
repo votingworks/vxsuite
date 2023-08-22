@@ -104,8 +104,8 @@ function buildApi({ store }: { store: Store }) {
 
       const zip = new JsZip();
 
-      for (const { document, gridLayout } of ballots) {
-        const { precinctId, ballotStyleId } = gridLayout;
+      for (const { precinctId, document, gridLayout } of ballots) {
+        const { ballotStyleId } = gridLayout;
         const precinct = assertDefined(
           getPrecinctById({ election, precinctId })
         );
@@ -136,8 +136,8 @@ function buildApi({ store }: { store: Store }) {
       }).unsafeUnwrap();
       const { document } = find(
         ballots,
-        ({ gridLayout }) =>
-          gridLayout.precinctId === input.precinctId &&
+        ({ precinctId, gridLayout }) =>
+          precinctId === input.precinctId &&
           gridLayout.ballotStyleId === input.ballotStyleId
       );
       const pdf = renderDocumentToPdf(document);

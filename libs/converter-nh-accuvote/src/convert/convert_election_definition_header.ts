@@ -443,7 +443,6 @@ export function convertElectionDefinitionHeader(
     },
     gridLayouts: [
       {
-        precinctId,
         ballotStyleId: 'default',
         // placeholder values to be overridden
         columns: 0,

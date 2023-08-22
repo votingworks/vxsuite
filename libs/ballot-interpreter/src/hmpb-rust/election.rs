@@ -55,7 +55,6 @@ pub struct Precinct {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GridLayout {
-    pub precinct_id: PrecinctId,
     pub ballot_style_id: BallotStyleId,
     pub columns: GridUnit,
     pub rows: GridUnit,

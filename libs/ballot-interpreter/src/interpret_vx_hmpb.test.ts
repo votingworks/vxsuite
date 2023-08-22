@@ -15,7 +15,7 @@ import { interpretSheet } from './interpret';
 describe('HMPB - Famous Names', () => {
   const {
     electionDefinition,
-    gridLayout,
+    precinctId,
     votes,
     blankBallotPath,
     markedBallotPath,
@@ -25,7 +25,6 @@ describe('HMPB - Famous Names', () => {
   test('Blank ballot interpretation', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
-    const { precinctId } = gridLayout;
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -47,7 +46,6 @@ describe('HMPB - Famous Names', () => {
   test('Marked ballot interpretation', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
-    const { precinctId } = gridLayout;
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -73,7 +71,6 @@ describe('HMPB - Famous Names', () => {
   test('Wrong election', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
-    const { precinctId } = gridLayout;
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -96,7 +93,6 @@ describe('HMPB - Famous Names', () => {
   test('Wrong precinct', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
-    const { precinctId } = gridLayout;
     assert(precinctId !== election.precincts[1]!.id);
 
     const [frontResult, backResult] = await interpretSheet(
@@ -119,7 +115,6 @@ describe('HMPB - Famous Names', () => {
   test('Wrong test mode', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
-    const { precinctId } = gridLayout;
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -142,6 +137,7 @@ for (const {
   paperSize,
   density,
   electionDefinition,
+  precinctId,
   gridLayout,
   votes,
   blankBallotPath,
@@ -150,7 +146,6 @@ for (const {
   describe(`HMPB - sample election - bubbles on ${targetMarkPosition} - ${paperSize} paper - density ${density}`, () => {
     test(`Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
-      const { precinctId } = gridLayout;
 
       for (const sheetImagePaths of iter(ballotImagePaths).chunks(2)) {
         assert(sheetImagePaths.length === 2);
@@ -174,7 +169,6 @@ for (const {
 
     test(`Marked ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
-      const { precinctId } = gridLayout;
 
       for (const [sheetIndex, sheetImagePaths] of iter(ballotImagePaths)
         .chunks(2)

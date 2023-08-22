@@ -62,7 +62,6 @@ function createElection(): Election {
 
   const gridLayouts: GridLayout[] = [
     {
-      precinctId,
       ballotStyleId,
       columns: GRID.columns,
       rows: GRID.rows,
