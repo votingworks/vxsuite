@@ -84,6 +84,18 @@ export const updateElection = {
   },
 } as const;
 
+export const updateSystemSettings = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateSystemSettings, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
 export const updatePrecincts = {
   useMutation() {
     const apiClient = useApiClient();
