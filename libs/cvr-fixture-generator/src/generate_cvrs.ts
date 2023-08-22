@@ -129,14 +129,12 @@ export function generateBallotPageLayouts(
   }
 
   const gridLayout = election.gridLayouts.find(
-    (layout) =>
-      layout.ballotStyleId === metadata.ballotStyleId &&
-      layout.precinctId === metadata.precinctId
+    (layout) => layout.ballotStyleId === metadata.ballotStyleId
   );
 
   if (!gridLayout) {
     throw new Error(
-      `no grid layout found for ballot style ${metadata.ballotStyleId} and precinct ${metadata.precinctId}`
+      `no grid layout found for ballot style ${metadata.ballotStyleId}`
     );
   }
 

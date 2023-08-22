@@ -19,14 +19,12 @@ export function getContestsForBallotPage({
   }
 
   const layout = election.gridLayouts.find(
-    ({ ballotStyleId, precinctId }) =>
-      ballotStyleId === ballotPageMetadata.ballotStyleId &&
-      precinctId === ballotPageMetadata.precinctId
+    ({ ballotStyleId }) => ballotStyleId === ballotPageMetadata.ballotStyleId
   );
 
   if (!layout) {
     throw new Error(
-      `unable to find layout for ballotStyleId=${ballotPageMetadata.ballotStyleId} precinctId=${ballotPageMetadata.precinctId}`
+      `unable to find layout for ballotStyleId=${ballotPageMetadata.ballotStyleId}`
     );
   }
 

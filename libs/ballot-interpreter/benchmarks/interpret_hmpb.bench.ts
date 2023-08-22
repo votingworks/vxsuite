@@ -9,9 +9,8 @@ import { benchmarkRegressionTest } from './benchmarking';
 jest.setTimeout(60_000);
 
 describe('Interpretation benchmark', () => {
-  const { electionDefinition, gridLayout, blankBallotPath, markedBallotPath } =
+  const { electionDefinition, precinctId, blankBallotPath, markedBallotPath } =
     famousNamesFixtures;
-  const { precinctId } = gridLayout;
 
   test('Blank HMPB', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);

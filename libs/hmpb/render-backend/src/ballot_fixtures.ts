@@ -98,7 +98,7 @@ export const famousNamesFixtures = (() => {
     isTestMode: true,
   }).unsafeUnwrap();
 
-  const { document: ballot, gridLayout } = ballots[0];
+  const { precinctId, document: ballot, gridLayout } = ballots[0];
 
   const votes: VotesDict = Object.fromEntries(
     electionDefinition.election.contests.map((contest, i) => {
@@ -121,6 +121,7 @@ export const famousNamesFixtures = (() => {
 
   return {
     electionDefinition,
+    precinctId,
     gridLayout,
     blankBallot: ballot,
     markedBallot,
@@ -154,11 +155,11 @@ export const sampleElectionFixtures = (() => {
         const ballotStyle = assertDefined(
           getBallotStyle({ election, ballotStyleId: '5' })
         );
-        const precinctId = ballotStyle.precincts[0];
+        const precinctId = assertDefined(ballotStyle.precincts[0]);
         const { document: ballot, gridLayout } = find(
           ballots,
           (b) =>
-            b.gridLayout.precinctId === precinctId &&
+            b.precinctId === precinctId &&
             b.gridLayout.ballotStyleId === ballotStyle.id
         );
 
@@ -194,6 +195,7 @@ export const sampleElectionFixtures = (() => {
           paperSize,
           density,
           electionDefinition,
+          precinctId,
           gridLayout,
           blankBallot: ballot,
           markedBallot,

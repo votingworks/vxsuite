@@ -6,6 +6,7 @@ import {
   range,
   Result,
   throwIllegalValue,
+  uniqueBy,
   wrapException,
 } from '@votingworks/basics';
 import {
@@ -23,6 +24,7 @@ import {
   GridLayout,
   GridPosition,
   Precinct,
+  PrecinctId,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import makeDebug from 'debug';
@@ -1488,6 +1490,7 @@ function ContestColumnsChunk({
 }
 
 export interface BallotLayout {
+  precinctId: PrecinctId;
   document: Document;
   gridLayout: GridLayout;
 }
@@ -1673,16 +1676,14 @@ function layOutBallotHelper({
   }
 
   return {
+    precinctId: precinct.id,
     document: {
       width: m.DOCUMENT_WIDTH,
       height: m.DOCUMENT_HEIGHT,
       pages,
     },
     gridLayout: {
-      precinctId: precinct.id,
       ballotStyleId: ballotStyle.id,
-      columns: m.GRID.columns,
-      rows: m.GRID.rows,
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -1754,8 +1755,14 @@ export function layOutAllBallots({
   Error
 > {
   try {
-    const gridLayouts = layOutAllBallotsHelper({ election, isTestMode }).map(
-      (layout) => layout.gridLayout
+    const gridLayoutsForAllPrecincts = layOutAllBallotsHelper({
+      election,
+      isTestMode,
+    }).map((layout) => layout.gridLayout);
+    // All precincts for a given ballot style have the same grid layout
+    const gridLayouts = uniqueBy(
+      gridLayoutsForAllPrecincts,
+      (layout) => layout.ballotStyleId
     );
 
     const electionWithGridLayouts: Election = {
