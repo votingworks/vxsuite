@@ -1,4 +1,4 @@
-import { assert, err } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
   electionMinimalExhaustiveSampleDefinition,
@@ -17,6 +17,7 @@ import {
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
 import { Client } from '@votingworks/grout';
+import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -27,6 +28,11 @@ import { modifyCastVoteRecordReport } from '../test/utils';
 import { Api } from './app';
 
 jest.setTimeout(60_000);
+
+jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
+  ...jest.requireActual('@votingworks/auth'),
+  authenticateArtifactUsingSignatureFile: jest.fn(),
+}));
 
 // mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -40,6 +46,7 @@ jest.mock('@votingworks/utils', () => {
 
 beforeEach(() => {
   jest.restoreAllMocks();
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
   );
@@ -370,14 +377,13 @@ test('error if path to report is not valid', async () => {
 });
 
 test('cast vote records authentication error', async () => {
-  const { apiClient, artifactAuthenticator, auth, logger } =
-    buildTestEnvironment();
+  const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  mockOf(
-    artifactAuthenticator.authenticateArtifactUsingSignatureFile
-  ).mockResolvedValue(err(new Error('Whoa!')));
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+    err(new Error('Whoa!'))
+  );
 
   const result = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordReport.asDirectoryPath(),
@@ -403,13 +409,13 @@ test('cast vote records authentication error', async () => {
 });
 
 test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_AUTHENTICATION is enabled', async () => {
-  const { apiClient, artifactAuthenticator, auth } = buildTestEnvironment();
+  const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  mockOf(
-    artifactAuthenticator.authenticateArtifactUsingSignatureFile
-  ).mockResolvedValue(err(new Error('Whoa!')));
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+    err(new Error('Whoa!'))
+  );
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
