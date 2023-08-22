@@ -17,6 +17,10 @@ import {
   safeParseJson,
   SystemSettingsSchema,
 } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 
 import { Buffer } from 'buffer';
 import { createBallotPackageZipArchive, MockUsb } from '@votingworks/backend';
@@ -25,12 +29,25 @@ import * as grout from '@votingworks/grout';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsb: MockUsb;
 let server: Server;
 
 beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+
   ({ apiClient, mockAuth, mockUsb, server } = createApp());
 });
 
