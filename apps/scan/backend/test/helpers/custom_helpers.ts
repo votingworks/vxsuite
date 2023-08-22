@@ -1,8 +1,6 @@
 import { Buffer } from 'buffer';
 import {
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
-  buildMockArtifactAuthenticator,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
 import { Result, deferred, ok } from '@votingworks/basics';
@@ -52,7 +50,6 @@ export async function withApp(
     apiClient: grout.Client<Api>;
     app: Application;
     mockAuth: InsertedSmartCardAuthApi;
-    mockArtifactAuthenticator: ArtifactAuthenticatorApi;
     mockScanner: jest.Mocked<CustomScanner>;
     workspace: Workspace;
     mockUsbDrive: MockUsbDrive;
@@ -61,7 +58,6 @@ export async function withApp(
   }) => Promise<void>
 ): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const mockArtifactAuthenticator = buildMockArtifactAuthenticator();
   const logger = fakeLogger();
   const workspace =
     preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
@@ -94,7 +90,6 @@ export async function withApp(
   });
   const app = buildApp(
     mockAuth,
-    mockArtifactAuthenticator,
     precinctScannerMachine,
     workspace,
     mockUsbDrive.usbDrive,
@@ -116,7 +111,6 @@ export async function withApp(
       apiClient,
       app,
       mockAuth,
-      mockArtifactAuthenticator,
       mockScanner,
       workspace,
       mockUsbDrive,

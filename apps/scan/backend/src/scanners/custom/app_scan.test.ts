@@ -12,7 +12,11 @@ import {
 } from '@votingworks/fixtures';
 import { Logger } from '@votingworks/logging';
 import { ErrorCode, mocks } from '@votingworks/custom-scanner';
-import { getEmptyElectionResults } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  getEmptyElectionResults,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import {
   configureApp,
@@ -26,6 +30,16 @@ import {
 } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
+
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
 /**
  * Basic checks for logging. We don't try to be exhaustive here because paper
  * status polling can be a bit non-deterministic, so logs can vary between runs.
@@ -108,6 +122,12 @@ test('configure and scan hmpb', async () => {
 
       checkLogs(logger);
     }
+  );
+});
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
   );
 });
 

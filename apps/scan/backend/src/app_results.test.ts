@@ -1,7 +1,11 @@
 import * as grout from '@votingworks/grout';
 import { find, ok } from '@votingworks/basics';
 import { CustomScanner, mocks } from '@votingworks/custom-scanner';
-import { buildContestResultsFixture } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  buildContestResultsFixture,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { SheetInterpretation } from '@votingworks/types';
 import { Api } from './app';
@@ -9,6 +13,15 @@ import { configureApp, waitForStatus } from '../test/helpers/shared_helpers';
 import { ballotImages, withApp } from '../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
+
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
 
 async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
@@ -52,6 +65,12 @@ async function scanBallot(
     canUnconfigure: true,
   });
 }
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+});
 
 test('end-to-end tabulated results', async () => {
   await withApp(
