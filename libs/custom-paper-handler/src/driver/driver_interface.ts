@@ -29,7 +29,7 @@ export interface PaperHandlerDriverInterface {
   readonly genericLock: Lock;
   readonly realTimeLock: Lock;
   readonly scannerConfig: ScannerConfig;
-  readonly webDevice: MinimalWebUsbDevice;
+  webDevice: MinimalWebUsbDevice;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   getWebDevice(): MinimalWebUsbDevice;
