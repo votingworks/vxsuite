@@ -6,8 +6,12 @@
   "ballotStyles": [
     {
       "id": "sheet-1",
-      "precincts": ["test-precinct"],
-      "districts": ["test-district"]
+      "precincts": [
+        "test-precinct"
+      ],
+      "districts": [
+        "test-district"
+      ]
     }
   ],
   "contests": [

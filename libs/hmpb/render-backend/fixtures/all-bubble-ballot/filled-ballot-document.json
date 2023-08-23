@@ -19284,7 +19284,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -19295,7 +19297,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["1/2"],
+                      "textLines": [
+                        "1/2"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -19315,7 +19319,9 @@
                       "y": 0,
                       "width": 209.82857142857142,
                       "height": 11.25,
-                      "textLines": ["Precinct"],
+                      "textLines": [
+                        "Precinct"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -19326,7 +19332,9 @@
                       "y": 11.25,
                       "width": 209.82857142857142,
                       "height": 20,
-                      "textLines": ["Test Precinct"],
+                      "textLines": [
+                        "Test Precinct"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -19339,7 +19347,9 @@
                   "y": 11.314285714285715,
                   "width": 248.11999999999992,
                   "height": 37.714285714285715,
-                  "textLines": ["Turn ballot over and continue voting"],
+                  "textLines": [
+                    "Turn ballot over and continue voting"
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13,
@@ -38641,7 +38651,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -38652,7 +38664,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["2/2"],
+                      "textLines": [
+                        "2/2"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -38672,7 +38686,9 @@
                       "y": 0,
                       "width": 209.82857142857142,
                       "height": 11.25,
-                      "textLines": ["Precinct"],
+                      "textLines": [
+                        "Precinct"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -38683,7 +38699,9 @@
                       "y": 11.25,
                       "width": 209.82857142857142,
                       "height": 20,
-                      "textLines": ["Test Precinct"],
+                      "textLines": [
+                        "Test Precinct"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -38696,7 +38714,9 @@
                   "y": 11.314285714285715,
                   "width": 187.83999999999995,
                   "height": 37.714285714285715,
-                  "textLines": ["You have completed voting."],
+                  "textLines": [
+                    "You have completed voting."
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13
