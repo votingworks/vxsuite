@@ -27,9 +27,9 @@ import {
   measure102Contest,
   voterContests,
 } from '../test/helpers/election';
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
+import { getMockInterpretation } from '../test/helpers/interpretation';
 
 let apiMock: ApiMock;
 let kiosk = fakeKiosk();
@@ -46,7 +46,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(30000);
+jest.setTimeout(40_000);
 
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = fakeLogger();
@@ -57,6 +57,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
+  apiMock.expectSetAcceptingPaperState();
   apiMock.expectGetPrecinctSelection();
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const reload = jest.fn();
@@ -222,6 +223,8 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Start Voting
   userEvent.click(screen.getByText('Start Voting'));
 
+  const presidentCandidateToVoteFor = presidentContest.candidates[0];
+
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i];
@@ -230,7 +233,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
     // Vote for candidate contest
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0].name));
+      userEvent.click(screen.getByText(presidentCandidateToVoteFor.name));
     }
 
     // Vote for yesno contest
@@ -247,7 +250,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Review Your Votes');
 
   // Check for votes
-  screen.getByText(presidentContest.candidates[0].name);
+  screen.getByText(presidentCandidateToVoteFor.name);
   within(screen.getByText(measure102Contest.title).parentElement!).getByText(
     'Yes'
   );
@@ -284,10 +287,13 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText(/Printing Your Official Ballot/i);
   await expectPrintToPdf();
 
-  // Expire timeout for display of "Printing Ballot" screen
-  await advanceTimersAndPromises(BALLOT_PRINTING_TIMEOUT_SECONDS);
-
-  screen.getByText('You’re Almost Done');
+  const mockInterpretation = getMockInterpretation(electionDefinition);
+  apiMock.expectGetInterpretation(mockInterpretation);
+  apiMock.setPaperHandlerState('presenting_ballot');
+  // Validate Ballot page
+  await screen.findByText('Review Your Votes');
+  apiMock.expectValidateBallot();
+  userEvent.click(screen.getByText('My Ballot is Correct'));
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(screen.getByText('Done'));
   apiMock.setAuthStatusLoggedOut();
