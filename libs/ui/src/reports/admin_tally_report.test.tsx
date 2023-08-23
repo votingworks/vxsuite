@@ -5,7 +5,7 @@ import {
   getEmptyElectionResults,
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReport } from './admin_tally_report';
 
 const { election } = electionMinimalExhaustiveSampleDefinition;
@@ -127,4 +127,22 @@ test('with scanned and manual results', () => {
   );
   screen.getByText(hasTextAcrossElements('Ballots Cast791100891'));
   expect(screen.getAllByText('manual')).toHaveLength(election.contests.length);
+});
+
+test('allows card counts override', () => {
+  render(
+    <AdminTallyReport
+      title="Title"
+      subtitle="Subtitle"
+      election={election}
+      contests={election.contests}
+      scannedElectionResults={scannedElectionResults}
+      cardCountsOverride={{
+        bmd: 10000,
+        hmpb: [],
+      }}
+    />
+  );
+  const bmdRow = screen.getByText('Machine Marked').closest('tr')!;
+  within(bmdRow).getByText('10,000');
 });
