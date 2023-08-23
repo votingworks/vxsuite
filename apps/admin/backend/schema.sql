@@ -56,6 +56,7 @@ create table contests(
   id text not null,
   district_id text not null,
   party_id text,
+  sort_index integer not null,
   primary key (election_id, id),
   foreign key (election_id) references elections(id)
     on delete cascade

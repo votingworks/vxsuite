@@ -332,8 +332,8 @@ export class Store {
       this.createPrecinctRecord({ electionId, precinct });
     }
 
-    for (const contest of election.contests) {
-      this.createContestRecord({ electionId, contest });
+    for (const [sortIndex, contest] of election.contests.entries()) {
+      this.createContestRecord({ electionId, contest, sortIndex });
     }
 
     for (const ballotStyle of election.ballotStyles) {
@@ -472,9 +472,11 @@ export class Store {
   private createContestRecord({
     electionId,
     contest,
+    sortIndex,
   }: {
     electionId: Id;
     contest: AnyContest;
+    sortIndex: number;
   }): void {
     this.client.run(
       `
@@ -482,15 +484,17 @@ export class Store {
               election_id,
               id,
               district_id,
-              party_id
+              party_id,
+              sort_index
             ) values (
-              ?, ?, ?, ?
+              ?, ?, ?, ?, ?
             )
           `,
       electionId,
       contest.id,
       contest.districtId,
-      contest.type === 'candidate' ? contest.partyId ?? null : null
+      contest.type === 'candidate' ? contest.partyId ?? null : null,
+      sortIndex
     );
   }
 
@@ -657,7 +661,7 @@ export class Store {
     );
 
     const query = `
-      select contests.id as contestId
+      select contests.id as contestId, contests.sort_index as sortIndex
       from contests
       inner join ballot_styles_to_districts on
         ballot_styles_to_districts.election_id = ? and 
@@ -670,7 +674,8 @@ export class Store {
         ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
       where
         ${whereParts.join(' and\n')}
-      group by contestId
+      group by contestId, sortIndex
+      order by sortIndex
     `;
 
     return (
