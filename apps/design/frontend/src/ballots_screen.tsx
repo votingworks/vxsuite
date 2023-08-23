@@ -10,18 +10,14 @@ import {
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
-import {
-  BallotLayout,
-  BallotPaperSize,
-  BallotTargetMarkPosition,
-  Election,
-} from '@votingworks/types';
+import { BallotPaperSize, Election } from '@votingworks/types';
 import { useState } from 'react';
-import { getElection, updateElection } from './api';
+import { LayoutOptions } from '@votingworks/hmpb-layout';
+import { getElection, updateElection, updateLayoutOptions } from './api';
 import { Form, FormActionsRow, FormField, NestedTr } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
-import { hasSplits } from './geography_screen';
+import { hasSplits } from './utils';
 import { BallotScreen } from './ballot_screen';
 import { SegmentedControl } from './segmented_control';
 import { paperSizeLabels } from './ballot_viewer';
@@ -31,17 +27,17 @@ import { TabBar, TabPanel } from './tabs';
 function BallotDesignForm({
   electionId,
   savedElection,
+  savedLayoutOptions,
 }: {
   electionId: string;
   savedElection: Election;
+  savedLayoutOptions: LayoutOptions;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
-  const [ballotLayout, setBallotLayout] = useState<Required<BallotLayout>>({
-    targetMarkPosition: BallotTargetMarkPosition.Left,
-    layoutDensity: 0,
-    ...savedElection.ballotLayout,
-  });
+  const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
+  const [layoutOptions, setLayoutOptions] = useState(savedLayoutOptions);
   const updateElectionMutation = updateElection.useMutation();
+  const updateLayoutOptionsMutation = updateLayoutOptions.useMutation();
 
   function onSavePress() {
     updateElectionMutation.mutate(
@@ -52,7 +48,20 @@ function BallotDesignForm({
           ballotLayout,
         },
       },
-      { onSuccess: () => setIsEditing(false) }
+      {
+        onSuccess: () =>
+          updateLayoutOptionsMutation.mutate(
+            {
+              electionId,
+              layoutOptions,
+            },
+            {
+              onSuccess: () => {
+                setIsEditing(false);
+              },
+            }
+          ),
+      }
     );
   }
 
@@ -81,9 +90,9 @@ function BallotDesignForm({
             { value: 1, label: 'Medium' },
             { value: 2, label: 'Condensed' },
           ]}
-          value={ballotLayout.layoutDensity}
+          value={layoutOptions.layoutDensity}
           onChange={(layoutDensity) =>
-            setBallotLayout({ ...ballotLayout, layoutDensity })
+            setLayoutOptions({ ...layoutOptions, layoutDensity })
           }
           disabled={!isEditing}
         />
@@ -92,12 +101,15 @@ function BallotDesignForm({
       <FormField label="Bubble Position">
         <SegmentedControl
           options={[
-            { value: BallotTargetMarkPosition.Left, label: 'Left' },
-            { value: BallotTargetMarkPosition.Right, label: 'Right' },
+            { value: 'left', label: 'Left' },
+            { value: 'right', label: 'Right' },
           ]}
-          value={ballotLayout.targetMarkPosition}
+          value={layoutOptions.bubblePosition}
           onChange={(targetMarkPosition) =>
-            setBallotLayout({ ...ballotLayout, targetMarkPosition })
+            setLayoutOptions({
+              ...layoutOptions,
+              bubblePosition: targetMarkPosition,
+            })
           }
           disabled={!isEditing}
         />
@@ -222,11 +234,15 @@ function BallotLayoutTab(): JSX.Element | null {
     return null;
   }
 
-  const { election } = getElectionQuery.data;
+  const { election, layoutOptions } = getElectionQuery.data;
 
   return (
     <TabPanel>
-      <BallotDesignForm electionId={electionId} savedElection={election} />
+      <BallotDesignForm
+        electionId={electionId}
+        savedElection={election}
+        savedLayoutOptions={layoutOptions}
+      />
     </TabPanel>
   );
 }

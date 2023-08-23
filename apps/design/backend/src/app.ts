@@ -11,7 +11,7 @@ import {
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, ok, Result } from '@votingworks/basics';
-import { layOutAllBallots } from '@votingworks/hmpb-layout';
+import { layOutAllBallots, LayoutOptions } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
 import { ElectionRecord, Precinct, Store } from './store';
@@ -89,6 +89,13 @@ function buildApi({ store }: { store: Store }) {
       store.updatePrecincts(input.electionId, input.precincts);
     },
 
+    updateLayoutOptions(input: {
+      electionId: Id;
+      layoutOptions: LayoutOptions;
+    }): void {
+      store.updateLayoutOptions(input.electionId, input.layoutOptions);
+    },
+
     deleteElection(input: { electionId: Id }): void {
       store.deleteElection(input.electionId);
     },
@@ -96,10 +103,11 @@ function buildApi({ store }: { store: Store }) {
     async exportAllBallots(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election } = store.getElection(input.electionId);
+      const { election, layoutOptions } = store.getElection(input.electionId);
       const { ballots, electionDefinition } = layOutAllBallots({
         election,
         isTestMode: true,
+        layoutOptions,
       }).unsafeUnwrap();
 
       const zip = new JsZip();
@@ -129,10 +137,11 @@ function buildApi({ store }: { store: Store }) {
       precinctId: string;
       ballotStyleId: string;
     }): Promise<Buffer> {
-      const { election } = store.getElection(input.electionId);
+      const { election, layoutOptions } = store.getElection(input.electionId);
       const { ballots } = layOutAllBallots({
         election,
         isTestMode: true,
+        layoutOptions,
       }).unsafeUnwrap();
       const { document } = find(
         ballots,
@@ -148,10 +157,11 @@ function buildApi({ store }: { store: Store }) {
     async exportSetupPackage(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election } = store.getElection(input.electionId);
+      const { election, layoutOptions } = store.getElection(input.electionId);
       const { electionDefinition } = layOutAllBallots({
         election,
         isTestMode: true,
+        layoutOptions,
       }).unsafeUnwrap();
 
       const zip = new JsZip();
