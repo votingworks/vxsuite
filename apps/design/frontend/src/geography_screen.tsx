@@ -551,7 +551,7 @@ function PrecinctForm({
                         value: district.id,
                         label: district.name,
                       }))}
-                      value={split.districtIds as string[]}
+                      value={[...split.districtIds]}
                       onChange={(districtIds) =>
                         setPrecinct({
                           ...precinct,
@@ -586,7 +586,7 @@ function PrecinctForm({
                     value: district.id,
                     label: district.name,
                   }))}
-                  value={precinct.districtIds as string[]}
+                  value={[...precinct.districtIds]}
                   onChange={(districtIds) =>
                     setPrecinct({
                       ...precinct,

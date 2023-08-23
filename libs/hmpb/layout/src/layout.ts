@@ -1486,6 +1486,11 @@ function ContestColumnsChunk({
 export type BubblePosition = 'left' | 'right';
 export type LayoutDensity = 0 | 1 | 2;
 
+export const DEFAULT_LAYOUT_OPTIONS: LayoutOptions = {
+  bubblePosition: 'left',
+  layoutDensity: 0,
+};
+
 export interface LayoutOptions {
   bubblePosition: BubblePosition;
   layoutDensity: LayoutDensity;

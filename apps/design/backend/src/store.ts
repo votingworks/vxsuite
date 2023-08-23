@@ -36,17 +36,17 @@ export interface ElectionRecord {
 export interface PrecinctWithoutSplits {
   id: PrecinctId;
   name: string;
-  districtIds: DistrictId[];
+  districtIds: readonly DistrictId[];
 }
 export interface PrecinctWithSplits {
   id: PrecinctId;
   name: string;
-  splits: PrecinctSplit[];
+  splits: readonly PrecinctSplit[];
 }
 export interface PrecinctSplit {
   id: Id;
   name: string;
-  districtIds: DistrictId[];
+  districtIds: readonly DistrictId[];
 }
 export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 
@@ -58,16 +58,16 @@ export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
 // splits. We generate ballot styles on demand, so it won't be stored in the db.
 export interface BallotStyle {
   id: BallotStyleId;
-  precinctsOrSplits: Array<{
+  precinctsOrSplits: ReadonlyArray<{
     precinctId: PrecinctId;
     splitId?: Id;
   }>;
-  districtIds: DistrictId[];
+  districtIds: readonly DistrictId[];
 }
 
 // If we are importing an existing VXF election, we need to convert the
 // precincts to have splits based on the ballot styles.
-function convertVxfPrecincts(election: Election) {
+export function convertVxfPrecincts(election: Election): Precinct[] {
   return election.precincts.map((precinct) => {
     const ballotStyles = election.ballotStyles.filter((ballotStyle) =>
       ballotStyle.precincts.includes(precinct.id)
@@ -117,7 +117,7 @@ function groupBy<T, K>(items: T[], keyFn: (item: T) => K): Array<[K, T[]]> {
  * unique, it gets its own ballot style. Otherwise, we reuse another ballot
  * style with the same district list.
  */
-function generateBallotStyles(precincts: Precinct[]): BallotStyle[] {
+export function generateBallotStyles(precincts: Precinct[]): BallotStyle[] {
   const allPrecinctsOrSplits = precincts.flatMap((precinct) => {
     if (hasSplits(precinct)) {
       return precinct.splits.map((split) => {

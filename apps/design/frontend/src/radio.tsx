@@ -46,7 +46,7 @@ export function RadioGroup<V extends number | string>({
   disabled = false,
 }: RadioGroupProps<V>): JSX.Element {
   return (
-    <Container>
+    <Container role="radiogroup">
       {options.map((option) => {
         const isSelected = value === option.value;
         return (

@@ -5,6 +5,7 @@ import {
   createMockApiClient,
   MockApiClient,
 } from '../test/api_helpers';
+import { electionId } from '../test/fixtures';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ExportScreen } from './export_screen';
@@ -22,8 +23,6 @@ beforeEach(() => {
 afterEach(() => {
   apiMock.assertComplete();
 });
-
-const electionId = 'election-id-1';
 
 function renderScreen() {
   render(
