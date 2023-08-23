@@ -1,10 +1,6 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import {
-  getContestIdsForFilter,
-  isElectionManagerAuth,
-  mapContestIdsToContests,
-} from '@votingworks/utils';
+import { getPrecinctById, isElectionManagerAuth } from '@votingworks/utils';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -22,7 +18,7 @@ import {
   TallyReportMetadata,
   TallyReportPreview,
 } from '@votingworks/ui';
-import { Tabulation, electionHasPrimaryContest } from '@votingworks/types';
+import { Tabulation } from '@votingworks/types';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 
 import { AppContext } from '../contexts/app_context';
@@ -236,9 +232,6 @@ function SingleTallyReportScreen({
 
   const reportResultsQuery = getResultsForTallyReports.useQuery({
     filter,
-    groupBy: electionHasPrimaryContest(election)
-      ? { groupByParty: true }
-      : undefined,
   });
 
   const report = useMemo(() => {
@@ -248,23 +241,17 @@ function SingleTallyReportScreen({
 
     return (
       <AdminTallyReportByParty
-        election={election}
+        electionDefinition={electionDefinition}
         key="tally-report"
         testId="tally-report"
         title={title}
-        contests={mapContestIdsToContests(
-          electionDefinition,
-          getContestIdsForFilter(electionDefinition, filter)
-        )}
-        tallyReportResults={reportResultsQuery.data}
+        tallyReportResults={reportResultsQuery.data[0]}
         tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
         generatedAtTime={new Date(reportResultsQuery.dataUpdatedAt)}
       />
     );
   }, [
-    election,
     electionDefinition,
-    filter,
     isOfficialResults,
     reportResultsQuery.data,
     reportResultsQuery.dataUpdatedAt,
@@ -363,12 +350,10 @@ export function FullElectionTallyReportScreen(): JSX.Element {
 export function AllPrecinctsTallyReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
   assert(electionDefinition);
-  const { election } = electionDefinition;
 
   const reportResultsQuery = getResultsForTallyReports.useQuery({
     groupBy: {
       groupByPrecinct: true,
-      groupByParty: electionHasPrimaryContest(election),
     },
   });
 
@@ -378,22 +363,17 @@ export function AllPrecinctsTallyReportScreen(): JSX.Element {
     }
 
     const precinctReports: JSX.Element[] = [];
-    for (const precinct of election.precincts) {
+    for (const tallyReportResults of reportResultsQuery.data) {
+      const { precinctId } = tallyReportResults;
+      assert(precinctId !== undefined);
+      const precinct = getPrecinctById(electionDefinition, precinctId);
       precinctReports.push(
         <AdminTallyReportByParty
-          election={election}
-          key={`tally-report-${precinct.id}`}
-          testId={`tally-report-${precinct.id}`}
+          electionDefinition={electionDefinition}
+          key={`tally-report-${precinctId}`}
+          testId={`tally-report-${precinctId}`}
           title={`Precinct Tally Report for ${precinct.name}`}
-          contests={mapContestIdsToContests(
-            electionDefinition,
-            getContestIdsForFilter(electionDefinition, {
-              precinctIds: [precinct.id],
-            })
-          )}
-          tallyReportResults={reportResultsQuery.data.filter(
-            (results) => results.precinctId === precinct.id
-          )}
+          tallyReportResults={tallyReportResults}
           tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
           generatedAtTime={new Date(reportResultsQuery.dataUpdatedAt)}
         />
@@ -402,7 +382,6 @@ export function AllPrecinctsTallyReportScreen(): JSX.Element {
 
     return <React.Fragment>{precinctReports}</React.Fragment>;
   }, [
-    election,
     electionDefinition,
     isOfficialResults,
     reportResultsQuery.data,

@@ -7,15 +7,17 @@ import { AdminTallyReportByParty } from './admin_tally_report_by_party';
 import { getSimpleMockTallyResults } from '../../test/helpers/mock_results';
 
 test('general election, full election report', () => {
-  const { election } = electionFamousNames2021Fixtures;
+  const { election, electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <AdminTallyReportByParty
-      election={election}
-      contests={election.contests}
+      electionDefinition={electionDefinition}
       tallyReportType="Official"
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
-      tallyReportResults={[getSimpleMockTallyResults(election, 15)]}
+      tallyReportResults={getSimpleMockTallyResults({
+        election,
+        scannedBallotCount: 15,
+      })}
     />
   );
 
@@ -35,16 +37,19 @@ test('general election, full election report', () => {
 });
 
 test('general election, precinct report with manual results', () => {
-  const { election } = electionFamousNames2021Fixtures;
+  const { election, electionDefinition } = electionFamousNames2021Fixtures;
   render(
     <AdminTallyReportByParty
-      election={election}
-      contests={election.contests}
+      electionDefinition={electionDefinition}
       tallyReportType="Unofficial"
       title="Precinct Tally Report"
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
-      tallyReportResults={[getSimpleMockTallyResults(election, 15, 1)]}
+      tallyReportResults={getSimpleMockTallyResults({
+        election,
+        scannedBallotCount: 15,
+        manualBallotCount: 1,
+      })}
     />
   );
 
@@ -67,24 +72,27 @@ test('general election, precinct report with manual results', () => {
 });
 
 test('primary election, full election report with manual results', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionDefinition;
   render(
     <AdminTallyReportByParty
-      election={election}
-      contests={election.contests}
+      electionDefinition={electionDefinition}
       tallyReportType="Official"
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
-      tallyReportResults={[
-        {
-          partyId: '0',
-          ...getSimpleMockTallyResults(election, 15, 1),
+      tallyReportResults={getSimpleMockTallyResults({
+        election,
+        scannedBallotCount: 25,
+        manualBallotCount: 1,
+        cardCountsByParty: {
+          '0': {
+            bmd: 15,
+            hmpb: [],
+            manual: 1,
+          },
+          '1': 10,
         },
-        {
-          partyId: '1',
-          ...getSimpleMockTallyResults(election, 10),
-        },
-      ]}
+      })}
     />
   );
 
@@ -131,23 +139,25 @@ test('primary election, full election report with manual results', () => {
 });
 
 test('primary election, party report', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionDefinition;
   render(
     <AdminTallyReportByParty
-      election={election}
-      contests={election.contests.filter(
-        (c) => c.type === 'yesno' || c.partyId === '0'
-      )}
+      electionDefinition={electionDefinition}
       title="Mammal Party Tally Report"
       tallyReportType="Official"
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
-      tallyReportResults={[
-        {
-          partyId: '0',
-          ...getSimpleMockTallyResults(election, 10),
+      tallyReportResults={getSimpleMockTallyResults({
+        election,
+        scannedBallotCount: 10,
+        cardCountsByParty: {
+          '0': 10,
         },
-      ]}
+        contestIds: election.contests
+          .filter((c) => c.type === 'yesno' || c.partyId === '0')
+          .map((c) => c.id),
+      })}
     />
   );
 
