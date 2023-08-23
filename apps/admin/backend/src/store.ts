@@ -155,13 +155,20 @@ export class Store {
   /**
    * Creates an election record and returns its ID.
    */
-  addElection(electionData: string): Id {
+  addElection({
+    electionData,
+    systemSettingsData,
+  }: {
+    electionData: string;
+    systemSettingsData: string;
+  }): Id {
     const id = uuid();
     this.withTransaction(() => {
       this.client.run(
-        'insert into elections (id, data) values (?, ?)',
+        'insert into elections (id, election_data, system_settings_data) values (?, ?, ?)',
         id,
-        electionData
+        electionData,
+        systemSettingsData
       );
       this.createElectionMetadataRecords(id);
     });
@@ -177,7 +184,7 @@ export class Store {
       this.client.all(`
       select
         id,
-        data as electionData,
+        election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
@@ -206,7 +213,7 @@ export class Store {
       `
       select
         id,
-        data as electionData,
+        election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
@@ -286,6 +293,25 @@ export class Store {
     ) as { currentElectionId: Id } | null;
 
     return settings?.currentElectionId ?? undefined;
+  }
+
+  /**
+   * Retrieves the system settings for the current election.
+   */
+  getSystemSettings(): SystemSettings | undefined {
+    const electionId = this.getCurrentElectionId();
+    if (!electionId) return undefined;
+
+    const result = this.client.one(
+      `
+      select system_settings_data as systemSettingsData
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as { systemSettingsData: string };
+
+    return safeParseSystemSettings(result.systemSettingsData).unsafeUnwrap();
   }
 
   /**
@@ -658,33 +684,6 @@ export class Store {
         contestId: ContestId;
       }>
     ).map(({ contestId }) => contestId);
-  }
-
-  /**
-   * Stores the system settings.
-   * Note `SystemSettings` are logical settings that span other machines eg. VxScan.
-   * `Settings` are local to VxAdmin
-   */
-  saveSystemSettings(systemSettings: SystemSettings): void {
-    this.client.run('delete from system_settings');
-    this.client.run(
-      `
-      insert into system_settings (data) values (?)
-      `,
-      JSON.stringify(systemSettings)
-    );
-  }
-
-  /**
-   * Retrieves the system settings.
-   */
-  getSystemSettings(): SystemSettings | undefined {
-    const result = this.client.one(`select data from system_settings`) as
-      | { data: string }
-      | undefined;
-
-    if (!result) return undefined;
-    return safeParseSystemSettings(result.data).unsafeUnwrap();
   }
 
   getCastVoteRecordFileByHash(

@@ -150,20 +150,17 @@ export function createApiMock(
       );
     },
 
-    expectConfigure(electionData: string) {
+    expectConfigure(
+      electionData: string,
+      systemSettingsData: string = JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+    ) {
       apiClient.configure
-        .expectCallWith({ electionData })
+        .expectCallWith({ electionData, systemSettingsData })
         .resolves(ok({ electionId: 'anything' }));
     },
 
     expectUnconfigure() {
       apiClient.unconfigure.expectCallWith().resolves();
-    },
-
-    expectSetSystemSettings(systemSettings: string) {
-      apiClient.setSystemSettings
-        .expectCallWith({ systemSettings })
-        .resolves(ok({}));
     },
 
     expectGetSystemSettings(systemSettings?: SystemSettings) {

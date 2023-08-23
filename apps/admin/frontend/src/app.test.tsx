@@ -106,8 +106,10 @@ test('configuring with a demo election definition', async () => {
   await screen.findByText('Load Demo Election Definition');
 
   // expecting configure and resulting refetch
-  apiMock.expectConfigure(electionDefinition.electionData);
-  apiMock.expectSetSystemSettings(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
+  apiMock.expectConfigure(
+    electionDefinition.electionData,
+    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+  );
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   fireEvent.click(screen.getByText('Load Demo Election Definition'));
@@ -565,8 +567,10 @@ test('system administrator UI has expected nav when no election', async () => {
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  apiMock.expectConfigure(electionDefinition.electionData);
-  apiMock.expectSetSystemSettings(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
+  apiMock.expectConfigure(
+    electionDefinition.electionData,
+    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+  );
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   userEvent.click(

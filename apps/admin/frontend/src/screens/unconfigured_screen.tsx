@@ -3,11 +3,11 @@ import { useHistory } from 'react-router-dom';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Button, Font, Icons, P, useMountedState } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 
-import type { ConfigureResult } from '@votingworks/admin-backend';
 import { readFileAsyncAsString } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import type { ConfigureError } from '@votingworks/admin-backend';
 import { readInitialAdminSetupPackageFromFile } from '../utils/initial_setup_package';
 import {
   getElectionDefinitionConverterClient,
@@ -23,7 +23,7 @@ import { FileInputButton } from '../components/file_input_button';
 import { HorizontalRule } from '../components/horizontal_rule';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
-import { configure, setSystemSettings } from '../api';
+import { configure } from '../api';
 
 interface InputFile {
   name: string;
@@ -44,23 +44,6 @@ export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
   const isMounted = useMountedState();
   const configureMutation = configure.useMutation();
-  const setSystemSettingsMutation = setSystemSettings.useMutation();
-
-  const configureMutateAsync = useCallback(
-    async (electionData: string) => {
-      return new Promise<ConfigureResult>((resolve) => {
-        configureMutation.mutate(
-          {
-            electionData,
-          },
-          {
-            onSuccess: resolve,
-          }
-        );
-      });
-    },
-    [configureMutation]
-  );
 
   const { converter } = useContext(AppContext);
 
@@ -71,9 +54,7 @@ export function UnconfiguredScreen(): JSX.Element {
     []
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false);
-  const [systemSettingsFileIsInvalid, setSystemSettingsFileIsInvalid] =
-    useState(false);
+  const [configureError, setConfigureError] = useState<ConfigureError>();
   const [isUsingConverter, setIsUsingConverter] = useState(false);
 
   const client = useMemo(
@@ -81,42 +62,38 @@ export function UnconfiguredScreen(): JSX.Element {
     [converter]
   );
 
-  const saveSystemSettingsToBackend = useCallback(
-    (fileContent: string) => {
-      setSystemSettingsMutation.mutate(
-        { systemSettings: fileContent },
-        {
-          onSuccess: (result) => {
-            if (result.isErr()) {
-              setSystemSettingsFileIsInvalid(true);
-            }
-          },
+  const configureMutateAsync = configureMutation.mutateAsync;
+  const configureFromElectionPackage = useCallback(
+    async (
+      electionData: string,
+      systemSettingsData: string = JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+    ) => {
+      setConfigureError(undefined);
+      try {
+        const result = await configureMutateAsync({
+          electionData,
+          systemSettingsData,
+        });
+        if (result?.isErr()) {
+          setConfigureError(result.err());
+          // eslint-disable-next-line no-console
+          console.error(
+            'configure failed in saveElectionToBackend',
+            result.err().message
+          );
         }
-      );
-    },
-    [setSystemSettingsMutation]
-  );
-
-  async function loadDemoElection() {
-    await configureMutateAsync(demoElection);
-    saveSystemSettingsToBackend(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
-    history.push(routerPaths.electionDefinition);
-  }
-
-  const saveElectionToBackend = useCallback(
-    async (fileContent: string) => {
-      const configureResult = await configureMutateAsync(fileContent);
-      if (configureResult.isErr()) {
-        setVxElectionFileIsInvalid(true);
-        // eslint-disable-next-line no-console
-        console.error(
-          'configureMutateAsync failed in saveElectionToBackend',
-          configureResult.err().message
-        );
+        return result;
+      } catch {
+        // Do nothing
       }
     },
     [configureMutateAsync]
   );
+
+  async function loadDemoElection() {
+    await configureFromElectionPackage(demoElection);
+    history.push(routerPaths.electionDefinition);
+  }
 
   const handleVxElectionFile: InputEventFunction = async (event) => {
     setIsUploading(true);
@@ -124,11 +101,9 @@ export function UnconfiguredScreen(): JSX.Element {
     const file = input.files && input.files[0];
 
     if (file) {
-      setVxElectionFileIsInvalid(false);
       // TODO: read file content from backend
-      const fileContent = await readFileAsyncAsString(file);
-      await saveElectionToBackend(fileContent);
-      saveSystemSettingsToBackend(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
+      const electionData = await readFileAsyncAsString(file);
+      await configureFromElectionPackage(electionData);
     }
     setIsUploading(false);
   };
@@ -142,10 +117,10 @@ export function UnconfiguredScreen(): JSX.Element {
       const initialSetupPackage = await readInitialAdminSetupPackageFromFile(
         file
       );
-      setVxElectionFileIsInvalid(false);
-      setSystemSettingsFileIsInvalid(false);
-      await saveElectionToBackend(initialSetupPackage.electionString);
-      saveSystemSettingsToBackend(initialSetupPackage.systemSettingsString);
+      await configureFromElectionPackage(
+        initialSetupPackage.electionString,
+        initialSetupPackage.systemSettingsString
+      );
     }
     setIsUploadingZip(false);
   };
@@ -167,15 +142,14 @@ export function UnconfiguredScreen(): JSX.Element {
         const blob = await client.getOutputFile(electionFileName);
         await resetServerFiles();
         const electionData = await new Response(blob).text();
-        // expect our own converted elections to be valid
-        await configureMutateAsync(electionData);
+        await configureFromElectionPackage(electionData);
       } catch (error) {
         console.log('failed getOutputFile()', error); // eslint-disable-line no-console
       } finally {
         setIsLoading(false);
       }
     },
-    [client, configureMutateAsync, resetServerFiles]
+    [client, configureFromElectionPackage, resetServerFiles]
   );
 
   const processInputFiles = useCallback(
@@ -192,7 +166,7 @@ export function UnconfiguredScreen(): JSX.Element {
         setIsLoading(false);
       }
     },
-    [client, getOutputFile, setIsLoading]
+    [client, getOutputFile]
   );
 
   const updateStatus = useCallback(async () => {
@@ -263,7 +237,6 @@ export function UnconfiguredScreen(): JSX.Element {
 
   async function resetUploadFiles() {
     setInputConversionFiles([]);
-    setVxElectionFileIsInvalid(false);
     await resetServerFiles();
     await updateStatus();
   }
@@ -319,8 +292,7 @@ export function UnconfiguredScreen(): JSX.Element {
           <P>
             <Button
               disabled={
-                !someFilesExist(inputConversionFiles) &&
-                !vxElectionFileIsInvalid
+                !someFilesExist(inputConversionFiles) && !configureError
               }
               onPress={resetUploadFiles}
             >
@@ -342,20 +314,22 @@ export function UnconfiguredScreen(): JSX.Element {
     <NavigationScreen centerChild title="Configure VxAdmin">
       <Font align="center">
         <P>How would you like to start?</P>
-        {vxElectionFileIsInvalid && (
+        {configureError && (
           <P>
             <Font color="danger">
               <Icons.Danger />
             </Font>{' '}
-            Invalid Vx Election Definition file.
-          </P>
-        )}
-        {systemSettingsFileIsInvalid && (
-          <P>
-            <Font color="danger">
-              <Icons.Danger />
-            </Font>{' '}
-            Invalid System Settings file.
+            {(() => {
+              switch (configureError.type) {
+                case 'invalidElection':
+                  return 'Invalid Election Definition file.';
+                case 'invalidSystemSettings':
+                  return 'Invalid System Settings file.';
+                /* istanbul ignore next */
+                default:
+                  return throwIllegalValue(configureError);
+              }
+            })()}
           </P>
         )}
         <P>
@@ -374,7 +348,11 @@ export function UnconfiguredScreen(): JSX.Element {
             Select Existing Setup Package Zip File
           </FileInputButton>
         </P>
-
+        <P>
+          <Button onPress={loadDemoElection}>
+            Load Demo Election Definition
+          </Button>
+        </P>
         {client && inputConversionFiles.length > 0 && !isUsingConverter && (
           <P>
             <Button onPress={() => setIsUsingConverter(true)}>
@@ -382,11 +360,6 @@ export function UnconfiguredScreen(): JSX.Element {
             </Button>
           </P>
         )}
-        <P>
-          <Button onPress={loadDemoElection}>
-            Load Demo Election Definition
-          </Button>
-        </P>
       </Font>
     </NavigationScreen>
   );

@@ -10,7 +10,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { Tabulation } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import {
   tabulateCastVoteRecords,
   tabulateElectionResults,
@@ -50,7 +50,10 @@ test('tabulateCastVoteRecords', async () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { election, electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -257,7 +260,10 @@ test('tabulateElectionResults - includes empty groups', async () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   const groupedElectionResults = await tabulateCastVoteRecords({
@@ -282,7 +288,10 @@ test('tabulateElectionResults - write-in handling', async () => {
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election } = electionDefinition;
-  const electionId = store.addElection(electionDefinition.electionData);
+  const electionId = store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   const addReportResult = await addCastVoteRecordReport({
@@ -619,8 +628,11 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const store = Store.memoryStore();
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
-  const { election } = electionDefinition;
-  const electionId = store.addElection(electionDefinition.electionData);
+  const { election, electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
   const addReportResult = await addCastVoteRecordReport({
     store,
