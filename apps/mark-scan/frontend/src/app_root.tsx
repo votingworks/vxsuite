@@ -75,7 +75,8 @@ import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
-import { ValidateBallotPage } from './pages/validate_ballot_page';
+import { JammedPage } from './pages/jammed_page';
+import { JamClearedPage } from './pages/jam_cleared_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -585,9 +586,20 @@ export function AppRoot({
   if (stateMachineState === 'no_hardware') {
     return <NoPaperHandlerPage />;
   }
-  /* istanbul ignore next - this placeholder page will change */
-  if (stateMachineState === 'presenting_ballot') {
-    return <ValidateBallotPage />;
+  if (stateMachineState === 'jammed') {
+    return <JammedPage />;
+  }
+  if (
+    stateMachineState === 'jam_cleared' ||
+    stateMachineState === 'resetting_state_machine_after_jam'
+  ) {
+    // TODO reset function may need to change once we're in a voter session
+    return (
+      <JamClearedPage
+        authStatus={authStatus}
+        stateMachineState={stateMachineState}
+      />
+    );
   }
   if (
     authStatus.status === 'logged_out' &&
