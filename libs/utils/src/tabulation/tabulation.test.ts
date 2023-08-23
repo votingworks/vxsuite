@@ -961,6 +961,50 @@ describe('tabulateCastVoteRecords', () => {
       })
     );
   });
+
+  test('with expected groups', async () => {
+    const resultsByMethodAndPrecinct = await tabulateCastVoteRecords({
+      cvrs: cvrs.slice(0, 1),
+      election,
+      groupBy: {
+        groupByVotingMethod: true,
+        groupByPrecinct: true,
+      },
+      expectedGroups: [
+        {
+          votingMethod: 'absentee',
+          precinctId: 'precinct-1',
+        },
+        {
+          votingMethod: 'absentee',
+          precinctId: 'precinct-2',
+        },
+        {
+          votingMethod: 'precinct',
+          precinctId: 'precinct-1',
+        },
+        {
+          votingMethod: 'precinct',
+          precinctId: 'precinct-2',
+        },
+      ],
+    });
+
+    // should have 2 x 2 = 4 even result groups based on expected groups even though there's no CVRs
+    expect(
+      Object.values(resultsByMethodAndPrecinct).map((results) =>
+        getBallotCount(results.cardCounts)
+      )
+    ).toEqual([1, 0, 0, 0]);
+
+    // keys should be ordered as the groups were passed in
+    expect(Object.keys(resultsByMethodAndPrecinct)).toEqual([
+      'root&precinctId=precinct-1&votingMethod=absentee',
+      'root&precinctId=precinct-2&votingMethod=absentee',
+      'root&precinctId=precinct-1&votingMethod=precinct',
+      'root&precinctId=precinct-2&votingMethod=precinct',
+    ]);
+  });
 });
 
 test('getOfficialCandidateNameLookup', () => {

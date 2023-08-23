@@ -6,6 +6,7 @@ import {
   mergeWriteInTallies,
   mergeTabulationGroupMaps,
   tabulateCastVoteRecords as tabulateFilteredCastVoteRecords,
+  groupBySupportsZeroSplits,
 } from '@votingworks/utils';
 import { assert, assertDefined, mapObject } from '@votingworks/basics';
 import { Store } from '../store';
@@ -37,10 +38,22 @@ export function tabulateCastVoteRecords({
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
 
+  // i.e. what pages need to be included on a report
+  debug('determining what election result groups we expect, if any');
+  const expectedGroups = groupBySupportsZeroSplits(groupBy)
+    ? store.getTabulationGroups({
+        electionId,
+        groupBy,
+        filter,
+      })
+    : undefined;
+
+  debug('tabulating filtered cast vote records from the store');
   return tabulateFilteredCastVoteRecords({
     cvrs: store.getCastVoteRecords({ electionId, filter }),
     election,
     groupBy,
+    expectedGroups,
   });
 }
 

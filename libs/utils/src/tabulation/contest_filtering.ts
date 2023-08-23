@@ -262,3 +262,17 @@ export function getContestsForPrecinct(
   const contestIds = getContestIdsForPrecinct(electionDefinition, precinctId);
   return mapContestIdsToContests(electionDefinition, contestIds);
 }
+
+/**
+ * Currently, if results are split by batch and scanner then they are opportunistic,
+ * only including non-zero splits.
+ */
+export function groupBySupportsZeroSplits(
+  groupBy: Tabulation.GroupBy
+): boolean {
+  if (groupBy.groupByBatch || groupBy.groupByScanner) {
+    return false;
+  }
+
+  return true;
+}
