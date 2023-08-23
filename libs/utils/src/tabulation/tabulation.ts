@@ -13,6 +13,7 @@ import {
   YesNoContest,
   writeInCandidate,
 } from '@votingworks/types';
+import { isGroupByEmpty } from './arguments';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest
@@ -223,17 +224,6 @@ export function getOfficialCandidateNameLookup(
   };
 }
 
-export function isGroupByEmpty(groupBy: Tabulation.GroupBy): boolean {
-  return !(
-    groupBy.groupByBallotStyle ||
-    groupBy.groupByBatch ||
-    groupBy.groupByPrecinct ||
-    groupBy.groupByParty ||
-    groupBy.groupByScanner ||
-    groupBy.groupByVotingMethod
-  );
-}
-
 function getCastVoteRecordGroupSpecifier(
   cvr: Tabulation.CastVoteRecord,
   groupBy: Tabulation.GroupBy
@@ -377,25 +367,6 @@ export function extractGroupSpecifier(
     partyId: entity.partyId,
     votingMethod: entity.votingMethod,
   };
-}
-
-/**
- * Convert a {@link Tabulation.GroupMap} to its corresponding {@link Tabulation.GroupList}.
- * The map format is better for tabulation operations while the list format is easier
- * preferable for most consumers.
- */
-export function groupMapToGroupList<T>(
-  groupMap: Tabulation.GroupMap<T>
-): Tabulation.GroupList<T> {
-  const list: Tabulation.GroupList<T> = [];
-  for (const [groupKey, group] of Object.entries(groupMap)) {
-    list.push({
-      ...getGroupSpecifierFromGroupKey(groupKey),
-      // eslint-disable-next-line vx/gts-spread-like-types
-      ...group,
-    });
-  }
-  return list;
 }
 
 /**
@@ -904,19 +875,4 @@ export function mergeWriteInTallies<
     ...anyResults,
     contestResults: newElectionContestResults,
   };
-}
-
-export function mergeTabulationGroupMaps<T, U, V>(
-  groupedT: Tabulation.GroupMap<T>,
-  groupedU: Tabulation.GroupMap<U>,
-  merge: (t?: T, u?: U) => V
-): Tabulation.GroupMap<V> {
-  const merged: Tabulation.GroupMap<V> = {};
-  const allGroupKeys = [
-    ...new Set([...Object.keys(groupedT), ...Object.keys(groupedU)]),
-  ];
-  for (const groupKey of allGroupKeys) {
-    merged[groupKey] = merge(groupedT[groupKey], groupedU[groupKey]);
-  }
-  return merged;
 }

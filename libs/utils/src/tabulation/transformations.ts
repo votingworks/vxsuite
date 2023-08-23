@@ -1,22 +1,39 @@
-import { AnyContest, Tabulation } from '@votingworks/types';
+import { Tabulation } from '@votingworks/types';
 import { mapObject } from '@votingworks/basics';
-import { getGroupKey, groupMapToGroupList } from './tabulation';
+import { getGroupKey, getGroupSpecifierFromGroupKey } from './tabulation';
+
+export function mergeTabulationGroupMaps<T, U, V>(
+  groupedT: Tabulation.GroupMap<T>,
+  groupedU: Tabulation.GroupMap<U>,
+  merge: (t?: T, u?: U) => V
+): Tabulation.GroupMap<V> {
+  const merged: Tabulation.GroupMap<V> = {};
+  const allGroupKeys = [
+    ...new Set([...Object.keys(groupedT), ...Object.keys(groupedU)]),
+  ];
+  for (const groupKey of allGroupKeys) {
+    merged[groupKey] = merge(groupedT[groupKey], groupedU[groupKey]);
+  }
+  return merged;
+}
 
 /**
- * Contests appear on ballots or not based on the district the contest is
- * associated with and the party. This function just covers the party part. Rules:
- *   - ballot measures can appear on ballots of any party
- *   - candidates contests with an associated party can only appear on ballots of the same party
+ * Convert a {@link Tabulation.GroupMap} to its corresponding {@link Tabulation.GroupList}.
+ * The map format is better for tabulation operations while the list format is easier
+ * preferable for most consumers.
  */
-export function doesContestAppearOnPartyBallot(
-  contest: AnyContest,
-  ballotPartyId?: string
-): boolean {
-  return (
-    contest.type === 'yesno' ||
-    !contest.partyId ||
-    contest.partyId === ballotPartyId
-  );
+export function groupMapToGroupList<T>(
+  groupMap: Tabulation.GroupMap<T>
+): Tabulation.GroupList<T> {
+  const list: Tabulation.GroupList<T> = [];
+  for (const [groupKey, group] of Object.entries(groupMap)) {
+    list.push({
+      ...getGroupSpecifierFromGroupKey(groupKey),
+      // eslint-disable-next-line vx/gts-spread-like-types
+      ...group,
+    });
+  }
+  return list;
 }
 
 /**
