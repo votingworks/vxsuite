@@ -35,7 +35,6 @@ import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_
 
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
 
-jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
     ...jest.requireActual('@votingworks/ballot-encoder'),
@@ -289,26 +288,6 @@ test('L&A (logic and accuracy) flow', async () => {
     })
   );
   advanceTimers(30);
-
-  // L&A package: HMPB test deck
-  await screen.findByText('Printing L&A Package for District 5', {
-    exact: false,
-  });
-  await expectPrintToMatchSnapshot();
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TestDeckPrinted,
-      expect.any(String),
-      expect.anything()
-    )
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.any(String),
-    expect.objectContaining({
-      message: expect.stringContaining('Hand-marked paper ballot test deck'),
-    })
-  );
 
   // Test printing full test deck tally
   userEvent.click(screen.getByText('L&A'));

@@ -1,5 +1,4 @@
 import { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
-import { Candidate } from '@votingworks/types';
 
 export const mockCastVoteRecordFileRecord: CastVoteRecordFileRecord = {
   id: '',
@@ -12,19 +11,3 @@ export const mockCastVoteRecordFileRecord: CastVoteRecordFileRecord = {
   sha256Hash: '',
   createdAt: '',
 };
-
-export function getMockWriteInCandidate(name: string): Candidate {
-  return {
-    id: name.toLowerCase(),
-    name,
-    isWriteIn: true,
-  };
-}
-
-export function getMockTempWriteInCandidate(name: string): Candidate {
-  return {
-    id: `temp-write-in-(${name})`,
-    name,
-    isWriteIn: true,
-  };
-}
