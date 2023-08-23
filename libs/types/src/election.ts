@@ -223,30 +223,28 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
     }
   });
 
-export type YesNoOptionId = Id;
-export const YesNoOptionIdSchema: z.ZodSchema<YesNoOptionId> = IdSchema;
 export interface YesNoOption {
-  readonly id: YesNoOptionId;
+  readonly id: Id;
   readonly label: string;
 }
 export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
-  id: YesNoOptionIdSchema,
+  id: IdSchema,
   label: z.string().nonempty(),
 });
 
 export interface YesNoContest extends Contest {
   readonly type: 'yesno';
   readonly description: string;
-  readonly yesOption?: YesNoOption;
-  readonly noOption?: YesNoOption;
+  readonly yesOption: YesNoOption;
+  readonly noOption: YesNoOption;
 }
 export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
   ContestInternalSchema.merge(
     z.object({
       type: z.literal('yesno'),
       description: z.string().nonempty(),
-      yesOption: YesNoOptionSchema.optional(),
-      noOption: YesNoOptionSchema.optional(),
+      yesOption: YesNoOptionSchema,
+      noOption: YesNoOptionSchema,
     })
   );
 
@@ -265,6 +263,17 @@ export const ContestsSchema = z
         code: z.ZodIssueCode.custom,
         path: [index, 'id'],
         message: `Duplicate contest '${id}' found.`,
+      });
+    }
+    for (const [index, id] of findDuplicateIds(
+      contests.flatMap((c) =>
+        c.type === 'yesno' ? [c.yesOption, c.noOption] : []
+      )
+    )) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [index, 'yes/noOption', 'id'],
+        message: `Duplicate yes/no contest option '${id}' found.`,
       });
     }
   });
@@ -660,12 +669,9 @@ export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
     writeInIndex: z.number().nonnegative().optional(),
   });
 
-export type YesNoContestOptionId = Exclude<
-  YesNoVote[0] | YesNoVote[1],
-  undefined
->;
+export type YesNoContestOptionId = Id;
 export const YesNoContestOptionIdSchema: z.ZodSchema<YesNoContestOptionId> =
-  z.union([z.literal('yes'), z.literal('no')]);
+  IdSchema;
 export interface YesNoContestOption {
   type: YesNoContest['type'];
   id: YesNoContestOptionId;
@@ -676,7 +682,7 @@ export interface YesNoContestOption {
 export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
   z.object({
     type: z.literal('yesno'),
-    id: z.union([z.literal('yes'), z.literal('no')]),
+    id: YesNoContestOptionIdSchema,
     contestId: ContestIdSchema,
     name: z.string(),
     optionIndex: z.number().nonnegative(),
@@ -693,7 +699,6 @@ export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
   CandidateIdSchema,
   WriteInIdSchema,
   YesNoContestOptionIdSchema,
-  YesNoOptionIdSchema,
 ]);
 
 export interface MarginalMarkAdjudicationReasonInfo {
@@ -844,7 +849,7 @@ export interface BallotYesNoTargetMark {
   bounds: Rect;
   contestId: ContestId;
   target: TargetShape;
-  optionId: 'yes' | 'no';
+  optionId: YesNoContestOptionId;
   score: number;
   /**
    * How far away `bounds` was from where it was expected. Thus, the expected
@@ -858,7 +863,7 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
     bounds: RectSchema,
     contestId: ContestIdSchema,
     target: TargetShapeSchema,
-    optionId: z.union([z.literal('yes'), z.literal('no')]),
+    optionId: YesNoContestOptionIdSchema,
     score: z.number(),
     scoredOffset: OffsetSchema,
   });

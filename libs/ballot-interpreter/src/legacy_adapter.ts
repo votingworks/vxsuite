@@ -106,10 +106,7 @@ function convertNewHampshireNextMarkToSharedMark(
       },
     };
 
-    // `{ type: option.type, … }` would be better but TS doesn't like that.
-    return option.type === 'candidate'
-      ? { type: 'candidate', optionId: option.id, ...ballotTargetMarkBase }
-      : { type: 'yesno', optionId: option.id, ...ballotTargetMarkBase };
+    return { type: option.type, optionId: option.id, ...ballotTargetMarkBase };
   }
 
   /* istanbul ignore next */

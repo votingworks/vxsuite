@@ -513,56 +513,120 @@
       "districtId": "district-1",
       "title": "Retain Robert Demergue as Chief Justice?",
       "type": "yesno",
-      "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?"
+      "description": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?",
+      "yesOption": {
+        "id": "judicial-robert-demergue-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "judicial-robert-demergue-option-no",
+        "label": "No"
+      }
     },
     {
       "id": "judicial-elmer-hull",
       "districtId": "district-2",
       "title": "Retain Elmer Hull as Associate Justice?",
       "type": "yesno",
-      "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?"
+      "description": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?",
+      "yesOption": {
+        "id": "judicial-elmer-hull-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "judicial-elmer-hull-option-no",
+        "label": "No"
+      }
     },
     {
       "id": "question-a",
       "districtId": "district-1",
       "title": "Question A: Recovery of Property Damages",
       "type": "yesno",
-      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?"
+      "description": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
+      "yesOption": {
+        "id": "question-a-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "question-a-option-no",
+        "label": "No"
+      }
     },
     {
       "id": "question-b",
       "districtId": "district-1",
       "title": "Question B: Separation of Powers",
       "type": "yesno",
-      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government."
+      "description": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government.",
+      "yesOption": {
+        "id": "question-b-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "question-b-option-no",
+        "label": "No"
+      }
     },
     {
       "id": "question-c",
       "districtId": "district-2",
       "title": "Question C: Limits to Damages for Non-Economic Loss",
       "type": "yesno",
-      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider?"
+      "description": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider?",
+      "yesOption": {
+        "id": "question-c-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "question-c-option-no",
+        "label": "No"
+      }
     },
     {
       "id": "proposition-1",
       "districtId": "district-1",
       "title": "Proposition 1: Gambling in Franklin and Fromwit Counties",
       "type": "yesno",
-      "description": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation."
+      "description": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation.",
+      "yesOption": {
+        "id": "proposition-1-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "proposition-1-option-no",
+        "label": "No"
+      }
     },
     {
       "id": "measure-101",
       "districtId": "district-2",
       "title": "Measure 101: College District",
       "type": "yesno",
-      "description": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?"
+      "description": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?",
+      "yesOption": {
+        "id": "measure-101-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "measure-101-option-no",
+        "label": "No"
+      }
     },
     {
       "id": "102",
       "districtId": "district-1",
       "title": "Measure 102: Vehicle Abatement Program",
       "type": "yesno",
-      "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
+      "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?",
+      "yesOption": {
+        "id": "measure-102-option-yes",
+        "label": "Yes"
+      },
+      "noOption": {
+        "id": "measure-102-option-no",
+        "label": "No"
+      }
     },
     {
       "id": "measure-666",
@@ -1294,7 +1358,7 @@
           "column": 31,
           "row": 12,
           "contestId": "judicial-robert-demergue",
-          "optionId": "yes"
+          "optionId": "judicial-robert-demergue-option-yes"
         },
         {
           "type": "option",
@@ -1303,7 +1367,7 @@
           "column": 31,
           "row": 13,
           "contestId": "judicial-robert-demergue",
-          "optionId": "no"
+          "optionId": "judicial-robert-demergue-option-no"
         },
         {
           "type": "option",
@@ -1312,7 +1376,7 @@
           "column": 31,
           "row": 19,
           "contestId": "judicial-elmer-hull",
-          "optionId": "yes"
+          "optionId": "judicial-elmer-hull-option-yes"
         },
         {
           "type": "option",
@@ -1321,7 +1385,7 @@
           "column": 31,
           "row": 20,
           "contestId": "judicial-elmer-hull",
-          "optionId": "no"
+          "optionId": "judicial-elmer-hull-option-no"
         },
         {
           "type": "option",
@@ -1330,7 +1394,7 @@
           "column": 31,
           "row": 28,
           "contestId": "question-a",
-          "optionId": "yes"
+          "optionId": "question-a-option-yes"
         },
         {
           "type": "option",
@@ -1339,7 +1403,7 @@
           "column": 31,
           "row": 29,
           "contestId": "question-a",
-          "optionId": "no"
+          "optionId": "question-a-option-no"
         },
         {
           "type": "option",
@@ -1348,7 +1412,7 @@
           "column": 31,
           "row": 8,
           "contestId": "question-b",
-          "optionId": "yes"
+          "optionId": "question-b-option-yes"
         },
         {
           "type": "option",
@@ -1357,7 +1421,7 @@
           "column": 31,
           "row": 9,
           "contestId": "question-b",
-          "optionId": "no"
+          "optionId": "question-b-option-no"
         },
         {
           "type": "option",
@@ -1366,7 +1430,7 @@
           "column": 31,
           "row": 15,
           "contestId": "question-c",
-          "optionId": "yes"
+          "optionId": "question-c-option-yes"
         },
         {
           "type": "option",
@@ -1375,7 +1439,7 @@
           "column": 31,
           "row": 16,
           "contestId": "question-c",
-          "optionId": "no"
+          "optionId": "question-c-option-no"
         },
         {
           "type": "option",
@@ -1384,7 +1448,7 @@
           "column": 31,
           "row": 23,
           "contestId": "proposition-1",
-          "optionId": "yes"
+          "optionId": "proposition-1-option-yes"
         },
         {
           "type": "option",
@@ -1393,7 +1457,7 @@
           "column": 31,
           "row": 24,
           "contestId": "proposition-1",
-          "optionId": "no"
+          "optionId": "proposition-1-option-no"
         },
         {
           "type": "option",
@@ -1402,7 +1466,7 @@
           "column": 31,
           "row": 31,
           "contestId": "measure-101",
-          "optionId": "yes"
+          "optionId": "measure-101-option-yes"
         },
         {
           "type": "option",
@@ -1411,7 +1475,7 @@
           "column": 31,
           "row": 32,
           "contestId": "measure-101",
-          "optionId": "no"
+          "optionId": "measure-101-option-no"
         },
         {
           "type": "option",
@@ -1420,7 +1484,7 @@
           "column": 31,
           "row": 14,
           "contestId": "102",
-          "optionId": "yes"
+          "optionId": "measure-102-option-yes"
         },
         {
           "type": "option",
@@ -1429,7 +1493,7 @@
           "column": 31,
           "row": 15,
           "contestId": "102",
-          "optionId": "no"
+          "optionId": "measure-102-option-no"
         }
       ]
     },
@@ -1683,7 +1747,7 @@
           "column": 31,
           "row": 14,
           "contestId": "judicial-robert-demergue",
-          "optionId": "yes"
+          "optionId": "judicial-robert-demergue-option-yes"
         },
         {
           "type": "option",
@@ -1692,7 +1756,7 @@
           "column": 31,
           "row": 15,
           "contestId": "judicial-robert-demergue",
-          "optionId": "no"
+          "optionId": "judicial-robert-demergue-option-no"
         },
         {
           "type": "option",
@@ -1701,7 +1765,7 @@
           "column": 31,
           "row": 23,
           "contestId": "question-a",
-          "optionId": "yes"
+          "optionId": "question-a-option-yes"
         },
         {
           "type": "option",
@@ -1710,7 +1774,7 @@
           "column": 31,
           "row": 24,
           "contestId": "question-a",
-          "optionId": "no"
+          "optionId": "question-a-option-no"
         },
         {
           "type": "option",
@@ -1719,7 +1783,7 @@
           "column": 31,
           "row": 33,
           "contestId": "question-b",
-          "optionId": "yes"
+          "optionId": "question-b-option-yes"
         },
         {
           "type": "option",
@@ -1728,7 +1792,7 @@
           "column": 31,
           "row": 34,
           "contestId": "question-b",
-          "optionId": "no"
+          "optionId": "question-b-option-no"
         },
         {
           "type": "option",
@@ -1737,7 +1801,7 @@
           "column": 31,
           "row": 14,
           "contestId": "proposition-1",
-          "optionId": "yes"
+          "optionId": "proposition-1-option-yes"
         },
         {
           "type": "option",
@@ -1746,7 +1810,7 @@
           "column": 31,
           "row": 15,
           "contestId": "proposition-1",
-          "optionId": "no"
+          "optionId": "proposition-1-option-no"
         },
         {
           "type": "option",
@@ -1755,7 +1819,7 @@
           "column": 31,
           "row": 22,
           "contestId": "102",
-          "optionId": "yes"
+          "optionId": "measure-102-option-yes"
         },
         {
           "type": "option",
@@ -1764,7 +1828,7 @@
           "column": 31,
           "row": 23,
           "contestId": "102",
-          "optionId": "no"
+          "optionId": "measure-102-option-no"
         }
       ]
     },

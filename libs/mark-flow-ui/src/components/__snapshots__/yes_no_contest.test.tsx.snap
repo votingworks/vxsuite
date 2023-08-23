@@ -404,7 +404,7 @@ exports[`changing votes 1`] = `
         role="listbox"
       >
         <button
-          aria-label="Selected, Yes on Ballot Measure 3"
+          aria-label="Selected, YES on Ballot Measure 3"
           aria-selected="true"
           class="c11 c12"
           role="option"
@@ -442,14 +442,14 @@ exports[`changing votes 1`] = `
                 <p
                   class="c19 c20"
                 >
-                  Yes
+                  YES
                 </p>
               </span>
             </span>
           </span>
         </button>
         <button
-          aria-label=" No on Ballot Measure 3"
+          aria-label=" NO on Ballot Measure 3"
           aria-selected="false"
           class="c21 c22"
           role="option"
@@ -487,7 +487,7 @@ exports[`changing votes 1`] = `
                 <p
                   class="c19 c20"
                 >
-                  No
+                  NO
                 </p>
               </span>
             </span>
@@ -839,7 +839,7 @@ exports[`voting for both yes and no 1`] = `
         role="listbox"
       >
         <button
-          aria-label=" Yes on Ballot Measure 3"
+          aria-label=" YES on Ballot Measure 3"
           aria-selected="false"
           class="c11 c12"
           role="option"
@@ -877,14 +877,14 @@ exports[`voting for both yes and no 1`] = `
                 <p
                   class="c19 c20"
                 >
-                  Yes
+                  YES
                 </p>
               </span>
             </span>
           </span>
         </button>
         <button
-          aria-label=" No on Ballot Measure 3"
+          aria-label=" NO on Ballot Measure 3"
           aria-selected="false"
           class="c11 c12"
           role="option"
@@ -922,7 +922,7 @@ exports[`voting for both yes and no 1`] = `
                 <p
                   class="c19 c20"
                 >
-                  No
+                  NO
                 </p>
               </span>
             </span>

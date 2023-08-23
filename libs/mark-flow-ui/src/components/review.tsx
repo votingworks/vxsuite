@@ -15,7 +15,6 @@ import {
   Card,
   ContestVote,
   DecoyButton,
-  DisplayTextForYesOrNo,
   Icons,
   VoterContestSummary,
   Button,
@@ -98,7 +97,12 @@ function YesNoContestResult({
   const yesNo = getSingleYesNoVote(vote);
 
   const votes: ContestVote[] = yesNo
-    ? [{ label: DisplayTextForYesOrNo[yesNo] }]
+    ? [
+        {
+          label:
+            yesNo === 'yes' ? contest.yesOption.label : contest.noOption.label,
+        },
+      ]
     : [];
 
   return (

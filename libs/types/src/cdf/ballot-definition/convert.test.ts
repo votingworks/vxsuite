@@ -28,20 +28,6 @@ test('convertCdfBallotDefinitionToVxfElection', () => {
   ).toEqual(testVxfElection);
 });
 
-// In CDF, we require an explicit yes/no contest option for every ballot measure contest.
-test('convertVxfElectionToCdfBallotDefinition supplies default yes/no contest options', () => {
-  expect(
-    convertVxfElectionToCdfBallotDefinition({
-      ...testVxfElection,
-      contests: testVxfElection.contests.map((contest) =>
-        contest.type === 'yesno'
-          ? { ...contest, yesOption: undefined, noOption: undefined }
-          : contest
-      ),
-    })
-  ).toEqual(testCdfBallotDefinition);
-});
-
 /**
  * For testing a round trip from VXF -> CDF -> VXF, we need to normalize a few
  * less strict parts of VXF to match stricter CDF constraints.
@@ -70,22 +56,7 @@ function normalizeVxf(vxfElection: Election) {
     districts,
     precincts,
     parties,
-    // VXF allows optional yes/no options, but in CDF we always list them explicitly.
-    contests: contests.map((contest) =>
-      contest.type === 'yesno'
-        ? {
-            ...contest,
-            yesOption: contest.yesOption || {
-              label: 'Yes',
-              id: `${contest.id}-option-yes`,
-            },
-            noOption: contest.noOption || {
-              label: 'No',
-              id: `${contest.id}-option-no`,
-            },
-          }
-        : contest
-    ),
+    contests,
     ballotStyles,
     ballotLayout,
   };

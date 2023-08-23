@@ -9,7 +9,6 @@ import {
 import {
   Button,
   ContestChoiceButton,
-  DisplayTextForYesOrNo,
   Main,
   Modal,
   Prose,
@@ -96,8 +95,8 @@ export function YesNoContest({
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
             {[
-              { label: 'Yes', vote: 'yes' } as const,
-              { label: 'No', vote: 'no' } as const,
+              { label: contest.yesOption.label, vote: 'yes' } as const,
+              { label: contest.noOption.label, vote: 'no' } as const,
             ].map((answer) => {
               const isChecked = getSingleYesNoVote(vote) === answer.vote;
               const isDisabled = !isChecked && !!vote;
@@ -134,15 +133,16 @@ export function YesNoContest({
               {overvoteSelection && (
                 <P id="modalaudiofocus">
                   Do you want to change your vote to{' '}
-                  <strong>{DisplayTextForYesOrNo[overvoteSelection]}</strong>?
-                  To change your vote, first unselect your vote for{' '}
                   <strong>
-                    {
-                      {
-                        no: DisplayTextForYesOrNo.yes,
-                        yes: DisplayTextForYesOrNo.no,
-                      }[overvoteSelection]
-                    }
+                    {overvoteSelection === 'yes'
+                      ? contest.yesOption.label
+                      : contest.noOption.label}
+                  </strong>
+                  ? To change your vote, first unselect your vote for{' '}
+                  <strong>
+                    {overvoteSelection === 'yes'
+                      ? contest.noOption.label
+                      : contest.yesOption.label}
                   </strong>
                   .
                 </P>

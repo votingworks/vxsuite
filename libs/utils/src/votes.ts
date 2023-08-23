@@ -125,11 +125,12 @@ function markToCandidateVotes(
 
 function markToYesNoVotes(
   markThresholds: Pick<MarkThresholds, 'definite'>,
-  mark: BallotTargetMark
+  mark: BallotTargetMark,
+  contest: YesNoContest
 ): YesNoVote {
   assert(mark.type === 'yesno');
   return getMarkStatus(mark.score, markThresholds) === MarkStatus.Marked
-    ? [mark.optionId]
+    ? [mark.optionId === contest.yesOption.id ? 'yes' : 'no']
     : [];
 }
 
@@ -150,7 +151,7 @@ export function convertMarksToVotesDict(
       contest.type === 'candidate'
         ? markToCandidateVotes(contest, markThresholds, mark)
         : contest.type === 'yesno'
-        ? markToYesNoVotes(markThresholds, mark)
+        ? markToYesNoVotes(markThresholds, mark, contest)
         : /* c8 ignore next */
           throwIllegalValue(contest, 'type');
 

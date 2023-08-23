@@ -173,7 +173,7 @@ test('markInfoToVotesDict yesno', () => {
   const yesMark: BallotTargetMark = {
     type: 'yesno',
     contestId: yesnoContest.id,
-    optionId: 'yes',
+    optionId: yesnoContest.yesOption.id,
     score: 0.5,
     bounds: { x: 0, y: 0, width: 0, height: 0 },
     scoredOffset: { x: 0, y: 0 },
@@ -185,7 +185,7 @@ test('markInfoToVotesDict yesno', () => {
   const noMark: BallotTargetMark = {
     type: 'yesno',
     contestId: yesnoContest.id,
-    optionId: 'no',
+    optionId: yesnoContest.noOption.id,
     score: 0.5,
     bounds: { x: 0, y: 0, width: 0, height: 0 },
     scoredOffset: { x: 0, y: 0 },

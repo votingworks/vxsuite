@@ -1109,10 +1109,7 @@ function BallotMeasure({
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
   const bubblePosition = election.ballotLayout.targetMarkPosition ?? 'left';
 
-  const choices = [
-    { id: 'yes', label: 'Yes' },
-    { id: 'no', label: 'No' },
-  ];
+  const choices = [contest.yesOption, contest.noOption];
 
   const bubbleColumn =
     bubblePosition === BallotTargetMarkPosition.Left

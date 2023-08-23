@@ -115,13 +115,13 @@ it('exports expected results, without splits or filter', async () => {
     .split('\n')
     .filter((line) => line.includes('fishing'));
   expect(fishingRows).toMatchInlineSnapshot(`
-      [
-        "Ballot Measure 3,fishing,Yes,ban-fishing,8",
-        "Ballot Measure 3,fishing,No,allow-fishing,8",
-        "Ballot Measure 3,fishing,Overvotes,overvotes,8",
-        "Ballot Measure 3,fishing,Undervotes,undervotes,88",
-      ]
-    `);
+    [
+      "Ballot Measure 3,fishing,YES,ban-fishing,8",
+      "Ballot Measure 3,fishing,NO,allow-fishing,8",
+      "Ballot Measure 3,fishing,Overvotes,overvotes,8",
+      "Ballot Measure 3,fishing,Undervotes,undervotes,88",
+    ]
+  `);
 });
 
 it('exports 0s if no results are loaded', async () => {
@@ -156,13 +156,13 @@ it('exports 0s if no results are loaded', async () => {
     .split('\n')
     .filter((line) => line.includes('fishing'));
   expect(fishingRows).toMatchInlineSnapshot(`
-      [
-        "Ballot Measure 3,fishing,Yes,ban-fishing,0",
-        "Ballot Measure 3,fishing,No,allow-fishing,0",
-        "Ballot Measure 3,fishing,Overvotes,overvotes,0",
-        "Ballot Measure 3,fishing,Undervotes,undervotes,0",
-      ]
-    `);
+    [
+      "Ballot Measure 3,fishing,YES,ban-fishing,0",
+      "Ballot Measure 3,fishing,NO,allow-fishing,0",
+      "Ballot Measure 3,fishing,Overvotes,overvotes,0",
+      "Ballot Measure 3,fishing,Undervotes,undervotes,0",
+    ]
+  `);
 });
 
 it('logs failure if export fails for some reason', async () => {

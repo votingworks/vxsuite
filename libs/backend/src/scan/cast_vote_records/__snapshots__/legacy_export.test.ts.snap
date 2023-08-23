@@ -487,14 +487,14 @@ exports[`getCastVoteRecordReportStream 1`] = `
           "@type": "CVR.BallotMeasureContest",
           "ContestSelection": [
             {
-              "@id": "yes",
+              "@id": "new-zoo-either-approved",
               "@type": "CVR.BallotMeasureSelection",
-              "Selection": "yes",
+              "Selection": "FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A",
             },
             {
-              "@id": "no",
+              "@id": "new-zoo-neither-approved",
               "@type": "CVR.BallotMeasureSelection",
-              "Selection": "no",
+              "Selection": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A",
             },
           ],
           "Name": "Ballot Measure 1",
@@ -504,14 +504,14 @@ exports[`getCastVoteRecordReportStream 1`] = `
           "@type": "CVR.BallotMeasureContest",
           "ContestSelection": [
             {
-              "@id": "yes",
+              "@id": "new-zoo-safari",
               "@type": "CVR.BallotMeasureSelection",
-              "Selection": "yes",
+              "Selection": "FOR Initiative No. 12",
             },
             {
-              "@id": "no",
+              "@id": "new-zoo-traditional",
               "@type": "CVR.BallotMeasureSelection",
-              "Selection": "no",
+              "Selection": "FOR Alternative Measure No. 12 A",
             },
           ],
           "Name": "Ballot Measure 1",
@@ -521,14 +521,14 @@ exports[`getCastVoteRecordReportStream 1`] = `
           "@type": "CVR.BallotMeasureContest",
           "ContestSelection": [
             {
-              "@id": "yes",
+              "@id": "ban-fishing",
               "@type": "CVR.BallotMeasureSelection",
-              "Selection": "yes",
+              "Selection": "YES",
             },
             {
-              "@id": "no",
+              "@id": "allow-fishing",
               "@type": "CVR.BallotMeasureSelection",
-              "Selection": "no",
+              "Selection": "NO",
             },
           ],
           "Name": "Ballot Measure 3",

@@ -29,7 +29,6 @@ import {
 } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
-import { DisplayTextForYesOrNo } from './globals';
 import { NoWrap } from './text';
 import { QrCode } from './qrcode';
 import { Font, H4, H5, H6, P } from './typography';
@@ -208,7 +207,7 @@ function YesNoContestResult({
   const option = yesNo === 'yes' ? contest.yesOption : contest.noOption;
   return (
     <VoteLine>
-      <Font weight="bold">{option?.label ?? DisplayTextForYesOrNo[yesNo]}</Font>
+      <Font weight="bold">{option.label}</Font>
     </VoteLine>
   );
 }

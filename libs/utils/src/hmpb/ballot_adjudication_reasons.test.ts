@@ -243,7 +243,7 @@ test('yesno contest overvotes', () => {
       {
         type: AdjudicationReason.Overvote,
         contestId: ballotMeasure3.id,
-        optionIds: ['yes', 'no'],
+        optionIds: [ballotMeasure3.yesOption.id, ballotMeasure3.noOption.id],
         optionIndexes: [0, 1],
         expected: 1,
       },
@@ -252,7 +252,7 @@ test('yesno contest overvotes', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     [
-      "Contest 'fishing' is overvoted, expected 1 but got 2: 'yes', 'no'.",
+      "Contest 'fishing' is overvoted, expected 1 but got 2: 'ban-fishing', 'allow-fishing'.",
     ]
   `);
 });

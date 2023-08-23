@@ -104,6 +104,14 @@ test('constitutional question ovals get placed on the grid correctly', async () 
               DistrictIdSchema,
               'town-id-00701-precinct-id-'
             ),
+            yesOption: {
+              id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+              label: 'Yes',
+            },
+            noOption: {
+              id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
+              label: 'No',
+            },
           },
         ]),
         gridLayouts: [
@@ -114,7 +122,8 @@ test('constitutional question ovals get placed on the grid correctly', async () 
                   type: 'option',
                   contestId:
                     'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-                  optionId: 'yes',
+                  optionId:
+                    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
                   sheetNumber: 1,
                   side: 'back',
                   column: 26,
@@ -124,7 +133,8 @@ test('constitutional question ovals get placed on the grid correctly', async () 
                   type: 'option',
                   contestId:
                     'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-                  optionId: 'no',
+                  optionId:
+                    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
                   sheetNumber: 1,
                   side: 'back',
                   column: 32,

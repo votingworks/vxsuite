@@ -347,12 +347,12 @@ test('interpret `ImageData` objects', async () => {
       },
       {
         "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
-        "optionId": "yes",
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         "score": 0.32596153,
       },
       {
         "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
-        "optionId": "no",
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         "score": 0,
       },
     ]
@@ -680,12 +680,12 @@ test('interpret images from paths', async () => {
       },
       {
         "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
-        "optionId": "yes",
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         "score": 0.32596153,
       },
       {
         "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
-        "optionId": "no",
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         "score": 0,
       },
     ]
