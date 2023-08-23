@@ -50,12 +50,13 @@ afterEach(() => {
   machine.stopMachineService();
 });
 
-it('transitions from no_paper to loading_paper state when front sensors are triggered', async () => {
+it('transitions from accepting_paper to loading_paper state when front sensors are triggered', async () => {
   const connectResult = await driver.syncScannerConfig();
   expect(connectResult).toEqual(false);
 
   assert(machine);
-  expect(machine.getSimpleStatus()).toEqual('no_paper');
+  machine.setAcceptingPaper();
+  expect(machine.getSimpleStatus()).toEqual('accepting_paper');
   await sleep(TEST_POLLING_INTERVAL_MS);
   expect(driver.getPaperHandlerStatus).toHaveBeenCalledTimes(1);
   const paperReadyToLoadStatus: PaperHandlerStatus = {

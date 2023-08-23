@@ -23,6 +23,10 @@ import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import {
+  InterpretFileResult,
+  interpretSheet,
+} from '@votingworks/ballot-interpreter';
 import { Workspace } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
@@ -30,20 +34,29 @@ import {
   PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
 } from './constants';
 import {
-  interpretScannedBallots,
   isPaperInScanner,
   isPaperReadyToLoad,
   isPaperInOutput,
   scanAndSave,
   setDefaults,
   printBallot as driverPrintBallot,
+  isPaperAnywhere,
+  isPaperJammed,
+  isPaperInInput,
+  resetAndReconnect,
+  loadAndParkPaper,
 } from './application_driver';
 
 interface Context {
   workspace: Workspace;
   driver: PaperHandlerDriver;
+  driverIteration: number;
   pollingIntervalMs: number;
-  scannedImagePaths?: SheetOf<string>;
+  // xstate does not support deleting from context, but these values need to be cleared when the state machine
+  // is returned to its initial state
+  // https://github.com/statelyai/xstate/issues/989
+  scannedImagePaths: SheetOf<string> | null;
+  interpretation: SheetOf<InterpretFileResult> | null;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -51,14 +64,22 @@ function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
 }
 
 type PaperHandlerStatusEvent =
-  | { type: 'NO_PAPER_IN_FRONT' }
+  | { type: 'UNHANDLED_EVENT' }
+  | { type: 'NO_PAPER_ANYWHERE' }
+  | { type: 'PAPER_JAM' }
+  | { type: 'JAMMED_STATUS_NO_PAPER' }
+  // Frontend has indicated hardware should try to look for and load paper
+  | { type: 'BEGIN_ACCEPTING_PAPER' }
+  // Hardware sensors detected paper in front input
   | { type: 'PAPER_READY_TO_LOAD' }
-  | { type: 'PAPER_INSIDE' }
+  | { type: 'PAPER_PARKED' }
+  | { type: 'PAPER_INSIDE_NO_JAM' }
   | { type: 'VOTER_INITIATED_PRINT'; pdfData: Buffer }
   | { type: 'PAPER_IN_OUTPUT' }
+  | { type: 'PAPER_IN_INPUT' }
   | { type: 'SCANNING' }
-  | { type: 'PAPER_REMOVED' }
-  | { type: 'END' };
+  | { type: 'VOTER_VALIDATED_BALLOT' }
+  | { type: 'VOTER_INVALIDATED_BALLOT' };
 
 const debug = makeDebug('mark-scan:state-machine');
 
@@ -82,11 +103,13 @@ export class PaperHandlerStateMachine {
   // I can get around to migrating it later in the PR
   getSimpleStatus(): SimpleServerStatus {
     const { state } = this.machineService;
-    debug(`getSimpleStatus polled. state=${state.value}`);
+    // debug(`getSimpleStatus polled. state=${state.value}`);
 
     switch (true) {
-      case state.matches('no_paper'):
-        return 'no_paper';
+      case state.matches('not_accepting_paper'):
+        return 'not_accepting_paper';
+      case state.matches('accepting_paper'):
+        return 'accepting_paper';
       case state.matches('loading_paper'):
         return 'loading_paper';
       case state.matches('waiting_for_ballot_data'):
@@ -99,9 +122,27 @@ export class PaperHandlerStateMachine {
         return 'interpreting';
       case state.matches('presenting_ballot'):
         return 'presenting_ballot';
+      case state.matches('eject_to_front'):
+        return 'ejecting_to_front';
+      case state.matches('eject_to_rear'):
+        return 'ejecting_to_rear';
+      case state.matches('jammed'):
+        return 'jammed';
+      case state.matches('jam_physically_cleared'):
+        return 'jam_cleared';
+      case state.matches('resetting_state_machine_after_jam'):
+        return 'resetting_state_machine_after_jam';
+      case state.matches('resetting_state_machine_after_success'):
+        return 'resetting_state_machine_after_success';
       default:
         return 'no_hardware';
     }
+  }
+
+  setAcceptingPaper(): void {
+    this.machineService.send({
+      type: 'BEGIN_ACCEPTING_PAPER',
+    });
   }
 
   printBallot(pdfData: Buffer): void {
@@ -110,23 +151,79 @@ export class PaperHandlerStateMachine {
       pdfData,
     });
   }
+
+  getInterpretation(): Optional<SheetOf<InterpretFileResult>> {
+    const { state } = this.machineService;
+    const { context } = state;
+    debug(
+      'Returning interpretation of type:',
+      context.interpretation
+        ? JSON.stringify(context.interpretation[0].interpretation.type)
+        : 'no_interpretation_found'
+    );
+    return context.interpretation ?? undefined;
+  }
+
+  validateBallot(): void {
+    this.machineService.send({
+      type: 'VOTER_VALIDATED_BALLOT',
+    });
+  }
+
+  invalidateBallot(): void {
+    this.machineService.send({
+      type: 'VOTER_INVALIDATED_BALLOT',
+    });
+  }
 }
 
 function paperHandlerStatusToEvent(
   paperHandlerStatus: PaperHandlerStatus
 ): PaperHandlerStatusEvent {
-  let event: PaperHandlerStatusEvent = { type: 'NO_PAPER_IN_FRONT' };
+  if (isPaperJammed(paperHandlerStatus)) {
+    debug('paperHandlerStatusToEvent jam status:\n%O', paperHandlerStatus);
+    if (!isPaperAnywhere(paperHandlerStatus)) {
+      // This state is expected when a jam is physically cleared
+      // but we haven't issued the reset command yet
+      return { type: 'JAMMED_STATUS_NO_PAPER' };
+    }
+
+    return { type: 'PAPER_JAM' };
+  }
 
   if (isPaperInScanner(paperHandlerStatus)) {
     if (isPaperInOutput(paperHandlerStatus)) {
-      event = { type: 'PAPER_IN_OUTPUT' };
-    } else {
-      event = { type: 'PAPER_INSIDE' };
+      return { type: 'PAPER_IN_OUTPUT' };
+    }
+    if (paperHandlerStatus.parkSensor) {
+      return { type: 'PAPER_PARKED' };
+    }
+    if (!isPaperJammed(paperHandlerStatus)) {
+      return { type: 'PAPER_INSIDE_NO_JAM' };
     }
   } else if (isPaperReadyToLoad(paperHandlerStatus)) {
-    event = { type: 'PAPER_READY_TO_LOAD' };
+    return { type: 'PAPER_READY_TO_LOAD' };
   }
+
+  if (isPaperInInput(paperHandlerStatus)) {
+    return { type: 'PAPER_IN_INPUT' };
+  }
+
+  if (!isPaperAnywhere(paperHandlerStatus)) {
+    return { type: 'NO_PAPER_ANYWHERE' };
+  }
+
+  return { type: 'UNHANDLED_EVENT' };
+}
+
+function paperHandlerStatusToEventDebugWrapper(
+  paperHandlerStatus: PaperHandlerStatus
+): PaperHandlerStatusEvent {
+  const event = paperHandlerStatusToEvent(paperHandlerStatus);
   debug(`Emitting event ${event.type}`);
+  if (event.type === 'UNHANDLED_EVENT') {
+    debug('Unhandled status:\n%O', paperHandlerStatus);
+  }
   return event;
 }
 
@@ -153,8 +250,13 @@ function buildPaperStatusObservable() {
           // `switchMap` returns an Observable that emits events.
           switchMap(async () => {
             // Get raw status, map to event, and emit event
-            const paperHandlerStatus = await driver.getPaperHandlerStatus();
-            return paperHandlerStatusToEvent(paperHandlerStatus);
+            try {
+              const paperHandlerStatus = await driver.getPaperHandlerStatus();
+              return paperHandlerStatusToEventDebugWrapper(paperHandlerStatus);
+            } catch (err) {
+              debug('Error in observable: %O', err);
+              return { type: 'UNHANDLED_EVENT' };
+            }
           }),
           timeout({
             each: PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
@@ -172,7 +274,9 @@ function pollPaperStatus(): InvokeConfig<Context, PaperHandlerStatusEvent> {
   };
 }
 
-function loadMetadataAndInterpretBallot(context: Context) {
+function loadMetadataAndInterpretBallot(
+  context: Context
+): Promise<SheetOf<InterpretFileResult>> {
   const { scannedImagePaths, workspace } = context;
   const { store } = workspace;
   const electionDefinition = store.getElectionDefinition();
@@ -190,20 +294,20 @@ function loadMetadataAndInterpretBallot(context: Context) {
     store.getSystemSettings()
   );
 
-  return interpretScannedBallots(
-    electionDefinition,
-    precinctSelection,
-    testMode,
-    markThresholds,
-    precinctScanAdjudicationReasons,
+  return interpretSheet(
+    {
+      electionDefinition,
+      precinctSelection,
+      testMode,
+      markThresholds,
+      adjudicationReasons: precinctScanAdjudicationReasons,
+    },
     scannedImagePaths
   );
 }
 
 export function buildMachine(
-  workspace: Workspace,
-  driver: PaperHandlerDriver,
-  pollingIntervalMs: number
+  initialContext: Context
 ): StateMachine<
   Context,
   StateSchema,
@@ -220,14 +324,31 @@ export function buildMachine(
       events: {} as PaperHandlerStatusEvent,
     },
     id: 'bmd',
-    initial: 'no_paper',
-    context: {
-      workspace,
-      driver,
-      pollingIntervalMs,
-    },
+    initial: 'not_accepting_paper',
+    context: initialContext,
     states: {
-      no_paper: {
+      // Initial state. Doesn't accept paper and transitions away when the frontend says it's ready to accept
+      not_accepting_paper: {
+        invoke: pollPaperStatus(),
+        entry: (context) => {
+          debug('Initial state entered. Context: %O', context);
+        },
+        on: {
+          JAMMED_STATUS_NO_PAPER: {
+            target: 'jammed',
+          },
+          PAPER_JAM: {
+            target: 'jammed',
+          },
+          PAPER_INSIDE_NO_JAM: {
+            target: 'eject_to_front',
+          },
+          BEGIN_ACCEPTING_PAPER: {
+            target: 'accepting_paper',
+          },
+        },
+      },
+      accepting_paper: {
         invoke: pollPaperStatus(),
         on: {
           PAPER_READY_TO_LOAD: {
@@ -236,26 +357,38 @@ export function buildMachine(
         },
       },
       loading_paper: {
-        invoke: pollPaperStatus(),
-        entry: (context) => {
-          // Paper can trigger sensors before it's actually able to be loaded,
-          // so we wait to decrease chance of failed load
-          setTimeout(async () => {
-            await context.driver.loadPaper();
-            await context.driver.parkPaper();
-          }, 300);
-        },
+        invoke: [
+          pollPaperStatus(),
+          {
+            id: 'loadAndPark',
+            src: (context) => {
+              debug('Invoked loading_paper svc');
+              return loadAndParkPaper(context.driver);
+            },
+          },
+        ],
         on: {
-          PAPER_INSIDE: {
+          PAPER_JAM: {
+            target: 'jammed',
+          },
+          PAPER_PARKED: {
             target: 'waiting_for_ballot_data',
+          },
+          NO_PAPER_ANYWHERE: {
+            target: 'accepting_paper',
           },
         },
       },
       waiting_for_ballot_data: {
+        invoke: pollPaperStatus(),
         on: {
+          PAPER_JAM: {
+            target: 'jammed',
+          },
           VOTER_INITIATED_PRINT: {
             target: 'printing_ballot',
           },
+          // TODO handle no paper found -> go back to paper load
         },
       },
       printing_ballot: {
@@ -274,32 +407,169 @@ export function buildMachine(
           PAPER_IN_OUTPUT: {
             target: 'scanning',
           },
+          PAPER_JAM: {
+            target: 'jammed',
+          },
         },
       },
       scanning: {
-        invoke: {
-          id: 'scanAndSave',
-          src: (context) => {
-            return scanAndSave(context.driver);
+        invoke: [
+          {
+            id: 'scanAndSave',
+            src: (context) => {
+              return scanAndSave(context.driver);
+            },
+            onDone: {
+              target: 'interpreting',
+              actions: assign({ scannedImagePaths: (_, event) => event.data }),
+            },
           },
-          onDone: {
-            target: 'interpreting',
-            actions: assign({ scannedImagePaths: (_, event) => event.data }),
+          pollPaperStatus(),
+        ],
+        on: {
+          PAPER_JAM: {
+            target: 'jammed',
           },
         },
       },
       interpreting: {
+        // Paper is in the paper handler for the duration of the interpreting stage and paper handler
+        // motors are never moved, so we don't need to poll paper status or handle jams.
         invoke: {
           id: 'interpretScannedBallot',
           src: loadMetadataAndInterpretBallot,
           onDone: {
             target: 'presenting_ballot',
+            actions: assign({
+              interpretation: (_, event) => {
+                debug('Interpretation complete; storing to context');
+                return event.data;
+              },
+            }),
           },
         },
       },
       presenting_ballot: {
+        invoke: pollPaperStatus(),
+        entry: (context) => {
+          debug('+entry for presenting_ballot');
+          if (context.interpretation) {
+            // `debug`'s string interpolation only pretty prints 1 layer deep; we need 2
+            debug(
+              `Front page interpretation:\n${JSON.stringify(
+                context.interpretation[0].interpretation,
+                null,
+                2
+              )}`
+            );
+            debug(
+              `Back page interpretation:\n${JSON.stringify(
+                context.interpretation[1].interpretation,
+                null,
+                2
+              )}`
+            );
+          } else {
+            debug('No interpretation found in context');
+          }
+          debug('Presenting paper');
+          void context.driver.presentPaper();
+          debug('-entry for presenting_ballot');
+        },
+        on: {
+          VOTER_VALIDATED_BALLOT: {
+            target: 'eject_to_rear',
+          },
+          VOTER_INVALIDATED_BALLOT: {
+            target: 'eject_to_front',
+          },
+          PAPER_JAM: {
+            target: 'jammed',
+          },
+        },
+      },
+      eject_to_rear: {
+        invoke: pollPaperStatus(),
         entry: async (context) => {
-          await context.driver.presentPaper();
+          debug('+eject_to_rear');
+          await context.driver.parkPaper();
+          await context.driver.ejectBallot();
+          debug('-eject_to_rear');
+        },
+        on: {
+          NO_PAPER_ANYWHERE: {
+            target: 'resetting_state_machine_after_success',
+          },
+          PAPER_JAM: {
+            target: 'jammed',
+          },
+        },
+      },
+      eject_to_front: {
+        invoke: pollPaperStatus(),
+        entry: (context) => {
+          debug('+eject_to_front');
+          void context.driver.ejectPaper();
+          debug('-eject_to_front');
+        },
+        on: {
+          NO_PAPER_ANYWHERE: {
+            target: 'resetting_state_machine_after_success',
+          },
+          PAPER_JAM: {
+            target: 'jammed',
+          },
+        },
+      },
+      jammed: {
+        invoke: pollPaperStatus(),
+        on: {
+          JAMMED_STATUS_NO_PAPER: {
+            target: 'jam_physically_cleared',
+          },
+          NO_PAPER_ANYWHERE: {
+            target: 'jam_physically_cleared',
+          },
+        },
+      },
+      jam_physically_cleared: {
+        invoke: {
+          id: 'resetScanAndDriver',
+          src: (context) => {
+            return resetAndReconnect(context.driver);
+          },
+          onDone: {
+            target: 'resetting_state_machine_after_jam',
+            actions: assign({
+              driver: (_, event) => event.data,
+              driverIteration: (context) => context.driverIteration + 1,
+            }),
+          },
+        },
+      },
+      resetting_state_machine_after_jam: {
+        entry: () => {
+          assign({
+            interpretation: null,
+            scannedImagePaths: null,
+          });
+          debug('Reset machine context state');
+        },
+        after: {
+          // The frontend needs time to idle in this state so the user can read the status message
+          5000: { target: 'not_accepting_paper' },
+        },
+      },
+      resetting_state_machine_after_success: {
+        entry: () => {
+          assign({
+            interpretation: null,
+            scannedImagePaths: null,
+          });
+          debug('Reset machine context state');
+        },
+        after: {
+          1000: { target: 'not_accepting_paper' },
         },
       },
     },
@@ -311,11 +581,16 @@ export async function getPaperHandlerStateMachine(
   workspace: Workspace,
   pollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
 ): Promise<Optional<PaperHandlerStateMachine>> {
-  const machine = buildMachine(
+  const context: Context = {
     workspace,
-    paperHandlerDriver,
-    pollingIntervalMs
-  );
+    driver: paperHandlerDriver,
+    driverIteration: 0,
+    pollingIntervalMs,
+    scannedImagePaths: null,
+    interpretation: null,
+  };
+
+  const machine = buildMachine(context);
   const machineService = interpret(machine)
     .onTransition((state) => {
       if (state.changed) {
