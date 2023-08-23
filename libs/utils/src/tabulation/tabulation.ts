@@ -417,14 +417,16 @@ export async function tabulateCastVoteRecords({
   election,
   cvrs,
   groupBy,
+  expectedGroups,
 }: {
   cvrs: Iterable<Tabulation.CastVoteRecord>;
   election: Election;
   groupBy?: Tabulation.GroupBy;
+  expectedGroups?: Tabulation.GroupSpecifier[];
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   const groupedElectionResults: Tabulation.ElectionResultsGroupMap = {};
 
-  // optimized special case, when the results do not need to be grouped
+  // Optimized special case, when the results do not need to be grouped.
   if (!groupBy || isGroupByEmpty(groupBy)) {
     const electionResults = getEmptyElectionResults(election);
 
@@ -441,13 +443,24 @@ export async function tabulateCastVoteRecords({
     return groupedElectionResults;
   }
 
+  // If a list of group specifiers is passed, it means we know all the groups we
+  // could possibly see and can initialize the groups with empty election results.
+  // Doing so before tabulation allows us to control insertion order.
+  for (const groupSpecifier of expectedGroups ?? []) {
+    const groupKey = getGroupKey(groupSpecifier, groupBy);
+    groupedElectionResults[groupKey] = getEmptyElectionResults(election);
+  }
+
   // general case, grouping results by specified group by clause
   let i = 0;
   for (const cvr of cvrs) {
     const groupSpecifier = getCastVoteRecordGroupSpecifier(cvr, groupBy);
     const groupKey = getGroupKey(groupSpecifier, groupBy);
     const existingElectionResult = groupedElectionResults[groupKey];
-    if (existingElectionResult) {
+    if (expectedGroups) {
+      assert(existingElectionResult);
+      addCastVoteRecordToElectionResult(existingElectionResult, cvr);
+    } else if (existingElectionResult) {
       addCastVoteRecordToElectionResult(existingElectionResult, cvr);
     } else {
       const electionResult: Tabulation.ElectionResults =

@@ -13,13 +13,10 @@ import { assert, assertDefined } from '@votingworks/basics';
 import {
   convertGroupSpecifierToFilter,
   getBallotStyleById,
-  getEmptyElectionResults,
   getPartyById,
   getPrecinctById,
-  groupBySupportsZeroSplits,
   groupMapToGroupList,
   mergeFilters,
-  populateSplits,
 } from '@votingworks/utils';
 import { Readable } from 'stream';
 import { ScannerBatch } from '../types';
@@ -179,14 +176,14 @@ function* generateRows({
   electionId,
   electionDefinition,
   groupBy,
-  resultSplits,
+  resultGroups,
   store,
   overallReportFilter,
 }: {
   electionId: Id;
   electionDefinition: ElectionDefinition;
   groupBy: Tabulation.GroupBy;
-  resultSplits: Tabulation.ElectionResultsGroupList;
+  resultGroups: Tabulation.ElectionResultsGroupList;
   store: Store;
   overallReportFilter: Tabulation.Filter;
 }): Generator<string> {
@@ -195,10 +192,10 @@ function* generateRows({
   const writeInCandidates = store.getWriteInCandidates({ electionId });
   const batchLookup = generateBatchLookup(store, assertDefined(electionId));
 
-  for (const resultsSplit of resultSplits) {
+  for (const resultsGroup of resultGroups) {
     const effectiveFilter = mergeFilters(
       overallReportFilter,
-      convertGroupSpecifierToFilter(resultsSplit)
+      convertGroupSpecifierToFilter(resultsGroup)
     );
     const contestIds = new Set(
       store.getFilteredContests({
@@ -217,7 +214,7 @@ function* generateRows({
       const contestWriteInCandidates = writeInCandidates.filter(
         (c) => c.contestId === contest.id
       );
-      const contestResults = resultsSplit.contestResults[contest.id];
+      const contestResults = resultsGroup.contestResults[contest.id];
       assert(contestResults !== undefined);
 
       if (contest.type === 'candidate') {
@@ -229,7 +226,7 @@ function* generateRows({
           const votes = contestResults.tallies[candidate.id]?.tally ?? 0;
           yield buildCsvRow({
             groupBy,
-            groupSpecifier: resultsSplit,
+            groupSpecifier: resultsGroup,
             electionDefinition,
             isPrimaryElection,
             batchLookup,
@@ -246,7 +243,7 @@ function* generateRows({
           if (votes) {
             yield buildCsvRow({
               groupBy,
-              groupSpecifier: resultsSplit,
+              groupSpecifier: resultsGroup,
               electionDefinition,
               isPrimaryElection,
               batchLookup,
@@ -267,7 +264,7 @@ function* generateRows({
           if (votes) {
             yield buildCsvRow({
               groupBy,
-              groupSpecifier: resultsSplit,
+              groupSpecifier: resultsGroup,
               electionDefinition,
               isPrimaryElection,
               batchLookup,
@@ -282,7 +279,7 @@ function* generateRows({
         assert(contestResults.contestType === 'yesno');
         yield buildCsvRow({
           groupBy,
-          groupSpecifier: resultsSplit,
+          groupSpecifier: resultsGroup,
           electionDefinition,
           isPrimaryElection,
           batchLookup,
@@ -293,7 +290,7 @@ function* generateRows({
         });
         yield buildCsvRow({
           groupBy,
-          groupSpecifier: resultsSplit,
+          groupSpecifier: resultsGroup,
           electionDefinition,
           isPrimaryElection,
           batchLookup,
@@ -306,7 +303,7 @@ function* generateRows({
 
       yield buildCsvRow({
         groupBy,
-        groupSpecifier: resultsSplit,
+        groupSpecifier: resultsGroup,
         electionDefinition,
         isPrimaryElection,
         batchLookup,
@@ -318,7 +315,7 @@ function* generateRows({
 
       yield buildCsvRow({
         groupBy,
-        groupSpecifier: resultsSplit,
+        groupSpecifier: resultsGroup,
         electionDefinition,
         isPrimaryElection,
         batchLookup,
@@ -367,42 +364,25 @@ export async function generateResultsCsv({
     generateHeaders({ groupBy, isPrimaryElection }),
   ]);
 
-  const nonEmptySplits = await tabulateElectionResults({
-    electionId,
-    store,
-    filter,
-    groupBy,
-    includeManualResults: true,
-    includeWriteInAdjudicationResults: true,
-  });
-
-  const resultSplits = (() => {
-    if (!groupBySupportsZeroSplits(groupBy)) {
-      return groupMapToGroupList(nonEmptySplits);
-    }
-
-    const expectedSplits = store.getTabulationGroups({
+  const resultGroups = groupMapToGroupList(
+    await tabulateElectionResults({
       electionId,
-      groupBy,
+      store,
       filter,
-    });
-
-    return populateSplits({
-      expectedSplits,
-      nonEmptySplits,
       groupBy,
-      makeEmptySplit: () => getEmptyElectionResults(election),
-    });
-  })();
+      includeManualResults: true,
+      includeWriteInAdjudicationResults: true,
+    })
+  );
 
   function* generateResultsCsvRows() {
     yield headerRow;
 
     for (const dataRow of generateRows({
-      resultSplits,
-      groupBy,
       electionDefinition,
       electionId: assertDefined(electionId),
+      groupBy,
+      resultGroups,
       store,
       overallReportFilter: filter,
     })) {

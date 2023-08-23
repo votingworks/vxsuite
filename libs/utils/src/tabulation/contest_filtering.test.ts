@@ -1,10 +1,18 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
+  electionComplexGeoSample,
+  electionMinimalExhaustiveSampleDefinition,
+} from '@votingworks/fixtures';
+import { Tabulation } from '@votingworks/types';
+import {
+  convertGroupSpecifierToFilter,
   getContestIdsForBallotStyle,
   getContestIdsForFilter,
   getContestIdsForParty,
   getContestIdsForPrecinct,
+  getContestsForPrecinct,
+  groupBySupportsZeroSplits,
   intersectSets,
+  mergeFilters,
   unionSets,
 } from './contest_filtering';
 import { complexBallotStyleElectionDefinition } from '../../test/fixtures';
@@ -194,4 +202,74 @@ describe('getContestIdsForFilter', () => {
       ['congressional-1-mammal', 'town-mammal', 'water-2-mammal']
     );
   });
+});
+
+test('groupBySupportsZeroSplits', () => {
+  expect(groupBySupportsZeroSplits({})).toEqual(true);
+  expect(groupBySupportsZeroSplits({ groupByPrecinct: true })).toEqual(true);
+  expect(groupBySupportsZeroSplits({ groupByBallotStyle: true })).toEqual(true);
+  expect(groupBySupportsZeroSplits({ groupByParty: true })).toEqual(true);
+  expect(groupBySupportsZeroSplits({ groupByVotingMethod: true })).toEqual(
+    true
+  );
+  expect(groupBySupportsZeroSplits({ groupByBatch: true })).toEqual(false);
+  expect(groupBySupportsZeroSplits({ groupByScanner: true })).toEqual(false);
+  expect(
+    groupBySupportsZeroSplits({ groupByBatch: true, groupByBallotStyle: true })
+  ).toEqual(false);
+});
+
+test('convertGroupSpecifierToFilter', () => {
+  expect(
+    convertGroupSpecifierToFilter({
+      partyId: 'id',
+      ballotStyleId: 'id',
+      precinctId: 'id',
+      votingMethod: 'absentee',
+      batchId: 'id',
+      scannerId: 'id',
+    })
+  ).toEqual({
+    partyIds: ['id'],
+    ballotStyleIds: ['id'],
+    precinctIds: ['id'],
+    votingMethods: ['absentee'],
+    batchIds: ['id'],
+    scannerIds: ['id'],
+  });
+
+  expect(convertGroupSpecifierToFilter({})).toEqual({});
+});
+
+test('mergeFilters', () => {
+  expect(mergeFilters({}, {})).toEqual({});
+
+  const filter1: Tabulation.Filter = {
+    precinctIds: ['precinct-1'],
+  };
+  const filter2: Tabulation.Filter = {
+    votingMethods: ['absentee'],
+  };
+  expect(mergeFilters(filter1, {})).toEqual(filter1);
+  expect(mergeFilters({}, filter1)).toEqual(filter1);
+
+  expect(mergeFilters(filter1, filter2)).toEqual({
+    precinctIds: ['precinct-1'],
+    votingMethods: ['absentee'],
+  });
+});
+
+test('getContestsForPrecinct', () => {
+  const { electionDefinition } = electionComplexGeoSample;
+  expect(
+    getContestsForPrecinct(electionDefinition, 'precinct-c1-w2').map(
+      (c) => c.id
+    )
+  ).toEqual([
+    'county-leader-mammal',
+    'congressional-1-mammal',
+    'water-2-fishing',
+    'county-leader-fish',
+    'congressional-1-fish',
+  ]);
 });

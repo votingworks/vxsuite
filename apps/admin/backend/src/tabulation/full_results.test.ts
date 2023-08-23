@@ -236,7 +236,7 @@ test('tabulateCastVoteRecords', async () => {
   ];
 
   for (const { filter, groupBy, expected } of testCases) {
-    const groupedWriteInSummaries = await tabulateCastVoteRecords({
+    const groupedElectionResults = await tabulateCastVoteRecords({
       electionId,
       store,
       filter,
@@ -244,15 +244,33 @@ test('tabulateCastVoteRecords', async () => {
     });
 
     for (const [groupKey, tally] of expected) {
-      expect(groupedWriteInSummaries[groupKey]).toEqual(
+      expect(groupedElectionResults[groupKey]).toEqual(
         getMockElectionResults(tally)
       );
     }
 
-    expect(Object.values(groupedWriteInSummaries)).toHaveLength(
-      expected.length
-    );
+    expect(Object.values(groupedElectionResults)).toHaveLength(expected.length);
   }
+});
+
+test('tabulateElectionResults - includes empty groups', async () => {
+  const store = Store.memoryStore();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection(electionData);
+  store.setCurrentElectionId(electionId);
+
+  const groupedElectionResults = await tabulateCastVoteRecords({
+    electionId,
+    store,
+    groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+  });
+  expect(Object.keys(groupedElectionResults)).toEqual([
+    'root&precinctId=precinct-1&votingMethod=precinct',
+    'root&precinctId=precinct-1&votingMethod=absentee',
+    'root&precinctId=precinct-2&votingMethod=precinct',
+    'root&precinctId=precinct-2&votingMethod=absentee',
+  ]);
 });
 
 const candidateContestId =
