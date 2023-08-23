@@ -50,8 +50,8 @@ import { ScreenReader } from '../config/types';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
-import { getStateMachineState } from '../api';
 import { LoadPaperPage } from './load_paper_page';
+import { getStateMachineState, setAcceptingPaperState } from '../api';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -183,6 +183,7 @@ export function PollWorkerScreen({
   const getStateMachineStateQuery = getStateMachineState.useQuery();
   const stateMachineState = getStateMachineStateQuery.data;
 
+  const setAcceptingPaperStateMutation = setAcceptingPaperState.useMutation();
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
       precinctSelection.kind === 'SinglePrecinct'
@@ -254,8 +255,17 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerAuth.cardlessVoterUser) {
-    if (stateMachineState === 'no_paper') {
+    if (stateMachineState === 'accepting_paper') {
       return <LoadPaperPage />;
+    }
+    if (
+      // loading_paper - short-lived intermediate state. Allow this component to render in loading_paper state to avoid flicker.
+      stateMachineState !== 'loading_paper' &&
+      // waiting_for_ballot_data - paper is loaded. Backend is waiting for voter to start voting, finish voting, and press "Print" to print ballot
+      stateMachineState !== 'waiting_for_ballot_data'
+      // All other states are handled by the Ballot component and its children
+    ) {
+      throw new Error(`Unexpected paper handler state ${stateMachineState}`);
     }
 
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
@@ -346,9 +356,10 @@ export function PollWorkerScreen({
                           fullWidth
                           key={precinct.id}
                           aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
-                          onPress={() =>
-                            setSelectedCardlessVoterPrecinctId(precinct.id)
-                          }
+                          onPress={() => {
+                            setAcceptingPaperStateMutation.mutate();
+                            setSelectedCardlessVoterPrecinctId(precinct.id);
+                          }}
                           variant={
                             selectedCardlessVoterPrecinctId === precinct.id
                               ? 'primary'
@@ -372,12 +383,13 @@ export function PollWorkerScreen({
                         fullWidth
                         key={ballotStyle.id}
                         aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
-                        onPress={() =>
+                        onPress={() => {
+                          setAcceptingPaperStateMutation.mutate();
                           activateCardlessVoterSession(
                             selectedCardlessVoterPrecinctId,
                             ballotStyle.id
-                          )
-                        }
+                          );
+                        }}
                       >
                         {ballotStyle.id}
                       </Button>
