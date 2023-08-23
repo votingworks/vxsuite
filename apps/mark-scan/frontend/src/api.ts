@@ -72,6 +72,16 @@ export const getPrecinctSelection = {
   },
 } as const;
 
+export const getInterpretation = {
+  queryKey(): QueryKey {
+    return ['getInterpretation'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getInterpretation());
+  },
+} as const;
+
 /* istanbul ignore next */
 export const getSystemSettings = {
   queryKey(): QueryKey {
@@ -157,6 +167,8 @@ export const startCardlessVoterSession = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.startCardlessVoterSession, {
       async onSuccess() {
+        // Invalidate interpretation query from any previous session
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
@@ -225,6 +237,42 @@ export const setPrecinctSelection = {
     return useMutation(apiClient.setPrecinctSelection, {
       async onSuccess() {
         await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setAcceptingPaperState = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setAcceptingPaperState, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const validateBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.validateBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const invalidateBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.invalidateBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
       },
     });
   },
