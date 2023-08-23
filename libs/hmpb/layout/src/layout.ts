@@ -13,7 +13,6 @@ import {
   AnyContest,
   BallotPaperSize,
   BallotStyle,
-  BallotTargetMarkPosition,
   BallotType,
   Contests,
   Election,
@@ -199,7 +198,10 @@ export function gridForPaper(paperSize: BallotPaperSize): GridDimensions {
 export const PPI = 72;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function measurements(paperSize: BallotPaperSize, density: number) {
+export function measurements(
+  paperSize: BallotPaperSize,
+  density: LayoutDensity
+) {
   const grid = gridForPaper(paperSize);
   const HEADER_ROW_HEIGHT = [4.5, 4, 3.5][density];
   const INSTRUCTIONS_ROW_HEIGHT = [3.5, 3, 2.5][density];
@@ -816,6 +818,7 @@ function CandidateContest({
   gridRow,
   gridColumn,
   pageNumber,
+  bubblePosition,
   m,
 }: {
   election: Election;
@@ -824,21 +827,15 @@ function CandidateContest({
   gridRow: number;
   gridColumn: number;
   pageNumber: number;
+  bubblePosition: BubblePosition;
   m: Measurements;
 }): [Rectangle, GridPosition[]] {
   assert(contest.type === 'candidate');
 
-  const bubblePosition =
-    election.ballotLayout.targetMarkPosition ?? BallotTargetMarkPosition.Left;
-
   // Temp hack until we can change the timing mark grid dimensions since they
   // don't evenly divide into three columns: expand the last contest column (if
   // bubbles on left) or first contest column (if bubbles on right)
-  const width = (
-    bubblePosition === BallotTargetMarkPosition.Left
-      ? gridColumn > 20
-      : gridColumn < 10
-  )
+  const width = (bubblePosition === 'left' ? gridColumn > 20 : gridColumn < 10)
     ? m.CONTENT_AREA_COLUMN_WIDTH -
       2 * (m.CONTEST_COLUMN_WIDTH + m.GUTTER_WIDTH)
     : m.CONTEST_COLUMN_WIDTH;
@@ -876,12 +873,9 @@ function CandidateContest({
   const sheetNumber = Math.ceil(pageNumber / 2);
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
 
-  const bubbleColumn =
-    bubblePosition === BallotTargetMarkPosition.Left ? 1 : width - 1;
-  const optionLabelColumn =
-    bubblePosition === BallotTargetMarkPosition.Left ? 1.75 : 0.5;
-  const optionTextAlign =
-    bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right';
+  const bubbleColumn = bubblePosition === 'left' ? 1 : width - 1;
+  const optionLabelColumn = bubblePosition === 'left' ? 1.75 : 0.5;
+  const optionTextAlign = bubblePosition;
 
   const options: Rectangle[] = [];
   let rowHeightUsed = headingRowHeight;
@@ -1061,20 +1055,20 @@ function CandidateContest({
 }
 
 function BallotMeasure({
-  election,
   contest,
   row,
   gridRow,
   gridColumn,
   pageNumber,
+  bubblePosition,
   m,
 }: {
-  election: Election;
   contest: AnyContest;
   row: number;
   gridRow: number;
   gridColumn: number;
   pageNumber: number;
+  bubblePosition: BubblePosition;
   m: Measurements;
 }): [Rectangle, GridPosition[]] {
   assert(contest.type === 'yesno');
@@ -1107,20 +1101,17 @@ function BallotMeasure({
   const optionPositions: GridPosition[] = [];
   const sheetNumber = Math.ceil(pageNumber / 2);
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
-  const bubblePosition = election.ballotLayout.targetMarkPosition ?? 'left';
 
   const choices = [contest.yesOption, contest.noOption];
 
   const bubbleColumn =
-    bubblePosition === BallotTargetMarkPosition.Left
+    bubblePosition === 'left'
       ? m.BALLOT_MEASURE_OPTION_POSITION === 'inline'
         ? width - 2
         : 1
       : width - 1;
-  const optionLabelColumn =
-    bubblePosition === BallotTargetMarkPosition.Left ? 3.75 : 0;
-  const optionTextAlign =
-    bubblePosition === BallotTargetMarkPosition.Left ? 'left' : 'right';
+  const optionLabelColumn = bubblePosition === 'left' ? 3.75 : 0;
+  const optionTextAlign = bubblePosition;
 
   const optionRowHeight = 1;
   const options: Rectangle[] = [];
@@ -1395,6 +1386,7 @@ function ContestColumn({
   gridRow,
   gridColumn,
   pageNumber,
+  bubblePosition,
   m,
 }: {
   election: Election;
@@ -1402,6 +1394,7 @@ function ContestColumn({
   gridRow: number;
   gridColumn: number;
   pageNumber: number;
+  bubblePosition: BubblePosition;
   m: Measurements;
 }): [Rectangle, GridPosition[]] {
   const contestPositions: GridPosition[] = [];
@@ -1418,6 +1411,7 @@ function ContestColumn({
       gridRow: gridRow + lastContestRow + m.CONTEST_ROW_MARGIN,
       gridColumn,
       pageNumber,
+      bubblePosition,
       m,
     });
     lastContestRow += yToRow(contestRectangle.height, m) + m.CONTEST_ROW_MARGIN;
@@ -1447,6 +1441,7 @@ function ContestColumnsChunk({
   gridRow,
   gridColumn,
   pageNumber,
+  bubblePosition,
   m,
 }: {
   election: Election;
@@ -1455,6 +1450,7 @@ function ContestColumnsChunk({
   gridRow: number;
   gridColumn: number;
   pageNumber: number;
+  bubblePosition: BubblePosition;
   m: Measurements;
 }): [Rectangle, GridPosition[]] {
   const columnPositions: GridPosition[] = [];
@@ -1468,6 +1464,7 @@ function ContestColumnsChunk({
       gridRow,
       gridColumn: gridColumn + lastColumnColumn,
       pageNumber,
+      bubblePosition,
       m,
     });
     columnRectangles.push(columnRectangle);
@@ -1486,6 +1483,14 @@ function ContestColumnsChunk({
   return [section, columnPositions];
 }
 
+export type BubblePosition = 'left' | 'right';
+export type LayoutDensity = 0 | 1 | 2;
+
+export interface LayoutOptions {
+  bubblePosition: BubblePosition;
+  layoutDensity: LayoutDensity;
+}
+
 export interface BallotLayout {
   precinctId: PrecinctId;
   document: Document;
@@ -1498,6 +1503,7 @@ interface LayOutBallotParams {
   ballotStyle: BallotStyle;
   isTestMode: boolean;
   electionHash?: string;
+  layoutOptions: LayoutOptions;
 }
 
 function layOutBallotHelper({
@@ -1506,10 +1512,10 @@ function layOutBallotHelper({
   precinct,
   isTestMode,
   electionHash,
+  layoutOptions,
 }: LayOutBallotParams): BallotLayout {
-  const { paperSize, layoutDensity = 0 } = election.ballotLayout;
-  assert(layoutDensity <= 2);
-  const m = measurements(paperSize, layoutDensity);
+  const { bubblePosition, layoutDensity } = layoutOptions;
+  const m = measurements(election.ballotLayout.paperSize, layoutDensity);
 
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
@@ -1568,8 +1574,9 @@ function layOutBallotHelper({
             // within CandidateContest, we need to trigger the smallest width
             // option to get the largest possible height of the contest here,
             // regardless of which column it ends up in.
-            election.ballotLayout.targetMarkPosition === 'left' ? 0 : 20,
+            bubblePosition === 'left' ? 0 : 20,
           pageNumber: 0,
+          bubblePosition,
           m,
         });
         if (height > gridHeight(m.MAX_CONTEST_ROW_HEIGHT, m)) {
@@ -1614,6 +1621,7 @@ function layOutBallotHelper({
           yToRow(heightUsed, m),
         gridColumn: 2,
         pageNumber,
+        bubblePosition,
         m,
       });
 
@@ -1713,12 +1721,14 @@ export function layOutBallot(
 interface LayoutAllBallotsParams {
   election: Election;
   isTestMode: boolean;
+  layoutOptions: LayoutOptions;
 }
 
 function layOutAllBallotsHelper({
   election,
   isTestMode,
   electionHash,
+  layoutOptions,
 }: LayoutAllBallotsParams & { electionHash?: string }): BallotLayout[] {
   return election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId) => {
@@ -1729,6 +1739,7 @@ function layOutAllBallotsHelper({
         ballotStyle,
         isTestMode,
         electionHash,
+        layoutOptions,
       });
     })
   );
@@ -1747,6 +1758,7 @@ function layOutAllBallotsHelper({
 export function layOutAllBallots({
   election,
   isTestMode,
+  layoutOptions,
 }: LayoutAllBallotsParams): Result<
   { ballots: BallotLayout[]; electionDefinition: ElectionDefinition },
   Error
@@ -1755,6 +1767,7 @@ export function layOutAllBallots({
     const gridLayoutsForAllPrecincts = layOutAllBallotsHelper({
       election,
       isTestMode,
+      layoutOptions,
     }).map((layout) => layout.gridLayout);
     // All precincts for a given ballot style have the same grid layout
     const gridLayouts = uniqueBy(
@@ -1776,6 +1789,7 @@ export function layOutAllBallots({
         election: electionWithGridLayouts,
         isTestMode,
         electionHash: electionDefinition.electionHash,
+        layoutOptions,
       }),
       electionDefinition,
     });
