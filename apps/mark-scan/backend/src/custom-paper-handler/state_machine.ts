@@ -50,7 +50,6 @@ import {
 interface Context {
   workspace: Workspace;
   driver: PaperHandlerDriver;
-  driverIteration: number;
   pollingIntervalMs: number;
   // xstate does not support deleting from context, but these values need to be cleared when the state machine
   // is returned to its initial state
@@ -542,7 +541,6 @@ export function buildMachine(
             target: 'resetting_state_machine_after_jam',
             actions: assign({
               driver: (_, event) => event.data,
-              driverIteration: (context) => context.driverIteration + 1,
             }),
           },
         },
@@ -584,7 +582,6 @@ export async function getPaperHandlerStateMachine(
   const context: Context = {
     workspace,
     driver: paperHandlerDriver,
-    driverIteration: 0,
     pollingIntervalMs,
     scannedImagePaths: null,
     interpretation: null,
