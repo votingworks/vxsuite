@@ -361,7 +361,7 @@ test('CardReader command transmission - chained response', async () => {
       GET_RESPONSE.INS,
       GET_RESPONSE.P1,
       GET_RESPONSE.P2,
-      0x00,
+      0x0a,
     ]),
     MAX_APDU_LENGTH,
     mockConnectProtocol,
