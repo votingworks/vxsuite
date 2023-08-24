@@ -268,7 +268,7 @@ export type Byte =
  * - isByte(0x100) --> false
  */
 export function isByte(n: number): n is Byte {
-  return [...Array.from({ length: 256 }).keys()].includes(n);
+  return Number.isInteger(n) && n >= 0 && n <= 255;
 }
 
 /**
