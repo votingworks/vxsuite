@@ -258,15 +258,6 @@ export function PollWorkerScreen({
     if (stateMachineState === 'accepting_paper') {
       return <LoadPaperPage />;
     }
-    if (
-      // loading_paper - short-lived intermediate state. Allow this component to render in loading_paper state to avoid flicker.
-      stateMachineState !== 'loading_paper' &&
-      // waiting_for_ballot_data - paper is loaded. Backend is waiting for voter to start voting, finish voting, and press "Print" to print ballot
-      stateMachineState !== 'waiting_for_ballot_data'
-      // All other states are handled by the Ballot component and its children
-    ) {
-      throw new Error(`Unexpected paper handler state ${stateMachineState}`);
-    }
 
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);

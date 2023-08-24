@@ -6,7 +6,6 @@ import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
-  fakeCardlessVoterUser,
   fakePollWorkerUser,
   fakeSessionExpiresAt,
   hasTextAcrossElements,
@@ -193,23 +192,4 @@ test('can toggle between vote activation and "other actions" during polls open',
   // switch back
   userEvent.click(screen.getByText('Back to Ballot Style Selection'));
   screen.getByText('Select Voter’s Ballot Style');
-});
-
-test('throws when state machine is in an unexpected state', () => {
-  apiMock.setPaperHandlerState('interpreting');
-  const authStatus: InsertedSmartCardAuth.AuthStatus = {
-    status: 'logged_in',
-    user: fakePollWorkerUser({
-      electionHash: electionSampleDefinition.electionHash,
-    }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
-    cardlessVoterUser: fakeCardlessVoterUser(),
-  };
-  expect(() =>
-    renderScreen({
-      pollsState: 'polls_open',
-      machineConfig: fakeMachineConfig(),
-      pollWorkerAuth: authStatus,
-    })
-  ).toThrow();
 });
