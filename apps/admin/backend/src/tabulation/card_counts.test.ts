@@ -1,5 +1,5 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { Tabulation } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import { GROUP_KEY_ROOT, groupMapToGroupList } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import { Store } from '../store';
@@ -13,7 +13,10 @@ test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -160,7 +163,10 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -224,7 +230,10 @@ test('tabulateFullCardCounts - blankBallots', () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each

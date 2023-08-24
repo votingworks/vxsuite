@@ -475,6 +475,7 @@ export const configure = {
         await queryClient.invalidateQueries(
           getCurrentElectionMetadata.queryKey()
         );
+        await queryClient.invalidateQueries(getSystemSettings.queryKey());
       },
     });
   },
@@ -593,18 +594,6 @@ export const adjudicateWriteIn = {
     return useMutation(apiClient.adjudicateWriteIn, {
       async onSuccess() {
         await invalidateWriteInQueries(queryClient);
-      },
-    });
-  },
-} as const;
-
-export const setSystemSettings = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.setSystemSettings, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getSystemSettings.queryKey());
       },
     });
   },

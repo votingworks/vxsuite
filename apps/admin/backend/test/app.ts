@@ -162,11 +162,7 @@ export async function configureMachine(
   const { electionId } = (
     await apiClient.configure({
       electionData,
-    })
-  ).unsafeUnwrap();
-  (
-    await apiClient.setSystemSettings({
-      systemSettings: JSON.stringify(systemSettings),
+      systemSettingsData: JSON.stringify(systemSettings),
     })
   ).unsafeUnwrap();
   return electionId;

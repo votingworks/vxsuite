@@ -1,6 +1,7 @@
 create table elections (
   id serial primary key,
-  data text not null,
+  election_data text not null,
+  system_settings_data text not null,
   is_official_results boolean not null default false,
   created_at timestamp not null default current_timestamp,
   deleted_at timestamp
@@ -196,12 +197,6 @@ create table manual_result_write_in_candidate_references (
     on delete cascade,
   foreign key (write_in_candidate_id) references write_in_candidates(id)
     on delete cascade
-);
-
-create table system_settings (
-  -- enforce singleton table
-  id integer primary key check (id = 1),
-  data text not null -- JSON blob
 );
 
 create table settings (

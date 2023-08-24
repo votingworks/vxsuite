@@ -6,9 +6,8 @@ import {
   ElectionDefinition,
   Id,
   safeParseElectionDefinition,
-  safeParseJson,
+  safeParseSystemSettings,
   SystemSettings,
-  SystemSettingsSchema,
   Tabulation,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -51,7 +50,6 @@ import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import {
   CastVoteRecordFileRecord,
-  ConfigureResult,
   CvrFileImportInfo,
   CvrFileMode,
   ElectionRecord,
@@ -61,7 +59,6 @@ import {
   ManualResultsRecord,
   ScannerBatch,
   SemsExportableTallies,
-  SetSystemSettingsResult,
   TallyReportResults,
   WriteInAdjudicationAction,
   WriteInAdjudicationQueueMetadata,
@@ -69,6 +66,7 @@ import {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
+  ConfigureError,
 } from './types';
 import { Workspace } from './util/workspace';
 import {
@@ -289,44 +287,6 @@ function buildApi({
       return ok();
     },
 
-    async setSystemSettings(input: {
-      systemSettings: string;
-    }): Promise<SetSystemSettingsResult> {
-      const userRole = assertDefined(await getUserRole());
-      await logger.log(LogEventId.SystemSettingsSaveInitiated, userRole, {
-        disposition: 'na',
-      });
-
-      const { systemSettings } = input;
-      const validatedSystemSettings = safeParseJson(
-        systemSettings,
-        SystemSettingsSchema
-      );
-      if (validatedSystemSettings.isErr()) {
-        return err({
-          type: 'parsing',
-          message: validatedSystemSettings.err()?.message,
-        });
-      }
-
-      try {
-        store.saveSystemSettings(validatedSystemSettings.ok());
-      } catch (error) {
-        const typedError = error as Error;
-        await logger.log(LogEventId.SystemSettingsSaved, userRole, {
-          disposition: 'failure',
-          error: typedError.message,
-        });
-        throw error;
-      }
-
-      await logger.log(LogEventId.SystemSettingsSaved, userRole, {
-        disposition: 'success',
-      });
-
-      return ok({});
-    },
-
     async getSystemSettings(): Promise<SystemSettings> {
       try {
         const settings = store.getSystemSettings();
@@ -347,13 +307,35 @@ function buildApi({
     },
 
     // `configure` and `unconfigure` handle changes to the election definition
-    async configure(input: { electionData: string }): Promise<ConfigureResult> {
-      const parseResult = safeParseElectionDefinition(input.electionData);
-      if (parseResult.isErr()) {
-        return err({ type: 'parsing', message: parseResult.err().message });
+    async configure(input: {
+      electionData: string;
+      systemSettingsData: string;
+    }): Promise<Result<{ electionId: Id }, ConfigureError>> {
+      const electionDefinitionParseResult = safeParseElectionDefinition(
+        input.electionData
+      );
+      if (electionDefinitionParseResult.isErr()) {
+        return err({
+          type: 'invalidElection',
+          message: electionDefinitionParseResult.err().message,
+        });
       }
-      const electionDefinition = parseResult.ok();
-      const electionId = store.addElection(electionDefinition.electionData);
+      const electionDefinition = electionDefinitionParseResult.ok();
+
+      const systemSettingsParseResult = safeParseSystemSettings(
+        input.systemSettingsData
+      );
+      if (systemSettingsParseResult.isErr()) {
+        return err({
+          type: 'invalidSystemSettings',
+          message: systemSettingsParseResult.err().message,
+        });
+      }
+
+      const electionId = store.addElection({
+        electionData: electionDefinition.electionData,
+        systemSettingsData: input.systemSettingsData,
+      });
       store.setCurrentElectionId(electionId);
       await logger.log(
         LogEventId.ElectionConfigured,

@@ -3,9 +3,9 @@ import {
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
 import {
-  safeParseSystemSettings,
   CandidateContest,
   Tabulation,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'fs';
@@ -36,9 +36,12 @@ test('create a memory store', () => {
 
 test('add an election', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+
   store.assertElectionExists(electionId);
   expect(store.getElections().map((r) => r.id)).toContain(electionId);
   expect(store.getElection(electionId)).toMatchObject({
@@ -58,9 +61,11 @@ test('assert election exists', () => {
 
 test('setElectionResultsOfficial', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
 
   expect(store.getElection(electionId)).toEqual(
     expect.objectContaining(
@@ -93,9 +98,11 @@ test('setElectionResultsOfficial', () => {
 
 test('current election id', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
 
   expect(store.getCurrentElectionId()).toBeUndefined();
 
@@ -106,21 +113,16 @@ test('current election id', () => {
   expect(store.getCurrentElectionId()).toBeUndefined();
 });
 
-/**
- * System settings tests
- */
-function makeSystemSettings() {
-  return safeParseSystemSettings(
-    electionMinimalExhaustiveSampleFixtures.systemSettings.asText()
-  ).unsafeUnwrap();
-}
-
 test('saveSystemSettings and getSystemSettings write and read system settings', () => {
   const store = Store.memoryStore();
-  const systemSettings = makeSystemSettings();
-  store.saveSystemSettings(systemSettings);
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  store.setCurrentElectionId(electionId);
   const retrievedSystemSettings = store.getSystemSettings();
-  expect(retrievedSystemSettings).toEqual(systemSettings);
+  expect(retrievedSystemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
 test('getSystemSettings returns undefined when no system settings exist', () => {
@@ -131,9 +133,11 @@ test('getSystemSettings returns undefined when no system settings exist', () => 
 
 test('scanner batches', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   expect(store.getScannerBatches(electionId)).toEqual([]);
 
   const scannerBatch: ScannerBatch = {
@@ -154,7 +158,10 @@ test('manual results', () => {
   const { electionData, election } = electionDefinition;
 
   const store = Store.memoryStore();
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   const contestId = 'zoo-council-mammal';
   const writeInCandidate = store.addWriteInCandidate({
     electionId,
@@ -279,7 +286,10 @@ function expectArrayMatch<T>(a: T[], b: T[]) {
 
 describe('getTabulationGroups', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(electionComplexGeoSample.asText());
+  const electionId = store.addElection({
+    electionData: electionComplexGeoSample.asText(),
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   const { election } = electionComplexGeoSample;
 
   test('no groupings', () => {
@@ -455,7 +465,10 @@ describe('getTabulationGroups', () => {
 
 describe('getFilteredContests', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(electionComplexGeoSample.asText());
+  const electionId = store.addElection({
+    electionData: electionComplexGeoSample.asText(),
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   const { election } = electionComplexGeoSample;
 
   test('no filter', () => {

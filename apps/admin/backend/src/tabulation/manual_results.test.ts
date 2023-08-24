@@ -1,7 +1,7 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { Tabulation } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import { Store } from '../store';
 import {
   extractWriteInSummary,
@@ -53,9 +53,11 @@ test('isGroupByCompatibleWithManualResults', () => {
 describe('tabulateManualResults & tabulateManualBallotCounts', () => {
   test('on incompatible filter', () => {
     const store = Store.memoryStore();
-    const electionId = store.addElection(
-      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-    );
+    const electionId = store.addElection({
+      electionData:
+        electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    });
     store.setCurrentElectionId(electionId);
 
     expect(
@@ -71,7 +73,10 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     const store = Store.memoryStore();
     const { electionData, election } =
       electionMinimalExhaustiveSampleFixtures.electionDefinition;
-    const electionId = store.addElection(electionData);
+    const electionId = store.addElection({
+      electionData,
+      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    });
     store.setCurrentElectionId(electionId);
 
     expect(
@@ -95,7 +100,10 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     const store = Store.memoryStore();
     const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
     const { election, electionData } = electionDefinition;
-    const electionId = store.addElection(electionData);
+    const electionId = store.addElection({
+      electionData,
+      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    });
     store.setCurrentElectionId(electionId);
 
     // since we're only interested in how results are combined, we can use

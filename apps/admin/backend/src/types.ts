@@ -1,4 +1,3 @@
-import { Result } from '@votingworks/basics';
 import {
   ContestId,
   ContestOptionId,
@@ -29,23 +28,11 @@ export interface MachineConfig {
 }
 
 /**
- * Result of attempt to configure the app with a new election definition
+ * Errors that can occur when attempting to configure from an election package.
  */
-export type ConfigureResult = Result<
-  { electionId: Id },
-  { type: 'parsing'; message: string }
->;
-
-/**
- * Result of attempt to store and apply system settings
- */
-export type SetSystemSettingsResult = Result<
-  Record<string, never>,
-  {
-    type: 'parsing' | 'database';
-    message: string;
-  }
->;
+export type ConfigureError =
+  | { type: 'invalidElection'; message: string }
+  | { type: 'invalidSystemSettings'; message: string };
 
 /**
  * Metadata about a cast vote record file found on a USB drive.
