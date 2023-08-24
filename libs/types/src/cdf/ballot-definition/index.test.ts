@@ -23,7 +23,7 @@ const nistSchema = JSON.parse(nistJson);
 const vxJson = readFileSync(join(__dirname, './vx-schema.json'), 'utf-8');
 const vxSchema = JSON.parse(vxJson);
 
-test('BallotDefinition', () => {
+test('BallotDefinition schema', () => {
   BallotDefinitionSchema.parse(testCdfBallotDefinition);
 });
 

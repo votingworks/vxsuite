@@ -145,7 +145,7 @@ describe('generateTestDeckBallots', () => {
         'savoy',
         'tawa',
         'tawa-mary',
-        'rangel',
+        'rangel-damian',
         'altman',
         'moore',
         'schreiner',

@@ -35,7 +35,7 @@ function generateAllBubbleBallotFixtures(): void {
 
   fs.writeFileSync(
     join(allBubbleBallotDir, 'election.json'),
-    JSON.stringify(electionDefinition.election, null, 2)
+    electionDefinition.electionData
   );
 
   const ballots = {
@@ -54,7 +54,7 @@ function generateFamousNamesFixtures(): void {
 
   fs.writeFileSync(
     join(famousNamesDir, 'election.json'),
-    JSON.stringify(electionDefinition.election, null, 2)
+    electionDefinition.electionData
   );
 
   const ballots = {
@@ -76,7 +76,7 @@ function generateSampleElectionFixtures(): void {
     fs.mkdirSync(electionDir, { recursive: true });
     fs.writeFileSync(
       join(electionDir, 'election.json'),
-      JSON.stringify(electionDefinition.election, null, 2)
+      electionDefinition.electionData
     );
 
     const ballots = {

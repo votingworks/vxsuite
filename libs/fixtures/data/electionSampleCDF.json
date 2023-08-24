@@ -580,7 +580,7 @@
         },
         {
           "@type": "BallotDefinition.Candidate",
-          "@id": "davis",
+          "@id": "davis-brenda",
           "BallotName": {
             "@type": "BallotDefinition.InternationalizedText",
             "Text": [
@@ -692,6 +692,20 @@
         },
         {
           "@type": "BallotDefinition.Candidate",
+          "@id": "rangel",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "en",
+                "Content": "Davitra Rangel"
+              }
+            ]
+          }
+        },
+        {
+          "@type": "BallotDefinition.Candidate",
           "@id": "argent",
           "BallotName": {
             "@type": "BallotDefinition.InternationalizedText",
@@ -790,7 +804,7 @@
         },
         {
           "@type": "BallotDefinition.Candidate",
-          "@id": "rangel",
+          "@id": "rangel-damian",
           "BallotName": {
             "@type": "BallotDefinition.InternationalizedText",
             "Text": [
@@ -966,6 +980,20 @@
                 "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Beverly Barker"
+              }
+            ]
+          }
+        },
+        {
+          "@type": "BallotDefinition.Candidate",
+          "@id": "davis",
+          "BallotName": {
+            "@type": "BallotDefinition.InternationalizedText",
+            "Text": [
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "en",
+                "Content": "Donald Davis"
               }
             ]
           }
@@ -1321,8 +1349,8 @@
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "lieutenant-governor-option-davis",
-              "CandidateIds": ["davis"],
+              "@id": "lieutenant-governor-option-davis-brenda",
+              "CandidateIds": ["davis-brenda"],
               "EndorsementPartyIds": ["6"]
             },
             {
@@ -1493,8 +1521,8 @@
             },
             {
               "@type": "BallotDefinition.CandidateOption",
-              "@id": "county-commissioners-option-rangel",
-              "CandidateIds": ["rangel"],
+              "@id": "county-commissioners-option-rangel-damian",
+              "CandidateIds": ["rangel-damian"],
               "EndorsementPartyIds": ["2"]
             },
             {
@@ -2181,7 +2209,7 @@
       "BallotStyle": [
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["23", "21"],
+          "GpUnitIds": ["23", "21-split-1"],
           "ExternalIdentifier": [
             {
               "@type": "BallotDefinition.ExternalIdentifier",
@@ -2192,7 +2220,7 @@
         },
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["21"],
+          "GpUnitIds": ["21-split-2"],
           "ExternalIdentifier": [
             {
               "@type": "BallotDefinition.ExternalIdentifier",
@@ -2576,7 +2604,7 @@
         ]
       },
       "Type": "other",
-      "ComposingGpUnitIds": ["23", "21"]
+      "ComposingGpUnitIds": ["23", "21-split-1", "21-split-2"]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2592,7 +2620,7 @@
         ]
       },
       "Type": "other",
-      "ComposingGpUnitIds": ["23", "21"]
+      "ComposingGpUnitIds": ["23", "21-split-1"]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2654,7 +2682,8 @@
           }
         ]
       },
-      "Type": "precinct"
+      "Type": "precinct",
+      "ComposingGpUnitIds": ["21-split-1", "21-split-2"]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2670,9 +2699,57 @@
         ]
       },
       "Type": "precinct"
+    },
+    {
+      "@type": "BallotDefinition.ReportingUnit",
+      "@id": "21-split-1",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "en",
+            "Content": "North Springfield - Split 1"
+          }
+        ]
+      },
+      "Type": "split-precinct"
+    },
+    {
+      "@type": "BallotDefinition.ReportingUnit",
+      "@id": "21-split-2",
+      "Name": {
+        "@type": "BallotDefinition.InternationalizedText",
+        "Text": [
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "en",
+            "Content": "North Springfield - Split 2"
+          }
+        ]
+      },
+      "Type": "split-precinct"
     }
   ],
-  "GeneratedDate": "2023-03-01T23:03:13Z",
+  "BallotFormat": [
+    {
+      "@type": "BallotDefinition.BallotFormat",
+      "@id": "ballot-format",
+      "ExternalIdentifier": [
+        {
+          "@type": "BallotDefinition.ExternalIdentifier",
+          "Type": "other",
+          "Value": "ballot-format"
+        }
+      ],
+      "MeasurementUnit": "in",
+      "ShortEdge": 8.5,
+      "LongEdge": 11,
+      "Orientation": "portrait",
+      "SelectionCaptureMethod": "omr"
+    }
+  ],
+  "GeneratedDate": "2020-11-03T00:00:00Z",
   "Issuer": "VotingWorks",
   "IssuerAbbreviation": "VX",
   "VendorApplicationId": "VxSuite",
