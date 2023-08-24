@@ -116,7 +116,15 @@ function BallotDesignForm({
       </FormField>
       {isEditing ? (
         <FormActionsRow>
-          <Button onPress={() => setIsEditing(false)}>Cancel</Button>
+          <Button
+            onPress={() => {
+              setBallotLayout(savedElection.ballotLayout);
+              setLayoutOptions(savedLayoutOptions);
+              setIsEditing(false);
+            }}
+          >
+            Cancel
+          </Button>
           <Button onPress={onSavePress} variant="primary">
             <Icons.Checkmark /> Save
           </Button>
