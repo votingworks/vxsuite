@@ -21,6 +21,7 @@ import {
   layOutBallot,
   gridForPaper,
   LayoutOptions,
+  SealImageData,
 } from '@votingworks/hmpb-layout';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -231,11 +232,13 @@ export const paperSizeLabels: Record<BallotPaperSize, string> = {
 
 export function BallotViewer({
   election,
+  sealImageData,
   precinct,
   ballotStyle,
   layoutOptions,
 }: {
   election: Election;
+  sealImageData: SealImageData;
   precinct: Precinct;
   ballotStyle: BallotStyle;
   layoutOptions: LayoutOptions;
@@ -260,6 +263,7 @@ export function BallotViewer({
 
   const ballotResult = layOutBallot({
     election,
+    sealImageData,
     precinct,
     ballotStyle,
     isTestMode: true,

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDomServer from 'react-dom/server';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import fs, { readFileSync } from 'fs';
 import PdfDocument from 'pdfkit';
 import SvgToPdf from 'svg-to-pdfkit';
@@ -16,6 +16,7 @@ import {
   PPI,
 } from '@votingworks/hmpb-layout';
 import { join } from 'path';
+import { DOMParser, XMLSerializer } from 'xmldom';
 
 const ASSETS_DIR = join(__dirname, '../assets');
 // These font names need to be exactly of the pattern FontName[-Bold] in order
@@ -23,13 +24,30 @@ const ASSETS_DIR = join(__dirname, '../assets');
 // We set fontFamily = HelveticaNeue in the SvgPage component in document_svg.tsx.
 const FONTS = ['HelveticaNeue', 'HelveticaNeue-Bold'];
 
+function removeSvgWidthAndHeight(svg: string): string {
+  const parsed = new DOMParser().parseFromString(svg, 'image/svg+xml');
+  parsed.documentElement.removeAttribute('width');
+  parsed.documentElement.removeAttribute('height');
+  return new XMLSerializer().serializeToString(parsed);
+}
+
 // SVG-to-PDFKit doesn't support embedded SVGs, so we hack around it by
 // inlining the SVG contents.
-function InlineSvgImage(props: SvgImageProps): JSX.Element {
-  const imageContents = readFileSync(join(ASSETS_DIR, props.href)).toString(
-    'utf8'
+function InlineSvgImage({
+  href,
+  contents,
+  ...props
+}: SvgImageProps): JSX.Element {
+  assert(
+    contents !== undefined || href !== undefined,
+    'Image must have href or contents'
   );
-  return <svg {...props} dangerouslySetInnerHTML={{ __html: imageContents }} />;
+  const imageContents =
+    contents ??
+    readFileSync(join(ASSETS_DIR, assertDefined(href))).toString('utf8');
+  // The image will only show up if we remove the width/height attributes.
+  const image = removeSvgWidthAndHeight(imageContents);
+  return <svg {...props} dangerouslySetInnerHTML={{ __html: image }} />;
 }
 
 function AnyElement(props: AnyElement): JSX.Element {
@@ -62,10 +80,10 @@ function renderPageToSvg(page: Page, width: number, height: number): string {
     </SvgPage>
   );
   const pageSvgString = ReactDomServer.renderToStaticMarkup(pageElement);
-  // In order to get the PDF to scale the SVG properly, we have to remove the
+  // In order to get the PDF to scale the SVG properly, we remove the
   // width/height attributes.
   // https://github.com/alafr/SVG-to-PDFKit/issues/125
-  return pageSvgString.replace(/^<svg width="\d*" height="\d*"/, '<svg');
+  return removeSvgWidthAndHeight(pageSvgString);
 }
 
 /**

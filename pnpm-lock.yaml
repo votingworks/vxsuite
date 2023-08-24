@@ -3719,7 +3719,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.0.5
-        version: 29.0.5(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.14.30)(jest@29.6.2)(typescript@4.6.3)
+        version: 29.0.5(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.14.25)(jest@29.6.2)(typescript@4.6.3)
       vite:
         specifier: ^4.0.4
         version: 4.0.4(@types/node@16.18.23)
@@ -4362,6 +4362,9 @@ importers:
       svg-to-pdfkit:
         specifier: ^0.1.8
         version: 0.1.8
+      xmldom:
+        specifier: ^0.6.0
+        version: 0.6.0
     devDependencies:
       '@jest/types':
         specifier: ^29.6.1
@@ -4387,6 +4390,9 @@ importers:
       '@types/tmp':
         specifier: ^0.2.3
         version: 0.2.3
+      '@types/xmldom':
+        specifier: ^0.1.31
+        version: 0.1.31
       esbuild:
         specifier: ^0.14.29
         version: 0.14.30
@@ -5549,7 +5555,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.0.5
-        version: 29.0.5(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.14.30)(jest@29.6.2)(typescript@4.6.3)
+        version: 29.0.5(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.14.25)(jest@29.6.2)(typescript@4.6.3)
 
   script:
     dependencies:
@@ -12021,6 +12027,10 @@ packages:
 
   /@types/w3c-web-usb@1.0.6:
     resolution: {integrity: sha512-cSjhgrr8g4KbPnnijAr/KJDNKa/bBa+ixYkywFRvrhvi9n1WEl7yYbtRyzE6jqNQiSxxJxoAW3STaOQwJHndaw==}
+
+  /@types/xmldom@0.1.31:
+    resolution: {integrity: sha512-bVy7s0nvaR5D1mT1a8ZkByHWNOGb6Vn4yi5TWhEdmyKlAG+08SA7Md6+jH+tYmMLueAwNeWvHHpeKrr6S4c4BA==}
+    dev: true
 
   /@types/yargs-parser@21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -26172,6 +26182,11 @@ packages:
 
   /xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
+
+  /xmldom@0.6.0:
+    resolution: {integrity: sha512-iAcin401y58LckRZ0TkI4k0VSM1Qg0KGSc3i8rU+xrxe19A/BN1zHyVSJY7uoutVlaTSzYyk/v5AmkewAP7jtg==}
+    engines: {node: '>=10.0.0'}
+    dev: false
 
   /xstate@4.32.1:
     resolution: {integrity: sha512-QYUd+3GkXZ8i6qdixnOn28bL3EvA++LONYL/EMWwKlFSh/hiLndJ8YTnz77FDs+JUXcwU7NZJg7qoezoRHc4GQ==}

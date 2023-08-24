@@ -35,7 +35,8 @@ export interface Image extends ElementBase {
   type: 'Image';
   width: number;
   height: number;
-  href: string;
+  href?: string;
+  contents?: string; // SVG text
 }
 
 export type AnyElement = Rectangle | TextBox | Image;

@@ -3,6 +3,7 @@ import { Client as DbClient } from '@votingworks/db';
 import {
   DEFAULT_LAYOUT_OPTIONS,
   LayoutOptions,
+  SealImageData,
 } from '@votingworks/hmpb-layout';
 import {
   Id,

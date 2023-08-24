@@ -446,7 +446,7 @@ function HeaderAndInstructions({
         ...gridPosition({ row: 0, column: 0.5 }, m),
         width: gridWidth(sealRowHeight, m),
         height: gridHeight(sealRowHeight, m),
-        href: election.sealUrl ?? '/seals/state-of-hamilton-official-seal.svg',
+        contents: election.seal,
       },
     ],
   };

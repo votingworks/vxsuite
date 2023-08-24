@@ -1,4 +1,5 @@
 import React from 'react';
+import { Buffer } from 'buffer';
 import { Color, Image, Page, Rectangle, TextBox } from './document_types';
 
 export const FONT_FAMILY = 'HelveticaNeue';
@@ -67,8 +68,27 @@ export function SvgTextBox({
 
 export type SvgImageProps = Omit<Image, 'type'>;
 
-export function SvgImage(props: SvgImageProps): JSX.Element {
-  return <image {...props} />;
+export function SvgImage({
+  href,
+  contents,
+  ...props
+}: SvgImageProps): JSX.Element {
+  if (href) {
+    return <image {...props} href={href} />;
+  }
+
+  if (contents) {
+    return (
+      <image
+        {...props}
+        href={`data:image/svg+xml;base64,${Buffer.from(contents).toString(
+          'base64'
+        )}`}
+      />
+    );
+  }
+
+  throw new Error('Image must have href or contents');
 }
 
 interface SvgPageProps extends Omit<Page, 'children'> {
