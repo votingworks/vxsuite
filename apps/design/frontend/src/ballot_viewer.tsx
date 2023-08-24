@@ -20,6 +20,7 @@ import {
   GridDimensions,
   layOutBallot,
   gridForPaper,
+  LayoutOptions,
 } from '@votingworks/hmpb-layout';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -232,10 +233,12 @@ export function BallotViewer({
   election,
   precinct,
   ballotStyle,
+  layoutOptions,
 }: {
   election: Election;
   precinct: Precinct;
   ballotStyle: BallotStyle;
+  layoutOptions: LayoutOptions;
 }): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const ballotRoutes = routes.election(electionId).ballots;
@@ -260,6 +263,7 @@ export function BallotViewer({
     precinct,
     ballotStyle,
     isTestMode: true,
+    layoutOptions,
   });
 
   if (ballotResult.isErr()) {

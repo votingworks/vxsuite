@@ -108,6 +108,18 @@ export const updatePrecincts = {
   },
 } as const;
 
+export const updateLayoutOptions = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateLayoutOptions, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
 export const deleteElection = {
   useMutation() {
     const apiClient = useApiClient();

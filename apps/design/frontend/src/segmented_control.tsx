@@ -46,18 +46,24 @@ export function SegmentedControl<V extends string>({
   vertical?: boolean;
 }): JSX.Element {
   return (
-    <ControlContainer vertical={vertical}>
-      {options.map((option) => (
-        <ControlOption
-          key={option.value}
-          onPress={() => onChange(option.value)}
-          disabled={disabled}
-          isSelected={option.value === value}
-          vertical={vertical}
-        >
-          {option.label}
-        </ControlOption>
-      ))}
+    <ControlContainer vertical={vertical} role="radiogroup">
+      {options.map((option) => {
+        const isSelected = option.value === value;
+        return (
+          <ControlOption
+            key={option.value}
+            onPress={() => onChange(option.value)}
+            disabled={disabled}
+            isSelected={isSelected}
+            vertical={vertical}
+            role="radio"
+            aria-label={option.label}
+            aria-checked={isSelected}
+          >
+            {option.label}
+          </ControlOption>
+        );
+      })}
     </ControlContainer>
   );
 }

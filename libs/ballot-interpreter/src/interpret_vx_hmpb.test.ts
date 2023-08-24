@@ -136,7 +136,7 @@ describe('HMPB - Famous Names', () => {
 });
 
 for (const {
-  targetMarkPosition,
+  bubblePosition,
   paperSize,
   density,
   electionDefinition,
@@ -146,7 +146,7 @@ for (const {
   blankBallotPath,
   markedBallotPath,
 } of sampleElectionFixtures) {
-  describe(`HMPB - sample election - bubbles on ${targetMarkPosition} - ${paperSize} paper - density ${density}`, () => {
+  describe(`HMPB - sample election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
     test(`Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
 

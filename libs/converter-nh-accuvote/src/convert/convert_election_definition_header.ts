@@ -1,7 +1,6 @@
 import { assert, err, iter, ok } from '@votingworks/basics';
 import {
   BallotPaperSize,
-  BallotTargetMarkPosition,
   Candidate,
   CandidateContest,
   DistrictIdSchema,
@@ -448,7 +447,6 @@ export function convertElectionDefinitionHeader(
     ballotLayout: {
       paperSize,
       metadataEncoding: 'timing-marks',
-      targetMarkPosition: BallotTargetMarkPosition.Right,
     },
     gridLayouts: [
       {

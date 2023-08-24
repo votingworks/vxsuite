@@ -12,6 +12,7 @@ export type {
   PrecinctWithSplits,
   PrecinctWithoutSplits,
 } from './store';
+export { convertVxfPrecincts, generateBallotStyles } from './store';
 export type { Api } from './app';
 
 function main(): Promise<number> {

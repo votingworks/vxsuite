@@ -1,10 +1,4 @@
-import { assert } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
-
-export async function generateFileContentToSaveAsPdf(): Promise<Uint8Array> {
-  assert(window.kiosk);
-  return await window.kiosk.printToPDF();
-}
 
 export function generateDefaultReportFilename(
   fileNamePrefix: string,

@@ -1,6 +1,5 @@
 import React, { useState, useContext, useCallback } from 'react';
 import {
-  BallotPaperSize,
   Election,
   ElectionDefinition,
   ElementWithCallback,
@@ -16,11 +15,9 @@ import {
   useCancelablePromise,
   Modal,
   printElement,
-  printElementWhenReady,
   printElementToPdfWhenReady,
   P,
   H6,
-  Font,
   ModalWidth,
 } from '@votingworks/ui';
 import {
@@ -33,18 +30,11 @@ import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
-import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
 import { TestDeckTallyReport } from '../components/test_deck_tally_report';
 import {
   generateTestDeckBallots,
-  generateBlankBallots,
-  generateOvervoteBallot,
   generateResultsFromTestDeckBallots,
 } from '../utils/election';
-import {
-  getBallotLayoutPageSize,
-  getBallotLayoutPageSizeReadableString,
-} from '../utils/get_ballot_layout_page_size';
 import { PrintButton } from '../components/print_button';
 import {
   SaveFrontendFileModal,
@@ -147,78 +137,50 @@ function getBmdPaperBallots({
   ));
 }
 
-function generateHandMarkedPaperBallots({
-  election,
+function getBmdPaperBallotsWithOnReadyCallback({
+  electionDefinition,
   precinctId,
-}: {
-  election: Election;
-  precinctId: PrecinctId;
-}) {
-  const ballots = [
-    ...generateTestDeckBallots({ election, precinctId, markingMethod: 'hand' }),
-    ...generateBlankBallots({ election, precinctId, numBlanks: 2 }),
-  ];
-  const overvoteBallot = generateOvervoteBallot({ election, precinctId });
-  if (overvoteBallot) {
-    ballots.push(overvoteBallot);
-  }
-  return ballots;
-}
-
-interface HandMarkedPaperBallotsProps {
-  election: Election;
-  electionHash: string;
-  precinctId: PrecinctId;
-}
-
-function getHandMarkedPaperBallotsWithOnReadyCallback({
-  election,
-  electionHash,
-  precinctId,
-}: HandMarkedPaperBallotsProps): ElementWithCallback[] {
-  const ballots = generateHandMarkedPaperBallots({
+  generateBallotId,
+}: BmdPaperBallotsProps): ElementWithCallback[] {
+  const { election } = electionDefinition;
+  const ballots = generateTestDeckBallots({
     election,
     precinctId,
+    markingMethod: 'machine',
   });
 
   return ballots.map((ballot, i) => {
-    function HandMarkedPaperBallotWithCallback(
-      onReady: VoidFunction
-    ): JSX.Element {
+    function BmdPaperBallotWithCallback(onReady: VoidFunction): JSX.Element {
       return (
-        <HandMarkedPaperBallot
+        <BmdPaperBallot
           ballotStyleId={ballot.ballotStyleId}
-          election={election}
-          electionHash={electionHash}
-          ballotMode="test"
-          isAbsentee={false}
+          electionDefinition={electionDefinition}
+          generateBallotId={generateBallotId}
+          isLiveMode={false}
+          key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
           precinctId={ballot.precinctId}
           votes={ballot.votes}
           onRendered={onReady}
-          key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
         />
       );
     }
 
-    return HandMarkedPaperBallotWithCallback;
+    return BmdPaperBallotWithCallback;
   });
 }
 
 interface PrintIndex {
   precinctIds: PrecinctId[];
   precinctIndex: number;
-  phase: 'PrintingLetter' | 'PaperChangeModal' | 'PrintingNonLetter';
 }
 
 interface PrintingModalProps {
   printIndex: PrintIndex;
-  advancePrinting: (initialPrintIndex: PrintIndex) => void;
   election: Election;
 }
 
 function PrintingModal({
   printIndex,
-  advancePrinting,
   election,
 }: PrintingModalProps): JSX.Element {
   const currentPrecinct = getPrecinctById({
@@ -227,31 +189,6 @@ function PrintingModal({
   });
   assert(currentPrecinct);
 
-  if (printIndex.phase === 'PaperChangeModal') {
-    return (
-      <Modal
-        centerContent
-        title="Change Paper"
-        content={
-          <P>
-            Load printer with{' '}
-            <Font weight="bold">
-              {getBallotLayoutPageSizeReadableString(election)}-size paper
-            </Font>
-            .
-          </P>
-        }
-        actions={
-          <Button onPress={() => advancePrinting(printIndex)} variant="primary">
-            {getBallotLayoutPageSizeReadableString(election, {
-              capitalize: true,
-            })}{' '}
-            Paper Loaded, Continue Printing
-          </Button>
-        }
-      />
-    );
-  }
   return (
     <Modal
       centerContent
@@ -269,15 +206,6 @@ function PrintingModal({
               {printIndex.precinctIds.length}.
             </P>
           )}
-          {getBallotLayoutPageSize(election) !== BallotPaperSize.Letter && (
-            <P>
-              {printIndex.phase === 'PrintingNonLetter'
-                ? `Currently printing ${getBallotLayoutPageSizeReadableString(
-                    election
-                  )}-size pages.`
-                : 'Currently printing letter-size pages.'}
-            </P>
-          )}
         </React.Fragment>
       }
     />
@@ -291,7 +219,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
-  const { election, electionHash } = electionDefinition;
+  const { election } = electionDefinition;
   const [printIndex, setPrintIndex] = useState<PrintIndex>();
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [precinctToSaveToPdf, setPrecinctToSaveToPdf] =
@@ -370,61 +298,9 @@ export function PrintTestDeckScreen(): JSX.Element {
     [electionDefinition, logger, makeCancelable, userRole, generateBallotId]
   );
 
-  const printHandMarkedPaperBallots = useCallback(
-    async (precinctId: PrecinctId, isLastPrecinct: boolean) => {
-      const handMarkedPaperBallotsWithCallback =
-        getHandMarkedPaperBallotsWithOnReadyCallback({
-          election,
-          electionHash,
-          precinctId,
-        });
-      const numBallots = handMarkedPaperBallotsWithCallback.length;
-
-      await printElementWhenReady(
-        (onAllRendered) => {
-          let numRendered = 0;
-          function onRendered() {
-            numRendered += 1;
-            if (numRendered === numBallots) {
-              onAllRendered();
-            }
-          }
-
-          return (
-            <React.Fragment>
-              {handMarkedPaperBallotsWithCallback.map(
-                (handMarkedPaperBallotWithCallback) =>
-                  handMarkedPaperBallotWithCallback(onRendered)
-              )}
-            </React.Fragment>
-          );
-        },
-        {
-          sides: 'two-sided-long-edge',
-        }
-      );
-      await logger.log(LogEventId.TestDeckPrinted, userRole, {
-        disposition: 'success',
-        message: `Hand-marked paper ballot test deck printed as part of L&A package for precinct ID: ${precinctId}`,
-        precinctId,
-      });
-
-      if (!isLastPrecinct) {
-        await makeCancelable(sleep(numBallots * TWO_SIDED_PAGE_PRINT_TIME_MS));
-      } else {
-        // For the last precinct, rather than waiting for all pages to finish printing, free up
-        // the UI from the print modal earlier
-        await makeCancelable(sleep(LAST_PRINT_JOB_SLEEP_MS));
-      }
-    },
-    [election, electionHash, logger, makeCancelable, userRole]
-  );
-
-  const printLetterComponentsOfLogicAndAccuracyPackage = useCallback(
+  const printLogicAndAccuracyPackage = useCallback(
     async (precinctId: PrecinctId) => {
       const precinctIds = generatePrecinctIds(precinctId);
-      const areHandMarkedPaperBallotsLetterSize =
-        getBallotLayoutPageSize(election) === BallotPaperSize.Letter;
 
       for (const [
         currentPrecinctIndex,
@@ -433,39 +309,15 @@ export function PrintTestDeckScreen(): JSX.Element {
         setPrintIndex({
           precinctIds,
           precinctIndex: currentPrecinctIndex,
-          phase: 'PrintingLetter',
         });
         await printPrecinctTallyReport(currentPrecinctId);
         await printBmdPaperBallots(currentPrecinctId);
-
-        // Print HMPB ballots if they are letter-sized
-        if (areHandMarkedPaperBallotsLetterSize) {
-          await printHandMarkedPaperBallots(
-            currentPrecinctId,
-            currentPrecinctIndex === precinctIds.length - 1
-          );
-        }
       }
 
-      if (areHandMarkedPaperBallotsLetterSize) {
-        // We're done printing because everything was letter-sized
-        setPrintIndex(undefined);
-      } else {
-        // We have to prompt user to replace paper and print the non-letter-sized ballots
-        setPrintIndex({
-          precinctIds,
-          precinctIndex: 0,
-          phase: 'PaperChangeModal',
-        });
-      }
+      // We're done printing
+      setPrintIndex(undefined);
     },
-    [
-      election,
-      generatePrecinctIds,
-      printBmdPaperBallots,
-      printHandMarkedPaperBallots,
-      printPrecinctTallyReport,
-    ]
+    [generatePrecinctIds, printBmdPaperBallots, printPrecinctTallyReport]
   );
 
   const onClickSaveLogicAndAccuracyPackageToPdf = useCallback(
@@ -480,7 +332,7 @@ export function PrintTestDeckScreen(): JSX.Element {
     (
       precinctId: PrecinctId,
       tallyReportResults: Tabulation.GroupList<TallyReportResults>,
-      handMarkedPaperBallotCallbacks: ElementWithCallback[],
+      bmdPaperBallotCallbacks: ElementWithCallback[],
       onRendered: () => void
     ): JSX.Element => {
       return (
@@ -490,19 +342,13 @@ export function PrintTestDeckScreen(): JSX.Element {
             precinctId,
             tallyReportResults,
           })}
-          {getBmdPaperBallots({
-            electionDefinition,
-            precinctId,
-            generateBallotId,
-          })}
-          {handMarkedPaperBallotCallbacks.map(
-            (handMarkedPaperBallotWithCallback) =>
-              handMarkedPaperBallotWithCallback(onRendered)
+          {bmdPaperBallotCallbacks.map((bmdMarkedPaperBallotWithCallback) =>
+            bmdMarkedPaperBallotWithCallback(onRendered)
           )}
         </React.Fragment>
       );
     },
-    [electionDefinition, generateBallotId]
+    [electionDefinition]
   );
 
   // printLogicAndAccuracyPackageToPdf prints the L&A package for all precincts to PDF format.
@@ -514,17 +360,17 @@ export function PrintTestDeckScreen(): JSX.Element {
       // If printing all precincts, render them all in a single call to printElementToPdfWhenReady.
       // Uint8Arrays can't easily be combined later without causing PDF rendering issues.
 
-      // Prepare to render all hand-marked paper ballots across all precincts
+      // Prepare to render all BMD paper ballots across all precincts
       let numBallots = 0;
-      const handMarkedPaperBallotsCallbacks = precinctIds.map((precinctId) => {
-        const handMarkedPaperBallotsWithCallback =
-          getHandMarkedPaperBallotsWithOnReadyCallback({
-            election,
-            electionHash,
+      const bmdPaperBallotsCallbacks = precinctIds.map((precinctId) => {
+        const bmdPaperBallotsWithCallback =
+          getBmdPaperBallotsWithOnReadyCallback({
+            electionDefinition,
             precinctId,
+            generateBallotId,
           });
-        numBallots += handMarkedPaperBallotsWithCallback.length;
-        return handMarkedPaperBallotsWithCallback;
+        numBallots += bmdPaperBallotsWithCallback.length;
+        return bmdPaperBallotsWithCallback;
       });
 
       const allTallyReportResults: Record<
@@ -552,7 +398,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         return (
           <React.Fragment>
             {precinctIds.map((precinctId, i) => {
-              const callbacksForPrecinct = handMarkedPaperBallotsCallbacks[i];
+              const callbacksForPrecinct = bmdPaperBallotsCallbacks[i];
               return renderLogicAndAccuracyPackageToPdfForSinglePrecinct(
                 precinctId,
                 allTallyReportResults[precinctId],
@@ -566,42 +412,16 @@ export function PrintTestDeckScreen(): JSX.Element {
     }, [
       precinctToSaveToPdf,
       election,
-      electionHash,
+      electionDefinition,
+      generateBallotId,
       generatePrecinctIds,
       renderLogicAndAccuracyPackageToPdfForSinglePrecinct,
     ]);
 
-  const printNonLetterComponentsOfLogicAndAccuracyPackage = useCallback(
-    async (initialPrintIndex: PrintIndex) => {
-      const { precinctIds } = initialPrintIndex;
-
-      for (const [
-        currentPrecinctIndex,
-        currentPrecinctId,
-      ] of precinctIds.entries()) {
-        setPrintIndex({
-          precinctIds,
-          precinctIndex: currentPrecinctIndex,
-          phase: 'PrintingNonLetter',
-        });
-        await printHandMarkedPaperBallots(
-          currentPrecinctId,
-          currentPrecinctIndex === precinctIds.length - 1
-        );
-      }
-      setPrintIndex(undefined);
-    },
-    [printHandMarkedPaperBallots]
-  );
-
   return (
     <React.Fragment>
       {printIndex && (
-        <PrintingModal
-          election={election}
-          advancePrinting={printNonLetterComponentsOfLogicAndAccuracyPackage}
-          printIndex={printIndex}
-        />
+        <PrintingModal election={election} printIndex={printIndex} />
       )}
       <NavigationScreen title={pageTitle}>
         <P>
@@ -635,9 +455,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         <ButtonsContainer>
           <ButtonRow>
             <PrintButton
-              print={() =>
-                printLetterComponentsOfLogicAndAccuracyPackage('all')
-              }
+              print={() => printLogicAndAccuracyPackage('all')}
               useDefaultProgressModal={false}
               variant="primary"
             >
@@ -661,9 +479,7 @@ export function PrintTestDeckScreen(): JSX.Element {
               .map((p) => (
                 <ButtonRow key={p.id}>
                   <PrintButton
-                    print={() =>
-                      printLetterComponentsOfLogicAndAccuracyPackage(p.id)
-                    }
+                    print={() => printLogicAndAccuracyPackage(p.id)}
                     useDefaultProgressModal={false}
                   >
                     Print {p.name}
