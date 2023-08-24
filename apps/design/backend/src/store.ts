@@ -3,7 +3,6 @@ import { Client as DbClient } from '@votingworks/db';
 import {
   DEFAULT_LAYOUT_OPTIONS,
   LayoutOptions,
-  SealImageData,
 } from '@votingworks/hmpb-layout';
 import {
   Id,
@@ -63,30 +62,6 @@ export interface BallotStyle {
     splitId?: Id;
   }>;
   districtIds: readonly DistrictId[];
-}
-
-// If we are importing an existing VXF election, we need to convert the
-// precincts to have splits based on the ballot styles.
-export function convertVxfPrecincts(election: Election): Precinct[] {
-  return election.precincts.map((precinct) => {
-    const ballotStyles = election.ballotStyles.filter((ballotStyle) =>
-      ballotStyle.precincts.includes(precinct.id)
-    );
-    if (ballotStyles.length === 1) {
-      return {
-        ...precinct,
-        districtIds: ballotStyles[0].districts,
-      };
-    }
-    return {
-      ...precinct,
-      splits: ballotStyles.map((ballotStyle, index) => ({
-        id: `${precinct.id}-split-${index + 1}`,
-        name: `${precinct.name} - Split ${index + 1}`,
-        districtIds: ballotStyle.districts,
-      })),
-    };
-  });
 }
 
 /**
@@ -155,8 +130,6 @@ function hydrateElection(row: {
       precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
       districts: ballotStyle.districtIds,
     })),
-    sealUrl:
-      rawElection.sealUrl ?? '/seals/state-of-hamilton-official-seal.svg',
   };
 
   const systemSettings = safeParseSystemSettings(
@@ -236,7 +209,7 @@ export class Store {
     return hydrateElection({ id: electionId, ...electionRow });
   }
 
-  createElection(election: Election): Id {
+  createElection(election: Election, precincts: Precinct[]): Id {
     const row = this.client.one(
       `
       insert into elections (
@@ -250,7 +223,7 @@ export class Store {
       `,
       JSON.stringify(election),
       JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      JSON.stringify(convertVxfPrecincts(election)),
+      JSON.stringify(precincts),
       JSON.stringify(DEFAULT_LAYOUT_OPTIONS)
     ) as {
       id: string;

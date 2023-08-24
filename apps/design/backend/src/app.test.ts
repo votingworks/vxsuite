@@ -46,7 +46,7 @@ test('CRUD elections', async () => {
       districts: [],
       parties: [],
       precincts: [],
-      sealUrl: '',
+      seal: '',
       state: '',
       title: '',
     },
@@ -198,9 +198,6 @@ test('Export setup package', async () => {
     ...baseElectionDefinition.election,
     // The date in the election fixture has a timezone, even though it shouldn't
     date: electionDefinition.election.date,
-
-    // Adds a default seal URL if none is provided.
-    sealUrl: electionDefinition.election.sealUrl,
 
     // Ballot styles are generated in the app, ignoring the ones in the inputted
     // election definition.

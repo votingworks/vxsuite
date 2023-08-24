@@ -11,11 +11,7 @@ import {
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, ok, Result } from '@votingworks/basics';
-import {
-  layOutAllBallots,
-  LayoutOptions,
-  SealImageData,
-} from '@votingworks/hmpb-layout';
+import { layOutAllBallots, LayoutOptions } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
 import { ElectionRecord, Precinct, Store } from './store';
@@ -29,7 +25,7 @@ function createBlankElection(): Election {
       id: '',
       name: '',
     },
-    sealUrl: '',
+    seal: '',
     districts: [],
     precincts: [],
     contests: [],
@@ -40,6 +36,30 @@ function createBlankElection(): Election {
       metadataEncoding: 'qr-code',
     },
   };
+}
+
+// If we are importing an existing VXF election, we need to convert the
+// precincts to have splits based on the ballot styles.
+export function convertVxfPrecincts(election: Election): Precinct[] {
+  return election.precincts.map((precinct) => {
+    const ballotStyles = election.ballotStyles.filter((ballotStyle) =>
+      ballotStyle.precincts.includes(precinct.id)
+    );
+    if (ballotStyles.length <= 1) {
+      return {
+        ...precinct,
+        districtIds: ballotStyles[0].districts,
+      };
+    }
+    return {
+      ...precinct,
+      splits: ballotStyles.map((ballotStyle, index) => ({
+        id: `${precinct.id}-split-${index + 1}`,
+        name: `${precinct.name} - Split ${index + 1}`,
+        districtIds: ballotStyle.districts,
+      })),
+    };
+  });
 }
 
 function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
@@ -67,10 +87,21 @@ function buildApi({ store }: { store: Store }) {
         const parseResult = safeParseElection(input.electionData);
         if (parseResult.isErr()) return parseResult;
         election = parseResult.ok();
-      } else {
-        election = createBlankElection();
+        const precincts = convertVxfPrecincts(election);
+        election = {
+          ...election,
+          // Remove any existing ballot styles/grid layouts so we can generate our own
+          ballotStyles: [],
+          precincts,
+          gridLayouts: undefined,
+          // Fill in a blank seal if none is provided
+          seal: election.seal ?? '',
+        };
+        return ok(store.createElection(election, precincts));
       }
-      return ok(store.createElection(election));
+
+      election = createBlankElection();
+      return ok(store.createElection(election, []));
     },
 
     updateElection(input: { electionId: Id; election: Election }): void {
@@ -107,12 +138,9 @@ function buildApi({ store }: { store: Store }) {
     async exportAllBallots(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions, sealImageData } = store.getElection(
-        input.electionId
-      );
+      const { election, layoutOptions } = store.getElection(input.electionId);
       const { ballots, electionDefinition } = layOutAllBallots({
         election,
-        sealImageData: assertDefined(sealImageData),
         isTestMode: true,
         layoutOptions,
       }).unsafeUnwrap();
@@ -144,12 +172,9 @@ function buildApi({ store }: { store: Store }) {
       precinctId: string;
       ballotStyleId: string;
     }): Promise<Buffer> {
-      const { election, layoutOptions, sealImageData } = store.getElection(
-        input.electionId
-      );
+      const { election, layoutOptions } = store.getElection(input.electionId);
       const { ballots } = layOutAllBallots({
         election,
-        sealImageData: assertDefined(sealImageData),
         isTestMode: true,
         layoutOptions,
       }).unsafeUnwrap();
@@ -167,12 +192,9 @@ function buildApi({ store }: { store: Store }) {
     async exportSetupPackage(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions, sealImageData } = store.getElection(
-        input.electionId
-      );
+      const { election, layoutOptions } = store.getElection(input.electionId);
       const { electionDefinition } = layOutAllBallots({
         election,
-        sealImageData: assertDefined(sealImageData),
         isTestMode: true,
         layoutOptions,
       }).unsafeUnwrap();
