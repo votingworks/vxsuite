@@ -2,20 +2,18 @@ import { Id, Tabulation } from '@votingworks/types';
 import {
   combineElectionResults,
   convertManualElectionResults,
-  getEmptyElectionResults,
   mergeWriteInTallies,
   mergeTabulationGroupMaps,
   tabulateCastVoteRecords as tabulateFilteredCastVoteRecords,
   groupBySupportsZeroSplits,
 } from '@votingworks/utils';
-import { assert, assertDefined, mapObject } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   modifyElectionResultsWithWriteInSummary,
   tabulateWriteInTallies,
 } from './write_ins';
 import { tabulateManualResults } from './manual_results';
-import { TallyReportResults } from '../types';
 import { rootDebug } from '../util/debug';
 
 const debug = rootDebug.extend('tabulation');
@@ -161,67 +159,4 @@ export async function tabulateElectionResults({
 
   debug('done tabulating election results');
   return groupedElectionResults;
-}
-
-/**
- * Tabulates grouped tally reports for an election. This includes scanned results
- * adjusted with write-in adjudication data (but combining all unofficial write-ins)
- * and manual results separately.
- */
-export async function tabulateTallyReportResults({
-  electionId,
-  store,
-  filter = {},
-  groupBy = {},
-}: {
-  electionId: Id;
-  store: Store;
-  filter?: Tabulation.Filter;
-  groupBy?: Tabulation.GroupBy;
-}): Promise<Tabulation.GroupMap<TallyReportResults>> {
-  const {
-    electionDefinition: { election },
-  } = assertDefined(store.getElection(electionId));
-
-  debug('tabulating scanned election results for tally report');
-  const groupedScannedResults = mapObject(
-    await tabulateElectionResults({
-      electionId,
-      store,
-      filter,
-      groupBy,
-      includeWriteInAdjudicationResults: true,
-      includeManualResults: false,
-    }),
-    mergeWriteInTallies
-  );
-
-  debug('tabulating manual election results for tally report');
-  const manualResultsTabulationResult = tabulateManualResults({
-    electionId,
-    store,
-    filter,
-    groupBy,
-  });
-
-  if (manualResultsTabulationResult.isErr()) {
-    debug('filter or group by is not compatible with manual results');
-    return mapObject(groupedScannedResults, (scannedResults) => ({
-      scannedResults,
-    }));
-  }
-
-  return mergeTabulationGroupMaps(
-    groupedScannedResults,
-    manualResultsTabulationResult.ok(),
-    (scannedResults, manualResults) => {
-      return {
-        scannedResults:
-          scannedResults ?? getEmptyElectionResults(election, true),
-        manualResults: manualResults
-          ? mergeWriteInTallies(manualResults)
-          : undefined,
-      };
-    }
-  );
 }

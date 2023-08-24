@@ -14,11 +14,17 @@ import {
   Tabulation,
   CandidateVote,
   electionHasPrimaryContest,
+  ElectionDefinition,
 } from '@votingworks/types';
-import { assert, find, mapObject } from '@votingworks/basics';
-import type { TallyReportResults } from '@votingworks/admin-backend';
+import { assert, find } from '@votingworks/basics';
+import type {
+  CardCountsByParty,
+  TallyReportResults,
+} from '@votingworks/admin-backend';
 import {
   getBallotStyleIdPartyIdLookup,
+  getContestsForPrecinct,
+  getEmptyCardCounts,
   groupMapToGroupList,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
@@ -167,27 +173,53 @@ export function testDeckBallotToCastVoteRecord(
 }
 
 export async function generateResultsFromTestDeckBallots({
-  election,
+  electionDefinition,
   testDeckBallots,
+  precinctId,
 }: {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   testDeckBallots: TestDeckBallot[];
-}): Promise<Tabulation.GroupList<TallyReportResults>> {
+  precinctId?: PrecinctId;
+}): Promise<TallyReportResults> {
+  const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
-  return groupMapToGroupList(
-    mapObject(
-      await tabulateCastVoteRecords({
-        election,
-        cvrs: testDeckBallots.map((testDeckBallot) => ({
-          ...testDeckBallotToCastVoteRecord(testDeckBallot),
-          partyId: ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId],
-        })),
-        groupBy: electionHasPrimaryContest(election)
-          ? { groupByParty: true }
-          : undefined,
-      }),
-      (scannedResults) => ({ scannedResults })
-    )
+  const scannedResults = groupMapToGroupList(
+    await tabulateCastVoteRecords({
+      election,
+      cvrs: testDeckBallots.map((testDeckBallot) => ({
+        ...testDeckBallotToCastVoteRecord(testDeckBallot),
+        partyId: ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId],
+      })),
+    })
+  )[0];
+  const contestIds = getContestsForPrecinct(electionDefinition, precinctId).map(
+    (c) => c.id
   );
+
+  const isPrimaryElection = electionHasPrimaryContest(election);
+
+  if (!isPrimaryElection) {
+    return {
+      scannedResults,
+      contestIds,
+      hasPartySplits: false,
+      cardCounts: scannedResults.cardCounts,
+    };
+  }
+
+  const cardCountsByParty: CardCountsByParty = {};
+  for (const testDeckBallot of testDeckBallots) {
+    const partyId = ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId];
+    const partyCardCounts = cardCountsByParty[partyId] ?? getEmptyCardCounts();
+    partyCardCounts.bmd += 1;
+    cardCountsByParty[partyId] = partyCardCounts;
+  }
+
+  return {
+    scannedResults,
+    contestIds,
+    hasPartySplits: true,
+    cardCountsByParty,
+  };
 }

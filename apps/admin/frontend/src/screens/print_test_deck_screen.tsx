@@ -5,7 +5,6 @@ import {
   ElementWithCallback,
   getPrecinctById,
   PrecinctId,
-  Tabulation,
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
@@ -48,7 +47,7 @@ export const LAST_PRINT_JOB_SLEEP_MS = 5000;
 
 interface PrecinctTallyReportProps {
   electionDefinition: ElectionDefinition;
-  tallyReportResults: Tabulation.GroupList<TallyReportResults>;
+  tallyReportResults: TallyReportResults;
   precinctId: PrecinctId;
 }
 
@@ -67,14 +66,16 @@ const ButtonRow = styled.div`
 `;
 
 async function generateResultsForPrecinctTallyReport({
-  election,
+  electionDefinition,
   precinctId,
 }: {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   precinctId: PrecinctId;
-}): Promise<Tabulation.GroupList<TallyReportResults>> {
+}): Promise<TallyReportResults> {
+  const { election } = electionDefinition;
+
   return generateResultsFromTestDeckBallots({
-    election,
+    electionDefinition,
     testDeckBallots: [
       ...generateTestDeckBallots({
         election,
@@ -87,6 +88,7 @@ async function generateResultsForPrecinctTallyReport({
         markingMethod: 'machine',
       }),
     ],
+    precinctId,
   });
 }
 
@@ -253,7 +255,7 @@ export function PrintTestDeckScreen(): JSX.Element {
       const numParties = Math.max(parties.size, 1);
 
       const tallyReportResults = await generateResultsForPrecinctTallyReport({
-        election,
+        electionDefinition,
         precinctId,
       });
       await printElement(
@@ -331,7 +333,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   const renderLogicAndAccuracyPackageToPdfForSinglePrecinct = useCallback(
     (
       precinctId: PrecinctId,
-      tallyReportResults: Tabulation.GroupList<TallyReportResults>,
+      tallyReportResults: TallyReportResults,
       bmdPaperBallotCallbacks: ElementWithCallback[],
       onRendered: () => void
     ): JSX.Element => {
@@ -373,14 +375,11 @@ export function PrintTestDeckScreen(): JSX.Element {
         return bmdPaperBallotsWithCallback;
       });
 
-      const allTallyReportResults: Record<
-        string,
-        Tabulation.GroupList<TallyReportResults>
-      > = {};
+      const allTallyReportResults: Record<string, TallyReportResults> = {};
       for (const precinctId of precinctIds) {
         allTallyReportResults[precinctId] =
           await generateResultsForPrecinctTallyReport({
-            election,
+            electionDefinition,
             precinctId,
           });
       }
@@ -410,11 +409,10 @@ export function PrintTestDeckScreen(): JSX.Element {
         );
       });
     }, [
+      generatePrecinctIds,
       precinctToSaveToPdf,
-      election,
       electionDefinition,
       generateBallotId,
-      generatePrecinctIds,
       renderLogicAndAccuracyPackageToPdfForSinglePrecinct,
     ]);
 

@@ -19,7 +19,6 @@ import {
   getEmptyElectionResults,
   extractGroupSpecifier,
   tabulateCastVoteRecords,
-  isGroupByEmpty,
   GROUP_KEY_ROOT,
   getOfficialCandidateNameLookup,
   getEmptyManualElectionResults,
@@ -31,10 +30,8 @@ import {
   convertManualElectionResults,
   combineElectionResults,
   mergeWriteInTallies,
-  mergeTabulationGroupMaps,
   getGroupKey,
   getGroupSpecifierFromGroupKey,
-  groupMapToGroupList,
   getSheetCount,
 } from './tabulation';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '../filenames';
@@ -475,16 +472,6 @@ test('getSheetCount', () => {
   ).toEqual(23);
 });
 
-test('isGroupByEmpty', () => {
-  expect(isGroupByEmpty({})).toEqual(true);
-  expect(isGroupByEmpty({ groupByBallotStyle: true })).toEqual(false);
-  expect(isGroupByEmpty({ groupByBatch: true })).toEqual(false);
-  expect(isGroupByEmpty({ groupByPrecinct: true })).toEqual(false);
-  expect(isGroupByEmpty({ groupByParty: true })).toEqual(false);
-  expect(isGroupByEmpty({ groupByScanner: true })).toEqual(false);
-  expect(isGroupByEmpty({ groupByVotingMethod: true })).toEqual(false);
-});
-
 test('getBallotStyleIdPartyIdLookup', () => {
   expect(
     getBallotStyleIdPartyIdLookup(
@@ -548,46 +535,6 @@ test('mapping from group keys to and from group specifiers', () => {
   ).toEqual('root&ballotStyleId=\\=\\\\1M\\&&batchId=batch-1');
 
   maintainsGroupSpecifier({ ballotStyleId: '=\\1M&', batchId: 'batch-1' });
-});
-
-test('groupMapToGroupList', () => {
-  expect(
-    groupMapToGroupList({
-      'root&ballotStyleId=1M&batchId=batch-1': {
-        ballotCount: 1,
-      },
-      'root&ballotStyleId=1M&batchId=batch-2': {
-        ballotCount: 2,
-      },
-      'root&ballotStyleId=2F&batchId=batch-1': {
-        ballotCount: 3,
-      },
-      'root&ballotStyleId=2F&batchId=batch-2': {
-        ballotCount: 4,
-      },
-    })
-  ).toEqual([
-    {
-      ballotCount: 1,
-      ballotStyleId: '1M',
-      batchId: 'batch-1',
-    },
-    {
-      ballotCount: 2,
-      ballotStyleId: '1M',
-      batchId: 'batch-2',
-    },
-    {
-      ballotCount: 3,
-      ballotStyleId: '2F',
-      batchId: 'batch-1',
-    },
-    {
-      ballotCount: 4,
-      ballotStyleId: '2F',
-      batchId: 'batch-2',
-    },
-  ]);
 });
 
 type ObjectWithGroupSpecifier = { something: 'something' } & GroupSpecifier;
@@ -1256,47 +1203,4 @@ test('mergeManualWriteInTallies', () => {
       },
     })
   );
-});
-
-test('mergeTabulationGroups', () => {
-  const revenues: Tabulation.GroupMap<{ count: number }> = {
-    a: {
-      count: 5,
-    },
-    b: {
-      count: 10,
-    },
-    c: {
-      count: 15,
-    },
-    e: {
-      count: 20,
-    },
-  };
-
-  const expenses: Tabulation.GroupMap<{ count: number }> = {
-    b: {
-      count: 7,
-    },
-    c: {
-      count: 14,
-    },
-    d: {
-      count: 21,
-    },
-  };
-
-  expect(
-    mergeTabulationGroupMaps(
-      revenues,
-      expenses,
-      (revenue, expense) => (revenue?.count ?? 0) - (expense?.count ?? 0)
-    )
-  ).toEqual({
-    a: 5,
-    b: 3,
-    c: 1,
-    d: -21,
-    e: 20,
-  });
 });

@@ -20,6 +20,7 @@ export interface AdminTallyReportProps {
   contests: Contests;
   scannedElectionResults: Tabulation.ElectionResults;
   manualElectionResults?: Tabulation.ManualElectionResults;
+  cardCountsOverride?: Tabulation.CardCounts;
   generatedAtTime?: Date;
 }
 
@@ -31,14 +32,13 @@ export function AdminTallyReport({
   contests,
   scannedElectionResults,
   manualElectionResults,
+  cardCountsOverride,
   generatedAtTime = new Date(),
 }: AdminTallyReportProps): JSX.Element {
-  const cardCounts = manualElectionResults
-    ? {
-        ...scannedElectionResults.cardCounts,
-        manual: manualElectionResults.ballotCount,
-      }
-    : scannedElectionResults.cardCounts;
+  const cardCounts = cardCountsOverride ?? {
+    ...scannedElectionResults.cardCounts,
+    manual: manualElectionResults?.ballotCount,
+  };
 
   return (
     <ThemeProvider theme={tallyReportThemeFn}>

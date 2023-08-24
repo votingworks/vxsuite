@@ -4,6 +4,7 @@ import {
   ContestResultsSummaries,
   buildElectionResultsFixture,
 } from '@votingworks/utils';
+import { mapObject } from '@votingworks/basics';
 
 /**
  * To quickly mock data for tally reports. Simply takes the top-level ballot count and
@@ -28,8 +29,8 @@ export function getSimpleMockElectionResults(
   return buildElectionResultsFixture({
     election,
     cardCounts: {
-      bmd: 0,
-      hmpb: [ballotCount],
+      bmd: ballotCount,
+      hmpb: [],
     },
     contestResultsSummaries,
     includeGenericWriteIn: true,
@@ -46,16 +47,52 @@ export function getSimpleMockManualResults(
   };
 }
 
-export function getSimpleMockTallyResults(
-  election: Election,
-  scannedBallotCount: number,
-  manualBallotCount?: number
-): TallyReportResults {
+export function getSimpleMockTallyResults({
+  election,
+  scannedBallotCount,
+  manualBallotCount,
+  cardCountsByParty,
+  contestIds: specifiedContestIds,
+}: {
+  election: Election;
+  scannedBallotCount: number;
+  manualBallotCount?: number;
+  cardCountsByParty?: Record<string, number | Tabulation.CardCounts>;
+  contestIds?: string[];
+}): TallyReportResults {
+  const scannedResults = getSimpleMockElectionResults(
+    election,
+    scannedBallotCount
+  );
+  const manualResults =
+    manualBallotCount !== undefined
+      ? getSimpleMockManualResults(election, manualBallotCount)
+      : undefined;
+  const contestIds = specifiedContestIds ?? election.contests.map((c) => c.id);
+
+  if (cardCountsByParty) {
+    return {
+      scannedResults,
+      manualResults,
+      contestIds,
+      hasPartySplits: true,
+      cardCountsByParty: mapObject(cardCountsByParty, (count) => {
+        if (typeof count === 'number') {
+          return {
+            bmd: count,
+            hmpb: [],
+          };
+        }
+        return count;
+      }),
+    };
+  }
+
   return {
-    scannedResults: getSimpleMockElectionResults(election, scannedBallotCount),
-    manualResults:
-      manualBallotCount !== undefined
-        ? getSimpleMockManualResults(election, manualBallotCount)
-        : undefined,
+    scannedResults,
+    manualResults,
+    contestIds,
+    hasPartySplits: false,
+    cardCounts: scannedResults.cardCounts,
   };
 }

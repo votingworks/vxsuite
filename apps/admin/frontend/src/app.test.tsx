@@ -34,6 +34,7 @@ import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_helpers';
 
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
+import { getSimpleMockTallyResults } from '../test/helpers/mock_results';
 
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
@@ -327,15 +328,19 @@ test('L&A (logic and accuracy) flow', async () => {
 
 test('marking results as official', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionDefinition;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetResultsForTallyReports(
-    { filter: {}, groupBy: { groupByParty: true } },
-    []
-  );
+  apiMock.expectGetResultsForTallyReports({ filter: {} }, [
+    getSimpleMockTallyResults({
+      election,
+      scannedBallotCount: 100,
+      cardCountsByParty: {},
+    }),
+  ]);
   apiMock.expectGetScannerBatches([]);
   apiMock.expectGetManualResultsMetadata([]);
   expectReportsScreenCardCountQueries({ apiMock, isPrimary: true });

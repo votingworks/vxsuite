@@ -85,15 +85,13 @@ import { handleEnteredWriteInCandidateData } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
-import {
-  tabulateElectionResults,
-  tabulateTallyReportResults,
-} from './tabulation/full_results';
+import { tabulateElectionResults } from './tabulation/full_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateResultsCsv } from './exports/csv_results';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
+import { tabulateTallyReportResults } from './tabulation/tally_reports';
 
 const debug = rootDebug.extend('app');
 
@@ -698,14 +696,12 @@ function buildApi({
       } = {}
     ): Promise<Tabulation.GroupList<TallyReportResults>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return groupMapToGroupList(
-        await tabulateTallyReportResults({
-          electionId,
-          store,
-          filter: input.filter,
-          groupBy: input.groupBy,
-        })
-      );
+      return tabulateTallyReportResults({
+        electionId,
+        store,
+        filter: input.filter,
+        groupBy: input.groupBy,
+      });
     },
 
     getScannerBatches(): ScannerBatch[] {
