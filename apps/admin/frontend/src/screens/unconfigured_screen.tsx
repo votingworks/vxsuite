@@ -84,7 +84,7 @@ export function UnconfiguredScreen(): JSX.Element {
         }
         return result;
       } catch {
-        // Do nothing
+        // Handled by default query client error handling
       }
     },
     [configureMutateAsync]
