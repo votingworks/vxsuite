@@ -409,8 +409,7 @@ export function buildMachine(
       },
       presenting_ballot: {
         invoke: pollPaperStatus(),
-        entry: (context) => {
-          debug('+entry for presenting_ballot');
+        entry: async (context) => {
           if (context.interpretation) {
             // `debug`'s string interpolation only pretty prints 1 layer deep; we need 2
             debug(
@@ -430,9 +429,7 @@ export function buildMachine(
           } else {
             debug('No interpretation found in context');
           }
-          debug('Presenting paper');
-          void context.driver.presentPaper();
-          debug('-entry for presenting_ballot');
+          await context.driver.presentPaper();
         },
         on: {
           VOTER_VALIDATED_BALLOT: 'eject_to_rear',
