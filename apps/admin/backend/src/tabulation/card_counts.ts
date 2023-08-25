@@ -113,6 +113,7 @@ export function tabulateFullCardCounts({
     electionId,
     store,
     groupBy,
+    blankBallotsOnly,
   });
   if (blankBallotsOnly) {
     // we do not manage manually entered blank ballots within the system
@@ -140,7 +141,6 @@ export function tabulateFullCardCounts({
     groupedManualBallotCounts,
     (scannedCardCounts, manualBallotCount) => {
       return {
-        // eslint-disable-next-line vx/gts-spread-like-types
         ...(scannedCardCounts ?? getEmptyCardCounts()),
         manual: manualBallotCount ?? 0,
       };

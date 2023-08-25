@@ -7,7 +7,10 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
-import { tabulateScannedCardCounts } from './card_counts';
+import {
+  tabulateFullCardCounts,
+  tabulateScannedCardCounts,
+} from './card_counts';
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore();
@@ -262,7 +265,7 @@ test('tabulateFullCardCounts - blankBallots', () => {
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
   const allBallotCounts = groupMapToGroupList(
-    tabulateScannedCardCounts({
+    tabulateFullCardCounts({
       electionId,
       store,
     })
@@ -272,11 +275,12 @@ test('tabulateFullCardCounts - blankBallots', () => {
     typedAs<Tabulation.CardCounts>({
       bmd: 11,
       hmpb: [],
+      manual: 0,
     }),
   ]);
 
   const blankBallotCounts = groupMapToGroupList(
-    tabulateScannedCardCounts({
+    tabulateFullCardCounts({
       electionId,
       store,
       blankBallotsOnly: true,
