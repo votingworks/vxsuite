@@ -77,6 +77,7 @@ import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { JammedPage } from './pages/jammed_page';
 import { JamClearedPage } from './pages/jam_cleared_page';
+import { ValidateBallotPage } from './pages/validate_ballot_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -744,7 +745,14 @@ export function AppRoot({
                 votes: votes ?? blankBallotVotes,
               }}
             >
-              <Ballot />
+              {stateMachineState === 'presenting_ballot' ? (
+                // Don't nest ValidateBallotPage under Ballot because Ballot uses frontend browser routing for flow control
+                // and is completely independent of the state machine. ValidateBallotPage interacts with the state machine
+                // so we condition on it here, where we can still access BallotContext, but completely separate it from browser routing
+                <ValidateBallotPage />
+              ) : (
+                <Ballot />
+              )}
             </BallotContext.Provider>
           </Gamepad>
         );

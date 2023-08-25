@@ -10,7 +10,6 @@ import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
 import { ReviewPage } from '../pages/review_page';
 import { StartPage } from '../pages/start_page';
-import { ValidateBallotPage } from '../pages/validate_ballot_page';
 
 export function Ballot(): JSX.Element {
   const [isIdle, setIsIdle] = useState(false);
@@ -52,9 +51,6 @@ export function Ballot(): JSX.Element {
           </Route>
           <Route path="/print">
             <PrintPage />
-          </Route>
-          <Route path="/validate">
-            <ValidateBallotPage />
           </Route>
           <Route path="/:path">
             <NotFoundPage />

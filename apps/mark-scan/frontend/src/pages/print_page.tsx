@@ -5,13 +5,11 @@ import { PrintOptions } from '@votingworks/types';
 import { printElementToPdf } from '@votingworks/ui';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
-import { Redirect } from 'react-router-dom';
 import { BallotContext } from '../contexts/ballot_context';
-import { getStateMachineState, printBallot } from '../api';
+import { printBallot } from '../api';
 
 const debug = makeDebug('mark-scan:print-page');
 export function PrintPage(): JSX.Element | null {
-  const stateMachineStateQuery = getStateMachineState.useQuery();
   const {
     electionDefinition,
     ballotStyleId,
@@ -38,14 +36,6 @@ export function PrintPage(): JSX.Element | null {
 
   function onPrintStarted() {
     updateTally();
-  }
-
-  if (!stateMachineStateQuery.isSuccess) {
-    return null;
-  }
-
-  if (stateMachineStateQuery.data === 'presenting_ballot') {
-    return <Redirect to="/validate" />;
   }
 
   return (
