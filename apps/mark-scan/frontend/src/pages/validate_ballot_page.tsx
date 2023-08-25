@@ -45,7 +45,7 @@ export function ValidateBallotPage(): JSX.Element | null {
   const invalidateBallotMutation = invalidateBallot.useMutation();
   const validateBallotMutation = validateBallot.useMutation();
   async function invalidateBallotCallback() {
-    invalidateBallotMutation.mutate();
+    await invalidateBallotMutation.mutateAsync();
     resetBallot();
     await endVoterSession();
   }
