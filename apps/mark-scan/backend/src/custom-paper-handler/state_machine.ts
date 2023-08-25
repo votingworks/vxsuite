@@ -51,11 +51,8 @@ interface Context {
   workspace: Workspace;
   driver: PaperHandlerDriver;
   pollingIntervalMs: number;
-  // xstate does not support deleting from context, but these values need to be cleared when the state machine
-  // is returned to its initial state
-  // https://github.com/statelyai/xstate/issues/989
-  scannedImagePaths: SheetOf<string> | null;
-  interpretation: SheetOf<InterpretFileResult> | null;
+  scannedImagePaths?: SheetOf<string>;
+  interpretation?: SheetOf<InterpretFileResult>;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -160,7 +157,7 @@ export class PaperHandlerStateMachine {
         ? JSON.stringify(context.interpretation[0].interpretation.type)
         : 'no_interpretation_found'
     );
-    return context.interpretation ?? undefined;
+    return context.interpretation;
   }
 
   validateBallot(): void {
@@ -495,8 +492,8 @@ export function buildMachine(
       resetting_state_machine_after_jam: {
         entry: () => {
           assign({
-            interpretation: null,
-            scannedImagePaths: null,
+            interpretation: undefined,
+            scannedImagePaths: undefined,
           });
           debug('Reset machine context state');
         },
@@ -508,8 +505,8 @@ export function buildMachine(
       resetting_state_machine_after_success: {
         entry: () => {
           assign({
-            interpretation: null,
-            scannedImagePaths: null,
+            interpretation: undefined,
+            scannedImagePaths: undefined,
           });
           debug('Reset machine context state');
         },
@@ -530,8 +527,6 @@ export async function getPaperHandlerStateMachine(
     workspace,
     driver: paperHandlerDriver,
     pollingIntervalMs,
-    scannedImagePaths: null,
-    interpretation: null,
   };
 
   const machine = buildMachine(context);
