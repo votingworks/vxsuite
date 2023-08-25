@@ -316,6 +316,10 @@ export function buildMachine(
     id: 'bmd',
     initial: 'not_accepting_paper',
     context: initialContext,
+    on: {
+      PAPER_JAM: 'jammed',
+      JAMMED_STATUS_NO_PAPER: 'jam_physically_cleared',
+    },
     states: {
       // Initial state. Doesn't accept paper and transitions away when the frontend says it's ready to accept
       not_accepting_paper: {
@@ -324,8 +328,6 @@ export function buildMachine(
           debug('Initial state entered. Context: %O', context);
         },
         on: {
-          JAMMED_STATUS_NO_PAPER: 'jammed',
-          PAPER_JAM: 'jammed',
           PAPER_INSIDE_NO_JAM: 'eject_to_front',
           BEGIN_ACCEPTING_PAPER: 'accepting_paper',
         },
@@ -348,7 +350,6 @@ export function buildMachine(
           },
         ],
         on: {
-          PAPER_JAM: 'jammed',
           PAPER_PARKED: 'waiting_for_ballot_data',
           NO_PAPER_ANYWHERE: 'accepting_paper',
         },
@@ -372,7 +373,6 @@ export function buildMachine(
         },
         on: {
           PAPER_IN_OUTPUT: 'scanning',
-          PAPER_JAM: 'jammed',
         },
       },
       scanning: {
@@ -389,9 +389,6 @@ export function buildMachine(
           },
           pollPaperStatus(),
         ],
-        on: {
-          PAPER_JAM: 'jammed',
-        },
       },
       interpreting: {
         // Paper is in the paper handler for the duration of the interpreting stage and paper handler
@@ -440,7 +437,6 @@ export function buildMachine(
         on: {
           VOTER_VALIDATED_BALLOT: 'eject_to_rear',
           VOTER_INVALIDATED_BALLOT: 'eject_to_front',
-          PAPER_JAM: 'jammed',
         },
       },
       eject_to_rear: {
@@ -453,7 +449,6 @@ export function buildMachine(
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
-          PAPER_JAM: 'jammed',
         },
       },
       eject_to_front: {
@@ -465,13 +460,11 @@ export function buildMachine(
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
-          PAPER_JAM: 'jammed',
         },
       },
       jammed: {
         invoke: pollPaperStatus(),
         on: {
-          JAMMED_STATUS_NO_PAPER: 'jam_physically_cleared',
           NO_PAPER_ANYWHERE: 'jam_physically_cleared',
         },
       },
@@ -479,11 +472,13 @@ export function buildMachine(
         invoke: {
           id: 'resetScanAndDriver',
           src: (context) => {
+            // Issues `reset scan` command, creates a new WebUSBDevice, and reconnects
             return resetAndReconnect(context.driver);
           },
           onDone: {
             target: 'resetting_state_machine_after_jam',
             actions: assign({
+              // Overwrites the old nonfunctional driver in context with the new functional one
               driver: (_, event) => event.data,
             }),
           },
