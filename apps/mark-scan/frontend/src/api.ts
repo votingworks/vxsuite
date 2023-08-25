@@ -167,8 +167,6 @@ export const startCardlessVoterSession = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.startCardlessVoterSession, {
       async onSuccess() {
-        // Invalidate interpretation query from any previous session
-        await queryClient.invalidateQueries(getInterpretation.queryKey());
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
@@ -183,9 +181,11 @@ export const endCardlessVoterSession = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.endCardlessVoterSession, {
       async onSuccess() {
-        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // Because we poll auth status with high frequency, auth invalidation isn't strictly
         // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: [getAuthStatus.queryKey(), getInterpretation.queryKey()],
+        });
       },
     });
   },
