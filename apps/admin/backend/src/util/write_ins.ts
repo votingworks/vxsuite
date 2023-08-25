@@ -25,21 +25,25 @@ export async function getWriteInImageView({
   const contestLayout = layout.contests.find(
     (contest) => contest.contestId === contestId
   );
+  /* c8 ignore next 3 - TODO: revisit our layout assumptions based on our new ballots */
   if (!contestLayout) {
     throw new Error('unable to find a layout for the specified contest');
   }
 
   // identify the write-in option layout
-  const writeInOptions = contestLayout.options.filter((option) =>
-    option.definition?.id.startsWith('write-in')
+  const writeInOptions = contestLayout.options.filter(
+    (option) => option.definition && option.definition.id.startsWith('write-in')
   );
   const writeInOptionIndex = safeParseNumber(
     optionId.slice('write-in-'.length)
   );
+  /* c8 ignore next 3 - TODO: revisit our layout assumptions based on our new ballots */
   if (writeInOptionIndex.isErr() || writeInOptions === undefined) {
     throw new Error('unable to interpret layout write-in options');
   }
+
   const writeInLayout = writeInOptions[writeInOptionIndex.ok()];
+  /* c8 ignore next 3 - TODO: revisit our layout assumptions based on our new ballots */
   if (writeInLayout === undefined) {
     throw new Error('unexpected write-in option index');
   }
