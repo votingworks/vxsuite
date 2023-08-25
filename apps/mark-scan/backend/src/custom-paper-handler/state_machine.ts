@@ -32,6 +32,7 @@ import { SimpleServerStatus } from './types';
 import {
   PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
   PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
+  RESET_AFTER_JAM_DELAY_MS,
 } from './constants';
 import {
   isPaperInScanner,
@@ -487,11 +488,10 @@ export function buildMachine(
             interpretation: undefined,
             scannedImagePaths: undefined,
           });
-          debug('Reset machine context state');
         },
         after: {
           // The frontend needs time to idle in this state so the user can read the status message
-          5000: { target: 'not_accepting_paper' },
+          [RESET_AFTER_JAM_DELAY_MS]: 'not_accepting_paper',
         },
       },
       resetting_state_machine_after_success: {
@@ -500,11 +500,8 @@ export function buildMachine(
             interpretation: undefined,
             scannedImagePaths: undefined,
           });
-          debug('Reset machine context state');
         },
-        after: {
-          1000: { target: 'not_accepting_paper' },
-        },
+        always: 'not_accepting_paper',
       },
     },
   });
