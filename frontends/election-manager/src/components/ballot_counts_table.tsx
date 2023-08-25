@@ -423,6 +423,8 @@ export function BallotCountsTable({
         </Table>
       );
     }
+    case TallyCategory.PartyPrecinct:
+      throw new Error('unsupported');
     default:
       throwIllegalValue(breakdownCategory);
   }

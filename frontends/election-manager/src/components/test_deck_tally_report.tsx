@@ -81,15 +81,26 @@ export function TestDeckTallyReport({
     const primaryParties = getPartiesWithPrimaryElections(election);
     if (primaryParties.length > 1) {
       const resultsByParty: Dictionary<Tally> = {};
+      const resultsByPartyPrecinct: Dictionary<Tally> = {};
       for (const party of primaryParties) {
-        resultsByParty[party.id] = getTallyFromTestDeckBallots({
+        const tally = getTallyFromTestDeckBallots({
           election,
           testDeckBallots,
           partyId: party.id,
         });
+        resultsByParty[party.id] = tally;
+        if (precinctId) {
+          resultsByPartyPrecinct[`${party.id}${precinctId}`] = tally;
+        }
       }
 
       resultsByCategory.set(TallyCategory.Party, resultsByParty);
+      if (precinctId) {
+        resultsByCategory.set(
+          TallyCategory.PartyPrecinct,
+          resultsByPartyPrecinct
+        );
+      }
     }
 
     return {

@@ -47,6 +47,7 @@ export enum TallyCategory {
   Party = 'party',
   VotingMethod = 'votingmethod',
   Batch = 'batch',
+  PartyPrecinct = 'party-precinct', // used for test deck tally reports
 }
 
 export interface FullElectionTally {
