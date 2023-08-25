@@ -195,28 +195,19 @@ function buildApi(
       return stateMachine.getSimpleStatus();
     },
 
-    setAcceptingPaperState(): SimpleServerStatus {
-      if (!stateMachine) {
-        return 'no_hardware';
-      }
-
+    setAcceptingPaperState(): void {
+      assert(stateMachine);
       stateMachine.setAcceptingPaper();
-      return stateMachine.getSimpleStatus();
     },
 
-    printBallot(input: { pdfData: Buffer }): SimpleServerStatus {
-      if (!stateMachine) {
-        return 'no_hardware';
-      }
+    printBallot(input: { pdfData: Buffer }): void {
+      assert(stateMachine);
 
       void stateMachine.printBallot(input.pdfData);
-      return stateMachine.getSimpleStatus();
     },
 
     getInterpretation(): InterpretedBmdPage | null {
-      if (!stateMachine) {
-        throw new Error('No state machine present');
-      }
+      assert(stateMachine);
 
       // Storing the interpretation in the db requires a somewhat complicated schema
       // and would need to be deleted at the end of the voter session anyway.
@@ -239,19 +230,15 @@ function buildApi(
       return sheetInterpretation[0].interpretation;
     },
 
-    validateBallot() {
-      if (!stateMachine) {
-        throw new Error('No state machine present');
-      }
+    validateBallot(): void {
+      assert(stateMachine);
 
       debug('API validate');
       stateMachine.validateBallot();
     },
 
-    invalidateBallot() {
-      if (!stateMachine) {
-        throw new Error('No state machine present');
-      }
+    invalidateBallot(): void {
+      assert(stateMachine);
 
       debug('API invalidate');
       stateMachine.invalidateBallot();

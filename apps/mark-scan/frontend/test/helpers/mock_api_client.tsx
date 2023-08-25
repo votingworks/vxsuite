@@ -200,9 +200,7 @@ export function createApiMock() {
     },
 
     expectPrintBallot(pdfData = Buffer.of()): void {
-      mockApiClient.printBallot
-        .expectCallWith({ pdfData })
-        .resolves('scanning');
+      mockApiClient.printBallot.expectCallWith({ pdfData }).resolves();
     },
 
     expectGetInterpretation(
@@ -222,17 +220,13 @@ export function createApiMock() {
     // Some e2e tests repeatedly reset voter session. Each time a voter session is activated
     // setAcceptingPaperState is called.
     expectRepeatedSetAcceptingPaperState(): void {
-      mockApiClient.setAcceptingPaperState
-        .expectRepeatedCallsWith()
-        .resolves('accepting_paper');
+      mockApiClient.setAcceptingPaperState.expectRepeatedCallsWith().resolves();
       setPaperHandlerState('accepting_paper');
     },
 
     // Mocked version of a real method on the API client
     expectSetAcceptingPaperState(): void {
-      mockApiClient.setAcceptingPaperState
-        .expectCallWith()
-        .resolves('accepting_paper');
+      mockApiClient.setAcceptingPaperState.expectCallWith().resolves();
       setPaperHandlerState('accepting_paper');
     },
 
