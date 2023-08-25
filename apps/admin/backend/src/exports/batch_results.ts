@@ -60,11 +60,13 @@ function generateResultsRow(
       assert(contestResults.contestType === 'candidate');
       for (const candidate of contest.candidates) {
         contestVoteTotals.push(
+          /* c8 ignore next - trivial fallback case */
           contestResults.tallies[candidate.id]?.tally.toString() ?? '0'
         );
       }
       if (contest.allowWriteIns) {
         contestVoteTotals.push(
+          /* c8 ignore next - trivial fallback case */
           contestResults.tallies[writeInCandidate.id]?.tally.toString() ?? '0'
         );
       }
