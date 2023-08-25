@@ -557,7 +557,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Ejects out the front. Can eject from loaded or parked state. If there is
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
-  async ejectPaper(): Promise<boolean> {
+  async ejectPaperToFront(): Promise<boolean> {
     return this.handleGenericCommandWithAcknowledgement(
       EjectPaperCommand,
       undefined
@@ -592,7 +592,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Ejects to ballot box. Can eject from loaded or parked state. If there is
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
-  async ejectBallot(): Promise<boolean> {
+  async ejectBallotToRear(): Promise<boolean> {
     return this.handleGenericCommandWithAcknowledgement(
       EjectPaperToBallotCommand,
       undefined

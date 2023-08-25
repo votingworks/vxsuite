@@ -80,10 +80,10 @@ export interface PaperHandlerDriverInterface {
   scan(): Promise<ImageData>;
   scanAndSave(pathOut: string): Promise<ImageFromScanner>;
   loadPaper(): Promise<boolean>;
-  ejectPaper(): Promise<boolean>;
+  ejectPaperToFront(): Promise<boolean>;
   parkPaper(): Promise<boolean>;
   presentPaper(): Promise<boolean>;
-  ejectBallot(): Promise<boolean>;
+  ejectBallotToRear(): Promise<boolean>;
   calibrate(): Promise<boolean>;
   enablePrint(): Promise<boolean>;
   disablePrint(): Promise<boolean>;

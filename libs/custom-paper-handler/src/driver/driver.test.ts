@@ -265,7 +265,7 @@ const scannerCommands = [
   {
     description: 'eject paper',
     command: [0x1c, 0x53, 0x50, 0x45],
-    functionToTest: PaperHandlerDriver.prototype.ejectPaper,
+    functionToTest: PaperHandlerDriver.prototype.ejectPaperToFront,
   },
   {
     description: 'present paper and hold',
@@ -275,7 +275,7 @@ const scannerCommands = [
   {
     description: 'eject paper to ballot',
     command: [0x1c, 0x53, 0x50, 0x48],
-    functionToTest: PaperHandlerDriver.prototype.ejectBallot,
+    functionToTest: PaperHandlerDriver.prototype.ejectBallotToRear,
   },
   {
     description: 'scanner calibration',

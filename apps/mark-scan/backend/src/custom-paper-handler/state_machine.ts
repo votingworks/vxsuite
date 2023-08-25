@@ -441,7 +441,7 @@ export function buildMachine(
         entry: async (context) => {
           debug('+eject_to_rear');
           await context.driver.parkPaper();
-          await context.driver.ejectBallot();
+          await context.driver.ejectBallotToRear();
           debug('-eject_to_rear');
         },
         on: {
@@ -452,7 +452,7 @@ export function buildMachine(
         invoke: pollPaperStatus(),
         entry: (context) => {
           debug('+eject_to_front');
-          void context.driver.ejectPaper();
+          void context.driver.ejectPaperToFront();
           debug('-eject_to_front');
         },
         on: {
