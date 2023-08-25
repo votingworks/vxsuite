@@ -197,10 +197,10 @@ function paperHandlerStatusToEvent(
     if (paperHandlerStatus.parkSensor) {
       return { type: 'PAPER_PARKED' };
     }
-    if (!isPaperJammed(paperHandlerStatus)) {
-      return { type: 'PAPER_INSIDE_NO_JAM' };
-    }
-  } else if (isPaperReadyToLoad(paperHandlerStatus)) {
+
+    return { type: 'PAPER_INSIDE_NO_JAM' };
+  }
+  if (isPaperReadyToLoad(paperHandlerStatus)) {
     return { type: 'PAPER_READY_TO_LOAD' };
   }
 
@@ -213,17 +213,6 @@ function paperHandlerStatusToEvent(
   }
 
   return { type: 'UNHANDLED_EVENT' };
-}
-
-function paperHandlerStatusToEventDebugWrapper(
-  paperHandlerStatus: PaperHandlerStatus
-): PaperHandlerStatusEvent {
-  const event = paperHandlerStatusToEvent(paperHandlerStatus);
-  debug(`Emitting event ${event.type}`);
-  if (event.type === 'UNHANDLED_EVENT') {
-    debug('Unhandled status:\n%O', paperHandlerStatus);
-  }
-  return event;
 }
 
 /**
@@ -251,7 +240,12 @@ function buildPaperStatusObservable() {
             // Get raw status, map to event, and emit event
             try {
               const paperHandlerStatus = await driver.getPaperHandlerStatus();
-              return paperHandlerStatusToEventDebugWrapper(paperHandlerStatus);
+              const event = paperHandlerStatusToEvent(paperHandlerStatus);
+              debug(`Emitting event ${event.type}`);
+              if (event.type === 'UNHANDLED_EVENT') {
+                debug('Unhandled status:\n%O', paperHandlerStatus);
+              }
+              return event;
             } catch (err) {
               debug('Error in observable: %O', err);
               return { type: 'UNHANDLED_EVENT' };
@@ -333,26 +327,16 @@ export function buildMachine(
           debug('Initial state entered. Context: %O', context);
         },
         on: {
-          JAMMED_STATUS_NO_PAPER: {
-            target: 'jammed',
-          },
-          PAPER_JAM: {
-            target: 'jammed',
-          },
-          PAPER_INSIDE_NO_JAM: {
-            target: 'eject_to_front',
-          },
-          BEGIN_ACCEPTING_PAPER: {
-            target: 'accepting_paper',
-          },
+          JAMMED_STATUS_NO_PAPER: 'jammed',
+          PAPER_JAM: 'jammed',
+          PAPER_INSIDE_NO_JAM: 'eject_to_front',
+          BEGIN_ACCEPTING_PAPER: 'accepting_paper',
         },
       },
       accepting_paper: {
         invoke: pollPaperStatus(),
         on: {
-          PAPER_READY_TO_LOAD: {
-            target: 'loading_paper',
-          },
+          PAPER_READY_TO_LOAD: 'loading_paper',
         },
       },
       loading_paper: {
@@ -367,27 +351,14 @@ export function buildMachine(
           },
         ],
         on: {
-          PAPER_JAM: {
-            target: 'jammed',
-          },
-          PAPER_PARKED: {
-            target: 'waiting_for_ballot_data',
-          },
-          NO_PAPER_ANYWHERE: {
-            target: 'accepting_paper',
-          },
+          PAPER_JAM: 'jammed',
+          PAPER_PARKED: 'waiting_for_ballot_data',
+          NO_PAPER_ANYWHERE: 'accepting_paper',
         },
       },
       waiting_for_ballot_data: {
-        invoke: pollPaperStatus(),
         on: {
-          PAPER_JAM: {
-            target: 'jammed',
-          },
-          VOTER_INITIATED_PRINT: {
-            target: 'printing_ballot',
-          },
-          // TODO handle no paper found -> go back to paper load
+          VOTER_INITIATED_PRINT: 'printing_ballot',
         },
       },
       printing_ballot: {
@@ -403,12 +374,8 @@ export function buildMachine(
           }
         },
         on: {
-          PAPER_IN_OUTPUT: {
-            target: 'scanning',
-          },
-          PAPER_JAM: {
-            target: 'jammed',
-          },
+          PAPER_IN_OUTPUT: 'scanning',
+          PAPER_JAM: 'jammed',
         },
       },
       scanning: {
@@ -426,9 +393,7 @@ export function buildMachine(
           pollPaperStatus(),
         ],
         on: {
-          PAPER_JAM: {
-            target: 'jammed',
-          },
+          PAPER_JAM: 'jammed',
         },
       },
       interpreting: {
@@ -476,15 +441,9 @@ export function buildMachine(
           debug('-entry for presenting_ballot');
         },
         on: {
-          VOTER_VALIDATED_BALLOT: {
-            target: 'eject_to_rear',
-          },
-          VOTER_INVALIDATED_BALLOT: {
-            target: 'eject_to_front',
-          },
-          PAPER_JAM: {
-            target: 'jammed',
-          },
+          VOTER_VALIDATED_BALLOT: 'eject_to_rear',
+          VOTER_INVALIDATED_BALLOT: 'eject_to_front',
+          PAPER_JAM: 'jammed',
         },
       },
       eject_to_rear: {
@@ -496,12 +455,8 @@ export function buildMachine(
           debug('-eject_to_rear');
         },
         on: {
-          NO_PAPER_ANYWHERE: {
-            target: 'resetting_state_machine_after_success',
-          },
-          PAPER_JAM: {
-            target: 'jammed',
-          },
+          NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+          PAPER_JAM: 'jammed',
         },
       },
       eject_to_front: {
@@ -512,23 +467,15 @@ export function buildMachine(
           debug('-eject_to_front');
         },
         on: {
-          NO_PAPER_ANYWHERE: {
-            target: 'resetting_state_machine_after_success',
-          },
-          PAPER_JAM: {
-            target: 'jammed',
-          },
+          NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+          PAPER_JAM: 'jammed',
         },
       },
       jammed: {
         invoke: pollPaperStatus(),
         on: {
-          JAMMED_STATUS_NO_PAPER: {
-            target: 'jam_physically_cleared',
-          },
-          NO_PAPER_ANYWHERE: {
-            target: 'jam_physically_cleared',
-          },
+          JAMMED_STATUS_NO_PAPER: 'jam_physically_cleared',
+          NO_PAPER_ANYWHERE: 'jam_physically_cleared',
         },
       },
       jam_physically_cleared: {
