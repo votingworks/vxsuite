@@ -31,10 +31,10 @@ export function getMockInterpretation(
   return {
     type: 'InterpretedBmdPage',
     metadata: {
-      ballotStyleId: '12',
+      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
       electionHash: electionDefinition.electionHash,
       isTestMode: true,
-      precinctId: '34',
+      precinctId: electionDefinition.election.precincts[0].id,
       ballotType: BallotType.Standard,
     },
     votes,
