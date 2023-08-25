@@ -357,6 +357,7 @@ export function computeTallyWithPrecomputedCategories(
         break;
       }
       case TallyCategory.Scanner:
+      case TallyCategory.PartyPrecinct:
         // do nothing no initialization needed
         break;
       /* istanbul ignore next - compile time check for completeness */
@@ -380,6 +381,8 @@ export function computeTallyWithPrecomputedCategories(
         case TallyCategory.VotingMethod:
           dictionaryKey = getVotingMethodForCastVoteRecord(CVR);
           break;
+        case TallyCategory.PartyPrecinct:
+          throw new Error('unsupported');
         /* istanbul ignore next - compile time check for completeness */
         default:
           throwIllegalValue(tallyCategory);
@@ -520,8 +523,7 @@ export function filterTalliesByParams(
       getEmptyTally()
     );
   }
-  // HACK ignore precinct ID for purposes of test deck tallying
-  if (partyId && !scannerId && !votingMethod && !batchId) {
+  if (partyId && !precinctId && !scannerId && !votingMethod && !batchId) {
     return (
       resultsByCategory.get(TallyCategory.Party)?.[partyId] || getEmptyTally()
     );
@@ -533,6 +535,24 @@ export function filterTalliesByParams(
       getEmptyTally()
     );
   }
+
+  // HACK for test deck tallying check for a precomputed tally by party and precinct
+  // The PartyPrecinct tally category is only populated for test deck tallies
+  if (
+    partyId &&
+    precinctId &&
+    !scannerId &&
+    !votingMethod &&
+    !batchId &&
+    resultsByCategory.has(TallyCategory.PartyPrecinct)
+  ) {
+    return (
+      resultsByCategory.get(TallyCategory.PartyPrecinct)?.[
+        `${partyId}${precinctId}`
+      ] || getEmptyTally()
+    );
+  }
+
   const cvrFiles: Set<CastVoteRecord> = new Set();
   const allVotes: VotesDict[] = [];
 
