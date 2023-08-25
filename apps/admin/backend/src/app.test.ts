@@ -6,6 +6,7 @@ import {
 import { LogEventId } from '@votingworks/logging';
 
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -186,16 +187,36 @@ test('getSystemSettings happy path', async () => {
   expect(systemSettingsResult).toEqual(JSON.parse(systemSettings.asText()));
 });
 
-test('getSystemSettings returns default system settings when no system settings are found', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  mockSystemAdministratorAuth(auth);
+test('getSystemSettings returns default system settings when there is no current election', async () => {
+  const { apiClient } = buildTestEnvironment();
 
   const systemSettingsResult = await apiClient.getSystemSettings();
   expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
+});
+
+test('getSystemSettings failure path', async () => {
+  const { apiClient, workspace, logger } = buildTestEnvironment();
+  const { store } = workspace;
+  const {
+    electionDefinition: { electionData },
+  } = electionMinimalExhaustiveSampleFixtures;
+
+  // configure with malformed system settings data, which is the only way for
+  // this path to fail
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: '{ bad json }',
+  });
+  store.setCurrentElectionId(electionId);
+
+  await suppressingConsoleOutput(async () => {
+    await expect(apiClient.getSystemSettings()).rejects.toThrow();
+  });
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.SystemSettingsRetrieved,
+    'system',
+    { disposition: 'failure' }
+  );
 });
 
 test('saveBallotPackageToUsb', async () => {

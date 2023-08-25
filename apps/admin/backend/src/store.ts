@@ -298,10 +298,7 @@ export class Store {
   /**
    * Retrieves the system settings for the current election.
    */
-  getSystemSettings(): SystemSettings | undefined {
-    const electionId = this.getCurrentElectionId();
-    if (!electionId) return undefined;
-
+  getSystemSettings(electionId: Id): SystemSettings {
     const result = this.client.one(
       `
       select system_settings_data as systemSettingsData
