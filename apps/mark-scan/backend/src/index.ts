@@ -63,6 +63,7 @@ async function main(): Promise<number> {
     (await getPaperHandlerStateMachine(
       paperHandlerDriver,
       workspace,
+      logger,
       DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
     ));
   server.start({ port: PORT, logger, workspace, stateMachine });

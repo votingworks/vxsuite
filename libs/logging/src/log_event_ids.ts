@@ -108,7 +108,7 @@ export enum LogEventId {
   PowerDown = 'power-down-machine',
   BallotPackageLoadedFromUsb = 'ballot-package-load-from-usb-complete',
 
-  // Precinct Machine (VxMark + VxScan) State
+  // Precinct Machine (VxMark, VxScan, VxMarkScan) State
   PollsOpened = 'polls-opened',
   VotingPaused = 'voting-paused',
   VotingResumed = 'voting-resumed',
@@ -121,6 +121,7 @@ export enum LogEventId {
   ScannerBatchEnded = 'scanner-batch-ended',
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
+  PaperHandlerStateChanged = 'paper-handler-state-machine-transition',
 }
 
 export interface LogDetails {
@@ -859,6 +860,14 @@ const ScannerStateChanged: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
+const PaperHandlerStateChanged: LogDetails = {
+  eventId: LogEventId.PaperHandlerStateChanged,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Precinct print/scan BMD state machine transitioned states.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
+};
+
 const InitialSetupPackageLoaded: LogDetails = {
   eventId: LogEventId.InitialSetupPackageLoaded,
   eventType: LogEventType.UserAction,
@@ -1077,6 +1086,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:
       return ScannerStateChanged;
+    case LogEventId.PaperHandlerStateChanged:
+      return PaperHandlerStateChanged;
     case LogEventId.InitialSetupPackageLoaded:
       return InitialSetupPackageLoaded;
     case LogEventId.SystemSettingsSaveInitiated:

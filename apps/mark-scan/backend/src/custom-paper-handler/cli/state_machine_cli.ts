@@ -5,6 +5,7 @@ import { readFileSync } from 'fs';
 import { assert } from '@votingworks/basics';
 import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { join } from 'path';
+import { LogSource, Logger } from '@votingworks/logging';
 import { createWorkspace } from '../../util/workspace';
 import { MARK_WORKSPACE } from '../../globals';
 import { DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS } from '../constants';
@@ -12,6 +13,10 @@ import {
   PaperHandlerStateMachine,
   getPaperHandlerStateMachine,
 } from '../state_machine';
+
+// We could add a LogSource for this CLI tool but that's unnecessary because
+// these logs will never reach production
+const logger = new Logger(LogSource.VxMarkScanBackend);
 
 const pathToPdfData = join(__dirname, '..', 'fixtures', 'ballot-pdf-data.bin');
 
@@ -70,6 +75,7 @@ export async function main(): Promise<number> {
   const stateMachine = await getPaperHandlerStateMachine(
     driver,
     workspace,
+    logger,
     DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
   );
   assert(stateMachine !== undefined, 'Unexpected undefined state machine');

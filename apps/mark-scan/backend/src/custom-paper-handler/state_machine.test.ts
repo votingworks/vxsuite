@@ -5,6 +5,7 @@ import {
   PaperHandlerStatus,
 } from '@votingworks/custom-paper-handler';
 import { dirSync } from 'tmp';
+import { Logger, fakeLogger } from '@votingworks/logging';
 import {
   PaperHandlerStateMachine,
   getPaperHandlerStateMachine,
@@ -20,8 +21,10 @@ jest.mock('@votingworks/custom-paper-handler');
 let driver: PaperHandlerDriver;
 let workspace: Workspace;
 let machine: PaperHandlerStateMachine;
+let logger: Logger;
 
 beforeEach(async () => {
+  logger = fakeLogger();
   workspace = createWorkspace(dirSync().name);
   const webDevice: MinimalWebUsbDevice = {
     open: jest.fn(),
@@ -42,6 +45,7 @@ beforeEach(async () => {
   machine = (await getPaperHandlerStateMachine(
     driver,
     workspace,
+    logger,
     TEST_POLLING_INTERVAL_MS
   )) as PaperHandlerStateMachine;
 });

@@ -27,6 +27,7 @@ import {
   InterpretFileResult,
   interpretSheet,
 } from '@votingworks/ballot-interpreter';
+import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { Workspace } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
@@ -79,6 +80,7 @@ type PaperHandlerStatusEvent =
   | { type: 'VOTER_INVALIDATED_BALLOT' };
 
 const debug = makeDebug('mark-scan:state-machine');
+const debugEvents = debug.extend('events');
 
 export class PaperHandlerStateMachine {
   constructor(
@@ -100,7 +102,6 @@ export class PaperHandlerStateMachine {
   // I can get around to migrating it later in the PR
   getSimpleStatus(): SimpleServerStatus {
     const { state } = this.machineService;
-    // debug(`getSimpleStatus polled. state=${state.value}`);
 
     switch (true) {
       case state.matches('not_accepting_paper'):
@@ -178,7 +179,6 @@ function paperHandlerStatusToEvent(
   paperHandlerStatus: PaperHandlerStatus
 ): PaperHandlerStatusEvent {
   if (isPaperJammed(paperHandlerStatus)) {
-    debug('paperHandlerStatusToEvent jam status:\n%O', paperHandlerStatus);
     if (!isPaperAnywhere(paperHandlerStatus)) {
       // This state is expected when a jam is physically cleared
       // but we haven't issued the reset command yet
@@ -325,9 +325,6 @@ export function buildMachine(
       // Initial state. Doesn't accept paper and transitions away when the frontend says it's ready to accept
       not_accepting_paper: {
         invoke: pollPaperStatus(),
-        entry: (context) => {
-          debug('Initial state entered. Context: %O', context);
-        },
         on: {
           PAPER_INSIDE_NO_JAM: 'eject_to_front',
           BEGIN_ACCEPTING_PAPER: 'accepting_paper',
@@ -345,7 +342,6 @@ export function buildMachine(
           {
             id: 'loadAndPark',
             src: (context) => {
-              debug('Invoked loading_paper svc');
               return loadAndParkPaper(context.driver);
             },
           },
@@ -401,7 +397,6 @@ export function buildMachine(
             target: 'presenting_ballot',
             actions: assign({
               interpretation: (_, event) => {
-                debug('Interpretation complete; storing to context');
                 return event.data;
               },
             }),
@@ -411,25 +406,6 @@ export function buildMachine(
       presenting_ballot: {
         invoke: pollPaperStatus(),
         entry: async (context) => {
-          if (context.interpretation) {
-            // `debug`'s string interpolation only pretty prints 1 layer deep; we need 2
-            debug(
-              `Front page interpretation:\n${JSON.stringify(
-                context.interpretation[0].interpretation,
-                null,
-                2
-              )}`
-            );
-            debug(
-              `Back page interpretation:\n${JSON.stringify(
-                context.interpretation[1].interpretation,
-                null,
-                2
-              )}`
-            );
-          } else {
-            debug('No interpretation found in context');
-          }
           await context.driver.presentPaper();
         },
         on: {
@@ -507,9 +483,79 @@ export function buildMachine(
   });
 }
 
+function setUpLogging(
+  machineService: Interpreter<Context, any, PaperHandlerStatusEvent, any, any>,
+  logger: Logger
+) {
+  machineService
+    .onEvent(async (event) => {
+      // To protect voter privacy, we only log the event type (since some event
+      // objects include ballot interpretations)
+      await logger.log(
+        LogEventId.ScannerEvent,
+        'system',
+        { message: `Event: ${event.type}` },
+        (logLine: LogLine) => debugEvents(logLine.message)
+      );
+    })
+    .onChange(async (context, previousContext) => {
+      if (!previousContext) return;
+      const changed = Object.entries(context)
+        .filter(
+          ([key, value]) => previousContext[key as keyof Context] !== value
+        )
+        // We only log fields that are key for understanding state machine
+        // behavior, since others would be too verbose (e.g. scanner client
+        // object)
+        .filter(([key]) =>
+          [
+            'driver', // driver is somewhat verbose and may be removed before shipping
+            'pollingIntervalMs',
+            'scannedImagePaths',
+            'interpretation',
+          ].includes(key)
+        )
+        // To protect voter privacy, only log the interpretation type
+        .map(([key, value]) =>
+          key === 'interpretation' ? [key, value?.type] : [key, value]
+        )
+        // Make sure we log the important fields of an error
+        .map(([key, value]) =>
+          key === 'error' && value instanceof Error
+            ? [key, { ...value, message: value.message, stack: value.stack }]
+            : [key, value]
+        )
+        .map(([key, value]) => [
+          key,
+          value === undefined ? 'undefined' : value,
+        ]);
+
+      if (changed.length === 0) return;
+      await logger.log(
+        LogEventId.PaperHandlerStateChanged,
+        'system',
+        {
+          message: `Context updated`,
+          changedFields: JSON.stringify(Object.fromEntries(changed)),
+        },
+        () => debug('Context updated: %o', Object.fromEntries(changed))
+      );
+    })
+    .onTransition(async (state) => {
+      if (!state.changed) return;
+      await logger.log(
+        LogEventId.PaperHandlerStateChanged,
+        'system',
+        { message: `Transitioned to: ${JSON.stringify(state.value)}` },
+        (logLine: LogLine) => debug(logLine.message)
+      );
+    });
+}
+
 export async function getPaperHandlerStateMachine(
   paperHandlerDriver: PaperHandlerDriverInterface,
   workspace: Workspace,
+  logger: Logger,
   pollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
 ): Promise<Optional<PaperHandlerStateMachine>> {
   const context: Context = {
@@ -519,13 +565,8 @@ export async function getPaperHandlerStateMachine(
   };
 
   const machine = buildMachine(context);
-  const machineService = interpret(machine)
-    .onTransition((state) => {
-      if (state.changed) {
-        debug(`+state: ${state.value}`);
-      }
-    })
-    .start();
+  const machineService = interpret(machine).start();
+  setUpLogging(machineService, logger);
   const paperHandlerStateMachine = new PaperHandlerStateMachine(
     paperHandlerDriver,
     machineService
