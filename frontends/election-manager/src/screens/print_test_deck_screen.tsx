@@ -54,7 +54,6 @@ function PrecinctTallyReport({
   onRendered,
 }: PrecinctTallyReportProps): JSX.Element {
   const ballots = generateTestDeckBallots({ election, precinctId });
-  const votes = ballots.map((b) => b.votes);
 
   useEffect(() => {
     const parties = new Set(election.ballotStyles.map((bs) => bs.partyId));
@@ -66,7 +65,7 @@ function PrecinctTallyReport({
   return (
     <TestDeckTallyReport
       election={election}
-      votes={[...votes, ...votes]}
+      testDeckBallots={[...ballots, ...ballots]}
       precinctId={precinctId}
     />
   );
