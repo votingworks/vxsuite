@@ -10,7 +10,7 @@ test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
-  const stateMachine = await getMockStateMachine(workspace);
+  const stateMachine = await getMockStateMachine(workspace, logger);
 
   const server = start({
     auth,
