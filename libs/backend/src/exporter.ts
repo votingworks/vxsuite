@@ -4,6 +4,7 @@ import { any } from 'micromatch';
 import { isAbsolute, join, normalize, parse } from 'path';
 import { Readable } from 'stream';
 import { createReadStream, lstatSync } from 'fs';
+import { Buffer } from 'buffer';
 import { splitToFiles } from './split';
 import { execFile } from './utils/exec';
 import { UsbDrive } from './get_usb_drives';
@@ -59,7 +60,7 @@ export class Exporter {
    */
   async exportData(
     path: string,
-    data: string | NodeJS.ReadableStream,
+    data: string | Buffer | NodeJS.ReadableStream,
     {
       maximumFileSize,
     }: {
@@ -78,7 +79,9 @@ export class Exporter {
     await mkdir(pathParts.dir, { recursive: true });
 
     const paths = await splitToFiles(
-      typeof data === 'string' ? Readable.from(data) : data,
+      typeof data === 'string' || Buffer.isBuffer(data)
+        ? Readable.from(data)
+        : data,
       {
         size: maximumFileSize ?? Infinity,
         nextPath: (index) =>
@@ -114,7 +117,7 @@ export class Exporter {
   async exportDataToUsbDrive(
     bucket: string,
     name: string,
-    data: string | NodeJS.ReadableStream,
+    data: string | Buffer | NodeJS.ReadableStream,
     {
       machineDirectoryToWriteToFirst,
       maximumFileSize = MAXIMUM_FAT32_FILE_SIZE,
