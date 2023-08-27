@@ -14,8 +14,9 @@ import type {
   TallyReportResults,
   WriteInAdjudicationQueueMetadata,
   WriteInImageView,
+  ExportDataError,
 } from '@votingworks/admin-backend';
-import { ok } from '@votingworks/basics';
+import { Result, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
@@ -23,7 +24,6 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
-  BallotPackageExportResult,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
@@ -322,7 +322,7 @@ export function createApiMock(
       apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },
 
-    expectSaveBallotPackageToUsb(result: BallotPackageExportResult = ok()) {
+    expectSaveBallotPackageToUsb(result: Result<void, ExportDataError> = ok()) {
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
 

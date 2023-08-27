@@ -139,12 +139,16 @@ test('Modal renders error message appropriately', async () => {
   fireEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
 
-  apiMock.expectSaveBallotPackageToUsb(err('no_usb_drive'));
+  apiMock.expectSaveBallotPackageToUsb(
+    err({ type: 'missing-usb-drive', message: '' })
+  );
   userEvent.click(screen.getButton('Save'));
 
   await waitFor(() => getByText('Failed to Save Ballot Package'));
   expect(queryAllByTestId('modal')).toHaveLength(1);
-  expect(queryAllByText(/An error occurred: No USB drive/)).toHaveLength(1);
+  expect(
+    queryAllByText(/An error occurred: No USB drive detected/)
+  ).toHaveLength(1);
 
   fireEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
