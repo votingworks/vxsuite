@@ -4,11 +4,13 @@ import fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
 import path from 'path';
 import { Readable } from 'stream';
+import { prepareSignatureFile } from '@votingworks/auth';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
   BallotIdSchema,
   BallotPageLayout,
   BatchInfo,
+  CastVoteRecordExportMetadata,
   CVR,
   ElectionDefinition,
   MarkThresholds,
@@ -85,16 +87,9 @@ interface File {
   fileContents: string | Buffer;
 }
 
-/**
- * Metadata stored in the top-level metadata file for a cast vote record export
- */
-interface CastVoteRecordExportMetadata {
-  arePollsClosed?: boolean;
-  /** Global data relevant to all cast vote records in an export, e.g. election info */
-  castVoteRecordReportMetadata: CVR.CastVoteRecordReport;
-  /** A hash of all cast vote record files in an export */
-  castVoteRecordRootHash: string;
-}
+//
+// Helpers
+//
 
 function getExportDirectoryPathRelativeToUsbMountPoint(
   exportContext: ExportContext
@@ -309,7 +304,9 @@ async function exportMetadataFileToUsbDrive(
   exportContext: ExportContext,
   castVoteRecordRootHash: string,
   exportDirectoryPathRelativeToUsbMountPoint: string
-): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
+): Promise<
+  Result<{ metadataFileContents: string }, ExportCastVoteRecordToUsbDriveError>
+> {
   const { exporter, scannerState } = exportContext;
   const { pollsState } = scannerState;
 
@@ -321,20 +318,53 @@ async function exportMetadataFileToUsbDrive(
       buildCastVoteRecordReportMetadata(exportContext),
     castVoteRecordRootHash,
   };
+  const metadataFileContents = JSON.stringify(metadata);
 
   const exportResult = await exporter.exportDataToUsbDrive(
     exportDirectoryPathRelativeToUsbMountPoint,
     'metadata.json',
-    JSON.stringify(metadata)
+    metadataFileContents
   );
   if (exportResult.isErr()) {
     return exportResult;
   }
 
-  // TODO: Sign metadata file
+  return ok({ metadataFileContents });
+}
+
+/**
+ * Exports a signature file for a cast vote record export
+ */
+async function exportSignatureFileToUsbDrive(
+  exportContext: ExportContext,
+  metadataFileContents: string,
+  exportDirectoryPathRelativeToUsbMountPoint: string
+): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
+  const { exporter } = exportContext;
+
+  const signatureFile = await prepareSignatureFile({
+    type: 'cast_vote_records',
+    context: 'export',
+    directoryName: path.basename(exportDirectoryPathRelativeToUsbMountPoint),
+    metadataFileContents,
+  });
+
+  const exportResult = await exporter.exportDataToUsbDrive(
+    // The signature file should live adjacent to the export directory, not within it.
+    path.parse(exportDirectoryPathRelativeToUsbMountPoint).dir,
+    signatureFile.fileName,
+    signatureFile.fileContents
+  );
+  if (exportResult.isErr()) {
+    return exportResult;
+  }
 
   return ok();
 }
+
+//
+// Exported functions
+//
 
 /**
  * Exports cast vote records from a scanner to a USB drive. Supports both continuous and batch
@@ -393,6 +423,16 @@ export async function exportCastVoteRecordsToUsbDrive(
   );
   if (exportMetadataFileResult.isErr()) {
     return exportMetadataFileResult;
+  }
+  const { metadataFileContents } = exportMetadataFileResult.ok();
+
+  const exportSignatureFileResult = await exportSignatureFileToUsbDrive(
+    exportContext,
+    metadataFileContents,
+    exportDirectoryPathRelativeToUsbMountPoint
+  );
+  if (exportSignatureFileResult.isErr()) {
+    return exportSignatureFileResult;
   }
 
   return ok();

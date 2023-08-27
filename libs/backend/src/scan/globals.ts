@@ -30,7 +30,7 @@ const defaultAllowedExportPatterns =
       ]
     : [
         '/media/**/*', // Real USB drive location
-        '/tmp/**/*', // Where data is first written for signature file creation
+        '/tmp/**/*', // Where data is sometimes first written for signature file creation
       ];
 
 /**
