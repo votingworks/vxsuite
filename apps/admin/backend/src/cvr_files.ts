@@ -473,8 +473,8 @@ export async function addCastVoteRecordReport({
 
   const artifactAuthenticationResult =
     await authenticateArtifactUsingSignatureFile({
-      type: 'cast_vote_records',
-      path: reportDirectoryPath,
+      type: 'legacy_cast_vote_records',
+      directoryPath: reportDirectoryPath,
     });
   if (
     artifactAuthenticationResult.isErr() &&
