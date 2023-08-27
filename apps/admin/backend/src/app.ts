@@ -1,6 +1,5 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  BallotPackageExportResult,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -26,17 +25,11 @@ import {
   DippedSmartCardAuthMachineState,
   DEV_JURISDICTION,
   LiveCheck,
-  writeSignatureFile,
+  prepareSignatureFile,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import {
-  createReadStream,
-  createWriteStream,
-  existsSync,
-  promises as fs,
-  Stats,
-} from 'fs';
+import { createReadStream, createWriteStream, promises as fs, Stats } from 'fs';
 import { basename, dirname, join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
@@ -48,6 +41,7 @@ import {
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
+import { ExportDataError, Exporter } from '@votingworks/backend';
 import {
   CastVoteRecordFileRecord,
   CvrFileImportInfo,
@@ -92,6 +86,7 @@ import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
 import { tabulateTallyReportResults } from './tabulation/tally_reports';
+import { ADMIN_ALLOWED_EXPORT_PATTERNS } from './globals';
 
 const debug = rootDebug.extend('app');
 
@@ -193,8 +188,12 @@ function buildApi({
     },
     /* c8 ignore stop */
 
-    async saveBallotPackageToUsb(): Promise<BallotPackageExportResult> {
+    async saveBallotPackageToUsb(): Promise<Result<void, ExportDataError>> {
       await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
+      const exporter = new Exporter({
+        allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
+        getUsbDrives: usb.getUsbDrives,
+      });
 
       const electionDefinition = getCurrentElectionDefinition(workspace);
       assert(electionDefinition !== undefined);
@@ -230,46 +229,30 @@ function buildApi({
         ballotPackageZipStream.finish();
         await ballotPackageZipPromise.promise;
 
-        const usbMountPoint = (await usb.getUsbDrives())[0]?.mountPoint;
-        if (!usbMountPoint) {
-          await logger.log(
-            LogEventId.SaveBallotPackageComplete,
-            'election_manager',
-            {
-              disposition: 'failure',
-              message: 'Error saving ballot package: no USB drive',
-              result: 'Ballot package not saved, error shown to user.',
-            }
-          );
-          return err('no_usb_drive');
-        }
-        const usbBallotPackageDirectory = join(
-          usbMountPoint,
-          BALLOT_PACKAGE_FOLDER
-        );
-        if (!existsSync(usbBallotPackageDirectory)) {
-          await fs.mkdir(usbBallotPackageDirectory);
-        }
-
-        const usbBallotPackageFilePath = join(
-          usbBallotPackageDirectory,
-          ballotPackageFileName
-        );
-        await fs.writeFile(
-          usbBallotPackageFilePath,
+        const exportBallotPackageResult = await exporter.exportDataToUsbDrive(
+          BALLOT_PACKAGE_FOLDER,
+          ballotPackageFileName,
           createReadStream(tempDirectoryBallotPackageFilePath)
         );
+        if (exportBallotPackageResult.isErr()) {
+          return exportBallotPackageResult;
+        }
 
-        await writeSignatureFile(
-          {
-            type: 'ballot_package',
-            // For protection against compromised/faulty USBs, we sign the ballot package as it
-            // exists on the machine, not on the USB (as a compromised/faulty USB could claim to
-            // have written the data that we asked it to but actually have written something else)
-            path: tempDirectoryBallotPackageFilePath,
-          },
-          usbBallotPackageDirectory
+        const signatureFile = await prepareSignatureFile({
+          type: 'election_package',
+          // For protection against compromised/faulty USBs, we sign data as it exists on the
+          // machine, not the USB, as a compromised/faulty USB could claim to have written the data
+          // that we asked it to but actually have written something else.
+          filePath: tempDirectoryBallotPackageFilePath,
+        });
+        const exportSignatureFileResult = await exporter.exportDataToUsbDrive(
+          BALLOT_PACKAGE_FOLDER,
+          signatureFile.fileName,
+          signatureFile.fileContents
         );
+        if (exportSignatureFileResult.isErr()) {
+          return exportSignatureFileResult;
+        }
       } finally {
         await fs.rm(tempDirectory, { recursive: true });
       }
