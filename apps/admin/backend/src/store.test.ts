@@ -120,15 +120,8 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
       electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
-  store.setCurrentElectionId(electionId);
-  const retrievedSystemSettings = store.getSystemSettings();
+  const retrievedSystemSettings = store.getSystemSettings(electionId);
   expect(retrievedSystemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
-});
-
-test('getSystemSettings returns undefined when no system settings exist', () => {
-  const store = Store.memoryStore();
-  const retrievedSystemSettings = store.getSystemSettings();
-  expect(retrievedSystemSettings).toBeUndefined();
 });
 
 test('scanner batches', () => {

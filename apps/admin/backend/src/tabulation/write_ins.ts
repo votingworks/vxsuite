@@ -385,13 +385,13 @@ export function getOverallElectionWriteInSummary({
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
 
-  const scannedElectionWriteInSummary =
-    Object.values(
-      tabulateWriteInTallies({
-        electionId,
-        store,
-      })
-    )[0] || getEmptyElectionWriteInSummary(election);
+  const scannedElectionWriteInSummary = Object.values(
+    tabulateWriteInTallies({
+      electionId,
+      store,
+    })
+  )[0];
+  assert(scannedElectionWriteInSummary);
 
   const overallManualResults = Object.values(
     tabulateManualResults({ electionId, store }).unsafeUnwrap()

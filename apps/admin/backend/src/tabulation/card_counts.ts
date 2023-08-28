@@ -32,6 +32,7 @@ function addCardTallyToCardCounts({
   } else {
     // eslint-disable-next-line no-param-reassign
     cardCounts.hmpb[card.sheetNumber - 1] =
+      /* c8 ignore next - trivial fallback case */
       (cardCounts.hmpb[card.sheetNumber - 1] ?? 0) + tally;
   }
 
@@ -45,7 +46,7 @@ export function tabulateScannedCardCounts({
   electionId,
   store,
   groupBy,
-  blankBallotsOnly = false,
+  blankBallotsOnly,
 }: {
   electionId: Id;
   store: Store;
@@ -113,6 +114,7 @@ export function tabulateFullCardCounts({
     electionId,
     store,
     groupBy,
+    blankBallotsOnly,
   });
   if (blankBallotsOnly) {
     // we do not manage manually entered blank ballots within the system
@@ -126,12 +128,15 @@ export function tabulateFullCardCounts({
     }),
     groupBy,
   });
+
+  /* c8 ignore start - TODO: add coverage when we add support for ballot count reports */
   if (tabulateManualBallotCountsResult.isErr()) {
     debug(
       'tabulated card counts, omitted manual ballot counts due to incompatible group by'
     );
     return groupedScannedCardCounts;
   }
+  /* c8 ignore stop */
 
   debug('tabulated card counts');
   const groupedManualBallotCounts = tabulateManualBallotCountsResult.ok();
@@ -140,7 +145,7 @@ export function tabulateFullCardCounts({
     groupedManualBallotCounts,
     (scannedCardCounts, manualBallotCount) => {
       return {
-        // eslint-disable-next-line vx/gts-spread-like-types
+        /* c8 ignore next - TODO: add coverage when we add support for ballot count reports */
         ...(scannedCardCounts ?? getEmptyCardCounts()),
         manual: manualBallotCount ?? 0,
       };

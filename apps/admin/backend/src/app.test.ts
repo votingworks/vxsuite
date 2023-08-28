@@ -186,13 +186,8 @@ test('getSystemSettings happy path', async () => {
   expect(systemSettingsResult).toEqual(JSON.parse(systemSettings.asText()));
 });
 
-test('getSystemSettings returns default system settings when no system settings are found', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  mockSystemAdministratorAuth(auth);
+test('getSystemSettings returns default system settings when there is no current election', async () => {
+  const { apiClient } = buildTestEnvironment();
 
   const systemSettingsResult = await apiClient.getSystemSettings();
   expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);

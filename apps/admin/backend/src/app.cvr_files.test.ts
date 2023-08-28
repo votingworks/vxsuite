@@ -6,12 +6,13 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { CVR as CVRType, safeParse } from '@votingworks/types';
-import { basename, join } from 'path';
+import path, { basename, join } from 'path';
 import * as fs from 'fs';
 import { CVR_BALLOT_LAYOUTS_SUBDIRECTORY } from '@votingworks/backend';
 import { vxBallotType } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
   BooleanEnvironmentVariableName,
+  CAST_VOTE_RECORD_REPORT_FILENAME,
   getFeatureFlagMock,
   getSheetCount,
 } from '@votingworks/utils';
@@ -663,4 +664,25 @@ test('error if a layout is invalid', async () => {
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   await expectCastVoteRecordCount(apiClient, 0);
+});
+
+test('can add file using the report JSON path rather than the directory path', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(
+    apiClient,
+    auth,
+    electionMinimalExhaustiveSampleDefinition
+  );
+  mockElectionManagerAuth(
+    auth,
+    electionMinimalExhaustiveSampleDefinition.electionHash
+  );
+
+  const addFileResult = await apiClient.addCastVoteRecordFile({
+    path: path.join(
+      electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath(),
+      CAST_VOTE_RECORD_REPORT_FILENAME
+    ),
+  });
+  assert(addFileResult.isOk());
 });

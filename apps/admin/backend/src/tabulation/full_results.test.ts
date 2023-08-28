@@ -357,7 +357,6 @@ test('tabulateElectionResults - write-in handling', async () => {
   const writeIns = store.getWriteInRecords({
     electionId,
     contestId: candidateContestId,
-    status: 'pending',
   });
   const [writeIn1, writeIn2, writeIn3, writeIn4, writeIn5, writeIn6] = writeIns;
   store.adjudicateWriteIn({
@@ -646,7 +645,6 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const writeIns = store.getWriteInRecords({
     electionId,
     contestId: candidateContestId,
-    status: 'pending',
   });
   expect(writeIns.length).toEqual(56);
   for (const writeIn of writeIns) {

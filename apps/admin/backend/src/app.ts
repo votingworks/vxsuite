@@ -3,7 +3,6 @@ import {
   BallotPackageExportResult,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
   Id,
   safeParseElectionDefinition,
   safeParseSystemSettings,
@@ -95,29 +94,39 @@ import { tabulateTallyReportResults } from './tabulation/tally_reports';
 
 const debug = rootDebug.extend('app');
 
-function getCurrentElectionDefinition(
+function getCurrentElectionRecord(
   workspace: Workspace
-): Optional<ElectionDefinition> {
-  const currentElectionId = workspace.store.getCurrentElectionId();
-  const elections = workspace.store.getElections();
-  const mostRecentlyCreatedElection = elections.find(
-    (election) => election.id === currentElectionId
-  );
-  return mostRecentlyCreatedElection?.electionDefinition;
+): Optional<ElectionRecord> {
+  const electionId = workspace.store.getCurrentElectionId();
+  if (!electionId) {
+    return undefined;
+  }
+  const electionRecord = workspace.store.getElection(electionId);
+  assert(electionRecord);
+  return electionRecord;
 }
 
 function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
-  const electionDefinition = getCurrentElectionDefinition(workspace);
-  const systemSettings =
-    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+  const electionRecord = getCurrentElectionRecord(workspace);
+  /* c8 ignore next 3 - covered by integration testing */
+  const jurisdiction = isIntegrationTest()
+    ? TEST_JURISDICTION
+    : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
+
+  if (!electionRecord) {
+    return {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      jurisdiction,
+    };
+  }
+
+  const systemSettings = workspace.store.getSystemSettings(electionRecord.id);
   return {
     ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction: isIntegrationTest()
-      ? TEST_JURISDICTION
-      : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION,
+    electionHash: electionRecord.electionDefinition.electionHash,
+    jurisdiction,
   };
 }
 
@@ -145,6 +154,7 @@ function buildApi({
     if (authStatus.status === 'logged_in') {
       return authStatus.user.role;
     }
+    /* c8 ignore next 2 - trivial fallback case */
     return undefined;
   }
 
@@ -185,10 +195,10 @@ function buildApi({
     /* c8 ignore start */
     generateLiveCheckQrCodeValue() {
       const { machineId } = getMachineConfig();
-      const electionDefinition = getCurrentElectionDefinition(workspace);
+      const electionRecord = getCurrentElectionRecord(workspace);
       return new LiveCheck().generateQrCodeValue({
         machineId,
-        electionHash: electionDefinition?.electionHash,
+        electionHash: electionRecord?.electionDefinition?.electionHash,
       });
     },
     /* c8 ignore stop */
@@ -196,10 +206,10 @@ function buildApi({
     async saveBallotPackageToUsb(): Promise<BallotPackageExportResult> {
       await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
 
-      const electionDefinition = getCurrentElectionDefinition(workspace);
-      assert(electionDefinition !== undefined);
-      const systemSettings =
-        store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+      const electionRecord = getCurrentElectionRecord(workspace);
+      assert(electionRecord);
+      const { electionDefinition, id: electionId } = electionRecord;
+      const systemSettings = store.getSystemSettings(electionId);
 
       const tempDirectory = dirSync().name;
       try {
@@ -285,23 +295,13 @@ function buildApi({
       return ok();
     },
 
-    async getSystemSettings(): Promise<SystemSettings> {
-      try {
-        const settings = store.getSystemSettings();
-        await logger.log(
-          LogEventId.SystemSettingsRetrieved,
-          (await getUserRole()) ?? 'unknown',
-          { disposition: 'success' }
-        );
-        return settings ?? DEFAULT_SYSTEM_SETTINGS;
-      } catch (error) {
-        await logger.log(
-          LogEventId.SystemSettingsRetrieved,
-          (await getUserRole()) ?? 'unknown',
-          { disposition: 'failure' }
-        );
-        throw error;
+    getSystemSettings(): SystemSettings {
+      const electionId = store.getCurrentElectionId();
+      if (!electionId) {
+        return DEFAULT_SYSTEM_SETTINGS;
       }
+
+      return store.getSystemSettings(electionId);
     },
 
     // `configure` and `unconfigure` handle changes to the election definition
@@ -388,8 +388,9 @@ function buildApi({
     },
 
     listCastVoteRecordFilesOnUsb() {
-      const electionDefinition = getCurrentElectionDefinition(workspace);
-      assert(electionDefinition);
+      const electionRecord = getCurrentElectionRecord(workspace);
+      assert(electionRecord);
+      const { electionDefinition } = electionRecord;
 
       return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
     },
@@ -656,11 +657,9 @@ function buildApi({
       const [manualResultsRecord] = store.getManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         filter: {
-          precinctIds: input.precinctId ? [input.precinctId] : undefined,
-          ballotStyleIds: input.ballotStyleId
-            ? [input.ballotStyleId]
-            : undefined,
-          votingMethods: input.votingMethod ? [input.votingMethod] : undefined,
+          precinctIds: [input.precinctId],
+          ballotStyleIds: [input.ballotStyleId],
+          votingMethods: [input.votingMethod],
         },
       });
 

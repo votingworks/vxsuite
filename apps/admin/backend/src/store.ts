@@ -55,7 +55,6 @@ import {
   ScannerBatch,
   CastVoteRecordStoreFilter,
   WriteInAdjudicationAction,
-  WriteInAdjudicationStatus,
   WriteInCandidateRecord,
   WriteInRecord,
   WriteInRecordAdjudicatedInvalid,
@@ -286,22 +285,19 @@ export class Store {
    * Gets the id for the current election
    */
   getCurrentElectionId(): Optional<Id> {
-    const settings = this.client.one(
+    const { currentElectionId } = this.client.one(
       `
       select current_election_id as currentElectionId from settings
     `
-    ) as { currentElectionId: Id } | null;
+    ) as { currentElectionId: Id | null };
 
-    return settings?.currentElectionId ?? undefined;
+    return currentElectionId ?? undefined;
   }
 
   /**
    * Retrieves the system settings for the current election.
    */
-  getSystemSettings(): SystemSettings | undefined {
-    const electionId = this.getCurrentElectionId();
-    if (!electionId) return undefined;
-
+  getSystemSettings(electionId: Id): SystemSettings {
     const result = this.client.one(
       `
       select system_settings_data as systemSettingsData
@@ -1382,6 +1378,7 @@ export class Store {
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
+        /* c8 ignore next - edge case coverage needed for bad party grouping in general election */
         partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
@@ -1733,6 +1730,7 @@ export class Store {
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
+        /* c8 ignore next - edge case coverage needed for bad party grouping in general election */
         partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
@@ -1757,15 +1755,11 @@ export class Store {
     contestId,
     castVoteRecordId,
     writeInId,
-    status,
-    limit,
   }: {
     electionId: Id;
     contestId?: ContestId;
     castVoteRecordId?: Id;
     writeInId?: Id;
-    status?: WriteInAdjudicationStatus;
-    limit?: number;
   }): WriteInRecord[] {
     debug('querying database for write-in records');
     this.assertElectionExists(electionId);
@@ -1788,20 +1782,6 @@ export class Store {
       params.push(writeInId);
     }
 
-    if (status === 'adjudicated') {
-      whereParts.push(
-        '(write_ins.official_candidate_id is not null or write_ins.write_in_candidate_id is not null or write_ins.is_invalid = 1)'
-      );
-    } else if (status === 'pending') {
-      whereParts.push('write_ins.official_candidate_id is null');
-      whereParts.push('write_ins.write_in_candidate_id is null');
-      whereParts.push('write_ins.is_invalid = 0');
-    }
-
-    if (typeof limit === 'number') {
-      params.push(limit);
-    }
-
     const writeInRows = this.client.all(
       `
         select distinct
@@ -1819,7 +1799,6 @@ export class Store {
         order by
           write_ins.cvr_id,
           write_ins.option_id
-        ${typeof limit === 'number' ? 'limit ?' : ''}
       `,
       ...params
     ) as Array<{
@@ -1834,52 +1813,50 @@ export class Store {
     }>;
     debug('queried database for write-in records');
 
-    return writeInRows
-      .map((row) => {
-        if (row.officialCandidateId) {
-          return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'official-candidate',
-            candidateId: row.officialCandidateId,
-          });
-        }
-
-        if (row.writeInCandidateId) {
-          return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'write-in-candidate',
-            candidateId: row.writeInCandidateId,
-          });
-        }
-
-        if (row.isInvalid) {
-          return typedAs<WriteInRecordAdjudicatedInvalid>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'invalid',
-          });
-        }
-
-        return typedAs<WriteInRecordPending>({
+    return writeInRows.map((row) => {
+      if (row.officialCandidateId) {
+        return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
           id: row.id,
-          status: 'pending',
           castVoteRecordId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'official-candidate',
+          candidateId: row.officialCandidateId,
         });
-      })
-      .filter((writeInRecord) => writeInRecord.status === status || !status);
+      }
+
+      if (row.writeInCandidateId) {
+        return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
+          id: row.id,
+          castVoteRecordId: row.castVoteRecordId,
+          contestId: row.contestId,
+          optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'write-in-candidate',
+          candidateId: row.writeInCandidateId,
+        });
+      }
+
+      if (row.isInvalid) {
+        return typedAs<WriteInRecordAdjudicatedInvalid>({
+          id: row.id,
+          castVoteRecordId: row.castVoteRecordId,
+          contestId: row.contestId,
+          optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'invalid',
+        });
+      }
+
+      return typedAs<WriteInRecordPending>({
+        id: row.id,
+        status: 'pending',
+        castVoteRecordId: row.castVoteRecordId,
+        contestId: row.contestId,
+        optionId: row.optionId,
+      });
+    });
   }
 
   /**
