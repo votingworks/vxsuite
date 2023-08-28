@@ -20,7 +20,7 @@ import {
 } from '@votingworks/utils';
 import { basename, join, parse } from 'path';
 import fs from 'fs';
-import { writeSignatureFile } from '@votingworks/auth';
+import { prepareSignatureFile } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import { rm } from 'fs/promises';
 import {
@@ -448,26 +448,22 @@ async function exportCastVoteRecordReportToUsbDriveHelper(
     }
   }
 
-  const usbMountPoint = (await getUsbDrives())[0]?.mountPoint;
-  if (!usbMountPoint) {
-    return err({ type: 'missing-usb-drive', message: 'No USB drive found' });
-  }
-  // The signature file should live adjacent to the report directory on the USB
-  // (not within the report directory)
-  const signatureFileDirectory = parse(
-    join(usbMountPoint, reportDirectory)
-  ).dir;
-  await writeSignatureFile(
-    {
-      type: 'cast_vote_records',
-      // For protection against compromised/faulty USBs, we sign the CVRs as
-      // they exist on the machine, not on the USB (as a compromised/faulty USB
-      // could claim to have written the data that we asked it to but actually
-      // have written something else)
-      path: machineDirectoryToWriteToFirst,
-    },
-    signatureFileDirectory
+  const signatureFile = await prepareSignatureFile({
+    type: 'legacy_cast_vote_records',
+    // For protection against compromised/faulty USBs, we sign data as it exists on the machine,
+    // not the USB, as a compromised/faulty USB could claim to have written the data that we asked
+    // it to but actually have written something else.
+    directoryPath: machineDirectoryToWriteToFirst,
+  });
+  const exportSignatureFileResult = await exporter.exportDataToUsbDrive(
+    // The signature file should live adjacent to the report directory, not within it.
+    parse(reportDirectory).dir,
+    signatureFile.fileName,
+    signatureFile.fileContents
   );
+  if (exportSignatureFileResult.isErr()) {
+    return exportSignatureFileResult;
+  }
 
   return ok();
 }

@@ -3,7 +3,7 @@ export * from './auth';
 export * from './ballot_package';
 export * from './byte';
 export * from './hmpb';
-export * from './cast_vote_record';
+export * from './cast_vote_records';
 export * as EventLogging from './cdf/election-event-logging';
 export * as CVR from './cdf/cast-vote-records';
 export * as BallotDefinition from './cdf/ballot-definition';

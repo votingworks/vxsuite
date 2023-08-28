@@ -209,5 +209,7 @@ test('saveBallotPackageToUsb when no USB drive', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
 
   const response = await apiClient.saveBallotPackageToUsb();
-  expect(response).toEqual(err('no_usb_drive'));
+  expect(response).toEqual(
+    err({ type: 'missing-usb-drive', message: 'No USB drive found' })
+  );
 });

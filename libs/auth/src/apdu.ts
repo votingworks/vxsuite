@@ -79,9 +79,9 @@ function splitEvery2Characters(s: string): string[] {
 }
 
 /**
- * Input to a {@link CommandAdpu}.
+ * The input to a {@link CommandApdu}
  */
-export type CommandAdpuInput =
+export type CommandApduInput =
   | {
       cla?: { chained?: boolean; secure?: boolean };
       ins: Byte;
@@ -118,7 +118,7 @@ export class CommandApdu {
   /** Data */
   private readonly data: Buffer;
 
-  constructor(input: CommandAdpuInput) {
+  constructor(input: CommandApduInput) {
     const cla = this.determineCla(input.cla);
     const lc = 'lc' in input ? input.lc : input.data.length;
     const data = 'lc' in input ? Buffer.of() : input.data;
