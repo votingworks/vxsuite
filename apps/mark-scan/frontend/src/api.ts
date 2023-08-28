@@ -170,6 +170,10 @@ export const startCardlessVoterSession = {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        // We invalidate getInterpretation when the ballot is validated or invalidated by the voter,
+        // but it's also possible for the ballot to be physically pulled before the validation stage.
+        // In that case, we need to invalidate getInterpretation at the start of the next session.
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
       },
     });
   },
@@ -184,7 +188,6 @@ export const endCardlessVoterSession = {
         // Because we poll auth status with high frequency, auth invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
-        await queryClient.invalidateQueries(getInterpretation.queryKey());
       },
     });
   },
@@ -260,6 +263,7 @@ export const validateBallot = {
     return useMutation(apiClient.validateBallot, {
       async onSuccess() {
         await queryClient.invalidateQueries(getStateMachineState.queryKey());
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
       },
     });
   },
@@ -272,6 +276,7 @@ export const invalidateBallot = {
     return useMutation(apiClient.invalidateBallot, {
       async onSuccess() {
         await queryClient.invalidateQueries(getStateMachineState.queryKey());
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
       },
     });
   },
