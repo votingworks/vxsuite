@@ -587,21 +587,6 @@ export function AppRoot({
   if (stateMachineState === 'no_hardware') {
     return <NoPaperHandlerPage />;
   }
-  if (stateMachineState === 'jammed') {
-    return <JammedPage />;
-  }
-  if (
-    stateMachineState === 'jam_cleared' ||
-    stateMachineState === 'resetting_state_machine_after_jam'
-  ) {
-    // TODO reset function may need to change once we're in a voter session
-    return (
-      <JamClearedPage
-        authStatus={authStatus}
-        stateMachineState={stateMachineState}
-      />
-    );
-  }
   if (
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'card_error'
@@ -685,6 +670,23 @@ export function AppRoot({
       />
     );
   }
+
+  if (stateMachineState === 'jammed') {
+    return <JammedPage />;
+  }
+  if (
+    stateMachineState === 'jam_cleared' ||
+    stateMachineState === 'resetting_state_machine_after_jam'
+  ) {
+    // TODO reset function may need to change once we're in a voter session
+    return (
+      <JamClearedPage
+        authStatus={authStatus}
+        stateMachineState={stateMachineState}
+      />
+    );
+  }
+
   if (optionalElectionDefinition && precinctSelection) {
     if (
       authStatus.status === 'logged_out' &&
