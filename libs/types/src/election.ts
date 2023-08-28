@@ -447,8 +447,7 @@ export interface Election {
   readonly parties: Parties;
   readonly precincts: readonly Precinct[];
   readonly quickResultsReportingUrl?: string; // a server where results are posted, enables VxQR if present
-  readonly seal?: string;
-  readonly sealUrl?: string;
+  readonly seal: string;
   readonly state: string;
   readonly title: string;
 }
@@ -469,8 +468,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
       .nonempty()
       .refine((val) => !val.endsWith('/'), 'URL cannot end with a slash')
       .optional(),
-    seal: z.string().nonempty().optional(),
-    sealUrl: z.string().nonempty().optional(),
+    seal: z.string(),
     state: z.string().nonempty(),
     title: z.string().nonempty(),
   })
