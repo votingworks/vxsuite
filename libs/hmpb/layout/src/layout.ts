@@ -1770,8 +1770,16 @@ export function layOutAllBallots({
   Error
 > {
   try {
+    const ballotStyles = election.ballotStyles.filter(
+      (ballotStyle) => getContests({ election, ballotStyle }).length > 0
+    );
+    const electionWithRenderableBallotStyles: Election = {
+      ...election,
+      ballotStyles,
+    };
+
     const gridLayoutsForAllPrecincts = layOutAllBallotsHelper({
-      election,
+      election: electionWithRenderableBallotStyles,
       isTestMode,
       layoutOptions,
     }).map((layout) => layout.gridLayout);
@@ -1782,7 +1790,7 @@ export function layOutAllBallots({
     );
 
     const electionWithGridLayouts: Election = {
-      ...election,
+      ...electionWithRenderableBallotStyles,
       gridLayouts,
     };
 
