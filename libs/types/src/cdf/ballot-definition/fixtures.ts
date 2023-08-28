@@ -22,6 +22,7 @@ export function normalizeVxf(vxfElection: Election): Election {
     date,
     state,
     county,
+    seal,
     districts,
     precincts,
     parties,
@@ -37,6 +38,7 @@ export function normalizeVxf(vxfElection: Election): Election {
     date: isoDateString,
     state,
     county,
+    seal,
     districts,
     precincts,
     parties,
@@ -55,6 +57,7 @@ export const testVxfElection: Election = {
     name: 'Franklin County',
   },
   date: '2021-06-06T00:00:00Z',
+  seal: '<svg>test seal</svg>',
   parties: [
     {
       id: 'party-1' as PartyId,
@@ -1076,6 +1079,8 @@ export const testCdfBallotDefinition: BallotDefinition = {
       ShortEdge: 8.5,
     },
   ],
+
+  vxSeal: '<svg>test seal</svg>',
 
   GeneratedDate: '2021-06-06T00:00:00Z',
   Issuer: 'VotingWorks',

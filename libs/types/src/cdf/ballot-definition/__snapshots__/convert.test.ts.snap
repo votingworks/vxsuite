@@ -274,6 +274,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
   "SequenceStart": 1,
   "VendorApplicationId": "VxSuite",
   "Version": "1.0.0",
+  "vxSeal": "<svg>test seal</svg>",
 }
 `;
 
@@ -1006,6 +1007,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
   "SequenceStart": 1,
   "VendorApplicationId": "VxSuite",
   "Version": "1.0.0",
+  "vxSeal": "<svg>test seal</svg>",
 }
 `;
 
@@ -1382,5 +1384,6 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
   "SequenceStart": 1,
   "VendorApplicationId": "VxSuite",
   "Version": "1.0.0",
+  "vxSeal": "<svg>test seal</svg>",
 }
 `;

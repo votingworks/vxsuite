@@ -64,6 +64,7 @@ export const electionData = `
       "name": "PRECINCT"
     }
   ],
+  "seal": "<svg>test seal</svg>",
   "state": "STATE"
 }`;
 export const election: Election =
@@ -301,7 +302,7 @@ const electionMinimalExhaustiveData = `
       "partyId": "1"
     }
   ],
-  "sealUrl": "/seals/Sample-Seal.svg",
+  "seal": "<svg>test seal</svg>",
   "centralScanAdjudicationReasons": ["BlankBallot"],
   "precinctScanAdjudicationReasons": ["BlankBallot"]
 }`;
