@@ -260,9 +260,12 @@ function buildApi({
           signatureFile.fileName,
           signatureFile.fileContents
         );
+        /* c8 ignore start: Tricky to make this second export err but the first export succeed
+          without significant mocking */
         if (exportSignatureFileResult.isErr()) {
           return exportSignatureFileResult;
         }
+        /* c8 ignore end */
       } finally {
         await fs.rm(tempDirectory, { recursive: true });
       }
