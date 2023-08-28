@@ -30,23 +30,16 @@ const SealContainer = styled.div`
   ${(p) => DARK_COLOR_MODES.has(p.theme.colorMode) && darkModeSealStyles};
 `;
 
-const SealImage = styled.img`
-  width: 100%;
-`;
-
 export interface SealProps {
-  seal?: string;
-  sealUrl?: string;
+  seal: string;
 }
 
-export function Seal({ seal, sealUrl }: SealProps): JSX.Element {
+export function Seal({ seal }: SealProps): JSX.Element {
   return (
     <SealContainer
       aria-hidden
-      dangerouslySetInnerHTML={seal ? { __html: seal } : undefined}
-    >
-      {(!seal && sealUrl && <SealImage alt="state seal" src={sealUrl} />) ||
-        undefined}
-    </SealContainer>
+      data-testid="seal"
+      dangerouslySetInnerHTML={{ __html: seal }}
+    />
   );
 }

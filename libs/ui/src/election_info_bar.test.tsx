@@ -84,11 +84,13 @@ test('Renders ElectionInfoBar without admin info in default voter mode', () => {
   expect(screen.queryByText(/Machined ID/)).not.toBeInTheDocument();
 });
 
-test('Renders ElectionInfoBar seal via url', () => {
+test('Renders ElectionInfoBar seal', () => {
   render(
     <ElectionInfoBar electionDefinition={primaryElectionSampleDefinition} />
   );
-  expect(screen.queryByAltText('state seal')).toBeInTheDocument();
+  expect(screen.getByTestId('seal').innerHTML.toString()).toMatch(
+    /Seal of Montgomery County, Maryland/
+  );
   screen.getByText('Election ID');
   within(screen.getByText('Election ID').parentElement!).getByText(
     getDisplayElectionHash(primaryElectionSampleDefinition)

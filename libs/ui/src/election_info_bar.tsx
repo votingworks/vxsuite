@@ -63,7 +63,7 @@ export function ElectionInfoBar({
   precinctSelection,
 }: ElectionInfoBarProps): JSX.Element {
   const {
-    election: { precincts, date, title, county, state, seal, sealUrl },
+    election: { precincts, date, title, county, state, seal },
   } = electionDefinition;
   const electionDate = formatShortDate(DateTime.fromISO(date));
 
@@ -118,7 +118,7 @@ export function ElectionInfoBar({
     <Bar data-testid="electionInfoBar">
       <ElectionInfoContainer>
         <SealContainer>
-          {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
+          <Seal seal={seal} />
         </SealContainer>
         {electionInfo}
       </ElectionInfoContainer>
@@ -156,7 +156,7 @@ export function VerticalElectionInfoBar({
   precinctSelection,
 }: ElectionInfoBarProps): JSX.Element {
   const {
-    election: { precincts, date, title, county, state, seal, sealUrl },
+    election: { precincts, date, title, county, state, seal },
   } = electionDefinition;
   const electionDate = formatShortDate(DateTime.fromISO(date));
 
@@ -165,7 +165,7 @@ export function VerticalElectionInfoBar({
       <Caption weight="regular" align="left">
         <ElectionInfoContainer>
           <SealContainer>
-            {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
+            <Seal seal={seal} />
           </SealContainer>
           <Font weight="bold">{title}</Font>
         </ElectionInfoContainer>

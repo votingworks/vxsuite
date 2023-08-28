@@ -10,19 +10,13 @@ import {
 import {
   electionMinimalExhaustiveSampleDefinition,
   electionSampleDefinition,
-  electionSampleNoSealDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
 import { mockOf } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
-import {
-  fireEvent,
-  render,
-  screen,
-  within,
-} from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { BmdPaperBallot } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
@@ -204,7 +198,7 @@ test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
   screen.getByText('[no selection for 1 of 3 choices]');
 });
 
-test('BmdPaperBallot renders seal when provided', () => {
+test('BmdPaperBallot renders seal', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
@@ -213,17 +207,6 @@ test('BmdPaperBallot renders seal when provided', () => {
   });
 
   screen.getByTestId('printed-ballot-seal');
-});
-
-test('BmdPaperBallot renders no seal when not provided', () => {
-  renderBmdPaperBallot({
-    electionDefinition: electionSampleNoSealDefinition,
-    ballotStyleId: '5',
-    precinctId: '21',
-    votes: {},
-  });
-
-  expect(screen.queryByTestId('printed-ballot-seal')).not.toBeInTheDocument();
 });
 
 test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', () => {
@@ -277,34 +260,6 @@ describe('BmdPaperBallot calls onRendered', () => {
       onRendered,
     });
 
-    expect(onRendered).toHaveBeenCalledTimes(1);
-  });
-
-  test('when no seal available', () => {
-    const onRendered = jest.fn();
-    renderBmdPaperBallot({
-      electionDefinition: electionSampleNoSealDefinition,
-      ballotStyleId: '5',
-      precinctId: '21',
-      votes: {},
-      onRendered,
-    });
-
-    expect(onRendered).toHaveBeenCalledTimes(1);
-  });
-
-  test('when "sealUrl" present', () => {
-    const onRendered = jest.fn();
-    renderBmdPaperBallot({
-      electionDefinition: electionWithMsEitherNeitherDefinition,
-      ballotStyleId: '1',
-      precinctId: '6525',
-      votes: {},
-      onRendered,
-    });
-
-    expect(onRendered).not.toHaveBeenCalled();
-    fireEvent.load(screen.getByTestId('printed-ballot-seal-image'));
     expect(onRendered).toHaveBeenCalledTimes(1);
   });
 });
