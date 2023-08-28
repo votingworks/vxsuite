@@ -44,14 +44,20 @@ export function ValidateBallotPage(): JSX.Element | null {
 
   const invalidateBallotMutation = invalidateBallot.useMutation();
   const validateBallotMutation = validateBallot.useMutation();
-  async function invalidateBallotCallback() {
-    await invalidateBallotMutation.mutateAsync();
-    resetBallot();
-    await endVoterSession();
+  function invalidateBallotCallback() {
+    invalidateBallotMutation.mutate(undefined, {
+      async onSuccess() {
+        resetBallot();
+        await endVoterSession();
+      },
+    });
   }
-  async function validateBallotCallback() {
-    await validateBallotMutation.mutateAsync();
-    resetBallot(true);
+  function validateBallotCallback() {
+    validateBallotMutation.mutate(undefined, {
+      onSuccess() {
+        resetBallot(true);
+      },
+    });
   }
 
   if (

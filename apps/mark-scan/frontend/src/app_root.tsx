@@ -396,9 +396,12 @@ export function AppRoot({
 
   const unconfigure = useCallback(async () => {
     await storage.clear();
-    await unconfigureMachineMutation.mutateAsync();
-    dispatchAppState({ type: 'unconfigure' });
-    history.push('/');
+    unconfigureMachineMutation.mutate(undefined, {
+      onSuccess() {
+        dispatchAppState({ type: 'unconfigure' });
+        history.push('/');
+      },
+    });
   }, [storage, history, unconfigureMachineMutation]);
 
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {

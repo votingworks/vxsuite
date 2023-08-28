@@ -347,9 +347,12 @@ export function PollWorkerScreen({
                           fullWidth
                           key={precinct.id}
                           aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
-                          onPress={async () => {
-                            await setAcceptingPaperStateMutation.mutateAsync();
-                            setSelectedCardlessVoterPrecinctId(precinct.id);
+                          onPress={() => {
+                            setAcceptingPaperStateMutation.mutate(undefined, {
+                              onSuccess() {
+                                setSelectedCardlessVoterPrecinctId(precinct.id);
+                              },
+                            });
                           }}
                           variant={
                             selectedCardlessVoterPrecinctId === precinct.id
@@ -374,12 +377,15 @@ export function PollWorkerScreen({
                         fullWidth
                         key={ballotStyle.id}
                         aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
-                        onPress={async () => {
-                          await setAcceptingPaperStateMutation.mutateAsync();
-                          activateCardlessVoterSession(
-                            selectedCardlessVoterPrecinctId,
-                            ballotStyle.id
-                          );
+                        onPress={() => {
+                          setAcceptingPaperStateMutation.mutate(undefined, {
+                            onSuccess() {
+                              activateCardlessVoterSession(
+                                selectedCardlessVoterPrecinctId,
+                                ballotStyle.id
+                              );
+                            },
+                          });
                         }}
                       >
                         {ballotStyle.id}
