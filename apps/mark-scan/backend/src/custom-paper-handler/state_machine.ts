@@ -326,6 +326,8 @@ export function buildMachine(
       not_accepting_paper: {
         invoke: pollPaperStatus(),
         on: {
+          // Paper may be inside the machine from previous testing or machine failure. We should eject
+          // the paper (not to ballot bin) because we don't know whether the page has been printed.
           PAPER_INSIDE_NO_JAM: 'eject_to_front',
           PAPER_PARKED: 'eject_to_front',
           BEGIN_ACCEPTING_PAPER: 'accepting_paper',
