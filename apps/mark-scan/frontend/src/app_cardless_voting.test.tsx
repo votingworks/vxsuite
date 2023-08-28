@@ -254,6 +254,7 @@ test('Cardless Voting Flow', async () => {
 
   await screen.findByText('Review Your Votes');
   apiMock.expectValidateBallot();
+  apiMock.expectGetInterpretation(mockInterpretation);
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
   // Reset Ballot is called
@@ -407,6 +408,7 @@ test('Voter can submit a blank ballot', async () => {
 
   await screen.findByText('Review Your Votes');
   apiMock.expectValidateBallot();
+  apiMock.expectGetInterpretation(mockInterpretation);
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
   // Reset Ballot is called
@@ -630,6 +632,7 @@ test('poll worker must select a precinct first', async () => {
 
   await screen.findByText('Review Your Votes');
   apiMock.expectValidateBallot();
+  apiMock.expectGetInterpretation(mockInterpretation);
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
   // Reset Ballot is called

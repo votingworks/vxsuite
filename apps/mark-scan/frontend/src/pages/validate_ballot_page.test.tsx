@@ -33,5 +33,6 @@ test('calls invalidateBallot if voter indicates their ballot is incorrect', asyn
   );
 
   await screen.findByText('Review Your Votes');
+  apiMock.expectGetInterpretation(mockInterpretation);
   userEvent.click(screen.getByText('My Ballot is Incorrect'));
 });
