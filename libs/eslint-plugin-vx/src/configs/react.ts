@@ -40,5 +40,6 @@ export = {
     'react/jsx-wrap-multilines': 'off',
     'react/prop-types': 'off',
     'react/require-default-props': 'off',
+    'vx/no-react-hook-mutation-dependency': 'error',
   },
 };
