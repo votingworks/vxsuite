@@ -10,9 +10,9 @@ import {
 } from '@votingworks/types';
 import { MachineConfig } from '@votingworks/mark-scan-backend';
 
-import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
 import { randomBallotId } from '@votingworks/utils';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ApiClientContext, createQueryClient } from '../src/api';
 import { render as testRender } from './react_testing_library';
 
@@ -25,7 +25,7 @@ export function render(
   {
     route = '/',
     ballotStyleId,
-    electionDefinition = electionSampleNoSealDefinition,
+    electionDefinition = electionSampleDefinition,
     contests = electionDefinition.election.contests,
     endVoterSession = jest.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),
