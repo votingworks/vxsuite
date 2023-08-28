@@ -286,7 +286,7 @@ function constructSignatureFilePath(artifact: ArtifactToImport): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await
-async function performArtifactSpecificValidation(
+async function performArtifactSpecificAuthenticationChecks(
   artifact: ArtifactToImport
 ): Promise<void> {
   switch (artifact.type) {
@@ -345,7 +345,7 @@ export async function authenticateArtifactUsingSignatureFile(
       artifact,
       artifactSignatureBundle
     );
-    await performArtifactSpecificValidation(artifact);
+    await performArtifactSpecificAuthenticationChecks(artifact);
   } catch {
     // TODO: Log raw error
     return err(
