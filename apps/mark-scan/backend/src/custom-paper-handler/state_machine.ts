@@ -508,12 +508,9 @@ function setUpLogging(
         // behavior, since others would be too verbose (e.g. scanner client
         // object)
         .filter(([key]) =>
-          [
-            'driver', // driver is somewhat verbose and may be removed before shipping
-            'pollingIntervalMs',
-            'scannedImagePaths',
-            'interpretation',
-          ].includes(key)
+          ['pollingIntervalMs', 'scannedImagePaths', 'interpretation'].includes(
+            key
+          )
         )
         // To protect voter privacy, only log the interpretation type
         .map(([key, value]) =>
