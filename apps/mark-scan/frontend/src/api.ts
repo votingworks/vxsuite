@@ -183,9 +183,8 @@ export const endCardlessVoterSession = {
       async onSuccess() {
         // Because we poll auth status with high frequency, auth invalidation isn't strictly
         // necessary
-        await queryClient.invalidateQueries({
-          queryKey: [getAuthStatus.queryKey(), getInterpretation.queryKey()],
-        });
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
       },
     });
   },
