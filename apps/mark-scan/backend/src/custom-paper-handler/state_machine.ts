@@ -327,6 +327,7 @@ export function buildMachine(
         invoke: pollPaperStatus(),
         on: {
           PAPER_INSIDE_NO_JAM: 'eject_to_front',
+          PAPER_PARKED: 'eject_to_front',
           BEGIN_ACCEPTING_PAPER: 'accepting_paper',
         },
       },
@@ -416,10 +417,8 @@ export function buildMachine(
       eject_to_rear: {
         invoke: pollPaperStatus(),
         entry: async (context) => {
-          debug('+eject_to_rear');
           await context.driver.parkPaper();
           await context.driver.ejectBallotToRear();
-          debug('-eject_to_rear');
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
@@ -427,10 +426,8 @@ export function buildMachine(
       },
       eject_to_front: {
         invoke: pollPaperStatus(),
-        entry: (context) => {
-          debug('+eject_to_front');
-          void context.driver.ejectPaperToFront();
-          debug('-eject_to_front');
+        entry: async (context) => {
+          await context.driver.ejectPaperToFront();
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
