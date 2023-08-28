@@ -28,7 +28,8 @@ import {
   interpretSheet,
 } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, Logger } from '@votingworks/logging';
-import { Workspace } from '../util/workspace';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
   PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
@@ -298,7 +299,8 @@ function loadMetadataAndInterpretBallot(
 }
 
 export function buildMachine(
-  initialContext: Context
+  initialContext: Context,
+  auth: InsertedSmartCardAuthApi
 ): StateMachine<
   Context,
   StateSchema,
@@ -458,7 +460,11 @@ export function buildMachine(
         },
       },
       resetting_state_machine_after_jam: {
-        entry: () => {
+        entry: async (context) => {
+          await auth.endCardlessVoterSession(
+            constructAuthMachineState(context.workspace)
+          );
+
           assign({
             interpretation: undefined,
             scannedImagePaths: undefined,
@@ -470,7 +476,11 @@ export function buildMachine(
         },
       },
       resetting_state_machine_after_success: {
-        entry: () => {
+        entry: async (context) => {
+          await auth.endCardlessVoterSession(
+            constructAuthMachineState(context.workspace)
+          );
+
           assign({
             interpretation: undefined,
             scannedImagePaths: undefined,
@@ -551,6 +561,7 @@ function setUpLogging(
 export async function getPaperHandlerStateMachine(
   paperHandlerDriver: PaperHandlerDriverInterface,
   workspace: Workspace,
+  auth: InsertedSmartCardAuthApi,
   logger: Logger,
   pollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
 ): Promise<Optional<PaperHandlerStateMachine>> {
@@ -560,7 +571,7 @@ export async function getPaperHandlerStateMachine(
     pollingIntervalMs,
   };
 
-  const machine = buildMachine(context);
+  const machine = buildMachine(context, auth);
   const machineService = interpret(machine).start();
   setUpLogging(machineService, logger);
   const paperHandlerStateMachine = new PaperHandlerStateMachine(

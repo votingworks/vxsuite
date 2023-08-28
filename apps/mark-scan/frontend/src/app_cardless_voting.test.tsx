@@ -49,6 +49,11 @@ function mockLoadPaper() {
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 }
 
+async function awaitRenderAndClickBallotStyle(): Promise<void> {
+  const ballotStylesElement = await screen.findByTestId('ballot-styles');
+  fireEvent.click(within(ballotStylesElement).getByText('12'));
+}
+
 test('Cardless Voting Flow', async () => {
   const electionDefinition = electionSampleDefinition;
   const { electionHash } = electionDefinition;
@@ -136,7 +141,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  await awaitRenderAndClickBallotStyle();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -159,7 +164,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  await awaitRenderAndClickBallotStyle();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -203,7 +208,7 @@ test('Cardless Voting Flow', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  await awaitRenderAndClickBallotStyle();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -253,7 +258,7 @@ test('Cardless Voting Flow', async () => {
 
   // Reset Ballot is called
   // Show Verify and Scan Instructions
-  screen.getByText('You’re Almost Done');
+  await screen.findByText('You’re Almost Done');
   expect(
     screen.queryByText('3. Return the card to a poll worker.')
   ).toBeFalsy();
@@ -354,9 +359,7 @@ test('Voter can submit a blank ballot', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  userEvent.click(
-    within(await screen.findByTestId('ballot-styles')).getByText('12')
-  );
+  await awaitRenderAndClickBallotStyle();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -408,7 +411,7 @@ test('Voter can submit a blank ballot', async () => {
 
   // Reset Ballot is called
   // Show Verify and Scan Instructions
-  screen.getByText('You’re Almost Done');
+  await screen.findByText('You’re Almost Done');
   expect(screen.queryByText('3. Return the card.')).toBeFalsy();
 
   // Click "Done" to get back to Insert Card screen
@@ -504,7 +507,7 @@ test('poll worker must select a precinct first', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  await awaitRenderAndClickBallotStyle();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -530,7 +533,7 @@ test('poll worker must select a precinct first', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  userEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  await awaitRenderAndClickBallotStyle();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -579,7 +582,7 @@ test('poll worker must select a precinct first', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
+  await awaitRenderAndClickBallotStyle();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -631,7 +634,7 @@ test('poll worker must select a precinct first', async () => {
 
   // Reset Ballot is called
   // Show Verify and Scan Instructions
-  screen.getByText('You’re Almost Done');
+  await screen.findByText('You’re Almost Done');
   expect(
     screen.queryByText('3. Return the card to a poll worker.')
   ).toBeFalsy();

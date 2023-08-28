@@ -293,9 +293,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Validate Ballot page
   await screen.findByText('Review Your Votes');
   apiMock.expectValidateBallot();
-  userEvent.click(screen.getByText('My Ballot is Correct'));
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Done'));
+  userEvent.click(screen.getByText('My Ballot is Correct'));
+  userEvent.click(await screen.findByText('Done'));
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------

@@ -678,13 +678,7 @@ export function AppRoot({
     stateMachineState === 'jam_cleared' ||
     stateMachineState === 'resetting_state_machine_after_jam'
   ) {
-    // TODO reset function may need to change once we're in a voter session
-    return (
-      <JamClearedPage
-        authStatus={authStatus}
-        stateMachineState={stateMachineState}
-      />
-    );
+    return <JamClearedPage stateMachineState={stateMachineState} />;
   }
 
   if (optionalElectionDefinition && precinctSelection) {

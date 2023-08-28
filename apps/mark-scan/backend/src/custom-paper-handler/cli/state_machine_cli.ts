@@ -13,6 +13,7 @@ import {
   PaperHandlerStateMachine,
   getPaperHandlerStateMachine,
 } from '../state_machine';
+import { getDefaultAuth } from '../../util/auth';
 
 // We could add a LogSource for this CLI tool but that's unnecessary because
 // these logs will never reach production
@@ -66,6 +67,8 @@ export async function main(): Promise<number> {
   assert(workspacePath !== undefined, 'expected workspace path');
   const workspace = createWorkspace(workspacePath);
 
+  const auth = getDefaultAuth(logger);
+
   const driver = await getPaperHandlerDriver();
   assert(
     driver,
@@ -75,6 +78,7 @@ export async function main(): Promise<number> {
   const stateMachine = await getPaperHandlerStateMachine(
     driver,
     workspace,
+    auth,
     logger,
     DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
   );

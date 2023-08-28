@@ -6,6 +6,7 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { dirSync } from 'tmp';
 import { Logger, fakeLogger } from '@votingworks/logging';
+import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
   PaperHandlerStateMachine,
   getPaperHandlerStateMachine,
@@ -25,6 +26,7 @@ let logger: Logger;
 
 beforeEach(async () => {
   logger = fakeLogger();
+  const auth = buildMockInsertedSmartCardAuth();
   workspace = createWorkspace(dirSync().name);
   const webDevice: MinimalWebUsbDevice = {
     open: jest.fn(),
@@ -45,6 +47,7 @@ beforeEach(async () => {
   machine = (await getPaperHandlerStateMachine(
     driver,
     workspace,
+    auth,
     logger,
     TEST_POLLING_INTERVAL_MS
   )) as PaperHandlerStateMachine;

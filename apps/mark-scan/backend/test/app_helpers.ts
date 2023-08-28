@@ -99,12 +99,14 @@ export async function getMockStateMachine(
     selectConfiguration: jest.fn(),
   };
   const driver = new PaperHandlerDriver(webDevice);
+  const auth = buildMockInsertedSmartCardAuth();
   jest
     .spyOn(driver, 'getPaperHandlerStatus')
     .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
   const stateMachine = await getPaperHandlerStateMachine(
     driver,
     workspace,
+    auth,
     logger,
     DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
   );

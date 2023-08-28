@@ -12,7 +12,7 @@ test('can start server', async () => {
   const workspace = createWorkspace(tmp.dirSync().name);
   const stateMachine = await getMockStateMachine(workspace, logger);
 
-  const server = start({
+  const server = await start({
     auth,
     logger,
     port: PORT,

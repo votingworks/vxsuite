@@ -1,8 +1,5 @@
 import express, { Application } from 'express';
-import {
-  InsertedSmartCardAuthApi,
-  InsertedSmartCardAuthMachineState,
-} from '@votingworks/auth';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assert, ok, Optional, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
@@ -29,7 +26,7 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import makeDebug from 'debug';
 import { getMachineConfig } from './machine_config';
-import { Workspace } from './util/workspace';
+import { Workspace, constructAuthMachineState } from './util/workspace';
 import {
   PaperHandlerStateMachine,
   SimpleServerStatus,
@@ -38,20 +35,6 @@ import {
 const debug = makeDebug('mark-scan:app-backend');
 
 const defaultMediaMountDir = '/media';
-
-function constructAuthMachineState(
-  workspace: Workspace
-): InsertedSmartCardAuthMachineState {
-  const electionDefinition = workspace.store.getElectionDefinition();
-  const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings =
-    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-  return {
-    ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction,
-  };
-}
 
 function buildApi(
   auth: InsertedSmartCardAuthApi,
