@@ -383,6 +383,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
           county: arbitraryCounty(),
           state: fc.string({ minLength: 2, maxLength: 2 }),
           date: fc.date().map((date) => date.toISOString()),
+          seal: fc.string({ minLength: 1, maxLength: 200 }),
           parties: fc.constant(parties),
           contests: arbitraryContests({
             partyIds: fc.constant(parties.map(({ id }) => id)),
