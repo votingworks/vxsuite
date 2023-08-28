@@ -295,24 +295,13 @@ function buildApi({
       return ok();
     },
 
-    async getSystemSettings(): Promise<SystemSettings> {
+    getSystemSettings(): SystemSettings {
       const electionId = store.getCurrentElectionId();
       if (!electionId) {
         return DEFAULT_SYSTEM_SETTINGS;
       }
 
-      try {
-        const settings = store.getSystemSettings(electionId);
-        await logger.log(LogEventId.SystemSettingsRetrieved, 'system', {
-          disposition: 'success',
-        });
-        return settings;
-      } catch (error) {
-        await logger.log(LogEventId.SystemSettingsRetrieved, 'system', {
-          disposition: 'failure',
-        });
-        throw error;
-      }
+      return store.getSystemSettings(electionId);
     },
 
     // `configure` and `unconfigure` handle changes to the election definition
