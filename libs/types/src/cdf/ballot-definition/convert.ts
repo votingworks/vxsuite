@@ -433,6 +433,8 @@ export function convertVxfElectionToCdfBallotDefinition(
       },
     ],
 
+    vxSeal: vxfElection.seal,
+
     // Since we don't have a generated date in VXF, we use the election date. If
     // we were to use the current date, it would cause changes every time we
     // hash the object. We want hashes to be based on the content of the
@@ -533,6 +535,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       name: englishText(county.Name),
     },
     date: dateTimeString(new Date(election.StartDate)),
+    seal: cdfBallotDefinition.vxSeal,
 
     parties: cdfBallotDefinition.Party.map((party) => {
       return {
