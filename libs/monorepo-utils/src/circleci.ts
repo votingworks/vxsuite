@@ -183,7 +183,9 @@ commands:
   install-cypress-browser:
     description: Installs a browser for Cypress tests.
     steps:
-      - browser-tools/install-chrome
+      - browser-tools/install-chrome:
+          # TODO remove following line when fixed https://github.com/CircleCI-Public/browser-tools-orb/issues/90
+          chrome-version: 116.0.5845.96
       - browser-tools/install-chromedriver
 
 `.trim();
