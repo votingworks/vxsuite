@@ -73,11 +73,11 @@ function buildCVRBallotMeasureContest({
       : undervoted
       ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
       : undefined,
-    CVRContestSelection: vote.map((option) => ({
+    CVRContestSelection: vote.map((optionId) => ({
       '@type': 'CVR.CVRContestSelection',
-      ContestSelectionId: option,
+      ContestSelectionId: optionId,
       // include position on the ballot per VVSG 2.0 1.1.5-C.2
-      OptionPosition: option === 'yes' ? 0 : 1,
+      OptionPosition: optionId === contest.yesOption.id ? 0 : 1,
       Status: overvoted
         ? [CVR.ContestSelectionStatus.InvalidatedRules]
         : undefined,
