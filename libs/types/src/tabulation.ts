@@ -23,6 +23,8 @@ type ContestResultsBase = ContestResultsMetadata & {
 
 export type YesNoContestResults = ContestResultsBase & {
   readonly contestType: 'yesno';
+  yesOptionId: ContestOptionId;
+  noOptionId: ContestOptionId;
   yesTally: number;
   noTally: number;
 };

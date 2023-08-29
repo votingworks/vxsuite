@@ -69,6 +69,8 @@ function getContestTalliesForCompressedContest(
       return {
         contestId: contest.id,
         contestType: 'yesno',
+        yesOptionId: contest.yesOption.id,
+        noOptionId: contest.noOption.id,
         ballots,
         undervotes,
         overvotes,

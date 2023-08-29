@@ -15,12 +15,13 @@ import {
   writeInCandidate,
   WriteInIdSchema,
   YesNoContest,
+  YesNoContestOptionId,
   YesNoVote,
-  YesNoVoteId,
-  YesOrNo,
 } from '@votingworks/types';
 
-export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
+export function getSingleYesNoVote(
+  vote?: YesNoVote
+): YesNoContestOptionId | undefined {
   if (vote?.length === 1) {
     return vote[0];
   }
@@ -40,14 +41,14 @@ export function normalizeWriteInId(candidateId: CandidateId): string {
  */
 export function getContestVoteOptionsForYesNoContest(
   contest: YesNoContest
-): readonly YesNoVoteId[] {
-  assert(contest.type === 'yesno');
-  return ['yes', 'no'];
+): readonly YesNoContestOptionId[] {
+  return [contest.yesOption.id, contest.noOption.id];
 }
 
 /**
- * Gets all the vote options a voter can make for a given contest. If write-ins are allowed a single write-in candidate ID is included.
- * @returns ContestVoteOption[] ex. ['yes', 'no'] or ['aaron', 'bob', 'write-in']
+ * Gets all the vote options a voter can make for a given candidate contest. If
+ * write-ins are allowed a single write-in candidate ID is included.
+ * @returns Candidate[] ex. ['aaron', 'bob', 'write-in']
  */
 export function getContestVoteOptionsForCandidateContest(
   contest: CandidateContest
@@ -125,12 +126,11 @@ function markToCandidateVotes(
 
 function markToYesNoVotes(
   markThresholds: Pick<MarkThresholds, 'definite'>,
-  mark: BallotTargetMark,
-  contest: YesNoContest
+  mark: BallotTargetMark
 ): YesNoVote {
   assert(mark.type === 'yesno');
   return getMarkStatus(mark.score, markThresholds) === MarkStatus.Marked
-    ? [mark.optionId === contest.yesOption.id ? 'yes' : 'no']
+    ? [mark.optionId]
     : [];
 }
 
@@ -151,7 +151,7 @@ export function convertMarksToVotesDict(
       contest.type === 'candidate'
         ? markToCandidateVotes(contest, markThresholds, mark)
         : contest.type === 'yesno'
-        ? markToYesNoVotes(markThresholds, mark, contest)
+        ? markToYesNoVotes(markThresholds, mark)
         : /* c8 ignore next */
           throwIllegalValue(contest, 'type');
 
