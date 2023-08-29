@@ -406,3 +406,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Precinct scanner state machine transitioned states.  
 **Machines:** vx-scan-backend
+### paper-handler-state-machine-transition
+**Type:** [application-status](#application-status)  
+**Description:** Precinct print/scan BMD state machine transitioned states.  
+**Machines:** vx-mark-scan-backend

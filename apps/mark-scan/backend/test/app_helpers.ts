@@ -5,7 +5,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { AddressInfo } from 'net';
-import { fakeLogger } from '@votingworks/logging';
+import { fakeLogger, Logger } from '@votingworks/logging';
 import tmp from 'tmp';
 import os from 'os';
 import {
@@ -86,7 +86,8 @@ export function defaultPaperHandlerStatus(): PaperHandlerStatus {
 }
 
 export async function getMockStateMachine(
-  workspace: Workspace
+  workspace: Workspace,
+  logger: Logger
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
   const webDevice: MinimalWebUsbDevice = {
@@ -98,12 +99,15 @@ export async function getMockStateMachine(
     selectConfiguration: jest.fn(),
   };
   const driver = new PaperHandlerDriver(webDevice);
+  const auth = buildMockInsertedSmartCardAuth();
   jest
     .spyOn(driver, 'getPaperHandlerStatus')
     .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
   const stateMachine = await getPaperHandlerStateMachine(
     driver,
     workspace,
+    auth,
+    logger,
     DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
   );
   assert(stateMachine);
@@ -128,7 +132,7 @@ export async function createApp(): Promise<MockAppContents> {
   // Default mount dir used by `tmp` lib in MockUsb
   const mountDir = os.tmpdir();
 
-  const stateMachine = await getMockStateMachine(workspace);
+  const stateMachine = await getMockStateMachine(workspace, logger);
 
   const app = buildApp(
     mockAuth,

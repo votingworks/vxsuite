@@ -1,29 +1,20 @@
-import { assert, iter } from '@votingworks/basics';
+import { assert, iter, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
-import {
-  AdjudicationReason,
-  ElectionDefinition,
-  MarkThresholds,
-  PrecinctSelection,
-  SheetOf,
-} from '@votingworks/types';
+import { SheetOf } from '@votingworks/types';
 import {
   ImageConversionOptions,
   PaperHandlerDriver,
   PaperHandlerStatus,
   VERTICAL_DOTS_IN_CHUNK,
   chunkBinaryBitmap,
+  getPaperHandlerDriver,
   imageDataToBinaryBitmap,
 } from '@votingworks/custom-paper-handler';
 import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';
-import {
-  InterpretFileResult,
-  interpretSheet,
-} from '@votingworks/ballot-interpreter';
 import { tmpNameSync } from 'tmp';
-import { PRINT_DPI, SCAN_DPI } from './constants';
+import { PRINT_DPI, RESET_DELAY_MS, SCAN_DPI } from './constants';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
@@ -37,17 +28,6 @@ const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
  * ./state_machine.ts
  */
 
-export function isPaperInInput(
-  paperHandlerStatus: PaperHandlerStatus
-): boolean {
-  return (
-    paperHandlerStatus.paperInputLeftInnerSensor ||
-    paperHandlerStatus.paperInputLeftOuterSensor ||
-    paperHandlerStatus.paperInputRightInnerSensor ||
-    paperHandlerStatus.paperInputRightOuterSensor
-  );
-}
-
 export function isPaperReadyToLoad(
   paperHandlerStatus: PaperHandlerStatus
 ): boolean {
@@ -59,6 +39,10 @@ export function isPaperReadyToLoad(
   );
 }
 
+export function isPaperJammed(paperHandlerStatus: PaperHandlerStatus): boolean {
+  return paperHandlerStatus.paperJam;
+}
+
 export function isPaperInScanner(
   paperHandlerStatus: PaperHandlerStatus
 ): boolean {
@@ -68,8 +52,18 @@ export function isPaperInScanner(
     paperHandlerStatus.preHeadSensor ||
     paperHandlerStatus.paperOutSensor ||
     paperHandlerStatus.parkSensor ||
-    paperHandlerStatus.paperJam ||
     paperHandlerStatus.scanInProgress
+  );
+}
+
+export function isPaperInInput(
+  paperHandlerStatus: PaperHandlerStatus
+): boolean {
+  return (
+    paperHandlerStatus.paperInputLeftInnerSensor ||
+    paperHandlerStatus.paperInputLeftOuterSensor ||
+    paperHandlerStatus.paperInputRightInnerSensor ||
+    paperHandlerStatus.paperInputRightOuterSensor
   );
 }
 
@@ -158,27 +152,28 @@ export async function scanAndSave(
   return [pathOutFront, blankSheetFixturePath];
 }
 
-export async function interpretScannedBallots(
-  electionDefinition: ElectionDefinition,
-  precinctSelection: PrecinctSelection,
-  testMode: boolean,
-  markThresholds: MarkThresholds,
-  adjudicationReasons: readonly AdjudicationReason[],
-  sheetOfImagePaths: SheetOf<string>
-): Promise<SheetOf<InterpretFileResult>> {
-  const interpretation = await interpretSheet(
-    {
-      electionDefinition,
-      precinctSelection,
-      testMode,
-      markThresholds,
-      adjudicationReasons,
-    },
-    sheetOfImagePaths
-  );
+export async function loadAndParkPaper(
+  driver: PaperHandlerDriver
+): Promise<void> {
+  debug('Loading paper');
+  await driver.loadPaper();
+  debug('Parking paper');
+  await driver.parkPaper();
+  debug('Done loading and parking');
+}
 
-  // Use JSON.stringify instead of string interpolation because the latter
-  // only prints one level deep
-  debug(`interpretation: ${JSON.stringify(interpretation, null, 2)}`);
-  return interpretation;
+export async function resetAndReconnect(
+  oldDriver: PaperHandlerDriver
+): Promise<PaperHandlerDriver> {
+  await oldDriver.resetScan();
+  // resetScan() command resolves with success as soon as the command is received, not when the command completes.
+  // It actually takes ~7 seconds to complete, so we force the state machine to stay in this state until it's done.
+  // TODO can we transition in the state machine using printer state instead of waiting a fixed time?
+  await sleep(RESET_DELAY_MS);
+  await oldDriver.disconnect();
+  debug('Getting new driver');
+  const newDriver = await getPaperHandlerDriver();
+  assert(newDriver, 'Could not create new paper handler driver');
+  await setDefaults(newDriver);
+  return newDriver;
 }

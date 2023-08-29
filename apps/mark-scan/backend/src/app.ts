@@ -1,8 +1,5 @@
 import express, { Application } from 'express';
-import {
-  InsertedSmartCardAuthApi,
-  InsertedSmartCardAuthMachineState,
-} from '@votingworks/auth';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assert, ok, Optional, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
@@ -16,6 +13,7 @@ import {
   TEST_JURISDICTION,
   PrecinctSelection,
   AllPrecinctsSelection,
+  InterpretedBmdPage,
 } from '@votingworks/types';
 import {
   isElectionManagerAuth,
@@ -26,28 +24,17 @@ import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import makeDebug from 'debug';
 import { getMachineConfig } from './machine_config';
-import { Workspace } from './util/workspace';
+import { Workspace, constructAuthMachineState } from './util/workspace';
 import {
   PaperHandlerStateMachine,
   SimpleServerStatus,
 } from './custom-paper-handler';
 
-const defaultMediaMountDir = '/media';
+const debug = makeDebug('mark-scan:app-backend');
 
-function constructAuthMachineState(
-  workspace: Workspace
-): InsertedSmartCardAuthMachineState {
-  const electionDefinition = workspace.store.getElectionDefinition();
-  const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings =
-    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-  return {
-    ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction,
-  };
-}
+const defaultMediaMountDir = '/media';
 
 function buildApi(
   auth: InsertedSmartCardAuthApi,
@@ -191,13 +178,53 @@ function buildApi(
       return stateMachine.getSimpleStatus();
     },
 
-    printBallot(input: { pdfData: Buffer }): SimpleServerStatus {
-      if (!stateMachine) {
-        return 'no_hardware';
-      }
+    setAcceptingPaperState(): void {
+      assert(stateMachine);
+      stateMachine.setAcceptingPaper();
+    },
+
+    printBallot(input: { pdfData: Buffer }): void {
+      assert(stateMachine);
 
       void stateMachine.printBallot(input.pdfData);
-      return stateMachine.getSimpleStatus();
+    },
+
+    getInterpretation(): InterpretedBmdPage | null {
+      assert(stateMachine);
+
+      // Storing the interpretation in the db requires a somewhat complicated schema
+      // and would need to be deleted at the end of the voter session anyway.
+      // If we can get away with storing the interpretation in memory only in the
+      // state machine we should. This simplifies the logic and reduces the risk
+      // of accidentally persisting ballot selections to disk.
+      const sheetInterpretation = stateMachine.getInterpretation();
+
+      if (!sheetInterpretation) {
+        return null;
+      }
+
+      assert(
+        sheetInterpretation[0].interpretation.type === 'InterpretedBmdPage'
+      );
+      // It's impossible to print to the back page from the thermal printer
+      assert(sheetInterpretation[1].interpretation.type === 'BlankPage');
+
+      // Omit image data before sending to client. It's long, gets logged, and we don't need it.
+      return sheetInterpretation[0].interpretation;
+    },
+
+    validateBallot(): void {
+      assert(stateMachine);
+
+      debug('API validate');
+      stateMachine.validateBallot();
+    },
+
+    invalidateBallot(): void {
+      assert(stateMachine);
+
+      debug('API invalidate');
+      stateMachine.invalidateBallot();
     },
   });
 }

@@ -143,8 +143,11 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   readonly genericLock = new Lock();
   readonly realTimeLock = new Lock();
   readonly scannerConfig: ScannerConfig = getDefaultConfig();
+  webDevice: MinimalWebUsbDevice;
 
-  constructor(readonly webDevice: MinimalWebUsbDevice) {}
+  constructor(_webDevice: MinimalWebUsbDevice) {
+    this.webDevice = _webDevice;
+  }
 
   async connect(): Promise<void> {
     await this.webDevice.open();
@@ -334,6 +337,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         RealTimeExchangeResponseWithoutData
       )
     ).unsafeUnwrap();
+
     this.validateRealTimeExchangeResponse(
       RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
       response
@@ -361,7 +365,6 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     coder: Coder<T>,
     value: T
   ): Promise<boolean> {
-    debug('acquiring lock');
     await this.genericLock.acquire();
     const transferOutResult = await this.transferOutGeneric(coder, value);
     assert(transferOutResult.status === 'ok'); // TODO: Handling
@@ -554,7 +557,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Ejects out the front. Can eject from loaded or parked state. If there is
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
-  async ejectPaper(): Promise<boolean> {
+  async ejectPaperToFront(): Promise<boolean> {
     return this.handleGenericCommandWithAcknowledgement(
       EjectPaperCommand,
       undefined
@@ -589,7 +592,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Ejects to ballot box. Can eject from loaded or parked state. If there is
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
-  async ejectBallot(): Promise<boolean> {
+  async ejectBallotToRear(): Promise<boolean> {
     return this.handleGenericCommandWithAcknowledgement(
       EjectPaperToBallotCommand,
       undefined

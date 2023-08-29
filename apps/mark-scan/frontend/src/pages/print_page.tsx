@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext } from 'react';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
 import { assert } from '@votingworks/basics';
 import { PrintOptions } from '@votingworks/types';
@@ -6,11 +6,10 @@ import { printElementToPdf } from '@votingworks/ui';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
 import { BallotContext } from '../contexts/ballot_context';
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { printBallot } from '../api';
 
 const debug = makeDebug('mark-scan:print-page');
-export function PrintPage(): JSX.Element {
+export function PrintPage(): JSX.Element | null {
   const {
     electionDefinition,
     ballotStyleId,
@@ -19,7 +18,6 @@ export function PrintPage(): JSX.Element {
     votes,
     generateBallotId,
     updateTally,
-    resetBallot,
   } = useContext(BallotContext);
   assert(electionDefinition, 'electionDefinition is not defined');
   assert(typeof ballotStyleId === 'string', 'ballotStyleId is not defined');
@@ -36,21 +34,9 @@ export function PrintPage(): JSX.Element {
     printBallotMutation.mutate({ pdfData: Buffer.from(pdfData) });
   }
 
-  const printerTimer = useRef(0);
-
   function onPrintStarted() {
     updateTally();
-    printerTimer.current = window.setTimeout(() => {
-      resetBallot(true);
-    }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
   }
-
-  // Make sure we clean up any pending timeout on unmount
-  useEffect(() => {
-    return () => {
-      clearTimeout(printerTimer.current);
-    };
-  }, []);
 
   return (
     <MarkFlowPrintPage

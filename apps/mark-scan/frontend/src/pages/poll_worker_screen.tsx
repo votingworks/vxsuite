@@ -50,8 +50,8 @@ import { ScreenReader } from '../config/types';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
-import { getStateMachineState } from '../api';
 import { LoadPaperPage } from './load_paper_page';
+import { getStateMachineState, setAcceptingPaperState } from '../api';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -183,6 +183,7 @@ export function PollWorkerScreen({
   const getStateMachineStateQuery = getStateMachineState.useQuery();
   const stateMachineState = getStateMachineStateQuery.data;
 
+  const setAcceptingPaperStateMutation = setAcceptingPaperState.useMutation();
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
       precinctSelection.kind === 'SinglePrecinct'
@@ -254,7 +255,7 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerAuth.cardlessVoterUser) {
-    if (stateMachineState === 'no_paper') {
+    if (stateMachineState === 'accepting_paper') {
       return <LoadPaperPage />;
     }
 
@@ -346,9 +347,13 @@ export function PollWorkerScreen({
                           fullWidth
                           key={precinct.id}
                           aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
-                          onPress={() =>
-                            setSelectedCardlessVoterPrecinctId(precinct.id)
-                          }
+                          onPress={() => {
+                            setAcceptingPaperStateMutation.mutate(undefined, {
+                              onSuccess() {
+                                setSelectedCardlessVoterPrecinctId(precinct.id);
+                              },
+                            });
+                          }}
                           variant={
                             selectedCardlessVoterPrecinctId === precinct.id
                               ? 'primary'
@@ -372,12 +377,16 @@ export function PollWorkerScreen({
                         fullWidth
                         key={ballotStyle.id}
                         aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
-                        onPress={() =>
-                          activateCardlessVoterSession(
-                            selectedCardlessVoterPrecinctId,
-                            ballotStyle.id
-                          )
-                        }
+                        onPress={() => {
+                          setAcceptingPaperStateMutation.mutate(undefined, {
+                            onSuccess() {
+                              activateCardlessVoterSession(
+                                selectedCardlessVoterPrecinctId,
+                                ballotStyle.id
+                              );
+                            },
+                          });
+                        }}
                       >
                         {ballotStyle.id}
                       </Button>

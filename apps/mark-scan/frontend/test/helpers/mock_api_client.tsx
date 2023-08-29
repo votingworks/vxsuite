@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Buffer } from 'buffer';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api, MachineConfig } from '@votingworks/mark-scan-backend';
@@ -12,6 +11,7 @@ import {
   Election,
   ElectionDefinition,
   InsertedSmartCardAuth,
+  InterpretedBmdPage,
   PrecinctId,
   PrecinctSelection,
   SystemSettings,
@@ -50,7 +50,7 @@ function createMockApiClient(): MockApiClient {
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
   (mockApiClient.getPaperHandlerState as unknown as jest.Mock) = jest.fn(() =>
-    Promise.resolve('no_paper')
+    Promise.resolve('not_accepting_paper')
   );
 
   return mockApiClient as unknown as MockApiClient;
@@ -200,11 +200,37 @@ export function createApiMock() {
     },
 
     expectPrintBallot(pdfData = Buffer.of()): void {
-      mockApiClient.printBallot
-        .expectCallWith({ pdfData })
-        .resolves('scanning');
+      mockApiClient.printBallot.expectCallWith({ pdfData }).resolves();
     },
 
+    expectGetInterpretation(
+      interpretation: InterpretedBmdPage | null = null
+    ): void {
+      mockApiClient.getInterpretation.expectCallWith().resolves(interpretation);
+    },
+
+    expectValidateBallot(): void {
+      mockApiClient.validateBallot.expectCallWith().resolves();
+    },
+
+    expectInvalidateBallot(): void {
+      mockApiClient.invalidateBallot.expectCallWith().resolves();
+    },
+
+    // Some e2e tests repeatedly reset voter session. Each time a voter session is activated
+    // setAcceptingPaperState is called.
+    expectRepeatedSetAcceptingPaperState(): void {
+      mockApiClient.setAcceptingPaperState.expectRepeatedCallsWith().resolves();
+      setPaperHandlerState('accepting_paper');
+    },
+
+    // Mocked version of a real method on the API client
+    expectSetAcceptingPaperState(): void {
+      mockApiClient.setAcceptingPaperState.expectCallWith().resolves();
+      setPaperHandlerState('accepting_paper');
+    },
+
+    // Helper on the mock API client; does not exist on real API client
     setPaperHandlerState,
 
     expectConfigureBallotPackageFromUsb(
@@ -229,6 +255,10 @@ export function createApiMock() {
       mockApiClient.configureBallotPackageFromUsb
         .expectCallWith()
         .resolves(result);
+    },
+
+    expectEndCardlessVoterSession() {
+      mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
     },
 
     expectLogOut() {

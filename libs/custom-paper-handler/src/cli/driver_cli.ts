@@ -150,10 +150,10 @@ async function handleCommand(
     console.log(JSON.stringify(status, null, 2));
   } else if (command === Command.EjectFront) {
     console.log('Ejecting paper to front');
-    await driver.ejectPaper();
+    await driver.ejectPaperToFront();
   } else if (command === Command.EjectBack) {
     console.log('Ejecting paper to back');
-    await driver.ejectBallot();
+    await driver.ejectBallotToRear();
   } else if (command === Command.LoadPaper) {
     console.log('Loading paper');
     await driver.loadPaper();

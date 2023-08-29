@@ -75,6 +75,8 @@ import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
+import { JammedPage } from './pages/jammed_page';
+import { JamClearedPage } from './pages/jam_cleared_page';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
 
 interface UserState {
@@ -400,6 +402,7 @@ export function AppRoot({
 
   const unconfigure = useCallback(async () => {
     await storage.clear();
+
     await unconfigureMachineMutateAsync();
     dispatchAppState({ type: 'unconfigure' });
     history.push('/');
@@ -591,10 +594,6 @@ export function AppRoot({
   if (stateMachineState === 'no_hardware') {
     return <NoPaperHandlerPage />;
   }
-  /* istanbul ignore next - this placeholder page will change */
-  if (stateMachineState === 'presenting_ballot') {
-    return <ValidateBallotPage />;
-  }
   if (
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'card_error'
@@ -678,6 +677,17 @@ export function AppRoot({
       />
     );
   }
+
+  if (stateMachineState === 'jammed') {
+    return <JammedPage />;
+  }
+  if (
+    stateMachineState === 'jam_cleared' ||
+    stateMachineState === 'resetting_state_machine_after_jam'
+  ) {
+    return <JamClearedPage stateMachineState={stateMachineState} />;
+  }
+
   if (optionalElectionDefinition && precinctSelection) {
     if (
       authStatus.status === 'logged_out' &&
@@ -738,7 +748,14 @@ export function AppRoot({
                 votes: votes ?? blankBallotVotes,
               }}
             >
-              <Ballot />
+              {stateMachineState === 'presenting_ballot' ? (
+                // Don't nest ValidateBallotPage under Ballot because Ballot uses frontend browser routing for flow control
+                // and is completely independent of the state machine. ValidateBallotPage interacts with the state machine
+                // so we condition on it here, where we can still access BallotContext, but completely separate it from browser routing
+                <ValidateBallotPage />
+              ) : (
+                <Ballot />
+              )}
             </BallotContext.Provider>
           </Gamepad>
         );
