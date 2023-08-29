@@ -34,7 +34,7 @@ test('changing votes', () => {
     <YesNoContest
       election={electionMinimalExhaustiveSample}
       contest={contest}
-      vote={['yes']}
+      vote={[contest.yesOption.id]}
       updateVote={updateVote}
     />
   );
@@ -75,7 +75,7 @@ test('audio cue for vote', () => {
     <YesNoContest
       election={electionMinimalExhaustiveSample}
       contest={contest}
-      vote={['yes']}
+      vote={[contest.yesOption.id]}
       updateVote={updateVote}
     />
   );

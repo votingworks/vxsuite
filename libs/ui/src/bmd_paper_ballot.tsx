@@ -198,9 +198,10 @@ function YesNoContestResult({
   contest,
   vote,
 }: YesNoContestResultProps): JSX.Element {
-  const yesNo = getSingleYesNoVote(vote);
-  if (!yesNo) return <NoSelection />;
-  const option = yesNo === 'yes' ? contest.yesOption : contest.noOption;
+  const singleVote = getSingleYesNoVote(vote);
+  if (!singleVote) return <NoSelection />;
+  const option =
+    singleVote === contest.yesOption.id ? contest.yesOption : contest.noOption;
   return (
     <VoteLine>
       <Font weight="bold">{option.label}</Font>

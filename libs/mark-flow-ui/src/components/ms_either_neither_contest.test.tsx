@@ -45,8 +45,8 @@ test('renders with vote', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['yes']}
-      pickOneContestVote={['yes']}
+      eitherNeitherContestVote={[contest.eitherOption.id]}
+      pickOneContestVote={[contest.firstOption.id]}
       updateVote={jest.fn()}
     />
   );
@@ -76,24 +76,24 @@ test('voting for either/neither', () => {
 
   userEvent.click(eitherButton);
   expect(updateVote).toHaveBeenCalledWith(contest.eitherNeitherContestId, [
-    'yes',
+    contest.eitherOption.id,
   ]);
 
   userEvent.click(neitherButton);
   expect(updateVote).toHaveBeenCalledWith(contest.eitherNeitherContestId, [
-    'no',
+    contest.neitherOption.id,
   ]);
 });
 
 test.each([
-  ['yes', 'yes'],
-  ['yes', 'no'],
-  ['no', 'yes'],
-  ['no', 'no'],
-  ['yes', undefined],
-  ['no', undefined],
-  [undefined, 'yes'],
-  [undefined, 'no'],
+  [contest.eitherOption.id, contest.firstOption.id],
+  [contest.eitherOption.id, contest.secondOption.id],
+  [contest.neitherOption.id, contest.firstOption.id],
+  [contest.neitherOption.id, contest.secondOption.id],
+  [contest.eitherOption.id, undefined],
+  [contest.neitherOption.id, undefined],
+  [undefined, contest.firstOption.id],
+  [undefined, contest.secondOption.id],
 ] as const)(
   'voting with existing votes: %s/%s',
   (eitherNeitherContestVote, pickOneContestVote) => {
@@ -103,9 +103,11 @@ test.each([
         election={electionWithMsEitherNeither}
         contest={contest}
         eitherNeitherContestVote={
-          eitherNeitherContestVote && [eitherNeitherContestVote]
+          eitherNeitherContestVote ? [eitherNeitherContestVote] : undefined
         }
-        pickOneContestVote={pickOneContestVote && [pickOneContestVote]}
+        pickOneContestVote={
+          pickOneContestVote ? [pickOneContestVote] : undefined
+        }
         updateVote={updateVote}
       />
     );
@@ -126,25 +128,33 @@ test.each([
     userEvent.click(eitherButton);
     expect(updateVote).toHaveBeenCalledWith(
       contest.eitherNeitherContestId,
-      eitherNeitherContestVote === 'yes' ? [] : ['yes']
+      eitherNeitherContestVote === contest.eitherOption.id
+        ? []
+        : [contest.eitherOption.id]
     );
 
     userEvent.click(neitherButton);
     expect(updateVote).toHaveBeenCalledWith(
       contest.eitherNeitherContestId,
-      eitherNeitherContestVote === 'no' ? [] : ['no']
+      eitherNeitherContestVote === contest.neitherOption.id
+        ? []
+        : [contest.neitherOption.id]
     );
 
     userEvent.click(pickFirstButton);
     expect(updateVote).toHaveBeenCalledWith(
       contest.pickOneContestId,
-      pickOneContestVote === 'yes' ? [] : ['yes']
+      pickOneContestVote === contest.firstOption.id
+        ? []
+        : [contest.firstOption.id]
     );
 
     userEvent.click(pickSecondButton);
     expect(updateVote).toHaveBeenCalledWith(
       contest.pickOneContestId,
-      pickOneContestVote === 'no' ? [] : ['no']
+      pickOneContestVote === contest.secondOption.id
+        ? []
+        : [contest.secondOption.id]
     );
   }
 );
@@ -191,8 +201,8 @@ test('audio cues', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['yes']}
-      pickOneContestVote={['yes']}
+      eitherNeitherContestVote={[contest.eitherOption.id]}
+      pickOneContestVote={[contest.firstOption.id]}
       updateVote={updateVote}
     />
   );
@@ -214,8 +224,8 @@ test('audio cues', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['no']}
-      pickOneContestVote={['no']}
+      eitherNeitherContestVote={[contest.neitherOption.id]}
+      pickOneContestVote={[contest.secondOption.id]}
       updateVote={updateVote}
     />
   );
@@ -237,8 +247,8 @@ test('audio cues', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['yes']}
-      pickOneContestVote={['no']}
+      eitherNeitherContestVote={[contest.eitherOption.id]}
+      pickOneContestVote={[contest.secondOption.id]}
       updateVote={updateVote}
     />
   );
@@ -248,7 +258,7 @@ test('audio cues', () => {
       election={electionWithMsEitherNeither}
       contest={contest}
       eitherNeitherContestVote={[]}
-      pickOneContestVote={['no']}
+      pickOneContestVote={[contest.secondOption.id]}
       updateVote={updateVote}
     />
   );
@@ -267,8 +277,8 @@ test('audio cues', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['no']}
-      pickOneContestVote={['no']}
+      eitherNeitherContestVote={[contest.neitherOption.id]}
+      pickOneContestVote={[contest.secondOption.id]}
       updateVote={updateVote}
     />
   );
@@ -278,7 +288,7 @@ test('audio cues', () => {
       election={electionWithMsEitherNeither}
       contest={contest}
       eitherNeitherContestVote={[]}
-      pickOneContestVote={['no']}
+      pickOneContestVote={[contest.secondOption.id]}
       updateVote={updateVote}
     />
   );
@@ -297,8 +307,8 @@ test('audio cues', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['yes']}
-      pickOneContestVote={['yes']}
+      eitherNeitherContestVote={[contest.eitherOption.id]}
+      pickOneContestVote={[contest.firstOption.id]}
       updateVote={updateVote}
     />
   );
@@ -307,7 +317,7 @@ test('audio cues', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['yes']}
+      eitherNeitherContestVote={[contest.eitherOption.id]}
       pickOneContestVote={[]}
       updateVote={updateVote}
     />
@@ -327,8 +337,8 @@ test('audio cues', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['no']}
-      pickOneContestVote={['no']}
+      eitherNeitherContestVote={[contest.neitherOption.id]}
+      pickOneContestVote={[contest.secondOption.id]}
       updateVote={updateVote}
     />
   );
@@ -337,7 +347,7 @@ test('audio cues', () => {
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
       contest={contest}
-      eitherNeitherContestVote={['no']}
+      eitherNeitherContestVote={[contest.neitherOption.id]}
       pickOneContestVote={[]}
       updateVote={updateVote}
     />
