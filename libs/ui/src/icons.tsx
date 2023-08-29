@@ -28,6 +28,7 @@ import {
   faChevronLeft,
   faSquarePlus,
   faSpinner,
+  faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -70,6 +71,10 @@ export const Icons = {
 
   Backspace(): JSX.Element {
     return <FaIcon type={faDeleteLeft} />;
+  },
+
+  CaretDown(): JSX.Element {
+    return <FaIcon type={faCaretDown} />;
   },
 
   Circle(): JSX.Element {
