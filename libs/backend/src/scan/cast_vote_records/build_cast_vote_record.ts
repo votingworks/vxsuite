@@ -415,11 +415,7 @@ export function getWriteInCount(votes: VotesDict): number {
   for (const vote of Object.values(votes)) {
     if (vote) {
       for (const voteOption of vote) {
-        if (
-          voteOption !== 'yes' &&
-          voteOption !== 'no' &&
-          voteOption.isWriteIn
-        ) {
+        if (typeof voteOption !== 'string' && voteOption.isWriteIn) {
           count += 1;
         }
       }
@@ -436,11 +432,7 @@ export function hasWriteIns(votes: VotesDict): boolean {
   for (const vote of Object.values(votes)) {
     if (vote) {
       for (const voteOption of vote) {
-        if (
-          voteOption !== 'yes' &&
-          voteOption !== 'no' &&
-          voteOption.isWriteIn
-        ) {
+        if (typeof voteOption !== 'string' && voteOption.isWriteIn) {
           return true;
         }
       }
