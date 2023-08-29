@@ -33,6 +33,11 @@ import { DateTime } from 'luxon';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { ResultSheet } from '@votingworks/backend';
+import {
+  clearCastVoteRecordHashes,
+  getCastVoteRecordRootHash,
+  updateCastVoteRecordHashes,
+} from '@votingworks/auth';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 
@@ -938,23 +943,15 @@ export class Store {
     );
   }
 
-  //
-  // Stubs
-  //
-
-  /* c8 ignore start */
-
   getCastVoteRecordRootHash(): string {
-    return '';
+    return getCastVoteRecordRootHash(this.client);
   }
 
-  updateCastVoteRecordHashes(): void {
-    return undefined;
+  updateCastVoteRecordHashes(cvrId: string, cvrHash: string): void {
+    updateCastVoteRecordHashes(this.client, cvrId, cvrHash);
   }
 
   clearCastVoteRecordHashes(): void {
-    return undefined;
+    clearCastVoteRecordHashes(this.client);
   }
-
-  /* c8 ignore end */
 }
