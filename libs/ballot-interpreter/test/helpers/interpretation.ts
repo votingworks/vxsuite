@@ -1,13 +1,7 @@
-import { find, iter } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb-render-backend';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import {
-  AnyContest,
-  Contests,
-  GridLayout,
-  Vote,
-  VotesDict,
-} from '@votingworks/types';
+import { GridLayout, Vote, VotesDict } from '@votingworks/types';
 import { tmpNameSync } from 'tmp';
 import { readFile } from 'fs/promises';
 
@@ -41,20 +35,17 @@ export function votesForSheet(
   );
 }
 
-export function sortVotes(vote: Vote, contest: AnyContest): Vote {
+export function sortVotes(vote: Vote): Vote {
   return [...vote].sort((a, b) =>
-    voteToOptionId(a, contest).localeCompare(voteToOptionId(b, contest))
+    voteToOptionId(a).localeCompare(voteToOptionId(b))
   ) as Vote;
 }
 
-export function sortVotesDict(votes: VotesDict, contests: Contests): VotesDict {
+export function sortVotesDict(votes: VotesDict): VotesDict {
   return Object.fromEntries(
     Object.entries(votes).map(([contestId, candidates]) => [
       contestId,
-      sortVotes(
-        candidates ?? [],
-        find(contests, (c) => c.id === contestId)
-      ),
+      sortVotes(candidates ?? []),
     ])
   );
 }

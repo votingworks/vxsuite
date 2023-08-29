@@ -420,7 +420,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -811,7 +811,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -1160,7 +1160,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 14`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -1254,7 +1254,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
       },
     },
@@ -1806,7 +1806,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -2052,7 +2052,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 23`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
       },
     },
@@ -2400,7 +2400,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 28`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -2645,7 +2645,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 30`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -2854,7 +2854,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -3170,7 +3170,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -3338,7 +3338,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 36`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -3607,7 +3607,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -3725,7 +3725,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -4262,7 +4262,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -4489,7 +4489,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 49`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -4923,7 +4923,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -5483,7 +5483,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -5723,7 +5723,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -6068,7 +6068,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -7001,7 +7001,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
         "Sheriff-4243fe0b": [
           {
@@ -7119,8 +7119,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
-          "no",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
       },
     },

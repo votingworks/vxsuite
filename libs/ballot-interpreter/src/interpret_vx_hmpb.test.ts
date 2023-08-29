@@ -61,14 +61,11 @@ describe('HMPB - Famous Names', () => {
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
     assert(backResult.interpretation.type === 'InterpretedHmpbPage');
     expect(
-      sortVotesDict(
-        {
-          ...frontResult.interpretation.votes,
-          ...backResult.interpretation.votes,
-        },
-        election.contests
-      )
-    ).toEqual(sortVotesDict(votes, election.contests));
+      sortVotesDict({
+        ...frontResult.interpretation.votes,
+        ...backResult.interpretation.votes,
+      })
+    ).toEqual(sortVotesDict(votes));
   });
 
   test('Wrong election', async () => {
@@ -194,16 +191,11 @@ for (const {
         assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
         assert(backResult.interpretation.type === 'InterpretedHmpbPage');
         expect(
-          sortVotesDict(
-            {
-              ...frontResult.interpretation.votes,
-              ...backResult.interpretation.votes,
-            },
-            electionDefinition.election.contests
-          )
-        ).toEqual(
-          sortVotesDict(expectedVotes, electionDefinition.election.contests)
-        );
+          sortVotesDict({
+            ...frontResult.interpretation.votes,
+            ...backResult.interpretation.votes,
+          })
+        ).toEqual(sortVotesDict(expectedVotes));
       }
     });
   });
