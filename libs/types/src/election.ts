@@ -586,38 +586,6 @@ export type OptionalElectionDefinition = Optional<ElectionDefinition>;
 export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefinition> =
   ElectionDefinitionSchema.optional();
 
-// Votes
-export type CandidateVote = readonly Candidate[];
-export const CandidateVoteSchema: z.ZodSchema<CandidateVote> =
-  z.array(CandidateSchema);
-export type YesNoVote =
-  | readonly ['yes']
-  | readonly ['no']
-  | readonly ['yes', 'no']
-  | readonly ['no', 'yes']
-  | readonly [];
-export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>;
-export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.union([
-  z.tuple([z.literal('yes')]),
-  z.tuple([z.literal('no')]),
-  z.tuple([z.literal('yes'), z.literal('no')]),
-  z.tuple([z.literal('no'), z.literal('yes')]),
-  z.tuple([]),
-]);
-export type OptionalYesNoVote = Optional<YesNoVote>;
-export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
-  YesNoVoteSchema.optional();
-export type Vote = CandidateVote | YesNoVote;
-export const VoteSchema: z.ZodSchema<Vote> = z.union([
-  CandidateVoteSchema,
-  YesNoVoteSchema,
-]);
-export type OptionalVote = Optional<Vote>;
-export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
-  VoteSchema.optional();
-export type VotesDict = Dictionary<Vote>;
-export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(VoteSchema);
-
 export enum BallotType {
   Standard = 0,
   Absentee = 1,
@@ -680,6 +648,29 @@ export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
   WriteInIdSchema,
   YesNoContestOptionIdSchema,
 ]);
+
+// Votes
+export type CandidateVote = readonly Candidate[];
+export const CandidateVoteSchema: z.ZodSchema<CandidateVote> =
+  z.array(CandidateSchema);
+export type YesNoVote = readonly YesNoContestOptionId[];
+export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.array(
+  YesNoContestOptionIdSchema
+);
+
+export type OptionalYesNoVote = Optional<YesNoVote>;
+export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
+  YesNoVoteSchema.optional();
+export type Vote = CandidateVote | YesNoVote;
+export const VoteSchema: z.ZodSchema<Vote> = z.union([
+  CandidateVoteSchema,
+  YesNoVoteSchema,
+]);
+export type OptionalVote = Optional<Vote>;
+export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
+  VoteSchema.optional();
+export type VotesDict = Dictionary<Vote>;
+export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(VoteSchema);
 
 export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark;
