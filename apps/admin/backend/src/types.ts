@@ -1,4 +1,3 @@
-import { Result } from '@votingworks/basics';
 import {
   ContestId,
   ContestOptionId,
@@ -29,23 +28,11 @@ export interface MachineConfig {
 }
 
 /**
- * Result of attempt to configure the app with a new election definition
+ * Errors that can occur when attempting to configure from an election package.
  */
-export type ConfigureResult = Result<
-  { electionId: Id },
-  { type: 'parsing'; message: string }
->;
-
-/**
- * Result of attempt to store and apply system settings
- */
-export type SetSystemSettingsResult = Result<
-  Record<string, never>,
-  {
-    type: 'parsing' | 'database';
-    message: string;
-  }
->;
+export type ConfigureError =
+  | { type: 'invalidElection'; message: string }
+  | { type: 'invalidSystemSettings'; message: string };
 
 /**
  * Metadata about a cast vote record file found on a USB drive.
@@ -477,9 +464,36 @@ export interface CardTally {
 }
 
 /**
- * Results that inform a tally report.
+ * For primary reports, we need card counts split by party.
  */
-export interface TallyReportResults {
+export type CardCountsByParty = Record<string, Tabulation.CardCounts>;
+
+interface TallyReportResultsBase {
+  contestIds: ContestId[];
   scannedResults: Tabulation.ElectionResults;
   manualResults?: Tabulation.ManualElectionResults;
 }
+
+/**
+ * Results for a tally report not split by party, usually for a general or
+ * as a data intermediate in tabulation code.
+ */
+export type SingleTallyReportResults = TallyReportResultsBase & {
+  hasPartySplits: false;
+  cardCounts: Tabulation.CardCounts;
+};
+
+/**
+ * Results for a tally report split by party, used for primary elections.
+ */
+export type PartySplitTallyReportResults = TallyReportResultsBase & {
+  hasPartySplits: true;
+  cardCountsByParty: CardCountsByParty;
+};
+
+/**
+ * Data necessary to display a frontend tally report.
+ */
+export type TallyReportResults =
+  | SingleTallyReportResults
+  | PartySplitTallyReportResults;

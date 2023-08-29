@@ -3,7 +3,11 @@ import {
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
-import { Tabulation, writeInCandidate } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  Tabulation,
+  writeInCandidate,
+} from '@votingworks/types';
 import { getEmptyElectionResults } from '@votingworks/utils';
 import {
   convertContestWriteInSummaryToWriteInTallies,
@@ -148,7 +152,10 @@ test('tabulateWriteInTallies', () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { election, electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with write-ins to store

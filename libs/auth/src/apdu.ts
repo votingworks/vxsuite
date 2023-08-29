@@ -79,6 +79,25 @@ function splitEvery2Characters(s: string): string[] {
 }
 
 /**
+ * The input to a {@link CommandApdu}
+ */
+export type CommandApduInput =
+  | {
+      cla?: { chained?: boolean; secure?: boolean };
+      ins: Byte;
+      p1: Byte;
+      p2: Byte;
+      data: Buffer;
+    }
+  | {
+      cla?: { chained?: boolean; secure?: boolean };
+      ins: Byte;
+      p1: Byte;
+      p2: Byte;
+      lc: Byte;
+    };
+
+/**
  * An APDU, or application protocol data unit, is the communication unit between a smart card
  * reader and a smart card. The smart card reader issues command APDUs to the smart card, and the
  * smart card sends response APDUs back.
@@ -99,21 +118,15 @@ export class CommandApdu {
   /** Data */
   private readonly data: Buffer;
 
-  constructor(input: {
-    cla?: { chained?: boolean; secure?: boolean };
-    ins: Byte;
-    p1: Byte;
-    p2: Byte;
-    data?: Buffer;
-  }) {
+  constructor(input: CommandApduInput) {
     const cla = this.determineCla(input.cla);
-    const data = input.data ?? Buffer.from([]);
+    const lc = 'lc' in input ? input.lc : input.data.length;
+    const data = 'lc' in input ? Buffer.of() : input.data;
 
-    if (data.length > MAX_COMMAND_APDU_DATA_LENGTH) {
+    if (lc > MAX_COMMAND_APDU_DATA_LENGTH) {
       throw new Error('APDU data exceeds max command APDU data length');
     }
-    assert(isByte(data.length));
-    const lc = data.length;
+    assert(isByte(lc));
 
     this.cla = cla;
     this.ins = input.ins;

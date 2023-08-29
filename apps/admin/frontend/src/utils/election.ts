@@ -14,11 +14,17 @@ import {
   Tabulation,
   CandidateVote,
   electionHasPrimaryContest,
+  ElectionDefinition,
 } from '@votingworks/types';
-import { assert, find, mapObject } from '@votingworks/basics';
-import type { TallyReportResults } from '@votingworks/admin-backend';
+import { assert, find } from '@votingworks/basics';
+import type {
+  CardCountsByParty,
+  TallyReportResults,
+} from '@votingworks/admin-backend';
 import {
   getBallotStyleIdPartyIdLookup,
+  getContestsForPrecinct,
+  getEmptyCardCounts,
   groupMapToGroupList,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
@@ -37,15 +43,10 @@ export function getPartiesWithPrimaryElections(election: Election): Party[] {
   return election.parties.filter((party) => partyIds.includes(party.id));
 }
 
-const superBallotStyleId = 'vx-super-ballot';
 /**
  * Returns whether a ballot style ID corresponds to the super ballot, a special ballot only
  * available to system admins that includes all contests across all precincts
  */
-export function isSuperBallotStyle(ballotStyleId: BallotStyleId): boolean {
-  return ballotStyleId === superBallotStyleId;
-}
-
 export function numBallotPositions(contest: AnyContest): number {
   if (contest.type === 'candidate') {
     return (
@@ -138,97 +139,6 @@ export function generateTestDeckBallots({
   return ballots;
 }
 
-export function generateBlankBallots({
-  election,
-  precinctId,
-  numBlanks,
-}: {
-  election: Election;
-  precinctId: PrecinctId;
-  numBlanks: number;
-}): TestDeckBallot[] {
-  const ballots: TestDeckBallot[] = [];
-
-  const blankBallotStyle = election.ballotStyles.find((bs) =>
-    bs.precincts.includes(precinctId)
-  );
-
-  if (blankBallotStyle && numBlanks > 0) {
-    for (let blankNum = 0; blankNum < numBlanks; blankNum += 1) {
-      ballots.push({
-        ballotStyleId: blankBallotStyle.id,
-        precinctId,
-        markingMethod: 'hand',
-        votes: {},
-      });
-    }
-  }
-
-  return ballots;
-}
-
-// Generates a minimally overvoted ballot - a single overvote in the first contest where an
-// overvote is possible. Does not overvote candidate contests where you must select a write-in
-// to overvote. See discussion: https://github.com/votingworks/vxsuite/issues/1711.
-//
-// In cases where it is not possible to overvote a ballot style, returns undefined.
-export function generateOvervoteBallot({
-  election,
-  precinctId,
-}: {
-  election: Election;
-  precinctId: PrecinctId;
-}): TestDeckBallot | undefined {
-  const precinctBallotStyles = election.ballotStyles.filter((bs) =>
-    bs.precincts.includes(precinctId)
-  );
-
-  const votes: VotesDict = {};
-  for (const ballotStyle of precinctBallotStyles) {
-    const contests = election.contests.filter((c) => {
-      const contestPartyId = c.type === 'candidate' ? c.partyId : undefined;
-      return (
-        ballotStyle.districts.includes(c.districtId) &&
-        ballotStyle.partyId === contestPartyId
-      );
-    });
-
-    const candidateContests = contests.filter(
-      (c) => c.type === 'candidate'
-    ) as CandidateContest[];
-    const otherContests = contests.filter((c) => c.type !== 'candidate');
-
-    for (const candidateContest of candidateContests) {
-      if (candidateContest.candidates.length > candidateContest.seats) {
-        votes[candidateContest.id] = candidateContest.candidates.slice(
-          0,
-          candidateContest.seats + 1
-        );
-        return {
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-          markingMethod: 'hand',
-          votes,
-        };
-      }
-    }
-
-    if (otherContests.length > 0) {
-      const otherContest = otherContests[0];
-      if (otherContest.type === 'yesno') {
-        votes[otherContest.id] = ['yes', 'no'];
-      }
-      return {
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-        markingMethod: 'hand',
-        votes,
-      };
-    }
-  }
-  return undefined;
-}
-
 export function testDeckBallotToCastVoteRecord(
   testDeckBallot: TestDeckBallot
 ): Tabulation.CastVoteRecord {
@@ -263,27 +173,53 @@ export function testDeckBallotToCastVoteRecord(
 }
 
 export async function generateResultsFromTestDeckBallots({
-  election,
+  electionDefinition,
   testDeckBallots,
+  precinctId,
 }: {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   testDeckBallots: TestDeckBallot[];
-}): Promise<Tabulation.GroupList<TallyReportResults>> {
+  precinctId?: PrecinctId;
+}): Promise<TallyReportResults> {
+  const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
-  return groupMapToGroupList(
-    mapObject(
-      await tabulateCastVoteRecords({
-        election,
-        cvrs: testDeckBallots.map((testDeckBallot) => ({
-          ...testDeckBallotToCastVoteRecord(testDeckBallot),
-          partyId: ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId],
-        })),
-        groupBy: electionHasPrimaryContest(election)
-          ? { groupByParty: true }
-          : undefined,
-      }),
-      (scannedResults) => ({ scannedResults })
-    )
+  const scannedResults = groupMapToGroupList(
+    await tabulateCastVoteRecords({
+      election,
+      cvrs: testDeckBallots.map((testDeckBallot) => ({
+        ...testDeckBallotToCastVoteRecord(testDeckBallot),
+        partyId: ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId],
+      })),
+    })
+  )[0];
+  const contestIds = getContestsForPrecinct(electionDefinition, precinctId).map(
+    (c) => c.id
   );
+
+  const isPrimaryElection = electionHasPrimaryContest(election);
+
+  if (!isPrimaryElection) {
+    return {
+      scannedResults,
+      contestIds,
+      hasPartySplits: false,
+      cardCounts: scannedResults.cardCounts,
+    };
+  }
+
+  const cardCountsByParty: CardCountsByParty = {};
+  for (const testDeckBallot of testDeckBallots) {
+    const partyId = ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId];
+    const partyCardCounts = cardCountsByParty[partyId] ?? getEmptyCardCounts();
+    partyCardCounts.bmd += 1;
+    cardCountsByParty[partyId] = partyCardCounts;
+  }
+
+  return {
+    scannedResults,
+    contestIds,
+    hasPartySplits: true,
+    cardCountsByParty,
+  };
 }

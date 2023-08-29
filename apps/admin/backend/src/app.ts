@@ -1,14 +1,11 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  BallotPackageExportResult,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
   Id,
   safeParseElectionDefinition,
-  safeParseJson,
+  safeParseSystemSettings,
   SystemSettings,
-  SystemSettingsSchema,
   Tabulation,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -27,17 +24,11 @@ import {
   DippedSmartCardAuthMachineState,
   DEV_JURISDICTION,
   LiveCheck,
-  writeSignatureFile,
+  prepareSignatureFile,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import {
-  createReadStream,
-  createWriteStream,
-  existsSync,
-  promises as fs,
-  Stats,
-} from 'fs';
+import { createReadStream, createWriteStream, promises as fs, Stats } from 'fs';
 import { basename, dirname, join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
@@ -49,9 +40,9 @@ import {
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
+import { ExportDataError, Exporter } from '@votingworks/backend';
 import {
   CastVoteRecordFileRecord,
-  ConfigureResult,
   CvrFileImportInfo,
   CvrFileMode,
   ElectionRecord,
@@ -61,7 +52,6 @@ import {
   ManualResultsRecord,
   ScannerBatch,
   SemsExportableTallies,
-  SetSystemSettingsResult,
   TallyReportResults,
   WriteInAdjudicationAction,
   WriteInAdjudicationQueueMetadata,
@@ -69,6 +59,7 @@ import {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
+  ConfigureError,
 } from './types';
 import { Workspace } from './util/workspace';
 import {
@@ -87,41 +78,50 @@ import { handleEnteredWriteInCandidateData } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
-import {
-  tabulateElectionResults,
-  tabulateTallyReportResults,
-} from './tabulation/full_results';
+import { tabulateElectionResults } from './tabulation/full_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateResultsCsv } from './exports/csv_results';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
+import { tabulateTallyReportResults } from './tabulation/tally_reports';
+import { ADMIN_ALLOWED_EXPORT_PATTERNS } from './globals';
 
 const debug = rootDebug.extend('app');
 
-function getCurrentElectionDefinition(
+function getCurrentElectionRecord(
   workspace: Workspace
-): Optional<ElectionDefinition> {
-  const currentElectionId = workspace.store.getCurrentElectionId();
-  const elections = workspace.store.getElections();
-  const mostRecentlyCreatedElection = elections.find(
-    (election) => election.id === currentElectionId
-  );
-  return mostRecentlyCreatedElection?.electionDefinition;
+): Optional<ElectionRecord> {
+  const electionId = workspace.store.getCurrentElectionId();
+  if (!electionId) {
+    return undefined;
+  }
+  const electionRecord = workspace.store.getElection(electionId);
+  assert(electionRecord);
+  return electionRecord;
 }
 
 function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
-  const electionDefinition = getCurrentElectionDefinition(workspace);
-  const systemSettings =
-    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+  const electionRecord = getCurrentElectionRecord(workspace);
+  /* c8 ignore next 3 - covered by integration testing */
+  const jurisdiction = isIntegrationTest()
+    ? TEST_JURISDICTION
+    : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
+
+  if (!electionRecord) {
+    return {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      jurisdiction,
+    };
+  }
+
+  const systemSettings = workspace.store.getSystemSettings(electionRecord.id);
   return {
     ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction: isIntegrationTest()
-      ? TEST_JURISDICTION
-      : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION,
+    electionHash: electionRecord.electionDefinition.electionHash,
+    jurisdiction,
   };
 }
 
@@ -149,6 +149,7 @@ function buildApi({
     if (authStatus.status === 'logged_in') {
       return authStatus.user.role;
     }
+    /* c8 ignore next 2 - trivial fallback case */
     return undefined;
   }
 
@@ -189,21 +190,25 @@ function buildApi({
     /* c8 ignore start */
     generateLiveCheckQrCodeValue() {
       const { machineId } = getMachineConfig();
-      const electionDefinition = getCurrentElectionDefinition(workspace);
+      const electionRecord = getCurrentElectionRecord(workspace);
       return new LiveCheck().generateQrCodeValue({
         machineId,
-        electionHash: electionDefinition?.electionHash,
+        electionHash: electionRecord?.electionDefinition?.electionHash,
       });
     },
     /* c8 ignore stop */
 
-    async saveBallotPackageToUsb(): Promise<BallotPackageExportResult> {
+    async saveBallotPackageToUsb(): Promise<Result<void, ExportDataError>> {
       await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
+      const exporter = new Exporter({
+        allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
+        getUsbDrives: usb.getUsbDrives,
+      });
 
-      const electionDefinition = getCurrentElectionDefinition(workspace);
-      assert(electionDefinition !== undefined);
-      const systemSettings =
-        store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
+      const electionRecord = getCurrentElectionRecord(workspace);
+      assert(electionRecord);
+      const { electionDefinition, id: electionId } = electionRecord;
+      const systemSettings = store.getSystemSettings(electionId);
 
       const tempDirectory = dirSync().name;
       try {
@@ -234,46 +239,33 @@ function buildApi({
         ballotPackageZipStream.finish();
         await ballotPackageZipPromise.promise;
 
-        const usbMountPoint = (await usb.getUsbDrives())[0]?.mountPoint;
-        if (!usbMountPoint) {
-          await logger.log(
-            LogEventId.SaveBallotPackageComplete,
-            'election_manager',
-            {
-              disposition: 'failure',
-              message: 'Error saving ballot package: no USB drive',
-              result: 'Ballot package not saved, error shown to user.',
-            }
-          );
-          return err('no_usb_drive');
-        }
-        const usbBallotPackageDirectory = join(
-          usbMountPoint,
-          BALLOT_PACKAGE_FOLDER
-        );
-        if (!existsSync(usbBallotPackageDirectory)) {
-          await fs.mkdir(usbBallotPackageDirectory);
-        }
-
-        const usbBallotPackageFilePath = join(
-          usbBallotPackageDirectory,
-          ballotPackageFileName
-        );
-        await fs.writeFile(
-          usbBallotPackageFilePath,
+        const exportBallotPackageResult = await exporter.exportDataToUsbDrive(
+          BALLOT_PACKAGE_FOLDER,
+          ballotPackageFileName,
           createReadStream(tempDirectoryBallotPackageFilePath)
         );
+        if (exportBallotPackageResult.isErr()) {
+          return exportBallotPackageResult;
+        }
 
-        await writeSignatureFile(
-          {
-            type: 'ballot_package',
-            // For protection against compromised/faulty USBs, we sign the ballot package as it
-            // exists on the machine, not on the USB (as a compromised/faulty USB could claim to
-            // have written the data that we asked it to but actually have written something else)
-            path: tempDirectoryBallotPackageFilePath,
-          },
-          usbBallotPackageDirectory
+        const signatureFile = await prepareSignatureFile({
+          type: 'election_package',
+          // For protection against compromised/faulty USBs, we sign data as it exists on the
+          // machine, not the USB, as a compromised/faulty USB could claim to have written the data
+          // that we asked it to but actually have written something else.
+          filePath: tempDirectoryBallotPackageFilePath,
+        });
+        const exportSignatureFileResult = await exporter.exportDataToUsbDrive(
+          BALLOT_PACKAGE_FOLDER,
+          signatureFile.fileName,
+          signatureFile.fileContents
         );
+        /* c8 ignore start: Tricky to make this second export err but the first export succeed
+          without significant mocking */
+        if (exportSignatureFileResult.isErr()) {
+          return exportSignatureFileResult;
+        }
+        /* c8 ignore end */
       } finally {
         await fs.rm(tempDirectory, { recursive: true });
       }
@@ -289,71 +281,45 @@ function buildApi({
       return ok();
     },
 
-    async setSystemSettings(input: {
-      systemSettings: string;
-    }): Promise<SetSystemSettingsResult> {
-      const userRole = assertDefined(await getUserRole());
-      await logger.log(LogEventId.SystemSettingsSaveInitiated, userRole, {
-        disposition: 'na',
-      });
-
-      const { systemSettings } = input;
-      const validatedSystemSettings = safeParseJson(
-        systemSettings,
-        SystemSettingsSchema
-      );
-      if (validatedSystemSettings.isErr()) {
-        return err({
-          type: 'parsing',
-          message: validatedSystemSettings.err()?.message,
-        });
+    getSystemSettings(): SystemSettings {
+      const electionId = store.getCurrentElectionId();
+      if (!electionId) {
+        return DEFAULT_SYSTEM_SETTINGS;
       }
 
-      try {
-        store.saveSystemSettings(validatedSystemSettings.ok());
-      } catch (error) {
-        const typedError = error as Error;
-        await logger.log(LogEventId.SystemSettingsSaved, userRole, {
-          disposition: 'failure',
-          error: typedError.message,
-        });
-        throw error;
-      }
-
-      await logger.log(LogEventId.SystemSettingsSaved, userRole, {
-        disposition: 'success',
-      });
-
-      return ok({});
-    },
-
-    async getSystemSettings(): Promise<SystemSettings> {
-      try {
-        const settings = store.getSystemSettings();
-        await logger.log(
-          LogEventId.SystemSettingsRetrieved,
-          (await getUserRole()) ?? 'unknown',
-          { disposition: 'success' }
-        );
-        return settings ?? DEFAULT_SYSTEM_SETTINGS;
-      } catch (error) {
-        await logger.log(
-          LogEventId.SystemSettingsRetrieved,
-          (await getUserRole()) ?? 'unknown',
-          { disposition: 'failure' }
-        );
-        throw error;
-      }
+      return store.getSystemSettings(electionId);
     },
 
     // `configure` and `unconfigure` handle changes to the election definition
-    async configure(input: { electionData: string }): Promise<ConfigureResult> {
-      const parseResult = safeParseElectionDefinition(input.electionData);
-      if (parseResult.isErr()) {
-        return err({ type: 'parsing', message: parseResult.err().message });
+    async configure(input: {
+      electionData: string;
+      systemSettingsData: string;
+    }): Promise<Result<{ electionId: Id }, ConfigureError>> {
+      const electionDefinitionParseResult = safeParseElectionDefinition(
+        input.electionData
+      );
+      if (electionDefinitionParseResult.isErr()) {
+        return err({
+          type: 'invalidElection',
+          message: electionDefinitionParseResult.err().message,
+        });
       }
-      const electionDefinition = parseResult.ok();
-      const electionId = store.addElection(electionDefinition.electionData);
+      const electionDefinition = electionDefinitionParseResult.ok();
+
+      const systemSettingsParseResult = safeParseSystemSettings(
+        input.systemSettingsData
+      );
+      if (systemSettingsParseResult.isErr()) {
+        return err({
+          type: 'invalidSystemSettings',
+          message: systemSettingsParseResult.err().message,
+        });
+      }
+
+      const electionId = store.addElection({
+        electionData: electionDefinition.electionData,
+        systemSettingsData: input.systemSettingsData,
+      });
       store.setCurrentElectionId(electionId);
       await logger.log(
         LogEventId.ElectionConfigured,
@@ -408,8 +374,9 @@ function buildApi({
     },
 
     listCastVoteRecordFilesOnUsb() {
-      const electionDefinition = getCurrentElectionDefinition(workspace);
-      assert(electionDefinition);
+      const electionRecord = getCurrentElectionRecord(workspace);
+      assert(electionRecord);
+      const { electionDefinition } = electionRecord;
 
       return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
     },
@@ -676,11 +643,9 @@ function buildApi({
       const [manualResultsRecord] = store.getManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         filter: {
-          precinctIds: input.precinctId ? [input.precinctId] : undefined,
-          ballotStyleIds: input.ballotStyleId
-            ? [input.ballotStyleId]
-            : undefined,
-          votingMethods: input.votingMethod ? [input.votingMethod] : undefined,
+          precinctIds: [input.precinctId],
+          ballotStyleIds: [input.ballotStyleId],
+          votingMethods: [input.votingMethod],
         },
       });
 
@@ -716,14 +681,12 @@ function buildApi({
       } = {}
     ): Promise<Tabulation.GroupList<TallyReportResults>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return groupMapToGroupList(
-        await tabulateTallyReportResults({
-          electionId,
-          store,
-          filter: input.filter,
-          groupBy: input.groupBy,
-        })
-      );
+      return tabulateTallyReportResults({
+        electionId,
+        store,
+        filter: input.filter,
+        groupBy: input.groupBy,
+      });
     },
 
     getScannerBatches(): ScannerBatch[] {

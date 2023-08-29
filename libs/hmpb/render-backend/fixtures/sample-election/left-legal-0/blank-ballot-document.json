@@ -1432,7 +1432,9 @@
                       "y": 0,
                       "width": 524.5714285714286,
                       "height": 21.25,
-                      "textLines": ["Sample Ballot"],
+                      "textLines": [
+                        "Sample Ballot"
+                      ],
                       "fontSize": 20,
                       "fontWeight": 700,
                       "lineHeight": 17
@@ -1443,7 +1445,9 @@
                       "y": 21.25,
                       "width": 524.5714285714286,
                       "height": 25,
-                      "textLines": ["General Election"],
+                      "textLines": [
+                        "General Election"
+                      ],
                       "fontSize": 20,
                       "fontWeight": 700,
                       "lineHeight": 20
@@ -1454,7 +1458,9 @@
                       "y": 46.25,
                       "width": 524.5714285714286,
                       "height": 16.25,
-                      "textLines": ["Franklin County, State of Hamilton"],
+                      "textLines": [
+                        "Franklin County, State of Hamilton"
+                      ],
                       "fontSize": 13,
                       "fontWeight": 400,
                       "lineHeight": 13
@@ -1465,7 +1471,9 @@
                       "y": 62.5,
                       "width": 524.5714285714286,
                       "height": 16.25,
-                      "textLines": ["November 3, 2020"],
+                      "textLines": [
+                        "November 3, 2020"
+                      ],
                       "fontSize": 13,
                       "fontWeight": 400,
                       "lineHeight": 13
@@ -1513,7 +1521,9 @@
                       "y": 0,
                       "width": 122.39999999999999,
                       "height": 16.25,
-                      "textLines": ["Instructions"],
+                      "textLines": [
+                        "Instructions"
+                      ],
                       "fontSize": 13,
                       "fontWeight": 700,
                       "lineHeight": 13
@@ -1524,7 +1534,9 @@
                       "y": 16.25,
                       "width": 122.39999999999999,
                       "height": 11.25,
-                      "textLines": ["To Vote:"],
+                      "textLines": [
+                        "To Vote:"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 700,
                       "lineHeight": 9
@@ -1567,7 +1579,9 @@
                       "y": 0,
                       "width": 209.82857142857142,
                       "height": 11.25,
-                      "textLines": ["To Vote for a Write-In:"],
+                      "textLines": [
+                        "To Vote for a Write-In:"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 700,
                       "lineHeight": 9
@@ -1646,7 +1660,10 @@
                           "y": 0,
                           "width": 148.6285714285714,
                           "height": 29.25,
-                          "textLines": ["President and", "Vice-President"],
+                          "textLines": [
+                            "President and",
+                            "Vice-President"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -1657,7 +1674,9 @@
                           "y": 29.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -1710,7 +1729,9 @@
                               "y": 22.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Federalist"],
+                              "textLines": [
+                                "Federalist"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1751,7 +1772,10 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 22.5,
-                              "textLines": ["Adam Cramer and Greg", "Vuocolo"],
+                              "textLines": [
+                                "Adam Cramer and Greg",
+                                "Vuocolo"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1763,7 +1787,9 @@
                               "y": 22.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["People’s"],
+                              "textLines": [
+                                "People’s"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1819,7 +1845,9 @@
                               "y": 22.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Liberty"],
+                              "textLines": [
+                                "Liberty"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1860,7 +1888,10 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 22.5,
-                              "textLines": ["Alvin Boone and James", "Lian"],
+                              "textLines": [
+                                "Alvin Boone and James",
+                                "Lian"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1872,7 +1903,9 @@
                               "y": 22.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Constitution"],
+                              "textLines": [
+                                "Constitution"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1929,7 +1962,9 @@
                               "y": 32.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Whig"],
+                              "textLines": [
+                                "Whig"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1985,7 +2020,9 @@
                               "y": 22.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Labor"],
+                              "textLines": [
+                                "Labor"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2027,7 +2064,10 @@
                           "y": 0,
                           "width": 148.6285714285714,
                           "height": 29.25,
-                          "textLines": ["Representative,", "District 6"],
+                          "textLines": [
+                            "Representative,",
+                            "District 6"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -2038,7 +2078,9 @@
                           "y": 29.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -2076,7 +2118,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Brad Plunkard"],
+                              "textLines": [
+                                "Brad Plunkard"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2088,7 +2132,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Federalist"],
+                              "textLines": [
+                                "Federalist"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2129,7 +2175,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Bruce Reeder"],
+                              "textLines": [
+                                "Bruce Reeder"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2141,7 +2189,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["People’s"],
+                              "textLines": [
+                                "People’s"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2182,7 +2232,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Brad Schott"],
+                              "textLines": [
+                                "Brad Schott"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2194,7 +2246,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Liberty"],
+                              "textLines": [
+                                "Liberty"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2235,7 +2289,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Glen Tawney"],
+                              "textLines": [
+                                "Glen Tawney"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2247,7 +2303,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Constitution"],
+                              "textLines": [
+                                "Constitution"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2288,7 +2346,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Carroll Forrest"],
+                              "textLines": [
+                                "Carroll Forrest"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2300,7 +2360,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Whig"],
+                              "textLines": [
+                                "Whig"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2351,7 +2413,9 @@
                           "y": 0,
                           "width": 148.6285714285714,
                           "height": 16.25,
-                          "textLines": ["Lieutenant Governor"],
+                          "textLines": [
+                            "Lieutenant Governor"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -2362,7 +2426,9 @@
                           "y": 16.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -2400,7 +2466,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Chris Norberg"],
+                              "textLines": [
+                                "Chris Norberg"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2412,7 +2480,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Federalist"],
+                              "textLines": [
+                                "Federalist"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2453,7 +2523,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Anthony Parks"],
+                              "textLines": [
+                                "Anthony Parks"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2465,7 +2537,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["People’s"],
+                              "textLines": [
+                                "People’s"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2506,7 +2580,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Luis Jorges Garcia"],
+                              "textLines": [
+                                "Luis Jorges Garcia"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2518,7 +2594,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Liberty"],
+                              "textLines": [
+                                "Liberty"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2559,7 +2637,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Charles Qualey"],
+                              "textLines": [
+                                "Charles Qualey"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2571,7 +2651,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Constitution"],
+                              "textLines": [
+                                "Constitution"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2612,7 +2694,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["George Hovis"],
+                              "textLines": [
+                                "George Hovis"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2624,7 +2708,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Whig"],
+                              "textLines": [
+                                "Whig"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2665,7 +2751,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Burt Zirkle"],
+                              "textLines": [
+                                "Burt Zirkle"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2677,7 +2765,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Labor"],
+                              "textLines": [
+                                "Labor"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2718,7 +2808,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Brenda Davis"],
+                              "textLines": [
+                                "Brenda Davis"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2730,7 +2822,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Independent"],
+                              "textLines": [
+                                "Independent"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2771,7 +2865,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Edward Freeman"],
+                              "textLines": [
+                                "Edward Freeman"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2783,7 +2879,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Independent"],
+                              "textLines": [
+                                "Independent"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2824,7 +2922,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Paul Swan"],
+                              "textLines": [
+                                "Paul Swan"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2836,7 +2936,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Independent"],
+                              "textLines": [
+                                "Independent"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2887,7 +2989,9 @@
                           "y": 0,
                           "width": 174.85714285714283,
                           "height": 16.25,
-                          "textLines": ["Senator, District 31"],
+                          "textLines": [
+                            "Senator, District 31"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -2898,7 +3002,9 @@
                           "y": 16.25,
                           "width": 174.85714285714283,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -2936,7 +3042,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Edward Shiplett"],
+                              "textLines": [
+                                "Edward Shiplett"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2948,7 +3056,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Constitution"],
+                              "textLines": [
+                                "Constitution"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2990,7 +3100,10 @@
                           "y": 0,
                           "width": 174.85714285714283,
                           "height": 29.25,
-                          "textLines": ["Assembly Member,", "District 54"],
+                          "textLines": [
+                            "Assembly Member,",
+                            "District 54"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -3001,7 +3114,9 @@
                           "y": 29.25,
                           "width": 174.85714285714283,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -3039,7 +3154,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Andrea Solis"],
+                              "textLines": [
+                                "Andrea Solis"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -3051,7 +3168,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Federalist"],
+                              "textLines": [
+                                "Federalist"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -3092,7 +3211,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Amos Keller"],
+                              "textLines": [
+                                "Amos Keller"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -3104,7 +3225,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["People’s"],
+                              "textLines": [
+                                "People’s"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -3145,7 +3268,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Davitra Rangel"],
+                              "textLines": [
+                                "Davitra Rangel"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -3157,7 +3282,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Liberty"],
+                              "textLines": [
+                                "Liberty"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -3199,7 +3326,9 @@
                           "y": 0,
                           "width": 174.85714285714283,
                           "height": 16.25,
-                          "textLines": ["Registrar of Wills"],
+                          "textLines": [
+                            "Registrar of Wills"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -3210,7 +3339,9 @@
                           "y": 16.25,
                           "width": 174.85714285714283,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -3248,7 +3379,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Rhadka Ramachandrani"],
+                              "textLines": [
+                                "Rhadka Ramachandrani"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -3260,7 +3393,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Independent"],
+                              "textLines": [
+                                "Independent"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -3302,7 +3437,9 @@
                           "y": 24.26666666666667,
                           "width": 148.6285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["write-in"],
+                          "textLines": [
+                            "write-in"
+                          ],
                           "fontSize": 9,
                           "fontWeight": 400,
                           "lineHeight": 9,
@@ -3406,7 +3543,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -3438,7 +3577,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -3560,20 +3701,12 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 0,
-                  "y": 17.986285714285714,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 19.485142857142858,
+                  "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -3581,15 +3714,7 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 20.984,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 0,
-                  "y": 22.482857142857142,
+                  "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -3597,10 +3722,26 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 23.981714285714286,
+                  "y": 20.984,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 0,
+                  "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 0,
+                  "y": 23.981714285714286,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -3752,28 +3893,12 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.4988571428571429,
-                  "y": 16.487428571428573,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 1.4988571428571429,
-                  "y": 17.986285714285714,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.4988571428571429,
-                  "y": 19.485142857142858,
+                  "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -3781,7 +3906,7 @@
                 {
                   "type": "Rectangle",
                   "x": 1.4988571428571429,
-                  "y": 20.984,
+                  "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -3789,10 +3914,26 @@
                 {
                   "type": "Rectangle",
                   "x": 1.4988571428571429,
-                  "y": 22.482857142857142,
+                  "y": 19.485142857142858,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.4988571428571429,
+                  "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.4988571428571429,
+                  "y": 22.482857142857142,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -3944,28 +4085,12 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 2.9977142857142858,
                   "y": 14.98857142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.9977142857142858,
-                  "y": 16.487428571428573,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.9977142857142858,
-                  "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -3973,15 +4098,7 @@
                 {
                   "type": "Rectangle",
                   "x": 2.9977142857142858,
-                  "y": 19.485142857142858,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.9977142857142858,
-                  "y": 20.984,
+                  "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -3989,10 +4106,34 @@
                 {
                   "type": "Rectangle",
                   "x": 2.9977142857142858,
-                  "y": 22.482857142857142,
+                  "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.9977142857142858,
+                  "y": 19.485142857142858,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.9977142857142858,
+                  "y": 20.984,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.9977142857142858,
+                  "y": 22.482857142857142,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -4136,20 +4277,12 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.496571428571428,
-                  "y": 13.489714285714285,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 4.496571428571428,
-                  "y": 14.98857142857143,
+                  "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -4157,10 +4290,18 @@
                 {
                   "type": "Rectangle",
                   "x": 4.496571428571428,
-                  "y": 16.487428571428573,
+                  "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.496571428571428,
+                  "y": 16.487428571428573,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -4176,20 +4317,12 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.496571428571428,
-                  "y": 20.984,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 4.496571428571428,
-                  "y": 22.482857142857142,
+                  "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -4197,10 +4330,18 @@
                 {
                   "type": "Rectangle",
                   "x": 4.496571428571428,
-                  "y": 23.981714285714286,
+                  "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.496571428571428,
+                  "y": 23.981714285714286,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -4336,20 +4477,12 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 5.9954285714285716,
                   "y": 13.489714285714285,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.9954285714285716,
-                  "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -4357,7 +4490,7 @@
                 {
                   "type": "Rectangle",
                   "x": 5.9954285714285716,
-                  "y": 16.487428571428573,
+                  "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -4365,10 +4498,18 @@
                 {
                   "type": "Rectangle",
                   "x": 5.9954285714285716,
-                  "y": 17.986285714285714,
+                  "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.9954285714285716,
+                  "y": 17.986285714285714,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -4400,28 +4541,12 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.9954285714285716,
-                  "y": 25.48057142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 5.9954285714285716,
-                  "y": 26.97942857142857,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.9954285714285716,
-                  "y": 28.478285714285715,
+                  "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -4429,6 +4554,22 @@
                 {
                   "type": "Rectangle",
                   "x": 5.9954285714285716,
+                  "y": 26.97942857142857,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.9954285714285716,
+                  "y": 28.478285714285715,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.9954285714285716,
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -4536,28 +4677,12 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 7.494285714285715,
                   "y": 13.489714285714285,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 7.494285714285715,
-                  "y": 14.98857142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 7.494285714285715,
-                  "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -4565,7 +4690,7 @@
                 {
                   "type": "Rectangle",
                   "x": 7.494285714285715,
-                  "y": 17.986285714285714,
+                  "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -4573,10 +4698,26 @@
                 {
                   "type": "Rectangle",
                   "x": 7.494285714285715,
-                  "y": 19.485142857142858,
+                  "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 7.494285714285715,
+                  "y": 17.986285714285714,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 7.494285714285715,
+                  "y": 19.485142857142858,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -4936,44 +5077,12 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 10.492,
                   "y": 13.489714285714285,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.492,
-                  "y": 14.98857142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.492,
-                  "y": 16.487428571428573,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.492,
-                  "y": 17.986285714285714,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.492,
-                  "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -4981,15 +5090,7 @@
                 {
                   "type": "Rectangle",
                   "x": 10.492,
-                  "y": 20.984,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.492,
-                  "y": 22.482857142857142,
+                  "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -4997,6 +5098,46 @@
                 {
                   "type": "Rectangle",
                   "x": 10.492,
+                  "y": 16.487428571428573,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.492,
+                  "y": 17.986285714285714,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.492,
+                  "y": 19.485142857142858,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.492,
+                  "y": 20.984,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.492,
+                  "y": 22.482857142857142,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.492,
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -5072,7 +5213,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5096,7 +5237,7 @@
                   "y": 4.496571428571428,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5104,7 +5245,7 @@
                   "y": 5.9954285714285716,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5128,7 +5269,7 @@
                   "y": 10.492,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5144,7 +5285,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5152,7 +5293,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5160,7 +5301,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5168,7 +5309,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5176,7 +5317,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5200,7 +5341,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5216,7 +5357,7 @@
                   "y": 26.97942857142857,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5224,7 +5365,7 @@
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5232,7 +5373,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5240,7 +5381,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5272,7 +5413,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5280,7 +5421,7 @@
                   "y": 1.4988571428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5296,7 +5437,7 @@
                   "y": 4.496571428571428,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5304,7 +5445,7 @@
                   "y": 5.9954285714285716,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5336,7 +5477,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5344,7 +5485,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5352,7 +5493,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5368,7 +5509,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5384,7 +5525,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5392,7 +5533,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5400,7 +5541,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5408,7 +5549,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5416,7 +5557,7 @@
                   "y": 26.97942857142857,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5432,7 +5573,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5440,7 +5581,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5448,7 +5589,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5472,7 +5613,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5480,7 +5621,7 @@
                   "y": 1.4988571428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5488,7 +5629,7 @@
                   "y": 2.9977142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5528,7 +5669,7 @@
                   "y": 10.492,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5536,7 +5677,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5552,7 +5693,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5560,7 +5701,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5576,7 +5717,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5584,7 +5725,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5600,7 +5741,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5632,7 +5773,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5640,7 +5781,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5648,7 +5789,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5672,7 +5813,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5688,7 +5829,7 @@
                   "y": 2.9977142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5712,7 +5853,7 @@
                   "y": 7.494285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5744,7 +5885,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5752,7 +5893,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5784,7 +5925,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5832,7 +5973,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5848,7 +5989,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5864,7 +6005,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5872,7 +6013,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5888,7 +6029,7 @@
                   "y": 2.9977142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5904,7 +6045,7 @@
                   "y": 5.9954285714285716,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5912,7 +6053,7 @@
                   "y": 7.494285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5944,7 +6085,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5952,7 +6093,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -5984,7 +6125,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -5992,7 +6133,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6000,7 +6141,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6024,7 +6165,7 @@
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6032,7 +6173,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6048,7 +6189,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6064,7 +6205,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6080,7 +6221,7 @@
                   "y": 1.4988571428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6088,7 +6229,7 @@
                   "y": 2.9977142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6096,7 +6237,7 @@
                   "y": 4.496571428571428,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6128,7 +6269,7 @@
                   "y": 10.492,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6136,7 +6277,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6144,7 +6285,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6184,7 +6325,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6192,7 +6333,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6208,7 +6349,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6272,7 +6413,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6280,7 +6421,7 @@
                   "y": 1.4988571428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6288,7 +6429,7 @@
                   "y": 2.9977142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6328,7 +6469,7 @@
                   "y": 10.492,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6336,7 +6477,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6368,7 +6509,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6376,7 +6517,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6392,7 +6533,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6408,7 +6549,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6416,7 +6557,7 @@
                   "y": 26.97942857142857,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6424,7 +6565,7 @@
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6432,7 +6573,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6440,7 +6581,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6448,7 +6589,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6456,7 +6597,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6464,7 +6605,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6472,7 +6613,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6480,7 +6621,7 @@
                   "y": 1.4988571428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6512,7 +6653,7 @@
                   "y": 7.494285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6528,7 +6669,7 @@
                   "y": 10.492,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6560,7 +6701,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6568,7 +6709,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6576,7 +6717,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6608,7 +6749,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6616,7 +6757,7 @@
                   "y": 26.97942857142857,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6624,7 +6765,7 @@
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6640,7 +6781,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6648,7 +6789,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6672,7 +6813,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6704,7 +6845,7 @@
                   "y": 5.9954285714285716,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6712,7 +6853,7 @@
                   "y": 7.494285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6752,7 +6893,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6760,7 +6901,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6768,7 +6909,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6840,7 +6981,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6848,7 +6989,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6856,7 +6997,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6944,7 +7085,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6952,7 +7093,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6960,7 +7101,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -6968,7 +7109,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -6992,7 +7133,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7056,7 +7197,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7064,7 +7205,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7136,7 +7277,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7152,7 +7293,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7176,7 +7317,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7240,7 +7381,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7264,7 +7405,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7344,7 +7485,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7352,7 +7493,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7368,7 +7509,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7376,7 +7517,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7440,7 +7581,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7464,7 +7605,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7536,7 +7677,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7552,7 +7693,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7560,7 +7701,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7576,7 +7717,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7664,7 +7805,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7736,7 +7877,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7760,7 +7901,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7792,7 +7933,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7800,7 +7941,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7816,7 +7957,7 @@
                   "y": 26.97942857142857,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7824,7 +7965,7 @@
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7840,7 +7981,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7864,7 +8005,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7952,7 +8093,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7976,7 +8117,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -7984,7 +8125,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -7992,7 +8133,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -8016,7 +8157,7 @@
                   "y": 26.97942857142857,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8032,7 +8173,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8048,7 +8189,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -8056,7 +8197,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8144,7 +8285,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8152,7 +8293,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -8160,7 +8301,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8192,7 +8333,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8200,7 +8341,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8208,7 +8349,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -8240,7 +8381,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -8248,7 +8389,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -8256,7 +8397,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8336,7 +8477,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8344,7 +8485,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -8352,7 +8493,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8384,7 +8525,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8392,7 +8533,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8400,7 +8541,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8432,7 +8573,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8440,7 +8581,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -8448,7 +8589,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8499,7 +8640,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -8510,7 +8653,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["1/2"],
+                      "textLines": [
+                        "1/2"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -8530,7 +8675,9 @@
                       "y": 0,
                       "width": 209.82857142857142,
                       "height": 11.25,
-                      "textLines": ["Precinct"],
+                      "textLines": [
+                        "Precinct"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -8541,7 +8688,9 @@
                       "y": 11.25,
                       "width": 209.82857142857142,
                       "height": 20,
-                      "textLines": ["North Springfield"],
+                      "textLines": [
+                        "North Springfield"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -8554,7 +8703,9 @@
                   "y": 11.200000000000001,
                   "width": 248.11999999999992,
                   "height": 37.333333333333336,
-                  "textLines": ["Turn ballot over and continue voting"],
+                  "textLines": [
+                    "Turn ballot over and continue voting"
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13,
@@ -10070,7 +10221,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -10102,7 +10255,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -10142,7 +10297,9 @@
                           "y": 0,
                           "width": 524.5714285714286,
                           "height": 16.25,
-                          "textLines": ["Question B: Separation of Powers"],
+                          "textLines": [
+                            "Question B: Separation of Powers"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -10194,7 +10351,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -10226,7 +10385,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -10316,7 +10477,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -10348,7 +10511,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -10437,7 +10602,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -10469,7 +10636,9 @@
                           "y": 13.066666666666666,
                           "width": 39.34285714285714,
                           "height": 18.666666666666668,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -10575,20 +10744,12 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 0,
-                  "y": 14.98857142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 16.487428571428573,
+                  "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -10596,10 +10757,18 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 17.986285714285714,
+                  "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 0,
+                  "y": 17.986285714285714,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10775,36 +10944,12 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 1.4988571428571429,
                   "y": 14.98857142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.4988571428571429,
-                  "y": 16.487428571428573,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.4988571428571429,
-                  "y": 17.986285714285714,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.4988571428571429,
-                  "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -10812,6 +10957,30 @@
                 {
                   "type": "Rectangle",
                   "x": 1.4988571428571429,
+                  "y": 16.487428571428573,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.4988571428571429,
+                  "y": 17.986285714285714,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.4988571428571429,
+                  "y": 19.485142857142858,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.4988571428571429,
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -10975,28 +11144,12 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 2.9977142857142858,
                   "y": 14.98857142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.9977142857142858,
-                  "y": 16.487428571428573,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.9977142857142858,
-                  "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -11004,6 +11157,22 @@
                 {
                   "type": "Rectangle",
                   "x": 2.9977142857142858,
+                  "y": 16.487428571428573,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.9977142857142858,
+                  "y": 17.986285714285714,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.9977142857142858,
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -11023,28 +11192,12 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.9977142857142858,
-                  "y": 23.981714285714286,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.9977142857142858,
-                  "y": 25.48057142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 2.9977142857142858,
-                  "y": 26.97942857142857,
+                  "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -11052,6 +11205,22 @@
                 {
                   "type": "Rectangle",
                   "x": 2.9977142857142858,
+                  "y": 25.48057142857143,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.9977142857142858,
+                  "y": 26.97942857142857,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.9977142857142858,
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -11175,28 +11344,12 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 4.496571428571428,
                   "y": 14.98857142857143,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.496571428571428,
-                  "y": 16.487428571428573,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.496571428571428,
-                  "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -11204,6 +11357,22 @@
                 {
                   "type": "Rectangle",
                   "x": 4.496571428571428,
+                  "y": 16.487428571428573,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.496571428571428,
+                  "y": 17.986285714285714,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.496571428571428,
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -11223,20 +11392,12 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 4.496571428571428,
                   "y": 23.981714285714286,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.496571428571428,
-                  "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -11244,6 +11405,14 @@
                 {
                   "type": "Rectangle",
                   "x": 4.496571428571428,
+                  "y": 25.48057142857143,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.496571428571428,
                   "y": 26.97942857142857,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -11599,36 +11768,12 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 7.494285714285715,
                   "y": 19.485142857142858,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 7.494285714285715,
-                  "y": 20.984,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 7.494285714285715,
-                  "y": 22.482857142857142,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 7.494285714285715,
-                  "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
@@ -11636,6 +11781,30 @@
                 {
                   "type": "Rectangle",
                   "x": 7.494285714285715,
+                  "y": 20.984,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 7.494285714285715,
+                  "y": 22.482857142857142,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 7.494285714285715,
+                  "y": 23.981714285714286,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 7.494285714285715,
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -11999,28 +12168,12 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.492,
-                  "y": 19.485142857142858,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 10.492,
-                  "y": 20.984,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.492,
-                  "y": 22.482857142857142,
+                  "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -12028,6 +12181,22 @@
                 {
                   "type": "Rectangle",
                   "x": 10.492,
+                  "y": 20.984,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.492,
+                  "y": 22.482857142857142,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.492,
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
@@ -12175,7 +12344,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12183,7 +12352,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12191,7 +12360,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12215,7 +12384,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12231,7 +12400,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12327,7 +12496,7 @@
                   "y": 4.496571428571428,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12335,7 +12504,7 @@
                   "y": 5.9954285714285716,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12343,7 +12512,7 @@
                   "y": 7.494285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12359,7 +12528,7 @@
                   "y": 10.492,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12367,7 +12536,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12375,7 +12544,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12383,7 +12552,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12391,7 +12560,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12407,7 +12576,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12415,7 +12584,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12423,7 +12592,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12431,7 +12600,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12455,7 +12624,7 @@
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12463,7 +12632,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12471,7 +12640,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12479,7 +12648,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12487,7 +12656,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12495,7 +12664,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12511,7 +12680,7 @@
                   "y": 1.4988571428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12519,7 +12688,7 @@
                   "y": 2.9977142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12535,7 +12704,7 @@
                   "y": 5.9954285714285716,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12543,7 +12712,7 @@
                   "y": 7.494285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12559,7 +12728,7 @@
                   "y": 10.492,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12567,7 +12736,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12599,7 +12768,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12607,7 +12776,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12615,7 +12784,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12639,7 +12808,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12647,7 +12816,7 @@
                   "y": 26.97942857142857,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12663,7 +12832,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12671,7 +12840,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12687,7 +12856,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12695,7 +12864,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12703,7 +12872,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12719,7 +12888,7 @@
                   "y": 2.9977142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12727,7 +12896,7 @@
                   "y": 4.496571428571428,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12735,7 +12904,7 @@
                   "y": 5.9954285714285716,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12791,7 +12960,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12815,7 +12984,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12823,7 +12992,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12831,7 +13000,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12839,7 +13008,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12863,7 +13032,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12871,7 +13040,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12887,7 +13056,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12895,7 +13064,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12903,7 +13072,7 @@
                   "y": 0,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12927,7 +13096,7 @@
                   "y": 4.496571428571428,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12943,7 +13112,7 @@
                   "y": 7.494285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12967,7 +13136,7 @@
                   "y": 11.990857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13055,7 +13224,7 @@
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -13071,7 +13240,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13095,7 +13264,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -13207,7 +13376,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13239,7 +13408,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13255,7 +13424,7 @@
                   "y": 28.478285714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13263,7 +13432,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -13271,7 +13440,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -13415,7 +13584,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13423,7 +13592,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -13439,7 +13608,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -13471,7 +13640,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13479,7 +13648,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -13487,7 +13656,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13671,20 +13840,12 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 22.482857142857142,
                   "y": 32.97485714285715,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 22.482857142857142,
-                  "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "white"
@@ -13692,10 +13853,18 @@
                 {
                   "type": "Rectangle",
                   "x": 22.482857142857142,
+                  "y": 34.47371428571429,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 22.482857142857142,
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -13871,31 +14040,31 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 23.981714285714286,
-                  "y": 32.97485714285715,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 23.981714285714286,
-                  "y": 34.47371428571429,
-                  "width": 1.4988571428571429,
-                  "height": 1.4988571428571429,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 23.981714285714286,
-                  "y": 35.97257142857143,
+                  "y": 32.97485714285715,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 23.981714285714286,
+                  "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 23.981714285714286,
+                  "y": 35.97257142857143,
+                  "width": 1.4988571428571429,
+                  "height": 1.4988571428571429,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -13999,7 +14168,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14071,7 +14240,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14079,7 +14248,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14095,7 +14264,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14175,7 +14344,7 @@
                   "y": 13.489714285714285,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14207,7 +14376,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14215,7 +14384,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14223,7 +14392,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14279,7 +14448,7 @@
                   "y": 32.97485714285715,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14295,7 +14464,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14383,7 +14552,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14399,7 +14568,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14415,7 +14584,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14423,7 +14592,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14495,7 +14664,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14583,7 +14752,7 @@
                   "y": 14.98857142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14591,7 +14760,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14599,7 +14768,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14615,7 +14784,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14799,7 +14968,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14807,7 +14976,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14823,7 +14992,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14831,7 +15000,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14839,7 +15008,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -14871,7 +15040,7 @@
                   "y": 31.476,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14887,7 +15056,7 @@
                   "y": 34.47371428571429,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14991,7 +15160,7 @@
                   "y": 16.487428571428573,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -14999,7 +15168,7 @@
                   "y": 17.986285714285714,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -15007,7 +15176,7 @@
                   "y": 19.485142857142858,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -15015,7 +15184,7 @@
                   "y": 20.984,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -15023,7 +15192,7 @@
                   "y": 22.482857142857142,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -15031,7 +15200,7 @@
                   "y": 23.981714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -15039,7 +15208,7 @@
                   "y": 25.48057142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -15063,7 +15232,7 @@
                   "y": 29.97714285714286,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -15095,7 +15264,7 @@
                   "y": 35.97257142857143,
                   "width": 1.4988571428571429,
                   "height": 1.4988571428571429,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -15530,7 +15699,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -15541,7 +15712,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["2/2"],
+                      "textLines": [
+                        "2/2"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -15561,7 +15734,9 @@
                       "y": 0,
                       "width": 209.82857142857142,
                       "height": 11.25,
-                      "textLines": ["Precinct"],
+                      "textLines": [
+                        "Precinct"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -15572,7 +15747,9 @@
                       "y": 11.25,
                       "width": 209.82857142857142,
                       "height": 20,
-                      "textLines": ["North Springfield"],
+                      "textLines": [
+                        "North Springfield"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -15585,7 +15762,9 @@
                   "y": 11.200000000000001,
                   "width": 187.83999999999995,
                   "height": 37.333333333333336,
-                  "textLines": ["You have completed voting."],
+                  "textLines": [
+                    "You have completed voting."
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13

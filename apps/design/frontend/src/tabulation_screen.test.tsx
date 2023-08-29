@@ -3,8 +3,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
 } from '@votingworks/types';
-import { ElectionRecord } from '@votingworks/design-backend';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library';
 import {
@@ -15,6 +13,7 @@ import {
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { TabulationScreen } from './tabulation_screen';
+import { electionId, electionRecord } from '../test/fixtures';
 
 let apiMock: MockApiClient;
 
@@ -25,19 +24,6 @@ beforeEach(() => {
 afterEach(() => {
   apiMock.assertComplete();
 });
-
-const electionId = 'election-id-1';
-const { election } = electionFamousNames2021Fixtures;
-const electionRecord: ElectionRecord = {
-  id: electionId,
-  election,
-  systemSettings: DEFAULT_SYSTEM_SETTINGS,
-  // TODO more realistic data for precincts and ballot styles in tests in
-  // general, even though they are not used here
-  precincts: [],
-  ballotStyles: [],
-  createdAt: new Date().toISOString(),
-};
 
 function renderScreen() {
   render(

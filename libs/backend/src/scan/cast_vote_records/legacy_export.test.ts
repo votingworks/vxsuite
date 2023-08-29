@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { err, ok } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
@@ -12,7 +13,8 @@ import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-import { writeSignatureFile } from '@votingworks/auth';
+import { prepareSignatureFile } from '@votingworks/auth';
+import { mockOf } from '@votingworks/test-utils';
 import {
   bestFishContest,
   fishCouncilContest,
@@ -31,7 +33,7 @@ import {
 
 jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
   ...jest.requireActual('@votingworks/auth'),
-  writeSignatureFile: jest.fn(),
+  prepareSignatureFile: jest.fn(),
 }));
 
 const electionDefinition: ElectionDefinition = {
@@ -60,6 +62,15 @@ async function streamToString(stream: NodeJS.ReadableStream) {
   }
   return reportChunks.join('');
 }
+
+beforeEach(() => {
+  mockOf(prepareSignatureFile).mockImplementation(() =>
+    Promise.resolve({
+      fileContents: Buffer.of(),
+      fileName: 'signature-file.vxsig',
+    })
+  );
+});
 
 test('getCastVoteRecordReportStream', async () => {
   jest.useFakeTimers().setSystemTime(new Date(2020, 3, 14));
@@ -216,6 +227,7 @@ jest.mock('fs', () => ({
 }));
 
 const expectedReportPath = `${SCANNER_RESULTS_FOLDER}/sample-county_example-primary-election_0000000000/machine_000__1_ballot__2020-04-14_00-00-00`;
+const expectedSignatureFileDirectory = `${SCANNER_RESULTS_FOLDER}/sample-county_example-primary-election_0000000000`;
 
 const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
   ...interpretedHmpbPage1,
@@ -259,7 +271,7 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
   );
 
   expect(exportResult.isOk()).toEqual(true);
-  expect(exportDataToUsbDriveMock).toHaveBeenCalledTimes(3);
+  expect(exportDataToUsbDriveMock).toHaveBeenCalledTimes(4);
   expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
     1,
     expectedReportPath,
@@ -281,7 +293,13 @@ test('exportCastVoteRecordReportToUsbDrive, with write-in image', async () => {
     JSON.stringify(interpretedHmpbPage1WithWriteIn.layout, undefined, 2),
     { machineDirectoryToWriteToFirst: expect.stringContaining('/tmp/') }
   );
-  expect(writeSignatureFile).toHaveBeenCalledTimes(1);
+  expect(exportDataToUsbDriveMock).toHaveBeenNthCalledWith(
+    4,
+    expectedSignatureFileDirectory,
+    'signature-file.vxsig',
+    Buffer.of()
+  );
+  expect(prepareSignatureFile).toHaveBeenCalledTimes(1);
 
   const exportStream = exportDataToUsbDriveMock.mock.calls[0][2];
 
@@ -369,33 +387,4 @@ test('exportCastVoteRecordReportToUsbDrive bubbles up export errors', async () =
 
   expect(exportResult2.isErr()).toEqual(true);
   expect(exportResult2.err()).toEqual(exportDataError);
-});
-
-test('exportCastVoteRecordReportToUsbDrive errs if no USB drive found when writing signature file', async () => {
-  function* getResultSheetGenerator(): Generator<ResultSheet> {
-    yield {
-      id: 'ballot-1',
-      batchId: 'batch-1',
-      frontImagePath: 'front.jpg',
-      backImagePath: 'back.jpg',
-      interpretation: [interpretedHmpbPage1, interpretedHmpbPage2],
-    };
-  }
-  const mockGetUsbDrives = jest.fn().mockResolvedValueOnce([]);
-
-  const exportResult = await exportCastVoteRecordReportToUsbDrive(
-    {
-      ballotsCounted: 1,
-      batchInfo: [],
-      definiteMarkThreshold,
-      electionDefinition,
-      getResultSheetGenerator,
-      isTestMode: false,
-    },
-    mockGetUsbDrives
-  );
-
-  expect(exportResult).toEqual(
-    err({ type: 'missing-usb-drive', message: 'No USB drive found' })
-  );
 });

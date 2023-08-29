@@ -272,6 +272,11 @@ export enum ReportingUnitType {
   Precinct = 'precinct',
 
   /**
+   * Used for splits of precincts.
+   */
+  SplitPrecinct = 'split-precinct',
+
+  /**
    * Used for a state and/or for the district that encompasses it.
    */
   State = 'state',
@@ -332,7 +337,7 @@ export interface BallotDefinition {
   /**
    * For associating ballot formats with the definition.
    */
-  readonly BallotFormat?: readonly BallotFormat[];
+  readonly BallotFormat: readonly BallotFormat[];
 
   /**
    * For associating elections with the definition.
@@ -400,7 +405,7 @@ export interface BallotDefinition {
  */
 export const BallotDefinitionSchema: z.ZodSchema<BallotDefinition> = z.object({
   '@type': z.literal('BallotDefinition.BallotDefinition'),
-  BallotFormat: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => BallotFormatSchema))),
+  BallotFormat: z.array(z.lazy(/* istanbul ignore next */ () => BallotFormatSchema)).min(1),
   Election: z.array(z.lazy(/* istanbul ignore next */ () => ElectionSchema)).min(1),
   GeneratedDate: z.lazy(/* istanbul ignore next */ () => DateTimeWithZoneSchema),
   GpUnit: z.array(z.lazy(/* istanbul ignore next */ () => ReportingUnitSchema)).min(1),
@@ -585,6 +590,11 @@ export interface BallotStyle {
   readonly GpUnitIds: readonly string[];
 
   /**
+   * For associating a ballot style with ballot content, such as contests or headers.
+   */
+  readonly OrderedContent?: readonly OrderedContest[];
+
+  /**
    * For associating one or more parties with the ballot style.
    */
   readonly PartyIds?: readonly string[];
@@ -597,6 +607,7 @@ export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   '@type': z.literal('BallotDefinition.BallotStyle'),
   ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema)).min(1),
   GpUnitIds: z.array(z.string()).min(1),
+  OrderedContent: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OrderedContestSchema))),
   PartyIds: z.optional(z.array(z.string())),
 });
 
@@ -1084,7 +1095,7 @@ export interface OptionPosition {
   /**
    * The ballot sheet the bounded object appears on. Sheets start at 1 and increase monotonically. Does not apply to mCDFArea, or global fiducials.
    */
-  readonly Sheet?: integer;
+  readonly Sheet: integer;
 
   /**
    * The side of the sheet of paper the bounded object appears.
@@ -1117,7 +1128,7 @@ export const OptionPositionSchema: z.ZodSchema<OptionPosition> = z.object({
   IndicatorId: z.optional(z.string()),
   NumberVotes: integerSchema,
   Rank: z.optional(integerSchema),
-  Sheet: z.optional(integerSchema),
+  Sheet: integerSchema,
   Side: z.lazy(/* istanbul ignore next */ () => BallotSideTypeSchema),
   W: z.number(),
   X: z.number(),
@@ -1136,14 +1147,9 @@ export interface OrderedContest {
   readonly ContestId: string;
 
   /**
-   * The contest selections for the ballot.
-   */
-  readonly OrderedContestOptionIds?: readonly string[];
-
-  /**
    * For describing the physical aspects of the contest.
    */
-  readonly Physical?: readonly PhysicalContest[];
+  readonly Physical: readonly PhysicalContest[];
 }
 
 /**
@@ -1152,34 +1158,27 @@ export interface OrderedContest {
 export const OrderedContestSchema: z.ZodSchema<OrderedContest> = z.object({
   '@type': z.literal('BallotDefinition.OrderedContest'),
   ContestId: z.string(),
-  OrderedContestOptionIds: z.optional(z.array(z.string())),
-  Physical: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PhysicalContestSchema))),
+  Physical: z.array(z.lazy(/* istanbul ignore next */ () => PhysicalContestSchema)).min(1),
 });
 
-/**
- * For the appearance of a header on a particular ballot style.This property uses OrderedContent as a superclass.
- */
-export interface OrderedHeader {
-  readonly '@type': 'BallotDefinition.OrderedHeader';
+export interface vxOutset {
+  readonly top: number;
 
-  /**
-   * Association to the header to be used.
-   */
-  readonly HeaderId: string;
+  readonly bottom: number;
 
-  /**
-   * For associating a header with ballot content, such as contests or nested headers.
-   */
-  readonly OrderedContent?: ReadonlyArray<OrderedContest | OrderedHeader>;
+  readonly left: number;
+
+  readonly right: number;
 }
 
 /**
- * Schema for {@link OrderedHeader}.
+ * Schema for {@link vxOutset}.
  */
-export const OrderedHeaderSchema: z.ZodSchema<OrderedHeader> = z.object({
-  '@type': z.literal('BallotDefinition.OrderedHeader'),
-  HeaderId: z.string(),
-  OrderedContent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => OrderedContestSchema), z.lazy(/* istanbul ignore next */ () => OrderedHeaderSchema)]))),
+export const vxOutsetSchema: z.ZodSchema<vxOutset> = z.object({
+  top: z.number(),
+  bottom: z.number(),
+  left: z.number(),
+  right: z.number(),
 });
 
 /**
@@ -1245,7 +1244,9 @@ export interface PhysicalContest {
   /**
    * The contest options associated with the contest, including physical details.
    */
-  readonly PhysicalContestOption?: readonly PhysicalContestOption[];
+  readonly PhysicalContestOption: readonly PhysicalContestOption[];
+
+  readonly vxOptionBoundsFromTargetMark: vxOutset;
 }
 
 /**
@@ -1256,7 +1257,8 @@ export const PhysicalContestSchema: z.ZodSchema<PhysicalContest> = z.object({
   BallotFormatId: z.string(),
   Extent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => BoundedObjectSchema), z.lazy(/* istanbul ignore next */ () => FiducialMarkSchema), z.lazy(/* istanbul ignore next */ () => OptionPositionSchema), z.lazy(/* istanbul ignore next */ () => WriteInPositionSchema), z.lazy(/* istanbul ignore next */ () => mCDFAreaSchema)]))),
   FiducialMark: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => FiducialMarkSchema))),
-  PhysicalContestOption: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PhysicalContestOptionSchema))),
+  PhysicalContestOption: z.array(z.lazy(/* istanbul ignore next */ () => PhysicalContestOptionSchema)).min(1),
+  vxOptionBoundsFromTargetMark: z.lazy(/* istanbul ignore next */ () => vxOutsetSchema),
 });
 
 /**
@@ -1268,7 +1270,7 @@ export interface PhysicalContestOption {
   /**
    * For associating a PhysicalContestOption with a ContestOption. This should always be provided unless the contest option is for a write-in.
    */
-  readonly ContestOptionId?: string;
+  readonly ContestOptionId: string;
 
   /**
    * For defining locations where a selection can be indicated.
@@ -1286,7 +1288,7 @@ export interface PhysicalContestOption {
  */
 export const PhysicalContestOptionSchema: z.ZodSchema<PhysicalContestOption> = z.object({
   '@type': z.literal('BallotDefinition.PhysicalContestOption'),
-  ContestOptionId: z.optional(z.string()),
+  ContestOptionId: z.string(),
   OptionPosition: z.array(z.lazy(/* istanbul ignore next */ () => OptionPositionSchema)).min(1),
   WriteInPosition: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => WriteInPositionSchema))),
 });

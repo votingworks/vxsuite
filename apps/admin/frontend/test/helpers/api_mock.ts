@@ -14,8 +14,9 @@ import type {
   TallyReportResults,
   WriteInAdjudicationQueueMetadata,
   WriteInImageView,
+  ExportDataError,
 } from '@votingworks/admin-backend';
-import { ok } from '@votingworks/basics';
+import { Result, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
@@ -23,7 +24,6 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
-  BallotPackageExportResult,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
@@ -150,20 +150,17 @@ export function createApiMock(
       );
     },
 
-    expectConfigure(electionData: string) {
+    expectConfigure(
+      electionData: string,
+      systemSettingsData: string = JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+    ) {
       apiClient.configure
-        .expectCallWith({ electionData })
+        .expectCallWith({ electionData, systemSettingsData })
         .resolves(ok({ electionId: 'anything' }));
     },
 
     expectUnconfigure() {
       apiClient.unconfigure.expectCallWith().resolves();
-    },
-
-    expectSetSystemSettings(systemSettings: string) {
-      apiClient.setSystemSettings
-        .expectCallWith({ systemSettings })
-        .resolves(ok({}));
     },
 
     expectGetSystemSettings(systemSettings?: SystemSettings) {
@@ -325,7 +322,7 @@ export function createApiMock(
       apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },
 
-    expectSaveBallotPackageToUsb(result: BallotPackageExportResult = ok()) {
+    expectSaveBallotPackageToUsb(result: Result<void, ExportDataError> = ok()) {
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
 

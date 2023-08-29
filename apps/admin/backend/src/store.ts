@@ -55,7 +55,6 @@ import {
   ScannerBatch,
   CastVoteRecordStoreFilter,
   WriteInAdjudicationAction,
-  WriteInAdjudicationStatus,
   WriteInCandidateRecord,
   WriteInRecord,
   WriteInRecordAdjudicatedInvalid,
@@ -155,13 +154,20 @@ export class Store {
   /**
    * Creates an election record and returns its ID.
    */
-  addElection(electionData: string): Id {
+  addElection({
+    electionData,
+    systemSettingsData,
+  }: {
+    electionData: string;
+    systemSettingsData: string;
+  }): Id {
     const id = uuid();
     this.withTransaction(() => {
       this.client.run(
-        'insert into elections (id, data) values (?, ?)',
+        'insert into elections (id, election_data, system_settings_data) values (?, ?, ?)',
         id,
-        electionData
+        electionData,
+        systemSettingsData
       );
       this.createElectionMetadataRecords(id);
     });
@@ -177,7 +183,7 @@ export class Store {
       this.client.all(`
       select
         id,
-        data as electionData,
+        election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
@@ -206,7 +212,7 @@ export class Store {
       `
       select
         id,
-        data as electionData,
+        election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
@@ -279,13 +285,29 @@ export class Store {
    * Gets the id for the current election
    */
   getCurrentElectionId(): Optional<Id> {
-    const settings = this.client.one(
+    const { currentElectionId } = this.client.one(
       `
       select current_election_id as currentElectionId from settings
     `
-    ) as { currentElectionId: Id } | null;
+    ) as { currentElectionId: Id | null };
 
-    return settings?.currentElectionId ?? undefined;
+    return currentElectionId ?? undefined;
+  }
+
+  /**
+   * Retrieves the system settings for the current election.
+   */
+  getSystemSettings(electionId: Id): SystemSettings {
+    const result = this.client.one(
+      `
+      select system_settings_data as systemSettingsData
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as { systemSettingsData: string };
+
+    return safeParseSystemSettings(result.systemSettingsData).unsafeUnwrap();
   }
 
   /**
@@ -306,8 +328,8 @@ export class Store {
       this.createPrecinctRecord({ electionId, precinct });
     }
 
-    for (const contest of election.contests) {
-      this.createContestRecord({ electionId, contest });
+    for (const [sortIndex, contest] of election.contests.entries()) {
+      this.createContestRecord({ electionId, contest, sortIndex });
     }
 
     for (const ballotStyle of election.ballotStyles) {
@@ -446,9 +468,11 @@ export class Store {
   private createContestRecord({
     electionId,
     contest,
+    sortIndex,
   }: {
     electionId: Id;
     contest: AnyContest;
+    sortIndex: number;
   }): void {
     this.client.run(
       `
@@ -456,15 +480,17 @@ export class Store {
               election_id,
               id,
               district_id,
-              party_id
+              party_id,
+              sort_index
             ) values (
-              ?, ?, ?, ?
+              ?, ?, ?, ?, ?
             )
           `,
       electionId,
       contest.id,
       contest.districtId,
-      contest.type === 'candidate' ? contest.partyId ?? null : null
+      contest.type === 'candidate' ? contest.partyId ?? null : null,
+      sortIndex
     );
   }
 
@@ -631,7 +657,7 @@ export class Store {
     );
 
     const query = `
-      select contests.id as contestId
+      select contests.id as contestId, contests.sort_index as sortIndex
       from contests
       inner join ballot_styles_to_districts on
         ballot_styles_to_districts.election_id = ? and 
@@ -644,7 +670,8 @@ export class Store {
         ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
       where
         ${whereParts.join(' and\n')}
-      group by contestId
+      group by contestId, sortIndex
+      order by sortIndex
     `;
 
     return (
@@ -658,33 +685,6 @@ export class Store {
         contestId: ContestId;
       }>
     ).map(({ contestId }) => contestId);
-  }
-
-  /**
-   * Stores the system settings.
-   * Note `SystemSettings` are logical settings that span other machines eg. VxScan.
-   * `Settings` are local to VxAdmin
-   */
-  saveSystemSettings(systemSettings: SystemSettings): void {
-    this.client.run('delete from system_settings');
-    this.client.run(
-      `
-      insert into system_settings (data) values (?)
-      `,
-      JSON.stringify(systemSettings)
-    );
-  }
-
-  /**
-   * Retrieves the system settings.
-   */
-  getSystemSettings(): SystemSettings | undefined {
-    const result = this.client.one(`select data from system_settings`) as
-      | { data: string }
-      | undefined;
-
-    if (!result) return undefined;
-    return safeParseSystemSettings(result.data).unsafeUnwrap();
   }
 
   getCastVoteRecordFileByHash(
@@ -1378,6 +1378,7 @@ export class Store {
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
+        /* c8 ignore next - edge case coverage needed for bad party grouping in general election */
         partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
@@ -1729,6 +1730,7 @@ export class Store {
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
+        /* c8 ignore next - edge case coverage needed for bad party grouping in general election */
         partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
@@ -1753,15 +1755,11 @@ export class Store {
     contestId,
     castVoteRecordId,
     writeInId,
-    status,
-    limit,
   }: {
     electionId: Id;
     contestId?: ContestId;
     castVoteRecordId?: Id;
     writeInId?: Id;
-    status?: WriteInAdjudicationStatus;
-    limit?: number;
   }): WriteInRecord[] {
     debug('querying database for write-in records');
     this.assertElectionExists(electionId);
@@ -1784,20 +1782,6 @@ export class Store {
       params.push(writeInId);
     }
 
-    if (status === 'adjudicated') {
-      whereParts.push(
-        '(write_ins.official_candidate_id is not null or write_ins.write_in_candidate_id is not null or write_ins.is_invalid = 1)'
-      );
-    } else if (status === 'pending') {
-      whereParts.push('write_ins.official_candidate_id is null');
-      whereParts.push('write_ins.write_in_candidate_id is null');
-      whereParts.push('write_ins.is_invalid = 0');
-    }
-
-    if (typeof limit === 'number') {
-      params.push(limit);
-    }
-
     const writeInRows = this.client.all(
       `
         select distinct
@@ -1815,7 +1799,6 @@ export class Store {
         order by
           write_ins.cvr_id,
           write_ins.option_id
-        ${typeof limit === 'number' ? 'limit ?' : ''}
       `,
       ...params
     ) as Array<{
@@ -1830,52 +1813,50 @@ export class Store {
     }>;
     debug('queried database for write-in records');
 
-    return writeInRows
-      .map((row) => {
-        if (row.officialCandidateId) {
-          return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'official-candidate',
-            candidateId: row.officialCandidateId,
-          });
-        }
-
-        if (row.writeInCandidateId) {
-          return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'write-in-candidate',
-            candidateId: row.writeInCandidateId,
-          });
-        }
-
-        if (row.isInvalid) {
-          return typedAs<WriteInRecordAdjudicatedInvalid>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'invalid',
-          });
-        }
-
-        return typedAs<WriteInRecordPending>({
+    return writeInRows.map((row) => {
+      if (row.officialCandidateId) {
+        return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
           id: row.id,
-          status: 'pending',
           castVoteRecordId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'official-candidate',
+          candidateId: row.officialCandidateId,
         });
-      })
-      .filter((writeInRecord) => writeInRecord.status === status || !status);
+      }
+
+      if (row.writeInCandidateId) {
+        return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
+          id: row.id,
+          castVoteRecordId: row.castVoteRecordId,
+          contestId: row.contestId,
+          optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'write-in-candidate',
+          candidateId: row.writeInCandidateId,
+        });
+      }
+
+      if (row.isInvalid) {
+        return typedAs<WriteInRecordAdjudicatedInvalid>({
+          id: row.id,
+          castVoteRecordId: row.castVoteRecordId,
+          contestId: row.contestId,
+          optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'invalid',
+        });
+      }
+
+      return typedAs<WriteInRecordPending>({
+        id: row.id,
+        status: 'pending',
+        castVoteRecordId: row.castVoteRecordId,
+        contestId: row.contestId,
+        optionId: row.optionId,
+      });
+    });
   }
 
   /**

@@ -5,7 +5,6 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 
-import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   buildTestEnvironment,
@@ -51,16 +50,30 @@ test('managing the current election', async () => {
   expect(await apiClient.getCurrentElectionMetadata()).toBeNull();
 
   // try configuring with malformed election data
-  const badConfigureResult = await apiClient.configure({ electionData: '{}' });
+  const badConfigureResult = await apiClient.configure({
+    electionData: '{}',
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   assert(badConfigureResult.isErr());
-  expect(badConfigureResult.err().type).toEqual('parsing');
+  expect(badConfigureResult.err().type).toEqual('invalidElection');
 
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { electionData, electionHash } = electionDefinition;
 
-  // configure with well-formed election data
+  // try configuring with malformed system settings data
+  const badSystemSettingsConfigureResult = await apiClient.configure({
+    electionData,
+    systemSettingsData: '{}',
+  });
+  assert(badSystemSettingsConfigureResult.isErr());
+  expect(badSystemSettingsConfigureResult.err().type).toEqual(
+    'invalidSystemSettings'
+  );
+
+  // configure with well-formed data
   const configureResult = await apiClient.configure({
     electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
   assert(configureResult.isOk());
   const { electionId } = configureResult.ok();
@@ -113,6 +126,7 @@ test('managing the current election', async () => {
   // confirm we can reconfigure on same app instance
   void (await apiClient.configure({
     electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   }));
   expect(await apiClient.getCurrentElectionMetadata()).toMatchObject({
     isOfficialResults: false,
@@ -130,6 +144,7 @@ test('configuring with a CDF election', async () => {
   // configure with well-formed election data
   const configureResult = await apiClient.configure({
     electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
   assert(configureResult.isOk());
   configureResult.ok();
@@ -152,113 +167,27 @@ test('configuring with a CDF election', async () => {
   );
 });
 
-test('setSystemSettings happy path', async () => {
-  const { apiClient, auth, logger } = buildTestEnvironment();
-
-  const { electionDefinition, systemSettings } =
-    electionMinimalExhaustiveSampleFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  mockSystemAdministratorAuth(auth);
-
-  const result = await apiClient.setSystemSettings({
-    systemSettings: systemSettings.asText(),
-  });
-  assert(result.isOk());
-
-  // Logger call 1 is made by configureMachine when loading the election definition
-  expect(logger.log).toHaveBeenNthCalledWith(
-    2,
-    LogEventId.SystemSettingsSaveInitiated,
-    'system_administrator',
-    { disposition: 'na' }
-  );
-  expect(logger.log).toHaveBeenNthCalledWith(
-    3,
-    LogEventId.SystemSettingsSaved,
-    'system_administrator',
-    { disposition: 'success' }
-  );
-});
-
-test('setSystemSettings throws error when store.saveSystemSettings fails', async () => {
-  const { apiClient, auth, workspace, logger } = buildTestEnvironment();
-  const { electionDefinition, systemSettings } =
-    electionMinimalExhaustiveSampleFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-  mockOf(logger.log).mockClear(); // Clear log calls from configureMachine
-  const errorString = 'db error at saveSystemSettings';
-  workspace.store.saveSystemSettings = jest.fn(() => {
-    throw new Error(errorString);
-  });
-
-  mockSystemAdministratorAuth(auth);
-
-  await suppressingConsoleOutput(async () => {
-    await expect(
-      apiClient.setSystemSettings({ systemSettings: systemSettings.asText() })
-    ).rejects.toThrow(errorString);
-  });
-
-  expect(logger.log).toHaveBeenNthCalledWith(
-    1,
-    LogEventId.SystemSettingsSaveInitiated,
-    'system_administrator',
-    { disposition: 'na' }
-  );
-  expect(logger.log).toHaveBeenNthCalledWith(
-    2,
-    LogEventId.SystemSettingsSaved,
-    'system_administrator',
-    { disposition: 'failure', error: errorString }
-  );
-});
-
-test('setSystemSettings returns an error for malformed input', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  mockSystemAdministratorAuth(auth);
-
-  const malformedInput = {
-    invalidField: 'hello',
-  } as const;
-
-  const result = await apiClient.setSystemSettings({
-    systemSettings: JSON.stringify(malformedInput),
-  });
-  expect(result).toEqual(err({ type: 'parsing', message: expect.any(String) }));
-});
-
 test('getSystemSettings happy path', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, systemSettings } =
     electionMinimalExhaustiveSampleFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    JSON.parse(systemSettings.asText())
+  );
 
   mockSystemAdministratorAuth(auth);
-
-  // configure with well-formed system settings
-  const setResult = await apiClient.setSystemSettings({
-    systemSettings: systemSettings.asText(),
-  });
-  assert(setResult.isOk());
 
   const systemSettingsResult = await apiClient.getSystemSettings();
   assert(systemSettingsResult);
   expect(systemSettingsResult).toEqual(JSON.parse(systemSettings.asText()));
 });
 
-test('getSystemSettings returns default system settings when no system settings are found', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  mockSystemAdministratorAuth(auth);
+test('getSystemSettings returns default system settings when there is no current election', async () => {
+  const { apiClient } = buildTestEnvironment();
 
   const systemSettingsResult = await apiClient.getSystemSettings();
   expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
@@ -280,5 +209,7 @@ test('saveBallotPackageToUsb when no USB drive', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
 
   const response = await apiClient.saveBallotPackageToUsb();
-  expect(response).toEqual(err('no_usb_drive'));
+  expect(response).toEqual(
+    err({ type: 'missing-usb-drive', message: 'No USB drive found' })
+  );
 });

@@ -1,5 +1,9 @@
-import { assert } from '@votingworks/basics';
+import { assert, groupBy } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
+import {
+  DEFAULT_LAYOUT_OPTIONS,
+  LayoutOptions,
+} from '@votingworks/hmpb-layout';
 import {
   Id,
   Iso8601Timestamp,
@@ -11,7 +15,6 @@ import {
   SystemSettings,
   safeParseSystemSettings,
 } from '@votingworks/types';
-import deepEqual from 'deep-eql';
 import { join } from 'path';
 
 export interface ElectionRecord {
@@ -20,6 +23,7 @@ export interface ElectionRecord {
   precincts: Precinct[];
   ballotStyles: BallotStyle[];
   systemSettings: SystemSettings;
+  layoutOptions: LayoutOptions;
   createdAt: Iso8601Timestamp;
 }
 
@@ -31,17 +35,17 @@ export interface ElectionRecord {
 export interface PrecinctWithoutSplits {
   id: PrecinctId;
   name: string;
-  districtIds: DistrictId[];
+  districtIds: readonly DistrictId[];
 }
 export interface PrecinctWithSplits {
   id: PrecinctId;
   name: string;
-  splits: PrecinctSplit[];
+  splits: readonly PrecinctSplit[];
 }
 export interface PrecinctSplit {
   id: Id;
   name: string;
-  districtIds: DistrictId[];
+  districtIds: readonly DistrictId[];
 }
 export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 
@@ -53,16 +57,16 @@ export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
 // splits. We generate ballot styles on demand, so it won't be stored in the db.
 export interface BallotStyle {
   id: BallotStyleId;
-  precinctsOrSplits: Array<{
+  precinctsOrSplits: ReadonlyArray<{
     precinctId: PrecinctId;
     splitId?: Id;
   }>;
-  districtIds: DistrictId[];
+  districtIds: readonly DistrictId[];
 }
 
 // If we are importing an existing VXF election, we need to convert the
 // precincts to have splits based on the ballot styles.
-function convertVxfPrecincts(election: Election) {
+export function convertVxfPrecincts(election: Election): Precinct[] {
   return election.precincts.map((precinct) => {
     const ballotStyles = election.ballotStyles.filter((ballotStyle) =>
       ballotStyle.precincts.includes(precinct.id)
@@ -85,24 +89,6 @@ function convertVxfPrecincts(election: Election) {
 }
 
 /**
- * Groups items by a key function. Uses deepEqual to compare keys in order to support
- * complex key types. For simpler key types, a Map would suffice.
- */
-function groupBy<T, K>(items: T[], keyFn: (item: T) => K): Array<[K, T[]]> {
-  const groups: Array<[K, T[]]> = [];
-  for (const item of items) {
-    const key = keyFn(item);
-    const group = groups.find(([k]) => deepEqual(k, key));
-    if (group) {
-      group[1].push(item);
-    } else {
-      groups.push([key, [item]]);
-    }
-  }
-  return groups;
-}
-
-/**
  * Generates ballot styles for the election based on geography data (districts,
  * precincts, and precinct splits).
  *
@@ -112,7 +98,7 @@ function groupBy<T, K>(items: T[], keyFn: (item: T) => K): Array<[K, T[]]> {
  * unique, it gets its own ballot style. Otherwise, we reuse another ballot
  * style with the same district list.
  */
-function generateBallotStyles(precincts: Precinct[]): BallotStyle[] {
+export function generateBallotStyles(precincts: Precinct[]): BallotStyle[] {
   const allPrecinctsOrSplits = precincts.flatMap((precinct) => {
     if (hasSplits(precinct)) {
       return precinct.splits.map((split) => {
@@ -150,10 +136,12 @@ function hydrateElection(row: {
   electionData: string;
   precinctData: string;
   systemSettingsData: string;
+  layoutOptionsData: string;
   createdAt: string;
 }): ElectionRecord {
   const rawElection = JSON.parse(row.electionData);
   const precincts = JSON.parse(row.precinctData);
+  const layoutOptions = JSON.parse(row.layoutOptionsData);
   const ballotStyles = generateBallotStyles(precincts);
   // Fill in our precinct/ballot style overrides in the VXF election format.
   // This is important for pieces of the code that rely on the VXF election
@@ -180,6 +168,7 @@ function hydrateElection(row: {
     precincts,
     ballotStyles,
     systemSettings,
+    layoutOptions,
     createdAt: convertSqliteTimestampToIso8601(row.createdAt),
   };
 }
@@ -208,6 +197,7 @@ export class Store {
           election_data as electionData,
           system_settings_data as systemSettingsData,
           precinct_data as precinctData,
+          layout_options_data as layoutOptionsData,
           created_at as createdAt
         from elections
       `) as Array<{
@@ -215,50 +205,59 @@ export class Store {
         electionData: string;
         systemSettingsData: string;
         precinctData: string;
+        layoutOptionsData: string;
         createdAt: string;
       }>
     ).map(hydrateElection);
   }
 
-  getElection(id: Id): ElectionRecord {
+  getElection(electionId: Id): ElectionRecord {
     const electionRow = this.client.one(
       `
       select
         election_data as electionData,
         system_settings_data as systemSettingsData,
         precinct_data as precinctData,
+        layout_options_data as layoutOptionsData,
         created_at as createdAt
       from elections
       where id = ?
       `,
-      id
+      electionId
     ) as {
       electionData: string;
       systemSettingsData: string;
       precinctData: string;
+      layoutOptionsData: string;
       createdAt: string;
     };
     assert(electionRow !== undefined);
-    return hydrateElection({ id, ...electionRow });
+    return hydrateElection({ id: electionId, ...electionRow });
   }
 
   createElection(election: Election): Id {
     const row = this.client.one(
       `
-      insert into elections (election_data, system_settings_data, precinct_data)
-      values (?, ?, ?)
+      insert into elections (
+        election_data,
+        system_settings_data,
+        precinct_data,
+        layout_options_data
+      )
+      values (?, ?, ?, ?)
       returning (id)
       `,
       JSON.stringify(election),
       JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      JSON.stringify(convertVxfPrecincts(election))
+      JSON.stringify(convertVxfPrecincts(election)),
+      JSON.stringify(DEFAULT_LAYOUT_OPTIONS)
     ) as {
       id: string;
     };
     return String(row.id);
   }
 
-  updateElection(id: Id, election: Election): void {
+  updateElection(electionId: Id, election: Election): void {
     this.client.run(
       `
       update elections
@@ -266,11 +265,11 @@ export class Store {
       where id = ?
       `,
       JSON.stringify(election),
-      id
+      electionId
     );
   }
 
-  updateSystemSettings(id: Id, systemSettings: SystemSettings): void {
+  updateSystemSettings(electionId: Id, systemSettings: SystemSettings): void {
     this.client.run(
       `
       update elections
@@ -278,11 +277,11 @@ export class Store {
       where id = ?
       `,
       JSON.stringify(systemSettings),
-      id
+      electionId
     );
   }
 
-  updatePrecincts(id: Id, precincts: Precinct[]): void {
+  updatePrecincts(electionId: Id, precincts: Precinct[]): void {
     this.client.run(
       `
       update elections
@@ -290,17 +289,29 @@ export class Store {
       where id = ?
       `,
       JSON.stringify(precincts),
-      id
+      electionId
     );
   }
 
-  deleteElection(id: Id): void {
+  updateLayoutOptions(electionId: Id, layoutOptions: LayoutOptions): void {
+    this.client.run(
+      `
+      update elections
+      set layout_options_data = ?
+      where id = ?
+      `,
+      JSON.stringify(layoutOptions),
+      electionId
+    );
+  }
+
+  deleteElection(electionId: Id): void {
     this.client.run(
       `
       delete from elections
       where id = ?
       `,
-      id
+      electionId
     );
   }
 }

@@ -468,13 +468,14 @@ export async function addCastVoteRecordReport({
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
 
-  const electionDefinition = store.getElection(electionId)?.electionDefinition;
-  assert(electionDefinition);
+  const electionRecord = store.getElection(electionId);
+  assert(electionRecord);
+  const { electionDefinition } = electionRecord;
 
   const artifactAuthenticationResult =
     await authenticateArtifactUsingSignatureFile({
-      type: 'cast_vote_records',
-      path: reportDirectoryPath,
+      type: 'legacy_cast_vote_records',
+      directoryPath: reportDirectoryPath,
     });
   if (
     artifactAuthenticationResult.isErr() &&

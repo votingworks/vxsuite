@@ -34,8 +34,8 @@ import { ApiMock, createApiMock } from '../test/helpers/api_mock';
 import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_helpers';
 
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
+import { getSimpleMockTallyResults } from '../test/helpers/mock_results';
 
-jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
     ...jest.requireActual('@votingworks/ballot-encoder'),
@@ -106,8 +106,10 @@ test('configuring with a demo election definition', async () => {
   await screen.findByText('Load Demo Election Definition');
 
   // expecting configure and resulting refetch
-  apiMock.expectConfigure(electionDefinition.electionData);
-  apiMock.expectSetSystemSettings(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
+  apiMock.expectConfigure(
+    electionDefinition.electionData,
+    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+  );
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   fireEvent.click(screen.getByText('Load Demo Election Definition'));
@@ -290,26 +292,6 @@ test('L&A (logic and accuracy) flow', async () => {
   );
   advanceTimers(30);
 
-  // L&A package: HMPB test deck
-  await screen.findByText('Printing L&A Package for District 5', {
-    exact: false,
-  });
-  await expectPrintToMatchSnapshot();
-  await waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TestDeckPrinted,
-      expect.any(String),
-      expect.anything()
-    )
-  );
-  expect(logger.log).toHaveBeenCalledWith(
-    expect.any(String),
-    expect.any(String),
-    expect.objectContaining({
-      message: expect.stringContaining('Hand-marked paper ballot test deck'),
-    })
-  );
-
   // Test printing full test deck tally
   userEvent.click(screen.getByText('L&A'));
   const fullTestDeckButton = screen
@@ -346,15 +328,19 @@ test('L&A (logic and accuracy) flow', async () => {
 
 test('marking results as official', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionDefinition;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetResultsForTallyReports(
-    { filter: {}, groupBy: { groupByParty: true } },
-    []
-  );
+  apiMock.expectGetResultsForTallyReports({ filter: {} }, [
+    getSimpleMockTallyResults({
+      election,
+      scannedBallotCount: 100,
+      cardCountsByParty: {},
+    }),
+  ]);
   apiMock.expectGetScannerBatches([]);
   apiMock.expectGetManualResultsMetadata([]);
   expectReportsScreenCardCountQueries({ apiMock, isPrimary: true });
@@ -565,8 +551,10 @@ test('system administrator UI has expected nav when no election', async () => {
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  apiMock.expectConfigure(electionDefinition.electionData);
-  apiMock.expectSetSystemSettings(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
+  apiMock.expectConfigure(
+    electionDefinition.electionData,
+    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+  );
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   userEvent.click(

@@ -106,8 +106,10 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
   );
   expect(authenticateArtifactUsingSignatureFile).toHaveBeenCalledTimes(1);
   expect(authenticateArtifactUsingSignatureFile).toHaveBeenNthCalledWith(1, {
-    type: 'ballot_package',
-    path: expect.stringContaining('/ballot-packages/test-ballot-package.zip'),
+    type: 'election_package',
+    filePath: expect.stringContaining(
+      '/ballot-packages/test-ballot-package.zip'
+    ),
   });
 });
 

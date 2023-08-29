@@ -24,7 +24,7 @@ import {
   PrecinctId,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
-import type { Precinct, PrecinctWithSplits } from '@votingworks/design-backend';
+import type { Precinct } from '@votingworks/design-backend';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
@@ -41,10 +41,7 @@ import {
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
 import { MultiSelect } from './multiselect';
-
-export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
-  return 'splits' in precinct && precinct.splits !== undefined;
-}
+import { hasSplits } from './utils';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -554,7 +551,7 @@ function PrecinctForm({
                         value: district.id,
                         label: district.name,
                       }))}
-                      value={split.districtIds as string[]}
+                      value={[...split.districtIds]}
                       onChange={(districtIds) =>
                         setPrecinct({
                           ...precinct,
@@ -589,7 +586,7 @@ function PrecinctForm({
                     value: district.id,
                     label: district.name,
                   }))}
-                  value={precinct.districtIds as string[]}
+                  value={[...precinct.districtIds]}
                   onChange={(districtIds) =>
                     setPrecinct({
                       ...precinct,

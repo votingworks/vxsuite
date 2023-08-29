@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { finished } from 'stream/promises';
 import tmp from 'tmp';
 import { Document } from '@votingworks/hmpb-layout';
+import { safeParseElection } from '@votingworks/types';
 import {
   allBubbleBallotDir,
   allBubbleBallotFixtures,
@@ -56,7 +57,9 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
       join(allBubbleBallotDir, 'election.json'),
       'utf8'
     );
-    expect(JSON.parse(savedElection)).toEqual(electionDefinition.election);
+    expect(safeParseElection(savedElection).ok()).toEqual(
+      electionDefinition.election
+    );
 
     const ballots = {
       'blank-ballot': blankBallot,
@@ -76,7 +79,9 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
       join(famousNamesDir, 'election.json'),
       'utf8'
     );
-    expect(JSON.parse(savedElection)).toEqual(electionDefinition.election);
+    expect(safeParseElection(savedElection).ok()).toEqual(
+      electionDefinition.election
+    );
 
     const ballots = {
       'blank-ballot': blankBallot,
@@ -98,7 +103,9 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
         join(electionDir, 'election.json'),
         'utf8'
       );
-      expect(JSON.parse(savedElection)).toEqual(electionDefinition.election);
+      expect(safeParseElection(savedElection).ok()).toEqual(
+        electionDefinition.election
+      );
 
       const ballots = {
         'blank-ballot': blankBallot,

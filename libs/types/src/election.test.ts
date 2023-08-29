@@ -20,8 +20,6 @@ import {
   getPrecinctById,
   getPrecinctIndexById,
   isVotePresent,
-  safeParseElection,
-  safeParseElectionDefinition,
   validateVotes,
   vote,
 } from './election_utils';
@@ -42,9 +40,14 @@ import {
 } from './election';
 import { safeParse, unsafeParse } from './generic';
 import {
+  normalizeVxf,
   testCdfBallotDefinition,
   testVxfElection,
 } from './cdf/ballot-definition/fixtures';
+import {
+  safeParseElection,
+  safeParseElectionDefinition,
+} from './election_parsing';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
@@ -546,11 +549,11 @@ test('getDisplayElectionHash', () => {
 
 test('safeParseElection converts CDF to VXF', () => {
   expect(safeParseElection(testCdfBallotDefinition).unsafeUnwrap()).toEqual(
-    testVxfElection
+    normalizeVxf(testVxfElection)
   );
   expect(
     safeParseElection(JSON.stringify(testCdfBallotDefinition)).unsafeUnwrap()
-  ).toEqual(testVxfElection);
+  ).toEqual(normalizeVxf(testVxfElection));
 });
 
 test('safeParseElection shows VXF and CDF parsing errors', () => {

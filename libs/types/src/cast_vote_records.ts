@@ -1,3 +1,4 @@
+import { CastVoteRecordReport } from './cdf/cast-vote-records';
 import { BallotId, BallotStyleId, PrecinctId } from './election';
 import { Dictionary } from './generic';
 
@@ -19,4 +20,15 @@ export interface CastVoteRecord
   readonly _batchLabel: string;
   readonly _testBallot: boolean;
   readonly _scannerId: string;
+}
+
+/**
+ * Metadata stored in the top-level metadata file for a cast vote record export
+ */
+export interface CastVoteRecordExportMetadata {
+  arePollsClosed?: boolean;
+  /** Global data relevant to all cast vote records in an export, e.g. election info */
+  castVoteRecordReportMetadata: CastVoteRecordReport;
+  /** A hash of all cast vote record files in an export */
+  castVoteRecordRootHash: string;
 }

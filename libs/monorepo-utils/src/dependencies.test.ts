@@ -81,8 +81,9 @@ test('findAllMonorepoDependencies yields all dependencies', () => {
   const pkgs = getWorkspacePackageInfo(join(__dirname, '../../..'));
   const basicsPkg = pkgs.get('@votingworks/basics')!;
 
-  // single dependency
+  // simple dependencies
   expect([...findAllMonorepoDependencies(pkgs, basicsPkg)]).toEqual([
+    pkgs.get('@types/deep-eql')!,
     pkgs.get('eslint-plugin-vx')!,
   ]);
 

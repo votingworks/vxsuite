@@ -96,8 +96,8 @@ export async function readBallotPackageFromUsb(
 
   const artifactAuthenticationResult =
     await authenticateArtifactUsingSignatureFile({
-      type: 'ballot_package',
-      path: filepathResult.ok(),
+      type: 'election_package',
+      filePath: filepathResult.ok(),
     });
   if (
     artifactAuthenticationResult.isErr() &&

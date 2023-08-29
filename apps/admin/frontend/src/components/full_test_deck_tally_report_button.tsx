@@ -10,7 +10,6 @@ import { LogEventId } from '@votingworks/logging';
 
 import { Button, printElement, printElementToPdf } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { Tabulation } from '@votingworks/types';
 import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { TestDeckTallyReport } from './test_deck_tally_report';
@@ -26,7 +25,7 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   const { auth, electionDefinition, logger } = useContext(AppContext);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [fullTestDeckTallyReportResults, setFullTestDeckTallyReportResults] =
-    useState<Tabulation.GroupList<TallyReportResults>>();
+    useState<TallyReportResults>();
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
@@ -44,7 +43,7 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
         markingMethod: 'machine',
       });
       const tallyReportResults = await generateResultsFromTestDeckBallots({
-        election,
+        electionDefinition,
         testDeckBallots: [
           ...hmpbBallots,
           ...hmpbBallots,
@@ -54,7 +53,7 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
       });
       setFullTestDeckTallyReportResults(tallyReportResults);
     })();
-  }, [election]);
+  }, [election, electionDefinition]);
 
   // Full test deck tallies should be 4 times that of a single test deck because
   // it counts scanning 2 test decks (BMD + HMPB) twice (VxScan + VxCentralScan)

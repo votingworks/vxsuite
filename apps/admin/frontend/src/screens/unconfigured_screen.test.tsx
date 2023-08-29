@@ -33,8 +33,10 @@ test('renders a button to load setup package', async () => {
 test('handles an uploaded file', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
-  apiMock.expectConfigure(electionDefinition.electionData);
-  apiMock.expectSetSystemSettings(systemSettings.asText());
+  apiMock.expectConfigure(
+    electionDefinition.electionData,
+    systemSettings.asText()
+  );
 
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
@@ -60,8 +62,10 @@ test('handles an uploaded file', async () => {
 test('uploads default system settings if loading only an election.json file', async () => {
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
 
-  apiMock.expectConfigure(electionDefinition.electionData);
-  apiMock.expectSetSystemSettings(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
+  apiMock.expectConfigure(
+    electionDefinition.electionData,
+    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+  );
 
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
@@ -83,8 +87,10 @@ test('uploads default system settings if loading only an election.json file', as
 test('uploads default system settings if loading the default election', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
-  apiMock.expectConfigure(electionDefinition.electionData);
-  apiMock.expectSetSystemSettings(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
+  apiMock.expectConfigure(
+    electionDefinition.electionData,
+    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+  );
 
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,

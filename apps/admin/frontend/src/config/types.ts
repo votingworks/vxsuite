@@ -1,12 +1,10 @@
 import {
   BallotStyleId,
   ContestId,
-  Dictionary,
   PartyId,
   PrecinctId,
   PromiseOr,
 } from '@votingworks/types';
-import { Optional } from '@votingworks/basics';
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 
 // Events
@@ -58,9 +56,6 @@ export interface CastVoteRecordFilePreprocessedData {
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
 }
-
-export type VoteCounts = Dictionary<Dictionary<number>>;
-export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>;
 
 export type Iso8601Timestamp = string;
 

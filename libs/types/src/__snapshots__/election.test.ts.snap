@@ -101,6 +101,15 @@ CDF error: [
     "expected": "array",
     "received": "undefined",
     "path": [
+      "BallotFormat"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "array",
+    "received": "undefined",
+    "path": [
       "Election"
     ],
     "message": "Required"

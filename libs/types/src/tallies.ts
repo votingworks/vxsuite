@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CastVoteRecord } from './cast_vote_record';
+import { CastVoteRecord } from './cast_vote_records';
 import { Candidate, AnyContest } from './election';
 import { Dictionary } from './generic';
 

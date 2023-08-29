@@ -28,7 +28,7 @@ export function TabBar({ tabs }: TabBarProps): JSX.Element {
   const location = useLocation();
   const history = useHistory();
   return (
-    <TabRow>
+    <TabRow role="tablist">
       {tabs.map((tab) => {
         const isActive = location.pathname === tab.path;
         return (
@@ -36,6 +36,8 @@ export function TabBar({ tabs }: TabBarProps): JSX.Element {
             key={tab.path}
             isActive={isActive}
             onPress={() => history.push(tab.path)}
+            role="tab"
+            aria-selected={isActive}
           >
             {tab.label}
           </TabButton>
@@ -45,6 +47,6 @@ export function TabBar({ tabs }: TabBarProps): JSX.Element {
   );
 }
 
-export const TabPanel = styled.section`
+export const TabPanel = styled.section.attrs({ role: 'tabpanel' })`
   padding: 1rem 0;
 `;

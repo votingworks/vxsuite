@@ -1,5 +1,9 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
+  DEFAULT_LAYOUT_OPTIONS,
+  LayoutOptions,
+} from '@votingworks/hmpb-layout';
+import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
@@ -49,6 +53,7 @@ test('CRUD elections', async () => {
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     ballotStyles: [],
     precincts: [],
+    layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     createdAt: expect.any(String),
   });
 
@@ -110,6 +115,8 @@ test('Update system settings', async () => {
   ).unsafeUnwrap();
   const electionRecord = await apiClient.getElection({ electionId });
 
+  expect(electionRecord.systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
+
   const updatedSystemSettings: SystemSettings = {
     ...electionRecord.systemSettings,
     markThresholds: {
@@ -122,6 +129,7 @@ test('Update system settings', async () => {
       AdjudicationReason.MarginalMark,
     ],
   };
+  expect(updatedSystemSettings).not.toEqual(DEFAULT_SYSTEM_SETTINGS);
 
   await apiClient.updateSystemSettings({
     electionId,
@@ -134,7 +142,33 @@ test('Update system settings', async () => {
   });
 });
 
-test('export setup package', async () => {
+test('Update layout options', async () => {
+  const { apiClient } = setupApp();
+  const electionId = (
+    await apiClient.createElection({ electionData: undefined })
+  ).unsafeUnwrap();
+  const electionRecord = await apiClient.getElection({ electionId });
+
+  expect(electionRecord.layoutOptions).toEqual(DEFAULT_LAYOUT_OPTIONS);
+
+  const updatedLayoutOptions: LayoutOptions = {
+    bubblePosition: 'right',
+    layoutDensity: 2,
+  };
+  expect(updatedLayoutOptions).not.toEqual(DEFAULT_LAYOUT_OPTIONS);
+
+  await apiClient.updateLayoutOptions({
+    electionId,
+    layoutOptions: updatedLayoutOptions,
+  });
+
+  expect(await apiClient.getElection({ electionId })).toEqual({
+    ...electionRecord,
+    layoutOptions: updatedLayoutOptions,
+  });
+});
+
+test('Export setup package', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.electionDefinition;
   const { apiClient } = setupApp();
@@ -162,6 +196,11 @@ test('export setup package', async () => {
 
   expect(electionDefinition.election).toEqual({
     ...baseElectionDefinition.election,
+    // The date in the election fixture has a timezone, even though it shouldn't
+    date: electionDefinition.election.date,
+
+    // Adds a default seal URL if none is provided.
+    sealUrl: electionDefinition.election.sealUrl,
 
     // Ballot styles are generated in the app, ignoring the ones in the inputted
     // election definition.
@@ -183,6 +222,7 @@ test('export setup package', async () => {
           "district-1",
         ],
         "id": "ballot-style-1",
+        "partyId": undefined,
         "precincts": [
           "23",
           "22",
@@ -199,7 +239,7 @@ test('export setup package', async () => {
   expect(systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
-test('export all ballots', async () => {
+test('Export all ballots', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.electionDefinition;
   const { apiClient } = setupApp();
