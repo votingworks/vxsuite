@@ -112,9 +112,9 @@ export function getOptionPosition({
 }): number {
   if (contest.type === 'yesno') {
     switch (optionId) {
-      case 'yes':
+      case contest.yesOption.id:
         return 0;
-      case 'no':
+      case contest.noOption.id:
         return 1;
       default:
         throw new Error('unexpected option id for ballot measure contest');
