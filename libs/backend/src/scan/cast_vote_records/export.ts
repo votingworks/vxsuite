@@ -1,10 +1,13 @@
 /* istanbul ignore file */
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
-import { sha256 } from 'js-sha256';
 import path from 'path';
 import { Readable } from 'stream';
-import { prepareSignatureFile } from '@votingworks/auth';
+import {
+  computeSingleCastVoteRecordHash,
+  File,
+  prepareSignatureFile,
+} from '@votingworks/auth';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
   BallotIdSchema,
@@ -80,11 +83,6 @@ interface ExportContext {
   exporter: Exporter;
   scannerState: ScannerStateUnchangedByExport;
   scannerStore: ScannerStore;
-}
-
-interface File {
-  fileName: string;
-  fileContents: string | Buffer;
 }
 
 //
@@ -289,10 +287,10 @@ async function exportCastVoteRecordFilesToUsbDrive(
     }
   }
 
-  const fileHashes = [...castVoteRecordFilesToExport]
-    .sort((f1, f2) => (f1 && f2 ? f1.fileName.localeCompare(f2.fileName) : 0))
-    .map(({ fileContents }) => sha256(fileContents));
-  const castVoteRecordHash = sha256(fileHashes.join(''));
+  const castVoteRecordHash = computeSingleCastVoteRecordHash({
+    directoryName: castVoteRecordId,
+    files: castVoteRecordFilesToExport,
+  });
 
   return ok({ castVoteRecordId, castVoteRecordHash });
 }
