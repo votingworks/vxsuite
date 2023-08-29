@@ -455,19 +455,6 @@ test('election scheme results reporting URL', () => {
   }).not.toThrowError();
 });
 
-test('loading an election with the old sealURL field', () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { sealUrl, ...rest } = election;
-
-  expect(
-    safeParseElection({
-      ...rest,
-      // eslint-disable-next-line vx/gts-identifiers
-      sealURL: 'https://example.com/seal.png',
-    }).unsafeUnwrap().sealUrl
-  ).toEqual('https://example.com/seal.png');
-});
-
 test('getCandidateParties', () => {
   expect(
     getCandidateParties(election.parties, {
@@ -543,7 +530,7 @@ test('getDisplayElectionHash', () => {
     JSON.stringify(election)
   ).unsafeUnwrap();
   expect(getDisplayElectionHash(electionDefinition)).toMatchInlineSnapshot(
-    `"5591bfec9f"`
+    `"96c2958303"`
   );
 });
 

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
-import { Button, Font, H3, Icons, LinkButton, P } from '@votingworks/ui';
+import { Button, Font, H3, Icons, LinkButton, P, Seal } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
@@ -48,8 +48,7 @@ export function DefinitionScreen(): JSX.Element {
           <Font weight="semiBold">State:</Font> {election.state}
         </P>
         <P>
-          <Font weight="semiBold">Seal:</Font>{' '}
-          {election.sealUrl || election.seal}
+          <Font weight="semiBold">Seal:</Font> <Seal seal={election.seal} />
         </P>
         <H3 as="h2">Advanced Features</H3>
         <ButtonList>

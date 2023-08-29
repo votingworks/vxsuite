@@ -1,7 +1,6 @@
 import { Route } from 'react-router-dom';
 import {
   primaryElectionSampleDefinition,
-  electionSampleNoSealDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -39,19 +38,8 @@ test('renders StartPage in Landscape Orientation', () => {
   );
 });
 
-test('renders StartPage with inline SVG', () => {
+test('renders StartPage with inline SVG seal', () => {
   const electionDefinition = electionSampleDefinition;
-  const { container } = render(<Route path="/" component={StartPage} />, {
-    electionDefinition,
-    ballotStyleId: '12',
-    precinctId: '23',
-    route: '/',
-  });
-  expect(container.firstChild).toMatchSnapshot();
-});
-
-test('renders StartPage with no seal', () => {
-  const electionDefinition = electionSampleNoSealDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',

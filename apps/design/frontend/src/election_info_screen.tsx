@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Election, Id } from '@votingworks/types';
 import { Button, H1, Icons } from '@votingworks/ui';
+import { Buffer } from 'buffer';
 import { useHistory, useParams } from 'react-router-dom';
+import DomPurify from 'dompurify';
 import { deleteElection, getElection, updateElection } from './api';
 import { Form, FormField, Input, FormActionsRow } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
+import { FileInputButton } from './file_input_button';
 
 type ElectionInfo = Pick<
   Election,
-  'title' | 'date' | 'state' | 'county' | 'sealUrl'
+  'title' | 'date' | 'state' | 'county' | 'seal'
 >;
 
 function hasBlankElectionInfo(election: Election): boolean {
@@ -17,7 +20,8 @@ function hasBlankElectionInfo(election: Election): boolean {
     election.title === '' &&
     election.date === '' &&
     election.state === '' &&
-    election.county.name === ''
+    election.county.name === '' &&
+    election.seal === ''
   );
 }
 
@@ -106,9 +110,53 @@ function ElectionInfoForm({
           disabled={!isEditing}
         />
       </FormField>
+      <FormField label="Seal">
+        {electionInfo.seal && (
+          <img
+            src={`data:image/svg+xml;base64,${Buffer.from(
+              electionInfo.seal
+            ).toString('base64')}`}
+            alt="Seal"
+            style={{ maxWidth: '10rem', marginBottom: '1rem' }}
+          />
+        )}
+        {(isEditing || !electionInfo.seal) && (
+          <FileInputButton
+            accept="image/svg+xml"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) {
+                return;
+              }
+              const reader = new FileReader();
+              reader.onload = (e2) => {
+                const svgContents = e2.target?.result;
+                if (typeof svgContents === 'string') {
+                  const seal = DomPurify.sanitize(svgContents, {
+                    USE_PROFILES: { svg: true },
+                  });
+                  setElectionInfo({ ...electionInfo, seal });
+                }
+              };
+              reader.readAsText(file);
+            }}
+            disabled={!isEditing}
+          >
+            Upload Seal Image
+          </FileInputButton>
+        )}
+      </FormField>
+
       {isEditing ? (
         <FormActionsRow>
-          <Button onPress={() => setIsEditing(false)}>Cancel</Button>
+          <Button
+            onPress={() => {
+              setElectionInfo(savedElection);
+              setIsEditing(false);
+            }}
+          >
+            Cancel
+          </Button>
           <Button
             variant="primary"
             onPress={onSaveButtonPress}

@@ -53,10 +53,6 @@ export {
   election as primaryElectionSample,
 } from './data/electionPrimary';
 export {
-  electionDefinition as electionSampleNoSealDefinition,
-  election as electionSampleNoSeal,
-} from './data/electionSampleNoSeal.json';
-export {
   electionDefinition as electionSampleLongContentDefinition,
   election as electionSampleLongContent,
 } from './data/electionSampleLongContent.json';

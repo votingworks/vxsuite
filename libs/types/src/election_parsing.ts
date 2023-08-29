@@ -14,9 +14,9 @@ import {
 import { safeParse, safeParseJson } from './generic';
 
 /**
- * Pre-process an election definition to make it easier to work with.
+ * Support old versions of the election definition format.
  */
-function preprocessElection(value: unknown): unknown {
+function maintainBackwardsCompatibility(value: unknown): unknown {
   if (!value || typeof value !== 'object') {
     return value;
   }
@@ -25,17 +25,8 @@ function preprocessElection(value: unknown): unknown {
   // must assume the type is unknown.
   let election = value as Election;
 
-  // Handle the renamed `sealURL` property.
-  /* eslint-disable vx/gts-identifiers */
-  if ('sealURL' in value) {
-    interface ElectionWithSealURL extends Election {
-      readonly sealURL: string;
-    }
-
-    const { sealURL, ...rest } = election as ElectionWithSealURL;
-    election = { ...rest, sealUrl: sealURL };
-  }
-  /* eslint-enable vx/gts-identifiers */
+  // Fill in a default empty seal value
+  election = { ...election, seal: election.seal ?? '' };
 
   // Convert specific known date formats to ISO 8601.
   if (
@@ -210,7 +201,7 @@ function preprocessElection(value: unknown): unknown {
 export function safeParseVxfElection(
   value: unknown
 ): Result<Election, z.ZodError> {
-  return safeParse(ElectionSchema, preprocessElection(value));
+  return safeParse(ElectionSchema, maintainBackwardsCompatibility(value));
 }
 
 /**

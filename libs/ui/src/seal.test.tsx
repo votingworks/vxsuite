@@ -1,7 +1,4 @@
-import {
-  electionSampleDefinition,
-  primaryElectionSampleDefinition,
-} from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 import { Seal } from './seal';
 
@@ -13,19 +10,14 @@ test('Seal with svg value', () => {
   // expect(screen.queryByAltText('state seal')).toBeInTheDocument();
 });
 
-test('Seal with url value', () => {
-  render(<Seal sealUrl={primaryElectionSampleDefinition.election.sealUrl} />);
-  expect(screen.queryByAltText('state seal')).toBeInTheDocument();
-});
-
 test('varies container styling based on UI theme', () => {
   const lightThemeSeal = render(
-    <Seal sealUrl={primaryElectionSampleDefinition.election.sealUrl} />,
+    <Seal seal={electionSampleDefinition.election.seal} />,
     { vxTheme: { colorMode: 'contrastHighDark' } }
   );
 
   const darkThemeSeal = render(
-    <Seal sealUrl={primaryElectionSampleDefinition.election.sealUrl} />,
+    <Seal seal={electionSampleDefinition.election.seal} />,
     { vxTheme: { colorMode: 'contrastHighDark' } }
   );
 

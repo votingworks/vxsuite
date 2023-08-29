@@ -163,6 +163,7 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
         <div
           aria-hidden="true"
           class="c3"
+          data-testid="seal"
         >
           <svg
             version="1.1"

@@ -398,7 +398,7 @@ exports[`Renders ContestPage 1`] = `
               <span
                 class="c6"
               >
-                21
+                22
               </span>
             </span>
           </div>
@@ -486,7 +486,7 @@ exports[`Renders ContestPage 1`] = `
               </span>
             </button>
             <button
-              aria-label=" Adam Cramer and Greg Vuocolo, People's."
+              aria-label=" Adam Cramer and Greg Vuocolo, People’s."
               aria-selected="false"
               class="c12 c13"
               role="option"
@@ -529,7 +529,7 @@ exports[`Renders ContestPage 1`] = `
                     <span
                       class="c22"
                     >
-                      People's
+                      People’s
                     </span>
                   </span>
                 </span>
@@ -1238,7 +1238,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               <span
                 class="c6"
               >
-                21
+                22
               </span>
             </span>
           </div>
@@ -1326,7 +1326,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               </span>
             </button>
             <button
-              aria-label=" Adam Cramer and Greg Vuocolo, People's."
+              aria-label=" Adam Cramer and Greg Vuocolo, People’s."
               aria-selected="false"
               class="c12 c13"
               role="option"
@@ -1369,7 +1369,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     <span
                       class="c22"
                     >
-                      People's
+                      People’s
                     </span>
                   </span>
                 </span>

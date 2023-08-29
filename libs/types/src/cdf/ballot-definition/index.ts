@@ -375,6 +375,11 @@ export interface BallotDefinition {
   readonly Party: readonly Party[];
 
   /**
+   * SVG image content for the jurisdiction's seal in UTF8 text format
+   */
+  readonly vxSeal: string;
+
+  /**
    * The upper bound of the sequence; e.g., “1” if there is only 1 report, “2” if there are two reports in the sequence, etc.
    */
   readonly SequenceEnd: integer;
@@ -413,6 +418,7 @@ export const BallotDefinitionSchema: z.ZodSchema<BallotDefinition> = z.object({
   Issuer: z.string(),
   IssuerAbbreviation: z.string(),
   Party: z.array(z.lazy(/* istanbul ignore next */ () => PartySchema)),
+  vxSeal: z.string(),
   SequenceEnd: integerSchema,
   SequenceStart: integerSchema,
   Shape: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ShapeSchema))),

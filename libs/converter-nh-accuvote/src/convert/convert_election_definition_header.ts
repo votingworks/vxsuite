@@ -27,6 +27,7 @@ import {
   NewHampshireBallotCardDefinition,
 } from './types';
 import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
+import { NH_SEAL } from './seal';
 
 const debug = makeDebug('converter-nh-accuvote:convert');
 
@@ -483,7 +484,7 @@ export function convertElectionDefinitionHeader(
         }),
       },
     ],
-    sealUrl: '/seals/Seal_of_New_Hampshire.svg',
+    seal: NH_SEAL,
   };
 
   const parseElectionResult = safeParseElection(election);

@@ -10,10 +10,9 @@ import {
 } from '@votingworks/types';
 import { MachineConfig } from '@votingworks/mark-backend';
 
-import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
 import { randomBallotId } from '@votingworks/utils';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { render as testRender } from './react_testing_library';
-
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
 
@@ -22,7 +21,7 @@ export function render(
   {
     route = '/',
     ballotStyleId,
-    electionDefinition = electionSampleNoSealDefinition,
+    electionDefinition = electionSampleDefinition,
     contests = electionDefinition.election.contests,
     endVoterSession = jest.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),

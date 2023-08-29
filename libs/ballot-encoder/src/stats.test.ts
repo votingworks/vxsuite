@@ -14,6 +14,7 @@ const election: Election = {
   county: { id: 'nowhere', name: 'Nowhere' },
   state: 'Nowhere',
   date: '1989-06-23T00:00:00Z',
+  seal: '<svg>test seal</svg>',
   districts: [{ id: district1Id, name: 'District 1' }],
   parties: [],
   precincts: [{ id: 'precinct1', name: 'Precinct 1' }],

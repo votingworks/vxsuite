@@ -32,8 +32,6 @@ test('has various election definitions', () => {
       "electionSampleDefinition",
       "electionSampleLongContent",
       "electionSampleLongContentDefinition",
-      "electionSampleNoSeal",
-      "electionSampleNoSealDefinition",
       "electionWithMsEitherNeither",
       "electionWithMsEitherNeitherDefinition",
       "electionWithMsEitherNeitherFixtures",

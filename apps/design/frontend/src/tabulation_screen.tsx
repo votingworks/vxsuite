@@ -127,7 +127,14 @@ export function TabulationForm({
       </Row>
       {isEditing ? (
         <FormActionsRow>
-          <Button onPress={() => setIsEditing(false)}>Cancel</Button>
+          <Button
+            onPress={() => {
+              setTabulationSettings(savedSystemSettings);
+              setIsEditing(false);
+            }}
+          >
+            Cancel
+          </Button>
           <Button onPress={onSaveButtonPress} variant="primary">
             <Icons.Checkmark /> Save
           </Button>

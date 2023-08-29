@@ -1,6 +1,6 @@
 import { fromByteArray } from 'base64-js';
 import { DateTime } from 'luxon';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
@@ -49,10 +49,6 @@ const Ballot = styled.div`
     margin: 0.375in;
     size: letter portrait;
   }
-`;
-
-const SealImage = styled.img`
-  max-width: 1in;
 `;
 
 const Header = styled.div`
@@ -249,7 +245,7 @@ export function BmdPaperBallot({
   const ballotId = generateBallotId();
   const {
     election,
-    election: { county, date, seal, sealUrl, state, title },
+    election: { county, date, seal, state, title },
     electionHash,
   } = electionDefinition;
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
@@ -270,38 +266,20 @@ export function BmdPaperBallot({
     ballotType: BallotType.Standard,
   });
 
-  const [sealLoaded, setSealLoaded] = useState(false);
   useEffect(() => {
-    const isRendered = seal || !sealUrl || (sealUrl && sealLoaded);
-    if (isRendered && onRendered) {
+    if (onRendered) {
       onRendered();
     }
-  }, [seal, sealUrl, sealLoaded, onRendered]);
+  }, [onRendered]);
 
   return withPrintTheme(
     <Ballot aria-hidden>
       <Header>
-        {seal ? (
-          <div
-            className="seal"
-            // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
-            dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
-            data-testid="printed-ballot-seal"
-          />
-        ) : sealUrl ? (
-          <div
-            id="printedBallotSealContainer"
-            className="seal"
-            data-testid="printed-ballot-seal"
-          >
-            <SealImage
-              src={sealUrl}
-              alt=""
-              data-testid="printed-ballot-seal-image"
-              onLoad={() => setSealLoaded(true)}
-            />
-          </div>
-        ) : null}
+        <div
+          className="seal"
+          dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+          data-testid="printed-ballot-seal"
+        />
         <div className="ballot-header-content">
           <H4>{isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}</H4>
           <H5>
