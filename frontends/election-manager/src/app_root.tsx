@@ -79,7 +79,7 @@ export function AppRoot({
 
   const store = useElectionManagerStore();
 
-  const { electionDefinition } = store;
+  const { electionDefinition, castVoteRecordFiles } = store;
 
   const auth = useDippedSmartcardAuth({
     cardApi: card,
@@ -99,13 +99,13 @@ export function AppRoot({
   // because it can be slow with a lot of CVRs.
   const fullElectionTally = useMemo(() => {
     if (!electionDefinition) return getEmptyFullElectionTally();
-    void logger.log(LogEventId.RecomputingTally, currentUserRole);
+    void logger.log(LogEventId.RecomputingTally, 'system');
     const fullTally = computeFullElectionTally(
       electionDefinition.election,
-      new Set(store.castVoteRecordFiles.castVoteRecords)
+      new Set(castVoteRecordFiles.castVoteRecords)
     );
     return fullTally;
-  }, [currentUserRole, electionDefinition, logger, store]);
+  }, [castVoteRecordFiles, electionDefinition, logger]);
 
   // Handle Machine Config
   useEffect(() => {
@@ -158,13 +158,12 @@ export function AppRoot({
           previous + tally.overallTally.numberOfBallotsCounted,
         0
       );
-    void logger.log(LogEventId.RecomputedTally, currentUserRole, {
+    void logger.log(LogEventId.RecomputedTally, 'system', {
       message: `Tally recomputed, there are now ${totalBallots} total ballots tallied.`,
       disposition: 'success',
       totalBallots,
     });
   }, [
-    currentUserRole,
     fullElectionTally.overallTally.numberOfBallotsCounted,
     logger,
     store.fullElectionExternalTallies,
