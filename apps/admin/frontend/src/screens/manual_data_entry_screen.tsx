@@ -649,20 +649,26 @@ export function ManualDataEntryScreen(): JSX.Element {
                 )}
                 {contest.type === 'yesno' && (
                   <React.Fragment>
-                    <ContestDataRow label="Yes" testId={`${contest.id}-yes`}>
+                    <ContestDataRow
+                      label="Yes"
+                      testId={`${contest.id}-${contest.yesOption.id}`}
+                    >
                       <TallyInput
                         name={`${contest.id}-yes`}
-                        data-testid={`${contest.id}-yes-input`}
+                        data-testid={`${contest.id}-${contest.yesOption.id}-input`}
                         value={getValueForInput(contest.id, 'yesTally')}
                         onChange={(e) =>
                           updateContestData(contest.id, 'yesTally', e)
                         }
                       />
                     </ContestDataRow>
-                    <ContestDataRow label="No" testId={`${contest.id}-no`}>
+                    <ContestDataRow
+                      label="No"
+                      testId={`${contest.id}-${contest.noOption.id}`}
+                    >
                       <TallyInput
                         name={`${contest.id}-no`}
-                        data-testid={`${contest.id}-no-input`}
+                        data-testid={`${contest.id}-${contest.noOption.id}-input`}
                         value={getValueForInput(contest.id, 'noTally')}
                         onChange={(e) =>
                           updateContestData(contest.id, 'noTally', e)

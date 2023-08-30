@@ -166,9 +166,12 @@ describe('generateTestDeckBallots', () => {
         'write-in-1',
         'write-in-2',
       ],
-      'judicial-elmer-hull': ['yes', 'no'],
-      'question-c': ['yes', 'no'],
-      'measure-101': ['yes', 'no'],
+      'judicial-elmer-hull': [
+        'judicial-elmer-hull-option-yes',
+        'judicial-elmer-hull-option-no',
+      ],
+      'question-c': ['question-c-option-yes', 'question-c-option-no'],
+      'measure-101': ['measure-101-option-yes', 'measure-101-option-no'],
     });
   });
 });

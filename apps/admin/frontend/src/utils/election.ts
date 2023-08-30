@@ -76,8 +76,6 @@ export function getTestDeckCandidateAtIndex(
   return generateTestDeckWriteIn(position - contest.candidates.length);
 }
 
-const yesOrNo: YesNoVote[] = [['yes'], ['no']];
-
 interface GenerateTestDeckParams {
   election: Election;
   precinctId?: PrecinctId;
@@ -115,7 +113,10 @@ export function generateTestDeckBallots({
         const votes: VotesDict = {};
         for (const contest of contests) {
           if (contest.type === 'yesno') {
-            votes[contest.id] = yesOrNo[ballotNum % 2];
+            votes[contest.id] =
+              ballotNum % 2 === 0
+                ? [contest.yesOption.id]
+                : [contest.noOption.id];
           } else if (
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
