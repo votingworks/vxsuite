@@ -65,7 +65,8 @@ export function ContestPage(): JSX.Element {
       case 'ms-either-neither':
         return (
           votes[contest.pickOneContestId]?.length === 1 ||
-          votes[contest.eitherNeitherContestId]?.[0] === 'no'
+          votes[contest.eitherNeitherContestId]?.[0] ===
+            contest.neitherOption.id
         );
       /* istanbul ignore next */
       default:
