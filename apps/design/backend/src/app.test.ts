@@ -1,10 +1,12 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_LAYOUT_OPTIONS,
+  layOutAllBallotStyles,
   LayoutOptions,
 } from '@votingworks/hmpb-layout';
 import {
   AdjudicationReason,
+  BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   Election,
   safeParseElectionDefinition,
@@ -236,6 +238,21 @@ test('Export setup package', async () => {
   expect(systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
+// Rendering an SVG to PDF and then generating the PDF takes about 3s per
+// ballot, so we mock the PDF content generation, which means we'll just
+// generate empty PDFs, which is much faster.
+jest.mock('svg-to-pdfkit');
+
+// Spy on the ballot layout function so we can check that it's called with the
+// right arguments.
+jest.mock('@votingworks/hmpb-layout', () => {
+  const original = jest.requireActual('@votingworks/hmpb-layout');
+  return {
+    ...original,
+    layOutAllBallotStyles: jest.fn(original.layOutAllBallotStyles),
+  };
+});
+
 test('Export all ballots', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.electionDefinition;
@@ -246,24 +263,59 @@ test('Export all ballots', async () => {
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
+  const { election, layoutOptions } = await apiClient.getElection({
+    electionId,
+  });
 
   const { zipContents, electionHash } = await apiClient.exportAllBallots({
     electionId,
   });
   const zip = await JsZip.loadAsync(zipContents);
 
-  expect(Object.keys(zip.files)).toEqual(
-    baseElectionDefinition.election.precincts.map(
-      (precinct) =>
-        `ballot-${precinct.name.replaceAll(' ', '_')}-ballot-style-1.pdf`
-    )
+  expect(Object.keys(zip.files).sort()).toEqual(
+    election.precincts
+      .flatMap((precinct) => {
+        const precinctName = precinct.name.replaceAll(' ', '_');
+        const suffix = `ballot-${precinctName}-ballot-style-1.pdf`;
+        return [
+          `official-precinct-${suffix}`,
+          `test-precinct-${suffix}`,
+          `sample-precinct-${suffix}`,
+          `official-absentee-${suffix}`,
+          `test-absentee-${suffix}`,
+          `sample-absentee-${suffix}`,
+        ];
+      })
+      .sort()
   );
 
+  // Ballot appearance is tested by fixtures in libs/hmpb/render-backend, so we
+  // just make sure we got a PDF and that we called the layout function with the
+  // right arguments.
   for (const file of Object.values(zip.files)) {
-    // Ballot appearance is tested by fixtures in libs/hmpb/render-backend.
     expect(await file.async('text')).toContain('%PDF');
+  }
+  expect(layOutAllBallotStyles).toHaveBeenCalledTimes(6);
+  const expectedLayoutCalls = [
+    [BallotType.Standard, 'official'],
+    [BallotType.Standard, 'test'],
+    [BallotType.Standard, 'sample'],
+    [BallotType.Absentee, 'official'],
+    [BallotType.Absentee, 'test'],
+    [BallotType.Absentee, 'sample'],
+  ];
+  for (const [
+    i,
+    [expectedBallotType, expectedBallotMode],
+  ] of expectedLayoutCalls.entries()) {
+    expect(layOutAllBallotStyles).toHaveBeenNthCalledWith(i + 1, {
+      election,
+      ballotType: expectedBallotType,
+      ballotMode: expectedBallotMode,
+      layoutOptions,
+    });
   }
 
   const setupPackageResult = await apiClient.exportSetupPackage({ electionId });
   expect(electionHash).toEqual(setupPackageResult.electionHash);
-}, 30_000);
+});
