@@ -105,71 +105,69 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   const client = Client.memoryClient();
   client.exec(CAST_VOTE_RECORD_HASHES_TABLE_SCHEMA);
 
-  function updateCastVoteRecordHashesHelper(
-    castVoteRecordId: CastVoteRecordId
-  ): string {
-    const castVoteRecordHash = computeSingleCastVoteRecordHash({
-      directoryName: castVoteRecordId,
-      files: castVoteRecords[castVoteRecordId],
+  function updateCastVoteRecordHashesHelper(cvrId: CastVoteRecordId): string {
+    const cvrHash = computeSingleCastVoteRecordHash({
+      directoryName: cvrId,
+      files: castVoteRecords[cvrId],
     });
-    updateCastVoteRecordHashes(client, castVoteRecordId, castVoteRecordHash);
-    return castVoteRecordHash;
+    updateCastVoteRecordHashes(client, cvrId, cvrHash);
+    return cvrHash;
   }
 
   expect(getCastVoteRecordRootHash(client)).toEqual('');
 
-  const leaf1Hash = updateCastVoteRecordHashesHelper(
+  const cvr1Hash = updateCastVoteRecordHashesHelper(
     'ab123456-0000-0000-0000-000000000000'
   );
-  let abHash = sha256(leaf1Hash);
+  let abHash = sha256(cvr1Hash);
   let aHash = sha256(abHash);
   let rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const leaf2Hash = updateCastVoteRecordHashesHelper(
+  const cvr2Hash = updateCastVoteRecordHashesHelper(
     'ab345678-0000-0000-0000-000000000000'
   );
-  abHash = sha256(leaf1Hash + leaf2Hash);
+  abHash = sha256(cvr1Hash + cvr2Hash);
   aHash = sha256(abHash);
   rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const leaf3Hash = updateCastVoteRecordHashesHelper(
+  const cvr3Hash = updateCastVoteRecordHashesHelper(
     'a1234567-0000-0000-0000-000000000000'
   );
-  const a1Hash = sha256(leaf3Hash);
+  const a1Hash = sha256(cvr3Hash);
   aHash = sha256(a1Hash + abHash);
   rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const leaf4Hash = updateCastVoteRecordHashesHelper(
+  const cvr4Hash = updateCastVoteRecordHashesHelper(
     'e1234567-0000-0000-0000-000000000000'
   );
-  const e1Hash = sha256(leaf4Hash);
+  const e1Hash = sha256(cvr4Hash);
   const eHash = sha256(e1Hash);
   rootHash = sha256(aHash + eHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const leaf5Hash = updateCastVoteRecordHashesHelper(
+  const cvr5Hash = updateCastVoteRecordHashesHelper(
     'c1234567-0000-0000-0000-000000000000'
   );
-  const c1Hash = sha256(leaf5Hash);
+  const c1Hash = sha256(cvr5Hash);
   const cHash = sha256(c1Hash);
   rootHash = sha256(aHash + cHash + eHash); // Reach branching factor of 3 at root
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const leaf6Hash = updateCastVoteRecordHashesHelper(
+  const cvr6Hash = updateCastVoteRecordHashesHelper(
     'ab234567-0000-0000-0000-000000000000'
   );
-  abHash = sha256(leaf1Hash + leaf6Hash + leaf2Hash); // Reach branching factor of 3 at level 2
+  abHash = sha256(cvr1Hash + cvr6Hash + cvr2Hash); // Reach branching factor of 3 at level 2
   aHash = sha256(a1Hash + abHash);
   rootHash = sha256(aHash + cHash + eHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const leaf7Hash = updateCastVoteRecordHashesHelper(
+  const cvr7Hash = updateCastVoteRecordHashesHelper(
     'a2345678-0000-0000-0000-000000000000'
   );
-  const a2Hash = sha256(leaf7Hash);
+  const a2Hash = sha256(cvr7Hash);
   aHash = sha256(a1Hash + a2Hash + abHash); // Reach branching factor of 3 at level 1
   rootHash = sha256(aHash + cHash + eHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
@@ -187,13 +185,11 @@ test('computeCastVoteRecordRootHashFromScratch', async () => {
   );
   fs.mkdirSync(exportDirectoryPath);
   fs.writeFileSync(path.join(exportDirectoryPath, 'metadata.json'), '');
-  for (const [castVoteRecordId, castVoteRecordFiles] of Object.entries(
-    castVoteRecords
-  )) {
-    fs.mkdirSync(path.join(exportDirectoryPath, castVoteRecordId));
-    for (const { fileName, fileContents } of castVoteRecordFiles) {
+  for (const [cvrId, cvrFiles] of Object.entries(castVoteRecords)) {
+    fs.mkdirSync(path.join(exportDirectoryPath, cvrId));
+    for (const { fileName, fileContents } of cvrFiles) {
       fs.writeFileSync(
-        path.join(exportDirectoryPath, castVoteRecordId, fileName),
+        path.join(exportDirectoryPath, cvrId, fileName),
         fileContents
       );
     }

@@ -196,13 +196,13 @@ export function updateCastVoteRecordHashes(
       cvrHash,
     });
 
-    const siblingLeafHashes = selectCastVoteRecordHashes(client, {
+    const cvrHashesForLevel2Prefix = selectCastVoteRecordHashes(client, {
       cvrIdLevel1PrefixConstraint: { type: '=', value: cvrIdLevel1Prefix },
       cvrIdLevel2PrefixConstraint: { type: '=', value: cvrIdLevel2Prefix },
       cvrIdConstraint: { type: '!=', value: NULL_VALUE },
       orderBy: 'cvr_id',
     });
-    const level2Hash = sha256(siblingLeafHashes.join(''));
+    const level2Hash = sha256(cvrHashesForLevel2Prefix.join(''));
     insertCastVoteRecordHash(client, {
       cvrIdLevel1Prefix,
       cvrIdLevel2Prefix,
@@ -210,13 +210,13 @@ export function updateCastVoteRecordHashes(
       cvrHash: level2Hash,
     });
 
-    const siblingLevel2Hashes = selectCastVoteRecordHashes(client, {
+    const level2HashesForLevel1Prefix = selectCastVoteRecordHashes(client, {
       cvrIdLevel1PrefixConstraint: { type: '=', value: cvrIdLevel1Prefix },
       cvrIdLevel2PrefixConstraint: { type: '!=', value: NULL_VALUE },
       cvrIdConstraint: { type: '=', value: NULL_VALUE },
       orderBy: 'cvr_id_level_2_prefix',
     });
-    const level1Hash = sha256(siblingLevel2Hashes.join(''));
+    const level1Hash = sha256(level2HashesForLevel1Prefix.join(''));
     insertCastVoteRecordHash(client, {
       cvrIdLevel1Prefix,
       cvrIdLevel2Prefix: NULL_VALUE,
@@ -265,7 +265,7 @@ export async function computeCastVoteRecordRootHashFromScratch(
     .filter((entry) => entry.isDirectory())
     .map((directory) => directory.name);
 
-  const leafHashes: HashesToCombine = [];
+  const cvrHashes: HashesToCombine = [];
   for (const cvrId of cvrIds) {
     const cvrDirectoryPath = path.join(exportDirectoryPath, cvrId);
     const cvrFileNames = (
@@ -284,22 +284,22 @@ export async function computeCastVoteRecordRootHashFromScratch(
       directoryName: cvrId,
       files: cvrFiles,
     });
-    leafHashes.push({ hash: cvrHash, sortKey: cvrId });
+    cvrHashes.push({ hash: cvrHash, sortKey: cvrId });
   }
 
   const level2Hashes: HashesToCombine = groupBy(
-    leafHashes,
+    cvrHashes,
     ({ sortKey: cvrId }) => cvrId.slice(0, 2)
-  ).map(([cvrIdLevel2Prefix, siblingLeafHashes]) => ({
-    hash: computeCombinedHash(siblingLeafHashes),
+  ).map(([cvrIdLevel2Prefix, cvrHashesForLevel2Prefix]) => ({
+    hash: computeCombinedHash(cvrHashesForLevel2Prefix),
     sortKey: cvrIdLevel2Prefix,
   }));
 
   const level1Hashes: HashesToCombine = groupBy(
     level2Hashes,
     ({ sortKey: cvrIdLevel2Prefix }) => cvrIdLevel2Prefix.slice(0, 1)
-  ).map(([cvrIdLevel1Prefix, siblingLevel2Hashes]) => ({
-    hash: computeCombinedHash(siblingLevel2Hashes),
+  ).map(([cvrIdLevel1Prefix, level2HashesForLevel1Prefix]) => ({
+    hash: computeCombinedHash(level2HashesForLevel1Prefix),
     sortKey: cvrIdLevel1Prefix,
   }));
 
