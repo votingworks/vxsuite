@@ -288,12 +288,22 @@ export function BallotViewer({
         electionId,
         precinctId: precinct.id,
         ballotStyleId: ballotStyle.id,
+        ballotType,
+        ballotMode,
       },
       {
         onSuccess: (pdfContents) => {
+          const ballotTypeLabel = {
+            [BallotType.Standard]: 'precinct',
+            [BallotType.Absentee]: 'absentee',
+            [BallotType.Provisional]: 'provisional',
+          }[ballotType];
           fileDownload(
             pdfContents,
-            `ballot-${precinct.name.replace(' ', '_')}-${ballotStyle.id}.pdf`
+            `${ballotMode}-${ballotTypeLabel}-ballot-${precinct.name.replace(
+              ' ',
+              '_'
+            )}-${ballotStyle.id}.pdf`
           );
         },
       }

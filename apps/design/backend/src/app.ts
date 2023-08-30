@@ -8,10 +8,15 @@ import {
   BallotPaperSize,
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
+  BallotType,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, ok, Result } from '@votingworks/basics';
-import { layOutAllBallots, LayoutOptions } from '@votingworks/hmpb-layout';
+import {
+  BallotMode,
+  layOutAllBallotStyles,
+  LayoutOptions,
+} from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
 import { ElectionRecord, Precinct, Store } from './store';
@@ -139,31 +144,48 @@ function buildApi({ store }: { store: Store }) {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
       const { election, layoutOptions } = store.getElection(input.electionId);
-      const { ballots, electionDefinition } = layOutAllBallots({
-        election,
-        isTestMode: true,
-        layoutOptions,
-      }).unsafeUnwrap();
 
       const zip = new JsZip();
 
-      for (const { precinctId, document, gridLayout } of ballots) {
-        const { ballotStyleId } = gridLayout;
-        const precinct = assertDefined(
-          getPrecinctById({ election, precinctId })
-        );
-        const pdf = renderDocumentToPdf(document);
-        const fileName = `ballot-${precinct.name.replaceAll(
-          ' ',
-          '_'
-        )}-${ballotStyleId}.pdf`;
-        zip.file(fileName, pdf);
-        pdf.end();
+      const ballotTypes: Array<[BallotType, string]> = [
+        [BallotType.Standard, 'precinct'],
+        [BallotType.Absentee, 'absentee'],
+      ];
+      const ballotModes: BallotMode[] = ['official', 'test', 'sample'];
+
+      let electionHash: string | undefined;
+
+      for (const [ballotType, ballotTypeLabel] of ballotTypes) {
+        for (const ballotMode of ballotModes) {
+          const { ballots, electionDefinition } = layOutAllBallotStyles({
+            election,
+            ballotType,
+            ballotMode,
+            layoutOptions,
+          }).unsafeUnwrap();
+
+          // Election definition doesn't change across ballot types/modes
+          electionHash = electionDefinition.electionHash;
+
+          for (const { precinctId, document, gridLayout } of ballots) {
+            const { ballotStyleId } = gridLayout;
+            const precinct = assertDefined(
+              getPrecinctById({ election, precinctId })
+            );
+            const pdf = renderDocumentToPdf(document);
+            const fileName = `${ballotMode}-${ballotTypeLabel}-ballot-${precinct.name.replaceAll(
+              ' ',
+              '_'
+            )}-${ballotStyleId}.pdf`;
+            zip.file(fileName, pdf);
+            pdf.end();
+          }
+        }
       }
 
       return {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        electionHash: electionDefinition.electionHash,
+        electionHash: assertDefined(electionHash),
       };
     },
 
@@ -171,11 +193,14 @@ function buildApi({ store }: { store: Store }) {
       electionId: Id;
       precinctId: string;
       ballotStyleId: string;
+      ballotType: BallotType;
+      ballotMode: BallotMode;
     }): Promise<Buffer> {
       const { election, layoutOptions } = store.getElection(input.electionId);
-      const { ballots } = layOutAllBallots({
+      const { ballots } = layOutAllBallotStyles({
         election,
-        isTestMode: true,
+        ballotType: input.ballotType,
+        ballotMode: input.ballotMode,
         layoutOptions,
       }).unsafeUnwrap();
       const { document } = find(
@@ -193,9 +218,12 @@ function buildApi({ store }: { store: Store }) {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
       const { election, layoutOptions } = store.getElection(input.electionId);
-      const { electionDefinition } = layOutAllBallots({
+      const { electionDefinition } = layOutAllBallotStyles({
         election,
-        isTestMode: true,
+        // Ballot type and ballot mode shouldn't change the election definition, so
+        // it doesn't matter what we pass here
+        ballotType: BallotType.Standard,
+        ballotMode: 'test',
         layoutOptions,
       }).unsafeUnwrap();
 
