@@ -185,8 +185,8 @@ export function updateCastVoteRecordHashes(
   cvrId: string,
   cvrHash: string
 ): void {
-  const cvrIdLevel1Prefix = cvrId.slice(0, 2);
-  const cvrIdLevel2Prefix = cvrId.slice(0, 4);
+  const cvrIdLevel1Prefix = cvrId.slice(0, 1);
+  const cvrIdLevel2Prefix = cvrId.slice(0, 2);
 
   client.transaction(() => {
     insertCastVoteRecordHash(client, {
@@ -289,7 +289,7 @@ export async function computeCastVoteRecordRootHashFromScratch(
 
   const level2Hashes: HashesToCombine = groupBy(
     leafHashes,
-    ({ sortKey: cvrId }) => cvrId.slice(0, 4)
+    ({ sortKey: cvrId }) => cvrId.slice(0, 2)
   ).map(([cvrIdLevel2Prefix, siblingLeafHashes]) => ({
     hash: computeCombinedHash(siblingLeafHashes),
     sortKey: cvrIdLevel2Prefix,
@@ -297,7 +297,7 @@ export async function computeCastVoteRecordRootHashFromScratch(
 
   const level1Hashes: HashesToCombine = groupBy(
     level2Hashes,
-    ({ sortKey: cvrIdLevel2Prefix }) => cvrIdLevel2Prefix.slice(0, 2)
+    ({ sortKey: cvrIdLevel2Prefix }) => cvrIdLevel2Prefix.slice(0, 1)
   ).map(([cvrIdLevel1Prefix, siblingLevel2Hashes]) => ({
     hash: computeCombinedHash(siblingLevel2Hashes),
     sortKey: cvrIdLevel1Prefix,

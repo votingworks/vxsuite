@@ -26,42 +26,42 @@ afterEach(() => {
 });
 
 type CastVoteRecordId =
+  | 'a1234567-0000-0000-0000-000000000000'
+  | 'a2345678-0000-0000-0000-000000000000'
   | 'ab123456-0000-0000-0000-000000000000'
+  | 'ab234567-0000-0000-0000-000000000000'
   | 'ab345678-0000-0000-0000-000000000000'
-  | 'abcd1234-0000-0000-0000-000000000000'
-  | 'abcd3456-0000-0000-0000-000000000000'
-  | 'abcd5678-0000-0000-0000-000000000000'
-  | 'cd123456-0000-0000-0000-000000000000'
-  | 'ef123456-0000-0000-0000-000000000000';
+  | 'c1234567-0000-0000-0000-000000000000'
+  | 'e1234567-0000-0000-0000-000000000000';
 
 // A minimal set of mock cast vote records for testing a branching factor of 3 at every level of
 // the Merkle tree
 const castVoteRecords: Record<CastVoteRecordId, File[]> = {
-  'ab123456-0000-0000-0000-000000000000': [
+  'a1234567-0000-0000-0000-000000000000': [
     { fileName: 'a', fileContents: 'a1' },
     { fileName: 'b', fileContents: 'b1' },
   ],
-  'ab345678-0000-0000-0000-000000000000': [
+  'a2345678-0000-0000-0000-000000000000': [
     { fileName: 'a', fileContents: 'a2' },
     { fileName: 'b', fileContents: 'b2' },
   ],
-  'abcd1234-0000-0000-0000-000000000000': [
+  'ab123456-0000-0000-0000-000000000000': [
     { fileName: 'a', fileContents: 'a3' },
     { fileName: 'b', fileContents: 'b3' },
   ],
-  'abcd3456-0000-0000-0000-000000000000': [
+  'ab234567-0000-0000-0000-000000000000': [
     { fileName: 'a', fileContents: 'a4' },
     { fileName: 'b', fileContents: 'b4' },
   ],
-  'abcd5678-0000-0000-0000-000000000000': [
+  'ab345678-0000-0000-0000-000000000000': [
     { fileName: 'a', fileContents: 'a5' },
     { fileName: 'b', fileContents: 'b5' },
   ],
-  'cd123456-0000-0000-0000-000000000000': [
+  'c1234567-0000-0000-0000-000000000000': [
     { fileName: 'a', fileContents: 'a6' },
     { fileName: 'b', fileContents: 'b6' },
   ],
-  'ef123456-0000-0000-0000-000000000000': [
+  'e1234567-0000-0000-0000-000000000000': [
     { fileName: 'a', fileContents: 'a7' },
     { fileName: 'b', fileContents: 'b7' },
   ],
@@ -71,7 +71,7 @@ const castVoteRecords: Record<CastVoteRecordId, File[]> = {
  * The root hash for the mock cast vote records represented by {@link castVoteRecords}
  */
 const expectedCastVoteRecordRootHash =
-  '282f2b50176debeec49f60de0a3e0c9c5cbcf6b4bbc800eec6b8be161d43fdec';
+  '03b88fdbe32c1115f6427953fd4364a737d85c0cf56a831249f1a4cd4c2a6b8a';
 
 test('computeSingleCastVoteRecordHash', () => {
   const hash = computeSingleCastVoteRecordHash({
@@ -119,59 +119,59 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   expect(getCastVoteRecordRootHash(client)).toEqual('');
 
   const leaf1Hash = updateCastVoteRecordHashesHelper(
-    'abcd1234-0000-0000-0000-000000000000'
+    'ab123456-0000-0000-0000-000000000000'
   );
-  let abcdHash = sha256(leaf1Hash);
-  let abHash = sha256(abcdHash);
-  let rootHash = sha256(abHash);
+  let abHash = sha256(leaf1Hash);
+  let aHash = sha256(abHash);
+  let rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
   const leaf2Hash = updateCastVoteRecordHashesHelper(
-    'abcd5678-0000-0000-0000-000000000000'
+    'ab345678-0000-0000-0000-000000000000'
   );
-  abcdHash = sha256(leaf1Hash + leaf2Hash);
-  abHash = sha256(abcdHash);
-  rootHash = sha256(abHash);
+  abHash = sha256(leaf1Hash + leaf2Hash);
+  aHash = sha256(abHash);
+  rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
   const leaf3Hash = updateCastVoteRecordHashesHelper(
-    'ab123456-0000-0000-0000-000000000000'
+    'a1234567-0000-0000-0000-000000000000'
   );
-  const ab12Hash = sha256(leaf3Hash);
-  abHash = sha256(ab12Hash + abcdHash);
-  rootHash = sha256(abHash);
+  const a1Hash = sha256(leaf3Hash);
+  aHash = sha256(a1Hash + abHash);
+  rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
   const leaf4Hash = updateCastVoteRecordHashesHelper(
-    'ef123456-0000-0000-0000-000000000000'
+    'e1234567-0000-0000-0000-000000000000'
   );
-  const ef12Hash = sha256(leaf4Hash);
-  const efHash = sha256(ef12Hash);
-  rootHash = sha256(abHash + efHash);
+  const e1Hash = sha256(leaf4Hash);
+  const eHash = sha256(e1Hash);
+  rootHash = sha256(aHash + eHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
   const leaf5Hash = updateCastVoteRecordHashesHelper(
-    'cd123456-0000-0000-0000-000000000000'
+    'c1234567-0000-0000-0000-000000000000'
   );
-  const cd12Hash = sha256(leaf5Hash);
-  const cdHash = sha256(cd12Hash);
-  rootHash = sha256(abHash + cdHash + efHash); // Reach branching factor of 3 at root
+  const c1Hash = sha256(leaf5Hash);
+  const cHash = sha256(c1Hash);
+  rootHash = sha256(aHash + cHash + eHash); // Reach branching factor of 3 at root
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
   const leaf6Hash = updateCastVoteRecordHashesHelper(
-    'abcd3456-0000-0000-0000-000000000000'
+    'ab234567-0000-0000-0000-000000000000'
   );
-  abcdHash = sha256(leaf1Hash + leaf6Hash + leaf2Hash); // Reach branching factor of 3 at level 2
-  abHash = sha256(ab12Hash + abcdHash);
-  rootHash = sha256(abHash + cdHash + efHash);
+  abHash = sha256(leaf1Hash + leaf6Hash + leaf2Hash); // Reach branching factor of 3 at level 2
+  aHash = sha256(a1Hash + abHash);
+  rootHash = sha256(aHash + cHash + eHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
   const leaf7Hash = updateCastVoteRecordHashesHelper(
-    'ab345678-0000-0000-0000-000000000000'
+    'a2345678-0000-0000-0000-000000000000'
   );
-  const ab34Hash = sha256(leaf7Hash);
-  abHash = sha256(ab12Hash + ab34Hash + abcdHash); // Reach branching factor of 3 at level 1
-  rootHash = sha256(abHash + cdHash + efHash);
+  const a2Hash = sha256(leaf7Hash);
+  aHash = sha256(a1Hash + a2Hash + abHash); // Reach branching factor of 3 at level 1
+  rootHash = sha256(aHash + cHash + eHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
   expect(rootHash).toEqual(expectedCastVoteRecordRootHash);
