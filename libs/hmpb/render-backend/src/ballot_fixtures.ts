@@ -6,7 +6,7 @@ import {
 import {
   AnyElement,
   gridPosition,
-  layOutAllBallots,
+  layOutAllBallotStyles,
   measurements,
   Document,
   Rectangle,
@@ -16,6 +16,7 @@ import {
 } from '@votingworks/hmpb-layout';
 import {
   BallotPaperSize,
+  BallotType,
   Election,
   getBallotStyle,
   getContests,
@@ -101,9 +102,10 @@ export function markBallot({
 }
 
 export const famousNamesFixtures = (() => {
-  const { electionDefinition, ballots } = layOutAllBallots({
+  const { electionDefinition, ballots } = layOutAllBallotStyles({
     election: electionFamousNames2021Fixtures.election,
-    isTestMode: true,
+    ballotType: BallotType.Standard,
+    ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
   }).unsafeUnwrap();
 
@@ -160,9 +162,10 @@ export const sampleElectionFixtures = (() => {
           },
         };
 
-        const { ballots, electionDefinition } = layOutAllBallots({
+        const { ballots, electionDefinition } = layOutAllBallotStyles({
           election,
-          isTestMode: true,
+          ballotType: BallotType.Standard,
+          ballotMode: 'test',
           layoutOptions: {
             bubblePosition,
             layoutDensity,
