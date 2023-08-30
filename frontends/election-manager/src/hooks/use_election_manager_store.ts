@@ -12,6 +12,7 @@ import {
   Iso8601Timestamp,
 } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
+import _ from 'lodash';
 import { useCallback, useContext, useMemo, useRef } from 'react';
 import { PrintedBallot } from '../config/types';
 import { ServicesContext } from '../contexts/services_context';
@@ -127,6 +128,18 @@ export function useElectionManagerStore(): ElectionManagerStore {
     [printedBallotsStorageKey],
     async () => {
       return (await backend.loadPrintedBallots()) ?? [];
+    },
+    {
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+
+        // Prevent re-renders of the app tree when data doesn't change
+        const isUnchanged = _.isEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
+      refetchOnWindowFocus: false,
     }
   );
   const printedBallots = getPrintedBallotsQuery.data;
@@ -173,6 +186,18 @@ export function useElectionManagerStore(): ElectionManagerStore {
       return (
         (await backend.loadCastVoteRecordFiles()) ?? CastVoteRecordFiles.empty
       );
+    },
+    {
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+
+        // Prevent re-renders of the app tree when data doesn't change
+        const isUnchanged = _.isEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
+      refetchOnWindowFocus: false,
     }
   );
   const castVoteRecordFiles = getCastVoteRecordFilesQuery.data;
@@ -181,6 +206,18 @@ export function useElectionManagerStore(): ElectionManagerStore {
     [externalVoteTalliesFileStorageKey],
     async () => {
       return (await backend.loadFullElectionExternalTallies()) ?? new Map();
+    },
+    {
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+
+        // Prevent re-renders of the app tree when data doesn't change
+        const isUnchanged = _.isEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
+      refetchOnWindowFocus: false,
     }
   );
   const fullElectionExternalTallies = getExternalElectionTalliesQuery.data;
@@ -189,6 +226,9 @@ export function useElectionManagerStore(): ElectionManagerStore {
     [isOfficialResultsKey],
     async () => {
       return (await backend.loadIsOfficialResults()) ?? false;
+    },
+    {
+      refetchOnWindowFocus: false,
     }
   );
   const isOfficialResults = getIsOfficialResultsQuery.data;
@@ -246,13 +286,13 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
 
+  const addCastVoteRecordFileMutateAsync =
+    addCastVoteRecordFileMutation.mutateAsync;
   const addCastVoteRecordFile = useCallback(
     async (newCastVoteRecordFile: File) => {
-      return await addCastVoteRecordFileMutation.mutateAsync(
-        newCastVoteRecordFile
-      );
+      return await addCastVoteRecordFileMutateAsync(newCastVoteRecordFile);
     },
-    [addCastVoteRecordFileMutation]
+    [addCastVoteRecordFileMutateAsync]
   );
 
   const markResultsOfficialMutation = useMutation(
@@ -275,9 +315,11 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
 
+  const markResultsOfficialMutateAsync =
+    markResultsOfficialMutation.mutateAsync;
   const markResultsOfficial = useCallback(async () => {
-    await markResultsOfficialMutation.mutateAsync();
-  }, [markResultsOfficialMutation]);
+    await markResultsOfficialMutateAsync();
+  }, [markResultsOfficialMutateAsync]);
 
   const addPrintedBallotMutation = useMutation(
     async (newPrintedBallot: PrintedBallot) => {
@@ -290,11 +332,12 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
 
+  const addPrintedBallotMutateAsync = addPrintedBallotMutation.mutateAsync;
   const addPrintedBallot = useCallback(
     async (newPrintedBallot: PrintedBallot) => {
-      await addPrintedBallotMutation.mutateAsync(newPrintedBallot);
+      await addPrintedBallotMutateAsync(newPrintedBallot);
     },
-    [addPrintedBallotMutation]
+    [addPrintedBallotMutateAsync]
   );
 
   const updateFullElectionExternalTallyMutation = useMutation(
@@ -311,17 +354,19 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
 
+  const updateFullElectionExternalTallyMutateAsync =
+    updateFullElectionExternalTallyMutation.mutateAsync;
   const updateFullElectionExternalTally = useCallback(
     async (
       sourceType: ExternalTallySourceType,
       newFullElectionExternalTally: FullElectionExternalTally
     ) => {
       assert(newFullElectionExternalTally.source === sourceType);
-      await updateFullElectionExternalTallyMutation.mutateAsync(
+      await updateFullElectionExternalTallyMutateAsync(
         newFullElectionExternalTally
       );
     },
-    [updateFullElectionExternalTallyMutation]
+    [updateFullElectionExternalTallyMutateAsync]
   );
 
   const removeFullElectionExternalTallyMutation = useMutation(
@@ -335,11 +380,13 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
 
+  const removeFullElectionExternalTallyMutateAsync =
+    removeFullElectionExternalTallyMutation.mutateAsync;
   const removeFullElectionExternalTally = useCallback(
     async (sourceType: ExternalTallySourceType) => {
-      await removeFullElectionExternalTallyMutation.mutateAsync(sourceType);
+      await removeFullElectionExternalTallyMutateAsync(sourceType);
     },
-    [removeFullElectionExternalTallyMutation]
+    [removeFullElectionExternalTallyMutateAsync]
   );
 
   const clearFullElectionExternalTalliesMutation = useMutation(
@@ -353,9 +400,11 @@ export function useElectionManagerStore(): ElectionManagerStore {
     }
   );
 
+  const clearFullElectionExternalTalliesMutateAsync =
+    clearFullElectionExternalTalliesMutation.mutateAsync;
   const clearFullElectionExternalTallies = useCallback(async () => {
-    await clearFullElectionExternalTalliesMutation.mutateAsync();
-  }, [clearFullElectionExternalTalliesMutation]);
+    await clearFullElectionExternalTalliesMutateAsync();
+  }, [clearFullElectionExternalTalliesMutateAsync]);
 
   const setCurrentUserRole = useCallback((newCurrentUserRole) => {
     currentUserRoleRef.current = newCurrentUserRole;
