@@ -1,6 +1,6 @@
-import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { Route } from 'react-router-dom';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
 import { screen } from '../../test/react_testing_library';
@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 test('calls invalidateBallot if voter indicates their ballot is incorrect', async () => {
-  const electionDefinition = electionSampleNoSealDefinition;
+  const electionDefinition = electionSampleDefinition;
   const mockInterpretation = getMockInterpretation(electionDefinition);
   apiMock.expectGetInterpretation(mockInterpretation);
   apiMock.expectGetElectionDefinition(electionDefinition);
