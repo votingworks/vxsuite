@@ -22,16 +22,16 @@ test('buildElectionOptionMap', () => {
       otter: 1,
     },
     fishing: {
-      no: 1,
-      yes: 0,
+      'ban-fishing': 0,
+      'allow-fishing': 1,
     },
     'new-zoo-either': {
-      no: 1,
-      yes: 0,
+      'new-zoo-either-approved': 0,
+      'new-zoo-neither-approved': 1,
     },
     'new-zoo-pick': {
-      no: 1,
-      yes: 0,
+      'new-zoo-safari': 0,
+      'new-zoo-traditional': 1,
     },
     'zoo-council-mammal': {
       elephant: 3,

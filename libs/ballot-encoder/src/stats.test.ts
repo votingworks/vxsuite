@@ -28,8 +28,8 @@ const election: Election = {
       districtId: district1Id,
       title: 'Ever dance with the devil in the pale moonlight?',
       description: 'See ya round, kid.',
-      yesOption: { id: 'yes', label: 'Yes' },
-      noOption: { id: 'no', label: 'No' },
+      yesOption: { id: 'contest1-option-yes', label: 'Yes' },
+      noOption: { id: 'contest1-option-no', label: 'No' },
     },
   ],
   ballotLayout: {

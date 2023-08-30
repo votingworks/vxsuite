@@ -195,7 +195,7 @@ const validCastVoteRecord: CVR.CVR = {
           CVRContestSelection: [
             {
               '@type': 'CVR.CVRContestSelection',
-              ContestSelectionId: 'yes',
+              ContestSelectionId: 'new-zoo-either-approved',
               OptionPosition: 0,
               SelectionPosition: [
                 {
@@ -216,7 +216,7 @@ const validCastVoteRecord: CVR.CVR = {
           CVRContestSelection: [
             {
               '@type': 'CVR.CVRContestSelection',
-              ContestSelectionId: 'yes',
+              ContestSelectionId: 'new-zoo-safari',
               OptionPosition: 0,
               SelectionPosition: [
                 {
@@ -237,7 +237,7 @@ const validCastVoteRecord: CVR.CVR = {
           CVRContestSelection: [
             {
               '@type': 'CVR.CVRContestSelection',
-              ContestSelectionId: 'yes',
+              ContestSelectionId: 'ban-fishing',
               OptionPosition: 0,
               SelectionPosition: [
                 {

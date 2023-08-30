@@ -316,14 +316,14 @@ test('encodes & decodes yesno votes correctly', () => {
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {
-    'judicial-robert-demergue': ['yes'],
-    'judicial-elmer-hull': ['yes'],
-    'question-a': ['yes'],
-    'question-b': ['no'],
-    'question-c': ['yes'],
+    'judicial-robert-demergue': ['judicial-robert-demergue-option-yes'],
+    'judicial-elmer-hull': ['judicial-elmer-hull-option-yes'],
+    'question-a': ['question-a-option-yes'],
+    'question-b': ['question-b-option-no'],
+    'question-c': ['question-c-option-yes'],
     'proposition-1': [],
-    'measure-101': ['no'],
-    '102': ['yes'],
+    'measure-101': ['measure-101-option-no'],
+    '102': ['102-option-yes'],
   });
   const ballot: CompletedBallot = {
     electionHash,
@@ -436,7 +436,7 @@ test('throws on trying to encode a bad yes/no vote', () => {
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {
-    'judicial-robert-demergue': 'yes',
+    'judicial-robert-demergue': 'judicial-robert-demergue-option-yes',
   });
   const ballot: CompletedBallot = {
     electionHash,
@@ -449,13 +449,16 @@ test('throws on trying to encode a bad yes/no vote', () => {
   };
 
   expect(() => encodeBallot(election, ballot)).toThrowError(
-    'cannot encode a non-array yes/no vote: "yes"'
+    'cannot encode a non-array yes/no vote: "judicial-robert-demergue-option-yes"'
   );
 
   // overvotes fail too.
-  ballot.votes['judicial-robert-demergue'] = ['yes', 'no'];
+  ballot.votes['judicial-robert-demergue'] = [
+    'judicial-robert-demergue-option-yes',
+    'judicial-robert-demergue-option-no',
+  ];
   expect(() => encodeBallot(election, ballot)).toThrowError(
-    'cannot encode a yes/no overvote: ["yes","no"]'
+    'cannot encode a yes/no overvote: ["judicial-robert-demergue-option-yes","judicial-robert-demergue-option-no"]'
   );
 });
 

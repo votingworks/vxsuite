@@ -67,42 +67,44 @@ export function MsEitherNeitherContest({
 
   function handleUpdateEitherNeither(targetVote: string) {
     const currentVote = eitherNeitherContestVote?.[0];
-    const newVote =
-      currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
+    const newVote = currentVote === targetVote ? [] : [targetVote];
     setDeselectedOption(
-      currentVote === 'yes'
+      currentVote === contest.eitherOption.id
         ? 'either'
-        : currentVote === 'no'
+        : currentVote === contest.neitherOption.id
         ? 'neither'
         : undefined
     );
-    updateVote(contest.eitherNeitherContestId, newVote as YesNoVote);
+    updateVote(contest.eitherNeitherContestId, newVote);
   }
   function handleUpdatePickOne(targetVote: string) {
     const currentVote = pickOneContestVote?.[0];
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
     setDeselectedOption(
-      currentVote === 'yes'
+      currentVote === contest.firstOption.id
         ? 'first'
-        : currentVote === 'no'
+        : currentVote === contest.secondOption.id
         ? 'second'
         : undefined
     );
-    updateVote(contest.pickOneContestId, newVote as YesNoVote);
+    updateVote(contest.pickOneContestId, newVote);
   }
 
   const districtName = getContestDistrictName(election, contest);
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const forEither = '“for either”';
   const againstBoth = '“against both”';
-  const eitherLabel = eitherNeitherVote === 'yes' ? forEither : againstBoth;
+  const eitherLabel =
+    eitherNeitherVote === contest.eitherOption.id ? forEither : againstBoth;
   const pickOneVote = pickOneContestVote?.[0];
 
-  const eitherSelected = eitherNeitherContestVote?.[0] === 'yes';
-  const neitherSelected = eitherNeitherContestVote?.[0] === 'no';
-  const firstSelected = pickOneContestVote?.[0] === 'yes';
-  const secondSelected = pickOneContestVote?.[0] === 'no';
+  const eitherSelected =
+    eitherNeitherContestVote?.[0] === contest.eitherOption.id;
+  const neitherSelected =
+    eitherNeitherContestVote?.[0] === contest.neitherOption.id;
+  const firstSelected = pickOneContestVote?.[0] === contest.firstOption.id;
+  const secondSelected = pickOneContestVote?.[0] === contest.secondOption.id;
 
   useEffect(() => {
     if (deselectedOption) {
@@ -126,7 +128,7 @@ export function MsEitherNeitherContest({
           ) : eitherNeitherVote && !pickOneVote ? (
             <span>
               You have selected {eitherLabel}.{' '}
-              {eitherNeitherVote === 'yes' ? (
+              {eitherNeitherVote === contest.eitherOption.id ? (
                 <strong>Now select your preferred measure.</strong>
               ) : (
                 <strong>
@@ -167,7 +169,7 @@ export function MsEitherNeitherContest({
           <Caption weight="bold">{contest.eitherNeitherLabel}</Caption>
         </GridLabel>
         <ContestChoiceButton
-          choice="yes"
+          choice={contest.eitherOption.id}
           isSelected={eitherSelected}
           onPress={handleUpdateEitherNeither}
           gridArea="either-option"
@@ -181,7 +183,7 @@ export function MsEitherNeitherContest({
           label={contest.eitherOption.label}
         />
         <ContestChoiceButton
-          choice="no"
+          choice={contest.neitherOption.id}
           isSelected={neitherSelected}
           onPress={handleUpdateEitherNeither}
           gridArea="neither-option"
@@ -202,7 +204,7 @@ export function MsEitherNeitherContest({
           <Caption weight="bold">{contest.pickOneLabel}</Caption>
         </GridLabel>
         <ContestChoiceButton
-          choice="yes"
+          choice={contest.firstOption.id}
           isSelected={firstSelected}
           onPress={handleUpdatePickOne}
           gridArea="first-option"
@@ -216,7 +218,7 @@ export function MsEitherNeitherContest({
           label={contest.firstOption.label}
         />
         <ContestChoiceButton
-          choice="no"
+          choice={contest.secondOption.id}
           isSelected={secondSelected}
           onPress={handleUpdatePickOne}
           gridArea="second-option"

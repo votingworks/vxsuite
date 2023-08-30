@@ -106,14 +106,11 @@ describe('Interpret - HMPB - All bubble ballot', () => {
       }
     }
 
-    expect(sortVotesDict(votes, election.contests)).toEqual(
-      sortVotesDict(
-        {
-          [frontContest.id]: frontContest.candidates,
-          [backContest.id]: backContest.candidates,
-        },
-        election.contests
-      )
+    expect(sortVotesDict(votes)).toEqual(
+      sortVotesDict({
+        [frontContest.id]: frontContest.candidates,
+        [backContest.id]: backContest.candidates,
+      })
     );
   }, 60_000);
 });

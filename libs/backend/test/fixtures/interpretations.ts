@@ -118,7 +118,7 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
         bounds: defaultShape.bounds,
         contestId: fishingContest.id,
         target: defaultShape,
-        optionId: 'no',
+        optionId: fishingContest.noOption.id,
         score: 0.17,
         scoredOffset: { x: 1, y: 1 },
       },
@@ -127,7 +127,7 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
         bounds: defaultShape.bounds,
         contestId: fishingContest.id,
         target: defaultShape,
-        optionId: 'yes',
+        optionId: fishingContest.yesOption.id,
         score: 0.03,
         scoredOffset: { x: 1, y: 1 },
       },
@@ -136,7 +136,7 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
   },
   adjudicationInfo,
   votes: {
-    [fishingContest.id]: ['no'],
+    [fishingContest.id]: [fishingContest.noOption.id],
   },
   layout: {
     pageSize: { width: 0, height: 0 },
@@ -160,7 +160,7 @@ export const interpretedHmpbPage2: InterpretedHmpbPage = {
             bounds: defaultShape.bounds,
             definition: {
               type: 'yesno',
-              id: 'yes',
+              id: fishingContest.yesOption.id,
               name: 'Yes',
               contestId: fishingContest.id,
               optionIndex: 0,
@@ -176,7 +176,7 @@ export const interpretedBmdPage: InterpretedBmdPage = {
   type: 'InterpretedBmdPage',
   metadata: mockBallotMetadata,
   votes: {
-    [fishingContest.id]: ['no'],
+    [fishingContest.id]: [fishingContest.noOption.id],
     [fishCouncilContest.id]: fishCouncilContest.candidates.slice(0, 1),
   },
 };

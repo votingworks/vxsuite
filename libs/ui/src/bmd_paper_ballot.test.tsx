@@ -93,8 +93,8 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
     votes: {
       president: 'barchi-hallaren',
       'lieutenant-governor': 'norberg',
-      'question-a': ['yes'],
-      'question-b': ['no'],
+      'question-a': ['question-a-option-yes'],
+      'question-b': ['question-b-option-no'],
     },
   });
 
@@ -117,8 +117,8 @@ test('BmdPaperBallot uses yes/no option labels if present', () => {
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
     votes: {
-      'new-zoo-either': ['yes'],
-      'new-zoo-pick': ['no'],
+      'new-zoo-either': ['new-zoo-either-approved'],
+      'new-zoo-pick': ['new-zoo-traditional'],
     },
   });
 
@@ -219,8 +219,8 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
     votes: {
       president: 'barchi-hallaren',
       'lieutenant-governor': 'norberg',
-      'question-a': ['yes'],
-      'question-b': ['no'],
+      'question-a': ['question-a-option-yes'],
+      'question-b': ['question-b-option-no'],
     },
   });
 
@@ -235,8 +235,8 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
       votes: {
         president: [expect.objectContaining({ id: 'barchi-hallaren' })],
         'lieutenant-governor': [expect.objectContaining({ id: 'norberg' })],
-        'question-a': ['yes'],
-        'question-b': ['no'],
+        'question-a': ['question-a-option-yes'],
+        'question-b': ['question-b-option-no'],
       },
     })
   );

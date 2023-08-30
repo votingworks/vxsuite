@@ -2,7 +2,7 @@ import {
   electionSampleDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { CandidateContest, YesOrNo } from '@votingworks/types';
+import { CandidateContest, YesNoContest } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { screen, within, render } from '../../test/react_testing_library';
@@ -85,87 +85,97 @@ test('candidate contest fully voted', () => {
   expect(screen.queryByText(/You may still vote/)).not.toBeInTheDocument();
 });
 
-test.each([['yes'], ['no'], [undefined]])(
-  'yesno contest with vote: %s',
-  (vote) => {
-    const electionDefinition = electionSampleDefinition;
-    const contest = find(
-      electionDefinition.election.contests,
-      (c) => c.type === 'yesno'
-    );
-    const contests = [contest];
-    const returnToContest = jest.fn();
+describe('yesno contest', () => {
+  const electionDefinition = electionSampleDefinition;
+  const contest = find(
+    electionDefinition.election.contests,
+    (c): c is YesNoContest => c.type === 'yesno'
+  );
+
+  test.each([[contest.yesOption.id], [contest.noOption.id], [undefined]])(
+    'with vote: %s',
+    (vote) => {
+      const contests = [contest];
+      const returnToContest = jest.fn();
+      render(
+        <Review
+          election={electionDefinition.election}
+          contests={contests}
+          precinctId={electionDefinition.election.precincts[0].id}
+          votes={{
+            [contest.id]: vote ? [vote] : [],
+          }}
+          returnToContest={returnToContest}
+        />
+      );
+      screen.getByText(contest.title);
+      screen.getByText(
+        !vote
+          ? 'You may still vote in this contest.'
+          : vote === contest.yesOption.id
+          ? 'Yes'
+          : 'No'
+      );
+
+      userEvent.click(screen.getByText('Change'));
+      expect(returnToContest).toHaveBeenCalledWith(contest.id);
+    }
+  );
+});
+
+describe('ms-either-neither contest', () => {
+  const electionDefinition = electionWithMsEitherNeitherDefinition;
+  const eitherNeitherContest = find(
+    electionDefinition.election.contests,
+    (c) => c.id === '750000015'
+  );
+  const pickOneContest = find(
+    electionDefinition.election.contests,
+    (c) => c.id === '750000016'
+  );
+  assert(eitherNeitherContest.type === 'yesno');
+  assert(pickOneContest.type === 'yesno');
+
+  const contests = mergeMsEitherNeitherContests(
+    electionDefinition.election.contests
+  );
+
+  test.each([
+    [eitherNeitherContest.yesOption.id, pickOneContest.yesOption.id],
+    [eitherNeitherContest.yesOption.id, pickOneContest.noOption.id],
+    [eitherNeitherContest.noOption.id, pickOneContest.yesOption.id],
+    [eitherNeitherContest.noOption.id, pickOneContest.noOption.id],
+    [eitherNeitherContest.yesOption.id, undefined],
+    [undefined, undefined],
+  ])('with votes: %s/%s', (eitherNeitherVote, pickOneVote) => {
     render(
       <Review
         election={electionDefinition.election}
         contests={contests}
         precinctId={electionDefinition.election.precincts[0].id}
         votes={{
-          [contest.id]: vote ? [vote as YesOrNo] : [],
-        }}
-        returnToContest={returnToContest}
-      />
-    );
-    screen.getByText(contest.title);
-    screen.getByText(
-      !vote
-        ? 'You may still vote in this contest.'
-        : vote === 'yes'
-        ? 'Yes'
-        : 'No'
-    );
-
-    userEvent.click(screen.getByText('Change'));
-    expect(returnToContest).toHaveBeenCalledWith(contest.id);
-  }
-);
-
-test.each([
-  ['yes', 'yes'],
-  ['yes', 'no'],
-  ['no', 'yes'],
-  ['no', 'no'],
-  ['yes', undefined],
-  [undefined, undefined],
-])(
-  'ms-either-neither contest with votes: %s/%s',
-  (eitherNeitherVote, pickOneVote) => {
-    const electionDefinition = electionWithMsEitherNeitherDefinition;
-    const contests = mergeMsEitherNeitherContests(
-      electionDefinition.election.contests
-    );
-
-    render(
-      <Review
-        election={electionDefinition.election}
-        contests={contests}
-        precinctId={electionDefinition.election.precincts[0].id}
-        votes={{
-          '750000015': eitherNeitherVote ? [eitherNeitherVote as YesOrNo] : [],
-          '750000016': pickOneVote ? [pickOneVote as YesOrNo] : [],
+          '750000015': eitherNeitherVote ? [eitherNeitherVote] : [],
+          '750000016': pickOneVote ? [pickOneVote] : [],
         }}
         returnToContest={jest.fn()}
       />
     );
 
-    const eitherNeitherContest = find(
-      contests,
-      (c) => c.type === 'ms-either-neither'
-    );
+    const mergedContest = find(contests, (c) => c.type === 'ms-either-neither');
     const contestVoteSummary = within(
-      screen.getByTestId(`contest-${eitherNeitherContest.id}`)
+      screen.getByTestId(`contest-${mergedContest.id}`)
     );
 
     if (eitherNeitherVote) {
       contestVoteSummary.getByText(
-        eitherNeitherVote === 'yes'
+        eitherNeitherVote === eitherNeitherContest.yesOption.id
           ? /for approval of either/i
           : /against both/i
       );
     }
     if (pickOneVote) {
       contestVoteSummary.getByText(
-        pickOneVote === 'yes'
+        pickOneVote === pickOneContest.yesOption.id
           ? /for initiative measure/i
           : /for alternative measure/i
       );
@@ -174,5 +184,5 @@ test.each([
     if (!eitherNeitherVote || !pickOneVote) {
       contestVoteSummary.getByText('You may still vote in this contest.');
     }
-  }
-);
+  });
+});

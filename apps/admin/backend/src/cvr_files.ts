@@ -22,6 +22,7 @@ import {
   AnyContest,
   BallotId,
   BallotPageLayoutSchema,
+  ContestOptionId,
   Contests,
   CVR,
   ElectionDefinition,
@@ -138,16 +139,21 @@ export async function listCastVoteRecordFilesOnUsb(
 
 // CVR Validation
 
-function getValidContestOptions(contest: AnyContest) {
-  if (contest.type === 'candidate') {
-    return [
-      ...contest.candidates.map((candidate) => candidate.id),
-      ...integers({ from: 0, through: contest.seats - 1 })
-        .map((num) => `write-in-${num}`)
-        .toArray(),
-    ];
+function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
+  switch (contest.type) {
+    case 'candidate':
+      return [
+        ...contest.candidates.map((candidate) => candidate.id),
+        ...integers({ from: 0, through: contest.seats - 1 })
+          .map((num) => `write-in-${num}`)
+          .toArray(),
+      ];
+    case 'yesno':
+      return [contest.yesOption.id, contest.noOption.id];
+    /* c8 ignore next 2 */
+    default:
+      return throwIllegalValue(contest);
   }
-  return ['yes', 'no'];
 }
 
 type ContestReferenceError = 'invalid-contest' | 'invalid-contest-option';

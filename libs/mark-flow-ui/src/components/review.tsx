@@ -100,7 +100,9 @@ function YesNoContestResult({
     ? [
         {
           label:
-            yesNo === 'yes' ? contest.yesOption.label : contest.noOption.label,
+            yesNo === contest.yesOption.id
+              ? contest.yesOption.label
+              : contest.noOption.label,
         },
       ]
     : [];
@@ -133,7 +135,7 @@ function MsEitherNeitherContestResult({
   if (eitherNeitherVote) {
     votes.push({
       label:
-        eitherNeitherVote === 'yes'
+        eitherNeitherVote === contest.eitherOption.id
           ? contest.eitherOption.label
           : contest.neitherOption.label,
     });
@@ -141,7 +143,7 @@ function MsEitherNeitherContestResult({
   if (pickOneVote) {
     votes.push({
       label:
-        pickOneVote === 'yes'
+        pickOneVote === contest.firstOption.id
           ? contest.firstOption.label
           : contest.secondOption.label,
     });

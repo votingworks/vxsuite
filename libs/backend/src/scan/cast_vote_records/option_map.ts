@@ -23,8 +23,8 @@ export function buildElectionOptionPositionMap(
   for (const contest of election.contests) {
     if (contest.type === 'yesno') {
       electionMap[contest.id] = {
-        yes: 0,
-        no: 1,
+        [contest.yesOption.id]: 0,
+        [contest.noOption.id]: 1,
       };
     } else {
       const contestMap: ContestOptionPositionMap = {};

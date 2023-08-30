@@ -73,11 +73,11 @@ function buildCVRBallotMeasureContest({
       : undervoted
       ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
       : undefined,
-    CVRContestSelection: vote.map((option) => ({
+    CVRContestSelection: vote.map((optionId) => ({
       '@type': 'CVR.CVRContestSelection',
-      ContestSelectionId: option,
+      ContestSelectionId: optionId,
       // include position on the ballot per VVSG 2.0 1.1.5-C.2
-      OptionPosition: option === 'yes' ? 0 : 1,
+      OptionPosition: optionId === contest.yesOption.id ? 0 : 1,
       Status: overvoted
         ? [CVR.ContestSelectionStatus.InvalidatedRules]
         : undefined,
@@ -112,9 +112,9 @@ export function getOptionPosition({
 }): number {
   if (contest.type === 'yesno') {
     switch (optionId) {
-      case 'yes':
+      case contest.yesOption.id:
         return 0;
-      case 'no':
+      case contest.noOption.id:
         return 1;
       default:
         throw new Error('unexpected option id for ballot measure contest');
@@ -415,11 +415,7 @@ export function getWriteInCount(votes: VotesDict): number {
   for (const vote of Object.values(votes)) {
     if (vote) {
       for (const voteOption of vote) {
-        if (
-          voteOption !== 'yes' &&
-          voteOption !== 'no' &&
-          voteOption.isWriteIn
-        ) {
+        if (typeof voteOption !== 'string' && voteOption.isWriteIn) {
           count += 1;
         }
       }
@@ -436,11 +432,7 @@ export function hasWriteIns(votes: VotesDict): boolean {
   for (const vote of Object.values(votes)) {
     if (vote) {
       for (const voteOption of vote) {
-        if (
-          voteOption !== 'yes' &&
-          voteOption !== 'no' &&
-          voteOption.isWriteIn
-        ) {
+        if (typeof voteOption !== 'string' && voteOption.isWriteIn) {
           return true;
         }
       }

@@ -21,14 +21,14 @@ import {
 } from './votes';
 
 test('getContestVoteOptionsForYesNoContest', () => {
-  expect(
-    getContestVoteOptionsForYesNoContest(
-      find(
-        electionWithMsEitherNeither.contests,
-        (c): c is YesNoContest => c.type === 'yesno'
-      )
-    )
-  ).toEqual(['yes', 'no']);
+  const contest = find(
+    electionWithMsEitherNeither.contests,
+    (c): c is YesNoContest => c.type === 'yesno'
+  );
+  expect(getContestVoteOptionsForYesNoContest(contest)).toEqual([
+    contest.yesOption.id,
+    contest.noOption.id,
+  ]);
 });
 
 test('getContestVoteOptionsForCandidateContest', () => {
@@ -51,9 +51,9 @@ test('getContestVoteOptionsForCandidateContest', () => {
 test('getSingleYesNoVote', () => {
   expect(getSingleYesNoVote()).toEqual(undefined);
   expect(getSingleYesNoVote([])).toEqual(undefined);
-  expect(getSingleYesNoVote(['yes'])).toEqual('yes');
-  expect(getSingleYesNoVote(['no'])).toEqual('no');
-  expect(getSingleYesNoVote(['yes', 'no'])).toEqual(undefined);
+  expect(getSingleYesNoVote(['yes-option'])).toEqual('yes-option');
+  expect(getSingleYesNoVote(['no-option'])).toEqual('no-option');
+  expect(getSingleYesNoVote(['yes-option', 'no-option'])).toEqual(undefined);
 });
 
 test('normalizeWriteInId', () => {
@@ -200,7 +200,7 @@ test('markInfoToVotesDict yesno', () => {
       { marginal: 0.04, definite: 0.1 },
       [yesMark]
     )
-  ).toEqual({ [yesnoContest.id]: ['yes'] });
+  ).toEqual({ [yesnoContest.id]: [yesnoContest.yesOption.id] });
   expect(
     convertMarksToVotesDict(
       election.contests,
@@ -215,6 +215,6 @@ test('markInfoToVotesDict yesno', () => {
       [yesMark, noMark]
     )
   ).toEqual({
-    [yesnoContest.id]: ['yes', 'no'],
+    [yesnoContest.id]: [yesnoContest.yesOption.id, yesnoContest.noOption.id],
   });
 });

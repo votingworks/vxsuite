@@ -30,10 +30,10 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         electionWithMsEitherNeither,
         {
-          '750000017': ['yes'],
+          '750000017': ['750000094'],
           '750000018': [],
-          '750000015': ['yes'],
-          '750000016': ['no'],
+          '750000015': ['750000088'],
+          '750000016': ['750000091'],
         },
         {
           precinctId: '6522',
@@ -45,10 +45,10 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         electionWithMsEitherNeither,
         {
-          '750000017': ['no'],
-          '750000018': ['yes'],
-          '750000015': ['yes'],
-          '750000016': ['yes'],
+          '750000017': ['750000095'],
+          '750000018': ['750000092'],
+          '750000015': ['750000088'],
+          '750000016': ['750000090'],
         },
         {
           precinctId: '6522',
@@ -61,10 +61,10 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         electionWithMsEitherNeither,
         {
-          '750000017': ['no'],
-          '750000018': ['yes', 'no'],
-          '750000015': ['no'],
-          '750000016': ['no'],
+          '750000017': ['750000095'],
+          '750000018': ['750000092', '750000093'],
+          '750000015': ['750000089'],
+          '750000016': ['750000091'],
         },
         {
           precinctId: '6522',
@@ -77,9 +77,9 @@ describe('Election Manager can create SEMS tallies', () => {
         electionWithMsEitherNeither,
         {
           '750000017': [],
-          '750000018': ['yes'],
-          '750000015': ['no'],
-          '750000016': ['yes'],
+          '750000018': ['750000092'],
+          '750000015': ['750000089'],
+          '750000016': ['750000090'],
         },
         {
           precinctId: '6522',
@@ -90,10 +90,10 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         electionWithMsEitherNeither,
         {
-          '750000017': ['no'],
-          '750000018': ['no'],
+          '750000017': ['750000095'],
+          '750000018': ['750000093'],
           '750000015': [],
-          '750000016': ['yes'],
+          '750000016': ['750000090'],
         },
         {
           precinctId: '6538',
@@ -106,10 +106,10 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         electionWithMsEitherNeither,
         {
-          '750000017': ['no'],
-          '750000018': ['no'],
-          '750000015': ['yes', 'no'],
-          '750000016': ['no'],
+          '750000017': ['750000095'],
+          '750000018': ['750000093'],
+          '750000015': ['750000088', '750000089'],
+          '750000016': ['750000091'],
         },
         {
           precinctId: '6538',
@@ -124,7 +124,7 @@ describe('Election Manager can create SEMS tallies', () => {
         {
           '750000017': [],
           '750000018': [],
-          '750000015': ['yes'],
+          '750000015': ['750000088'],
           '750000016': [],
         },
         {
@@ -136,10 +136,10 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         electionWithMsEitherNeither,
         {
-          '750000017': ['yes', 'no'],
-          '750000018': ['no', 'yes'],
-          '750000015': ['no'],
-          '750000016': ['yes', 'no'],
+          '750000017': ['750000094', '750000095'],
+          '750000018': ['750000093', '750000092'],
+          '750000015': ['750000089'],
+          '750000016': ['750000090', '750000091'],
         },
         {
           precinctId: '6538',
@@ -151,10 +151,10 @@ describe('Election Manager can create SEMS tallies', () => {
       generateCvr(
         electionWithMsEitherNeither,
         {
-          '750000017': ['yes', 'no'],
-          '750000018': ['no', 'yes'],
-          '750000015': ['no'],
-          '750000016': ['yes', 'no'],
+          '750000017': ['750000094', '750000095'],
+          '750000018': ['750000093', '750000092'],
+          '750000015': ['750000089'],
+          '750000016': ['750000090', '750000091'],
         },
         {
           precinctId: '6538',

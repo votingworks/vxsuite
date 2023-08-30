@@ -131,7 +131,7 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
         election,
       }),
       {
-        [eitherNeitherContestId]: ['yes'],
+        [eitherNeitherContestId]: [eitherNeitherContest.yesOption.id],
         [pickOneContestId]: [],
       }
     ),
@@ -159,8 +159,8 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
         election,
       }),
       {
-        [eitherNeitherContestId]: ['no'],
-        [pickOneContestId]: ['yes'],
+        [eitherNeitherContestId]: [eitherNeitherContest.noOption.id],
+        [pickOneContestId]: [pickOneContest.yesOption.id],
       }
     ),
   });
@@ -188,7 +188,7 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
       }),
       {
         [eitherNeitherContestId]: [],
-        [pickOneContestId]: ['no'],
+        [pickOneContestId]: [pickOneContest.noOption.id],
       }
     ),
   });

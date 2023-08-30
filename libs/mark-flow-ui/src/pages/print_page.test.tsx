@@ -39,8 +39,8 @@ test('with votes', async () => {
         }),
         {
           president: 'barchi-hallaren',
-          'question-a': ['no'],
-          'question-b': ['yes'],
+          'question-a': ['question-a-option-no'],
+          'question-b': ['question-b-option-yes'],
           'lieutenant-governor': 'norberg',
         }
       )}

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import {
   YesNoVote,
   YesNoContest as YesNoContestInterface,
-  YesOrNo,
   getContestDistrictName,
   Election,
+  YesNoContestOptionId,
 } from '@votingworks/types';
 import {
   Button,
@@ -43,7 +43,7 @@ export function YesNoContest({
   const districtName = getContestDistrictName(election, contest);
 
   const [overvoteSelection, setOvervoteSelection] =
-    useState<Optional<YesOrNo>>();
+    useState<Optional<YesNoContestOptionId>>();
   const [deselectedVote, setDeselectedVote] = useState('');
 
   useEffect(() => {
@@ -53,16 +53,16 @@ export function YesNoContest({
     }
   }, [deselectedVote]);
 
-  function handleUpdateSelection(newVote: YesOrNo) {
+  function handleUpdateSelection(newVote: YesNoContestOptionId) {
     if ((vote as string[] | undefined)?.includes(newVote)) {
       updateVote(contest.id, undefined);
       setDeselectedVote(newVote);
     } else {
-      updateVote(contest.id, [newVote] as YesNoVote);
+      updateVote(contest.id, [newVote]);
     }
   }
 
-  function handleChangeVoteAlert(newValue: YesOrNo) {
+  function handleChangeVoteAlert(newValue: YesNoContestOptionId) {
     setOvervoteSelection(newValue);
   }
 
@@ -94,31 +94,28 @@ export function YesNoContest({
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
-            {[
-              { label: contest.yesOption.label, vote: 'yes' } as const,
-              { label: contest.noOption.label, vote: 'no' } as const,
-            ].map((answer) => {
-              const isChecked = getSingleYesNoVote(vote) === answer.vote;
+            {[contest.yesOption, contest.noOption].map((option) => {
+              const isChecked = getSingleYesNoVote(vote) === option.id;
               const isDisabled = !isChecked && !!vote;
               function handleDisabledClick() {
-                handleChangeVoteAlert(answer.vote);
+                handleChangeVoteAlert(option.id);
               }
               let prefixAudioText = '';
               if (isChecked) {
                 prefixAudioText = 'Selected,';
-              } else if (deselectedVote === answer.vote) {
+              } else if (deselectedVote === option.id) {
                 prefixAudioText = 'Deselected,';
               }
               return (
                 <ContestChoiceButton
-                  key={answer.vote}
-                  choice={answer.vote}
+                  key={option.id}
+                  choice={option.id}
                   isSelected={isChecked}
                   onPress={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                  ariaLabel={`${prefixAudioText} ${answer.label} on ${contest.title}`}
-                  label={answer.label}
+                  ariaLabel={`${prefixAudioText} ${option.label} on ${contest.title}`}
+                  label={option.label}
                 />
               );
             })}
@@ -134,13 +131,13 @@ export function YesNoContest({
                 <P id="modalaudiofocus">
                   Do you want to change your vote to{' '}
                   <strong>
-                    {overvoteSelection === 'yes'
+                    {overvoteSelection === contest.yesOption.id
                       ? contest.yesOption.label
                       : contest.noOption.label}
                   </strong>
                   ? To change your vote, first unselect your vote for{' '}
                   <strong>
-                    {overvoteSelection === 'yes'
+                    {overvoteSelection === contest.yesOption.id
                       ? contest.noOption.label
                       : contest.yesOption.label}
                   </strong>

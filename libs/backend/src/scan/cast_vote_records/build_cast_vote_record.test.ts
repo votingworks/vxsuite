@@ -51,8 +51,12 @@ const mammalCouncilContest = find(
 describe('getOptionPosition', () => {
   test('handles option position for ballot measure contests', () => {
     const contest = fishingContest;
-    expect(getOptionPosition({ contest, optionId: 'yes' })).toEqual(0);
-    expect(getOptionPosition({ contest, optionId: 'no' })).toEqual(1);
+    expect(
+      getOptionPosition({ contest, optionId: contest.yesOption.id })
+    ).toEqual(0);
+    expect(
+      getOptionPosition({ contest, optionId: contest.noOption.id })
+    ).toEqual(1);
     expect(() =>
       getOptionPosition({ contest, optionId: 'other' })
     ).toThrowError();
@@ -89,7 +93,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('builds well-formed ballot measure contest (yes vote)', () => {
     const result = buildCVRContestsFromVotes({
       contests: [fishingContest],
-      votes: { [fishingContest.id]: ['yes'] },
+      votes: { [fishingContest.id]: [fishingContest.yesOption.id] },
       options: { ballotMarkingMode: 'machine' },
     });
 
@@ -101,7 +105,7 @@ describe('buildCVRContestsFromVotes', () => {
         "CVRContestSelection": [
           {
             "@type": "CVR.CVRContestSelection",
-            "ContestSelectionId": "yes",
+            "ContestSelectionId": "ban-fishing",
             "OptionPosition": 0,
             "SelectionPosition": [
               {
@@ -126,7 +130,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for no vote', () => {
     const result = buildCVRContestsFromVotes({
       contests: [fishingContest],
-      votes: { [fishingContest.id]: ['no'] },
+      votes: { [fishingContest.id]: [fishingContest.noOption.id] },
       options: { ballotMarkingMode: 'machine' },
     });
 
@@ -137,7 +141,7 @@ describe('buildCVRContestsFromVotes', () => {
       Undervotes: 0,
       CVRContestSelection: [
         expect.objectContaining({
-          ContestSelectionId: 'no',
+          ContestSelectionId: fishingContest.noOption.id,
           OptionPosition: 1,
           SelectionPosition: [expect.anything()],
         }),
@@ -148,7 +152,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for overvote', () => {
     const result = buildCVRContestsFromVotes({
       contests: [fishingContest],
-      votes: { [fishingContest.id]: ['yes', 'no'] },
+      votes: { [fishingContest.id]: ['ban-fishing', 'allow-fishing'] },
       options: { ballotMarkingMode: 'hand' },
     });
 
@@ -461,7 +465,7 @@ describe('buildCVRContestsFromVotes', () => {
 });
 
 test('getWriteInCount', () => {
-  expect(getWriteInCount({ fishing: ['yes'] })).toEqual(0);
+  expect(getWriteInCount({ fishing: ['ban-fishing'] })).toEqual(0);
   expect(
     getWriteInCount({
       council: [
@@ -504,7 +508,7 @@ test('getWriteInCount', () => {
 });
 
 test('hasWriteIns', () => {
-  expect(hasWriteIns({ fishing: ['yes'] })).toEqual(false);
+  expect(hasWriteIns({ fishing: ['ban-fishing'] })).toEqual(false);
   expect(
     hasWriteIns({
       council: [
@@ -660,7 +664,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     expect(fishingContestOriginalSnapshot.CVRContestSelection).toMatchObject(
       expect.arrayContaining([
         expect.objectContaining({
-          ContestSelectionId: 'no',
+          ContestSelectionId: 'allow-fishing',
           OptionPosition: 1,
           SelectionPosition: [
             expect.objectContaining({
@@ -670,7 +674,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
           ],
         }),
         expect.objectContaining({
-          ContestSelectionId: 'yes',
+          ContestSelectionId: 'ban-fishing',
           OptionPosition: 0,
           SelectionPosition: [
             expect.objectContaining({

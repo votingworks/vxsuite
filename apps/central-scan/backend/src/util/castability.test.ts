@@ -25,7 +25,10 @@ const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
   ballotId: unsafeParse(BallotIdSchema, 'abc'),
   metadata,
   votes: {
-    'flag-question': ['yes'],
+    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc':
+      [
+        'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+      ],
   },
 };
 

@@ -319,12 +319,12 @@ export function getContestDistrictName(
  * vote(contests, { president: 'boone-lian' })
  *
  * // Vote by yesno contest.
- * vote(contests, { 'question-a': 'yes' })
+ * vote(contests, { 'question-a': 'question-a-option-yes' })
  *
  * // Multiple votes.
  * vote(contests, {
  *   president: 'boone-lian',
- *   'question-a': 'yes'
+ *   'question-a': 'question-a-option-yes'
  * })
  *
  * // Multiple candidate selections.

@@ -9,6 +9,7 @@ import {
   Tabulation,
   safeParse,
   writeInCandidate,
+  YesNoContest,
 } from '@votingworks/types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -88,10 +89,15 @@ test('getEmptyElectionResult', () => {
   }
 
   // check an empty yes-no contest
-  const fishingContest = find(election.contests, (c) => c.id === 'fishing');
+  const fishingContest = find(
+    election.contests,
+    (c): c is YesNoContest => c.id === 'fishing'
+  );
   expect(emptyElectionResult.contestResults[fishingContest.id]).toEqual({
     contestId: fishingContest.id,
     contestType: 'yesno',
+    yesOptionId: fishingContest.yesOption.id,
+    noOptionId: fishingContest.noOption.id,
     overvotes: 0,
     undervotes: 0,
     ballots: 0,
@@ -343,6 +349,8 @@ test('buildElectionResultsFixture', () => {
         ballots: 10,
         contestId: 'fishing',
         contestType: 'yesno',
+        yesOptionId: 'ban-fishing',
+        noOptionId: 'allow-fishing',
         noTally: 6,
         overvotes: 0,
         undervotes: 0,
@@ -352,6 +360,8 @@ test('buildElectionResultsFixture', () => {
         ballots: 0,
         contestId: 'new-zoo-either',
         contestType: 'yesno',
+        yesOptionId: 'new-zoo-either-approved',
+        noOptionId: 'new-zoo-neither-approved',
         noTally: 0,
         overvotes: 0,
         undervotes: 0,
@@ -361,6 +371,8 @@ test('buildElectionResultsFixture', () => {
         ballots: 0,
         contestId: 'new-zoo-pick',
         contestType: 'yesno',
+        yesOptionId: 'new-zoo-safari',
+        noOptionId: 'new-zoo-traditional',
         noTally: 0,
         overvotes: 10,
         undervotes: 0,
@@ -601,9 +613,9 @@ describe('tabulateCastVoteRecords', () => {
             votes: {
               'best-animal-mammal': ['fox'],
               'zoo-council-mammal': ['elephant', 'lion', 'write-in-0'],
-              'new-zoo-either': ['yes'],
-              'new-zoo-pick': ['no'],
-              fishing: ['yes'],
+              'new-zoo-either': ['new-zoo-either-approved'],
+              'new-zoo-pick': ['new-zoo-traditional'],
+              fishing: ['ban-fishing'],
             },
             ...someMetadata,
           },
@@ -612,9 +624,12 @@ describe('tabulateCastVoteRecords', () => {
             votes: {
               'best-animal-mammal': ['fox', 'horse'],
               'zoo-council-mammal': ['elephant', 'lion', 'zebra', 'kangaroo'],
-              'new-zoo-either': ['yes', 'no'],
-              'new-zoo-pick': ['yes', 'no'],
-              fishing: ['yes', 'no'],
+              'new-zoo-either': [
+                'new-zoo-either-approved',
+                'new-zoo-neither-approved',
+              ],
+              'new-zoo-pick': ['new-zoo-safari', 'new-zoo-traditional'],
+              fishing: ['ban-fishing', 'allow-fishing'],
             },
             ...someMetadata,
           },
@@ -623,9 +638,9 @@ describe('tabulateCastVoteRecords', () => {
             votes: {
               'best-animal-fish': ['seahorse'],
               'aquarium-council-fish': ['manta-ray', 'pufferfish'],
-              'new-zoo-either': ['no'],
-              'new-zoo-pick': ['yes'],
-              fishing: ['yes'],
+              'new-zoo-either': ['new-zoo-neither-approved'],
+              'new-zoo-pick': ['new-zoo-safari'],
+              fishing: ['ban-fishing'],
             },
             ...someMetadata,
           },

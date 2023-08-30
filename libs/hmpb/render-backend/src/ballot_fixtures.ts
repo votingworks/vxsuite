@@ -1,10 +1,4 @@
-import {
-  assert,
-  assertDefined,
-  find,
-  range,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, assertDefined, find, range } from '@votingworks/basics';
 import {
   electionSample,
   electionFamousNames2021Fixtures,
@@ -21,9 +15,7 @@ import {
   DEFAULT_LAYOUT_OPTIONS,
 } from '@votingworks/hmpb-layout';
 import {
-  AnyContest,
   BallotPaperSize,
-  Contests,
   Election,
   getBallotStyle,
   getContests,
@@ -38,24 +30,14 @@ export const fixturesDir = join(__dirname, '../fixtures');
 export const famousNamesDir = join(fixturesDir, 'famous-names');
 export const sampleElectionDir = join(fixturesDir, 'sample-election');
 
-export function voteToOptionId(vote: Vote[number], contest: AnyContest): Id {
-  switch (contest.type) {
-    case 'candidate': {
-      assert(typeof vote === 'object');
-      return vote.id;
-    }
-    case 'yesno':
-      return vote === 'yes' ? contest.yesOption.id : contest.noOption.id;
-    default:
-      throwIllegalValue(contest);
-  }
+export function voteToOptionId(vote: Vote[number]): Id {
+  return typeof vote === 'string' ? vote : vote.id;
 }
 
 interface MarkBallotParams {
   ballot: Document;
   gridLayout: GridLayout;
   votes: VotesDict;
-  contests: Contests;
   paperSize: BallotPaperSize;
   layoutDensity: LayoutDensity;
 }
@@ -64,7 +46,6 @@ export function markBallot({
   ballot,
   gridLayout,
   votes,
-  contests,
   paperSize,
   layoutDensity,
 }: MarkBallotParams): Document {
@@ -87,11 +68,7 @@ export function markBallot({
           contestPositions,
           (position) =>
             position.type === 'option' &&
-            position.optionId ===
-              voteToOptionId(
-                vote,
-                find(contests, (c) => c.id === contestId)
-              )
+            position.optionId === voteToOptionId(vote)
         );
         // Add offset to get bubble center (since interpreter indexes from
         // timing marks, while layout indexes from ballot edge)
@@ -146,7 +123,6 @@ export const famousNamesFixtures = (() => {
     ballot,
     gridLayout,
     votes,
-    contests: electionDefinition.election.contests,
     paperSize: BallotPaperSize.Letter,
     layoutDensity: DEFAULT_LAYOUT_OPTIONS.layoutDensity,
   });
@@ -214,7 +190,10 @@ export const sampleElectionFixtures = (() => {
               );
               return [contest.id, candidates];
             }
-            return [contest.id, i % 2 === 0 ? ['yes'] : ['no']];
+            return [
+              contest.id,
+              i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
+            ];
           })
         );
 
@@ -222,7 +201,6 @@ export const sampleElectionFixtures = (() => {
           ballot,
           gridLayout,
           votes,
-          contests,
           paperSize,
           layoutDensity,
         });

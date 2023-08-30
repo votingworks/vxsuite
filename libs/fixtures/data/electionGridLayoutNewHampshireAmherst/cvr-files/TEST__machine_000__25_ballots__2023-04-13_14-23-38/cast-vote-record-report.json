@@ -567,12 +567,12 @@
           "ContestSelection": [
             {
               "@type": "CVR.BallotMeasureSelection",
-              "@id": "yes",
+              "@id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
               "Selection": "yes"
             },
             {
               "@type": "CVR.BallotMeasureSelection",
-              "@id": "no",
+              "@id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
               "Selection": "no"
             }
           ]
@@ -1656,7 +1656,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -1669,7 +1669,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -2731,7 +2731,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -2744,7 +2744,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -3814,7 +3814,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -3827,7 +3827,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -4897,7 +4897,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -4910,7 +4910,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -5980,7 +5980,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -5993,7 +5993,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -7063,7 +7063,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -7076,7 +7076,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -8138,7 +8138,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -8151,7 +8151,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -9213,7 +9213,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -9226,7 +9226,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -10288,7 +10288,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -10301,7 +10301,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -11363,7 +11363,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -11376,7 +11376,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -12438,7 +12438,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -12451,7 +12451,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -13513,7 +13513,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -13526,7 +13526,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -14596,7 +14596,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -14609,7 +14609,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -15671,7 +15671,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -15684,7 +15684,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -16746,7 +16746,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -16759,7 +16759,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -17821,7 +17821,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -17834,7 +17834,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -18896,7 +18896,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -18909,7 +18909,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -19979,7 +19979,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -19992,7 +19992,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -21054,7 +21054,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -21067,7 +21067,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -22137,7 +22137,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -22150,7 +22150,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -23212,7 +23212,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -23225,7 +23225,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -24287,7 +24287,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -24300,7 +24300,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -25370,7 +25370,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -25383,7 +25383,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -26445,7 +26445,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -26458,7 +26458,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -27520,7 +27520,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -27533,7 +27533,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {

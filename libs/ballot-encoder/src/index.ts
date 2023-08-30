@@ -18,6 +18,7 @@ import {
   unsafeParse,
   validateVotes,
   VotesDict,
+  YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
@@ -225,7 +226,11 @@ export function decodeBallotConfigFromReader(
   };
 }
 
-function writeYesNoVote(bits: BitWriter, ynVote: YesNoVote): void {
+function writeYesNoVote(
+  bits: BitWriter,
+  ynVote: YesNoVote,
+  contest: YesNoContest
+): void {
   if (!Array.isArray(ynVote)) {
     throw new Error(
       `cannot encode a non-array yes/no vote: ${JSON.stringify(ynVote)}`
@@ -239,7 +244,7 @@ function writeYesNoVote(bits: BitWriter, ynVote: YesNoVote): void {
   }
 
   // yesno votes get a single bit
-  bits.writeBoolean(ynVote[0] === 'yes');
+  bits.writeBoolean(ynVote[0] === contest.yesOption.id);
 }
 
 function encodeBallotVotesInto(
@@ -260,7 +265,7 @@ function encodeBallotVotesInto(
       if (contest.type === 'yesno') {
         const ynVote = contestVote as YesNoVote;
 
-        writeYesNoVote(bits, ynVote);
+        writeYesNoVote(bits, ynVote, contest);
       } else {
         const choices = contestVote as CandidateVote;
 
@@ -397,7 +402,9 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   for (const contest of contestsWithAnswers) {
     if (contest.type === 'yesno') {
       // yesno votes get a single bit
-      votes[contest.id] = bits.readBoolean() ? ['yes'] : ['no'];
+      votes[contest.id] = bits.readBoolean()
+        ? [contest.yesOption.id]
+        : [contest.noOption.id];
     } else {
       const contestVote: Candidate[] = [];
 

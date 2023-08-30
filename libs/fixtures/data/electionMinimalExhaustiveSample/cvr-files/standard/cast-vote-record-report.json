@@ -3,7 +3,7 @@
   "Version": "1.0.0",
   "ReportType": ["originating-device-export", "other"],
   "OtherReportType": "test",
-  "GeneratedDate": "2023-05-10T19:35:12.957Z",
+  "GeneratedDate": "2023-08-29T22:47:30.748Z",
   "ReportGeneratingDeviceIds": ["VX-00-000"],
   "ReportingDevice": [
     {
@@ -30,7 +30,7 @@
   "Election": [
     {
       "@type": "CVR.Election",
-      "@id": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "@id": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "Name": "Example Primary Election",
       "Candidate": [
         { "@type": "CVR.Candidate", "@id": "horse", "Name": "Horse" },
@@ -185,13 +185,13 @@
           "ContestSelection": [
             {
               "@type": "CVR.BallotMeasureSelection",
-              "@id": "yes",
-              "Selection": "yes"
+              "@id": "new-zoo-either-approved",
+              "Selection": "FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A"
             },
             {
               "@type": "CVR.BallotMeasureSelection",
-              "@id": "no",
-              "Selection": "no"
+              "@id": "new-zoo-neither-approved",
+              "Selection": "AGAINST BOTH Initiative No. 12 AND Alternative Measure 12 A"
             }
           ]
         },
@@ -202,13 +202,13 @@
           "ContestSelection": [
             {
               "@type": "CVR.BallotMeasureSelection",
-              "@id": "yes",
-              "Selection": "yes"
+              "@id": "new-zoo-safari",
+              "Selection": "FOR Initiative No. 12"
             },
             {
               "@type": "CVR.BallotMeasureSelection",
-              "@id": "no",
-              "Selection": "no"
+              "@id": "new-zoo-traditional",
+              "Selection": "FOR Alternative Measure No. 12 A"
             }
           ]
         },
@@ -219,13 +219,13 @@
           "ContestSelection": [
             {
               "@type": "CVR.BallotMeasureSelection",
-              "@id": "yes",
-              "Selection": "yes"
+              "@id": "ban-fishing",
+              "Selection": "YES"
             },
             {
               "@type": "CVR.BallotMeasureSelection",
-              "@id": "no",
-              "Selection": "no"
+              "@id": "allow-fishing",
+              "Selection": "NO"
             }
           ]
         }
@@ -265,7 +265,7 @@
       "@id": "9822c71014",
       "BatchLabel": "9822c71014",
       "SequenceId": 1,
-      "StartTime": "2023-05-10T19:35:12.957Z",
+      "StartTime": "2023-08-29T22:47:30.748Z",
       "NumberSheets": 112,
       "CreatingDeviceId": "VX-00-000"
     }
@@ -277,7 +277,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "0-modified",
@@ -314,7 +314,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -335,7 +335,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -356,7 +356,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -379,7 +379,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "1-modified",
@@ -461,7 +461,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -482,7 +482,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -503,7 +503,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -526,7 +526,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "2-modified",
@@ -637,7 +637,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -652,7 +652,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -676,7 +676,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -691,7 +691,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -715,7 +715,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -730,7 +730,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -755,7 +755,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "3-modified",
@@ -892,7 +892,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "4-modified",
@@ -1012,7 +1012,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "5-modified",
@@ -1132,7 +1132,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "6-modified",
@@ -1252,7 +1252,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "7-modified",
@@ -1372,7 +1372,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "8-modified",
@@ -1492,7 +1492,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "9-modified",
@@ -1612,7 +1612,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "10-modified",
@@ -1727,7 +1727,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "11-modified",
@@ -1842,7 +1842,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "12-modified",
@@ -1957,7 +1957,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "13-modified",
@@ -2072,7 +2072,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "14-modified",
@@ -2109,7 +2109,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -2130,7 +2130,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -2151,7 +2151,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -2174,7 +2174,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "15-modified",
@@ -2256,7 +2256,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -2277,7 +2277,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -2298,7 +2298,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -2321,7 +2321,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "16-modified",
@@ -2432,7 +2432,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -2447,7 +2447,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -2471,7 +2471,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -2486,7 +2486,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -2510,7 +2510,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -2525,7 +2525,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -2550,7 +2550,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "17-modified",
@@ -2687,7 +2687,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "18-modified",
@@ -2807,7 +2807,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "19-modified",
@@ -2927,7 +2927,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "20-modified",
@@ -3047,7 +3047,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "21-modified",
@@ -3167,7 +3167,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "22-modified",
@@ -3287,7 +3287,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "23-modified",
@@ -3407,7 +3407,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "24-modified",
@@ -3522,7 +3522,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "25-modified",
@@ -3637,7 +3637,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "26-modified",
@@ -3752,7 +3752,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "27-modified",
@@ -3867,7 +3867,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "28-modified",
@@ -3904,7 +3904,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -3925,7 +3925,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -3946,7 +3946,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -3969,7 +3969,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "29-modified",
@@ -4051,7 +4051,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -4072,7 +4072,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -4093,7 +4093,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -4116,7 +4116,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "30-modified",
@@ -4227,7 +4227,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -4242,7 +4242,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -4266,7 +4266,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -4281,7 +4281,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -4305,7 +4305,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -4320,7 +4320,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -4345,7 +4345,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "31-modified",
@@ -4482,7 +4482,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "32-modified",
@@ -4602,7 +4602,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "33-modified",
@@ -4722,7 +4722,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "34-modified",
@@ -4842,7 +4842,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "35-modified",
@@ -4962,7 +4962,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "36-modified",
@@ -5082,7 +5082,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "37-modified",
@@ -5202,7 +5202,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "38-modified",
@@ -5317,7 +5317,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "39-modified",
@@ -5432,7 +5432,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "40-modified",
@@ -5547,7 +5547,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "41-modified",
@@ -5662,7 +5662,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "42-modified",
@@ -5699,7 +5699,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -5720,7 +5720,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -5741,7 +5741,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -5764,7 +5764,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "43-modified",
@@ -5846,7 +5846,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -5867,7 +5867,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -5888,7 +5888,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -5911,7 +5911,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "44-modified",
@@ -6022,7 +6022,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -6037,7 +6037,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -6061,7 +6061,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -6076,7 +6076,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -6100,7 +6100,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -6115,7 +6115,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -6140,7 +6140,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "45-modified",
@@ -6277,7 +6277,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "46-modified",
@@ -6397,7 +6397,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "47-modified",
@@ -6517,7 +6517,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "48-modified",
@@ -6637,7 +6637,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "49-modified",
@@ -6757,7 +6757,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "50-modified",
@@ -6877,7 +6877,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "51-modified",
@@ -6997,7 +6997,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "52-modified",
@@ -7112,7 +7112,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "53-modified",
@@ -7227,7 +7227,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "54-modified",
@@ -7342,7 +7342,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["0"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "55-modified",
@@ -7457,7 +7457,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "56-modified",
@@ -7494,7 +7494,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -7515,7 +7515,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -7536,7 +7536,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -7559,7 +7559,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "57-modified",
@@ -7641,7 +7641,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -7662,7 +7662,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -7683,7 +7683,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -7706,7 +7706,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "58-modified",
@@ -7803,7 +7803,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -7818,7 +7818,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -7842,7 +7842,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -7857,7 +7857,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -7881,7 +7881,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -7896,7 +7896,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -7921,7 +7921,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "59-modified",
@@ -8058,7 +8058,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "60-modified",
@@ -8165,7 +8165,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "61-modified",
@@ -8272,7 +8272,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "62-modified",
@@ -8379,7 +8379,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "63-modified",
@@ -8486,7 +8486,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "64-modified",
@@ -8588,7 +8588,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "65-modified",
@@ -8690,7 +8690,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "66-modified",
@@ -8792,7 +8792,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "67-modified",
@@ -8894,7 +8894,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "68-modified",
@@ -8996,7 +8996,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "69-modified",
@@ -9098,7 +9098,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "70-modified",
@@ -9135,7 +9135,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -9156,7 +9156,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -9177,7 +9177,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -9200,7 +9200,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "71-modified",
@@ -9282,7 +9282,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -9303,7 +9303,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -9324,7 +9324,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -9347,7 +9347,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "72-modified",
@@ -9444,7 +9444,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -9459,7 +9459,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -9483,7 +9483,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -9498,7 +9498,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -9522,7 +9522,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -9537,7 +9537,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -9562,7 +9562,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "73-modified",
@@ -9699,7 +9699,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "74-modified",
@@ -9806,7 +9806,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "75-modified",
@@ -9913,7 +9913,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "76-modified",
@@ -10020,7 +10020,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "77-modified",
@@ -10127,7 +10127,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "78-modified",
@@ -10229,7 +10229,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "79-modified",
@@ -10331,7 +10331,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "80-modified",
@@ -10433,7 +10433,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "81-modified",
@@ -10535,7 +10535,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "82-modified",
@@ -10637,7 +10637,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "absentee",
       "CurrentSnapshotId": "83-modified",
@@ -10739,7 +10739,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "84-modified",
@@ -10776,7 +10776,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -10797,7 +10797,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -10818,7 +10818,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -10841,7 +10841,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "85-modified",
@@ -10923,7 +10923,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -10944,7 +10944,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -10965,7 +10965,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -10988,7 +10988,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "86-modified",
@@ -11085,7 +11085,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -11100,7 +11100,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -11124,7 +11124,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -11139,7 +11139,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -11163,7 +11163,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -11178,7 +11178,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -11203,7 +11203,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "87-modified",
@@ -11340,7 +11340,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "88-modified",
@@ -11447,7 +11447,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "89-modified",
@@ -11554,7 +11554,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "90-modified",
@@ -11661,7 +11661,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "91-modified",
@@ -11768,7 +11768,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "92-modified",
@@ -11870,7 +11870,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "93-modified",
@@ -11972,7 +11972,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "94-modified",
@@ -12074,7 +12074,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "95-modified",
@@ -12176,7 +12176,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "96-modified",
@@ -12278,7 +12278,7 @@
       "BallotStyleUnitId": "precinct-1",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "97-modified",
@@ -12380,7 +12380,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "98-modified",
@@ -12417,7 +12417,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -12438,7 +12438,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -12459,7 +12459,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -12482,7 +12482,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "99-modified",
@@ -12564,7 +12564,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -12585,7 +12585,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -12606,7 +12606,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -12629,7 +12629,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "100-modified",
@@ -12726,7 +12726,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-either-approved",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -12741,7 +12741,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-neither-approved",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -12765,7 +12765,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "new-zoo-safari",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -12780,7 +12780,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "new-zoo-traditional",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -12804,7 +12804,7 @@
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -12819,7 +12819,7 @@
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "Status": ["invalidated-rules"],
                   "SelectionPosition": [
@@ -12844,7 +12844,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "101-modified",
@@ -12981,7 +12981,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "102-modified",
@@ -13088,7 +13088,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "103-modified",
@@ -13195,7 +13195,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "104-modified",
@@ -13302,7 +13302,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "105-modified",
@@ -13409,7 +13409,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "106-modified",
@@ -13511,7 +13511,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "107-modified",
@@ -13613,7 +13613,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "108-modified",
@@ -13715,7 +13715,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "109-modified",
@@ -13817,7 +13817,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "110-modified",
@@ -13919,7 +13919,7 @@
       "BallotStyleUnitId": "precinct-2",
       "PartyIds": ["1"],
       "CreatingDeviceId": "VX-00-000",
-      "ElectionId": "e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08",
+      "ElectionId": "265481d640a05f93542bb4b777d0bae7a194a7233edb437b41f71fd1d35a0905",
       "BatchId": "9822c71014",
       "vxBallotType": "precinct",
       "CurrentSnapshotId": "111-modified",

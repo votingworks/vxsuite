@@ -21,6 +21,8 @@ export function getEmptyYesNoContestResults(
   return {
     contestId: contest.id,
     contestType: 'yesno',
+    yesOptionId: contest.yesOption.id,
+    noOptionId: contest.noOption.id,
     overvotes: 0,
     undervotes: 0,
     ballots: 0,
@@ -149,9 +151,13 @@ function addCastVoteRecordToElectionResult(
         contestResult.overvotes += 1;
       } else if (optionIds.length === 0) {
         contestResult.undervotes += 1;
-      } else if (optionIds[0] === 'yes') {
+      } else if (optionIds[0] === contestResult.yesOptionId) {
         contestResult.yesTally += 1;
       } else {
+        assert(
+          optionIds[0] === contestResult.noOptionId,
+          `Invalid option id: ${optionIds[0]}`
+        );
         contestResult.noTally += 1;
       }
     } else if (optionIds.length > contestResult.votesAllowed) {

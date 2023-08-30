@@ -58,7 +58,7 @@ exports[`getCastVoteRecordReportStream 1`] = `
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -108,7 +108,7 @@ exports[`getCastVoteRecordReportStream 1`] = `
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
@@ -123,7 +123,7 @@ exports[`getCastVoteRecordReportStream 1`] = `
                 },
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "yes",
+                  "ContestSelectionId": "ban-fishing",
                   "OptionPosition": 0,
                   "SelectionPosition": [
                     {
@@ -227,7 +227,7 @@ exports[`getCastVoteRecordReportStream 1`] = `
               "CVRContestSelection": [
                 {
                   "@type": "CVR.CVRContestSelection",
-                  "ContestSelectionId": "no",
+                  "ContestSelectionId": "allow-fishing",
                   "OptionPosition": 1,
                   "SelectionPosition": [
                     {
