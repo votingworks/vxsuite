@@ -316,14 +316,14 @@ test('encodes & decodes yesno votes correctly', () => {
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {
-    'judicial-robert-demergue': ['yes'],
-    'judicial-elmer-hull': ['yes'],
-    'question-a': ['yes'],
-    'question-b': ['no'],
-    'question-c': ['yes'],
+    'judicial-robert-demergue': ['judicial-robert-demergue-option-yes'],
+    'judicial-elmer-hull': ['judicial-elmer-hull-option-yes'],
+    'question-a': ['question-a-option-yes'],
+    'question-b': ['question-b-option-no'],
+    'question-c': ['question-c-option-yes'],
     'proposition-1': [],
-    'measure-101': ['no'],
-    '102': ['yes'],
+    'measure-101': ['measure-101-option-no'],
+    '102': ['102-option-yes'],
   });
   const ballot: CompletedBallot = {
     electionHash,
