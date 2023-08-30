@@ -275,7 +275,7 @@ test('going through the whole process works', async () => {
           "Richard-Coote-b9095636",
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           "Edward-Randolph-bf4c848a",
