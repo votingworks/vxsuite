@@ -4,6 +4,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import {
   BallotPaperSize,
   BallotStyle,
+  BallotType,
   Election,
   Precinct,
 } from '@votingworks/types';
@@ -21,12 +22,14 @@ import {
   layOutBallot,
   gridForPaper,
   LayoutOptions,
+  BallotMode,
 } from '@votingworks/hmpb-layout';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { exportBallot } from './api';
 import { ElectionIdParams, routes } from './routes';
-import { Breadcrumbs } from './layout';
+import { Breadcrumbs, Column, FormField } from './layout';
+import { RadioGroup } from './radio';
 
 function SvgAnyElement({ element }: { element: AnyElement }) {
   switch (element.type) {
@@ -244,6 +247,8 @@ export function BallotViewer({
   const ballotRoutes = routes.election(electionId).ballots;
   const exportBallotMutation = exportBallot.useMutation();
   const [showGridLines, setShowGridLines] = useState(false);
+  const [ballotType, setBallotType] = useState<BallotType>(BallotType.Standard);
+  const [ballotMode, setBallotMode] = useState<BallotMode>('official');
 
   const { paperSize } = election.ballotLayout;
   const grid = gridForPaper(paperSize);
@@ -262,7 +267,8 @@ export function BallotViewer({
     election,
     precinct,
     ballotStyle,
-    isTestMode: true,
+    ballotType,
+    ballotMode,
     layoutOptions,
   });
 
@@ -305,21 +311,51 @@ export function BallotViewer({
             ]}
           />
           <H1>View Ballot</H1>
-          <H3>Ballot Style</H3>
-          <P>{ballotStyle.id}</P>
-          <H3>Precinct</H3>
-          <P>{precinct.name}</P>
-          <H3>Page Size</H3>
-          <P>{paperSizeLabels[paperSize]}</P>
-          <H3>Timing Marks</H3>
-          <P>
-            {grid.columns} columns x {grid.rows} rows
-          </P>
-          <P>
-            <Button onPress={() => setShowGridLines(!showGridLines)} fullWidth>
-              {showGridLines ? 'Hide Grid' : 'Show Grid'}
-            </Button>
-          </P>
+          <Column style={{ gap: '1rem' }}>
+            <FormField label="Ballot Style">{ballotStyle.id}</FormField>
+            <FormField label="Precinct">{precinct.name}</FormField>
+            <FormField label="Page Size">
+              {paperSizeLabels[paperSize]}{' '}
+            </FormField>
+
+            <FormField label="Ballot Type">
+              <RadioGroup
+                options={[
+                  { value: BallotType.Standard, label: 'Precinct' },
+                  { value: BallotType.Absentee, label: 'Absentee' },
+                ]}
+                value={ballotType}
+                onChange={setBallotType}
+              />
+            </FormField>
+
+            <FormField label="Tabulation Mode">
+              <RadioGroup
+                options={[
+                  { value: 'official', label: 'Official Ballot' },
+                  { value: 'test', label: 'L&A Test Ballot' },
+                  { value: 'sample', label: 'Sample Ballot' },
+                ]}
+                value={ballotMode}
+                onChange={setBallotMode}
+              />
+            </FormField>
+
+            <FormField label="Timing Mark Grid">
+              {grid.columns} columns x {grid.rows} rows
+              <div style={{ marginTop: '0.25rem' }}>
+                <label style={{ cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={showGridLines}
+                    onChange={() => setShowGridLines(!showGridLines)}
+                  />{' '}
+                  Show grid lines
+                </label>
+              </div>
+            </FormField>
+          </Column>
+          <P />
         </section>
         <div style={{ flexGrow: 1 }} />
         <section>
