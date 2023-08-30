@@ -51,9 +51,9 @@ test('getContestVoteOptionsForCandidateContest', () => {
 test('getSingleYesNoVote', () => {
   expect(getSingleYesNoVote()).toEqual(undefined);
   expect(getSingleYesNoVote([])).toEqual(undefined);
-  expect(getSingleYesNoVote(['yes'])).toEqual('yes');
-  expect(getSingleYesNoVote(['no'])).toEqual('no');
-  expect(getSingleYesNoVote(['yes', 'no'])).toEqual(undefined);
+  expect(getSingleYesNoVote(['yes-option'])).toEqual('yes-option');
+  expect(getSingleYesNoVote(['no-option'])).toEqual('no-option');
+  expect(getSingleYesNoVote(['yes-option', 'no-option'])).toEqual(undefined);
 });
 
 test('normalizeWriteInId', () => {

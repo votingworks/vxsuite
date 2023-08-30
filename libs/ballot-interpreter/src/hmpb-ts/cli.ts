@@ -128,7 +128,8 @@ function prettyPrintInterpretation({
             ? candidate?.name ?? gridPosition.optionId
             : `Write-In #${gridPosition.writeInIndex + 1}`
           : contest.type === 'yesno'
-          ? gridPosition.type === 'option' && gridPosition.optionId === 'yes'
+          ? gridPosition.type === 'option' &&
+            gridPosition.optionId === contest.yesOption.id
             ? contest.yesOption.label
             : contest.noOption.label
           : 'Unknown';

@@ -518,7 +518,6 @@ test('adjudication', () => {
     electionGridLayoutNewHampshireAmherstFixtures.election.contests.filter(
       (contest): contest is YesNoContest => contest.type === 'yesno'
     );
-  const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
@@ -562,7 +561,7 @@ test('adjudication', () => {
                   {
                     type: 'yesno',
                     contestId: yesnoContests[i].id,
-                    optionId: yesnoOption,
+                    optionId: yesnoContests[i].yesOption.id,
                     score: 1, // definite
                     scoredOffset: { x: 0, y: 0 },
                     bounds: zeroRect,

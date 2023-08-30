@@ -252,7 +252,10 @@ test('has cast vote record report', async () => {
           isTestMode: false,
         },
         votes: {
-          'flag-question': ['yes'],
+          'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc':
+            [
+              'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+            ],
         },
       },
       imagePath: imageFile.name,

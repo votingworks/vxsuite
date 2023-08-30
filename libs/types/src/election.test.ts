@@ -70,11 +70,11 @@ test('can build votes from an array of candidate IDs', () => {
 });
 
 test('can build votes from yesno values', () => {
-  expect(vote(election.contests, { YNC: 'yes' })).toEqual({
-    YNC: 'yes',
+  expect(vote(election.contests, { YNC: 'option-yes' })).toEqual({
+    YNC: 'option-yes',
   });
-  expect(vote(election.contests, { YNC: 'no' })).toEqual({
-    YNC: 'no',
+  expect(vote(election.contests, { YNC: 'option-no' })).toEqual({
+    YNC: 'option-no',
   });
 });
 
@@ -99,7 +99,9 @@ test('can build votes from a candidates array', () => {
 });
 
 test('vote throws when given a contest id that does not match a contest', () => {
-  expect(() => vote([], { nope: 'yes' })).toThrowError('unknown contest nope');
+  expect(() => vote([], { nope: 'yes-option' })).toThrowError(
+    'unknown contest nope'
+  );
 });
 
 test('can get a party primary adjective from ballot style', () => {
@@ -306,7 +308,7 @@ test('getContestDistrictName', () => {
 test('isVotePresent', () => {
   expect(isVotePresent()).toEqual(false);
   expect(isVotePresent([])).toEqual(false);
-  expect(isVotePresent(['yes'])).toEqual(true);
+  expect(isVotePresent(['option-yes'])).toEqual(true);
   expect(
     isVotePresent([
       election.contests.find(
@@ -325,14 +327,14 @@ test('validates votes by checking that contests are present in a given ballot st
   expect(() =>
     validateVotes({
       votes: {
-        [yesno.id]: ['yes'],
+        [yesno.id]: [yesno.yesOption.id],
       },
       ballotStyle,
       election,
     })
   ).not.toThrowError();
   expect(() =>
-    validateVotes({ votes: { nope: ['yes'] }, ballotStyle, election })
+    validateVotes({ votes: { nope: ['yes-option'] }, ballotStyle, election })
   ).toThrowError(
     'found a vote with contest id "nope", but no such contest exists in ballot style 1'
   );
