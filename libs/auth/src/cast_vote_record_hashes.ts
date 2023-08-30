@@ -84,9 +84,9 @@ create unique index idx_cvr_hashes ON cvr_hashes (
 
 /**
  * Using true SQLite NULL values interferes with uniqueness constraints since SQLite treats all
- * NULL values as different, so we use a special value instead.
+ * NULL values as different, so we use an empty string instead.
  */
-const NULL_VALUE = '-';
+const NULL_VALUE = '';
 
 interface Constraint {
   type: '=' | '!=';
