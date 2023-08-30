@@ -19303,37 +19303,6 @@
                   ]
                 },
                 {
-                  "type": "Rectangle",
-                  "x": 61.199999999999996,
-                  "y": 4.714285714285714,
-                  "width": 209.82857142857142,
-                  "height": 31.25,
-                  "children": [
-                    {
-                      "type": "TextBox",
-                      "x": 0,
-                      "y": 0,
-                      "width": 209.82857142857142,
-                      "height": 11.25,
-                      "textLines": ["Precinct"],
-                      "fontSize": 9,
-                      "fontWeight": 400,
-                      "lineHeight": 9
-                    },
-                    {
-                      "type": "TextBox",
-                      "x": 0,
-                      "y": 11.25,
-                      "width": 209.82857142857142,
-                      "height": 20,
-                      "textLines": ["Test Precinct"],
-                      "fontSize": 16,
-                      "fontWeight": 700,
-                      "lineHeight": 16
-                    }
-                  ]
-                },
-                {
                   "type": "TextBox",
                   "x": 211.57714285714283,
                   "y": 11.314285714285715,
@@ -38653,37 +38622,6 @@
                       "width": 87.42857142857142,
                       "height": 20,
                       "textLines": ["2/2"],
-                      "fontSize": 16,
-                      "fontWeight": 700,
-                      "lineHeight": 16
-                    }
-                  ]
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 61.199999999999996,
-                  "y": 4.714285714285714,
-                  "width": 209.82857142857142,
-                  "height": 31.25,
-                  "children": [
-                    {
-                      "type": "TextBox",
-                      "x": 0,
-                      "y": 0,
-                      "width": 209.82857142857142,
-                      "height": 11.25,
-                      "textLines": ["Precinct"],
-                      "fontSize": 9,
-                      "fontWeight": 400,
-                      "lineHeight": 9
-                    },
-                    {
-                      "type": "TextBox",
-                      "x": 0,
-                      "y": 11.25,
-                      "width": 209.82857142857142,
-                      "height": 20,
-                      "textLines": ["Test Precinct"],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
