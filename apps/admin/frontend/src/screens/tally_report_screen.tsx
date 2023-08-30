@@ -1,25 +1,16 @@
-import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import { getPrecinctById, isElectionManagerAuth } from '@votingworks/utils';
-import { assert, assertDefined, find } from '@votingworks/basics';
-import { LogEventId } from '@votingworks/logging';
+import React, { useContext, useState } from 'react';
+import { isElectionManagerAuth } from '@votingworks/utils';
+import { assert } from '@votingworks/basics';
 import {
   Button,
-  Caption,
-  Font,
-  H2,
+  H4,
   Icons,
   LinkButton,
   Modal,
   P,
-  printElement,
-  printElementToPdf,
-  ReportPreviewLoading,
-  TallyReportMetadata,
-  TallyReportPreview,
+  SearchSelect,
 } from '@votingworks/ui';
-import { Tabulation } from '@votingworks/types';
-import { generateDefaultReportFilename } from '../utils/save_as_pdf';
+import styled from 'styled-components';
 
 import { AppContext } from '../contexts/app_context';
 
@@ -27,82 +18,26 @@ import { NavigationScreen } from '../components/navigation_screen';
 
 import { routerPaths } from '../router_paths';
 
-import {
-  SaveFrontendFileModal,
-  FileType,
-} from '../components/save_frontend_file_modal';
-import { PrintButton } from '../components/print_button';
-import {
-  getCastVoteRecordFileMode,
-  getResultsForTallyReports,
-  getScannerBatches,
-  markResultsOfficial,
-} from '../api';
+import { getCastVoteRecordFileMode, markResultsOfficial } from '../api';
 import { Loading } from '../components/loading';
-import { AdminTallyReportByParty } from '../components/admin_tally_report_by_party';
-import {
-  BatchReportScreenProps,
-  PartyReportScreenProps,
-  PrecinctReportScreenProps,
-  ScannerReportScreenProps,
-  VotingMethodReportScreenProps,
-} from '../config/types';
+import { TallyReportViewer } from '../components/tally_report_preview';
 
-interface BaseTallyReportScreenProps {
-  report?: JSX.Element;
-  generatedAtTime?: Date;
-  title: string;
-  fileSuffix: string;
-}
+const MarkOfficialButtonRow = styled.div`
+  display: flex;
+  justify-content: start;
+  gap: 1rem;
+`;
 
-function BaseTallyReportScreen({
-  report,
-  title,
-  fileSuffix,
-  generatedAtTime,
-}: BaseTallyReportScreenProps): JSX.Element {
-  const { electionDefinition, isOfficialResults, auth, logger } =
+export function FullElectionTallyReportScreen(): JSX.Element {
+  const { electionDefinition, isOfficialResults, auth } =
     useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
-  const userRole = auth.user.role;
-  const { election } = electionDefinition;
 
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isMarkOfficialModalOpen, setIsMarkOfficialModalOpen] = useState(false);
 
   const markResultsOfficialMutation = markResultsOfficial.useMutation();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-
-  const location = useLocation();
-
-  useEffect(() => {
-    void logger.log(LogEventId.TallyReportPreviewed, userRole, {
-      message: `User previewed the ${title}.`,
-      disposition: 'success',
-      tallyReportTitle: title,
-    });
-  }, [logger, title, userRole]);
-
-  async function printTallyReport() {
-    assert(report); // printing should only be available if the report loaded
-    try {
-      await printElement(report, { sides: 'one-sided' });
-      await logger.log(LogEventId.TallyReportPrinted, userRole, {
-        message: `User printed ${title}`,
-        disposition: 'success',
-        tallyReportTitle: title,
-      });
-    } catch (error) {
-      assert(error instanceof Error);
-      await logger.log(LogEventId.TallyReportPrinted, userRole, {
-        message: `Error in attempting to print ${title}: ${error.message}`,
-        disposition: 'failure',
-        tallyReportTitle: title,
-        result: 'User shown error.',
-      });
-    }
-  }
 
   function closeMarkOfficialModal() {
     setIsMarkOfficialModalOpen(false);
@@ -115,6 +50,9 @@ function BaseTallyReportScreen({
     markResultsOfficialMutation.mutate();
   }
 
+  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
+  const title = `${statusPrefix} Full Election Tally Report`;
+
   if (!castVoteRecordFileModeQuery.isSuccess) {
     return (
       <NavigationScreen title={title}>
@@ -123,73 +61,26 @@ function BaseTallyReportScreen({
     );
   }
 
-  const defaultReportFilename = generateDefaultReportFilename(
-    'tabulation-report',
-    election,
-    fileSuffix
-  );
   const canMarkResultsOfficial =
-    castVoteRecordFileModeQuery.data !== 'unlocked' &&
-    !isOfficialResults &&
-    report;
+    castVoteRecordFileModeQuery.data !== 'unlocked' && !isOfficialResults;
 
   return (
     <React.Fragment>
       <NavigationScreen title={title}>
-        <TallyReportMetadata
-          generatedAtTime={generatedAtTime}
-          election={election}
-        />
-        <P>
-          <PrintButton
-            variant="primary"
-            print={printTallyReport}
-            disabled={!report}
-          >
-            Print Report
-          </PrintButton>{' '}
-          {window.kiosk && (
-            <Button onPress={() => setIsSaveModalOpen(true)} disabled={!report}>
-              Save Report as PDF
-            </Button>
-          )}
-        </P>
-        {location.pathname === routerPaths.tallyFullReport && (
-          <P>
-            <Button
-              disabled={!canMarkResultsOfficial}
-              onPress={openMarkOfficialModal}
-            >
-              Mark Tally Results as Official
-            </Button>
-          </P>
-        )}
-        <P>
+        <MarkOfficialButtonRow>
           <LinkButton small to={routerPaths.reports}>
-            Back to Reports
-          </LinkButton>
-        </P>
-        <H2>Report Preview</H2>
-        <Caption>
-          <Icons.Info /> <Font weight="bold">Note:</Font> Printed reports may be
-          paginated to more than one piece of paper.
-        </Caption>
-        {report ? (
-          <TallyReportPreview data-testid="report-preview">
-            {report}
-          </TallyReportPreview>
-        ) : (
-          <ReportPreviewLoading />
-        )}
+            <Icons.Previous /> Back
+          </LinkButton>{' '}
+          <Button
+            disabled={!canMarkResultsOfficial}
+            onPress={openMarkOfficialModal}
+          >
+            Mark Tally Results as Official
+          </Button>
+        </MarkOfficialButtonRow>
+
+        <TallyReportViewer filter={{}} groupBy={{}} enabled autoPreview />
       </NavigationScreen>
-      {isSaveModalOpen && (
-        <SaveFrontendFileModal
-          onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={() => printElementToPdf(assertDefined(report))}
-          defaultFilename={defaultReportFilename}
-          fileType={FileType.TallyReport}
-        />
-      )}
       {isMarkOfficialModalOpen && (
         <Modal
           title="Mark Unofficial Tally Results as Official Tally Results?"
@@ -217,185 +108,66 @@ function BaseTallyReportScreen({
   );
 }
 
-function SingleTallyReportScreen({
-  title,
-  fileSuffix,
-  filter,
-}: {
-  title?: string;
-  fileSuffix: string;
-  filter: Tabulation.Filter;
-}): JSX.Element {
+const SelectPrecinctContainer = styled.div`
+  width: 20rem;
+`;
+
+export function PrecinctTallyReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  const reportResultsQuery = getResultsForTallyReports.useQuery({
-    filter,
-  });
-
-  const report = useMemo(() => {
-    if (!reportResultsQuery.data) {
-      return undefined;
-    }
-
-    return (
-      <AdminTallyReportByParty
-        electionDefinition={electionDefinition}
-        key="tally-report"
-        testId="tally-report"
-        title={title}
-        tallyReportResults={reportResultsQuery.data[0]}
-        tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
-        generatedAtTime={new Date(reportResultsQuery.dataUpdatedAt)}
-      />
-    );
-  }, [
-    electionDefinition,
-    isOfficialResults,
-    reportResultsQuery.data,
-    reportResultsQuery.dataUpdatedAt,
-    title,
-  ]);
+  const [precinctId, setPrecinctId] = useState<string>();
+  const precinctOptions = election.precincts.map((precinct) => ({
+    value: precinct.id,
+    label: precinct.name,
+  }));
 
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
+  const title = `${statusPrefix} Single Precinct Tally Report`;
 
-  return BaseTallyReportScreen({
-    title: title
-      ? `${statusPrefix} ${title}`
-      : `${statusPrefix} ${election.title} Tally Report`,
-    fileSuffix,
-    report,
-    generatedAtTime: report
-      ? new Date(reportResultsQuery.dataUpdatedAt)
-      : undefined,
-  });
-}
-
-export function PrecinctTallyReportScreen(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
-
-  const { precinctId } = useParams<PrecinctReportScreenProps>();
-  const precinct = find(election.precincts, (p) => p.id === precinctId);
-
-  return SingleTallyReportScreen({
-    filter: { precinctIds: [precinctId] },
-    fileSuffix: `precinct-${precinctId}}`,
-    title: `Precinct Tally Report for ${precinct.name}`,
-  });
-}
-
-export function ScannerTallyReportScreen(): JSX.Element {
-  const { scannerId } = useParams<ScannerReportScreenProps>();
-  return SingleTallyReportScreen({
-    filter: { scannerIds: [scannerId] },
-    fileSuffix: `scanner-${scannerId}`,
-    title: `Scanner Tally Report for Scanner ${scannerId}`,
-  });
-}
-
-export function VotingMethodTallyReportScreen(): JSX.Element {
-  const { votingMethod } = useParams<VotingMethodReportScreenProps>();
-  const votingMethodLabel =
-    votingMethod.slice(0, 1).toUpperCase() + votingMethod.slice(1);
-  return SingleTallyReportScreen({
-    filter: { votingMethods: [votingMethod as Tabulation.VotingMethod] },
-    fileSuffix: `${votingMethod}-ballots`,
-    title: `${votingMethodLabel} Ballot Tally Report`,
-  });
-}
-
-export function BatchTallyReportScreen(): JSX.Element {
-  const { batchId } = useParams<BatchReportScreenProps>();
-
-  const scannerBatchQuery = getScannerBatches.useQuery();
-  const batch = scannerBatchQuery.data
-    ? find(scannerBatchQuery.data, (b) => b.batchId === batchId)
-    : undefined;
-  const title = batch
-    ? `Batch Tally Report for ${batch.label}`
-    : `Batch Tally Report`;
-
-  return SingleTallyReportScreen({
-    filter: { batchIds: [batchId] },
-    fileSuffix: `batch-${batchId}`,
-    title,
-  });
-}
-
-export function PartyTallyReportScreen(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
-
-  const { partyId } = useParams<PartyReportScreenProps>();
-  const party = find(election.parties, (p) => p.id === partyId);
-
-  return SingleTallyReportScreen({
-    filter: { partyIds: [partyId] },
-    fileSuffix: `party-${partyId}`,
-    title: `${party.fullName} Tally Report`,
-  });
-}
-
-export function FullElectionTallyReportScreen(): JSX.Element {
-  return SingleTallyReportScreen({
-    filter: {},
-    fileSuffix: `full-election`,
-  });
+  return (
+    <NavigationScreen title={title}>
+      <LinkButton small to={routerPaths.reports}>
+        <Icons.Previous /> Back
+      </LinkButton>
+      <H4>Select Precinct</H4>
+      <SelectPrecinctContainer>
+        <SearchSelect
+          isMulti={false}
+          isSearchable
+          options={precinctOptions}
+          onChange={(option) => setPrecinctId(option?.value)}
+        />
+      </SelectPrecinctContainer>
+      <TallyReportViewer
+        filter={{ precinctIds: precinctId ? [precinctId] : undefined }}
+        groupBy={{}}
+        enabled={!!precinctId}
+        autoPreview
+      />
+    </NavigationScreen>
+  );
 }
 
 export function AllPrecinctsTallyReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
   assert(electionDefinition);
 
-  const reportResultsQuery = getResultsForTallyReports.useQuery({
-    groupBy: {
-      groupByPrecinct: true,
-    },
-  });
-
-  const report = useMemo(() => {
-    if (!reportResultsQuery.data) {
-      return undefined;
-    }
-
-    const precinctReports: JSX.Element[] = [];
-    for (const tallyReportResults of reportResultsQuery.data) {
-      const { precinctId } = tallyReportResults;
-      assert(precinctId !== undefined);
-      const precinct = getPrecinctById(electionDefinition, precinctId);
-      precinctReports.push(
-        <AdminTallyReportByParty
-          electionDefinition={electionDefinition}
-          key={`tally-report-${precinctId}`}
-          testId={`tally-report-${precinctId}`}
-          title={`Precinct Tally Report for ${precinct.name}`}
-          tallyReportResults={tallyReportResults}
-          tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
-          generatedAtTime={new Date(reportResultsQuery.dataUpdatedAt)}
-        />
-      );
-    }
-
-    return <React.Fragment>{precinctReports}</React.Fragment>;
-  }, [
-    electionDefinition,
-    isOfficialResults,
-    reportResultsQuery.data,
-    reportResultsQuery.dataUpdatedAt,
-  ]);
-
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
+  const title = `${statusPrefix} All Precincts Tally Report`;
 
-  return BaseTallyReportScreen({
-    title: `${statusPrefix} All Precincts Tally Report`,
-    fileSuffix: 'all-precincts',
-    report,
-    generatedAtTime: report
-      ? new Date(reportResultsQuery.dataUpdatedAt)
-      : undefined,
-  });
+  return (
+    <NavigationScreen title={title}>
+      <LinkButton small to={routerPaths.reports}>
+        <Icons.Previous /> Back
+      </LinkButton>
+      <TallyReportViewer
+        filter={{}}
+        groupBy={{ groupByPrecinct: true }}
+        enabled
+        autoPreview
+      />
+    </NavigationScreen>
+  );
 }

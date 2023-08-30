@@ -29,6 +29,8 @@ import {
   faSquarePlus,
   faSpinner,
   faCaretDown,
+  faCirclePlus,
+  faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -67,6 +69,10 @@ function FaIcon(props: InnerProps): JSX.Element {
 export const Icons = {
   Add(): JSX.Element {
     return <FaIcon type={faSquarePlus} />;
+  },
+
+  AddCircle(): JSX.Element {
+    return <FaIcon type={faCirclePlus} />;
   },
 
   Backspace(): JSX.Element {
@@ -169,6 +175,10 @@ export const Icons = {
 
   LeftChevron(): JSX.Element {
     return <FaIcon type={faChevronLeft} />;
+  },
+
+  RotateRight(): JSX.Element {
+    return <FaIcon type={faRotateRight} />;
   },
 
   Save(): JSX.Element {

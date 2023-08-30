@@ -17,6 +17,7 @@ import {
   ok,
   Optional,
   Result,
+  sleep,
 } from '@votingworks/basics';
 import express, { Application } from 'express';
 import {
@@ -680,6 +681,7 @@ function buildApi({
         groupBy?: Tabulation.GroupBy;
       } = {}
     ): Promise<Tabulation.GroupList<TallyReportResults>> {
+      await sleep(3000);
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       return tabulateTallyReportResults({
         electionId,

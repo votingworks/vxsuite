@@ -12,7 +12,6 @@ import {
   isFeatureFlagEnabled,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { PartyId } from '@votingworks/types';
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
@@ -22,11 +21,7 @@ import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
 import {
-  BatchTallyReportScreen,
-  PartyTallyReportScreen,
   PrecinctTallyReportScreen,
-  ScannerTallyReportScreen,
-  VotingMethodTallyReportScreen,
   FullElectionTallyReportScreen,
   AllPrecinctsTallyReportScreen,
 } from '../screens/tally_report_screen';
@@ -47,6 +42,7 @@ import { SmartcardModal } from './smartcard_modal';
 import { checkPin } from '../api';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
+import { CustomReportBuilder } from '../screens/report_builder';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
@@ -193,37 +189,14 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.tallyFullReport}>
         <FullElectionTallyReportScreen />
       </Route>
-      <Route
-        exact
-        path={routerPaths.tallyPrecinctReport({ precinctId: ':precinctId' })}
-      >
+      <Route exact path={routerPaths.tallySinglePrecinctReport}>
         <PrecinctTallyReportScreen />
       </Route>
       <Route exact path={routerPaths.tallyAllPrecinctsReport}>
         <AllPrecinctsTallyReportScreen />
       </Route>
-      <Route
-        exact
-        path={routerPaths.tallyVotingMethodReport({
-          votingMethod: ':votingMethod',
-        })}
-      >
-        <VotingMethodTallyReportScreen />
-      </Route>
-      <Route
-        exact
-        path={routerPaths.tallyPartyReport({ partyId: ':partyId' as PartyId })}
-      >
-        <PartyTallyReportScreen />
-      </Route>
-      <Route
-        exact
-        path={routerPaths.tallyScannerReport({ scannerId: ':scannerId' })}
-      >
-        <ScannerTallyReportScreen />
-      </Route>
-      <Route exact path={routerPaths.tallyBatchReport({ batchId: ':batchId' })}>
-        <BatchTallyReportScreen />
+      <Route exact path={routerPaths.tallyReportBuilder}>
+        <CustomReportBuilder />
       </Route>
       <Route exact path={[routerPaths.tallyWriteInReport]}>
         <TallyWriteInReportScreen />

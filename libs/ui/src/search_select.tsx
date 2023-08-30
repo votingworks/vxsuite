@@ -44,19 +44,26 @@ export interface SearchSelectMultiProps<T extends string = string>
   extends SearchSelectBaseProps<T> {
   isMulti: true;
   value: T[];
-  onChange: (values: T[]) => void;
+  onChange: (values: Array<SelectOption<T>>) => void;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
   extends SearchSelectBaseProps<T> {
   isMulti: false;
   value?: T;
-  onChange: (value?: T) => void;
+  onChange: (option?: SelectOption<T>) => void;
 }
 
 export type SearchSelectProps<T extends string = string> =
   | SearchSelectSingleProps<T>
   | SearchSelectMultiProps<T>;
+
+function findOption<T extends string = string>(
+  options: Array<SelectOption<T>>,
+  value: T
+): SelectOption<T> | undefined {
+  return options.find((option) => option.value === value);
+}
 
 export function SearchSelect<T extends string = string>({
   isMulti,
@@ -74,7 +81,13 @@ export function SearchSelect<T extends string = string>({
       isSearchable={isSearchable}
       isClearable={false}
       options={options}
-      defaultValue={value}
+      defaultValue={
+        Array.isArray(value)
+          ? value.map((v) => findOption(options, v))
+          : value
+          ? findOption(options, value)
+          : null
+      }
       onChange={onChange}
       placeholder={null}
       aria-label={ariaLabel}

@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect, useCallback } from 'react';
 import pluralize from 'pluralize';
 
 import {
-  canDistinguishVotingMethods,
   generateSemsFinalExportDefaultFilename,
   format,
   isElectionManagerAuth,
@@ -16,7 +15,6 @@ import {
   P,
   Font,
 } from '@votingworks/ui';
-import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 
 import { assert } from '@votingworks/basics';
@@ -25,8 +23,6 @@ import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_clien
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
-import { BallotCountsTable } from '../components/ballot_counts_table';
-import { getPartiesWithPrimaryElections } from '../utils/election';
 import {
   SaveFrontendFileModal,
   FileType,
@@ -53,7 +49,6 @@ export function ReportsScreen(): JSX.Element {
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   assert(electionDefinition && typeof configuredAt === 'string');
-  const { election } = electionDefinition;
 
   const cardCountsQuery = getCardCounts.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
@@ -64,14 +59,7 @@ export function ReportsScreen(): JSX.Element {
   const [isExportResultsModalOpen, setIsExportResultsModalOpen] =
     useState(false);
 
-  const [isShowingBatchResults, setIsShowingBatchResults] = useState(false);
-  const toggleShowingBatchResults = useCallback(() => {
-    setIsShowingBatchResults(!isShowingBatchResults);
-  }, [isShowingBatchResults, setIsShowingBatchResults]);
-
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-
-  const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
   const [converterName, setConverterName] = useState('');
   useEffect(() => {
@@ -123,38 +111,6 @@ export function ReportsScreen(): JSX.Element {
     userRole,
   ]);
 
-  const tallyResultsInfo = (
-    <React.Fragment>
-      <H2>Tally Report by Precinct</H2>
-      <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
-      {canDistinguishVotingMethods(election) && (
-        <React.Fragment>
-          <H2>Tally Report by Voting Method</H2>
-          <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
-        </React.Fragment>
-      )}
-      {partiesForPrimaries.length > 0 && (
-        <React.Fragment>
-          <H2>Tally Report by Party</H2>
-          <BallotCountsTable breakdownCategory={TallyCategory.Party} />
-        </React.Fragment>
-      )}
-      <H2>Tally Report by Scanner</H2>
-      <Button small onPress={toggleShowingBatchResults}>
-        {isShowingBatchResults
-          ? 'Show Results by Scanner'
-          : 'Show Results by Batch and Scanner'}
-      </Button>
-      <br />
-      <br />
-      {isShowingBatchResults ? (
-        <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
-      ) : (
-        <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
-      )}
-    </React.Fragment>
-  );
-
   const fileMode = castVoteRecordFileModeQuery.data;
   const totalBallotCount = cardCountsQuery.data
     ? getBallotCount(cardCountsQuery.data[0])
@@ -183,30 +139,46 @@ export function ReportsScreen(): JSX.Element {
     <React.Fragment>
       <NavigationScreen title="Election Reports">
         {ballotCountSummaryText}
+        <H2>Tally Reports</H2>
         <P>
-          <LinkButton primary to={routerPaths.tallyFullReport}>
+          <LinkButton variant="primary" to={routerPaths.tallyFullReport}>
             {statusPrefix} Full Election Tally Report
+          </LinkButton>
+        </P>
+        <P>
+          <LinkButton primary to={routerPaths.tallyAllPrecinctsReport}>
+            {statusPrefix} All Precincts Tally Report
           </LinkButton>{' '}
-          {converterName !== '' && (
-            <React.Fragment>
-              <Button
-                onPress={() => setIsExportResultsModalOpen(true)}
-                disabled={
-                  !canSaveResults || !semsExportableTalliesQuery.isSuccess
-                }
-              >
-                Save {converterName} Results
-              </Button>{' '}
-            </React.Fragment>
-          )}
-          <SaveResultsButton disabled={!canSaveResults} />
+          <LinkButton primary to={routerPaths.tallySinglePrecinctReport}>
+            {statusPrefix} Single Precinct Report
+          </LinkButton>{' '}
+        </P>
+        <P>
+          <LinkButton to={routerPaths.tallyReportBuilder}>
+            Tally Report Builder
+          </LinkButton>
+        </P>
+        <H2>Other Reports</H2>
+        <P>
+          <Button onPress={() => {}}>Ballot Count Report Builder</Button>
         </P>
         <P>
           <LinkButton to={routerPaths.tallyWriteInReport}>
             {statusPrefix} Write-In Adjudication Report
           </LinkButton>
         </P>
-        {tallyResultsInfo}
+        <P>
+          {converterName !== '' && (
+            <Button
+              onPress={() => setIsExportResultsModalOpen(true)}
+              disabled={
+                !canSaveResults || !semsExportableTalliesQuery.isSuccess
+              }
+            >
+              Save {converterName} Results
+            </Button>
+          )}
+        </P>
       </NavigationScreen>
       {isExportResultsModalOpen && (
         <SaveFrontendFileModal
