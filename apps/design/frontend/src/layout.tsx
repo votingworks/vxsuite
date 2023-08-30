@@ -15,9 +15,9 @@ export const Column = styled.div`
 `;
 
 export const Form = styled.form`
-  p {
-    margin-bottom: 1.5rem;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 `;
 
 export const Input = styled.input`
@@ -42,7 +42,7 @@ export function FormField({
   children: React.ReactNode;
 }): JSX.Element {
   return (
-    <div style={{ marginBottom: '1.5rem' }}>
+    <div>
       <label style={{ display: 'block' }}>
         <div style={{ marginBottom: '0.4rem', fontWeight: 'bold' }}>
           {label}

@@ -166,7 +166,7 @@ function ElectionInfoForm({
           </Button>
         </FormActionsRow>
       ) : (
-        <React.Fragment>
+        <div>
           <FormActionsRow>
             <Button variant="primary" onPress={() => setIsEditing(true)}>
               <Icons.Edit /> Edit
@@ -181,7 +181,7 @@ function ElectionInfoForm({
               <Icons.DangerX /> Delete Election
             </Button>
           </FormActionsRow>
-        </React.Fragment>
+        </div>
       )}
     </Form>
   );

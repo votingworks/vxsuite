@@ -499,23 +499,25 @@ function ContestForm({
         </FormField>
       )}
 
-      <FormActionsRow>
-        <LinkButton to={contestRoutes.root.path}>Cancel</LinkButton>
-        <Button
-          onPress={onSavePress}
-          variant="primary"
-          disabled={updateElectionMutation.isLoading}
-        >
-          <Icons.Checkmark /> Save
-        </Button>
-      </FormActionsRow>
-      {contestId && (
-        <FormActionsRow style={{ marginTop: '1rem' }}>
-          <Button variant="danger" onPress={onDeletePress}>
-            <Icons.DangerX /> Delete Contest
+      <div>
+        <FormActionsRow>
+          <LinkButton to={contestRoutes.root.path}>Cancel</LinkButton>
+          <Button
+            onPress={onSavePress}
+            variant="primary"
+            disabled={updateElectionMutation.isLoading}
+          >
+            <Icons.Checkmark /> Save
           </Button>
         </FormActionsRow>
-      )}
+        {contestId && (
+          <FormActionsRow style={{ marginTop: '1rem' }}>
+            <Button variant="danger" onPress={onDeletePress}>
+              <Icons.DangerX /> Delete Contest
+            </Button>
+          </FormActionsRow>
+        )}
+      </div>
     </Form>
   );
 }
@@ -749,23 +751,25 @@ function PartyForm({
           onChange={(e) => setParty({ ...party, abbrev: e.target.value })}
         />
       </FormField>
-      <FormActionsRow>
-        <LinkButton to={partyRoutes.root.path}>Cancel</LinkButton>
-        <Button
-          onPress={onSavePress}
-          variant="primary"
-          disabled={updateElectionMutation.isLoading}
-        >
-          <Icons.Checkmark /> Save
-        </Button>
-      </FormActionsRow>
-      {partyId && (
-        <FormActionsRow style={{ marginTop: '1rem' }}>
-          <Button variant="danger" onPress={onDeletePress}>
-            <Icons.DangerX /> Delete Party
+      <div>
+        <FormActionsRow>
+          <LinkButton to={partyRoutes.root.path}>Cancel</LinkButton>
+          <Button
+            onPress={onSavePress}
+            variant="primary"
+            disabled={updateElectionMutation.isLoading}
+          >
+            <Icons.Checkmark /> Save
           </Button>
         </FormActionsRow>
-      )}
+        {partyId && (
+          <FormActionsRow style={{ marginTop: '1rem' }}>
+            <Button variant="danger" onPress={onDeletePress}>
+              <Icons.DangerX /> Delete Party
+            </Button>
+          </FormActionsRow>
+        )}
+      </div>
     </Form>
   );
 }
