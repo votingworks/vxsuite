@@ -148,14 +148,10 @@ function buildApi({ store }: { store: Store }) {
 
       const zip = new JsZip();
 
-      const ballotTypes: Array<[BallotType, string]> = [
-        [BallotType.Precinct, 'precinct'],
-        [BallotType.Absentee, 'absentee'],
-      ];
-
       let electionHash: string | undefined;
 
-      for (const [ballotType, ballotTypeLabel] of ballotTypes) {
+      const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
+      for (const ballotType of ballotTypes) {
         for (const ballotMode of BALLOT_MODES) {
           const { ballots, electionDefinition } = layOutAllBallotStyles({
             election,
@@ -173,7 +169,7 @@ function buildApi({ store }: { store: Store }) {
               getPrecinctById({ election, precinctId })
             );
             const pdf = renderDocumentToPdf(document);
-            const fileName = `${ballotMode}-${ballotTypeLabel}-ballot-${precinct.name.replaceAll(
+            const fileName = `${ballotMode}-${ballotType}-ballot-${precinct.name.replaceAll(
               ' ',
               '_'
             )}-${ballotStyleId}.pdf`;

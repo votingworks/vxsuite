@@ -293,14 +293,9 @@ export function BallotViewer({
       },
       {
         onSuccess: (pdfContents) => {
-          const ballotTypeLabel = {
-            [BallotType.Precinct]: 'precinct',
-            [BallotType.Absentee]: 'absentee',
-            [BallotType.Provisional]: 'provisional',
-          }[ballotType];
           fileDownload(
             pdfContents,
-            `${ballotMode}-${ballotTypeLabel}-ballot-${precinct.name.replace(
+            `${ballotMode}-${ballotType}-ballot-${precinct.name.replace(
               ' ',
               '_'
             )}-${ballotStyle.id}.pdf`
