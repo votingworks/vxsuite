@@ -626,6 +626,7 @@ export function Footer({
   precinct,
   pageNumber,
   totalPages,
+  ballotType,
   ballotMode,
   electionHash,
   m,
@@ -635,6 +636,7 @@ export function Footer({
   precinct: Precinct;
   pageNumber: number;
   totalPages: number;
+  ballotType: BallotType;
   ballotMode: BallotMode;
   electionHash?: string;
   m: Measurements;
@@ -722,7 +724,7 @@ export function Footer({
         precinctId: precinct.id,
         ballotStyleId: ballotStyle.id,
         pageNumber,
-        ballotType: BallotType.Standard,
+        ballotType,
         isTestMode: ballotMode !== 'official',
       })
     : encodeInQrCode(Uint8Array.of());
@@ -1677,6 +1679,7 @@ function layOutBallotHelper({
         precinct,
         pageNumber: pageIndex + 1,
         totalPages: pages.length,
+        ballotType,
         ballotMode,
         electionHash,
         m,
