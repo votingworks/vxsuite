@@ -6,7 +6,7 @@
       "ElectionScopeId": "state-of-hamilton",
       "StartDate": "2020-11-03",
       "EndDate": "2020-11-03",
-      "Type": "primary",
+      "Type": "general",
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -874,34 +874,6 @@
         },
         {
           "@type": "BallotDefinition.Candidate",
-          "@id": "alice",
-          "BallotName": {
-            "@type": "BallotDefinition.InternationalizedText",
-            "Text": [
-              {
-                "@type": "BallotDefinition.LanguageString",
-                "Language": "en",
-                "Content": "Alice Jones"
-              }
-            ]
-          }
-        },
-        {
-          "@type": "BallotDefinition.Candidate",
-          "@id": "bob",
-          "BallotName": {
-            "@type": "BallotDefinition.InternationalizedText",
-            "Text": [
-              {
-                "@type": "BallotDefinition.LanguageString",
-                "Language": "en",
-                "Content": "Bob Smith"
-              }
-            ]
-          }
-        },
-        {
-          "@type": "BallotDefinition.Candidate",
           "@id": "white",
           "BallotName": {
             "@type": "BallotDefinition.InternationalizedText",
@@ -1597,37 +1569,6 @@
         },
         {
           "@type": "BallotDefinition.CandidateContest",
-          "@id": "primary-constitution-head-of-party",
-          "ElectionDistrictId": "district-7",
-          "Name": "Head of Constitution Party",
-          "BallotTitle": {
-            "@type": "BallotDefinition.InternationalizedText",
-            "Text": [
-              {
-                "@type": "BallotDefinition.LanguageString",
-                "Language": "en",
-                "Content": "Head of Constitution Party"
-              }
-            ]
-          },
-          "VotesAllowed": 1,
-          "ContestOption": [
-            {
-              "@type": "BallotDefinition.CandidateOption",
-              "@id": "primary-constitution-head-of-party-option-alice",
-              "CandidateIds": ["alice"],
-              "EndorsementPartyIds": ["3"]
-            },
-            {
-              "@type": "BallotDefinition.CandidateOption",
-              "@id": "primary-constitution-head-of-party-option-bob",
-              "CandidateIds": ["bob"]
-            }
-          ],
-          "PrimaryPartyIds": ["3"]
-        },
-        {
-          "@type": "BallotDefinition.CandidateContest",
           "@id": "city-mayor",
           "ElectionDistrictId": "district-2",
           "Name": "Mayor",
@@ -2179,31 +2120,6 @@
               }
             }
           ]
-        },
-        {
-          "@type": "BallotDefinition.CandidateContest",
-          "@id": "measure-666",
-          "ElectionDistrictId": "district-1",
-          "Name": "Measure 666: Party not associated with any ballot styles",
-          "BallotTitle": {
-            "@type": "BallotDefinition.InternationalizedText",
-            "Text": [
-              {
-                "@type": "BallotDefinition.LanguageString",
-                "Language": "en",
-                "Content": "Measure 666: Party not associated with any ballot styles"
-              }
-            ]
-          },
-          "VotesAllowed": 1,
-          "ContestOption": [
-            {
-              "@type": "BallotDefinition.CandidateOption",
-              "@id": "measure-666-option-write-in-1",
-              "IsWriteIn": true
-            }
-          ],
-          "PrimaryPartyIds": ["2"]
         }
       ],
       "BallotStyle": [
@@ -4980,70 +4896,6 @@
               "Value": "5"
             }
           ]
-        },
-        {
-          "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["20"],
-          "PartyIds": ["3"],
-          "OrderedContent": [
-            {
-              "@type": "BallotDefinition.OrderedContest",
-              "ContestId": "primary-constitution-head-of-party",
-              "Physical": [
-                {
-                  "@type": "BallotDefinition.PhysicalContest",
-                  "BallotFormatId": "ballot-format",
-                  "vxOptionBoundsFromTargetMark": {
-                    "bottom": 1,
-                    "left": 1,
-                    "right": 9,
-                    "top": 2
-                  },
-                  "PhysicalContestOption": [
-                    {
-                      "@type": "BallotDefinition.PhysicalContestOption",
-                      "ContestOptionId": "primary-constitution-head-of-party-option-alice",
-                      "OptionPosition": [
-                        {
-                          "@type": "BallotDefinition.OptionPosition",
-                          "Sheet": 1,
-                          "Side": "front",
-                          "X": 2,
-                          "Y": 12,
-                          "H": 0,
-                          "W": 0,
-                          "NumberVotes": 1
-                        }
-                      ]
-                    },
-                    {
-                      "@type": "BallotDefinition.PhysicalContestOption",
-                      "ContestOptionId": "primary-constitution-head-of-party-option-bob",
-                      "OptionPosition": [
-                        {
-                          "@type": "BallotDefinition.OptionPosition",
-                          "Sheet": 1,
-                          "Side": "front",
-                          "X": 2,
-                          "Y": 14,
-                          "H": 0,
-                          "W": 0,
-                          "NumberVotes": 1
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "ExternalIdentifier": [
-            {
-              "@type": "BallotDefinition.ExternalIdentifier",
-              "Type": "state-level",
-              "Value": "7C"
-            }
-          ]
         }
       ]
     }
@@ -5387,12 +5239,7 @@
         ]
       },
       "Type": "county",
-      "ComposingGpUnitIds": [
-        "district-1",
-        "district-2",
-        "district-3",
-        "district-7"
-      ]
+      "ComposingGpUnitIds": ["district-1", "district-2", "district-3"]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -5441,22 +5288,6 @@
       },
       "Type": "other",
       "ComposingGpUnitIds": []
-    },
-    {
-      "@type": "BallotDefinition.ReportingUnit",
-      "@id": "district-7",
-      "Name": {
-        "@type": "BallotDefinition.InternationalizedText",
-        "Text": [
-          {
-            "@type": "BallotDefinition.LanguageString",
-            "Language": "en",
-            "Content": "District 7"
-          }
-        ]
-      },
-      "Type": "other",
-      "ComposingGpUnitIds": ["20"]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
