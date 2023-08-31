@@ -105,7 +105,7 @@ export function markBallot({
 export const famousNamesFixtures = (() => {
   const { electionDefinition, ballots } = layOutAllBallotStyles({
     election: electionFamousNames2021Fixtures.election,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
   }).unsafeUnwrap();

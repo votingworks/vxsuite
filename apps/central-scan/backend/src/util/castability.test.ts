@@ -14,7 +14,7 @@ import { Castability, checkSheetCastability } from './castability';
 const metadata: BallotMetadata = {
   ballotStyleId: '1',
   precinctId: '6522',
-  ballotType: BallotType.Standard,
+  ballotType: BallotType.Precinct,
   electionHash:
     electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
       .electionHash,

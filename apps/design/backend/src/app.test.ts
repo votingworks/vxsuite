@@ -297,9 +297,9 @@ test('Export all ballots', async () => {
   }
   expect(layOutAllBallotStyles).toHaveBeenCalledTimes(6);
   const expectedLayoutCalls = [
-    [BallotType.Standard, 'official'],
-    [BallotType.Standard, 'test'],
-    [BallotType.Standard, 'sample'],
+    [BallotType.Precinct, 'official'],
+    [BallotType.Precinct, 'test'],
+    [BallotType.Precinct, 'sample'],
     [BallotType.Absentee, 'official'],
     [BallotType.Absentee, 'test'],
     [BallotType.Absentee, 'sample'],

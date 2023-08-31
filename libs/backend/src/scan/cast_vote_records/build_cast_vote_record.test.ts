@@ -35,7 +35,7 @@ test('toCdfBallotType', () => {
   expect(toCdfBallotType(BallotType.Absentee)).toEqual(
     CVR.vxBallotType.Absentee
   );
-  expect(toCdfBallotType(BallotType.Standard)).toEqual(
+  expect(toCdfBallotType(BallotType.Precinct)).toEqual(
     CVR.vxBallotType.Precinct
   );
   expect(toCdfBallotType(BallotType.Provisional)).toEqual(

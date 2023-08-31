@@ -33,7 +33,7 @@ export const mockBallotMetadata: BallotMetadata = {
   precinctId: 'precinct-1',
   ballotStyleId: '2F',
   isTestMode: true,
-  ballotType: BallotType.Standard,
+  ballotType: BallotType.Precinct,
 };
 const adjudicationInfo: AdjudicationInfo = {
   requiresAdjudication: false,

@@ -10,7 +10,7 @@ import { Dictionary } from './generic';
 /**
  * Legacy type, slightly different than the CDF ballot type.
  */
-export type CastVoteRecordBallotType = 'absentee' | 'provisional' | 'standard';
+export type CastVoteRecordBallotType = 'absentee' | 'provisional' | 'precinct';
 
 /**
  * Legacy cast vote record type, currently used by tally code.

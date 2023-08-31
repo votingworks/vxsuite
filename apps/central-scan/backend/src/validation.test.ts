@@ -185,18 +185,18 @@ test('HMPB ballot with mismatched ballot type', () => {
     HmpbPage1,
     {
       ...HmpbPage2,
-      metadata: { ...HmpbPage2.metadata, ballotType: BallotType.Standard },
+      metadata: { ...HmpbPage2.metadata, ballotType: BallotType.Precinct },
     },
   ]).unsafeUnwrapErr();
 
   expect(error).toEqual(
     typedAs<ValidationError>({
       type: ValidationErrorType.MismatchedBallotType,
-      ballotTypes: [BallotType.Absentee, BallotType.Standard],
+      ballotTypes: [BallotType.Absentee, BallotType.Precinct],
     })
   );
   expect(describeValidationError(error)).toEqual(
-    `expected a sheet to have the same ballot type, but got front=absentee back=standard`
+    `expected a sheet to have the same ballot type, but got front=absentee back=precinct`
   );
 });
 

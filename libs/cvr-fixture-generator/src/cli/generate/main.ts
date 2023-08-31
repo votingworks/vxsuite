@@ -314,7 +314,7 @@ export async function main(
           ballotStyleId,
           precinctId,
           electionHash,
-          ballotType: BallotType.Standard,
+          ballotType: BallotType.Precinct,
           isTestMode: testMode,
         }),
         (l) => l.metadata.pageNumber === pageNumber

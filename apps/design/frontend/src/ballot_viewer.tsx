@@ -247,7 +247,7 @@ export function BallotViewer({
   const ballotRoutes = routes.election(electionId).ballots;
   const exportBallotMutation = exportBallot.useMutation();
   const [showGridLines, setShowGridLines] = useState(false);
-  const [ballotType, setBallotType] = useState<BallotType>(BallotType.Standard);
+  const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
 
   const { paperSize } = election.ballotLayout;
@@ -294,7 +294,7 @@ export function BallotViewer({
       {
         onSuccess: (pdfContents) => {
           const ballotTypeLabel = {
-            [BallotType.Standard]: 'precinct',
+            [BallotType.Precinct]: 'precinct',
             [BallotType.Absentee]: 'absentee',
             [BallotType.Provisional]: 'provisional',
           }[ballotType];
@@ -331,7 +331,7 @@ export function BallotViewer({
             <FormField label="Ballot Type">
               <RadioGroup
                 options={[
-                  { value: BallotType.Standard, label: 'Precinct' },
+                  { value: BallotType.Precinct, label: 'Precinct' },
                   { value: BallotType.Absentee, label: 'Absentee' },
                 ]}
                 value={ballotType}

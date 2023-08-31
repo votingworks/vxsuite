@@ -94,7 +94,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
   const metadata: BallotMetadata = {
     ballotStyleId: '1',
     precinctId: '1',
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     electionHash: 'abcde',
     isTestMode: false,
   };
@@ -214,7 +214,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
   const metadata: BallotMetadata = {
     ballotStyleId: '1',
     precinctId: '1',
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     electionHash: 'abcde',
     isTestMode: false,
   };
@@ -334,7 +334,7 @@ test('says the ballot sheet is blank if it is', async () => {
   const metadata: BallotMetadata = {
     ballotStyleId: '1',
     precinctId: '1',
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     electionHash: 'abcde',
     isTestMode: false,
   };
@@ -470,7 +470,7 @@ test('calls out official ballot sheets in test mode', async () => {
             metadata: {
               ballotStyleId: '1',
               precinctId: '1',
-              ballotType: BallotType.Standard,
+              ballotType: BallotType.Precinct,
               electionHash: 'abcde',
               isTestMode: false,
               pageNumber: 1,
@@ -484,7 +484,7 @@ test('calls out official ballot sheets in test mode', async () => {
             metadata: {
               ballotStyleId: '1',
               precinctId: '1',
-              ballotType: BallotType.Standard,
+              ballotType: BallotType.Precinct,
               electionHash: 'abcde',
               isTestMode: false,
               pageNumber: 2,
@@ -538,7 +538,7 @@ test('calls out test ballot sheets in live mode', async () => {
             metadata: {
               ballotStyleId: '1',
               precinctId: '1',
-              ballotType: BallotType.Standard,
+              ballotType: BallotType.Precinct,
               electionHash: 'abcde',
               isTestMode: false,
               pageNumber: 1,
@@ -552,7 +552,7 @@ test('calls out test ballot sheets in live mode', async () => {
             metadata: {
               ballotStyleId: '1',
               precinctId: '1',
-              ballotType: BallotType.Standard,
+              ballotType: BallotType.Precinct,
               electionHash: 'abcde',
               isTestMode: false,
               pageNumber: 2,

@@ -33,7 +33,7 @@ const BALLOT_TYPE_TO_VOTING_METHOD: Record<
   Tabulation.VotingMethod
 > = {
   [BallotType.Absentee]: 'absentee',
-  [BallotType.Standard]: 'precinct',
+  [BallotType.Precinct]: 'precinct',
   [BallotType.Provisional]: 'provisional',
 };
 

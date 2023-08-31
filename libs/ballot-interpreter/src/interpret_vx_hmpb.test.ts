@@ -50,7 +50,7 @@ describe('HMPB - Famous Names', () => {
       ballotStyleId: election.ballotStyles[0]!.id,
       pageNumber: 1,
       isTestMode: true,
-      ballotType: BallotType.Standard,
+      ballotType: BallotType.Precinct,
     });
     expect(backResult.interpretation.metadata).toEqual({
       source: 'qr-code',
@@ -59,7 +59,7 @@ describe('HMPB - Famous Names', () => {
       ballotStyleId: election.ballotStyles[0]!.id,
       pageNumber: 2,
       isTestMode: true,
-      ballotType: BallotType.Standard,
+      ballotType: BallotType.Precinct,
     });
   });
 

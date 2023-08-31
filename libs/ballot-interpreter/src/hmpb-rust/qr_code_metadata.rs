@@ -12,8 +12,8 @@ use crate::{
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub enum BallotType {
-    #[serde(rename = "standard")]
-    Standard,
+    #[serde(rename = "precinct")]
+    Precinct,
     #[serde(rename = "absentee")]
     Absentee,
     #[serde(rename = "provisional")]
@@ -66,7 +66,7 @@ fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotPageQ
     let page_number = bits.read_bits(bit_size(MAXIMUM_PAGE_NUMBERS))? as u8;
     let is_test_mode = bits.read_bit()?;
     let ballot_type: BallotType = match bits.read_bits(bit_size(BALLOT_TYPE_MAXIMUM_VALUE))? {
-        0 => BallotType::Standard,
+        0 => BallotType::Precinct,
         1 => BallotType::Absentee,
         2 => BallotType::Provisional,
         _ => return None,
@@ -162,7 +162,7 @@ mod test {
                 ballot_style_id: BallotStyleId::from("card-number-5".to_string()),
                 page_number: 1,
                 is_test_mode: false,
-                ballot_type: BallotType::Standard,
+                ballot_type: BallotType::Precinct,
             })
         );
     }

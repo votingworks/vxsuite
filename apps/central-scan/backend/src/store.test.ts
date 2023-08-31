@@ -377,7 +377,7 @@ test('adjudication', () => {
       ballotStyleId: '12',
       precinctId: '23',
       isTestMode: false,
-      ballotType: BallotType.Standard,
+      ballotType: BallotType.Precinct,
     };
     return {
       imagePath: i === 0 ? '/front.png' : '/back.png',
@@ -470,7 +470,7 @@ const metadata: BallotMetadata = {
   ballotStyleId: '12',
   precinctId: '23',
   isTestMode: false,
-  ballotType: BallotType.Standard,
+  ballotType: BallotType.Precinct,
 };
 const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
   {

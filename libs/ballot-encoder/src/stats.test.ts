@@ -45,7 +45,7 @@ test('smallest possible encoded ballot', () => {
       electionHash,
       ballotStyleId: election.ballotStyles[0]!.id,
       precinctId: election.precincts[0]!.id,
-      ballotType: BallotType.Standard,
+      ballotType: BallotType.Precinct,
       isTestMode: true,
       votes: {},
     }).byteLength

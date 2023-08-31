@@ -65,7 +65,7 @@ is encoded as follows:
 - **Test Ballot?:** This is a single bit that is set if the ballot is a test
   ballot, unset otherwise (`C.isTestMode`).
   - Size: 1 bit.
-- **Ballot Type:** One of the `BallotType` values, e.g. `Standard` or `Absentee`
+- **Ballot Type:** One of the `BallotType` values, e.g. `Precinct` or `Absentee`
   (`C.ballotType`).
   - Size: 4 bits.
 - **Ballot ID Set?:** This bit is true if there is a ballot id, unset otherwise

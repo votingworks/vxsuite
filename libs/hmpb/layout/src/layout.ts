@@ -418,7 +418,7 @@ function HeaderAndInstructions({
   };
   const ballotTypeLabel: Record<BallotType, string> = {
     [BallotType.Absentee]: ' Absentee',
-    [BallotType.Standard]: '',
+    [BallotType.Precinct]: '',
     [BallotType.Provisional]: ' Provisional',
   };
   const title = `${ballotModeLabel[ballotMode]}${ballotTypeLabel[ballotType]} Ballot`;

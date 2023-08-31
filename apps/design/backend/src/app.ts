@@ -149,7 +149,7 @@ function buildApi({ store }: { store: Store }) {
       const zip = new JsZip();
 
       const ballotTypes: Array<[BallotType, string]> = [
-        [BallotType.Standard, 'precinct'],
+        [BallotType.Precinct, 'precinct'],
         [BallotType.Absentee, 'absentee'],
       ];
 
@@ -222,7 +222,7 @@ function buildApi({ store }: { store: Store }) {
         election,
         // Ballot type and ballot mode shouldn't change the election definition, so
         // it doesn't matter what we pass here
-        ballotType: BallotType.Standard,
+        ballotType: BallotType.Precinct,
         ballotMode: 'test',
         layoutOptions,
       }).unsafeUnwrap();

@@ -189,11 +189,11 @@ test('HMPB ballot with mismatched ballot type', () => {
   expect(error).toEqual(
     typedAs<SheetValidationError>({
       type: SheetValidationErrorType.MismatchedBallotType,
-      ballotTypes: [BallotType.Standard, BallotType.Absentee],
+      ballotTypes: [BallotType.Precinct, BallotType.Absentee],
     })
   );
   expect(describeSheetValidationError(error)).toEqual(
-    `expected a sheet to have the same ballot type, but got front=standard back=absentee`
+    `expected a sheet to have the same ballot type, but got front=precinct back=absentee`
   );
 });
 

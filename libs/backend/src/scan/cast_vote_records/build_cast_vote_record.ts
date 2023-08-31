@@ -44,7 +44,7 @@ export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
       return CVR.vxBallotType.Absentee;
     case BallotType.Provisional:
       return CVR.vxBallotType.Provisional;
-    case BallotType.Standard:
+    case BallotType.Precinct:
       return CVR.vxBallotType.Precinct;
     // istanbul ignore next
     default:
