@@ -6,12 +6,18 @@ import { assert, groupBy } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
 
 /**
- * A representation of a file
+ * A representation of a file that only provides hashing.
  */
-export interface File {
+export interface HashableFile {
   fileName: string;
-  open(): NodeJS.ReadableStream;
   computeSha256Hash(): Promise<string>;
+}
+
+/**
+ * A representation of a file that can be read and hashed.
+ */
+export interface ReadableFile extends HashableFile {
+  open(): NodeJS.ReadableStream;
 }
 
 /**
@@ -25,7 +31,7 @@ export async function computeSingleCastVoteRecordHash({
   files,
 }: {
   directoryName: string;
-  files: File[];
+  files: HashableFile[];
 }): Promise<string> {
   const filesSorted = [...files].sort((file1, file2) =>
     file1.fileName.localeCompare(file2.fileName)
@@ -325,12 +331,11 @@ export async function computeCastVoteRecordRootHashFromScratch(
     )
       .filter((entry) => entry.isFile())
       .map((file) => file.name);
-    const cvrFiles: File[] = [];
+    const cvrFiles: HashableFile[] = [];
     for (const fileName of cvrFileNames) {
       const filePath = path.join(cvrDirectoryPath, fileName);
       cvrFiles.push({
         fileName,
-        open: () => createReadStream(filePath),
         computeSha256Hash: () => computeSha256HashForFile(filePath),
       });
     }

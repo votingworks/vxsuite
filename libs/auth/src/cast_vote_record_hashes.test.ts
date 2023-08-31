@@ -7,7 +7,7 @@ import { Client } from '@votingworks/db';
 
 import {
   CAST_VOTE_RECORD_HASHES_TABLE_SCHEMA,
-  File,
+  ReadableFile,
   clearCastVoteRecordHashes,
   computeCastVoteRecordRootHashFromScratch,
   computeCombinedHash,
@@ -35,7 +35,7 @@ type CastVoteRecordId =
   | 'c1234567-0000-0000-0000-000000000000'
   | 'e1234567-0000-0000-0000-000000000000';
 
-type FileWithContents = File & { fileContents: string };
+type FileWithContents = ReadableFile & { fileContents: string };
 
 function file(fileName: string, contents: string): FileWithContents {
   return {

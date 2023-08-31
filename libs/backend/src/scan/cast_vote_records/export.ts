@@ -6,8 +6,8 @@ import path from 'path';
 import { Readable } from 'stream';
 import {
   computeSingleCastVoteRecordHash,
-  File,
   prepareSignatureFile,
+  ReadableFile,
 } from '@votingworks/auth';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
@@ -113,7 +113,10 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
   );
 }
 
-function fileFromData(fileName: string, fileContents: string | Buffer): File {
+function fileFromData(
+  fileName: string,
+  fileContents: string | Buffer
+): ReadableFile {
   return {
     fileName,
     open: () => Readable.from(fileContents),
@@ -121,7 +124,7 @@ function fileFromData(fileName: string, fileContents: string | Buffer): File {
   };
 }
 
-function fileFromDisk(fileName: string): File {
+function fileFromDisk(fileName: string): ReadableFile {
   return {
     fileName,
     open: () => createReadStream(fileName),
@@ -275,7 +278,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
       ? canonicalizedSheet.interpretation[0].layout
       : undefined;
 
-  const castVoteRecordFilesToExport: File[] = [
+  const castVoteRecordFilesToExport: ReadableFile[] = [
     fileFromData(
       'cast-vote-record-report.json',
       JSON.stringify(castVoteRecordReport)
