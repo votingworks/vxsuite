@@ -162,8 +162,8 @@ export const sampleElectionFixtures = (() => {
 
         const { ballots, electionDefinition } = layOutAllBallotStyles({
           election,
-          ballotType: BallotType.Standard,
-          ballotMode: 'test',
+          ballotType: BallotType.Absentee,
+          ballotMode: 'official',
           layoutOptions: {
             bubblePosition,
             layoutDensity,
