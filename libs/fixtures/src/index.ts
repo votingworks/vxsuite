@@ -38,7 +38,7 @@ export {
   electionDefinition as electionSampleLongContentDefinition,
   election as electionSampleLongContent,
 } from './data/electionSampleLongContent.json';
-export * as systemSettings from './data/sampleAdminInitialSetupPackage/systemSettings.json';
+export * as systemSettings from './data/systemSettings.json';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);
