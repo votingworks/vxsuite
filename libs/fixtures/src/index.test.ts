@@ -21,8 +21,6 @@ test('has various election definitions', () => {
       "electionMinimalExhaustiveSampleWithReportingUrlDefinition",
       "electionMinimalExhaustiveSampleWithReportingUrlFixtures",
       "electionMultiPartyPrimaryFixtures",
-      "electionSampleCdf",
-      "electionSampleCdfDefinition",
       "electionSample",
       "electionSampleDefinition",
       "electionSampleLongContent",
