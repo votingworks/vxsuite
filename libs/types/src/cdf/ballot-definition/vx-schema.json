@@ -477,15 +477,7 @@
       "type": "object"
     },
     "BallotDefinition.ElectionType": {
-      "enum": [
-        "general",
-        "other",
-        "partisan-primary-closed",
-        "partisan-primary-open",
-        "primary",
-        "runoff",
-        "special"
-      ],
+      "enum": ["general", "primary"],
       "type": "string"
     },
     "BallotDefinition.ExternalIdentifier": {
