@@ -436,6 +436,10 @@ export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
   gridPositions: z.array(GridPositionSchema),
 });
 
+const ELECTION_TYPES = ['general', 'primary'] as const;
+export type ElectionType = typeof ELECTION_TYPES[number];
+const ElectionTypeSchema: z.ZodSchema<ElectionType> = z.enum(ELECTION_TYPES);
+
 export interface Election {
   readonly ballotLayout: BallotLayout;
   readonly ballotStyles: readonly BallotStyle[];
@@ -450,6 +454,7 @@ export interface Election {
   readonly seal: string;
   readonly state: string;
   readonly title: string;
+  readonly type: ElectionType;
 }
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
@@ -471,6 +476,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     seal: z.string(),
     state: z.string().nonempty(),
     title: z.string().nonempty(),
+    type: ElectionTypeSchema,
   })
   .superRefine((election, ctx) => {
     for (const [
