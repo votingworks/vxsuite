@@ -1471,10 +1471,14 @@ function ContestColumnsChunk({
 
   return [section, columnPositions];
 }
+export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
+export type BallotMode = typeof BALLOT_MODES[number];
 
-export type BallotMode = 'sample' | 'test' | 'official';
-export type BubblePosition = 'left' | 'right';
-export type LayoutDensity = 0 | 1 | 2;
+export const BUBBLE_POSITIONS = ['left', 'right'] as const;
+export type BubblePosition = typeof BUBBLE_POSITIONS[number];
+
+export const LAYOUT_DENSITIES = [0, 1, 2] as const;
+export type LayoutDensity = typeof LAYOUT_DENSITIES[number];
 
 export const DEFAULT_LAYOUT_OPTIONS: LayoutOptions = {
   bubblePosition: 'left',

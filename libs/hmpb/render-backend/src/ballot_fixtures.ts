@@ -10,9 +10,10 @@ import {
   measurements,
   Document,
   Rectangle,
-  BubblePosition,
   LayoutDensity,
   DEFAULT_LAYOUT_OPTIONS,
+  BUBBLE_POSITIONS,
+  LAYOUT_DENSITIES,
 } from '@votingworks/hmpb-layout';
 import {
   BallotPaperSize,
@@ -148,12 +149,9 @@ export const famousNamesFixtures = (() => {
 export const sampleElectionFixtures = (() => {
   const fixtures = [];
 
-  const bubblePositions: BubblePosition[] = ['left', 'right'];
-  const layoutDensities: LayoutDensity[] = [0, 1, 2];
-
-  for (const bubblePosition of bubblePositions) {
+  for (const bubblePosition of BUBBLE_POSITIONS) {
     for (const paperSize of [BallotPaperSize.Letter, BallotPaperSize.Legal]) {
-      for (const layoutDensity of layoutDensities) {
+      for (const layoutDensity of LAYOUT_DENSITIES) {
         const election: Election = {
           ...electionSample,
           ballotLayout: {

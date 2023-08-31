@@ -14,6 +14,7 @@ import express, { Application } from 'express';
 import { assertDefined, find, ok, Result } from '@votingworks/basics';
 import {
   BallotMode,
+  BALLOT_MODES,
   layOutAllBallotStyles,
   LayoutOptions,
 } from '@votingworks/hmpb-layout';
@@ -151,12 +152,11 @@ function buildApi({ store }: { store: Store }) {
         [BallotType.Standard, 'precinct'],
         [BallotType.Absentee, 'absentee'],
       ];
-      const ballotModes: BallotMode[] = ['official', 'test', 'sample'];
 
       let electionHash: string | undefined;
 
       for (const [ballotType, ballotTypeLabel] of ballotTypes) {
-        for (const ballotMode of ballotModes) {
+        for (const ballotMode of BALLOT_MODES) {
           const { ballots, electionDefinition } = layOutAllBallotStyles({
             election,
             ballotType,
