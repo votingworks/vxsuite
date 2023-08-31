@@ -6,16 +6,18 @@ import {
 import {
   AnyElement,
   gridPosition,
-  layOutAllBallots,
+  layOutAllBallotStyles,
   measurements,
   Document,
   Rectangle,
-  BubblePosition,
   LayoutDensity,
   DEFAULT_LAYOUT_OPTIONS,
+  BUBBLE_POSITIONS,
+  LAYOUT_DENSITIES,
 } from '@votingworks/hmpb-layout';
 import {
   BallotPaperSize,
+  BallotType,
   Election,
   getBallotStyle,
   getContests,
@@ -101,9 +103,10 @@ export function markBallot({
 }
 
 export const famousNamesFixtures = (() => {
-  const { electionDefinition, ballots } = layOutAllBallots({
+  const { electionDefinition, ballots } = layOutAllBallotStyles({
     election: electionFamousNames2021Fixtures.election,
-    isTestMode: true,
+    ballotType: BallotType.Standard,
+    ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
   }).unsafeUnwrap();
 
@@ -146,12 +149,9 @@ export const famousNamesFixtures = (() => {
 export const sampleElectionFixtures = (() => {
   const fixtures = [];
 
-  const bubblePositions: BubblePosition[] = ['left', 'right'];
-  const layoutDensities: LayoutDensity[] = [0, 1, 2];
-
-  for (const bubblePosition of bubblePositions) {
+  for (const bubblePosition of BUBBLE_POSITIONS) {
     for (const paperSize of [BallotPaperSize.Letter, BallotPaperSize.Legal]) {
-      for (const layoutDensity of layoutDensities) {
+      for (const layoutDensity of LAYOUT_DENSITIES) {
         const election: Election = {
           ...electionSample,
           ballotLayout: {
@@ -160,9 +160,10 @@ export const sampleElectionFixtures = (() => {
           },
         };
 
-        const { ballots, electionDefinition } = layOutAllBallots({
+        const { ballots, electionDefinition } = layOutAllBallotStyles({
           election,
-          isTestMode: true,
+          ballotType: BallotType.Standard,
+          ballotMode: 'test',
           layoutOptions: {
             bubblePosition,
             layoutDensity,

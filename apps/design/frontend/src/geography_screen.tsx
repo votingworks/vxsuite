@@ -210,27 +210,31 @@ function DistrictForm({
           }
         />
       </FormField>
-      <FormActionsRow>
-        <LinkButton to={geographyRoutes.districts.root.path}>Cancel</LinkButton>
-        <Button
-          variant="primary"
-          onPress={onSavePress}
-          disabled={updateElectionMutation.isLoading}
-        >
-          <Icons.Checkmark /> Save
-        </Button>
-      </FormActionsRow>
-      {districtId && (
-        <FormActionsRow style={{ marginTop: '1rem' }}>
+      <div>
+        <FormActionsRow>
+          <LinkButton to={geographyRoutes.districts.root.path}>
+            Cancel
+          </LinkButton>
           <Button
-            variant="danger"
-            onPress={onDeletePress}
+            variant="primary"
+            onPress={onSavePress}
             disabled={updateElectionMutation.isLoading}
           >
-            <Icons.DangerX /> Delete District
+            <Icons.Checkmark /> Save
           </Button>
         </FormActionsRow>
-      )}
+        {districtId && (
+          <FormActionsRow style={{ marginTop: '1rem' }}>
+            <Button
+              variant="danger"
+              onPress={onDeletePress}
+              disabled={updateElectionMutation.isLoading}
+            >
+              <Icons.DangerX /> Delete District
+            </Button>
+          </FormActionsRow>
+        )}
+      </div>
     </Form>
   );
 }
@@ -604,27 +608,31 @@ function PrecinctForm({
           )}
         </Row>
       </FormField>
-      <FormActionsRow>
-        <LinkButton to={geographyRoutes.precincts.root.path}>Cancel</LinkButton>
-        <Button
-          variant="primary"
-          onPress={onSavePress}
-          disabled={updatePrecinctsMutation.isLoading}
-        >
-          <Icons.Checkmark /> Save
-        </Button>
-      </FormActionsRow>
-      {precinctId && (
-        <FormActionsRow style={{ marginTop: '1rem' }}>
+      <div>
+        <FormActionsRow>
+          <LinkButton to={geographyRoutes.precincts.root.path}>
+            Cancel
+          </LinkButton>
           <Button
-            variant="danger"
-            onPress={onDeletePress}
+            variant="primary"
+            onPress={onSavePress}
             disabled={updatePrecinctsMutation.isLoading}
           >
-            <Icons.DangerX /> Delete Precinct
+            <Icons.Checkmark /> Save
           </Button>
         </FormActionsRow>
-      )}
+        {precinctId && (
+          <FormActionsRow style={{ marginTop: '1rem' }}>
+            <Button
+              variant="danger"
+              onPress={onDeletePress}
+              disabled={updatePrecinctsMutation.isLoading}
+            >
+              <Icons.DangerX /> Delete Precinct
+            </Button>
+          </FormActionsRow>
+        )}
+      </div>
     </Form>
   );
 }

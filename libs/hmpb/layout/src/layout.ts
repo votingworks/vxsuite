@@ -204,7 +204,7 @@ export function measurements(
   density: LayoutDensity
 ) {
   const grid = gridForPaper(paperSize);
-  const HEADER_ROW_HEIGHT = [4.5, 4, 3.5][density];
+  const HEADER_ROW_HEIGHT = [3.5, 3, 2.5][density];
   const INSTRUCTIONS_ROW_HEIGHT = [3.5, 3, 2.5][density];
   const HEADER_AND_INSTRUCTIONS_ROW_HEIGHT =
     HEADER_ROW_HEIGHT + INSTRUCTIONS_ROW_HEIGHT;
@@ -392,18 +392,43 @@ export function TimingMarkGrid({ m }: { m: Measurements }): AnyElement {
 
 function HeaderAndInstructions({
   election,
+  precinct,
   pageNumber,
+  ballotType,
+  ballotMode,
   m,
 }: {
   election: Election;
+  precinct: Precinct;
   pageNumber: number;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
   m: Measurements;
 }): Rectangle | null {
   if (pageNumber % 2 === 0) {
     return null;
   }
 
-  const sealRowHeight = m.HEADER_ROW_HEIGHT - 0.25;
+  const sealRowHeight = m.HEADER_ROW_HEIGHT - 0.5;
+
+  const ballotModeLabel: Record<BallotMode, string> = {
+    sample: 'Sample',
+    test: 'Test',
+    official: 'Official',
+  };
+  const ballotTypeLabel: Record<BallotType, string> = {
+    [BallotType.Absentee]: ' Absentee',
+    [BallotType.Standard]: '',
+    [BallotType.Provisional]: ' Provisional',
+  };
+  const title = `${ballotModeLabel[ballotMode]}${ballotTypeLabel[ballotType]} Ballot`;
+
+  const date = Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(election.date));
 
   const header: Rectangle = {
     type: 'Rectangle',
@@ -412,38 +437,38 @@ function HeaderAndInstructions({
     height: gridHeight(m.HEADER_ROW_HEIGHT, m),
     children: [
       TextBlock({
-        ...gridPosition({ row: 0, column: sealRowHeight + 1.5 }, m),
+        ...gridPosition(
+          { row: m.HEADER_ROW_HEIGHT / 15, column: sealRowHeight + 1.5 },
+          m
+        ),
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
         textGroups: [
           {
-            text: 'Sample Ballot',
+            text: title,
             fontStyle: {
               ...m.FontStyles.H1,
               lineHeight: m.FontStyles.H1.lineHeight * 0.85,
             },
           },
           {
-            text: election.title,
-            fontStyle: m.FontStyles.H1,
+            text: `${election.title} • ${date}`,
+            fontStyle: m.FontStyles.H3,
           },
           {
-            text: `${election.county.name}, ${election.state}`,
-            fontStyle: { ...m.FontStyles.H3, fontWeight: FontWeights.NORMAL },
-          },
-          {
-            text: Intl.DateTimeFormat('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-              timeZone: 'UTC',
-            }).format(new Date(election.date)),
-            fontStyle: { ...m.FontStyles.H3, fontWeight: FontWeights.NORMAL },
+            text: `${precinct.name}, ${election.county.name}, ${election.state}`,
+            fontStyle: m.FontStyles.BODY,
           },
         ],
       }),
       {
         type: 'Image',
-        ...gridPosition({ row: 0, column: 0.5 }, m),
+        ...gridPosition(
+          {
+            row: (m.HEADER_ROW_HEIGHT - 0.25 - sealRowHeight) / 2,
+            column: 0.5,
+          },
+          m
+        ),
         width: gridWidth(sealRowHeight, m),
         height: gridHeight(sealRowHeight, m),
         contents: election.seal,
@@ -578,13 +603,11 @@ function PlaceholderQrCode({
   y,
   width,
   height,
-  m,
 }: {
   x: number;
   y: number;
   width: number;
   height: number;
-  m: Measurements;
 }): Rectangle {
   return {
     type: 'Rectangle',
@@ -592,28 +615,8 @@ function PlaceholderQrCode({
     y,
     width,
     height,
-    children: [
-      // Grayed-out fake QR code
-      QrCode({
-        x: 0,
-        y: 0,
-        width,
-        height,
-        qrCodeData: encodeInQrCode(Uint8Array.of()),
-        fill: '#ededed',
-      }),
-      TextBlock({
-        x: 2,
-        y: 0,
-        width,
-        textGroups: [
-          {
-            text: 'Sample Ballot',
-            fontStyle: { ...m.FontStyles.SMALL, fontWeight: 700 },
-          },
-        ],
-      }),
-    ],
+    stroke: 'black',
+    strokeWidth: 1,
   };
 }
 
@@ -621,18 +624,18 @@ export function Footer({
   election,
   ballotStyle,
   precinct,
-  isTestMode,
   pageNumber,
   totalPages,
+  ballotMode,
   electionHash,
   m,
 }: {
   election: Election;
   ballotStyle: BallotStyle;
   precinct: Precinct;
-  isTestMode: boolean;
   pageNumber: number;
   totalPages: number;
+  ballotMode: BallotMode;
   electionHash?: string;
   m: Measurements;
 }): Rectangle {
@@ -713,16 +716,16 @@ export function Footer({
   const endOfPageInstruction =
     pageNumber === totalPages ? ballotComplete : continueVoting;
 
-  const qrCodeData =
-    electionHash &&
-    encodeMetadataInQrCode(election, {
-      electionHash,
-      precinctId: precinct.id,
-      ballotStyleId: ballotStyle.id,
-      pageNumber,
-      ballotType: BallotType.Standard,
-      isTestMode,
-    });
+  const qrCodeData = electionHash
+    ? encodeMetadataInQrCode(election, {
+        electionHash,
+        precinctId: precinct.id,
+        ballotStyleId: ballotStyle.id,
+        pageNumber,
+        ballotType: BallotType.Standard,
+        isTestMode: ballotMode !== 'official',
+      })
+    : encodeInQrCode(Uint8Array.of());
 
   return {
     type: 'Rectangle',
@@ -739,18 +742,17 @@ export function Footer({
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
     children: [
-      qrCodeData
-        ? QrCode({
+      ballotMode === 'sample'
+        ? PlaceholderQrCode({
+            ...gridPosition({ row: 0, column: 0 }, m),
+            width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
+            height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
+          })
+        : QrCode({
             ...gridPosition({ row: 0, column: 0 }, m),
             width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
             height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
             qrCodeData,
-          })
-        : PlaceholderQrCode({
-            ...gridPosition({ row: 0, column: 0 }, m),
-            width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
-            height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
-            m,
           }),
 
       // Inner footer with gray background
@@ -787,20 +789,6 @@ export function Footer({
               },
               {
                 text: `${pageNumber}/${totalPages}`,
-                fontStyle: m.FontStyles.H2,
-              },
-            ],
-          }),
-          TextBlock({
-            ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 3.5 }, m),
-            width: gridWidth(12, m),
-            textGroups: [
-              {
-                text: 'Precinct',
-                fontStyle: m.FontStyles.SMALL,
-              },
-              {
-                text: precinct.name,
                 fontStyle: m.FontStyles.H2,
               },
             ],
@@ -1483,9 +1471,14 @@ function ContestColumnsChunk({
 
   return [section, columnPositions];
 }
+export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
+export type BallotMode = typeof BALLOT_MODES[number];
 
-export type BubblePosition = 'left' | 'right';
-export type LayoutDensity = 0 | 1 | 2;
+export const BUBBLE_POSITIONS = ['left', 'right'] as const;
+export type BubblePosition = typeof BUBBLE_POSITIONS[number];
+
+export const LAYOUT_DENSITIES = [0, 1, 2] as const;
+export type LayoutDensity = typeof LAYOUT_DENSITIES[number];
 
 export const DEFAULT_LAYOUT_OPTIONS: LayoutOptions = {
   bubblePosition: 'left',
@@ -1507,7 +1500,8 @@ interface LayOutBallotParams {
   election: Election;
   precinct: Precinct;
   ballotStyle: BallotStyle;
-  isTestMode: boolean;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
   electionHash?: string;
   layoutOptions: LayoutOptions;
 }
@@ -1516,7 +1510,8 @@ function layOutBallotHelper({
   election,
   ballotStyle,
   precinct,
-  isTestMode,
+  ballotType,
+  ballotMode,
   electionHash,
   layoutOptions,
 }: LayOutBallotParams): BallotLayout {
@@ -1545,7 +1540,10 @@ function layOutBallotHelper({
     );
     const headerAndInstructions = HeaderAndInstructions({
       election,
+      precinct,
       pageNumber,
+      ballotType,
+      ballotMode,
       m,
     });
     const headerAndInstructionsRowHeight = headerAndInstructions
@@ -1677,9 +1675,9 @@ function layOutBallotHelper({
         election,
         ballotStyle,
         precinct,
-        isTestMode,
         pageNumber: pageIndex + 1,
         totalPages: pages.length,
+        ballotMode,
         electionHash,
         m,
       })
@@ -1724,18 +1722,20 @@ export function layOutBallot(
   }
 }
 
-interface LayoutAllBallotsParams {
+interface LayoutAllBallotStylesParams {
   election: Election;
-  isTestMode: boolean;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
   layoutOptions: LayoutOptions;
 }
 
-function layOutAllBallotsHelper({
+function layOutAllBallotStylesHelper({
   election,
-  isTestMode,
+  ballotType,
+  ballotMode,
   electionHash,
   layoutOptions,
-}: LayoutAllBallotsParams & { electionHash?: string }): BallotLayout[] {
+}: LayoutAllBallotStylesParams & { electionHash?: string }): BallotLayout[] {
   return election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId) => {
       const precinct = assertDefined(getPrecinctById({ election, precinctId }));
@@ -1743,7 +1743,8 @@ function layOutAllBallotsHelper({
         election,
         precinct,
         ballotStyle,
-        isTestMode,
+        ballotType,
+        ballotMode,
         electionHash,
         layoutOptions,
       });
@@ -1761,11 +1762,12 @@ function layOutAllBallotsHelper({
  * the ballots again with the resulting election hash (which is encoded in the
  * ballot metadata).
  */
-export function layOutAllBallots({
+export function layOutAllBallotStyles({
   election,
-  isTestMode,
+  ballotType,
+  ballotMode,
   layoutOptions,
-}: LayoutAllBallotsParams): Result<
+}: LayoutAllBallotStylesParams): Result<
   { ballots: BallotLayout[]; electionDefinition: ElectionDefinition },
   Error
 > {
@@ -1778,9 +1780,10 @@ export function layOutAllBallots({
       ballotStyles,
     };
 
-    const gridLayoutsForAllPrecincts = layOutAllBallotsHelper({
+    const gridLayoutsForAllPrecincts = layOutAllBallotStylesHelper({
       election: electionWithRenderableBallotStyles,
-      isTestMode,
+      ballotType,
+      ballotMode,
       layoutOptions,
     }).map((layout) => layout.gridLayout);
     // All precincts for a given ballot style have the same grid layout
@@ -1803,9 +1806,10 @@ export function layOutAllBallots({
     ).unsafeUnwrap();
 
     return ok({
-      ballots: layOutAllBallotsHelper({
+      ballots: layOutAllBallotStylesHelper({
         election: electionDefinition.election,
-        isTestMode,
+        ballotType,
+        ballotMode,
         electionHash: electionDefinition.electionHash,
         layoutOptions,
       }),
