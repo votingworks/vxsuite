@@ -111,7 +111,6 @@ export const VX_ADMIN_CERT_AUTHORITY_CERT = {
  * An upper bound on the size of a single data object. Though a TLV value can be up to 65,535 bytes
  * long (0xffff in hex), OpenFIPS201 caps total TLV length (including tag and length) at 32,767
  * bytes (0x7fff in hex). This allows for a max data object size of:
- *
  * 32,767 bytes - 1 byte for the data tag - 3 bytes for the 0x82 0xXX 0xXX length = 32,763 bytes
  *
  * Confirmed that this really is the max through manual testing. Trying to store a data object of

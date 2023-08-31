@@ -106,9 +106,6 @@ export interface ArtifactAuthenticationConfig {
   signingMachineCertPath: string;
   signingMachinePrivateKey: FileKey | TpmKey;
   vxCertAuthorityCertPath: string;
-
-  /** Only tests should provide this param */
-  isFileOnRemovableDeviceOverride?: (filePath: string) => boolean;
 }
 
 /**

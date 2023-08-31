@@ -20,7 +20,6 @@ export interface CardLockoutConfig {
  * Providing an example of the lockout duration calculation, if the number of incorrect PIN
  * attempts allowed before lockout is 5, and the starting lockout duration is 15 seconds, the
  * lockout durations before each attempt will be as follows:
- *
  * - No lockout before attempt 1
  * - No lockout before attempt 2
  * - No lockout before attempt 3

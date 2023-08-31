@@ -17,7 +17,6 @@ export interface File {
  * Computes a hash for a single cast vote record, incorporating the cast vote record's directory
  * name, file names, and file contents. The directory summary that we hash specifically mirrors the
  * output of:
- *
  * find <directoryName> -type f | sort | xargs sha256sum
  */
 export function computeSingleCastVoteRecordHash({
