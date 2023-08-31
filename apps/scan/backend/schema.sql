@@ -65,8 +65,14 @@ create table export_directory_name (
 );
 
 create table cvr_hashes (
-  cvr_id_level_1_prefix text not null,
-  cvr_id_level_2_prefix text not null,
+  cvr_id_level_1_prefix text not null check (
+    length(cvr_id_level_1_prefix) = 1 or
+    length(cvr_id_level_1_prefix) = 0
+  ),
+  cvr_id_level_2_prefix text not null check (
+    length(cvr_id_level_2_prefix) = 2 or
+    length(cvr_id_level_2_prefix) = 0
+  ),
   cvr_id text not null,
   cvr_hash text not null
 );
