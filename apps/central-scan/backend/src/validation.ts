@@ -150,7 +150,7 @@ export function describeValidationError(
 
     case ValidationErrorType.MismatchedBallotType: {
       const [front, back] = validationError.ballotTypes;
-      return `expected a sheet to have the same ballot type, but got front=${BallotType[front]} back=${BallotType[back]}`;
+      return `expected a sheet to have the same ballot type, but got front=${front} back=${back}`;
     }
 
     case ValidationErrorType.MismatchedElectionHash: {

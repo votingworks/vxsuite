@@ -4,6 +4,7 @@ import {
   AdjudicationReason,
   BallotIdSchema,
   BallotMetadata,
+  BallotType,
   BlankPage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
@@ -15,7 +16,7 @@ import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 
 const metadata: BallotMetadata = {
   ballotStyleId: '12',
-  ballotType: 0,
+  ballotType: BallotType.Standard,
   electionHash:
     electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
       .electionHash,
@@ -216,7 +217,7 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
       precinctId: '12',
       ballotStyleId: '1',
       isTestMode: true,
-      ballotType: 0,
+      ballotType: BallotType.Standard,
     },
     votes: {},
   };
