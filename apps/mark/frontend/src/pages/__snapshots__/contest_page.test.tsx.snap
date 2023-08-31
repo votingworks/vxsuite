@@ -398,7 +398,7 @@ exports[`Renders ContestPage 1`] = `
               <span
                 class="c6"
               >
-                22
+                20
               </span>
             </span>
           </div>
@@ -1238,7 +1238,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               <span
                 class="c6"
               >
-                22
+                20
               </span>
             </span>
           </div>
