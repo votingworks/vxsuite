@@ -1,5 +1,6 @@
 import {
   BallotStyleId,
+  BallotType,
   Candidate,
   ElectionDefinition,
   getBallotStyle,
@@ -229,7 +230,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
     expect.objectContaining({
       ballotStyleId: '5',
       precinctId: '21',
-      ballotType: 0,
+      ballotType: BallotType.Standard,
       electionHash: electionSampleDefinition.electionHash,
       isTestMode: true,
       votes: {
