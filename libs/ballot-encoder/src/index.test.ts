@@ -32,6 +32,10 @@ import {
   decodeBallotConfigFromReader,
 } from './index';
 
+const standardBallotTypeIndex = Object.values(BallotType).indexOf(
+  BallotType.Standard
+);
+
 function falses(count: number): boolean[] {
   return Array.from({ length: count }, () => false);
 }
@@ -124,7 +128,7 @@ test('encodes & decodes empty votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -179,7 +183,7 @@ test('encodes & decodes without a ballot id', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(false)
     // vote roll call only, no vote data
@@ -234,7 +238,7 @@ test('encodes & decodes whether it is a test ballot', () => {
     // test ballot?
     .writeBoolean(true)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -259,6 +263,9 @@ test('encodes & decodes the ballot type', () => {
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
+  const absenteeBallotTypeIndex = Object.values(BallotType).indexOf(
+    BallotType.Absentee
+  );
   const ballot: CompletedBallot = {
     electionHash,
     ballotId,
@@ -291,7 +298,7 @@ test('encodes & decodes the ballot type', () => {
     // test ballot?
     .writeBoolean(true)
     // ballot type
-    .writeUint(BallotType.Absentee, { max: BallotTypeMaximumValue })
+    .writeUint(absenteeBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -357,7 +364,7 @@ test('encodes & decodes yesno votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -512,7 +519,7 @@ test('throws on decoding an incorrect number of precincts', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -553,7 +560,7 @@ test('throws on decoding an incorrect number of ballot styles', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -594,7 +601,7 @@ test('throws on decoding an incorrect number of contests', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -662,7 +669,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -752,7 +759,7 @@ test('encodes & decodes write-in votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
