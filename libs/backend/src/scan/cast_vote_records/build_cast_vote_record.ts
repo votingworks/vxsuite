@@ -36,8 +36,7 @@ import {
 } from './option_map';
 
 /**
- * Converts from the ballot type enumeration to a test representation used
- * in cast vote records.
+ * Converts from the ballot type enumeration to CVR ballot type.
  */
 export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
   switch (ballotType) {

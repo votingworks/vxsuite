@@ -193,7 +193,7 @@ test('HMPB ballot with mismatched ballot type', () => {
     })
   );
   expect(describeSheetValidationError(error)).toEqual(
-    `expected a sheet to have the same ballot type, but got front=Standard back=Absentee`
+    `expected a sheet to have the same ballot type, but got front=standard back=absentee`
   );
 });
 
