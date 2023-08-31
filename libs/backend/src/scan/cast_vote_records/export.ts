@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 import { Buffer } from 'buffer';
-import fs from 'fs/promises';
+import { createReadStream } from 'fs';
+import { sha256 } from 'js-sha256';
 import path from 'path';
 import { Readable } from 'stream';
 import {
@@ -110,6 +111,31 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
     generateElectionBasedSubfolderName(election, electionHash),
     exportDirectoryName
   );
+}
+
+function fileFromData(fileName: string, fileContents: string | Buffer): File {
+  return {
+    fileName,
+    open: () => Readable.from(fileContents),
+    computeSha256Hash: () => Promise.resolve(sha256(fileContents)),
+  };
+}
+
+function fileFromDisk(fileName: string): File {
+  return {
+    fileName,
+    open: () => createReadStream(fileName),
+    async computeSha256Hash() {
+      const file = createReadStream(fileName);
+      const hasher = sha256.create();
+
+      for await (const chunk of file) {
+        hasher.update(chunk);
+      }
+
+      return hasher.hex();
+    },
+  };
 }
 
 function buildCastVoteRecordReportMetadata(
@@ -250,44 +276,42 @@ async function exportCastVoteRecordFilesToUsbDrive(
       : undefined;
 
   const castVoteRecordFilesToExport: File[] = [
-    {
-      fileName: 'cast-vote-record-report.json',
-      fileContents: JSON.stringify(castVoteRecordReport),
-    },
-    {
-      fileName: path.basename(frontImageFilePath),
-      fileContents: await fs.readFile(frontImageFilePath),
-    },
-    {
-      fileName: path.basename(backImageFilePath),
-      fileContents: await fs.readFile(backImageFilePath),
-    },
+    fileFromData(
+      'cast-vote-record-report.json',
+      JSON.stringify(castVoteRecordReport)
+    ),
+    fileFromDisk(frontImageFilePath),
+    fileFromDisk(backImageFilePath),
   ];
   if (frontLayout) {
-    castVoteRecordFilesToExport.push({
-      fileName: `${path.parse(frontImageFilePath).name}.layout.json`,
-      fileContents: JSON.stringify(frontLayout),
-    });
+    castVoteRecordFilesToExport.push(
+      fileFromData(
+        `${path.parse(frontImageFilePath).name}.layout.json`,
+        JSON.stringify(frontLayout)
+      )
+    );
   }
   if (backLayout) {
-    castVoteRecordFilesToExport.push({
-      fileName: `${path.parse(backImageFilePath).name}.layout.json`,
-      fileContents: JSON.stringify(frontLayout),
-    });
+    castVoteRecordFilesToExport.push(
+      fileFromData(
+        `${path.parse(backImageFilePath).name}.layout.json`,
+        JSON.stringify(frontLayout)
+      )
+    );
   }
 
-  for (const { fileName, fileContents } of castVoteRecordFilesToExport) {
+  for (const file of castVoteRecordFilesToExport) {
     const exportResult = await exporter.exportDataToUsbDrive(
       exportDirectoryPathRelativeToUsbMountPoint,
-      path.join(castVoteRecordId, fileName),
-      Buffer.isBuffer(fileContents) ? Readable.from(fileContents) : fileContents
+      path.join(castVoteRecordId, file.fileName),
+      file.open()
     );
     if (exportResult.isErr()) {
       return exportResult;
     }
   }
 
-  const castVoteRecordHash = computeSingleCastVoteRecordHash({
+  const castVoteRecordHash = await computeSingleCastVoteRecordHash({
     directoryName: castVoteRecordId,
     files: castVoteRecordFilesToExport,
   });

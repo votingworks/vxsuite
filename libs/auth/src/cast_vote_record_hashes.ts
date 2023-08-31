@@ -10,6 +10,7 @@ import { Client } from '@votingworks/db';
  */
 export interface File {
   fileName: string;
+  open(): NodeJS.ReadableStream;
   computeSha256Hash(): Promise<string>;
 }
 
@@ -329,6 +330,7 @@ export async function computeCastVoteRecordRootHashFromScratch(
       const filePath = path.join(cvrDirectoryPath, fileName);
       cvrFiles.push({
         fileName,
+        open: () => createReadStream(filePath),
         computeSha256Hash: () => computeSha256HashForFile(filePath),
       });
     }

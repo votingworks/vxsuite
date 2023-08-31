@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { sha256 } from 'js-sha256';
 import path from 'path';
+import { Readable } from 'stream';
 import { dirSync } from 'tmp';
 import { Client } from '@votingworks/db';
 
@@ -40,6 +41,7 @@ function file(fileName: string, contents: string): FileWithContents {
   return {
     fileName,
     fileContents: contents,
+    open: () => Readable.from(contents),
     computeSha256Hash: () => Promise.resolve(sha256(contents)),
   };
 }
