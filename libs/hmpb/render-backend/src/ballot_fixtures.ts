@@ -221,6 +221,7 @@ export const sampleElectionFixtures = (() => {
           density: layoutDensity,
           electionDefinition,
           precinctId,
+          ballotStyleId: ballotStyle.id,
           gridLayout,
           blankBallot: ballot,
           markedBallot,

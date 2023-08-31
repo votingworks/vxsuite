@@ -4,7 +4,8 @@ import {
   famousNamesFixtures,
   sampleElectionFixtures,
 } from '@votingworks/hmpb-render-backend';
-import { DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
+import { BallotType, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
+import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import {
   sortVotesDict,
   ballotPdfToPageImages,
@@ -41,6 +42,25 @@ describe('HMPB - Famous Names', () => {
     expect(frontResult.interpretation.votes).toEqual({});
     assert(backResult.interpretation.type === 'InterpretedHmpbPage');
     expect(backResult.interpretation.votes).toEqual({});
+
+    expect(frontResult.interpretation.metadata).toEqual({
+      source: 'qr-code',
+      electionHash: sliceElectionHash(electionDefinition.electionHash),
+      precinctId,
+      ballotStyleId: election.ballotStyles[0]!.id,
+      pageNumber: 1,
+      isTestMode: true,
+      ballotType: BallotType.Standard,
+    });
+    expect(backResult.interpretation.metadata).toEqual({
+      source: 'qr-code',
+      electionHash: sliceElectionHash(electionDefinition.electionHash),
+      precinctId,
+      ballotStyleId: election.ballotStyles[0]!.id,
+      pageNumber: 2,
+      isTestMode: true,
+      ballotType: BallotType.Standard,
+    });
   });
 
   test('Marked ballot interpretation', async () => {
@@ -138,6 +158,7 @@ for (const {
   density,
   electionDefinition,
   precinctId,
+  ballotStyleId,
   gridLayout,
   votes,
   blankBallotPath,
@@ -146,14 +167,15 @@ for (const {
   describe(`HMPB - sample election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
     test(`Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+      const sheetImages = iter(ballotImagePaths).chunks(2).toArray();
 
-      for (const sheetImagePaths of iter(ballotImagePaths).chunks(2)) {
+      for (const [sheetIndex, sheetImagePaths] of sheetImages.entries()) {
         assert(sheetImagePaths.length === 2);
         const [frontResult, backResult] = await interpretSheet(
           {
             electionDefinition,
             precinctSelection: singlePrecinctSelectionFor(precinctId),
-            testMode: true,
+            testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [],
           },
@@ -164,6 +186,25 @@ for (const {
         expect(frontResult.interpretation.votes).toEqual({});
         assert(backResult.interpretation.type === 'InterpretedHmpbPage');
         expect(backResult.interpretation.votes).toEqual({});
+
+        expect(frontResult.interpretation.metadata).toEqual({
+          source: 'qr-code',
+          electionHash: sliceElectionHash(electionDefinition.electionHash),
+          precinctId,
+          ballotStyleId,
+          pageNumber: sheetIndex * 2 + 1,
+          isTestMode: false,
+          ballotType: BallotType.Absentee,
+        });
+        expect(backResult.interpretation.metadata).toEqual({
+          source: 'qr-code',
+          electionHash: sliceElectionHash(electionDefinition.electionHash),
+          precinctId,
+          ballotStyleId,
+          pageNumber: sheetIndex * 2 + 2,
+          isTestMode: false,
+          ballotType: BallotType.Absentee,
+        });
       }
     });
 
@@ -178,7 +219,7 @@ for (const {
           {
             electionDefinition,
             precinctSelection: singlePrecinctSelectionFor(precinctId),
-            testMode: true,
+            testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [],
           },
