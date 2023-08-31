@@ -587,9 +587,9 @@ export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefin
   ElectionDefinitionSchema.optional();
 
 export enum BallotType {
-  Standard = 0,
-  Absentee = 1,
-  Provisional = 2,
+  Standard = 'standard',
+  Absentee = 'absentee',
+  Provisional = 'provisional',
 }
 export const BallotTypeSchema: z.ZodSchema<BallotType> =
   z.nativeEnum(BallotType);
