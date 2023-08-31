@@ -1,16 +1,23 @@
-import { Buffer } from 'buffer';
 import fs from 'fs/promises';
-import { sha256 } from 'js-sha256';
+import { createReadStream } from 'fs';
+import { Hasher, sha256 } from 'js-sha256';
 import path from 'path';
 import { assert, groupBy } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
 
 /**
- * A representation of a file
+ * A representation of a file that only provides hashing.
  */
-export interface File {
+export interface HashableFile {
   fileName: string;
-  fileContents: string | Buffer;
+  computeSha256Hash(): Promise<string>;
+}
+
+/**
+ * A representation of a file that can be read and hashed.
+ */
+export interface ReadableFile extends HashableFile {
+  open(): NodeJS.ReadableStream;
 }
 
 /**
@@ -19,44 +26,51 @@ export interface File {
  * output of:
  * find <directoryName> -type f | sort | xargs sha256sum
  */
-export function computeSingleCastVoteRecordHash({
+export async function computeSingleCastVoteRecordHash({
   directoryName,
   files,
 }: {
   directoryName: string;
-  files: File[];
-}): string {
+  files: HashableFile[];
+}): Promise<string> {
   const filesSorted = [...files].sort((file1, file2) =>
     file1.fileName.localeCompare(file2.fileName)
   );
-  const fileHashes: string[] = [];
-  for (const { fileName, fileContents } of filesSorted) {
-    const filePath = path.join(directoryName, fileName);
+  const hasher = sha256.create();
+  for (const file of filesSorted) {
+    const filePath = path.join(directoryName, file.fileName);
     // Be extra cautious and prevent spoofing the directory summary by using directory/file names
     // with newlines
     assert(!filePath.includes('\n'));
-    fileHashes.push(`${sha256(fileContents)}  ${filePath}\n`);
+    hasher.update(`${await file.computeSha256Hash()}  ${filePath}\n`);
   }
-  const directorySummary = fileHashes.join('');
-  return sha256(directorySummary);
+  return hasher.hex();
 }
 
 /**
- * The input to {@link computeCombinedHash}
+ * A hash that can be combined with other hashes using {@link computeCombinedHash}.
  */
-export type HashesToCombine = Array<{ hash: string; sortKey: string }>;
+export interface CombinableHash {
+  hash: string;
+  sortKey: string;
+}
 
 /**
  * Sorts the provided hashes using the specified sort key, concatenates the hashes, and hashes the
  * result, yielding a combined hash
  */
-export function computeCombinedHash(hashesToCombine: HashesToCombine): string {
-  return sha256(
-    [...hashesToCombine]
-      .sort((entry1, entry2) => entry1.sortKey.localeCompare(entry2.sortKey))
-      .map((entry) => entry.hash)
-      .join('')
-  );
+export function computeCombinedHash(
+  hashesToCombine: Iterable<CombinableHash>
+): string {
+  const hasher = sha256.create();
+
+  for (const { hash } of [...hashesToCombine].sort((entry1, entry2) =>
+    entry1.sortKey.localeCompare(entry2.sortKey)
+  )) {
+    hasher.update(hash);
+  }
+
+  return hasher.hex();
 }
 
 //
@@ -107,6 +121,7 @@ interface Constraint {
 
 function selectCastVoteRecordHashes(
   client: Client,
+  hasher: Hasher,
   {
     cvrIdLevel1PrefixConstraint,
     cvrIdLevel2PrefixConstraint,
@@ -118,7 +133,7 @@ function selectCastVoteRecordHashes(
     cvrIdConstraint: Constraint;
     orderBy: 'cvr_id_level_1_prefix' | 'cvr_id_level_2_prefix' | 'cvr_id';
   }
-): string[] {
+): void {
   // Be extra cautious and run-time validate incoming params so that we don't solely rely on
   // compile-time validation to prevent SQL injection
   for (const constraint of [
@@ -134,7 +149,7 @@ function selectCastVoteRecordHashes(
     )
   );
 
-  const rows = client.all(
+  for (const row of client.each(
     `
     select cvr_hash as cvrHash
     from cvr_hashes
@@ -147,8 +162,10 @@ function selectCastVoteRecordHashes(
     cvrIdLevel1PrefixConstraint.value,
     cvrIdLevel2PrefixConstraint.value,
     cvrIdConstraint.value
-  ) as Array<{ cvrHash: string }>;
-  return rows.map((row) => row.cvrHash);
+  )) {
+    const { cvrHash } = row as { cvrHash: string };
+    hasher.update(cvrHash);
+  }
 }
 
 function insertCastVoteRecordHash(
@@ -223,13 +240,14 @@ export function updateCastVoteRecordHashes(
       cvrHash,
     });
 
-    const cvrHashesForLevel2Prefix = selectCastVoteRecordHashes(client, {
+    const level2Hasher = sha256.create();
+    selectCastVoteRecordHashes(client, level2Hasher, {
       cvrIdLevel1PrefixConstraint: { type: '=', value: cvrIdLevel1Prefix },
       cvrIdLevel2PrefixConstraint: { type: '=', value: cvrIdLevel2Prefix },
       cvrIdConstraint: { type: '!=', value: NULL_VALUE },
       orderBy: 'cvr_id',
     });
-    const level2Hash = sha256(cvrHashesForLevel2Prefix.join(''));
+    const level2Hash = level2Hasher.hex();
     insertCastVoteRecordHash(client, {
       cvrIdLevel1Prefix,
       cvrIdLevel2Prefix,
@@ -237,13 +255,14 @@ export function updateCastVoteRecordHashes(
       cvrHash: level2Hash,
     });
 
-    const level2HashesForLevel1Prefix = selectCastVoteRecordHashes(client, {
+    const level1Hasher = sha256.create();
+    selectCastVoteRecordHashes(client, level1Hasher, {
       cvrIdLevel1PrefixConstraint: { type: '=', value: cvrIdLevel1Prefix },
       cvrIdLevel2PrefixConstraint: { type: '!=', value: NULL_VALUE },
       cvrIdConstraint: { type: '=', value: NULL_VALUE },
       orderBy: 'cvr_id_level_2_prefix',
     });
-    const level1Hash = sha256(level2HashesForLevel1Prefix.join(''));
+    const level1Hash = level1Hasher.hex();
     insertCastVoteRecordHash(client, {
       cvrIdLevel1Prefix,
       cvrIdLevel2Prefix: NULL_VALUE,
@@ -251,13 +270,14 @@ export function updateCastVoteRecordHashes(
       cvrHash: level1Hash,
     });
 
-    const level1Hashes = selectCastVoteRecordHashes(client, {
+    const rootHasher = sha256.create();
+    selectCastVoteRecordHashes(client, rootHasher, {
       cvrIdLevel1PrefixConstraint: { type: '!=', value: NULL_VALUE },
       cvrIdLevel2PrefixConstraint: { type: '=', value: NULL_VALUE },
       cvrIdConstraint: { type: '=', value: NULL_VALUE },
       orderBy: 'cvr_id_level_1_prefix',
     });
-    const rootHash = sha256(level1Hashes.join(''));
+    const rootHash = rootHasher.hex();
     insertCastVoteRecordHash(client, {
       cvrId: NULL_VALUE,
       cvrIdLevel1Prefix: NULL_VALUE,
@@ -279,6 +299,17 @@ export function clearCastVoteRecordHashes(client: Client): void {
 // import-time hash computation.
 //
 
+async function computeSha256HashForFile(filePath: string): Promise<string> {
+  const reader = createReadStream(filePath);
+  const hash = sha256.create();
+
+  for await (const chunk of reader) {
+    hash.update(chunk);
+  }
+
+  return hash.hex();
+}
+
 /**
  * Computes the cast vote record root hash from scratch given the export directory path, reading in
  * all files and computing hashes in memory without the aid of a SQLite DB
@@ -292,7 +323,7 @@ export async function computeCastVoteRecordRootHashFromScratch(
     .filter((entry) => entry.isDirectory())
     .map((directory) => directory.name);
 
-  const cvrHashes: HashesToCombine = [];
+  const cvrHashes: CombinableHash[] = [];
   for (const cvrId of cvrIds) {
     const cvrDirectoryPath = path.join(exportDirectoryPath, cvrId);
     const cvrFileNames = (
@@ -300,21 +331,22 @@ export async function computeCastVoteRecordRootHashFromScratch(
     )
       .filter((entry) => entry.isFile())
       .map((file) => file.name);
-    const cvrFiles: File[] = [];
+    const cvrFiles: HashableFile[] = [];
     for (const fileName of cvrFileNames) {
-      const fileContents = await fs.readFile(
-        path.join(cvrDirectoryPath, fileName)
-      );
-      cvrFiles.push({ fileName, fileContents });
+      const filePath = path.join(cvrDirectoryPath, fileName);
+      cvrFiles.push({
+        fileName,
+        computeSha256Hash: () => computeSha256HashForFile(filePath),
+      });
     }
-    const cvrHash = computeSingleCastVoteRecordHash({
+    const cvrHash = await computeSingleCastVoteRecordHash({
       directoryName: cvrId,
       files: cvrFiles,
     });
     cvrHashes.push({ hash: cvrHash, sortKey: cvrId });
   }
 
-  const level2Hashes: HashesToCombine = groupBy(
+  const level2Hashes: CombinableHash[] = groupBy(
     cvrHashes,
     ({ sortKey: cvrId }) => cvrId.slice(0, 2)
   ).map(([cvrIdLevel2Prefix, cvrHashesForLevel2Prefix]) => ({
@@ -322,7 +354,7 @@ export async function computeCastVoteRecordRootHashFromScratch(
     sortKey: cvrIdLevel2Prefix,
   }));
 
-  const level1Hashes: HashesToCombine = groupBy(
+  const level1Hashes: CombinableHash[] = groupBy(
     level2Hashes,
     ({ sortKey: cvrIdLevel2Prefix }) => cvrIdLevel2Prefix.slice(0, 1)
   ).map(([cvrIdLevel1Prefix, level2HashesForLevel1Prefix]) => ({

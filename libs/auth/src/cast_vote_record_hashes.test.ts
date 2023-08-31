@@ -1,12 +1,13 @@
 import fs from 'fs';
 import { sha256 } from 'js-sha256';
 import path from 'path';
+import { Readable } from 'stream';
 import { dirSync } from 'tmp';
 import { Client } from '@votingworks/db';
 
 import {
   CAST_VOTE_RECORD_HASHES_TABLE_SCHEMA,
-  File,
+  ReadableFile,
   clearCastVoteRecordHashes,
   computeCastVoteRecordRootHashFromScratch,
   computeCombinedHash,
@@ -34,37 +35,27 @@ type CastVoteRecordId =
   | 'c1234567-0000-0000-0000-000000000000'
   | 'e1234567-0000-0000-0000-000000000000';
 
+type FileWithContents = ReadableFile & { fileContents: string };
+
+function file(fileName: string, contents: string): FileWithContents {
+  return {
+    fileName,
+    fileContents: contents,
+    open: () => Readable.from(contents),
+    computeSha256Hash: () => Promise.resolve(sha256(contents)),
+  };
+}
+
 // A minimal set of mock cast vote records for testing a branching factor of 3 at every level of
 // the Merkle tree
-const castVoteRecords: Record<CastVoteRecordId, File[]> = {
-  'a1234567-0000-0000-0000-000000000000': [
-    { fileName: 'a', fileContents: 'a1' },
-    { fileName: 'b', fileContents: 'b1' },
-  ],
-  'a2345678-0000-0000-0000-000000000000': [
-    { fileName: 'a', fileContents: 'a2' },
-    { fileName: 'b', fileContents: 'b2' },
-  ],
-  'ab123456-0000-0000-0000-000000000000': [
-    { fileName: 'a', fileContents: 'a3' },
-    { fileName: 'b', fileContents: 'b3' },
-  ],
-  'ab234567-0000-0000-0000-000000000000': [
-    { fileName: 'a', fileContents: 'a4' },
-    { fileName: 'b', fileContents: 'b4' },
-  ],
-  'ab345678-0000-0000-0000-000000000000': [
-    { fileName: 'a', fileContents: 'a5' },
-    { fileName: 'b', fileContents: 'b5' },
-  ],
-  'c1234567-0000-0000-0000-000000000000': [
-    { fileName: 'a', fileContents: 'a6' },
-    { fileName: 'b', fileContents: 'b6' },
-  ],
-  'e1234567-0000-0000-0000-000000000000': [
-    { fileName: 'a', fileContents: 'a7' },
-    { fileName: 'b', fileContents: 'b7' },
-  ],
+const castVoteRecords: Record<CastVoteRecordId, FileWithContents[]> = {
+  'a1234567-0000-0000-0000-000000000000': [file('a', 'a1'), file('b', 'b1')],
+  'a2345678-0000-0000-0000-000000000000': [file('a', 'a2'), file('b', 'b2')],
+  'ab123456-0000-0000-0000-000000000000': [file('a', 'a3'), file('b', 'b3')],
+  'ab234567-0000-0000-0000-000000000000': [file('a', 'a4'), file('b', 'b4')],
+  'ab345678-0000-0000-0000-000000000000': [file('a', 'a5'), file('b', 'b5')],
+  'c1234567-0000-0000-0000-000000000000': [file('a', 'a6'), file('b', 'b6')],
+  'e1234567-0000-0000-0000-000000000000': [file('a', 'a7'), file('b', 'b7')],
 };
 
 /**
@@ -73,14 +64,10 @@ const castVoteRecords: Record<CastVoteRecordId, File[]> = {
 const expectedCastVoteRecordRootHash =
   '03b88fdbe32c1115f6427953fd4364a737d85c0cf56a831249f1a4cd4c2a6b8a';
 
-test('computeSingleCastVoteRecordHash', () => {
-  const hash = computeSingleCastVoteRecordHash({
+test('computeSingleCastVoteRecordHash', async () => {
+  const hash = await computeSingleCastVoteRecordHash({
     directoryName: 'directory-name',
-    files: [
-      { fileName: '2', fileContents: 'a' },
-      { fileName: '3', fileContents: 'b' },
-      { fileName: '1', fileContents: 'c' },
-    ],
+    files: [file('2', 'a'), file('3', 'b'), file('1', 'c')],
   });
   const directorySummary = `
 ${sha256('c')}  directory-name/1
@@ -91,7 +78,7 @@ ${sha256('b')}  directory-name/3
   expect(hash).toEqual(expectedHash);
 });
 
-test('computeSingleCastVoteRecordHash newline detection', () => {
+test('computeSingleCastVoteRecordHash newline detection', async () => {
   /**
    * This input will spoof the following directory summary:
    * ${sha256('a')}  directory-name/1
@@ -100,18 +87,9 @@ test('computeSingleCastVoteRecordHash newline detection', () => {
    */
   const sneakyInput: Parameters<typeof computeSingleCastVoteRecordHash>[0] = {
     directoryName: 'directory-name',
-    files: [
-      {
-        fileName: `1\n${sha256('b')}  directory-name/2`,
-        fileContents: 'a',
-      },
-      {
-        fileName: '3',
-        fileContents: 'c',
-      },
-    ],
+    files: [file(`1\n${sha256('b')}  directory-name/2`, 'a'), file('3', 'c')],
   };
-  expect(() => computeSingleCastVoteRecordHash(sneakyInput)).toThrow();
+  await expect(computeSingleCastVoteRecordHash(sneakyInput)).rejects.toThrow();
 });
 
 test('computeCombinedHash', () => {
@@ -124,12 +102,14 @@ test('computeCombinedHash', () => {
   expect(hash).toEqual(expectedHash);
 });
 
-test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
+test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', async () => {
   const client = Client.memoryClient();
   client.exec(CAST_VOTE_RECORD_HASHES_TABLE_SCHEMA);
 
-  function updateCastVoteRecordHashesHelper(cvrId: CastVoteRecordId): string {
-    const cvrHash = computeSingleCastVoteRecordHash({
+  async function updateCastVoteRecordHashesHelper(
+    cvrId: CastVoteRecordId
+  ): Promise<string> {
+    const cvrHash = await computeSingleCastVoteRecordHash({
       directoryName: cvrId,
       files: castVoteRecords[cvrId],
     });
@@ -139,7 +119,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
 
   expect(getCastVoteRecordRootHash(client)).toEqual('');
 
-  const cvr1Hash = updateCastVoteRecordHashesHelper(
+  const cvr1Hash = await updateCastVoteRecordHashesHelper(
     'ab123456-0000-0000-0000-000000000000'
   );
   let abHash = sha256(cvr1Hash);
@@ -147,7 +127,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   let rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const cvr2Hash = updateCastVoteRecordHashesHelper(
+  const cvr2Hash = await updateCastVoteRecordHashesHelper(
     'ab345678-0000-0000-0000-000000000000'
   );
   abHash = sha256(cvr1Hash + cvr2Hash);
@@ -155,7 +135,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const cvr3Hash = updateCastVoteRecordHashesHelper(
+  const cvr3Hash = await updateCastVoteRecordHashesHelper(
     'a1234567-0000-0000-0000-000000000000'
   );
   const a1Hash = sha256(cvr3Hash);
@@ -163,7 +143,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   rootHash = sha256(aHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const cvr4Hash = updateCastVoteRecordHashesHelper(
+  const cvr4Hash = await updateCastVoteRecordHashesHelper(
     'e1234567-0000-0000-0000-000000000000'
   );
   const e1Hash = sha256(cvr4Hash);
@@ -171,7 +151,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   rootHash = sha256(aHash + eHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const cvr5Hash = updateCastVoteRecordHashesHelper(
+  const cvr5Hash = await updateCastVoteRecordHashesHelper(
     'c1234567-0000-0000-0000-000000000000'
   );
   const c1Hash = sha256(cvr5Hash);
@@ -179,7 +159,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   rootHash = sha256(aHash + cHash + eHash); // Reach branching factor of 3 at root
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const cvr6Hash = updateCastVoteRecordHashesHelper(
+  const cvr6Hash = await updateCastVoteRecordHashesHelper(
     'ab234567-0000-0000-0000-000000000000'
   );
   abHash = sha256(cvr1Hash + cvr6Hash + cvr2Hash); // Reach branching factor of 3 at level 2
@@ -187,7 +167,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   rootHash = sha256(aHash + cHash + eHash);
   expect(getCastVoteRecordRootHash(client)).toEqual(rootHash);
 
-  const cvr7Hash = updateCastVoteRecordHashesHelper(
+  const cvr7Hash = await updateCastVoteRecordHashesHelper(
     'a2345678-0000-0000-0000-000000000000'
   );
   const a2Hash = sha256(cvr7Hash);
