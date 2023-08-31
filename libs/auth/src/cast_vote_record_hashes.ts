@@ -114,6 +114,21 @@ function selectCastVoteRecordHashes(
     orderBy: 'cvr_id_level_1_prefix' | 'cvr_id_level_2_prefix' | 'cvr_id';
   }
 ): string[] {
+  // Be extra cautious and run-time validate incoming params so that we don't solely rely on
+  // compile-time validation to prevent SQL injection
+  for (const constraint of [
+    cvrIdLevel1PrefixConstraint,
+    cvrIdLevel2PrefixConstraint,
+    cvrIdConstraint,
+  ]) {
+    assert(['=', '!='].includes(constraint.type));
+  }
+  assert(
+    ['cvr_id_level_1_prefix', 'cvr_id_level_2_prefix', 'cvr_id'].includes(
+      orderBy
+    )
+  );
+
   const rows = client.all(
     `
     select cvr_hash as cvrHash
