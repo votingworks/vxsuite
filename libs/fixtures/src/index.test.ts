@@ -37,9 +37,6 @@ test('has various election definitions', () => {
       "electionWithMsEitherNeitherFixtures",
       "multiPartyPrimaryElection",
       "multiPartyPrimaryElectionDefinition",
-      "primaryElectionSample",
-      "primaryElectionSampleDefinition",
-      "primaryElectionSampleFixtures",
       "sampleBallotImages",
       "systemSettings",
     ]

@@ -10,7 +10,6 @@ export * as electionMinimalExhaustiveSampleFixtures from './data/electionMinimal
 export * as electionComplexGeoSample from './data/electionComplexGeoSample/election.json';
 export * as electionMinimalExhaustiveSampleWithReportingUrlFixtures from './data/electionMinimalExhaustiveSampleWithReportingUrl';
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
-export * as primaryElectionSampleFixtures from './data/electionPrimary';
 export * as sampleBallotImages from './data/sample-ballot-images';
 export {
   electionDefinition as electionSampleDefinition,
@@ -48,10 +47,6 @@ export {
   electionDefinition as electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   election as electionMinimalExhaustiveSampleSinglePrecinct,
 } from './data/electionMinimalExhaustiveSampleSinglePrecinct/election.json';
-export {
-  electionDefinition as primaryElectionSampleDefinition,
-  election as primaryElectionSample,
-} from './data/electionPrimary';
 export {
   electionDefinition as electionSampleLongContentDefinition,
   election as electionSampleLongContent,

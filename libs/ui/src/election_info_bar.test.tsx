@@ -1,7 +1,4 @@
-import {
-  electionSampleDefinition,
-  primaryElectionSampleDefinition,
-} from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -85,14 +82,12 @@ test('Renders ElectionInfoBar without admin info in default voter mode', () => {
 });
 
 test('Renders ElectionInfoBar seal', () => {
-  render(
-    <ElectionInfoBar electionDefinition={primaryElectionSampleDefinition} />
-  );
+  render(<ElectionInfoBar electionDefinition={electionSampleDefinition} />);
   expect(screen.getByTestId('seal').innerHTML.toString()).toMatch(
     /Seal of Montgomery County, Maryland/
   );
   screen.getByText('Election ID');
   within(screen.getByText('Election ID').parentElement!).getByText(
-    getDisplayElectionHash(primaryElectionSampleDefinition)
+    getDisplayElectionHash(electionSampleDefinition)
   );
 });
