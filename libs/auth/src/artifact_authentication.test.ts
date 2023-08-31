@@ -27,7 +27,11 @@ jest.mock('@votingworks/types', (): typeof import('@votingworks/types') => ({
  * The root hash for the mock cast vote records created in the beforeEach block
  */
 const expectedCastVoteRecordRootHash =
-  'fd7e7d5ef2afde3f15a65a2f44d457d3c5b2f097bbdb6379a71946e45af262b5';
+  '9136de224abc5d5c84100eecbcb8e4f2de40a7d79be9d1b5cfad46f4fffe54c2';
+
+const cvrId1 = 'a1234567-0000-0000-0000-000000000000';
+const cvrId2 = 'a2345678-0000-0000-0000-000000000000';
+const cvrId3 = 'a3456789-0000-0000-0000-000000000000';
 
 let tempDirectoryPath: string;
 let castVoteRecords: {
@@ -54,13 +58,13 @@ beforeEach(() => {
     'cast-vote-record-export'
   );
   fs.mkdirSync(castVoteRecordExportDirectoryPath);
-  fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, '1234'));
-  fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, '2345'));
+  fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId1));
+  fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId2));
   for (const { directoryName, fileName, fileContents } of [
-    { directoryName: '1234', fileName: 'a', fileContents: 'a1' },
-    { directoryName: '1234', fileName: 'b', fileContents: 'b1' },
-    { directoryName: '2345', fileName: 'a', fileContents: 'a2' },
-    { directoryName: '2345', fileName: 'b', fileContents: 'b2' },
+    { directoryName: cvrId1, fileName: 'a', fileContents: 'a1' },
+    { directoryName: cvrId1, fileName: 'b', fileContents: 'b1' },
+    { directoryName: cvrId2, fileName: 'a', fileContents: 'a2' },
+    { directoryName: cvrId2, fileName: 'b', fileContents: 'b2' },
   ]) {
     fs.writeFileSync(
       path.join(castVoteRecordExportDirectoryPath, directoryName, fileName),
@@ -230,7 +234,7 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.appendFileSync(path.join(directoryPath, '1234/a'), '!');
+      fs.appendFileSync(path.join(directoryPath, cvrId1, 'a'), '!');
     },
   },
   {
@@ -241,7 +245,7 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.writeFileSync(path.join(directoryPath, '1234/c'), '');
+      fs.writeFileSync(path.join(directoryPath, cvrId1, 'c'), '');
     },
   },
   {
@@ -252,7 +256,7 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.rmSync(path.join(directoryPath, '1234/a'));
+      fs.rmSync(path.join(directoryPath, cvrId1, 'a'));
     },
   },
   {
@@ -265,8 +269,8 @@ test.each<{
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       fs.renameSync(
-        path.join(directoryPath, '1234/a'),
-        path.join(directoryPath, '1234/a-renamed')
+        path.join(directoryPath, cvrId1, 'a'),
+        path.join(directoryPath, cvrId1, 'a-renamed')
       );
     },
   },
@@ -278,7 +282,7 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.mkdirSync(path.join(directoryPath, '3456'));
+      fs.mkdirSync(path.join(directoryPath, cvrId3));
     },
   },
   {
@@ -289,7 +293,7 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.rmSync(path.join(directoryPath, '2345'), { recursive: true });
+      fs.rmSync(path.join(directoryPath, cvrId2), { recursive: true });
     },
   },
   {
@@ -304,11 +308,11 @@ test.each<{
       // cp and cpSync are experimental so not recommended for use in production but fine for use
       // in tests
       fs.cpSync(
-        path.join(directoryPath, '1234'),
-        path.join(directoryPath, '1234-renamed'),
+        path.join(directoryPath, cvrId1),
+        path.join(directoryPath, cvrId3),
         { recursive: true }
       );
-      fs.rmSync(path.join(directoryPath, '1234'), { recursive: true });
+      fs.rmSync(path.join(directoryPath, cvrId1), { recursive: true });
     },
   },
   {
