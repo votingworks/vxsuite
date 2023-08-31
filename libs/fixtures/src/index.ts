@@ -4,7 +4,6 @@ import { sha256 } from 'js-sha256';
 export * as electionGridLayoutNewHampshireAmherstFixtures from './data/electionGridLayoutNewHampshireAmherst';
 export * as electionGridLayoutNewHampshireHudsonFixtures from './data/electionGridLayoutNewHampshireHudson';
 export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021';
-export * as electionSample2Fixtures from './data/electionSample2';
 export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPrimary';
 export * as electionMinimalExhaustiveSampleFixtures from './data/electionMinimalExhaustiveSample';
 export * as electionComplexGeoSample from './data/electionComplexGeoSample/election.json';
@@ -19,10 +18,6 @@ export {
   electionDefinition as electionSampleCdfDefinition,
   election as electionSampleCdf,
 } from './data/electionSampleCDF.json';
-export {
-  electionDefinition as electionSample2Definition,
-  election as electionSample2,
-} from './data/electionSample2/election.json';
 export {
   electionDefinition as multiPartyPrimaryElectionDefinition,
   election as multiPartyPrimaryElection,
