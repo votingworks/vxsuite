@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
 import path from 'path';
-import { groupBy } from '@votingworks/basics';
+import { assert, groupBy } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
 
 /**
@@ -32,9 +32,11 @@ export function computeSingleCastVoteRecordHash({
   );
   const fileHashes: string[] = [];
   for (const { fileName, fileContents } of filesSorted) {
-    fileHashes.push(
-      `${sha256(fileContents)}  ${path.join(directoryName, fileName)}\n`
-    );
+    const filePath = path.join(directoryName, fileName);
+    // Be extra cautious and prevent spoofing the directory summary by using directory/file names
+    // with newlines
+    assert(!filePath.includes('\n'));
+    fileHashes.push(`${sha256(fileContents)}  ${filePath}\n`);
   }
   const directorySummary = fileHashes.join('');
   return sha256(directorySummary);

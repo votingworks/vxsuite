@@ -91,6 +91,29 @@ ${sha256('b')}  directory-name/3
   expect(hash).toEqual(expectedHash);
 });
 
+test('computeSingleCastVoteRecordHash newline detection', () => {
+  /**
+   * This input will spoof the following directory summary:
+   * ${sha256('a')}  directory-name/1
+   * ${sha256('b')}  directory-name/2
+   * ${sha256('c')}  directory-name/3
+   */
+  const sneakyInput: Parameters<typeof computeSingleCastVoteRecordHash>[0] = {
+    directoryName: 'directory-name',
+    files: [
+      {
+        fileName: `1\n${sha256('b')}  directory-name/2`,
+        fileContents: 'a',
+      },
+      {
+        fileName: '3',
+        fileContents: 'c',
+      },
+    ],
+  };
+  expect(() => computeSingleCastVoteRecordHash(sneakyInput)).toThrow();
+});
+
 test('computeCombinedHash', () => {
   const hash = computeCombinedHash([
     { hash: sha256('a'), sortKey: '2' },
