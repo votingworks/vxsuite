@@ -40,10 +40,6 @@ export {
   election as electionWithMsEitherNeither,
 } from './data/electionWithMsEitherNeither';
 export {
-  electionDefinition as electionMinimalExhaustiveSampleRightSideTargetsDefinition,
-  election as electionMinimalExhaustiveSampleRightSideTargets,
-} from './data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json';
-export {
   electionDefinition as electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   election as electionMinimalExhaustiveSampleSinglePrecinct,
 } from './data/electionMinimalExhaustiveSampleSinglePrecinct/election.json';
