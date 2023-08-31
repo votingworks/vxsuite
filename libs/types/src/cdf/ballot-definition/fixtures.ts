@@ -16,40 +16,16 @@ import { BallotPaperSize, DistrictId, Election, PartyId } from '../../election';
  * less strict parts of VXF to match stricter CDF constraints.
  */
 export function normalizeVxf(vxfElection: Election): Election {
-  // Omit fields that are not part of CDF
-  const {
-    title,
-    date,
-    state,
-    county,
-    seal,
-    districts,
-    precincts,
-    parties,
-    contests,
-    ballotStyles,
-    ballotLayout,
-    gridLayouts,
-  } = vxfElection;
-  const dateWithoutTime = new Date(date.split('T')[0]);
+  const dateWithoutTime = new Date(vxfElection.date.split('T')[0]);
   const isoDateString = `${dateWithoutTime.toISOString().split('.')[0]}Z`;
   return {
-    title,
+    ...vxfElection,
     date: isoDateString,
-    state,
-    county,
-    seal,
-    districts,
-    precincts,
-    parties,
-    contests,
-    ballotStyles,
-    ballotLayout,
-    gridLayouts,
   };
 }
 
 export const testVxfElection: Election = {
+  type: 'general',
   title: 'Lincoln Municipal General Election',
   state: 'State of Hamilton',
   county: {

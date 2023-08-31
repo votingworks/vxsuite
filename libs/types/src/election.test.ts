@@ -532,7 +532,7 @@ test('getDisplayElectionHash', () => {
     JSON.stringify(election)
   ).unsafeUnwrap();
   expect(getDisplayElectionHash(electionDefinition)).toMatchInlineSnapshot(
-    `"96c2958303"`
+    `"28bdbd95e1"`
   );
 });
 

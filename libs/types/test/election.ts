@@ -4,6 +4,7 @@ import { unsafeParse } from '../src/generic';
 
 export const electionData = `
 {
+  "type": "general",
   "title": "ELECTION",
   "ballotStyles": [
     {
@@ -73,6 +74,7 @@ const democraticPartyId = unsafeParse(PartyIdSchema, 'DEM');
 const republicanPartyId = unsafeParse(PartyIdSchema, 'REP');
 export const primaryElection: Election = {
   ...election,
+  type: 'primary',
   title: 'Primary Election',
   ballotStyles: [
     ...election.ballotStyles.map((bs) => ({
@@ -121,6 +123,7 @@ export const primaryElection: Election = {
 
 const electionMinimalExhaustiveData = `
 {
+  "type": "primary",
   "title": "Example Primary Election - Minimal Exhaustive",
   "state": "State of Sample",
   "county": {
