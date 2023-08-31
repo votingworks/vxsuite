@@ -1,49 +1,55 @@
 import { Tabulation } from '@votingworks/types';
 import {
-  convertGroupSpecifierToFilter,
+  combineGroupSpecifierAndFilter,
   groupBySupportsZeroSplits,
+  isFilterEmpty,
   isGroupByEmpty,
-  mergeFilters,
 } from './arguments';
 
-test('convertGroupSpecifierToFilter', () => {
-  expect(
-    convertGroupSpecifierToFilter({
-      partyId: 'id',
-      ballotStyleId: 'id',
-      precinctId: 'id',
-      votingMethod: 'absentee',
-      batchId: 'id',
-      scannerId: 'id',
-    })
-  ).toEqual({
-    partyIds: ['id'],
-    ballotStyleIds: ['id'],
-    precinctIds: ['id'],
-    votingMethods: ['absentee'],
-    batchIds: ['id'],
-    scannerIds: ['id'],
-  });
+test('combineGroupSpecifierAndFilter', () => {
+  const testCases: Array<
+    [Tabulation.GroupSpecifier, Tabulation.Filter, Tabulation.Filter]
+  > = [
+    [{}, {}, {}],
+    [
+      { precinctId: 'precinct-1' },
+      { ballotStyleIds: ['1M', '2F'] },
+      { precinctIds: ['precinct-1'], ballotStyleIds: ['1M', '2F'] },
+    ],
+    [
+      { votingMethod: 'absentee' },
+      { precinctIds: ['precinct-1', 'precinct-2'] },
+      {
+        votingMethods: ['absentee'],
+        precinctIds: ['precinct-1', 'precinct-2'],
+      },
+    ],
+    [
+      { batchId: 'batch-1' },
+      { votingMethods: ['absentee', 'precinct'] },
+      { batchIds: ['batch-1'], votingMethods: ['absentee', 'precinct'] },
+    ],
+    [
+      { scannerId: 'scanner-1' },
+      { batchIds: ['batch-1', 'batch-2'] },
+      { scannerIds: ['scanner-1'], batchIds: ['batch-1', 'batch-2'] },
+    ],
+    [
+      { partyId: 'party-1' },
+      { scannerIds: ['scanner-1', 'scanner-2'] },
+      { partyIds: ['party-1'], scannerIds: ['scanner-1', 'scanner-2'] },
+    ],
+    [
+      { ballotStyleId: '1M' },
+      { partyIds: ['party-1', 'party-2'] },
+      { ballotStyleIds: ['1M'], partyIds: ['party-1', 'party-2'] },
+    ],
+  ];
 
-  expect(convertGroupSpecifierToFilter({})).toEqual({});
-});
-
-test('mergeFilters', () => {
-  expect(mergeFilters({}, {})).toEqual({});
-
-  const filter1: Tabulation.Filter = {
-    precinctIds: ['precinct-1'],
-  };
-  const filter2: Tabulation.Filter = {
-    votingMethods: ['absentee'],
-  };
-  expect(mergeFilters(filter1, {})).toEqual(filter1);
-  expect(mergeFilters({}, filter1)).toEqual(filter1);
-
-  expect(mergeFilters(filter1, filter2)).toEqual({
-    precinctIds: ['precinct-1'],
-    votingMethods: ['absentee'],
-  });
+  for (const testCase of testCases) {
+    const [group, filter, expected] = testCase;
+    expect(combineGroupSpecifierAndFilter(group, filter)).toEqual(expected);
+  }
 });
 
 test('groupBySupportsZeroSplits', () => {
@@ -69,4 +75,14 @@ test('isGroupByEmpty', () => {
   expect(isGroupByEmpty({ groupByParty: true })).toEqual(false);
   expect(isGroupByEmpty({ groupByScanner: true })).toEqual(false);
   expect(isGroupByEmpty({ groupByVotingMethod: true })).toEqual(false);
+});
+
+test('isFilterEmpty', () => {
+  expect(isFilterEmpty({})).toEqual(true);
+  expect(isFilterEmpty({ precinctIds: ['id'] })).toEqual(false);
+  expect(isFilterEmpty({ batchIds: ['id'] })).toEqual(false);
+  expect(isFilterEmpty({ scannerIds: ['id'] })).toEqual(false);
+  expect(isFilterEmpty({ partyIds: ['id'] })).toEqual(false);
+  expect(isFilterEmpty({ votingMethods: ['absentee'] })).toEqual(false);
+  expect(isFilterEmpty({ ballotStyleIds: ['id'] })).toEqual(false);
 });

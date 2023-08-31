@@ -3,10 +3,9 @@ import { assert, assertDefined, mapObject } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
   combineElectionResults,
+  combineGroupSpecifierAndFilter,
   combineManualElectionResults,
-  convertGroupSpecifierToFilter,
   groupMapToGroupList,
-  mergeFilters,
   mergeTabulationGroupMaps,
   mergeWriteInTallies,
 } from '@votingworks/utils';
@@ -37,10 +36,7 @@ function addContestIdsToReports<U>({
   return reports.map((report) => {
     const contestIds = store.getFilteredContests({
       electionId,
-      filter: mergeFilters(
-        overallFilter,
-        convertGroupSpecifierToFilter(report)
-      ),
+      filter: combineGroupSpecifierAndFilter(report, overallFilter),
     });
     return {
       ...report,
