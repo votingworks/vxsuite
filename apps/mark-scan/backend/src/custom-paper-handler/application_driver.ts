@@ -14,6 +14,10 @@ import {
 import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { PRINT_DPI, RESET_DELAY_MS, SCAN_DPI } from './constants';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
@@ -70,15 +74,39 @@ export function isPaperInInput(
 export function isPaperInOutput(
   paperHandlerStatus: PaperHandlerStatus
 ): boolean {
-  return paperHandlerStatus.ticketPresentInOutput;
+  // From experimentation both of these are true when paper is in rear output
+  return (
+    paperHandlerStatus.ticketPresentInOutput ||
+    paperHandlerStatus.paperOutSensor
+  );
 }
 
 export function isPaperAnywhere(
   paperHandlerStatus: PaperHandlerStatus
 ): boolean {
   return (
-    isPaperInInput(paperHandlerStatus) || isPaperInScanner(paperHandlerStatus)
+    isPaperInInput(paperHandlerStatus) ||
+    isPaperInOutput(paperHandlerStatus) ||
+    isPaperInScanner(paperHandlerStatus)
   );
+}
+
+export function isBallotBoxDetached(
+  paperHandlerStatus: PaperHandlerStatus
+): boolean {
+  debug('Ignoring paperHandlerStatus:\n%O', paperHandlerStatus);
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK
+    )
+  ) {
+    return false;
+  }
+
+  // ballotBoxAttachSensor is true when the ballot box is not attached. This is confusing.
+  // Best guess is the developers of this status thought of it as an indicator of whether
+  // the ballot box needs to be attached.
+  return paperHandlerStatus.ballotBoxAttachSensor;
 }
 
 export async function logRawStatus(driver: PaperHandlerDriver): Promise<void> {
