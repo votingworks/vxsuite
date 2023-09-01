@@ -51,6 +51,46 @@ test('`jammed` state renders jam page', async () => {
   await screen.findByText('Paper is Jammed');
 });
 
+test('`ballot_box_detached` state renders ballot box detached page', async () => {
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  apiMock.setPaperHandlerState('ballot_box_detached');
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  await screen.findByText('Ballot Box Detached');
+});
+
+test('`rear_paper_path_jammed` state renders rear jam page', async () => {
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  apiMock.setPaperHandlerState('rear_paper_path_jammed');
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  await screen.findByText('Rear Paper Path Jammed');
+});
+
 test('`jam_cleared` state renders jam cleared page', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();

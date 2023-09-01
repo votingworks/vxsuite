@@ -78,6 +78,8 @@ import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { JammedPage } from './pages/jammed_page';
 import { JamClearedPage } from './pages/jam_cleared_page';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
+import { RearPaperPathJammed } from './pages/rear_paper_path_jammed';
+import { BallotBoxDetached } from './pages/ballot_box_detached';
 
 interface UserState {
   votes?: VotesDict;
@@ -681,6 +683,15 @@ export function AppRoot({
   if (stateMachineState === 'jammed') {
     return <JammedPage />;
   }
+
+  if (stateMachineState === 'rear_paper_path_jammed') {
+    return <RearPaperPathJammed />;
+  }
+
+  if (stateMachineState === 'ballot_box_detached') {
+    return <BallotBoxDetached />;
+  }
+
   if (
     stateMachineState === 'jam_cleared' ||
     stateMachineState === 'resetting_state_machine_after_jam'
