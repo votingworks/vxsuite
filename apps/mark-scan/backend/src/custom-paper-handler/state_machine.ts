@@ -83,101 +83,15 @@ type PaperHandlerStatusEvent =
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
 
-export class PaperHandlerStateMachine {
-  constructor(
-    private readonly driver: PaperHandlerDriver,
-    private readonly machineService: Interpreter<
-      Context,
-      any,
-      PaperHandlerStatusEvent,
-      any,
-      any
-    >
-  ) {}
-
-  stopMachineService(): void {
-    this.machineService.stop();
-  }
-
-  getRawDeviceStatus(): Promise<PaperHandlerStatus> {
-    return this.driver.getPaperHandlerStatus();
-  }
-
-  // Leftover wrapper. Keeping this so the interface between API and state machine is the same until
-  // I can get around to migrating it later in the PR
-  getSimpleStatus(): SimpleServerStatus {
-    const { state } = this.machineService;
-
-    switch (true) {
-      case state.matches('not_accepting_paper'):
-        return 'not_accepting_paper';
-      case state.matches('accepting_paper'):
-        return 'accepting_paper';
-      case state.matches('loading_paper'):
-        return 'loading_paper';
-      case state.matches('waiting_for_ballot_data'):
-        return 'waiting_for_ballot_data';
-      case state.matches('printing_ballot'):
-        return 'printing_ballot';
-      case state.matches('scanning'):
-        return 'scanning';
-      case state.matches('interpreting'):
-        return 'interpreting';
-      case state.matches('presenting_ballot'):
-        return 'presenting_ballot';
-      case state.matches('eject_to_front'):
-        return 'ejecting_to_front';
-      case state.matches('eject_to_rear'):
-        return 'ejecting_to_rear';
-      case state.matches('jammed'):
-        return 'jammed';
-      case state.matches('jam_physically_cleared'):
-        return 'jam_cleared';
-      case state.matches('resetting_state_machine_after_jam'):
-        return 'resetting_state_machine_after_jam';
-      case state.matches('resetting_state_machine_after_success'):
-        return 'resetting_state_machine_after_success';
-      default:
-        return 'no_hardware';
-    }
-  }
-
-  setAcceptingPaper(): void {
-    this.machineService.send({
-      type: 'BEGIN_ACCEPTING_PAPER',
-    });
-  }
-
-  printBallot(pdfData: Buffer): void {
-    this.machineService.send({
-      type: 'VOTER_INITIATED_PRINT',
-      pdfData,
-    });
-  }
-
-  getInterpretation(): Optional<SheetOf<InterpretFileResult>> {
-    const { state } = this.machineService;
-    const { context } = state;
-    debug(
-      'Returning interpretation of type:',
-      context.interpretation
-        ? JSON.stringify(context.interpretation[0].interpretation.type)
-        : 'no_interpretation_found'
-    );
-    return context.interpretation;
-  }
-
-  validateBallot(): void {
-    this.machineService.send({
-      type: 'VOTER_VALIDATED_BALLOT',
-    });
-  }
-
-  invalidateBallot(): void {
-    this.machineService.send({
-      type: 'VOTER_INVALIDATED_BALLOT',
-    });
-  }
+export interface PaperHandlerStateMachine {
+  stopMachineService(): void;
+  getRawDeviceStatus(): Promise<PaperHandlerStatus>;
+  getSimpleStatus(): SimpleServerStatus;
+  setAcceptingPaper(): void;
+  printBallot(pdfData: Buffer): void;
+  getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
+  validateBallot(): void;
+  invalidateBallot(): void;
 }
 
 function paperHandlerStatusToEvent(
@@ -576,25 +490,107 @@ function setUpLogging(
 }
 
 export async function getPaperHandlerStateMachine(
-  paperHandlerDriver: PaperHandlerDriverInterface,
+  driver: PaperHandlerDriverInterface,
   workspace: Workspace,
   auth: InsertedSmartCardAuthApi,
   logger: Logger,
   pollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
 ): Promise<Optional<PaperHandlerStateMachine>> {
-  const context: Context = {
+  const initialContext: Context = {
     workspace,
-    driver: paperHandlerDriver,
+    driver,
     pollingIntervalMs,
   };
 
-  const machine = buildMachine(context, auth);
+  const machine = buildMachine(initialContext, auth);
   const machineService = interpret(machine).start();
   setUpLogging(machineService, logger);
-  const paperHandlerStateMachine = new PaperHandlerStateMachine(
-    paperHandlerDriver,
-    machineService
-  );
-  await setDefaults(paperHandlerDriver);
-  return paperHandlerStateMachine;
+  await setDefaults(driver);
+
+  return {
+    stopMachineService(): void {
+      machineService.stop();
+    },
+
+    getRawDeviceStatus(): Promise<PaperHandlerStatus> {
+      return driver.getPaperHandlerStatus();
+    },
+
+    // Leftover wrapper. Keeping this so the interface between API and state machine is the same until
+    // I can get around to migrating it later in the PR
+    getSimpleStatus(): SimpleServerStatus {
+      const { state } = machineService;
+
+      switch (true) {
+        case state.matches('not_accepting_paper'):
+          return 'not_accepting_paper';
+        case state.matches('accepting_paper'):
+          return 'accepting_paper';
+        case state.matches('loading_paper'):
+          return 'loading_paper';
+        case state.matches('waiting_for_ballot_data'):
+          return 'waiting_for_ballot_data';
+        case state.matches('printing_ballot'):
+          return 'printing_ballot';
+        case state.matches('scanning'):
+          return 'scanning';
+        case state.matches('interpreting'):
+          return 'interpreting';
+        case state.matches('presenting_ballot'):
+          return 'presenting_ballot';
+        case state.matches('eject_to_front'):
+          return 'ejecting_to_front';
+        case state.matches('eject_to_rear'):
+          return 'ejecting_to_rear';
+        case state.matches('jammed'):
+          return 'jammed';
+        case state.matches('jam_physically_cleared'):
+          return 'jam_cleared';
+        case state.matches('resetting_state_machine_after_jam'):
+          return 'resetting_state_machine_after_jam';
+        case state.matches('resetting_state_machine_after_success'):
+          return 'resetting_state_machine_after_success';
+        default:
+          return 'no_hardware';
+      }
+    },
+
+    setAcceptingPaper(): void {
+      machineService.send({
+        type: 'BEGIN_ACCEPTING_PAPER',
+      });
+    },
+
+    printBallot(pdfData: Buffer): void {
+      machineService.send({
+        type: 'VOTER_INITIATED_PRINT',
+        pdfData,
+      });
+    },
+
+    getInterpretation(): Optional<SheetOf<InterpretFileResult>> {
+      const { state } = machineService;
+      const { context } = state;
+
+      debug(
+        'Returning interpretation of type:',
+        context.interpretation
+          ? JSON.stringify(context.interpretation[0].interpretation.type)
+          : 'no_interpretation_found'
+      );
+      return context.interpretation;
+    },
+
+    validateBallot(): void {
+      machineService.send({
+        type: 'VOTER_VALIDATED_BALLOT',
+      });
+    },
+
+    invalidateBallot(): void {
+      machineService.send({
+        type: 'VOTER_INVALIDATED_BALLOT',
+      });
+    },
+  };
 }
