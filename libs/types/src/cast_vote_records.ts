@@ -1,4 +1,9 @@
-import { CastVoteRecordReport } from './cdf/cast-vote-records';
+import { z } from 'zod';
+
+import {
+  CastVoteRecordReport,
+  CastVoteRecordReportSchema,
+} from './cdf/cast-vote-records';
 import { BallotId, BallotStyleId, PrecinctId } from './election';
 import { Dictionary } from './generic';
 
@@ -32,3 +37,10 @@ export interface CastVoteRecordExportMetadata {
   /** A hash of all cast vote record files in an export */
   castVoteRecordRootHash: string;
 }
+
+export const CastVoteRecordExportMetadataSchema: z.ZodSchema<CastVoteRecordExportMetadata> =
+  z.object({
+    arePollsClosed: z.boolean().optional(),
+    castVoteRecordReportMetadata: CastVoteRecordReportSchema,
+    castVoteRecordRootHash: z.string(),
+  });

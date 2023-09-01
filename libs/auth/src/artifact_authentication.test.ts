@@ -2,7 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { dirSync } from 'tmp';
 import { assert, err, ok } from '@votingworks/basics';
-import { CastVoteRecordExportMetadata, CVR } from '@votingworks/types';
+import { mockOf } from '@votingworks/test-utils';
+import {
+  CastVoteRecordExportMetadata,
+  CVR,
+  unsafeParse,
+} from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';
 import {
@@ -13,68 +18,96 @@ import {
 } from './artifact_authentication';
 import { ArtifactAuthenticationConfig } from './config';
 
+jest.mock('@votingworks/types', (): typeof import('@votingworks/types') => ({
+  ...jest.requireActual('@votingworks/types'),
+  unsafeParse: jest.fn(),
+}));
+
+/**
+ * The root hash for the mock cast vote records created in the beforeEach block
+ */
+const expectedCastVoteRecordRootHash =
+  '9136de224abc5d5c84100eecbcb8e4f2de40a7d79be9d1b5cfad46f4fffe54c2';
+
+const cvrId1 = 'a1234567-0000-0000-0000-000000000000';
+const cvrId2 = 'a2345678-0000-0000-0000-000000000000';
+const cvrId3 = 'a3456789-0000-0000-0000-000000000000';
+
 let tempDirectoryPath: string;
-let mockElectionPackage: {
+let castVoteRecords: {
   artifactToExport: ArtifactToExport;
   artifactToImport: ArtifactToImport;
 };
-let mockCastVoteRecords: {
+let electionPackage: {
   artifactToExport: ArtifactToExport;
   artifactToImport: ArtifactToImport;
 };
 
 beforeEach(() => {
+  // Avoid having to prepare a complete CVR.CastVoteRecordReport object for
+  // CastVoteRecordExportMetadata
+  mockOf(unsafeParse).mockImplementation((_, value) =>
+    JSON.parse(value as string)
+  );
+
   tempDirectoryPath = dirSync().name;
 
-  // Prepare mock election package
-  const mockElectionPackagePath = path.join(
-    tempDirectoryPath,
-    'election-package.zip'
-  );
-  fs.writeFileSync(mockElectionPackagePath, 'abcd');
-  mockElectionPackage = {
-    artifactToExport: {
-      type: 'election_package',
-      filePath: mockElectionPackagePath,
-    },
-    artifactToImport: {
-      type: 'election_package',
-      filePath: mockElectionPackagePath,
-    },
-  };
-
   // Prepare mock cast vote records
-  const mockCastVoteRecordsPath = path.join(
+  const castVoteRecordExportDirectoryPath = path.join(
     tempDirectoryPath,
-    'cast-vote-records'
+    'cast-vote-record-export'
   );
-  fs.mkdirSync(mockCastVoteRecordsPath);
-  fs.mkdirSync(path.join(mockCastVoteRecordsPath, '1'));
-  fs.writeFileSync(path.join(mockCastVoteRecordsPath, '1', 'a'), 'abcd');
-  fs.writeFileSync(path.join(mockCastVoteRecordsPath, '1', 'b'), 'efgh');
-  fs.mkdirSync(path.join(mockCastVoteRecordsPath, '2'));
-  fs.writeFileSync(path.join(mockCastVoteRecordsPath, '2', 'a'), 'ijkl');
-  fs.writeFileSync(path.join(mockCastVoteRecordsPath, '2', 'b'), 'mnop');
-  const mockCastVoteRecordExportMetadata: CastVoteRecordExportMetadata = {
+  fs.mkdirSync(castVoteRecordExportDirectoryPath);
+  fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId1));
+  fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId2));
+  for (const { directoryName, fileName, fileContents } of [
+    { directoryName: cvrId1, fileName: 'a', fileContents: 'a1' },
+    { directoryName: cvrId1, fileName: 'b', fileContents: 'b1' },
+    { directoryName: cvrId2, fileName: 'a', fileContents: 'a2' },
+    { directoryName: cvrId2, fileName: 'b', fileContents: 'b2' },
+  ]) {
+    fs.writeFileSync(
+      path.join(castVoteRecordExportDirectoryPath, directoryName, fileName),
+      fileContents
+    );
+  }
+  const castVoteRecordExportMetadata: CastVoteRecordExportMetadata = {
     arePollsClosed: true,
     castVoteRecordReportMetadata: {} as unknown as CVR.CastVoteRecordReport,
-    castVoteRecordRootHash: 'abcd1234',
+    castVoteRecordRootHash: expectedCastVoteRecordRootHash,
   };
   fs.writeFileSync(
-    path.join(mockCastVoteRecordsPath, 'metadata.json'),
-    JSON.stringify(mockCastVoteRecordExportMetadata)
+    path.join(castVoteRecordExportDirectoryPath, 'metadata.json'),
+    JSON.stringify(castVoteRecordExportMetadata)
   );
-  mockCastVoteRecords = {
+  castVoteRecords = {
     artifactToExport: {
       type: 'cast_vote_records',
       context: 'export',
-      directoryName: path.basename(mockCastVoteRecordsPath),
-      metadataFileContents: JSON.stringify(mockCastVoteRecordExportMetadata),
+      directoryName: path.basename(castVoteRecordExportDirectoryPath),
+      metadataFileContents: JSON.stringify(castVoteRecordExportMetadata),
     },
     artifactToImport: {
       type: 'cast_vote_records',
       context: 'import',
-      directoryPath: mockCastVoteRecordsPath,
+      directoryPath: castVoteRecordExportDirectoryPath,
+    },
+  };
+
+  // Prepare mock election package
+  const electionPackagePath = path.join(
+    tempDirectoryPath,
+    'election-package.zip'
+  );
+  fs.writeFileSync(electionPackagePath, 'abcd');
+  electionPackage = {
+    artifactToExport: {
+      type: 'election_package',
+      filePath: electionPackagePath,
+    },
+    artifactToImport: {
+      type: 'election_package',
+      filePath: electionPackagePath,
     },
   };
 });
@@ -127,13 +160,13 @@ test.each<{
 }>([
   {
     description: 'cast vote records',
-    artifactGenerator: () => mockCastVoteRecords,
+    artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
   },
   {
     description: 'election package',
-    artifactGenerator: () => mockElectionPackage,
+    artifactGenerator: () => electionPackage,
     exportingMachineConfig: vxAdminTestConfig,
     importingMachineConfig: vxScanTestConfig,
   },
@@ -170,24 +203,14 @@ test.each<{
   tamperFn: () => void;
 }>([
   {
-    description: 'election package',
-    artifactGenerator: () => mockElectionPackage,
-    exportingMachineConfig: vxAdminTestConfig,
-    importingMachineConfig: vxScanTestConfig,
-    tamperFn: () => {
-      assert(mockElectionPackage.artifactToImport.type === 'election_package');
-      fs.appendFileSync(mockElectionPackage.artifactToImport.filePath, 'e');
-    },
-  },
-  {
-    description: 'cast vote records',
-    artifactGenerator: () => mockCastVoteRecords,
+    description: 'cast vote records, altered metadata file',
+    artifactGenerator: () => castVoteRecords,
     exportingMachineConfig: vxScanTestConfig,
     importingMachineConfig: vxAdminTestConfig,
     tamperFn: () => {
-      assert(mockCastVoteRecords.artifactToImport.type === 'cast_vote_records');
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const metadataFilePath = path.join(
-        mockCastVoteRecords.artifactToImport.directoryPath,
+        castVoteRecords.artifactToImport.directoryPath,
         'metadata.json'
       );
       const metadataFileContents = fs
@@ -195,9 +218,112 @@ test.each<{
         .toString('utf-8');
       const metadataFileContentsAltered = JSON.stringify({
         ...JSON.parse(metadataFileContents),
-        castVoteRecordRootHash: 'efgh5678',
+        castVoteRecordRootHash: expectedCastVoteRecordRootHash.replace(
+          'a',
+          'b'
+        ),
       });
       fs.writeFileSync(metadataFilePath, metadataFileContentsAltered);
+    },
+  },
+  {
+    description: 'cast vote records, altered cast vote record file',
+    artifactGenerator: () => castVoteRecords,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      fs.appendFileSync(path.join(directoryPath, cvrId1, 'a'), '!');
+    },
+  },
+  {
+    description: 'cast vote records, added cast vote record file',
+    artifactGenerator: () => castVoteRecords,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      fs.writeFileSync(path.join(directoryPath, cvrId1, 'c'), '');
+    },
+  },
+  {
+    description: 'cast vote records, removed cast vote record file',
+    artifactGenerator: () => castVoteRecords,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      fs.rmSync(path.join(directoryPath, cvrId1, 'a'));
+    },
+  },
+  {
+    description:
+      'cast vote records, renamed cast vote record file (renamed such that the alphabetical order is unchanged)',
+    artifactGenerator: () => castVoteRecords,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      fs.renameSync(
+        path.join(directoryPath, cvrId1, 'a'),
+        path.join(directoryPath, cvrId1, 'a-renamed')
+      );
+    },
+  },
+  {
+    description: 'cast vote records, added cast vote record directory',
+    artifactGenerator: () => castVoteRecords,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      fs.mkdirSync(path.join(directoryPath, cvrId3));
+    },
+  },
+  {
+    description: 'cast vote records, removed cast vote record directory',
+    artifactGenerator: () => castVoteRecords,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      fs.rmSync(path.join(directoryPath, cvrId2), { recursive: true });
+    },
+  },
+  {
+    description:
+      'cast vote records, renamed cast vote record directory (renamed such that the alphabetical order is unchanged)',
+    artifactGenerator: () => castVoteRecords,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      // cp and cpSync are experimental so not recommended for use in production but fine for use
+      // in tests
+      fs.cpSync(
+        path.join(directoryPath, cvrId1),
+        path.join(directoryPath, cvrId3),
+        { recursive: true }
+      );
+      fs.rmSync(path.join(directoryPath, cvrId1), { recursive: true });
+    },
+  },
+  {
+    description: 'election package',
+    artifactGenerator: () => electionPackage,
+    exportingMachineConfig: vxAdminTestConfig,
+    importingMachineConfig: vxScanTestConfig,
+    tamperFn: () => {
+      assert(electionPackage.artifactToImport.type === 'election_package');
+      const { filePath } = electionPackage.artifactToImport;
+      fs.appendFileSync(filePath, '!');
     },
   },
 ])(

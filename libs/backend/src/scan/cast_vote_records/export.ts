@@ -1,10 +1,13 @@
 /* istanbul ignore file */
-import { Buffer } from 'buffer';
-import fs from 'fs/promises';
-import { sha256 } from 'js-sha256';
+
 import path from 'path';
-import { Readable } from 'stream';
-import { prepareSignatureFile } from '@votingworks/auth';
+import {
+  computeSingleCastVoteRecordHash,
+  prepareSignatureFile,
+  ReadableFile,
+  readableFileFromData,
+  readableFileFromDisk,
+} from '@votingworks/auth';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
   BallotIdSchema,
@@ -80,11 +83,6 @@ interface ExportContext {
   exporter: Exporter;
   scannerState: ScannerStateUnchangedByExport;
   scannerStore: ScannerStore;
-}
-
-interface File {
-  fileName: string;
-  fileContents: string | Buffer;
 }
 
 //
@@ -251,48 +249,46 @@ async function exportCastVoteRecordFilesToUsbDrive(
       ? canonicalizedSheet.interpretation[0].layout
       : undefined;
 
-  const castVoteRecordFilesToExport: File[] = [
-    {
-      fileName: 'cast-vote-record-report.json',
-      fileContents: JSON.stringify(castVoteRecordReport),
-    },
-    {
-      fileName: path.basename(frontImageFilePath),
-      fileContents: await fs.readFile(frontImageFilePath),
-    },
-    {
-      fileName: path.basename(backImageFilePath),
-      fileContents: await fs.readFile(backImageFilePath),
-    },
+  const castVoteRecordFilesToExport: ReadableFile[] = [
+    readableFileFromData(
+      'cast-vote-record-report.json',
+      JSON.stringify(castVoteRecordReport)
+    ),
+    readableFileFromDisk(frontImageFilePath),
+    readableFileFromDisk(backImageFilePath),
   ];
   if (frontLayout) {
-    castVoteRecordFilesToExport.push({
-      fileName: `${path.parse(frontImageFilePath).name}.layout.json`,
-      fileContents: JSON.stringify(frontLayout),
-    });
+    castVoteRecordFilesToExport.push(
+      readableFileFromData(
+        `${path.parse(frontImageFilePath).name}.layout.json`,
+        JSON.stringify(frontLayout)
+      )
+    );
   }
   if (backLayout) {
-    castVoteRecordFilesToExport.push({
-      fileName: `${path.parse(backImageFilePath).name}.layout.json`,
-      fileContents: JSON.stringify(frontLayout),
-    });
+    castVoteRecordFilesToExport.push(
+      readableFileFromData(
+        `${path.parse(backImageFilePath).name}.layout.json`,
+        JSON.stringify(frontLayout)
+      )
+    );
   }
 
-  for (const { fileName, fileContents } of castVoteRecordFilesToExport) {
+  for (const file of castVoteRecordFilesToExport) {
     const exportResult = await exporter.exportDataToUsbDrive(
       exportDirectoryPathRelativeToUsbMountPoint,
-      path.join(castVoteRecordId, fileName),
-      Buffer.isBuffer(fileContents) ? Readable.from(fileContents) : fileContents
+      path.join(castVoteRecordId, file.fileName),
+      file.open()
     );
     if (exportResult.isErr()) {
       return exportResult;
     }
   }
 
-  const fileHashes = [...castVoteRecordFilesToExport]
-    .sort((f1, f2) => (f1 && f2 ? f1.fileName.localeCompare(f2.fileName) : 0))
-    .map(({ fileContents }) => sha256(fileContents));
-  const castVoteRecordHash = sha256(fileHashes.join(''));
+  const castVoteRecordHash = await computeSingleCastVoteRecordHash({
+    directoryName: castVoteRecordId,
+    files: castVoteRecordFilesToExport,
+  });
 
   return ok({ castVoteRecordId, castVoteRecordHash });
 }

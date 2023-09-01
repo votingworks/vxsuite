@@ -12,7 +12,13 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
+import {
+  CastVoteRecordExportMetadata,
+  CastVoteRecordExportMetadataSchema,
+  unsafeParse,
+} from '@votingworks/types';
 
+import { computeCastVoteRecordRootHashFromScratch } from './cast_vote_record_hashes';
 import { parseCert } from './certs';
 import {
   ArtifactAuthenticationConfig,
@@ -285,14 +291,24 @@ function constructSignatureFilePath(artifact: ArtifactToImport): string {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 async function performArtifactSpecificAuthenticationChecks(
   artifact: ArtifactToImport
 ): Promise<void> {
   switch (artifact.type) {
     case 'cast_vote_records': {
-      // TODO: Recompute cast vote record root hash and check that it matches the hash recorded in
-      // the metadata file
+      const metadataFileContents = (
+        await fs.readFile(path.join(artifact.directoryPath, 'metadata.json'))
+      ).toString('utf-8');
+      const metadata: CastVoteRecordExportMetadata = unsafeParse(
+        CastVoteRecordExportMetadataSchema,
+        metadataFileContents
+      );
+      const castVoteRecordRootHash =
+        await computeCastVoteRecordRootHashFromScratch(artifact.directoryPath);
+      assert(
+        metadata.castVoteRecordRootHash === castVoteRecordRootHash,
+        "Cast vote record root hash in metadata file doesn't match recomputed hash"
+      );
       break;
     }
     default: {

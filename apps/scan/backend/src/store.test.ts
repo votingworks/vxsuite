@@ -23,6 +23,7 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
+import { sha256 } from 'js-sha256';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
@@ -863,4 +864,21 @@ test('getExportDirectoryName and setExportDirectoryName', () => {
   expect(store.getExportDirectoryName()).toEqual(exportDirectoryName1);
   store.setExportDirectoryName(exportDirectoryName2);
   expect(store.getExportDirectoryName()).toEqual(exportDirectoryName2);
+});
+
+test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
+  const store = Store.memoryStore();
+
+  // Just test that the store has been wired properly. Rely on libs/auth tests for more detailed
+  // coverage of hashing logic.
+  expect(store.getCastVoteRecordRootHash()).toEqual('');
+  store.updateCastVoteRecordHashes(
+    'abcd1234-0000-0000-0000-000000000000',
+    sha256('')
+  );
+  expect(store.getCastVoteRecordRootHash()).toEqual(
+    sha256(sha256(sha256(sha256(''))))
+  );
+  store.clearCastVoteRecordHashes();
+  expect(store.getCastVoteRecordRootHash()).toEqual('');
 });
