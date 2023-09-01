@@ -1,14 +1,12 @@
 /* istanbul ignore file */
 
-import { Buffer } from 'buffer';
-import { createReadStream } from 'fs';
-import { sha256 } from 'js-sha256';
 import path from 'path';
-import { Readable } from 'stream';
 import {
   computeSingleCastVoteRecordHash,
   prepareSignatureFile,
   ReadableFile,
+  readableFileFromData,
+  readableFileFromDisk,
 } from '@votingworks/auth';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
@@ -112,34 +110,6 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
     generateElectionBasedSubfolderName(election, electionHash),
     exportDirectoryName
   );
-}
-
-function fileFromData(
-  fileName: string,
-  fileContents: string | Buffer
-): ReadableFile {
-  return {
-    fileName,
-    open: () => Readable.from(fileContents),
-    computeSha256Hash: () => Promise.resolve(sha256(fileContents)),
-  };
-}
-
-function fileFromDisk(fileName: string): ReadableFile {
-  return {
-    fileName,
-    open: () => createReadStream(fileName),
-    async computeSha256Hash() {
-      const file = createReadStream(fileName);
-      const hasher = sha256.create();
-
-      for await (const chunk of file) {
-        hasher.update(chunk);
-      }
-
-      return hasher.hex();
-    },
-  };
 }
 
 function buildCastVoteRecordReportMetadata(
@@ -280,16 +250,16 @@ async function exportCastVoteRecordFilesToUsbDrive(
       : undefined;
 
   const castVoteRecordFilesToExport: ReadableFile[] = [
-    fileFromData(
+    readableFileFromData(
       'cast-vote-record-report.json',
       JSON.stringify(castVoteRecordReport)
     ),
-    fileFromDisk(frontImageFilePath),
-    fileFromDisk(backImageFilePath),
+    readableFileFromDisk(frontImageFilePath),
+    readableFileFromDisk(backImageFilePath),
   ];
   if (frontLayout) {
     castVoteRecordFilesToExport.push(
-      fileFromData(
+      readableFileFromData(
         `${path.parse(frontImageFilePath).name}.layout.json`,
         JSON.stringify(frontLayout)
       )
@@ -297,7 +267,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
   }
   if (backLayout) {
     castVoteRecordFilesToExport.push(
-      fileFromData(
+      readableFileFromData(
         `${path.parse(backImageFilePath).name}.layout.json`,
         JSON.stringify(frontLayout)
       )

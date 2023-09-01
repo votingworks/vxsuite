@@ -1,18 +1,19 @@
 import fs from 'fs';
 import { sha256 } from 'js-sha256';
 import path from 'path';
-import { Readable } from 'stream';
 import { dirSync } from 'tmp';
 import { Client } from '@votingworks/db';
 
 import {
   CAST_VOTE_RECORD_HASHES_TABLE_SCHEMA,
-  ReadableFile,
   clearCastVoteRecordHashes,
   computeCastVoteRecordRootHashFromScratch,
   computeCombinedHash,
   computeSingleCastVoteRecordHash,
   getCastVoteRecordRootHash,
+  ReadableFile,
+  readableFileFromData,
+  readableFileFromDisk,
   updateCastVoteRecordHashes,
 } from './cast_vote_record_hashes';
 
@@ -37,12 +38,10 @@ type CastVoteRecordId =
 
 type FileWithContents = ReadableFile & { fileContents: string };
 
-function file(fileName: string, contents: string): FileWithContents {
+function file(fileName: string, fileContents: string): FileWithContents {
   return {
-    fileName,
-    fileContents: contents,
-    open: () => Readable.from(contents),
-    computeSha256Hash: () => Promise.resolve(sha256(contents)),
+    ...readableFileFromData(fileName, fileContents),
+    fileContents,
   };
 }
 
@@ -63,6 +62,29 @@ const castVoteRecords: Record<CastVoteRecordId, FileWithContents[]> = {
  */
 const expectedCastVoteRecordRootHash =
   '03b88fdbe32c1115f6427953fd4364a737d85c0cf56a831249f1a4cd4c2a6b8a';
+
+test('readableFileFromData', async () => {
+  const readableFile = readableFileFromData('1', 'a');
+  expect(readableFile.fileName).toEqual('1');
+  const chunks = [];
+  for await (const chunk of readableFile.open()) {
+    chunks.push(chunk);
+  }
+  expect(chunks.join('')).toEqual('a');
+  expect(await readableFile.computeSha256Hash()).toEqual(sha256('a'));
+});
+
+test('readableFileFromDisk', async () => {
+  fs.writeFileSync(path.join(tempDirectoryPath, '1'), 'a');
+  const readableFile = readableFileFromDisk(path.join(tempDirectoryPath, '1'));
+  expect(readableFile.fileName).toEqual('1');
+  const chunks = [];
+  for await (const chunk of readableFile.open()) {
+    chunks.push(chunk);
+  }
+  expect(chunks.join('')).toEqual('a');
+  expect(await readableFile.computeSha256Hash()).toEqual(sha256('a'));
+});
 
 test('computeSingleCastVoteRecordHash', async () => {
   const hash = await computeSingleCastVoteRecordHash({

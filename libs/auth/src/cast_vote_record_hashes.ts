@@ -1,12 +1,14 @@
-import fs from 'fs/promises';
+import { Buffer } from 'buffer';
 import { createReadStream } from 'fs';
+import fs from 'fs/promises';
 import { Hasher, sha256 } from 'js-sha256';
 import path from 'path';
+import { Readable } from 'stream';
 import { assert, groupBy } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
 
 /**
- * A representation of a file that only provides hashing.
+ * A representation of a file that only provides its hash
  */
 export interface HashableFile {
   fileName: string;
@@ -14,10 +16,63 @@ export interface HashableFile {
 }
 
 /**
- * A representation of a file that can be read and hashed.
+ * A representation of a file that can be read and hashed
  */
 export interface ReadableFile extends HashableFile {
   open(): NodeJS.ReadableStream;
+}
+
+/**
+ * Prepares a {@link HashableFile} from inline data
+ */
+export function hashableFileFromData(
+  fileName: string,
+  fileContents: string | Buffer
+): HashableFile {
+  return {
+    fileName,
+    computeSha256Hash: () => Promise.resolve(sha256(fileContents)),
+  };
+}
+
+/**
+ * Prepares a {@link ReadableFile} from inline data
+ */
+export function readableFileFromData(
+  fileName: string,
+  fileContents: string | Buffer
+): ReadableFile {
+  return {
+    ...hashableFileFromData(fileName, fileContents),
+    open: () => Readable.from(fileContents),
+  };
+}
+
+/**
+ * Prepares a {@link HashableFile} from a file on disk
+ */
+export function hashableFileFromDisk(filePath: string): HashableFile {
+  return {
+    fileName: path.basename(filePath),
+    computeSha256Hash: async () => {
+      const reader = createReadStream(filePath);
+      const hash = sha256.create();
+      for await (const chunk of reader) {
+        hash.update(chunk);
+      }
+      return hash.hex();
+    },
+  };
+}
+
+/**
+ * Prepares a {@link ReadableFile} from a file on disk
+ */
+export function readableFileFromDisk(filePath: string): ReadableFile {
+  return {
+    ...hashableFileFromDisk(filePath),
+    open: () => createReadStream(filePath),
+  };
 }
 
 /**
@@ -299,17 +354,6 @@ export function clearCastVoteRecordHashes(client: Client): void {
 // import-time hash computation.
 //
 
-async function computeSha256HashForFile(filePath: string): Promise<string> {
-  const reader = createReadStream(filePath);
-  const hash = sha256.create();
-
-  for await (const chunk of reader) {
-    hash.update(chunk);
-  }
-
-  return hash.hex();
-}
-
 /**
  * Computes the cast vote record root hash from scratch given the export directory path, reading in
  * all files and computing hashes in memory without the aid of a SQLite DB
@@ -334,10 +378,7 @@ export async function computeCastVoteRecordRootHashFromScratch(
     const cvrFiles: HashableFile[] = [];
     for (const fileName of cvrFileNames) {
       const filePath = path.join(cvrDirectoryPath, fileName);
-      cvrFiles.push({
-        fileName,
-        computeSha256Hash: () => computeSha256HashForFile(filePath),
-      });
+      cvrFiles.push(hashableFileFromDisk(filePath));
     }
     const cvrHash = await computeSingleCastVoteRecordHash({
       directoryName: cvrId,
