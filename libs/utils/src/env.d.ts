@@ -20,5 +20,6 @@ declare namespace NodeJS {
     REACT_APP_VX_ENABLE_CONTINUOUS_EXPORT?: string;
     REACT_APP_VX_CONVERTER?: string;
     REACT_APP_VX_PRECINCT_REPORT_DESTINATION?: string;
+    REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK?: string;
   }
 }
