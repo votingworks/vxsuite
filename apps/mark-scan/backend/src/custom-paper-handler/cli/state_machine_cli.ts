@@ -54,10 +54,14 @@ function handleCommand(
   console.log('Command finished');
 }
 
-function logStatus(stateMachine: PaperHandlerStateMachine): void {
+async function logStatus(
+  stateMachine: PaperHandlerStateMachine
+): Promise<void> {
+  const rawStatus = await stateMachine.getRawDeviceStatus();
+  console.log('Raw status:', JSON.stringify(rawStatus, null, 2));
   console.log('Status:', stateMachine.getSimpleStatus());
-  setTimeout(() => {
-    logStatus(stateMachine);
+  setTimeout(async () => {
+    await logStatus(stateMachine);
   }, 1000);
 }
 
@@ -85,7 +89,7 @@ export async function main(): Promise<number> {
   assert(stateMachine !== undefined, 'Unexpected undefined state machine');
 
   stateMachine.setAcceptingPaper();
-  logStatus(stateMachine);
+  await logStatus(stateMachine);
 
   const lines = createInterface(process.stdin);
 
