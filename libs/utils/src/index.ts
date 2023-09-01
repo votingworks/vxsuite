@@ -17,6 +17,7 @@ export * from './Hardware';
 export * from './hmpb';
 export * from './json_stream';
 export * from './make_async';
+export * from './mutex';
 export * from './perf';
 export * from './polls';
 export * from './precinct_selection';
