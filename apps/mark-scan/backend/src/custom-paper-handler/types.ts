@@ -11,6 +11,9 @@ export type SimpleStatus =
   | 'interpreting'
   | 'ejecting_to_front'
   | 'ejecting_to_rear'
+  | 'evaluate_eject_to_rear'
+  | 'rear_paper_path_jammed'
+  | 'ballot_box_detached'
   | 'jammed'
   | 'jam_cleared'
   | 'resetting_state_machine_after_jam'
@@ -27,6 +30,9 @@ export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('interpreting'),
   z.literal('ejecting_to_front'),
   z.literal('ejecting_to_rear'),
+  z.literal('evaluate_eject_to_rear'),
+  z.literal('rear_paper_path_jammed'),
+  z.literal('ballot_box_detached'),
   z.literal('jammed'),
   z.literal('jam_cleared'),
   z.literal('resetting_state_machine_after_jam'),

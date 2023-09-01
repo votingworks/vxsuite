@@ -22,7 +22,6 @@ import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   InterpretFileResult,
   interpretSheet,
@@ -32,6 +31,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
+  DELAY_BEFORE_DECLARING_REAR_JAM_MS,
   PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
   PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
   RESET_AFTER_JAM_DELAY_MS,
@@ -48,6 +48,7 @@ import {
   isPaperInInput,
   resetAndReconnect,
   loadAndParkPaper,
+  isBallotBoxDetached,
 } from './application_driver';
 
 interface Context {
@@ -78,7 +79,9 @@ type PaperHandlerStatusEvent =
   | { type: 'PAPER_IN_INPUT' }
   | { type: 'SCANNING' }
   | { type: 'VOTER_VALIDATED_BALLOT' }
-  | { type: 'VOTER_INVALIDATED_BALLOT' };
+  | { type: 'VOTER_INVALIDATED_BALLOT' }
+  | { type: 'BALLOT_BOX_DETACHED_AND_PAPER_JAMMED' }
+  | { type: 'BALLOT_BOX_DETACHED_NO_JAM' };
 
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
@@ -97,6 +100,10 @@ export class PaperHandlerStateMachine {
 
   stopMachineService(): void {
     this.machineService.stop();
+  }
+
+  getRawDeviceStatus(): Promise<PaperHandlerStatus> {
+    return this.driver.getPaperHandlerStatus();
   }
 
   // Leftover wrapper. Keeping this so the interface between API and state machine is the same until
@@ -125,6 +132,8 @@ export class PaperHandlerStateMachine {
         return 'ejecting_to_front';
       case state.matches('eject_to_rear'):
         return 'ejecting_to_rear';
+      case state.matches('evaluate_eject_to_rear'):
+        return 'evaluate_eject_to_rear';
       case state.matches('jammed'):
         return 'jammed';
       case state.matches('jam_physically_cleared'):
@@ -133,6 +142,10 @@ export class PaperHandlerStateMachine {
         return 'resetting_state_machine_after_jam';
       case state.matches('resetting_state_machine_after_success'):
         return 'resetting_state_machine_after_success';
+      case state.matches('rear_paper_path_jammed'):
+        return 'rear_paper_path_jammed';
+      case state.matches('ballot_box_detached'):
+        return 'ballot_box_detached';
       default:
         return 'no_hardware';
     }
@@ -179,6 +192,16 @@ export class PaperHandlerStateMachine {
 function paperHandlerStatusToEvent(
   paperHandlerStatus: PaperHandlerStatus
 ): PaperHandlerStatusEvent {
+  // Transitions out of rear_paper_path_jammed state assumes ballot box events
+  // take priority over other paper status events
+  if (isBallotBoxDetached(paperHandlerStatus)) {
+    // Paper being stuck during rear eject is not flagged by the paperJam status bit
+    if (isPaperInOutput(paperHandlerStatus)) {
+      return { type: 'BALLOT_BOX_DETACHED_AND_PAPER_JAMMED' };
+    }
+    return { type: 'BALLOT_BOX_DETACHED_NO_JAM' };
+  }
+
   if (isPaperJammed(paperHandlerStatus)) {
     if (!isPaperAnywhere(paperHandlerStatus)) {
       // This state is expected when a jam is physically cleared
@@ -189,10 +212,11 @@ function paperHandlerStatusToEvent(
     return { type: 'PAPER_JAM' };
   }
 
+  if (isPaperInOutput(paperHandlerStatus)) {
+    return { type: 'PAPER_IN_OUTPUT' };
+  }
+
   if (isPaperInScanner(paperHandlerStatus)) {
-    if (isPaperInOutput(paperHandlerStatus)) {
-      return { type: 'PAPER_IN_OUTPUT' };
-    }
     if (paperHandlerStatus.parkSensor) {
       return { type: 'PAPER_PARKED' };
     }
@@ -270,17 +294,22 @@ function loadMetadataAndInterpretBallot(
   context: Context
 ): Promise<SheetOf<InterpretFileResult>> {
   const { scannedImagePaths, workspace } = context;
+  assert(scannedImagePaths, 'Expected scannedImagePaths in context');
+
   const { store } = workspace;
   const electionDefinition = store.getElectionDefinition();
+  assert(
+    electionDefinition,
+    'Expected electionDefinition to be defined in store'
+  );
 
-  assert(scannedImagePaths);
-  assert(electionDefinition);
+  const precinctSelection = store.getPrecinctSelection();
+  assert(
+    precinctSelection,
+    'Expected precinctSelection to be defined in store'
+  );
 
-  const { precincts } = electionDefinition.election;
-  // Hard coded for now because we don't store precinct in backend. This
-  // will be replaced with a store read in a future PR.
-  const precinct = precincts[precincts.length - 1];
-  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  // Hardcoded until isLivemode is moved from frontend store to backend store
   const testMode = true;
   const { markThresholds, precinctScanAdjudicationReasons } = assertDefined(
     store.getSystemSettings()
@@ -322,6 +351,7 @@ export function buildMachine(
     on: {
       PAPER_JAM: 'jammed',
       JAMMED_STATUS_NO_PAPER: 'jam_physically_cleared',
+      BALLOT_BOX_DETACHED_NO_JAM: 'ballot_box_detached',
     },
     states: {
       // Initial state. Doesn't accept paper and transitions away when the frontend says it's ready to accept
@@ -418,6 +448,10 @@ export function buildMachine(
           VOTER_INVALIDATED_BALLOT: 'eject_to_front',
         },
       },
+      // Eject-to-rear jam handling is a little clunky. It
+      // 1. Tries to trannsition to success if no paper is detected
+      // 2. If after a timeout we have not transitioned away (because paper still present), transition to rear jam state
+      // 3. Jam detection state transitions to jam reset state once it confirms no paper present
       eject_to_rear: {
         invoke: pollPaperStatus(),
         entry: async (context) => {
@@ -427,6 +461,29 @@ export function buildMachine(
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
         },
+        after: {
+          [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'rear_paper_path_jammed',
+        },
+      },
+      // Backend behavior of `rear_paper_path_jammed` is the same as `jammed` but
+      // is its own state because the frontend handles them differently
+      rear_paper_path_jammed: {
+        invoke: pollPaperStatus(),
+        on: {
+          // This state is hit in dev when ballot box checks are disabled.
+          NO_PAPER_ANYWHERE: 'jam_physically_cleared',
+
+          // Override top-level `on` handlers for BALLOT_BOX_DETACHED* events
+
+          // Ballot box detached is expected. If there's no jam it means we can
+          // begin resetting the scanner. Ballot box attachment is handled by the
+          // generic ballot_box_detached state.
+          BALLOT_BOX_DETACHED_NO_JAM: 'jam_physically_cleared',
+          // We expect to hit this state when the ballot box is removed but the
+          // jammed paper has not yet been removed. We explicitly want to stay in
+          // the current state.
+          BALLOT_BOX_DETACHED_AND_PAPER_JAMMED: undefined,
+        },
       },
       eject_to_front: {
         invoke: pollPaperStatus(),
@@ -435,6 +492,17 @@ export function buildMachine(
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+        },
+      },
+      // A generic handling state for ballot box detached
+      ballot_box_detached: {
+        invoke: pollPaperStatus(),
+        on: {
+          NO_PAPER_ANYWHERE: 'not_accepting_paper',
+          PAPER_INSIDE_NO_JAM: 'not_accepting_paper',
+          PAPER_PARKED: 'not_accepting_paper',
+          // Override top-level `on` handler
+          BALLOT_BOX_DETACHED_NO_JAM: undefined,
         },
       },
       jammed: {
