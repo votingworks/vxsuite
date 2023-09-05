@@ -251,7 +251,11 @@ export function PollWorkerScreen({
           : DEFAULT_NUMBER_POLL_REPORT_COPIES
       );
       if (pollsTransition === 'close_polls' && scannedBallotCount > 0) {
-        (await exportCastVoteRecordsMutation.mutateAsync()).unsafeUnwrap();
+        (
+          await exportCastVoteRecordsMutation.mutateAsync({
+            mode: 'polls_closing',
+          })
+        ).unsafeUnwrap();
       }
       setCurrentPollsTransitionTime(timePollsTransitioned);
       await setPollsStateMutation.mutateAsync({
