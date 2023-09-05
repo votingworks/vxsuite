@@ -30833,5 +30833,6 @@
   "precincts": [{ "id": "test-precinct", "name": "Test Precinct" }],
   "state": "Test State",
   "title": "Test Election - All Bubble Ballot",
+  "type": "general",
   "seal": ""
 }
