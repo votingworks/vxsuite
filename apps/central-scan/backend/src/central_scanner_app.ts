@@ -117,7 +117,7 @@ function buildApi({
     async deleteBatch({ batchId }: { batchId: string }) {
       const userRole = await getUserRole();
       const numberOfBallotsInBatch = workspace.store
-        .batchStatus()
+        .getBatches()
         .find((batch) => batch.id === batchId)?.count;
 
       await logger.log(LogEventId.DeleteScanBatchInit, userRole, {

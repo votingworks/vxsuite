@@ -35,6 +35,11 @@ import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { ResultSheet } from '@votingworks/backend';
+import {
+  clearCastVoteRecordHashes,
+  getCastVoteRecordRootHash,
+  updateCastVoteRecordHashes,
+} from '@votingworks/auth';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { normalizeAndJoin } from './util/path';
 
@@ -778,7 +783,7 @@ export class Store {
   /**
    * Gets all batches, including their sheet count.
    */
-  batchStatus(): BatchInfo[] {
+  getBatches(): BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
       batchNumber: number;
@@ -894,5 +899,17 @@ export class Store {
         backImagePath: row.backImagePath,
       };
     }
+  }
+
+  getCastVoteRecordRootHash(): string {
+    return getCastVoteRecordRootHash(this.client);
+  }
+
+  updateCastVoteRecordHashes(cvrId: string, cvrHash: string): void {
+    updateCastVoteRecordHashes(this.client, cvrId, cvrHash);
+  }
+
+  clearCastVoteRecordHashes(): void {
+    clearCastVoteRecordHashes(this.client);
   }
 }
