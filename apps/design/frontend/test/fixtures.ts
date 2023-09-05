@@ -10,7 +10,7 @@ import { DEFAULT_SYSTEM_SETTINGS, Election } from '@votingworks/types';
 export const electionId = 'election-id-1';
 const baseElection = electionSample;
 export const precincts = convertVxfPrecincts(baseElection);
-export const ballotStyles = generateBallotStyles(precincts);
+export const ballotStyles = generateBallotStyles(baseElection, precincts);
 export const election: Election = {
   ...baseElection,
   ballotStyles: ballotStyles.map((ballotStyle) => ({
