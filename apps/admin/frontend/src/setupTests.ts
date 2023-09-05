@@ -8,6 +8,7 @@ import {
   expectTestToEndWithAllPrintsAsserted,
   fakePrintElement as mockPrintElement,
   fakePrintElementWhenReady as mockPrintElementWhenReady,
+  fakePrintElementToPdf as mockPrintElementToPdf,
 } from '@votingworks/test-utils';
 import { configure } from '../test/react_testing_library';
 
@@ -19,6 +20,7 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
     ...original,
     printElementWhenReady: mockPrintElementWhenReady,
     printElement: mockPrintElement,
+    printElementToPdf: mockPrintElementToPdf,
   };
 });
 
