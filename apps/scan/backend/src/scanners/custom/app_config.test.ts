@@ -14,7 +14,15 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assert, err, find, iter, ok, unique } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  find,
+  iter,
+  ok,
+  sleep,
+  unique,
+} from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
 import {
@@ -116,6 +124,7 @@ function mockLoggedOut(mockAuth: InsertedSmartCardAuthApi) {
 }
 
 beforeEach(() => {
+  mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
   );
@@ -269,7 +278,9 @@ test('export CVRs to USB', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       await scanBallot(mockScanner, apiClient, 0);
-      expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({ mode: 'full_export' })
+      ).toEqual(ok());
 
       const usbDrive = await mockUsbDrive.usbDrive.status();
       assert(usbDrive.status === 'mounted');
@@ -329,6 +340,36 @@ test('export CVRs to USB', async () => {
         'public-works-director': ['benjamin-franklin'],
       });
       expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
+    }
+  );
+});
+
+test('exportCastVoteRecordsToUsbDrive when continuous export is enabled', async () => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+  );
+
+  // Just test that the app has been wired properly. Rely on libs/backend tests for more detailed
+  // coverage of export logic.
+  await withApp(
+    {},
+    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+      await scanBallot(mockScanner, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, 1);
+      await sleep(1000); // Let background continuous export to USB finish
+
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({
+          mode: 'polls_closing',
+        })
+      ).toEqual(ok());
+
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({
+          mode: 'full_export',
+        })
+      ).toEqual(ok());
     }
   );
 });
