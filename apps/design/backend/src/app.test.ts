@@ -51,6 +51,7 @@ test('CRUD elections', async () => {
       seal: '',
       state: '',
       title: '',
+      type: 'general',
     },
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     ballotStyles: [],
