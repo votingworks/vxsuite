@@ -11,7 +11,7 @@ import {
   BallotType,
 } from '@votingworks/types';
 import express, { Application } from 'express';
-import { assertDefined, find, ok, Result } from '@votingworks/basics';
+import { assertDefined, find, groupBy, ok, Result } from '@votingworks/basics';
 import {
   BallotMode,
   BALLOT_MODES,
@@ -49,9 +49,19 @@ function createBlankElection(): Election {
 // precincts to have splits based on the ballot styles.
 export function convertVxfPrecincts(election: Election): Precinct[] {
   return election.precincts.map((precinct) => {
-    const ballotStyles = election.ballotStyles.filter((ballotStyle) =>
+    const precinctBallotStyles = election.ballotStyles.filter((ballotStyle) =>
       ballotStyle.precincts.includes(precinct.id)
     );
+    // Since there may be multiple ballot styles for a precinct for different parties, we
+    // dedupe them based on the district IDs when creating splits.
+    const ballotStylesByDistricts = groupBy(
+      precinctBallotStyles,
+      (ballotStyle) => ballotStyle.districts
+    );
+    const ballotStyles = ballotStylesByDistricts.map(
+      ([, ballotStyleGroup]) => ballotStyleGroup[0]
+    );
+
     if (ballotStyles.length <= 1) {
       return {
         ...precinct,
