@@ -2,8 +2,8 @@ import {
   electionMinimalExhaustiveSample,
   electionMinimalExhaustiveSampleDefinition,
   electionMinimalExhaustiveSampleWithReportingUrlDefinition,
-  electionSample2,
-  electionSample2Definition,
+  electionSample,
+  electionSampleDefinition,
 } from '@votingworks/fixtures';
 import {
   expectPrint,
@@ -67,7 +67,7 @@ function renderApp({
 
 const GENERAL_ELECTION_RESULTS = [
   buildElectionResultsFixture({
-    election: electionSample2,
+    election: electionSample,
     cardCounts: {
       bmd: 0,
       hmpb: [100],
@@ -78,8 +78,8 @@ const GENERAL_ELECTION_RESULTS = [
         type: 'candidate',
         ballots: 100,
         officialOptionTallies: {
-          'jackie-chan': 70,
-          'marie-curie': 30,
+          'barchi-hallaren': 70,
+          'cramer-vuocolo': 30,
         },
       },
     },
@@ -324,7 +324,7 @@ test('polls closed, primary election, single precinct + quickresults on', async 
 });
 
 test('polls open, general election, single precinct', async () => {
-  const electionDefinition = electionSample2Definition;
+  const electionDefinition = electionSampleDefinition;
   const precinctSelection = singlePrecinctSelectionFor('23');
   apiMock.expectGetConfig({
     electionDefinition,
@@ -351,12 +351,14 @@ test('polls open, general election, single precinct', async () => {
     printedElement.getByText('TEST Polls Opened Report for Center Springfield');
     printedElement.getByText('General Election:');
     within(printedElement.getByTestId('total-ballots')).getByText('0');
-    expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(27);
+    expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(
+      electionDefinition.election.contests.length
+    );
   });
 });
 
 test('polls closed, general election, all precincts', async () => {
-  const electionDefinition = electionSample2Definition;
+  const electionDefinition = electionSampleDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     pollsState: 'polls_open',
@@ -379,14 +381,18 @@ test('polls closed, general election, all precincts', async () => {
     printedElement.getByText('TEST Polls Closed Report for All Precincts');
     printedElement.getByText('General Election:');
     within(printedElement.getByTestId('total-ballots')).getByText('100');
-    expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(27);
-    within(printedElement.getByTestId('president-jackie-chan')).getByText('70');
+    expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(
+      electionDefinition.election.contests.length
+    );
+    within(printedElement.getByTestId('president-barchi-hallaren')).getByText(
+      '70'
+    );
   });
 });
 
 test('polls paused', async () => {
   jest.useFakeTimers().setSystemTime(new Date('2022-10-31T16:23:00.000Z'));
-  const electionDefinition = electionSample2Definition;
+  const electionDefinition = electionSampleDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
@@ -430,7 +436,7 @@ test('polls paused', async () => {
 
 test('polls unpaused', async () => {
   jest.useFakeTimers().setSystemTime(new Date('2022-10-31T16:23:00.000Z'));
-  const electionDefinition = electionSample2Definition;
+  const electionDefinition = electionSampleDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
@@ -472,7 +478,7 @@ test('polls unpaused', async () => {
 });
 
 test('polls closed from paused', async () => {
-  const electionDefinition = electionSample2Definition;
+  const electionDefinition = electionSampleDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     pollsState: 'polls_paused',
@@ -503,13 +509,17 @@ test('polls closed from paused', async () => {
     printedElement.getByText('TEST Polls Closed Report for All Precincts');
     printedElement.getByText('General Election:');
     within(printedElement.getByTestId('total-ballots')).getByText('100');
-    expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(27);
-    within(printedElement.getByTestId('president-jackie-chan')).getByText('70');
+    expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(
+      electionDefinition.election.contests.length
+    );
+    within(printedElement.getByTestId('president-barchi-hallaren')).getByText(
+      '70'
+    );
   });
 });
 
 test('must have printer attached to open polls (thermal printer)', async () => {
-  const electionDefinition = electionSample2Definition;
+  const electionDefinition = electionSampleDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
@@ -541,7 +551,7 @@ test('must have printer attached to open polls (thermal printer)', async () => {
 });
 
 test('must have printer attached to close polls (thermal printer)', async () => {
-  const electionDefinition = electionSample2Definition;
+  const electionDefinition = electionSampleDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),

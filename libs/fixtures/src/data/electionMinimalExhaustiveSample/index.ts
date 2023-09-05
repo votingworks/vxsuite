@@ -10,4 +10,4 @@ export {
   election,
   electionDefinition,
 } from './electionMinimalExhaustiveSample.json';
-export * as systemSettings from '../sampleAdminInitialSetupPackage/systemSettings.json';
+export * as systemSettings from '../systemSettings.json';

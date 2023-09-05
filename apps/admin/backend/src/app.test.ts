@@ -1,11 +1,15 @@
 import { assert, err, ok } from '@votingworks/basics';
 import {
   electionMinimalExhaustiveSampleFixtures,
-  electionSampleCdfDefinition,
+  electionSample,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import {
+  convertVxfElectionToCdfBallotDefinition,
+  DEFAULT_SYSTEM_SETTINGS,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -139,7 +143,9 @@ test('configuring with a CDF election', async () => {
 
   mockSystemAdministratorAuth(auth);
 
-  const { electionData, electionHash } = electionSampleCdfDefinition;
+  const { electionData, electionHash } = safeParseElectionDefinition(
+    JSON.stringify(convertVxfElectionToCdfBallotDefinition(electionSample))
+  ).unsafeUnwrap();
 
   // configure with well-formed election data
   const configureResult = await apiClient.configure({

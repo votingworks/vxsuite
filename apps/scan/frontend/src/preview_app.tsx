@@ -3,9 +3,9 @@
 /* istanbul ignore file */
 
 import {
+  electionMinimalExhaustiveSampleDefinition,
   electionSampleDefinition,
   electionWithMsEitherNeitherDefinition,
-  primaryElectionSampleDefinition,
 } from '@votingworks/fixtures';
 import { PreviewDashboard } from './preview_dashboard';
 import * as CardErrorScreen from './screens/card_error_screen';
@@ -35,7 +35,7 @@ export function PreviewApp(): JSX.Element {
       <PreviewDashboard
         electionDefinitions={[
           electionSampleDefinition,
-          primaryElectionSampleDefinition,
+          electionMinimalExhaustiveSampleDefinition,
           electionWithMsEitherNeitherDefinition,
         ]}
         modules={[

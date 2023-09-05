@@ -54,7 +54,7 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
     if (ballotStyles.length <= 1) {
       return {
         ...precinct,
-        districtIds: ballotStyles[0].districts,
+        districtIds: ballotStyles[0]?.districts ?? [],
       };
     }
     return {
