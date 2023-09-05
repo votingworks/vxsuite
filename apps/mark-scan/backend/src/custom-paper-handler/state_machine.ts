@@ -99,6 +99,10 @@ export class PaperHandlerStateMachine {
     this.machineService.stop();
   }
 
+  getRawDeviceStatus(): Promise<PaperHandlerStatus> {
+    return this.driver.getPaperHandlerStatus();
+  }
+
   // Leftover wrapper. Keeping this so the interface between API and state machine is the same until
   // I can get around to migrating it later in the PR
   getSimpleStatus(): SimpleServerStatus {
