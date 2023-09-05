@@ -192,6 +192,18 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
     };
   }
 
+  // Add election.type
+  if (!('type' in election)) {
+    election = {
+      ...election,
+      type: election.contests?.some(
+        (contest) => contest.type === 'candidate' && contest.partyId
+      )
+        ? 'primary'
+        : 'general',
+    };
+  }
+
   return election;
 }
 
