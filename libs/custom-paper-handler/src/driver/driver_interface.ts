@@ -1,8 +1,8 @@
 import { Coder, CoderError, Uint16, Uint8 } from '@votingworks/message-coder';
 import { Result } from '@votingworks/basics';
 import { ImageFromScanner } from '@votingworks/custom-scanner';
+import { Mutex } from '@votingworks/utils';
 import { MinimalWebUsbDevice } from './minimal_web_usb_device';
-import { Lock } from './lock';
 import {
   PrintingDensity,
   PrintingSpeed,
@@ -26,25 +26,32 @@ import {
 import { ScannerCapability } from './scanner_capability';
 
 export interface PaperHandlerDriverInterface {
-  readonly genericLock: Lock;
-  readonly realTimeLock: Lock;
+  readonly publicApiMutex: Mutex<undefined>;
+  readonly webDeviceMutex: Mutex<MinimalWebUsbDevice>;
   readonly scannerConfig: ScannerConfig;
-  webDevice: MinimalWebUsbDevice;
+
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  getWebDevice(): MinimalWebUsbDevice;
-  transferInGeneric(): Promise<USBInTransferResult>;
+  transferOutGeneric<T>(
+    webDevice: MinimalWebUsbDevice,
+    coder: Coder<T>,
+    value: T
+  ): Promise<USBOutTransferResult>;
+  transferInGeneric(
+    webDevice: MinimalWebUsbDevice
+  ): Promise<USBInTransferResult>;
   clearGenericInBuffer(): Promise<void>;
-  transferOutRealTime(requestId: Uint8): Promise<USBOutTransferResult>;
-  transferInRealTime(): Promise<USBInTransferResult>;
+  transferOutRealTime(
+    webDevice: MinimalWebUsbDevice,
+    requestId: Uint8
+  ): Promise<USBOutTransferResult>;
+  transferInRealTime(
+    webDevice: MinimalWebUsbDevice
+  ): Promise<USBInTransferResult>;
   handleRealTimeExchange<T>(
     requestId: RealTimeRequestIds,
     coder: Coder<T>
   ): Promise<Result<T, CoderError>>;
-  transferOutGeneric<T>(
-    coder: Coder<T>,
-    value: T
-  ): Promise<USBOutTransferResult>;
   initializePrinter(): Promise<void>;
   validateRealTimeExchangeResponse(
     expectedRequestId: RealTimeRequestIds,
@@ -105,6 +112,7 @@ export interface PaperHandlerDriverInterface {
     numMotionUnits: number
   ): Promise<USBOutTransferResult>;
   bufferChunk(
+    webDevice: MinimalWebUsbDevice,
     chunkedCustomBitmap: PaperHandlerBitmap
   ): Promise<USBOutTransferResult>;
   printChunk(chunkedCustomBitmap: PaperHandlerBitmap): Promise<void>;
