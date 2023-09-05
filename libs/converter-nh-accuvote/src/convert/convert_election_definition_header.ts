@@ -417,6 +417,7 @@ export function convertElectionDefinitionHeader(
   const definitionGrid = readGridFromElectionDefinition(root);
 
   const election: Election = {
+    type: 'general',
     title,
     date: parsedDate.toISO(),
     county: {
