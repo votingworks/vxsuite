@@ -51,6 +51,12 @@ export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
   'absentee',
 ];
 
+export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
+  absentee: 'Absentee',
+  precinct: 'Precinct',
+  provisional: 'Provisional',
+};
+
 /**
  * Indicates what cast vote records to include when calculating results.
  * Omission of a filter attribute indicates *not* filtering on it at all.
