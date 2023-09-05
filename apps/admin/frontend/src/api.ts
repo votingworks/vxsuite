@@ -391,10 +391,15 @@ export const getResultsForTallyReports = {
       ? ['getResultsForTallyReports', input]
       : ['getResultsForTallyReports'];
   },
-  useQuery(input: GetResultsForTallyReports) {
+  useQuery(
+    input: GetResultsForTallyReports,
+    options: { enabled: boolean } = { enabled: true }
+  ) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getResultsForTallyReports(input)
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getResultsForTallyReports(input),
+      options
     );
   },
 } as const;

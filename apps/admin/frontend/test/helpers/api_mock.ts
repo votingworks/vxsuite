@@ -16,7 +16,7 @@ import type {
   WriteInImageView,
   ExportDataError,
 } from '@votingworks/admin-backend';
-import { Result, ok } from '@votingworks/basics';
+import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
@@ -356,11 +356,24 @@ export function createApiMock(
         filter?: Tabulation.Filter;
         groupBy?: Tabulation.GroupBy;
       },
-      results: Array<Tabulation.GroupOf<TallyReportResults>>
+      results: Tabulation.GroupList<TallyReportResults>,
+      deferResult = false
     ) {
+      const { promise, resolve } =
+        deferred<Tabulation.GroupList<TallyReportResults>>();
       apiClient.getResultsForTallyReports
         .expectCallWith(input)
-        .resolves(results);
+        .returns(promise);
+
+      if (!deferResult) {
+        resolve(results);
+      }
+
+      return {
+        resolve: () => {
+          resolve(results);
+        },
+      };
     },
 
     expectGetElectionWriteInSummary(
