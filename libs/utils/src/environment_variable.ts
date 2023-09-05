@@ -41,6 +41,9 @@ export enum BooleanEnvironmentVariableName {
   // Enables continuous export to USB on VxScan, usage of the corresponding export format on
   // VxCentralScan, and handling of these exports on VxAdmin
   ENABLE_CONTINUOUS_EXPORT = 'REACT_APP_VX_ENABLE_CONTINUOUS_EXPORT',
+  // Disables the ballot box check on VxMarkScan. If false, the app will block until the ballot
+  // box is attached
+  DISABLE_BALLOT_BOX_CHECK = 'REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -103,6 +106,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_CONVERTER;
     case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
       return process.env.REACT_APP_VX_PRECINCT_REPORT_DESTINATION;
+    case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
+      return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -202,6 +207,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: true,
         autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: true,
       };
     /* c8 ignore next 2 */
     default:
