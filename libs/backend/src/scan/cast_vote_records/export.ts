@@ -76,11 +76,17 @@ interface ScannerStateUnchangedByExport {
   pollsState?: PollsState;
 }
 
+interface ExportOptions {
+  arePollsClosing?: boolean;
+  isFullExport?: boolean;
+}
+
 /**
  * A grouping of inputs needed by helpers throughout this file
  */
 interface ExportContext {
   exporter: Exporter;
+  exportOptions: ExportOptions;
   scannerState: ScannerStateUnchangedByExport;
   scannerStore: ScannerStore;
 }
@@ -89,16 +95,23 @@ interface ExportContext {
 // Helpers
 //
 
+/**
+ * Returns the export directory path relative to the USB mount point. Creates a new export
+ * directory if one hasn't been created yet or if we're performing a full export.
+ *
+ * If we're performing a full export before polls close on VxScan, after the export finishes, this
+ * function will have us switch to the new directory for continuous export. This provides a path
+ * for getting the continuous export directory back to a good state after an unexpected failure.
+ */
 function getExportDirectoryPathRelativeToUsbMountPoint(
   exportContext: ExportContext
 ): string {
-  const { scannerState, scannerStore } = exportContext;
+  const { exportOptions, scannerState, scannerStore } = exportContext;
   const { electionDefinition, inTestMode } = scannerState;
   const { election, electionHash } = electionDefinition;
 
   let exportDirectoryName = scannerStore.getExportDirectoryName();
-  if (!exportDirectoryName) {
-    // Create a new export directory if necessary
+  if (!exportDirectoryName || exportOptions.isFullExport) {
     exportDirectoryName = generateCastVoteRecordExportDirectoryName({
       inTestMode,
       machineId: VX_MACHINE_ID,
@@ -303,12 +316,14 @@ async function exportMetadataFileToUsbDrive(
 ): Promise<
   Result<{ metadataFileContents: string }, ExportCastVoteRecordToUsbDriveError>
 > {
-  const { exporter, scannerState } = exportContext;
+  const { exporter, exportOptions, scannerState } = exportContext;
   const { pollsState } = scannerState;
 
   const metadata: CastVoteRecordExportMetadata = {
     arePollsClosed: pollsState
-      ? pollsState === 'polls_closed_final'
+      ? Boolean(
+          pollsState === 'polls_closed_final' || exportOptions.arePollsClosing
+        )
       : undefined, // Irrelevant for VxCentralScan
     castVoteRecordReportMetadata:
       buildCastVoteRecordReportMetadata(exportContext),
@@ -369,7 +384,8 @@ async function exportSignatureFileToUsbDrive(
 export async function exportCastVoteRecordsToUsbDrive(
   scannerStore: ScannerStore,
   usbDrive: UsbDrive,
-  resultSheets: ResultSheet[] | Generator<ResultSheet>
+  resultSheets: ResultSheet[] | Generator<ResultSheet>,
+  exportOptions: ExportOptions = {}
 ): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
   const exportContext: ExportContext = {
     exporter: new Exporter({
@@ -379,6 +395,7 @@ export async function exportCastVoteRecordsToUsbDrive(
         return drive.status === 'mounted' ? [drive] : [];
       },
     }),
+    exportOptions,
     scannerState: {
       batches: scannerStore.getBatches(),
       electionDefinition: assertDefined(scannerStore.getElectionDefinition()),
@@ -389,9 +406,17 @@ export async function exportCastVoteRecordsToUsbDrive(
     scannerStore,
   };
 
+  // Before a full export, clear cast vote record hashes so that they can be recomputed from
+  // scratch. This is particularly important for VxCentralScan, where batches can be deleted
+  // between exports.
+  if (exportOptions.isFullExport) {
+    scannerStore.clearCastVoteRecordHashes();
+  }
+
   const exportDirectoryPathRelativeToUsbMountPoint =
     getExportDirectoryPathRelativeToUsbMountPoint(exportContext);
 
+  const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
   for (const resultSheet of resultSheets) {
     const exportCastVoteRecordFilesResult =
       await exportCastVoteRecordFilesToUsbDrive(
@@ -404,14 +429,20 @@ export async function exportCastVoteRecordsToUsbDrive(
     }
     const { castVoteRecordId, castVoteRecordHash } =
       exportCastVoteRecordFilesResult.ok();
+    castVoteRecordHashes[castVoteRecordId] = castVoteRecordHash;
+  }
+
+  for (const [castVoteRecordId, castVoteRecordHash] of Object.entries(
+    castVoteRecordHashes
+  )) {
     scannerStore.updateCastVoteRecordHashes(
       castVoteRecordId,
       castVoteRecordHash
     );
   }
-
   const updatedCastVoteRecordRootHash =
     scannerStore.getCastVoteRecordRootHash();
+
   const exportMetadataFileResult = await exportMetadataFileToUsbDrive(
     exportContext,
     updatedCastVoteRecordRootHash,
