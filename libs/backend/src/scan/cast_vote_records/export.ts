@@ -8,7 +8,14 @@ import {
   readableFileFromData,
   readableFileFromDisk,
 } from '@votingworks/auth';
-import { assertDefined, err, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   BallotIdSchema,
   BallotPageLayout,
@@ -30,6 +37,7 @@ import {
 } from '@votingworks/utils';
 
 import { ExportDataError, Exporter } from '../../exporter';
+import { Usb as LegacyUsb } from '../../mock_usb';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../globals';
 import { buildCastVoteRecord as baseBuildCastVoteRecord } from './build_cast_vote_record';
 import { buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata } from './build_report_metadata';
@@ -41,7 +49,7 @@ import {
 import { ResultSheet } from './legacy_export';
 import { buildElectionOptionPositionMap } from './option_map';
 
-type ExportCastVoteRecordToUsbDriveError =
+type ExportCastVoteRecordsToUsbDriveError =
   | { type: 'invalid-sheet-found'; message: string }
   | ExportDataError;
 
@@ -53,15 +61,16 @@ export interface ScannerStore {
   getBatches(): BatchInfo[];
   getCastVoteRecordRootHash(): string;
   getElectionDefinition(): ElectionDefinition | undefined;
-  getExportDirectoryName(): string | undefined;
   getMarkThresholds(): MarkThresholds;
-  getPollsState(): PollsState | undefined;
   getTestMode(): boolean;
   updateCastVoteRecordHashes(
     castVoteRecordId: string,
     castVoteRecordHash: string
   ): void;
-  setExportDirectoryName(exportDirectoryName: string): void;
+
+  getExportDirectoryName?(): string | undefined;
+  getPollsState?(): PollsState;
+  setExportDirectoryName?(exportDirectoryName: string): void;
 }
 
 /**
@@ -76,10 +85,17 @@ interface ScannerStateUnchangedByExport {
   pollsState?: PollsState;
 }
 
-interface ExportOptions {
+interface CentralScannerOptions {
+  scannerType: 'central';
+}
+
+interface PrecinctScannerOptions {
+  scannerType: 'precinct';
   arePollsClosing?: boolean;
   isFullExport?: boolean;
 }
+
+type ExportOptions = CentralScannerOptions | PrecinctScannerOptions;
 
 /**
  * A grouping of inputs needed by helpers throughout this file
@@ -110,14 +126,34 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
   const { electionDefinition, inTestMode } = scannerState;
   const { election, electionHash } = electionDefinition;
 
-  let exportDirectoryName = scannerStore.getExportDirectoryName();
-  if (!exportDirectoryName || exportOptions.isFullExport) {
-    exportDirectoryName = generateCastVoteRecordExportDirectoryName({
-      inTestMode,
-      machineId: VX_MACHINE_ID,
-    });
-    scannerStore.setExportDirectoryName(exportDirectoryName);
+  let exportDirectoryName: string | undefined;
+  switch (exportOptions.scannerType) {
+    case 'central': {
+      exportDirectoryName = generateCastVoteRecordExportDirectoryName({
+        inTestMode,
+        machineId: VX_MACHINE_ID,
+      });
+      break;
+    }
+    case 'precinct': {
+      assert(scannerStore.getExportDirectoryName !== undefined);
+      assert(scannerStore.setExportDirectoryName !== undefined);
+      exportDirectoryName = scannerStore.getExportDirectoryName();
+      if (!exportDirectoryName || exportOptions.isFullExport) {
+        exportDirectoryName = generateCastVoteRecordExportDirectoryName({
+          inTestMode,
+          machineId: VX_MACHINE_ID,
+        });
+        scannerStore.setExportDirectoryName(exportDirectoryName);
+      }
+      break;
+    }
+    /* istanbul ignore next: Compile-time check for completeness */
+    default: {
+      throwIllegalValue(exportOptions, 'scannerType');
+    }
   }
+
   return path.join(
     SCANNER_RESULTS_FOLDER,
     generateElectionBasedSubfolderName(election, electionHash),
@@ -222,7 +258,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
 ): Promise<
   Result<
     { castVoteRecordId: string; castVoteRecordHash: string },
-    ExportCastVoteRecordToUsbDriveError
+    ExportCastVoteRecordsToUsbDriveError
   >
 > {
   const { exporter } = exportContext;
@@ -314,17 +350,32 @@ async function exportMetadataFileToUsbDrive(
   castVoteRecordRootHash: string,
   exportDirectoryPathRelativeToUsbMountPoint: string
 ): Promise<
-  Result<{ metadataFileContents: string }, ExportCastVoteRecordToUsbDriveError>
+  Result<{ metadataFileContents: string }, ExportCastVoteRecordsToUsbDriveError>
 > {
   const { exporter, exportOptions, scannerState } = exportContext;
   const { pollsState } = scannerState;
 
+  let arePollsClosed: boolean | undefined;
+  switch (exportOptions.scannerType) {
+    case 'central': {
+      arePollsClosed = undefined;
+      break;
+    }
+    case 'precinct': {
+      assert(pollsState !== undefined);
+      arePollsClosed = Boolean(
+        pollsState === 'polls_closed_final' || exportOptions.arePollsClosing
+      );
+      break;
+    }
+    /* istanbul ignore next: Compile-time check for completeness */
+    default: {
+      throwIllegalValue(exportOptions, 'scannerType');
+    }
+  }
+
   const metadata: CastVoteRecordExportMetadata = {
-    arePollsClosed: pollsState
-      ? Boolean(
-          pollsState === 'polls_closed_final' || exportOptions.arePollsClosing
-        )
-      : undefined, // Irrelevant for VxCentralScan
+    arePollsClosed,
     castVoteRecordReportMetadata:
       buildCastVoteRecordReportMetadata(exportContext),
     castVoteRecordRootHash,
@@ -350,7 +401,7 @@ async function exportSignatureFileToUsbDrive(
   exportContext: ExportContext,
   metadataFileContents: string,
   exportDirectoryPathRelativeToUsbMountPoint: string
-): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
+): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
   const { exporter } = exportContext;
 
   const signatureFile = await prepareSignatureFile({
@@ -383,17 +434,20 @@ async function exportSignatureFileToUsbDrive(
  */
 export async function exportCastVoteRecordsToUsbDrive(
   scannerStore: ScannerStore,
-  usbDrive: UsbDrive,
+  usbDrive: UsbDrive | LegacyUsb,
   resultSheets: ResultSheet[] | Generator<ResultSheet>,
-  exportOptions: ExportOptions = {}
-): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
+  exportOptions: ExportOptions
+): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
-      getUsbDrives: async () => {
-        const drive = await usbDrive.status();
-        return drive.status === 'mounted' ? [drive] : [];
-      },
+      getUsbDrives:
+        'getUsbDrives' in usbDrive
+          ? usbDrive.getUsbDrives
+          : async () => {
+              const drive = await usbDrive.status();
+              return drive.status === 'mounted' ? [drive] : [];
+            },
     }),
     exportOptions,
     scannerState: {
@@ -401,7 +455,7 @@ export async function exportCastVoteRecordsToUsbDrive(
       electionDefinition: assertDefined(scannerStore.getElectionDefinition()),
       inTestMode: scannerStore.getTestMode(),
       markThresholds: scannerStore.getMarkThresholds(),
-      pollsState: scannerStore.getPollsState(),
+      pollsState: scannerStore.getPollsState?.(),
     },
     scannerStore,
   };
@@ -409,7 +463,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   // Before a full export, clear cast vote record hashes so that they can be recomputed from
   // scratch. This is particularly important for VxCentralScan, where batches can be deleted
   // between exports.
-  if (exportOptions.isFullExport) {
+  if (exportOptions.scannerType === 'central' || exportOptions.isFullExport) {
     scannerStore.clearCastVoteRecordHashes();
   }
 

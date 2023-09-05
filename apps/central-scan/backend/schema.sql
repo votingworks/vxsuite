@@ -56,3 +56,27 @@ create table system_settings (
   id integer primary key check (id = 1),
   data text not null -- JSON blob
 );
+
+create table cvr_hashes (
+  cvr_id_level_1_prefix text not null check (
+    length(cvr_id_level_1_prefix) = 1 or
+    length(cvr_id_level_1_prefix) = 0
+  ),
+  cvr_id_level_2_prefix text not null check (
+    length(cvr_id_level_2_prefix) = 2 or
+    length(cvr_id_level_2_prefix) = 0
+  ),
+  cvr_id text not null check (
+    length(cvr_id) = 36 or
+    length(cvr_id) = 0
+  ),
+  cvr_hash text not null check (
+    length(cvr_hash) = 64
+  )
+);
+
+create unique index idx_cvr_hashes ON cvr_hashes (
+  cvr_id_level_1_prefix,
+  cvr_id_level_2_prefix,
+  cvr_id
+);

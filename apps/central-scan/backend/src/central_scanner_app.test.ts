@@ -15,7 +15,11 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  CAST_VOTE_RECORD_REPORT_FILENAME,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { Application } from 'express';
 import * as fs from 'fs/promises';
 import request from 'supertest';
@@ -37,6 +41,15 @@ import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 jest.mock('./importer');
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
 const jurisdiction = TEST_JURISDICTION;
 
 let app: Application;
@@ -48,6 +61,7 @@ let logger: Logger;
 let mockUsb: MockUsb;
 
 beforeEach(() => {
+  mockFeatureFlagger.resetFeatureFlags();
   auth = buildMockDippedSmartCardAuth();
   importer = makeMock(Importer);
   mockUsb = createMockUsb();
@@ -203,6 +217,20 @@ test('POST /scan/export-to-usb-drive', async () => {
   expect(
     await castVoteRecordReportImportResult.assertOk('test').CVR.count()
   ).toEqual(0);
+});
+
+test('POST /scan/export-to-usb-drive when continuous export is enabled', async () => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+  );
+  mockUsb.insertUsbDrive({});
+
+  // Just test that the app has been wired properly. Rely on libs/backend tests for more detailed
+  // coverage of export logic.
+  await request(app)
+    .post('/central-scanner/scan/export-to-usb-drive')
+    .set('Accept', 'application/json')
+    .expect(200);
 });
 
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {

@@ -10,6 +10,7 @@ import {
   Usb,
   readBallotPackageFromUsb,
   getContestsForBallotPage,
+  exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
 import {
   BallotPackageConfigurationError,
@@ -117,7 +118,7 @@ function buildApi({
     async deleteBatch({ batchId }: { batchId: string }) {
       const userRole = await getUserRole();
       const numberOfBallotsInBatch = workspace.store
-        .batchStatus()
+        .getBatches()
         .find((batch) => batch.id === batchId)?.count;
 
       await logger.log(LogEventId.DeleteScanBatchInit, userRole, {
@@ -353,20 +354,29 @@ export function buildCentralScannerApp({
       return;
     }
 
-    const exportResult = await exportCastVoteRecordReportToUsbDrive(
-      {
-        electionDefinition,
-        isTestMode: store.getTestMode(),
-        ballotsCounted: store.getBallotsCounted(),
-        batchInfo: store.batchStatus(),
-        getResultSheetGenerator: store.forEachResultSheet.bind(store),
-        definiteMarkThreshold: store.getMarkThresholds().definite,
-        disableOriginalSnapshots: isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
-        ),
-      },
-      usb.getUsbDrives
-    );
+    const exportResult = isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+    )
+      ? await exportCastVoteRecordsToUsbDrive(
+          store,
+          usb,
+          store.forEachResultSheet(),
+          { scannerType: 'central' }
+        )
+      : await exportCastVoteRecordReportToUsbDrive(
+          {
+            electionDefinition,
+            isTestMode: store.getTestMode(),
+            ballotsCounted: store.getBallotsCounted(),
+            batchInfo: store.getBatches(),
+            getResultSheetGenerator: store.forEachResultSheet.bind(store),
+            definiteMarkThreshold: store.getMarkThresholds().definite,
+            disableOriginalSnapshots: isFeatureFlagEnabled(
+              BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
+            ),
+          },
+          usb.getUsbDrives
+        );
 
     if (exportResult.isErr()) {
       response.status(500).json({

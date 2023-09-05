@@ -265,15 +265,16 @@ function buildApi(
       ) {
         switch (input.mode) {
           case 'full_export': {
-            return await exportCastVoteRecordsToUsbDrive(
+            return exportCastVoteRecordsToUsbDrive(
               store,
               usbDrive,
               store.forEachResultSheet(),
-              { isFullExport: true }
+              { scannerType: 'precinct', isFullExport: true }
             );
           }
           case 'polls_closing': {
-            return await exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
+            return exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
+              scannerType: 'precinct',
               arePollsClosing: true,
             });
           }
