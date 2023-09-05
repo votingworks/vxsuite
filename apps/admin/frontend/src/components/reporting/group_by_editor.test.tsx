@@ -1,5 +1,4 @@
 import { Tabulation } from '@votingworks/types';
-import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GroupByEditor } from './group_by_editor';
 import { screen } from '../../../test/react_testing_library';
@@ -22,12 +21,14 @@ test('GroupByEditor', () => {
   ];
 
   for (const [label, checked] of items) {
-    const item = screen.getByText(label).parentElement!;
-    within(item).queryByRole('button', { pressed: checked });
+    const button = screen.getByRole('button', {
+      name: `Report By ${label}`,
+      pressed: checked,
+    });
+    expect(button).toHaveTextContent(label);
   }
 
-  const ballotStyleItem = screen.getByText('Ballot Style').parentElement!;
-  userEvent.click(within(ballotStyleItem).getByRole('button'));
+  userEvent.click(screen.getByText('Ballot Style'));
   expect(setGroupBy).toHaveBeenCalledWith({
     ...groupBy,
     groupByBallotStyle: true,

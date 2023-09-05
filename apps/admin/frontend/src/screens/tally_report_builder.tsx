@@ -25,7 +25,7 @@ const FilterEditorContainer = styled.div`
 
 const GroupByEditorContainer = styled.div`
   width: 80%;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   margin-bottom: 2rem;
 `;
 

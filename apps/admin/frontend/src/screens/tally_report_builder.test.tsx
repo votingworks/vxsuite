@@ -43,8 +43,7 @@ test('happy path', async () => {
   screen.getButton('Load Preview');
 
   // Add Group By
-  const precinctGroupByItem = screen.getByText('Precinct').parentElement!;
-  userEvent.click(within(precinctGroupByItem).getByRole('button'));
+  userEvent.click(screen.getButton('Report By Precinct'));
 
   // Load Preview
   apiMock.expectGetResultsForTallyReports(

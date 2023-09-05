@@ -25,22 +25,28 @@ export interface GroupByEditorProps {
 const Container = styled.div`
   display: grid;
   grid-template-columns: repeat(4, min-content);
-  gap: 1rem;
+  gap: 0.75rem;
 `;
 
-const Item = styled.span`
-  margin-bottom: 0.5rem;
+const Item = styled.button`
+  margin: 0;
+  padding: 0.25rem;
+  cursor: pointer;
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
   gap: 0.5rem;
+  background: none;
+  border: none;
+  font-weight: 300;
+  color: inherit;
 `;
 
 const ItemLabel = styled(Font)`
   white-space: nowrap;
 `;
 
-const CheckboxContainer = styled.button`
+const CheckboxContainer = styled.div`
   border: none;
   background: none;
   padding: 0;
@@ -65,14 +71,15 @@ export function GroupByEditor({
   return (
     <Container data-testid="group-by-editor">
       {allowedGroupings.map((grouping) => {
-        const checked = groupBy[grouping];
+        const checked = Boolean(groupBy[grouping]);
         return (
-          <Item key={grouping}>
-            <CheckboxContainer
-              onClick={() => toggleGrouping(grouping)}
-              aria-label={`Report By ${GROUPING_LABEL[grouping]}`}
-              aria-pressed={checked}
-            >
+          <Item
+            key={grouping}
+            onClick={() => toggleGrouping(grouping)}
+            aria-label={`Report By ${GROUPING_LABEL[grouping]}`}
+            aria-pressed={checked}
+          >
+            <CheckboxContainer>
               <Checkbox checked={checked} />
             </CheckboxContainer>
             <ItemLabel>{GROUPING_LABEL[grouping]}</ItemLabel>
