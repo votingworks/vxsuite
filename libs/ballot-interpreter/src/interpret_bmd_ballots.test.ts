@@ -42,7 +42,7 @@ describe('VX BMD interpretation', () => {
           "metadata": {
             "ballotStyleId": "1",
             "ballotType": "precinct",
-            "electionHash": "ee6cb91c809be58dfe58",
+            "electionHash": "d44db90b8b1de80ce518",
             "isTestMode": true,
             "precinctId": "23",
           },
