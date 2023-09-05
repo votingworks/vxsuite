@@ -22,6 +22,7 @@ import {
   DistrictId,
   Election,
   ElectionDefinition,
+  ELECTION_TYPES,
   Id,
   Party,
   PartyId,
@@ -379,6 +380,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
       })
       .chain(({ districts, precincts, parties }) =>
         fc.record<Election>({
+          type: fc.constantFrom(...ELECTION_TYPES),
           title: fc.string({ minLength: 1 }),
           county: arbitraryCounty(),
           state: fc.string({ minLength: 2, maxLength: 2 }),
