@@ -317,5 +317,3 @@ test('displays custom filter rather than specific title when necessary', async (
   screen.getByText(hasTextAcrossElements('Ballot Style: 1'));
   screen.getByText(hasTextAcrossElements('Precinct: North Lincoln'));
 });
-
-// testing for refreshing the preview and other logic on props change is covered by consumers
