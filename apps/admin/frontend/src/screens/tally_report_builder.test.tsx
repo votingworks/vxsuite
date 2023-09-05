@@ -21,6 +21,8 @@ afterEach(() => {
 test('happy path', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   const { election } = electionDefinition;
+
+  apiMock.expectGetCastVoteRecordFileMode('test');
   renderInAppContext(<TallyReportBuilder />, {
     electionDefinition,
     apiMock,
