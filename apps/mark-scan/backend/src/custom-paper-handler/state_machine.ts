@@ -22,7 +22,6 @@ import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   InterpretFileResult,
   interpretSheet,
@@ -270,17 +269,22 @@ function loadMetadataAndInterpretBallot(
   context: Context
 ): Promise<SheetOf<InterpretFileResult>> {
   const { scannedImagePaths, workspace } = context;
+  assert(scannedImagePaths, 'Expected scannedImagePaths in context');
+
   const { store } = workspace;
   const electionDefinition = store.getElectionDefinition();
+  assert(
+    electionDefinition,
+    'Expected electionDefinition to be defined in store'
+  );
 
-  assert(scannedImagePaths);
-  assert(electionDefinition);
+  const precinctSelection = store.getPrecinctSelection();
+  assert(
+    precinctSelection,
+    'Expected precinctSelection to be defined in store'
+  );
 
-  const { precincts } = electionDefinition.election;
-  // Hard coded for now because we don't store precinct in backend. This
-  // will be replaced with a store read in a future PR.
-  const precinct = precincts[precincts.length - 1];
-  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  // Hardcoded until isLivemode is moved from frontend store to backend store
   const testMode = true;
   const { markThresholds, precinctScanAdjudicationReasons } = assertDefined(
     store.getSystemSettings()
