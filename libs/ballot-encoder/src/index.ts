@@ -154,9 +154,10 @@ export function encodeBallotConfigInto(
     bits.writeUint(pageNumber, { max: MAXIMUM_PAGE_NUMBERS });
   }
 
-  bits
-    .writeBoolean(isTestMode)
-    .writeUint(ballotType, { max: BallotTypeMaximumValue });
+  bits.writeBoolean(isTestMode);
+
+  const ballotTypeIndex = Object.values(BallotType).indexOf(ballotType);
+  bits.writeUint(ballotTypeIndex, { max: BallotTypeMaximumValue });
 
   bits.writeBoolean(!!ballotId);
 
@@ -204,8 +205,13 @@ export function decodeBallotConfigFromReader(
   const pageNumber = readPageNumber
     ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })
     : undefined;
+
   const isTestMode = bits.readBoolean();
-  const ballotType = bits.readUint({ max: BallotTypeMaximumValue });
+
+  const ballotTypeIndex = bits.readUint({ max: BallotTypeMaximumValue });
+  const ballotType = Object.values(BallotType)[ballotTypeIndex];
+  assert(ballotType, `ballot type index ${ballotTypeIndex} is invalid`);
+
   const ballotId = bits.readBoolean()
     ? unsafeParse(BallotIdSchema, bits.readString())
     : undefined;

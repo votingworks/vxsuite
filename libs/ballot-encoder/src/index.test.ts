@@ -32,6 +32,10 @@ import {
   decodeBallotConfigFromReader,
 } from './index';
 
+const standardBallotTypeIndex = Object.values(BallotType).indexOf(
+  BallotType.Precinct
+);
+
 function falses(count: number): boolean[] {
   return Array.from({ length: count }, () => false);
 }
@@ -74,7 +78,7 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   expect(decodeBallot(election, encodeBallot(election, ballot))).toEqual({
@@ -99,7 +103,7 @@ test('encodes & decodes empty votes correctly', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -124,7 +128,7 @@ test('encodes & decodes empty votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -154,7 +158,7 @@ test('encodes & decodes without a ballot id', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -179,7 +183,7 @@ test('encodes & decodes without a ballot id', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(false)
     // vote roll call only, no vote data
@@ -209,7 +213,7 @@ test('encodes & decodes whether it is a test ballot', () => {
     precinctId,
     votes,
     isTestMode: true,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -234,7 +238,7 @@ test('encodes & decodes whether it is a test ballot', () => {
     // test ballot?
     .writeBoolean(true)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -259,6 +263,9 @@ test('encodes & decodes the ballot type', () => {
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
+  const absenteeBallotTypeIndex = Object.values(BallotType).indexOf(
+    BallotType.Absentee
+  );
   const ballot: CompletedBallot = {
     electionHash,
     ballotId,
@@ -291,7 +298,7 @@ test('encodes & decodes the ballot type', () => {
     // test ballot?
     .writeBoolean(true)
     // ballot type
-    .writeUint(BallotType.Absentee, { max: BallotTypeMaximumValue })
+    .writeUint(absenteeBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -332,7 +339,7 @@ test('encodes & decodes yesno votes correctly', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -357,7 +364,7 @@ test('encodes & decodes yesno votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -397,7 +404,7 @@ test('throws on invalid precinct', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   expect(() => encodeBallot(election, ballot)).toThrowError(
@@ -419,7 +426,7 @@ test('throws on invalid ballot style', () => {
         ballotStyleId,
         precinctId,
         ballotId,
-        ballotType: BallotType.Standard,
+        ballotType: BallotType.Precinct,
         isTestMode: false,
       },
       new BitWriter()
@@ -445,7 +452,7 @@ test('throws on trying to encode a bad yes/no vote', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   expect(() => encodeBallot(election, ballot)).toThrowError(
@@ -477,7 +484,7 @@ test('throws on trying to encode a ballot style', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   expect(() => encodeBallot(election, ballot)).toThrowError(
@@ -512,7 +519,7 @@ test('throws on decoding an incorrect number of precincts', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -553,7 +560,7 @@ test('throws on decoding an incorrect number of ballot styles', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -594,7 +601,7 @@ test('throws on decoding an incorrect number of contests', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -637,7 +644,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -662,7 +669,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -727,7 +734,7 @@ test('encodes & decodes write-in votes correctly', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
   const encodedBallot = new BitWriter()
     // prelude + version number
@@ -752,7 +759,7 @@ test('encodes & decodes write-in votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(BallotType.Standard, { max: BallotTypeMaximumValue })
+    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -854,7 +861,7 @@ test('cannot decode a ballot that includes extra data at the end', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   const writer = new BitWriter();
@@ -884,7 +891,7 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   const writer = new BitWriter();
@@ -914,7 +921,7 @@ test('decode election hash from BMD metadata', () => {
     precinctId,
     votes,
     isTestMode: false,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   expect(decodeElectionHash(encodeBallot(election, ballot))).toEqual(
@@ -934,7 +941,7 @@ test('encode HMPB ballot page metadata', () => {
     ballotStyleId: election.ballotStyles[0]!.id,
     pageNumber: 3,
     isTestMode: true,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
@@ -957,7 +964,7 @@ test('encode HMPB ballot page metadata with bad precinct fails', () => {
     ballotStyleId: election.ballotStyles[0]!.id,
     pageNumber: 3,
     isTestMode: true,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   expect(() =>
@@ -973,7 +980,7 @@ test('encode HMPB ballot page metadata with bad ballot style fails', () => {
     ballotStyleId: '42', // not a good ballot style
     pageNumber: 3,
     isTestMode: true,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   };
 
   expect(() =>

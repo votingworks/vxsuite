@@ -60,9 +60,9 @@ test('produces well-formed cast vote records with all contests in BMD (non-gridl
   }
 });
 
-test('has absentee and standard ballot types', async () => {
+test('has absentee and precinct ballot types', async () => {
   let seenAbsentee = false;
-  let seenStandard = false;
+  let seenPrecinct = false;
 
   for await (const cvr of generateCvrs({
     testMode: false,
@@ -75,7 +75,7 @@ test('has absentee and standard ballot types', async () => {
         break;
 
       case CVR.vxBallotType.Precinct:
-        seenStandard = true;
+        seenPrecinct = true;
         break;
 
       case undefined:
@@ -86,13 +86,13 @@ test('has absentee and standard ballot types', async () => {
         throwIllegalValue(cvr.vxBallotType);
     }
 
-    if (seenAbsentee && seenStandard) {
+    if (seenAbsentee && seenPrecinct) {
       break;
     }
   }
 
   expect(seenAbsentee).toEqual(true);
-  expect(seenStandard).toEqual(true);
+  expect(seenPrecinct).toEqual(true);
 });
 
 test('uses all the scanners given', async () => {

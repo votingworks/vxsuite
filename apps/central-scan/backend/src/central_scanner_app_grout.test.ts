@@ -25,7 +25,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
     electionHash:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
         .electionHash,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     ballotStyleId: '12',
     precinctId: '23',
     isTestMode: false,

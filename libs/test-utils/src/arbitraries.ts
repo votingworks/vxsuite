@@ -461,7 +461,7 @@ export function arbitraryCastVoteRecord({
       _precinctId: fc.constantFrom(...e.precincts.map(({ id }) => id)),
       _ballotId: arbitraryOptional(arbitraryBallotId()),
       _ballotStyleId: fc.constantFrom(...e.ballotStyles.map(({ id }) => id)),
-      _ballotType: fc.constantFrom('absentee', 'provisional', 'standard'),
+      _ballotType: fc.constantFrom('absentee', 'provisional', 'precinct'),
       _batchId: arbitraryId(),
       _batchLabel: fc.string({ minLength: 1 }),
       _testBallot: testBallot,

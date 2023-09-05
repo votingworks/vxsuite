@@ -24,7 +24,7 @@ const mockPageLayout: BallotPageLayout = {
     precinctId: '',
     pageNumber: 1,
     isTestMode: true,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   },
   contests: [],
 };

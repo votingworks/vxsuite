@@ -264,7 +264,7 @@ export function BmdPaperBallot({
     ballotStyleId,
     votes,
     isTestMode: !isLiveMode,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
   });
 
   useEffect(() => {

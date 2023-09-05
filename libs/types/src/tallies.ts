@@ -54,7 +54,7 @@ export interface ManualTally {
 
 export enum VotingMethod {
   Absentee = 'absentee',
-  Precinct = 'standard',
+  Precinct = 'precinct',
   Unknown = 'unknown',
 }
 

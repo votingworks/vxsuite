@@ -36,8 +36,7 @@ import {
 } from './option_map';
 
 /**
- * Converts from the ballot type enumeration to a test representation used
- * in cast vote records.
+ * Converts from the ballot type enumeration to CVR ballot type.
  */
 export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
   switch (ballotType) {
@@ -45,7 +44,7 @@ export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
       return CVR.vxBallotType.Absentee;
     case BallotType.Provisional:
       return CVR.vxBallotType.Provisional;
-    case BallotType.Standard:
+    case BallotType.Precinct:
       return CVR.vxBallotType.Precinct;
     // istanbul ignore next
     default:

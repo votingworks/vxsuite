@@ -227,7 +227,7 @@ function buildInterpretedHmpbPageMetadata(
   return {
     ballotStyleId: ballotStyle.id,
     precinctId,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     electionHash: electionDefinition.electionHash,
     isTestMode: options.testMode,
     pageNumber: side === 'front' ? 1 : 2,

@@ -247,7 +247,7 @@ test('has cast vote record report', async () => {
         metadata: {
           ballotStyleId: 'card-number-3',
           precinctId: 'town-id-00701-precinct-id-',
-          ballotType: BallotType.Standard,
+          ballotType: BallotType.Precinct,
           electionHash: electionDefinition.electionHash,
           isTestMode: false,
         },

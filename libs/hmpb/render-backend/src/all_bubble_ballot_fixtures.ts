@@ -1,5 +1,6 @@
 import {
   BallotPaperSize,
+  BallotType,
   CandidateContest,
   DistrictId,
   Election,
@@ -156,6 +157,7 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
             precinct: election.precincts[0],
             pageNumber: 1,
             totalPages: 2,
+            ballotType: BallotType.Precinct,
             ballotMode: 'test',
             electionHash: electionDefinition.electionHash,
             m,
@@ -172,6 +174,7 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
             precinct: election.precincts[0],
             pageNumber: 2,
             totalPages: 2,
+            ballotType: BallotType.Precinct,
             ballotMode: 'test',
             electionHash: electionDefinition.electionHash,
             m,

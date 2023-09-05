@@ -255,7 +255,7 @@ export async function interpretSheet(
         ballotId: ballot.ballotId,
         metadata: {
           electionHash: ballot.electionHash,
-          ballotType: BallotType.Standard,
+          ballotType: BallotType.Precinct,
           ballotStyleId: ballot.ballotStyleId,
           precinctId: ballot.precinctId,
           isTestMode: ballot.isTestMode,

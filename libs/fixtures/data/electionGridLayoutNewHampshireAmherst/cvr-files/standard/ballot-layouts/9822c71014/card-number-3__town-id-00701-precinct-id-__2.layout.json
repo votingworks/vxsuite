@@ -6,8 +6,8 @@
   "metadata": {
     "ballotStyleId": "card-number-3",
     "precinctId": "town-id-00701-precinct-id-",
-    "electionHash": "81a3e2ba0734c12e681e8533c243050929ba376e21f769972b0977183ef644a7",
-    "ballotType": 0,
+    "electionHash": "f4f2c717a86a21346b20476941693ff1727b068017663043246299c5fb3008b1",
+    "ballotType": "precinct",
     "isTestMode": true,
     "pageNumber": 2
   },

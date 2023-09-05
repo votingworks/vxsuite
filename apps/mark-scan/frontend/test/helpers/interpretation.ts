@@ -35,7 +35,7 @@ export function getMockInterpretation(
       electionHash: electionDefinition.electionHash,
       isTestMode: true,
       precinctId: electionDefinition.election.precincts[0].id,
-      ballotType: BallotType.Standard,
+      ballotType: BallotType.Precinct,
     },
     votes,
   };

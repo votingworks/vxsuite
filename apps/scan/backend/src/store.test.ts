@@ -34,7 +34,7 @@ const jurisdiction = TEST_JURISDICTION;
 
 const testMetadata: BallotMetadata = {
   ballotStyleId: '12',
-  ballotType: BallotType.Standard,
+  ballotType: BallotType.Precinct,
   electionHash:
     electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
       .electionHash,
@@ -535,7 +535,7 @@ test('adjudication', () => {
       ballotStyleId: 'card-number-3',
       precinctId: 'town-id-00701-precinct-id-',
       isTestMode: false,
-      ballotType: BallotType.Standard,
+      ballotType: BallotType.Precinct,
     };
     return {
       imagePath: i === 0 ? '/front.png' : '/back.png',

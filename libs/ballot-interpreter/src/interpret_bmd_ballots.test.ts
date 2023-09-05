@@ -41,7 +41,7 @@ describe('VX BMD interpretation', () => {
           "ballotId": undefined,
           "metadata": {
             "ballotStyleId": "1",
-            "ballotType": 0,
+            "ballotType": "precinct",
             "electionHash": "ee6cb91c809be58dfe58",
             "isTestMode": true,
             "precinctId": "23",

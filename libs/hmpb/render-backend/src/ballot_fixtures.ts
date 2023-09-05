@@ -105,7 +105,7 @@ export function markBallot({
 export const famousNamesFixtures = (() => {
   const { electionDefinition, ballots } = layOutAllBallotStyles({
     election: electionFamousNames2021Fixtures.election,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
   }).unsafeUnwrap();
@@ -162,8 +162,8 @@ export const sampleElectionFixtures = (() => {
 
         const { ballots, electionDefinition } = layOutAllBallotStyles({
           election,
-          ballotType: BallotType.Standard,
-          ballotMode: 'test',
+          ballotType: BallotType.Absentee,
+          ballotMode: 'official',
           layoutOptions: {
             bubblePosition,
             layoutDensity,
@@ -221,6 +221,7 @@ export const sampleElectionFixtures = (() => {
           density: layoutDensity,
           electionDefinition,
           precinctId,
+          ballotStyleId: ballotStyle.id,
           gridLayout,
           blankBallot: ballot,
           markedBallot,
