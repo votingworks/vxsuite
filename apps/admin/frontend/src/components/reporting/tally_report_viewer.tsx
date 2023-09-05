@@ -236,8 +236,9 @@ export function TallyReportViewer({
         message: `User attempted to print a custom tally report from the report builder, but an error occurred: ${error.message}`,
         disposition: 'failure',
       });
+    } finally {
+      setProgressModalText(undefined);
     }
-    setProgressModalText(undefined);
   }
 
   return (
