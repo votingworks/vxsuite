@@ -10,6 +10,7 @@ import { encodeBallot } from '.';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
 const election: Election = {
+  type: 'general',
   title: 'Election',
   county: { id: 'nowhere', name: 'Nowhere' },
   state: 'Nowhere',
