@@ -49,7 +49,7 @@ import {
 import { ResultSheet } from './legacy_export';
 import { buildElectionOptionPositionMap } from './option_map';
 
-type ExportCastVoteRecordToUsbDriveError =
+type ExportCastVoteRecordsToUsbDriveError =
   | { type: 'invalid-sheet-found'; message: string }
   | ExportDataError;
 
@@ -258,7 +258,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
 ): Promise<
   Result<
     { castVoteRecordId: string; castVoteRecordHash: string },
-    ExportCastVoteRecordToUsbDriveError
+    ExportCastVoteRecordsToUsbDriveError
   >
 > {
   const { exporter } = exportContext;
@@ -350,7 +350,7 @@ async function exportMetadataFileToUsbDrive(
   castVoteRecordRootHash: string,
   exportDirectoryPathRelativeToUsbMountPoint: string
 ): Promise<
-  Result<{ metadataFileContents: string }, ExportCastVoteRecordToUsbDriveError>
+  Result<{ metadataFileContents: string }, ExportCastVoteRecordsToUsbDriveError>
 > {
   const { exporter, exportOptions, scannerState } = exportContext;
   const { pollsState } = scannerState;
@@ -401,7 +401,7 @@ async function exportSignatureFileToUsbDrive(
   exportContext: ExportContext,
   metadataFileContents: string,
   exportDirectoryPathRelativeToUsbMountPoint: string
-): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
+): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
   const { exporter } = exportContext;
 
   const signatureFile = await prepareSignatureFile({
@@ -437,7 +437,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   usbDrive: UsbDrive | LegacyUsb,
   resultSheets: ResultSheet[] | Generator<ResultSheet>,
   exportOptions: ExportOptions
-): Promise<Result<void, ExportCastVoteRecordToUsbDriveError>> {
+): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
