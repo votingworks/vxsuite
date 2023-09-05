@@ -20,6 +20,7 @@ import {
   ElectionDefinition,
   getCandidatePartiesDescription,
   getContests,
+  getPartyForBallotStyle,
   getPrecinctById,
   GridLayout,
   GridPosition,
@@ -392,6 +393,7 @@ export function TimingMarkGrid({ m }: { m: Measurements }): AnyElement {
 
 function HeaderAndInstructions({
   election,
+  ballotStyle,
   precinct,
   pageNumber,
   ballotType,
@@ -399,6 +401,7 @@ function HeaderAndInstructions({
   m,
 }: {
   election: Election;
+  ballotStyle: BallotStyle;
   precinct: Precinct;
   pageNumber: number;
   ballotType: BallotType;
@@ -422,6 +425,14 @@ function HeaderAndInstructions({
     [BallotType.Provisional]: ' Provisional',
   };
   const title = `${ballotModeLabel[ballotMode]}${ballotTypeLabel[ballotType]} Ballot`;
+  const party =
+    election.type === 'primary'
+      ? ` • ${
+          assertDefined(
+            getPartyForBallotStyle({ election, ballotStyleId: ballotStyle.id })
+          ).fullName
+        }`
+      : '';
 
   const date = Intl.DateTimeFormat('en-US', {
     month: 'long',
@@ -444,7 +455,7 @@ function HeaderAndInstructions({
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
         textGroups: [
           {
-            text: title,
+            text: `${title}${party}`,
             fontStyle: {
               ...m.FontStyles.H1,
               lineHeight: m.FontStyles.H1.lineHeight * 0.85,
@@ -1542,6 +1553,7 @@ function layOutBallotHelper({
     );
     const headerAndInstructions = HeaderAndInstructions({
       election,
+      ballotStyle,
       precinct,
       pageNumber,
       ballotType,
