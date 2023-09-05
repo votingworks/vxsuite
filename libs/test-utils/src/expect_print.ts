@@ -45,9 +45,7 @@ export function simulateErrorOnNextPrint(error: Error = new Error()): void {
 }
 
 /**
- * Throws the provided error the next time that fakePrintElement, fakePrintElementToPdf, or
- * fakePrintElementWhenReady are called. Used to simulate errors we
- * may receive from the printer itself.
+ * Sets up the next print so that it does not resolve until the returned `resolve` callback is called.
  */
 export function deferNextPrint(): {
   resolve: VoidFunction;
