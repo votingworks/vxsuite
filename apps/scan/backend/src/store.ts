@@ -38,6 +38,10 @@ import {
   getCastVoteRecordRootHash,
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 
@@ -547,6 +551,14 @@ export class Store {
 
     // Allow if no ballots have been counted
     if (!this.getBallotsCounted()) {
+      return true;
+    }
+
+    if (
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+      )
+    ) {
       return true;
     }
 

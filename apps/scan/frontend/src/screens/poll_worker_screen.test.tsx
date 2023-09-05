@@ -167,7 +167,7 @@ describe('transitions from polls open', () => {
   });
 
   test('close polls happy path', async () => {
-    apiMock.expectExportCastVoteRecordsToUsbDrive();
+    apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
     apiMock.expectSetPollsState('polls_closed_final');
     apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
     userEvent.click(screen.getByText('Yes, Close the Polls'));
@@ -185,7 +185,7 @@ describe('transitions from polls open', () => {
   });
 
   test('close polls from landing screen', async () => {
-    apiMock.expectExportCastVoteRecordsToUsbDrive();
+    apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
     apiMock.expectSetPollsState('polls_closed_final');
     apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
     userEvent.click(screen.getByText('No'));
@@ -278,7 +278,7 @@ describe('transitions from polls paused', () => {
   test('close polls from landing screen', async () => {
     apiMock.expectSetPollsState('polls_closed_final');
     apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
-    apiMock.expectExportCastVoteRecordsToUsbDrive();
+    apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');

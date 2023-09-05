@@ -144,9 +144,11 @@ export function createApiMock() {
       mockApiClient.getScannerResultsByParty.expectCallWith().resolves(results);
     },
 
-    expectExportCastVoteRecordsToUsbDrive(): void {
+    expectExportCastVoteRecordsToUsbDrive(input: {
+      mode: 'full_export' | 'polls_closing';
+    }): void {
       mockApiClient.exportCastVoteRecordsToUsbDrive
-        .expectCallWith()
+        .expectCallWith(input)
         .resolves(ok());
     },
 

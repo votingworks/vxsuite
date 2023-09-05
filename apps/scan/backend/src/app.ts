@@ -21,8 +21,9 @@ import {
   exportCastVoteRecordReportToUsbDrive,
   ExportCastVoteRecordReportToUsbDriveError,
   readBallotPackageFromUsb,
+  exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
-import { assert, ok, Result } from '@votingworks/basics';
+import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
@@ -254,9 +255,36 @@ function buildApi(
       return await backupToUsbDrive(store, usbDrive);
     },
 
-    async exportCastVoteRecordsToUsbDrive(): Promise<
-      Result<void, ExportCastVoteRecordReportToUsbDriveError>
-    > {
+    async exportCastVoteRecordsToUsbDrive(input: {
+      mode: 'full_export' | 'polls_closing';
+    }): Promise<Result<void, ExportCastVoteRecordReportToUsbDriveError>> {
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+        )
+      ) {
+        switch (input.mode) {
+          case 'full_export': {
+            return await exportCastVoteRecordsToUsbDrive(
+              store,
+              usbDrive,
+              store.forEachResultSheet(),
+              { isFullExport: true }
+            );
+          }
+          case 'polls_closing': {
+            return await exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
+              arePollsClosing: true,
+            });
+          }
+          /* c8 ignore start: Compile-time check for completeness */
+          default: {
+            throwIllegalValue(input.mode);
+          }
+          /* c8 ignore stop */
+        }
+      }
+
       const electionDefinition = store.getElectionDefinition();
       assert(electionDefinition);
 
@@ -272,7 +300,6 @@ function buildApi(
             BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
           ),
         },
-        // TODO Convert exportCastVoteRecordReportToUsbDrive to use libs/usb-drive
         async () => {
           const drive = await usbDrive.status();
           return drive.status === 'mounted' ? [drive] : [];
