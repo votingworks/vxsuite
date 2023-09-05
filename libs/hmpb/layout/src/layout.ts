@@ -860,7 +860,7 @@ function CandidateContest({
     yToRow(heading.height, m) + m.CONTEST_PADDING
   );
 
-  const optionPostions: GridPosition[] = [];
+  const optionPositions: GridPosition[] = [];
   const sheetNumber = Math.ceil(pageNumber / 2);
   const side = pageNumber % 2 === 1 ? 'front' : 'back';
 
@@ -936,7 +936,7 @@ function CandidateContest({
     });
 
     rowHeightUsed += optionRowHeight;
-    optionPostions.push({
+    optionPositions.push({
       type: 'option',
       sheetNumber,
       side,
@@ -1000,7 +1000,7 @@ function CandidateContest({
       });
 
       rowHeightUsed += m.WRITE_IN_ROW_HEIGHT;
-      optionPostions.push({
+      optionPositions.push({
         type: 'write-in',
         sheetNumber,
         side,
@@ -1041,7 +1041,7 @@ function CandidateContest({
         ...options,
       ],
     },
-    optionPostions,
+    optionPositions,
   ];
 }
 
@@ -1395,7 +1395,7 @@ function ContestColumn({
   for (const contest of contests) {
     const ContestComponent =
       contest.type === 'candidate' ? CandidateContest : BallotMeasure;
-    const [contestRectangle, optionPostions] = ContestComponent({
+    const [contestRectangle, optionPositions] = ContestComponent({
       election,
       contest,
       row: lastContestRow + m.CONTEST_ROW_MARGIN,
@@ -1407,7 +1407,7 @@ function ContestColumn({
     });
     lastContestRow += yToRow(contestRectangle.height, m) + m.CONTEST_ROW_MARGIN;
     contestRectangles.push(contestRectangle);
-    contestPositions.push(...optionPostions);
+    contestPositions.push(...optionPositions);
   }
 
   const column: Rectangle = {
