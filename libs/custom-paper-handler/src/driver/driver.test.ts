@@ -633,7 +633,7 @@ test('bufferChunk', async () => {
   const transferOutSpy = jest.spyOn(mockWebUsbDevice, 'transferOut');
 
   const input: PaperHandlerBitmap = { data: dataBlock, width: 0x03ff };
-  await paperHandlerDriver.bufferChunk(input);
+  await paperHandlerDriver.bufferChunk(mockWebUsbDevice, input);
   const expectation = [0x1b, 0x2a, 33, 0xff, 3, ...dataBlock];
   expect(transferOutSpy).toHaveBeenCalledWith(
     GENERIC_ENDPOINT_OUT,

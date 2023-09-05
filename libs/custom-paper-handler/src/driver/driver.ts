@@ -140,8 +140,10 @@ export async function getPaperHandlerWebDevice(): Promise<
 }
 
 export class PaperHandlerDriver implements PaperHandlerDriverInterface {
-  // By convention, each public API method must hold this lock before starting
+  // By convention, each driver public API method must hold the publicApiMutex lock before starting
   readonly publicApiMutex = new Mutex(undefined);
+  // Locks the WebUsbDevice. API methods must acquire this lock before reading from or writing to
+  // any of the 4 bulk endpoints (GENERIC_ENDPOINT_IN, etc)
   readonly webDeviceMutex: Mutex<MinimalWebUsbDevice>;
 
   readonly scannerConfig: ScannerConfig = getDefaultConfig();
