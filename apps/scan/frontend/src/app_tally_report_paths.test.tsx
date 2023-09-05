@@ -174,7 +174,7 @@ async function closePolls({
   if (latestScannerResultsByParty) {
     apiMock.expectGetScannerResultsByParty(latestScannerResultsByParty);
   }
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');
@@ -486,7 +486,7 @@ test('polls closed from paused', async () => {
 
   // Close the polls
   apiMock.expectGetScannerResultsByParty(GENERAL_ELECTION_RESULTS);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to resume voting?');
   userEvent.click(screen.getByText('No'));

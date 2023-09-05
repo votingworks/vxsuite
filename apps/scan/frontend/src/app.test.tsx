@@ -455,7 +455,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
       ...mockMammalPartyResults,
     },
   ]);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
   apiMock.authenticateAsPollWorker(electionSampleDefinition);
   await screen.findByText('Do you want to close the polls?');
 
@@ -507,7 +507,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   userEvent.click(await screen.findButton('Save CVRs'));
   await screen.findByRole('heading', { name: 'Save CVRs' });
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
   userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved to USB Drive');
 
@@ -732,7 +732,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
       ...mockMammalPartyResults,
     },
   ]);
-  apiMock.expectExportCastVoteRecordsToUsbDrive();
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');
