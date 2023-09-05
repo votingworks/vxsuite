@@ -446,9 +446,12 @@ async function recordAcceptedSheet(
     )
   ) {
     (
-      await exportCastVoteRecordsToUsbDrive(store, usbDrive, [
-        assertDefined(store.getResultSheet(sheetId)),
-      ])
+      await exportCastVoteRecordsToUsbDrive(
+        store,
+        usbDrive,
+        [assertDefined(store.getResultSheet(sheetId))],
+        { scannerType: 'precinct' }
+      )
     ).unsafeUnwrap();
   }
   debug('Stored accepted sheet: %s', sheetId);
