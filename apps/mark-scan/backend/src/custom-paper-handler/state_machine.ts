@@ -31,6 +31,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
+  DELAY_BEFORE_DECLARING_REAR_JAM_MS,
   PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
   PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
   RESET_AFTER_JAM_DELAY_MS,
@@ -188,10 +189,11 @@ function paperHandlerStatusToEvent(
     return { type: 'PAPER_JAM' };
   }
 
+  if (isPaperInOutput(paperHandlerStatus)) {
+    return { type: 'PAPER_IN_OUTPUT' };
+  }
+
   if (isPaperInScanner(paperHandlerStatus)) {
-    if (isPaperInOutput(paperHandlerStatus)) {
-      return { type: 'PAPER_IN_OUTPUT' };
-    }
     if (paperHandlerStatus.parkSensor) {
       return { type: 'PAPER_PARKED' };
     }
@@ -422,6 +424,10 @@ export function buildMachine(
           VOTER_INVALIDATED_BALLOT: 'eject_to_front',
         },
       },
+      // Eject-to-rear jam handling is a little clunky. It
+      // 1. Tries to trannsition to success if no paper is detected
+      // 2. If after a timeout we have not transitioned away (because paper still present), transition to jammed state
+      // 3. Jam detection state transitions to jam reset state once it confirms no paper present
       eject_to_rear: {
         invoke: pollPaperStatus(),
         entry: async (context) => {
@@ -430,6 +436,9 @@ export function buildMachine(
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+        },
+        after: {
+          [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
         },
       },
       eject_to_front: {
