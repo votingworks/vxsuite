@@ -206,6 +206,11 @@ export function ReportsScreen(): JSX.Element {
             {statusPrefix} Write-In Adjudication Report
           </LinkButton>
         </P>
+        <P>
+          <LinkButton to={routerPaths.tallyReportBuilder}>
+            Tally Report Builder
+          </LinkButton>
+        </P>
         {tallyResultsInfo}
       </NavigationScreen>
       {isExportResultsModalOpen && (

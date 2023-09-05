@@ -1,4 +1,4 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { ElectionDefinition, Tabulation } from '@votingworks/types';
 import React from 'react';
 
 import { find, unique } from '@votingworks/basics';
@@ -26,6 +26,7 @@ export function AdminTallyReportByParty({
   tallyReportType,
   testId,
   generatedAtTime,
+  customFilter,
 }: {
   electionDefinition: ElectionDefinition;
   tallyReportResults: TallyReportResults;
@@ -33,6 +34,7 @@ export function AdminTallyReportByParty({
   tallyReportType: TallyReportType;
   testId: string;
   generatedAtTime: Date;
+  customFilter?: Tabulation.Filter;
 }): JSX.Element {
   const { election } = electionDefinition;
   const contests = tallyReportResults.contestIds.map((contestId) =>
@@ -44,7 +46,7 @@ export function AdminTallyReportByParty({
     return (
       <AdminTallyReport
         testId={testId}
-        election={election}
+        electionDefinition={electionDefinition}
         contests={contests}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults?.manualResults}
@@ -55,6 +57,7 @@ export function AdminTallyReportByParty({
         }
         subtitle={title ? election.title : undefined}
         generatedAtTime={generatedAtTime}
+        customFilter={customFilter}
       />
     );
   }
@@ -79,7 +82,7 @@ export function AdminTallyReportByParty({
       <AdminTallyReport
         key={`${testId}-${partyId}`}
         testId={`${testId}-${partyId}`}
-        election={election}
+        electionDefinition={electionDefinition}
         contests={contests.filter(
           (c) => c.type === 'candidate' && c.partyId === partyId
         )}
@@ -94,6 +97,7 @@ export function AdminTallyReportByParty({
         }
         subtitle={title ? partyElectionTitle : undefined}
         cardCountsOverride={partyCardCounts}
+        customFilter={customFilter}
       />
     );
   }
@@ -107,7 +111,7 @@ export function AdminTallyReportByParty({
       <AdminTallyReport
         key={`${testId}-nonpartisan`}
         testId={`${testId}-nonpartisan`}
-        election={election}
+        electionDefinition={electionDefinition}
         contests={contests.filter((c) => c.type === 'yesno' || !c.partyId)}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults.manualResults}
@@ -117,6 +121,7 @@ export function AdminTallyReportByParty({
             : `${tallyReportType} ${nonpartisanElectionTitle} Tally Report`
         }
         subtitle={title ? nonpartisanElectionTitle : undefined}
+        customFilter={customFilter}
       />
     );
   }
