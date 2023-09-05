@@ -8,7 +8,8 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReport } from './admin_tally_report';
 
-const { election } = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const { election } = electionDefinition;
 
 function queryForContest(contestId: string) {
   return screen.queryByTestId(`results-table-${contestId}`);
@@ -20,7 +21,7 @@ test('includes indicated contests', () => {
   render(
     <AdminTallyReport
       title="Title"
-      election={election}
+      electionDefinition={electionDefinition}
       contests={includedContests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
     />
@@ -37,7 +38,7 @@ test('includes subtitle', () => {
     <AdminTallyReport
       title="Title"
       subtitle="Subtitle"
-      election={election}
+      electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
     />
@@ -51,7 +52,7 @@ test('includes specified date', () => {
     <AdminTallyReport
       title="Title"
       subtitle="Subtitle"
-      election={election}
+      electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
       generatedAtTime={new Date('2020-01-01')}
@@ -86,7 +87,7 @@ test('with only scanned results', () => {
     <AdminTallyReport
       title="Title"
       subtitle="Subtitle"
-      election={election}
+      electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
     />
@@ -119,7 +120,7 @@ test('with scanned and manual results', () => {
     <AdminTallyReport
       title="Title"
       subtitle="Subtitle"
-      election={election}
+      electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       manualElectionResults={manualElectionResults}
@@ -134,7 +135,7 @@ test('allows card counts override', () => {
     <AdminTallyReport
       title="Title"
       subtitle="Subtitle"
-      election={election}
+      electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={scannedElectionResults}
       cardCountsOverride={{
@@ -145,4 +146,22 @@ test('allows card counts override', () => {
   );
   const bmdRow = screen.getByText('Machine Marked').closest('tr')!;
   within(bmdRow).getByText('10,000');
+});
+
+test('displays custom filter', () => {
+  render(
+    <AdminTallyReport
+      title="Title"
+      subtitle="Subtitle"
+      electionDefinition={electionDefinition}
+      contests={election.contests}
+      scannedElectionResults={scannedElectionResults}
+      cardCountsOverride={{
+        bmd: 10000,
+        hmpb: [],
+      }}
+      customFilter={{ precinctIds: ['precinct-1'] }}
+    />
+  );
+  screen.getByText(hasTextAcrossElements('Precinct: Precinct 1'));
 });
