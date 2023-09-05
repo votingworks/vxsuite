@@ -9,7 +9,8 @@ import { assertDefined } from '@votingworks/basics';
 import { AdminTallyReportProps, AdminTallyReport } from './admin_tally_report';
 import { TallyReportPreview } from './tally_report';
 
-const { election } = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const { election } = electionDefinition;
 const { contests } = election;
 
 function AdminTallyReportPreview(props: AdminTallyReportProps): JSX.Element {
@@ -69,7 +70,7 @@ const batchReportArgs: AdminTallyReportProps = {
   title: 'Official Batch Tally Report for Batch 1',
   subtitle: election.title,
   testId: 'tally-report',
-  election,
+  electionDefinition,
   contests,
   scannedElectionResults,
 };
@@ -108,7 +109,7 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
   title: 'TEST Ballot Style Tally Report for Ballot Style 2F',
   subtitle: election.title,
   testId: 'tally-report',
-  election,
+  electionDefinition,
   contests: getContests({
     election,
     ballotStyle: assertDefined(

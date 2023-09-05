@@ -1,47 +1,20 @@
 import { Tabulation } from '@votingworks/types';
 
-export function convertGroupSpecifierToFilter(
-  group: Tabulation.GroupSpecifier
+export function combineGroupSpecifierAndFilter(
+  group: Tabulation.GroupSpecifier,
+  filter: Tabulation.Filter
 ): Tabulation.Filter {
   return {
-    ballotStyleIds: group.ballotStyleId ? [group.ballotStyleId] : undefined,
-    partyIds: group.partyId ? [group.partyId] : undefined,
-    precinctIds: group.precinctId ? [group.precinctId] : undefined,
-    scannerIds: group.scannerId ? [group.scannerId] : undefined,
-    batchIds: group.batchId ? [group.batchId] : undefined,
-    votingMethods: group.votingMethod ? [group.votingMethod] : undefined,
-  };
-}
-
-export function mergeFilters(
-  filter1: Tabulation.Filter,
-  filter2: Tabulation.Filter
-): Tabulation.Filter {
-  return {
-    ballotStyleIds:
-      filter1.ballotStyleIds || filter2.ballotStyleIds
-        ? [...(filter1.ballotStyleIds || []), ...(filter2.ballotStyleIds || [])]
-        : undefined,
-    partyIds:
-      filter1.partyIds || filter2.partyIds
-        ? [...(filter1.partyIds || []), ...(filter2.partyIds || [])]
-        : undefined,
-    precinctIds:
-      filter1.precinctIds || filter2.precinctIds
-        ? [...(filter1.precinctIds || []), ...(filter2.precinctIds || [])]
-        : undefined,
-    scannerIds:
-      filter1.scannerIds || filter2.scannerIds
-        ? [...(filter1.scannerIds || []), ...(filter2.scannerIds || [])]
-        : undefined,
-    batchIds:
-      filter1.batchIds || filter2.batchIds
-        ? [...(filter1.batchIds || []), ...(filter2.batchIds || [])]
-        : undefined,
-    votingMethods:
-      filter1.votingMethods || filter2.votingMethods
-        ? [...(filter1.votingMethods || []), ...(filter2.votingMethods || [])]
-        : undefined,
+    ballotStyleIds: group.ballotStyleId
+      ? [group.ballotStyleId]
+      : filter.ballotStyleIds,
+    partyIds: group.partyId ? [group.partyId] : filter.partyIds,
+    precinctIds: group.precinctId ? [group.precinctId] : filter.precinctIds,
+    scannerIds: group.scannerId ? [group.scannerId] : filter.scannerIds,
+    batchIds: group.batchId ? [group.batchId] : filter.batchIds,
+    votingMethods: group.votingMethod
+      ? [group.votingMethod]
+      : filter.votingMethods,
   };
 }
 
@@ -67,5 +40,16 @@ export function isGroupByEmpty(groupBy: Tabulation.GroupBy): boolean {
     groupBy.groupByParty ||
     groupBy.groupByScanner ||
     groupBy.groupByVotingMethod
+  );
+}
+
+export function isFilterEmpty(filter: Tabulation.Filter): boolean {
+  return !(
+    filter.ballotStyleIds ||
+    filter.partyIds ||
+    filter.precinctIds ||
+    filter.scannerIds ||
+    filter.batchIds ||
+    filter.votingMethods
   );
 }

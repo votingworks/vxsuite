@@ -28,7 +28,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 }
 
 .c1 {
-  page-break-before: always;
+  page-break-after: always;
 }
 
 .c4 {

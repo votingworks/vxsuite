@@ -4,7 +4,7 @@ import { H3 } from '../typography';
 import { makeTheme } from '../themes/make_theme';
 
 export const ReportSection = styled.section`
-  page-break-before: always;
+  page-break-after: always;
 `;
 
 export const TallyReportTitle = styled.h1`

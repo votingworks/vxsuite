@@ -1,6 +1,6 @@
 import { render, RenderResult, waitFor } from '@testing-library/react';
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
-import { assert, Optional } from '@votingworks/basics';
+import { assert, deferred, Optional } from '@votingworks/basics';
 
 export class ExpectPrintError extends Error {}
 
@@ -15,6 +15,7 @@ let lastPrintedElement: Optional<JSX.Element>;
 let lastPrintedElementWithCallback: Optional<ElementWithCallback>;
 let lastPrintOptions: Optional<PrintOptions>;
 let errorOnNextPrint: Optional<Error>;
+let deferredPromiseOnNextPrint: Optional<Promise<void>>;
 
 let lastPdfPrintCommand: Optional<JSX.Element>;
 
@@ -27,6 +28,7 @@ export function resetExpectPrint(): void {
   lastPrintedElementWithCallback = undefined;
   lastPrintOptions = undefined;
   errorOnNextPrint = undefined;
+  deferredPromiseOnNextPrint = undefined;
 }
 
 export function resetExpectPrintToPdf(): void {
@@ -40,6 +42,17 @@ export function resetExpectPrintToPdf(): void {
  */
 export function simulateErrorOnNextPrint(error: Error = new Error()): void {
   errorOnNextPrint = error;
+}
+
+/**
+ * Sets up the next print so that it does not resolve until the returned `resolve` callback is called.
+ */
+export function deferNextPrint(): {
+  resolve: VoidFunction;
+} {
+  const { promise, resolve } = deferred<void>();
+  deferredPromiseOnNextPrint = promise;
+  return { resolve };
 }
 
 function expectAllPrintsAsserted(message: string) {
@@ -64,13 +77,18 @@ function expectAllPrintsAsserted(message: string) {
   }
 }
 
-export function fakePrintElement(
+export async function fakePrintElement(
   element: JSX.Element,
   printOptions: PrintOptions
 ): Promise<void> {
   expectAllPrintsAsserted(
     'You have not made any assertions against the last print before another print within a test.'
   );
+
+  if (deferredPromiseOnNextPrint) {
+    await deferredPromiseOnNextPrint;
+    deferredPromiseOnNextPrint = undefined;
+  }
 
   if (errorOnNextPrint) {
     const failedPrintPromise = Promise.reject(errorOnNextPrint);
@@ -83,12 +101,17 @@ export function fakePrintElement(
   return Promise.resolve();
 }
 
-export function fakePrintElementToPdf(
+export async function fakePrintElementToPdf(
   element: JSX.Element
 ): Promise<Uint8Array> {
   expectAllPrintsAsserted(
     'You have not made any assertions against the last PDF print before another PDF print within a test.'
   );
+
+  if (deferredPromiseOnNextPrint) {
+    await deferredPromiseOnNextPrint;
+    deferredPromiseOnNextPrint = undefined;
+  }
 
   // errorOnNextPrint unsupported. If adding support, consider whether errorOnNextPrint should
   // be shared with the physical printing mock or if there should be a separate one for PDF printing.
@@ -97,13 +120,18 @@ export function fakePrintElementToPdf(
   return Promise.resolve(new Uint8Array(0));
 }
 
-export function fakePrintElementWhenReady(
+export async function fakePrintElementWhenReady(
   elementWithCallback: ElementWithCallback,
   printOptions: PrintOptions
 ): Promise<void> {
   expectAllPrintsAsserted(
     'You have not made any assertions against the last print before another print within a test.'
   );
+
+  if (deferredPromiseOnNextPrint) {
+    await deferredPromiseOnNextPrint;
+    deferredPromiseOnNextPrint = undefined;
+  }
 
   if (errorOnNextPrint) {
     const failedPrintPromise = Promise.reject(errorOnNextPrint);

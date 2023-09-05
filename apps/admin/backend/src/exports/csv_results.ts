@@ -10,12 +10,11 @@ import {
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  convertGroupSpecifierToFilter,
+  combineGroupSpecifierAndFilter,
   getBallotStyleById,
   getPartyById,
   getPrecinctById,
   groupMapToGroupList,
-  mergeFilters,
 } from '@votingworks/utils';
 import { Readable } from 'stream';
 import { ScannerBatch } from '../types';
@@ -192,9 +191,9 @@ function* generateRows({
   const batchLookup = generateBatchLookup(store, assertDefined(electionId));
 
   for (const resultsGroup of resultGroups) {
-    const effectiveFilter = mergeFilters(
-      overallReportFilter,
-      convertGroupSpecifierToFilter(resultsGroup)
+    const effectiveFilter = combineGroupSpecifierAndFilter(
+      resultsGroup,
+      overallReportFilter
     );
     const contestIds = new Set(
       store.getFilteredContests({
