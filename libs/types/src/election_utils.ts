@@ -169,22 +169,6 @@ export function validateVotes({
 }
 
 /**
- * Checks if an election has a ballot style affiliated with a party.
- */
-export function electionHasPrimaryBallotStyle(election: Election): boolean {
-  return election.ballotStyles.some((bs) => Boolean(bs.partyId));
-}
-
-/**
- * Checks if an election has a contest affiliated with a party.
- */
-export function electionHasPrimaryContest(election: Election): boolean {
-  return election.contests.some(
-    (c) => c.type === 'candidate' && Boolean(c.partyId)
-  );
-}
-
-/**
  * @deprecated Does not support i18n. 'party.fullname` should be used instead.
  * Gets the adjective used to describe the political party for a primary
  * election, e.g. "Republican" or "Democratic".
@@ -273,7 +257,7 @@ export function getPartySpecificElectionTitle(
     return `${party.fullName} ${election.title}`;
   }
 
-  if (electionHasPrimaryContest(election)) {
+  if (election.type === 'primary') {
     return `${election.title} Nonpartisan Contests`;
   }
 

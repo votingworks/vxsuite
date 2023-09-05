@@ -65,8 +65,6 @@ export function WriteInsSummaryScreen(): JSX.Element {
     (contest): contest is CandidateContest =>
       contest.type === 'candidate' && contest.allowWriteIns
   );
-  const isPrimaryElection = contestsWithWriteIns.some((c) => c.partyId);
-
   function renderHeaderText() {
     if (isOfficialResults) {
       return (
@@ -100,7 +98,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
             <thead>
               <tr>
                 <TH>Contest</TH>
-                {isPrimaryElection && <TH>Party</TH>}
+                {election.type === 'primary' && <TH>Party</TH>}
                 <TH textAlign="center">Adjudication Queue</TH>
                 <TH textAlign="center">Completed</TH>
               </tr>
@@ -124,7 +122,7 @@ export function WriteInsSummaryScreen(): JSX.Element {
                         {contest.title}
                       </Font>
                     </TD>
-                    {isPrimaryElection && (
+                    {election.type === 'primary' && (
                       <TD nowrap>
                         <Font weight={hasWriteIns ? 'semiBold' : 'light'}>
                           {contest.partyId &&

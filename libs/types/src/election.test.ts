@@ -1,8 +1,6 @@
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
 import {
-  electionHasPrimaryBallotStyle,
-  electionHasPrimaryContest,
   getBallotStyle,
   getCandidateParties,
   getCandidatePartiesDescription,
@@ -259,18 +257,6 @@ test('getContestsFromIds', () => {
   expect(() =>
     getContestsFromIds(electionMinimalExhaustive, ['not-a-contest-id'])
   ).toThrowError('Contest not-a-contest-id not found');
-});
-
-test('electionHasPrimaryBallotStyle', () => {
-  expect(electionHasPrimaryBallotStyle(electionMinimalExhaustive)).toEqual(
-    true
-  );
-  expect(electionHasPrimaryBallotStyle(election)).toEqual(false);
-});
-
-test('electionHasPrimaryContest', () => {
-  expect(electionHasPrimaryContest(electionMinimalExhaustive)).toEqual(true);
-  expect(electionHasPrimaryContest(election)).toEqual(false);
 });
 
 test('getPartyIdsWithContests', () => {
