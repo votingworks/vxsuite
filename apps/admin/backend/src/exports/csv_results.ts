@@ -4,7 +4,6 @@ import {
   writeInCandidate,
   Contest,
   Tabulation,
-  electionHasPrimaryContest,
   ElectionDefinition,
   Id,
   AnyContest,
@@ -188,7 +187,7 @@ function* generateRows({
   overallReportFilter: Tabulation.Filter;
 }): Generator<string> {
   const { election } = electionDefinition;
-  const isPrimaryElection = electionHasPrimaryContest(election);
+  const isPrimaryElection = election.type === 'primary';
   const writeInCandidates = store.getWriteInCandidates({ electionId });
   const batchLookup = generateBatchLookup(store, assertDefined(electionId));
 
@@ -359,9 +358,11 @@ export async function generateResultsCsv({
   const { electionDefinition } = assertDefined(store.getElection(electionId));
   const { election } = electionDefinition;
 
-  const isPrimaryElection = electionHasPrimaryContest(election);
   const headerRow = stringify([
-    generateHeaders({ groupBy, isPrimaryElection }),
+    generateHeaders({
+      groupBy,
+      isPrimaryElection: election.type === 'primary',
+    }),
   ]);
 
   const resultGroups = groupMapToGroupList(

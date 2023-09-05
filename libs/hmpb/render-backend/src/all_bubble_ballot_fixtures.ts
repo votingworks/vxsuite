@@ -116,6 +116,7 @@ function createElection(): Election {
     ],
     state: 'Test State',
     title: 'Test Election - All Bubble Ballot',
+    type: 'general',
     seal: '',
   };
 }

@@ -6,7 +6,6 @@ import {
   PageInterpretation,
   Tabulation,
   VotesDict,
-  electionHasPrimaryContest,
 } from '@votingworks/types';
 import {
   groupMapToGroupList,
@@ -74,8 +73,6 @@ export async function getScannerResults({
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  const isPrimaryElection = electionHasPrimaryContest(election);
-
   const cvrs = iter(store.forEachResultSheet()).map((resultSheet) => {
     const [frontInterpretation, backInterpretation] =
       resultSheet.interpretation;
@@ -132,7 +129,9 @@ export async function getScannerResults({
     await tabulateCastVoteRecords({
       election,
       groupBy:
-        isPrimaryElection && splitByParty ? { groupByParty: true } : undefined,
+        election.type === 'primary' && splitByParty
+          ? { groupByParty: true }
+          : undefined,
       cvrs,
     })
   );

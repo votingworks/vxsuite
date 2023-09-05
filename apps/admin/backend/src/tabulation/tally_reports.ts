@@ -1,4 +1,4 @@
-import { Id, Tabulation, electionHasPrimaryContest } from '@votingworks/types';
+import { Id, Tabulation } from '@votingworks/types';
 import { assert, assertDefined, mapObject } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
@@ -71,13 +71,13 @@ export async function tabulateTallyReportResults({
 
   // For frontend tally reports, we always tabulate by party in primaries
   // so that we can get card counts by party.
-  const isPrimaryElection = electionHasPrimaryContest(election);
-  const primarySensitiveGroupBy: Tabulation.GroupBy = isPrimaryElection
-    ? {
-        ...groupBy,
-        groupByParty: true,
-      }
-    : groupBy;
+  const primarySensitiveGroupBy: Tabulation.GroupBy =
+    election.type === 'primary'
+      ? {
+          ...groupBy,
+          groupByParty: true,
+        }
+      : groupBy;
 
   debug('tabulating scanned election results for tally report');
   const allScannedResults = mapObject(
@@ -134,7 +134,7 @@ export async function tabulateTallyReportResults({
     )
   );
 
-  if (!isPrimaryElection) {
+  if (election.type === 'general') {
     debug('calculating relevant contests for each report');
     return addContestIdsToReports({
       reports: allSingleTallyReportResultsWithoutContestIds,
@@ -144,6 +144,7 @@ export async function tabulateTallyReportResults({
     });
   }
 
+  assert(election.type === 'primary');
   debug('grouping results across party for primary election reports');
   const allPartySplitReportResultsWithoutContestIds: Tabulation.GroupList<
     Omit<PartySplitTallyReportResults, 'contestIds'>

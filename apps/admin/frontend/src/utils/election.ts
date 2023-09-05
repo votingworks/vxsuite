@@ -13,7 +13,6 @@ import {
   YesNoVote,
   Tabulation,
   CandidateVote,
-  electionHasPrimaryContest,
   ElectionDefinition,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
@@ -198,9 +197,7 @@ export async function generateResultsFromTestDeckBallots({
     (c) => c.id
   );
 
-  const isPrimaryElection = electionHasPrimaryContest(election);
-
-  if (!isPrimaryElection) {
+  if (election.type === 'general') {
     return {
       scannedResults,
       contestIds,
@@ -209,6 +206,7 @@ export async function generateResultsFromTestDeckBallots({
     };
   }
 
+  assert(election.type === 'primary');
   const cardCountsByParty: CardCountsByParty = {};
   for (const testDeckBallot of testDeckBallots) {
     const partyId = ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId];

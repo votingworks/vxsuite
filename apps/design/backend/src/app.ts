@@ -24,6 +24,7 @@ import { ElectionRecord, Precinct, Store } from './store';
 
 function createBlankElection(): Election {
   return {
+    type: 'general',
     title: '',
     date: '',
     state: '',
