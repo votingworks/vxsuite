@@ -100,13 +100,13 @@ orbs:
 executors:
   nodejs-browsers:
     docker:
-      - image: votingworks/cimg-debian11-browsers:2.0.3
+      - image: votingworks/cimg-debian11-browsers:2.0.4
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
   nodejs:
     docker:
-      - image: votingworks/cimg-debian11:2.0.3
+      - image: votingworks/cimg-debian11:2.0.4
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
