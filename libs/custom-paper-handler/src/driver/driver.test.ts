@@ -461,7 +461,8 @@ interface MotionUnitTestSpec {
   description: string;
   motionUnits: Uint16;
   transferOutExpectation: number[];
-  functionToTest: (motionUnits: Uint16) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  functionToTest: (motionUnits: Uint16) => Promise<any>;
 }
 
 const commandsWithMotionUnits: MotionUnitTestSpec[] = [
@@ -509,7 +510,7 @@ test.each(commandsWithMotionUnits)(
       Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
     );
 
-    functionToTest.call(paperHandlerDriver, motionUnits);
+    await functionToTest.call(paperHandlerDriver, motionUnits);
     expect(transferOutSpy).toHaveBeenCalledWith(
       GENERIC_ENDPOINT_OUT,
       Buffer.from(transferOutExpectation)
