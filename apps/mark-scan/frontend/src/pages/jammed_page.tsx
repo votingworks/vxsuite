@@ -6,11 +6,9 @@ export function JammedPage(): JSX.Element {
       <Main padded centerChild>
         <Text center>
           <H1>Paper is Jammed</H1>
-          <p>Please alert a poll worker to clear the jam.</p>
           <p>
-            Poll Workers: remove the jammed paper, opening the printer cover or
-            removing the ballot box if necessary. After the jam is cleared there
-            will be a short delay as the hardware automatically restarts.
+            Please alert a poll worker to clear the jam, opening the printer
+            cover or ballot box if necessary.
           </p>
         </Text>
       </Main>
