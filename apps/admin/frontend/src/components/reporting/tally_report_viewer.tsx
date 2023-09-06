@@ -8,6 +8,7 @@ import {
   Loading,
   Modal,
   printElement,
+  printElementToPdf,
 } from '@votingworks/ui';
 import React, { useContext, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -18,11 +19,18 @@ import {
 } from '@votingworks/utils';
 import type { TallyReportResults } from '@votingworks/admin-backend';
 import { LogEventId } from '@votingworks/logging';
-import { getResultsForTallyReports } from '../../api';
+import {
+  getCastVoteRecordFileMode,
+  getResultsForTallyReports,
+} from '../../api';
 import { AppContext } from '../../contexts/app_context';
 import { AdminTallyReportByParty } from '../admin_tally_report_by_party';
 import { PrintButton } from '../print_button';
-import { generateTitleForReport } from '../../utils/reporting';
+import {
+  generateReportPdfFilename,
+  generateTitleForReport,
+} from '../../utils/reporting';
+import { ExportReportPdfButton } from './export_report_pdf_button';
 
 const ExportActions = styled.div`
   margin-top: 1rem;
@@ -145,12 +153,14 @@ export function TallyReportViewer({
   const { electionDefinition, isOfficialResults, auth, logger } =
     useContext(AppContext);
   assert(electionDefinition);
+  const { election } = electionDefinition;
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   const [isFetchingForPreview, setIsFetchingForPreview] = useState(false);
   const [progressModalText, setProgressModalText] = useState<string>();
 
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const reportResultsQuery = getResultsForTallyReports.useQuery(
     {
       filter,
@@ -241,6 +251,29 @@ export function TallyReportViewer({
     }
   }
 
+  async function generateReportPdf(): Promise<Uint8Array> {
+    const queryResults = await getFreshQueryResult();
+    assert(queryResults.isSuccess);
+    const reportToSave = (
+      <Reports
+        electionDefinition={assertDefined(electionDefinition)}
+        filterUsed={filter}
+        allTallyReportResults={queryResults.data}
+        generatedAtTime={new Date(queryResults.dataUpdatedAt)}
+        isOfficialResults={isOfficialResults}
+      />
+    );
+
+    return printElementToPdf(reportToSave);
+  }
+
+  const reportPdfFilename = generateReportPdfFilename({
+    election,
+    filter,
+    groupBy,
+    isTestMode: castVoteRecordFileModeQuery.data === 'test',
+  });
+
   return (
     <React.Fragment>
       <ExportActions>
@@ -252,6 +285,12 @@ export function TallyReportViewer({
         >
           Print Report
         </PrintButton>
+        <ExportReportPdfButton
+          electionDefinition={electionDefinition}
+          generateReportPdf={generateReportPdf}
+          defaultFilename={reportPdfFilename}
+          disabled={disabled}
+        />
       </ExportActions>
 
       <Caption>

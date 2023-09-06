@@ -34,7 +34,7 @@ export interface CastVoteRecordReportListing {
   timestamp: Date;
 }
 
-function sanitizeString(
+export function sanitizeStringForFilename(
   input: string,
   { replaceInvalidCharsWith = '', defaultValue = 'placeholder' } = {}
 ): string {
@@ -84,11 +84,11 @@ export function generateElectionBasedSubfolderName(
   election: Election,
   electionHash: string
 ): string {
-  const electionCountyName = sanitizeString(election.county.name, {
+  const electionCountyName = sanitizeStringForFilename(election.county.name, {
     replaceInvalidCharsWith: WORD_SEPARATOR,
     defaultValue: 'county',
   });
-  const electionTitle = sanitizeString(election.title, {
+  const electionTitle = sanitizeStringForFilename(election.title, {
     replaceInvalidCharsWith: WORD_SEPARATOR,
     defaultValue: 'election',
   });
@@ -110,7 +110,7 @@ export function generateCastVoteRecordReportDirectoryName(
   time: Date = new Date()
 ): string {
   const machineString = `machine${SUBSECTION_SEPARATOR}${
-    maybeParse(MachineId, machineId) ?? sanitizeString(machineId)
+    maybeParse(MachineId, machineId) ?? sanitizeStringForFilename(machineId)
   }`;
   const ballotString = `${numBallotsScanned}${SUBSECTION_SEPARATOR}${
     numBallotsScanned === 1 ? 'ballot' : 'ballots'
@@ -134,7 +134,7 @@ export function generateCastVoteRecordExportDirectoryName({
 }): string {
   const machineString = [
     'machine',
-    maybeParse(MachineId, machineId) ?? sanitizeString(machineId),
+    maybeParse(MachineId, machineId) ?? sanitizeStringForFilename(machineId),
   ].join(SUBSECTION_SEPARATOR);
   const timeString = moment(time).format(TIME_FORMAT_STRING);
   const directoryNameComponents = [machineString, timeString];
@@ -201,11 +201,11 @@ export function parseCastVoteRecordReportDirectoryName(
 
 /* Get the name of an election to use in a filename from the Election object */
 function generateElectionName(election: Election): string {
-  const electionCountyName = sanitizeString(election.county.name, {
+  const electionCountyName = sanitizeStringForFilename(election.county.name, {
     replaceInvalidCharsWith: WORD_SEPARATOR,
     defaultValue: 'county',
   });
-  const electionTitle = sanitizeString(election.title, {
+  const electionTitle = sanitizeStringForFilename(election.title, {
     replaceInvalidCharsWith: WORD_SEPARATOR,
     defaultValue: 'election',
   });
@@ -230,11 +230,11 @@ export function generateFilenameForBallotExportPackageFromElectionData({
   electionHash,
   timestamp,
 }: ElectionData): string {
-  const electionCountyName = sanitizeString(electionCounty, {
+  const electionCountyName = sanitizeStringForFilename(electionCounty, {
     replaceInvalidCharsWith: WORD_SEPARATOR,
     defaultValue: 'county',
   });
-  const electionTitle = sanitizeString(electionName, {
+  const electionTitle = sanitizeStringForFilename(electionName, {
     replaceInvalidCharsWith: WORD_SEPARATOR,
     defaultValue: 'election',
   });

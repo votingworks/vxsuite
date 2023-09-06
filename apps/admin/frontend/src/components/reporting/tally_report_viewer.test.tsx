@@ -3,18 +3,19 @@ import userEvent from '@testing-library/user-event';
 import {
   deferNextPrint,
   expectPrint,
+  expectPrintToPdf,
+  fakeKiosk,
+  fakeUsbDrive,
   hasTextAcrossElements,
   simulateErrorOnNextPrint,
 } from '@votingworks/test-utils';
-import {
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from '@testing-library/react';
+import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
+import { mockUsbDrive } from '@votingworks/ui';
+import { act } from 'react-dom/test-utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
-import { screen } from '../../../test/react_testing_library';
+import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportViewer } from './tally_report_viewer';
 import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
@@ -23,10 +24,12 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.expectGetCastVoteRecordFileMode('official');
 });
 
 afterEach(() => {
   apiMock.assertComplete();
+  window.kiosk = undefined;
 });
 
 test('disabled shows disabled buttons and no preview', () => {
@@ -316,4 +319,63 @@ test('displays custom filter rather than specific title when necessary', async (
   screen.getByText(hasTextAcrossElements('Voting Method: Absentee'));
   screen.getByText(hasTextAcrossElements('Ballot Style: 1'));
   screen.getByText(hasTextAcrossElements('Precinct: North Lincoln'));
+});
+
+test('exporting report PDF', async () => {
+  jest.useFakeTimers();
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  const { election } = electionDefinition;
+  apiMock.expectGetResultsForTallyReports(
+    {
+      filter: {},
+      groupBy: {
+        groupByVotingMethod: true,
+        groupByPrecinct: true,
+      },
+    },
+    [
+      getSimpleMockTallyResults({
+        election,
+        scannedBallotCount: 10,
+      }),
+    ]
+  );
+
+  renderInAppContext(
+    <TallyReportViewer
+      disabled={false}
+      filter={{}}
+      groupBy={{
+        groupByVotingMethod: true,
+        groupByPrecinct: true,
+      }}
+      autoPreview={false}
+    />,
+    { apiMock, electionDefinition, usbDrive: mockUsbDrive('mounted') }
+  );
+
+  userEvent.click(screen.getButton('Export Report PDF'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save Unofficial Tally Report');
+  within(modal).getByText(/tally-reports-by-precinct-and-voting-method\.pdf/);
+  userEvent.click(within(modal).getButton('Save'));
+  await screen.findByText('Saving Unofficial Tally Report');
+  act(() => {
+    jest.advanceTimersByTime(2000);
+  });
+  await screen.findByText('Unofficial Tally Report Saved');
+
+  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
+  await expectPrintToPdf((pdfResult) => {
+    pdfResult.getByText(
+      'Unofficial Lincoln Municipal General Election Tally Report'
+    );
+    expect(pdfResult.getByTestId('total-ballot-count')).toHaveTextContent('10');
+  });
+
+  jest.useRealTimers();
 });

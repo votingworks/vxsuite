@@ -4,6 +4,7 @@ import { err, ok } from '@votingworks/basics';
 import {
   canonicalizeFilter,
   canonicalizeGroupBy,
+  generateReportPdfFilename,
   generateTitleForReport,
 } from './reporting';
 
@@ -151,4 +152,88 @@ test('canonicalizeGroupBy', () => {
     groupByVotingMethod: true,
   };
   expect(canonicalizeGroupBy(allTrueGroupBy)).toEqual(allTrueGroupBy);
+});
+
+test('generateReportPdfFilename', () => {
+  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const testCases: Array<{
+    filter?: Tabulation.Filter;
+    groupBy?: Tabulation.GroupBy;
+    expectedFilename: string;
+  }> = [
+    {
+      expectedFilename: 'full-election-tally-report.pdf',
+    },
+    {
+      groupBy: { groupByBallotStyle: true },
+      expectedFilename: 'tally-reports-by-ballot-style.pdf',
+    },
+    {
+      groupBy: { groupByPrecinct: true },
+      expectedFilename: 'tally-reports-by-precinct.pdf',
+    },
+    {
+      groupBy: { groupByVotingMethod: true },
+      expectedFilename: 'tally-reports-by-voting-method.pdf',
+    },
+    {
+      groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+      expectedFilename: 'tally-reports-by-precinct-and-voting-method.pdf',
+    },
+    {
+      filter: { precinctIds: ['precinct-1', 'precinct-2'] },
+      expectedFilename: 'custom-tally-report.pdf',
+    },
+    {
+      filter: {
+        precinctIds: ['precinct-1'],
+        ballotStyleIds: ['1M'],
+        votingMethods: ['absentee'],
+      },
+      expectedFilename: 'custom-tally-report.pdf',
+    },
+    {
+      filter: {
+        precinctIds: ['precinct-1'],
+      },
+      expectedFilename: 'precinct-1-tally-report.pdf',
+    },
+    {
+      filter: {
+        ballotStyleIds: ['1M'],
+      },
+      expectedFilename: 'ballot-style-1M-tally-report.pdf',
+    },
+    {
+      filter: {
+        votingMethods: ['absentee'],
+      },
+      expectedFilename: 'absentee-ballots-tally-report.pdf',
+    },
+    {
+      filter: {
+        ballotStyleIds: ['1M'],
+        votingMethods: ['absentee'],
+      },
+      expectedFilename: 'ballot-style-1M-absentee-ballots-tally-report.pdf',
+    },
+    {
+      filter: {
+        votingMethods: ['absentee'],
+      },
+      groupBy: { groupByPrecinct: true },
+      expectedFilename: 'absentee-ballots-tally-reports-by-precinct.pdf',
+    },
+  ];
+
+  for (const testCase of testCases) {
+    expect(
+      generateReportPdfFilename({
+        election,
+        filter: testCase.filter ?? {},
+        groupBy: testCase.groupBy ?? {},
+        isTestMode: false,
+      })
+    ).toEqual(testCase.expectedFilename);
+  }
 });
