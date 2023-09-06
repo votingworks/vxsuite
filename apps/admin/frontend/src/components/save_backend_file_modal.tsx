@@ -141,8 +141,8 @@ export function SaveBackendFileModal({
             content={
               <P>
                 Save the {fileType} as{' '}
-                <Font weight="bold">{defaultRelativePath}</Font> on the inserted
-                USB drive?
+                <Font weight="bold">{basename(defaultRelativePath)}</Font> on
+                the inserted USB drive?
               </P>
             }
             onOverlayClick={onClose}
