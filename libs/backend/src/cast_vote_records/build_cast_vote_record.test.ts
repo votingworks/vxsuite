@@ -24,8 +24,6 @@ import {
   buildCVRContestsFromVotes,
   toCdfBallotType,
   getOptionPosition,
-  hasWriteIns,
-  getWriteInCount,
 } from './build_cast_vote_record';
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
@@ -462,74 +460,6 @@ describe('buildCVRContestsFromVotes', () => {
       ContestId: fishingContest.id,
     });
   });
-});
-
-test('getWriteInCount', () => {
-  expect(getWriteInCount({ fishing: ['ban-fishing'] })).toEqual(0);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'zebra',
-          name: 'Zebra',
-        },
-      ],
-    })
-  ).toEqual(0);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-    })
-  ).toEqual(1);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-      board: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-    })
-  ).toEqual(2);
-});
-
-test('hasWriteIns', () => {
-  expect(hasWriteIns({ fishing: ['ban-fishing'] })).toEqual(false);
-  expect(
-    hasWriteIns({
-      council: [
-        {
-          id: 'zebra',
-          name: 'Zebra',
-        },
-      ],
-    })
-  ).toEqual(false);
-  expect(
-    hasWriteIns({
-      council: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-    })
-  ).toEqual(true);
 });
 
 // Mock the contests on each side of the ballot

@@ -15,6 +15,7 @@ import {
   CAST_VOTE_RECORD_REPORT_FILENAME,
   generateCastVoteRecordReportDirectoryName,
   generateElectionBasedSubfolderName,
+  hasWriteIns,
   jsonStream,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -27,7 +28,7 @@ import {
   describeSheetValidationError,
   canonicalizeSheet,
 } from './canonicalize';
-import { buildCastVoteRecord, hasWriteIns } from './build_cast_vote_record';
+import { buildCastVoteRecord } from './build_cast_vote_record';
 import { ExportDataError, Exporter } from '../exporter';
 import {
   UsbDrive,

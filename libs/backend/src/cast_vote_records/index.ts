@@ -1,8 +1,5 @@
 /* istanbul ignore file */
-export {
-  buildCVRContestsFromVotes,
-  hasWriteIns,
-} from './build_cast_vote_record';
+export { buildCVRContestsFromVotes } from './build_cast_vote_record';
 export { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 export * from './export';
 export * from './legacy_export';
