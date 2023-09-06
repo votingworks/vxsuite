@@ -31,6 +31,7 @@ import {
   generateTitleForReport,
 } from '../../utils/reporting';
 import { ExportReportPdfButton } from './export_report_pdf_button';
+import { ExportCsvResultsButton } from './export_csv_button';
 
 const ExportActions = styled.div`
   margin-top: 1rem;
@@ -292,6 +293,11 @@ export function TallyReportViewer({
           electionDefinition={electionDefinition}
           generateReportPdf={generateReportPdf}
           defaultFilename={reportPdfFilename}
+          disabled={disabled}
+        />
+        <ExportCsvResultsButton
+          filter={filter}
+          groupBy={groupBy}
           disabled={disabled}
         />
       </ExportActions>

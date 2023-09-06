@@ -334,9 +334,17 @@ export function createApiMock(
       apiClient.getSemsExportableTallies.expectCallWith().resolves(result);
     },
 
-    expectExportResultsCsv(path: string, groupBy?: Tabulation.GroupBy) {
+    expectExportResultsCsv({
+      path,
+      filter,
+      groupBy,
+    }: {
+      path: string;
+      filter?: Tabulation.Filter;
+      groupBy?: Tabulation.GroupBy;
+    }) {
       apiClient.exportResultsCsv
-        .expectCallWith({ path, groupBy })
+        .expectCallWith({ path, groupBy, filter })
         .resolves(ok([]));
     },
 

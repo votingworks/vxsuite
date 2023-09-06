@@ -343,3 +343,27 @@ export function generateTallyReportPdfFilename({
     time,
   });
 }
+
+export function generateTallyReportCsvFilename({
+  election,
+  filter,
+  groupBy,
+  isTestMode,
+  time = new Date(),
+}: {
+  election: Election;
+  filter: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  isTestMode: boolean;
+  time?: Date;
+}): string {
+  return generateReportFilename({
+    election,
+    filter,
+    groupBy,
+    isTestMode,
+    extension: 'csv',
+    type: 'tally-report',
+    time,
+  });
+}
