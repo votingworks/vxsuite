@@ -146,6 +146,7 @@ function paperHandlerStatusToEvent(
  */
 function buildPaperStatusObservable() {
   return ({ driver, pollingIntervalMs }: Context) => {
+    debug('Constructing observable');
     // `timer` returns an Observable that emits values with `pollingInterval` delay between each event
     return (
       timer(0, pollingIntervalMs)
@@ -157,6 +158,7 @@ function buildPaperStatusObservable() {
           switchMap(async () => {
             // Get raw status, map to event, and emit event
             try {
+              debug('Observable getting device status');
               const paperHandlerStatus = await driver.getPaperHandlerStatus();
               const event = paperHandlerStatusToEvent(paperHandlerStatus);
               debug(`Emitting event ${event.type}`);
