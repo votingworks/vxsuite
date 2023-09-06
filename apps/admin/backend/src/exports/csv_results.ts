@@ -7,6 +7,7 @@ import {
   ElectionDefinition,
   Id,
   AnyContest,
+  Election,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
@@ -21,134 +22,295 @@ import { ScannerBatch } from '../types';
 import { Store } from '../store';
 import { tabulateElectionResults } from '../tabulation/full_results';
 
-function generateHeaders({
+/**
+ * Possible metadata attributes that can be included in the CSV, in the order
+ * the columns will appear in the CSV.
+ */
+const METADATA_ATTRIBUTES = [
+  'precinct',
+  'party',
+  'ballotStyle',
+  'votingMethod',
+  'scanner',
+  'batch',
+] as const;
+
+type MetadataAttribute = typeof METADATA_ATTRIBUTES[number];
+
+const METADATA_ATTRIBUTE_MULTI_LABEL: Record<MetadataAttribute, string> = {
+  precinct: 'Precincts',
+  party: 'Parties',
+  ballotStyle: 'Ballot Styles',
+  votingMethod: 'Voting Methods',
+  scanner: 'Scanners',
+  batch: 'Batches',
+};
+
+const MULTI_VALUE_SEPARATOR = ', ';
+
+// `all` is equivalent to having no filter for an attribute
+type Multiplicity = 'single' | 'multi' | 'all';
+
+/**
+ * Describes the metadata structure of the CSV. We distinguish between single
+ * multi attributes because "single" is the common and intuitive use case,
+ * alongside which we want to add additional related metadata. The "multi"
+ * attributes are only to ensure the CSV is self-documenting when there are
+ * filters selecting for multiple values.
+ */
+type MetadataStructure = {
+  [K in MetadataAttribute]: Multiplicity;
+};
+
+function determineMetadataStructure({
+  filter,
   groupBy,
-  isPrimaryElection,
 }: {
+  filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
-  isPrimaryElection: boolean;
+}): MetadataStructure {
+  const filterStructure: MetadataStructure = {
+    precinct: filter.precinctIds
+      ? filter.precinctIds.length > 1
+        ? 'multi'
+        : 'single'
+      : 'all',
+    ballotStyle: filter.ballotStyleIds
+      ? filter.ballotStyleIds.length > 1
+        ? 'multi'
+        : 'single'
+      : 'all',
+    party: filter.partyIds
+      ? filter.partyIds.length > 1
+        ? 'multi'
+        : 'single'
+      : 'all',
+    votingMethod: filter.votingMethods
+      ? filter.votingMethods.length > 1
+        ? 'multi'
+        : 'single'
+      : 'all',
+    scanner: filter.scannerIds
+      ? filter.scannerIds.length > 1
+        ? 'multi'
+        : 'single'
+      : 'all',
+    batch: filter.batchIds
+      ? filter.batchIds.length > 1
+        ? 'multi'
+        : 'single'
+      : 'all',
+  };
+
+  // If we're grouping by an attribute, it's always going to be a single.
+  // Otherwise, the multiplicity is the same as the filter.
+  return {
+    ballotStyle: groupBy.groupByBallotStyle
+      ? 'single'
+      : filterStructure.ballotStyle,
+    party: groupBy.groupByParty ? 'single' : filterStructure.party,
+    precinct: groupBy.groupByPrecinct ? 'single' : filterStructure.precinct,
+    scanner: groupBy.groupByScanner ? 'single' : filterStructure.scanner,
+    batch: groupBy.groupByBatch ? 'single' : filterStructure.batch,
+    votingMethod: groupBy.groupByVotingMethod
+      ? 'single'
+      : filterStructure.votingMethod,
+  };
+}
+
+function generateHeaders({
+  election,
+  metadataStructure,
+}: {
+  election: Election;
+  metadataStructure: MetadataStructure;
 }): string[] {
   const headers = [];
 
-  if (groupBy.groupByVotingMethod) {
-    headers.push('Voting Method');
-  }
+  // Simple Attributes
+  // -----------------
 
-  if (groupBy.groupByPrecinct) {
+  if (metadataStructure.precinct === 'single') {
     headers.push('Precinct');
     headers.push('Precinct ID');
   }
 
   if (
-    isPrimaryElection &&
-    (groupBy.groupByParty || groupBy.groupByBallotStyle)
+    election.type === 'primary' &&
+    (metadataStructure.party === 'single' ||
+      metadataStructure.ballotStyle === 'single')
   ) {
     headers.push('Party');
     headers.push('Party ID');
   }
 
-  if (groupBy.groupByBallotStyle) {
+  if (metadataStructure.ballotStyle === 'single') {
     headers.push('Ballot Style ID');
   }
 
-  if (groupBy.groupByScanner || groupBy.groupByBatch) {
+  if (metadataStructure.votingMethod === 'single') {
+    headers.push('Voting Method');
+  }
+
+  if (
+    metadataStructure.scanner === 'single' ||
+    metadataStructure.batch === 'single'
+  ) {
     headers.push('Scanner ID');
   }
 
-  if (groupBy.groupByBatch) {
+  if (metadataStructure.batch === 'single') {
     headers.push('Batch ID');
   }
+
+  // Compound Attributes
+  // -----------------
+
+  for (const attribute of METADATA_ATTRIBUTES) {
+    if (metadataStructure[attribute] === 'multi') {
+      headers.push(`Included ${METADATA_ATTRIBUTE_MULTI_LABEL[attribute]}`);
+    }
+  }
+
+  // Contest, Selection, and Tally
+  // -----------------------------
 
   headers.push('Contest', 'Contest ID', 'Selection', 'Selection ID', 'Votes');
 
   return headers;
 }
 
-const VOTING_METHOD_LABEL: Record<Tabulation.VotingMethod, string> = {
-  absentee: 'Absentee',
-  precinct: 'Precinct',
-  provisional: 'Provisional',
-};
+function assertOnlyElement<T>(array?: T[]): T {
+  assert(array);
+  assert(array.length === 1);
+  return assertDefined(array[0]);
+}
 
 type BatchLookup = Record<string, ScannerBatch>;
 
 function buildCsvRow({
-  groupBy,
-  groupSpecifier,
+  filter,
+  metadataStructure,
   electionDefinition,
-  isPrimaryElection,
   batchLookup,
   contest,
   selection,
   selectionId,
   votes,
 }: {
-  groupBy: Tabulation.GroupBy;
-  groupSpecifier: Tabulation.GroupSpecifier;
+  filter: Tabulation.Filter;
+  metadataStructure: MetadataStructure;
   electionDefinition: ElectionDefinition;
-  isPrimaryElection: boolean;
   batchLookup: BatchLookup;
   contest: Contest;
   selection: string;
   selectionId: string;
   votes: number;
 }): string {
+  const { election } = electionDefinition;
   const values: string[] = [];
 
-  if (groupBy.groupByVotingMethod) {
-    assert(groupSpecifier.votingMethod !== undefined);
-    values.push(VOTING_METHOD_LABEL[groupSpecifier.votingMethod]);
-  }
+  // Single Attributes
+  // -----------------
 
-  if (groupBy.groupByPrecinct) {
-    assert(groupSpecifier.precinctId !== undefined);
-    values.push(
-      getPrecinctById(electionDefinition, groupSpecifier.precinctId).name
-    );
-    values.push(groupSpecifier.precinctId);
+  if (metadataStructure.precinct === 'single') {
+    const precinctId = assertOnlyElement(filter.precinctIds);
+    values.push(getPrecinctById(electionDefinition, precinctId).name);
+    values.push(precinctId);
   }
 
   if (
-    isPrimaryElection &&
-    (groupBy.groupByParty || groupBy.groupByBallotStyle)
+    election.type === 'primary' &&
+    (metadataStructure.party === 'single' ||
+      metadataStructure.ballotStyle === 'single')
   ) {
     const partyId = (() => {
-      if (groupBy.groupByParty) {
-        return assertDefined(groupSpecifier.partyId);
+      if (metadataStructure.party === 'single') {
+        return assertOnlyElement(filter.partyIds);
       }
 
+      const ballotStyleId = assertOnlyElement(filter.ballotStyleIds);
       return assertDefined(
-        getBallotStyleById(
-          electionDefinition,
-          assertDefined(groupSpecifier.ballotStyleId)
-        ).partyId
+        getBallotStyleById(electionDefinition, ballotStyleId).partyId
       );
     })();
 
-    values.push(assertDefined(getPartyById(electionDefinition, partyId).name));
+    values.push(getPartyById(electionDefinition, partyId).name);
     values.push(partyId);
   }
 
-  if (groupBy.groupByBallotStyle) {
-    assert(groupSpecifier.ballotStyleId !== undefined);
-    values.push(groupSpecifier.ballotStyleId);
+  if (metadataStructure.ballotStyle === 'single') {
+    values.push(assertOnlyElement(filter.ballotStyleIds));
   }
 
-  if (groupBy.groupByScanner || groupBy.groupByBatch) {
+  if (metadataStructure.votingMethod === 'single') {
+    values.push(
+      Tabulation.VOTING_METHOD_LABELS[assertOnlyElement(filter.votingMethods)]
+    );
+  }
+
+  if (
+    metadataStructure.scanner === 'single' ||
+    metadataStructure.batch === 'single'
+  ) {
     const scannerId = (() => {
-      if (groupBy.groupByScanner) {
-        return assertDefined(groupSpecifier.scannerId);
+      if (metadataStructure.scanner === 'single') {
+        return assertOnlyElement(filter.scannerIds);
       }
 
-      return assertDefined(batchLookup[assertDefined(groupSpecifier.batchId)])
+      return assertDefined(batchLookup[assertOnlyElement(filter.batchIds)])
         .scannerId;
     })();
     values.push(scannerId);
   }
 
-  if (groupBy.groupByBatch) {
-    values.push(assertDefined(groupSpecifier.batchId));
+  if (metadataStructure.batch === 'single') {
+    values.push(assertOnlyElement(filter.batchIds));
   }
+
+  // Multi Attributes
+  // -------------------
+
+  if (metadataStructure.precinct === 'multi') {
+    values.push(
+      assertDefined(filter.precinctIds)
+        .map((id) => getPrecinctById(electionDefinition, id).name)
+        .join(MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.party === 'multi') {
+    values.push(
+      assertDefined(filter.partyIds)
+        .map((id) => getPartyById(electionDefinition, id).name)
+        .join(MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.ballotStyle === 'multi') {
+    values.push(
+      assertDefined(filter.ballotStyleIds).join(MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.votingMethod === 'multi') {
+    values.push(
+      assertDefined(filter.votingMethods)
+        .map((method) => Tabulation.VOTING_METHOD_LABELS[method])
+        .join(MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.scanner === 'multi') {
+    values.push(assertDefined(filter.scannerIds).join(MULTI_VALUE_SEPARATOR));
+  }
+
+  if (metadataStructure.batch === 'multi') {
+    values.push(assertDefined(filter.batchIds).join(MULTI_VALUE_SEPARATOR));
+  }
+
+  // Contest, Selection, and Tally
+  // -----------------------------
 
   values.push(
     contest.title,
@@ -173,32 +335,31 @@ function generateBatchLookup(store: Store, electionId: Id): BatchLookup {
 function* generateRows({
   electionId,
   electionDefinition,
-  groupBy,
+  overallExportFilter,
   resultGroups,
+  metadataStructure,
   store,
-  overallReportFilter,
 }: {
   electionId: Id;
   electionDefinition: ElectionDefinition;
-  groupBy: Tabulation.GroupBy;
+  overallExportFilter: Tabulation.Filter;
   resultGroups: Tabulation.ElectionResultsGroupList;
+  metadataStructure: MetadataStructure;
   store: Store;
-  overallReportFilter: Tabulation.Filter;
 }): Generator<string> {
   const { election } = electionDefinition;
-  const isPrimaryElection = election.type === 'primary';
   const writeInCandidates = store.getWriteInCandidates({ electionId });
   const batchLookup = generateBatchLookup(store, assertDefined(electionId));
 
   for (const resultsGroup of resultGroups) {
-    const effectiveFilter = combineGroupSpecifierAndFilter(
+    const groupFilter = combineGroupSpecifierAndFilter(
       resultsGroup,
-      overallReportFilter
+      overallExportFilter
     );
     const contestIds = new Set(
       store.getFilteredContests({
         electionId,
-        filter: effectiveFilter,
+        filter: groupFilter,
       })
     );
     const includedContests: AnyContest[] = [];
@@ -223,10 +384,9 @@ function* generateRows({
           /* c8 ignore next -- trivial fallthrough zero branch */
           const votes = contestResults.tallies[candidate.id]?.tally ?? 0;
           yield buildCsvRow({
-            groupBy,
-            groupSpecifier: resultsGroup,
+            metadataStructure,
+            filter: groupFilter,
             electionDefinition,
-            isPrimaryElection,
             batchLookup,
             contest,
             selection: candidate.name,
@@ -240,10 +400,9 @@ function* generateRows({
           const votes = contestResults.tallies[writeInCandidate.id]?.tally ?? 0;
           if (votes) {
             yield buildCsvRow({
-              groupBy,
-              groupSpecifier: resultsGroup,
+              metadataStructure,
+              filter: groupFilter,
               electionDefinition,
-              isPrimaryElection,
               batchLookup,
               contest,
               selection: writeInCandidate.name,
@@ -261,10 +420,9 @@ function* generateRows({
 
           if (votes) {
             yield buildCsvRow({
-              groupBy,
-              groupSpecifier: resultsGroup,
+              metadataStructure,
+              filter: groupFilter,
               electionDefinition,
-              isPrimaryElection,
               batchLookup,
               contest,
               selection: contestWriteInCandidate.name,
@@ -276,10 +434,9 @@ function* generateRows({
       } else if (contest.type === 'yesno') {
         assert(contestResults.contestType === 'yesno');
         yield buildCsvRow({
-          groupBy,
-          groupSpecifier: resultsGroup,
+          metadataStructure,
+          filter: groupFilter,
           electionDefinition,
-          isPrimaryElection,
           batchLookup,
           contest,
           selection: contest.yesOption.label,
@@ -287,10 +444,9 @@ function* generateRows({
           votes: contestResults.yesTally,
         });
         yield buildCsvRow({
-          groupBy,
-          groupSpecifier: resultsGroup,
+          metadataStructure,
+          filter: groupFilter,
           electionDefinition,
-          isPrimaryElection,
           batchLookup,
           contest,
           selection: contest.noOption.label,
@@ -300,10 +456,9 @@ function* generateRows({
       }
 
       yield buildCsvRow({
-        groupBy,
-        groupSpecifier: resultsGroup,
+        metadataStructure,
+        filter: groupFilter,
         electionDefinition,
-        isPrimaryElection,
         batchLookup,
         contest,
         selection: 'Overvotes',
@@ -312,10 +467,9 @@ function* generateRows({
       });
 
       yield buildCsvRow({
-        groupBy,
-        groupSpecifier: resultsGroup,
+        metadataStructure,
+        filter: groupFilter,
         electionDefinition,
-        isPrimaryElection,
         batchLookup,
         contest,
         selection: 'Undervotes',
@@ -328,18 +482,9 @@ function* generateRows({
 
 /**
  * Converts a tally for an election to a CSV file (represented as a string) of tally
- * results. Results are split according to the `groupBy` parameter. For each
- * additional split, one or more split metadata columns are added to each row.
- *  - `groupByBallotStyle` adds "Ballot Style ID" and, if a primary, "Party" and "Party ID"
- *  - `groupByParty` adds "Party" and "Party ID", if a primary
- *  - `groupByScanner` adds "Scanner ID"
- *  - `groupByBatch` adds "Batch ID" and "Scanner ID"
- *  - `groupByPrecinct` adds "Precinct" and "Precinct ID"
- *  - `groupByVotingMethod` adds "Voting Method"
- *
- * Notice that we are adding not only the metadata for the specified group but
- * metadata from inferable groups too. E.g., if we group by batch then we know
- * the scanner ID of each group.
+ * results. Results are filtered by the `filter` parameter and grouped according to
+ * the `groupBy` parameter. Each row is labelled with metadata according to its group
+ * and the overall export's filter.
  *
  * Returns the file as a `NodeJS.ReadableStream` emitting line by line.
  */
@@ -357,10 +502,15 @@ export async function generateResultsCsv({
   const { electionDefinition } = assertDefined(store.getElection(electionId));
   const { election } = electionDefinition;
 
+  const metadataStructure = determineMetadataStructure({
+    filter,
+    groupBy,
+  });
+
   const headerRow = stringify([
     generateHeaders({
-      groupBy,
-      isPrimaryElection: election.type === 'primary',
+      election,
+      metadataStructure,
     }),
   ]);
 
@@ -381,10 +531,10 @@ export async function generateResultsCsv({
     for (const dataRow of generateRows({
       electionDefinition,
       electionId: assertDefined(electionId),
-      groupBy,
+      overallExportFilter: filter,
       resultGroups,
+      metadataStructure,
       store,
-      overallReportFilter: filter,
     })) {
       yield dataRow;
     }
