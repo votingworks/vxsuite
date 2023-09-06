@@ -18,7 +18,7 @@ import {
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage2,
-} from '../../../test/fixtures/interpretations';
+} from '../../test/fixtures/interpretations';
 import {
   buildCastVoteRecord,
   buildCVRContestsFromVotes,

@@ -28,12 +28,12 @@ import {
   canonicalizeSheet,
 } from './canonicalize';
 import { buildCastVoteRecord, hasWriteIns } from './build_cast_vote_record';
-import { ExportDataError, Exporter } from '../../exporter';
+import { ExportDataError, Exporter } from '../exporter';
 import {
   UsbDrive,
   getUsbDrives as defaultGetUsbDrives,
-} from '../../get_usb_drives';
-import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../globals';
+} from '../get_usb_drives';
+import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan/globals';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 import { buildElectionOptionPositionMap } from './option_map';
 

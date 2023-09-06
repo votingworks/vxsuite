@@ -1,8 +1,5 @@
 import { CVR } from '@votingworks/types';
-import {
-  getWriteInsFromCastVoteRecord,
-  isBmdWriteIn,
-} from './cast_vote_record_helpers';
+import { getWriteInsFromCastVoteRecord, isBmdWriteIn } from './helpers';
 
 const mockCastVoteRecord: CVR.CVR = {
   '@type': 'CVR.CVR',

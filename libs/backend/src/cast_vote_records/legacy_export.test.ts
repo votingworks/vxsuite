@@ -22,8 +22,8 @@ import {
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage2,
-} from '../../../test/fixtures/interpretations';
-import { ExportDataError } from '../../exporter';
+} from '../../test/fixtures/interpretations';
+import { ExportDataError } from '../exporter';
 import {
   exportCastVoteRecordReportToUsbDrive,
   getCastVoteRecordReportStream,
@@ -214,8 +214,8 @@ test('getCastVoteRecordReportStream can include file uris in backup format', asy
 
 const exportDataToUsbDriveMock = jest.fn().mockImplementation(() => ok());
 
-jest.mock('../../exporter', () => ({
-  ...jest.requireActual('../../exporter'),
+jest.mock('../exporter', () => ({
+  ...jest.requireActual('../exporter'),
   Exporter: jest.fn().mockImplementation(() => ({
     exportDataToUsbDrive: exportDataToUsbDriveMock,
   })),
