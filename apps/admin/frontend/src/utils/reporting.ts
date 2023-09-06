@@ -317,6 +317,8 @@ function generateReportFilename({
   return shortFilename;
 }
 
+export const REPORT_SUBFOLDER = 'reports';
+
 export function generateTallyReportPdfFilename({
   election,
   filter,
