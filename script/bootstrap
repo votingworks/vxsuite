@@ -10,7 +10,7 @@ export PATH="${local_user_home_dir}/.cargo/bin:${PATH}:/sbin/"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-for app in ${DIR}/../frontends/* ${DIR}/../apps/*/frontend ${DIR}/../apps/*/backend; do
+for app in ${DIR}/../apps/*/frontend ${DIR}/../apps/*/backend; do
   if [ -d "${app}" ]; then
     make -C "${app}" bootstrap
   fi
