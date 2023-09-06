@@ -125,42 +125,42 @@ test('uses appropriate headers', async () => {
       filter: { precinctIds: ['precinct-1', 'precinct-2'] },
       additionalHeaders: ['Included Precincts'],
       additionalRowAttributes: {
-        'Included Precincts': 'Precinct 1,Precinct 2',
+        'Included Precincts': 'Precinct 1, Precinct 2',
       },
     },
     {
       filter: { votingMethods: ['absentee', 'precinct'] },
       additionalHeaders: ['Included Voting Methods'],
       additionalRowAttributes: {
-        'Included Voting Methods': 'Absentee,Precinct',
+        'Included Voting Methods': 'Absentee, Precinct',
       },
     },
     {
       filter: { ballotStyleIds: ['1M', '2F'] },
       additionalHeaders: ['Included Ballot Styles'],
       additionalRowAttributes: {
-        'Included Ballot Styles': '1M,2F',
+        'Included Ballot Styles': '1M, 2F',
       },
     },
     {
       filter: { partyIds: ['0', '1'] },
       additionalHeaders: ['Included Parties'],
       additionalRowAttributes: {
-        'Included Parties': 'Mammal,Fish',
+        'Included Parties': 'Mammal, Fish',
       },
     },
     {
       filter: { batchIds: ['batch-1', 'batch-2'] },
       additionalHeaders: ['Included Batches'],
       additionalRowAttributes: {
-        'Included Batches': 'batch-1,batch-2',
+        'Included Batches': 'batch-1, batch-2',
       },
     },
     {
       filter: { scannerIds: ['scanner-1', 'scanner-2'] },
       additionalHeaders: ['Included Scanners'],
       additionalRowAttributes: {
-        'Included Scanners': 'scanner-1,scanner-2',
+        'Included Scanners': 'scanner-1, scanner-2',
       },
     },
     // multi-filter broken up by grouping
@@ -194,7 +194,7 @@ test('uses appropriate headers', async () => {
         'Included Precincts',
       ],
       additionalRowAttributes: {
-        'Included Precincts': 'Precinct 1,Precinct 2',
+        'Included Precincts': 'Precinct 1, Precinct 2',
       },
     },
   ];

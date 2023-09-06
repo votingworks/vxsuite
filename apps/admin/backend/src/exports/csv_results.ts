@@ -37,7 +37,7 @@ const METADATA_ATTRIBUTES = [
 
 type MetadataAttribute = typeof METADATA_ATTRIBUTES[number];
 
-const METADATA_ATTRIBUTE_COMPOUND_LABEL: Record<MetadataAttribute, string> = {
+const METADATA_ATTRIBUTE_MULTI_LABEL: Record<MetadataAttribute, string> = {
   precinct: 'Precincts',
   party: 'Parties',
   ballotStyle: 'Ballot Styles',
@@ -45,6 +45,8 @@ const METADATA_ATTRIBUTE_COMPOUND_LABEL: Record<MetadataAttribute, string> = {
   scanner: 'Scanners',
   batch: 'Batches',
 };
+
+const MULTI_VALUE_SEPARATOR = ', ';
 
 // `all` is equivalent to having no filter for an attribute
 type Multiplicity = 'single' | 'multi' | 'all';
@@ -166,7 +168,7 @@ function generateHeaders({
 
   for (const attribute of METADATA_ATTRIBUTES) {
     if (metadataStructure[attribute] === 'multi') {
-      headers.push(`Included ${METADATA_ATTRIBUTE_COMPOUND_LABEL[attribute]}`);
+      headers.push(`Included ${METADATA_ATTRIBUTE_MULTI_LABEL[attribute]}`);
     }
   }
 
@@ -273,7 +275,7 @@ function buildCsvRow({
     values.push(
       assertDefined(filter.precinctIds)
         .map((id) => getPrecinctById(electionDefinition, id).name)
-        .join(',')
+        .join(MULTI_VALUE_SEPARATOR)
     );
   }
 
@@ -281,28 +283,30 @@ function buildCsvRow({
     values.push(
       assertDefined(filter.partyIds)
         .map((id) => getPartyById(electionDefinition, id).name)
-        .join(',')
+        .join(MULTI_VALUE_SEPARATOR)
     );
   }
 
   if (metadataStructure.ballotStyle === 'multi') {
-    values.push(assertDefined(filter.ballotStyleIds).join(','));
+    values.push(
+      assertDefined(filter.ballotStyleIds).join(MULTI_VALUE_SEPARATOR)
+    );
   }
 
   if (metadataStructure.votingMethod === 'multi') {
     values.push(
       assertDefined(filter.votingMethods)
         .map((method) => Tabulation.VOTING_METHOD_LABELS[method])
-        .join(',')
+        .join(MULTI_VALUE_SEPARATOR)
     );
   }
 
   if (metadataStructure.scanner === 'multi') {
-    values.push(assertDefined(filter.scannerIds).join(','));
+    values.push(assertDefined(filter.scannerIds).join(MULTI_VALUE_SEPARATOR));
   }
 
   if (metadataStructure.batch === 'multi') {
-    values.push(assertDefined(filter.batchIds).join(','));
+    values.push(assertDefined(filter.batchIds).join(MULTI_VALUE_SEPARATOR));
   }
 
   // Contest, Selection, and Tally
