@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_LAYOUT_OPTIONS,
@@ -6,15 +7,24 @@ import {
 } from '@votingworks/hmpb-layout';
 import {
   AdjudicationReason,
+  AnyContest,
   BallotType,
+  Contests,
   DEFAULT_SYSTEM_SETTINGS,
+  District,
+  DistrictId,
   Election,
+  ElectionType,
+  Parties,
+  Party,
+  PartyId,
   safeParseElectionDefinition,
   safeParseSystemSettings,
   SystemSettings,
 } from '@votingworks/types';
 import JsZip from 'jszip';
-import { testSetupHelpers } from '../test/helpers';
+import { ApiClient, testSetupHelpers } from '../test/helpers';
+import { hasSplits, Precinct } from './store';
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -62,10 +72,11 @@ test('CRUD elections', async () => {
 
   expect(await apiClient.listElections()).toEqual([election]);
 
+  const election2Definition =
+    electionFamousNames2021Fixtures.electionDefinition;
   const electionId2 = (
     await apiClient.createElection({
-      electionData:
-        electionFamousNames2021Fixtures.electionDefinition.electionData,
+      electionData: election2Definition.electionData,
     })
   ).unsafeUnwrap();
   expect(electionId2).toEqual('2');
@@ -74,18 +85,32 @@ test('CRUD elections', async () => {
   expect(election2).toMatchObject({
     id: '2',
     election: {
-      ...electionFamousNames2021Fixtures.electionDefinition.election,
+      ...election2Definition.election,
       ballotStyles: [
         {
           id: 'ballot-style-1',
-          precincts: ['23', '22', '21', '20'],
+          precincts: election2Definition.election.precincts.map(
+            (precinct) => precinct.id
+          ),
         },
       ],
     },
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     // TODO test that ballot styles/precincts are correct
-    ballotStyles: expect.any(Array),
-    precincts: expect.any(Array),
+    ballotStyles: [
+      {
+        id: 'ballot-style-1',
+        precinctsOrSplits: election2Definition.election.precincts.map(
+          (precinct) => ({ precinctId: precinct.id })
+        ),
+        districtIds: ['district-1'],
+      },
+    ],
+    precincts: election2Definition.election.precincts.map((precinct) => ({
+      id: precinct.id,
+      name: precinct.name,
+      districtIds: ['district-1'],
+    })),
     createdAt: expect.any(String),
   });
 
@@ -94,6 +119,7 @@ test('CRUD elections', async () => {
   const updatedElection: Election = {
     ...election.election,
     title: 'Updated Election',
+    type: 'primary',
   };
 
   await apiClient.updateElection({
@@ -181,6 +207,7 @@ test('Export setup package', async () => {
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
+  const { election: appElection } = await apiClient.getElection({ electionId });
 
   const { zipContents, electionHash } = await apiClient.exportSetupPackage({
     electionId,
@@ -199,39 +226,22 @@ test('Export setup package', async () => {
 
   expect(electionDefinition.election).toEqual({
     ...baseElectionDefinition.election,
+
     // The date in the election fixture has a timezone, even though it shouldn't
-    date: electionDefinition.election.date,
+    date: baseElectionDefinition.election.date.replace(
+      '00:00:00-10:00',
+      '00:00:00Z'
+    ),
 
     // Ballot styles are generated in the app, ignoring the ones in the inputted
     // election definition.
-    ballotStyles: electionDefinition.election.ballotStyles,
+    ballotStyles: appElection.ballotStyles,
 
     // The base election definition should have been extended with grid layouts.
     // The correctness of the grid layouts is tested by libs/ballot-interpreter
     // tests.
-    gridLayouts: electionDefinition.election.gridLayouts,
+    gridLayouts: expect.any(Array),
   });
-
-  // We should have a ballot style for each precinct with a unique set of
-  // contests (via districts). In this case, all the precincts share the same
-  // contests.
-  expect(electionDefinition.election.ballotStyles).toMatchInlineSnapshot(`
-    [
-      {
-        "districts": [
-          "district-1",
-        ],
-        "id": "ballot-style-1",
-        "partyId": undefined,
-        "precincts": [
-          "23",
-          "22",
-          "21",
-          "20",
-        ],
-      },
-    ]
-  `);
 
   const systemSettings = safeParseSystemSettings(
     await zip.file('systemSettings.json')!.async('text')
@@ -319,4 +329,443 @@ test('Export all ballots', async () => {
 
   const setupPackageResult = await apiClient.exportSetupPackage({ electionId });
   expect(electionHash).toEqual(setupPackageResult.electionHash);
+});
+
+describe('Ballot style generation', () => {
+  const districts: District[] = [
+    {
+      id: 'district-1' as DistrictId,
+      name: 'District 1',
+    },
+    {
+      id: 'district-2' as DistrictId,
+      name: 'District 2',
+    },
+    {
+      id: 'district-3' as DistrictId,
+      name: 'District 3',
+    },
+  ];
+  const [district1, district2, district3] = districts;
+
+  const parties: Party[] = [
+    {
+      id: 'party-A' as PartyId,
+      name: 'Party A',
+      fullName: 'Party A',
+      abbrev: 'A',
+    },
+    {
+      id: 'party-B' as PartyId,
+      name: 'Party B',
+      fullName: 'Party B',
+      abbrev: 'B',
+    },
+    {
+      id: 'party-C' as PartyId,
+      name: 'Party C',
+      fullName: 'Party C',
+      abbrev: 'C',
+    },
+  ];
+  const [partyA, partyB, partyC] = parties;
+
+  function makeContest(
+    id: string,
+    districtId: DistrictId,
+    partyId?: PartyId
+  ): AnyContest {
+    return {
+      id,
+      districtId,
+      type: 'candidate',
+      title: id,
+      candidates: [],
+      allowWriteIns: true,
+      seats: 1,
+      partyId,
+    };
+  }
+
+  async function setupElection(
+    apiClient: ApiClient,
+    spec: {
+      type: ElectionType;
+      districts: District[];
+      precincts: Precinct[];
+      contests: Contests;
+      parties?: Parties;
+    }
+  ) {
+    const electionId = (
+      await apiClient.createElection({ electionData: undefined })
+    ).unsafeUnwrap();
+    const { election } = await apiClient.getElection({ electionId });
+    await apiClient.updateElection({
+      electionId,
+      election: {
+        ...election,
+        type: spec.type,
+        districts: spec.districts,
+        contests: spec.contests,
+        parties: spec.parties ?? [],
+      },
+    });
+    await apiClient.updatePrecincts({ electionId, precincts: spec.precincts });
+    return electionId;
+  }
+
+  test('General election, no splits', async () => {
+    const { apiClient } = setupApp();
+
+    const precincts: Precinct[] = [
+      {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: [district1.id],
+      },
+      {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        districtIds: [district2.id],
+      },
+      {
+        id: 'precinct-3',
+        name: 'Precinct 3',
+        districtIds: [district1.id, district2.id],
+      },
+      {
+        id: 'precinct-4',
+        name: 'Precinct 4',
+        // Shouldn't get a ballot style, since no districts assigned
+        districtIds: [],
+      },
+    ];
+    const contests: Contests = [
+      makeContest('contest-1', district1.id),
+      makeContest('contest-2', district2.id),
+    ];
+
+    const electionId = await setupElection(apiClient, {
+      type: 'general',
+      districts,
+      precincts,
+      contests,
+    });
+
+    const { ballotStyles } = await apiClient.getElection({ electionId });
+    const [precinct1, precinct2, precinct3] = precincts;
+    expect(ballotStyles).toEqual([
+      {
+        id: 'ballot-style-1',
+        districtIds: [district1.id],
+        precinctsOrSplits: [{ precinctId: precinct1.id }],
+      },
+      {
+        id: 'ballot-style-2',
+        districtIds: [district2.id],
+        precinctsOrSplits: [{ precinctId: precinct2.id }],
+      },
+      {
+        id: 'ballot-style-3',
+        districtIds: [district1.id, district2.id],
+        precinctsOrSplits: [{ precinctId: precinct3.id }],
+      },
+    ]);
+  });
+
+  test('General election, split precincts', async () => {
+    const { apiClient } = setupApp();
+
+    const precincts: Precinct[] = [
+      {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: [district1.id],
+      },
+      {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        splits: [
+          {
+            id: 'precinct-2-split-1',
+            name: 'Precinct 2 - Split 1',
+            districtIds: [district1.id, district2.id],
+          },
+          {
+            id: 'precinct-2-split-2',
+            name: 'Precinct 2 - Split 2',
+            districtIds: [district1.id, district3.id],
+          },
+          {
+            id: 'precinct-2-split-3',
+            name: 'Precinct 2 - Split 3',
+            // Should share a ballot style with precinct-1, since same districts assigned
+            districtIds: [district1.id],
+          },
+          {
+            id: 'precinct-2-split-4',
+            name: 'Precinct 2 - Split 4',
+            // Shouldn't get a ballot style, since no districts assigned
+            districtIds: [],
+          },
+        ],
+      },
+    ];
+    const contests: Contests = [
+      makeContest('contest-1', district1.id),
+      makeContest('contest-2', district2.id),
+    ];
+
+    const electionId = await setupElection(apiClient, {
+      type: 'general',
+      districts,
+      precincts,
+      contests,
+    });
+
+    const { ballotStyles } = await apiClient.getElection({ electionId });
+    const [precinct1, precinct2] = precincts;
+    assert(hasSplits(precinct2));
+    const [split1, split2, split3] = precinct2.splits;
+    expect(ballotStyles).toEqual([
+      {
+        id: 'ballot-style-1',
+        districtIds: [district1.id],
+        precinctsOrSplits: [
+          { precinctId: precinct1.id },
+          {
+            precinctId: precinct2.id,
+            splitId: split3.id,
+          },
+        ],
+      },
+      {
+        id: 'ballot-style-2',
+        districtIds: [district1.id, district2.id],
+        precinctsOrSplits: [{ precinctId: precinct2.id, splitId: split1.id }],
+      },
+      {
+        id: 'ballot-style-3',
+        districtIds: [district1.id, district3.id],
+        precinctsOrSplits: [{ precinctId: precinct2.id, splitId: split2.id }],
+      },
+    ]);
+  });
+
+  test('Primary election, no splits', async () => {
+    const { apiClient } = setupApp();
+
+    const precincts: Precinct[] = [
+      {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        districtIds: [district1.id],
+      },
+      {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        districtIds: [district2.id, district3.id],
+      },
+      {
+        id: 'precinct-3',
+        name: 'Precinct 3',
+        districtIds: [district3.id],
+      },
+    ];
+    const contests: Contests = [
+      makeContest('contest-1A', district1.id, partyA.id),
+      makeContest('contest-1B', district1.id, partyB.id),
+      makeContest('contest-2A', district2.id, partyA.id),
+      makeContest('contest-2B', district2.id, partyB.id),
+      makeContest('contest-2C', district2.id, partyC.id),
+      makeContest('contest-3A', district3.id, partyA.id),
+      makeContest('contest-3C', district3.id, partyC.id),
+      makeContest('contest-4', district1.id),
+      makeContest('contest-5', district3.id),
+    ];
+
+    const electionId = await setupElection(apiClient, {
+      type: 'primary',
+      districts,
+      precincts,
+      contests,
+      parties,
+    });
+
+    const { ballotStyles } = await apiClient.getElection({ electionId });
+    const [precinct1, precinct2, precinct3] = precincts;
+    expect(ballotStyles).toEqual([
+      {
+        id: 'ballot-style-1-A',
+        districtIds: [district1.id],
+        partyId: partyA.id,
+        precinctsOrSplits: [{ precinctId: precinct1.id }],
+      },
+      {
+        id: 'ballot-style-1-B',
+        districtIds: [district1.id],
+        partyId: partyB.id,
+        precinctsOrSplits: [{ precinctId: precinct1.id }],
+      },
+      {
+        id: 'ballot-style-2-A',
+        districtIds: [district2.id, district3.id],
+        partyId: partyA.id,
+        precinctsOrSplits: [{ precinctId: precinct2.id }],
+      },
+      {
+        id: 'ballot-style-2-B',
+        districtIds: [district2.id, district3.id],
+        partyId: partyB.id,
+        precinctsOrSplits: [{ precinctId: precinct2.id }],
+      },
+      {
+        id: 'ballot-style-2-C',
+        districtIds: [district2.id, district3.id],
+        partyId: partyC.id,
+        precinctsOrSplits: [{ precinctId: precinct2.id }],
+      },
+      {
+        id: 'ballot-style-3-A',
+        districtIds: [district3.id],
+        partyId: partyA.id,
+        precinctsOrSplits: [{ precinctId: precinct3.id }],
+      },
+      {
+        id: 'ballot-style-3-C',
+        districtIds: [district3.id],
+        partyId: partyC.id,
+        precinctsOrSplits: [{ precinctId: precinct3.id }],
+      },
+    ]);
+  });
+
+  test('Primary election, split precincts', async () => {
+    const { apiClient } = setupApp();
+    const precincts: Precinct[] = [
+      {
+        id: 'precinct-1',
+        name: 'Precinct 1',
+        splits: [
+          {
+            id: 'precinct-1-split-1',
+            name: 'Precinct 1 - Split 1',
+            districtIds: [district1.id, district2.id],
+          },
+          {
+            id: 'precinct-1-split-2',
+            name: 'Precinct 1 - Split 2',
+            districtIds: [district1.id, district3.id],
+          },
+          {
+            id: 'precinct-1-split-3',
+            name: 'Precinct 1 - Split 3',
+            // Shouldn't get a ballot style, since no districts assigned
+            districtIds: [],
+          },
+          {
+            id: 'precinct-1-split-4',
+            name: 'Precinct 1 - Split 4',
+            // Should share a ballot style with precinct-2, since same districts assigned
+            districtIds: [district2.id],
+          },
+        ],
+      },
+      {
+        id: 'precinct-2',
+        name: 'Precinct 2',
+        districtIds: [district2.id],
+      },
+    ];
+    const contests: Contests = [
+      makeContest('contest-1A', district1.id, partyA.id),
+      makeContest('contest-1B', district1.id, partyB.id),
+      makeContest('contest-2A', district2.id, partyA.id),
+      makeContest('contest-2B', district2.id, partyB.id),
+      makeContest('contest-2C', district2.id, partyC.id),
+      makeContest('contest-3A', district3.id, partyA.id),
+      makeContest('contest-3C', district3.id, partyC.id),
+      makeContest('contest-4', district1.id),
+      makeContest('contest-5', district3.id),
+    ];
+
+    const electionId = await setupElection(apiClient, {
+      type: 'primary',
+      districts,
+      precincts,
+      contests,
+      parties,
+    });
+
+    const { ballotStyles } = await apiClient.getElection({ electionId });
+    const [precinct1, precinct2] = precincts;
+    assert(hasSplits(precinct1));
+    const [split1, split2, , split4] = precinct1.splits;
+    expect(ballotStyles).toEqual([
+      {
+        id: 'ballot-style-1-A',
+        districtIds: [district1.id, district2.id],
+        partyId: partyA.id,
+        precinctsOrSplits: [{ precinctId: precinct1.id, splitId: split1.id }],
+      },
+      {
+        id: 'ballot-style-1-B',
+        districtIds: [district1.id, district2.id],
+        partyId: partyB.id,
+        precinctsOrSplits: [{ precinctId: precinct1.id, splitId: split1.id }],
+      },
+      {
+        id: 'ballot-style-1-C',
+        districtIds: [district1.id, district2.id],
+        partyId: partyC.id,
+        precinctsOrSplits: [{ precinctId: precinct1.id, splitId: split1.id }],
+      },
+      {
+        id: 'ballot-style-2-A',
+        districtIds: [district1.id, district3.id],
+        partyId: partyA.id,
+        precinctsOrSplits: [{ precinctId: precinct1.id, splitId: split2.id }],
+      },
+      {
+        id: 'ballot-style-2-B',
+        districtIds: [district1.id, district3.id],
+        partyId: partyB.id,
+        precinctsOrSplits: [{ precinctId: precinct1.id, splitId: split2.id }],
+      },
+      {
+        id: 'ballot-style-2-C',
+        districtIds: [district1.id, district3.id],
+        partyId: partyC.id,
+        precinctsOrSplits: [{ precinctId: precinct1.id, splitId: split2.id }],
+      },
+      {
+        id: 'ballot-style-3-A',
+        districtIds: [district2.id],
+        partyId: partyA.id,
+        precinctsOrSplits: [
+          { precinctId: precinct1.id, splitId: split4.id },
+          { precinctId: precinct2.id },
+        ],
+      },
+      {
+        id: 'ballot-style-3-B',
+        districtIds: [district2.id],
+        partyId: partyB.id,
+        precinctsOrSplits: [
+          { precinctId: precinct1.id, splitId: split4.id },
+          { precinctId: precinct2.id },
+        ],
+      },
+      {
+        id: 'ballot-style-3-C',
+        districtIds: [district2.id],
+        partyId: partyC.id,
+        precinctsOrSplits: [
+          { precinctId: precinct1.id, splitId: split4.id },
+          { precinctId: precinct2.id },
+        ],
+      },
+    ]);
+  });
 });
