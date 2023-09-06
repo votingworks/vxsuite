@@ -27,7 +27,7 @@ import { AppContext } from '../../contexts/app_context';
 import { AdminTallyReportByParty } from '../admin_tally_report_by_party';
 import { PrintButton } from '../print_button';
 import {
-  generateReportPdfFilename,
+  generateTallyReportPdfFilename,
   generateTitleForReport,
 } from '../../utils/reporting';
 import { ExportReportPdfButton } from './export_report_pdf_button';
@@ -267,11 +267,14 @@ export function TallyReportViewer({
     return printElementToPdf(reportToSave);
   }
 
-  const reportPdfFilename = generateReportPdfFilename({
+  const reportPdfFilename = generateTallyReportPdfFilename({
     election,
     filter,
     groupBy,
     isTestMode: castVoteRecordFileModeQuery.data === 'test',
+    time: reportResultsQuery.dataUpdatedAt
+      ? new Date(reportResultsQuery.dataUpdatedAt)
+      : undefined,
   });
 
   return (
