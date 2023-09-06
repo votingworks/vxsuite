@@ -15,13 +15,15 @@ import {
   listDirectory,
   ListDirectoryError,
   listDirectoryRecursive,
-} from './list_directory';
+} from '../list_directory';
 import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
+} from './legacy_export';
+import {
   CastVoteRecordReportMetadata,
   TEST_OTHER_REPORT_TYPE,
-} from './scan';
+} from './build_report_metadata';
 
 /**
  * Variant of {@link CastVoteRecordReport} in which the `CVR` array is replaced

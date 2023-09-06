@@ -8,12 +8,12 @@ import { readFileSync } from 'fs';
 import fs from 'fs/promises';
 import { join, resolve } from 'path';
 import { dirSync } from 'tmp';
-import { CAST_VOTE_RECORD_REPORT_FILENAME } from '@votingworks/utils';
 import {
-  getCastVoteRecordReportImport,
+  CAST_VOTE_RECORD_REPORT_FILENAME,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
-} from '@votingworks/backend';
+} from '@votingworks/utils';
+import { getCastVoteRecordReportImport } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
 import { DEFAULT_SCANNER_ID, main } from './main';
 import { getBatchIdForScannerId } from '../../utils';

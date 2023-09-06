@@ -7,10 +7,10 @@ import { Readable } from 'stream';
 import { DirResult, dirSync } from 'tmp';
 import { Exporter, ExportDataResult } from './exporter';
 import { UsbDrive } from './get_usb_drives';
-import { execFile } from './utils/exec';
+import { execFile } from './exec';
 
-jest.mock('./utils/exec', (): typeof import('./utils/exec') => ({
-  ...jest.requireActual('./utils/exec'),
+jest.mock('./exec', (): typeof import('./exec') => ({
+  ...jest.requireActual('./exec'),
   execFile: jest.fn(),
 }));
 

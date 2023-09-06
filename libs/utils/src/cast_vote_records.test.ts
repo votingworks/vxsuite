@@ -1,8 +1,10 @@
 import { CVR } from '@votingworks/types';
 import {
+  convertCastVoteRecordVotesToTabulationVotes,
+  getCurrentSnapshot,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
-} from './cast_vote_record_helpers';
+} from './cast_vote_records';
 
 const mockCastVoteRecord: CVR.CVR = {
   '@type': 'CVR.CVR',
@@ -20,6 +22,107 @@ const mockCastVoteRecord: CVR.CVR = {
   ],
   CVRSnapshot: [],
 };
+
+describe('getCurrentSnapshot', () => {
+  test('happy path', () => {
+    const expectedSnapshot: CVR.CVRSnapshot = {
+      '@type': 'CVR.CVRSnapshot',
+      '@id': '1',
+      Type: CVR.CVRType.Modified,
+      CVRContest: [],
+    };
+
+    const actualSnapshot = getCurrentSnapshot({
+      ...mockCastVoteRecord,
+      CurrentSnapshotId: '1',
+      CVRSnapshot: [
+        expectedSnapshot,
+        {
+          '@type': 'CVR.CVRSnapshot',
+          '@id': '0',
+          Type: CVR.CVRType.Original,
+          CVRContest: [],
+        },
+      ],
+    });
+
+    expect(actualSnapshot).toEqual(expectedSnapshot);
+  });
+
+  test('missing snapshot', () => {
+    expect(
+      getCurrentSnapshot({
+        ...mockCastVoteRecord,
+        CVRSnapshot: [],
+      })
+    ).toBeUndefined();
+  });
+});
+
+describe('convertCastVoteRecordVotesToTabulationVotes', () => {
+  test('snapshot without contests', () => {
+    expect(
+      convertCastVoteRecordVotesToTabulationVotes({
+        '@id': 'test',
+        '@type': 'CVR.CVRSnapshot',
+        Type: CVR.CVRType.Modified,
+        CVRContest: [],
+      })
+    ).toMatchObject({});
+  });
+
+  test('converts snapshot', () => {
+    expect(
+      convertCastVoteRecordVotesToTabulationVotes({
+        '@id': 'test',
+        '@type': 'CVR.CVRSnapshot',
+        Type: CVR.CVRType.Modified,
+        CVRContest: [
+          {
+            '@type': 'CVR.CVRContest',
+            ContestId: 'mayor',
+            CVRContestSelection: [
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'frodo',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'gandalf',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    HasIndication: CVR.IndicationStatus.Yes,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+              {
+                '@type': 'CVR.CVRContestSelection',
+                ContestSelectionId: 'sam',
+                SelectionPosition: [
+                  {
+                    '@type': 'CVR.SelectionPosition',
+                    // should be ignored because not indicated
+                    HasIndication: CVR.IndicationStatus.No,
+                    NumberVotes: 1,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      })
+    ).toEqual({ mayor: ['frodo', 'gandalf'] });
+  });
+});
 
 describe('getWriteInsFromCastVoteRecord', () => {
   test('HMPB happy path', () => {

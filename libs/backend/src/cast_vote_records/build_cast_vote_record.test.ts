@@ -18,14 +18,12 @@ import {
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage2,
-} from '../../../test/fixtures/interpretations';
+} from '../../test/fixtures/interpretations';
 import {
   buildCastVoteRecord,
   buildCVRContestsFromVotes,
   toCdfBallotType,
   getOptionPosition,
-  hasWriteIns,
-  getWriteInCount,
 } from './build_cast_vote_record';
 
 const electionDefinition = electionMinimalExhaustiveSampleDefinition;
@@ -464,78 +462,10 @@ describe('buildCVRContestsFromVotes', () => {
   });
 });
 
-test('getWriteInCount', () => {
-  expect(getWriteInCount({ fishing: ['ban-fishing'] })).toEqual(0);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'zebra',
-          name: 'Zebra',
-        },
-      ],
-    })
-  ).toEqual(0);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-    })
-  ).toEqual(1);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-      board: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-    })
-  ).toEqual(2);
-});
-
-test('hasWriteIns', () => {
-  expect(hasWriteIns({ fishing: ['ban-fishing'] })).toEqual(false);
-  expect(
-    hasWriteIns({
-      council: [
-        {
-          id: 'zebra',
-          name: 'Zebra',
-        },
-      ],
-    })
-  ).toEqual(false);
-  expect(
-    hasWriteIns({
-      council: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-    })
-  ).toEqual(true);
-});
-
 // Mock the contests on each side of the ballot
-jest.mock('./page_layouts', () => {
+jest.mock('@votingworks/utils', () => {
   return {
-    ...jest.requireActual('./page_layouts'),
+    ...jest.requireActual('@votingworks/utils'),
     getContestsForBallotPage: ({
       ballotPageMetadata,
     }: {

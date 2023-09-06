@@ -22,8 +22,8 @@ import {
   interpretedBmdPage,
   interpretedHmpbPage1,
   interpretedHmpbPage2,
-} from '../../../test/fixtures/interpretations';
-import { ExportDataError } from '../../exporter';
+} from '../../test/fixtures/interpretations';
+import { ExportDataError } from '../exporter';
 import {
   exportCastVoteRecordReportToUsbDrive,
   getCastVoteRecordReportStream,
@@ -43,8 +43,8 @@ const electionDefinition: ElectionDefinition = {
 const definiteMarkThreshold = 0.15;
 const batchInfo: BatchInfo[] = [];
 
-jest.mock('./page_layouts', () => ({
-  ...jest.requireActual('./page_layouts'),
+jest.mock('@votingworks/utils', () => ({
+  ...jest.requireActual('@votingworks/utils'),
   getContestsForBallotPage: ({
     ballotPageMetadata,
   }: {
@@ -214,8 +214,8 @@ test('getCastVoteRecordReportStream can include file uris in backup format', asy
 
 const exportDataToUsbDriveMock = jest.fn().mockImplementation(() => ok());
 
-jest.mock('../../exporter', () => ({
-  ...jest.requireActual('../../exporter'),
+jest.mock('../exporter', () => ({
+  ...jest.requireActual('../exporter'),
   Exporter: jest.fn().mockImplementation(() => ({
     exportDataToUsbDrive: exportDataToUsbDriveMock,
   })),

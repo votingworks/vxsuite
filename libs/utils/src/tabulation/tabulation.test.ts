@@ -39,7 +39,7 @@ import { CAST_VOTE_RECORD_REPORT_FILENAME } from '../filenames';
 import {
   convertCastVoteRecordVotesToTabulationVotes,
   getCurrentSnapshot,
-} from '../cast_vote_record_report';
+} from '../cast_vote_records';
 
 /**
  * For testing with small cast vote record files only.

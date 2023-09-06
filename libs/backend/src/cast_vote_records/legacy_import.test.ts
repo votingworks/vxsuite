@@ -8,12 +8,12 @@ import {
   getCastVoteRecordReportImport,
   isTestReport,
   validateCastVoteRecordReportDirectoryStructure,
-} from './cast_vote_record_report_import';
+} from './legacy_import';
 import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
-  TEST_OTHER_REPORT_TYPE,
-} from './scan';
+} from './legacy_export';
+import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
 
 const cdfCvrReport =
   electionGridLayoutNewHampshireAmherstFixtures.castVoteRecordReport;

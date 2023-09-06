@@ -13,10 +13,12 @@ import {
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import {
+  convertMarksToVotesDict,
   getContestVoteOptionsForCandidateContest,
   getContestVoteOptionsForYesNoContest,
   getSingleYesNoVote,
-  convertMarksToVotesDict,
+  getWriteInCount,
+  hasWriteIns,
   normalizeWriteInId,
 } from './votes';
 
@@ -217,4 +219,72 @@ test('markInfoToVotesDict yesno', () => {
   ).toEqual({
     [yesnoContest.id]: [yesnoContest.yesOption.id, yesnoContest.noOption.id],
   });
+});
+
+test('getWriteInCount', () => {
+  expect(getWriteInCount({ fishing: ['ban-fishing'] })).toEqual(0);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'zebra',
+          name: 'Zebra',
+        },
+      ],
+    })
+  ).toEqual(0);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+    })
+  ).toEqual(1);
+  expect(
+    getWriteInCount({
+      council: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+      board: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+    })
+  ).toEqual(2);
+});
+
+test('hasWriteIns', () => {
+  expect(hasWriteIns({ fishing: ['ban-fishing'] })).toEqual(false);
+  expect(
+    hasWriteIns({
+      council: [
+        {
+          id: 'zebra',
+          name: 'Zebra',
+        },
+      ],
+    })
+  ).toEqual(false);
+  expect(
+    hasWriteIns({
+      council: [
+        {
+          id: 'write-in-0',
+          name: 'Write In #0',
+          isWriteIn: true,
+        },
+      ],
+    })
+  ).toEqual(true);
 });

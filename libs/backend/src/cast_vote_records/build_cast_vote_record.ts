@@ -27,9 +27,12 @@ import {
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
-import { getMarkStatus } from '@votingworks/utils';
+import {
+  getContestsForBallotPage,
+  getMarkStatus,
+  getWriteInCount,
+} from '@votingworks/utils';
 
-import { getContestsForBallotPage } from './page_layouts';
 import {
   ContestOptionPositionMap,
   ElectionOptionPositionMap,
@@ -404,41 +407,6 @@ function buildOriginalSnapshot({
       })
     ),
   };
-}
-
-/**
- * Determines the number of write-in candidates in a {@link VotesDict}
- */
-export function getWriteInCount(votes: VotesDict): number {
-  let count = 0;
-  for (const vote of Object.values(votes)) {
-    if (vote) {
-      for (const voteOption of vote) {
-        if (typeof voteOption !== 'string' && voteOption.isWriteIn) {
-          count += 1;
-        }
-      }
-    }
-  }
-
-  return count;
-}
-
-/**
- * Determines whether a {@link VotesDict} contains any write-in candidates
- */
-export function hasWriteIns(votes: VotesDict): boolean {
-  for (const vote of Object.values(votes)) {
-    if (vote) {
-      for (const voteOption of vote) {
-        if (typeof voteOption !== 'string' && voteOption.isWriteIn) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
 }
 
 /**
