@@ -9,7 +9,6 @@ import {
   Exporter,
   Usb,
   readBallotPackageFromUsb,
-  getContestsForBallotPage,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
 import {
@@ -23,6 +22,7 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
+  getContestsForBallotPage,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';

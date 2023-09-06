@@ -27,9 +27,8 @@ import {
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
-import { getMarkStatus } from '@votingworks/utils';
+import { getContestsForBallotPage, getMarkStatus } from '@votingworks/utils';
 
-import { getContestsForBallotPage } from './page_layouts';
 import {
   ContestOptionPositionMap,
   ElectionOptionPositionMap,

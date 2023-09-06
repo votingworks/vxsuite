@@ -7,7 +7,6 @@ import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
   isTestReport,
-  getWriteInsFromCastVoteRecord,
 } from '@votingworks/backend';
 import {
   assert,
@@ -39,6 +38,7 @@ import {
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
   getCurrentSnapshot,
+  getWriteInsFromCastVoteRecord,
   isFeatureFlagEnabled,
   parseCastVoteRecordReportDirectoryName,
   SCANNER_RESULTS_FOLDER,

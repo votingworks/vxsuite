@@ -43,8 +43,8 @@ const electionDefinition: ElectionDefinition = {
 const definiteMarkThreshold = 0.15;
 const batchInfo: BatchInfo[] = [];
 
-jest.mock('./page_layouts', () => ({
-  ...jest.requireActual('./page_layouts'),
+jest.mock('@votingworks/utils', () => ({
+  ...jest.requireActual('@votingworks/utils'),
   getContestsForBallotPage: ({
     ballotPageMetadata,
   }: {

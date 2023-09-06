@@ -533,9 +533,9 @@ test('hasWriteIns', () => {
 });
 
 // Mock the contests on each side of the ballot
-jest.mock('./page_layouts', () => {
+jest.mock('@votingworks/utils', () => {
   return {
-    ...jest.requireActual('./page_layouts'),
+    ...jest.requireActual('@votingworks/utils'),
     getContestsForBallotPage: ({
       ballotPageMetadata,
     }: {
