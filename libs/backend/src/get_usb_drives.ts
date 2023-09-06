@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises';
 import { join } from 'path';
-import { execFile } from './utils/exec';
+import { execFile } from './exec';
 
 /**
  * A USB drive.

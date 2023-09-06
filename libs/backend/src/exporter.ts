@@ -6,7 +6,7 @@ import { Readable } from 'stream';
 import { createReadStream, lstatSync } from 'fs';
 import { Buffer } from 'buffer';
 import { splitToFiles } from './split';
-import { execFile } from './utils/exec';
+import { execFile } from './exec';
 import { UsbDrive } from './get_usb_drives';
 
 /**

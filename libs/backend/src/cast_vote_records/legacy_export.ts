@@ -33,7 +33,7 @@ import {
   UsbDrive,
   getUsbDrives as defaultGetUsbDrives,
 } from '../get_usb_drives';
-import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan/globals';
+import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan_globals';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 import { buildElectionOptionPositionMap } from './option_map';
 

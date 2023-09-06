@@ -5,5 +5,5 @@ export * from './exporter';
 export * from './get_usb_drives';
 export * from './list_directory';
 export * from './mock_usb';
-export * from './scan';
+export * from './scan_globals';
 export * from './split';

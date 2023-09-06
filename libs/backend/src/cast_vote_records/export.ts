@@ -37,7 +37,7 @@ import {
 
 import { ExportDataError, Exporter } from '../exporter';
 import { Usb as LegacyUsb } from '../mock_usb';
-import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan/globals';
+import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan_globals';
 import { buildCastVoteRecord as baseBuildCastVoteRecord } from './build_cast_vote_record';
 import { buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata } from './build_report_metadata';
 import {
