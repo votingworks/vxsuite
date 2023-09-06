@@ -2,7 +2,6 @@ import { Scan } from '@votingworks/api';
 import { Result, assert, ok, sleep } from '@votingworks/basics';
 import {
   ElectionDefinition,
-  MarkThresholds,
   PageInterpretation,
   PageInterpretationWithFiles,
   SheetOf,
@@ -61,11 +60,6 @@ export class Importer {
     debug('setting test mode to %s', testMode);
     this.doZero();
     this.workspace.store.setTestMode(testMode);
-  }
-
-  setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
-    debug('setting mark thresholds overrides to %s', markThresholds);
-    this.workspace.store.setMarkThresholdOverrides(markThresholds);
   }
 
   private async sheetAdded(
@@ -161,16 +155,16 @@ export class Importer {
     [frontImagePath, backImagePath]: SheetOf<string>
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const electionDefinition = this.getElectionDefinition();
+    const { store } = this.workspace;
 
     return ok(
       await interpretSheetAndSaveImages(
         {
           electionDefinition,
           precinctSelection: ALL_PRECINCTS_SELECTION,
-          testMode: this.workspace.store.getTestMode(),
-          adjudicationReasons:
-            electionDefinition.election.centralScanAdjudicationReasons,
-          markThresholds: this.workspace.store.getMarkThresholdOverrides(),
+          testMode: store.getTestMode(),
+          adjudicationReasons: store.getAdjudicationReasons(),
+          markThresholds: store.getMarkThresholds(),
         },
         [frontImagePath, backImagePath],
         sheetId,
@@ -372,7 +366,7 @@ export class Importer {
   getStatus(): Scan.ScanStatus {
     const electionDefinition = this.workspace.store.getElectionDefinition();
     const canUnconfigure = this.workspace.store.getCanUnconfigure();
-    const batches = this.workspace.store.batchStatus();
+    const batches = this.workspace.store.getBatches();
     const adjudication = this.workspace.store.adjudicationStatus();
 
     return {

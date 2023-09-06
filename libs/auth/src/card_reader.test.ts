@@ -106,6 +106,8 @@ const mockConnectProtocol = 0;
 const mockConnectSuccess: Connect = (_options, cb) =>
   cb(undefined, mockConnectProtocol);
 const mockConnectError: Connect = (_options, cb) => cb(new Error('Whoa!'));
+const mockDisconnectSuccess: Disconnect = (cb) => cb(undefined);
+const mockDisconnectError: Disconnect = (cb) => cb(new Error('Whoa'));
 function newMockTransmitSuccess(response: Buffer): Transmit {
   return (_data, _responseLength, _protocol, cb) => cb(undefined, response);
 }
@@ -170,6 +172,28 @@ test('CardReader status changes', () => {
   mockPcscLiteReader.emit('end');
   expect(onReaderStatusChange).toHaveBeenCalledTimes(6);
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(6, 'no_card_reader');
+});
+
+test('CardReader card disconnect - success', async () => {
+  const cardReader = newCardReader('ready');
+  mockOf(mockPcscLiteReader.disconnect).mockImplementationOnce(
+    mockDisconnectSuccess
+  );
+
+  await cardReader.disconnectCard();
+
+  expect(mockPcscLiteReader.disconnect).toHaveBeenCalledTimes(1);
+});
+
+test('CardReader card disconnect - error', async () => {
+  const cardReader = newCardReader('ready');
+  mockOf(mockPcscLiteReader.disconnect).mockImplementationOnce(
+    mockDisconnectError
+  );
+
+  await expect(cardReader.disconnectCard()).rejects.toThrow();
+
+  expect(mockPcscLiteReader.disconnect).toHaveBeenCalledTimes(1);
 });
 
 test('CardReader command transmission - reader not ready', async () => {
@@ -337,7 +361,7 @@ test('CardReader command transmission - chained response', async () => {
       GET_RESPONSE.INS,
       GET_RESPONSE.P1,
       GET_RESPONSE.P2,
-      0x00,
+      0x0a,
     ]),
     MAX_APDU_LENGTH,
     mockConnectProtocol,

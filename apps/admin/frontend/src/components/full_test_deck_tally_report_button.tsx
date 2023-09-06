@@ -1,12 +1,22 @@
-import React, { useContext, useCallback, useState, useMemo } from 'react';
-import { assert } from '@votingworks/basics';
+import React, {
+  useContext,
+  useCallback,
+  useState,
+  useMemo,
+  useEffect,
+} from 'react';
+import { assert, assertDefined } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 
 import { Button, printElement, printElementToPdf } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
+import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { TestDeckTallyReport } from './test_deck_tally_report';
-import { generateTestDeckBallots } from '../utils/election';
+import {
+  generateResultsFromTestDeckBallots,
+  generateTestDeckBallots,
+} from '../utils/election';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { PrintButton } from './print_button';
@@ -14,38 +24,52 @@ import { PrintButton } from './print_button';
 export function FullTestDeckTallyReportButton(): JSX.Element {
   const { auth, electionDefinition, logger } = useContext(AppContext);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [fullTestDeckTallyReportResults, setFullTestDeckTallyReportResults] =
+    useState<TallyReportResults>();
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  const hmpbBallots = generateTestDeckBallots({
-    election,
-    markingMethod: 'hand',
-  });
-  const bmdBallots = generateTestDeckBallots({
-    election,
-    markingMethod: 'machine',
-  });
+  useEffect(() => {
+    void (async () => {
+      const hmpbBallots = generateTestDeckBallots({
+        election,
+        markingMethod: 'hand',
+      });
+      const bmdBallots = generateTestDeckBallots({
+        election,
+        markingMethod: 'machine',
+      });
+      const tallyReportResults = await generateResultsFromTestDeckBallots({
+        electionDefinition,
+        testDeckBallots: [
+          ...hmpbBallots,
+          ...hmpbBallots,
+          ...bmdBallots,
+          ...bmdBallots,
+        ],
+      });
+      setFullTestDeckTallyReportResults(tallyReportResults);
+    })();
+  }, [election, electionDefinition]);
+
   // Full test deck tallies should be 4 times that of a single test deck because
   // it counts scanning 2 test decks (BMD + HMPB) twice (VxScan + VxCentralScan)
-  const fullTestDeckTallyReport = useMemo(
-    () => (
+  const fullTestDeckTallyReport = useMemo(() => {
+    if (!fullTestDeckTallyReportResults) return undefined;
+
+    return (
       <TestDeckTallyReport
-        election={election}
-        testDeckBallots={[
-          ...hmpbBallots,
-          ...hmpbBallots,
-          ...bmdBallots,
-          ...bmdBallots,
-        ]}
+        electionDefinition={electionDefinition}
+        tallyReportResults={fullTestDeckTallyReportResults}
       />
-    ),
-    [election, hmpbBallots, bmdBallots]
-  );
+    );
+  }, [electionDefinition, fullTestDeckTallyReportResults]);
 
   const printFullTestDeckTallyReport = useCallback(async () => {
+    assert(fullTestDeckTallyReport);
     try {
       await printElement(fullTestDeckTallyReport, { sides: 'one-sided' });
       await logger.log(LogEventId.TestDeckTallyReportPrinted, userRole, {
@@ -77,18 +101,26 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <PrintButton print={printFullTestDeckTallyReport}>
+      <PrintButton
+        print={printFullTestDeckTallyReport}
+        disabled={!fullTestDeckTallyReport}
+      >
         Print Full Test Deck Tally Report
       </PrintButton>{' '}
       {window.kiosk && (
-        <Button onPress={onClickSaveFullTestDeckTallyReportToPdf}>
+        <Button
+          onPress={onClickSaveFullTestDeckTallyReportToPdf}
+          disabled={!fullTestDeckTallyReport}
+        >
           Save Full Test Deck Tally Report as PDF
         </Button>
       )}
       {isSaveModalOpen && (
         <SaveFrontendFileModal
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={() => printElementToPdf(fullTestDeckTallyReport)}
+          generateFileContent={() =>
+            printElementToPdf(assertDefined(fullTestDeckTallyReport))
+          }
           defaultFilename={defaultReportFilename}
           fileType={FileType.TestDeckTallyReport}
         />

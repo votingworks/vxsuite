@@ -1,6 +1,11 @@
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { SheetInterpretation } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import {
   configureApp,
   waitForStatus,
@@ -10,9 +15,23 @@ import {
   simulateScan,
   withApp,
 } from '../../../test/helpers/custom_helpers';
-import { SheetInterpretation } from '../../types';
 
 jest.setTimeout(20_000);
+
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+});
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   await withApp(

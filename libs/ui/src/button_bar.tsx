@@ -7,17 +7,18 @@ export const ButtonBar = styled('div')`
   justify-content: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.foreground};
-  padding: 0.75rem;
+  padding: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
   gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
+
+  & > * {
+    flex-grow: 1;
+  }
 
   & > *:first-child {
     order: 2;
     min-width: 40%;
   }
 
-  & > * {
-    flex-grow: 1;
-  }
   & > *:only-child {
     @media (min-width: 480px) {
       flex-grow: initial;

@@ -1,10 +1,6 @@
 import { assert, find } from '@votingworks/basics';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { CandidateContest, CVR, YesNoContest } from '@votingworks/types';
-import {
-  advanceTo as setMockDate,
-  clear as clearMockDate,
-} from 'jest-date-mock';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 
 const { election } = electionMinimalExhaustiveSampleDefinition;
@@ -14,7 +10,7 @@ const mockDate = new Date(2018, 5, 27, 0, 0, 0);
 const electionId = '0000000000'; // fixed for resiliency to hash changes
 
 test('builds well-formed cast vote record report', () => {
-  setMockDate(mockDate);
+  jest.useFakeTimers().setSystemTime(mockDate);
   const report = buildCastVoteRecordReportMetadata({
     election,
     electionId,
@@ -196,12 +192,12 @@ test('builds well-formed cast vote record report', () => {
           Name: ballotMeasureContest.title,
           ContestSelection: [
             expect.objectContaining({
-              '@id': 'yes',
-              Selection: 'yes',
+              '@id': ballotMeasureContest.yesOption.id,
+              Selection: ballotMeasureContest.yesOption.label,
             }),
             expect.objectContaining({
-              '@id': 'no',
-              Selection: 'no',
+              '@id': ballotMeasureContest.noOption.id,
+              Selection: ballotMeasureContest.noOption.label,
             }),
           ],
         }),
@@ -209,7 +205,7 @@ test('builds well-formed cast vote record report', () => {
     );
   }
 
-  clearMockDate();
+  jest.useRealTimers();
 });
 
 test('represents test mode as an "OtherReportType"', () => {

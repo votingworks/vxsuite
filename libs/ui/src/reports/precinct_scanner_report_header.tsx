@@ -6,7 +6,6 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import {
-  format,
   formatFullDateTimeZone,
   getPollsReportTitle,
   getPollsTransitionActionPastTense,
@@ -16,6 +15,7 @@ import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';
 import { LogoMark } from '../logo_mark';
+import { Font } from '../typography';
 
 const Header = styled.div`
   & h1 {
@@ -33,6 +33,7 @@ const Header = styled.div`
 const HeaderData = styled.span`
   margin-right: 1em;
   white-space: nowrap;
+
   &:last-child {
     margin-right: 0;
   }
@@ -40,21 +41,28 @@ const HeaderData = styled.span`
 
 const ReportCertificationSignaturesContainer = styled.div`
   margin-top: 1em;
+
+  & > p {
+    font-size: 0.95em;
+  }
 `;
 
 const Signatures = styled.div`
   display: flex;
+
   & > div {
     flex: 1;
-    margin-top: 1.5rem;
+    margin-top: 2em;
     margin-right: 0.3in;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #000;
     padding-bottom: 1px;
+
     &::before {
       font-family: 'Noto Emoji', sans-serif;
       font-size: 1em;
       content: '✖️';
     }
+
     &:last-child {
       margin-right: 0;
     }
@@ -65,11 +73,9 @@ function ReportCertificationSignatures(): JSX.Element {
   return (
     <ReportCertificationSignaturesContainer>
       <p>
-        <strong>Certification Signatures:</strong>{' '}
-        <em>
-          We, the undersigned, do hereby certify the election was conducted in
-          accordance with the laws of the state.
-        </em>
+        <Font weight="bold">Certification Signatures:</Font> We, the
+        undersigned, do hereby certify the election was conducted in accordance
+        with the laws of the state.
       </p>
       <Signatures>
         <div />
@@ -111,7 +117,11 @@ export function PrecinctScannerReportHeader({
   const reportTitle = `${
     isLiveMode ? 'Official' : 'TEST'
   } ${getPollsReportTitle(pollsTransition)} for ${precinctName}`;
-  const electionDate = format.localeWeekdayAndDate(new Date(election.date));
+  const electionDate = Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(election.date));
 
   const electionTitle = showTallies
     ? getPartySpecificElectionTitle(election, partyId)
@@ -123,14 +133,14 @@ export function PrecinctScannerReportHeader({
       <Header>
         <h1>{reportTitle}</h1>
         <p>
-          <strong>{electionTitle}:</strong> {electionDate},{' '}
+          <Font weight="bold">{electionTitle}:</Font> {electionDate},{' '}
           {election.county.name}, {election.state}
         </p>
         <p>
           <HeaderData>
-            <strong>
+            <Font weight="bold">
               {getPollsTransitionActionPastTense(pollsTransition)}:{' '}
-            </strong>
+            </Font>
             {formatFullDateTimeZone(
               DateTime.fromMillis(pollsTransitionedTime),
               {
@@ -139,13 +149,13 @@ export function PrecinctScannerReportHeader({
             )}
           </HeaderData>
           <HeaderData>
-            <strong>Report Printed: </strong>
+            <Font weight="bold">Report Printed: </Font>
             {formatFullDateTimeZone(DateTime.fromMillis(currentTime), {
               includeWeekday: false,
             })}
           </HeaderData>
           <HeaderData>
-            <strong>Scanner ID:</strong> {precinctScannerMachineId}
+            <Font weight="bold">Scanner ID:</Font> {precinctScannerMachineId}
           </HeaderData>
         </p>
         <ReportCertificationSignatures />

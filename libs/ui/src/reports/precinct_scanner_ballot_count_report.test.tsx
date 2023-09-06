@@ -1,4 +1,3 @@
-import MockDate from 'mockdate';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';
@@ -9,7 +8,7 @@ const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
 const currentTime = new Date(2021, 8, 19, 11, 6).getTime();
 
 test('renders info properly', () => {
-  MockDate.set(currentTime);
+  jest.useFakeTimers().setSystemTime(currentTime);
   render(
     <PrecinctScannerBallotCountReport
       electionDefinition={electionSampleDefinition}
@@ -26,7 +25,7 @@ test('renders info properly', () => {
   screen.getByText('TEST Voting Paused Report for All Precincts');
   const electionTitle = screen.getByText('General Election:');
   expect(electionTitle.parentElement).toHaveTextContent(
-    'General Election: Tuesday, November 3, 2020, Franklin County, State of Hamilton'
+    'General Election: Nov 3, 2020, Franklin County, State of Hamilton'
   );
   const eventDate = screen.getByText('Voting Paused:');
   expect(eventDate.parentNode).toHaveTextContent(

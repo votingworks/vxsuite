@@ -1,18 +1,25 @@
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { Tabulation } from '@votingworks/types';
-import { GROUP_KEY_ROOT } from '@votingworks/utils';
+import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
+import { GROUP_KEY_ROOT, groupMapToGroupList } from '@votingworks/utils';
+import { typedAs } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
-import { tabulateScannedCardCounts } from './card_counts';
+import {
+  tabulateFullCardCounts,
+  tabulateScannedCardCounts,
+} from './card_counts';
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -23,7 +30,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 5,
     },
@@ -33,7 +40,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'absentee',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 6,
     },
@@ -43,7 +50,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 17,
     },
@@ -53,7 +60,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
       votingMethod: 'absentee',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 9,
     },
@@ -63,7 +70,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 12,
     },
@@ -73,7 +80,7 @@ test('tabulateScannedCardCounts - grouping', () => {
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 34,
     },
@@ -159,7 +166,10 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -170,7 +180,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 5,
     },
@@ -180,7 +190,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'hmpb', sheetNumber: 2 },
       multiplier: 7,
     },
@@ -190,7 +200,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'hmpb', sheetNumber: 1 },
       multiplier: 6,
     },
@@ -217,4 +227,70 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
     bmd: 5,
     hmpb: [6, 7],
   });
+});
+
+test('tabulateFullCardCounts - blankBallots', () => {
+  const store = Store.memoryStore();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  store.setCurrentElectionId(electionId);
+
+  // add some mock cast vote records with one vote each
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: {}, // blank
+      card: { type: 'bmd' },
+      multiplier: 5,
+    },
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'absentee',
+      votes: { fishing: ['ban-fishing'] }, // not blank
+      card: { type: 'bmd' },
+      multiplier: 6,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  const allBallotCounts = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      store,
+    })
+  );
+
+  expect(allBallotCounts).toEqual([
+    typedAs<Tabulation.CardCounts>({
+      bmd: 11,
+      hmpb: [],
+      manual: 0,
+    }),
+  ]);
+
+  const blankBallotCounts = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      store,
+      blankBallotsOnly: true,
+    })
+  );
+
+  expect(blankBallotCounts).toEqual([
+    typedAs<Tabulation.CardCounts>({
+      bmd: 5,
+      hmpb: [],
+    }),
+  ]);
 });

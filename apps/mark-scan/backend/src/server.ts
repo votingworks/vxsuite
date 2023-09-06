@@ -1,69 +1,52 @@
 import { Server } from 'http';
-import {
-  ArtifactAuthenticator,
-  ArtifactAuthenticatorApi,
-  InsertedSmartCardAuth,
-  InsertedSmartCardAuthApi,
-  JavaCard,
-  MockFileCard,
-} from '@votingworks/auth';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  isIntegrationTest,
-} from '@votingworks/utils';
 
 import { getUsbDrives, Usb } from '@votingworks/backend';
+import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
+import {
+  getPaperHandlerStateMachine,
+  PaperHandlerStateMachine,
+} from './custom-paper-handler/state_machine';
+import { getDefaultAuth } from './util/auth';
+import { DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS } from './custom-paper-handler/constants';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
-  artifactAuthenticator?: ArtifactAuthenticatorApi;
   logger: Logger;
   port: number | string;
   workspace: Workspace;
+  // Allow undefined state machine to fail gracefully if no connection to paper handler
+  stateMachine?: PaperHandlerStateMachine;
 }
 
 /**
  * Starts the server with all the default options.
  */
-export function start({
+export async function start({
   auth,
-  artifactAuthenticator,
   logger,
   port,
   workspace,
-}: StartOptions): Server {
+}: StartOptions): Promise<Server> {
   /* istanbul ignore next */
-  const resolvedAuth =
-    auth ??
-    new InsertedSmartCardAuth({
-      card:
-        isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-        isIntegrationTest()
-          ? new MockFileCard()
-          : new JavaCard(),
-      config: {
-        allowCardlessVoterSessions: true,
-        allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
-      },
-      logger,
-    });
-  /* istanbul ignore next */
-  const resolvedArtifactAuthenticator =
-    artifactAuthenticator ?? new ArtifactAuthenticator();
+  const resolvedAuth = auth ?? getDefaultAuth(logger);
 
   const usb: Usb = { getUsbDrives };
+  const paperHandlerDriver = await getPaperHandlerDriver();
+  const stateMachine = paperHandlerDriver
+    ? await getPaperHandlerStateMachine(
+        paperHandlerDriver,
+        workspace,
+        resolvedAuth,
+        logger,
+        DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
+      )
+    : undefined;
 
-  const app = buildApp(
-    resolvedAuth,
-    resolvedArtifactAuthenticator,
-    logger,
-    workspace,
-    usb
-  );
+  const app = buildApp(resolvedAuth, logger, workspace, usb, stateMachine);
 
   return app.listen(
     port,

@@ -10,8 +10,14 @@ import { MsEitherNeitherContest } from './ms_either_neither_contest';
 import { YesNoContest } from './yes_no_contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { UpdateVoteFunction } from '../config/types';
+import { BreadcrumbMetadata } from './contest_header';
 
 export interface ContestProps {
+  /**
+   * Optional data for displaying the contest's position on the ballot.
+   */
+  breadcrumbs?: BreadcrumbMetadata;
+
   /**
    * The election the contest belongs to.
    */
@@ -34,6 +40,7 @@ export interface ContestProps {
 }
 
 export function Contest({
+  breadcrumbs,
   election,
   contest,
   votes,
@@ -46,6 +53,7 @@ export function Contest({
       {contest.type === 'candidate' && (
         <CandidateContest
           aria-live="assertive"
+          breadcrumbs={breadcrumbs}
           election={election}
           contest={contest}
           vote={(vote ?? []) as CandidateVote}
@@ -54,6 +62,7 @@ export function Contest({
       )}
       {contest.type === 'yesno' && (
         <YesNoContest
+          breadcrumbs={breadcrumbs}
           election={election}
           contest={contest}
           vote={vote as OptionalYesNoVote}
@@ -62,6 +71,7 @@ export function Contest({
       )}
       {contest.type === 'ms-either-neither' && (
         <MsEitherNeitherContest
+          breadcrumbs={breadcrumbs}
           election={election}
           contest={contest}
           eitherNeitherContestVote={

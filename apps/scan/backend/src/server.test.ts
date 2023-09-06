@@ -1,13 +1,9 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
-import {
-  buildMockArtifactAuthenticator,
-  buildMockInsertedSmartCardAuth,
-} from '@votingworks/auth';
+import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { buildApp } from './app';
 import { PORT } from './globals';
-import { createInterpreter } from './interpret';
 import { start } from './server';
 import { PrecinctScannerStateMachine } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -40,25 +36,20 @@ function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerSta
 
 test('start passes the state machine and workspace to `buildApp`', async () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
-  const precinctScannerInterpreter = createInterpreter();
   const listen = jest.fn();
   const logger = new LoggerMock(LogSource.VxScanBackend);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
   start({
     auth: buildMockInsertedSmartCardAuth(),
-    artifactAuthenticator: buildMockArtifactAuthenticator(),
     logger,
-    precinctScannerInterpreter,
     precinctScannerStateMachine,
     workspace,
   });
 
   expect(buildAppMock).toHaveBeenCalledWith(
     expect.anything(), // auth
-    expect.anything(), // artifactAuthenticator
     precinctScannerStateMachine,
-    expect.anything(), // precinctScannerInterpreter
     workspace,
     expect.anything(), // usb
     logger
@@ -84,23 +75,18 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
 
 test('start uses its own logger if none is provided', async () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
-  const precinctScannerInterpreter = createInterpreter();
   const listen = jest.fn();
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
   start({
     auth: buildMockInsertedSmartCardAuth(),
-    artifactAuthenticator: buildMockArtifactAuthenticator(),
     precinctScannerStateMachine,
-    precinctScannerInterpreter,
     workspace,
   });
 
   expect(buildAppMock).toHaveBeenCalledWith(
     expect.anything(), // auth
-    expect.anything(), // artifactAuthenticator
     precinctScannerStateMachine,
-    expect.anything(), // precinctScannerInterpreter
     workspace,
     expect.anything(), // usb
     expect.any(Logger)

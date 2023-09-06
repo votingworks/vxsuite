@@ -1,4 +1,3 @@
-/* stylelint-disable value-keyword-case, order/properties-order */
 import React from 'react';
 import styled, { css } from 'styled-components';
 import DomPurify from 'dompurify';
@@ -116,7 +115,6 @@ const headingStyles = css<HeadingProps>`
   & + h4,
   & + h5,
   & + h6 {
-    /* stylelint-disable-next-line declaration-no-important */
     margin-top: 0 !important;
   }
 `;

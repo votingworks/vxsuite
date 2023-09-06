@@ -24,14 +24,14 @@ const precinct = election.precincts[0];
 const ballotId = 'abcde';
 const contests = getContests({ ballotStyle, election });
 const votes = vote(contests, {
-  'judicial-robert-demergue': 'yes',
-  'judicial-elmer-hull': 'yes',
-  'question-a': 'yes',
-  'question-b': 'no',
-  'question-c': 'yes',
-  'proposition-1': 'yes',
-  'measure-101': 'no',
-  '102': 'yes',
+  'judicial-robert-demergue': 'judicial-robert-demergue-option-yes'
+  'judicial-elmer-hull': 'judicial-elmer-hull-option-yes',
+  'question-a': 'question-a-option-yes',
+  'question-b': 'question-b-option-no',
+  'question-c': 'question-c-option-yes',
+  'proposition-1': 'proposition-1-option-yes',
+  'measure-101': 'measure-101-option-no',
+  '102': '102-option-yes',
 });
 const ballot: CompletedBallot = {
   ballotId,
@@ -52,14 +52,14 @@ Uint8Array [
 console.log(decodeBallot(election, encodeBallot(ballot)).votes);
 /*
 {
-  '102': 'yes',
-  'judicial-robert-demergue': 'yes',
-  'judicial-elmer-hull': 'yes',
-  'question-a': 'yes',
-  'question-b': 'no',
-  'question-c': 'yes',
-  'proposition-1': 'yes',
-  'measure-101': 'no'
+  '102': '102-option-yes',
+  'judicial-robert-demergue': 'judicial-robert-demergue-option-yes',
+  'judicial-elmer-hull': 'judicial-elmer-hull-option-yes',
+  'question-a': 'question-a-option-yes',
+  'question-b': 'question-b-option-no',
+  'question-c': 'question-c-option-yes',
+  'proposition-1': 'proposition-1-option-yes',
+  'measure-101': 'measure-101-option-no'
 }
 */
 ```

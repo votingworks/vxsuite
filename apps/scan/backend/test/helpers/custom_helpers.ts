@@ -1,8 +1,6 @@
 import { Buffer } from 'buffer';
 import {
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
-  buildMockArtifactAuthenticator,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
 import { Result, deferred, ok } from '@votingworks/basics';
@@ -30,10 +28,7 @@ import { AddressInfo } from 'net';
 import tmp from 'tmp';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { Api, buildApp } from '../../src/app';
-import {
-  PrecinctScannerInterpreter,
-  createInterpreter,
-} from '../../src/interpret';
+import { InterpretFn } from '../../src/interpret';
 import {
   Delays,
   createPrecinctScannerStateMachine,
@@ -45,29 +40,29 @@ export async function withApp(
   {
     delays = {},
     preconfiguredWorkspace,
+    interpret,
   }: {
     delays?: Partial<Delays>;
     preconfiguredWorkspace?: Workspace;
+    interpret?: InterpretFn;
   },
   fn: (context: {
     apiClient: grout.Client<Api>;
     app: Application;
     mockAuth: InsertedSmartCardAuthApi;
-    mockArtifactAuthenticator: ArtifactAuthenticatorApi;
     mockScanner: jest.Mocked<CustomScanner>;
     workspace: Workspace;
     mockUsbDrive: MockUsbDrive;
     logger: Logger;
-    interpreter: PrecinctScannerInterpreter;
     server: Server;
   }) => Promise<void>
 ): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const mockArtifactAuthenticator = buildMockArtifactAuthenticator();
   const logger = fakeLogger();
   const workspace =
     preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
   const mockScanner = mocks.fakeCustomScanner();
+  const mockUsbDrive = createMockUsbDrive();
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<
     Result<CustomScanner, ErrorCode>
@@ -79,12 +74,12 @@ export async function withApp(
     await deferredConnect.promise;
     return ok(mockScanner);
   }
-  const interpreter = createInterpreter();
   const precinctScannerMachine = createPrecinctScannerStateMachine({
     createCustomClient,
     workspace,
-    interpreter,
+    interpret,
     logger,
+    usbDrive: mockUsbDrive.usbDrive,
     delays: {
       DELAY_RECONNECT: 100,
       DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
@@ -93,12 +88,9 @@ export async function withApp(
       ...delays,
     },
   });
-  const mockUsbDrive = createMockUsbDrive();
   const app = buildApp(
     mockAuth,
-    mockArtifactAuthenticator,
     precinctScannerMachine,
-    interpreter,
     workspace,
     mockUsbDrive.usbDrive,
     logger
@@ -119,12 +111,10 @@ export async function withApp(
       apiClient,
       app,
       mockAuth,
-      mockArtifactAuthenticator,
       mockScanner,
       workspace,
       mockUsbDrive,
       logger,
-      interpreter,
       server,
     });
     mockUsbDrive.assertComplete();

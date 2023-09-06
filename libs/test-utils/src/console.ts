@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { MaybePromise, Optional } from '@votingworks/basics';
+import { MaybePromise, Optional, assert } from '@votingworks/basics';
 
 const capturedCallCountsByTest = new Map<
   string,
@@ -114,6 +114,7 @@ export function suppressingConsoleOutput<T>(
   }
 
   const { currentTestName } = expect.getState();
+  assert(currentTestName !== undefined);
   const capturedCallCounts =
     capturedCallCountsByTest.get(currentTestName) ??
     new Map([

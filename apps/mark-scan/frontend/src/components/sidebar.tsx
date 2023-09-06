@@ -10,8 +10,8 @@ const StyledSidebar = styled.nav`
   display: flex;
   flex: 0 1;
   flex-direction: column;
-  background-color: #333333;
-  color: #ffffff;
+  background-color: #333;
+  color: #fff;
 `;
 
 const Content = styled.div`
@@ -19,6 +19,7 @@ const Content = styled.div`
   flex: 1;
   flex-direction: column;
   padding: 1rem;
+
   p > button {
     width: 100%;
   }

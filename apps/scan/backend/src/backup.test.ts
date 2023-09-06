@@ -7,14 +7,14 @@ import {
   BallotIdSchema,
   BallotType,
   CVR,
+  DEFAULT_SYSTEM_SETTINGS,
   safeParseJson,
   TEST_JURISDICTION,
   unsafeParse,
 } from '@votingworks/types';
 import Database from 'better-sqlite3';
-import { writeFileSync } from 'fs';
+import { createWriteStream, readFileSync, writeFileSync } from 'fs';
 import { writeFile, existsSync } from 'fs-extra';
-import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
 import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
@@ -53,6 +53,15 @@ const existsSyncMock = mockOf(existsSync);
 
 const jurisdiction = TEST_JURISDICTION;
 
+// Note that in all of these tests, we write to an tmp output file rather than
+// using an in-memory stream to avoid buffer overflows, which cause zipstream to
+// hang indefinitely.
+function tmpOutputFile() {
+  const outputFile = tmpNameSync();
+  const outputStream = createWriteStream(outputFile);
+  return { outputFile, outputStream };
+}
+
 test('unconfigured', async () => {
   const store = Store.memoryStore();
 
@@ -69,11 +78,12 @@ test('configured', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
   });
-  const result = new WritableStream();
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  const { outputStream } = tmpOutputFile();
   const onError = jest.fn();
 
   await new Promise((resolve) => {
-    backup(store).on('error', onError).pipe(result).on('finish', resolve);
+    backup(store).on('error', onError).pipe(outputStream).on('finish', resolve);
   });
 
   expect(onError).not.toHaveBeenCalled();
@@ -102,13 +112,14 @@ test('has election.json', async () => {
     electionData: asElectionDefinition(election).electionData,
     jurisdiction,
   });
-  const result = new WritableStream();
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  const { outputFile, outputStream } = tmpOutputFile();
 
   await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(result).on('finish', resolve);
+    backup(store).on('error', reject).pipe(outputStream).on('finish', resolve);
   });
 
-  const zipfile = await openZip(result.toBuffer());
+  const zipfile = await openZip(readFileSync(outputFile));
   const entries = getEntries(zipfile);
   const electionEntry = entries.find(({ name }) => name === 'election.json')!;
   expect(await readJsonEntry(electionEntry)).toEqual(election);
@@ -120,13 +131,14 @@ test('has ballots.db', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
   });
-  const output = new WritableStream();
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  const { outputFile, outputStream } = tmpOutputFile();
 
   await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(output).on('finish', resolve);
+    backup(store).on('error', reject).pipe(outputStream).on('finish', resolve);
   });
 
-  const zipfile = await openZip(output.toBuffer());
+  const zipfile = await openZip(readFileSync(outputFile));
   const entries = getEntries(zipfile);
   expect(entries.map((entry) => entry.name)).toContain('ballots.db');
 
@@ -145,6 +157,7 @@ test('has all files referenced in the database', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
   });
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   const batchId = store.addBatch();
 
   const frontImagePath = fileSync();
@@ -164,13 +177,13 @@ test('has all files referenced in the database', async () => {
     },
   ]);
 
-  const output = new WritableStream();
+  const { outputFile, outputStream } = tmpOutputFile();
 
   await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(output).on('finish', resolve);
+    backup(store).on('error', reject).pipe(outputStream).on('finish', resolve);
   });
 
-  const zipfile = await openZip(output.toBuffer());
+  const zipfile = await openZip(readFileSync(outputFile));
   const entries = getEntries(zipfile);
 
   expect(
@@ -220,7 +233,8 @@ test('has cast vote record report', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
   });
-  const result = new WritableStream();
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  const { outputFile, outputStream } = tmpOutputFile();
 
   const batchId = store.addBatch();
   const imageFile = fileSync();
@@ -233,12 +247,15 @@ test('has cast vote record report', async () => {
         metadata: {
           ballotStyleId: 'card-number-3',
           precinctId: 'town-id-00701-precinct-id-',
-          ballotType: BallotType.Standard,
+          ballotType: BallotType.Precinct,
           electionHash: electionDefinition.electionHash,
           isTestMode: false,
         },
         votes: {
-          'flag-question': ['yes'],
+          'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc':
+            [
+              'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+            ],
         },
       },
       imagePath: imageFile.name,
@@ -250,10 +267,10 @@ test('has cast vote record report', async () => {
   ]);
 
   await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(result).on('finish', resolve);
+    backup(store).on('error', reject).pipe(outputStream).on('finish', resolve);
   });
 
-  const zipfile = await openZip(result.toBuffer());
+  const zipfile = await openZip(readFileSync(outputFile));
   const entries = getEntries(zipfile);
   expect(entries.map(({ name }) => name)).toContain(
     CAST_VOTE_RECORD_REPORT_FILENAME
@@ -281,13 +298,14 @@ test('does not have vx-logs.log if file does not exist', async () => {
     electionData: asElectionDefinition(election).electionData,
     jurisdiction,
   });
-  const result = new WritableStream();
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  const { outputFile, outputStream } = tmpOutputFile();
 
   await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(result).on('finish', resolve);
+    backup(store).on('error', reject).pipe(outputStream).on('finish', resolve);
   });
 
-  const zipfile = await openZip(result.toBuffer());
+  const zipfile = await openZip(readFileSync(outputFile));
   const entries = getEntries(zipfile);
   expect(!entries.some(({ name }) => name === 'vx-logs.log')).toEqual(true);
 });
@@ -300,13 +318,15 @@ test('has vx-logs.log if file exists', async () => {
     electionData: asElectionDefinition(election).electionData,
     jurisdiction,
   });
-  const result = new WritableStream();
+  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+
+  const { outputFile, outputStream } = tmpOutputFile();
 
   await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(result).on('finish', resolve);
+    backup(store).on('error', reject).pipe(outputStream).on('finish', resolve);
   });
 
-  const zipfile = await openZip(result.toBuffer());
+  const zipfile = await openZip(readFileSync(outputFile));
   const entries = getEntries(zipfile);
   const logsEntry = entries.find(({ name }) => name === 'vx-logs.log')!;
   expect(await readTextEntry(logsEntry)).toEqual('mock logs');

@@ -54,16 +54,16 @@ export function* allContestOptions(
     case 'yesno': {
       yield {
         type: 'yesno',
-        id: 'yes',
+        id: contest.yesOption.id,
         contestId: contest.id,
-        name: 'Yes',
+        name: contest.yesOption.label,
         optionIndex: 0,
       };
       yield {
         type: 'yesno',
-        id: 'no',
+        id: contest.noOption.id,
         contestId: contest.id,
-        name: 'No',
+        name: contest.noOption.label,
         optionIndex: 1,
       };
       break;

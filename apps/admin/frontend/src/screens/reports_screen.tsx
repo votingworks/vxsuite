@@ -73,10 +73,6 @@ export function ReportsScreen(): JSX.Element {
 
   const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
-  const totalBallotCount = cardCountsQuery.data
-    ? getBallotCount(cardCountsQuery.data[0])
-    : 0;
-
   const [converterName, setConverterName] = useState('');
   useEffect(() => {
     void (async () => {
@@ -160,7 +156,11 @@ export function ReportsScreen(): JSX.Element {
   );
 
   const fileMode = castVoteRecordFileModeQuery.data;
-  const ballotCountSummaryText = (
+  const totalBallotCount = cardCountsQuery.data
+    ? getBallotCount(cardCountsQuery.data[0])
+    : 0;
+
+  const ballotCountSummaryText = cardCountsQuery.isSuccess ? (
     <P>
       <Font weight="bold">
         {format.count(totalBallotCount)}
@@ -170,6 +170,8 @@ export function ReportsScreen(): JSX.Element {
       have been counted for{' '}
       <Font weight="bold">{electionDefinition.election.title}</Font>.
     </P>
+  ) : (
+    <P>Loading total ballot count...</P>
   );
 
   // saving results is enabled once a cast vote record file is loaded
@@ -201,7 +203,12 @@ export function ReportsScreen(): JSX.Element {
         </P>
         <P>
           <LinkButton to={routerPaths.tallyWriteInReport}>
-            {statusPrefix} Write-In Tally Report
+            {statusPrefix} Write-In Adjudication Report
+          </LinkButton>
+        </P>
+        <P>
+          <LinkButton to={routerPaths.tallyReportBuilder}>
+            Tally Report Builder
           </LinkButton>
         </P>
         {tallyResultsInfo}

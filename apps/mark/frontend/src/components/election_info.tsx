@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import React from 'react';
 import styled from 'styled-components';
 
@@ -37,7 +36,7 @@ export function ElectionInfo({
   contestCount,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
-  const { title: t, state, county, date, seal, sealUrl } = election;
+  const { title: t, state, county, date, seal } = election;
   const precinctName =
     precinctSelection &&
     getPrecinctSelectionName(election.precincts, precinctSelection);
@@ -51,7 +50,7 @@ export function ElectionInfo({
   const electionDate = format.localeLongDate(new Date(date));
   return (
     <Container>
-      <Seal seal={seal} sealUrl={sealUrl} />
+      <Seal seal={seal} />
       <div>
         <H1>{title}</H1>
         <P

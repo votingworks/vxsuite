@@ -19,7 +19,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import type { MachineConfig } from '@votingworks/admin-backend';
-import { UsbDrive, mockUsbDrive } from '@votingworks/ui';
+import { UsbDrive, mockUsbDrive, TestErrorBoundary } from '@votingworks/ui';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp } from '../src/config/types';
@@ -29,7 +29,7 @@ import { ApiMock } from './helpers/api_mock';
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
 
-interface RenderInAppContextParams {
+export interface RenderInAppContextParams {
   route?: string;
   history?: MemoryHistory;
   electionDefinition?: ElectionDefinition | 'NONE';
@@ -64,11 +64,13 @@ export function renderRootElement(
   } = {}
 ): RenderResult {
   return testRender(
-    <ApiClientContext.Provider value={apiClient}>
-      <QueryClientProvider client={queryClient}>
-        {component}
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <TestErrorBoundary>
+      <ApiClientContext.Provider value={apiClient}>
+        <QueryClientProvider client={queryClient}>
+          {component}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
+    </TestErrorBoundary>
   );
 }
 

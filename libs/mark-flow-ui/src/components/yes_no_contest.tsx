@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import {
   YesNoVote,
   YesNoContest as YesNoContestInterface,
-  YesOrNo,
   getContestDistrictName,
   Election,
+  YesNoContestOptionId,
 } from '@votingworks/types';
 import {
   Button,
   ContestChoiceButton,
-  DisplayTextForYesOrNo,
   Main,
   Modal,
   Prose,
@@ -23,14 +22,11 @@ import { getSingleYesNoVote } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
 import { UpdateVoteFunction } from '../config/types';
 
-import {
-  ContentHeader,
-  ContestFooter,
-  ChoicesGrid,
-} from './contest_screen_layout';
-import { ContestTitle } from './contest_title';
+import { ContestFooter, ChoicesGrid } from './contest_screen_layout';
+import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 
 interface Props {
+  breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: YesNoContestInterface;
   vote?: YesNoVote;
@@ -38,6 +34,7 @@ interface Props {
 }
 
 export function YesNoContest({
+  breadcrumbs,
   election,
   contest,
   vote,
@@ -46,7 +43,7 @@ export function YesNoContest({
   const districtName = getContestDistrictName(election, contest);
 
   const [overvoteSelection, setOvervoteSelection] =
-    useState<Optional<YesOrNo>>();
+    useState<Optional<YesNoContestOptionId>>();
   const [deselectedVote, setDeselectedVote] = useState('');
 
   useEffect(() => {
@@ -56,16 +53,16 @@ export function YesNoContest({
     }
   }, [deselectedVote]);
 
-  function handleUpdateSelection(newVote: YesOrNo) {
+  function handleUpdateSelection(newVote: YesNoContestOptionId) {
     if ((vote as string[] | undefined)?.includes(newVote)) {
       updateVote(contest.id, undefined);
       setDeselectedVote(newVote);
     } else {
-      updateVote(contest.id, [newVote] as YesNoVote);
+      updateVote(contest.id, [newVote]);
     }
   }
 
-  function handleChangeVoteAlert(newValue: YesOrNo) {
+  function handleChangeVoteAlert(newValue: YesNoContestOptionId) {
     setOvervoteSelection(newValue);
   }
 
@@ -76,19 +73,20 @@ export function YesNoContest({
   return (
     <React.Fragment>
       <Main flexColumn>
-        <ContentHeader id="contest-header">
-          <Prose id="audiofocus">
-            <ContestTitle districtName={districtName} title={contest.title} />
-            <Caption>
-              Vote <strong>Yes</strong> or <strong>No</strong>.
-              <span className="screen-reader-only">
-                {contest.description}
-                To navigate through the contest choices, use the down button. To
-                move to the next contest, use the right button.
-              </span>
-            </Caption>
-          </Prose>
-        </ContentHeader>
+        <ContestHeader
+          breadcrumbs={breadcrumbs}
+          districtName={districtName}
+          title={contest.title}
+        >
+          <Caption>
+            Vote <strong>Yes</strong> or <strong>No</strong>.
+            <span className="screen-reader-only">
+              {contest.description}
+              To navigate through the contest choices, use the down button. To
+              move to the next contest, use the right button.
+            </span>
+          </Caption>
+        </ContestHeader>
         <WithScrollButtons>
           <Caption>
             <Pre>{contest.description}</Pre>
@@ -96,31 +94,28 @@ export function YesNoContest({
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
-            {[
-              { label: 'Yes', vote: 'yes' } as const,
-              { label: 'No', vote: 'no' } as const,
-            ].map((answer) => {
-              const isChecked = getSingleYesNoVote(vote) === answer.vote;
+            {[contest.yesOption, contest.noOption].map((option) => {
+              const isChecked = getSingleYesNoVote(vote) === option.id;
               const isDisabled = !isChecked && !!vote;
               function handleDisabledClick() {
-                handleChangeVoteAlert(answer.vote);
+                handleChangeVoteAlert(option.id);
               }
               let prefixAudioText = '';
               if (isChecked) {
                 prefixAudioText = 'Selected,';
-              } else if (deselectedVote === answer.vote) {
+              } else if (deselectedVote === option.id) {
                 prefixAudioText = 'Deselected,';
               }
               return (
                 <ContestChoiceButton
-                  key={answer.vote}
-                  choice={answer.vote}
+                  key={option.id}
+                  choice={option.id}
                   isSelected={isChecked}
                   onPress={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                  ariaLabel={`${prefixAudioText} ${answer.label} on ${contest.title}`}
-                  label={answer.label}
+                  ariaLabel={`${prefixAudioText} ${option.label} on ${contest.title}`}
+                  label={option.label}
                 />
               );
             })}
@@ -135,15 +130,16 @@ export function YesNoContest({
               {overvoteSelection && (
                 <P id="modalaudiofocus">
                   Do you want to change your vote to{' '}
-                  <strong>{DisplayTextForYesOrNo[overvoteSelection]}</strong>?
-                  To change your vote, first unselect your vote for{' '}
                   <strong>
-                    {
-                      {
-                        no: DisplayTextForYesOrNo.yes,
-                        yes: DisplayTextForYesOrNo.no,
-                      }[overvoteSelection]
-                    }
+                    {overvoteSelection === contest.yesOption.id
+                      ? contest.yesOption.label
+                      : contest.noOption.label}
+                  </strong>
+                  ? To change your vote, first unselect your vote for{' '}
+                  <strong>
+                    {overvoteSelection === contest.yesOption.id
+                      ? contest.noOption.label
+                      : contest.yesOption.label}
                   </strong>
                   .
                 </P>

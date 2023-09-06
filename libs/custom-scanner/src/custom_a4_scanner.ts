@@ -8,10 +8,9 @@ import {
 } from '@votingworks/basics';
 import { MAX_UINT24 } from '@votingworks/message-coder';
 import { SheetOf } from '@votingworks/types';
-import { time } from '@votingworks/utils';
+import { time, Mutex } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { debug as baseDebug } from './debug';
-import { Mutex } from './mutex';
 import { convertToInternalScanParameters } from './parameters';
 import {
   createJob,
@@ -152,7 +151,7 @@ export class CustomA4Scanner implements CustomScanner {
    * Gets low-level information about the scanner's current status. Does not
    * hold the public lock.
    */
-  private async getStatusInternal(): Promise<
+  private getStatusInternal(): Promise<
     Result<StatusInternalMessage, ErrorCode>
   > {
     debug('getting status internal');
@@ -416,9 +415,10 @@ export class CustomA4Scanner implements CustomScanner {
             debug('waiting for motor on and scan in progress timed out');
             void (await this.stopScanInternal());
             return err(ErrorCode.ScannerError);
-          } else {
+          } /* c8 ignore start */ else {
+            /* this branch often does not run during tests in CircleCI */
             debug('still waiting for motor on and scan in progress');
-          }
+          } /* c8 ignore stop */
         } else {
           startNoMoveNoScan = 0;
         }
@@ -568,7 +568,7 @@ export class CustomA4Scanner implements CustomScanner {
   /**
    * Resets the hardware.
    */
-  async resetHardware(): Promise<Result<void, ErrorCode>> {
+  resetHardware(): Promise<Result<void, ErrorCode>> {
     return this.publicApiMutex.withLock(() =>
       this.withRetries(() => this.resetHardwareInternal())
     );

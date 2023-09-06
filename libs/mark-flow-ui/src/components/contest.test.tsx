@@ -4,7 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { find } from '@votingworks/basics';
-import { CandidateContest } from '@votingworks/types';
+import { CandidateContest, YesNoContest } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 
 import { Contest } from './contest';
@@ -20,7 +20,10 @@ const candidateContest = find(
   electionSample.contests,
   (c): c is CandidateContest => c.type === 'candidate'
 );
-const yesnoContest = find(electionSample.contests, (c) => c.type === 'yesno');
+const yesnoContest = find(
+  electionSample.contests,
+  (c): c is YesNoContest => c.type === 'yesno'
+);
 const msEitherNeitherContest = find(
   mergeMsEitherNeitherContests(
     electionWithMsEitherNeitherDefinition.election.contests
@@ -64,7 +67,7 @@ test('yesno contest', () => {
       election={electionSample}
       contest={yesnoContest}
       votes={{
-        [yesnoContest.id]: ['yes'],
+        [yesnoContest.id]: [yesnoContest.yesOption.id],
       }}
       updateVote={jest.fn()}
     />
@@ -88,7 +91,11 @@ test('renders ms-either-neither contests', () => {
   userEvent.click(
     screen.getByRole('option', { name: /for approval of either/i })
   );
-  expect(updateVote).toHaveBeenCalledWith('750000015', ['yes']);
+  expect(updateVote).toHaveBeenCalledWith('750000015', [
+    msEitherNeitherContest.eitherOption.id,
+  ]);
   userEvent.click(screen.getByRole('option', { name: /for alternative/i }));
-  expect(updateVote).toHaveBeenCalledWith('750000016', ['no']);
+  expect(updateVote).toHaveBeenCalledWith('750000016', [
+    msEitherNeitherContest.secondOption.id,
+  ]);
 });

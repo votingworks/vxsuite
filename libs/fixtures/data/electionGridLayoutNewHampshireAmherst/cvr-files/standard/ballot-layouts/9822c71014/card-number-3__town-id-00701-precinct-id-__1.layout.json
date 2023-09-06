@@ -1,21 +1,65 @@
 {
+  "pageSize": {
+    "width": 1700,
+    "height": 2200
+  },
   "metadata": {
     "ballotStyleId": "card-number-3",
     "precinctId": "town-id-00701-precinct-id-",
-    "electionHash": "20bf89eed3f48b4cbbe29cfa42a126a31179316979915fb820456ee8ab79e9e1",
-    "ballotType": 0,
+    "electionHash": "f4f2c717a86a21346b20476941693ff1727b068017663043246299c5fb3008b1",
+    "ballotType": "precinct",
     "isTestMode": true,
     "pageNumber": 1
-  },
-  "pageSize": {
-    "width": 1696,
-    "height": 2200
   },
   "contests": [
     {
       "contestId": "Governor-061a401b",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 100,
+        "height": 100
+      },
+      "corners": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 100,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 100
+        },
+        {
+          "x": 100,
+          "y": 100
+        }
+      ],
       "options": [
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Josiah-Bartlett-1bb99985",
@@ -23,41 +67,29 @@
             "name": "Josiah Bartlett",
             "isWriteIn": false,
             "optionIndex": 0
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 448.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 448.75,
-            "maxX": 672.25,
-            "maxY": 598.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 486,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 486,
-              "maxX": 642,
-              "maxY": 512
-            },
-            "inner": {
-              "x": 602,
-              "y": 486,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 486,
-              "maxX": 642,
-              "maxY": 512
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Hannah-Dustin-ab4ef7c8",
@@ -65,41 +97,29 @@
             "name": "Hannah Dustin",
             "isWriteIn": false,
             "optionIndex": 1
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 448.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 448.75,
-            "maxX": 1022.25,
-            "maxY": 598.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 486,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 486,
-              "maxX": 992,
-              "maxY": 512
-            },
-            "inner": {
-              "x": 952,
-              "y": 486,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 486,
-              "maxX": 992,
-              "maxY": 512
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "John-Spencer-9ffb5970",
@@ -107,41 +127,29 @@
             "name": "John Spencer",
             "isWriteIn": false,
             "optionIndex": 2
-          },
-          "bounds": {
-            "x": 1022.25,
-            "y": 448.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1022.25,
-            "minY": 448.75,
-            "maxX": 1372.25,
-            "maxY": 598.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1302,
-              "y": 486,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 486,
-              "maxX": 1342,
-              "maxY": 512
-            },
-            "inner": {
-              "x": 1302,
-              "y": 486,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 486,
-              "maxX": 1342,
-              "maxY": 512
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
@@ -150,74 +158,58 @@
             "isWriteIn": true,
             "optionIndex": 3,
             "writeInIndex": 0
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 448.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 448.75,
-            "maxX": 1672.25,
-            "maxY": 598.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 486,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 486,
-              "maxX": 1642,
-              "maxY": 512
-            },
-            "inner": {
-              "x": 1602,
-              "y": 486,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 486,
-              "maxX": 1642,
-              "maxY": 512
-            }
           }
-        }
-      ],
-      "bounds": {
-        "x": 322.25,
-        "y": 448.75,
-        "width": 1351,
-        "height": 151,
-        "minX": 322.25,
-        "minY": 448.75,
-        "maxX": 1672.25,
-        "maxY": 598.75
-      },
-      "corners": [
-        {
-          "x": 322.25,
-          "y": 448.75
-        },
-        {
-          "x": 1672.25,
-          "y": 448.75
-        },
-        {
-          "x": 322.25,
-          "y": 598.75
-        },
-        {
-          "x": 1672.25,
-          "y": 598.75
         }
       ]
     },
     {
       "contestId": "United-States-Senator-d3f1c75b",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 100,
+        "height": 100
+      },
+      "corners": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 100,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 100
+        },
+        {
+          "x": 100,
+          "y": 100
+        }
+      ],
       "options": [
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "John-Langdon-5951c8e1",
@@ -225,41 +217,29 @@
             "name": "John Langdon",
             "isWriteIn": false,
             "optionIndex": 0
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 598.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 598.75,
-            "maxX": 672.25,
-            "maxY": 748.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 636,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 636,
-              "maxX": 642,
-              "maxY": 662
-            },
-            "inner": {
-              "x": 602,
-              "y": 636,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 636,
-              "maxX": 642,
-              "maxY": 662
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "William-Preston-3778fcd5",
@@ -267,41 +247,29 @@
             "name": "William Preston",
             "isWriteIn": false,
             "optionIndex": 1
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 598.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 598.75,
-            "maxX": 1022.25,
-            "maxY": 748.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 636,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 636,
-              "maxX": 992,
-              "maxY": 662
-            },
-            "inner": {
-              "x": 952,
-              "y": 636,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 636,
-              "maxX": 992,
-              "maxY": 662
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
@@ -310,74 +278,58 @@
             "isWriteIn": true,
             "optionIndex": 2,
             "writeInIndex": 0
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 598.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 598.75,
-            "maxX": 1672.25,
-            "maxY": 748.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 636,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 636,
-              "maxX": 1642,
-              "maxY": 662
-            },
-            "inner": {
-              "x": 1602,
-              "y": 636,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 636,
-              "maxX": 1642,
-              "maxY": 662
-            }
           }
-        }
-      ],
-      "bounds": {
-        "x": 322.25,
-        "y": 598.75,
-        "width": 1351,
-        "height": 151,
-        "minX": 322.25,
-        "minY": 598.75,
-        "maxX": 1672.25,
-        "maxY": 748.75
-      },
-      "corners": [
-        {
-          "x": 322.25,
-          "y": 598.75
-        },
-        {
-          "x": 1672.25,
-          "y": 598.75
-        },
-        {
-          "x": 322.25,
-          "y": 748.75
-        },
-        {
-          "x": 1672.25,
-          "y": 748.75
         }
       ]
     },
     {
       "contestId": "Representative-in-Congress-24683b44",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 100,
+        "height": 100
+      },
+      "corners": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 100,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 100
+        },
+        {
+          "x": 100,
+          "y": 100
+        }
+      ],
       "options": [
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Jeremiah-Smith-469560c9",
@@ -385,41 +337,29 @@
             "name": "Jeremiah Smith",
             "isWriteIn": false,
             "optionIndex": 0
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 748.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 748.75,
-            "maxX": 672.25,
-            "maxY": 898.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 786,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 786,
-              "maxX": 642,
-              "maxY": 812
-            },
-            "inner": {
-              "x": 602,
-              "y": 786,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 786,
-              "maxX": 642,
-              "maxY": 812
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Nicholas-Gilman-1791aed7",
@@ -427,41 +367,29 @@
             "name": "Nicholas Gilman",
             "isWriteIn": false,
             "optionIndex": 1
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 748.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 748.75,
-            "maxX": 1022.25,
-            "maxY": 898.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 786,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 786,
-              "maxX": 992,
-              "maxY": 812
-            },
-            "inner": {
-              "x": 952,
-              "y": 786,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 786,
-              "maxX": 992,
-              "maxY": 812
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Richard-Coote-b9095636",
@@ -469,41 +397,29 @@
             "name": "Richard Coote",
             "isWriteIn": false,
             "optionIndex": 2
-          },
-          "bounds": {
-            "x": 1022.25,
-            "y": 748.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1022.25,
-            "minY": 748.75,
-            "maxX": 1372.25,
-            "maxY": 898.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1302,
-              "y": 786,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 786,
-              "maxX": 1342,
-              "maxY": 812
-            },
-            "inner": {
-              "x": 1302,
-              "y": 786,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 786,
-              "maxX": 1342,
-              "maxY": 812
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
@@ -512,74 +428,58 @@
             "isWriteIn": true,
             "optionIndex": 3,
             "writeInIndex": 0
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 748.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 748.75,
-            "maxX": 1672.25,
-            "maxY": 898.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 786,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 786,
-              "maxX": 1642,
-              "maxY": 812
-            },
-            "inner": {
-              "x": 1602,
-              "y": 786,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 786,
-              "maxX": 1642,
-              "maxY": 812
-            }
           }
-        }
-      ],
-      "bounds": {
-        "x": 322.25,
-        "y": 748.75,
-        "width": 1351,
-        "height": 151,
-        "minX": 322.25,
-        "minY": 748.75,
-        "maxX": 1672.25,
-        "maxY": 898.75
-      },
-      "corners": [
-        {
-          "x": 322.25,
-          "y": 748.75
-        },
-        {
-          "x": 1672.25,
-          "y": 748.75
-        },
-        {
-          "x": 322.25,
-          "y": 898.75
-        },
-        {
-          "x": 1672.25,
-          "y": 898.75
         }
       ]
     },
     {
       "contestId": "Executive-Councilor-bb22557f",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 100,
+        "height": 100
+      },
+      "corners": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 100,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 100
+        },
+        {
+          "x": 100,
+          "y": 100
+        }
+      ],
       "options": [
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Anne-Waldron-ee0cbc85",
@@ -587,41 +487,29 @@
             "name": "Anne Waldron",
             "isWriteIn": false,
             "optionIndex": 0
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 898.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 898.75,
-            "maxX": 672.25,
-            "maxY": 1048.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 936,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 936,
-              "maxX": 642,
-              "maxY": 962
-            },
-            "inner": {
-              "x": 602,
-              "y": 936,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 936,
-              "maxX": 642,
-              "maxY": 962
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Daniel-Webster-13f77b2d",
@@ -629,41 +517,29 @@
             "name": "Daniel Webster",
             "isWriteIn": false,
             "optionIndex": 1
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 898.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 898.75,
-            "maxX": 1022.25,
-            "maxY": 1048.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 936,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 936,
-              "maxX": 992,
-              "maxY": 962
-            },
-            "inner": {
-              "x": 952,
-              "y": 936,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 936,
-              "maxX": 992,
-              "maxY": 962
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
@@ -672,74 +548,58 @@
             "isWriteIn": true,
             "optionIndex": 2,
             "writeInIndex": 0
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 898.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 898.75,
-            "maxX": 1672.25,
-            "maxY": 1048.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 936,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 936,
-              "maxX": 1642,
-              "maxY": 962
-            },
-            "inner": {
-              "x": 1602,
-              "y": 936,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 936,
-              "maxX": 1642,
-              "maxY": 962
-            }
           }
-        }
-      ],
-      "bounds": {
-        "x": 322.25,
-        "y": 898.75,
-        "width": 1351,
-        "height": 151,
-        "minX": 322.25,
-        "minY": 898.75,
-        "maxX": 1672.25,
-        "maxY": 1048.75
-      },
-      "corners": [
-        {
-          "x": 322.25,
-          "y": 898.75
-        },
-        {
-          "x": 1672.25,
-          "y": 898.75
-        },
-        {
-          "x": 322.25,
-          "y": 1048.75
-        },
-        {
-          "x": 1672.25,
-          "y": 1048.75
         }
       ]
     },
     {
       "contestId": "State-Senator-391381f8",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 100,
+        "height": 100
+      },
+      "corners": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 100,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 100
+        },
+        {
+          "x": 100,
+          "y": 100
+        }
+      ],
       "options": [
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "James-Poole-db5ef4bd",
@@ -747,41 +607,29 @@
             "name": "James Poole",
             "isWriteIn": false,
             "optionIndex": 0
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 1048.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 1048.75,
-            "maxX": 672.25,
-            "maxY": 1198.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 1086,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1086,
-              "maxX": 642,
-              "maxY": 1112
-            },
-            "inner": {
-              "x": 602,
-              "y": 1086,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1086,
-              "maxX": 642,
-              "maxY": 1112
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Matthew-Thornton-f66fec5e",
@@ -789,41 +637,29 @@
             "name": "Matthew Thornton",
             "isWriteIn": false,
             "optionIndex": 1
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 1048.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 1048.75,
-            "maxX": 1022.25,
-            "maxY": 1198.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 1086,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1086,
-              "maxX": 992,
-              "maxY": 1112
-            },
-            "inner": {
-              "x": 952,
-              "y": 1086,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1086,
-              "maxX": 992,
-              "maxY": 1112
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
@@ -832,74 +668,58 @@
             "isWriteIn": true,
             "optionIndex": 2,
             "writeInIndex": 0
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 1048.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 1048.75,
-            "maxX": 1672.25,
-            "maxY": 1198.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 1086,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1086,
-              "maxX": 1642,
-              "maxY": 1112
-            },
-            "inner": {
-              "x": 1602,
-              "y": 1086,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1086,
-              "maxX": 1642,
-              "maxY": 1112
-            }
           }
-        }
-      ],
-      "bounds": {
-        "x": 322.25,
-        "y": 1048.75,
-        "width": 1351,
-        "height": 151,
-        "minX": 322.25,
-        "minY": 1048.75,
-        "maxX": 1672.25,
-        "maxY": 1198.75
-      },
-      "corners": [
-        {
-          "x": 322.25,
-          "y": 1048.75
-        },
-        {
-          "x": 1672.25,
-          "y": 1048.75
-        },
-        {
-          "x": 322.25,
-          "y": 1198.75
-        },
-        {
-          "x": 1672.25,
-          "y": 1198.75
         }
       ]
     },
     {
       "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 100,
+        "height": 100
+      },
+      "corners": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 100,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 100
+        },
+        {
+          "x": 100,
+          "y": 100
+        }
+      ],
       "options": [
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Obadiah-Carrigan-5c95145a",
@@ -907,41 +727,29 @@
             "name": "Obadiah Carrigan",
             "isWriteIn": false,
             "optionIndex": 0
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 1248.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 1248.75,
-            "maxX": 672.25,
-            "maxY": 1398.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 1286,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1286,
-              "maxX": 642,
-              "maxY": 1312
-            },
-            "inner": {
-              "x": 602,
-              "y": 1286,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1286,
-              "maxX": 642,
-              "maxY": 1312
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Mary-Baker-Eddy-350785d5",
@@ -949,41 +757,29 @@
             "name": "Mary Baker Eddy",
             "isWriteIn": false,
             "optionIndex": 1
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 1348.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 1348.75,
-            "maxX": 672.25,
-            "maxY": 1498.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 1386,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1386,
-              "maxX": 642,
-              "maxY": 1412
-            },
-            "inner": {
-              "x": 602,
-              "y": 1386,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1386,
-              "maxX": 642,
-              "maxY": 1412
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Samuel-Bell-17973275",
@@ -991,41 +787,29 @@
             "name": "Samuel Bell",
             "isWriteIn": false,
             "optionIndex": 2
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 1448.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 1448.75,
-            "maxX": 672.25,
-            "maxY": 1598.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 1486,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1486,
-              "maxX": 642,
-              "maxY": 1512
-            },
-            "inner": {
-              "x": 602,
-              "y": 1486,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1486,
-              "maxX": 642,
-              "maxY": 1512
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Samuel-Livermore-f927fef1",
@@ -1033,41 +817,29 @@
             "name": "Samuel Livermore",
             "isWriteIn": false,
             "optionIndex": 3
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 1198.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 1198.75,
-            "maxX": 1022.25,
-            "maxY": 1348.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 1236,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1236,
-              "maxX": 992,
-              "maxY": 1262
-            },
-            "inner": {
-              "x": 952,
-              "y": 1236,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1236,
-              "maxX": 992,
-              "maxY": 1262
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Elijah-Miller-a52e6988",
@@ -1075,41 +847,29 @@
             "name": "Elijah Miller",
             "isWriteIn": false,
             "optionIndex": 4
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 1298.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 1298.75,
-            "maxX": 1022.25,
-            "maxY": 1448.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 1336,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1336,
-              "maxX": 992,
-              "maxY": 1362
-            },
-            "inner": {
-              "x": 952,
-              "y": 1336,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1336,
-              "maxX": 992,
-              "maxY": 1362
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Isaac-Hill-d6c9deeb",
@@ -1117,41 +877,29 @@
             "name": "Isaac Hill",
             "isWriteIn": false,
             "optionIndex": 5
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 1398.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 1398.75,
-            "maxX": 1022.25,
-            "maxY": 1548.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 1436,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1436,
-              "maxX": 992,
-              "maxY": 1462
-            },
-            "inner": {
-              "x": 952,
-              "y": 1436,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1436,
-              "maxX": 992,
-              "maxY": 1462
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Abigail-Bartlett-4e46c9d4",
@@ -1159,41 +907,29 @@
             "name": "Abigail Bartlett",
             "isWriteIn": false,
             "optionIndex": 6
-          },
-          "bounds": {
-            "x": 1022.25,
-            "y": 1248.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1022.25,
-            "minY": 1248.75,
-            "maxX": 1372.25,
-            "maxY": 1398.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1302,
-              "y": 1286,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 1286,
-              "maxX": 1342,
-              "maxY": 1312
-            },
-            "inner": {
-              "x": 1302,
-              "y": 1286,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 1286,
-              "maxX": 1342,
-              "maxY": 1312
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Jacob-Freese-b5146505",
@@ -1201,41 +937,29 @@
             "name": "Jacob Freese",
             "isWriteIn": false,
             "optionIndex": 7
-          },
-          "bounds": {
-            "x": 1022.25,
-            "y": 1348.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1022.25,
-            "minY": 1348.75,
-            "maxX": 1372.25,
-            "maxY": 1498.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1302,
-              "y": 1386,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 1386,
-              "maxX": 1342,
-              "maxY": 1412
-            },
-            "inner": {
-              "x": 1302,
-              "y": 1386,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 1386,
-              "maxX": 1342,
-              "maxY": 1412
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
@@ -1244,41 +968,29 @@
             "isWriteIn": true,
             "optionIndex": 8,
             "writeInIndex": 0
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 1198.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 1198.75,
-            "maxX": 1672.25,
-            "maxY": 1348.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 1236,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1236,
-              "maxX": 1642,
-              "maxY": 1262
-            },
-            "inner": {
-              "x": 1602,
-              "y": 1236,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1236,
-              "maxX": 1642,
-              "maxY": 1262
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-1",
@@ -1287,41 +999,29 @@
             "isWriteIn": true,
             "optionIndex": 9,
             "writeInIndex": 1
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 1298.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 1298.75,
-            "maxX": 1672.25,
-            "maxY": 1448.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 1336,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1336,
-              "maxX": 1642,
-              "maxY": 1362
-            },
-            "inner": {
-              "x": 1602,
-              "y": 1336,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1336,
-              "maxX": 1642,
-              "maxY": 1362
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-2",
@@ -1330,74 +1030,58 @@
             "isWriteIn": true,
             "optionIndex": 10,
             "writeInIndex": 2
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 1398.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 1398.75,
-            "maxX": 1672.25,
-            "maxY": 1548.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 1436,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1436,
-              "maxX": 1642,
-              "maxY": 1462
-            },
-            "inner": {
-              "x": 1602,
-              "y": 1436,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1436,
-              "maxX": 1642,
-              "maxY": 1462
-            }
           }
-        }
-      ],
-      "bounds": {
-        "x": 322.25,
-        "y": 1198.75,
-        "width": 1351,
-        "height": 401,
-        "minX": 322.25,
-        "minY": 1198.75,
-        "maxX": 1672.25,
-        "maxY": 1598.75
-      },
-      "corners": [
-        {
-          "x": 322.25,
-          "y": 1198.75
-        },
-        {
-          "x": 1672.25,
-          "y": 1198.75
-        },
-        {
-          "x": 322.25,
-          "y": 1598.75
-        },
-        {
-          "x": 1672.25,
-          "y": 1598.75
         }
       ]
     },
     {
       "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 100,
+        "height": 100
+      },
+      "corners": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 100,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 100
+        },
+        {
+          "x": 100,
+          "y": 100
+        }
+      ],
       "options": [
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Abeil-Foster-ded38e36",
@@ -1405,41 +1089,29 @@
             "name": "Abeil Foster",
             "isWriteIn": false,
             "optionIndex": 0
-          },
-          "bounds": {
-            "x": 322.25,
-            "y": 1648.75,
-            "width": 351,
-            "height": 151,
-            "minX": 322.25,
-            "minY": 1648.75,
-            "maxX": 672.25,
-            "maxY": 1798.75
-          },
-          "target": {
-            "bounds": {
-              "x": 602,
-              "y": 1686,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1686,
-              "maxX": 642,
-              "maxY": 1712
-            },
-            "inner": {
-              "x": 602,
-              "y": 1686,
-              "width": 41,
-              "height": 27,
-              "minX": 602,
-              "minY": 1686,
-              "maxX": 642,
-              "maxY": 1712
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "Charles-H-Hersey-096286a4",
@@ -1447,41 +1119,29 @@
             "name": "Charles H. Hersey",
             "isWriteIn": false,
             "optionIndex": 1
-          },
-          "bounds": {
-            "x": 672.25,
-            "y": 1648.75,
-            "width": 351,
-            "height": 151,
-            "minX": 672.25,
-            "minY": 1648.75,
-            "maxX": 1022.25,
-            "maxY": 1798.75
-          },
-          "target": {
-            "bounds": {
-              "x": 952,
-              "y": 1686,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1686,
-              "maxX": 992,
-              "maxY": 1712
-            },
-            "inner": {
-              "x": 952,
-              "y": 1686,
-              "width": 41,
-              "height": 27,
-              "minX": 952,
-              "minY": 1686,
-              "maxX": 992,
-              "maxY": 1712
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "William-Lovejoy-fde3c2df",
@@ -1489,41 +1149,29 @@
             "name": "William Lovejoy",
             "isWriteIn": false,
             "optionIndex": 2
-          },
-          "bounds": {
-            "x": 1022.25,
-            "y": 1648.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1022.25,
-            "minY": 1648.75,
-            "maxX": 1372.25,
-            "maxY": 1798.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1302,
-              "y": 1686,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 1686,
-              "maxX": 1342,
-              "maxY": 1712
-            },
-            "inner": {
-              "x": 1302,
-              "y": 1686,
-              "width": 41,
-              "height": 27,
-              "minX": 1302,
-              "minY": 1686,
-              "maxX": 1342,
-              "maxY": 1712
-            }
           }
         },
         {
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 10,
+            "height": 10
+          },
+          "target": {
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            },
+            "inner": {
+              "x": 0,
+              "y": 0,
+              "width": 10,
+              "height": 10
+            }
+          },
           "definition": {
             "type": "candidate",
             "id": "write-in-0",
@@ -1532,67 +1180,7 @@
             "isWriteIn": true,
             "optionIndex": 3,
             "writeInIndex": 0
-          },
-          "bounds": {
-            "x": 1322.25,
-            "y": 1648.75,
-            "width": 351,
-            "height": 151,
-            "minX": 1322.25,
-            "minY": 1648.75,
-            "maxX": 1672.25,
-            "maxY": 1798.75
-          },
-          "target": {
-            "bounds": {
-              "x": 1602,
-              "y": 1686,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1686,
-              "maxX": 1642,
-              "maxY": 1712
-            },
-            "inner": {
-              "x": 1602,
-              "y": 1686,
-              "width": 41,
-              "height": 27,
-              "minX": 1602,
-              "minY": 1686,
-              "maxX": 1642,
-              "maxY": 1712
-            }
           }
-        }
-      ],
-      "bounds": {
-        "x": 322.25,
-        "y": 1648.75,
-        "width": 1351,
-        "height": 151,
-        "minX": 322.25,
-        "minY": 1648.75,
-        "maxX": 1672.25,
-        "maxY": 1798.75
-      },
-      "corners": [
-        {
-          "x": 322.25,
-          "y": 1648.75
-        },
-        {
-          "x": 1672.25,
-          "y": 1648.75
-        },
-        {
-          "x": 322.25,
-          "y": 1798.75
-        },
-        {
-          "x": 1672.25,
-          "y": 1798.75
         }
       ]
     }

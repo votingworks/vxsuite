@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import styled from 'styled-components';
 
 import {
@@ -14,8 +13,17 @@ import {
 } from '@votingworks/ui';
 
 const Instructions = styled.ol`
+  display: flex;
+  flex-direction: column;
   margin: 2rem 0;
   padding: 0;
+
+  @media (orientation: landscape) {
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 1rem;
+    margin: 0.5rem;
+  }
 `;
 
 const ListItem = styled.li`
@@ -24,6 +32,11 @@ const ListItem = styled.li`
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   gap: 1rem;
   margin-bottom: 1.5rem;
+
+  @media (orientation: landscape) {
+    flex-direction: column;
+    margin-bottom: 0.5rem;
+  }
 `;
 
 const InstructionImageContainer = styled.div`
@@ -33,6 +46,11 @@ const InstructionImageContainer = styled.div`
   justify-content: center;
   padding: 1rem 1rem 0 0;
   width: 30vw;
+
+  @media (orientation: landscape) {
+    border: none;
+    width: 30vh;
+  }
 `;
 
 const Done = styled.div`

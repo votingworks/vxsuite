@@ -1,48 +1,18 @@
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  ElectionDefinition,
-  Id,
-  MarkThresholds,
   PageInterpretationWithFiles,
-  PrecinctSelection,
+  SheetInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
-import { err, ok, Optional, Result } from '@votingworks/basics';
-import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
+import { ok, Result } from '@votingworks/basics';
+import {
+  SheetInterpretationWithPages,
+  interpretSheetAndSaveImages,
+  InterpreterOptions,
+} from '@votingworks/ballot-interpreter';
 import { rootDebug } from './util/debug';
-import { SheetInterpretation } from './types';
-
-export interface InterpreterConfig {
-  readonly electionDefinition: ElectionDefinition;
-  readonly precinctSelection: PrecinctSelection;
-  readonly ballotImagesPath: string;
-  readonly markThresholdOverrides?: MarkThresholds;
-  readonly testMode: boolean;
-}
-
-/**
- * A configurable interpreter for the precinct scanner.
- */
-export interface PrecinctScannerInterpreter {
-  configure(options: InterpreterConfig): void;
-  unconfigure(): void;
-  isConfigured(): boolean;
-  interpret(
-    sheetId: Id,
-    sheet: SheetOf<string>
-  ): Promise<Result<SheetInterpretationWithPages, Error>>;
-}
-
-/**
- * An interpretation for one ballot sheet that includes both the interpretation
- * result for the sheet as a whole and the individual page (i.e. front and back)
- * interpretations.
- */
-export type SheetInterpretationWithPages = SheetInterpretation & {
-  pages: SheetOf<PageInterpretationWithFiles>;
-};
 
 function combinePageInterpretationsForSheet(
   pages: SheetOf<PageInterpretationWithFiles>
@@ -151,57 +121,26 @@ function combinePageInterpretationsForSheet(
   };
 }
 
-/**
- * Create an interpreter for the precinct scanner. The interpreter can be
- * configured and unconfigured with different election settings.
- */
-export function createInterpreter(): PrecinctScannerInterpreter {
-  let config: Optional<InterpreterConfig>;
+export async function interpret(
+  sheetId: string,
+  sheet: SheetOf<string>,
+  options: InterpreterOptions & { ballotImagesPath: string }
+): Promise<Result<SheetInterpretationWithPages, Error>> {
+  const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
 
-  return {
-    configure(newConfig: InterpreterConfig) {
-      config = newConfig;
-    },
+  const pageInterpretations = await interpretSheetAndSaveImages(
+    options,
+    sheet,
+    sheetId,
+    options.ballotImagesPath
+  );
 
-    unconfigure() {
-      config = undefined;
-    },
+  timer.end();
 
-    isConfigured() {
-      return config !== undefined;
-    },
-
-    interpret: async (sheetId, sheet) => {
-      if (!config) return err(Error('Interpreter not configured'));
-
-      const {
-        electionDefinition,
-        ballotImagesPath,
-        precinctSelection,
-        testMode,
-      } = config;
-      const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
-
-      const pageInterpretations = await interpretSheetAndSaveImages(
-        {
-          electionDefinition,
-          precinctSelection,
-          testMode,
-          adjudicationReasons:
-            electionDefinition.election.precinctScanAdjudicationReasons,
-          markThresholds: config.markThresholdOverrides,
-        },
-        sheet,
-        sheetId,
-        ballotImagesPath
-      );
-
-      timer.end();
-
-      return ok({
-        ...combinePageInterpretationsForSheet(pageInterpretations),
-        pages: pageInterpretations,
-      });
-    },
-  };
+  return ok({
+    ...combinePageInterpretationsForSheet(pageInterpretations),
+    pages: pageInterpretations,
+  });
 }
+
+export type InterpretFn = typeof interpret;

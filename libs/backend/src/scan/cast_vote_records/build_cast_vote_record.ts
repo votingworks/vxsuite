@@ -36,8 +36,7 @@ import {
 } from './option_map';
 
 /**
- * Converts from the ballot type enumeration to a test representation used
- * in cast vote records.
+ * Converts from the ballot type enumeration to CVR ballot type.
  */
 export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
   switch (ballotType) {
@@ -45,7 +44,7 @@ export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
       return CVR.vxBallotType.Absentee;
     case BallotType.Provisional:
       return CVR.vxBallotType.Provisional;
-    case BallotType.Standard:
+    case BallotType.Precinct:
       return CVR.vxBallotType.Precinct;
     // istanbul ignore next
     default:
@@ -73,11 +72,11 @@ function buildCVRBallotMeasureContest({
       : undervoted
       ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
       : undefined,
-    CVRContestSelection: vote.map((option) => ({
+    CVRContestSelection: vote.map((optionId) => ({
       '@type': 'CVR.CVRContestSelection',
-      ContestSelectionId: option,
+      ContestSelectionId: optionId,
       // include position on the ballot per VVSG 2.0 1.1.5-C.2
-      OptionPosition: option === 'yes' ? 0 : 1,
+      OptionPosition: optionId === contest.yesOption.id ? 0 : 1,
       Status: overvoted
         ? [CVR.ContestSelectionStatus.InvalidatedRules]
         : undefined,
@@ -112,9 +111,9 @@ export function getOptionPosition({
 }): number {
   if (contest.type === 'yesno') {
     switch (optionId) {
-      case 'yes':
+      case contest.yesOption.id:
         return 0;
-      case 'no':
+      case contest.noOption.id:
         return 1;
       default:
         throw new Error('unexpected option id for ballot measure contest');
@@ -415,11 +414,7 @@ export function getWriteInCount(votes: VotesDict): number {
   for (const vote of Object.values(votes)) {
     if (vote) {
       for (const voteOption of vote) {
-        if (
-          voteOption !== 'yes' &&
-          voteOption !== 'no' &&
-          voteOption.isWriteIn
-        ) {
+        if (typeof voteOption !== 'string' && voteOption.isWriteIn) {
           count += 1;
         }
       }
@@ -436,11 +431,7 @@ export function hasWriteIns(votes: VotesDict): boolean {
   for (const vote of Object.values(votes)) {
     if (vote) {
       for (const voteOption of vote) {
-        if (
-          voteOption !== 'yes' &&
-          voteOption !== 'no' &&
-          voteOption.isWriteIn
-        ) {
+        if (typeof voteOption !== 'string' && voteOption.isWriteIn) {
           return true;
         }
       }
@@ -500,7 +491,7 @@ export function buildCastVoteRecord({
     election,
   })?.partyId;
 
-  const cvrMetadata = {
+  const cvrMetadata: Omit<CVR.CVR, 'CVRSnapshot' | 'CurrentSnapshotId'> = {
     '@type': 'CVR.CVR',
     BallotStyleId: ballotMetadata.ballotStyleId,
     BallotStyleUnitId: ballotMetadata.precinctId, // VVSG 2.0 1.1.5-G.3
@@ -511,7 +502,7 @@ export function buildCastVoteRecord({
     BatchSequenceId: indexInBatch, // VVSG 2.0 1.1.5-G.7
     UniqueId: castVoteRecordId,
     vxBallotType: toCdfBallotType(ballotMetadata.ballotType),
-  } as const;
+  };
 
   // CVR for machine-marked ballot, only has "original" snapshot because the
   // restrictions of the ballot marking device already applied basic contest rules.

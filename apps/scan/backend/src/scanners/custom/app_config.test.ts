@@ -7,12 +7,22 @@ import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
+  BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
   SCANNER_RESULTS_FOLDER,
   convertCastVoteRecordVotesToTabulationVotes,
+  getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assert, err, find, ok, unique } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  find,
+  iter,
+  ok,
+  sleep,
+  unique,
+} from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
 import {
@@ -26,17 +36,30 @@ import {
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { CVR, ElectionDefinition, unsafeParse } from '@votingworks/types';
+import {
+  CVR,
+  ElectionDefinition,
+  SheetInterpretation,
+  unsafeParse,
+} from '@votingworks/types';
 import { CustomScanner, mocks } from '@votingworks/custom-scanner';
 import {
   configureApp,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { Api } from '../../app';
-import { SheetInterpretation } from '../../types';
 import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
+
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
 
 async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
@@ -99,6 +122,13 @@ function mockLoggedOut(mockAuth: InsertedSmartCardAuthApi) {
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
 }
+
+beforeEach(() => {
+  mockFeatureFlagger.resetFeatureFlags();
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+});
 
 test('uses machine config from env', async () => {
   const originalEnv = process.env;
@@ -248,7 +278,9 @@ test('export CVRs to USB', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       await scanBallot(mockScanner, apiClient, 0);
-      expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({ mode: 'full_export' })
+      ).toEqual(ok());
 
       const usbDrive = await mockUsbDrive.usbDrive.status();
       assert(usbDrive.status === 'mounted');
@@ -256,7 +288,10 @@ test('export CVRs to USB', async () => {
       const electionDirs = fs.readdirSync(resultsDirPath);
       expect(electionDirs).toHaveLength(1);
       const electionDirPath = join(resultsDirPath, electionDirs[0]);
-      const cvrReportDirectories = fs.readdirSync(electionDirPath);
+      const cvrReportDirectories = fs
+        .readdirSync(electionDirPath)
+        // Filter out signature files
+        .filter((path) => !path.endsWith('.vxsig'));
       expect(cvrReportDirectories).toHaveLength(1);
       expect(cvrReportDirectories[0]).toMatch(/machine_000__1_ballot__*/);
       const cvrReportDirectoryPath = join(
@@ -309,6 +344,36 @@ test('export CVRs to USB', async () => {
   );
 });
 
+test('exportCastVoteRecordsToUsbDrive when continuous export is enabled', async () => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+  );
+
+  // Just test that the app has been wired properly. Rely on libs/backend tests for more detailed
+  // coverage of export logic.
+  await withApp(
+    {},
+    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+      await scanBallot(mockScanner, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, 1);
+      await sleep(1000); // Let background continuous export to USB finish
+
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({
+          mode: 'polls_closing',
+        })
+      ).toEqual(ok());
+
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({
+          mode: 'full_export',
+        })
+      ).toEqual(ok());
+    }
+  );
+});
+
 test('setPrecinctSelection will reset polls to closed', async () => {
   await withApp(
     {},
@@ -336,13 +401,25 @@ test('ballot batching', async () => {
       mockAuth,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+      const { store } = workspace;
+      function getCvrIds() {
+        return iter(store.forEachResultSheet())
+          .map((r) => r.id)
+          .toArray();
+      }
+      function getBatchIds() {
+        return unique(
+          iter(store.forEachResultSheet())
+            .map((r) => r.batchId)
+            .toArray()
+        );
+      }
 
       // Scan two ballots, which should have the same batch
       await scanBallot(mockScanner, apiClient, 0);
       await scanBallot(mockScanner, apiClient, 1);
-      let cvrs = await apiClient.getCastVoteRecordsForTally();
-      let batchIds = unique(cvrs.map((cvr) => cvr._batchId));
-      expect(cvrs).toHaveLength(2);
+      let batchIds = getBatchIds();
+      expect(getCvrIds()).toHaveLength(2);
       expect(batchIds).toHaveLength(1);
       const batch1Id = batchIds[0];
 
@@ -379,9 +456,8 @@ test('ballot batching', async () => {
       // Confirm there is a new, second batch distinct from the first
       await scanBallot(mockScanner, apiClient, 2);
       await scanBallot(mockScanner, apiClient, 3);
-      cvrs = await apiClient.getCastVoteRecordsForTally();
-      batchIds = unique(cvrs.map((cvr) => cvr._batchId));
-      expect(cvrs).toHaveLength(4);
+      batchIds = getBatchIds();
+      expect(getCvrIds()).toHaveLength(4);
       expect(batchIds).toHaveLength(2);
       const batch2Id = find(batchIds, (batchId) => batchId !== batch1Id);
 
@@ -418,9 +494,8 @@ test('ballot batching', async () => {
       // Confirm there is a third batch, distinct from the second
       await scanBallot(mockScanner, apiClient, 4);
       await scanBallot(mockScanner, apiClient, 5);
-      cvrs = await apiClient.getCastVoteRecordsForTally();
-      batchIds = unique(cvrs.map((cvr) => cvr._batchId));
-      expect(cvrs).toHaveLength(6);
+      batchIds = getBatchIds();
+      expect(getCvrIds()).toHaveLength(6);
       expect(batchIds).toHaveLength(3);
     }
   );
@@ -429,15 +504,13 @@ test('ballot batching', async () => {
 test('unconfiguring machine', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockUsbDrive, interpreter, workspace, mockAuth }) => {
+    async ({ apiClient, mockUsbDrive, workspace, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      jest.spyOn(interpreter, 'unconfigure');
       jest.spyOn(workspace, 'reset');
 
       await apiClient.unconfigureElection({});
 
-      expect(interpreter.unconfigure).toHaveBeenCalledTimes(1);
       expect(workspace.reset).toHaveBeenCalledTimes(1);
     }
   );

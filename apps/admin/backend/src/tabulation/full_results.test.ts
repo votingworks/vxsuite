@@ -10,8 +10,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { buildMockArtifactAuthenticator } from '@votingworks/auth';
-import { Tabulation } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import {
   tabulateCastVoteRecords,
   tabulateElectionResults,
@@ -38,17 +37,23 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
   );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  );
 });
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-test('tabulateCastVoteRecords', () => {
+test('tabulateCastVoteRecords', async () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
   const { election, electionData } = electionDefinition;
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -59,7 +64,7 @@ test('tabulateCastVoteRecords', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 5,
     },
@@ -69,7 +74,7 @@ test('tabulateCastVoteRecords', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'absentee',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 6,
     },
@@ -79,7 +84,7 @@ test('tabulateCastVoteRecords', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 17,
     },
@@ -89,7 +94,7 @@ test('tabulateCastVoteRecords', () => {
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
       votingMethod: 'absentee',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 9,
     },
@@ -99,7 +104,7 @@ test('tabulateCastVoteRecords', () => {
       scannerId: 'scanner-2',
       precinctId: 'precinct-2',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 12,
     },
@@ -109,7 +114,7 @@ test('tabulateCastVoteRecords', () => {
       scannerId: 'scanner-3',
       precinctId: 'precinct-2',
       votingMethod: 'precinct',
-      votes: { fishing: ['yes'] },
+      votes: { fishing: ['ban-fishing'] },
       card: { type: 'bmd' },
       multiplier: 34,
     },
@@ -234,7 +239,7 @@ test('tabulateCastVoteRecords', () => {
   ];
 
   for (const { filter, groupBy, expected } of testCases) {
-    const groupedWriteInSummaries = tabulateCastVoteRecords({
+    const groupedElectionResults = await tabulateCastVoteRecords({
       electionId,
       store,
       filter,
@@ -242,15 +247,36 @@ test('tabulateCastVoteRecords', () => {
     });
 
     for (const [groupKey, tally] of expected) {
-      expect(groupedWriteInSummaries[groupKey]).toEqual(
+      expect(groupedElectionResults[groupKey]).toEqual(
         getMockElectionResults(tally)
       );
     }
 
-    expect(Object.values(groupedWriteInSummaries)).toHaveLength(
-      expected.length
-    );
+    expect(Object.values(groupedElectionResults)).toHaveLength(expected.length);
   }
+});
+
+test('tabulateElectionResults - includes empty groups', async () => {
+  const store = Store.memoryStore();
+  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  store.setCurrentElectionId(electionId);
+
+  const groupedElectionResults = await tabulateCastVoteRecords({
+    electionId,
+    store,
+    groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+  });
+  expect(Object.keys(groupedElectionResults)).toEqual([
+    'root&precinctId=precinct-1&votingMethod=precinct',
+    'root&precinctId=precinct-1&votingMethod=absentee',
+    'root&precinctId=precinct-2&votingMethod=precinct',
+    'root&precinctId=precinct-2&votingMethod=absentee',
+  ]);
 });
 
 const candidateContestId =
@@ -262,14 +288,16 @@ test('tabulateElectionResults - write-in handling', async () => {
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election } = electionDefinition;
-  const electionId = store.addElection(electionDefinition.electionData);
+  const electionId = store.addElection({
+    electionData: electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
 
   const addReportResult = await addCastVoteRecordReport({
     store,
     reportDirectoryPath: castVoteRecordReport.asDirectoryPath(),
     exportedTimestamp: new Date().toISOString(),
-    artifactAuthenticator: buildMockArtifactAuthenticator(),
   });
   const { id: fileId } = addReportResult.unsafeUnwrap();
   expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
@@ -278,10 +306,12 @@ test('tabulateElectionResults - write-in handling', async () => {
   /*   Without WIA Data    
   /*  ******************* */
 
-  const overallResultsNoWiaData = tabulateElectionResults({
-    electionId,
-    store,
-  })[GROUP_KEY_ROOT];
+  const overallResultsNoWiaData = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+    })
+  )[GROUP_KEY_ROOT];
   assert(overallResultsNoWiaData);
 
   const partialExpectedResultsNoWiaData = buildElectionResultsFixture({
@@ -327,7 +357,6 @@ test('tabulateElectionResults - write-in handling', async () => {
   const writeIns = store.getWriteInRecords({
     electionId,
     contestId: candidateContestId,
-    status: 'pending',
   });
   const [writeIn1, writeIn2, writeIn3, writeIn4, writeIn5, writeIn6] = writeIns;
   store.adjudicateWriteIn({
@@ -371,17 +400,21 @@ test('tabulateElectionResults - write-in handling', async () => {
 
   // if we don't specify we need the WIA data, results are the same
   expect(
-    tabulateElectionResults({
-      electionId,
-      store,
-    })[GROUP_KEY_ROOT]
+    (
+      await tabulateElectionResults({
+        electionId,
+        store,
+      })
+    )[GROUP_KEY_ROOT]
   ).toEqual(overallResultsNoWiaData);
 
-  const overallResultsScreenWiaData = tabulateElectionResults({
-    electionId,
-    store,
-    includeWriteInAdjudicationResults: true,
-  })[GROUP_KEY_ROOT];
+  const overallResultsScreenWiaData = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      includeWriteInAdjudicationResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(overallResultsScreenWiaData);
 
   const partialExpectedResultsScreenWiaData = buildElectionResultsFixture({
@@ -470,12 +503,14 @@ test('tabulateElectionResults - write-in handling', async () => {
     }),
   });
 
-  const overallResultsScreenAndManualWiaData = tabulateElectionResults({
-    electionId,
-    store,
-    includeWriteInAdjudicationResults: true,
-    includeManualResults: true,
-  })[GROUP_KEY_ROOT];
+  const overallResultsScreenAndManualWiaData = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      includeWriteInAdjudicationResults: true,
+      includeManualResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(overallResultsScreenAndManualWiaData);
 
   const partialExpectedResultsScreenAndManualWiaData =
@@ -537,11 +572,13 @@ test('tabulateElectionResults - write-in handling', async () => {
   /*   With Screen + Manual WIA Data, Without Detail    
   /*  *********************************************** */
 
-  const overallResultsScreenAndManualNoWiaDetail = tabulateElectionResults({
-    electionId,
-    store,
-    includeManualResults: true,
-  })[GROUP_KEY_ROOT];
+  const overallResultsScreenAndManualNoWiaDetail = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      includeManualResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(overallResultsScreenAndManualNoWiaDetail);
 
   const partialExpectedResultsScreenAndManualNoWiaDetail =
@@ -590,14 +627,16 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const store = Store.memoryStore();
   const { electionDefinition, castVoteRecordReport } =
     electionGridLayoutNewHampshireAmherstFixtures;
-  const { election } = electionDefinition;
-  const electionId = store.addElection(electionDefinition.electionData);
+  const { election, electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   store.setCurrentElectionId(electionId);
   const addReportResult = await addCastVoteRecordReport({
     store,
     reportDirectoryPath: castVoteRecordReport.asDirectoryPath(),
     exportedTimestamp: new Date().toISOString(),
-    artifactAuthenticator: buildMockArtifactAuthenticator(),
   });
   const { id: fileId } = addReportResult.unsafeUnwrap();
   expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
@@ -606,7 +645,6 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const writeIns = store.getWriteInRecords({
     electionId,
     contestId: candidateContestId,
-    status: 'pending',
   });
   expect(writeIns.length).toEqual(56);
   for (const writeIn of writeIns) {
@@ -617,12 +655,14 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   }
 
   // check absentee results, should have received half of the adjudicated as invalid write-ins
-  const absenteeResults = tabulateElectionResults({
-    electionId,
-    store,
-    filter: { votingMethods: ['absentee'] },
-    includeWriteInAdjudicationResults: true,
-  })[GROUP_KEY_ROOT];
+  const absenteeResults = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter: { votingMethods: ['absentee'] },
+      includeWriteInAdjudicationResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(absenteeResults);
 
   const partialExpectedResults = buildElectionResultsFixture({
@@ -658,12 +698,14 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   );
 
   // precinct results should match
-  const precinctResults = tabulateElectionResults({
-    electionId,
-    store,
-    filter: { votingMethods: ['precinct'] },
-    includeWriteInAdjudicationResults: true,
-  })[GROUP_KEY_ROOT];
+  const precinctResults = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter: { votingMethods: ['precinct'] },
+      includeWriteInAdjudicationResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(precinctResults);
 
   expect(precinctResults.cardCounts).toEqual(partialExpectedResults.cardCounts);
@@ -672,7 +714,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   );
 
   // results grouped by voting method should match, with group specifiers
-  const groupedResults = tabulateElectionResults({
+  const groupedResults = await tabulateElectionResults({
     electionId,
     store,
     groupBy: { groupByVotingMethod: true },
@@ -720,13 +762,15 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   });
 
   // check absentee results again, should now have manual results added
-  const absenteeResultsWithManual = tabulateElectionResults({
-    electionId,
-    store,
-    filter: { votingMethods: ['absentee'] },
-    includeWriteInAdjudicationResults: true,
-    includeManualResults: true,
-  })[GROUP_KEY_ROOT];
+  const absenteeResultsWithManual = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter: { votingMethods: ['absentee'] },
+      includeWriteInAdjudicationResults: true,
+      includeManualResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(absenteeResultsWithManual);
 
   const partialExpectedResultsWithManual = buildElectionResultsFixture({
@@ -765,13 +809,15 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   );
 
   // check precinct results again, should be the same
-  const precinctResultsWithManual = tabulateElectionResults({
-    electionId,
-    store,
-    filter: { votingMethods: ['precinct'] },
-    includeWriteInAdjudicationResults: true,
-    includeManualResults: true,
-  })[GROUP_KEY_ROOT];
+  const precinctResultsWithManual = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter: { votingMethods: ['precinct'] },
+      includeWriteInAdjudicationResults: true,
+      includeManualResults: true,
+    })
+  )[GROUP_KEY_ROOT];
   assert(precinctResultsWithManual);
 
   expect(precinctResultsWithManual.cardCounts).toEqual({

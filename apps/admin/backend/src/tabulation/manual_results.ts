@@ -14,7 +14,6 @@ import {
   ManualResultsRecord,
 } from '../types';
 import { Store } from '../store';
-import { replacePartyIdFilter } from './utils';
 
 function getManualResultsGroupSpecifier(
   manualResultsIdentifier: ManualResultsIdentifier,
@@ -125,7 +124,7 @@ export function tabulateManualResults({
 
   const manualResultsRecords = store.getManualResults({
     electionId,
-    ...replacePartyIdFilter(filter, election),
+    filter,
   });
 
   return ok(

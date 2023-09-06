@@ -10,6 +10,7 @@ import {
 import {
   AdjudicationInfo,
   AnyContest,
+  BallotMark,
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotTargetMark,
@@ -18,12 +19,12 @@ import {
   Corners,
   ElectionDefinition,
   getBallotStyle,
+  GridPosition,
   HmpbBallotPageMetadata,
   MarkInfo,
   MarkStatus,
   MarkThresholds,
   Rect,
-  VotesDict,
 } from '@votingworks/types';
 import {
   allContestOptions,
@@ -31,15 +32,16 @@ import {
   convertMarksToVotesDict,
 } from '@votingworks/utils';
 import {
-  BallotPageMetadataFront,
+  BallotPageTimingMarkMetadataFront,
   Geometry,
   InterpretedBallotCard,
-  InterpretResult as NextInterpretResult,
+  HmpbInterpretResult as NextInterpretResult,
   Rect as NextRect,
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
   ScoredBubbleMarks,
-} from '@votingworks/ballot-interpreter-nh';
+  ScoredPositionArea,
+} from './hmpb-ts';
 import type {
   InterpretFileResult,
   InterpretResult,
@@ -50,7 +52,9 @@ type OkType<T> = T extends Ok<infer U> ? U : never;
 
 function convertNewHampshireNextMarkToSharedMark(
   contests: Contests,
-  [gridPosition, scoredMark]: ScoredBubbleMarks[number]
+  markThresholds: MarkThresholds,
+  [gridPosition, scoredMark]: ScoredBubbleMarks[number],
+  scoredWriteInArea?: ScoredPositionArea
 ): BallotTargetMark {
   assert(scoredMark, 'scoredMark must be defined');
 
@@ -77,9 +81,20 @@ function convertNewHampshireNextMarkToSharedMark(
   };
 
   if (option.type === 'candidate' || option.type === 'yesno') {
+    const score =
+      // use the mark fill score if the bubble is filled in enough
+      scoredMark.fillScore >= markThresholds.definite
+        ? scoredMark.fillScore
+        : // or, if there's enough text in the write-in area, score that at 100%
+        scoredWriteInArea &&
+          typeof markThresholds.writeInTextArea === 'number' &&
+          scoredWriteInArea.score >= markThresholds.writeInTextArea
+        ? 1
+        : // otherwise, just leave the mark fill score alone
+          scoredMark.fillScore;
     const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
       contestId: option.contestId,
-      score: scoredMark.fillScore,
+      score,
       bounds,
       scoredOffset: {
         x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
@@ -91,10 +106,7 @@ function convertNewHampshireNextMarkToSharedMark(
       },
     };
 
-    // `{ type: option.type, … }` would be better but TS doesn't like that.
-    return option.type === 'candidate'
-      ? { type: 'candidate', optionId: option.id, ...ballotTargetMarkBase }
-      : { type: 'yesno', optionId: option.id, ...ballotTargetMarkBase };
+    return { type: option.type, optionId: option.id, ...ballotTargetMarkBase };
   }
 
   /* istanbul ignore next */
@@ -107,37 +119,22 @@ function convertNewHampshireNextMarkToSharedMark(
 export function convertMarksToAdjudicationInfo(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  marks: ScoredBubbleMarks
+  marks: BallotMark[]
 ): AdjudicationInfo {
-  const markThresholds =
-    options.markThresholds ?? electionDefinition.election.markThresholds;
   const enabledReasons = options.adjudicationReasons ?? [];
-  assert(markThresholds, 'markThresholds must be defined');
 
   const contests = electionDefinition.election.contests.filter((c) =>
-    marks.some(([{ contestId }]) => contestId === c.id)
+    marks.some(({ contestId }) => contestId === c.id)
   );
   const adjudicationReasonInfos = Array.from(
     ballotAdjudicationReasons(contests, {
       optionMarkStatus: (option) => {
-        // eslint-disable-next-line array-callback-return -- `default` throws
-        const contestMarks = marks.filter(([gridPosition]) => {
-          if (gridPosition.contestId !== option.contestId) {
+        const contestMarks = marks.filter((mark) => {
+          if (mark.contestId !== option.contestId) {
             return false;
           }
 
-          switch (gridPosition.type) {
-            case 'option':
-              return gridPosition.optionId === option.id;
-
-            case 'write-in':
-              assert(option.type === 'candidate');
-              return gridPosition.writeInIndex === option.writeInIndex;
-
-            /* istanbul ignore next */
-            default:
-              throwIllegalValue(gridPosition);
-          }
+          return mark.optionId === option.id;
         });
         assert(
           contestMarks.length > 0,
@@ -146,12 +143,12 @@ export function convertMarksToAdjudicationInfo(
 
         let fallbackStatus = MarkStatus.Unmarked;
 
-        for (const [, mark] of contestMarks) {
-          if (mark && mark.fillScore >= markThresholds.definite) {
+        for (const mark of contestMarks) {
+          if (mark.score >= options.markThresholds.definite) {
             return MarkStatus.Marked;
           }
 
-          if (mark && mark.fillScore >= markThresholds.marginal) {
+          if (mark.score >= options.markThresholds.marginal) {
             fallbackStatus = MarkStatus.Marginal;
           }
         }
@@ -173,60 +170,55 @@ export function convertMarksToAdjudicationInfo(
   };
 }
 
+function findScoredWriteInAreaForGridPosition(
+  scoredWriteInAreas: ScoredPositionArea[],
+  gridPosition: GridPosition
+): ScoredPositionArea | undefined {
+  return gridPosition.type === 'write-in'
+    ? scoredWriteInAreas.find(
+        (w) =>
+          w.gridPosition.type === 'write-in' &&
+          w.gridPosition.contestId === gridPosition.contestId &&
+          w.gridPosition.writeInIndex === gridPosition.writeInIndex
+      )
+    : undefined;
+}
+
 function convertMarksToMarkInfo(
   contests: Contests,
+  markThresholds: MarkThresholds,
   geometry: Geometry,
-  marks: ScoredBubbleMarks
+  marks: ScoredBubbleMarks,
+  writeIns: ScoredPositionArea[]
 ): MarkInfo {
   const markInfo: MarkInfo = {
     ballotSize: geometry.canvasSize,
     marks: marks.map((mark) =>
-      convertNewHampshireNextMarkToSharedMark(contests, mark)
+      convertNewHampshireNextMarkToSharedMark(
+        contests,
+        markThresholds,
+        mark,
+        findScoredWriteInAreaForGridPosition(writeIns, mark[0])
+      )
     ),
   };
 
   return markInfo;
 }
 
-function convertMarksToVotes(
-  contests: Contests,
-  markThresholds: MarkThresholds,
-  marks: ScoredBubbleMarks
-): VotesDict {
-  return convertMarksToVotesDict(
-    contests,
-    markThresholds,
-    iter(marks).map((scoredOvalMark) =>
-      convertNewHampshireNextMarkToSharedMark(contests, scoredOvalMark)
-    )
-  );
-}
-
 function buildInterpretedHmpbPageMetadata(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  frontMetadata: BallotPageMetadataFront,
+  frontMetadata: BallotPageTimingMarkMetadataFront,
   side: 'front' | 'back'
 ): HmpbBallotPageMetadata {
   const { election } = electionDefinition;
-  const isUsingCardNumberBallotStyles = election.ballotStyles.every(({ id }) =>
-    id.startsWith('card-number-')
-  );
-  const ballotStyle =
-    // If the election is using "card-number-{n}" ballot style IDs, use
-    // the card number in the metadata to create that ballot style ID.
-    isUsingCardNumberBallotStyles
-      ? getBallotStyle({
-          election,
-          ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
-        })
-      : // If not, use the card number in the metadata as an index into the
-        // list of ballot styles.
-        election.ballotStyles[frontMetadata.cardNumber];
+  const ballotStyle = getBallotStyle({
+    election,
+    ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
+  });
   assert(ballotStyle, `Ballot style ${frontMetadata.cardNumber} not found`);
-  const precinctId = isUsingCardNumberBallotStyles
-    ? ballotStyle.precincts[0]
-    : election.precincts[frontMetadata.batchOrPrecinctNumber]?.id;
+  const precinctId = ballotStyle.precincts[0];
   assert(
     precinctId !== undefined,
     `Precinct ${frontMetadata.batchOrPrecinctNumber} not found`
@@ -235,7 +227,7 @@ function buildInterpretedHmpbPageMetadata(
   return {
     ballotStyleId: ballotStyle.id,
     precinctId,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     electionHash: electionDefinition.electionHash,
     isTestMode: options.testMode,
     pageNumber: side === 'front' ? 1 : 2,
@@ -306,37 +298,42 @@ function convertNextInterpretedBallotPage(
   interpretedBallotCard: InterpretedBallotCard,
   side: 'front' | 'back'
 ): InterpretFileResult {
-  /* istanbul ignore next */
-  const markThresholds =
-    options.markThresholds ?? electionDefinition.election.markThresholds;
-  assert(markThresholds, 'markThresholds must be defined');
-
-  const metadata = buildInterpretedHmpbPageMetadata(
-    electionDefinition,
-    options,
-    interpretedBallotCard.front.grid.metadata as BallotPageMetadataFront,
-    side
-  );
+  const sideMetadata = interpretedBallotCard[side].metadata;
+  const metadata =
+    sideMetadata.source === 'qr-code'
+      ? sideMetadata
+      : buildInterpretedHmpbPageMetadata(
+          electionDefinition,
+          options,
+          // For timing mark metadata, always use the front, since it contains
+          // the info we need
+          interpretedBallotCard.front
+            .metadata as BallotPageTimingMarkMetadataFront,
+          side
+        );
 
   const interpretation = interpretedBallotCard[side];
+  const markInfo = convertMarksToMarkInfo(
+    electionDefinition.election.contests,
+    options.markThresholds,
+    interpretation.grid.geometry,
+    interpretation.marks,
+    interpretation.writeIns
+  );
   return {
     interpretation: {
       type: 'InterpretedHmpbPage',
       metadata,
-      markInfo: convertMarksToMarkInfo(
-        electionDefinition.election.contests,
-        interpretation.grid.geometry,
-        interpretation.marks
-      ),
+      markInfo,
       adjudicationInfo: convertMarksToAdjudicationInfo(
         electionDefinition,
         options,
-        interpretation.marks
+        markInfo.marks
       ),
-      votes: convertMarksToVotes(
+      votes: convertMarksToVotesDict(
         electionDefinition.election.contests,
-        markThresholds,
-        interpretation.marks
+        options.markThresholds,
+        markInfo.marks
       ),
       layout: {
         pageSize: interpretation.grid.geometry.canvasSize,
@@ -358,7 +355,6 @@ function convertNextInterpretedBallotPage(
  * Converts the result of the NH interpreter to the legacy interpreter result format.
  */
 export function convertNhInterpretResultToLegacyResult(
-  electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
   nextResult: NextInterpretResult
 ): InterpretResult {
@@ -370,13 +366,13 @@ export function convertNhInterpretResultToLegacyResult(
   const ballotCard = nextResult.ok();
   const currentResult: OkType<InterpretResult> = [
     convertNextInterpretedBallotPage(
-      electionDefinition,
+      options.electionDefinition,
       options,
       ballotCard,
       'front'
     ),
     convertNextInterpretedBallotPage(
-      electionDefinition,
+      options.electionDefinition,
       options,
       ballotCard,
       'back'

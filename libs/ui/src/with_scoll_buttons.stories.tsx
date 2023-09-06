@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import { Meta, StoryFn } from '@storybook/react';
 
 import { LoremIpsum } from 'lorem-ipsum';

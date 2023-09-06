@@ -30,6 +30,7 @@ const ButtonAndTimestamp = styled.div`
   display: flex;
   align-items: baseline;
   margin-top: 0.5em;
+
   > button {
     margin-right: 0.5em;
   }

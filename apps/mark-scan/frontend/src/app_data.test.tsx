@@ -28,6 +28,7 @@ afterEach(() => {
 
 describe('loads election', () => {
   it('Machine is not configured by default', async () => {
+    apiMock.expectGetPrecinctSelection();
     const { renderApp } = buildApp(apiMock);
     renderApp();
 
@@ -38,15 +39,13 @@ describe('loads election', () => {
   });
 
   it('from storage', async () => {
+    apiMock.expectGetPrecinctSelectionResolvesDefault(election);
     const { storage, renderApp } = buildApp(apiMock);
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
     renderApp();
 
-    // Let the initial hardware detection run.
-    await advanceTimersAndPromises();
-
-    screen.getByText(election.title);
+    await screen.findByText(election.title);
     expect(storage.get(electionStorageKey)).toBeTruthy();
   });
 });

@@ -4,25 +4,16 @@ import { sha256 } from 'js-sha256';
 export * as electionGridLayoutNewHampshireAmherstFixtures from './data/electionGridLayoutNewHampshireAmherst';
 export * as electionGridLayoutNewHampshireHudsonFixtures from './data/electionGridLayoutNewHampshireHudson';
 export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021';
-export * as electionSample2Fixtures from './data/electionSample2';
 export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPrimary';
 export * as electionMinimalExhaustiveSampleFixtures from './data/electionMinimalExhaustiveSample';
+export * as electionComplexGeoSample from './data/electionComplexGeoSample/election.json';
 export * as electionMinimalExhaustiveSampleWithReportingUrlFixtures from './data/electionMinimalExhaustiveSampleWithReportingUrl';
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
-export * as primaryElectionSampleFixtures from './data/electionPrimary';
 export * as sampleBallotImages from './data/sample-ballot-images';
 export {
   electionDefinition as electionSampleDefinition,
   election as electionSample,
 } from './data/electionSample.json';
-export {
-  electionDefinition as electionSampleCdfDefinition,
-  election as electionSampleCdf,
-} from './data/electionSampleCDF.json';
-export {
-  electionDefinition as electionSample2Definition,
-  election as electionSample2,
-} from './data/electionSample2/election.json';
 export {
   electionDefinition as multiPartyPrimaryElectionDefinition,
   election as multiPartyPrimaryElection,
@@ -40,26 +31,14 @@ export {
   election as electionWithMsEitherNeither,
 } from './data/electionWithMsEitherNeither';
 export {
-  electionDefinition as electionMinimalExhaustiveSampleRightSideTargetsDefinition,
-  election as electionMinimalExhaustiveSampleRightSideTargets,
-} from './data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json';
-export {
   electionDefinition as electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   election as electionMinimalExhaustiveSampleSinglePrecinct,
 } from './data/electionMinimalExhaustiveSampleSinglePrecinct/election.json';
 export {
-  electionDefinition as primaryElectionSampleDefinition,
-  election as primaryElectionSample,
-} from './data/electionPrimary';
-export {
-  electionDefinition as electionSampleNoSealDefinition,
-  election as electionSampleNoSeal,
-} from './data/electionSampleNoSeal.json';
-export {
   electionDefinition as electionSampleLongContentDefinition,
   election as electionSampleLongContent,
 } from './data/electionSampleLongContent.json';
-export * as systemSettings from './data/sampleAdminInitialSetupPackage/systemSettings.json';
+export * as systemSettings from './data/systemSettings.json';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);

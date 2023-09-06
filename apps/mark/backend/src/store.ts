@@ -7,7 +7,7 @@ import {
   ElectionDefinition,
   safeParseElectionDefinition,
   SystemSettings,
-  SystemSettingsDbRow,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import { join } from 'path';
 
@@ -116,52 +116,27 @@ export class Store {
   }
 
   /**
-   * Creates a system settings record
+   * Stores the system settings.
    */
   setSystemSettings(systemSettings: SystemSettings): void {
     this.client.run('delete from system_settings');
     this.client.run(
       `
-      insert into system_settings (
-        are_poll_worker_card_pins_enabled,
-        inactive_session_time_limit_minutes,
-        num_incorrect_pin_attempts_allowed_before_card_lockout,
-        overall_session_time_limit_hours,
-        starting_card_lockout_duration_seconds
-      ) values (
-        ?, ?, ?, ?, ?
-      )
+      insert into system_settings (data) values (?)
       `,
-      systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0,
-      systemSettings.inactiveSessionTimeLimitMinutes,
-      systemSettings.numIncorrectPinAttemptsAllowedBeforeCardLockout,
-      systemSettings.overallSessionTimeLimitHours,
-      systemSettings.startingCardLockoutDurationSeconds
+      JSON.stringify(systemSettings)
     );
   }
 
   /**
-   * Gets system settings or undefined if they aren't loaded yet
+   * Retrieves the system settings.
    */
   getSystemSettings(): SystemSettings | undefined {
-    const result = this.client.one(
-      `
-      select
-        are_poll_worker_card_pins_enabled as arePollWorkerCardPinsEnabled,
-        inactive_session_time_limit_minutes as inactiveSessionTimeLimitMinutes,
-        num_incorrect_pin_attempts_allowed_before_card_lockout as numIncorrectPinAttemptsAllowedBeforeCardLockout,
-        overall_session_time_limit_hours as overallSessionTimeLimitHours,
-        starting_card_lockout_duration_seconds as startingCardLockoutDurationSeconds
-      from system_settings
-      `
-    ) as SystemSettingsDbRow | undefined;
+    const result = this.client.one(`select data from system_settings`) as
+      | { data: string }
+      | undefined;
 
-    if (!result) {
-      return undefined;
-    }
-    return {
-      ...result,
-      arePollWorkerCardPinsEnabled: result.arePollWorkerCardPinsEnabled === 1,
-    };
+    if (!result) return undefined;
+    return safeParseSystemSettings(result.data).unsafeUnwrap();
   }
 }

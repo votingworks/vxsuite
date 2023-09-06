@@ -1,16 +1,20 @@
 import './polyfills';
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { DevDock } from '@votingworks/dev-dock-frontend';
+import { assert } from '@votingworks/basics';
 import { App } from './app';
 import { focusVisible } from './util/focus_visible';
 
-ReactDom.render(
+const rootElement = document.getElementById('root');
+assert(rootElement);
+const root = createRoot(rootElement);
+
+root.render(
   <React.Fragment>
     <App />
     <DevDock />
-  </React.Fragment>,
-  document.getElementById('root')
+  </React.Fragment>
 );
 
 focusVisible();

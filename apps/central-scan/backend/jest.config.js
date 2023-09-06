@@ -10,6 +10,7 @@ module.exports = {
   // which we should probably make not be there by using smarter
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
+  setupFiles: ['<rootDir>/test/set_env_vars.ts'],
   coverageProvider: 'v8',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
@@ -21,10 +22,10 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      statements: 87,
-      branches: 72,
-      functions: 88,
-      lines: 87,
+      statements: 93,
+      branches: 85,
+      functions: 91,
+      lines: 93,
     },
   },
 };

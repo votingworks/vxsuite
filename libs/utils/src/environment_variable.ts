@@ -1,4 +1,7 @@
-import { ConverterClientTypeSchema } from '@votingworks/types';
+import {
+  ConverterClientTypeSchema,
+  PrecinctReportDestinationSchema,
+} from '@votingworks/types';
 import { ZodSchema } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
 import { asBoolean } from './as_boolean';
@@ -35,12 +38,17 @@ export enum BooleanEnvironmentVariableName {
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
   // Disables exporting original snapshots with CVRs
   DISABLE_CVR_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS',
+  // Enables continuous export to USB on VxScan, usage of the corresponding export format on
+  // VxCentralScan, and handling of these exports on VxAdmin
+  ENABLE_CONTINUOUS_EXPORT = 'REACT_APP_VX_ENABLE_CONTINUOUS_EXPORT',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
 export enum StringEnvironmentVariableName {
   // Converter for input/output files in VxAdmin
   CONVERTER = 'REACT_APP_VX_CONVERTER',
+  // How reports are expected in VxScan,
+  PRECINCT_REPORT_DESTINATION = 'REACT_APP_VX_PRECINCT_REPORT_DESTINATION',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -89,8 +97,12 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
     case BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS:
       return process.env.REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS;
+    case BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT:
+      return process.env.REACT_APP_VX_ENABLE_CONTINUOUS_EXPORT;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
+    case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
+      return process.env.REACT_APP_VX_PRECINCT_REPORT_DESTINATION;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -185,6 +197,12 @@ export function getBooleanEnvVarConfig(
         allowInProduction: true,
         autoEnableInDevelopment: false,
       };
+    case BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -200,6 +218,12 @@ export function getStringEnvVarConfig(
         name,
         defaultValue: 'ms-sems',
         zodSchema: ConverterClientTypeSchema,
+      };
+    case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
+      return {
+        name,
+        defaultValue: 'thermal-sheet-printer',
+        zodSchema: PrecinctReportDestinationSchema,
       };
     /* c8 ignore next 2 */
     default:

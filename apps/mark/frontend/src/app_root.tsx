@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   ElectionDefinition,
   OptionalElectionDefinition,
@@ -38,12 +38,14 @@ import {
   useUsbDrive,
   UnlockMachineScreen,
   useQueryChangeListener,
+  ThemeManagerContext,
 } from '@votingworks/ui';
 
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
   CastBallotPage,
+  useDisplaySettingsManager,
 } from '@votingworks/mark-flow-ui';
 import {
   checkPin,
@@ -275,6 +277,8 @@ export function AppRoot({
 
   const history = useHistory();
 
+  const themeManager = React.useContext(ThemeManagerContext);
+
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
@@ -296,8 +300,14 @@ export function AppRoot({
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
     startCardlessVoterSession.useMutation();
+  const startCardlessVoterSessionMutate =
+    startCardlessVoterSessionMutation.mutate;
   const endCardlessVoterSessionMutation = endCardlessVoterSession.useMutation();
+  const endCardlessVoterSessionMutate = endCardlessVoterSessionMutation.mutate;
+  const endCardlessVoterSessionMutateAsync =
+    endCardlessVoterSessionMutation.mutateAsync;
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
+  const unconfigureMachineMutateAsync = unconfigureMachineMutation.mutateAsync;
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -368,18 +378,24 @@ export function AppRoot({
         showPostVotingInstructions: newShowPostVotingInstructions,
       });
       history.push('/');
+
+      if (!newShowPostVotingInstructions) {
+        // [VVSG 2.0 7.1-A] Reset to default theme when voter is done marking
+        // their ballot:
+        themeManager.resetThemes();
+      }
     },
-    [history]
+    [history, themeManager]
   );
 
   const hidePostVotingInstructions = useCallback(() => {
     clearTimeout(PostVotingInstructionsTimeout.current);
-    endCardlessVoterSessionMutation.mutate(undefined, {
+    endCardlessVoterSessionMutate(undefined, {
       onSuccess() {
-        dispatchAppState({ type: 'resetBallot' });
+        resetBallot();
       },
     });
-  }, [endCardlessVoterSessionMutation]);
+  }, [endCardlessVoterSessionMutate, resetBallot]);
 
   // Hide Verify and Scan Instructions
   useEffect(() => {
@@ -401,10 +417,10 @@ export function AppRoot({
 
   const unconfigure = useCallback(async () => {
     await storage.clear();
-    await unconfigureMachineMutation.mutateAsync();
+    await unconfigureMachineMutateAsync();
     dispatchAppState({ type: 'unconfigure' });
     history.push('/');
-  }, [storage, history, unconfigureMachineMutation]);
+  }, [storage, history, unconfigureMachineMutateAsync]);
 
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchAppState({ type: 'updateVote', contestId, vote });
@@ -470,7 +486,7 @@ export function AppRoot({
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
       assert(isPollWorkerAuth(authStatus));
-      startCardlessVoterSessionMutation.mutate(
+      startCardlessVoterSessionMutate(
         {
           ballotStyleId: sessionBallotStyleId,
           precinctId: sessionPrecinctId,
@@ -482,17 +498,17 @@ export function AppRoot({
         }
       );
     },
-    [authStatus, resetBallot, startCardlessVoterSessionMutation]
+    [authStatus, resetBallot, startCardlessVoterSessionMutate]
   );
 
   const resetCardlessBallot = useCallback(() => {
     assert(isPollWorkerAuth(authStatus));
-    endCardlessVoterSessionMutation.mutate(undefined, {
+    endCardlessVoterSessionMutate(undefined, {
       onSuccess() {
         history.push('/');
       },
     });
-  }, [authStatus, endCardlessVoterSessionMutation, history]);
+  }, [authStatus, endCardlessVoterSessionMutate, history]);
 
   useEffect(() => {
     function resetBallotOnLogout() {
@@ -509,11 +525,11 @@ export function AppRoot({
 
   const endVoterSession = useCallback(async () => {
     try {
-      await endCardlessVoterSessionMutation.mutateAsync();
+      await endCardlessVoterSessionMutateAsync();
     } catch {
       // Handled by default query client error handling
     }
-  }, [endCardlessVoterSessionMutation]);
+  }, [endCardlessVoterSessionMutateAsync]);
 
   // Handle Hardware Observer Subscription
   useEffect(() => {
@@ -593,6 +609,8 @@ export function AppRoot({
     storage,
     initializedFromStorage,
   ]);
+
+  useDisplaySettingsManager({ authStatus, votes });
 
   if (!machineConfigQuery.isSuccess || !authStatusQuery.isSuccess) {
     return null;
@@ -717,7 +735,6 @@ export function AppRoot({
           updatePollsState={updatePollsState}
           hasVotes={!!votes}
           reload={reload}
-          logger={logger}
         />
       );
     }

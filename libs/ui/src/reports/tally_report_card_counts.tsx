@@ -11,28 +11,31 @@ const CardCountTable = styled.div`
   border: 1px solid rgb(194, 200, 203);
   border-width: 0 1px;
   break-inside: avoid;
+
   table {
     width: 100%;
   }
+
   th,
   td {
     border-top: 1px solid rgb(194, 200, 203);
     border-bottom: 1px solid rgb(194, 200, 203);
   }
+
   th {
     background: #e8e8e8;
-    padding: 0.15rem 0.15rem;
+    padding: 0.375em;
     text-align: left;
-    font-size: 0.5rem;
   }
+
   td {
-    padding: 0.1rem 0.15rem;
+    padding: 0.25em 0.375em;
     font-weight: 400;
   }
 `;
 
 const SheetCount = styled.span`
-  margin-left: 1rem;
+  margin-left: 2.5em;
 `;
 
 function getHmpbRows({

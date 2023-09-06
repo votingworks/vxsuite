@@ -2,7 +2,6 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import { readFileSync } from 'fs-extra';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
-import MockDate from 'mockdate';
 import { join } from 'path';
 import { safeParseJson, EventLogging } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
@@ -16,7 +15,7 @@ import {
 } from './types';
 import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './log_source';
 
-MockDate.set('2020-07-24T00:00:00.000Z');
+jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
 test('logger logs server logs as expected', async () => {
   console.log = jest.fn();
@@ -252,7 +251,7 @@ describe('test cdf conversion', () => {
     expect(decodedEvent.Type).toEqual(LogEventType.ApplicationStatus);
     expect(decodedEvent.Description).toEqual('glistened as it fell');
     expect(decodedEvent.Details).toMatchInlineSnapshot(
-      `"{\\"host\\":\\"ubuntu\\",\\"newStatus\\":\\"absent\\",\\"source\\":\\"vx-admin-frontend\\"}"`
+      `"{"host":"ubuntu","newStatus":"absent","source":"vx-admin-frontend"}"`
     );
   });
 
@@ -389,10 +388,10 @@ describe('test cdf conversion', () => {
     // An application log should match the snapshot expected.
     expect(events.filter((e) => e.Id === LogEventId.AuthLogout)[0])
       .toMatchInlineSnapshot(`
-      Object {
+      {
         "@type": "EventLogging.Event",
         "Description": "User logged out.",
-        "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"vx-admin-frontend\\"}",
+        "Details": "{"host":"ubuntu","source":"vx-admin-frontend"}",
         "Disposition": "success",
         "Id": "auth-logout",
         "Sequence": "31",
@@ -405,10 +404,10 @@ describe('test cdf conversion', () => {
     // A system log should match the snapshot expected.
     expect(events.filter((e) => e.Id === LogEventId.UsbDeviceChangeDetected)[0])
       .toMatchInlineSnapshot(`
-      Object {
+      {
         "@type": "EventLogging.Event",
         "Description": "usblp1: removed",
-        "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"system\\"}",
+        "Details": "{"host":"ubuntu","source":"system"}",
         "Disposition": "na",
         "Id": "usb-device-change-detected",
         "Sequence": "25",

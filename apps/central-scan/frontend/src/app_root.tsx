@@ -95,6 +95,7 @@ export function AppRoot({
 
   const electionDefinitionQuery = getElectionDefinition.useQuery();
   const unconfigureMutation = unconfigure.useMutation();
+  const unconfigureMutate = unconfigureMutation.mutate;
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
@@ -197,8 +198,8 @@ export function AppRoot({
   }, [setStatus]);
 
   const systemAdministratorUnconfigure = useCallback(() => {
-    unconfigureMutation.mutate({ ignoreBackupRequirement: true });
-  }, [unconfigureMutation]);
+    unconfigureMutate({ ignoreBackupRequirement: true });
+  }, [unconfigureMutate]);
 
   const scanBatch = useCallback(async () => {
     setIsScanning(true);
@@ -461,7 +462,6 @@ export function AppRoot({
         <Route path="/admin">
           <AdminActionsScreen
             backup={backup}
-            hasBatches={status.batches.length > 0}
             isTestMode={isTestMode}
             canUnconfigure={status.canUnconfigure}
             electionDefinition={electionDefinition}

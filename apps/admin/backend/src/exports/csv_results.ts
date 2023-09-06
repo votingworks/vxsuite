@@ -1,209 +1,390 @@
 // eslint-disable-next-line import/no-unresolved
 import { stringify } from 'csv-stringify/sync';
 import {
-  Election,
   writeInCandidate,
-  Precinct,
   Contest,
   Tabulation,
+  ElectionDefinition,
+  Id,
+  AnyContest,
 } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
-  getEmptyElectionResults,
+  combineGroupSpecifierAndFilter,
+  getBallotStyleById,
+  getPartyById,
+  getPrecinctById,
   groupMapToGroupList,
 } from '@votingworks/utils';
 import { Readable } from 'stream';
-import { WriteInCandidateRecord } from '../types';
+import { ScannerBatch } from '../types';
+import { Store } from '../store';
+import { tabulateElectionResults } from '../tabulation/full_results';
 
-function buildCsvRow(
-  precinct: Precinct,
-  votingMethod: string,
-  votes: number | undefined,
-  contest: Contest,
-  selection: string,
-  selectionId?: string
-): string {
-  return stringify([
-    [
-      `${contest.title}`,
-      contest.id,
-      `${selection}`,
-      selectionId ?? '',
-      `${precinct.name}`,
-      precinct.id,
-      votingMethod,
-      votes?.toString() ?? '0',
-    ],
-  ]);
-}
+function generateHeaders({
+  groupBy,
+  isPrimaryElection,
+}: {
+  groupBy: Tabulation.GroupBy;
+  isPrimaryElection: boolean;
+}): string[] {
+  const headers = [];
 
-function getVotingMethodLabel(votingMethod: Tabulation.VotingMethod): string {
-  switch (votingMethod) {
-    case 'absentee':
-      return 'Absentee';
-    case 'precinct':
-      return 'Precinct';
-    /* c8 ignore next 4 */
-    case 'provisional':
-      return 'Provisional';
-    default:
-      throwIllegalValue(votingMethod);
+  if (groupBy.groupByVotingMethod) {
+    headers.push('Voting Method');
   }
+
+  if (groupBy.groupByPrecinct) {
+    headers.push('Precinct');
+    headers.push('Precinct ID');
+  }
+
+  if (
+    isPrimaryElection &&
+    (groupBy.groupByParty || groupBy.groupByBallotStyle)
+  ) {
+    headers.push('Party');
+    headers.push('Party ID');
+  }
+
+  if (groupBy.groupByBallotStyle) {
+    headers.push('Ballot Style ID');
+  }
+
+  if (groupBy.groupByScanner || groupBy.groupByBatch) {
+    headers.push('Scanner ID');
+  }
+
+  if (groupBy.groupByBatch) {
+    headers.push('Batch ID');
+  }
+
+  headers.push('Contest', 'Contest ID', 'Selection', 'Selection ID', 'Votes');
+
+  return headers;
 }
 
-const INCLUDED_VOTING_METHODS: Tabulation.VotingMethod[] = [
-  'absentee',
-  'precinct',
-];
+const VOTING_METHOD_LABEL: Record<Tabulation.VotingMethod, string> = {
+  absentee: 'Absentee',
+  precinct: 'Precinct',
+  provisional: 'Provisional',
+};
+
+type BatchLookup = Record<string, ScannerBatch>;
+
+function buildCsvRow({
+  groupBy,
+  groupSpecifier,
+  electionDefinition,
+  isPrimaryElection,
+  batchLookup,
+  contest,
+  selection,
+  selectionId,
+  votes,
+}: {
+  groupBy: Tabulation.GroupBy;
+  groupSpecifier: Tabulation.GroupSpecifier;
+  electionDefinition: ElectionDefinition;
+  isPrimaryElection: boolean;
+  batchLookup: BatchLookup;
+  contest: Contest;
+  selection: string;
+  selectionId: string;
+  votes: number;
+}): string {
+  const values: string[] = [];
+
+  if (groupBy.groupByVotingMethod) {
+    assert(groupSpecifier.votingMethod !== undefined);
+    values.push(VOTING_METHOD_LABEL[groupSpecifier.votingMethod]);
+  }
+
+  if (groupBy.groupByPrecinct) {
+    assert(groupSpecifier.precinctId !== undefined);
+    values.push(
+      getPrecinctById(electionDefinition, groupSpecifier.precinctId).name
+    );
+    values.push(groupSpecifier.precinctId);
+  }
+
+  if (
+    isPrimaryElection &&
+    (groupBy.groupByParty || groupBy.groupByBallotStyle)
+  ) {
+    const partyId = (() => {
+      if (groupBy.groupByParty) {
+        return assertDefined(groupSpecifier.partyId);
+      }
+
+      return assertDefined(
+        getBallotStyleById(
+          electionDefinition,
+          assertDefined(groupSpecifier.ballotStyleId)
+        ).partyId
+      );
+    })();
+
+    values.push(assertDefined(getPartyById(electionDefinition, partyId).name));
+    values.push(partyId);
+  }
+
+  if (groupBy.groupByBallotStyle) {
+    assert(groupSpecifier.ballotStyleId !== undefined);
+    values.push(groupSpecifier.ballotStyleId);
+  }
+
+  if (groupBy.groupByScanner || groupBy.groupByBatch) {
+    const scannerId = (() => {
+      if (groupBy.groupByScanner) {
+        return assertDefined(groupSpecifier.scannerId);
+      }
+
+      return assertDefined(batchLookup[assertDefined(groupSpecifier.batchId)])
+        .scannerId;
+    })();
+    values.push(scannerId);
+  }
+
+  if (groupBy.groupByBatch) {
+    values.push(assertDefined(groupSpecifier.batchId));
+  }
+
+  values.push(
+    contest.title,
+    contest.id,
+    selection,
+    selectionId,
+    votes.toString()
+  );
+
+  return stringify([values]);
+}
+
+function generateBatchLookup(store: Store, electionId: Id): BatchLookup {
+  const batches = store.getScannerBatches(electionId);
+  const lookup: BatchLookup = {};
+  for (const batch of batches) {
+    lookup[batch.batchId] = batch;
+  }
+  return lookup;
+}
 
 function* generateRows({
-  electionResultsByPrecinctAndVotingMethod,
-  election,
-  writeInCandidates,
+  electionId,
+  electionDefinition,
+  groupBy,
+  resultGroups,
+  store,
+  overallReportFilter,
 }: {
-  electionResultsByPrecinctAndVotingMethod: Tabulation.ElectionResultsGroupMap;
-  election: Election;
-  writeInCandidates: WriteInCandidateRecord[];
+  electionId: Id;
+  electionDefinition: ElectionDefinition;
+  groupBy: Tabulation.GroupBy;
+  resultGroups: Tabulation.ElectionResultsGroupList;
+  store: Store;
+  overallReportFilter: Tabulation.Filter;
 }): Generator<string> {
-  const electionResultsList = groupMapToGroupList(
-    electionResultsByPrecinctAndVotingMethod
-  );
-  for (const precinct of election.precincts) {
-    for (const votingMethod of INCLUDED_VOTING_METHODS) {
-      const electionResults =
-        electionResultsList.find(
-          (er) =>
-            er.precinctId === precinct.id && er.votingMethod === votingMethod
-        ) || getEmptyElectionResults(election);
+  const { election } = electionDefinition;
+  const isPrimaryElection = election.type === 'primary';
+  const writeInCandidates = store.getWriteInCandidates({ electionId });
+  const batchLookup = generateBatchLookup(store, assertDefined(electionId));
 
-      for (const contest of election.contests) {
-        const contestWriteInCandidates = writeInCandidates.filter(
-          (c) => c.contestId === contest.id
-        );
-        const contestResults = electionResults.contestResults[contest.id];
-        assert(contestResults !== undefined);
+  for (const resultsGroup of resultGroups) {
+    const effectiveFilter = combineGroupSpecifierAndFilter(
+      resultsGroup,
+      overallReportFilter
+    );
+    const contestIds = new Set(
+      store.getFilteredContests({
+        electionId,
+        filter: effectiveFilter,
+      })
+    );
+    const includedContests: AnyContest[] = [];
+    for (const contest of election.contests) {
+      if (contestIds.has(contest.id)) {
+        includedContests.push(contest);
+      }
+    }
 
-        if (contest.type === 'candidate') {
-          assert(contestResults.contestType === 'candidate');
+    for (const contest of includedContests) {
+      const contestWriteInCandidates = writeInCandidates.filter(
+        (c) => c.contestId === contest.id
+      );
+      const contestResults = resultsGroup.contestResults[contest.id];
+      assert(contestResults !== undefined);
 
-          // official candidate rows
-          for (const candidate of contest.candidates) {
-            yield buildCsvRow(
-              precinct,
-              getVotingMethodLabel(votingMethod),
-              contestResults.tallies[candidate.id]?.tally,
-              contest,
-              candidate.name,
-              candidate.id
-            );
-          }
+      if (contest.type === 'candidate') {
+        assert(contestResults.contestType === 'candidate');
 
-          // generic write-in row
-          if (contest.allowWriteIns) {
-            const tally = contestResults.tallies[writeInCandidate.id]?.tally;
-            if (tally) {
-              yield buildCsvRow(
-                precinct,
-                getVotingMethodLabel(votingMethod),
-                tally,
-                contest,
-                writeInCandidate.name,
-                writeInCandidate.id
-              );
-            }
-          }
-
-          // adjudicated write-in rows
-          for (const contestWriteInCandidate of contestWriteInCandidates) {
-            const tally =
-              contestResults.tallies[contestWriteInCandidate.id]?.tally;
-            if (tally) {
-              yield buildCsvRow(
-                precinct,
-                getVotingMethodLabel(votingMethod),
-                tally,
-                contest,
-                contestWriteInCandidate.name,
-                contestWriteInCandidate.id
-              );
-            }
-          }
-        } else if (contest.type === 'yesno') {
-          assert(contestResults.contestType === 'yesno');
-          yield buildCsvRow(
-            precinct,
-            getVotingMethodLabel(votingMethod),
-            contestResults.yesTally,
+        // official candidate rows
+        for (const candidate of contest.candidates) {
+          /* c8 ignore next -- trivial fallthrough zero branch */
+          const votes = contestResults.tallies[candidate.id]?.tally ?? 0;
+          yield buildCsvRow({
+            groupBy,
+            groupSpecifier: resultsGroup,
+            electionDefinition,
+            isPrimaryElection,
+            batchLookup,
             contest,
-            'Yes',
-            contest.yesOption?.id
-          );
-          yield buildCsvRow(
-            precinct,
-            getVotingMethodLabel(votingMethod),
-            contestResults.noTally,
-            contest,
-            'No',
-            contest.noOption?.id
-          );
+            selection: candidate.name,
+            selectionId: candidate.id,
+            votes,
+          });
         }
 
-        yield buildCsvRow(
-          precinct,
-          getVotingMethodLabel(votingMethod),
-          contestResults.overvotes,
-          contest,
-          'Overvotes'
-        );
+        // generic write-in row
+        if (contest.allowWriteIns) {
+          const votes = contestResults.tallies[writeInCandidate.id]?.tally ?? 0;
+          if (votes) {
+            yield buildCsvRow({
+              groupBy,
+              groupSpecifier: resultsGroup,
+              electionDefinition,
+              isPrimaryElection,
+              batchLookup,
+              contest,
+              selection: writeInCandidate.name,
+              selectionId: writeInCandidate.id,
+              votes,
+            });
+          }
+        }
 
-        yield buildCsvRow(
-          precinct,
-          getVotingMethodLabel(votingMethod),
-          contestResults.undervotes,
+        // adjudicated write-in rows
+        for (const contestWriteInCandidate of contestWriteInCandidates) {
+          /* c8 ignore next 2 -- trivial fallthrough zero branch */
+          const votes =
+            contestResults.tallies[contestWriteInCandidate.id]?.tally ?? 0;
+
+          if (votes) {
+            yield buildCsvRow({
+              groupBy,
+              groupSpecifier: resultsGroup,
+              electionDefinition,
+              isPrimaryElection,
+              batchLookup,
+              contest,
+              selection: contestWriteInCandidate.name,
+              selectionId: contestWriteInCandidate.id,
+              votes,
+            });
+          }
+        }
+      } else if (contest.type === 'yesno') {
+        assert(contestResults.contestType === 'yesno');
+        yield buildCsvRow({
+          groupBy,
+          groupSpecifier: resultsGroup,
+          electionDefinition,
+          isPrimaryElection,
+          batchLookup,
           contest,
-          'Undervotes'
-        );
+          selection: contest.yesOption.label,
+          selectionId: contest.yesOption.id,
+          votes: contestResults.yesTally,
+        });
+        yield buildCsvRow({
+          groupBy,
+          groupSpecifier: resultsGroup,
+          electionDefinition,
+          isPrimaryElection,
+          batchLookup,
+          contest,
+          selection: contest.noOption.label,
+          selectionId: contest.noOption.id,
+          votes: contestResults.noTally,
+        });
       }
+
+      yield buildCsvRow({
+        groupBy,
+        groupSpecifier: resultsGroup,
+        electionDefinition,
+        isPrimaryElection,
+        batchLookup,
+        contest,
+        selection: 'Overvotes',
+        selectionId: 'overvotes',
+        votes: contestResults.overvotes,
+      });
+
+      yield buildCsvRow({
+        groupBy,
+        groupSpecifier: resultsGroup,
+        electionDefinition,
+        isPrimaryElection,
+        batchLookup,
+        contest,
+        selection: 'Undervotes',
+        selectionId: 'undervotes',
+        votes: contestResults.undervotes,
+      });
     }
   }
 }
 
 /**
- * Converts a tally for an election to a CSV file (represented as a string) of tally results
- * broken down by voting method and precinct.
+ * Converts a tally for an election to a CSV file (represented as a string) of tally
+ * results. Results are split according to the `groupBy` parameter. For each
+ * additional split, one or more split metadata columns are added to each row.
+ *  - `groupByBallotStyle` adds "Ballot Style ID" and, if a primary, "Party" and "Party ID"
+ *  - `groupByParty` adds "Party" and "Party ID", if a primary
+ *  - `groupByScanner` adds "Scanner ID"
+ *  - `groupByBatch` adds "Batch ID" and "Scanner ID"
+ *  - `groupByPrecinct` adds "Precinct" and "Precinct ID"
+ *  - `groupByVotingMethod` adds "Voting Method"
+ *
+ * Notice that we are adding not only the metadata for the specified group but
+ * metadata from inferable groups too. E.g., if we group by batch then we know
+ * the scanner ID of each group.
+ *
+ * Returns the file as a `NodeJS.ReadableStream` emitting line by line.
  */
-export function generateResultsCsv({
-  electionResultsByPrecinctAndVotingMethod,
-  election,
-  writeInCandidates,
+export async function generateResultsCsv({
+  store,
+  filter = {},
+  groupBy = {},
 }: {
-  electionResultsByPrecinctAndVotingMethod: Tabulation.ElectionResultsGroupMap;
-  election: Election;
-  writeInCandidates: WriteInCandidateRecord[];
-}): NodeJS.ReadableStream {
-  // TODO(https://github.com/votingworks/vxsuite/issues/2631): Omit the voting method column for
-  // elections where we can't distinguish between absentee/precinct ballots (e.g. NH). Punted as
-  // out-of-scope for the NH pilot.
-  const headers = [
-    'Contest',
-    'Contest ID',
-    'Selection',
-    'Selection ID',
-    'Precinct',
-    'Precinct ID',
-    'Voting Method',
-    'Votes',
-  ];
+  store: Store;
+  filter?: Tabulation.Filter;
+  groupBy?: Tabulation.GroupBy;
+}): Promise<NodeJS.ReadableStream> {
+  const electionId = store.getCurrentElectionId();
+  assert(electionId !== undefined);
+  const { electionDefinition } = assertDefined(store.getElection(electionId));
+  const { election } = electionDefinition;
 
-  const headerRow = stringify([headers]);
+  const headerRow = stringify([
+    generateHeaders({
+      groupBy,
+      isPrimaryElection: election.type === 'primary',
+    }),
+  ]);
+
+  const resultGroups = groupMapToGroupList(
+    await tabulateElectionResults({
+      electionId,
+      store,
+      filter,
+      groupBy,
+      includeManualResults: true,
+      includeWriteInAdjudicationResults: true,
+    })
+  );
 
   function* generateResultsCsvRows() {
     yield headerRow;
 
     for (const dataRow of generateRows({
-      electionResultsByPrecinctAndVotingMethod,
-      election,
-      writeInCandidates,
+      electionDefinition,
+      electionId: assertDefined(electionId),
+      groupBy,
+      resultGroups,
+      store,
+      overallReportFilter: filter,
     })) {
       yield dataRow;
     }

@@ -1,8 +1,6 @@
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
 import {
-  electionHasPrimaryBallotStyle,
-  electionHasPrimaryContest,
   getBallotStyle,
   getCandidateParties,
   getCandidatePartiesDescription,
@@ -20,8 +18,6 @@ import {
   getPrecinctById,
   getPrecinctIndexById,
   isVotePresent,
-  safeParseElection,
-  safeParseElectionDefinition,
   validateVotes,
   vote,
 } from './election_utils';
@@ -42,9 +38,14 @@ import {
 } from './election';
 import { safeParse, unsafeParse } from './generic';
 import {
+  normalizeVxf,
   testCdfBallotDefinition,
   testVxfElection,
 } from './cdf/ballot-definition/fixtures';
+import {
+  safeParseElection,
+  safeParseElectionDefinition,
+} from './election_parsing';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
@@ -67,11 +68,11 @@ test('can build votes from an array of candidate IDs', () => {
 });
 
 test('can build votes from yesno values', () => {
-  expect(vote(election.contests, { YNC: 'yes' })).toEqual({
-    YNC: 'yes',
+  expect(vote(election.contests, { YNC: 'option-yes' })).toEqual({
+    YNC: 'option-yes',
   });
-  expect(vote(election.contests, { YNC: 'no' })).toEqual({
-    YNC: 'no',
+  expect(vote(election.contests, { YNC: 'option-no' })).toEqual({
+    YNC: 'option-no',
   });
 });
 
@@ -96,7 +97,9 @@ test('can build votes from a candidates array', () => {
 });
 
 test('vote throws when given a contest id that does not match a contest', () => {
-  expect(() => vote([], { nope: 'yes' })).toThrowError('unknown contest nope');
+  expect(() => vote([], { nope: 'yes-option' })).toThrowError(
+    'unknown contest nope'
+  );
 });
 
 test('can get a party primary adjective from ballot style', () => {
@@ -256,18 +259,6 @@ test('getContestsFromIds', () => {
   ).toThrowError('Contest not-a-contest-id not found');
 });
 
-test('electionHasPrimaryBallotStyle', () => {
-  expect(electionHasPrimaryBallotStyle(electionMinimalExhaustive)).toEqual(
-    true
-  );
-  expect(electionHasPrimaryBallotStyle(election)).toEqual(false);
-});
-
-test('electionHasPrimaryContest', () => {
-  expect(electionHasPrimaryContest(electionMinimalExhaustive)).toEqual(true);
-  expect(electionHasPrimaryContest(election)).toEqual(false);
-});
-
 test('getPartyIdsWithContests', () => {
   expect(getPartyIdsWithContests(election)).toMatchObject([undefined]);
   expect(getPartyIdsWithContests(electionMinimalExhaustive)).toMatchObject([
@@ -303,7 +294,7 @@ test('getContestDistrictName', () => {
 test('isVotePresent', () => {
   expect(isVotePresent()).toEqual(false);
   expect(isVotePresent([])).toEqual(false);
-  expect(isVotePresent(['yes'])).toEqual(true);
+  expect(isVotePresent(['option-yes'])).toEqual(true);
   expect(
     isVotePresent([
       election.contests.find(
@@ -322,14 +313,14 @@ test('validates votes by checking that contests are present in a given ballot st
   expect(() =>
     validateVotes({
       votes: {
-        [yesno.id]: ['yes'],
+        [yesno.id]: [yesno.yesOption.id],
       },
       ballotStyle,
       election,
     })
   ).not.toThrowError();
   expect(() =>
-    validateVotes({ votes: { nope: ['yes'] }, ballotStyle, election })
+    validateVotes({ votes: { nope: ['yes-option'] }, ballotStyle, election })
   ).toThrowError(
     'found a vote with contest id "nope", but no such contest exists in ballot style 1'
   );
@@ -452,19 +443,6 @@ test('election scheme results reporting URL', () => {
   }).not.toThrowError();
 });
 
-test('loading an election with the old sealURL field', () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { sealUrl, ...rest } = election;
-
-  expect(
-    safeParseElection({
-      ...rest,
-      // eslint-disable-next-line vx/gts-identifiers
-      sealURL: 'https://example.com/seal.png',
-    }).unsafeUnwrap().sealUrl
-  ).toEqual('https://example.com/seal.png');
-});
-
 test('getCandidateParties', () => {
   expect(
     getCandidateParties(election.parties, {
@@ -539,16 +517,18 @@ test('getDisplayElectionHash', () => {
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(election)
   ).unsafeUnwrap();
-  expect(getDisplayElectionHash(electionDefinition)).toEqual('7dcbb8f101');
+  expect(getDisplayElectionHash(electionDefinition)).toMatchInlineSnapshot(
+    `"28bdbd95e1"`
+  );
 });
 
 test('safeParseElection converts CDF to VXF', () => {
   expect(safeParseElection(testCdfBallotDefinition).unsafeUnwrap()).toEqual(
-    testVxfElection
+    normalizeVxf(testVxfElection)
   );
   expect(
     safeParseElection(JSON.stringify(testCdfBallotDefinition)).unsafeUnwrap()
-  ).toEqual(testVxfElection);
+  ).toEqual(normalizeVxf(testVxfElection));
 });
 
 test('safeParseElection shows VXF and CDF parsing errors', () => {

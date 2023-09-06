@@ -7,8 +7,6 @@ import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { LogicAndAccuracyScreen } from './logic_and_accuracy_screen';
 
-jest.mock('../components/hand_marked_paper_ballot');
-
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
 let apiMock: ApiMock;

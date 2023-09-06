@@ -639,6 +639,8 @@ test.each<{
 
     mockCardReader.setReaderStatus('ready');
     await waitForExpect(async () => {
+      // This might fail if the test keys and certs are outdated (e.g. if the election hash changes).
+      // Run ./scripts/generate-test-keys-and-certs to update them.
       expect(await javaCard.getCardStatus()).toEqual({
         status: 'ready',
         cardDetails: expectedCardDetails,
@@ -1039,6 +1041,33 @@ test('Attempting to write too much data', async () => {
   await expect(javaCard.writeData(data)).rejects.toThrow(
     'Not enough space on card'
   );
+});
+
+//
+// Methods for scripts
+//
+
+test('disconnect', async () => {
+  const javaCard = new JavaCard(config);
+
+  mockCardReader.disconnectCard.expectCallWith().resolves();
+
+  await javaCard.disconnect();
+});
+
+test('retrieveCertByIdentifier', async () => {
+  const javaCard = new JavaCard(config);
+
+  mockCardAppletSelectionRequest();
+  mockCardCertRetrievalRequest(
+    CARD_VX_CERT.OBJECT_ID,
+    getTestFilePath({
+      fileType: 'card-vx-cert.der',
+      cardType: 'system-administrator',
+    })
+  );
+
+  await javaCard.retrieveCertByIdentifier('cardVxCert');
 });
 
 test('createAndStoreCardVxCert', async () => {

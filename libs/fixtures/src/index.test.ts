@@ -7,15 +7,14 @@ test('has various election definitions', () => {
       .map(([key]) => key)
       .sort()
   ).toMatchInlineSnapshot(`
-    Array [
+    [
+      "electionComplexGeoSample",
       "electionFamousNames2021Fixtures",
       "electionGridLayoutNewHampshireAmherstFixtures",
       "electionGridLayoutNewHampshireHudsonFixtures",
       "electionMinimalExhaustiveSample",
       "electionMinimalExhaustiveSampleDefinition",
       "electionMinimalExhaustiveSampleFixtures",
-      "electionMinimalExhaustiveSampleRightSideTargets",
-      "electionMinimalExhaustiveSampleRightSideTargetsDefinition",
       "electionMinimalExhaustiveSampleSinglePrecinct",
       "electionMinimalExhaustiveSampleSinglePrecinctDefinition",
       "electionMinimalExhaustiveSampleWithReportingUrl",
@@ -23,24 +22,14 @@ test('has various election definitions', () => {
       "electionMinimalExhaustiveSampleWithReportingUrlFixtures",
       "electionMultiPartyPrimaryFixtures",
       "electionSample",
-      "electionSample2",
-      "electionSample2Definition",
-      "electionSample2Fixtures",
-      "electionSampleCdf",
-      "electionSampleCdfDefinition",
       "electionSampleDefinition",
       "electionSampleLongContent",
       "electionSampleLongContentDefinition",
-      "electionSampleNoSeal",
-      "electionSampleNoSealDefinition",
       "electionWithMsEitherNeither",
       "electionWithMsEitherNeitherDefinition",
       "electionWithMsEitherNeitherFixtures",
       "multiPartyPrimaryElection",
       "multiPartyPrimaryElectionDefinition",
-      "primaryElectionSample",
-      "primaryElectionSampleDefinition",
-      "primaryElectionSampleFixtures",
       "sampleBallotImages",
       "systemSettings",
     ]

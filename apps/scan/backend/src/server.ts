@@ -1,13 +1,11 @@
 import {
-  ArtifactAuthenticator,
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
   JavaCard,
   MockFileCard,
 } from '@votingworks/auth';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { detectUsbDrive } from '@votingworks/usb-drive';
+import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -15,17 +13,15 @@ import {
 } from '@votingworks/utils';
 import { buildApp } from './app';
 import { PORT } from './globals';
-import { PrecinctScannerInterpreter } from './interpret';
 import { PrecinctScannerStateMachine } from './types';
 import { Workspace } from './util/workspace';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
-  artifactAuthenticator?: ArtifactAuthenticatorApi;
   logger?: Logger;
   port?: number | string;
-  precinctScannerInterpreter: PrecinctScannerInterpreter;
   precinctScannerStateMachine: PrecinctScannerStateMachine;
+  usbDrive?: UsbDrive;
   workspace: Workspace;
 }
 
@@ -34,10 +30,9 @@ export interface StartOptions {
  */
 export function start({
   auth,
-  artifactAuthenticator,
   logger = new Logger(LogSource.VxScanBackend),
-  precinctScannerInterpreter,
   precinctScannerStateMachine,
+  usbDrive,
   workspace,
 }: StartOptions): void {
   /* c8 ignore start */
@@ -53,21 +48,17 @@ export function start({
       logger,
     });
   /* c8 ignore stop */
-  const resolvedArtifactAuthenticator =
-    artifactAuthenticator ?? new ArtifactAuthenticator();
 
-  const usbDrive = detectUsbDrive();
+  const resolvedUsbDrive = usbDrive ?? detectUsbDrive();
 
   // Clear any cached data
   workspace.clearUploads();
 
   const app = buildApp(
     resolvedAuth,
-    resolvedArtifactAuthenticator,
     precinctScannerStateMachine,
-    precinctScannerInterpreter,
     workspace,
-    usbDrive,
+    resolvedUsbDrive,
     logger
   );
 

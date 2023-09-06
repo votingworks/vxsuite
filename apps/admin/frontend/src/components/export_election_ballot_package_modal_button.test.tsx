@@ -1,4 +1,3 @@
-import MockDate from 'mockdate';
 import { fakeLogger } from '@votingworks/logging';
 import {
   fakeFileWriter,
@@ -21,7 +20,7 @@ import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  MockDate.set(new Date(2023, 0, 1));
+  jest.useFakeTimers().setSystemTime(new Date(2023, 0, 1));
 
   apiMock = createApiMock();
 
@@ -34,6 +33,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  jest.useRealTimers();
   apiMock.assertComplete();
   delete window.kiosk;
 });
@@ -139,12 +139,16 @@ test('Modal renders error message appropriately', async () => {
   fireEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
 
-  apiMock.expectSaveBallotPackageToUsb(err('no_usb_drive'));
+  apiMock.expectSaveBallotPackageToUsb(
+    err({ type: 'missing-usb-drive', message: '' })
+  );
   userEvent.click(screen.getButton('Save'));
 
   await waitFor(() => getByText('Failed to Save Ballot Package'));
   expect(queryAllByTestId('modal')).toHaveLength(1);
-  expect(queryAllByText(/An error occurred: No USB drive/)).toHaveLength(1);
+  expect(
+    queryAllByText(/An error occurred: No USB drive detected/)
+  ).toHaveLength(1);
 
   fireEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
@@ -162,7 +166,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   apiMock.expectSaveBallotPackageToUsb();
   userEvent.click(getByRole('button', { name: /Save/ }));
 
-  await waitFor(() => screen.findByText('Ballot Package Saved'));
+  await screen.findByText('Ballot Package Saved');
 
   expect(queryAllByTestId('modal')).toHaveLength(1);
   expect(

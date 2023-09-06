@@ -1,7 +1,6 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
-import { electionSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
 import { render, screen, waitFor } from '../test/react_testing_library';
@@ -10,6 +9,7 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
+  election,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
@@ -31,6 +31,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 });
 
 afterEach(() => {
@@ -59,25 +60,23 @@ test('Insert Card screen idle timeout to quit app', async () => {
     />
   );
 
-  await advanceTimersAndPromises();
-
   // Ensure we're on the Insert Card screen
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   expect(window.kiosk?.quit).not.toHaveBeenCalled();
 
   // Check that we requested a quit after the idle timer fired.
-  await advanceTimersAndPromises();
   await advanceTimersAndPromises(QUIT_KIOSK_IDLE_SECONDS);
-  expect(window.kiosk?.quit).toHaveBeenCalledTimes(1);
+  await waitFor(() => {
+    expect(window.kiosk?.quit).toHaveBeenCalledTimes(1);
+  });
 });
 
 test('Voter idle timeout', async () => {
-  const electionDefinition = electionSampleDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-  await setElectionInStorage(storage, electionDefinition);
+  await setElectionInStorage(storage);
   await setStateInStorage(storage);
   render(
     <App
@@ -109,7 +108,7 @@ test('Voter idle timeout', async () => {
   screen.getByText('Are you still voting?');
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   await advanceTimersAndPromises(IDLE_RESET_TIMEOUT_SECONDS);
-  screen.getByText('Clearing ballot');
+  await screen.findByText('Clearing ballot');
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 });

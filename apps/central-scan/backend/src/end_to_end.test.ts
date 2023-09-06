@@ -1,7 +1,4 @@
-import {
-  buildMockArtifactAuthenticator,
-  buildMockDippedSmartCardAuth,
-} from '@votingworks/auth';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import {
   createMockUsb,
   getCastVoteRecordReportImport,
@@ -10,7 +7,12 @@ import {
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { CVR, TEST_JURISDICTION, unsafeParse } from '@votingworks/types';
+import {
+  CVR,
+  DEFAULT_SYSTEM_SETTINGS,
+  TEST_JURISDICTION,
+  unsafeParse,
+} from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
@@ -49,7 +51,6 @@ jest.mock('@votingworks/utils', () => {
 
 let app: Application;
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
-let artifactAuthenticator: ReturnType<typeof buildMockArtifactAuthenticator>;
 let importer: Importer;
 let mockUsb: MockUsb;
 let workspace: Workspace;
@@ -61,7 +62,6 @@ let server: Server;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
-  artifactAuthenticator = buildMockArtifactAuthenticator();
   scanner = makeMockScanner();
   workspace = createWorkspace(dirSync().name);
   importer = new Importer({
@@ -72,7 +72,6 @@ beforeEach(async () => {
   mockUsb = createMockUsb();
   app = buildCentralScannerApp({
     auth,
-    artifactAuthenticator,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],
     importer,
@@ -122,6 +121,7 @@ test('going through the whole process works', async () => {
     electionFamousNames2021Fixtures.electionDefinition,
     jurisdiction
   );
+  workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
 
   await apiClient.setTestMode({ testMode: true });
 

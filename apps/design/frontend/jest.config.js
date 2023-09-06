@@ -16,4 +16,11 @@ module.exports = {
   },
   setupFiles: ['react-app-polyfill/jsdom'],
   testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
+  transform: {
+    '^.+\\.css$': '<rootDir>/config/jest/cssTransform.js',
+  },
+  transformIgnorePatterns: [
+    '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$',
+  ],
 };

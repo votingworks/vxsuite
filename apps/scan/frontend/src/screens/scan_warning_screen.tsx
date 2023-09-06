@@ -11,28 +11,29 @@ import {
 import {
   Button,
   Caption,
-  fontSizeTheme,
+  Font,
   FullScreenIconWrapper,
-  H1,
   Icons,
   Modal,
   ModalWidth,
   P,
-  Prose,
+  WithScrollButtons,
 } from '@votingworks/ui';
-import {
-  isFeatureFlagEnabled,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
-import { assert, find, integers } from '@votingworks/basics';
-import pluralize from 'pluralize';
+import { assert, integers } from '@votingworks/basics';
 
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { Screen } from '../components/layout';
 
-import { toSentence } from '../utils/to_sentence';
 import { acceptBallot, returnBallot } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
+import {
+  MisvoteWarnings,
+  WarningDetails as MisvoteWarningDetails,
+} from '../components/misvote_warnings';
 
 interface ConfirmModalProps {
   content?: React.ReactNode;
@@ -45,10 +46,8 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
 
   return (
     <Modal
-      themeDeprecated={fontSizeTheme.large}
-      modalWidth={ModalWidth.Standard}
+      modalWidth={ModalWidth.Wide}
       title="Are you sure?"
-      centerContent
       content={content}
       actions={
         <React.Fragment>
@@ -72,131 +71,76 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
   );
 }
 
-interface OvervoteWarningScreenProps {
+interface MisvoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
+  undervotes: readonly UndervoteAdjudicationReasonInfo[];
 }
 
-function OvervoteWarningScreen({
+function MisvoteWarningScreen({
   electionDefinition,
   overvotes,
-}: OvervoteWarningScreenProps): JSX.Element {
+  undervotes,
+}: MisvoteWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
   const allowCastingOvervotes = !isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES
   );
   const [confirmTabulate, setConfirmTabulate] = useState(false);
-  const contestNames = overvotes
-    .map((overvote) =>
-      find(
-        electionDefinition.election.contests,
-        (contest) => contest.id === overvote.contestId
-      )
-    )
-    .reduce<AnyContest[]>(
-      (acc, c) => (acc.find((o) => o.id === c.id) ? acc : [...acc, c]),
-      []
-    )
-    .map((c) => c.title);
-
-  return (
-    <Screen centerContent>
-      <FullScreenPromptLayout
-        title="Too Many Votes"
-        image={
-          <FullScreenIconWrapper color="warning">
-            <Icons.Warning />
-          </FullScreenIconWrapper>
-        }
-        actionButtons={
-          <React.Fragment>
-            <Button
-              variant="primary"
-              onPress={() => returnBallotMutation.mutate()}
-            >
-              Return Ballot
-            </Button>
-            {allowCastingOvervotes && (
-              <Button onPress={() => setConfirmTabulate(true)}>
-                Cast Ballot As Is <Icons.Next />
-              </Button>
-            )}
-          </React.Fragment>
-        }
-      >
-        <P>
-          There are too many votes marked in the{' '}
-          {pluralize('contest', contestNames.length)}:{' '}
-          {toSentence(contestNames)}.
-        </P>
-        <Caption>Ask a poll worker if you need help.</Caption>
-      </FullScreenPromptLayout>
-      {confirmTabulate && (
-        <ConfirmModal
-          content={
-            <Prose textCenter>
-              <P>
-                Your votes in {pluralize('contest', contestNames.length, true)}{' '}
-                will not be counted.
-              </P>
-            </Prose>
-          }
-          onConfirm={() => acceptBallotMutation.mutate()}
-          onCancel={() => setConfirmTabulate(false)}
-        />
-      )}
-    </Screen>
-  );
-}
-
-interface UndervoteWarningScreenProps {
-  electionDefinition: ElectionDefinition;
-  undervotes: readonly UndervoteAdjudicationReasonInfo[];
-}
-
-function UndervoteWarningScreen({
-  electionDefinition,
-  undervotes,
-}: UndervoteWarningScreenProps): JSX.Element {
-  const returnBallotMutation = returnBallot.useMutation();
-  const acceptBallotMutation = acceptBallot.useMutation();
-  const [confirmTabulate, setConfirmTabulate] = useState(false);
 
   const { contests } = electionDefinition.election;
-  const blankContestNames = undervotes
-    .filter((undervote) => undervote.optionIds.length === 0)
-    .map(
-      (undervote) =>
-        find(contests, (contest) => contest.id === undervote.contestId).title
-    );
-  const partiallyVotedContestNames = undervotes
-    .filter((undervote) => undervote.optionIds.length > 0)
-    .map(
-      (undervote) =>
-        find(contests, (contest) => contest.id === undervote.contestId).title
-    );
 
-  function truncateContestNames(names: string[], min = 3, max = 5) {
-    const displayLength = names.length > max ? min : names.length;
-    const remainderLength = names.length - displayLength;
-    const displayNames = names.slice(0, displayLength);
-    if (remainderLength) {
-      displayNames.push(
-        `${remainderLength} more ${pluralize('contest', remainderLength)}`
-      );
+  // Group contest IDs for each warning type first and remove any potential
+  // duplicates:
+  const blankContestIds = new Set<string>();
+  const partiallyVotedContestIds = new Set<string>();
+  const overvoteContestIds = new Set<string>();
+
+  for (const undervote of undervotes) {
+    if (undervote.optionIds.length === 0) {
+      blankContestIds.add(undervote.contestId);
+    } else {
+      partiallyVotedContestIds.add(undervote.contestId);
     }
-    return displayNames;
+  }
+
+  for (const overvote of overvotes) {
+    overvoteContestIds.add(overvote.contestId);
+  }
+
+  // The, map IDs to contests in the election:
+  const blankContests: AnyContest[] = [];
+  const partiallyVotedContests: AnyContest[] = [];
+  const overvoteContests: AnyContest[] = [];
+
+  for (const contest of contests) {
+    if (blankContestIds.has(contest.id)) {
+      blankContests.push(contest);
+      continue;
+    }
+
+    if (partiallyVotedContestIds.has(contest.id)) {
+      partiallyVotedContests.push(contest);
+      continue;
+    }
+
+    if (overvoteContestIds.has(contest.id)) {
+      overvoteContests.push(contest);
+      continue;
+    }
   }
 
   return (
     <Screen centerContent>
       <FullScreenPromptLayout
-        title="Review Your Ballot"
-        image={
-          <FullScreenIconWrapper color="warning">
-            <Icons.Warning />
-          </FullScreenIconWrapper>
+        title={
+          <React.Fragment>
+            <Font color="warning">
+              <Icons.Warning />
+            </Font>{' '}
+            Review Your Ballot
+          </React.Fragment>
         }
         actionButtons={
           <React.Fragment>
@@ -206,60 +150,31 @@ function UndervoteWarningScreen({
             >
               Return Ballot
             </Button>
-            <Button onPress={() => setConfirmTabulate(true)}>
-              Cast Ballot As Is
-            </Button>
+
+            {(allowCastingOvervotes || overvoteContests.length === 0) && (
+              <Button onPress={() => setConfirmTabulate(true)}>
+                Cast Ballot As Is
+              </Button>
+            )}
           </React.Fragment>
         }
       >
-        {blankContestNames.length > 0 && (
-          <P>
-            No votes detected in{' '}
-            {pluralize('contest', blankContestNames.length)}:{' '}
-            {toSentence(truncateContestNames(blankContestNames))}.
-          </P>
-        )}
-        {partiallyVotedContestNames.length > 0 && (
-          <P>
-            You may vote for more candidates in the{' '}
-            {pluralize('contest', partiallyVotedContestNames.length)}:{' '}
-            {toSentence(truncateContestNames(partiallyVotedContestNames))}.
-          </P>
-        )}
-        <Caption>
-          Your votes will count, even if you leave some blank.
-          <br />
-          Ask a poll worker if you need help.
-        </Caption>
+        <MisvoteWarnings
+          blankContests={blankContests}
+          overvoteContests={overvoteContests}
+          partiallyVotedContests={partiallyVotedContests}
+        />
       </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
           content={
-            <Prose textCenter>
-              <P>
-                {blankContestNames.length > 0 && (
-                  <span>
-                    You did not vote in{' '}
-                    {pluralize('contest', blankContestNames.length, true)}.
-                    <br />
-                  </span>
-                )}
-                {partiallyVotedContestNames.length > 0 && (
-                  <span>
-                    You can still vote for more candidates in{' '}
-                    {pluralize(
-                      'contest',
-                      partiallyVotedContestNames.length,
-                      true
-                    )}
-                    .
-                  </span>
-                )}
-              </P>
-              <Caption>
-                Your votes will count, even if you leave some blank.
-              </Caption>
-            </Prose>
+            <WithScrollButtons>
+              <MisvoteWarningDetails
+                blankContests={blankContests}
+                overvoteContests={overvoteContests}
+                partiallyVotedContests={partiallyVotedContests}
+              />
+            </WithScrollButtons>
           }
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}
@@ -305,11 +220,7 @@ function BlankBallotWarningScreen(): JSX.Element {
       </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
-          content={
-            <Prose textCenter>
-              <P>No votes will be counted from this ballot.</P>
-            </Prose>
-          }
+          content={<P>No votes will be counted from this ballot.</P>}
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}
         />
@@ -350,12 +261,7 @@ function OtherReasonWarningScreen(): JSX.Element {
       </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
-          content={
-            <Prose textCenter>
-              <H1>Are you sure?</H1>
-              <P>No votes will be recorded for this ballot.</P>
-            </Prose>
-          }
+          content={<P>No votes will be recorded for this ballot.</P>}
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}
         />
@@ -391,20 +297,12 @@ export function ScanWarningScreen({
     return <BlankBallotWarningScreen />;
   }
 
-  if (overvoteReasons.length > 0) {
+  if (undervoteReasons.length > 0 || overvoteReasons.length > 0) {
     return (
-      <OvervoteWarningScreen
-        electionDefinition={electionDefinition}
-        overvotes={overvoteReasons}
-      />
-    );
-  }
-
-  if (undervoteReasons.length > 0) {
-    return (
-      <UndervoteWarningScreen
+      <MisvoteWarningScreen
         electionDefinition={electionDefinition}
         undervotes={undervoteReasons}
+        overvotes={overvoteReasons}
       />
     );
   }
@@ -521,7 +419,7 @@ export function Undervote1ContestPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UndervoteManyContestsPreview(): JSX.Element {
+export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
   const { electionDefinition } = usePreviewContext();
 
   const contests = electionDefinition.election.contests.filter(
@@ -529,16 +427,34 @@ export function UndervoteManyContestsPreview(): JSX.Element {
   );
   assert(contests.length > 0);
 
+  const multiSeatContests = contests.filter((c) => c.seats > 1);
+
   return (
     <ScanWarningScreen
       electionDefinition={electionDefinition}
-      adjudicationReasonInfo={contests.map((contest) => ({
-        type: AdjudicationReason.Undervote,
-        contestId: contest.id,
-        optionIds: contest.candidates.slice(0, 1).map(({ id }) => id),
-        optionIndexes: [0, 1],
-        expected: contest.seats,
-      }))}
+      adjudicationReasonInfo={[
+        ...multiSeatContests.map<AdjudicationReasonInfo>((c) => ({
+          type: AdjudicationReason.Undervote,
+          contestId: c.id,
+          optionIds: c.candidates.slice(0, c.seats - 1).map(({ id }) => id),
+          optionIndexes: integers().take(c.seats).toArray(),
+          expected: c.seats,
+        })),
+        ...contests.slice(0, 3).map<AdjudicationReasonInfo>((c) => ({
+          type: AdjudicationReason.Undervote,
+          contestId: c.id,
+          optionIds: [],
+          optionIndexes: [],
+          expected: c.seats,
+        })),
+        ...contests.slice(3, 5).map<AdjudicationReasonInfo>((c) => ({
+          type: AdjudicationReason.Overvote,
+          contestId: c.id,
+          optionIds: c.candidates.slice(0, 2).map(({ id }) => id),
+          optionIndexes: [0, 1],
+          expected: c.seats,
+        })),
+      ]}
     />
   );
 }

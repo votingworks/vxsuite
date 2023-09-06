@@ -1,4 +1,4 @@
-import React, { FormEvent, RefObject } from 'react';
+import { ChangeEvent, FormEvent, RefObject } from 'react';
 import styled from 'styled-components';
 
 import { LabelButton, ButtonProps } from '@votingworks/ui';
@@ -10,9 +10,11 @@ const HiddenFileInput = styled.input`
   width: 0.1px;
   height: 0.1px;
   overflow: hidden;
+
   &:focus + label {
     outline: none;
   }
+
   &:hover + label,
   &:active + label {
     outline: none;
@@ -26,7 +28,7 @@ interface Props {
   name?: string;
   multiple?: boolean;
   children: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   innerRef?: RefObject<HTMLInputElement>;
 }
 

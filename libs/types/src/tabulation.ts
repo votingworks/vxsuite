@@ -23,6 +23,8 @@ type ContestResultsBase = ContestResultsMetadata & {
 
 export type YesNoContestResults = ContestResultsBase & {
   readonly contestType: 'yesno';
+  yesOptionId: ContestOptionId;
+  noOptionId: ContestOptionId;
   yesTally: number;
   noTally: number;
 };
@@ -44,6 +46,16 @@ export type CandidateContestResults = ContestResultsBase & {
 export type ContestResults = YesNoContestResults | CandidateContestResults;
 
 export type VotingMethod = `${CVR.vxBallotType}`;
+export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
+  'precinct',
+  'absentee',
+];
+
+export const VOTING_METHOD_LABELS: Record<VotingMethod, string> = {
+  absentee: 'Absentee',
+  precinct: 'Precinct',
+  provisional: 'Provisional',
+};
 
 /**
  * Indicates what cast vote records to include when calculating results.
@@ -69,6 +81,7 @@ export interface CastVoteRecordAttributes {
   readonly votingMethod: VotingMethod;
   readonly batchId: Id;
   readonly scannerId: Id;
+  readonly partyId?: Id;
 }
 
 /**
@@ -83,9 +96,7 @@ export type Card = { type: 'bmd' } | { type: 'hmpb'; sheetNumber: number };
  */
 export type GroupSpecifier = Partial<{
   -readonly [K in keyof CastVoteRecordAttributes]: CastVoteRecordAttributes[K];
-}> & {
-  partyId?: Id;
-};
+}>;
 
 /**
  * The cast vote record attributes we can use to group election results. For

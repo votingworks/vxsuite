@@ -1,6 +1,4 @@
 import {
-  ArtifactAuthenticatorApi,
-  buildMockArtifactAuthenticator,
   buildMockInsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
@@ -21,7 +19,11 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { TEST_JURISDICTION } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace } from '../src/util/workspace';
 
@@ -29,25 +31,17 @@ interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
-  mockArtifactAuthenticator: ArtifactAuthenticatorApi;
   mockUsb: MockUsb;
   server: Server;
 }
 
 export function createApp(): MockAppContents {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const mockArtifactAuthenticator = buildMockArtifactAuthenticator();
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
   const mockUsb = createMockUsb();
 
-  const app = buildApp(
-    mockAuth,
-    mockArtifactAuthenticator,
-    logger,
-    workspace,
-    mockUsb.mock
-  );
+  const app = buildApp(mockAuth, logger, workspace, mockUsb.mock);
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -59,7 +53,6 @@ export function createApp(): MockAppContents {
     apiClient,
     app,
     mockAuth,
-    mockArtifactAuthenticator,
     mockUsb,
     server,
   };
@@ -68,7 +61,8 @@ export function createApp(): MockAppContents {
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockAuth: InsertedSmartCardAuthApi,
-  mockUsb: MockUsb
+  mockUsb: MockUsb,
+  systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<void> {
   const jurisdiction = TEST_JURISDICTION;
   const { electionJson, electionDefinition } = electionFamousNames2021Fixtures;
@@ -83,7 +77,7 @@ export async function configureApp(
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive(
-        electionJson.toBallotPackage()
+        electionJson.toBallotPackage(systemSettings)
       ),
     },
   });

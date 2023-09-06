@@ -1,12 +1,12 @@
 import {
-  AdjudicationReasonInfo,
   ElectionDefinition,
-  MarkThresholds,
   PageInterpretation,
   PollsState,
   PrecinctSelection,
+  SheetInterpretation,
   SystemSettings,
 } from '@votingworks/types';
+import { PrecinctScannerState } from '@votingworks/types/src/precinct_scanner';
 
 export interface MachineConfig {
   machineId: string;
@@ -20,47 +20,6 @@ export interface PageInterpretationWithAdjudication<
   contestIds?: readonly string[];
 }
 
-export type PrecinctScannerState =
-  | 'connecting'
-  | 'disconnected'
-  | 'no_paper'
-  | 'ready_to_scan'
-  | 'scanning'
-  | 'returning_to_rescan'
-  | 'ready_to_accept'
-  | 'accepting'
-  | 'accepted'
-  | 'needs_review'
-  | 'accepting_after_review'
-  | 'returning'
-  | 'returned'
-  | 'rejecting'
-  | 'rejected'
-  | 'jammed'
-  | 'both_sides_have_paper'
-  | 'recovering_from_error'
-  | 'double_sheet_jammed'
-  | 'unrecoverable_error';
-
-export type InvalidInterpretationReason =
-  | 'invalid_test_mode'
-  | 'invalid_election_hash'
-  | 'invalid_precinct'
-  | 'unreadable'
-  | 'unknown';
-
-export type SheetInterpretation =
-  | {
-      type: 'ValidSheet';
-    }
-  | {
-      type: 'InvalidSheet';
-      reason: InvalidInterpretationReason;
-    }
-  | {
-      type: 'NeedsReviewSheet';
-      reasons: AdjudicationReasonInfo[];
-    };
 export type PrecinctScannerErrorType =
   | 'paper_status_timed_out'
   | 'scanning_timed_out'
@@ -89,7 +48,6 @@ export interface PrecinctScannerConfig {
   electionDefinition?: ElectionDefinition;
   systemSettings: SystemSettings;
   precinctSelection?: PrecinctSelection;
-  markThresholdOverrides?: MarkThresholds;
   isSoundMuted: boolean;
   isUltrasonicDisabled: boolean;
   // "Config" that is specific to each election session

@@ -1,5 +1,5 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { SheetOf } from '@votingworks/types';
+import { DEFAULT_MARK_THRESHOLDS, SheetOf } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { loadImageData } from '@votingworks/image-utils';
 import { interpretSheetAndSaveImages } from './interpret_and_save_files';
@@ -18,6 +18,8 @@ test('interprets ballot images and saves images for storage', async () => {
       electionDefinition,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
     },
     validBmdSheet,
     'sheet-id',

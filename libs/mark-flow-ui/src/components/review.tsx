@@ -15,7 +15,6 @@ import {
   Card,
   ContestVote,
   DecoyButton,
-  DisplayTextForYesOrNo,
   Icons,
   VoterContestSummary,
   Button,
@@ -42,10 +41,12 @@ const Contest = styled.button`
   padding: 0;
   white-space: normal; /* reset Button default */
   color: inherit;
+
   button& {
     cursor: pointer;
     text-align: left;
   }
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -96,7 +97,14 @@ function YesNoContestResult({
   const yesNo = getSingleYesNoVote(vote);
 
   const votes: ContestVote[] = yesNo
-    ? [{ label: DisplayTextForYesOrNo[yesNo] }]
+    ? [
+        {
+          label:
+            yesNo === contest.yesOption.id
+              ? contest.yesOption.label
+              : contest.noOption.label,
+        },
+      ]
     : [];
 
   return (
@@ -127,7 +135,7 @@ function MsEitherNeitherContestResult({
   if (eitherNeitherVote) {
     votes.push({
       label:
-        eitherNeitherVote === 'yes'
+        eitherNeitherVote === contest.eitherOption.id
           ? contest.eitherOption.label
           : contest.neitherOption.label,
     });
@@ -135,7 +143,7 @@ function MsEitherNeitherContestResult({
   if (pickOneVote) {
     votes.push({
       label:
-        pickOneVote === 'yes'
+        pickOneVote === contest.firstOption.id
           ? contest.firstOption.label
           : contest.secondOption.label,
     });
@@ -160,7 +168,8 @@ export interface ReviewProps {
   precinctId: PrecinctId;
   contests: ContestsWithMsEitherNeither;
   votes: VotesDict;
-  returnToContest: (contestId: string) => void;
+  returnToContest?: (contestId: string) => void;
+  selectionsAreEditable?: boolean;
 }
 
 export function Review({
@@ -169,6 +178,7 @@ export function Review({
   contests,
   votes,
   returnToContest,
+  selectionsAreEditable = true,
 }: ReviewProps): JSX.Element {
   return (
     <React.Fragment>
@@ -177,16 +187,23 @@ export function Review({
           component={Contest}
           id={`contest-${contest.id}`}
           key={contest.id}
-          onPress={() => returnToContest(contest.id)}
+          onPress={() => {
+            if (!returnToContest) {
+              return;
+            }
+            returnToContest(contest.id);
+          }}
         >
           <Card
-            footerAlign="right"
+            footerAlign={selectionsAreEditable ? 'right' : undefined}
             footer={
-              <DecoyButton aria-label="Press the select button to change your votes for this contest.">
-                <Caption>
-                  <Icons.Edit /> Change
-                </Caption>
-              </DecoyButton>
+              selectionsAreEditable && (
+                <DecoyButton aria-label="Press the select button to change your votes for this contest.">
+                  <Caption>
+                    <Icons.Edit /> Change
+                  </Caption>
+                </DecoyButton>
+              )
             }
           >
             {contest.type === 'candidate' && (

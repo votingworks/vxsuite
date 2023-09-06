@@ -1,5 +1,6 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
+import { deferred } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 import { RebootFromUsbButton } from './reboot_from_usb_button';
 
@@ -81,4 +82,19 @@ test('modal state updates when USB drive is inserted.', async () => {
   await screen.findByText(/The USB Drive was not found/);
   expect(window.kiosk!.prepareToBootFromUsb).toHaveBeenCalledTimes(1);
   expect(window.kiosk!.reboot).toHaveBeenCalledTimes(0);
+});
+
+test('shows message when preparing usb', async () => {
+  const { promise: preparePromise } = deferred<void>();
+  window.kiosk!.prepareToBootFromUsb = jest
+    .fn()
+    .mockReturnValueOnce(preparePromise);
+  render(
+    <RebootFromUsbButton
+      usbDriveStatus="mounted"
+      logger={new Logger(LogSource.VxAdminFrontend)}
+    />
+  );
+  fireEvent.click(screen.getByText('Reboot from USB'));
+  await screen.findByText('Preparing to boot…');
 });

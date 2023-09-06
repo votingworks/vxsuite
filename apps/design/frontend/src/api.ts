@@ -8,6 +8,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { Id } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -31,23 +32,106 @@ export function createQueryClient(): QueryClient {
   return new QueryClient();
 }
 
-export const getElection = {
+export const listElections = {
   queryKey(): QueryKey {
-    return ['getElection'];
+    return ['listElections'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getElection());
+    return useQuery(this.queryKey(), () => apiClient.listElections());
   },
 } as const;
 
-export const setElection = {
+export const getElection = {
+  queryKey(id: Id): QueryKey {
+    return ['getElection', id];
+  },
+  useQuery(id: Id) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getElection({ electionId: id })
+    );
+  },
+} as const;
+
+export const createElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setElection, {
+    return useMutation(apiClient.createElection, {
       async onSuccess() {
-        await queryClient.invalidateQueries(getElection.queryKey());
+        await queryClient.invalidateQueries(listElections.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const updateElection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateElection, {
+      async onSuccess(_, { electionId }) {
+        // Invalidate list, since title/date may have changed
+        await queryClient.invalidateQueries(listElections.queryKey(), {
+          // Ensure list of elections is refetched in the background so it's
+          // fresh when user navigates back to elections list
+          refetchType: 'all',
+        });
+        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
+export const updateSystemSettings = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateSystemSettings, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
+export const updatePrecincts = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updatePrecincts, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
+export const updateLayoutOptions = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateLayoutOptions, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(getElection.queryKey(electionId));
+      },
+    });
+  },
+} as const;
+
+export const deleteElection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteElection, {
+      async onSuccess(_, { electionId }) {
+        queryClient.removeQueries(getElection.queryKey(electionId));
+        await queryClient.invalidateQueries(listElections.queryKey(), {
+          // Ensure list of elections is refetched in the background so it's
+          // fresh when we redirect to elections list
+          refetchType: 'all',
+        });
       },
     });
   },
@@ -67,9 +151,9 @@ export const exportBallot = {
   },
 } as const;
 
-export const exportBallotDefinition = {
+export const exportSetupPackage = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.exportBallotDefinition);
+    return useMutation(apiClient.exportSetupPackage);
   },
 } as const;

@@ -178,6 +178,7 @@ export interface CandidateContest extends Contest {
   readonly candidates: readonly Candidate[];
   readonly allowWriteIns: boolean;
   readonly partyId?: PartyId;
+  readonly termDescription?: string;
 }
 export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
   ContestInternalSchema.merge(
@@ -187,6 +188,7 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
       candidates: z.array(CandidateSchema),
       allowWriteIns: z.boolean(),
       partyId: PartyIdSchema.optional(),
+      termDescription: z.string().nonempty().optional(),
     })
   ).superRefine((contest, ctx) => {
     for (const [index, id] of findDuplicateIds(contest.candidates)) {
@@ -221,30 +223,28 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
     }
   });
 
-export type YesNoOptionId = Id;
-export const YesNoOptionIdSchema: z.ZodSchema<YesNoOptionId> = IdSchema;
 export interface YesNoOption {
-  readonly id: YesNoOptionId;
+  readonly id: Id;
   readonly label: string;
 }
 export const YesNoOptionSchema: z.ZodSchema<YesNoOption> = z.object({
-  id: YesNoOptionIdSchema,
+  id: IdSchema,
   label: z.string().nonempty(),
 });
 
 export interface YesNoContest extends Contest {
   readonly type: 'yesno';
   readonly description: string;
-  readonly yesOption?: YesNoOption;
-  readonly noOption?: YesNoOption;
+  readonly yesOption: YesNoOption;
+  readonly noOption: YesNoOption;
 }
 export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
   ContestInternalSchema.merge(
     z.object({
       type: z.literal('yesno'),
       description: z.string().nonempty(),
-      yesOption: YesNoOptionSchema.optional(),
-      noOption: YesNoOptionSchema.optional(),
+      yesOption: YesNoOptionSchema,
+      noOption: YesNoOptionSchema,
     })
   );
 
@@ -263,6 +263,17 @@ export const ContestsSchema = z
         code: z.ZodIssueCode.custom,
         path: [index, 'id'],
         message: `Duplicate contest '${id}' found.`,
+      });
+    }
+    for (const [index, id] of findDuplicateIds(
+      contests.flatMap((c) =>
+        c.type === 'yesno' ? [c.yesOption, c.noOption] : []
+      )
+    )) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [index, 'yes/noOption', 'id'],
+        message: `Duplicate yes/no contest option '${id}' found.`,
       });
     }
   });
@@ -332,34 +343,21 @@ export const CountySchema: z.ZodSchema<County> = z.object({
 export enum BallotPaperSize {
   Letter = 'letter',
   Legal = 'legal',
-  Custom8Point5X17 = 'custom8.5x17',
+  Custom17 = 'custom-8.5x17',
+  Custom18 = 'custom-8.5x18',
+  Custom21 = 'custom-8.5x21',
+  Custom22 = 'custom-8.5x22',
 }
 export const BallotPaperSizeSchema: z.ZodSchema<BallotPaperSize> =
   z.nativeEnum(BallotPaperSize);
 
-/**
- * Specifies where the target mark appears in relation to the option text.
- */
-export enum BallotTargetMarkPosition {
-  Left = 'left',
-  Right = 'right',
-}
-
-/**
- * Schema for {@link BallotTargetMarkPosition}.
- */
-export const BallotTargetMarkPositionSchema: z.ZodSchema<BallotTargetMarkPosition> =
-  z.nativeEnum(BallotTargetMarkPosition);
-
 export interface BallotLayout {
   paperSize: BallotPaperSize;
-  layoutDensity?: number;
-  targetMarkPosition?: BallotTargetMarkPosition;
+  metadataEncoding: 'qr-code' | 'timing-marks';
 }
 export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
   paperSize: BallotPaperSizeSchema,
-  layoutDensity: z.number().min(0).max(2).optional(),
-  targetMarkPosition: BallotTargetMarkPositionSchema.optional(),
+  metadataEncoding: z.enum(['qr-code', 'timing-marks']),
 });
 
 // Hand-marked paper & adjudication
@@ -377,22 +375,9 @@ export enum AdjudicationReason {
 export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
   z.nativeEnum(AdjudicationReason);
 
-export interface MarkThresholds {
-  readonly marginal: number;
-  readonly definite: number;
-}
-export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
-  .object({
-    marginal: z.number().min(0).max(1),
-    definite: z.number().min(0).max(1),
-  })
-  .refine(
-    ({ marginal, definite }) => marginal <= definite,
-    'marginal mark threshold must be less than or equal to definite mark threshold'
-  );
-
 export interface GridPositionOption {
   readonly type: 'option';
+  readonly sheetNumber: number;
   readonly side: 'front' | 'back';
   readonly column: number;
   readonly row: number;
@@ -402,6 +387,7 @@ export interface GridPositionOption {
 export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
   z.object({
     type: z.literal('option'),
+    sheetNumber: z.number().int().positive(),
     side: z.union([z.literal('front'), z.literal('back')]),
     column: z.number().int().nonnegative(),
     row: z.number().int().nonnegative(),
@@ -411,6 +397,7 @@ export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
 
 export interface GridPositionWriteIn {
   readonly type: 'write-in';
+  readonly sheetNumber: number;
   readonly side: 'front' | 'back';
   readonly column: number;
   readonly row: number;
@@ -420,6 +407,7 @@ export interface GridPositionWriteIn {
 export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
   z.object({
     type: z.literal('write-in'),
+    sheetNumber: z.number().int().positive(),
     side: z.union([z.literal('front'), z.literal('back')]),
     column: z.number().int().nonnegative(),
     row: z.number().int().nonnegative(),
@@ -433,10 +421,7 @@ export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
   GridPositionWriteInSchema,
 ]);
 export interface GridLayout {
-  readonly precinctId: PrecinctId;
   readonly ballotStyleId: BallotStyleId;
-  readonly columns: number;
-  readonly rows: number;
   /**
    * Area in timing mark units around a target mark (i.e. bubble) to consider
    * part of the option for that target mark. This is used to crop the ballot
@@ -446,50 +431,41 @@ export interface GridLayout {
   readonly gridPositions: readonly GridPosition[];
 }
 export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
-  precinctId: PrecinctIdSchema,
   ballotStyleId: BallotStyleIdSchema,
-  columns: z.number().int().nonnegative(),
-  rows: z.number().int().nonnegative(),
   optionBoundsFromTargetMark: OutsetSchema,
   gridPositions: z.array(GridPositionSchema),
 });
 
+export const ELECTION_TYPES = ['general', 'primary'] as const;
+export type ElectionType = typeof ELECTION_TYPES[number];
+const ElectionTypeSchema: z.ZodSchema<ElectionType> = z.enum(ELECTION_TYPES);
+
 export interface Election {
-  readonly ballotLayout?: BallotLayout;
+  readonly ballotLayout: BallotLayout;
   readonly ballotStyles: readonly BallotStyle[];
-  readonly centralScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly contests: Contests;
   readonly gridLayouts?: readonly GridLayout[];
   readonly county: County;
   readonly date: string;
   readonly districts: readonly District[];
-  readonly markThresholds?: MarkThresholds;
   readonly parties: Parties;
-  readonly precinctScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly precincts: readonly Precinct[];
   readonly quickResultsReportingUrl?: string; // a server where results are posted, enables VxQR if present
-  readonly seal?: string;
-  readonly sealUrl?: string;
+  readonly seal: string;
   readonly state: string;
   readonly title: string;
+  readonly type: ElectionType;
 }
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
-    ballotLayout: BallotLayoutSchema.optional(),
+    ballotLayout: BallotLayoutSchema,
     ballotStyles: BallotStylesSchema,
-    centralScanAdjudicationReasons: z
-      .array(z.lazy(() => AdjudicationReasonSchema))
-      .optional(),
     contests: ContestsSchema,
     gridLayouts: z.array(GridLayoutSchema).optional(),
     county: CountySchema,
     date: Iso8601Date,
     districts: DistrictsSchema,
-    markThresholds: z.lazy(() => MarkThresholdsSchema).optional(),
     parties: PartiesSchema,
-    precinctScanAdjudicationReasons: z
-      .array(z.lazy(() => AdjudicationReasonSchema))
-      .optional(),
     precincts: PrecinctsSchema,
     quickResultsReportingUrl: z
       .string()
@@ -497,10 +473,10 @@ export const ElectionSchema: z.ZodSchema<Election> = z
       .nonempty()
       .refine((val) => !val.endsWith('/'), 'URL cannot end with a slash')
       .optional(),
-    seal: z.string().nonempty().optional(),
-    sealUrl: z.string().nonempty().optional(),
+    seal: z.string(),
     state: z.string().nonempty(),
     title: z.string().nonempty(),
+    type: ElectionTypeSchema,
   })
   .superRefine((election, ctx) => {
     for (const [
@@ -616,42 +592,10 @@ export type OptionalElectionDefinition = Optional<ElectionDefinition>;
 export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefinition> =
   ElectionDefinitionSchema.optional();
 
-// Votes
-export type CandidateVote = readonly Candidate[];
-export const CandidateVoteSchema: z.ZodSchema<CandidateVote> =
-  z.array(CandidateSchema);
-export type YesNoVote =
-  | readonly ['yes']
-  | readonly ['no']
-  | readonly ['yes', 'no']
-  | readonly ['no', 'yes']
-  | readonly [];
-export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>;
-export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.union([
-  z.tuple([z.literal('yes')]),
-  z.tuple([z.literal('no')]),
-  z.tuple([z.literal('yes'), z.literal('no')]),
-  z.tuple([z.literal('no'), z.literal('yes')]),
-  z.tuple([]),
-]);
-export type OptionalYesNoVote = Optional<YesNoVote>;
-export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
-  YesNoVoteSchema.optional();
-export type Vote = CandidateVote | YesNoVote;
-export const VoteSchema: z.ZodSchema<Vote> = z.union([
-  CandidateVoteSchema,
-  YesNoVoteSchema,
-]);
-export type OptionalVote = Optional<Vote>;
-export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
-  VoteSchema.optional();
-export type VotesDict = Dictionary<Vote>;
-export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(VoteSchema);
-
 export enum BallotType {
-  Standard = 0,
-  Absentee = 1,
-  Provisional = 2,
+  Precinct = 'precinct',
+  Absentee = 'absentee',
+  Provisional = 'provisional',
 }
 export const BallotTypeSchema: z.ZodSchema<BallotType> =
   z.nativeEnum(BallotType);
@@ -679,12 +623,9 @@ export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
     writeInIndex: z.number().nonnegative().optional(),
   });
 
-export type YesNoContestOptionId = Exclude<
-  YesNoVote[0] | YesNoVote[1],
-  undefined
->;
+export type YesNoContestOptionId = Id;
 export const YesNoContestOptionIdSchema: z.ZodSchema<YesNoContestOptionId> =
-  z.union([z.literal('yes'), z.literal('no')]);
+  IdSchema;
 export interface YesNoContestOption {
   type: YesNoContest['type'];
   id: YesNoContestOptionId;
@@ -695,7 +636,7 @@ export interface YesNoContestOption {
 export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
   z.object({
     type: z.literal('yesno'),
-    id: z.union([z.literal('yes'), z.literal('no')]),
+    id: YesNoContestOptionIdSchema,
     contestId: ContestIdSchema,
     name: z.string(),
     optionIndex: z.number().nonnegative(),
@@ -712,8 +653,30 @@ export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
   CandidateIdSchema,
   WriteInIdSchema,
   YesNoContestOptionIdSchema,
-  YesNoOptionIdSchema,
 ]);
+
+// Votes
+export type CandidateVote = readonly Candidate[];
+export const CandidateVoteSchema: z.ZodSchema<CandidateVote> =
+  z.array(CandidateSchema);
+export type YesNoVote = readonly YesNoContestOptionId[];
+export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.array(
+  YesNoContestOptionIdSchema
+);
+
+export type OptionalYesNoVote = Optional<YesNoVote>;
+export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
+  YesNoVoteSchema.optional();
+export type Vote = CandidateVote | YesNoVote;
+export const VoteSchema: z.ZodSchema<Vote> = z.union([
+  CandidateVoteSchema,
+  YesNoVoteSchema,
+]);
+export type OptionalVote = Optional<Vote>;
+export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
+  VoteSchema.optional();
+export type VotesDict = Dictionary<Vote>;
+export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(VoteSchema);
 
 export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark;
@@ -863,7 +826,7 @@ export interface BallotYesNoTargetMark {
   bounds: Rect;
   contestId: ContestId;
   target: TargetShape;
-  optionId: 'yes' | 'no';
+  optionId: YesNoContestOptionId;
   score: number;
   /**
    * How far away `bounds` was from where it was expected. Thus, the expected
@@ -877,7 +840,7 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
     bounds: RectSchema,
     contestId: ContestIdSchema,
     target: TargetShapeSchema,
-    optionId: z.union([z.literal('yes'), z.literal('no')]),
+    optionId: YesNoContestOptionIdSchema,
     score: z.number(),
     scoredOffset: OffsetSchema,
   });

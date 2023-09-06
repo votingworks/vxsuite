@@ -1,5 +1,4 @@
 import {
-  buildMockArtifactAuthenticator,
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
@@ -9,7 +8,12 @@ import {
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  DippedSmartCardAuth,
+  ElectionDefinition,
+  SystemSettings,
+} from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import { assert } from '@votingworks/basics';
 import { fakeLogger } from '@votingworks/logging';
@@ -150,22 +154,24 @@ export function mockElectionManagerAuth(
 export async function configureMachine(
   apiClient: grout.Client<Api>,
   auth: DippedSmartCardAuthApi,
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinition,
+  systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<string> {
   mockSystemAdministratorAuth(auth);
   const { electionData } = electionDefinition;
-  const configureResult = await apiClient.configure({
-    electionData,
-  });
-  assert(configureResult.isOk());
-  return configureResult.ok().electionId;
+  const { electionId } = (
+    await apiClient.configure({
+      electionData,
+      systemSettingsData: JSON.stringify(systemSettings),
+    })
+  ).unsafeUnwrap();
+  return electionId;
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildTestEnvironment(workspaceRoot?: string) {
   const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
-  const artifactAuthenticator = buildMockArtifactAuthenticator();
   const resolvedWorkspaceRoot =
     workspaceRoot ||
     (() => {
@@ -177,7 +183,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   const mockUsb = createMockUsb();
   const app = buildApp({
     auth,
-    artifactAuthenticator,
     workspace,
     logger,
     usb: mockUsb.usb,
@@ -195,7 +200,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
   return {
     logger,
     auth,
-    artifactAuthenticator,
     workspace,
     app,
     apiClient,

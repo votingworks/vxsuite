@@ -2,10 +2,10 @@ import {
   BallotPackage,
   DEFAULT_SYSTEM_SETTINGS,
   safeParseElectionDefinition,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import 'fast-text-encoding';
-import { safeParseSystemSettings } from './system_settings';
 import {
   getFileByName,
   maybeGetFileByName,

@@ -10,7 +10,7 @@ const ballotPageMetadata: BallotPageMetadata = {
   ballotStyleId: 'card-number-3',
   isTestMode: true,
   pageNumber: 1,
-  ballotType: BallotType.Standard,
+  ballotType: BallotType.Precinct,
 };
 
 test('getContestsForBallotPage', () => {

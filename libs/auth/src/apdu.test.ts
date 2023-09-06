@@ -25,6 +25,7 @@ test.each<{
     ins: 0x01,
     p1: 0x02,
     p2: 0x03,
+    data: Buffer.of(),
   });
   expect(apdu.asBuffer()).toEqual(
     Buffer.from([expectedFirstByte, 0x01, 0x02, 0x03, 0x00])

@@ -14,7 +14,7 @@ export interface CastVoteRecordOptions {
   readonly precinctId?: PrecinctId;
   readonly ballotId?: BallotId;
   readonly ballotStyleId?: BallotStyleId;
-  readonly ballotType?: 'absentee' | 'provisional' | 'standard';
+  readonly ballotType?: 'absentee' | 'provisional' | 'precinct';
   readonly testBallot?: boolean;
   readonly scannerId?: string;
   readonly batchId?: string;
@@ -30,7 +30,7 @@ export function generateCvr(
   const precinctId = options.precinctId ?? election.precincts[0]?.id;
   const ballotStyleId = options.ballotStyleId ?? election.ballotStyles[0]?.id;
   const { ballotId } = options;
-  const ballotType = options.ballotType ?? 'standard';
+  const ballotType = options.ballotType ?? 'precinct';
   const testBallot = !!options.testBallot; // default to false
   const scannerId = options.scannerId ?? 'scanner-1';
   const batchId = options.batchId ?? 'batch-1';

@@ -1,9 +1,74 @@
 create table elections (
   id serial primary key,
-  data text not null,
+  election_data text not null,
+  system_settings_data text not null,
   is_official_results boolean not null default false,
   created_at timestamp not null default current_timestamp,
   deleted_at timestamp
+);
+
+create table precincts(
+  election_id integer not null,
+  id text not null,
+  name text not null,
+  primary key (election_id, id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
+create table ballot_styles (
+  election_id integer not null,
+  id text not null,
+  party_id text,
+  primary key (election_id, id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
+create table ballot_styles_to_precincts(
+  election_id integer not null,
+  ballot_style_id text not null,
+  precinct_id text not null,
+  primary key (election_id, ballot_style_id, precinct_id),
+  foreign key (election_id, ballot_style_id) references ballot_styles(election_id, id)
+    on delete cascade
+  foreign key (election_id, precinct_id) references precincts(election_id, id)
+    on delete cascade
+);
+
+create index idx_ballot_styles_to_precincts_precinct_id on 
+  ballot_styles_to_precincts(election_id, precinct_id);
+
+create table ballot_styles_to_districts(
+  election_id text not null,
+  ballot_style_id text not null,
+  district_id text not null,
+  primary key (election_id, ballot_style_id, district_id),
+  foreign key (election_id, ballot_style_id) references ballot_styles(election_id, id)
+    on delete cascade
+);
+
+create index idx_ballot_styles_to_districts_district_id on 
+  ballot_styles_to_districts(election_id, district_id);
+
+create table contests(
+  election_id text not null,
+  id text not null,
+  district_id text not null,
+  party_id text,
+  sort_index integer not null,
+  primary key (election_id, id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
+create table voting_methods(
+  election_id integer not null,
+  voting_method text not null 
+    check (voting_method = 'absentee' or voting_method = 'precinct' or voting_method = 'provisional'),
+  primary key (election_id, voting_method),
+  foreign key (election_id) references elections(id)
+    on delete cascade
 );
 
 create table write_in_candidates (
@@ -18,8 +83,10 @@ create table write_in_candidates (
 );
 
 create table write_ins (
-  id varchar(36) primary key,
+  sequence_id integer primary key autoincrement,
+  id varchar(36) not null unique,
   cvr_id varchar(36) not null,
+  election_id varchar(36) not null,
   side text not null check (side = 'front' or side = 'back'),
   contest_id text not null,
   option_id text not null,
@@ -28,6 +95,7 @@ create table write_ins (
   is_invalid boolean not null default false,
   adjudicated_at timestamp,
   created_at timestamp not null default current_timestamp,
+  foreign key (election_id) references elections(id),
   foreign key (cvr_id) references cvrs(id)
     on delete cascade,
   foreign key (cvr_id, side) references ballot_images(cvr_id, side),
@@ -53,6 +121,7 @@ create table cvrs (
   precinct_id text not null,
   sheet_number integer check (sheet_number is null or sheet_number > 0),
   votes text not null,
+  is_blank boolean not null,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
     on delete cascade,
@@ -129,16 +198,6 @@ create table manual_result_write_in_candidate_references (
     on delete cascade,
   foreign key (write_in_candidate_id) references write_in_candidates(id)
     on delete cascade
-);
-
-create table system_settings (
-  -- enforce singleton table
-  id integer primary key check (id = 1),
-  are_poll_worker_card_pins_enabled boolean not null,
-  inactive_session_time_limit_minutes integer not null,
-  num_incorrect_pin_attempts_allowed_before_card_lockout integer not null,
-  overall_session_time_limit_hours integer not null,
-  starting_card_lockout_duration_seconds integer not null
 );
 
 create table settings (

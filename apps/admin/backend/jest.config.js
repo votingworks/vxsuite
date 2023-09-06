@@ -9,13 +9,14 @@ module.exports = {
   // which we should probably make not be there by using smarter
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
+  setupFiles: ['<rootDir>/test/set_env_vars.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
   coverageThreshold: {
     global: {
-      statements: 98,
-      branches: 95,
+      statements: 100,
+      branches: 100,
       functions: 100,
-      lines: 98,
+      lines: 100,
     },
   },
   coverageProvider: 'v8',

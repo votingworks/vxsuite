@@ -9,7 +9,7 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppBase, ErrorBoundary, H1, P, Prose } from '@votingworks/ui';
+import { AppBase, ErrorBoundary, H1, P, Text } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { memoize } from './utils/memoize';
 import {
@@ -135,10 +135,10 @@ export function App({
       <BrowserRouter>
         <ErrorBoundary
           errorMessage={
-            <Prose textCenter>
+            <Text center>
               <H1>Something went wrong</H1>
               <P>Ask a poll worker to restart the ballot marking device.</P>
-            </Prose>
+            </Text>
           }
         >
           <FocusManager

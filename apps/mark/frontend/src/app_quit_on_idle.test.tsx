@@ -23,8 +23,8 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
+jest.useFakeTimers();
 beforeEach(() => {
-  jest.useFakeTimers();
   createReactIdleTimerMocks();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
@@ -59,17 +59,16 @@ test('Insert Card screen idle timeout to quit app', async () => {
     />
   );
 
-  await advanceTimersAndPromises();
-
   // Ensure we're on the Insert Card screen
-  screen.getByText('Insert Card');
+  await screen.findByText('Insert Card');
 
   expect(window.kiosk?.quit).not.toHaveBeenCalled();
 
   // Check that we requested a quit after the idle timer fired.
-  await advanceTimersAndPromises();
   await advanceTimersAndPromises(QUIT_KIOSK_IDLE_SECONDS);
-  expect(window.kiosk?.quit).toHaveBeenCalledTimes(1);
+  await waitFor(() => {
+    expect(window.kiosk?.quit).toHaveBeenCalledTimes(1);
+  });
 });
 
 test('Voter idle timeout', async () => {
@@ -109,7 +108,7 @@ test('Voter idle timeout', async () => {
   screen.getByText('Are you still voting?');
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   await advanceTimersAndPromises(IDLE_RESET_TIMEOUT_SECONDS);
-  screen.getByText('Clearing ballot');
+  await screen.findByText('Clearing ballot');
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 });

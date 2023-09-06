@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import styled from 'styled-components';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -26,12 +25,19 @@ import {
   faChevronCircleUp,
   faChevronCircleDown,
   faChevronRight,
+  faChevronLeft,
   faSquarePlus,
   faSpinner,
+  faCaretDown,
+  faCirclePlus,
+  faRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
   faPauseCircle,
+  faSquare,
+  faCircle,
+  faCircleDot,
 } from '@fortawesome/free-regular-svg-icons';
 
 import { Font, FontProps } from './typography';
@@ -65,8 +71,24 @@ export const Icons = {
     return <FaIcon type={faSquarePlus} />;
   },
 
+  AddCircle(): JSX.Element {
+    return <FaIcon type={faCirclePlus} />;
+  },
+
   Backspace(): JSX.Element {
     return <FaIcon type={faDeleteLeft} />;
+  },
+
+  CaretDown(): JSX.Element {
+    return <FaIcon type={faCaretDown} />;
+  },
+
+  Circle(): JSX.Element {
+    return <FaIcon type={faCircle} />;
+  },
+
+  CircleDot(): JSX.Element {
+    return <FaIcon type={faCircleDot} />;
   },
 
   Checkbox(): JSX.Element {
@@ -151,8 +173,20 @@ export const Icons = {
     return <FaIcon type={faChevronRight} />;
   },
 
+  LeftChevron(): JSX.Element {
+    return <FaIcon type={faChevronLeft} />;
+  },
+
+  RotateRight(): JSX.Element {
+    return <FaIcon type={faRotateRight} />;
+  },
+
   Save(): JSX.Element {
     return <FaIcon type={faFloppyDisk} />;
+  },
+
+  Square(): JSX.Element {
+    return <FaIcon type={faSquare} />;
   },
 
   Settings(): JSX.Element {

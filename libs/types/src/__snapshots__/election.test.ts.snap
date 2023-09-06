@@ -101,6 +101,15 @@ CDF error: [
     "expected": "array",
     "received": "undefined",
     "path": [
+      "BallotFormat"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "array",
+    "received": "undefined",
+    "path": [
       "Election"
     ],
     "message": "Required"
@@ -147,6 +156,15 @@ CDF error: [
     "received": "undefined",
     "path": [
       "Party"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "vxSeal"
     ],
     "message": "Required"
   },

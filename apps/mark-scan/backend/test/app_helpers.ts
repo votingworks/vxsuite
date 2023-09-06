@@ -1,14 +1,13 @@
 import {
-  ArtifactAuthenticatorApi,
-  buildMockArtifactAuthenticator,
   buildMockInsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { AddressInfo } from 'net';
-import { fakeLogger } from '@votingworks/logging';
+import { fakeLogger, Logger } from '@votingworks/logging';
 import tmp from 'tmp';
+import os from 'os';
 import {
   MockUsb,
   createBallotPackageZipArchive,
@@ -21,32 +20,127 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { TEST_JURISDICTION } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
+import {
+  MinimalWebUsbDevice,
+  PaperHandlerDriver,
+  PaperHandlerStatus,
+} from '@votingworks/custom-paper-handler';
+import { assert } from '@votingworks/basics';
 import { Api, buildApp } from '../src/app';
-import { createWorkspace } from '../src/util/workspace';
+import { createWorkspace, Workspace } from '../src/util/workspace';
+import {
+  getPaperHandlerStateMachine,
+  PaperHandlerStateMachine,
+} from '../src/custom-paper-handler';
+import { DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS } from '../src/custom-paper-handler/constants';
+
+jest.mock('@votingworks/custom-paper-handler');
+
+export function defaultPaperHandlerStatus(): PaperHandlerStatus {
+  return {
+    // Scanner status
+    requestId: 1,
+    returnCode: 1,
+    parkSensor: false,
+    paperOutSensor: false,
+    paperPostCisSensor: false,
+    paperPreCisSensor: false,
+    paperInputLeftInnerSensor: false,
+    paperInputRightInnerSensor: false,
+    paperInputLeftOuterSensor: false,
+    paperInputRightOuterSensor: false,
+    printHeadInPosition: false,
+    scanTimeout: false,
+    motorMove: false,
+    scanInProgress: false,
+    jamEncoder: false,
+    paperJam: false,
+    coverOpen: false,
+    optoSensor: false,
+    ballotBoxDoorSensor: false,
+    ballotBoxAttachSensor: false,
+    preHeadSensor: false,
+
+    // Printer status
+    ticketPresentInOutput: false,
+    paperNotPresent: true,
+    dragPaperMotorOn: false,
+    spooling: false,
+    printingHeadUpError: false,
+    notAcknowledgeCommandError: false,
+    powerSupplyVoltageError: false,
+    headNotConnected: false,
+    comError: false,
+    headTemperatureError: false,
+    diverterError: false,
+    headErrorLocked: false,
+    printingHeadReadyToPrint: true,
+    eepromError: false,
+    ramError: false,
+  };
+}
+
+export async function getMockStateMachine(
+  workspace: Workspace,
+  logger: Logger
+): Promise<PaperHandlerStateMachine> {
+  // State machine setup
+  const webDevice: MinimalWebUsbDevice = {
+    open: jest.fn(),
+    close: jest.fn(),
+    transferOut: jest.fn(),
+    transferIn: jest.fn(),
+    claimInterface: jest.fn(),
+    selectConfiguration: jest.fn(),
+  };
+  const driver = new PaperHandlerDriver(webDevice);
+  const auth = buildMockInsertedSmartCardAuth();
+  jest
+    .spyOn(driver, 'getPaperHandlerStatus')
+    .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
+  const stateMachine = await getPaperHandlerStateMachine(
+    driver,
+    workspace,
+    auth,
+    logger,
+    DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
+  );
+  assert(stateMachine);
+
+  return stateMachine;
+}
 
 interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
-  mockArtifactAuthenticator: ArtifactAuthenticatorApi;
   mockUsb: MockUsb;
   server: Server;
+  stateMachine: PaperHandlerStateMachine;
 }
 
-export function createApp(): MockAppContents {
+export async function createApp(): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const mockArtifactAuthenticator = buildMockArtifactAuthenticator();
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
   const mockUsb = createMockUsb();
+  // Default mount dir used by `tmp` lib in MockUsb
+  const mountDir = os.tmpdir();
+
+  const stateMachine = await getMockStateMachine(workspace, logger);
 
   const app = buildApp(
     mockAuth,
-    mockArtifactAuthenticator,
     logger,
     workspace,
-    mockUsb.mock
+    mockUsb.mock,
+    stateMachine,
+    mountDir
   );
 
   const server = app.listen();
@@ -59,16 +153,17 @@ export function createApp(): MockAppContents {
     apiClient,
     app,
     mockAuth,
-    mockArtifactAuthenticator,
     mockUsb,
     server,
+    stateMachine,
   };
 }
 
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockAuth: InsertedSmartCardAuthApi,
-  mockUsb: MockUsb
+  mockUsb: MockUsb,
+  systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<void> {
   const jurisdiction = TEST_JURISDICTION;
   const { electionJson, electionDefinition } = electionFamousNames2021Fixtures;
@@ -83,7 +178,7 @@ export async function configureApp(
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive(
-        electionJson.toBallotPackage()
+        electionJson.toBallotPackage(systemSettings)
       ),
     },
   });

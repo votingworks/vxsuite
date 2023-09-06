@@ -24,9 +24,10 @@ import {
   SheetOf,
   Side,
   SystemSettings,
-  SystemSettingsDbRow,
+  safeParseSystemSettings,
+  AdjudicationReason,
 } from '@votingworks/types';
-import { assert, Optional } from '@votingworks/basics';
+import { assertDefined, Optional } from '@votingworks/basics';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
@@ -34,17 +35,17 @@ import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { ResultSheet } from '@votingworks/backend';
+import {
+  clearCastVoteRecordHashes,
+  getCastVoteRecordRootHash,
+  updateCastVoteRecordHashes,
+} from '@votingworks/auth';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
 
 const SchemaPath = join(__dirname, '../schema.sql');
-
-export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
-  marginal: 0.17,
-  definite: 0.25,
-};
 
 function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
   return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
@@ -118,23 +119,7 @@ export class Store {
       return undefined;
     }
 
-    const electionDefinitionParseResult = safeParseElectionDefinition(
-      electionRow.electionData
-    );
-
-    if (electionDefinitionParseResult.isErr()) {
-      throw new Error('Unable to parse stored election data.');
-    }
-
-    const electionDefinition = electionDefinitionParseResult.ok();
-
-    return {
-      ...electionDefinition,
-      election: {
-        markThresholds: DefaultMarkThresholds,
-        ...electionDefinition.election,
-      },
-    };
+    return safeParseElectionDefinition(electionRow.electionData).unsafeUnwrap();
   }
 
   /**
@@ -172,27 +157,15 @@ export class Store {
   }
 
   /**
-   * Creates a system settings record
+   * Stores the system settings.
    */
   setSystemSettings(systemSettings: SystemSettings): void {
     this.client.run('delete from system_settings');
     this.client.run(
       `
-      insert into system_settings (
-        are_poll_worker_card_pins_enabled,
-        inactive_session_time_limit_minutes,
-        num_incorrect_pin_attempts_allowed_before_card_lockout,
-        overall_session_time_limit_hours,
-        starting_card_lockout_duration_seconds
-      ) values (
-        ?, ?, ?, ?, ?
-      )
+      insert into system_settings (data) values (?)
       `,
-      systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0,
-      systemSettings.inactiveSessionTimeLimitMinutes,
-      systemSettings.numIncorrectPinAttemptsAllowedBeforeCardLockout,
-      systemSettings.overallSessionTimeLimitHours,
-      systemSettings.startingCardLockoutDurationSeconds
+      JSON.stringify(systemSettings)
     );
   }
 
@@ -200,25 +173,12 @@ export class Store {
    * Gets system settings or undefined if they aren't loaded yet
    */
   getSystemSettings(): SystemSettings | undefined {
-    const result = this.client.one(
-      `
-      select
-        are_poll_worker_card_pins_enabled as arePollWorkerCardPinsEnabled,
-        inactive_session_time_limit_minutes as inactiveSessionTimeLimitMinutes,
-        num_incorrect_pin_attempts_allowed_before_card_lockout as numIncorrectPinAttemptsAllowedBeforeCardLockout,
-        overall_session_time_limit_hours as overallSessionTimeLimitHours,
-        starting_card_lockout_duration_seconds as startingCardLockoutDurationSeconds
-      from system_settings
-      `
-    ) as SystemSettingsDbRow | undefined;
+    const result = this.client.one(`select data from system_settings`) as
+      | { data: string }
+      | undefined;
 
-    if (!result) {
-      return undefined;
-    }
-    return {
-      ...result,
-      arePollWorkerCardPinsEnabled: result.arePollWorkerCardPinsEnabled === 1,
-    };
+    if (!result) return undefined;
+    return safeParseSystemSettings(result.data).unsafeUnwrap();
   }
 
   /**
@@ -315,68 +275,18 @@ export class Store {
   getBallotPaperSizeForElection(): BallotPaperSize {
     const electionDefinition = this.getElectionDefinition();
     return (
-      electionDefinition?.election.ballotLayout?.paperSize ??
+      electionDefinition?.election.ballotLayout.paperSize ??
       BallotPaperSize.Letter
     );
   }
 
-  /**
-   * Gets the current override values for mark thresholds if they are set.
-   * If there are no overrides set, returns undefined.
-   */
-  getMarkThresholdOverrides(): Optional<MarkThresholds> {
-    const electionRow = this.client.one(
-      'select marginal_mark_threshold_override as marginal, definite_mark_threshold_override as definite from election'
-    ) as
-      | {
-          marginal: number | null;
-          definite: number | null;
-        }
-      | undefined;
-
-    if (!electionRow) {
-      return undefined;
-    }
-
-    if (electionRow.definite) {
-      assert(typeof electionRow.marginal === 'number');
-      return {
-        marginal: electionRow.marginal,
-        definite: electionRow.definite,
-      };
-    }
-
-    return undefined;
+  getMarkThresholds(): MarkThresholds {
+    return assertDefined(this.getSystemSettings()).markThresholds;
   }
 
-  getCurrentMarkThresholds(): Optional<MarkThresholds> {
-    return (
-      this.getMarkThresholdOverrides() ??
-      this.getElectionDefinition()?.election.markThresholds
-    );
-  }
-
-  /**
-   * Sets the current override values for mark thresholds. A value of undefined
-   * will remove overrides and cause thresholds to fallback to the default values
-   * in the election definition.
-   */
-  setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
-    if (!this.hasElection()) {
-      throw new Error('Cannot set mark thresholds without an election.');
-    }
-
-    if (!markThresholds) {
-      this.client.run(
-        'update election set definite_mark_threshold_override = null, marginal_mark_threshold_override = null'
-      );
-    } else {
-      this.client.run(
-        'update election set definite_mark_threshold_override = ?, marginal_mark_threshold_override = ?',
-        markThresholds.definite,
-        markThresholds.marginal
-      );
-    }
+  getAdjudicationReasons(): readonly AdjudicationReason[] {
+    return assertDefined(this.getSystemSettings())
+      .centralScanAdjudicationReasons;
   }
 
   /**
@@ -539,7 +449,7 @@ export class Store {
       return undefined;
     }
 
-    return dateTimeFromNoOffsetSqliteDate(row?.scannerBackedUpAt);
+    return dateTimeFromNoOffsetSqliteDate(row.scannerBackedUpAt);
   }
 
   /**
@@ -553,7 +463,7 @@ export class Store {
       return undefined;
     }
 
-    return dateTimeFromNoOffsetSqliteDate(row?.cvrsBackedUpAt);
+    return dateTimeFromNoOffsetSqliteDate(row.cvrsBackedUpAt);
   }
 
   getBallotsCounted(): number {
@@ -873,7 +783,7 @@ export class Store {
   /**
    * Gets all batches, including their sheet count.
    */
-  batchStatus(): BatchInfo[] {
+  getBatches(): BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
       batchNumber: number;
@@ -989,5 +899,17 @@ export class Store {
         backImagePath: row.backImagePath,
       };
     }
+  }
+
+  getCastVoteRecordRootHash(): string {
+    return getCastVoteRecordRootHash(this.client);
+  }
+
+  updateCastVoteRecordHashes(cvrId: string, cvrHash: string): void {
+    updateCastVoteRecordHashes(this.client, cvrId, cvrHash);
+  }
+
+  clearCastVoteRecordHashes(): void {
+    clearCastVoteRecordHashes(this.client);
   }
 }

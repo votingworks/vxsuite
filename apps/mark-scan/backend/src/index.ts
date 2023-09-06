@@ -8,6 +8,7 @@ import { createWorkspace, Workspace } from './util/workspace';
 
 export type { Api } from './app';
 export * from './types';
+export * from './custom-paper-handler';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotEnvPath = '.env';
@@ -53,7 +54,7 @@ async function resolveWorkspace(): Promise<Workspace> {
 
 async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
-  server.start({ port: PORT, logger, workspace });
+  await server.start({ port: PORT, logger, workspace });
   return 0;
 }
 

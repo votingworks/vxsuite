@@ -19,7 +19,6 @@ import {
   Size,
   Vote,
   VotesDict,
-  YesNoVote,
 } from '@votingworks/types';
 import { allContestOptions } from '@votingworks/utils';
 import {
@@ -30,11 +29,6 @@ import {
   getBatchIdForScannerId,
   splitContestsByPage,
 } from './utils';
-
-/**
- *  All valid contest choice options for a yes no contest.
- */
-const YES_NO_OPTIONS: YesNoVote[] = [['yes'], ['no'], ['yes', 'no'], []];
 
 /**
  * Generates all possible contest choice options for a given CandidateContest
@@ -129,18 +123,16 @@ export function generateBallotPageLayouts(
   }
 
   const gridLayout = election.gridLayouts.find(
-    (layout) =>
-      layout.ballotStyleId === metadata.ballotStyleId &&
-      layout.precinctId === metadata.precinctId
+    (layout) => layout.ballotStyleId === metadata.ballotStyleId
   );
 
   if (!gridLayout) {
     throw new Error(
-      `no grid layout found for ballot style ${metadata.ballotStyleId} and precinct ${metadata.precinctId}`
+      `no grid layout found for ballot style ${metadata.ballotStyleId}`
     );
   }
 
-  const paperSize = election.ballotLayout?.paperSize ?? BallotPaperSize.Letter;
+  const { paperSize } = election.ballotLayout;
   const pageSize: Size = {
     width: 200 * 8.5,
     height: 200 * (paperSize === BallotPaperSize.Letter ? 11 : 14),
@@ -228,7 +220,7 @@ export function* generateCvrs({
               ballotType:
                 ballotType === CVR.vxBallotType.Absentee
                   ? BallotType.Absentee
-                  : BallotType.Standard,
+                  : BallotType.Precinct,
               isTestMode: testMode,
             });
         if (ballotPageLayouts.length > 2) {
@@ -247,7 +239,12 @@ export function* generateCvrs({
                 );
                 break;
               case 'yesno':
-                optionsForEachContest.set(contest.id, YES_NO_OPTIONS);
+                optionsForEachContest.set(contest.id, [
+                  [contest.yesOption.id],
+                  [contest.noOption.id],
+                  [contest.yesOption.id, contest.noOption.id],
+                  [],
+                ]);
                 break;
               // istanbul ignore next
               default:

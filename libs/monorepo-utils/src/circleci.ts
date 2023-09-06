@@ -95,18 +95,18 @@ export function generateConfig(pkgs: ReadonlyMap<string, PackageInfo>): string {
 version: 2.1
 
 orbs:
-  browser-tools: circleci/browser-tools@1.4.1
+  browser-tools: circleci/browser-tools@1.4.3
 
 executors:
   nodejs-browsers:
     docker:
-      - image: votingworks/cimg-debian11-browsers:2.0.3
+      - image: votingworks/cimg-debian11-browsers:2.0.4
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
   nodejs:
     docker:
-      - image: votingworks/cimg-debian11:2.0.3
+      - image: votingworks/cimg-debian11:2.0.4
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
@@ -183,7 +183,10 @@ commands:
   install-cypress-browser:
     description: Installs a browser for Cypress tests.
     steps:
-      - browser-tools/install-chrome
+      - run: sudo apt update
+      - browser-tools/install-chrome:
+          # TODO remove following line when fixed https://github.com/CircleCI-Public/browser-tools-orb/issues/90
+          chrome-version: 116.0.5845.96
       - browser-tools/install-chromedriver
 
 `.trim();

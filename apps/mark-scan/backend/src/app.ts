@@ -1,12 +1,8 @@
 import express, { Application } from 'express';
-import { z } from 'zod';
-import {
-  ArtifactAuthenticatorApi,
-  InsertedSmartCardAuthApi,
-  InsertedSmartCardAuthMachineState,
-} from '@votingworks/auth';
-import { assert, err, ok, Optional, Result } from '@votingworks/basics';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { assert, ok, Optional, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
+import { Buffer } from 'buffer';
 import {
   BallotPackageConfigurationError,
   BallotStyleId,
@@ -15,39 +11,40 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
+  PrecinctSelection,
+  AllPrecinctsSelection,
+  InterpretedBmdPage,
 } from '@votingworks/types';
 import {
-  ScannerReportData,
-  ScannerReportDataSchema,
   isElectionManagerAuth,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import makeDebug from 'debug';
 import { getMachineConfig } from './machine_config';
-import { Workspace } from './util/workspace';
+import { Workspace, constructAuthMachineState } from './util/workspace';
+import {
+  PaperHandlerStateMachine,
+  SimpleServerStatus,
+} from './custom-paper-handler';
 
-function constructAuthMachineState(
-  workspace: Workspace
-): InsertedSmartCardAuthMachineState {
-  const electionDefinition = workspace.store.getElectionDefinition();
-  const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings = workspace.store.getSystemSettings();
-  return {
-    ...(systemSettings ?? {}),
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction,
-  };
-}
+const debug = makeDebug('mark-scan:app-backend');
+
+const defaultMediaMountDir = '/media';
 
 function buildApi(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   usb: Usb,
   logger: Logger,
-  workspace: Workspace
+  workspace: Workspace,
+  stateMachine?: PaperHandlerStateMachine,
+  // mark-scan hardware boots off a USB drive so we need to differentiate between USBs.
+  // Allow overriding for tests
+  dataUsbMountPrefix = defaultMediaMountDir
 ) {
   return grout.createApi({
     getMachineConfig,
@@ -97,6 +94,16 @@ function buildApi(
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
+    setPrecinctSelection(input: {
+      precinctSelection: PrecinctSelection | AllPrecinctsSelection;
+    }): void {
+      workspace.store.setPrecinctSelection(input.precinctSelection);
+    },
+
+    getPrecinctSelection(): Optional<PrecinctSelection> {
+      return workspace.store.getPrecinctSelection();
+    },
+
     unconfigureMachine() {
       workspace.store.setElectionAndJurisdiction(undefined);
       workspace.store.deleteSystemSettings();
@@ -122,12 +129,21 @@ function buildApi(
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-      const [usbDrive] = await usb.getUsbDrives();
-      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
+      const usbDrives = await usb.getUsbDrives();
+      // mark-scan hardware boots off a USB drive so we need to find the media drive
+      const usbDrive = usbDrives.find((drive) =>
+        drive.mountPoint?.startsWith(dataUsbMountPrefix)
+      );
+      const mountPoints = usbDrives
+        .map((drive) => drive.mountPoint || '<none>')
+        .join(', ');
+      assert(
+        usbDrive !== undefined,
+        `No USB drive mounted to ${dataUsbMountPrefix}. Got mount points: ${mountPoints}`
+      );
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        artifactAuthenticator,
         usbDrive,
         logger
       );
@@ -144,37 +160,71 @@ function buildApi(
       });
       workspace.store.setSystemSettings(systemSettings);
 
+      const { precincts } = electionDefinition.election;
+      if (precincts.length === 1) {
+        workspace.store.setPrecinctSelection(
+          singlePrecinctSelectionFor(precincts[0].id)
+        );
+      }
+
       return ok(electionDefinition);
     },
 
-    async readScannerReportDataFromCard(): Promise<
-      Result<Optional<ScannerReportData>, SyntaxError | z.ZodError | Error>
-    > {
-      const machineState = constructAuthMachineState(workspace);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'poll_worker') {
-        return err(new Error('User is not a poll worker'));
+    getPaperHandlerState(): SimpleServerStatus {
+      if (!stateMachine) {
+        return 'no_hardware';
       }
 
-      return await auth.readCardData(machineState, {
-        schema: ScannerReportDataSchema,
-      });
+      return stateMachine.getSimpleStatus();
     },
 
-    async clearScannerReportDataFromCard(): Promise<Result<void, Error>> {
-      const machineState = constructAuthMachineState(workspace);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'poll_worker') {
-        return err(new Error('User is not a poll worker'));
+    setAcceptingPaperState(): void {
+      assert(stateMachine);
+      stateMachine.setAcceptingPaper();
+    },
+
+    printBallot(input: { pdfData: Buffer }): void {
+      assert(stateMachine);
+
+      void stateMachine.printBallot(input.pdfData);
+    },
+
+    getInterpretation(): InterpretedBmdPage | null {
+      assert(stateMachine);
+
+      // Storing the interpretation in the db requires a somewhat complicated schema
+      // and would need to be deleted at the end of the voter session anyway.
+      // If we can get away with storing the interpretation in memory only in the
+      // state machine we should. This simplifies the logic and reduces the risk
+      // of accidentally persisting ballot selections to disk.
+      const sheetInterpretation = stateMachine.getInterpretation();
+
+      if (!sheetInterpretation) {
+        return null;
       }
 
-      return await auth.clearCardData(machineState);
+      assert(
+        sheetInterpretation[0].interpretation.type === 'InterpretedBmdPage'
+      );
+      // It's impossible to print to the back page from the thermal printer
+      assert(sheetInterpretation[1].interpretation.type === 'BlankPage');
+
+      // Omit image data before sending to client. It's long, gets logged, and we don't need it.
+      return sheetInterpretation[0].interpretation;
+    },
+
+    validateBallot(): void {
+      assert(stateMachine);
+
+      debug('API validate');
+      stateMachine.validateBallot();
+    },
+
+    invalidateBallot(): void {
+      assert(stateMachine);
+
+      debug('API invalidate');
+      stateMachine.invalidateBallot();
     },
   });
 }
@@ -183,13 +233,21 @@ export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   logger: Logger,
   workspace: Workspace,
-  usb: Usb
+  usb: Usb,
+  stateMachine?: PaperHandlerStateMachine,
+  dataUsbMountPrefix?: string
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, artifactAuthenticator, usb, logger, workspace);
+  const api = buildApi(
+    auth,
+    usb,
+    logger,
+    workspace,
+    stateMachine,
+    dataUsbMountPrefix
+  );
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

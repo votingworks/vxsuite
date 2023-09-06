@@ -87,7 +87,7 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
   -webkit-justify-content: space-between;
   -ms-flex-pack: justify;
   justify-content: space-between;
-  padding: 0.25rem 0.25rem;
+  padding: 0.25rem;
 }
 
 .c1 {
@@ -122,16 +122,13 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
+  -webkit-flex-flow: row wrap;
+  -ms-flex-flow: row wrap;
+  flex-flow: row wrap;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
   flex-grow: 1;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
   gap: 0.5rem;
   -webkit-box-pack: end;
   -webkit-justify-content: end;
@@ -166,6 +163,7 @@ exports[`Renders ElectionInfoBar with appropriate information 1`] = `
         <div
           aria-hidden="true"
           class="c3"
+          data-testid="seal"
         >
           <svg
             version="1.1"

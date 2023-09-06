@@ -2,7 +2,7 @@ import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import {
-  electionSample2Definition,
+  electionMinimalExhaustiveSampleDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -26,7 +26,8 @@ import { VxFiles } from '../../lib/converters';
 
 const electionDefinition = electionSampleDefinition;
 const { electionHash } = electionDefinition;
-const otherElectionHash = electionSample2Definition.electionHash;
+const otherElectionHash =
+  electionMinimalExhaustiveSampleDefinition.electionHash;
 
 let apiMock: ApiMock;
 
@@ -476,7 +477,10 @@ test('Resetting smartcard PINs', async () => {
   apiMock.apiClient.getSystemSettings.reset();
   apiMock.expectGetSystemSettings({
     ...DEFAULT_SYSTEM_SETTINGS,
-    arePollWorkerCardPinsEnabled: true,
+    auth: {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      arePollWorkerCardPinsEnabled: true,
+    },
   });
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();

@@ -142,8 +142,7 @@ const validCastVoteRecord: CVR.CVR = {
   BallotStyleUnitId: 'precinct-1',
   PartyIds: ['0'],
   CreatingDeviceId: 'scanner',
-  ElectionId:
-    'e38b66442647f4bc87a08e3e4f0986db3c354a58b0790096b88c2e208e18cd08',
+  ElectionId: electionDefinition.electionHash,
   BatchId: 'batch-1',
   vxBallotType: CVR.vxBallotType.Absentee,
   BallotSheetId: '1',
@@ -196,7 +195,7 @@ const validCastVoteRecord: CVR.CVR = {
           CVRContestSelection: [
             {
               '@type': 'CVR.CVRContestSelection',
-              ContestSelectionId: 'yes',
+              ContestSelectionId: 'new-zoo-either-approved',
               OptionPosition: 0,
               SelectionPosition: [
                 {
@@ -217,7 +216,7 @@ const validCastVoteRecord: CVR.CVR = {
           CVRContestSelection: [
             {
               '@type': 'CVR.CVRContestSelection',
-              ContestSelectionId: 'yes',
+              ContestSelectionId: 'new-zoo-safari',
               OptionPosition: 0,
               SelectionPosition: [
                 {
@@ -238,7 +237,7 @@ const validCastVoteRecord: CVR.CVR = {
           CVRContestSelection: [
             {
               '@type': 'CVR.CVRContestSelection',
-              ContestSelectionId: 'yes',
+              ContestSelectionId: 'ban-fishing',
               OptionPosition: 0,
               SelectionPosition: [
                 {

@@ -1,11 +1,9 @@
 import express, { Application } from 'express';
-import { z } from 'zod';
 import {
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert, err, ok, Optional, Result } from '@votingworks/basics';
+import { assert, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   BallotPackageConfigurationError,
@@ -16,11 +14,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import {
-  ScannerReportData,
-  ScannerReportDataSchema,
-  isElectionManagerAuth,
-} from '@votingworks/utils';
+import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
@@ -34,9 +28,10 @@ function constructAuthMachineState(
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings = workspace.store.getSystemSettings();
+  const systemSettings =
+    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
-    ...(systemSettings ?? {}),
+    ...systemSettings.auth,
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };
@@ -44,7 +39,6 @@ function constructAuthMachineState(
 
 function buildApi(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   usb: Usb,
   logger: Logger,
   workspace: Workspace
@@ -127,7 +121,6 @@ function buildApi(
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        artifactAuthenticator,
         usbDrive,
         logger
       );
@@ -146,36 +139,6 @@ function buildApi(
 
       return ok(electionDefinition);
     },
-
-    async readScannerReportDataFromCard(): Promise<
-      Result<Optional<ScannerReportData>, SyntaxError | z.ZodError | Error>
-    > {
-      const machineState = constructAuthMachineState(workspace);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'poll_worker') {
-        return err(new Error('User is not a poll worker'));
-      }
-
-      return await auth.readCardData(machineState, {
-        schema: ScannerReportDataSchema,
-      });
-    },
-
-    async clearScannerReportDataFromCard(): Promise<Result<void, Error>> {
-      const machineState = constructAuthMachineState(workspace);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'poll_worker') {
-        return err(new Error('User is not a poll worker'));
-      }
-
-      return await auth.clearCardData(machineState);
-    },
   });
 }
 
@@ -183,13 +146,12 @@ export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   logger: Logger,
   workspace: Workspace,
   usb: Usb
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, artifactAuthenticator, usb, logger, workspace);
+  const api = buildApi(auth, usb, logger, workspace);
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

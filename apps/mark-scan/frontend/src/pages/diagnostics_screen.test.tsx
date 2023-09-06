@@ -1,10 +1,8 @@
 import userEvent from '@testing-library/user-event';
-import MockDate from 'mockdate';
 import { fakeMarkerInfo } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { MemoryRouter } from 'react-router-dom';
 import {
-  act,
   render,
   screen,
   waitFor,
@@ -42,7 +40,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
 }
 
 beforeEach(() => {
-  MockDate.set('2022-03-23T11:23:00.000Z');
+  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000Z'));
 });
 
 describe('System Diagnostics screen: Computer section', () => {
@@ -216,26 +214,26 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     // to the fact that the keyDown listener is attached to the document
     // instead of a React component.
     await screen.findByText('Press the up button.');
-    act(() => void userEvent.keyboard('{ArrowUp}'));
+    userEvent.keyboard('{ArrowUp}');
     await screen.findByText('Press the down button.');
-    act(() => void userEvent.keyboard('{ArrowDown}'));
+    userEvent.keyboard('{ArrowDown}');
     await screen.findByText('Press the left button.');
-    act(() => void userEvent.keyboard('{ArrowLeft}'));
+    userEvent.keyboard('{ArrowLeft}');
     await screen.findByText('Press the right button.');
-    act(() => void userEvent.keyboard('{ArrowRight}'));
+    userEvent.keyboard('{ArrowRight}');
     await screen.findByText('Press the select button.');
-    act(() => void userEvent.keyboard('{Enter}'));
+    userEvent.keyboard('{Enter}');
     await screen.findByText('Confirm sound is working.');
-    act(() => void userEvent.keyboard('{ArrowRight}'));
+    userEvent.keyboard('{ArrowRight}');
     await waitFor(() => expect(mockTts.speak).toHaveBeenCalled());
-    act(() => void userEvent.keyboard('{Enter}'));
+    userEvent.keyboard('{Enter}');
 
     const testResultText = screen.getByText('Test passed.');
     expectToHaveSuccessIcon(testResultText);
     screen.getByText('Last tested at 11:23 AM');
 
     // Bonus test - if we start a new test and cancel it, last results should still be shown
-    MockDate.set(new Date());
+    jest.setSystemTime(new Date());
     userEvent.click(screen.getButton('Start Accessible Controller Test'));
     userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
 

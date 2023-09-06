@@ -19,7 +19,7 @@
     "test": "is-ci test:ci test:watch",
     "test:watch": "TZ=UTC jest --watch",
     "test:coverage": "TZ=UTC jest --coverage",
-    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=7",
+    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -34,8 +34,6 @@
     ]
   },
   "dependencies": {
-    "@types/kiosk-browser": "workspace:*",
-    "@types/node": "16.18.23",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
@@ -46,34 +44,24 @@
   "devDependencies": {
     "@types/debug": "^4.1.6",
     "@types/fs-extra": "^9.0.13",
-    "@types/jest": "^27.0.3",
+    "@types/jest": "^29.5.3",
+    "@types/kiosk-browser": "workspace:*",
+    "@types/node": "16.18.23",
     "@types/yargs": "^16.0.0",
-    "@typescript-eslint/eslint-plugin": "5.37.0",
-    "@typescript-eslint/parser": "5.37.0",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "^0.14.30",
     "esbuild-runner": "^2.2.1",
-    "eslint": "8.23.1",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-import-resolver-node": "^0.3.6",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "^26.1.5",
-    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
-    "fetch-mock": "^9.9.0",
     "fs-extra": "^10.0.0",
     "is-ci-cli": "^2.2.0",
-    "jest": "^27.3.1",
-    "jest-junit": "^14.0.1",
-    "jest-watch-typeahead": "^0.6.4",
+    "jest": "^29.6.2",
+    "jest-junit": "^16.0.0",
+    "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "^11.0.0",
-    "mockdate": "^3.0.2",
-    "prettier": "2.6.2",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "^27.0.7",
-    "typescript": "4.6.3"
+    "ts-jest": "^29.1.1"
   },
   "packageManager": "pnpm@8.1.0"
 }

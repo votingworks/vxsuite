@@ -1,11 +1,9 @@
 import { z } from 'zod';
-import { CastVoteRecord } from './cast_vote_record';
-import { Candidate, AnyContest } from './election';
+import { CastVoteRecord } from './cast_vote_records';
+import { Candidate, AnyContest, YesNoContestOptionId } from './election';
 import { Dictionary } from './generic';
 
-export type YesNoVoteId = 'yes' | 'no';
-export type YesNoVoteOption = ['yes'] | ['no'] | [];
-export type ContestVoteOption = Candidate | YesNoVoteOption;
+export type ContestVoteOption = Candidate | YesNoContestOptionId;
 
 export interface ContestOptionTally {
   readonly option: ContestVoteOption;
@@ -56,7 +54,7 @@ export interface ManualTally {
 
 export enum VotingMethod {
   Absentee = 'absentee',
-  Precinct = 'standard',
+  Precinct = 'precinct',
   Unknown = 'unknown',
 }
 

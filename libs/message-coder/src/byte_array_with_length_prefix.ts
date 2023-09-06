@@ -85,7 +85,6 @@ class FixedLengthByteArrayCoder extends BaseCoder<Uint8Array> {
     // we only support uint16 and smaller for now,
     // because otherwise the buffer sizes get too large
     switch (bytesRequired) {
-      case 0:
       case 1:
         this.lengthCoder = uint8();
         break;

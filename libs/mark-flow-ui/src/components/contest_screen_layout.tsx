@@ -1,8 +1,5 @@
 import styled from 'styled-components';
 
-export const ContentHeader = styled.div`
-  padding: 0.25rem 0.5rem 0.5rem;
-`;
 export const ContestFooter = styled.div`
   margin: 0 auto;
   width: 100%;

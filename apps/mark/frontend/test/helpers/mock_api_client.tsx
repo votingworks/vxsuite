@@ -19,8 +19,8 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { err, ok, Optional, Result } from '@votingworks/basics';
-import { ScannerReportData } from '@votingworks/utils';
+import { err, ok, Result } from '@votingworks/basics';
+import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
@@ -87,26 +87,11 @@ export function createApiMock() {
     setAuthStatusPollWorkerLoggedIn(
       electionDefinition: ElectionDefinition,
       options: {
-        isScannerReportDataReadExpected?: boolean;
-        scannerReportDataReadResult?: Result<
-          Optional<ScannerReportData>,
-          Error
-        >;
         cardlessVoterUserParams?: CardlessVoterUserParams;
       } = {}
     ) {
       const { electionHash } = electionDefinition;
-      const {
-        isScannerReportDataReadExpected = true,
-        scannerReportDataReadResult = ok(undefined),
-        cardlessVoterUserParams,
-      } = options;
-
-      if (isScannerReportDataReadExpected) {
-        mockApiClient.readScannerReportDataFromCard
-          .expectCallWith()
-          .resolves(scannerReportDataReadResult);
-      }
+      const { cardlessVoterUserParams } = options;
 
       setAuthStatus({
         status: 'logged_in',
@@ -198,10 +183,12 @@ export function provideApi(
   children: React.ReactNode
 ): JSX.Element {
   return (
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        {children}
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <TestErrorBoundary>
+      <ApiClientContext.Provider value={apiMock.mockApiClient}>
+        <QueryClientProvider client={createQueryClient()}>
+          {children}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
+    </TestErrorBoundary>
   );
 }

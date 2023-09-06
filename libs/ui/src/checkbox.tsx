@@ -1,9 +1,8 @@
-/* stylelint-disable order/properties-order, value-keyword-case */
 import styled, { css } from 'styled-components';
 
 import { Icons } from './icons';
 
-export interface ContestChoiceButtonProps {
+export interface CheckboxProps {
   checked?: boolean;
 }
 
@@ -33,7 +32,7 @@ const OuterContainer = styled.span<StyleProps>`
   }
 `;
 
-export function Checkbox(props: ContestChoiceButtonProps): JSX.Element {
+export function Checkbox(props: CheckboxProps): JSX.Element {
   const { checked } = props;
 
   return (

@@ -10,19 +10,22 @@ import {
 } from '@votingworks/types';
 import { MachineConfig } from '@votingworks/mark-scan-backend';
 
-import { electionSampleNoSealDefinition } from '@votingworks/fixtures';
 import { randomBallotId } from '@votingworks/utils';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { electionSampleDefinition } from '@votingworks/fixtures';
+import { ApiClientContext, createQueryClient } from '../src/api';
 import { render as testRender } from './react_testing_library';
 
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
+import { ApiMock, createApiMock } from './helpers/mock_api_client';
 
 export function render(
   component: React.ReactNode,
   {
     route = '/',
     ballotStyleId,
-    electionDefinition = electionSampleNoSealDefinition,
+    electionDefinition = electionSampleDefinition,
     contests = electionDefinition.election.contests,
     endVoterSession = jest.fn(),
     history = createMemoryHistory({ initialEntries: [route] }),
@@ -36,6 +39,7 @@ export function render(
     updateVote = jest.fn(),
     forceSaveVote = jest.fn(),
     votes = {},
+    apiMock = createApiMock(),
   }: {
     route?: string;
     ballotStyleId?: BallotStyleId;
@@ -54,30 +58,35 @@ export function render(
     updateVote?(): void;
     forceSaveVote?(): void;
     votes?: VotesDict;
+    apiMock?: ApiMock;
   } = {}
 ): ReturnType<typeof testRender> {
   return {
     ...testRender(
-      <BallotContext.Provider
-        value={{
-          ballotStyleId,
-          contests,
-          electionDefinition,
-          generateBallotId,
-          isCardlessVoter,
-          isLiveMode,
-          machineConfig,
-          endVoterSession,
-          precinctId,
-          resetBallot,
-          updateTally,
-          updateVote,
-          forceSaveVote,
-          votes,
-        }}
-      >
-        <Router history={history}>{component}</Router>
-      </BallotContext.Provider>
+      <ApiClientContext.Provider value={apiMock.mockApiClient}>
+        <QueryClientProvider client={createQueryClient()}>
+          <BallotContext.Provider
+            value={{
+              ballotStyleId,
+              contests,
+              electionDefinition,
+              generateBallotId,
+              isCardlessVoter,
+              isLiveMode,
+              machineConfig,
+              endVoterSession,
+              precinctId,
+              resetBallot,
+              updateTally,
+              updateVote,
+              forceSaveVote,
+              votes,
+            }}
+          >
+            <Router history={history}>{component}</Router>
+          </BallotContext.Provider>
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
     ),
   };
 }

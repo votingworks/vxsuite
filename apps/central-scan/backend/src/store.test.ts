@@ -20,6 +20,7 @@ import { v4 as uuid } from 'uuid';
 import { sleep, typedAs } from '@votingworks/basics';
 import { ResultSheet } from '@votingworks/backend';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { sha256 } from 'js-sha256';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
@@ -122,46 +123,6 @@ test('get/set precinct selection', () => {
   expect(store.getPrecinctSelection()).toMatchObject(precinctSelection);
 });
 
-test('get/set mark threshold overrides', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getMarkThresholdOverrides()).toEqual(undefined);
-  expect(() => store.setMarkThresholdOverrides()).toThrowError();
-
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
-
-  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(store.getMarkThresholdOverrides()).toStrictEqual({
-    definite: 0.6,
-    marginal: 0.5,
-  });
-
-  store.setMarkThresholdOverrides(undefined);
-  expect(store.getMarkThresholdOverrides()).toEqual(undefined);
-});
-
-test('get current mark thresholds falls back to election definition defaults', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.08,
-    marginal: 0.05,
-  });
-
-  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.6,
-    marginal: 0.5,
-  });
-
-  store.setMarkThresholdOverrides(undefined);
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.08,
-    marginal: 0.05,
-  });
-});
-
 test('get/set polls state', () => {
   const store = Store.memoryStore();
 
@@ -207,7 +168,7 @@ test('batch cleanup works correctly', () => {
   store.finishBatch({ batchId: firstBatchId });
   store.cleanupIncompleteBatches();
 
-  const batches = store.batchStatus();
+  const batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].id).toEqual(firstBatchId);
   expect(batches[0].batchNumber).toEqual(1);
@@ -217,7 +178,7 @@ test('batch cleanup works correctly', () => {
   store.addBatch();
   store.finishBatch({ batchId: thirdBatchId });
   store.cleanupIncompleteBatches();
-  const updatedBatches = store.batchStatus();
+  const updatedBatches = store.getBatches();
   expect(
     [...updatedBatches].sort((a, b) => a.label.localeCompare(b.label))
   ).toEqual([
@@ -234,7 +195,7 @@ test('batch cleanup works correctly', () => {
   ]);
 });
 
-test('batchStatus', () => {
+test('getBatches', () => {
   const store = Store.memoryStore();
 
   // Create a batch and add a sheet to it
@@ -269,25 +230,25 @@ test('batchStatus', () => {
       },
     },
   ]);
-  let batches = store.batchStatus();
+  let batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(2);
 
   // Delete one of the sheets
   store.deleteSheet(sheetId);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(1);
 
-  // Delete the last sheet, then confirm that store.batchStatus() results still include the batch
+  // Delete the last sheet, then confirm that store.getBatches() results still include the batch
   store.deleteSheet(sheetId2);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(0);
 
   // Confirm that batches marked as deleted are not included
   store.deleteBatch(batchId);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(0);
 });
 
@@ -408,7 +369,6 @@ test('adjudication', () => {
   const yesnoContests = election.contests.filter(
     (contest): contest is YesNoContest => contest.type === 'yesno'
   );
-  const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
@@ -418,7 +378,7 @@ test('adjudication', () => {
       ballotStyleId: '12',
       precinctId: '23',
       isTestMode: false,
-      ballotType: BallotType.Standard,
+      ballotType: BallotType.Precinct,
     };
     return {
       imagePath: i === 0 ? '/front.png' : '/back.png',
@@ -445,7 +405,7 @@ test('adjudication', () => {
                   {
                     type: 'yesno',
                     contestId: yesnoContests[i].id,
-                    optionId: yesnoOption,
+                    optionId: yesnoContests[i].yesOption.id,
                     score: 1, // definite
                     scoredOffset: { x: 0, y: 0 },
                     bounds: zeroRect,
@@ -511,7 +471,7 @@ const metadata: BallotMetadata = {
   ballotStyleId: '12',
   precinctId: '23',
   isTestMode: false,
-  ballotType: BallotType.Standard,
+  ballotType: BallotType.Precinct,
 };
 const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
   {
@@ -704,7 +664,7 @@ test('resetElectionSession', () => {
   store.addBatch();
   expect(
     store
-      .batchStatus()
+      .getBatches()
       .map((batch) => batch.label)
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
@@ -719,14 +679,14 @@ test('resetElectionSession', () => {
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
   // resetElectionSession should clear all batches
-  expect(store.batchStatus()).toEqual([]);
+  expect(store.getBatches()).toEqual([]);
 
   // resetElectionSession should reset the autoincrement in the batch label
   store.addBatch();
   store.addBatch();
   expect(
     store
-      .batchStatus()
+      .getBatches()
       .map((batch) => batch.label)
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
@@ -813,4 +773,21 @@ test('systemSettings can set/get/delete', () => {
   expect(systemSettingsInStore).toEqual(DEFAULT_SYSTEM_SETTINGS);
   store.deleteSystemSettings();
   expect(store.getSystemSettings()).toBeUndefined();
+});
+
+test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
+  const store = Store.memoryStore();
+
+  // Just test that the store has been wired properly. Rely on libs/auth tests for more detailed
+  // coverage of hashing logic.
+  expect(store.getCastVoteRecordRootHash()).toEqual('');
+  store.updateCastVoteRecordHashes(
+    'abcd1234-0000-0000-0000-000000000000',
+    sha256('')
+  );
+  expect(store.getCastVoteRecordRootHash()).toEqual(
+    sha256(sha256(sha256(sha256(''))))
+  );
+  store.clearCastVoteRecordHashes();
+  expect(store.getCastVoteRecordRootHash()).toEqual('');
 });

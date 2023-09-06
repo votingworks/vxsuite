@@ -3,6 +3,24 @@
 exports[`round trip conversion for election fixture: ELECTION 1`] = `
 {
   "@type": "BallotDefinition.BallotDefinition",
+  "BallotFormat": [
+    {
+      "@id": "ballot-format",
+      "@type": "BallotDefinition.BallotFormat",
+      "ExternalIdentifier": [
+        {
+          "@type": "BallotDefinition.ExternalIdentifier",
+          "Type": "other",
+          "Value": "ballot-format",
+        },
+      ],
+      "LongEdge": 11,
+      "MeasurementUnit": "in",
+      "Orientation": "portrait",
+      "SelectionCaptureMethod": "omr",
+      "ShortEdge": 8.5,
+    },
+  ],
   "Election": [
     {
       "@type": "BallotDefinition.Election",
@@ -19,6 +37,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
           "GpUnitIds": [
             "P",
           ],
+          "OrderedContent": undefined,
           "PartyIds": undefined,
         },
       ],
@@ -140,7 +159,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
       "Type": "general",
     },
   ],
-  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GeneratedDate": "2020-11-03T10:00:00Z",
   "GpUnit": [
     {
       "@id": "state",
@@ -199,6 +218,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
     {
       "@id": "P",
       "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": undefined,
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -254,12 +274,31 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
   "SequenceStart": 1,
   "VendorApplicationId": "VxSuite",
   "Version": "1.0.0",
+  "vxSeal": "<svg>test seal</svg>",
 }
 `;
 
 exports[`round trip conversion for election fixture: Example Primary Election - Minimal Exhaustive 1`] = `
 {
   "@type": "BallotDefinition.BallotDefinition",
+  "BallotFormat": [
+    {
+      "@id": "ballot-format",
+      "@type": "BallotDefinition.BallotFormat",
+      "ExternalIdentifier": [
+        {
+          "@type": "BallotDefinition.ExternalIdentifier",
+          "Type": "other",
+          "Value": "ballot-format",
+        },
+      ],
+      "LongEdge": 11,
+      "MeasurementUnit": "in",
+      "Orientation": "portrait",
+      "SelectionCaptureMethod": "omr",
+      "ShortEdge": 8.5,
+    },
+  ],
   "Election": [
     {
       "@type": "BallotDefinition.Election",
@@ -277,6 +316,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
             "precinct-1",
             "precinct-2",
           ],
+          "OrderedContent": undefined,
           "PartyIds": [
             "0",
           ],
@@ -294,6 +334,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
             "precinct-1",
             "precinct-2",
           ],
+          "OrderedContent": undefined,
           "PartyIds": [
             "1",
           ],
@@ -800,7 +841,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
       "Type": "primary",
     },
   ],
-  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GeneratedDate": "2021-09-08T08:00:00Z",
   "GpUnit": [
     {
       "@id": "state-of-sample",
@@ -860,6 +901,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
     {
       "@id": "precinct-1",
       "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": undefined,
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -875,6 +917,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
     {
       "@id": "precinct-2",
       "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": undefined,
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -964,12 +1007,31 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
   "SequenceStart": 1,
   "VendorApplicationId": "VxSuite",
   "Version": "1.0.0",
+  "vxSeal": "<svg>test seal</svg>",
 }
 `;
 
 exports[`round trip conversion for election fixture: Primary Election 1`] = `
 {
   "@type": "BallotDefinition.BallotDefinition",
+  "BallotFormat": [
+    {
+      "@id": "ballot-format",
+      "@type": "BallotDefinition.BallotFormat",
+      "ExternalIdentifier": [
+        {
+          "@type": "BallotDefinition.ExternalIdentifier",
+          "Type": "other",
+          "Value": "ballot-format",
+        },
+      ],
+      "LongEdge": 11,
+      "MeasurementUnit": "in",
+      "Orientation": "portrait",
+      "SelectionCaptureMethod": "omr",
+      "ShortEdge": 8.5,
+    },
+  ],
   "Election": [
     {
       "@type": "BallotDefinition.Election",
@@ -986,6 +1048,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           "GpUnitIds": [
             "P",
           ],
+          "OrderedContent": undefined,
           "PartyIds": [
             "DEM",
           ],
@@ -1002,6 +1065,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           "GpUnitIds": [
             "P",
           ],
+          "OrderedContent": undefined,
           "PartyIds": [
             "REP",
           ],
@@ -1171,7 +1235,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
       "Type": "primary",
     },
   ],
-  "GeneratedDate": "2023-02-08T00:00:00Z",
+  "GeneratedDate": "2020-11-03T10:00:00Z",
   "GpUnit": [
     {
       "@id": "state",
@@ -1230,6 +1294,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
     {
       "@id": "P",
       "@type": "BallotDefinition.ReportingUnit",
+      "ComposingGpUnitIds": undefined,
       "Name": {
         "@type": "BallotDefinition.InternationalizedText",
         "Text": [
@@ -1319,5 +1384,6 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
   "SequenceStart": 1,
   "VendorApplicationId": "VxSuite",
   "Version": "1.0.0",
+  "vxSeal": "<svg>test seal</svg>",
 }
 `;

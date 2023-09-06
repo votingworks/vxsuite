@@ -8,51 +8,60 @@ import {
 
 import { find } from '@votingworks/basics';
 import pluralize from 'pluralize';
-import React from 'react';
+import { format } from '@votingworks/utils';
 import { tableBorderColor, TD, TH } from '../table';
 import { Font, FontProps } from '../typography';
 import { NoWrap, Text } from '../text';
 
 const Contest = styled.div`
-  margin: 1rem 0;
+  margin: 2.5em 0;
   page-break-inside: avoid;
-  p:first-child {
-    margin: 0;
-  }
+
   h3 {
     margin-top: 0;
     margin-bottom: 0.5em;
+
     & + p {
       margin-top: -0.5em;
       margin-bottom: 0.25em;
     }
+
     & + table {
       margin-top: -0.5em;
     }
+  }
+
+  p:first-child {
+    margin: 0;
   }
 `;
 
 const ContestTable = styled.table`
   width: 100%;
   border-collapse: collapse;
+
   & tr {
     border-top: 1px solid ${tableBorderColor};
     border-bottom: 1px solid ${tableBorderColor};
   }
+
   & tr.empty-row {
     border-bottom: none;
   }
+
   & td {
-    padding: 0.1rem;
+    padding: 0.2em;
     padding-right: 0;
   }
+
   & th {
-    padding: 0.1rem;
+    padding: 0.25em;
     text-align: left;
     font-weight: 400;
   }
+
   & th.indent {
-    padding-left: 1rem;
+    padding-left: 2.5em;
   }
 `;
 
@@ -82,7 +91,7 @@ function TallyRow({
       </TH>
       {tally !== undefined && (
         <TD narrow textAlign="right">
-          {tally}
+          {format.count(tally)}
         </TD>
       )}
     </tr>
@@ -162,17 +171,16 @@ export function ContestWriteInSummaryTable({
       <p>{getContestDistrictName(election, contest)}</p>
       <h3>{contest.title}</h3>
       <Text small>
-        <React.Fragment>
-          <NoWrap>
-            {pluralize(
-              'total write-ins',
-              contestWriteInSummary.totalTally,
-              true
-            )}{' '}
-            /
-          </NoWrap>
-          <NoWrap> {contestWriteInSummary.pendingTally} not adjudicated</NoWrap>
-        </React.Fragment>
+        <NoWrap>
+          {`${format.count(contestWriteInSummary.totalTally)} ${pluralize(
+            'total write-ins',
+            contestWriteInSummary.totalTally
+          )}`}{' '}
+          /
+        </NoWrap>{' '}
+        <NoWrap>
+          {format.count(contestWriteInSummary.pendingTally)} not adjudicated
+        </NoWrap>
       </Text>
       <ContestTable>
         <tbody>

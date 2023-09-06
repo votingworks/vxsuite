@@ -1,10 +1,6 @@
-import {
-  electionMinimalExhaustiveSampleDefinition,
-  asElectionDefinition,
-  electionWithMsEitherNeitherDefinition,
-} from '@votingworks/fixtures';
+import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { BallotPaperSize, Printer } from '@votingworks/types';
+import { Printer } from '@votingworks/types';
 import {
   advanceTimers,
   expectPrint,
@@ -19,15 +15,11 @@ import { mockUsbDrive } from '@votingworks/ui';
 import { screen, waitFor } from '../../test/react_testing_library';
 
 import {
-  LAST_PRINT_JOB_SLEEP_MS,
   ONE_SIDED_PAGE_PRINT_TIME_MS,
   PrintTestDeckScreen,
-  TWO_SIDED_PAGE_PRINT_TIME_MS,
 } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
-
-jest.mock('../components/hand_marked_paper_ballot');
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let mockLogger: Logger;
@@ -123,24 +115,10 @@ test('Printing L&A package for one precinct', async () => {
   );
   advanceTimers((4 * ONE_SIDED_PAGE_PRINT_TIME_MS) / 1000);
 
-  await screen.findByText('Printing L&A Package for District 5');
-  await expectPrint((printedElement, printOptions) => {
-    expect(printedElement.getAllByText('Mocked HMPB')).toHaveLength(7);
-    expect(printedElement.getAllByText(`Precinct: District 5`)).toHaveLength(7);
-    expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
-  });
-  await waitFor(() =>
-    expect(mockKiosk.log).toHaveBeenLastCalledWith(
-      expect.stringContaining(LogEventId.TestDeckPrinted)
-    )
-  );
-  expect(mockKiosk.log).toHaveBeenLastCalledWith(
-    expect.stringContaining('Hand-marked paper ballot test deck printed')
-  );
-  advanceTimers(LAST_PRINT_JOB_SLEEP_MS / 1000);
-
   await screen.findByText('Print District 5');
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });
 
 test('Printing L&A packages for all precincts', async () => {
@@ -203,211 +181,10 @@ test('Printing L&A packages for all precincts', async () => {
       expect.stringContaining('BMD paper ballot test deck printed')
     );
     advanceTimers((4 * ONE_SIDED_PAGE_PRINT_TIME_MS) / 1000);
-
-    await screen.findByText(`Printing L&A Package for ${precinct}`);
-    await screen.findByText(`This is package ${i + 1} of 13.`);
-    await expectPrint((printedElement, printOptions) => {
-      expect(printedElement.getAllByText('Mocked HMPB')).toHaveLength(7);
-      expect(printedElement.getAllByText(`Precinct: ${precinct}`)).toHaveLength(
-        7
-      );
-      expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
-    });
-    await waitFor(() =>
-      expect(mockKiosk.log).toHaveBeenLastCalledWith(
-        expect.stringContaining(LogEventId.TestDeckPrinted)
-      )
-    );
-    expect(mockKiosk.log).toHaveBeenLastCalledWith(
-      expect.stringContaining('Hand-marked paper ballot test deck printed')
-    );
-    if (i < precinctsInAlphabeticalOrder.length - 1) {
-      advanceTimers((7 * TWO_SIDED_PAGE_PRINT_TIME_MS) / 1000);
-    } else {
-      advanceTimers(LAST_PRINT_JOB_SLEEP_MS / 1000);
-    }
   }
 
   await screen.findByText('Print Packages for All Precincts');
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
-});
-
-test('Printing L&A package for one precinct, when HMPBs are not letter-size', async () => {
-  const electionWithLegalSizeHmpbsDefinition = asElectionDefinition({
-    ...electionWithMsEitherNeitherDefinition.election,
-    ballotLayout: {
-      paperSize: BallotPaperSize.Legal,
-    },
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-
-  renderInAppContext(<PrintTestDeckScreen />, {
-    electionDefinition: electionWithLegalSizeHmpbsDefinition,
-    logger: mockLogger,
-    printer: mockPrinter,
-    apiMock,
-  });
-
-  userEvent.click(screen.getByText('Print District 5'));
-
-  await screen.findByText('Printing L&A Package for District 5');
-  await screen.findByText('Currently printing letter-size pages.');
-  await expectPrint((printedElement, printOptions) => {
-    printedElement.getByText('Test Deck Precinct Tally Report for District 5');
-    expect(printOptions).toMatchObject({ sides: 'one-sided' });
-  });
-  await waitFor(() =>
-    expect(mockKiosk.log).toHaveBeenLastCalledWith(
-      expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
-    )
-  );
-  advanceTimers(ONE_SIDED_PAGE_PRINT_TIME_MS / 1000);
-
-  await screen.findByText('Printing L&A Package for District 5');
-  await screen.findByText('Currently printing letter-size pages.');
-  await expectPrint((printedElement, printOptions) => {
-    expect(printedElement.getAllByText('Unofficial TEST Ballot')).toHaveLength(
-      4
-    );
-    expect(printedElement.getAllByText('District 5')).toHaveLength(4);
-    expect(printOptions).toMatchObject({ sides: 'one-sided' });
-  });
-  await waitFor(() =>
-    expect(mockKiosk.log).toHaveBeenLastCalledWith(
-      expect.stringContaining(LogEventId.TestDeckPrinted)
-    )
-  );
-  expect(mockKiosk.log).toHaveBeenLastCalledWith(
-    expect.stringContaining('BMD paper ballot test deck printed')
-  );
-  advanceTimers((4 * ONE_SIDED_PAGE_PRINT_TIME_MS) / 1000);
-
-  userEvent.click(
-    await screen.findByText('Legal Paper Loaded, Continue Printing')
-  );
-
-  await screen.findByText('Printing L&A Package for District 5');
-  await screen.findByText('Currently printing legal-size pages.');
-  await expectPrint((printedElement, printOptions) => {
-    expect(printedElement.getAllByText('Mocked HMPB')).toHaveLength(7);
-    expect(printedElement.getAllByText('Precinct: District 5')).toHaveLength(7);
-    expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
-  });
-  await waitFor(() =>
-    expect(mockKiosk.log).toHaveBeenLastCalledWith(
-      expect.stringContaining(LogEventId.TestDeckPrinted)
-    )
-  );
-  expect(mockKiosk.log).toHaveBeenLastCalledWith(
-    expect.stringContaining('Hand-marked paper ballot test deck printed')
-  );
-  advanceTimers(LAST_PRINT_JOB_SLEEP_MS / 1000);
-
-  await screen.findByText('Print District 5');
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
-});
-
-test('Printing L&A packages for all precincts, when HMPBs are not letter-size', async () => {
-  const electionWithLegalSizeHmpbsDefinition = asElectionDefinition({
-    ...electionWithMsEitherNeitherDefinition.election,
-    ballotLayout: {
-      paperSize: BallotPaperSize.Legal,
-    },
-  });
-
-  renderInAppContext(<PrintTestDeckScreen />, {
-    electionDefinition: electionWithLegalSizeHmpbsDefinition,
-    logger: mockLogger,
-    printer: mockPrinter,
-    apiMock,
-  });
-
-  userEvent.click(screen.getByText('Print Packages for All Precincts'));
-
-  // Check that the printing modals appear in alphabetical order
-  const precinctsInAlphabeticalOrder = [
-    'Bywy',
-    'Chester',
-    'District 5',
-    'East Weir',
-    'Fentress',
-    'French Camp',
-    'Hebron',
-    'Kenego',
-    'Panhandle',
-    'Reform',
-    'Sherwood',
-    'Southwest Ackerman',
-    'West Weir',
-  ];
-
-  for (const [i, precinct] of precinctsInAlphabeticalOrder.entries()) {
-    await screen.findByText(`Printing L&A Package for ${precinct}`);
-    await screen.findByText(`This is package ${i + 1} of 13.`);
-    await screen.findByText('Currently printing letter-size pages.');
-    await expectPrint((printedElement, printOptions) => {
-      printedElement.getByText(
-        `Test Deck Precinct Tally Report for ${precinct}`
-      );
-      expect(printOptions).toMatchObject({ sides: 'one-sided' });
-    });
-    await waitFor(() =>
-      expect(mockKiosk.log).toHaveBeenLastCalledWith(
-        expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
-      )
-    );
-    advanceTimers(ONE_SIDED_PAGE_PRINT_TIME_MS / 1000);
-
-    await screen.findByText(`Printing L&A Package for ${precinct}`);
-    await screen.findByText(`This is package ${i + 1} of 13.`);
-    await screen.findByText('Currently printing letter-size pages.');
-    await expectPrint((printedElement, printOptions) => {
-      expect(
-        printedElement.getAllByText('Unofficial TEST Ballot')
-      ).toHaveLength(4);
-      expect(printedElement.getAllByText(precinct)).toHaveLength(4);
-      expect(printOptions).toMatchObject({ sides: 'one-sided' });
-    });
-    await waitFor(() =>
-      expect(mockKiosk.log).toHaveBeenLastCalledWith(
-        expect.stringContaining(LogEventId.TestDeckPrinted)
-      )
-    );
-    expect(mockKiosk.log).toHaveBeenLastCalledWith(
-      expect.stringContaining('BMD paper ballot test deck printed')
-    );
-    advanceTimers((4 * ONE_SIDED_PAGE_PRINT_TIME_MS) / 1000);
-  }
-
-  userEvent.click(
-    await screen.findByText('Legal Paper Loaded, Continue Printing')
-  );
-
-  for (const [i, precinct] of precinctsInAlphabeticalOrder.entries()) {
-    await screen.findByText(`Printing L&A Package for ${precinct}`);
-    await screen.findByText(`This is package ${i + 1} of 13.`);
-    await screen.findByText('Currently printing legal-size pages.');
-    await expectPrint((printedElement, printOptions) => {
-      expect(printedElement.getAllByText('Mocked HMPB')).toHaveLength(7);
-      expect(printedElement.getAllByText(`Precinct: ${precinct}`)).toHaveLength(
-        7
-      );
-      expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
-    });
-    await waitFor(() =>
-      expect(mockKiosk.log).toHaveBeenLastCalledWith(
-        expect.stringContaining(LogEventId.TestDeckPrinted)
-      )
-    );
-    expect(mockKiosk.log).toHaveBeenLastCalledWith(
-      expect.stringContaining('Hand-marked paper ballot test deck printed')
-    );
-    if (i < precinctsInAlphabeticalOrder.length - 1) {
-      advanceTimers((7 * TWO_SIDED_PAGE_PRINT_TIME_MS) / 1000);
-    } else {
-      advanceTimers(LAST_PRINT_JOB_SLEEP_MS / 1000);
-    }
-  }
-
-  await screen.findByText('Print Packages for All Precincts');
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
 });

@@ -3,17 +3,14 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackageConfigurationError,
-  CastVoteRecord,
   DEFAULT_SYSTEM_SETTINGS,
-  MarkThresholds,
   PollsState,
   PrecinctSelection,
   SinglePrecinctSelection,
+  Tabulation,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  ScannerReportData,
-  ScannerReportDataSchema,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
@@ -24,18 +21,16 @@ import {
   exportCastVoteRecordReportToUsbDrive,
   ExportCastVoteRecordReportToUsbDriveError,
   readBallotPackageFromUsb,
+  exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
-import { assert, err, iter, ok, Result } from '@votingworks/basics';
+import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
-  ArtifactAuthenticatorApi,
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
   LiveCheck,
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { backupToUsbDrive } from './backup';
-import { exportCastVoteRecords } from './tally-cvrs/export';
-import { PrecinctScannerInterpreter } from './interpret';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -43,16 +38,17 @@ import {
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { DefaultMarkThresholds } from './store';
+import { getScannerResults } from './util/results';
 
 function constructAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings = workspace.store.getSystemSettings();
+  const systemSettings =
+    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
-    ...(systemSettings ?? {}),
+    ...systemSettings.auth,
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };
@@ -60,9 +56,7 @@ function constructAuthMachineState(
 
 function buildApi(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   machine: PrecinctScannerStateMachine,
-  interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
   usbDrive: UsbDrive,
   logger: Logger
@@ -100,11 +94,11 @@ function buildApi(
       });
     },
 
-    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+    getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDrive.status();
     },
 
-    async ejectUsbDrive(): Promise<void> {
+    ejectUsbDrive(): Promise<void> {
       return usbDrive.eject();
     },
 
@@ -120,8 +114,7 @@ function buildApi(
       );
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        artifactAuthenticator,
-        // TODO convert readBallotPackegFromUsb to use UsbDriveStatus
+        // TODO: Update readBallotPackageFromUsb to use UsbDriveStatus
         { deviceName: 'not used', mountPoint: usbDriveStatus.mountPoint },
         logger
       );
@@ -158,7 +151,6 @@ function buildApi(
         electionDefinition: store.getElectionDefinition(),
         systemSettings: store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS,
         precinctSelection: store.getPrecinctSelection(),
-        markThresholdOverrides: store.getMarkThresholdOverrides(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
         isUltrasonicDisabled:
@@ -174,7 +166,6 @@ function buildApi(
         input.ignoreBackupRequirement || store.getCanUnconfigure(),
         'Attempt to unconfigure without backup'
       );
-      interpreter.unconfigure();
       workspace.reset();
     },
 
@@ -187,12 +178,6 @@ function buildApi(
       );
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
-    },
-
-    setMarkThresholdOverrides(input: {
-      markThresholdOverrides?: MarkThresholds;
-    }): void {
-      store.setMarkThresholdOverrides(input.markThresholdOverrides);
     },
 
     setIsSoundMuted(input: { isSoundMuted: boolean }): void {
@@ -270,9 +255,37 @@ function buildApi(
       return await backupToUsbDrive(store, usbDrive);
     },
 
-    async exportCastVoteRecordsToUsbDrive(): Promise<
-      Result<void, ExportCastVoteRecordReportToUsbDriveError>
-    > {
+    async exportCastVoteRecordsToUsbDrive(input: {
+      mode: 'full_export' | 'polls_closing';
+    }): Promise<Result<void, ExportCastVoteRecordReportToUsbDriveError>> {
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+        )
+      ) {
+        switch (input.mode) {
+          case 'full_export': {
+            return exportCastVoteRecordsToUsbDrive(
+              store,
+              usbDrive,
+              store.forEachResultSheet(),
+              { scannerType: 'precinct', isFullExport: true }
+            );
+          }
+          case 'polls_closing': {
+            return exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
+              scannerType: 'precinct',
+              arePollsClosing: true,
+            });
+          }
+          /* c8 ignore start: Compile-time check for completeness */
+          default: {
+            throwIllegalValue(input.mode);
+          }
+          /* c8 ignore stop */
+        }
+      }
+
       const electionDefinition = store.getElectionDefinition();
       assert(electionDefinition);
 
@@ -281,17 +294,13 @@ function buildApi(
           electionDefinition,
           isTestMode: store.getTestMode(),
           ballotsCounted: store.getBallotsCounted(),
-          batchInfo: store.batchStatus(),
+          batchInfo: store.getBatches(),
           getResultSheetGenerator: store.forEachResultSheet.bind(store),
-          definiteMarkThreshold:
-            store.getCurrentMarkThresholds()?.definite ??
-            DefaultMarkThresholds.definite,
-          artifactAuthenticator,
+          definiteMarkThreshold: store.getMarkThresholds().definite,
           disableOriginalSnapshots: isFeatureFlagEnabled(
             BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
           ),
         },
-        // TODO Convert exportCastVoteRecordReportToUsbDrive to use libs/usb-drive
         async () => {
           const drive = await usbDrive.status();
           return drive.status === 'mounted' ? [drive] : [];
@@ -305,16 +314,11 @@ function buildApi(
       return exportResult;
     },
 
-    /**
-     * @deprecated We want to eventually build the tally in the backend,
-     * but for now that logic still lives in the frontend.
-     */
-    getCastVoteRecordsForTally(): CastVoteRecord[] {
-      return iter(
-        exportCastVoteRecords({
-          store,
-        })
-      ).toArray();
+    async getScannerResultsByParty(): Promise<
+      Tabulation.GroupList<Tabulation.ElectionResults>
+    > {
+      const results = await getScannerResults({ store, splitByParty: true });
+      return results;
     },
 
     getScannerStatus(): PrecinctScannerStatus {
@@ -330,17 +334,6 @@ function buildApi(
 
     scanBallot(): void {
       assert(store.getPollsState() === 'polls_open');
-      const electionDefinition = store.getElectionDefinition();
-      const precinctSelection = store.getPrecinctSelection();
-      assert(electionDefinition);
-      assert(precinctSelection);
-      interpreter.configure({
-        electionDefinition,
-        precinctSelection,
-        testMode: store.getTestMode(),
-        markThresholdOverrides: store.getMarkThresholdOverrides(),
-        ballotImagesPath: workspace.ballotImagesPath,
-      });
       machine.scan();
     },
 
@@ -355,24 +348,6 @@ function buildApi(
     supportsUltrasonic(): boolean {
       return machine.supportsUltrasonic();
     },
-
-    async saveScannerReportDataToCard(input: {
-      scannerReportData: ScannerReportData;
-    }): Promise<Result<void, Error>> {
-      const machineState = constructAuthMachineState(workspace);
-      const authStatus = await auth.getAuthStatus(machineState);
-      if (authStatus.status !== 'logged_in') {
-        return err(new Error('User is not logged in'));
-      }
-      if (authStatus.user.role !== 'poll_worker') {
-        return err(new Error('User is not a poll worker'));
-      }
-
-      return await auth.writeCardData(machineState, {
-        data: input.scannerReportData,
-        schema: ScannerReportDataSchema,
-      });
-    },
   });
 }
 
@@ -380,23 +355,13 @@ export type Api = ReturnType<typeof buildApi>;
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,
-  artifactAuthenticator: ArtifactAuthenticatorApi,
   machine: PrecinctScannerStateMachine,
-  interpreter: PrecinctScannerInterpreter,
   workspace: Workspace,
   usbDrive: UsbDrive,
   logger: Logger
 ): Application {
   const app: Application = express();
-  const api = buildApi(
-    auth,
-    artifactAuthenticator,
-    machine,
-    interpreter,
-    workspace,
-    usbDrive,
-    logger
-  );
+  const api = buildApi(auth, machine, workspace, usbDrive, logger);
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

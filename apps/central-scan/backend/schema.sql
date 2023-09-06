@@ -8,8 +8,6 @@ create table election (
   polls_state text not null default "polls_closed_initial",
   ballot_count_when_ballot_bag_last_replaced integer not null default 0,
   is_sound_muted boolean not null default false,
-  marginal_mark_threshold_override real,
-  definite_mark_threshold_override real,
   cvrs_backed_up_at datetime,
   scanner_backed_up_at datetime,
   created_at timestamp not null default current_timestamp
@@ -56,9 +54,29 @@ create table sheets (
 create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
-  are_poll_worker_card_pins_enabled boolean not null,
-  inactive_session_time_limit_minutes integer not null,
-  num_incorrect_pin_attempts_allowed_before_card_lockout integer not null,
-  overall_session_time_limit_hours integer not null,
-  starting_card_lockout_duration_seconds integer not null
+  data text not null -- JSON blob
+);
+
+create table cvr_hashes (
+  cvr_id_level_1_prefix text not null check (
+    length(cvr_id_level_1_prefix) = 1 or
+    length(cvr_id_level_1_prefix) = 0
+  ),
+  cvr_id_level_2_prefix text not null check (
+    length(cvr_id_level_2_prefix) = 2 or
+    length(cvr_id_level_2_prefix) = 0
+  ),
+  cvr_id text not null check (
+    length(cvr_id) = 36 or
+    length(cvr_id) = 0
+  ),
+  cvr_hash text not null check (
+    length(cvr_hash) = 64
+  )
+);
+
+create unique index idx_cvr_hashes ON cvr_hashes (
+  cvr_id_level_1_prefix,
+  cvr_id_level_2_prefix,
+  cvr_id
 );

@@ -1,13 +1,18 @@
 import { typedAs } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
+  electionFamousNames2021Fixtures,
+  electionGridLayoutNewHampshireAmherstFixtures,
+} from '@votingworks/fixtures';
+import {
+  AdjudicationReason,
+  DEFAULT_MARK_THRESHOLDS,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import * as fs from 'fs/promises';
 import { dirSync } from 'tmp';
-import { createInterpreter } from './interpret';
+import { interpret } from './interpret';
 
 if (process.env.CI) {
   jest.setTimeout(20_000);
@@ -22,6 +27,11 @@ const ballotImages = {
     electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath(),
     electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath(),
   ],
+  bmdBallot: [
+    electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+    // 2nd page is blank
+    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
+  ],
 } as const;
 
 let ballotImagesPath!: string;
@@ -34,39 +44,44 @@ afterEach(async () => {
   await fs.rm(ballotImagesPath, { recursive: true });
 });
 
-test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
-  const interpreter = createInterpreter();
+test('treats BMD ballot with one blank side as valid', async () => {
+  const result = await interpret('foo-sheet-id', ballotImages.bmdBallot, {
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    ballotImagesPath,
+    testMode: true,
+    markThresholds: DEFAULT_MARK_THRESHOLDS,
+    adjudicationReasons: [],
+  });
+  expect(result.ok()?.type).toEqual('ValidSheet');
+});
 
-  interpreter.configure({
+test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
+  const result = await interpret('foo-sheet-id', ballotImages.overvoteBallot, {
     electionDefinition:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,
     testMode: true,
+    markThresholds: DEFAULT_MARK_THRESHOLDS,
+    adjudicationReasons: [AdjudicationReason.Overvote],
   });
-
-  const result = await interpreter.interpret(
-    'foo-sheet-id',
-    ballotImages.overvoteBallot
-  );
   expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
 
 test.each([true, false])(
   'NH interpreter with testMode=%s',
   async (testMode) => {
-    const interpreter = createInterpreter();
-
-    interpreter.configure({
-      electionDefinition:
-        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      ballotImagesPath,
-      testMode,
-    });
-
     const sheet = (
-      await interpreter.interpret('foo-sheet-id', ballotImages.normalBallot)
+      await interpret('foo-sheet-id', ballotImages.normalBallot, {
+        electionDefinition:
+          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        ballotImagesPath,
+        testMode,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [AdjudicationReason.Overvote],
+      })
     ).unsafeUnwrap();
     expect(sheet.type).toEqual('ValidSheet');
 

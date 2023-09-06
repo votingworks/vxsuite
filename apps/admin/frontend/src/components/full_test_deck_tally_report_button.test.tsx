@@ -10,7 +10,7 @@ import {
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { mockUsbDrive } from '@votingworks/ui';
-import { screen, within } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
 
@@ -28,8 +28,13 @@ test('prints appropriate reports for primary election', async () => {
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
 
-  userEvent.click(await screen.findByText('Print Full Test Deck Tally Report'));
-  await screen.findByText('Printing');
+  const fullTestDeckButton = screen.getButton(
+    'Print Full Test Deck Tally Report'
+  );
+  await waitFor(() => {
+    expect(fullTestDeckButton).toBeEnabled();
+  });
+  userEvent.click(fullTestDeckButton);
 
   await expectPrint((printedElement, printOptions) => {
     const reports = printedElement.getAllByTestId(/test-deck-tally-report/);
@@ -54,12 +59,20 @@ test('prints appropriate reports for primary election', async () => {
 });
 
 test('prints appropriate report for general election', async () => {
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+
   renderInAppContext(<FullTestDeckTallyReportButton />, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
   });
 
-  userEvent.click(await screen.findByText('Print Full Test Deck Tally Report'));
-  await screen.findByText('Printing');
+  const fullTestDeckButton = screen.getButton(
+    'Print Full Test Deck Tally Report'
+  );
+  await waitFor(() => {
+    expect(fullTestDeckButton).toBeEnabled();
+  });
+  userEvent.click(fullTestDeckButton);
 
   await expectPrint((printedElement, printOptions) => {
     printedElement.getByText(
@@ -79,7 +92,13 @@ test('renders SaveFileToUsb component for saving PDF', async () => {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     usbDrive,
   });
-  userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
+  const fullTestDeckButton = screen.getButton(
+    'Save Full Test Deck Tally Report as PDF'
+  );
+  await waitFor(() => {
+    expect(fullTestDeckButton).toBeEnabled();
+  });
+  userEvent.click(fullTestDeckButton);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Test Deck Tally Report');
 });
@@ -90,7 +109,13 @@ test('closes SaveFileToUsb modal', async () => {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     usbDrive,
   });
-  userEvent.click(screen.getByText('Save Full Test Deck Tally Report as PDF'));
+  const fullTestDeckButton = screen.getButton(
+    'Save Full Test Deck Tally Report as PDF'
+  );
+  await waitFor(() => {
+    expect(fullTestDeckButton).toBeEnabled();
+  });
+  userEvent.click(fullTestDeckButton);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Test Deck Tally Report');
   userEvent.click(screen.getByText('Cancel'));

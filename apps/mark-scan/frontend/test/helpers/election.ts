@@ -5,7 +5,7 @@ import {
   getContests,
   YesNoContest,
 } from '@votingworks/types';
-import { singlePrecinctSelectionFor, Storage } from '@votingworks/utils';
+import { Storage } from '@votingworks/utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { electionStorageKey, State, stateStorageKey } from '../../src/app_root';
 
@@ -69,7 +69,6 @@ export async function setStateInStorage(
   state: Partial<State> = {}
 ): Promise<void> {
   const storedState: Partial<State> = {
-    appPrecinct: singlePrecinctSelectionFor(defaultPrecinctId),
     ballotsPrintedCount: 0,
     isLiveMode: true,
     pollsState: 'polls_open',

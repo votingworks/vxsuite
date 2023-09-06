@@ -1,11 +1,10 @@
 import {
   BallotStyleId,
-  Dictionary,
+  ContestId,
   PartyId,
   PrecinctId,
   PromiseOr,
 } from '@votingworks/types';
-import { Optional } from '@votingworks/basics';
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 
 // Events
@@ -40,6 +39,9 @@ export interface ManualDataEntryScreenProps {
 export interface SmartcardsScreenProps {
   smartcardType: string;
 }
+export interface WriteInsAdjudicationScreenProps {
+  contestId: ContestId;
+}
 
 export enum ResultsFileType {
   CastVoteRecord = 'cvr',
@@ -54,9 +56,6 @@ export interface CastVoteRecordFilePreprocessedData {
   readonly exportTimestamp: Date;
   readonly isTestModeResults: boolean;
 }
-
-export type VoteCounts = Dictionary<Dictionary<number>>;
-export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>;
 
 export type Iso8601Timestamp = string;
 

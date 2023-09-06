@@ -2,29 +2,25 @@ import { fakeLogger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   InsertedSmartCardAuth,
-  SystemSettingsSchema,
-  safeParseJson,
+  safeParseSystemSettings,
 } from '@votingworks/types';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
   fakeSessionExpiresAt,
+  mockOf,
 } from '@votingworks/test-utils';
 import {
   electionMinimalExhaustiveSampleFixtures,
   electionFamousNames2021Fixtures,
   systemSettings,
 } from '@votingworks/fixtures';
-import { assert, err } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
-  safeParseSystemSettings,
 } from '@votingworks/utils';
-import {
-  ArtifactAuthenticatorApi,
-  buildMockArtifactAuthenticator,
-} from '@votingworks/auth';
+import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { join } from 'path';
 import * as fs from 'fs';
 import { Buffer } from 'buffer';
@@ -35,17 +31,19 @@ import { UsbDrive } from '../get_usb_drives';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
+jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
+  ...jest.requireActual('@votingworks/auth'),
+  authenticateArtifactUsingSignatureFile: jest.fn(),
+}));
+
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
   ...jest.requireActual('@votingworks/utils'),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
-let mockArtifactAuthenticator: jest.Mocked<ArtifactAuthenticatorApi>;
-
 beforeEach(() => {
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
   mockFeatureFlagger.resetFeatureFlags();
-
-  mockArtifactAuthenticator = buildMockArtifactAuthenticator();
 });
 
 function assertFilesCreatedInOrder(
@@ -85,9 +83,8 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
     },
@@ -98,7 +95,6 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     fakeLogger()
   );
@@ -108,14 +104,12 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
   expect(ballotPackage.systemSettings).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
-  expect(
-    mockArtifactAuthenticator.authenticateArtifactUsingSignatureFile
-  ).toHaveBeenCalledTimes(1);
-  expect(
-    mockArtifactAuthenticator.authenticateArtifactUsingSignatureFile
-  ).toHaveBeenNthCalledWith(1, {
-    type: 'ballot_package',
-    path: expect.stringContaining('/ballot-packages/test-ballot-package.zip'),
+  expect(authenticateArtifactUsingSignatureFile).toHaveBeenCalledTimes(1);
+  expect(authenticateArtifactUsingSignatureFile).toHaveBeenNthCalledWith(1, {
+    type: 'election_package',
+    filePath: expect.stringContaining(
+      '/ballot-packages/test-ballot-package.zip'
+    ),
   });
 });
 
@@ -143,7 +137,6 @@ test("readBallotPackageFromUsb uses default system settings when system settings
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     fakeLogger()
   );
@@ -165,9 +158,8 @@ test('errors if logged-out auth is passed', async () => {
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
     },
@@ -180,7 +172,6 @@ test('errors if logged-out auth is passed', async () => {
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     logger
   );
@@ -207,9 +198,8 @@ test('errors if election hash on provided auth is different than ballot package 
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition: otherElectionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
     },
@@ -220,7 +210,6 @@ test('errors if election hash on provided auth is different than ballot package 
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     fakeLogger()
   );
@@ -246,7 +235,6 @@ test('errors if there is no ballot package on usb drive', async () => {
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     fakeLogger()
   );
@@ -271,12 +259,7 @@ test('errors if a user is authenticated but is not an election manager', async (
   assert(usbDrive);
 
   await expect(
-    readBallotPackageFromUsb(
-      authStatus,
-      mockArtifactAuthenticator,
-      usbDrive,
-      fakeLogger()
-    )
+    readBallotPackageFromUsb(authStatus, usbDrive, fakeLogger())
   ).rejects.toThrow('Only election managers may configure a ballot package.');
 });
 
@@ -298,9 +281,8 @@ test('configures using the most recently created ballot package on the usb drive
       ),
       'newer-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
     },
@@ -315,7 +297,6 @@ test('configures using the most recently created ballot package on the usb drive
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     fakeLogger()
   );
@@ -342,9 +323,8 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
     'ballot-packages': {
       'older-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
-        systemSettings: safeParseJson(
-          systemSettings.asText(),
-          SystemSettingsSchema
+        systemSettings: safeParseSystemSettings(
+          systemSettings.asText()
         ).unsafeUnwrap(),
       }),
       '._newer-hidden-file-ballot-package.zip': Buffer.from('not a zip file'),
@@ -360,7 +340,6 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     fakeLogger()
   );
@@ -373,7 +352,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
 });
 
 test('readBallotPackageFromUsb returns error result if ballot package authentication errs', async () => {
-  mockArtifactAuthenticator.authenticateArtifactUsingSignatureFile.mockResolvedValue(
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
 
@@ -397,7 +376,6 @@ test('readBallotPackageFromUsb returns error result if ballot package authentica
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     fakeLogger()
   );
@@ -407,7 +385,7 @@ test('readBallotPackageFromUsb returns error result if ballot package authentica
 });
 
 test('readBallotPackageFromUsb ignores ballot package authentication errors if SKIP_BALLOT_PACKAGE_AUTHENTICATION is enabled', async () => {
-  mockArtifactAuthenticator.authenticateArtifactUsingSignatureFile.mockResolvedValue(
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
   );
   mockFeatureFlagger.enableFeatureFlag(
@@ -434,7 +412,6 @@ test('readBallotPackageFromUsb ignores ballot package authentication errors if S
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    mockArtifactAuthenticator,
     usbDrive,
     fakeLogger()
   );

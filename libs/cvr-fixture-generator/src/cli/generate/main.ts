@@ -262,12 +262,12 @@ export async function main(
       const pageWidthInches = 8.5;
       let pageHeightInches: number;
 
-      switch (election.ballotLayout?.paperSize) {
+      switch (election.ballotLayout.paperSize) {
         case BallotPaperSize.Legal:
           pageHeightInches = 14;
           break;
 
-        case BallotPaperSize.Custom8Point5X17:
+        case BallotPaperSize.Custom17:
           pageHeightInches = 17;
           break;
 
@@ -314,7 +314,7 @@ export async function main(
           ballotStyleId,
           precinctId,
           electionHash,
-          ballotType: BallotType.Standard,
+          ballotType: BallotType.Precinct,
           isTestMode: testMode,
         }),
         (l) => l.metadata.pageNumber === pageNumber

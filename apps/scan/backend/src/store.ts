@@ -23,15 +23,25 @@ import {
   safeParseJson,
   SheetOf,
   SystemSettings,
-  SystemSettingsDbRow,
+  safeParseSystemSettings,
+  AdjudicationReason,
 } from '@votingworks/types';
-import { assert, Optional } from '@votingworks/basics';
+import { assertDefined, Optional } from '@votingworks/basics';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { ResultSheet } from '@votingworks/backend';
+import {
+  clearCastVoteRecordHashes,
+  getCastVoteRecordRootHash,
+  updateCastVoteRecordHashes,
+} from '@votingworks/auth';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 
@@ -39,15 +49,51 @@ const debug = rootDebug.extend('store');
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
-export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
-  marginal: 0.17,
-  definite: 0.25,
-};
-
 function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
   return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
     zone: 'GMT',
   });
+}
+
+const getResultSheetsBaseQuery = `
+  select
+    sheets.id as id,
+    batches.id as batchId,
+    batches.label as batchLabel,
+    front_interpretation_json as frontInterpretationJson,
+    back_interpretation_json as backInterpretationJson,
+    front_image_path as frontImagePath,
+    back_image_path as backImagePath
+  from sheets left join batches on
+    sheets.batch_id = batches.id
+  where
+    (requires_adjudication = 0 or finished_adjudication_at is not null)
+    and sheets.deleted_at is null
+    and batches.deleted_at is null
+`;
+
+interface ResultSheetRow {
+  id: string;
+  batchId: string;
+  batchLabel: string | null;
+  frontInterpretationJson: string;
+  backInterpretationJson: string;
+  frontImagePath: string;
+  backImagePath: string;
+}
+
+function resultSheetRowToResultSheet(row: ResultSheetRow): ResultSheet {
+  return {
+    id: row.id,
+    batchId: row.batchId,
+    batchLabel: row.batchLabel ?? undefined,
+    interpretation: mapSheet(
+      [row.frontInterpretationJson, row.backInterpretationJson],
+      (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
+    ),
+    frontImagePath: row.frontImagePath,
+    backImagePath: row.backImagePath,
+  };
 }
 
 /**
@@ -130,23 +176,7 @@ export class Store {
       return undefined;
     }
 
-    const electionDefinitionParseResult = safeParseElectionDefinition(
-      electionRow.electionData
-    );
-
-    if (electionDefinitionParseResult.isErr()) {
-      throw new Error('Unable to parse stored election data.');
-    }
-
-    const electionDefinition = electionDefinitionParseResult.ok();
-
-    return {
-      ...electionDefinition,
-      election: {
-        markThresholds: DefaultMarkThresholds,
-        ...electionDefinition.election,
-      },
-    };
+    return safeParseElectionDefinition(electionRow.electionData).unsafeUnwrap();
   }
 
   /**
@@ -300,68 +330,18 @@ export class Store {
   getBallotPaperSizeForElection(): BallotPaperSize {
     const electionDefinition = this.getElectionDefinition();
     return (
-      electionDefinition?.election.ballotLayout?.paperSize ??
+      electionDefinition?.election.ballotLayout.paperSize ??
       BallotPaperSize.Letter
     );
   }
 
-  /**
-   * Gets the current override values for mark thresholds if they are set.
-   * If there are no overrides set, returns undefined.
-   */
-  getMarkThresholdOverrides(): Optional<MarkThresholds> {
-    const electionRow = this.client.one(
-      'select marginal_mark_threshold_override as marginal, definite_mark_threshold_override as definite from election'
-    ) as
-      | {
-          marginal: number | null;
-          definite: number | null;
-        }
-      | undefined;
-
-    if (!electionRow) {
-      return undefined;
-    }
-
-    if (electionRow.definite) {
-      assert(typeof electionRow.marginal === 'number');
-      return {
-        marginal: electionRow.marginal,
-        definite: electionRow.definite,
-      };
-    }
-
-    return undefined;
+  getMarkThresholds(): MarkThresholds {
+    return assertDefined(this.getSystemSettings()).markThresholds;
   }
 
-  getCurrentMarkThresholds(): Optional<MarkThresholds> {
-    return (
-      this.getMarkThresholdOverrides() ??
-      this.getElectionDefinition()?.election.markThresholds
-    );
-  }
-
-  /**
-   * Sets the current override values for mark thresholds. A value of undefined
-   * will remove overrides and cause thresholds to fallback to the default values
-   * in the election definition.
-   */
-  setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
-    if (!this.hasElection()) {
-      throw new Error('Cannot set mark thresholds without an election.');
-    }
-
-    if (!markThresholds) {
-      this.client.run(
-        'update election set definite_mark_threshold_override = null, marginal_mark_threshold_override = null'
-      );
-    } else {
-      this.client.run(
-        'update election set definite_mark_threshold_override = ?, marginal_mark_threshold_override = ?',
-        markThresholds.definite,
-        markThresholds.marginal
-      );
-    }
+  getAdjudicationReasons(): readonly AdjudicationReason[] {
+    return assertDefined(this.getSystemSettings())
+      .precinctScanAdjudicationReasons;
   }
 
   /**
@@ -571,6 +551,14 @@ export class Store {
 
     // Allow if no ballots have been counted
     if (!this.getBallotsCounted()) {
+      return true;
+    }
+
+    if (
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+      )
+    ) {
       return true;
     }
 
@@ -828,7 +816,7 @@ export class Store {
   /**
    * Gets all batches, including their sheet count.
    */
-  batchStatus(): BatchInfo[] {
+  getBatches(): BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
       batchNumber: number;
@@ -904,93 +892,78 @@ export class Store {
    * Yields all sheets in the database that would be included in a CVR export.
    */
   *forEachResultSheet(): Generator<ResultSheet> {
-    const sql = `
-      select
-        sheets.id as id,
-        batches.id as batchId,
-        batches.label as batchLabel,
-        front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson,
-        front_image_path as frontImagePath,
-        back_image_path as backImagePath
-      from sheets left join batches
-      on sheets.batch_id = batches.id
-      where
-        (requires_adjudication = 0 or finished_adjudication_at is not null)
-        and sheets.deleted_at is null
-        and batches.deleted_at is null
-      order by sheets.id
-    `;
-    for (const row of this.client.each(sql) as Iterable<{
-      id: string;
-      batchId: string;
-      batchLabel: string | null;
-      frontInterpretationJson: string;
-      backInterpretationJson: string;
-      frontImagePath: string;
-      backImagePath: string;
-    }>) {
-      yield {
-        id: row.id,
-        batchId: row.batchId,
-        batchLabel: row.batchLabel ?? undefined,
-        interpretation: mapSheet(
-          [row.frontInterpretationJson, row.backInterpretationJson],
-          (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
-        ),
-        frontImagePath: row.frontImagePath,
-        backImagePath: row.backImagePath,
-      };
+    const sql = `${getResultSheetsBaseQuery} order by sheets.id`;
+    for (const row of this.client.each(sql) as Iterable<ResultSheetRow>) {
+      yield resultSheetRowToResultSheet(row);
     }
   }
 
   /**
-   * Creates a system settings record
+   * Gets a single sheet given a sheet ID. Returns undefined if the sheet doesn't exist or wouldn't
+   * be included in a CVR export.
+   */
+  getResultSheet(sheetId: string): ResultSheet | undefined {
+    const sql = `${getResultSheetsBaseQuery} and sheets.id = ?`;
+    const row = this.client.one(sql, sheetId) as ResultSheetRow | undefined;
+    return row ? resultSheetRowToResultSheet(row) : undefined;
+  }
+
+  /**
+   * Stores the system settings.
    */
   setSystemSettings(systemSettings: SystemSettings): void {
     this.client.run('delete from system_settings');
     this.client.run(
       `
-      insert into system_settings (
-        are_poll_worker_card_pins_enabled,
-        inactive_session_time_limit_minutes,
-        num_incorrect_pin_attempts_allowed_before_card_lockout,
-        overall_session_time_limit_hours,
-        starting_card_lockout_duration_seconds
-      ) values (
-        ?, ?, ?, ?, ?
-      )
+      insert into system_settings (data) values (?)
       `,
-      systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0,
-      systemSettings.inactiveSessionTimeLimitMinutes,
-      systemSettings.numIncorrectPinAttemptsAllowedBeforeCardLockout,
-      systemSettings.overallSessionTimeLimitHours,
-      systemSettings.startingCardLockoutDurationSeconds
+      JSON.stringify(systemSettings)
     );
   }
 
   /**
-   * Gets system settings or undefined if they aren't loaded yet
+   * Retrieves the system settings.
    */
   getSystemSettings(): SystemSettings | undefined {
-    const result = this.client.one(
-      `
-      select
-        are_poll_worker_card_pins_enabled as arePollWorkerCardPinsEnabled,
-        inactive_session_time_limit_minutes as inactiveSessionTimeLimitMinutes,
-        num_incorrect_pin_attempts_allowed_before_card_lockout as numIncorrectPinAttemptsAllowedBeforeCardLockout,
-        overall_session_time_limit_hours as overallSessionTimeLimitHours,
-        starting_card_lockout_duration_seconds as startingCardLockoutDurationSeconds
-      from system_settings
-      `
-    ) as SystemSettingsDbRow | undefined;
+    const result = this.client.one(`select data from system_settings`) as
+      | { data: string }
+      | undefined;
 
-    if (!result) {
-      return undefined;
-    }
-    return {
-      ...result,
-      arePollWorkerCardPinsEnabled: result.arePollWorkerCardPinsEnabled === 1,
-    };
+    if (!result) return undefined;
+    return safeParseSystemSettings(result.data).unsafeUnwrap();
+  }
+
+  /**
+   * Gets the name of the directory that we're continuously exporting to, e.g.
+   * TEST__machine_SCAN-0001__2023-08-16_17-02-24. Returns undefined if not yet set.
+   */
+  getExportDirectoryName(): string | undefined {
+    const result = this.client.one(
+      'select export_directory_name as exportDirectoryName from export_directory_name'
+    ) as { exportDirectoryName: string } | undefined;
+    return result?.exportDirectoryName;
+  }
+
+  /**
+   * Stores the name of the directory that we'll be continuously exporting to
+   */
+  setExportDirectoryName(exportDirectoryName: string): void {
+    this.client.run('delete from export_directory_name');
+    this.client.run(
+      'insert into export_directory_name (export_directory_name) values (?)',
+      exportDirectoryName
+    );
+  }
+
+  getCastVoteRecordRootHash(): string {
+    return getCastVoteRecordRootHash(this.client);
+  }
+
+  updateCastVoteRecordHashes(cvrId: string, cvrHash: string): void {
+    updateCastVoteRecordHashes(this.client, cvrId, cvrHash);
+  }
+
+  clearCastVoteRecordHashes(): void {
+    clearCastVoteRecordHashes(this.client);
   }
 }

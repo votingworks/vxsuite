@@ -3,7 +3,7 @@ import { assert, err, ok } from '@votingworks/basics';
 import fc from 'fast-check';
 import { byteArrayWithLengthPrefix } from './byte_array_with_length_prefix';
 import { uint8 } from './uint8_coder';
-import { MAX_UINT16, MAX_UINT8, MIN_UINT8 } from './constants';
+import { MAX_UINT16, MAX_UINT8 } from './constants';
 
 test('canEncode', () => {
   const coder = byteArrayWithLengthPrefix(uint8());
@@ -52,7 +52,7 @@ test('encode with length too large', () => {
 
 test('fixed length (8-bit)', () => {
   fc.assert(
-    fc.property(fc.integer({ min: MIN_UINT8, max: MAX_UINT8 }), (length) => {
+    fc.property(fc.integer({ min: 1, max: MAX_UINT8 }), (length) => {
       const coder = byteArrayWithLengthPrefix(length);
       expect(coder.bitLength(new Uint8Array(length))).toEqual(
         ok(8 + length * 8)

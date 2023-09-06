@@ -54,6 +54,7 @@ it('Single Seat Contest', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 
   await storage.set(
     electionStorageKey,

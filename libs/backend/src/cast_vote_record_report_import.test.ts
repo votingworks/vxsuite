@@ -71,7 +71,7 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
       );
     expect(validationResult.isOk()).toBeTruthy();
     expect(validationResult.ok()).toMatchInlineSnapshot(`
-      Array [
+      [
         "9822c71014/card-number-3__town-id-00701-precinct-id-__1.jpg",
         "9822c71014/card-number-3__town-id-00701-precinct-id-__2.jpg",
       ]

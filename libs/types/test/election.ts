@@ -1,9 +1,10 @@
 import { Election, PartyIdSchema } from '../src/election';
-import { safeParseElection } from '../src/election_utils';
+import { safeParseElection } from '../src/election_parsing';
 import { unsafeParse } from '../src/generic';
 
 export const electionData = `
 {
+  "type": "general",
   "title": "ELECTION",
   "ballotStyles": [
     {
@@ -64,6 +65,7 @@ export const electionData = `
       "name": "PRECINCT"
     }
   ],
+  "seal": "<svg>test seal</svg>",
   "state": "STATE"
 }`;
 export const election: Election =
@@ -72,6 +74,7 @@ const democraticPartyId = unsafeParse(PartyIdSchema, 'DEM');
 const republicanPartyId = unsafeParse(PartyIdSchema, 'REP');
 export const primaryElection: Election = {
   ...election,
+  type: 'primary',
   title: 'Primary Election',
   ballotStyles: [
     ...election.ballotStyles.map((bs) => ({
@@ -120,6 +123,7 @@ export const primaryElection: Election = {
 
 const electionMinimalExhaustiveData = `
 {
+  "type": "primary",
   "title": "Example Primary Election - Minimal Exhaustive",
   "state": "State of Sample",
   "county": {
@@ -128,7 +132,8 @@ const electionMinimalExhaustiveData = `
   },
   "date": "2021-09-08T00:00:00-08:00",
   "ballotLayout": {
-    "paperSize": "letter"
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
   },
   "districts": [
     {
@@ -300,7 +305,7 @@ const electionMinimalExhaustiveData = `
       "partyId": "1"
     }
   ],
-  "sealUrl": "/seals/Sample-Seal.svg",
+  "seal": "<svg>test seal</svg>",
   "centralScanAdjudicationReasons": ["BlankBallot"],
   "precinctScanAdjudicationReasons": ["BlankBallot"]
 }`;

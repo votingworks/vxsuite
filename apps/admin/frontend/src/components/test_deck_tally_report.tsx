@@ -1,89 +1,23 @@
-import {
-  CandidateVote,
-  Election,
-  Tabulation,
-  YesNoVote,
-  electionHasPrimaryContest,
-} from '@votingworks/types';
-import {
-  getRelevantContests,
-  groupMapToGroupList,
-  tabulateCastVoteRecords,
-} from '@votingworks/utils';
-import { find, mapObject } from '@votingworks/basics';
-import { TestDeckBallot } from '../utils/election';
+import { ElectionDefinition } from '@votingworks/types';
+import { find } from '@votingworks/basics';
+import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
 
 export interface TestDeckTallyReportProps {
-  election: Election;
-  testDeckBallots: TestDeckBallot[];
+  electionDefinition: ElectionDefinition;
+  tallyReportResults: TallyReportResults;
   precinctId?: string;
 }
 
-function testDeckBallotToCastVoteRecord(
-  testDeckBallot: TestDeckBallot
-): Tabulation.CastVoteRecord {
-  const votes: Tabulation.CastVoteRecord['votes'] = {};
-
-  for (const [contestId, vote] of Object.entries(testDeckBallot.votes)) {
-    if (vote) {
-      if (typeof vote[0] === 'string') {
-        // yes no vote
-        const yesNoVote = vote as YesNoVote;
-        votes[contestId] = [...yesNoVote];
-      } else {
-        // candidate vote
-        const candidates = vote as CandidateVote;
-        votes[contestId] = candidates.map((c) => c.id);
-      }
-    }
-  }
-
-  return {
-    votes,
-    precinctId: testDeckBallot.precinctId,
-    ballotStyleId: testDeckBallot.ballotStyleId,
-    votingMethod: 'precinct',
-    scannerId: 'test-deck',
-    batchId: 'test-deck',
-    card:
-      testDeckBallot.markingMethod === 'machine'
-        ? { type: 'bmd' }
-        : { type: 'hmpb', sheetNumber: 1 },
-  };
-}
-
 export function TestDeckTallyReport({
-  election,
-  testDeckBallots,
+  electionDefinition,
+  tallyReportResults,
   precinctId,
 }: TestDeckTallyReportProps): JSX.Element {
-  const tallyReportResults = groupMapToGroupList(
-    mapObject(
-      tabulateCastVoteRecords({
-        election,
-        cvrs: testDeckBallots.map((testDeckBallot) =>
-          testDeckBallotToCastVoteRecord(testDeckBallot)
-        ),
-        groupBy: electionHasPrimaryContest(election)
-          ? { groupByParty: true }
-          : undefined,
-      }),
-      (scannedResults) => ({ scannedResults })
-    )
-  );
-
+  const { election } = electionDefinition;
   return (
     <AdminTallyReportByParty
-      election={election}
-      contests={
-        precinctId
-          ? getRelevantContests({
-              election,
-              filter: { precinctIds: [precinctId] },
-            })
-          : election.contests
-      }
+      electionDefinition={electionDefinition}
       title={
         precinctId
           ? `Precinct Tally Report for ${

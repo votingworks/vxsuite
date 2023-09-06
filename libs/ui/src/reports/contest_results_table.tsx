@@ -8,29 +8,35 @@ import {
   Tabulation,
   AnyContest,
 } from '@votingworks/types';
-import { getContestVoteOptionsForCandidateContest } from '@votingworks/utils';
+import {
+  getContestVoteOptionsForCandidateContest,
+  format,
+} from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
-import { Prose } from '../prose';
 import { Text, NoWrap } from '../text';
 import { tableBorderColor } from '../table';
 
 const Contest = styled.div`
-  margin: 1rem 0;
+  margin: 2.5em 0;
   page-break-inside: avoid;
-  p:first-child {
-    margin-bottom: 0;
-  }
+
   h3 {
     margin-top: 0;
     margin-bottom: 0.5em;
+
     & + p {
       margin-top: -0.8em;
       margin-bottom: 0.25em;
     }
+
     & + table {
       margin-top: -0.5em;
     }
+  }
+
+  p:first-child {
+    margin-bottom: 0;
   }
 `;
 
@@ -38,33 +44,40 @@ const ContestTable = styled.table`
   width: 100%;
   height: 1px; /* fake height, allows TallyContainer to stretch to full height */
   border-collapse: collapse;
+
   & tr {
     border-top: 1px solid ${tableBorderColor};
     border-bottom: 1px solid ${tableBorderColor};
     height: 100%;
   }
+
   & tr.metadata {
     font-size: 0.75em;
   }
-  & tr.metadata.metadatarow {
+
+  & tr.metadata.last-metadata {
     border-bottom: 1px solid #e6e6e6;
   }
+
   & td {
     width: 1%;
     height: 100%;
-    padding: 0.1rem 0.25rem;
+    padding: 0.25em 0.625em;
     padding-right: 0;
     text-align: right;
     white-space: no-wrap;
   }
+
   & th {
-    padding: 0 0.5rem;
+    padding: 0 0.5em;
     text-align: right;
     font-weight: 400;
+
     &:first-child {
-      padding-left: 0.1rem;
+      padding-left: 0.25em;
       text-align: left;
     }
+
     &:not(:first-child) {
       padding-right: 0;
     }
@@ -92,12 +105,16 @@ function ContestOptionRow({
     return (
       <tr data-testid={testId}>
         <th>{optionLabel}</th>
-        <td>{scannedTally}</td>
+        <td>{format.count(scannedTally)}</td>
         <td>
-          {manualTally === 0 ? <Muted>{manualTally}</Muted> : manualTally}
+          {manualTally === 0 ? (
+            <Muted>{format.count(manualTally)}</Muted>
+          ) : (
+            format.count(manualTally)
+          )}
         </td>
         <td>
-          <strong>{scannedTally + manualTally}</strong>
+          <strong>{format.count(scannedTally + manualTally)}</strong>
         </td>
       </tr>
     );
@@ -106,7 +123,7 @@ function ContestOptionRow({
   return (
     <tr data-testid={testId}>
       <th colSpan={3}>{optionLabel}</th>
-      <td>{scannedTally}</td>
+      <td>{format.count(scannedTally)}</td>
     </tr>
   );
 }
@@ -123,14 +140,20 @@ function ContestMetadataRow({
   isLast?: boolean;
 }): JSX.Element {
   return (
-    <tr className={`metadata ${isLast ? '' : 'metadatarow'}`}>
+    <tr className={`metadata ${isLast ? '' : 'last-metadata'}`}>
       <th>
         <em>{label}</em>
       </th>
-      <td>{scannedTally}</td>
-      <td>{manualTally === 0 ? <Muted>{manualTally}</Muted> : manualTally}</td>
+      <td>{format.count(scannedTally)}</td>
       <td>
-        <strong>{scannedTally + manualTally}</strong>
+        {manualTally === 0 ? (
+          <Muted>{format.count(manualTally)}</Muted>
+        ) : (
+          format.count(manualTally)
+        )}
+      </td>
+      <td>
+        <strong>{format.count(scannedTally + manualTally)}</strong>
       </td>
     </tr>
   );
@@ -251,38 +274,47 @@ export function ContestResultsTable({
 
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
-      <Prose maxWidth={false}>
-        <Text small>{getContestDistrictName(election, contest)}</Text>
-        <h3>
-          {contest.title}
-          {contest.type === 'candidate' && contest.seats > 1 && (
-            <React.Fragment>
-              {' '}
-              <Text as="span" noWrap small>
-                ({contest.seats} seats)
-              </Text>
-            </React.Fragment>
-          )}
-        </h3>
-        {!hasManualResults && (
-          <Text small>
-            <NoWrap>
-              {pluralize('ballots', scannedContestResults.ballots, true)} cast /
-            </NoWrap>{' '}
-            <NoWrap>
-              {' '}
-              {pluralize('overvotes', scannedContestResults.overvotes, true)} /
-            </NoWrap>{' '}
-            <NoWrap>
-              {' '}
-              {pluralize('undervotes', scannedContestResults.undervotes, true)}
-            </NoWrap>
-          </Text>
+      <Text small>{getContestDistrictName(election, contest)}</Text>
+      <h3>
+        {contest.title}
+        {contest.type === 'candidate' && contest.seats > 1 && (
+          <React.Fragment>
+            {' '}
+            <Text as="span" noWrap small>
+              ({contest.seats} seats)
+            </Text>
+          </React.Fragment>
         )}
-        <ContestTable>
-          <tbody>{contestTableRows}</tbody>
-        </ContestTable>
-      </Prose>
+      </h3>
+      {!hasManualResults && (
+        <Text small>
+          <NoWrap>
+            {`${format.count(scannedContestResults.ballots)} ${pluralize(
+              'ballots',
+              scannedContestResults.ballots
+            )}`}{' '}
+            cast /
+          </NoWrap>{' '}
+          <NoWrap>
+            {' '}
+            {`${format.count(scannedContestResults.overvotes)} ${pluralize(
+              'overvotes',
+              scannedContestResults.overvotes
+            )}`}{' '}
+            /
+          </NoWrap>{' '}
+          <NoWrap>
+            {' '}
+            {`${format.count(scannedContestResults.undervotes)} ${pluralize(
+              'undervotes',
+              scannedContestResults.undervotes
+            )}`}
+          </NoWrap>
+        </Text>
+      )}
+      <ContestTable>
+        <tbody>{contestTableRows}</tbody>
+      </ContestTable>
     </Contest>
   );
 }

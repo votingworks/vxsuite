@@ -11,19 +11,19 @@ test('renders official candidates', () => {
       election={election}
       contestWriteInSummary={{
         contestId: 'zoo-council-mammal',
-        totalTally: 40,
-        pendingTally: 19,
-        invalidTally: 1,
+        totalTally: 4500,
+        pendingTally: 1500,
+        invalidTally: 100,
         candidateTallies: {
           zebra: {
             id: 'zebra',
             name: 'Zebra',
-            tally: 15,
+            tally: 1900,
           },
           lion: {
             id: 'lion',
             name: 'Lion',
-            tally: 5,
+            tally: 1000,
           },
         },
       }}
@@ -33,12 +33,12 @@ test('renders official candidates', () => {
   screen.getByRole('heading', { name: 'Zoo Council' });
   screen.getByText('District 1');
   screen.getByText(
-    hasTextAcrossElements('40 total write-ins / 19 not adjudicated')
+    hasTextAcrossElements('4,500 total write-ins / 1,500 not adjudicated')
   );
-  within(screen.getByText('Invalid').closest('tr')!).getByText('1');
+  within(screen.getByText('Invalid').closest('tr')!).getByText('100');
   screen.getByText('Official Candidates');
-  within(screen.getByText('Zebra').closest('tr')!).getByText('15');
-  within(screen.getByText('Lion').closest('tr')!).getByText('5');
+  within(screen.getByText('Zebra').closest('tr')!).getByText('1,900');
+  within(screen.getByText('Lion').closest('tr')!).getByText('1,000');
 
   expect(screen.queryByText('Write-In Candidates')).not.toBeInTheDocument();
 });

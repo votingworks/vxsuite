@@ -3,10 +3,7 @@ import { Application } from 'express';
 import { Logger, fakeLogger } from '@votingworks/logging';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
-import {
-  buildMockArtifactAuthenticator,
-  buildMockDippedSmartCardAuth,
-} from '@votingworks/auth';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import getPort from 'get-port';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
@@ -20,7 +17,6 @@ import { Store } from '../../src/store';
 export async function withApp(
   fn: (context: {
     auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
-    artifactAuthenticator: ReturnType<typeof buildMockArtifactAuthenticator>;
     workspace: Workspace;
     scanner: MockScanner;
     mockUsb: MockUsb;
@@ -34,7 +30,6 @@ export async function withApp(
 ): Promise<void> {
   const port = await getPort();
   const auth = buildMockDippedSmartCardAuth();
-  const artifactAuthenticator = buildMockArtifactAuthenticator();
   const workspace = createWorkspace(dirSync().name);
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, scanner });
@@ -42,7 +37,6 @@ export async function withApp(
   const logger = fakeLogger();
   const app = buildCentralScannerApp({
     auth,
-    artifactAuthenticator,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],
     importer,
@@ -63,7 +57,6 @@ export async function withApp(
   try {
     await fn({
       auth,
-      artifactAuthenticator,
       workspace,
       store: workspace.store,
       scanner,

@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import styled, { ThemeProvider } from 'styled-components';
 
 import { ColorMode, SizeMode } from '@votingworks/types';

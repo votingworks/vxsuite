@@ -41,7 +41,7 @@ const iconStyles = css<Props>`
     vertical-align: middle;
     text-align: center;
     line-height: 1.1;
-    color: #ffffff;
+    color: #fff;
     font-size: 90%;
     font-weight: 800;
     content: ${({ warningIcon, voteIcon }) =>
@@ -67,6 +67,7 @@ export const Text = styled('p')<Props>`
     (muted && 'gray') ??
     (white && '#FFFFFF') ??
     undefined};
+
   @media print {
     color: ${({ error, muted, success, warning, white }) =>
       (error && 'black') ??
@@ -76,12 +77,12 @@ export const Text = styled('p')<Props>`
       (white && '#FFFFFF') ??
       undefined};
   }
+
   font-size: ${({ small }) => (small ? '0.8em' : undefined)};
   font-weight: ${({ bold, light, normal }) =>
     (bold && '600') ?? (light && '300') ?? (normal && '400') ?? undefined};
   font-style: ${({ italic }) => (italic ? 'italic' : undefined)};
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
-  /* stylelint-disable-next-line value-keyword-case, order/properties-order */
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
 `;
 

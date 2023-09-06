@@ -8,14 +8,16 @@ import {
   InterpretedHmpbPage,
   mapSheet,
   PageInterpretationWithFiles,
+  safeParseSystemSettings,
   SheetOf,
   TEST_JURISDICTION,
   YesNoContest,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
   singlePrecinctSelectionFor,
-  safeParseSystemSettings,
 } from '@votingworks/utils';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
@@ -23,13 +25,82 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
   electionMinimalExhaustiveSampleFixtures,
 } from '@votingworks/fixtures';
+import { sha256 } from 'js-sha256';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
 const jurisdiction = TEST_JURISDICTION;
+
+const testMetadata: BallotMetadata = {
+  ballotStyleId: '12',
+  ballotType: BallotType.Precinct,
+  electionHash:
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      .electionHash,
+  isTestMode: false,
+  precinctId: '23',
+};
+
+const testSheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
+  {
+    imagePath: '/front.png',
+    interpretation: {
+      type: 'InterpretedHmpbPage',
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+      layout: {
+        contests: [],
+        metadata: { ...testMetadata, pageNumber: 1 },
+        pageSize: { width: 0, height: 0 },
+      },
+      markInfo: {
+        ballotSize: { height: 1000, width: 800 },
+        marks: [],
+      },
+      metadata: { ...testMetadata, pageNumber: 1 },
+      votes: {},
+    },
+  },
+  {
+    imagePath: '/back.png',
+    interpretation: {
+      type: 'InterpretedHmpbPage',
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        enabledReasons: [],
+        enabledReasonInfos: [],
+        ignoredReasonInfos: [],
+      },
+      layout: {
+        contests: [],
+        metadata: { ...testMetadata, pageNumber: 2 },
+        pageSize: { width: 0, height: 0 },
+      },
+      markInfo: {
+        ballotSize: { height: 1000, width: 800 },
+        marks: [],
+      },
+      metadata: { ...testMetadata, pageNumber: 2 },
+      votes: {},
+    },
+  },
+];
 
 test('get/set election', () => {
   const store = Store.memoryStore();
@@ -186,56 +257,6 @@ test('get/set precinct selection', () => {
   expect(store.getPrecinctSelection()).toMatchObject(precinctSelection);
 });
 
-test('get/set mark threshold overrides', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getMarkThresholdOverrides()).toEqual(undefined);
-  expect(() => store.setMarkThresholdOverrides()).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
-    jurisdiction,
-  });
-
-  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(store.getMarkThresholdOverrides()).toStrictEqual({
-    definite: 0.6,
-    marginal: 0.5,
-  });
-
-  store.setMarkThresholdOverrides(undefined);
-  expect(store.getMarkThresholdOverrides()).toEqual(undefined);
-});
-
-test('get current mark thresholds falls back to election definition defaults', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
-    jurisdiction,
-  });
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.08,
-    marginal: 0.05,
-  });
-
-  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.6,
-    marginal: 0.5,
-  });
-
-  store.setMarkThresholdOverrides(undefined);
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.08,
-    marginal: 0.05,
-  });
-});
-
 test('get/set polls state', () => {
   const store = Store.memoryStore();
 
@@ -296,7 +317,7 @@ test('batch cleanup works correctly', () => {
   store.finishBatch({ batchId: firstBatchId });
   store.cleanupIncompleteBatches();
 
-  const batches = store.batchStatus();
+  const batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].id).toEqual(firstBatchId);
   expect(batches[0].batchNumber).toEqual(1);
@@ -306,7 +327,7 @@ test('batch cleanup works correctly', () => {
   store.addBatch();
   store.finishBatch({ batchId: thirdBatchId });
   store.cleanupIncompleteBatches();
-  const updatedBatches = store.batchStatus();
+  const updatedBatches = store.getBatches();
   expect(
     [...updatedBatches].sort((a, b) => a.label.localeCompare(b.label))
   ).toEqual([
@@ -323,7 +344,7 @@ test('batch cleanup works correctly', () => {
   ]);
 });
 
-test('batchStatus', () => {
+test('getBatches', () => {
   const store = Store.memoryStore();
 
   // Create a batch and add a sheet to it
@@ -358,25 +379,25 @@ test('batchStatus', () => {
       },
     },
   ]);
-  let batches = store.batchStatus();
+  let batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(2);
 
   // Delete one of the sheets
   store.deleteSheet(sheetId);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(1);
 
-  // Delete the last sheet, then confirm that store.batchStatus() results still include the batch
+  // Delete the last sheet, then confirm that store.getBatches() results still include the batch
   store.deleteSheet(sheetId2);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(0);
 
   // Confirm that batches marked as deleted are not included
   store.deleteBatch(batchId);
-  batches = store.batchStatus();
+  batches = store.getBatches();
   expect(batches).toHaveLength(0);
 });
 
@@ -500,6 +521,27 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 });
 
+test('getCanUnconfigure when continuous export is enabled', () => {
+  const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+        .electionData,
+    jurisdiction,
+  });
+  store.setTestMode(false);
+  const batchId = store.addBatch();
+  store.addSheet(uuid(), batchId, testSheetWithFiles);
+
+  expect(store.getCanUnconfigure()).toEqual(false);
+
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+  );
+
+  expect(store.getCanUnconfigure()).toEqual(true);
+});
+
 test('adjudication', () => {
   const candidateContests =
     electionGridLayoutNewHampshireAmherstFixtures.election.contests.filter(
@@ -509,7 +551,6 @@ test('adjudication', () => {
     electionGridLayoutNewHampshireAmherstFixtures.election.contests.filter(
       (contest): contest is YesNoContest => contest.type === 'yesno'
     );
-  const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
@@ -526,7 +567,7 @@ test('adjudication', () => {
       ballotStyleId: 'card-number-3',
       precinctId: 'town-id-00701-precinct-id-',
       isTestMode: false,
-      ballotType: BallotType.Standard,
+      ballotType: BallotType.Precinct,
     };
     return {
       imagePath: i === 0 ? '/front.png' : '/back.png',
@@ -553,7 +594,7 @@ test('adjudication', () => {
                   {
                     type: 'yesno',
                     contestId: yesnoContests[i].id,
-                    optionId: yesnoOption,
+                    optionId: yesnoContests[i].yesOption.id,
                     score: 1, // definite
                     scoredOffset: { x: 0, y: 0 },
                     bounds: zeroRect,
@@ -628,76 +669,7 @@ test('iterating over all result sheets', () => {
 
   // add a batch with a sheet
   const batchId = store.addBatch();
-  const metadata: BallotMetadata = {
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    ballotType: BallotType.Standard,
-  };
-  const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
-    {
-      imagePath: '/front.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 800, height: 1000 },
-          marks: [],
-        },
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          pageSize: { width: 0, height: 0 },
-          metadata: {
-            ...metadata,
-            pageNumber: 1,
-          },
-          contests: [],
-        },
-      },
-    },
-    {
-      imagePath: '/back.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 800, height: 1000 },
-          marks: [],
-        },
-        metadata: {
-          ...metadata,
-          pageNumber: 2,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: false,
-          enabledReasons: [],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          pageSize: { width: 0, height: 0 },
-          metadata: {
-            ...metadata,
-            pageNumber: 2,
-          },
-          contests: [],
-        },
-      },
-    },
-  ];
-  store.addSheet(uuid(), batchId, sheetWithFiles);
+  store.addSheet(uuid(), batchId, testSheetWithFiles);
   store.finishBatch({ batchId });
 
   // has one sheet
@@ -707,7 +679,10 @@ test('iterating over all result sheets', () => {
         id: expect.any(String),
         batchId,
         batchLabel: 'Batch 1',
-        interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
+        interpretation: mapSheet(
+          testSheetWithFiles,
+          (page) => page.interpretation
+        ),
         frontImagePath: '/front.png',
         backImagePath: '/back.png',
       },
@@ -722,9 +697,9 @@ test('iterating over all result sheets', () => {
   const batchId2 = store.addBatch();
   store.addSheet(uuid(), batchId2, [
     {
-      ...sheetWithFiles[0],
+      ...testSheetWithFiles[0],
       interpretation: {
-        ...(sheetWithFiles[0].interpretation as InterpretedHmpbPage),
+        ...(testSheetWithFiles[0].interpretation as InterpretedHmpbPage),
         adjudicationInfo: {
           requiresAdjudication: true,
           enabledReasons: [AdjudicationReason.Overvote],
@@ -741,9 +716,55 @@ test('iterating over all result sheets', () => {
         },
       },
     },
-    sheetWithFiles[1],
+    testSheetWithFiles[1],
   ]);
   expect(Array.from(store.forEachResultSheet())).toEqual([]);
+});
+
+test('getResultSheet', () => {
+  const store = Store.memoryStore();
+
+  const batchId = store.addBatch();
+  const sheet1Id = uuid();
+  const sheet2Id = uuid();
+  store.addSheet(sheet1Id, batchId, testSheetWithFiles);
+  store.addSheet(sheet2Id, batchId, [
+    {
+      ...testSheetWithFiles[0],
+      interpretation: {
+        ...(testSheetWithFiles[0].interpretation as InterpretedHmpbPage),
+        adjudicationInfo: {
+          requiresAdjudication: true,
+          enabledReasons: [AdjudicationReason.Overvote],
+          enabledReasonInfos: [],
+          ignoredReasonInfos: [],
+        },
+      },
+    },
+    testSheetWithFiles[1],
+  ]);
+
+  expect(store.getResultSheet(sheet1Id)).toEqual(
+    typedAs<ResultSheet>({
+      id: sheet1Id,
+      batchId,
+      batchLabel: 'Batch 1',
+      interpretation: mapSheet(
+        testSheetWithFiles,
+        (page) => page.interpretation
+      ),
+      frontImagePath: '/front.png',
+      backImagePath: '/back.png',
+    })
+  );
+
+  // Sheets requiring adjudication are not part of the "result" set
+  expect(store.getResultSheet(sheet2Id)).toEqual(undefined);
+
+  expect(store.getResultSheet('non-existent-id')).toEqual(undefined);
+
+  store.deleteSheet(sheet1Id);
+  expect(store.getResultSheet(sheet1Id)).toEqual(undefined);
 });
 
 test('resetElectionSession', () => {
@@ -763,7 +784,7 @@ test('resetElectionSession', () => {
   store.addBatch();
   expect(
     store
-      .batchStatus()
+      .getBatches()
       .map((batch) => batch.label)
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
@@ -778,14 +799,14 @@ test('resetElectionSession', () => {
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
   expect(store.getCvrsBackupTimestamp()).toBeFalsy();
   // resetElectionSession should clear all batches
-  expect(store.batchStatus()).toEqual([]);
+  expect(store.getBatches()).toEqual([]);
 
   // resetElectionSession should reset the autoincrement in the batch label
   store.addBatch();
   store.addBatch();
   expect(
     store
-      .batchStatus()
+      .getBatches()
       .map((batch) => batch.label)
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
@@ -862,4 +883,34 @@ test('getBallotsCounted', () => {
   // Delete one of the batches
   store.deleteBatch(batchId);
   expect(store.getBallotsCounted()).toEqual(1);
+});
+
+test('getExportDirectoryName and setExportDirectoryName', () => {
+  const store = Store.memoryStore();
+
+  const exportDirectoryName1 = 'TEST__machine_SCAN-0001__2023-08-16_17-02-24';
+  const exportDirectoryName2 = 'TEST__machine_SCAN-0001__2023-08-16_23-10-01';
+
+  expect(store.getExportDirectoryName()).toEqual(undefined);
+  store.setExportDirectoryName(exportDirectoryName1);
+  expect(store.getExportDirectoryName()).toEqual(exportDirectoryName1);
+  store.setExportDirectoryName(exportDirectoryName2);
+  expect(store.getExportDirectoryName()).toEqual(exportDirectoryName2);
+});
+
+test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
+  const store = Store.memoryStore();
+
+  // Just test that the store has been wired properly. Rely on libs/auth tests for more detailed
+  // coverage of hashing logic.
+  expect(store.getCastVoteRecordRootHash()).toEqual('');
+  store.updateCastVoteRecordHashes(
+    'abcd1234-0000-0000-0000-000000000000',
+    sha256('')
+  );
+  expect(store.getCastVoteRecordRootHash()).toEqual(
+    sha256(sha256(sha256(sha256(''))))
+  );
+  store.clearCastVoteRecordHashes();
+  expect(store.getCastVoteRecordRootHash()).toEqual('');
 });

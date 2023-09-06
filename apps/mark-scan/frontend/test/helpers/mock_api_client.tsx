@@ -1,15 +1,19 @@
 import React from 'react';
-
+import { Buffer } from 'buffer';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type { Api, MachineConfig } from '@votingworks/mark-scan-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
+  AllPrecinctsSelection,
   BallotPackageConfigurationError,
   BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
+  Election,
   ElectionDefinition,
   InsertedSmartCardAuth,
+  InterpretedBmdPage,
   PrecinctId,
+  PrecinctSelection,
   SystemSettings,
 } from '@votingworks/types';
 import {
@@ -19,8 +23,10 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { err, ok, Optional, Result } from '@votingworks/basics';
-import { ScannerReportData } from '@votingworks/utils';
+import { assert, err, ok, Result } from '@votingworks/basics';
+import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
@@ -30,9 +36,10 @@ interface CardlessVoterUserParams {
 }
 
 type MockApiClient = Omit<MockClient<Api>, 'getAuthStatus'> & {
-  // Because this is polled so frequently, we opt for a standard jest mock instead of a
+  // Because these are polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: jest.Mock;
+  getPaperHandlerState: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -42,6 +49,10 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
+  (mockApiClient.getPaperHandlerState as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve('not_accepting_paper')
+  );
+
   return mockApiClient as unknown as MockApiClient;
 }
 
@@ -56,6 +67,12 @@ export function createApiMock() {
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.mockImplementation(() =>
       Promise.resolve(authStatus)
+    );
+  }
+
+  function setPaperHandlerState(state: SimpleServerStatus): void {
+    mockApiClient.getPaperHandlerState.mockImplementation(() =>
+      Promise.resolve(state)
     );
   }
 
@@ -87,26 +104,11 @@ export function createApiMock() {
     setAuthStatusPollWorkerLoggedIn(
       electionDefinition: ElectionDefinition,
       options: {
-        isScannerReportDataReadExpected?: boolean;
-        scannerReportDataReadResult?: Result<
-          Optional<ScannerReportData>,
-          Error
-        >;
         cardlessVoterUserParams?: CardlessVoterUserParams;
       } = {}
     ) {
       const { electionHash } = electionDefinition;
-      const {
-        isScannerReportDataReadExpected = true,
-        scannerReportDataReadResult = ok(undefined),
-        cardlessVoterUserParams,
-      } = options;
-
-      if (isScannerReportDataReadExpected) {
-        mockApiClient.readScannerReportDataFromCard
-          .expectCallWith()
-          .resolves(scannerReportDataReadResult);
-      }
+      const { cardlessVoterUserParams } = options;
 
       setAuthStatus({
         status: 'logged_in',
@@ -141,6 +143,42 @@ export function createApiMock() {
         .resolves(electionDefinition);
     },
 
+    /**
+     * Expects a call to getPrecinctSelection. The call will resolve with the first precinct of the given election.
+     * @param election The election to reference when choosing the precinct with which getPrecinctSelection() will resolve.
+     */
+    expectGetPrecinctSelectionResolvesDefault(election: Election) {
+      assert(
+        election?.precincts[0] !== undefined,
+        'Could not mock getPrecinctSelection because the provided election has no precincts'
+      );
+      mockApiClient.getPrecinctSelection
+        .expectCallWith()
+        .resolves(singlePrecinctSelectionFor(election.precincts[0].id));
+    },
+
+    expectGetPrecinctSelection(precinctSelection?: PrecinctSelection) {
+      mockApiClient.getPrecinctSelection
+        .expectCallWith()
+        .resolves(precinctSelection);
+    },
+
+    expectSetPrecinctSelection(
+      precinctSelection: PrecinctSelection | AllPrecinctsSelection
+    ) {
+      mockApiClient.setPrecinctSelection
+        .expectCallWith({ precinctSelection })
+        .resolves();
+    },
+
+    expectSetPrecinctSelectionRepeated(
+      precinctSelection: PrecinctSelection | AllPrecinctsSelection
+    ) {
+      mockApiClient.setPrecinctSelection
+        .expectRepeatedCallsWith({ precinctSelection })
+        .resolves();
+    },
+
     expectGetSystemSettings(
       systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
     ) {
@@ -160,6 +198,40 @@ export function createApiMock() {
     expectUnconfigureMachine(): void {
       mockApiClient.unconfigureMachine.expectCallWith().resolves();
     },
+
+    expectPrintBallot(pdfData = Buffer.of()): void {
+      mockApiClient.printBallot.expectCallWith({ pdfData }).resolves();
+    },
+
+    expectGetInterpretation(
+      interpretation: InterpretedBmdPage | null = null
+    ): void {
+      mockApiClient.getInterpretation.expectCallWith().resolves(interpretation);
+    },
+
+    expectValidateBallot(): void {
+      mockApiClient.validateBallot.expectCallWith().resolves();
+    },
+
+    expectInvalidateBallot(): void {
+      mockApiClient.invalidateBallot.expectCallWith().resolves();
+    },
+
+    // Some e2e tests repeatedly reset voter session. Each time a voter session is activated
+    // setAcceptingPaperState is called.
+    expectRepeatedSetAcceptingPaperState(): void {
+      mockApiClient.setAcceptingPaperState.expectRepeatedCallsWith().resolves();
+      setPaperHandlerState('accepting_paper');
+    },
+
+    // Mocked version of a real method on the API client
+    expectSetAcceptingPaperState(): void {
+      mockApiClient.setAcceptingPaperState.expectCallWith().resolves();
+      setPaperHandlerState('accepting_paper');
+    },
+
+    // Helper on the mock API client; does not exist on real API client
+    setPaperHandlerState,
 
     expectConfigureBallotPackageFromUsb(
       electionDefinition: ElectionDefinition
@@ -185,6 +257,10 @@ export function createApiMock() {
         .resolves(result);
     },
 
+    expectEndCardlessVoterSession() {
+      mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
+    },
+
     expectLogOut() {
       mockApiClient.logOut.expectCallWith().resolves();
     },
@@ -198,10 +274,12 @@ export function provideApi(
   children: React.ReactNode
 ): JSX.Element {
   return (
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        {children}
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <TestErrorBoundary>
+      <ApiClientContext.Provider value={apiMock.mockApiClient}>
+        <QueryClientProvider client={createQueryClient()}>
+          {children}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
+    </TestErrorBoundary>
   );
 }

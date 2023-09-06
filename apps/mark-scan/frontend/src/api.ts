@@ -12,6 +12,7 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
 } from '@votingworks/ui';
+import { STATE_MACHINE_POLLING_INTERVAL_MS } from './constants';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -55,6 +56,32 @@ export const getElectionDefinition = {
   },
 } as const;
 
+export const getPrecinctSelection = {
+  queryKey(): QueryKey {
+    return ['getPrecinctSelection'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      // Since query functions are not allowed to return undefined, coalesce undefined to null
+      async () => (await apiClient.getPrecinctSelection()) ?? null,
+      // Convert back to undefined when reading the query results
+      { select: (precinctSelection) => precinctSelection ?? undefined }
+    );
+  },
+} as const;
+
+export const getInterpretation = {
+  queryKey(): QueryKey {
+    return ['getInterpretation'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getInterpretation());
+  },
+} as const;
+
 /* istanbul ignore next */
 export const getSystemSettings = {
   queryKey(): QueryKey {
@@ -78,19 +105,15 @@ export const getAuthStatus = {
   },
 } as const;
 
-export const getScannerReportDataFromCard = {
+export const getStateMachineState = {
   queryKey(): QueryKey {
-    return ['getScannerReportDataFromCard'];
+    return ['getStateMachineState'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.readScannerReportDataFromCard(),
-      // Don't cache this since caching would require invalidation in response to external
-      // circumstances, like card removal
-      { cacheTime: 0, staleTime: 0 }
-    );
+    return useQuery(this.queryKey(), () => apiClient.getPaperHandlerState(), {
+      refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 
@@ -147,6 +170,10 @@ export const startCardlessVoterSession = {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        // We invalidate getInterpretation when the ballot is validated or invalidated by the voter,
+        // but it's also possible for the ballot to be physically pulled before the validation stage.
+        // In that case, we need to invalidate getInterpretation at the start of the next session.
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
       },
     });
   },
@@ -158,25 +185,9 @@ export const endCardlessVoterSession = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.endCardlessVoterSession, {
       async onSuccess() {
-        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // Because we poll auth status with high frequency, auth invalidation isn't strictly
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
-      },
-    });
-  },
-} as const;
-
-export const clearScannerReportDataFromCard = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.clearScannerReportDataFromCard, {
-      async onSuccess() {
-        // Because we don't cache scanner report data from cards, this invalidation isn't
-        // strictly necessary
-        await queryClient.invalidateQueries(
-          getScannerReportDataFromCard.queryKey()
-        );
       },
     });
   },
@@ -203,6 +214,69 @@ export const unconfigureMachine = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const printBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.printBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setPrecinctSelection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPrecinctSelection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setAcceptingPaperState = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setAcceptingPaperState, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const validateBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.validateBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const invalidateBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.invalidateBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
       },
     });
   },

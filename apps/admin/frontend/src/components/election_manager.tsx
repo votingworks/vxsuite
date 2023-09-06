@@ -36,7 +36,7 @@ import { ManualDataSummaryScreen } from '../screens/manual_data_summary_screen';
 import { ManualDataEntryScreen } from '../screens/manual_data_entry_screen';
 import { SmartcardsScreen } from '../screens/smartcards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
-import { WriteInsScreen } from '../screens/write_ins_screen';
+import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { LogsScreen } from '../screens/logs_screen';
@@ -46,6 +46,8 @@ import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
 import { checkPin } from '../api';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
+import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
+import { TallyReportBuilder } from '../screens/tally_report_builder';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
@@ -160,7 +162,17 @@ export function ElectionManager(): JSX.Element {
         BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
       ) && (
         <Route exact path={routerPaths.writeIns}>
-          <WriteInsScreen />
+          <WriteInsSummaryScreen />
+        </Route>
+      )}
+      {isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
+      ) && (
+        <Route
+          exact
+          path={routerPaths.writeInsAdjudication({ contestId: ':contestId' })}
+        >
+          <WriteInsAdjudicationScreen />
         </Route>
       )}
       <Route
@@ -178,6 +190,9 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route exact path={routerPaths.reports}>
         <ReportsScreen />
+      </Route>
+      <Route exact path={routerPaths.tallyReportBuilder}>
+        <TallyReportBuilder />
       </Route>
       <Route exact path={routerPaths.tallyFullReport}>
         <FullElectionTallyReportScreen />

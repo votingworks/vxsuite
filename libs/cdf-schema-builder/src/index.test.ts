@@ -215,7 +215,7 @@ test('enum type', () => {
     export const integerSchema = z.number().int();
 
     /**
-     * YesNo is a simple enumeration of the values \\"yes\\" and \\"no\\".
+     * YesNo is a simple enumeration of the values "yes" and "no".
      */
     export enum YesNo {
       /**
@@ -814,7 +814,7 @@ test('string aliases', () => {
     /**
      * Schema for {@link FractionalNumber}.
      */
-    export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z.string().regex(/([0-9]+\\\\/[1-9]+[0-9]*)|(\\\\.[0-9]+)/);
+    export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z.string().regex(/([0-9]+\\/[1-9]+[0-9]*)|(\\.[0-9]+)/);
 
     "
   `);
@@ -978,14 +978,14 @@ test('documentation from JSON schema', () => {
     /**
      * Schema for {@link FractionalNumber}.
      */
-    export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z.string().regex(/([0-9]+\\\\/[1-9]+[0-9]*)|(\\\\.[0-9]+)/);
+    export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z.string().regex(/([0-9]+\\/[1-9]+[0-9]*)|(\\.[0-9]+)/);
 
     export type UndocumentedAlias = string;
 
     /**
      * Schema for {@link UndocumentedAlias}.
      */
-    export const UndocumentedAliasSchema: z.ZodSchema<UndocumentedAlias> = z.string().regex(/([0-9]+\\\\/[1-9]+[0-9]*)|(\\\\.[0-9]+)/);
+    export const UndocumentedAliasSchema: z.ZodSchema<UndocumentedAlias> = z.string().regex(/([0-9]+\\/[1-9]+[0-9]*)|(\\.[0-9]+)/);
 
     /**
      * A boolean value.

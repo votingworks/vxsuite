@@ -9,7 +9,7 @@
     "ballotStyleId": "card-number-3",
     "pageNumber": 2,
     "isTestMode": true,
-    "ballotType": 0
+    "ballotType": "precinct"
   },
   "contests": [
     {

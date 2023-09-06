@@ -22,6 +22,7 @@ import {
   DistrictId,
   Election,
   ElectionDefinition,
+  ELECTION_TYPES,
   Id,
   Party,
   PartyId,
@@ -201,18 +202,13 @@ export function arbitraryDateTime({
  */
 export function arbitraryYesNoOption({
   id,
-}: { id?: fc.Arbitrary<YesNoOption['id']> } = {}): fc.Arbitrary<YesNoOption> {
-  return (id ?? fc.constantFrom('yes', 'no')).chain((yesNoId) =>
-    fc.record({
-      id: fc.constant(yesNoId),
-      label:
-        yesNoId === 'yes'
-          ? fc.constantFrom('Yes', 'Yep', 'Uh-huh')
-          : yesNoId === 'no'
-          ? fc.constantFrom('No', 'Nope', 'Nuh-uh')
-          : fc.string({ minLength: 1 }),
-    })
-  );
+}: {
+  id: fc.Arbitrary<YesNoOption['id']>;
+}): fc.Arbitrary<YesNoOption> {
+  return fc.record({
+    id,
+    label: fc.string({ minLength: 1 }),
+  });
 }
 
 /**
@@ -225,21 +221,15 @@ export function arbitraryYesNoContest({
   id?: fc.Arbitrary<YesNoContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
 } = {}): fc.Arbitrary<YesNoContest> {
-  return fc.boolean().chain((hasCustomOptions) =>
-    fc.record({
-      type: fc.constant('yesno'),
-      title: fc.string({ minLength: 1 }),
-      description: fc.string({ minLength: 1 }),
-      id,
-      districtId,
-      yesOption: hasCustomOptions
-        ? arbitraryYesNoOption({ id: fc.constant('yes') })
-        : fc.constant(undefined),
-      noOption: hasCustomOptions
-        ? arbitraryYesNoOption({ id: fc.constant('no') })
-        : fc.constant(undefined),
-    })
-  );
+  return fc.record({
+    type: fc.constant('yesno'),
+    title: fc.string({ minLength: 1 }),
+    description: fc.string({ minLength: 1 }),
+    id,
+    districtId,
+    yesOption: arbitraryYesNoOption({ id: arbitraryId() }),
+    noOption: arbitraryYesNoOption({ id: arbitraryId() }),
+  });
 }
 
 /**
@@ -307,7 +297,14 @@ export function arbitraryContests({
       ...otherContests,
     ])
     .filter((contests) => contests.length > 0)
-    .filter(hasUniqueIds);
+    .filter(hasUniqueIds)
+    .filter((contests) =>
+      hasUniqueIds(
+        contests.flatMap((contest) =>
+          contest.type === 'yesno' ? [contest.yesOption, contest.noOption] : []
+        )
+      )
+    );
 }
 
 export function arbitraryDistrict({
@@ -365,6 +362,7 @@ export function arbitraryParty({
 export function arbitraryBallotLayout(): fc.Arbitrary<BallotLayout> {
   return fc.record({
     paperSize: fc.constantFrom(...Object.values(BallotPaperSize)),
+    metadataEncoding: fc.constantFrom('qr-code', 'timing-marks'),
   });
 }
 
@@ -382,10 +380,12 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
       })
       .chain(({ districts, precincts, parties }) =>
         fc.record<Election>({
+          type: fc.constantFrom(...ELECTION_TYPES),
           title: fc.string({ minLength: 1 }),
           county: arbitraryCounty(),
           state: fc.string({ minLength: 2, maxLength: 2 }),
           date: fc.date().map((date) => date.toISOString()),
+          seal: fc.string({ minLength: 1, maxLength: 200 }),
           parties: fc.constant(parties),
           contests: arbitraryContests({
             partyIds: fc.constant(parties.map(({ id }) => id)),
@@ -463,7 +463,7 @@ export function arbitraryCastVoteRecord({
       _precinctId: fc.constantFrom(...e.precincts.map(({ id }) => id)),
       _ballotId: arbitraryOptional(arbitraryBallotId()),
       _ballotStyleId: fc.constantFrom(...e.ballotStyles.map(({ id }) => id)),
-      _ballotType: fc.constantFrom('absentee', 'provisional', 'standard'),
+      _ballotType: fc.constantFrom('absentee', 'provisional', 'precinct'),
       _batchId: arbitraryId(),
       _batchLabel: fc.string({ minLength: 1 }),
       _testBallot: testBallot,

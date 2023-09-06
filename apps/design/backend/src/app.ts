@@ -1,21 +1,73 @@
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
 import {
-  BallotStyle,
   Election,
-  ElectionDefinition,
-  getBallotStyle,
   getPrecinctById,
-  GridLayout,
-  Precinct,
-  safeParseElectionDefinition,
+  Id,
+  safeParseElection,
+  BallotPaperSize,
+  DEFAULT_SYSTEM_SETTINGS,
+  SystemSettings,
+  BallotType,
 } from '@votingworks/types';
 import express, { Application } from 'express';
-import { assert, assertDefined, ok, Result } from '@votingworks/basics';
-import { layOutBallot } from '@votingworks/design-shared';
+import { assertDefined, find, ok, Result } from '@votingworks/basics';
+import {
+  BallotMode,
+  BALLOT_MODES,
+  layOutAllBallotStyles,
+  LayoutOptions,
+} from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
-import { Store } from './store';
-import { renderDocumentToPdf } from './render_ballot';
+import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
+import { ElectionRecord, Precinct, Store } from './store';
+
+function createBlankElection(): Election {
+  return {
+    type: 'general',
+    title: '',
+    date: '',
+    state: '',
+    county: {
+      id: '',
+      name: '',
+    },
+    seal: '',
+    districts: [],
+    precincts: [],
+    contests: [],
+    parties: [],
+    ballotStyles: [],
+    ballotLayout: {
+      paperSize: BallotPaperSize.Letter,
+      metadataEncoding: 'qr-code',
+    },
+  };
+}
+
+// If we are importing an existing VXF election, we need to convert the
+// precincts to have splits based on the ballot styles.
+export function convertVxfPrecincts(election: Election): Precinct[] {
+  return election.precincts.map((precinct) => {
+    const ballotStyles = election.ballotStyles.filter((ballotStyle) =>
+      ballotStyle.precincts.includes(precinct.id)
+    );
+    if (ballotStyles.length <= 1) {
+      return {
+        ...precinct,
+        districtIds: ballotStyles[0]?.districts ?? [],
+      };
+    }
+    return {
+      ...precinct,
+      splits: ballotStyles.map((ballotStyle, index) => ({
+        id: `${precinct.id}-split-${index + 1}`,
+        name: `${precinct.name} - Split ${index + 1}`,
+        districtIds: ballotStyle.districts,
+      })),
+    };
+  });
+}
 
 function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -26,111 +78,163 @@ function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   });
 }
 
-function exportBallotToPdf(
-  election: Election,
-  precinct: Precinct,
-  ballotStyle: BallotStyle
-) {
-  const ballotResult = layOutBallot(election, precinct, ballotStyle);
-  if (ballotResult.isErr()) {
-    throw new Error(
-      `Error generating ballot for precinct ${precinct.name}, ballot style ${
-        ballotStyle.id
-      }: ${ballotResult.err().message}`
-    );
-  }
-  return renderDocumentToPdf(ballotResult.ok().document);
-}
-
 function buildApi({ store }: { store: Store }) {
   return grout.createApi({
-    getElection(): ElectionDefinition | null {
-      return store.getElection() ?? null;
+    listElections(): ElectionRecord[] {
+      return store.listElections();
     },
 
-    setElection(input: { electionData?: string }): Result<void, Error> {
+    getElection(input: { electionId: Id }): ElectionRecord {
+      return store.getElection(input.electionId);
+    },
+
+    createElection(input: { electionData?: string }): Result<Id, Error> {
+      let election: Election;
       if (input.electionData) {
-        const parseResult = safeParseElectionDefinition(input.electionData);
+        const parseResult = safeParseElection(input.electionData);
         if (parseResult.isErr()) return parseResult;
-        store.setElection(parseResult.ok());
-      } else {
-        store.setElection(undefined);
+        election = parseResult.ok();
+        const precincts = convertVxfPrecincts(election);
+        election = {
+          ...election,
+          // Remove any existing ballot styles/grid layouts so we can generate our own
+          ballotStyles: [],
+          precincts,
+          gridLayouts: undefined,
+          // Fill in a blank seal if none is provided
+          seal: election.seal ?? '',
+        };
+        return ok(store.createElection(election, precincts));
       }
-      return ok();
+
+      election = createBlankElection();
+      return ok(store.createElection(election, []));
     },
 
-    async exportAllBallots(): Promise<Buffer> {
-      const electionDefinition = store.getElection();
-      assert(electionDefinition !== undefined);
-      const { election } = electionDefinition;
+    updateElection(input: { electionId: Id; election: Election }): void {
+      const { election } = store.getElection(input.electionId);
+      // TODO validate election
+      store.updateElection(input.electionId, {
+        ...election,
+        ...input.election,
+      });
+    },
+
+    updateSystemSettings(input: {
+      electionId: Id;
+      systemSettings: SystemSettings;
+    }): void {
+      store.updateSystemSettings(input.electionId, input.systemSettings);
+    },
+
+    updatePrecincts(input: { electionId: Id; precincts: Precinct[] }): void {
+      store.updatePrecincts(input.electionId, input.precincts);
+    },
+
+    updateLayoutOptions(input: {
+      electionId: Id;
+      layoutOptions: LayoutOptions;
+    }): void {
+      store.updateLayoutOptions(input.electionId, input.layoutOptions);
+    },
+
+    deleteElection(input: { electionId: Id }): void {
+      store.deleteElection(input.electionId);
+    },
+
+    async exportAllBallots(input: {
+      electionId: Id;
+    }): Promise<{ zipContents: Buffer; electionHash: string }> {
+      const { election, layoutOptions } = store.getElection(input.electionId);
 
       const zip = new JsZip();
 
-      for (const ballotStyle of election.ballotStyles) {
-        for (const precinctId of ballotStyle.precincts) {
-          const precinct = assertDefined(
-            getPrecinctById({ election, precinctId })
-          );
-          const pdf = exportBallotToPdf(election, precinct, ballotStyle);
-          const fileName = `ballot-${precinct.name.replace(' ', '_')}-${
-            ballotStyle.id
-          }.pdf`;
-          zip.file(fileName, pdf);
-          pdf.end();
+      let electionHash: string | undefined;
+
+      const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
+      for (const ballotType of ballotTypes) {
+        for (const ballotMode of BALLOT_MODES) {
+          const { ballots, electionDefinition } = layOutAllBallotStyles({
+            election,
+            ballotType,
+            ballotMode,
+            layoutOptions,
+          }).unsafeUnwrap();
+
+          // Election definition doesn't change across ballot types/modes
+          electionHash = electionDefinition.electionHash;
+
+          for (const { precinctId, document, gridLayout } of ballots) {
+            const { ballotStyleId } = gridLayout;
+            const precinct = assertDefined(
+              getPrecinctById({ election, precinctId })
+            );
+            const pdf = renderDocumentToPdf(document);
+            const fileName = `${ballotMode}-${ballotType}-ballot-${precinct.name.replaceAll(
+              ' ',
+              '_'
+            )}-${ballotStyleId}.pdf`;
+            zip.file(fileName, pdf);
+            pdf.end();
+          }
         }
       }
 
-      return zip.generateAsync({ type: 'nodebuffer' });
+      return {
+        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
+        electionHash: assertDefined(electionHash),
+      };
     },
 
     async exportBallot(input: {
+      electionId: Id;
       precinctId: string;
       ballotStyleId: string;
+      ballotType: BallotType;
+      ballotMode: BallotMode;
     }): Promise<Buffer> {
-      const electionDefinition = store.getElection();
-      assert(electionDefinition !== undefined);
-      const { election } = electionDefinition;
-      const precinct = getPrecinctById({
+      const { election, layoutOptions } = store.getElection(input.electionId);
+      const { ballots } = layOutAllBallotStyles({
         election,
-        precinctId: input.precinctId,
-      });
-      const ballotStyle = getBallotStyle({
-        election,
-        ballotStyleId: input.ballotStyleId,
-      });
-      const pdf = exportBallotToPdf(
-        election,
-        assertDefined(precinct),
-        assertDefined(ballotStyle)
+        ballotType: input.ballotType,
+        ballotMode: input.ballotMode,
+        layoutOptions,
+      }).unsafeUnwrap();
+      const { document } = find(
+        ballots,
+        ({ precinctId, gridLayout }) =>
+          precinctId === input.precinctId &&
+          gridLayout.ballotStyleId === input.ballotStyleId
       );
+      const pdf = renderDocumentToPdf(document);
       pdf.end();
       return streamToBuffer(pdf);
     },
 
-    exportBallotDefinition(): Election {
-      const electionDefinition = store.getElection();
-      assert(electionDefinition !== undefined);
-      const { election } = electionDefinition;
+    async exportSetupPackage(input: {
+      electionId: Id;
+    }): Promise<{ zipContents: Buffer; electionHash: string }> {
+      const { election, layoutOptions } = store.getElection(input.electionId);
+      const { electionDefinition } = layOutAllBallotStyles({
+        election,
+        // Ballot type and ballot mode shouldn't change the election definition, so
+        // it doesn't matter what we pass here
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+        layoutOptions,
+      }).unsafeUnwrap();
 
-      const gridLayouts: GridLayout[] = [];
-      for (const ballotStyle of election.ballotStyles) {
-        for (const precinctId of ballotStyle.precincts) {
-          const precinct = assertDefined(
-            getPrecinctById({ election, precinctId })
-          );
-          const ballotResult = layOutBallot(election, precinct, ballotStyle);
-          if (ballotResult.isErr()) {
-            throw new Error(
-              `Error generating ballot for precinct ${
-                precinct.name
-              }, ballot style ${ballotStyle.id}: ${ballotResult.err().message}`
-            );
-          }
-          gridLayouts.push(ballotResult.ok().gridLayout);
-        }
-      }
+      const zip = new JsZip();
+      zip.file('election.json', electionDefinition.electionData);
+      zip.file(
+        'systemSettings.json',
+        JSON.stringify(DEFAULT_SYSTEM_SETTINGS, null, 2)
+      );
 
-      return { ...election, gridLayouts };
+      return {
+        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
+        electionHash: electionDefinition.electionHash,
+      };
     },
   });
 }

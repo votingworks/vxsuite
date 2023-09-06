@@ -15,10 +15,11 @@ import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import { useEffect } from 'react';
+import { Optional } from '@votingworks/basics';
 import { ScreenReader } from '../config/types';
+import { getPrecinctSelection } from '../api';
 
 export interface ReplaceElectionScreenProps {
-  appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   authElectionHash: string;
   electionDefinition: ElectionDefinition;
@@ -29,7 +30,6 @@ export interface ReplaceElectionScreenProps {
 }
 
 export function ReplaceElectionScreen({
-  appPrecinct,
   ballotsPrintedCount,
   authElectionHash,
   electionDefinition,
@@ -37,7 +37,8 @@ export function ReplaceElectionScreen({
   screenReader,
   isLoading,
   isError,
-}: ReplaceElectionScreenProps): JSX.Element {
+}: ReplaceElectionScreenProps): JSX.Element | null {
+  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
   const { election, electionHash } = electionDefinition;
 
   useEffect(() => {
@@ -70,6 +71,12 @@ export function ReplaceElectionScreen({
       </Screen>
     );
   }
+
+  if (!getPrecinctSelectionQuery.isSuccess) {
+    return null;
+  }
+  const precinctSelection: Optional<PrecinctSelection> =
+    getPrecinctSelectionQuery.data || undefined;
 
   return (
     <Screen>
@@ -132,7 +139,7 @@ export function ReplaceElectionScreen({
           electionDefinition={electionDefinition}
           codeVersion={machineConfig.codeVersion}
           machineId={machineConfig.machineId}
-          precinctSelection={appPrecinct}
+          precinctSelection={precinctSelection}
         />
       )}
     </Screen>

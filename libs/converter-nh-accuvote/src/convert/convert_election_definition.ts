@@ -1,7 +1,7 @@
 import {
-  BallotPageMetadataFront,
+  BallotPageTimingMarkMetadataFront,
   findTemplateGridAndBubbles,
-} from '@votingworks/ballot-interpreter-nh';
+} from '@votingworks/ballot-interpreter';
 import {
   assert,
   err,
@@ -59,8 +59,8 @@ export function convertElectionDefinition(
       findTemplateGridAndBubblesResult.ok();
 
     if (
-      frontGridAndBubbles.grid.metadata.side === 'back' &&
-      backGridAndBubbles.grid.metadata.side === 'front'
+      frontGridAndBubbles.metadata.side === 'back' &&
+      backGridAndBubbles.metadata.side === 'front'
     ) {
       [frontGridAndBubbles, backGridAndBubbles] = [
         backGridAndBubbles,
@@ -68,7 +68,7 @@ export function convertElectionDefinition(
       ];
     }
 
-    let paperSize = election.ballotLayout?.paperSize;
+    let { paperSize } = election.ballotLayout;
 
     const frontExpectedPaperSize =
       frontGridAndBubbles.grid.geometry.ballotPaperSize;
@@ -98,24 +98,24 @@ export function convertElectionDefinition(
       paperSize = frontExpectedPaperSize;
     }
 
-    if (frontGridAndBubbles.grid.metadata.side !== 'front') {
+    if (frontGridAndBubbles.metadata.side !== 'front') {
       success = false;
       issues.push({
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.grid.metadata.side}`,
+        message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.metadata.side}`,
         side: 'front',
-        timingMarkBits: frontGridAndBubbles.grid.metadata.bits,
+        timingMarkBits: frontGridAndBubbles.metadata.bits,
         timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
       });
     }
 
-    if (backGridAndBubbles.grid.metadata.side !== 'back') {
+    if (backGridAndBubbles.metadata.side !== 'back') {
       success = false;
       issues.push({
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.grid.metadata.side}`,
+        message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.metadata.side}`,
         side: 'back',
-        timingMarkBits: backGridAndBubbles.grid.metadata.bits,
+        timingMarkBits: backGridAndBubbles.metadata.bits,
         timingMarks: backGridAndBubbles.grid.partialTimingMarks,
       });
     }
@@ -127,8 +127,8 @@ export function convertElectionDefinition(
       });
     }
 
-    const frontMetadata = frontGridAndBubbles.grid
-      .metadata as BallotPageMetadataFront;
+    const frontMetadata =
+      frontGridAndBubbles.metadata as BallotPageTimingMarkMetadataFront;
     const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
     const frontTemplateBubbles = frontGridAndBubbles.bubbles;
@@ -194,7 +194,7 @@ export function convertElectionDefinition(
     const result: Election = {
       ...election,
       ballotLayout: {
-        ...(election.ballotLayout ?? {}),
+        ...election.ballotLayout,
         paperSize,
       },
       ballotStyles: [
@@ -206,8 +206,6 @@ export function convertElectionDefinition(
       gridLayouts: [
         {
           ...gridLayout,
-          columns: frontGridAndBubbles.grid.geometry.gridSize.width,
-          rows: frontGridAndBubbles.grid.geometry.gridSize.height,
           ballotStyleId,
           gridPositions: mergedGrids.map(([definition, bubble]) => ({
             ...definition,

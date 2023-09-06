@@ -11,7 +11,7 @@
     "skipLibCheck": true
   },
   "references": [
-    { "path": "../ballot-interpreter-nh/tsconfig.build.json" },
+    { "path": "../ballot-interpreter/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },

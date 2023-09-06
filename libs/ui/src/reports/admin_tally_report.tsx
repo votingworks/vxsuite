@@ -1,52 +1,68 @@
-import { Contests, Election, Tabulation } from '@votingworks/types';
+import { Contests, ElectionDefinition, Tabulation } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
-import { ReportSection, TallyReport, TallyReportColumns } from './tally_report';
+import {
+  ReportSection,
+  tallyReportThemeFn,
+  TallyReport,
+  TallyReportColumns,
+} from './tally_report';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestResultsTable } from './contest_results_table';
 import { TallyReportCardCounts } from './tally_report_card_counts';
-import { makeTheme } from '../themes/make_theme';
+import { CustomFilterSummary } from './custom_filter_summary';
 
 export interface AdminTallyReportProps {
   title: string;
   subtitle?: string;
   testId?: string;
-  election: Election;
+  electionDefinition: ElectionDefinition;
   contests: Contests;
   scannedElectionResults: Tabulation.ElectionResults;
   manualElectionResults?: Tabulation.ManualElectionResults;
+  cardCountsOverride?: Tabulation.CardCounts;
   generatedAtTime?: Date;
+  customFilter?: Tabulation.Filter;
 }
 
 export function AdminTallyReport({
   title,
   subtitle,
   testId,
-  election,
+  electionDefinition,
   contests,
   scannedElectionResults,
   manualElectionResults,
+  cardCountsOverride,
   generatedAtTime = new Date(),
+  customFilter,
 }: AdminTallyReportProps): JSX.Element {
-  const cardCounts = manualElectionResults
-    ? {
-        ...scannedElectionResults.cardCounts,
-        manual: manualElectionResults.ballotCount,
-      }
-    : scannedElectionResults.cardCounts;
+  const { election } = electionDefinition;
+  const cardCounts = cardCountsOverride ?? {
+    ...scannedElectionResults.cardCounts,
+    manual: manualElectionResults?.ballotCount,
+  };
 
   return (
-    <ThemeProvider theme={makeTheme({ sizeMode: 's' })}>
+    <ThemeProvider theme={tallyReportThemeFn}>
       <TallyReport data-testid={testId}>
         <ReportSection>
           <LogoMark />
           <h1>{title}</h1>
+
           {subtitle && <h2>{subtitle}</h2>}
+          {customFilter && (
+            <CustomFilterSummary
+              electionDefinition={electionDefinition}
+              filter={customFilter}
+            />
+          )}
           <TallyReportMetadata
             generatedAtTime={generatedAtTime}
             election={election}
           />
+
           <TallyReportColumns>
             <TallyReportCardCounts cardCounts={cardCounts} />
             {contests.map((contest) => {

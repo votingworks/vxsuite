@@ -5,7 +5,6 @@ import React, { useContext } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useHistory, useParams } from 'react-router-dom';
 import { Contest as MarkFlowContest } from '@votingworks/mark-flow-ui';
-import styled from 'styled-components';
 import { BallotContext } from '../contexts/ballot_context';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
@@ -16,10 +15,6 @@ import { DisplaySettingsButton } from '../components/display_settings_button';
 interface ContestParams {
   contestNumber: string;
 }
-
-const Breadcrumbs = styled.div`
-  padding: 0 0.5rem;
-`;
 
 export function ContestPage(): JSX.Element {
   const { contestNumber } = useParams<ContestParams>();
@@ -70,7 +65,8 @@ export function ContestPage(): JSX.Element {
       case 'ms-either-neither':
         return (
           votes[contest.pickOneContestId]?.length === 1 ||
-          votes[contest.eitherNeitherContestId]?.[0] === 'no'
+          votes[contest.eitherNeitherContestId]?.[0] ===
+            contest.neitherOption.id
         );
       /* istanbul ignore next */
       default:
@@ -116,15 +112,11 @@ export function ContestPage(): JSX.Element {
 
   return (
     <Screen navRight={isLandscape}>
-      {isPortrait && (
-        <Breadcrumbs>
-          <P align="right">
-            Contest <Font weight="bold">{ballotContestNumber}</Font> of{' '}
-            <Font weight="bold">{ballotContestsLength}</Font>
-          </P>
-        </Breadcrumbs>
-      )}
       <MarkFlowContest
+        breadcrumbs={{
+          ballotContestCount: ballotContestsLength,
+          contestNumber: ballotContestNumber,
+        }}
         election={electionDefinition.election}
         contest={contest}
         votes={votes}

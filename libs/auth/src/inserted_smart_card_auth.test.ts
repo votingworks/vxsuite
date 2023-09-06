@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { err, ok } from '@votingworks/basics';
 import {
-  electionSample2Definition,
+  electionMinimalExhaustiveSampleDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -20,6 +20,9 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import {
+  DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+  DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
+  DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   ElectionSchema,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   TEST_JURISDICTION,
@@ -73,11 +76,18 @@ afterEach(() => {
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const { election, electionData, electionHash } = electionSampleDefinition;
-const otherElectionHash = electionSample2Definition.electionHash;
+const otherElectionHash =
+  electionMinimalExhaustiveSampleDefinition.electionHash;
 const defaultConfig: InsertedSmartCardAuthConfig = {};
 const defaultMachineState: InsertedSmartCardAuthMachineState = {
   electionHash,
   jurisdiction,
+  arePollWorkerCardPinsEnabled: false,
+  numIncorrectPinAttemptsAllowedBeforeCardLockout:
+    DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
+  startingCardLockoutDurationSeconds:
+    DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
+  overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
 };
 const systemAdministratorUser = fakeSystemAdministratorUser({ jurisdiction });
 const electionManagerUser = fakeElectionManagerUser({

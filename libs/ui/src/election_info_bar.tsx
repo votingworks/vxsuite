@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case, order/order */
 import React from 'react';
 
 import {
@@ -21,7 +20,7 @@ const Bar = styled.div`
   display: flex;
   gap: 0.5rem;
   justify-content: space-between;
-  padding: 0.25rem 0.25rem;
+  padding: 0.25rem;
 `;
 
 const ElectionInfoContainer = styled.div`
@@ -40,9 +39,8 @@ const SealContainer = styled.div`
 const SystemInfoContainer = styled.div`
   align-content: flex-end;
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   flex-grow: 1;
-  flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: end;
   text-align: right;
@@ -65,7 +63,7 @@ export function ElectionInfoBar({
   precinctSelection,
 }: ElectionInfoBarProps): JSX.Element {
   const {
-    election: { precincts, date, title, county, state, seal, sealUrl },
+    election: { precincts, date, title, county, state, seal },
   } = electionDefinition;
   const electionDate = formatShortDate(DateTime.fromISO(date));
 
@@ -120,7 +118,7 @@ export function ElectionInfoBar({
     <Bar data-testid="electionInfoBar">
       <ElectionInfoContainer>
         <SealContainer>
-          {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
+          <Seal seal={seal} />
         </SealContainer>
         {electionInfo}
       </ElectionInfoContainer>
@@ -158,7 +156,7 @@ export function VerticalElectionInfoBar({
   precinctSelection,
 }: ElectionInfoBarProps): JSX.Element {
   const {
-    election: { precincts, date, title, county, state, seal, sealUrl },
+    election: { precincts, date, title, county, state, seal },
   } = electionDefinition;
   const electionDate = formatShortDate(DateTime.fromISO(date));
 
@@ -167,7 +165,7 @@ export function VerticalElectionInfoBar({
       <Caption weight="regular" align="left">
         <ElectionInfoContainer>
           <SealContainer>
-            {(seal || sealUrl) && <Seal seal={seal} sealUrl={sealUrl} />}
+            <Seal seal={seal} />
           </SealContainer>
           <Font weight="bold">{title}</Font>
         </ElectionInfoContainer>

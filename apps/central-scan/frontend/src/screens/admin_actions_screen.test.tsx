@@ -6,8 +6,6 @@ import {
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { err, ok, deferred } from '@votingworks/basics';
-import MockDate from 'mockdate';
-import { act } from 'react-dom/test-utils';
 import { createMemoryHistory } from 'history';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -47,7 +45,6 @@ function renderScreen(
 ) {
   return renderInAppContext(
     <AdminActionsScreen
-      hasBatches={false}
       backup={jest.fn()}
       canUnconfigure={false}
       isTestMode={false}
@@ -59,38 +56,29 @@ function renderScreen(
 }
 
 test('clicking "Save Backup" shows progress', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
   renderScreen({ backup });
 
   const { resolve, promise } = deferred<BackupResult>();
   backup.mockReturnValueOnce(promise);
 
-  await act(async () => {
-    // Click to backup, verify we got called.
-    const backupButton = screen.getByText('Save Backup');
-    expect(backup).not.toHaveBeenCalled();
-    backupButton.click();
-    expect(backup).toHaveBeenCalledTimes(1);
+  // Click to backup, verify we got called.
+  const backupButton = screen.getByText('Save Backup');
+  expect(backup).not.toHaveBeenCalled();
+  userEvent.click(backupButton);
+  expect(backup).toHaveBeenCalledTimes(1);
 
-    // Verify progress modal is shown.
-    await waitFor(() => {
-      const modal = screen.getByRole('alertdialog');
-      within(modal).getByText('Saving Backup');
-      screen.getByText('Saving…');
-    });
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Saving Backup');
+  screen.getByText('Saving…'); // text on the button itself
 
-    // Trigger backup finished, verify back to normal.
-    resolve(ok(['/media/usb-drive-sdb1/backup.zip']));
-    await waitFor(() => screen.getByText('Save Backup'));
-    expect(screen.queryAllByRole('alertdialog').length).toEqual(0);
-  });
+  // Trigger backup finished, verify back to normal.
+  resolve(ok(['/media/usb-drive-sdb1/backup.zip']));
+  await waitFor(() => screen.getByText('Save Backup'));
+  expect(screen.queryAllByRole('alertdialog').length).toEqual(0);
 });
 
 test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled when canUnconfigure is falsy', () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   renderScreen({
     canUnconfigure: false,
   });
@@ -103,8 +91,6 @@ test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled
 });
 
 test('clicking "Delete Election Data from VxCentralScan" calls backend', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   const history = createMemoryHistory({ initialEntries: ['/admin'] });
   renderScreen({ canUnconfigure: true }, history);
 
@@ -132,8 +118,6 @@ test('clicking "Delete Election Data from VxCentralScan" calls backend', async (
 });
 
 test('clicking "Delete Ballot Data" calls backend', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   const history = createMemoryHistory({ initialEntries: ['/admin'] });
   renderScreen({ canUnconfigure: true }, history);
 
@@ -153,78 +137,29 @@ test('clicking "Delete Ballot Data" calls backend', async () => {
 });
 
 test('backup error shows message', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
   const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
   renderScreen({ backup });
 
   const { resolve, promise } = deferred<BackupResult>();
   backup.mockReturnValueOnce(promise);
 
-  await act(async () => {
-    // Click to backup, verify we got called.
-    const backupButton = screen.getByText('Save Backup');
-    expect(backup).not.toHaveBeenCalled();
-    backupButton.click();
-    expect(backup).toHaveBeenCalledTimes(1);
+  // Click to backup, verify we got called.
+  const backupButton = screen.getByText('Save Backup');
+  expect(backup).not.toHaveBeenCalled();
+  userEvent.click(backupButton);
+  expect(backup).toHaveBeenCalledTimes(1);
 
-    // Verify progress message is shown.
-    await waitFor(() => screen.getByText('Saving…'));
+  // Verify progress message is shown.
+  await screen.findByText('Saving…');
 
-    // Trigger backup error, verify back to normal with error.
-    resolve(err({ type: 'permission-denied', message: 'Permission Denied' }));
-    await waitFor(() => screen.getByText('Save Backup'));
-    await waitFor(() => screen.getByText('Permission Denied'));
-  });
-});
-
-test('override mark thresholds button shows when there are no overrides', async () => {
-  const testCases = [
-    {
-      hasBatches: true,
-      markThresholds: null,
-      expectedText: 'Override Mark Thresholds',
-      expectButtonDisabled: true,
-    },
-    {
-      hasBatches: true,
-      markThresholds: { marginal: 0.3, definite: 0.4 },
-      expectedText: 'Reset Mark Thresholds',
-      expectButtonDisabled: true,
-    },
-    {
-      hasBatches: false,
-      markThresholds: null,
-      expectedText: 'Override Mark Thresholds',
-      expectButtonDisabled: false,
-    },
-    {
-      hasBatches: false,
-      markThresholds: { marginal: 0.3, definite: 0.4 },
-      expectedText: 'Reset Mark Thresholds',
-      expectButtonDisabled: false,
-    },
-  ];
-
-  for (const testCase of testCases) {
-    mockApiClient.getMarkThresholdOverrides
-      .expectCallWith()
-      .resolves(testCase.markThresholds);
-    const { unmount } = renderScreen({
-      hasBatches: testCase.hasBatches,
-    });
-    const button = await screen.findButton(testCase.expectedText);
-    expect(button.hasAttribute('disabled')).toEqual(
-      testCase.expectButtonDisabled
-    );
-    unmount();
-  }
+  // Trigger backup error, verify back to normal with error.
+  resolve(err({ type: 'permission-denied', message: 'Permission Denied' }));
+  await screen.findByText('Save Backup');
+  screen.getByText('Permission Denied');
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
-  mockApiClient.getMarkThresholdOverrides.expectCallWith().resolves(null);
-
-  MockDate.set('2020-10-31T00:00:00.000Z');
+  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   window.kiosk = fakeKiosk();
 
   renderScreen();
@@ -253,4 +188,6 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
       IANAZone: 'UTC',
     });
   });
+
+  jest.useRealTimers();
 });

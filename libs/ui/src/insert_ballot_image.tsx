@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order, value-keyword-case */
 import styled, { css, keyframes } from 'styled-components';
 
 import { Svg } from './svg';

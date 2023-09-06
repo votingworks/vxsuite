@@ -9,7 +9,14 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
-import { Button, Modal, UsbControllerButton, P, Font } from '@votingworks/ui';
+import {
+  Button,
+  Modal,
+  UsbControllerButton,
+  P,
+  Font,
+  ModalWidth,
+} from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { PromiseOr } from '@votingworks/types';
@@ -213,7 +220,13 @@ export function SaveFrontendFileModal({
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading>Saving {title}</Loading>} />;
+    return (
+      <Modal
+        centerContent
+        modalWidth={ModalWidth.Wide}
+        content={<Loading>Saving {title}</Loading>}
+      />
+    );
   }
 
   if (currentState !== ModalState.INIT) {

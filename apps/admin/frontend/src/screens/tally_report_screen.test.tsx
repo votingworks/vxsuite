@@ -81,9 +81,8 @@ test('full election tally report screen, general', async () => {
   apiMock.expectGetResultsForTallyReports(
     {
       filter: {},
-      groupBy: undefined,
     },
-    [getSimpleMockTallyResults(election, 10)]
+    [getSimpleMockTallyResults({ election, scannedBallotCount: 10 })]
   );
 
   renderInAppContext(<FullElectionTallyReportScreen />, {
@@ -109,17 +108,16 @@ test('full election tally report screen, primary', async () => {
   apiMock.expectGetResultsForTallyReports(
     {
       filter: {},
-      groupBy: { groupByParty: true },
     },
     [
-      {
-        partyId: '0',
-        ...getSimpleMockTallyResults(election, 10),
-      },
-      {
-        partyId: '1',
-        ...getSimpleMockTallyResults(election, 15),
-      },
+      getSimpleMockTallyResults({
+        election,
+        scannedBallotCount: 25,
+        cardCountsByParty: {
+          '0': 10,
+          '1': 15,
+        },
+      }),
     ]
   );
 
@@ -159,9 +157,8 @@ test('precinct tally report screen', async () => {
   apiMock.expectGetResultsForTallyReports(
     {
       filter: { precinctIds: ['23'] },
-      groupBy: undefined,
     },
-    [getSimpleMockTallyResults(election, 10)]
+    [getSimpleMockTallyResults({ election, scannedBallotCount: 10 })]
   );
 
   renderInAppContext(
@@ -194,9 +191,8 @@ test('scanner tally report screen', async () => {
   apiMock.expectGetResultsForTallyReports(
     {
       filter: { scannerIds: ['scanner-1'] },
-      groupBy: undefined,
     },
-    [getSimpleMockTallyResults(election, 10)]
+    [getSimpleMockTallyResults({ election, scannedBallotCount: 10 })]
   );
 
   renderInAppContext(
@@ -227,9 +223,8 @@ test('batch tally report screen', async () => {
   apiMock.expectGetResultsForTallyReports(
     {
       filter: { batchIds: ['batch-1'] },
-      groupBy: undefined,
     },
-    [getSimpleMockTallyResults(election, 10)]
+    [getSimpleMockTallyResults({ election, scannedBallotCount: 10 })]
   );
   apiMock.expectGetScannerBatches([
     {
@@ -268,9 +263,8 @@ test('voting method tally report screen', async () => {
   apiMock.expectGetResultsForTallyReports(
     {
       filter: { votingMethods: ['absentee'] },
-      groupBy: undefined,
     },
-    [getSimpleMockTallyResults(election, 10)]
+    [getSimpleMockTallyResults({ election, scannedBallotCount: 10 })]
   );
 
   renderInAppContext(
@@ -305,9 +299,19 @@ test('party tally report screen', async () => {
   apiMock.expectGetResultsForTallyReports(
     {
       filter: { partyIds: ['0'] },
-      groupBy: { groupByParty: true },
     },
-    [{ partyId: '0', ...getSimpleMockTallyResults(election, 10) }]
+    [
+      getSimpleMockTallyResults({
+        election,
+        scannedBallotCount: 10,
+        cardCountsByParty: {
+          '0': 10,
+        },
+        contestIds: election.contests
+          .filter((c) => c.type === 'yesno' || c.partyId === '0')
+          .map((c) => c.id),
+      }),
+    ]
   );
 
   renderInAppContext(
@@ -355,13 +359,30 @@ test('all precincts tally report screen', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetResultsForTallyReports(
     {
-      groupBy: { groupByParty: true, groupByPrecinct: true },
+      groupBy: { groupByPrecinct: true },
     },
     [
       {
-        partyId: '0',
         precinctId: 'precinct-1',
-        ...getSimpleMockTallyResults(election, 10),
+        ...getSimpleMockTallyResults({
+          election,
+          scannedBallotCount: 30,
+          cardCountsByParty: {
+            '0': 10,
+            '1': 20,
+          },
+        }),
+      },
+      {
+        precinctId: 'precinct-2',
+        ...getSimpleMockTallyResults({
+          election,
+          scannedBallotCount: 25,
+          cardCountsByParty: {
+            '0': 20,
+            '1': 5,
+          },
+        }),
       },
     ]
   );
@@ -385,33 +406,31 @@ test('all precincts tally report screen', async () => {
     testId: 'tally-report-precinct-1-1',
     title: 'Unofficial Precinct Tally Report for Precinct 1',
     subtitle: 'Fish Party Example Primary Election',
-    ballotCount: 0,
+    ballotCount: 20,
   });
   await checkReportSection({
     testId: 'tally-report-precinct-1-nonpartisan',
     title: 'Unofficial Precinct Tally Report for Precinct 1',
     subtitle: 'Example Primary Election Nonpartisan Contests',
-    ballotCount: 10,
+    ballotCount: 30,
   });
-
-  // confirm that we have reports for precincts without results
   await checkReportSection({
     testId: 'tally-report-precinct-2-0',
     title: 'Unofficial Precinct Tally Report for Precinct 2',
     subtitle: 'Mammal Party Example Primary Election',
-    ballotCount: 0,
+    ballotCount: 20,
   });
   await checkReportSection({
     testId: 'tally-report-precinct-2-1',
     title: 'Unofficial Precinct Tally Report for Precinct 2',
     subtitle: 'Fish Party Example Primary Election',
-    ballotCount: 0,
+    ballotCount: 5,
   });
   await checkReportSection({
     testId: 'tally-report-precinct-2-nonpartisan',
     title: 'Unofficial Precinct Tally Report for Precinct 2',
     subtitle: 'Example Primary Election Nonpartisan Contests',
-    ballotCount: 0,
+    ballotCount: 25,
   });
 
   expectReportSections(6);
@@ -423,9 +442,8 @@ test('mark official results button disabled when no cvr files', async () => {
   apiMock.expectGetResultsForTallyReports(
     {
       filter: {},
-      groupBy: undefined,
     },
-    [getSimpleMockTallyResults(election, 10)]
+    [getSimpleMockTallyResults({ election, scannedBallotCount: 10 })]
   );
 
   renderInAppContext(<FullElectionTallyReportScreen />, {
@@ -449,9 +467,8 @@ test('mark official results button disabled when already official', async () => 
   apiMock.expectGetResultsForTallyReports(
     {
       filter: {},
-      groupBy: undefined,
     },
-    [getSimpleMockTallyResults(election, 10)]
+    [getSimpleMockTallyResults({ election, scannedBallotCount: 10 })]
   );
 
   renderInAppContext(<FullElectionTallyReportScreen />, {

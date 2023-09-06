@@ -6,7 +6,6 @@ import {
 import { fakeLogger } from '@votingworks/logging';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import MockDate from 'mockdate';
 import {
   act,
   render,
@@ -29,9 +28,9 @@ import { fakeUsbDriveStatus } from '../../test/helpers/fake_usb_drive';
 
 let apiMock: ApiMock;
 
+jest.useFakeTimers();
+
 beforeEach(() => {
-  MockDate.set('2020-10-31T00:00:00.000Z');
-  jest.useFakeTimers();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
@@ -62,6 +61,7 @@ function renderScreen(
 }
 
 test('renders date and time settings modal', async () => {
+  jest.setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
@@ -74,7 +74,7 @@ test('renders date and time settings modal', async () => {
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
 
   // Open Modal and change date
-  userEvent.click(screen.getByText(startDate));
+  userEvent.click(await screen.findByText(startDate));
 
   within(screen.getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM');
 
@@ -203,32 +203,6 @@ test('cannot toggle to Test Ballot Mode when the machine cannot be unconfigured'
   userEvent.click(screen.getByText('Test Ballot Mode'));
   screen.getByText('Save Backup to switch to Test Ballot Mode');
   userEvent.click(screen.getByText('Cancel'));
-});
-
-test('allows overriding mark thresholds', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
-  apiMock.expectGetConfig();
-  renderScreen();
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
-
-  userEvent.click(screen.getByText('Override Mark Thresholds'));
-  userEvent.click(screen.getByText('Proceed to Override Thresholds'));
-  userEvent.clear(screen.getByTestId('definite-text-input'));
-  userEvent.type(screen.getByTestId('definite-text-input'), '.5');
-  userEvent.clear(screen.getByTestId('marginal-text-input'));
-  userEvent.type(screen.getByTestId('marginal-text-input'), '.25');
-
-  apiMock.expectSetMarkThresholdOverrides({
-    definite: 0.5,
-    marginal: 0.25,
-  });
-  apiMock.expectGetConfig({
-    markThresholdOverrides: { definite: 0.5, marginal: 0.25 },
-  });
-  userEvent.click(screen.getByText('Override Thresholds'));
-  await screen.findByText('Reset Mark Thresholds');
 });
 
 test('when sounds are not muted, shows a button to mute sounds', async () => {

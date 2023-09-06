@@ -10,14 +10,18 @@ import {
   REAL_TIME_ENDPOINT_OUT,
   getPaperHandlerWebDevice,
   PaperHandlerDriver,
-  RealTimeRequestIds,
   ReturnCodes,
   GENERIC_ENDPOINT_IN,
-  PaperHandlerBitmap,
 } from './driver';
-import { TOKEN, NULL_CODE, OK_NO_MORE_DATA } from './constants';
+import {
+  TOKEN,
+  NULL_CODE,
+  OK_NO_MORE_DATA,
+  RealTimeRequestIds,
+} from './constants';
 import { setUpMockWebUsbDevice } from './test_utils';
 import {
+  PaperHandlerBitmap,
   PrinterStatusRealTimeExchangeResponse,
   SensorStatusRealTimeExchangeResponse,
 } from './coders';
@@ -261,7 +265,7 @@ const scannerCommands = [
   {
     description: 'eject paper',
     command: [0x1c, 0x53, 0x50, 0x45],
-    functionToTest: PaperHandlerDriver.prototype.ejectPaper,
+    functionToTest: PaperHandlerDriver.prototype.ejectPaperToFront,
   },
   {
     description: 'present paper and hold',
@@ -271,7 +275,7 @@ const scannerCommands = [
   {
     description: 'eject paper to ballot',
     command: [0x1c, 0x53, 0x50, 0x48],
-    functionToTest: PaperHandlerDriver.prototype.ejectBallot,
+    functionToTest: PaperHandlerDriver.prototype.ejectBallotToRear,
   },
   {
     description: 'scanner calibration',

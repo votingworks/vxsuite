@@ -11,7 +11,12 @@ import {
   asElectionDefinition,
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
-import { CVR, TEST_JURISDICTION, unsafeParse } from '@votingworks/types';
+import {
+  CVR,
+  DEFAULT_SYSTEM_SETTINGS,
+  TEST_JURISDICTION,
+  unsafeParse,
+} from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import {
   BooleanEnvironmentVariableName,
@@ -25,10 +30,7 @@ import * as fs from 'fs-extra';
 import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import {
-  buildMockArtifactAuthenticator,
-  buildMockDippedSmartCardAuth,
-} from '@votingworks/auth';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { Server } from 'http';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
@@ -71,7 +73,6 @@ jest.mock('./exec', () => ({
 }));
 
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
-let artifactAuthenticator: ReturnType<typeof buildMockArtifactAuthenticator>;
 let workspace: Workspace;
 let scanner: MockScanner;
 let mockUsb: MockUsb;
@@ -84,7 +85,6 @@ let server: Server;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
-  artifactAuthenticator = buildMockArtifactAuthenticator();
   workspace = createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
@@ -92,7 +92,6 @@ beforeEach(async () => {
   logger = fakeLogger();
   app = buildCentralScannerApp({
     auth,
-    artifactAuthenticator,
     usb: mockUsb.mock,
     allowedExportPatterns: ['/tmp/**'],
     importer,
@@ -137,16 +136,29 @@ test('going through the whole process works', async () => {
   });
 
   importer.configure(asElectionDefinition(election), jurisdiction);
+  workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
 
   // sample ballot election hash does not match election hash for this test
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK
   );
 
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+
   mockUsb.insertUsbDrive({
     'ballot-packages': {
       'ballot-package.zip': await createBallotPackageZipArchive(
-        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage()
+        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+          {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            markThresholds: {
+              definite: 0.08,
+              marginal: 0.05,
+            },
+          }
+        )
       ),
     },
   });
@@ -263,7 +275,7 @@ test('going through the whole process works', async () => {
           "Richard-Coote-b9095636",
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
-          "yes",
+          "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
         "Sheriff-4243fe0b": [
           "Edward-Randolph-bf4c848a",

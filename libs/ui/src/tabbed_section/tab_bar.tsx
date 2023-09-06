@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
@@ -19,14 +18,15 @@ const Container = styled.div`
   border-right: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted
     ${(p) => p.theme.colors.foreground};
   display: flex;
-  flex-direction: column;
+  flex-flow: column wrap;
   flex-shrink: 1;
-  flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.25rem 0.5rem 0.75rem;
 `;
 
-const IconContainer = styled.span``;
+const IconContainer = styled.span`
+  /* stylelint-disable no-empty-source */
+`;
 
 interface TabLabelContainerProps {
   active?: boolean;

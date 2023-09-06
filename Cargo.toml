@@ -1,5 +1,3 @@
 [workspace]
 
-members = [
-    "libs/ballot-interpreter-nh"
-]
+members = ["libs/ballot-interpreter"]

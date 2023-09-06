@@ -7,6 +7,7 @@ import {
   ManualDataEntryScreenProps,
   BatchReportScreenProps,
   SmartcardsScreenProps,
+  WriteInsAdjudicationScreenProps,
 } from './config/types';
 
 export const routerPaths = {
@@ -43,10 +44,15 @@ export const routerPaths = {
     `/reports/tally-reports/scanners/${scannerId}`,
   tallyBatchReport: ({ batchId }: BatchReportScreenProps): string =>
     `/reports/tally-reports/batches/${batchId}`,
+  tallyReportBuilder: `/reports/tally-reports/builder`,
   tallyWriteInReport: '/reports/tally-reports/writein',
   logicAndAccuracy: '/logic-and-accuracy',
   testDecks: '/logic-and-accuracy/test-decks',
   writeIns: '/write-ins',
+  writeInsAdjudication: ({
+    contestId,
+  }: WriteInsAdjudicationScreenProps): string =>
+    `/write-ins/adjudication/${contestId}`,
   settings: '/settings',
   logs: '/logs',
   system: '/system',

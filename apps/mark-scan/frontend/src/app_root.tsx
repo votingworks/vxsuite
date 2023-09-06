@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   ElectionDefinition,
   OptionalElectionDefinition,
@@ -9,7 +9,6 @@ import {
   ContestId,
   PrecinctId,
   BallotStyleId,
-  PrecinctSelection,
   PollsState,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
@@ -20,7 +19,6 @@ import { IdleTimerProvider } from 'react-idle-timer';
 import {
   Storage,
   Hardware,
-  singlePrecinctSelectionFor,
   makeAsync,
   isElectionManagerAuth,
   isCardlessVoterAuth,
@@ -34,16 +32,17 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   SetupCardReaderPage,
   useDevices,
-  usePrevious,
   useUsbDrive,
   UnlockMachineScreen,
   useQueryChangeListener,
+  ThemeManagerContext,
 } from '@votingworks/ui';
 
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
   CastBallotPage,
+  useDisplaySettingsManager,
 } from '@votingworks/mark-flow-ui';
 import {
   checkPin,
@@ -51,6 +50,8 @@ import {
   getAuthStatus,
   getElectionDefinition,
   getMachineConfig,
+  getPrecinctSelection,
+  getStateMachineState,
   startCardlessVoterSession,
   unconfigureMachine,
 } from './api';
@@ -65,7 +66,6 @@ import {
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
-import { SetupPrinterPage } from './pages/setup_printer_page';
 import { SetupPowerPage } from './pages/setup_power_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { WrongElectionScreen } from './pages/wrong_election_screen';
@@ -74,6 +74,10 @@ import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
+import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
+import { JammedPage } from './pages/jammed_page';
+import { JamClearedPage } from './pages/jam_cleared_page';
+import { ValidateBallotPage } from './pages/validate_ballot_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -81,7 +85,6 @@ interface UserState {
 }
 
 interface SharedState {
-  appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: OptionalElectionDefinition;
   isLiveMode: boolean;
@@ -122,7 +125,6 @@ const initialVoterState: Readonly<UserState> = {
 };
 
 const initialSharedState: Readonly<SharedState> = {
-  appPrecinct: undefined,
   ballotsPrintedCount: 0,
   electionDefinition: undefined,
   isLiveMode: false,
@@ -154,7 +156,6 @@ type AppAction =
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'forceSaveVote' }
   | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
-  | { type: 'updateAppPrecinct'; appPrecinct: PrecinctSelection }
   | { type: 'enableLiveMode' }
   | { type: 'toggleLiveMode' }
   | { type: 'updatePollsState'; pollsState: PollsState }
@@ -197,12 +198,6 @@ function appReducer(state: State, action: AppAction): State {
         ...initialVoterState,
         showPostVotingInstructions: action.showPostVotingInstructions,
       };
-    case 'updateAppPrecinct':
-      return {
-        ...state,
-        ...resetTally,
-        appPrecinct: action.appPrecinct,
-      };
     case 'enableLiveMode':
       return {
         ...state,
@@ -229,16 +224,10 @@ function appReducer(state: State, action: AppAction): State {
       };
     }
     case 'updateElectionDefinition': {
-      const { precincts } = action.electionDefinition.election;
-      let defaultPrecinct: Optional<PrecinctSelection>;
-      if (precincts.length === 1) {
-        defaultPrecinct = singlePrecinctSelectionFor(precincts[0].id);
-      }
       return {
         ...state,
         ...initialUserState,
         electionDefinition: action.electionDefinition,
-        appPrecinct: defaultPrecinct,
       };
     }
     case 'initializeAppState':
@@ -263,7 +252,6 @@ export function AppRoot({
   const PostVotingInstructionsTimeout = useRef(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
-    appPrecinct,
     ballotsPrintedCount,
     electionDefinition: optionalElectionDefinition,
     isLiveMode,
@@ -275,29 +263,36 @@ export function AppRoot({
 
   const history = useHistory();
 
+  const themeManager = React.useContext(ThemeManagerContext);
+
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
-  const {
-    cardReader,
-    printer: printerInfo,
-    accessibleController,
-    computer,
-  } = devices;
+  const { cardReader, accessibleController, computer } = devices;
   const usbDrive = useUsbDrive({ logger });
-  const hasPrinterAttached = printerInfo !== undefined;
-  const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
   const authStatusQuery = getAuthStatus.useQuery();
   const authStatus = authStatusQuery.isSuccess
     ? authStatusQuery.data
     : InsertedSmartCardAuth.DEFAULT_AUTH_STATUS;
 
+  const getStateMachineStateQuery = getStateMachineState.useQuery();
+  const stateMachineState = getStateMachineStateQuery.isSuccess
+    ? getStateMachineStateQuery.data
+    : 'no_hardware';
+  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
+
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
     startCardlessVoterSession.useMutation();
+  const startCardlessVoterSessionMutate =
+    startCardlessVoterSessionMutation.mutate;
   const endCardlessVoterSessionMutation = endCardlessVoterSession.useMutation();
+  const endCardlessVoterSessionMutate = endCardlessVoterSessionMutation.mutate;
+  const endCardlessVoterSessionMutateAsync =
+    endCardlessVoterSessionMutation.mutateAsync;
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
+  const unconfigureMachineMutateAsync = unconfigureMachineMutation.mutateAsync;
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -368,18 +363,24 @@ export function AppRoot({
         showPostVotingInstructions: newShowPostVotingInstructions,
       });
       history.push('/');
+
+      if (!newShowPostVotingInstructions) {
+        // [VVSG 2.0 7.1-A] Reset to default theme when voter is done marking
+        // their ballot:
+        themeManager.resetThemes();
+      }
     },
-    [history]
+    [history, themeManager]
   );
 
   const hidePostVotingInstructions = useCallback(() => {
     clearTimeout(PostVotingInstructionsTimeout.current);
-    endCardlessVoterSessionMutation.mutate(undefined, {
+    endCardlessVoterSessionMutate(undefined, {
       onSuccess() {
-        dispatchAppState({ type: 'resetBallot' });
+        resetBallot();
       },
     });
-  }, [endCardlessVoterSessionMutation]);
+  }, [endCardlessVoterSessionMutate, resetBallot]);
 
   // Hide Verify and Scan Instructions
   useEffect(() => {
@@ -401,10 +402,11 @@ export function AppRoot({
 
   const unconfigure = useCallback(async () => {
     await storage.clear();
-    await unconfigureMachineMutation.mutateAsync();
+
+    await unconfigureMachineMutateAsync();
     dispatchAppState({ type: 'unconfigure' });
     history.push('/');
-  }, [storage, history, unconfigureMachineMutation]);
+  }, [storage, history, unconfigureMachineMutateAsync]);
 
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchAppState({ type: 'updateVote', contestId, vote });
@@ -412,13 +414,6 @@ export function AppRoot({
 
   const forceSaveVote = useCallback(() => {
     dispatchAppState({ type: 'forceSaveVote' });
-  }, []);
-
-  const updateAppPrecinct = useCallback((newAppPrecinct: PrecinctSelection) => {
-    dispatchAppState({
-      type: 'updateAppPrecinct',
-      appPrecinct: newAppPrecinct,
-    });
   }, []);
 
   const enableLiveMode = useCallback(() => {
@@ -470,7 +465,7 @@ export function AppRoot({
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
       assert(isPollWorkerAuth(authStatus));
-      startCardlessVoterSessionMutation.mutate(
+      startCardlessVoterSessionMutate(
         {
           ballotStyleId: sessionBallotStyleId,
           precinctId: sessionPrecinctId,
@@ -482,17 +477,17 @@ export function AppRoot({
         }
       );
     },
-    [authStatus, resetBallot, startCardlessVoterSessionMutation]
+    [authStatus, resetBallot, startCardlessVoterSessionMutate]
   );
 
   const resetCardlessBallot = useCallback(() => {
     assert(isPollWorkerAuth(authStatus));
-    endCardlessVoterSessionMutation.mutate(undefined, {
+    endCardlessVoterSessionMutate(undefined, {
       onSuccess() {
         history.push('/');
       },
     });
-  }, [authStatus, endCardlessVoterSessionMutation, history]);
+  }, [authStatus, endCardlessVoterSessionMutate, history]);
 
   useEffect(() => {
     function resetBallotOnLogout() {
@@ -509,21 +504,11 @@ export function AppRoot({
 
   const endVoterSession = useCallback(async () => {
     try {
-      await endCardlessVoterSessionMutation.mutateAsync();
+      await endCardlessVoterSessionMutateAsync();
     } catch {
       // Handled by default query client error handling
     }
-  }, [endCardlessVoterSessionMutation]);
-
-  // Handle Hardware Observer Subscription
-  useEffect(() => {
-    function resetBallotOnPrinterDetach() {
-      if (previousHasPrinterAttached && !hasPrinterAttached) {
-        resetBallot();
-      }
-    }
-    void resetBallotOnPrinterDetach();
-  }, [previousHasPrinterAttached, hasPrinterAttached, resetBallot]);
+  }, [endCardlessVoterSessionMutateAsync]);
 
   // Handle Keyboard Input
   useEffect(() => {
@@ -551,7 +536,6 @@ export function AppRoot({
         {};
 
       const {
-        appPrecinct: storedAppPrecinct = initialAppState.appPrecinct,
         ballotsPrintedCount:
           storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
         isLiveMode: storedIsLiveMode = initialAppState.isLiveMode,
@@ -560,7 +544,6 @@ export function AppRoot({
       dispatchAppState({
         type: 'initializeAppState',
         appState: {
-          appPrecinct: storedAppPrecinct,
           ballotsPrintedCount: storedBallotsPrintedCount,
           electionDefinition: storedElectionDefinition,
           isLiveMode: storedIsLiveMode,
@@ -576,7 +559,6 @@ export function AppRoot({
     async function storeAppState() {
       if (initializedFromStorage) {
         await storage.set(stateStorageKey, {
-          appPrecinct,
           ballotsPrintedCount,
           isLiveMode,
           pollsState,
@@ -586,7 +568,6 @@ export function AppRoot({
 
     void storeAppState();
   }, [
-    appPrecinct,
     ballotsPrintedCount,
     isLiveMode,
     pollsState,
@@ -594,13 +575,24 @@ export function AppRoot({
     initializedFromStorage,
   ]);
 
-  if (!machineConfigQuery.isSuccess || !authStatusQuery.isSuccess) {
+  useDisplaySettingsManager({ authStatus, votes });
+
+  if (
+    !machineConfigQuery.isSuccess ||
+    !authStatusQuery.isSuccess ||
+    !getStateMachineStateQuery.isSuccess ||
+    !getPrecinctSelectionQuery.isSuccess
+  ) {
     return null;
   }
   const machineConfig = machineConfigQuery.data;
+  const precinctSelection = getPrecinctSelectionQuery.data;
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
+  }
+  if (stateMachineState === 'no_hardware') {
+    return <NoPaperHandlerPage />;
   }
   if (
     authStatus.status === 'logged_out' &&
@@ -659,7 +651,6 @@ export function AppRoot({
     ) {
       return (
         <ReplaceElectionScreen
-          appPrecinct={appPrecinct}
           ballotsPrintedCount={ballotsPrintedCount}
           authElectionHash={authStatus.user.electionHash}
           electionDefinition={optionalElectionDefinition}
@@ -673,11 +664,9 @@ export function AppRoot({
 
     return (
       <AdminScreen
-        appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}
         isLiveMode={isLiveMode}
-        updateAppPrecinct={updateAppPrecinct}
         toggleLiveMode={toggleLiveMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
@@ -688,10 +677,18 @@ export function AppRoot({
       />
     );
   }
-  if (optionalElectionDefinition && appPrecinct) {
-    if (!hasPrinterAttached) {
-      return <SetupPrinterPage />;
-    }
+
+  if (stateMachineState === 'jammed') {
+    return <JammedPage />;
+  }
+  if (
+    stateMachineState === 'jam_cleared' ||
+    stateMachineState === 'resetting_state_machine_after_jam'
+  ) {
+    return <JamClearedPage stateMachineState={stateMachineState} />;
+  }
+
+  if (optionalElectionDefinition && precinctSelection) {
     if (
       authStatus.status === 'logged_out' &&
       authStatus.reason === 'poll_worker_wrong_election'
@@ -704,7 +701,6 @@ export function AppRoot({
           pollWorkerAuth={authStatus}
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
-          appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           enableLiveMode={enableLiveMode}
           isLiveMode={isLiveMode}
@@ -717,10 +713,11 @@ export function AppRoot({
           updatePollsState={updatePollsState}
           hasVotes={!!votes}
           reload={reload}
-          logger={logger}
+          precinctSelection={precinctSelection}
         />
       );
     }
+
     if (pollsState === 'polls_open' && showPostVotingInstructions) {
       return (
         <CastBallotPage
@@ -728,6 +725,7 @@ export function AppRoot({
         />
       );
     }
+
     if (pollsState === 'polls_open') {
       if (isCardlessVoterAuth(authStatus)) {
         return (
@@ -750,7 +748,14 @@ export function AppRoot({
                 votes: votes ?? blankBallotVotes,
               }}
             >
-              <Ballot />
+              {stateMachineState === 'presenting_ballot' ? (
+                // Don't nest ValidateBallotPage under Ballot because Ballot uses frontend browser routing for flow control
+                // and is completely independent of the state machine. ValidateBallotPage interacts with the state machine
+                // so we condition on it here, where we can still access BallotContext, but completely separate it from browser routing
+                <ValidateBallotPage />
+              ) : (
+                <Ballot />
+              )}
             </BallotContext.Provider>
           </Gamepad>
         );
@@ -763,7 +768,6 @@ export function AppRoot({
         timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
       >
         <InsertCardScreen
-          appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={!accessibleController}
           showNoChargerAttachedWarning={!computer.batteryIsCharging}
@@ -773,6 +777,7 @@ export function AppRoot({
       </IdleTimerProvider>
     );
   }
+
   return (
     <UnconfiguredScreen
       hasElectionDefinition={Boolean(optionalElectionDefinition)}

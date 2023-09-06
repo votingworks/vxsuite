@@ -1,4 +1,4 @@
-import { assert, err } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
   electionMinimalExhaustiveSampleDefinition,
@@ -6,17 +6,19 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { CVR as CVRType, safeParse } from '@votingworks/types';
-import { basename, join } from 'path';
+import path, { basename, join } from 'path';
 import * as fs from 'fs';
 import { CVR_BALLOT_LAYOUTS_SUBDIRECTORY } from '@votingworks/backend';
 import { vxBallotType } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
   BooleanEnvironmentVariableName,
+  CAST_VOTE_RECORD_REPORT_FILENAME,
   getFeatureFlagMock,
   getSheetCount,
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
 import { Client } from '@votingworks/grout';
+import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -27,6 +29,11 @@ import { modifyCastVoteRecordReport } from '../test/utils';
 import { Api } from './app';
 
 jest.setTimeout(60_000);
+
+jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
+  ...jest.requireActual('@votingworks/auth'),
+  authenticateArtifactUsingSignatureFile: jest.fn(),
+}));
 
 // mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -40,6 +47,7 @@ jest.mock('@votingworks/utils', () => {
 
 beforeEach(() => {
   jest.restoreAllMocks();
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
   );
@@ -150,7 +158,7 @@ test('happy path - mock election flow', async () => {
   await expectCastVoteRecordCount(apiClient, 184);
 
   // check write-in records were created
-  expect(await apiClient.getWriteIns()).toHaveLength(80);
+  expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(80);
 
   // check scanner batches
   expect(await apiClient.getScannerBatches()).toEqual([
@@ -261,7 +269,7 @@ test('adding a file with BMD cast vote records', async () => {
   await expectCastVoteRecordCount(apiClient, 112);
 
   // check that no write-in records were created
-  expect(await apiClient.getWriteIns()).toHaveLength(0);
+  expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(0);
 });
 
 test('adding a duplicate file returns OK to client but logs an error', async () => {
@@ -370,14 +378,13 @@ test('error if path to report is not valid', async () => {
 });
 
 test('cast vote records authentication error', async () => {
-  const { apiClient, artifactAuthenticator, auth, logger } =
-    buildTestEnvironment();
+  const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  mockOf(
-    artifactAuthenticator.authenticateArtifactUsingSignatureFile
-  ).mockResolvedValue(err(new Error('Whoa!')));
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+    err(new Error('Whoa!'))
+  );
 
   const result = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordReport.asDirectoryPath(),
@@ -403,13 +410,13 @@ test('cast vote records authentication error', async () => {
 });
 
 test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_AUTHENTICATION is enabled', async () => {
-  const { apiClient, artifactAuthenticator, auth } = buildTestEnvironment();
+  const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  mockOf(
-    artifactAuthenticator.authenticateArtifactUsingSignatureFile
-  ).mockResolvedValue(err(new Error('Whoa!')));
+  mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
+    err(new Error('Whoa!'))
+  );
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   );
@@ -657,4 +664,25 @@ test('error if a layout is invalid', async () => {
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   await expectCastVoteRecordCount(apiClient, 0);
+});
+
+test('can add file using the report JSON path rather than the directory path', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(
+    apiClient,
+    auth,
+    electionMinimalExhaustiveSampleDefinition
+  );
+  mockElectionManagerAuth(
+    auth,
+    electionMinimalExhaustiveSampleDefinition.electionHash
+  );
+
+  const addFileResult = await apiClient.addCastVoteRecordFile({
+    path: path.join(
+      electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath(),
+      CAST_VOTE_RECORD_REPORT_FILENAME
+    ),
+  });
+  assert(addFileResult.isOk());
 });

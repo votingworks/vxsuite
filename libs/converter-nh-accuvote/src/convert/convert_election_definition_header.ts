@@ -1,15 +1,12 @@
 import { assert, err, iter, ok } from '@votingworks/basics';
 import {
-  AdjudicationReason,
   BallotPaperSize,
-  BallotTargetMarkPosition,
   Candidate,
   CandidateContest,
   DistrictIdSchema,
   Election,
   GridPositionOption,
   GridPositionWriteIn,
-  MarkThresholds,
   Party,
   PartyIdSchema,
   YesNoContest,
@@ -30,6 +27,7 @@ import {
   NewHampshireBallotCardDefinition,
 } from './types';
 import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
+import { NH_SEAL } from './seal';
 
 const debug = makeDebug('converter-nh-accuvote:convert');
 
@@ -40,14 +38,6 @@ function makeId(text: string): string {
     8
   )}`;
 }
-
-/**
- * Default thresholds for interpreting marks on a ballot as votes.
- */
-export const DefaultMarkThresholds: MarkThresholds = {
-  definite: 0.08,
-  marginal: 0.05,
-};
 
 /**
  * Creates an election definition only from the ballot metadata, ignoring the
@@ -215,8 +205,8 @@ export function convertElectionDefinitionHeader(
   const contests: Array<CandidateContest | YesNoContest> = [];
   const optionMetadataByCandidateElement = new Map<
     Element,
-    | Omit<GridPositionOption, 'row' | 'column' | 'side'>
-    | Omit<GridPositionWriteIn, 'row' | 'column' | 'side'>
+    | Omit<GridPositionOption, 'row' | 'column' | 'sheetNumber' | 'side'>
+    | Omit<GridPositionWriteIn, 'row' | 'column' | 'sheetNumber' | 'side'>
   >();
 
   for (const contestElement of Array.from(
@@ -402,12 +392,21 @@ export function convertElectionDefinitionHeader(
             question,
           ] of parsedConstitutionalQuestions.questions.entries()) {
             const contestTitle = `Constitutional Amendment Question #${i + 1}`;
+            const contestId = makeId(question.title);
             contests.push({
               type: 'yesno',
-              id: makeId(question.title),
+              id: contestId,
               title: contestTitle,
               description: question.title,
               districtId,
+              yesOption: {
+                id: `${contestId}-option-yes`,
+                label: 'Yes',
+              },
+              noOption: {
+                id: `${contestId}-option-no`,
+                label: 'No',
+              },
             });
           }
         }
@@ -418,6 +417,7 @@ export function convertElectionDefinitionHeader(
   const definitionGrid = readGridFromElectionDefinition(root);
 
   const election: Election = {
+    type: 'general',
     title,
     date: parsedDate.toISO(),
     county: {
@@ -448,16 +448,11 @@ export function convertElectionDefinitionHeader(
     contests,
     ballotLayout: {
       paperSize,
-      targetMarkPosition: BallotTargetMarkPosition.Right,
+      metadataEncoding: 'timing-marks',
     },
-    markThresholds: DefaultMarkThresholds,
     gridLayouts: [
       {
-        precinctId,
         ballotStyleId: 'default',
-        // placeholder values to be overridden
-        columns: 0,
-        rows: 0,
         // hardcoded for NH state elections
         optionBoundsFromTargetMark: {
           left: 5,
@@ -471,6 +466,7 @@ export function convertElectionDefinitionHeader(
           return metadata.type === 'option'
             ? {
                 type: 'option',
+                sheetNumber: 1,
                 side: 'front',
                 column,
                 row,
@@ -479,6 +475,7 @@ export function convertElectionDefinitionHeader(
               }
             : {
                 type: 'write-in',
+                sheetNumber: 1,
                 side: 'front',
                 column,
                 row,
@@ -488,9 +485,7 @@ export function convertElectionDefinitionHeader(
         }),
       },
     ],
-    centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
-    precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
-    sealUrl: '/seals/Seal_of_New_Hampshire.svg',
+    seal: NH_SEAL,
   };
 
   const parseElectionResult = safeParseElection(election);

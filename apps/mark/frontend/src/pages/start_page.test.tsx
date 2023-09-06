@@ -1,11 +1,11 @@
 import { Route } from 'react-router-dom';
 import {
-  primaryElectionSampleDefinition,
-  electionSampleNoSealDefinition,
+  electionMinimalExhaustiveSampleDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen } from '../../test/react_testing_library';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
@@ -13,45 +13,42 @@ import { StartPage } from './start_page';
 import { Paths } from '../config/globals';
 
 test('renders StartPage', () => {
-  const electionDefinition = primaryElectionSampleDefinition;
-  const { container } = render(<Route path="/" component={StartPage} />, {
-    ballotStyleId: '12D',
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  render(<Route path="/" component={StartPage} />, {
+    ballotStyleId: '1M',
     electionDefinition,
-    precinctId: '23',
+    precinctId: 'precinct-1',
     route: '/',
   });
-  expect(screen.queryByText('Democratic Primary Election')).toBeInTheDocument();
-  screen.getByText(/(12D)/);
-  expect(container.firstChild).toMatchSnapshot();
+  screen.getByRole('heading', { name: 'Example Primary Election' });
+  screen.getByText('September 8, 2021');
+  screen.getByText(
+    hasTextAcrossElements('Precinct 1, Sample County, State of Sample')
+  );
+  screen.getByText('Ballot style: 1M');
+  screen.getByText(hasTextAcrossElements('Your ballot has 7 contests.'));
 });
 
 test('renders StartPage in Landscape Orientation', () => {
-  const electionDefinition = primaryElectionSampleDefinition;
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   render(<Route path="/" component={StartPage} />, {
-    ballotStyleId: '12D',
+    ballotStyleId: '1M',
     electionDefinition,
-    precinctId: '23',
+    precinctId: 'precinct-1',
     route: '/',
     machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
   });
-  expect(screen.getByText('21 contests').parentNode?.textContent).toEqual(
-    'Your ballot has 21 contests.'
+  screen.getByRole('heading', { name: 'Example Primary Election' });
+  screen.getByText('September 8, 2021');
+  screen.getByText(
+    hasTextAcrossElements('Precinct 1, Sample County, State of Sample')
   );
+  screen.getByText('Ballot style: 1M');
+  screen.getByText(hasTextAcrossElements('Your ballot has 7 contests.'));
 });
 
 test('renders StartPage with inline SVG', () => {
   const electionDefinition = electionSampleDefinition;
-  const { container } = render(<Route path="/" component={StartPage} />, {
-    electionDefinition,
-    ballotStyleId: '12',
-    precinctId: '23',
-    route: '/',
-  });
-  expect(container.firstChild).toMatchSnapshot();
-});
-
-test('renders StartPage with no seal', () => {
-  const electionDefinition = electionSampleNoSealDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',

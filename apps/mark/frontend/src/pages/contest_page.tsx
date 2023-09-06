@@ -1,10 +1,9 @@
 import { CandidateVote } from '@votingworks/types';
-import { Screen, P, Font, LinkButton } from '@votingworks/ui';
+import { Screen, LinkButton, useScreenInfo } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useHistory, useParams } from 'react-router-dom';
 import { Contest as MarkFlowContest } from '@votingworks/mark-flow-ui';
-import styled from 'styled-components';
 import { BallotContext } from '../contexts/ballot_context';
 import { ButtonFooter } from '../components/button_footer';
 import { DisplaySettingsButton } from '../components/display_settings_button';
@@ -13,10 +12,6 @@ interface ContestParams {
   contestNumber: string;
 }
 
-const Breadcrumbs = styled.div`
-  padding: 0 0.5rem;
-`;
-
 export function ContestPage(): JSX.Element {
   const { contestNumber } = useParams<ContestParams>();
   const history = useHistory();
@@ -24,6 +19,8 @@ export function ContestPage(): JSX.Element {
 
   const { contests, electionDefinition, precinctId, updateVote, votes } =
     useContext(BallotContext);
+
+  const screenInfo = useScreenInfo();
 
   // eslint-disable-next-line vx/gts-safe-number-parse
   const currentContestIndex = parseInt(contestNumber, 10);
@@ -58,7 +55,8 @@ export function ContestPage(): JSX.Element {
       case 'ms-either-neither':
         return (
           votes[contest.pickOneContestId]?.length === 1 ||
-          votes[contest.eitherNeitherContestId]?.[0] === 'no'
+          votes[contest.eitherNeitherContestId]?.[0] ===
+            contest.neitherOption.id
         );
       /* istanbul ignore next */
       default:
@@ -102,14 +100,12 @@ export function ContestPage(): JSX.Element {
   const settingsButton = <DisplaySettingsButton />;
 
   return (
-    <Screen>
-      <Breadcrumbs>
-        <P align="right">
-          Contest <Font weight="bold">{ballotContestNumber}</Font> of{' '}
-          <Font weight="bold">{ballotContestsLength}</Font>
-        </P>
-      </Breadcrumbs>
+    <Screen navRight={!screenInfo.isPortrait}>
       <MarkFlowContest
+        breadcrumbs={{
+          ballotContestCount: ballotContestsLength,
+          contestNumber: ballotContestNumber,
+        }}
         election={electionDefinition.election}
         contest={contest}
         votes={votes}

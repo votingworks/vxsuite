@@ -1,11 +1,6 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import {
-  ArtifactAuthenticator,
-  DippedSmartCardAuth,
-  JavaCard,
-  MockFileCard,
-} from '@votingworks/auth';
+import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { getUsbDrives } from '@votingworks/backend';
 import { Server } from 'http';
 import {
@@ -17,6 +12,9 @@ import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
 import { Usb } from './util/usb';
+import { rootDebug } from './util/debug';
+
+const debug = rootDebug.extend('server');
 
 /**
  * Options for starting the admin service.
@@ -37,6 +35,7 @@ export async function start({
   port = PORT,
   workspace,
 }: Partial<StartOptions>): Promise<Server> {
+  debug('starting server...');
   let resolvedWorkspace = workspace;
   /* c8 ignore start */
   if (!resolvedWorkspace) {
@@ -70,13 +69,11 @@ export async function start({
       },
       logger,
     });
-    const artifactAuthenticator = new ArtifactAuthenticator();
 
     const usb: Usb = { getUsbDrives };
 
     resolvedApp = buildApp({
       auth,
-      artifactAuthenticator,
       logger,
       usb,
       workspace: resolvedWorkspace,

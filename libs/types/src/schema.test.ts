@@ -91,6 +91,28 @@ test('parsing gives specific errors for nested objects', () => {
                   "description"
                 ],
                 "message": "Required"
+              },
+              {
+                "code": "invalid_type",
+                "expected": "object",
+                "received": "undefined",
+                "path": [
+                  "contests",
+                  1,
+                  "yesOption"
+                ],
+                "message": "Required"
+              },
+              {
+                "code": "invalid_type",
+                "expected": "object",
+                "received": "undefined",
+                "path": [
+                  "contests",
+                  1,
+                  "noOption"
+                ],
+                "message": "Required"
               }
             ],
             "name": "ZodError"
@@ -164,84 +186,6 @@ test('contest IDs cannot start with an underscore', () => {
   `);
 });
 
-test('allows valid mark thresholds', () => {
-  t.safeParseVxfElection({
-    ...electionSample,
-    markThresholds: { definite: 0.2, marginal: 0.2 },
-  }).unsafeUnwrap();
-
-  t.safeParseVxfElection({
-    ...electionSample,
-    markThresholds: { definite: 0.2, marginal: 0.1 },
-  }).unsafeUnwrap();
-});
-
-test('disallows invalid mark thresholds', () => {
-  expect(
-    t
-      .safeParseVxfElection({
-        ...electionSample,
-        markThresholds: { definite: 0.2, marginal: 0.3 },
-      })
-      .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "message": "marginal mark threshold must be less than or equal to definite mark threshold",
-        "path": [
-          "markThresholds"
-        ]
-      }
-    ]]
-  `);
-
-  expect(
-    t
-      .safeParseVxfElection({
-        ...electionSample,
-        markThresholds: { marginal: 0.3 },
-      })
-      .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_type",
-        "expected": "number",
-        "received": "undefined",
-        "path": [
-          "markThresholds",
-          "definite"
-        ],
-        "message": "Required"
-      }
-    ]]
-  `);
-
-  expect(
-    t
-      .safeParseVxfElection({
-        ...electionSample,
-        markThresholds: { definite: 1.2, marginal: 0.3 },
-      })
-      .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "too_big",
-        "maximum": 1,
-        "type": "number",
-        "inclusive": true,
-        "message": "Number must be less than or equal to 1",
-        "path": [
-          "markThresholds",
-          "definite"
-        ]
-      }
-    ]]
-  `);
-});
-
 test('allows valid adjudication reasons', () => {
   t.safeParseVxfElection({
     ...electionSample,
@@ -254,56 +198,6 @@ test('allows valid adjudication reasons', () => {
   }).unsafeUnwrap();
 });
 
-test('disallows invalid adjudication reasons', () => {
-  expect(
-    t
-      .safeParseVxfElection({
-        ...electionSample,
-        precinctScanAdjudicationReasons: ['abcdefg'],
-      })
-      .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_enum_value",
-        "options": [
-          "UninterpretableBallot",
-          "MarginalMark",
-          "Overvote",
-          "Undervote",
-          "BlankBallot"
-        ],
-        "path": [
-          "precinctScanAdjudicationReasons",
-          0
-        ],
-        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot'"
-      }
-    ]]
-  `);
-
-  expect(
-    t
-      .safeParseVxfElection({
-        ...electionSample,
-        centralScanAdjudicationReasons: 'foooo',
-      })
-      .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_type",
-        "expected": "array",
-        "received": "string",
-        "path": [
-          "centralScanAdjudicationReasons"
-        ],
-        "message": "Expected array, received string"
-      }
-    ]]
-  `);
-});
-
 test('supports ballot layout paper size', () => {
   expect(
     t
@@ -311,6 +205,7 @@ test('supports ballot layout paper size', () => {
         ...electionSample,
         ballotLayout: {
           paperSize: 'A4',
+          metadataEncoding: 'qr-code',
         },
       })
       .unsafeUnwrapErr()
@@ -321,13 +216,16 @@ test('supports ballot layout paper size', () => {
         "options": [
           "letter",
           "legal",
-          "custom8.5x17"
+          "custom-8.5x17",
+          "custom-8.5x18",
+          "custom-8.5x21",
+          "custom-8.5x22"
         ],
         "path": [
           "ballotLayout",
           "paperSize"
         ],
-        "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom8.5x17'"
+        "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom-8.5x17' | 'custom-8.5x18' | 'custom-8.5x21' | 'custom-8.5x22'"
       }
     ]]
   `);
@@ -578,6 +476,26 @@ test('validates uniqueness of contest ids', () => {
           "id"
         ],
         "message": "Duplicate contest 'YNC' found."
+      },
+      {
+        "code": "custom",
+        "path": [
+          "contests",
+          2,
+          "yes/noOption",
+          "id"
+        ],
+        "message": "Duplicate yes/no contest option 'YNC-option-yes' found."
+      },
+      {
+        "code": "custom",
+        "path": [
+          "contests",
+          3,
+          "yes/noOption",
+          "id"
+        ],
+        "message": "Duplicate yes/no contest option 'YNC-option-no' found."
       }
     ]]
   `);
@@ -633,7 +551,7 @@ test('safeParseVxfElectionDefinition computes the election hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().electionHash
   ).toMatchInlineSnapshot(
-    `"89d5b1e06c888634c318593eda29331adb9a74011178cdd7c9555cca06838e7d"`
+    `"fa2ee0ab1672c771123bfa3878dc8a6a26213a2aee345adc409ce424ecfbb134"`
   );
 });
 

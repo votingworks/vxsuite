@@ -61,12 +61,18 @@ export function arePollWorkerCardDetails(
   return cardDetails.user.role === 'poll_worker';
 }
 
-interface CardStatusReady {
+/**
+ * A sub-type of CardStatus
+ */
+export interface CardStatusReady {
   status: 'ready';
   cardDetails?: CardDetails;
 }
 
-interface CardStatusNotReady {
+/**
+ * A sub-type of CardStatus
+ */
+export interface CardStatusNotReady {
   status: 'card_error' | 'no_card' | 'unknown_error';
 }
 

@@ -2,15 +2,14 @@ import React from 'react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
-  CastVoteRecord,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   InsertedSmartCardAuth,
-  MarkThresholds,
   PollsState,
   PrecinctSelection,
+  Tabulation,
 } from '@votingworks/types';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
   MachineConfig,
@@ -26,6 +25,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
+import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeUsbDriveStatus } from './fake_usb_drive';
 
@@ -51,30 +51,13 @@ export const statusNoPaper: PrecinctScannerStatus = {
   ballotsCounted: 0,
 };
 
-type MockApiClient = Omit<MockClient<Api>, 'saveScannerReportDataToCard'> & {
-  // Because the values passed to this are so complex, we opt for a standard jest mock instead of a
-  // libs/test-utils mock since the latter requires exact input matching and doesn't support
-  // matchers like expect.objectContaining
-  saveScannerReportDataToCard: jest.Mock;
-};
-
-function createMockApiClient(): MockApiClient {
-  const mockApiClient = createMockClient<Api>();
-  // Because mockApiClient uses a Proxy under the hood, we add an explicit field
-  // to the object to override the Proxy implementation.
-  (mockApiClient.saveScannerReportDataToCard as unknown as jest.Mock) = jest.fn(
-    () => Promise.resolve(ok())
-  );
-  return mockApiClient as unknown as MockApiClient;
-}
-
 /**
  * Creates a VxScan specific wrapper around commonly used methods from the Grout
  * mock API client to make it easier to use for our specific test needs
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createApiMock() {
-  const mockApiClient = createMockApiClient();
+  const mockApiClient = createMockClient<Api>();
 
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
@@ -147,14 +130,6 @@ export function createApiMock() {
       mockApiClient.setTestMode.expectCallWith({ isTestMode }).resolves();
     },
 
-    expectSetMarkThresholdOverrides(
-      markThresholdOverrides?: MarkThresholds
-    ): void {
-      mockApiClient.setMarkThresholdOverrides
-        .expectCallWith({ markThresholdOverrides })
-        .resolves();
-    },
-
     expectGetScannerStatus(status: PrecinctScannerStatus): void {
       mockApiClient.getScannerStatus.expectRepeatedCallsWith().resolves(status);
     },
@@ -163,15 +138,17 @@ export function createApiMock() {
       mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
     },
 
-    expectGetCastVoteRecordsForTally(castVoteRecords: CastVoteRecord[]): void {
-      mockApiClient.getCastVoteRecordsForTally
-        .expectCallWith()
-        .resolves(castVoteRecords);
+    expectGetScannerResultsByParty(
+      results: Tabulation.GroupList<Tabulation.ElectionResults>
+    ): void {
+      mockApiClient.getScannerResultsByParty.expectCallWith().resolves(results);
     },
 
-    expectExportCastVoteRecordsToUsbDrive(): void {
+    expectExportCastVoteRecordsToUsbDrive(input: {
+      mode: 'full_export' | 'polls_closing';
+    }): void {
       mockApiClient.exportCastVoteRecordsToUsbDrive
-        .expectCallWith()
+        .expectCallWith(input)
         .resolves(ok());
     },
 
@@ -205,10 +182,12 @@ export function provideApi(
   children: React.ReactNode
 ): JSX.Element {
   return (
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        {children}
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <TestErrorBoundary>
+      <ApiClientContext.Provider value={apiMock.mockApiClient}>
+        <QueryClientProvider client={createQueryClient()}>
+          {children}
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
+    </TestErrorBoundary>
   );
 }

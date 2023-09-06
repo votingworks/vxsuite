@@ -14,7 +14,7 @@ import { Castability, checkSheetCastability } from './castability';
 const metadata: BallotMetadata = {
   ballotStyleId: '1',
   precinctId: '6522',
-  ballotType: BallotType.Standard,
+  ballotType: BallotType.Precinct,
   electionHash:
     electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
       .electionHash,
@@ -25,7 +25,10 @@ const interpretedBmdPage: Readonly<InterpretedBmdPage> = {
   ballotId: unsafeParse(BallotIdSchema, 'abc'),
   metadata,
   votes: {
-    'flag-question': ['yes'],
+    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc':
+      [
+        'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+      ],
   },
 };
 

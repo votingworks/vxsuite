@@ -14,21 +14,27 @@ import {
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
 import {
+  AnyContest,
   BallotId,
   BallotPageLayout,
   BallotPageLayoutSchema,
+  BallotStyle,
+  BallotStyleId,
   ContestId,
   ContestOptionId,
   CVR,
+  DistrictId,
   Election,
   Id,
   Iso8601Timestamp,
+  Precinct,
+  PrecinctId,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
   Side,
   SystemSettings,
-  SystemSettingsDbRow,
+  safeParseSystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { join } from 'path';
@@ -36,15 +42,12 @@ import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
 import {
   OfficialCandidateNameLookup,
-  getBallotStyleIdPartyIdLookup,
   getOfficialCandidateNameLookup,
 } from '@votingworks/utils';
 import {
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
   CvrFileMode,
-  DatabaseSerializedCastVoteRecordVotes,
-  DatabaseSerializedCastVoteRecordVotesSchema,
   ElectionRecord,
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
@@ -52,7 +55,6 @@ import {
   ScannerBatch,
   CastVoteRecordStoreFilter,
   WriteInAdjudicationAction,
-  WriteInAdjudicationStatus,
   WriteInCandidateRecord,
   WriteInRecord,
   WriteInRecordAdjudicatedInvalid,
@@ -64,10 +66,21 @@ import {
   WriteInAdjudicatedOfficialCandidateTally,
   WriteInAdjudicatedWriteInCandidateTally,
   WriteInPendingTally,
-  ManualResultsStoreFilter,
+  ManualResultsFilter,
   CardTally,
+  WriteInAdjudicationQueueMetadata,
 } from './types';
-import { replacePartyIdFilter } from './tabulation/utils';
+import { isBlankSheet } from './tabulation/utils';
+import { rootDebug } from './util/debug';
+
+const debug = rootDebug.extend('store');
+
+type StoreCastVoteRecordAttributes = Omit<
+  Tabulation.CastVoteRecordAttributes,
+  'partyId'
+> & {
+  readonly partyId: string | null;
+};
 
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
@@ -128,7 +141,6 @@ export class Store {
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
   withTransaction<T>(fn: () => T): T {
     return this.client.transaction(fn, (result: T) => {
       if (isResult(result)) {
@@ -142,13 +154,24 @@ export class Store {
   /**
    * Creates an election record and returns its ID.
    */
-  addElection(electionData: string): Id {
+  addElection({
+    electionData,
+    systemSettingsData,
+  }: {
+    electionData: string;
+    systemSettingsData: string;
+  }): Id {
     const id = uuid();
-    this.client.run(
-      'insert into elections (id, data) values (?, ?)',
-      id,
-      electionData
-    );
+    this.withTransaction(() => {
+      this.client.run(
+        'insert into elections (id, election_data, system_settings_data) values (?, ?, ?)',
+        id,
+        electionData,
+        systemSettingsData
+      );
+      this.createElectionMetadataRecords(id);
+    });
+
     return id;
   }
 
@@ -160,7 +183,7 @@ export class Store {
       this.client.all(`
       select
         id,
-        data as electionData,
+        election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
@@ -189,7 +212,7 @@ export class Store {
       `
       select
         id,
-        data as electionData,
+        election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
@@ -262,75 +285,406 @@ export class Store {
    * Gets the id for the current election
    */
   getCurrentElectionId(): Optional<Id> {
-    const settings = this.client.one(
+    const { currentElectionId } = this.client.one(
       `
       select current_election_id as currentElectionId from settings
     `
-    ) as { currentElectionId: Id } | null;
+    ) as { currentElectionId: Id | null };
 
-    return settings?.currentElectionId ?? undefined;
+    return currentElectionId ?? undefined;
   }
 
   /**
-   * Returns the current election definition or throws an error if it does
-   * not exist.
+   * Retrieves the system settings for the current election.
    */
-  getCurrentElectionRecordOrThrow(): ElectionRecord {
-    return assertDefined(
-      this.getElection(assertDefined(this.getCurrentElectionId()))
-    );
-  }
-
-  /**
-   * Creates a system settings record and returns its ID.
-   * Note `system_settings` are logical settings that span other machines eg. VxScan.
-   * `settings` are local to VxAdmin
-   */
-  saveSystemSettings(systemSettings: SystemSettings): void {
-    this.client.run('delete from system_settings');
-    this.client.run(
-      `
-      insert into system_settings (
-        are_poll_worker_card_pins_enabled,
-        inactive_session_time_limit_minutes,
-        num_incorrect_pin_attempts_allowed_before_card_lockout,
-        overall_session_time_limit_hours,
-        starting_card_lockout_duration_seconds
-      ) values (
-        ?, ?, ?, ?, ?
-      )
-      `,
-      systemSettings.arePollWorkerCardPinsEnabled ? 1 : 0,
-      systemSettings.inactiveSessionTimeLimitMinutes,
-      systemSettings.numIncorrectPinAttemptsAllowedBeforeCardLockout,
-      systemSettings.overallSessionTimeLimitHours,
-      systemSettings.startingCardLockoutDurationSeconds
-    );
-  }
-
-  /**
-   * Gets a specific system settings record.
-   */
-  getSystemSettings(): SystemSettings | undefined {
+  getSystemSettings(electionId: Id): SystemSettings {
     const result = this.client.one(
       `
-      select
-        are_poll_worker_card_pins_enabled as arePollWorkerCardPinsEnabled,
-        inactive_session_time_limit_minutes as inactiveSessionTimeLimitMinutes,
-        num_incorrect_pin_attempts_allowed_before_card_lockout as numIncorrectPinAttemptsAllowedBeforeCardLockout,
-        overall_session_time_limit_hours as overallSessionTimeLimitHours,
-        starting_card_lockout_duration_seconds as startingCardLockoutDurationSeconds
-      from system_settings
-      `
-    ) as SystemSettingsDbRow | undefined;
+      select system_settings_data as systemSettingsData
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as { systemSettingsData: string };
 
-    if (!result) {
-      return undefined;
+    return safeParseSystemSettings(result.systemSettingsData).unsafeUnwrap();
+  }
+
+  /**
+   * Adds a subset of the election definition, normalized, to the database. While
+   * the data is already in the election data blob, we want to be able to join on
+   * and query the data.
+   */
+  private createElectionMetadataRecords(electionId: Id): void {
+    const electionRecord = this.getElection(electionId);
+    assert(electionRecord);
+    const {
+      electionDefinition: { election },
+    } = electionRecord;
+
+    this.addVotingMethodRecords({ electionId });
+
+    for (const precinct of election.precincts) {
+      this.createPrecinctRecord({ electionId, precinct });
     }
-    return {
-      ...result,
-      arePollWorkerCardPinsEnabled: result.arePollWorkerCardPinsEnabled === 1,
-    };
+
+    for (const [sortIndex, contest] of election.contests.entries()) {
+      this.createContestRecord({ electionId, contest, sortIndex });
+    }
+
+    for (const ballotStyle of election.ballotStyles) {
+      this.createBallotStyleRecord({ electionId, ballotStyle });
+      for (const precinctId of ballotStyle.precincts) {
+        this.createBallotStylePrecinctLinkRecord({
+          electionId,
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+        });
+      }
+      for (const districtId of ballotStyle.districts) {
+        this.createBallotStyleDistrictLinkRecord({
+          electionId,
+          ballotStyleId: ballotStyle.id,
+          districtId,
+        });
+      }
+    }
+  }
+
+  /**
+   * Adds a row to the `precincts` table for the given ballot style.
+   */
+  private createPrecinctRecord({
+    electionId,
+    precinct,
+  }: {
+    electionId: Id;
+    precinct: Precinct;
+  }): void {
+    this.client.run(
+      `
+        insert into precincts (
+          election_id,
+          id,
+          name
+        ) values (
+          ?, ?, ?
+        )
+      `,
+      electionId,
+      precinct.id,
+      precinct.name
+    );
+  }
+
+  /**
+   * Adds a row to the `ballot_styles` table for the given ballot style.
+   */
+  private createBallotStyleRecord({
+    electionId,
+    ballotStyle,
+  }: {
+    electionId: Id;
+    ballotStyle: BallotStyle;
+  }): void {
+    const params = [electionId, ballotStyle.id];
+    if (ballotStyle.partyId) {
+      params.push(ballotStyle.partyId);
+    }
+
+    this.client.run(
+      `
+        insert into ballot_styles (
+          election_id,
+          id,
+          party_id
+        ) values (
+          ?, ?, ${ballotStyle.partyId ? '?' : 'null'}
+        )
+      `,
+      ...params
+    );
+  }
+
+  /**
+   * Adds link record representing the association between a ballot style and a precinct.
+   */
+  private createBallotStylePrecinctLinkRecord({
+    electionId,
+    ballotStyleId,
+    precinctId,
+  }: {
+    electionId: Id;
+    ballotStyleId: BallotStyleId;
+    precinctId: PrecinctId;
+  }): void {
+    this.client.run(
+      `
+        insert into ballot_styles_to_precincts (
+          election_id,
+          ballot_style_id,
+          precinct_id
+        ) values (
+          ?, ?, ?
+        )
+      `,
+      electionId,
+      ballotStyleId,
+      precinctId
+    );
+  }
+
+  /**
+   * Adds link record representing the association between a ballot style and a district.
+   */
+  private createBallotStyleDistrictLinkRecord({
+    electionId,
+    ballotStyleId,
+    districtId,
+  }: {
+    electionId: Id;
+    ballotStyleId: BallotStyleId;
+    districtId: DistrictId;
+  }): void {
+    this.client.run(
+      `
+          insert into ballot_styles_to_districts (
+            election_id,
+            ballot_style_id,
+            district_id
+          ) values (
+            ?, ?, ?
+          )
+        `,
+      electionId,
+      ballotStyleId,
+      districtId
+    );
+  }
+
+  /**
+   * Adds record for an election contest.
+   */
+  private createContestRecord({
+    electionId,
+    contest,
+    sortIndex,
+  }: {
+    electionId: Id;
+    contest: AnyContest;
+    sortIndex: number;
+  }): void {
+    this.client.run(
+      `
+            insert into contests (
+              election_id,
+              id,
+              district_id,
+              party_id,
+              sort_index
+            ) values (
+              ?, ?, ?, ?, ?
+            )
+          `,
+      electionId,
+      contest.id,
+      contest.districtId,
+      contest.type === 'candidate' ? contest.partyId ?? null : null,
+      sortIndex
+    );
+  }
+
+  /**
+   * Adds link record representing the association between a ballot style and a precinct.
+   */
+  private addVotingMethodRecords({ electionId }: { electionId: Id }): void {
+    const params: Bindable[] = [];
+    for (const votingMethod of Tabulation.SUPPORTED_VOTING_METHODS) {
+      params.push(electionId, votingMethod);
+    }
+
+    this.client.run(
+      `
+          insert into voting_methods (
+            election_id,
+            voting_method
+          ) 
+          values 
+            ${Tabulation.SUPPORTED_VOTING_METHODS.map(() => '(?, ?)').join(
+              ',\n'
+            )}
+        `,
+      ...params
+    );
+  }
+
+  /**
+   * Given the group by and filter of a tabulation operation, this method returns
+   * what the expected groups would be. Ignores batch and scanner components which
+   * are not currently supported.
+   */
+  getTabulationGroups({
+    electionId,
+    groupBy = {},
+    filter = {},
+  }: {
+    electionId: Id;
+    groupBy?: Tabulation.GroupBy;
+    filter?: Tabulation.Filter;
+  }): Tabulation.GroupSpecifier[] {
+    const whereParts = ['ballot_styles.election_id = ?'];
+    const params: Bindable[] = [electionId];
+    if (filter.ballotStyleIds) {
+      whereParts.push(
+        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
+      );
+      params.push(...filter.ballotStyleIds);
+    }
+    if (filter.partyIds) {
+      whereParts.push(
+        `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
+      );
+      params.push(...filter.partyIds);
+    }
+    if (filter.precinctIds) {
+      whereParts.push(
+        `ballot_styles_to_precincts.precinct_id in ${asQueryPlaceholders(
+          filter.precinctIds
+        )}`
+      );
+      params.push(...filter.precinctIds);
+    }
+    if (filter.votingMethods) {
+      whereParts.push(
+        `voting_methods.voting_method in ${asQueryPlaceholders(
+          filter.votingMethods
+        )}`
+      );
+      params.push(...filter.votingMethods);
+    }
+
+    const selectParts: string[] = [];
+    const groupByParts: string[] = [];
+    const sortByParts: string[] = [];
+    if (groupBy.groupByPrecinct) {
+      selectParts.push('precincts.id as precinctId');
+      groupByParts.push('precinctId');
+      sortByParts.push('precinctId');
+    }
+    if (groupBy.groupByParty) {
+      selectParts.push('ballot_styles.party_id as partyId');
+      groupByParts.push('partyId');
+    }
+    if (groupBy.groupByBallotStyle) {
+      selectParts.push('ballot_styles.id as ballotStyleId');
+      groupByParts.push('ballotStyleId');
+    }
+    if (groupBy.groupByVotingMethod) {
+      selectParts.push('voting_methods.voting_method as votingMethod');
+      groupByParts.push('votingMethod');
+      sortByParts.push('votingMethod DESC'); // absentee last
+    }
+
+    const query = `
+      select
+          ${['1 as universalGroup', ...selectParts].join(',\n')}
+        from ballot_styles
+        inner join ballot_styles_to_precincts on
+          ballot_styles_to_precincts.election_id = ballot_styles.election_id and 
+          ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
+        inner join precincts on
+          ballot_styles_to_precincts.election_id = precincts.election_id and 
+          ballot_styles_to_precincts.precinct_id = precincts.id
+        inner join voting_methods on
+          voting_methods.election_id = ballot_styles.election_id
+        where ${whereParts.join(' and ')}
+        group by
+          ${['universalGroup', ...groupByParts].join(',\n')}
+        order by
+          ${['universalGroup', ...sortByParts].join(',\n')}
+    `;
+
+    return (
+      this.client.all(query, ...params) as Array<
+        Partial<Tabulation.GroupSpecifier> & {
+          universalGroup: number;
+          precinctSortIndex?: number;
+        }
+      >
+    ).map(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      ({ universalGroup, precinctSortIndex, ...groupSpecifier }) =>
+        groupSpecifier
+    );
+  }
+
+  /**
+   * Given a tabulation filter, returns the set of contests that would be
+   * included on possible ballots.
+   */
+  getFilteredContests({
+    electionId,
+    filter = {},
+  }: {
+    electionId: Id;
+    filter?: Tabulation.Filter;
+  }): ContestId[] {
+    const whereParts = ['contests.election_id = ?'];
+    const ballotStyleParams: Bindable[] = [electionId];
+    if (filter.ballotStyleIds) {
+      whereParts.push(
+        `ballot_styles.id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
+      );
+      ballotStyleParams.push(...filter.ballotStyleIds);
+    }
+    if (filter.partyIds) {
+      whereParts.push(
+        `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
+      );
+      ballotStyleParams.push(...filter.partyIds);
+    }
+    if (filter.precinctIds) {
+      whereParts.push(
+        `ballot_styles_to_precincts.precinct_id in ${asQueryPlaceholders(
+          filter.precinctIds
+        )}`
+      );
+      ballotStyleParams.push(...filter.precinctIds);
+    }
+
+    whereParts.push(
+      `(contests.party_id is null or ballot_styles.party_id = contests.party_id)`
+    );
+
+    const query = `
+      select contests.id as contestId, contests.sort_index as sortIndex
+      from contests
+      inner join ballot_styles_to_districts on
+        ballot_styles_to_districts.election_id = ? and 
+        ballot_styles_to_districts.district_id = contests.district_id
+      inner join ballot_styles on
+        ballot_styles.election_id = ? and
+        ballot_styles.id = ballot_styles_to_districts.ballot_style_id
+      inner join ballot_styles_to_precincts on
+        ballot_styles_to_precincts.election_id = ? and 
+        ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
+      where
+        ${whereParts.join(' and\n')}
+      group by contestId, sortIndex
+      order by sortIndex
+    `;
+
+    return (
+      this.client.all(
+        query,
+        electionId,
+        electionId,
+        electionId,
+        ...ballotStyleParams
+      ) as Array<{
+        contestId: ContestId;
+      }>
+    ).map(({ contestId }) => contestId);
   }
 
   getCastVoteRecordFileByHash(
@@ -510,9 +864,10 @@ export class Store {
           batch_id,
           precinct_id,
           sheet_number,
-          votes
+          votes,
+          is_blank
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -523,7 +878,8 @@ export class Store {
         cvr.batchId,
         cvr.precinctId,
         cvrSheetNumber,
-        serializedVotes
+        serializedVotes,
+        isBlankSheet(cvr.votes) ? 1 : 0
       );
     }
 
@@ -647,11 +1003,13 @@ export class Store {
    * Adds a write-in and returns its ID. Used when loading cast vote records.
    */
   addWriteIn({
+    electionId,
     castVoteRecordId,
     side,
     contestId,
     optionId,
   }: {
+    electionId: Id;
     castVoteRecordId: Id;
     side: Side;
     contestId: Id;
@@ -663,15 +1021,17 @@ export class Store {
       `
         insert into write_ins (
           id,
+          election_id,
           cvr_id,
           side,
           contest_id,
           option_id
         ) values (
-          ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?
         )
       `,
       id,
+      electionId,
       castVoteRecordId,
       side,
       contestId,
@@ -682,66 +1042,89 @@ export class Store {
   }
 
   /**
-   * Returns the data necessary to display a single write-in.
+   * Returns the write-in image and layout.
    */
-  getWriteInWithDetails(writeInId: Id): {
+  getWriteInImageAndLayout(writeInId: Id): {
     writeInId: Id;
     contestId: ContestId;
     optionId: ContestOptionId;
+    cvrId: Id;
     image: Buffer;
     layout: BallotPageLayout;
-    castVoteRecordId: Id;
-    castVoteRecordVotes: DatabaseSerializedCastVoteRecordVotes;
   } {
-    const writeInWithDetails = this.client.one(
+    const row = this.client.one(
+      `
+          select
+            write_ins.id as writeInId,
+            write_ins.contest_id as contestId,
+            write_ins.option_id as optionId,
+            write_ins.cvr_id as cvrId,
+            ballot_images.image as image,
+            ballot_images.layout as layout
+          from write_ins
+          inner join
+            ballot_images on 
+              write_ins.cvr_id = ballot_images.cvr_id and 
+              write_ins.side = ballot_images.side
+          where write_ins.id = ?
+        `,
+      writeInId
+    ) as {
+      writeInId: Id;
+      contestId: ContestId;
+      optionId: ContestOptionId;
+      cvrId: string;
+      image: Buffer;
+      layout: string;
+    };
+
+    return {
+      ...row,
+      layout: safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap(),
+    };
+  }
+
+  /**
+   * Returns the write-in ids with votes on the associated CVR.
+   */
+  getWriteInWithVotes(writeInId: Id): {
+    writeInId: Id;
+    contestId: ContestId;
+    optionId: ContestOptionId;
+    cvrId: Id;
+    cvrVotes: Tabulation.Votes;
+  } {
+    const row = this.client.one(
       `
         select
           write_ins.id as writeInId,
           write_ins.contest_id as contestId,
           write_ins.option_id as optionId,
-          ballot_images.image as image,
-          ballot_images.layout as layout,
-          cvrs.votes as castVoteRecordVotes,
-          write_ins.cvr_id as castVoteRecordId
+          cvrs.votes as cvrVotes,
+          write_ins.cvr_id as cvrId
         from write_ins
-        inner join
-          ballot_images on 
-            write_ins.cvr_id = ballot_images.cvr_id and 
-            write_ins.side = ballot_images.side
         inner join
           cvrs on
             write_ins.cvr_id = cvrs.id
         where write_ins.id = ?
       `,
       writeInId
-    ) as
-      | {
-          writeInId: Id;
-          contestId: ContestId;
-          optionId: ContestOptionId;
-          image: Buffer;
-          layout: string;
-          castVoteRecordVotes: string;
-          castVoteRecordId: string;
-        }
-      | undefined;
-
-    assert(writeInWithDetails, 'write-in does not exist');
+    ) as {
+      writeInId: Id;
+      contestId: ContestId;
+      optionId: ContestOptionId;
+      cvrVotes: string;
+      cvrId: string;
+    };
 
     return {
-      ...writeInWithDetails,
-      layout: safeParseJson(
-        writeInWithDetails.layout,
-        BallotPageLayoutSchema
-      ).unsafeUnwrap(),
-      castVoteRecordVotes: safeParseJson(
-        writeInWithDetails.castVoteRecordVotes,
-        DatabaseSerializedCastVoteRecordVotesSchema
-      ).unsafeUnwrap(),
+      ...row,
+      cvrVotes: JSON.parse(row.cvrVotes),
     };
   }
 
   getCvrFiles(electionId: Id): CastVoteRecordFileRecord[] {
+    debug('querying database for cvr file list');
     const results = this.client.all(
       `
       select
@@ -778,6 +1161,7 @@ export class Store {
       sha256Hash: string;
       createdAt: string;
     }>;
+    debug('queried database for cvr file list');
 
     return results
       .map((result) =>
@@ -804,7 +1188,7 @@ export class Store {
 
   private getTabulationFilterAsSql(
     electionId: Id,
-    filter: CastVoteRecordStoreFilter
+    filter: Tabulation.Filter
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
@@ -814,6 +1198,13 @@ export class Store {
         `cvrs.ballot_style_id in ${asQueryPlaceholders(filter.ballotStyleIds)}`
       );
       params.push(...filter.ballotStyleIds);
+    }
+
+    if (filter.partyIds) {
+      whereParts.push(
+        `ballot_styles.party_id in ${asQueryPlaceholders(filter.partyIds)}`
+      );
+      params.push(...filter.partyIds);
     }
 
     if (filter.precinctIds) {
@@ -861,45 +1252,45 @@ export class Store {
    */
   *getCastVoteRecords({
     electionId,
-    election,
     filter,
   }: {
     electionId: Id;
-    election: Election;
     filter: Tabulation.Filter;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
-      replacePartyIdFilter(filter, election)
+      filter
     );
 
     for (const row of this.client.each(
       `
         select
           cvrs.ballot_style_id as ballotStyleId,
+          ballot_styles.party_id as partyId,
           cvrs.precinct_id as precinctId,
-          cvrs.ballot_type as ballotType,
+          cvrs.ballot_type as votingMethod,
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes
-        from
-          cvrs inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        from cvrs 
+        inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        inner join ballot_styles on
+          cvrs.election_id = ballot_styles.election_id and 
+          cvrs.ballot_style_id = ballot_styles.id
         where ${whereParts.join(' and ')}
       `,
       ...params
-    ) as Iterable<{
-      ballotStyleId: string;
-      ballotType: string;
-      batchId: string;
-      precinctId: string;
-      scannerId: string;
-      sheetNumber: number | null;
-      votes: string;
-    }>) {
+    ) as Iterable<
+      StoreCastVoteRecordAttributes & {
+        sheetNumber: number | null;
+        votes: string;
+      }
+    >) {
       yield {
         ballotStyleId: row.ballotStyleId,
-        votingMethod: row.ballotType as Tabulation.VotingMethod,
+        partyId: row.partyId ?? undefined,
+        votingMethod: row.votingMethod,
         batchId: row.batchId,
         scannerId: row.scannerId,
         precinctId: row.precinctId,
@@ -914,19 +1305,27 @@ export class Store {
    */
   *getCardTallies({
     electionId,
-    election,
     groupBy = {},
+    blankBallotsOnly = false,
   }: {
     electionId: Id;
-    election: Election;
     groupBy?: Tabulation.GroupBy;
+    blankBallotsOnly?: boolean;
   }): Generator<Tabulation.GroupOf<CardTally>> {
+    const whereParts = ['cvrs.election_id = ?'];
+    const params: Bindable[] = [electionId];
+
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
-    if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
+    if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_id as ballotStyleId');
       groupByParts.push('cvrs.ballot_style_id');
+    }
+
+    if (groupBy.groupByParty) {
+      selectParts.push('ballot_styles.party_id as partyId');
+      groupByParts.push('ballot_styles.party_id');
     }
 
     if (groupBy.groupByBatch) {
@@ -949,25 +1348,28 @@ export class Store {
       groupByParts.push('cvrs.ballot_type');
     }
 
-    const ballotStylePartyLookup = getBallotStyleIdPartyIdLookup(election);
-
+    if (blankBallotsOnly) {
+      whereParts.push('cvrs.is_blank = 1');
+    }
     for (const row of this.client.each(
       `
           select
             ${selectParts.map((line) => `${line},`).join('\n')}
             cvrs.sheet_number as sheetNumber,
             count(cvrs.id) as tally
-          from cvrs
-          inner join
-            scanner_batches on scanner_batches.id = cvrs.batch_id
-          where cvrs.election_id = ?
+          from cvrs 
+          inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+          inner join ballot_styles on
+            cvrs.election_id = ballot_styles.election_id and 
+            cvrs.ballot_style_id = ballot_styles.id
+          where ${whereParts.join(' and ')}
           group by
             ${groupByParts.map((line) => `${line},`).join('\n')}
             sheetNumber
         `,
-      electionId
+      ...params
     ) as Iterable<
-      Partial<Tabulation.CastVoteRecordAttributes> & {
+      Partial<StoreCastVoteRecordAttributes> & {
         sheetNumber: number | null;
         tally: number;
       }
@@ -976,9 +1378,8 @@ export class Store {
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
-        partyId: groupBy.groupByParty
-          ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
-          : undefined,
+        /* c8 ignore next - edge case coverage needed for bad party grouping in general election */
+        partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
@@ -1195,16 +1596,18 @@ export class Store {
   /**
    * Gets write-in adjudication tallies.
    */
-  getWriteInTallies({
+  getWriteInAdjudicationQueueMetadata({
     electionId,
     contestId,
-    status,
   }: {
     electionId: Id;
     contestId?: ContestId;
-    status?: WriteInAdjudicationStatus;
-  }): WriteInTally[] {
-    const whereParts: string[] = ['cvrs.election_id = ?'];
+  }): WriteInAdjudicationQueueMetadata[] {
+    debug(
+      'querying database for write-in adjudication queue metadata for contest %s',
+      contestId
+    );
+    const whereParts: string[] = ['write_ins.election_id = ?'];
     const params: Bindable[] = [electionId];
 
     if (contestId) {
@@ -1212,55 +1615,30 @@ export class Store {
       params.push(contestId);
     }
 
-    if (status === 'adjudicated') {
-      whereParts.push(
-        '(write_ins.official_candidate_id is not null or write_ins.write_in_candidate_id is not null or write_ins.is_invalid = 1)'
-      );
-    }
-
-    if (status === 'pending') {
-      whereParts.push('write_ins.official_candidate_id is null');
-      whereParts.push('write_ins.write_in_candidate_id is null');
-      whereParts.push('write_ins.is_invalid = 0');
-    }
-
     const rows = this.client.all(
       `
         select
-          write_ins.contest_id as contestId,
-          write_ins.official_candidate_id as officialCandidateId,
-          write_ins.write_in_candidate_id as writeInCandidateId,
-          write_in_candidates.name as writeInCandidateName,
-          write_ins.is_invalid as isInvalid,
-          count(write_ins.id) as tally
+          contest_id as contestId,
+          count(id) as totalTally,
+          sum(
+            (
+              (case when official_candidate_id is null then 0 else 1 end) +
+              (case when write_in_candidate_id is null then 0 else 1 end) +
+              is_invalid
+            ) = 0
+          ) as pendingTally
         from write_ins
-        inner join
-          cvrs on write_ins.cvr_id = cvrs.id
-        left join
-          write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
         where ${whereParts.join(' and ')}
-        group by 
-          write_ins.contest_id,
-          write_ins.official_candidate_id,
-          write_ins.write_in_candidate_id,
-          write_ins.is_invalid
+        group by contest_id
       `,
       ...params
-    ) as WriteInTallyRow[];
-    if (rows.length === 0) {
-      return [];
-    }
-
-    const {
-      electionDefinition: { election },
-    } = this.getCurrentElectionRecordOrThrow();
-
-    const officialCandidateNameLookup =
-      getOfficialCandidateNameLookup(election);
-
-    return rows.map((row) =>
-      this.formatWriteInTallyRow(row, officialCandidateNameLookup)
-    );
+    ) as Array<{
+      contestId: ContestId;
+      totalTally: number;
+      pendingTally: number;
+    }>;
+    debug('queried database for write-in adjudication queue metadata');
+    return rows;
   }
 
   /**
@@ -1280,15 +1658,20 @@ export class Store {
   }): Generator<Tabulation.GroupOf<WriteInTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
-      replacePartyIdFilter(filter, election)
+      filter
     );
 
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
 
-    if (groupBy.groupByBallotStyle || groupBy.groupByParty) {
+    if (groupBy.groupByBallotStyle) {
       selectParts.push('cvrs.ballot_style_id as ballotStyleId');
       groupByParts.push('cvrs.ballot_style_id');
+    }
+
+    if (groupBy.groupByParty) {
+      selectParts.push('ballot_styles.party_id as partyId');
+      groupByParts.push('ballot_styles.party_id');
     }
 
     if (groupBy.groupByBatch) {
@@ -1313,7 +1696,6 @@ export class Store {
 
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);
-    const ballotStylePartyLookup = getBallotStyleIdPartyIdLookup(election);
 
     for (const row of this.client.each(
       `
@@ -1328,8 +1710,10 @@ export class Store {
           from write_ins
           inner join
             cvrs on write_ins.cvr_id = cvrs.id
-          inner join
-            scanner_batches on scanner_batches.id = cvrs.batch_id
+          inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+          inner join ballot_styles on
+              cvrs.election_id = ballot_styles.election_id and 
+              cvrs.ballot_style_id = ballot_styles.id
           left join
             write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
           where ${whereParts.join(' and ')}
@@ -1341,16 +1725,13 @@ export class Store {
             write_ins.is_invalid
         `,
       ...params
-    ) as Iterable<
-      WriteInTallyRow & Partial<Tabulation.CastVoteRecordAttributes>
-    >) {
+    ) as Iterable<WriteInTallyRow & Partial<StoreCastVoteRecordAttributes>>) {
       const groupSpecifier: Tabulation.GroupSpecifier = {
         ballotStyleId: groupBy.groupByBallotStyle
           ? row.ballotStyleId
           : undefined,
-        partyId: groupBy.groupByParty
-          ? ballotStylePartyLookup[assertDefined(row.ballotStyleId)]
-          : undefined,
+        /* c8 ignore next - edge case coverage needed for bad party grouping in general election */
+        partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
@@ -1374,19 +1755,16 @@ export class Store {
     contestId,
     castVoteRecordId,
     writeInId,
-    status,
-    limit,
   }: {
     electionId: Id;
     contestId?: ContestId;
     castVoteRecordId?: Id;
     writeInId?: Id;
-    status?: WriteInAdjudicationStatus;
-    limit?: number;
   }): WriteInRecord[] {
+    debug('querying database for write-in records');
     this.assertElectionExists(electionId);
 
-    const whereParts: string[] = ['cvr_files.election_id = ?'];
+    const whereParts: string[] = ['write_ins.election_id = ?'];
     const params: Bindable[] = [electionId];
 
     if (contestId) {
@@ -1404,20 +1782,6 @@ export class Store {
       params.push(writeInId);
     }
 
-    if (status === 'adjudicated') {
-      whereParts.push(
-        '(write_ins.official_candidate_id is not null or write_ins.write_in_candidate_id is not null or write_ins.is_invalid = 1)'
-      );
-    } else if (status === 'pending') {
-      whereParts.push('write_ins.official_candidate_id is null');
-      whereParts.push('write_ins.write_in_candidate_id is null');
-      whereParts.push('write_ins.is_invalid = 0');
-    }
-
-    if (typeof limit === 'number') {
-      params.push(limit);
-    }
-
     const writeInRows = this.client.all(
       `
         select distinct
@@ -1430,16 +1794,11 @@ export class Store {
           write_ins.is_invalid as isInvalid,
           datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
         from write_ins
-        inner join
-          cvr_file_entries on write_ins.cvr_id = cvr_file_entries.cvr_id
-        inner join
-          cvr_files on cvr_file_entries.cvr_file_id = cvr_files.id
         where
           ${whereParts.join(' and ')}
         order by
           write_ins.cvr_id,
           write_ins.option_id
-        ${typeof limit === 'number' ? 'limit ?' : ''}
       `,
       ...params
     ) as Array<{
@@ -1452,53 +1811,133 @@ export class Store {
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
     }>;
+    debug('queried database for write-in records');
 
-    return writeInRows
-      .map((row) => {
-        if (row.officialCandidateId) {
-          return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'official-candidate',
-            candidateId: row.officialCandidateId,
-          });
-        }
-
-        if (row.writeInCandidateId) {
-          return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'write-in-candidate',
-            candidateId: row.writeInCandidateId,
-          });
-        }
-
-        if (row.isInvalid) {
-          return typedAs<WriteInRecordAdjudicatedInvalid>({
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            adjudicationType: 'invalid',
-          });
-        }
-
-        return typedAs<WriteInRecordPending>({
+    return writeInRows.map((row) => {
+      if (row.officialCandidateId) {
+        return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
           id: row.id,
-          status: 'pending',
           castVoteRecordId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'official-candidate',
+          candidateId: row.officialCandidateId,
         });
-      })
-      .filter((writeInRecord) => writeInRecord.status === status || !status);
+      }
+
+      if (row.writeInCandidateId) {
+        return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
+          id: row.id,
+          castVoteRecordId: row.castVoteRecordId,
+          contestId: row.contestId,
+          optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'write-in-candidate',
+          candidateId: row.writeInCandidateId,
+        });
+      }
+
+      if (row.isInvalid) {
+        return typedAs<WriteInRecordAdjudicatedInvalid>({
+          id: row.id,
+          castVoteRecordId: row.castVoteRecordId,
+          contestId: row.contestId,
+          optionId: row.optionId,
+          status: 'adjudicated',
+          adjudicationType: 'invalid',
+        });
+      }
+
+      return typedAs<WriteInRecordPending>({
+        id: row.id,
+        status: 'pending',
+        castVoteRecordId: row.castVoteRecordId,
+        contestId: row.contestId,
+        optionId: row.optionId,
+      });
+    });
+  }
+
+  /**
+   * Gets write-in record adjudication queue for a specific contest.
+   */
+  getWriteInAdjudicationQueue({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId?: ContestId;
+  }): Id[] {
+    this.assertElectionExists(electionId);
+
+    const whereParts: string[] = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
+    debug(
+      'querying database for write-in adjudication queue for contest %s',
+      contestId
+    );
+    const rows = this.client.all(
+      `
+        select
+          id
+        from write_ins
+        where
+          ${whereParts.join(' and ')}
+        order by
+          sequence_id
+      `,
+      ...params
+    ) as Array<{ id: Id }>;
+    debug('queried database for write-in adjudication queue');
+
+    return rows.map((r) => r.id);
+  }
+
+  /**
+   * Within a contest adjudication queue provided by `getWriteInAdjudicationQueue`,
+   * gets the id of the first write-in that is pending adjudication.
+   */
+  getFirstPendingWriteInId({
+    electionId,
+    contestId,
+  }: {
+    electionId: Id;
+    contestId: ContestId;
+  }): Optional<Id> {
+    this.assertElectionExists(electionId);
+
+    debug(
+      'querying database for first pending write-in for contest %s',
+      contestId
+    );
+    const row = this.client.one(
+      `
+        select
+          id
+        from write_ins
+        where
+          election_id = ? and
+          contest_id = ? and
+          official_candidate_id is null and
+          write_in_candidate_id is null and
+          is_invalid = 0
+        order by
+          sequence_id
+        limit 1
+      `,
+      electionId,
+      contestId
+    ) as { id: Id } | undefined;
+    debug('queried database for first pending write-in');
+
+    return row?.id;
   }
 
   /**
@@ -1669,29 +2108,42 @@ export class Store {
 
   getManualResults({
     electionId,
-    precinctIds,
-    ballotStyleIds,
-    votingMethods,
+    filter = {},
   }: {
     electionId: Id;
-  } & ManualResultsStoreFilter): ManualResultsRecord[] {
-    const whereParts = ['election_id = ?'];
+    filter?: ManualResultsFilter;
+  }): ManualResultsRecord[] {
+    const whereParts = ['manual_results.election_id = ?'];
     const params: Bindable[] = [electionId];
+    const { precinctIds, partyIds, ballotStyleIds, votingMethods } = filter;
 
     if (precinctIds) {
-      whereParts.push(`precinct_id in ${asQueryPlaceholders(precinctIds)}`);
+      whereParts.push(
+        `manual_results.precinct_id in ${asQueryPlaceholders(precinctIds)}`
+      );
       params.push(...precinctIds);
+    }
+
+    if (partyIds) {
+      whereParts.push(
+        `ballot_styles.party_id in ${asQueryPlaceholders(partyIds)}`
+      );
+      params.push(...partyIds);
     }
 
     if (ballotStyleIds) {
       whereParts.push(
-        `ballot_style_id in ${asQueryPlaceholders(ballotStyleIds)}`
+        `manual_results.ballot_style_id in ${asQueryPlaceholders(
+          ballotStyleIds
+        )}`
       );
       params.push(...ballotStyleIds);
     }
 
     if (votingMethods) {
-      whereParts.push(`voting_method in ${asQueryPlaceholders(votingMethods)}`);
+      whereParts.push(
+        `manual_results.voting_method in ${asQueryPlaceholders(votingMethods)}`
+      );
       params.push(...votingMethods);
     }
 
@@ -1699,13 +2151,16 @@ export class Store {
       this.client.all(
         `
           select 
-            precinct_id as precinctId,
-            ballot_style_id as ballotStyleId,
-            voting_method as votingMethod,
-            ballot_count as ballotCount,
-            contest_results as contestResultsData,
-            datetime(created_at, 'localtime') as createdAt
+            manual_results.precinct_id as precinctId,
+            manual_results.ballot_style_id as ballotStyleId,
+            manual_results.voting_method as votingMethod,
+            manual_results.ballot_count as ballotCount,
+            manual_results.contest_results as contestResultsData,
+            datetime(manual_results.created_at, 'localtime') as createdAt
           from manual_results
+          inner join ballot_styles on
+            manual_results.election_id = ballot_styles.election_id and 
+            manual_results.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
         `,
         ...params

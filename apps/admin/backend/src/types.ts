@@ -1,4 +1,3 @@
-import { Result } from '@votingworks/basics';
 import {
   ContestId,
   ContestOptionId,
@@ -10,10 +9,6 @@ import {
   Iso8601TimestampSchema,
   Rect,
   CandidateId,
-  YesNoVote,
-  CandidateIdSchema,
-  YesNoVoteSchema,
-  ContestIdSchema,
   Dictionary,
   PrecinctId,
   BallotStyleId,
@@ -33,23 +28,11 @@ export interface MachineConfig {
 }
 
 /**
- * Result of attempt to configure the app with a new election definition
+ * Errors that can occur when attempting to configure from an election package.
  */
-export type ConfigureResult = Result<
-  { electionId: Id },
-  { type: 'parsing'; message: string }
->;
-
-/**
- * Result of attempt to store and apply system settings
- */
-export type SetSystemSettingsResult = Result<
-  Record<string, never>,
-  {
-    type: 'parsing' | 'database';
-    message: string;
-  }
->;
+export type ConfigureError =
+  | { type: 'invalidElection'; message: string }
+  | { type: 'invalidSystemSettings'; message: string };
 
 /**
  * Metadata about a cast vote record file found on a USB drive.
@@ -169,22 +152,21 @@ export interface WriteInCandidateRecord {
   readonly name: string;
 }
 
-/**
- * A write-in that has is not yet adjudicated.
- */
-export interface WriteInRecordPending {
+interface WriteInRecordBase {
   readonly id: Id;
   readonly contestId: ContestId;
   readonly optionId: ContestOptionId;
   readonly castVoteRecordId: Id;
+}
+
+/**
+ * A write-in that is not yet adjudicated.
+ */
+export interface WriteInRecordPending extends WriteInRecordBase {
   readonly status: 'pending';
 }
 
-interface WriteInRecordAdjudicatedBase {
-  readonly id: Id;
-  readonly contestId: ContestId;
-  readonly optionId: ContestOptionId;
-  readonly castVoteRecordId: Id;
+interface WriteInRecordAdjudicatedBase extends WriteInRecordBase {
   readonly status: 'adjudicated';
 }
 
@@ -296,6 +278,15 @@ export type WriteInAdjudicatedTally =
 export type WriteInTally = WriteInPendingTally | WriteInAdjudicatedTally;
 
 /**
+ * Description of the write-in adjudication queue size.
+ */
+export interface WriteInAdjudicationQueueMetadata {
+  contestId: ContestId;
+  pendingTally: number;
+  totalTally: number;
+}
+
+/**
  * Information necessary to adjudicate a write-in for an official candidate.
  */
 export interface WriteInAdjudicationActionOfficialCandidate {
@@ -330,18 +321,30 @@ export type WriteInAdjudicationAction =
   | WriteInAdjudicationActionInvalid;
 
 /**
- * Data required to adjudicate a write-in image in our adjudication interface,
- * including an image URL; the coordinates of the ballot, relevant contest,
- * and relevant contest option; and the votes for the contest in question.
+ * Information necessary to display a write-in on the frontend.
  */
-export interface WriteInDetailView {
+export interface WriteInImageView {
+  readonly writeInId: Id;
+  readonly cvrId: Id;
   readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
-  readonly markedOfficialCandidateIds: CandidateId[];
-  readonly writeInAdjudicatedOfficialCandidateIds: CandidateId[];
-  readonly writeInAdjudicatedWriteInCandidateIds: string[];
+}
+
+/**
+ * Information necessary to adjudicate a write-in including the write-in record,
+ * any related write-in records (same ballot and contest), and the CVR votes.
+ */
+export interface WriteInAdjudicationContext {
+  readonly writeIn: WriteInRecord;
+  /**
+   * Related write-ins are write-ins that are on the same ballot and in the same
+   * contest as the primary write-in.
+   */
+  readonly relatedWriteIns: WriteInRecord[];
+  readonly cvrId: Id;
+  readonly cvrVotes: Tabulation.Votes;
 }
 
 /**
@@ -367,23 +370,6 @@ export type CvrFileMode =
   | 'test'
   /** No CVR files imported yet - file mode is not currently locked. */
   | 'unlocked';
-
-/**
- * Votes as they are serialized in the database.
- */
-export type DatabaseSerializedCastVoteRecordVotes = Record<
-  ContestId,
-  CandidateId[] | YesNoVote
->;
-
-/**
- * Schema for {@link DatabaseSerializedCastVoteRecordVotes}.
- */
-export const DatabaseSerializedCastVoteRecordVotesSchema: z.ZodSchema<DatabaseSerializedCastVoteRecordVotes> =
-  z.record(
-    ContestIdSchema,
-    z.union([z.array(CandidateIdSchema), YesNoVoteSchema])
-  );
 
 /**
  * Ballot types for which we allow adding manual results.
@@ -420,19 +406,11 @@ export interface ManualResultsMetadataRecord extends ManualResultsIdentifier {
 }
 
 /**
- * Subset of cast vote records filters that we support with manual results.
+ * Subset of cast vote record filters that we can filter on for manual results.
  */
-export type ManualResultsFilter = Pick<
+export type ManualResultsFilter = Omit<
   Tabulation.Filter,
-  'ballotStyleIds' | 'partyIds' | 'precinctIds' | 'votingMethods'
->;
-
-/**
- * Subset of manual results filter that the store itself can filter on.
- */
-export type ManualResultsStoreFilter = Pick<
-  ManualResultsFilter,
-  'ballotStyleIds' | 'precinctIds' | 'votingMethods'
+  'scannerIds' | 'batchIds'
 >;
 
 /**
@@ -486,9 +464,36 @@ export interface CardTally {
 }
 
 /**
- * Results that inform a tally report.
+ * For primary reports, we need card counts split by party.
  */
-export interface TallyReportResults {
+export type CardCountsByParty = Record<string, Tabulation.CardCounts>;
+
+interface TallyReportResultsBase {
+  contestIds: ContestId[];
   scannedResults: Tabulation.ElectionResults;
   manualResults?: Tabulation.ManualElectionResults;
 }
+
+/**
+ * Results for a tally report not split by party, usually for a general or
+ * as a data intermediate in tabulation code.
+ */
+export type SingleTallyReportResults = TallyReportResultsBase & {
+  hasPartySplits: false;
+  cardCounts: Tabulation.CardCounts;
+};
+
+/**
+ * Results for a tally report split by party, used for primary elections.
+ */
+export type PartySplitTallyReportResults = TallyReportResultsBase & {
+  hasPartySplits: true;
+  cardCountsByParty: CardCountsByParty;
+};
+
+/**
+ * Data necessary to display a frontend tally report.
+ */
+export type TallyReportResults =
+  | SingleTallyReportResults
+  | PartySplitTallyReportResults;

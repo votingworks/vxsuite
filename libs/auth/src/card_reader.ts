@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import newPcscLite from 'pcsclite';
 import { promisify } from 'util';
 import { assert } from '@votingworks/basics';
-import { isByte } from '@votingworks/types';
+import { Byte, isByte } from '@votingworks/types';
 
 import {
   CardCommand,
@@ -20,6 +20,7 @@ export type PcscLite = ReturnType<typeof newPcscLite>;
 
 interface ReaderReady {
   status: 'ready';
+  disconnect: () => Promise<void>;
   transmit: (data: Buffer) => Promise<Buffer>;
 }
 
@@ -75,11 +76,15 @@ export class CardReader {
                 this.updateReader({ status: 'card_error' });
                 return;
               }
+              const disconnectPromisified = promisify(reader.disconnect).bind(
+                reader
+              );
               const transmitPromisified = promisify(reader.transmit).bind(
                 reader
               );
               this.updateReader({
                 status: 'ready',
+                disconnect: disconnectPromisified,
                 transmit: (data: Buffer) =>
                   transmitPromisified(data, MAX_APDU_LENGTH, protocol),
               });
@@ -98,6 +103,15 @@ export class CardReader {
   }
 
   /**
+   * Disconnects the currently connected card, if any
+   */
+  async disconnectCard(): Promise<void> {
+    if (this.reader.status === 'ready') {
+      await this.reader.disconnect();
+    }
+  }
+
+  /**
    * Transmits command APDUs to a smart card. On success, returns response data. On error, throws.
    * Specifically throws a ResponseApduError when a response APDU with an error status word is
    * received.
@@ -106,6 +120,7 @@ export class CardReader {
     const apdus = command.asCommandApdus();
     let data: Buffer = Buffer.from([]);
     let moreDataAvailable = false;
+    let moreDataLength: Byte = 0x00;
 
     for (const [i, apdu] of apdus.entries()) {
       if (i < apdus.length - 1) {
@@ -115,6 +130,7 @@ export class CardReader {
         const response = await this.transmitHelper(apdu);
         data = Buffer.concat([data, response.data]);
         moreDataAvailable = response.moreDataAvailable;
+        moreDataLength = response.moreDataLength;
       }
     }
 
@@ -124,20 +140,24 @@ export class CardReader {
           ins: GET_RESPONSE.INS,
           p1: GET_RESPONSE.P1,
           p2: GET_RESPONSE.P2,
+          lc: moreDataLength,
         })
       );
       data = Buffer.concat([data, response.data]);
       moreDataAvailable = response.moreDataAvailable;
+      moreDataLength = response.moreDataLength;
     }
 
     return data;
   }
 
-  private async transmitHelper(
-    apdu: CommandApdu
-  ): Promise<{ data: Buffer; moreDataAvailable: boolean }> {
+  private async transmitHelper(apdu: CommandApdu): Promise<{
+    data: Buffer;
+    moreDataAvailable: boolean;
+    moreDataLength: Byte;
+  }> {
     if (this.reader.status !== 'ready') {
-      throw new Error('Reader not ready');
+      throw new Error(`Reader not ready: ${this.reader.status}`);
     }
 
     let response: Buffer;
@@ -152,10 +172,10 @@ export class CardReader {
     assert(sw1 !== undefined && sw2 !== undefined);
     assert(isByte(sw1) && isByte(sw2));
     if (sw1 === STATUS_WORD.SUCCESS.SW1 && sw2 === STATUS_WORD.SUCCESS.SW2) {
-      return { data, moreDataAvailable: false };
+      return { data, moreDataAvailable: false, moreDataLength: 0 };
     }
     if (sw1 === STATUS_WORD.SUCCESS_MORE_DATA_AVAILABLE.SW1) {
-      return { data, moreDataAvailable: true };
+      return { data, moreDataAvailable: true, moreDataLength: sw2 };
     }
     throw new ResponseApduError([sw1, sw2]);
   }

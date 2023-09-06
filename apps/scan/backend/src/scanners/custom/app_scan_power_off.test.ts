@@ -1,12 +1,15 @@
-import { AdjudicationReason } from '@votingworks/types';
+import { AdjudicationReason, SheetInterpretation } from '@votingworks/types';
 import { ErrorCode, mocks } from '@votingworks/custom-scanner';
 import { err, ok } from '@votingworks/basics';
 import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import {
   configureApp,
-  mockInterpretation,
+  mockInterpret,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
-import { SheetInterpretation } from '../../types';
 import {
   ballotImages,
   simulateScan,
@@ -15,10 +18,25 @@ import {
 
 jest.setTimeout(20_000);
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
 const needsReviewInterpretation: SheetInterpretation = {
   type: 'NeedsReviewSheet',
   reasons: [{ type: AdjudicationReason.BlankBallot }],
 };
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  );
+});
 
 test('scanner powered off while waiting for paper', async () => {
   await withApp(
@@ -56,18 +74,18 @@ test('scanner powered off while scanning', async () => {
 });
 
 test('scanner powered off while accepting', async () => {
+  const interpretation: SheetInterpretation = {
+    type: 'ValidSheet',
+  };
   await withApp(
-    {},
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    {
+      interpret: mockInterpret(interpretation),
+    },
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation: SheetInterpretation = {
-        type: 'ValidSheet',
-      };
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
@@ -94,18 +112,18 @@ test('scanner powered off while accepting', async () => {
 });
 
 test('scanner powered off after accepting', async () => {
+  const interpretation: SheetInterpretation = {
+    type: 'ValidSheet',
+  };
   await withApp(
-    {},
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    {
+      interpret: mockInterpret(interpretation),
+    },
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation: SheetInterpretation = {
-        type: 'ValidSheet',
-      };
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
       await apiClient.scanBallot();
@@ -138,19 +156,19 @@ test('scanner powered off after accepting', async () => {
 });
 
 test('scanner powered off while rejecting', async () => {
+  const interpretation: SheetInterpretation = {
+    type: 'InvalidSheet',
+    reason: 'invalid_election_hash',
+  };
   await withApp(
-    {},
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    {
+      interpret: mockInterpret(interpretation),
+    },
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation: SheetInterpretation = {
-        type: 'InvalidSheet',
-        reason: 'invalid_election_hash',
-      };
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.wrongElection());
       await apiClient.scanBallot();
@@ -169,16 +187,16 @@ test('scanner powered off while rejecting', async () => {
 });
 
 test('scanner powered off while returning', async () => {
+  const interpretation = needsReviewInterpretation;
   await withApp(
-    {},
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    {
+      interpret: mockInterpret(interpretation),
+    },
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation = needsReviewInterpretation;
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();
@@ -200,16 +218,16 @@ test('scanner powered off while returning', async () => {
 });
 
 test('scanner powered off after returning', async () => {
+  const interpretation = needsReviewInterpretation;
   await withApp(
-    {},
-    async ({ apiClient, mockScanner, interpreter, mockUsbDrive, mockAuth }) => {
+    {
+      interpret: mockInterpret(interpretation),
+    },
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
-      const interpretation = needsReviewInterpretation;
-      mockInterpretation(interpreter, interpretation);
 
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
       await apiClient.scanBallot();

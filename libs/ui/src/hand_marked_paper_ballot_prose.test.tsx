@@ -13,7 +13,7 @@ describe('renders HandMarkedPaperBallotProse', () => {
     const { container } = render(<HandMarkedPaperBallotProse />);
     const prose = container.firstChild;
     const hr = { modifier: '& hr' } as const;
-    expect(prose).toHaveStyleRule('border-top', '0.1em solid #000000', hr);
+    expect(prose).toHaveStyleRule('border-top', '0.1em solid #000', hr);
   });
 
   test('with compact spacing', () => {

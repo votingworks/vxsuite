@@ -9,8 +9,10 @@ import {
 } from '@votingworks/utils';
 import { CardTally } from '../types';
 import { Store } from '../store';
-
 import { tabulateManualBallotCounts } from './manual_results';
+import { rootDebug } from '../util/debug';
+
+const debug = rootDebug.extend('card-counts');
 
 /**
  * Adds a card tally to a card counts object. Mutates the card counts object
@@ -30,6 +32,7 @@ function addCardTallyToCardCounts({
   } else {
     // eslint-disable-next-line no-param-reassign
     cardCounts.hmpb[card.sheetNumber - 1] =
+      /* c8 ignore next - trivial fallback case */
       (cardCounts.hmpb[card.sheetNumber - 1] ?? 0) + tally;
   }
 
@@ -43,19 +46,17 @@ export function tabulateScannedCardCounts({
   electionId,
   store,
   groupBy,
+  blankBallotsOnly,
 }: {
   electionId: Id;
   store: Store;
   groupBy?: Tabulation.GroupBy;
+  blankBallotsOnly?: boolean;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
-  const {
-    electionDefinition: { election },
-  } = assertDefined(store.getElection(electionId));
-
   const cardTallies = store.getCardTallies({
     electionId,
-    election,
     groupBy,
+    blankBallotsOnly,
   });
 
   const cardCountsGroupMap: Tabulation.GroupMap<Tabulation.CardCounts> = {};
@@ -97,20 +98,29 @@ export function tabulateFullCardCounts({
   electionId,
   store,
   groupBy,
+  blankBallotsOnly = false,
 }: {
   electionId: Id;
   store: Store;
   groupBy?: Tabulation.GroupBy;
+  blankBallotsOnly?: boolean;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
+  debug('tabulating card counts for the following group by: %o', groupBy ?? {});
 
   const groupedScannedCardCounts = tabulateScannedCardCounts({
     electionId,
     store,
     groupBy,
+    blankBallotsOnly,
   });
+  if (blankBallotsOnly) {
+    // we do not manage manually entered blank ballots within the system
+    return groupedScannedCardCounts;
+  }
+
   const tabulateManualBallotCountsResult = tabulateManualBallotCounts({
     election,
     manualResultsMetadataRecords: store.getManualResultsMetadata({
@@ -119,17 +129,23 @@ export function tabulateFullCardCounts({
     groupBy,
   });
 
+  /* c8 ignore start - TODO: add coverage when we add support for ballot count reports */
   if (tabulateManualBallotCountsResult.isErr()) {
+    debug(
+      'tabulated card counts, omitted manual ballot counts due to incompatible group by'
+    );
     return groupedScannedCardCounts;
   }
+  /* c8 ignore stop */
 
+  debug('tabulated card counts');
   const groupedManualBallotCounts = tabulateManualBallotCountsResult.ok();
-
   return mergeTabulationGroupMaps(
     groupedScannedCardCounts,
     groupedManualBallotCounts,
     (scannedCardCounts, manualBallotCount) => {
       return {
+        /* c8 ignore next - TODO: add coverage when we add support for ballot count reports */
         ...(scannedCardCounts ?? getEmptyCardCounts()),
         manual: manualBallotCount ?? 0,
       };

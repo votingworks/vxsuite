@@ -1,17 +1,15 @@
 /* eslint-disable react/no-array-index-key */
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';
-import { BallotStyle, Election, Precinct } from '@votingworks/types';
-import styled from 'styled-components';
 import {
-  Button,
-  Font,
-  H3,
-  Icons,
-  LabelledText,
-  LinkButton,
-  P,
-} from '@votingworks/ui';
+  BallotPaperSize,
+  BallotStyle,
+  BallotType,
+  Election,
+  Precinct,
+} from '@votingworks/types';
+import styled from 'styled-components';
+import { Button, H1, H3, P } from '@votingworks/ui';
 import {
   AnyElement,
   Document,
@@ -20,12 +18,18 @@ import {
   SvgPage,
   SvgRectangle,
   SvgTextBox,
-  GRID,
   GridDimensions,
   layOutBallot,
-} from '@votingworks/design-shared';
+  gridForPaper,
+  LayoutOptions,
+  BallotMode,
+} from '@votingworks/hmpb-layout';
 import fileDownload from 'js-file-download';
+import { useParams } from 'react-router-dom';
 import { exportBallot } from './api';
+import { ElectionIdParams, routes } from './routes';
+import { Breadcrumbs, Column, FormField } from './layout';
+import { RadioGroup } from './radio';
 
 function SvgAnyElement({ element }: { element: AnyElement }) {
   switch (element.type) {
@@ -96,24 +100,22 @@ function PageObject({
   y,
   width,
   height,
-  grid,
   page,
-  showGridLines,
+  grid,
 }: {
   x: number;
   y: number;
-  grid: GridDimensions;
   width: number;
   height: number;
   page: Page;
-  showGridLines: boolean;
+  grid?: GridDimensions;
 }) {
   return (
     <SvgPage {...{ x, y, width, height, ...page }}>
       {page.children.map((element, index) => (
         <SvgAnyElement key={index} element={element} />
       ))}
-      {showGridLines && <GridLines {...{ grid, width, height }} />}
+      {grid && <GridLines {...{ grid, width, height }} />}
     </SvgPage>
   );
 }
@@ -121,11 +123,11 @@ function PageObject({
 function DocumentSvg({
   dimensions,
   document,
-  showGridLines,
+  grid,
 }: {
   dimensions: { width: number; height: number };
   document: Document;
-  showGridLines: boolean;
+  grid?: GridDimensions;
 }) {
   const [zoom, setZoom] = useState(0.8);
   const [panOffset, setPanOffset] = useState({ x: -30, y: -30 });
@@ -139,17 +141,16 @@ function DocumentSvg({
     () =>
       pages.map((page, index) => (
         <PageObject
+          key={index}
           x={index % 2 === 0 ? 0 : width + PAGE_GAP}
           y={Math.floor(index / 2) * (height + PAGE_GAP)}
-          grid={GRID}
           width={width}
           height={height}
           page={page}
-          showGridLines={showGridLines}
-          key={index}
+          grid={grid}
         />
       )),
-    [width, height, pages, showGridLines]
+    [width, height, pages, grid]
   );
   return (
     <svg
@@ -200,11 +201,17 @@ const Controls = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 15rem;
-  background-color: white;
+  background: ${({ theme }) => theme.colors.foreground};
+  color: ${({ theme }) => theme.colors.background};
   height: 100%;
   padding: 1rem;
   gap: 1rem;
   justify-items: stretch;
+
+  /* Override link color for inverted background */
+  section a {
+    color: ${({ theme }) => theme.colors.background};
+  }
 `;
 
 const ErrorMessage = styled.div`
@@ -216,29 +223,54 @@ const ErrorMessage = styled.div`
   justify-content: center;
 `;
 
+export const paperSizeLabels: Record<BallotPaperSize, string> = {
+  [BallotPaperSize.Letter]: '8.5 x 11 inches (Letter)',
+  [BallotPaperSize.Legal]: '8.5 x 14 inches (Legal)',
+  [BallotPaperSize.Custom17]: '8.5 x 17 inches',
+  [BallotPaperSize.Custom18]: '8.5 x 18 inches',
+  [BallotPaperSize.Custom21]: '8.5 x 21 inches',
+  [BallotPaperSize.Custom22]: '8.5 x 22 inches',
+};
+
 export function BallotViewer({
   election,
   precinct,
   ballotStyle,
+  layoutOptions,
 }: {
   election: Election;
   precinct: Precinct;
   ballotStyle: BallotStyle;
+  layoutOptions: LayoutOptions;
 }): JSX.Element | null {
+  const { electionId } = useParams<ElectionIdParams>();
+  const ballotRoutes = routes.election(electionId).ballots;
   const exportBallotMutation = exportBallot.useMutation();
   const [showGridLines, setShowGridLines] = useState(false);
+  const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
+  const [ballotMode, setBallotMode] = useState<BallotMode>('official');
+
+  const { paperSize } = election.ballotLayout;
+  const grid = gridForPaper(paperSize);
 
   const [dimensions, setDimensions] = useState<{
     width: number;
     height: number;
   }>();
-  const measureRef = useCallback((node) => {
+  const measureRef = useCallback((node: HTMLDivElement) => {
     if (node !== null) {
       setDimensions(node.getBoundingClientRect());
     }
   }, []);
 
-  const ballotResult = layOutBallot(election, precinct, ballotStyle);
+  const ballotResult = layOutBallot({
+    election,
+    precinct,
+    ballotStyle,
+    ballotType,
+    ballotMode,
+    layoutOptions,
+  });
 
   if (ballotResult.isErr()) {
     // eslint-disable-next-line no-console
@@ -253,14 +285,20 @@ export function BallotViewer({
   function onExportPress() {
     exportBallotMutation.mutate(
       {
+        electionId,
         precinctId: precinct.id,
         ballotStyleId: ballotStyle.id,
+        ballotType,
+        ballotMode,
       },
       {
         onSuccess: (pdfContents) => {
           fileDownload(
             pdfContents,
-            `ballot-${precinct.name.replace(' ', '_')}-${ballotStyle.id}.pdf`
+            `${ballotMode}-${ballotType}-ballot-${precinct.name.replace(
+              ' ',
+              '_'
+            )}-${ballotStyle.id}.pdf`
           );
         },
       }
@@ -268,32 +306,61 @@ export function BallotViewer({
   }
 
   return (
-    <div style={{ display: 'flex', height: '100%' }}>
+    <div style={{ display: 'flex', height: '100%', width: '100%' }}>
       <Controls>
-        <LinkButton to="/">
-          <Icons.Previous /> Back
-        </LinkButton>
         <section>
-          <H3>Ballot</H3>
-          <P>
-            <LabelledText label={<Font weight="bold">Precinct</Font>}>
-              {precinct.name}
-            </LabelledText>
-          </P>
-          <P>
-            <LabelledText label={<Font weight="bold">Ballot Style</Font>}>
-              {ballotStyle.id}
-            </LabelledText>
-          </P>
-          <H3>Grid</H3>
-          <P>
-            {GRID.columns} columns x {GRID.rows} rows
-          </P>
-          <P>
-            <Button onPress={() => setShowGridLines(!showGridLines)} fullWidth>
-              {showGridLines ? 'Hide Grid' : 'Show Grid'}
-            </Button>
-          </P>
+          <Breadcrumbs
+            routes={[
+              ballotRoutes.root,
+              ballotRoutes.viewBallot(ballotStyle.id, precinct.id),
+            ]}
+          />
+          <H1>View Ballot</H1>
+          <Column style={{ gap: '1rem' }}>
+            <FormField label="Ballot Style">{ballotStyle.id}</FormField>
+            <FormField label="Precinct">{precinct.name}</FormField>
+            <FormField label="Page Size">
+              {paperSizeLabels[paperSize]}{' '}
+            </FormField>
+
+            <FormField label="Ballot Type">
+              <RadioGroup
+                options={[
+                  { value: BallotType.Precinct, label: 'Precinct' },
+                  { value: BallotType.Absentee, label: 'Absentee' },
+                ]}
+                value={ballotType}
+                onChange={setBallotType}
+              />
+            </FormField>
+
+            <FormField label="Tabulation Mode">
+              <RadioGroup
+                options={[
+                  { value: 'official', label: 'Official Ballot' },
+                  { value: 'test', label: 'L&A Test Ballot' },
+                  { value: 'sample', label: 'Sample Ballot' },
+                ]}
+                value={ballotMode}
+                onChange={setBallotMode}
+              />
+            </FormField>
+
+            <FormField label="Timing Mark Grid">
+              {grid.columns} columns x {grid.rows} rows
+              <div style={{ marginTop: '0.25rem' }}>
+                <label style={{ cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={showGridLines}
+                    onChange={() => setShowGridLines(!showGridLines)}
+                  />{' '}
+                  Show grid lines
+                </label>
+              </div>
+            </FormField>
+          </Column>
+          <P />
         </section>
         <div style={{ flexGrow: 1 }} />
         <section>
@@ -314,7 +381,7 @@ export function BallotViewer({
           <DocumentSvg
             dimensions={dimensions}
             document={ballotResult.ok().document}
-            showGridLines={showGridLines}
+            grid={showGridLines ? grid : undefined}
           />
         )}
       </div>

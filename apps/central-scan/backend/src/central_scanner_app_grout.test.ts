@@ -5,7 +5,6 @@ import {
 import {
   BallotMetadata,
   BallotType,
-  MarkThresholds,
   PageInterpretationWithFiles,
   SheetOf,
   TEST_JURISDICTION,
@@ -14,7 +13,6 @@ import { v4 as uuid } from 'uuid';
 import { LogEventId } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { withApp } from '../test/helpers/setup_app';
-import { DefaultMarkThresholds } from './store';
 
 const jurisdiction = TEST_JURISDICTION;
 
@@ -27,7 +25,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
     electionHash:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
         .electionHash,
-    ballotType: BallotType.Standard,
+    ballotType: BallotType.Precinct,
     ballotStyleId: '12',
     precinctId: '23',
     isTestMode: false,
@@ -101,41 +99,10 @@ test('getElectionDefinition', async () => {
 
     importer.configure(electionDefinition, jurisdiction);
 
-    // This mess of a comparison is due to `Store#getElectionDefinition` adding
-    // default `markThresholds` if they're not set, so it may not be the same as
-    // we originally set.
-    expect(await apiClient.getElectionDefinition()).toEqual({
-      ...electionDefinition,
-      election: {
-        ...electionDefinition.election,
-        markThresholds: DefaultMarkThresholds,
-      },
-    });
+    expect(await apiClient.getElectionDefinition()).toEqual(electionDefinition);
 
     importer.unconfigure();
     expect(await apiClient.getElectionDefinition()).toEqual(null);
-  });
-});
-
-test('get / set mark threshold overrides', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
-
-  await withApp(async ({ apiClient, importer }) => {
-    importer.configure(electionDefinition, jurisdiction);
-
-    expect(await apiClient.getMarkThresholdOverrides()).toEqual(null);
-
-    const mockOverrides: MarkThresholds = {
-      definite: 0.5,
-      marginal: 0.4,
-    };
-    await apiClient.setMarkThresholdOverrides({
-      markThresholdOverrides: mockOverrides,
-    });
-    expect(await apiClient.getMarkThresholdOverrides()).toEqual(mockOverrides);
-
-    await apiClient.setMarkThresholdOverrides({});
-    expect(await apiClient.getMarkThresholdOverrides()).toEqual(null);
   });
 });
 

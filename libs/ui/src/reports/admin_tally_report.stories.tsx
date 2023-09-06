@@ -9,7 +9,8 @@ import { assertDefined } from '@votingworks/basics';
 import { AdminTallyReportProps, AdminTallyReport } from './admin_tally_report';
 import { TallyReportPreview } from './tally_report';
 
-const { election } = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const { election } = electionDefinition;
 const { contests } = election;
 
 function AdminTallyReportPreview(props: AdminTallyReportProps): JSX.Element {
@@ -40,27 +41,26 @@ const scannedElectionResults = buildElectionResultsFixture({
   election,
   cardCounts: {
     bmd: 4,
-    hmpb: [796, 790],
+    hmpb: [3450, 3150],
   },
   includeGenericWriteIn: true,
   contestResultsSummaries: {
     fishing: {
       type: 'yesno',
-      ballots: 790,
+      ballots: 3300,
       overvotes: 2,
-      undervotes: 88,
-      yesTally: 550,
-      noTally: 150,
+      undervotes: 298,
+      yesTally: 2700,
+      noTally: 300,
     },
     'best-animal-fish': {
       type: 'candidate',
-      ballots: 796,
-      overvotes: 13,
-      undervotes: 83,
+      ballots: 4350,
+      overvotes: 50,
+      undervotes: 300,
       officialOptionTallies: {
-        seahorse: 500,
-        salmon: 180,
-        'write-in': 20,
+        seahorse: 2500,
+        salmon: 1500,
       },
     },
   },
@@ -70,7 +70,7 @@ const batchReportArgs: AdminTallyReportProps = {
   title: 'Official Batch Tally Report for Batch 1',
   subtitle: election.title,
   testId: 'tally-report',
-  election,
+  electionDefinition,
   contests,
   scannedElectionResults,
 };
@@ -109,7 +109,7 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
   title: 'TEST Ballot Style Tally Report for Ballot Style 2F',
   subtitle: election.title,
   testId: 'tally-report',
-  election,
+  electionDefinition,
   contests: getContests({
     election,
     ballotStyle: assertDefined(

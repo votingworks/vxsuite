@@ -3,10 +3,7 @@ import { assert } from '@votingworks/basics';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { Server } from 'http';
 import { dirSync } from 'tmp';
-import {
-  buildMockArtifactAuthenticator,
-  buildMockDippedSmartCardAuth,
-} from '@votingworks/auth';
+import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
@@ -19,11 +16,10 @@ beforeEach(() => {
 
 test('starts with default logger and port', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const artifactAuthenticator = buildMockArtifactAuthenticator();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usb } = createMockUsb();
-  const app = buildApp({ auth, artifactAuthenticator, workspace, logger, usb });
+  const app = buildApp({ auth, workspace, logger, usb });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -43,11 +39,10 @@ test('starts with default logger and port', async () => {
 
 test('start with config options', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const artifactAuthenticator = buildMockArtifactAuthenticator();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usb } = createMockUsb();
-  const app = buildApp({ auth, artifactAuthenticator, workspace, logger, usb });
+  const app = buildApp({ auth, workspace, logger, usb });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -65,11 +60,10 @@ test('start with config options', async () => {
 
 test('errors on start with no workspace', async () => {
   const auth = buildMockDippedSmartCardAuth();
-  const artifactAuthenticator = buildMockArtifactAuthenticator();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usb } = createMockUsb();
-  const app = buildApp({ auth, artifactAuthenticator, workspace, logger, usb });
+  const app = buildApp({ auth, workspace, logger, usb });
 
   // start up the server
   try {

@@ -1,4 +1,3 @@
-/* stylelint-disable order/properties-order */
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';

@@ -111,7 +111,6 @@ export const VX_ADMIN_CERT_AUTHORITY_CERT = {
  * An upper bound on the size of a single data object. Though a TLV value can be up to 65,535 bytes
  * long (0xffff in hex), OpenFIPS201 caps total TLV length (including tag and length) at 32,767
  * bytes (0x7fff in hex). This allows for a max data object size of:
- *
  * 32,767 bytes - 1 byte for the data tag - 3 bytes for the 0x82 0xXX 0xXX length = 32,763 bytes
  *
  * Confirmed that this really is the max through manual testing. Trying to store a data object of
@@ -702,9 +701,39 @@ export class JavaCard implements Card {
     );
   }
 
+  //
+  // Methods for scripts
+  //
+
   /**
-   * Creates and stores the card's VotingWorks-issued cert. Only to be used by the initial card
-   * configuration script.
+   * Disconnects the card so that it can be reconnected to, through a new JavaCard instance
+   */
+  async disconnect(): Promise<void> {
+    await this.cardReader.disconnectCard();
+  }
+
+  /**
+   * Retrieves the specified cert from the card. Used by the card detail reading script.
+   */
+  async retrieveCertByIdentifier(
+    certIdentifier:
+      | 'cardVxCert'
+      | 'cardVxAdminCert'
+      | 'vxAdminCertAuthorityCert'
+  ): Promise<Buffer> {
+    await this.selectApplet();
+
+    const certConfigs = {
+      cardVxCert: CARD_VX_CERT,
+      cardVxAdminCert: CARD_VX_ADMIN_CERT,
+      vxAdminCertAuthorityCert: VX_ADMIN_CERT_AUTHORITY_CERT,
+    } as const;
+    return await this.retrieveCert(certConfigs[certIdentifier].OBJECT_ID);
+  }
+
+  /**
+   * Creates and stores the card's VotingWorks-issued cert. Used by the initial card configuration
+   * script.
    */
   async createAndStoreCardVxCert(
     vxPrivateKey: FileKey | TpmKey

@@ -46,16 +46,19 @@ export function ExportResultsModal({
 
   function exportResults() {
     setCurrentState(ModalState.SAVING);
-    exportMutation.mutate(undefined, {
-      onSuccess: (result) => {
-        if (result.isErr()) {
-          setErrorMessage(`Failed to save CVRs. ${result.err().message}`);
-          setCurrentState(ModalState.ERROR);
-        } else {
-          setCurrentState(ModalState.DONE);
-        }
-      },
-    });
+    exportMutation.mutate(
+      { mode: 'full_export' },
+      {
+        onSuccess: (result) => {
+          if (result.isErr()) {
+            setErrorMessage(`Failed to save CVRs. ${result.err().message}`);
+            setCurrentState(ModalState.ERROR);
+          } else {
+            setCurrentState(ModalState.DONE);
+          }
+        },
+      }
+    );
   }
 
   if (currentState === ModalState.ERROR) {

@@ -1,4 +1,9 @@
-import { assert, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   CustomScanner,
   DoubleSheetDetectOpt,
@@ -15,7 +20,7 @@ import {
 } from '@votingworks/custom-scanner';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
-import { Id, mapSheet, SheetOf } from '@votingworks/types';
+import { Id, mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
@@ -25,23 +30,26 @@ import {
   Assigner,
   BaseActionObject,
   createMachine,
-  interpret,
+  interpret as interpretStateMachine,
   Interpreter,
   InvokeConfig,
   PropertyAssigner,
   StateNodeConfig,
   TransitionConfig,
 } from 'xstate';
+import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
+import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import {
-  PrecinctScannerInterpreter,
-  SheetInterpretationWithPages,
-} from '../../interpret';
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import { UsbDrive } from '@votingworks/usb-drive';
+import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import { Store } from '../../store';
 import {
   PrecinctScannerErrorType,
   PrecinctScannerMachineStatus,
   PrecinctScannerStateMachine,
-  SheetInterpretation,
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
@@ -50,11 +58,7 @@ const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
 const debugEvents = debug.extend('events');
 
-// NOTE: This is a holdover from the Plustek scanner. Keep it?
-// 10 attempts is about the amount of time it takes for Plustek to stop trying
-// to grab the paper. Up until that point, if you reposition the paper so the
-// rollers grab it, it will get scanned successfully.
-export const MAX_FAILED_SCAN_ATTEMPTS = 10;
+export const MAX_FAILED_SCAN_ATTEMPTS = 1;
 
 async function defaultCreateCustomClient(): Promise<
   Result<CustomScanner, ErrorCode>
@@ -112,7 +116,6 @@ export interface Delays {
   DELAY_WAIT_FOR_HOLD_AFTER_REJECT: number;
   DELAY_RECONNECT: number;
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
-  DELAY_RETRY_SCANNING: number;
   DELAY_WAIT_FOR_JAM_CLEARED: number;
   DELAY_JAM_WHEN_SCANNING: number;
 }
@@ -148,9 +151,6 @@ const defaultDelays: Delays = {
   // order to let the scanner to finish whatever it's doing (yes, even after
   // disconnecting, the scanner might keep scanning).
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 3_000,
-  // When retrying scanning after a failed attempt, brief pause to avoid any possible,
-  // race conditions if the paper has been removed
-  DELAY_RETRY_SCANNING: 500,
   // When we decide we're jammed, how long to wait before we transition to
   // `internal_jam`.
   DELAY_WAIT_FOR_JAM_CLEARED: 500,
@@ -365,13 +365,21 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
 }
 
 async function interpretSheet(
-  interpreter: PrecinctScannerInterpreter,
-  { scannedSheet }: Context
+  interpret: InterpretFn,
+  { scannedSheet, workspace }: Context
 ): Promise<InterpretationResult> {
   assert(scannedSheet);
   const sheetId = uuid();
+  const { store } = workspace;
   const interpretation = (
-    await interpreter.interpret(sheetId, scannedSheet)
+    await interpret(sheetId, scannedSheet, {
+      electionDefinition: assertDefined(store.getElectionDefinition()),
+      precinctSelection: assertDefined(store.getPrecinctSelection()),
+      testMode: store.getTestMode(),
+      ballotImagesPath: workspace.ballotImagesPath,
+      markThresholds: store.getMarkThresholds(),
+      adjudicationReasons: store.getAdjudicationReasons(),
+    })
   ).unsafeUnwrap();
   return {
     ...interpretation,
@@ -418,7 +426,11 @@ function storeInterpretedSheet(
   return addedSheetId;
 }
 
-function recordAcceptedSheet(store: Store, { interpretation }: Context) {
+async function recordAcceptedSheet(
+  store: Store,
+  usbDrive: UsbDrive,
+  { interpretation }: Context
+) {
   assert(store);
   assert(interpretation);
   const { sheetId } = interpretation;
@@ -427,6 +439,20 @@ function recordAcceptedSheet(store: Store, { interpretation }: Context) {
   // "adjudicated" (i.e. the voter said to count it without changing anything)
   if (interpretation.type === 'NeedsReviewSheet') {
     store.adjudicateSheet(sheetId);
+  }
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+    )
+  ) {
+    (
+      await exportCastVoteRecordsToUsbDrive(
+        store,
+        usbDrive,
+        [assertDefined(store.getResultSheet(sheetId))],
+        { scannerType: 'precinct' }
+      )
+    ).unsafeUnwrap();
   }
   debug('Stored accepted sheet: %s', sheetId);
 }
@@ -458,12 +484,14 @@ const doNothing: TransitionConfig<Context, Event> = { target: undefined };
 function buildMachine({
   createCustomClient = defaultCreateCustomClient,
   workspace,
-  interpreter,
+  interpret,
+  usbDrive,
   delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
-  interpreter: PrecinctScannerInterpreter;
+  interpret: InterpretFn;
+  usbDrive: UsbDrive;
   delayOverrides: Partial<Delays>;
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
@@ -487,6 +515,7 @@ function buildMachine({
     BaseActionObject
   > = {
     initial: 'starting',
+    entry: assign({ failedScanAttempts: 0 }),
     states: {
       starting: {
         invoke: {
@@ -658,11 +687,22 @@ function buildMachine({
         '*': {
           target: 'error',
           actions: assign({
-            error: (_context, event) =>
-              new PrecinctScannerError(
+            error: (
+              { error, failedScanAttempts, interpretation, scannedSheet },
+              event
+            ) => {
+              // eslint-disable-next-line no-console
+              console.error(event, {
+                error,
+                failedScanAttempts,
+                interpretation,
+                scannedSheet,
+              });
+              return new PrecinctScannerError(
                 'unexpected_event',
                 `Unexpected event: ${event.type}`
-              ),
+              );
+            },
           }),
         },
       },
@@ -771,7 +811,6 @@ function buildMachine({
           },
         },
         scanning: {
-          entry: assign({ failedScanAttempts: 0 }),
           initial: 'starting_scan',
           states: {
             starting_scan: {
@@ -790,9 +829,9 @@ function buildMachine({
                   {
                     cond: (_context, event) =>
                       event.data === ErrorCode.NoDocumentToBeScanned,
-                    target: 'waiting_to_retry',
-                    actions: assign((_context, event) => ({
-                      error: event.data,
+                    target: '#rejected',
+                    actions: assign(() => ({
+                      error: new PrecinctScannerError('scanning_failed'),
                     })),
                   },
                   {
@@ -821,16 +860,10 @@ function buildMachine({
                 },
               },
             },
-            // NOTE: This is a holdover from the Plustek scanning behavior. Keep it?
-            // Sometimes Plustek auto-rejects the ballot without returning a scanning
-            // error (e.g. if the paper is slightly mis-aligned). So we need to check
-            // that the paper is still there before interpreting.
             checking_scanning_completed: {
               invoke: pollPaperStatus,
               on: {
                 SCANNER_READY_TO_EJECT: '#interpreting',
-                SCANNER_NO_PAPER: 'waiting_to_retry',
-                SCANNER_READY_TO_SCAN: 'waiting_to_retry',
               },
             },
             handle_paper_jam: {
@@ -843,42 +876,6 @@ function buildMachine({
                 SCANNER_JAM_DOUBLE_SHEET: '#double_sheet',
               },
             },
-            waiting_to_retry: {
-              after: { DELAY_RETRY_SCANNING: 'retry_scanning' },
-            },
-            retry_scanning: {
-              entry: assign({
-                failedScanAttempts: (context) => {
-                  assert(context.failedScanAttempts !== undefined);
-                  return context.failedScanAttempts + 1;
-                },
-              }),
-              invoke: pollPaperStatus,
-              on: {
-                SCANNER_READY_TO_SCAN: [
-                  // If the paper is still in the front, retry (up to a certain
-                  // number of attempts).
-                  {
-                    target: 'starting_scan',
-                    cond: (context) => {
-                      assert(context.failedScanAttempts !== undefined);
-                      const shouldRetry =
-                        context.failedScanAttempts < MAX_FAILED_SCAN_ATTEMPTS;
-                      return shouldRetry;
-                    },
-                  },
-                  // Otherwise, give up and ask for the ballot to be removed.
-                  {
-                    target: '#rejected',
-                    actions: assign({
-                      error: new PrecinctScannerError('scanning_failed'),
-                    }),
-                  },
-                ],
-                SCANNER_NO_PAPER: '#no_paper',
-                SCANNER_READY_TO_EJECT: '#rejecting',
-              },
-            },
           },
         },
         interpreting: {
@@ -887,17 +884,35 @@ function buildMachine({
           states: {
             starting: {
               invoke: {
-                src: (context) => interpretSheet(interpreter, context),
+                src: (context) => interpretSheet(interpret, context),
                 onDone: {
                   target: 'routing_result',
                   actions: assign({
                     interpretation: (_context, event) => event.data,
                   }),
                 },
-                onError: {
-                  target: '#rejecting',
-                  actions: assign((_context, event) => ({ error: event.data })),
-                },
+                onError: [
+                  {
+                    target: '#returning_to_rescan',
+                    actions: assign((context, event) => ({
+                      error: event.data,
+                      failedScanAttempts: (context.failedScanAttempts || 0) + 1,
+                    })),
+                    cond: (context) => {
+                      const shouldRetry =
+                        (context.failedScanAttempts || 0) <
+                        MAX_FAILED_SCAN_ATTEMPTS;
+                      return shouldRetry;
+                    },
+                  },
+                  {
+                    target: '#rejecting',
+                    actions: assign((_context, event) => ({
+                      error: event.data,
+                      failedScanAttempts: 0,
+                    })),
+                  },
+                ],
               },
             },
             routing_result: {
@@ -938,7 +953,8 @@ function buildMachine({
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) => recordAcceptedSheet(workspace.store, context),
+          entry: (context) =>
+            recordAcceptedSheet(workspace.store, usbDrive, context),
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
@@ -1231,23 +1247,26 @@ function errorToString(error: NonNullable<Context['error']>) {
 export function createPrecinctScannerStateMachine({
   createCustomClient,
   workspace,
-  interpreter,
+  interpret = defaultInterpret,
   logger,
+  usbDrive,
   delays = {},
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
-  interpreter: PrecinctScannerInterpreter;
+  interpret?: InterpretFn;
   logger: Logger;
+  usbDrive: UsbDrive;
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
     workspace,
-    interpreter,
+    interpret,
+    usbDrive,
     delayOverrides: delays,
   });
-  const machineService = interpret(machine).start();
+  const machineService = interpretStateMachine(machine).start();
   setupLogging(machineService, logger);
 
   return {

@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { render, screen } from '@testing-library/react';
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import React from 'react';
@@ -10,6 +14,7 @@ import {
   resetExpectPrint,
   simulateErrorOnNextPrint,
   expectPrintToMatchSnapshot,
+  deferNextPrint,
 } from './expect_print';
 
 beforeEach(() => {
@@ -194,6 +199,24 @@ test('simulateErrorOnNextPrint', async () => {
 
   await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
   await expectPrint();
+});
+
+test('deferNextPrint', async () => {
+  expect.assertions(1);
+
+  const { resolve } = deferNextPrint();
+  const printPromise = fakePrintElement(simpleElement, fakeOptions);
+
+  try {
+    await expectPrint();
+  } catch (error) {
+    expect(error).toBeInstanceOf(ExpectPrintError);
+  }
+
+  resolve();
+  await expectPrint();
+
+  await printPromise; // clean up
 });
 
 test('expectPrintToMatchSnapshot', async () => {

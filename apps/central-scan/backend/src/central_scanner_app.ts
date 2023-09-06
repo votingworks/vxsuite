@@ -1,6 +1,5 @@
 import { Scan } from '@votingworks/api';
 import {
-  ArtifactAuthenticatorApi,
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
@@ -11,6 +10,7 @@ import {
   Usb,
   readBallotPackageFromUsb,
   getContestsForBallotPage,
+  exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
 import {
   BallotPackageConfigurationError,
@@ -20,7 +20,6 @@ import {
   SystemSettings,
   safeParse,
   TEST_JURISDICTION,
-  MarkThresholds,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -34,14 +33,12 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
-import { DefaultMarkThresholds } from './store';
 import { SCAN_ALLOWED_EXPORT_PATTERNS } from './globals';
 
 type NoParams = never;
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
-  artifactAuthenticator: ArtifactAuthenticatorApi;
   allowedExportPatterns?: string[];
   importer: Importer;
   workspace: Workspace;
@@ -54,9 +51,10 @@ function constructAuthMachineState(
 ): DippedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings = workspace.store.getSystemSettings();
+  const systemSettings =
+    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
-    ...(systemSettings ?? {}),
+    ...systemSettings.auth,
     electionHash: electionDefinition?.electionHash,
     jurisdiction,
   };
@@ -64,7 +62,6 @@ function constructAuthMachineState(
 
 function buildApi({
   auth,
-  artifactAuthenticator,
   workspace,
   logger,
   usb,
@@ -121,7 +118,7 @@ function buildApi({
     async deleteBatch({ batchId }: { batchId: string }) {
       const userRole = await getUserRole();
       const numberOfBallotsInBatch = workspace.store
-        .batchStatus()
+        .getBatches()
         .find((batch) => batch.id === batchId)?.count;
 
       await logger.log(LogEventId.DeleteScanBatchInit, userRole, {
@@ -177,7 +174,6 @@ function buildApi({
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        artifactAuthenticator,
         usbDrive,
         logger
       );
@@ -228,16 +224,6 @@ function buildApi({
       });
     },
 
-    getMarkThresholdOverrides(): MarkThresholds | null {
-      return store.getMarkThresholdOverrides() ?? null;
-    },
-
-    setMarkThresholdOverrides(input: {
-      markThresholdOverrides?: MarkThresholds;
-    }) {
-      importer.setMarkThresholdOverrides(input.markThresholdOverrides);
-    },
-
     async clearBallotData(): Promise<void> {
       const userRole = await getUserRole();
       const currentNumberOfBallots = store.getBallotsCounted();
@@ -269,7 +255,6 @@ export type Api = ReturnType<typeof buildApi>;
  */
 export function buildCentralScannerApp({
   auth,
-  artifactAuthenticator,
   allowedExportPatterns = SCAN_ALLOWED_EXPORT_PATTERNS,
   importer,
   workspace,
@@ -281,7 +266,6 @@ export function buildCentralScannerApp({
   const app: Application = express();
   const api = buildApi({
     auth,
-    artifactAuthenticator,
     workspace,
     logger,
     usb,
@@ -370,23 +354,29 @@ export function buildCentralScannerApp({
       return;
     }
 
-    const exportResult = await exportCastVoteRecordReportToUsbDrive(
-      {
-        electionDefinition,
-        isTestMode: store.getTestMode(),
-        ballotsCounted: store.getBallotsCounted(),
-        batchInfo: store.batchStatus(),
-        getResultSheetGenerator: store.forEachResultSheet.bind(store),
-        definiteMarkThreshold:
-          store.getCurrentMarkThresholds()?.definite ??
-          DefaultMarkThresholds.definite,
-        artifactAuthenticator,
-        disableOriginalSnapshots: isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
-        ),
-      },
-      usb.getUsbDrives
-    );
+    const exportResult = isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+    )
+      ? await exportCastVoteRecordsToUsbDrive(
+          store,
+          usb,
+          store.forEachResultSheet(),
+          { scannerType: 'central' }
+        )
+      : await exportCastVoteRecordReportToUsbDrive(
+          {
+            electionDefinition,
+            isTestMode: store.getTestMode(),
+            ballotsCounted: store.getBallotsCounted(),
+            batchInfo: store.getBatches(),
+            getResultSheetGenerator: store.forEachResultSheet.bind(store),
+            definiteMarkThreshold: store.getMarkThresholds().definite,
+            disableOriginalSnapshots: isFeatureFlagEnabled(
+              BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
+            ),
+          },
+          usb.getUsbDrives
+        );
 
     if (exportResult.isErr()) {
       response.status(500).json({

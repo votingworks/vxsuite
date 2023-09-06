@@ -1,10 +1,16 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { safeParseSystemSettings } from '@votingworks/utils';
+import {
+  electionComplexGeoSample,
+  electionMinimalExhaustiveSampleFixtures,
+} from '@votingworks/fixtures';
+import {
+  CandidateContest,
+  Tabulation,
+  DEFAULT_SYSTEM_SETTINGS,
+} from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
-import { CandidateContest, Tabulation } from '@votingworks/types';
 import { Store } from './store';
 import {
   ElectionRecord,
@@ -30,9 +36,12 @@ test('create a memory store', () => {
 
 test('add an election', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+
   store.assertElectionExists(electionId);
   expect(store.getElections().map((r) => r.id)).toContain(electionId);
   expect(store.getElection(electionId)).toMatchObject({
@@ -52,9 +61,11 @@ test('assert election exists', () => {
 
 test('setElectionResultsOfficial', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
 
   expect(store.getElection(electionId)).toEqual(
     expect.objectContaining(
@@ -87,9 +98,11 @@ test('setElectionResultsOfficial', () => {
 
 test('current election id', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
 
   expect(store.getCurrentElectionId()).toBeUndefined();
 
@@ -100,34 +113,24 @@ test('current election id', () => {
   expect(store.getCurrentElectionId()).toBeUndefined();
 });
 
-/**
- * System settings tests
- */
-function makeSystemSettings() {
-  return safeParseSystemSettings(
-    electionMinimalExhaustiveSampleFixtures.systemSettings.asText()
-  ).unsafeUnwrap();
-}
-
 test('saveSystemSettings and getSystemSettings write and read system settings', () => {
   const store = Store.memoryStore();
-  const systemSettings = makeSystemSettings();
-  store.saveSystemSettings(systemSettings);
-  const retrievedSystemSettings = store.getSystemSettings();
-  expect(retrievedSystemSettings).toEqual(systemSettings);
-});
-
-test('getSystemSettings returns undefined when no system settings exist', () => {
-  const store = Store.memoryStore();
-  const retrievedSystemSettings = store.getSystemSettings();
-  expect(retrievedSystemSettings).toBeUndefined();
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  const retrievedSystemSettings = store.getSystemSettings(electionId);
+  expect(retrievedSystemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
 test('scanner batches', () => {
   const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
+  const electionId = store.addElection({
+    electionData:
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   expect(store.getScannerBatches(electionId)).toEqual([]);
 
   const scannerBatch: ScannerBatch = {
@@ -148,7 +151,10 @@ test('manual results', () => {
   const { electionData, election } = electionDefinition;
 
   const store = Store.memoryStore();
-  const electionId = store.addElection(electionData);
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
   const contestId = 'zoo-council-mammal';
   const writeInCandidate = store.addWriteInCandidate({
     electionId,
@@ -200,9 +206,11 @@ test('manual results', () => {
   expect(
     store.getManualResults({
       electionId,
-      precinctIds: [precinctId],
-      ballotStyleIds: [ballotStyleId],
-      votingMethods: [votingMethod],
+      filter: {
+        precinctIds: [precinctId],
+        ballotStyleIds: [ballotStyleId],
+        votingMethods: [votingMethod],
+      },
     })
   ).toMatchObject([{ precinctId, ballotStyleId, votingMethod, manualResults }]);
   expect(store.getWriteInCandidates({ electionId })).toHaveLength(1);
@@ -260,4 +268,293 @@ test('manual results', () => {
 
   store.deleteAllManualResults({ electionId });
   expect(store.getManualResults({ electionId })).toEqual([]);
+});
+
+function expectArrayMatch<T>(a: T[], b: T[]) {
+  expect(a).toHaveLength(b.length);
+  for (const item of a) {
+    expect(b).toContainEqual(item);
+  }
+}
+
+describe('getTabulationGroups', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection({
+    electionData: electionComplexGeoSample.asText(),
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  const { election } = electionComplexGeoSample;
+
+  test('no groupings', () => {
+    expect(store.getTabulationGroups({ electionId })).toEqual([{}]);
+  });
+
+  test('unsupported groupings', () => {
+    expect(
+      store.getTabulationGroups({ electionId, groupBy: { groupByBatch: true } })
+    ).toEqual([{}]);
+  });
+
+  test('invalid filter', () => {
+    expect(
+      store.getTabulationGroups({
+        electionId,
+        filter: {
+          precinctIds: [],
+        },
+      })
+    ).toEqual([]);
+  });
+
+  test('by precinct', () => {
+    expect(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByPrecinct: true },
+      })
+    ).toEqual(
+      election.precincts.map((precinct) => ({ precinctId: precinct.id }))
+    );
+  });
+
+  test('by ballot style', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByBallotStyle: true },
+      }),
+      election.ballotStyles.map((ballotStyle) => ({
+        ballotStyleId: ballotStyle.id,
+      }))
+    );
+  });
+
+  test('by party', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByParty: true },
+      }),
+      [{ partyId: '0' }, { partyId: '1' }]
+    );
+  });
+
+  test('by voting method', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByVotingMethod: true },
+      }),
+      Tabulation.SUPPORTED_VOTING_METHODS.map((votingMethod) => ({
+        votingMethod,
+      }))
+    );
+  });
+
+  test('by precinct and ballot style', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
+      }),
+      election.ballotStyles.flatMap((ballotStyle) =>
+        ballotStyle.precincts.map((precinctId) => ({
+          precinctId,
+          ballotStyleId: ballotStyle.id,
+        }))
+      )
+    );
+  });
+
+  test('by precinct and voting method', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByVotingMethod: true, groupByPrecinct: true },
+      }),
+      election.precincts.flatMap((precinct) =>
+        Tabulation.SUPPORTED_VOTING_METHODS.map((votingMethod) => ({
+          precinctId: precinct.id,
+          votingMethod,
+        }))
+      )
+    );
+  });
+
+  test('by precinct + filter on precinct', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByPrecinct: true },
+        filter: {
+          precinctIds: ['precinct-c1-w1-1'],
+        },
+      }),
+      [
+        {
+          precinctId: 'precinct-c1-w1-1',
+        },
+      ]
+    );
+  });
+
+  test('by precinct and ballot style + filter on party', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
+        filter: {
+          partyIds: ['0'],
+        },
+      }),
+      election.ballotStyles
+        .filter((bs) => bs.partyId === '0')
+        .flatMap((ballotStyle) =>
+          ballotStyle.precincts.map((precinctId) => ({
+            precinctId,
+            ballotStyleId: ballotStyle.id,
+          }))
+        )
+    );
+  });
+
+  test('by precinct and ballot style + filter on ballot style', () => {
+    expectArrayMatch(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByBallotStyle: true, groupByPrecinct: true },
+        filter: {
+          ballotStyleIds: ['m-c1-w1'],
+        },
+      }),
+      election.ballotStyles
+        .filter((bs) => bs.id === 'm-c1-w1')
+        .flatMap((ballotStyle) =>
+          ballotStyle.precincts.map((precinctId) => ({
+            precinctId,
+            ballotStyleId: ballotStyle.id,
+          }))
+        )
+    );
+  });
+
+  test('by precinct and voting method + filter on voting method', () => {
+    expect(
+      store.getTabulationGroups({
+        electionId,
+        groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+        filter: {
+          votingMethods: ['absentee'],
+        },
+      })
+    ).toEqual(
+      election.precincts.map((precinct) => ({
+        precinctId: precinct.id,
+        votingMethod: 'absentee',
+      }))
+    );
+  });
+});
+
+describe('getFilteredContests', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection({
+    electionData: electionComplexGeoSample.asText(),
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  const { election } = electionComplexGeoSample;
+
+  test('no filter', () => {
+    expectArrayMatch(
+      store.getFilteredContests({ electionId }),
+      election.contests.map((c) => c.id)
+    );
+  });
+
+  test('precinct filter', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          precinctIds: ['precinct-c1-w2'],
+        },
+      }),
+      [
+        'county-leader-mammal',
+        'county-leader-fish',
+        'congressional-1-mammal',
+        'congressional-1-fish',
+        'water-2-fishing',
+      ]
+    );
+  });
+
+  test('ballot style filter', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          ballotStyleIds: ['m-c1-w1'],
+        },
+      }),
+      ['county-leader-mammal', 'congressional-1-mammal', 'water-1-fishing']
+    );
+  });
+
+  test('party filter', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          partyIds: ['0'],
+        },
+      }),
+      [
+        'county-leader-mammal',
+        'congressional-1-mammal',
+        'congressional-2-mammal',
+        'water-1-fishing',
+        'water-2-fishing',
+      ]
+    );
+  });
+
+  test('impossible cross-filter, no matches', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          partyIds: ['0'],
+          ballotStyleIds: ['f-c1-w1'],
+        },
+      }),
+      []
+    );
+  });
+
+  test('party + ballot style cross-filter ', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          partyIds: ['1'],
+          ballotStyleIds: ['f-c1-w1'],
+        },
+      }),
+      ['water-1-fishing', 'congressional-1-fish', 'county-leader-fish']
+    );
+  });
+
+  test('party + precinct cross-filter ', () => {
+    expectArrayMatch(
+      store.getFilteredContests({
+        electionId,
+        filter: {
+          partyIds: ['1'],
+          precinctIds: ['precinct-c1-w1-1'],
+        },
+      }),
+      ['water-1-fishing', 'congressional-1-fish', 'county-leader-fish']
+    );
+  });
 });

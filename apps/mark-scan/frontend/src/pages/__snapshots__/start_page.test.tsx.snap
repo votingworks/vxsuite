@@ -1,514 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders StartPage 1`] = `
-.c10 {
-  font-size: 1em;
-  font-weight: 600;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.c17 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.c8 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  font-size: 0.75em;
-}
-
-.c7 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  font-size: 1rem;
-  margin-bottom: 0.5em;
-}
-
-.c6 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  font-weight: 500;
-  line-height: 1.08;
-  margin-bottom: 0.3em;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.c6:not(:first-child) {
-  margin-top: 1.25em;
-}
-
-.c6 + h1,
-.c6 + h2,
-.c6 + h3,
-.c6 + h4,
-.c6 + h5,
-.c6 + h6 {
-  margin-top: 0 !important;
-}
-
-.c16 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  text-align: center;
-  font-weight: 500;
-  line-height: 1.08;
-  margin-bottom: 0.3em;
-  font-size: 0.9rem;
-  line-height: 1.02;
-  font-weight: 600;
-}
-
-.c16:not(:first-child) {
-  margin-top: 1.25em;
-}
-
-.c16 + h1,
-.c16 + h2,
-.c16 + h3,
-.c16 + h4,
-.c16 + h5,
-.c16 + h6 {
-  margin-top: 0 !important;
-}
-
-.c9 {
-  white-space: nowrap;
-}
-
-.c5 {
-  margin: 0 auto;
-  max-width: 66ch;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.c5 p {
-  font-size: 1em;
-}
-
-.c5 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c5 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c5 h3 {
-  font-size: 1.17em;
-}
-
-.c5 h4 {
-  font-size: 1em;
-}
-
-.c5 h5 {
-  font-size: 0.9em;
-}
-
-.c5 h3,
-.c5 h4,
-.c5 h5,
-.c5 p,
-.c5 ol,
-.c5 ul,
-.c5 hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.c5 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c5 h1 + p,
-.c5 h2 + p,
-.c5 h1 + ol,
-.c5 h2 + ol,
-.c5 h1 + ul,
-.c5 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c5 h3 + p,
-.c5 h4 + p,
-.c5 h5 + p,
-.c5 h3 + ol,
-.c5 h4 + ol,
-.c5 h5 + ol,
-.c5 h3 + ul,
-.c5 h4 + ul,
-.c5 h5 + ul {
-  margin-top: -1em;
-}
-
-.c5 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c5 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c5 dl {
-  margin: 1em 0;
-}
-
-.c5 hr {
-  border: 0;
-  border-top: 0.1em solid #666666;
-}
-
-.c12 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #47a74b;
-  padding: 1em 1.75em;
-  text-align: center;
-  line-height: 1.25;
-  color: #ffffff;
-  font-size: 1.25em;
-  touch-action: manipulation;
-}
-
-.c12:hover,
-.c12:active {
-  outline: none;
-}
-
-.c19 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #d3d3d3;
-  padding: 0.75em 1em;
-  text-align: center;
-  line-height: 1.25;
-  color: #000000;
-  touch-action: manipulation;
-}
-
-.c19:hover,
-.c19:active {
-  outline: none;
-}
-
-.c13 {
-  display: inline-block;
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-  -ms-flex-positive: 1;
-  flex-grow: 1;
-  -webkit-flex-shrink: 1;
-  -ms-flex-negative: 1;
-  flex-shrink: 1;
-}
-
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  height: 100%;
-}
-
-.c1 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  overflow: auto;
-  padding: 1rem;
-}
-
-.c3 {
-  height: 100%;
-  max-height: 250px;
-  max-width: 250px;
-  position: relative;
-  width: 100%;
-}
-
-.c4 {
-  width: 100%;
-}
-
-.c11 {
-  -webkit-animation: eohFnY 10s ease-in-out infinite;
-  animation: eohFnY 10s ease-in-out infinite;
-}
-
-.c2 {
-  display: block;
-}
-
-.c2 div:first-child {
-  margin: 0 auto 0.5rem;
-}
-
-.c20 {
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: nowrap;
-  -ms-flex-wrap: nowrap;
-  flex-wrap: nowrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  gap: 0.5rem;
-  text-align: left;
-}
-
-.c15 {
-  border-top: 0.25rem solid #263238;
-  padding: 0.5rem;
-}
-
-.c18 {
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  gap: 1rem;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-}
-
-.c14 {
-  font-size: 50px;
-  line-height: 2;
-  padding: 0 1rem;
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-<div
-  class="c0"
->
-  <main
-    class="c1"
-  >
-    <div
-      aria-hidden="false"
-      class="c2"
-    >
-      <div
-        aria-hidden="true"
-        class="c3"
-      >
-        <img
-          alt="state seal"
-          class="c4"
-          src="/seals/Sample-Seal.svg"
-        />
-      </div>
-      <div
-        class="c5"
-      >
-        <h1
-          class="c6"
-        >
-          Democratic Primary Election
-        </h1>
-        <p
-          aria-label="November 3, 2020. Franklin County, State of Hamilton. Center Springfield."
-          class="c7"
-        >
-          November 3, 2020
-          <br />
-          <span
-            class="c8"
-          >
-            <span
-              class="c9"
-            >
-              Center Springfield
-              , 
-            </span>
-            Franklin County
-            , 
-            State of Hamilton
-          </span>
-          <br />
-          <span
-            class="c8"
-          >
-            Ballot style: 
-            <span
-              class="c9"
-            >
-              12D
-            </span>
-          </span>
-        </p>
-        <hr />
-        <p
-          class="c7"
-        >
-          Your ballot has
-           
-          <span
-            class="c10"
-          >
-            21 contests
-          </span>
-          .
-        </p>
-      </div>
-    </div>
-    <p
-      class="c11"
-    >
-      <button
-        aria-label="Press the right button to advance to the first contest."
-        class="c12"
-        id="next"
-        type="button"
-      >
-        <span
-          class="c13"
-        >
-          <span
-            class="c14"
-          >
-            <svg
-              aria-hidden="true"
-              class="svg-inline--fa fa-circle-right "
-              data-icon="circle-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
-                fill="currentColor"
-              />
-            </svg>
-             Start Voting
-          </span>
-        </span>
-      </button>
-    </p>
-    <p
-      class="c7 screen-reader-only"
-    >
-      When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
-    </p>
-  </main>
-  <div
-    class="c15"
-  >
-    <h2
-      class="c16"
-    >
-      <span
-        class="c17"
-      >
-        Voter Settings
-      </span>
-    </h2>
-    <nav
-      class="c18"
-    >
-      <button
-        class="c19"
-        type="button"
-      >
-        <span
-          class="c13"
-        >
-          <span
-            class="c20"
-          >
-            <svg
-              aria-hidden="true"
-              class="svg-inline--fa fa-display "
-              data-icon="display"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              viewBox="0 0 576 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
-                fill="currentColor"
-              />
-            </svg>
-            <span>
-              Color/Size
-            </span>
-          </span>
-        </span>
-      </button>
-    </nav>
-  </div>
-</div>
-`;
-
-exports[`renders StartPage with inline SVG 1`] = `
+exports[`renders StartPage with inline SVG seal 1`] = `
 .c9 {
   font-size: 1em;
   font-weight: 600;
@@ -591,93 +83,6 @@ exports[`renders StartPage with inline SVG 1`] = `
   white-space: nowrap;
 }
 
-.c4 {
-  margin: 0 auto;
-  max-width: 66ch;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.c4 p {
-  font-size: 1em;
-}
-
-.c4 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c4 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c4 h3 {
-  font-size: 1.17em;
-}
-
-.c4 h4 {
-  font-size: 1em;
-}
-
-.c4 h5 {
-  font-size: 0.9em;
-}
-
-.c4 h3,
-.c4 h4,
-.c4 h5,
-.c4 p,
-.c4 ol,
-.c4 ul,
-.c4 hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.c4 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h1 + ol,
-.c4 h2 + ol,
-.c4 h1 + ul,
-.c4 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c4 h3 + p,
-.c4 h4 + p,
-.c4 h5 + p,
-.c4 h3 + ol,
-.c4 h4 + ol,
-.c4 h5 + ol,
-.c4 h3 + ul,
-.c4 h4 + ul,
-.c4 h5 + ul {
-  margin-top: -1em;
-}
-
-.c4 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c4 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c4 dl {
-  margin: 1em 0;
-}
-
-.c4 hr {
-  border: 0;
-  border-top: 0.1em solid #666666;
-}
-
 .c11 {
   display: inline-block;
   border: none;
@@ -724,6 +129,93 @@ exports[`renders StartPage with inline SVG 1`] = `
   -webkit-flex-shrink: 1;
   -ms-flex-negative: 1;
   flex-shrink: 1;
+}
+
+.c4 {
+  margin: 0 auto;
+  max-width: 66ch;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.c4 p {
+  font-size: 1em;
+}
+
+.c4 h1 {
+  margin: 2em 0 1em;
+  line-height: 1.1;
+  font-size: 1.5em;
+}
+
+.c4 h2 {
+  margin: 1.5em 0 0.75em;
+  font-size: 1.25em;
+}
+
+.c4 h3 {
+  font-size: 1.17em;
+}
+
+.c4 h4 {
+  font-size: 1em;
+}
+
+.c4 h5 {
+  font-size: 0.9em;
+}
+
+.c4 h3,
+.c4 h4,
+.c4 h5,
+.c4 p,
+.c4 ol,
+.c4 ul,
+.c4 hr {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.c4 h1 + p,
+.c4 h2 + p,
+.c4 h1 + ol,
+.c4 h2 + ol,
+.c4 h1 + ul,
+.c4 h2 + ul {
+  margin-top: -0.75em;
+}
+
+.c4 h1 + h2 {
+  margin-top: -0.75em;
+}
+
+.c4 h3 + p,
+.c4 h4 + p,
+.c4 h5 + p,
+.c4 h3 + ol,
+.c4 h4 + ol,
+.c4 h5 + ol,
+.c4 h3 + ul,
+.c4 h4 + ul,
+.c4 h5 + ul {
+  margin-top: -1em;
+}
+
+.c4 > :not(.ignore-prose):first-child {
+  margin-top: 0;
+}
+
+.c4 > :not(.ignore-prose):last-child {
+  margin-bottom: 0;
+}
+
+.c4 dl {
+  margin: 1em 0;
+}
+
+.c4 hr {
+  border: 0;
+  border-top: 0.1em solid #666;
 }
 
 .c0 {
@@ -859,6 +351,7 @@ exports[`renders StartPage with inline SVG 1`] = `
       <div
         aria-hidden="true"
         class="c3"
+        data-testid="seal"
       >
         <svg
           version="1.1"
@@ -1072,505 +565,7 @@ exports[`renders StartPage with inline SVG 1`] = `
           <span
             class="c9"
           >
-            22 contests
-          </span>
-          .
-        </p>
-      </div>
-    </div>
-    <p
-      class="c10"
-    >
-      <button
-        aria-label="Press the right button to advance to the first contest."
-        class="c11"
-        id="next"
-        type="button"
-      >
-        <span
-          class="c12"
-        >
-          <span
-            class="c13"
-          >
-            <svg
-              aria-hidden="true"
-              class="svg-inline--fa fa-circle-right "
-              data-icon="circle-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
-                fill="currentColor"
-              />
-            </svg>
-             Start Voting
-          </span>
-        </span>
-      </button>
-    </p>
-    <p
-      class="c6 screen-reader-only"
-    >
-      When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
-    </p>
-  </main>
-  <div
-    class="c14"
-  >
-    <h2
-      class="c15"
-    >
-      <span
-        class="c16"
-      >
-        Voter Settings
-      </span>
-    </h2>
-    <nav
-      class="c17"
-    >
-      <button
-        class="c18"
-        type="button"
-      >
-        <span
-          class="c12"
-        >
-          <span
-            class="c19"
-          >
-            <svg
-              aria-hidden="true"
-              class="svg-inline--fa fa-display "
-              data-icon="display"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              viewBox="0 0 576 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M64 0C28.7 0 0 28.7 0 64V352c0 35.3 28.7 64 64 64H240l-10.7 32H160c-17.7 0-32 14.3-32 32s14.3 32 32 32H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H346.7L336 416H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM512 64V352H64V64H512z"
-                fill="currentColor"
-              />
-            </svg>
-            <span>
-              Color/Size
-            </span>
-          </span>
-        </span>
-      </button>
-    </nav>
-  </div>
-</div>
-`;
-
-exports[`renders StartPage with no seal 1`] = `
-.c9 {
-  font-size: 1em;
-  font-weight: 600;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.c16 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.c7 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  font-size: 0.75em;
-}
-
-.c6 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  font-size: 1rem;
-  margin-bottom: 0.5em;
-}
-
-.c5 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  font-weight: 500;
-  line-height: 1.08;
-  margin-bottom: 0.3em;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.c5:not(:first-child) {
-  margin-top: 1.25em;
-}
-
-.c5 + h1,
-.c5 + h2,
-.c5 + h3,
-.c5 + h4,
-.c5 + h5,
-.c5 + h6 {
-  margin-top: 0 !important;
-}
-
-.c15 {
-  font-size: 1em;
-  line-height: 1.2;
-  margin: 0;
-  text-align: center;
-  font-weight: 500;
-  line-height: 1.08;
-  margin-bottom: 0.3em;
-  font-size: 0.9rem;
-  line-height: 1.02;
-  font-weight: 600;
-}
-
-.c15:not(:first-child) {
-  margin-top: 1.25em;
-}
-
-.c15 + h1,
-.c15 + h2,
-.c15 + h3,
-.c15 + h4,
-.c15 + h5,
-.c15 + h6 {
-  margin-top: 0 !important;
-}
-
-.c8 {
-  white-space: nowrap;
-}
-
-.c4 {
-  margin: 0 auto;
-  max-width: 66ch;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.c4 p {
-  font-size: 1em;
-}
-
-.c4 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c4 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c4 h3 {
-  font-size: 1.17em;
-}
-
-.c4 h4 {
-  font-size: 1em;
-}
-
-.c4 h5 {
-  font-size: 0.9em;
-}
-
-.c4 h3,
-.c4 h4,
-.c4 h5,
-.c4 p,
-.c4 ol,
-.c4 ul,
-.c4 hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.c4 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c4 h1 + p,
-.c4 h2 + p,
-.c4 h1 + ol,
-.c4 h2 + ol,
-.c4 h1 + ul,
-.c4 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c4 h3 + p,
-.c4 h4 + p,
-.c4 h5 + p,
-.c4 h3 + ol,
-.c4 h4 + ol,
-.c4 h5 + ol,
-.c4 h3 + ul,
-.c4 h4 + ul,
-.c4 h5 + ul {
-  margin-top: -1em;
-}
-
-.c4 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c4 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c4 dl {
-  margin: 1em 0;
-}
-
-.c4 hr {
-  border: 0;
-  border-top: 0.1em solid #666666;
-}
-
-.c11 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #47a74b;
-  padding: 1em 1.75em;
-  text-align: center;
-  line-height: 1.25;
-  color: #ffffff;
-  font-size: 1.25em;
-  touch-action: manipulation;
-}
-
-.c11:hover,
-.c11:active {
-  outline: none;
-}
-
-.c18 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #d3d3d3;
-  padding: 0.75em 1em;
-  text-align: center;
-  line-height: 1.25;
-  color: #000000;
-  touch-action: manipulation;
-}
-
-.c18:hover,
-.c18:active {
-  outline: none;
-}
-
-.c12 {
-  display: inline-block;
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-  -ms-flex-positive: 1;
-  flex-grow: 1;
-  -webkit-flex-shrink: 1;
-  -ms-flex-negative: 1;
-  flex-shrink: 1;
-}
-
-.c0 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  height: 100%;
-}
-
-.c1 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  overflow: auto;
-  padding: 1rem;
-}
-
-.c3 {
-  height: 100%;
-  max-height: 250px;
-  max-width: 250px;
-  position: relative;
-  width: 100%;
-}
-
-.c10 {
-  -webkit-animation: eohFnY 10s ease-in-out infinite;
-  animation: eohFnY 10s ease-in-out infinite;
-}
-
-.c2 {
-  display: block;
-}
-
-.c2 div:first-child {
-  margin: 0 auto 0.5rem;
-}
-
-.c19 {
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: nowrap;
-  -ms-flex-wrap: nowrap;
-  flex-wrap: nowrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  gap: 0.5rem;
-  text-align: left;
-}
-
-.c14 {
-  border-top: 0.25rem solid #263238;
-  padding: 0.5rem;
-}
-
-.c17 {
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  gap: 1rem;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-}
-
-.c13 {
-  font-size: 50px;
-  line-height: 2;
-  padding: 0 1rem;
-}
-
-@media print {
-  .c0 {
-    display: none;
-  }
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-@media print {
-
-}
-
-<div
-  class="c0"
->
-  <main
-    class="c1"
-  >
-    <div
-      aria-hidden="false"
-      class="c2"
-    >
-      <div
-        aria-hidden="true"
-        class="c3"
-      />
-      <div
-        class="c4"
-      >
-        <h1
-          class="c5"
-        >
-           General Election
-        </h1>
-        <p
-          aria-label="November 3, 2020. Franklin County, State of Hamilton. Center Springfield."
-          class="c6"
-        >
-          November 3, 2020
-          <br />
-          <span
-            class="c7"
-          >
-            <span
-              class="c8"
-            >
-              Center Springfield
-              , 
-            </span>
-            Franklin County
-            , 
-            State of Hamilton
-          </span>
-          <br />
-          <span
-            class="c7"
-          >
-            Ballot style: 
-            <span
-              class="c8"
-            >
-              12
-            </span>
-          </span>
-        </p>
-        <hr />
-        <p
-          class="c6"
-        >
-          Your ballot has
-           
-          <span
-            class="c9"
-          >
-            21 contests
+            20 contests
           </span>
           .
         </p>

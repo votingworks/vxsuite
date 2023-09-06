@@ -1,6 +1,6 @@
 import './polyfills';
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { DevDock } from '@votingworks/dev-dock-frontend';
@@ -9,6 +9,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { AppBase, ErrorBoundary, H1, P } from '@votingworks/ui';
+import { assert } from '@votingworks/basics';
 import { App } from './app';
 import { ApiClientContext, createApiClient, createQueryClient } from './api';
 
@@ -18,7 +19,11 @@ const PRINT_FONT_SIZE_PX = 14;
 const apiClient = createApiClient();
 const queryClient = createQueryClient();
 
-ReactDom.render(
+const rootElement = document.getElementById('root');
+assert(rootElement);
+const root = createRoot(rootElement);
+
+root.render(
   <React.StrictMode>
     <AppBase
       defaultColorMode="contrastMedium"
@@ -52,6 +57,5 @@ ReactDom.render(
       </ErrorBoundary>
       <DevDock />
     </AppBase>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );

@@ -1,10 +1,4 @@
-import { Result, ok, err } from '@votingworks/basics';
-import { sha256 } from 'js-sha256';
-import { DateTime } from 'luxon';
-import { z } from 'zod';
-import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import {
-  AdjudicationReason,
   AnyContest,
   BallotStyle,
   BallotStyleId,
@@ -15,7 +9,6 @@ import {
   DistrictId,
   Election,
   ElectionDefinition,
-  ElectionSchema,
   Parties,
   PartyId,
   Precinct,
@@ -23,7 +16,6 @@ import {
   Vote,
   VotesDict,
 } from './election';
-import { safeParseJson, safeParse } from './generic';
 
 /**
  * Gets contests which belong to a ballot style in an election.
@@ -177,22 +169,6 @@ export function validateVotes({
 }
 
 /**
- * Checks if an election has a ballot style affiliated with a party.
- */
-export function electionHasPrimaryBallotStyle(election: Election): boolean {
-  return election.ballotStyles.some((bs) => Boolean(bs.partyId));
-}
-
-/**
- * Checks if an election has a contest affiliated with a party.
- */
-export function electionHasPrimaryContest(election: Election): boolean {
-  return election.contests.some(
-    (c) => c.type === 'candidate' && Boolean(c.partyId)
-  );
-}
-
-/**
  * @deprecated Does not support i18n. 'party.fullname` should be used instead.
  * Gets the adjective used to describe the political party for a primary
  * election, e.g. "Republican" or "Democratic".
@@ -281,7 +257,7 @@ export function getPartySpecificElectionTitle(
     return `${party.fullName} ${election.title}`;
   }
 
-  if (electionHasPrimaryContest(election)) {
+  if (election.type === 'primary') {
     return `${election.title} Nonpartisan Contests`;
   }
 
@@ -327,12 +303,12 @@ export function getContestDistrictName(
  * vote(contests, { president: 'boone-lian' })
  *
  * // Vote by yesno contest.
- * vote(contests, { 'question-a': 'yes' })
+ * vote(contests, { 'question-a': 'question-a-option-yes' })
  *
  * // Multiple votes.
  * vote(contests, {
  *   president: 'boone-lian',
- *   'question-a': 'yes'
+ *   'question-a': 'question-a-option-yes'
  * })
  *
  * // Multiple candidate selections.
@@ -385,212 +361,10 @@ export function isVotePresent(v?: Vote): boolean {
   return !!v && v.length > 0;
 }
 
-/**
- * Pre-process an election definition to make it easier to work with.
- */
-function preprocessElection(value: unknown): unknown {
-  if (!value || typeof value !== 'object') {
-    return value;
-  }
-
-  // We're casting it here to make it easier to use, but in this function you
-  // must assume the type is unknown.
-  let election = value as Election;
-
-  // Replace the deprecated `adjudicationReasons` property. Just use the value
-  // for both precinct and central versions. If either of them is set already,
-  // don't do anything and just let validation fail.
-  if (
-    'adjudicationReasons' in election &&
-    !('precinctScanAdjudicationReasons' in election) &&
-    !('centralScanAdjudicationReasons' in election)
-  ) {
-    interface ElectionWithAdjudicationReasons extends Election {
-      readonly adjudicationReasons: AdjudicationReason[];
-    }
-
-    const { adjudicationReasons, ...rest } =
-      election as ElectionWithAdjudicationReasons;
-    election = {
-      ...rest,
-      precinctScanAdjudicationReasons: adjudicationReasons,
-      centralScanAdjudicationReasons: adjudicationReasons,
-    };
-  }
-
-  // Handle the renamed `sealURL` property.
-  /* eslint-disable vx/gts-identifiers */
-  if ('sealURL' in value) {
-    interface ElectionWithSealURL extends Election {
-      readonly sealURL: string;
-    }
-
-    const { sealURL, ...rest } = election as ElectionWithSealURL;
-    election = { ...rest, sealUrl: sealURL };
-  }
-  /* eslint-enable vx/gts-identifiers */
-
-  // Convert specific known date formats to ISO 8601.
-  if (
-    typeof election.date === 'string' &&
-    !DateTime.fromISO(election.date).isValid
-  ) {
-    // e.g. 2/18/2020
-    const parsedMonthDayYearDate = DateTime.fromFormat(
-      election.date,
-      'M/d/yyyy'
-    );
-
-    if (parsedMonthDayYearDate.isValid) {
-      election = { ...election, date: parsedMonthDayYearDate.toISO() };
-    }
-
-    // e.g. February 18th, 2020
-    const parsedMonthNameDayYearDate = DateTime.fromFormat(
-      election.date.replace(/(\d+)(st|nd|rd|th)/, '$1'),
-      'MMMM d, yyyy'
-    );
-
-    if (parsedMonthNameDayYearDate.isValid) {
-      election = { ...election, date: parsedMonthNameDayYearDate.toISO() };
-    }
-  }
-
-  // Fill in `Party#fullName` from `Party#name` if it's missing.
-  const isMissingPartyFullName = election.parties?.some(
-    /* istanbul ignore next */
-    (party) => !party?.fullName
-  );
-
-  /* istanbul ignore next */
-  if (isMissingPartyFullName) {
-    election = {
-      ...election,
-      parties: election.parties?.map((party) =>
-        !party
-          ? party
-          : {
-              ...party,
-              fullName: party.fullName ?? party.name,
-            }
-      ),
-    };
-  }
-
-  // Handle single `partyId` on candidates.
-  if (election.contests) {
-    interface CandidateWithPartyId extends Candidate {
-      readonly partyId?: PartyId;
-    }
-
-    const hasPartyId = election.contests.some(
-      (contest) =>
-        /* istanbul ignore next */
-        contest?.type === 'candidate' &&
-        contest.candidates.some(
-          (candidate: CandidateWithPartyId) => candidate?.partyId
-        )
-    );
-
-    if (hasPartyId) {
-      election = {
-        ...election,
-        contests: election.contests.map((contest) => {
-          /* istanbul ignore next */
-          if (contest?.type !== 'candidate' || !contest.candidates) {
-            return contest;
-          }
-
-          return {
-            ...contest,
-            candidates: contest.candidates.map(
-              (candidate: CandidateWithPartyId) => {
-                /* istanbul ignore next */
-                if (!candidate?.partyId) {
-                  return candidate;
-                }
-
-                return {
-                  ...candidate,
-                  partyIds: [candidate.partyId],
-                };
-              }
-            ),
-          };
-        }),
-      };
-    }
-  }
-
-  return election;
-}
-
-/**
- * Parses `value` as a VXF `Election` object.
- */
-export function safeParseVxfElection(
-  value: unknown
-): Result<Election, z.ZodError> {
-  return safeParse(ElectionSchema, preprocessElection(value));
-}
-
-/**
- * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
- * string, will attempt to parse it as JSON first.
- */
-export function safeParseElection(
-  value: unknown
-): Result<Election, Error | SyntaxError> {
-  if (typeof value === 'string') {
-    const parsed = safeParseJson(value);
-    if (parsed.isErr()) {
-      return parsed;
-    }
-    return safeParseElection(parsed.ok());
-  }
-
-  const vxfResult = safeParseVxfElection(value);
-  if (vxfResult.isOk()) {
-    return vxfResult;
-  }
-
-  const cdfResult = safeParseCdfBallotDefinition(value);
-  if (cdfResult.isOk()) {
-    return cdfResult;
-  }
-
-  return err(
-    new Error(
-      [
-        'Invalid election definition',
-        `VXF error: ${vxfResult.err()}`,
-        `CDF error: ${cdfResult.err()}`,
-      ].join('\n\n')
-    )
-  );
-}
-
-/**
- * Parses `value` as a JSON `Election`, computing the election hash if the
- * result is `Ok`.
- */
-export function safeParseElectionDefinition(
-  value: string
-): Result<ElectionDefinition, z.ZodError | SyntaxError> {
-  const result = safeParseElection(value);
-  return result.isErr()
-    ? result
-    : ok({
-        election: result.ok(),
-        electionData: value,
-        electionHash: sha256(value),
-      });
-}
-
 export const ELECTION_HASH_DISPLAY_LENGTH = 10;
 
 export function getDisplayElectionHash(
-  electionDefinition: ElectionDefinition
+  electionDefinition: Pick<ElectionDefinition, 'electionHash'>
 ): string {
   return electionDefinition.electionHash.slice(0, ELECTION_HASH_DISPLAY_LENGTH);
 }

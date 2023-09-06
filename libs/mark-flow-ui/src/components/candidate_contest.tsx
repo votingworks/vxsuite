@@ -23,6 +23,8 @@ import {
   Caption,
   TouchTextInput,
   WithScrollButtons,
+  ModalWidth,
+  useScreenInfo,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -32,17 +34,38 @@ import { stripQuotes } from '../utils/strip_quotes';
 import { UpdateVoteFunction } from '../config/types';
 
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
-import { ContentHeader, ChoicesGrid } from './contest_screen_layout';
-import { ContestTitle } from './contest_title';
-
-const WriteInModalContent = styled.div``;
+import { ChoicesGrid } from './contest_screen_layout';
+import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 
 interface Props {
+  breadcrumbs?: BreadcrumbMetadata;
   election: Election;
   contest: CandidateContestInterface;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
 }
+
+const WriteInModalBody = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+`;
+
+const WriteInForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  flex-shrink: 1;
+  max-width: 100%;
+`;
+
+const WriteInModalActionsSidebar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+`;
 
 function findCandidateById(candidates: readonly Candidate[], id: string) {
   return candidates.find((c) => c.id === id);
@@ -53,6 +76,7 @@ function normalizeCandidateName(name: string) {
 }
 
 export function CandidateContest({
+  breadcrumbs,
   election,
   contest,
   vote,
@@ -68,6 +92,8 @@ export function CandidateContest({
     useState(false);
   const [writeInCandidateName, setWriteInCandidateName] = useState('');
   const [deselectedCandidate, setDeselectedCandidate] = useState('');
+
+  const screenInfo = useScreenInfo();
 
   useEffect(() => {
     if (deselectedCandidate !== '') {
@@ -184,29 +210,43 @@ export function CandidateContest({
 
   const hasReachedMaxSelections = contest.seats === vote.length;
 
+  const modalActions = (
+    <React.Fragment>
+      <Button
+        variant="done"
+        onPress={addWriteInCandidate}
+        disabled={normalizeCandidateName(writeInCandidateName).length === 0}
+      >
+        Accept
+      </Button>
+      <Button onPress={cancelWriteInCandidateModal}>Cancel</Button>
+    </React.Fragment>
+  );
+
   return (
     <React.Fragment>
       <Main flexColumn>
-        <ContentHeader id="contest-header">
-          <Prose id="audiofocus">
-            <ContestTitle districtName={districtName} title={contest.title} />
-            <Caption>
-              Vote for {contest.seats}.{' '}
-              {vote.length === contest.seats && (
-                <Font weight="bold">You have selected {contest.seats}.</Font>
-              )}
-              {vote.length < contest.seats && vote.length !== 0 && (
-                <Font weight="bold">
-                  You may select {contest.seats - vote.length} more.
-                </Font>
-              )}
-              <span className="screen-reader-only">
-                To navigate through the contest choices, use the down button. To
-                move to the next contest, use the right button.
-              </span>
-            </Caption>
-          </Prose>
-        </ContentHeader>
+        <ContestHeader
+          breadcrumbs={breadcrumbs}
+          districtName={districtName}
+          title={contest.title}
+        >
+          <Caption>
+            Vote for {contest.seats}.{' '}
+            {vote.length === contest.seats && (
+              <Font weight="bold">You have selected {contest.seats}.</Font>
+            )}
+            {vote.length < contest.seats && vote.length !== 0 && (
+              <Font weight="bold">
+                You may select {contest.seats - vote.length} more.
+              </Font>
+            )}
+            <span className="screen-reader-only">
+              To navigate through the contest choices, use the down button. To
+              move to the next contest, use the right button.
+            </span>
+          </Caption>
+        </ContestHeader>
         <WithScrollButtons>
           <ChoicesGrid>
             {contest.candidates.map((candidate) => {
@@ -332,49 +372,46 @@ export function CandidateContest({
       {writeInCandidateModalIsOpen && (
         <Modal
           ariaLabel=""
+          modalWidth={ModalWidth.Wide}
           title={`Write-In: ${contest.title}`}
           content={
-            <WriteInModalContent>
-              <Prose id="modalaudiofocus" maxWidth={false}>
+            <div>
+              <div id="modalaudiofocus">
                 <P>
                   <Caption aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
                     <Icons.Info /> Enter the name of a person who is{' '}
                     <Font weight="bold">not</Font> on the ballot:
                   </Caption>
                 </P>
-              </Prose>
-              <TouchTextInput value={writeInCandidateName} />
-              <P
-                align="right"
-                color={writeInCharsRemaining ? 'default' : 'warning'}
-              >
-                <Caption>
-                  {writeInCharsRemaining === 0 && <Icons.Warning />}{' '}
-                  {writeInCharsRemaining}{' '}
-                  {pluralize('character', writeInCharsRemaining)} remaining
-                </Caption>
-              </P>
-              <VirtualKeyboard
-                onBackspace={onKeyboardBackspace}
-                onKeyPress={onKeyboardInput}
-                keyDisabled={keyDisabled}
-              />
-            </WriteInModalContent>
+              </div>
+              <WriteInModalBody>
+                <WriteInForm>
+                  <TouchTextInput value={writeInCandidateName} />
+                  <P
+                    align="right"
+                    color={writeInCharsRemaining ? 'default' : 'warning'}
+                  >
+                    <Caption>
+                      {writeInCharsRemaining === 0 && <Icons.Warning />}{' '}
+                      {writeInCharsRemaining}{' '}
+                      {pluralize('character', writeInCharsRemaining)} remaining
+                    </Caption>
+                  </P>
+                  <VirtualKeyboard
+                    onBackspace={onKeyboardBackspace}
+                    onKeyPress={onKeyboardInput}
+                    keyDisabled={keyDisabled}
+                  />
+                </WriteInForm>
+                {!screenInfo.isPortrait && (
+                  <WriteInModalActionsSidebar>
+                    {modalActions}
+                  </WriteInModalActionsSidebar>
+                )}
+              </WriteInModalBody>
+            </div>
           }
-          actions={
-            <React.Fragment>
-              <Button
-                variant="done"
-                onPress={addWriteInCandidate}
-                disabled={
-                  normalizeCandidateName(writeInCandidateName).length === 0
-                }
-              >
-                Accept
-              </Button>
-              <Button onPress={cancelWriteInCandidateModal}>Cancel</Button>
-            </React.Fragment>
-          }
+          actions={screenInfo.isPortrait ? modalActions : undefined}
         />
       )}
     </React.Fragment>

@@ -1,6 +1,5 @@
 import {
   electionSample,
-  electionSampleNoSealDefinition,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import { getBallotStyle, getContests, vote } from '@votingworks/types';
@@ -40,8 +39,8 @@ test('with votes', async () => {
         }),
         {
           president: 'barchi-hallaren',
-          'question-a': ['no'],
-          'question-b': ['yes'],
+          'question-a': ['question-a-option-no'],
+          'question-b': ['question-b-option-yes'],
           'lieutenant-governor': 'norberg',
         }
       )}
@@ -54,22 +53,6 @@ test('with votes', async () => {
 
 test('without votes and inline seal', async () => {
   const electionDefinition = electionSampleDefinition;
-  render(
-    <PrintPage
-      electionDefinition={electionDefinition}
-      ballotStyleId="5"
-      precinctId="21"
-      generateBallotId={() => 'CHhgYxfN5GeqnK8KaVOt1w'}
-      isLiveMode={false}
-      votes={{}}
-      onPrintStarted={jest.fn()}
-    />
-  );
-  await expectPrintToMatchSnapshot();
-});
-
-test('without votes and no seal', async () => {
-  const electionDefinition = electionSampleNoSealDefinition;
   render(
     <PrintPage
       electionDefinition={electionDefinition}

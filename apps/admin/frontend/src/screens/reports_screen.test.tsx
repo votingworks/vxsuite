@@ -1,9 +1,9 @@
-import MockDate from 'mockdate';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { waitFor } from '@testing-library/react';
 import {
+  advanceTimersAndPromises,
   fakeKiosk,
   fakeUsbDrive,
   hasTextAcrossElements,
@@ -23,8 +23,10 @@ import {
 
 let apiMock: ApiMock;
 
+jest.useFakeTimers();
+
 beforeEach(() => {
-  MockDate.set(new Date('2020-11-03T22:22:00'));
+  jest.setSystemTime(new Date('2020-11-03T22:22:00'));
   apiMock = createApiMock();
   fetchMock.reset();
 });
@@ -145,6 +147,7 @@ test('exporting batch results', async () => {
   apiMock.expectExportBatchResults(
     '/media/vx/mock-usb-drive/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
   );
+  await advanceTimersAndPromises(1); // wait for modal to resolve USB path
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Batch Results Saved/);
 });
@@ -180,9 +183,13 @@ test('exporting results csv', async () => {
   );
 
   apiMock.expectExportResultsCsv(
-    '/media/vx/mock-usb-drive/votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
+    '/media/vx/mock-usb-drive/votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv',
+    { groupByPrecinct: true, groupByVotingMethod: true }
   );
-  userEvent.click(within(modal).getButton('Save'));
+  const button = within(modal).getButton('Save');
+  await advanceTimersAndPromises(1); // wait for modal to resolve USB path
+  userEvent.click(button);
+
   await screen.findByText(/Results Saved/);
 });
 

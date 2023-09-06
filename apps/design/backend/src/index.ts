@@ -4,6 +4,16 @@ import { WORKSPACE } from './globals';
 import * as server from './server';
 import { Store } from './store';
 
+export type {
+  BallotStyle,
+  ElectionRecord,
+  Precinct,
+  PrecinctSplit,
+  PrecinctWithSplits,
+  PrecinctWithoutSplits,
+} from './store';
+export { generateBallotStyles } from './store';
+export { convertVxfPrecincts } from './app';
 export type { Api } from './app';
 
 function main(): Promise<number> {

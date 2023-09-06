@@ -1,8 +1,6 @@
 import { DateTime } from 'luxon';
 import { Optional } from '@votingworks/basics';
 import {
-  DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
-  DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   StartingCardLockoutDurationSeconds,
 } from '@votingworks/types';
@@ -11,8 +9,8 @@ import {
  * Config params for card lockout
  */
 export interface CardLockoutConfig {
-  numIncorrectPinAttemptsAllowedBeforeCardLockout?: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
-  startingCardLockoutDurationSeconds?: StartingCardLockoutDurationSeconds;
+  numIncorrectPinAttemptsAllowedBeforeCardLockout: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
+  startingCardLockoutDurationSeconds: StartingCardLockoutDurationSeconds;
 }
 
 /**
@@ -22,7 +20,6 @@ export interface CardLockoutConfig {
  * Providing an example of the lockout duration calculation, if the number of incorrect PIN
  * attempts allowed before lockout is 5, and the starting lockout duration is 15 seconds, the
  * lockout durations before each attempt will be as follows:
- *
  * - No lockout before attempt 1
  * - No lockout before attempt 2
  * - No lockout before attempt 3
@@ -40,8 +37,8 @@ export function computeCardLockoutEndTime(
   cardLockoutStartTime = new Date()
 ): Optional<Date> {
   const {
-    numIncorrectPinAttemptsAllowedBeforeCardLockout = DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
-    startingCardLockoutDurationSeconds = DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
+    numIncorrectPinAttemptsAllowedBeforeCardLockout,
+    startingCardLockoutDurationSeconds,
   } = cardLockoutConfig;
 
   const numRemainingPinAttemptsWithoutCardLockout = Math.max(

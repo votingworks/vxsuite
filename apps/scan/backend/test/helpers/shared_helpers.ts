@@ -8,20 +8,21 @@ import {
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
-import { BallotPackage, PrecinctId } from '@votingworks/types';
+import {
+  BallotPackage,
+  PrecinctId,
+  PrecinctScannerState,
+  SheetInterpretation,
+} from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
+import { InterpretFn } from '../../src/interpret';
 import { Api } from '../../src/app';
-import { PrecinctScannerInterpreter } from '../../src/interpret';
-import {
-  PrecinctScannerState,
-  PrecinctScannerStatus,
-  SheetInterpretation,
-} from '../../src/types';
+import { PrecinctScannerStatus } from '../../src/types';
 
 export async function expectStatus(
   apiClient: grout.Client<Api>,
@@ -114,11 +115,10 @@ export async function configureApp(
  *   ballot interpretation (because the state machine doesn't actually use those
  *   page interpretations, they are just stored for the CVR).
  */
-export function mockInterpretation(
-  interpreter: PrecinctScannerInterpreter,
+export function mockInterpret(
   interpretation: SheetInterpretation
-): void {
-  jest.spyOn(interpreter, 'interpret').mockResolvedValue(
+): jest.MockedFn<InterpretFn> {
+  return jest.fn().mockResolvedValue(
     ok({
       ...interpretation,
       pages: [

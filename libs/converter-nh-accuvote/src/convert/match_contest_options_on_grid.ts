@@ -1,5 +1,5 @@
 import { iter, ok } from '@votingworks/basics';
-import { Contests, GridPosition } from '@votingworks/types';
+import { Contests, GridPosition, YesNoContest } from '@votingworks/types';
 import { pairColumnEntries } from './pair_column_entries';
 import {
   PairColumnEntriesIssueKind,
@@ -26,7 +26,9 @@ export function matchContestOptionsOnGrid(
 
   const pairs = [...pairResult.err().pairs];
   let [yesColumnIssue, noColumnIssue] = pairResult.err().issues;
-  const yesNoContests = contests.filter((contest) => contest.type === 'yesno');
+  const yesNoContests = contests.filter(
+    (contest): contest is YesNoContest => contest.type === 'yesno'
+  );
 
   // Ensure we have exactly two columns with the expected number of extra
   // entries representing the YES/NO options. If not, then just return the
@@ -64,7 +66,8 @@ export function matchContestOptionsOnGrid(
         {
           type: 'option',
           contestId: contest.id,
-          optionId: 'yes',
+          optionId: contest.yesOption.id,
+          sheetNumber: 1,
           side: yesGridEntry.side,
           column: yesGridEntry.column,
           row: yesGridEntry.row,
@@ -75,7 +78,8 @@ export function matchContestOptionsOnGrid(
         {
           type: 'option',
           contestId: contest.id,
-          optionId: 'no',
+          optionId: contest.noOption.id,
+          sheetNumber: 1,
           side: noGridEntry.side,
           column: noGridEntry.column,
           row: noGridEntry.row,

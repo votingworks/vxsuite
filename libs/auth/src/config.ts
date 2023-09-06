@@ -4,6 +4,23 @@ import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 import { getRequiredEnvVar } from './env_vars';
 import { FileKey, TpmKey } from './keys';
 
+/**
+ * The path to the dev root cert
+ */
+export const DEV_VX_CERT_AUTHORITY_CERT_PATH = path.join(
+  __dirname,
+  '../certs/dev/vx-cert-authority-cert.pem'
+);
+
+/**
+ * The path to the prod root cert. We can commit this cert to the codebase because it's 1)
+ * universal and 2) public.
+ */
+export const PROD_VX_CERT_AUTHORITY_CERT_PATH = path.join(
+  __dirname,
+  '../certs/prod/vx-cert-authority-cert.pem'
+);
+
 function shouldUseProdCerts(): boolean {
   return (
     process.env.NODE_ENV === 'production' && !isVxDev() && !isIntegrationTest()
@@ -12,9 +29,8 @@ function shouldUseProdCerts(): boolean {
 
 function getVxCertAuthorityCertPath(): string {
   return shouldUseProdCerts()
-    ? // We can commit this prod cert to the codebase because it's 1) universal and 2) public
-      path.join(__dirname, '../certs/prod/vx-cert-authority-cert.pem')
-    : path.join(__dirname, '../certs/dev/vx-cert-authority-cert.pem');
+    ? PROD_VX_CERT_AUTHORITY_CERT_PATH
+    : DEV_VX_CERT_AUTHORITY_CERT_PATH;
 }
 
 function getMachineCertPathAndPrivateKey(): {
@@ -84,21 +100,18 @@ export function constructJavaCardConfig(): JavaCardConfig {
 }
 
 /**
- * Config params for an artifact authenticator
+ * Config params for artifact authentication
  */
-export interface ArtifactAuthenticatorConfig {
+export interface ArtifactAuthenticationConfig {
   signingMachineCertPath: string;
   signingMachinePrivateKey: FileKey | TpmKey;
   vxCertAuthorityCertPath: string;
-
-  /** Only tests should provide this param */
-  isFileOnRemovableDeviceOverride?: (filePath: string) => boolean;
 }
 
 /**
- * Constructs an artifact authenticator config given relevant env vars
+ * Constructs an artifact authentication config given relevant env vars
  */
-export function constructArtifactAuthenticatorConfig(): ArtifactAuthenticatorConfig {
+export function constructArtifactAuthenticationConfig(): ArtifactAuthenticationConfig {
   const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
   return {
     signingMachineCertPath: certPath,

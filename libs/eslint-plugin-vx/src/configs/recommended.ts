@@ -72,7 +72,6 @@ export = {
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
     'vx/no-import-workspace-subfolders': 'error',
-    'vx/no-jest-to-be': 'error',
 
     // Disallow awaiting a value that is not Thenable which often indicates an error.
     '@typescript-eslint/await-thenable': 'error',
@@ -114,6 +113,7 @@ export = {
           'cypress/**/*',
           '**/*.stories.ts',
           '**/*.stories.tsx',
+          '**/*.bench.ts',
         ],
       },
     ],
@@ -171,6 +171,7 @@ export = {
         'jest/no-identical-title': 'error',
         'jest/no-focused-tests': 'error',
         'jest/valid-expect': ['error', { alwaysAwait: true }],
+        'vx/no-jest-to-be': 'error',
       },
     },
     {

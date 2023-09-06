@@ -7,6 +7,7 @@ import {
   Screen,
   H1,
   WithScrollButtons,
+  useScreenInfo,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -26,6 +27,8 @@ export function ReviewPage(): JSX.Element {
   const { contests, electionDefinition, precinctId, votes } =
     useContext(BallotContext);
 
+  const screenInfo = useScreenInfo();
+
   assert(
     electionDefinition,
     'electionDefinition is required to render ReviewPage'
@@ -44,7 +47,7 @@ export function ReviewPage(): JSX.Element {
   const settingsButton = <DisplaySettingsButton />;
 
   return (
-    <Screen>
+    <Screen navRight={!screenInfo.isPortrait}>
       <Main flexColumn>
         <ContentHeader>
           <Prose id="audiofocus">

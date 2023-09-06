@@ -31,7 +31,7 @@ test('letter-size card definition', () => {
     hudsonBallotCardDefinition
   ).unsafeUnwrap();
 
-  expect(header.election?.ballotLayout?.paperSize).toEqual(
+  expect(header.election.ballotLayout.paperSize).toEqual(
     BallotPaperSize.Letter
   );
 });
@@ -175,7 +175,7 @@ test('multi-party endorsement', () => {
 
   expect(
     convertElectionDefinitionHeader(amherstBallotCardDefinition).unsafeUnwrap()
-      .election?.contests
+      .election.contests
   ).toEqual(
     expect.arrayContaining([
       expect.objectContaining(
@@ -246,9 +246,7 @@ test('constitutional questions become yesno contests', async () => {
     amherstBallotCardDefinition.definition
   ).unsafeUnwrap();
 
-  expect(
-    converted.election?.contests.filter((c) => c.type === 'yesno')
-  ).toEqual(
+  expect(converted.election.contests.filter((c) => c.type === 'yesno')).toEqual(
     typedAs<YesNoContest[]>([
       {
         type: 'yesno',
@@ -257,6 +255,15 @@ test('constitutional questions become yesno contests', async () => {
         description:
           'Shall there be a convention to amend or revise the constitution?',
         districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-precinct-id-'),
+        yesOption: {
+          id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+          label: 'Yes',
+        },
+        noOption: {
+          id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
+
+          label: 'No',
+        },
       },
     ])
   );

@@ -9,8 +9,12 @@ module.exports = {
     global: {
       statements: 95,
       branches: 82,
-      functions: 97,
+      functions: 96,
       lines: 95,
     },
   },
+  watchPathIgnorePatterns: [
+    ...shared.watchPathIgnorePatterns,
+    '<rootDir>/benchmarks',
+  ],
 };

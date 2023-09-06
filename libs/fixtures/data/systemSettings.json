@@ -1,0 +1,15 @@
+{
+  "auth": {
+    "arePollWorkerCardPinsEnabled": false,
+    "inactiveSessionTimeLimitMinutes": 30,
+    "numIncorrectPinAttemptsAllowedBeforeCardLockout": 5,
+    "overallSessionTimeLimitHours": 12,
+    "startingCardLockoutDurationSeconds": 15
+  },
+  "markThresholds": {
+    "definite": 0.25,
+    "marginal": 0.17
+  },
+  "centralScanAdjudicationReasons": [],
+  "precinctScanAdjudicationReasons": []
+}

@@ -3,7 +3,6 @@ import {
   safeParseElection,
   safeParseElectionDefinition,
   unsafeParse,
-  YesNoOptionSchema,
 } from '@votingworks/types';
 import fc from 'fast-check';
 import { assert } from '@votingworks/basics';
@@ -94,13 +93,6 @@ test('arbitraryDateTime', () => {
 });
 
 test('arbitraryYesNoOption', () => {
-  fc.assert(
-    fc.property(arbitraryYesNoOption(), (option) => {
-      unsafeParse(YesNoOptionSchema, option);
-    })
-  );
-
-  // specify the ID
   fc.assert(
     fc.property(arbitraryYesNoOption({ id: fc.constant('YEP') }), (option) => {
       expect(option.id).toEqual('YEP');

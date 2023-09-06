@@ -28,11 +28,12 @@ test('machineConfig is fetched from api client by default', async () => {
     codeVersion: 'fake-code-version',
   });
   const storage = new MemoryStorage();
-  await setElectionInStorage(
-    storage,
-    electionFamousNames2021Fixtures.electionDefinition
-  );
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage);
+  apiMock.expectGetPrecinctSelectionResolvesDefault(
+    electionDefinition.election
+  );
   render(
     <App
       storage={storage}

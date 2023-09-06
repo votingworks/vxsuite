@@ -48,10 +48,7 @@ module.exports = {
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
   ],
   transform: {
-    '^.+\\.(js|jsx|mjs|cjs|ts|tsx)$': '<rootDir>/node_modules/babel-jest',
     '^.+\\.css$': '<rootDir>/config/jest/cssTransform.js',
-    '^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)':
-      '<rootDir>/config/jest/fileTransform.js',
   },
   transformIgnorePatterns: [
     `[/\\\\]node_modules[/\\\\](?!\\.pnpm).+\\.(js|jsx|mjs|cjs|ts|tsx)$`,

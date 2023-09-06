@@ -10,7 +10,7 @@ import {
   getContests,
   vote,
 } from '@votingworks/types';
-import { expectPrint, PrintRenderResult } from '@votingworks/test-utils';
+import { expectPrintToPdf, PrintRenderResult } from '@votingworks/test-utils';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -35,6 +35,8 @@ import {
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
+const electionDefinition = electionWithMsEitherNeitherDefinition;
+const { election } = electionDefinition;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -46,8 +48,6 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-const electionDefinition = electionWithMsEitherNeitherDefinition;
-const { election } = electionDefinition;
 const eitherNeitherContestId = '750000015';
 const pickOneContestId = '750000016';
 const eitherNeitherContest = find(
@@ -89,7 +89,9 @@ function expectPrintedVotes(
 }
 
 test('Renders Ballot with EitherNeither: blank', async () => {
+  apiMock.expectPrintBallot();
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    apiMock,
     ballotStyleId,
     precinctId,
     route: '/print',
@@ -108,7 +110,8 @@ test('Renders Ballot with EitherNeither: blank', async () => {
       }
     ),
   });
-  await expectPrint((printedElement) => {
+
+  await expectPrintToPdf((printedElement) => {
     expectPrintedVotes(printedElement, {
       eitherNeither: '[no selection]',
       pickOne: '[no selection]',
@@ -117,7 +120,9 @@ test('Renders Ballot with EitherNeither: blank', async () => {
 });
 
 test('Renders Ballot with EitherNeither: Either & blank', async () => {
+  apiMock.expectPrintBallot();
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    apiMock,
     ballotStyleId,
     precinctId,
     route: '/print',
@@ -131,12 +136,12 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
         election,
       }),
       {
-        [eitherNeitherContestId]: ['yes'],
+        [eitherNeitherContestId]: [eitherNeitherContest.yesOption.id],
         [pickOneContestId]: [],
       }
     ),
   });
-  await expectPrint((printedElement) => {
+  await expectPrintToPdf((printedElement) => {
     expectPrintedVotes(printedElement, {
       eitherNeither: assertDefined(eitherNeitherContest.yesOption).label,
       pickOne: '[no selection]',
@@ -145,7 +150,9 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
 });
 
 test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
+  apiMock.expectPrintBallot();
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    apiMock,
     ballotStyleId,
     precinctId,
     route: '/print',
@@ -159,12 +166,12 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
         election,
       }),
       {
-        [eitherNeitherContestId]: ['no'],
-        [pickOneContestId]: ['yes'],
+        [eitherNeitherContestId]: [eitherNeitherContest.noOption.id],
+        [pickOneContestId]: [pickOneContest.yesOption.id],
       }
     ),
   });
-  await expectPrint((printedElement) => {
+  await expectPrintToPdf((printedElement) => {
     expectPrintedVotes(printedElement, {
       eitherNeither: assertDefined(eitherNeitherContest.noOption).label,
       pickOne: assertDefined(pickOneContest.yesOption).label,
@@ -173,7 +180,9 @@ test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
 });
 
 test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
+  apiMock.expectPrintBallot();
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
+    apiMock,
     ballotStyleId,
     precinctId,
     route: '/print',
@@ -188,11 +197,11 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
       }),
       {
         [eitherNeitherContestId]: [],
-        [pickOneContestId]: ['no'],
+        [pickOneContestId]: [pickOneContest.noOption.id],
       }
     ),
   });
-  await expectPrint((printedElement) => {
+  await expectPrintToPdf((printedElement) => {
     expectPrintedVotes(printedElement, {
       eitherNeither: '[no selection]',
       pickOne: assertDefined(pickOneContest.noOption).label,
@@ -202,17 +211,15 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
 
 test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
-
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetPrecinctSelection(singlePrecinctSelectionFor(precinctId));
 
   await setElectionInStorage(storage, electionDefinition);
-  await setStateInStorage(storage, {
-    appPrecinct: singlePrecinctSelectionFor(precinctId),
-  });
+  await setStateInStorage(storage);
 
   render(
     <App
@@ -222,13 +229,13 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
       reload={jest.fn()}
     />
   );
-  await advanceTimersAndPromises();
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '2',
-    precinctId: '6526',
+    precinctId,
   });
+  await advanceTimersAndPromises();
 
   // Go to First Contest
   userEvent.click(await screen.findByText('Start Voting'));

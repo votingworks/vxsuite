@@ -6,13 +6,12 @@ import {
   screen,
   within,
   render,
+  act,
 } from '../../test/react_testing_library';
 import { PrintButton } from './print_button';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
-beforeEach(() => {
-  jest.useFakeTimers();
-});
+jest.useFakeTimers();
 
 test('happy path flow', async () => {
   window.kiosk = fakeKiosk();
@@ -24,7 +23,9 @@ test('happy path flow', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Print' }));
   within(screen.getByRole('alertdialog')).getByText('Printing');
   expect(mockPrint).toHaveBeenCalledTimes(1);
-  jest.advanceTimersByTime(3000);
+  act(() => {
+    jest.advanceTimersByTime(3000);
+  });
   await waitFor(() => {
     expect(screen.queryByText('Printing')).not.toBeInTheDocument();
   });

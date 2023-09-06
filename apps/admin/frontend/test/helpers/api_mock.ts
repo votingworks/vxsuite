@@ -7,17 +7,16 @@ import type {
   MachineConfig,
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
-  WriteInAdjudicationStatus,
   WriteInCandidateRecord,
-  WriteInDetailView,
-  WriteInRecord,
-  WriteInTally,
-  WriteInAdjudicatedTally,
+  WriteInAdjudicationContext,
   SemsExportableTallies,
   ScannerBatch,
   TallyReportResults,
+  WriteInAdjudicationQueueMetadata,
+  WriteInImageView,
+  ExportDataError,
 } from '@votingworks/admin-backend';
-import { ok } from '@votingworks/basics';
+import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   fakeElectionManagerUser,
@@ -25,10 +24,11 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
-  BallotPackageExportResult,
+  ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   ElectionDefinition,
+  Id,
   Rect,
   SystemSettings,
   Tabulation,
@@ -150,20 +150,17 @@ export function createApiMock(
       );
     },
 
-    expectConfigure(electionData: string) {
+    expectConfigure(
+      electionData: string,
+      systemSettingsData: string = JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+    ) {
       apiClient.configure
-        .expectCallWith({ electionData })
+        .expectCallWith({ electionData, systemSettingsData })
         .resolves(ok({ electionId: 'anything' }));
     },
 
     expectUnconfigure() {
       apiClient.unconfigure.expectCallWith().resolves();
-    },
-
-    expectSetSystemSettings(systemSettings: string) {
-      apiClient.setSystemSettings
-        .expectCallWith({ systemSettings })
-        .resolves(ok({}));
     },
 
     expectGetSystemSettings(systemSettings?: SystemSettings) {
@@ -180,38 +177,32 @@ export function createApiMock(
       apiClient.getCastVoteRecordFiles.expectCallWith().resolves(fileRecords);
     },
 
-    expectGetWriteInTallies(
-      writeInTallies: WriteInTally[],
-      status?: WriteInAdjudicationStatus
+    expectGetWriteInAdjudicationQueueMetadata(
+      queueMetadata: WriteInAdjudicationQueueMetadata[],
+      contestId?: ContestId
     ) {
-      if (status) {
-        apiClient.getWriteInTallies
+      if (contestId) {
+        apiClient.getWriteInAdjudicationQueueMetadata
           .expectCallWith({
-            status,
+            contestId,
           })
-          .resolves(writeInTallies);
+          .resolves(queueMetadata);
       } else {
-        apiClient.getWriteInTallies.expectCallWith().resolves(writeInTallies);
+        apiClient.getWriteInAdjudicationQueueMetadata
+          .expectCallWith()
+          .resolves(queueMetadata);
       }
     },
 
-    expectGetWriteInTalliesAdjudicated(
-      writeInTallies: WriteInAdjudicatedTally[]
-    ) {
-      apiClient.getWriteInTallies
-        .expectCallWith({
-          status: 'adjudicated',
-        })
-        .resolves(writeInTallies);
-    },
-
-    expectGetWriteIns(writeInRecords: WriteInRecord[], contestId?: string) {
+    expectGetWriteInAdjudicationQueue(writeInIds: Id[], contestId?: string) {
       if (contestId) {
-        apiClient.getWriteIns
+        apiClient.getWriteInAdjudicationQueue
           .expectCallWith({ contestId })
-          .resolves(writeInRecords);
+          .resolves(writeInIds);
       } else {
-        apiClient.getWriteIns.expectCallWith().resolves(writeInRecords);
+        apiClient.getWriteInAdjudicationQueue
+          .expectCallWith()
+          .resolves(writeInIds);
       }
     },
 
@@ -239,20 +230,49 @@ export function createApiMock(
         .resolves(writeInCandidateRecord);
     },
 
-    expectGetWriteInDetailView(
+    expectGetWriteInImageView(
       writeInId: string,
-      detailView: Partial<WriteInDetailView> = {}
+      imageView: Partial<WriteInImageView> = {}
     ) {
-      apiClient.getWriteInDetailView.expectCallWith({ writeInId }).resolves({
+      apiClient.getWriteInImageView.expectCallWith({ writeInId }).resolves({
+        writeInId,
+        cvrId: 'id',
         imageUrl: 'WW91IGJlIGdvb2QsIEkgbG92ZSB5b3UuIFNlZSB5b3UgdG9tb3Jyb3cu',
         ballotCoordinates: mockRect,
         contestCoordinates: mockRect,
         writeInCoordinates: mockRect,
-        markedOfficialCandidateIds: [],
-        writeInAdjudicatedOfficialCandidateIds: [],
-        writeInAdjudicatedWriteInCandidateIds: [],
-        ...detailView,
+        ...imageView,
       });
+    },
+
+    expectGetWriteInAdjudicationContext(
+      writeInId: string,
+      adjudicationContext: Partial<WriteInAdjudicationContext> = {}
+    ) {
+      apiClient.getWriteInAdjudicationContext
+        .expectCallWith({ writeInId })
+        .resolves({
+          writeIn: {
+            id: writeInId,
+            contestId: 'id',
+            castVoteRecordId: 'id',
+            optionId: 'id',
+            status: 'pending',
+          },
+          relatedWriteIns: [],
+          cvrId: 'id',
+          cvrVotes: {},
+          ...adjudicationContext,
+        });
+    },
+
+    expectGetFirstPendingWriteInId(
+      contestId: string,
+      writeInId: string | null
+    ) {
+      apiClient.getFirstPendingWriteInId
+        .expectCallWith({ contestId })
+        .resolves(writeInId);
     },
 
     expectMarkResultsOfficial() {
@@ -302,7 +322,7 @@ export function createApiMock(
       apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },
 
-    expectSaveBallotPackageToUsb(result: BallotPackageExportResult = ok()) {
+    expectSaveBallotPackageToUsb(result: Result<void, ExportDataError> = ok()) {
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
 
@@ -314,8 +334,10 @@ export function createApiMock(
       apiClient.getSemsExportableTallies.expectCallWith().resolves(result);
     },
 
-    expectExportResultsCsv(path: string) {
-      apiClient.exportResultsCsv.expectCallWith({ path }).resolves(ok([]));
+    expectExportResultsCsv(path: string, groupBy?: Tabulation.GroupBy) {
+      apiClient.exportResultsCsv
+        .expectCallWith({ path, groupBy })
+        .resolves(ok([]));
     },
 
     expectGetCardCounts(
@@ -334,11 +356,24 @@ export function createApiMock(
         filter?: Tabulation.Filter;
         groupBy?: Tabulation.GroupBy;
       },
-      results: Array<Tabulation.GroupOf<TallyReportResults>>
+      results: Tabulation.GroupList<TallyReportResults>,
+      deferResult = false
     ) {
+      const { promise, resolve } =
+        deferred<Tabulation.GroupList<TallyReportResults>>();
       apiClient.getResultsForTallyReports
         .expectCallWith(input)
-        .resolves(results);
+        .returns(promise);
+
+      if (!deferResult) {
+        resolve(results);
+      }
+
+      return {
+        resolve: () => {
+          resolve(results);
+        },
+      };
     },
 
     expectGetElectionWriteInSummary(

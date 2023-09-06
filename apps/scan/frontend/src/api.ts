@@ -9,7 +9,6 @@ import {
   useQueryClient,
   UseQueryOptions,
 } from '@tanstack/react-query';
-import { CastVoteRecord } from '@votingworks/types';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
@@ -201,18 +200,6 @@ export const setPrecinctSelection = {
   },
 } as const;
 
-export const setMarkThresholdOverrides = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.setMarkThresholdOverrides, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getConfig.queryKey());
-      },
-    });
-  },
-} as const;
-
 export const setIsSoundMuted = {
   useMutation() {
     const apiClient = useApiClient();
@@ -287,18 +274,14 @@ export const exportCastVoteRecordsToUsbDrive = {
   },
 } as const;
 
-export const getCastVoteRecordsForTally = {
+export const getScannerResultsByParty = {
   queryKey(): QueryKey {
-    return ['getCastVoteRecordsForTally'];
+    return ['getScannerResultsByParty'];
   },
-  useQuery(options: UseQueryOptions<CastVoteRecord[]> = {}) {
+  useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getCastVoteRecordsForTally(),
-      // For now, just invalidate this query immediately so it's always reloaded.
-      // TODO figure out what mutations should invalidate this query.
-      { ...options, staleTime: 0 }
+    return useQuery(this.queryKey(), () =>
+      apiClient.getScannerResultsByParty()
     );
   },
 } as const;
@@ -327,7 +310,14 @@ export const scanBallot = {
 export const acceptBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.acceptBallot);
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.acceptBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getScannerResultsByParty.queryKey()
+        );
+      },
+    });
   },
 } as const;
 
@@ -345,12 +335,5 @@ export const supportsUltrasonic = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.supportsUltrasonic());
-  },
-} as const;
-
-export const saveScannerReportDataToCard = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.saveScannerReportDataToCard);
   },
 } as const;

@@ -10,12 +10,15 @@ module.exports = {
   // which we should probably make not be there by using smarter
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
+  setupFiles: ['<rootDir>/test/set_env_vars.ts'],
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/node_modules/**',
     '!src/index.ts',
     '!src/types.ts',
     '!test/**/*',
+    // Coverage temporarily disabled until app behavior is more defined
+    '!src/**/*',
   ],
   coverageThreshold: {
     global: {
