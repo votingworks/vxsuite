@@ -250,6 +250,9 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
+      csv-parse:
+        specifier: ^5.5.0
+        version: 5.5.0
       esbuild:
         specifier: ^0.14.29
         version: 0.14.42
@@ -14645,6 +14648,10 @@ packages:
 
   /csstype@3.1.2:
     resolution: {integrity: sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==}
+
+  /csv-parse@5.5.0:
+    resolution: {integrity: sha512-RxruSK3M4XgzcD7Trm2wEN+SJ26ChIb903+IWxNOcB5q4jT2Cs+hFr6QP39J05EohshRFEvyzEBoZ/466S2sbw==}
+    dev: true
 
   /csv-stringify@6.4.0:
     resolution: {integrity: sha512-HQsw0QXiN5fdlO+R8/JzCZnR3Fqp8E87YVnhHlaPtNGJjt6ffbV0LpOkieIb1x6V1+xt878IYq77SpXHWAqKkA==}
