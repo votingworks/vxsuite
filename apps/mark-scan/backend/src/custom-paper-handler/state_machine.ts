@@ -372,20 +372,24 @@ export function buildMachine(
         },
       },
       printing_ballot: {
-        invoke: pollPaperStatus(),
-        entry: (context, event) => {
-          // Need to hint to Typescript that we want the 'VOTER_INITIATED_PRINT' event in our union type of events
-          if ('pdfData' in event) {
-            void driverPrintBallot(context.driver, event.pdfData, {});
-          } else {
-            throw new Error(
-              `printing_ballot entry called by unsupported event type: ${event.type}`
-            );
-          }
-        },
-        on: {
-          PAPER_IN_OUTPUT: 'scanning',
-        },
+        invoke: [
+          {
+            id: 'printBallot',
+            src: (context, event) => {
+              // Need to hint to Typescript that we want the 'VOTER_INITIATED_PRINT' event in our union type of events
+              if ('pdfData' in event) {
+                return driverPrintBallot(context.driver, event.pdfData, {});
+              }
+              throw new Error(
+                `printing_ballot entry called by unsupported event type: ${event.type}`
+              );
+            },
+            onDone: {
+              target: 'scanning',
+            },
+          },
+          pollPaperStatus(),
+        ],
       },
       scanning: {
         invoke: [

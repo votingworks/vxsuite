@@ -112,6 +112,10 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   page-break-after: always;
 }
 
+.c0 > .large-top-margin {
+  margin-top: 1.75in;
+}
+
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -271,6 +275,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   >
     <div
       class="c1"
+      data-testid="header"
     >
       <div
         class="seal"

@@ -29,9 +29,8 @@ export function PrintPage(): JSX.Element | null {
     options: PrintOptions
   ): Promise<void> {
     debug(`Ignoring print options with keys: ${Object.keys(options)}`);
-    const pdfData = await printElementToPdf(element);
-    debug(`got pdf data length ${pdfData.byteLength}`);
-    printBallotMutation.mutate({ pdfData: Buffer.from(pdfData) });
+    const pdfData = Buffer.from(await printElementToPdf(element));
+    printBallotMutation.mutate({ pdfData });
   }
 
   function onPrintStarted() {
@@ -48,6 +47,7 @@ export function PrintPage(): JSX.Element | null {
       generateBallotId={generateBallotId}
       onPrintStarted={onPrintStarted}
       printElement={printElementToCustomPaperHandler}
+      largeTopMargin
     />
   );
 }

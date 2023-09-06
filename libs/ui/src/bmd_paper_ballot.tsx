@@ -49,6 +49,10 @@ const Ballot = styled.div`
     margin: 0.375in;
     size: letter portrait;
   }
+
+  & > .large-top-margin {
+    margin-top: 1.75in;
+  }
 `;
 
 const Header = styled.div`
@@ -217,6 +221,7 @@ interface Props {
   precinctId: PrecinctId;
   votes: VotesDict;
   onRendered?: () => void;
+  largeTopMargin?: boolean;
 }
 
 /**
@@ -242,6 +247,7 @@ export function BmdPaperBallot({
   precinctId,
   votes,
   onRendered,
+  largeTopMargin,
 }: Props): JSX.Element {
   const ballotId = generateBallotId();
   const {
@@ -275,7 +281,10 @@ export function BmdPaperBallot({
 
   return withPrintTheme(
     <Ballot aria-hidden>
-      <Header>
+      <Header
+        className={largeTopMargin ? 'large-top-margin' : undefined}
+        data-testid="header"
+      >
         <div
           className="seal"
           dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
