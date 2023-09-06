@@ -2,7 +2,7 @@ import { CVR } from '@votingworks/types';
 import {
   convertCastVoteRecordVotesToTabulationVotes,
   getCurrentSnapshot,
-} from './cast_vote_record_report';
+} from './cast_vote_records';
 
 const mockCastVoteRecord: CVR.CVR = {
   '@type': 'CVR.CVR',
