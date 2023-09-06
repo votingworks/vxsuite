@@ -32,7 +32,6 @@ import {
   FileType,
 } from '../components/save_frontend_file_modal';
 import { getTallyConverterClient } from '../lib/converters';
-import { SaveResultsButton } from '../components/save_results_button';
 import {
   getCardCounts,
   getCastVoteRecordFileMode,
@@ -199,7 +198,6 @@ export function ReportsScreen(): JSX.Element {
               </Button>{' '}
             </React.Fragment>
           )}
-          <SaveResultsButton disabled={!canSaveResults} />
         </P>
         <P>
           <LinkButton to={routerPaths.tallyWriteInReport}>

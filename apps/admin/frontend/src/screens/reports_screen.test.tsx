@@ -14,7 +14,7 @@ import { mockUsbDrive } from '@votingworks/ui';
 import { ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
-import { screen, within } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library';
 import { VxFiles } from '../lib/converters';
 import {
   expectReportsScreenCardCountQueries,
@@ -150,47 +150,6 @@ test('exporting batch results', async () => {
   await advanceTimersAndPromises(1); // wait for modal to resolve USB path
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Batch Results Saved/);
-});
-
-test('exporting results csv', async () => {
-  const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = mockKiosk;
-
-  apiMock.expectGetCastVoteRecordFileMode('test');
-  expectReportsScreenCardCountQueries({
-    apiMock,
-    isPrimary: true,
-  });
-  apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetManualResultsMetadata([]);
-
-  renderInAppContext(<ReportsScreen />, {
-    electionDefinition,
-    apiMock,
-    usbDrive: mockUsbDrive('mounted'),
-  });
-
-  await waitFor(() => {
-    expect(screen.getButton('Save Results')).toBeEnabled();
-  });
-  userEvent.click(screen.getButton('Save Results'));
-
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Save Results' });
-  within(modal).getByText(
-    'votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
-  );
-
-  apiMock.expectExportResultsCsv(
-    '/media/vx/mock-usb-drive/votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv',
-    { groupByPrecinct: true, groupByVotingMethod: true }
-  );
-  const button = within(modal).getButton('Save');
-  await advanceTimersAndPromises(1); // wait for modal to resolve USB path
-  userEvent.click(button);
-
-  await screen.findByText(/Results Saved/);
 });
 
 describe('ballot count summary text', () => {
