@@ -40,6 +40,8 @@ test('disabled shows disabled buttons and no preview', () => {
   );
 
   expect(screen.getButton('Print Report')).toBeDisabled();
+  expect(screen.getButton('Export Report PDF')).toBeDisabled();
+  expect(screen.getButton('Export CSV Results')).toBeDisabled();
 });
 
 test('autoPreview loads preview automatically', async () => {
@@ -323,6 +325,7 @@ test('displays custom filter rather than specific title when necessary', async (
 
 test('exporting report PDF', async () => {
   jest.useFakeTimers();
+  jest.setSystemTime(new Date('2023-09-06T21:45:08Z'));
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
@@ -361,7 +364,9 @@ test('exporting report PDF', async () => {
   userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Unofficial Tally Report');
-  within(modal).getByText(/tally-reports-by-precinct-and-voting-method\.pdf/);
+  within(modal).getByText(
+    /tally-reports-by-precinct-and-voting-method__2023-09-06_21-45-08\.pdf/
+  );
   userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Saving Unofficial Tally Report');
   act(() => {

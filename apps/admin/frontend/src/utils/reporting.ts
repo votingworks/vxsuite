@@ -1,6 +1,7 @@
 import { Election, ElectionDefinition, Tabulation } from '@votingworks/types';
 import { Optional, Result, err, find, ok } from '@votingworks/basics';
 import { getPrecinctById, sanitizeStringForFilename } from '@votingworks/utils';
+import moment from 'moment';
 
 const VOTING_METHOD_LABELS: Record<Tabulation.VotingMethod, string> = {
   absentee: 'Absentee',
@@ -154,7 +155,12 @@ export function canonicalizeGroupBy(
   };
 }
 
+const SECTION_SEPARATOR = '__';
 const WORD_SEPARATOR = '-';
+const SUBSECTION_SEPARATOR = '_';
+const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
+
+const TEST_MODE_PREFIX = 'TEST';
 
 function generateReportFilenameFilterPrefix({
   election,
@@ -241,42 +247,123 @@ function generateReportFilenameGroupByPostfix({
   return postfixes.join(`${WORD_SEPARATOR}and${WORD_SEPARATOR}`);
 }
 
-export function generateReportPdfFilename({
+function generateReportFilename({
   election,
   filter,
   groupBy,
   isTestMode,
+  extension,
+  type: typeSingular,
+  typePlural,
+  time,
 }: {
   election: Election;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
+  extension: string;
+  type: string;
+  typePlural?: string;
+  time: Date;
 }): string {
-  const prefix = generateReportFilenameFilterPrefix({ election, filter });
-  const postfix = generateReportFilenameGroupByPostfix({ groupBy });
+  const descriptionFilterPrefix = generateReportFilenameFilterPrefix({
+    election,
+    filter,
+  });
+  const descriptionGroupByPostfix = generateReportFilenameGroupByPostfix({
+    groupBy,
+  });
 
-  const filenameParts: string[] = [];
+  const descriptionParts: string[] = [];
+  const shortDescriptionParts: string[] = []; // in case description is too long
 
   if (isTestMode) {
-    filenameParts.push('TEST');
+    descriptionParts.push(TEST_MODE_PREFIX);
+    shortDescriptionParts.push(TEST_MODE_PREFIX);
   }
 
-  if (prefix) {
-    filenameParts.push(prefix);
-  } else if (!postfix) {
-    filenameParts.push('full-election');
+  if (descriptionFilterPrefix) {
+    descriptionParts.push(descriptionFilterPrefix);
+    shortDescriptionParts.push('custom');
+  } else if (!descriptionGroupByPostfix) {
+    descriptionParts.push('full-election');
   }
 
-  if (postfix) {
-    filenameParts.push('tally-reports');
-  } else {
-    filenameParts.push('tally-report');
+  const type =
+    descriptionGroupByPostfix && typePlural ? typePlural : typeSingular;
+  descriptionParts.push(type);
+  shortDescriptionParts.push(type);
+
+  if (descriptionGroupByPostfix) {
+    descriptionParts.push('by');
+    descriptionParts.push(descriptionGroupByPostfix);
   }
 
-  if (postfix) {
-    filenameParts.push('by');
-    filenameParts.push(postfix);
+  const description = descriptionParts.join(WORD_SEPARATOR);
+  const timestamp = moment(time).format(TIME_FORMAT_STRING);
+  const filename = `${[description, timestamp].join(
+    SECTION_SEPARATOR
+  )}.${extension}`;
+
+  if (filename.length <= 255) {
+    return filename;
   }
 
-  return `${filenameParts.join(WORD_SEPARATOR)}.pdf`;
+  // FAT32 has a 255 character limit on filenames
+  const shortDescription = shortDescriptionParts.join(WORD_SEPARATOR);
+  const shortFilename = `${[shortDescription, timestamp].join(
+    SECTION_SEPARATOR
+  )}.${extension}`;
+  return shortFilename;
+}
+
+export const REPORT_SUBFOLDER = 'reports';
+
+export function generateTallyReportPdfFilename({
+  election,
+  filter,
+  groupBy,
+  isTestMode,
+  time = new Date(),
+}: {
+  election: Election;
+  filter: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  isTestMode: boolean;
+  time?: Date;
+}): string {
+  return generateReportFilename({
+    election,
+    filter,
+    groupBy,
+    isTestMode,
+    extension: 'pdf',
+    type: 'tally-report',
+    typePlural: 'tally-reports',
+    time,
+  });
+}
+
+export function generateTallyReportCsvFilename({
+  election,
+  filter,
+  groupBy,
+  isTestMode,
+  time = new Date(),
+}: {
+  election: Election;
+  filter: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  isTestMode: boolean;
+  time?: Date;
+}): string {
+  return generateReportFilename({
+    election,
+    filter,
+    groupBy,
+    isTestMode,
+    extension: 'csv',
+    type: 'tally-report',
+    time,
+  });
 }

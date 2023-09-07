@@ -2,10 +2,9 @@ import { Button } from '@votingworks/ui';
 import React from 'react';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import { ElectionDefinition } from '@votingworks/types';
-import path from 'path';
+import { join } from 'path';
 import { FileType, SaveFrontendFileModal } from '../save_frontend_file_modal';
-
-const REPORT_PDF_SUBFOLDER = 'report-pdfs';
+import { REPORT_SUBFOLDER } from '../../utils/reporting';
 
 export function ExportReportPdfButton({
   electionDefinition,
@@ -32,12 +31,12 @@ export function ExportReportPdfButton({
           onClose={() => setIsModalOpen(false)}
           generateFileContent={generateReportPdf}
           defaultFilename={defaultFilename}
-          defaultDirectory={path.join(
+          defaultDirectory={join(
             generateElectionBasedSubfolderName(
               electionDefinition.election,
               electionDefinition.electionHash
             ),
-            REPORT_PDF_SUBFOLDER
+            REPORT_SUBFOLDER
           )}
           fileType={FileType.TallyReport}
         />
