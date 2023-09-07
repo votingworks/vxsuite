@@ -17,11 +17,15 @@ import {
   combineGroupSpecifierAndFilter,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import type { TallyReportResults } from '@votingworks/admin-backend';
+import type {
+  ScannerBatch,
+  TallyReportResults,
+} from '@votingworks/admin-backend';
 import { LogEventId } from '@votingworks/logging';
 import {
   getCastVoteRecordFileMode,
   getResultsForTallyReports,
+  getScannerBatches,
 } from '../../api';
 import { AppContext } from '../../contexts/app_context';
 import { AdminTallyReportByParty } from '../admin_tally_report_by_party';
@@ -98,12 +102,14 @@ function Reports({
   allTallyReportResults,
   filterUsed,
   generatedAtTime,
+  scannerBatches,
 }: {
   electionDefinition: ElectionDefinition;
   isOfficialResults: boolean;
   allTallyReportResults: Tabulation.GroupList<TallyReportResults>;
   filterUsed: Tabulation.Filter;
   generatedAtTime: Date;
+  scannerBatches: ScannerBatch[];
 }): JSX.Element {
   const allReports: JSX.Element[] = [];
 
@@ -115,6 +121,7 @@ function Reports({
     const titleGeneration = generateTitleForReport({
       filter: sectionFilter,
       electionDefinition,
+      scannerBatches,
     });
     const title = titleGeneration.isOk()
       ? titleGeneration.ok()
@@ -148,7 +155,7 @@ export interface TallyReportViewerProps {
 export function TallyReportViewer({
   filter,
   groupBy,
-  disabled,
+  disabled: disabledFromProps,
   autoPreview,
 }: TallyReportViewerProps): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
@@ -162,6 +169,13 @@ export function TallyReportViewer({
   const [progressModalText, setProgressModalText] = useState<string>();
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const scannerBatchesQuery = getScannerBatches.useQuery();
+
+  const disabled =
+    disabledFromProps ||
+    !castVoteRecordFileModeQuery.isSuccess ||
+    !scannerBatchesQuery.isSuccess;
+
   const reportResultsQuery = getResultsForTallyReports.useQuery(
     {
       filter,
@@ -191,6 +205,7 @@ export function TallyReportViewer({
         allTallyReportResults={reportResultsQuery.data}
         generatedAtTime={new Date(reportResultsQuery.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );
   }, [
@@ -201,6 +216,7 @@ export function TallyReportViewer({
     reportResultsQuery.data,
     reportResultsQuery.dataUpdatedAt,
     isOfficialResults,
+    scannerBatchesQuery.data,
   ]);
   previewReportRef.current = previewReport;
   const previewIsFresh =
@@ -231,6 +247,7 @@ export function TallyReportViewer({
         allTallyReportResults={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );
 
@@ -262,6 +279,7 @@ export function TallyReportViewer({
         allTallyReportResults={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );
 

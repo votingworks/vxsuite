@@ -25,6 +25,7 @@ let apiMock: ApiMock;
 beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetCastVoteRecordFileMode('official');
+  apiMock.expectGetScannerBatches([]);
 });
 
 afterEach(() => {
@@ -65,14 +66,13 @@ test('autoPreview loads preview automatically', async () => {
     { apiMock, electionDefinition }
   );
 
-  expect(screen.getButton('Print Report')).not.toBeDisabled();
   await screen.findByText(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('10');
 });
 
-test('autoPreview = false does not load preview automatically', () => {
+test('autoPreview = false does not load preview automatically', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
   renderInAppContext(
@@ -85,8 +85,7 @@ test('autoPreview = false does not load preview automatically', () => {
     { apiMock, electionDefinition }
   );
 
-  expect(screen.getButton('Print Report')).not.toBeDisabled();
-  screen.getButton('Load Preview');
+  await screen.findButton('Load Preview');
 });
 
 test('print before loading preview', async () => {
@@ -116,7 +115,7 @@ test('print before loading preview', async () => {
     { apiMock, electionDefinition }
   );
 
-  screen.getButton('Load Preview');
+  await screen.findButton('Load Preview');
   const { resolve: resolvePrint } = deferNextPrint();
   userEvent.click(screen.getButton('Print Report'));
   const modal = await screen.findByRole('alertdialog');
@@ -218,7 +217,7 @@ test('print while preview is loading', async () => {
     { apiMock, electionDefinition }
   );
 
-  userEvent.click(screen.getButton('Load Preview'));
+  userEvent.click(await screen.findButton('Load Preview'));
   await screen.findByText('Generating Report');
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   const { resolve: resolvePrint } = deferNextPrint();
@@ -361,6 +360,7 @@ test('exporting report PDF', async () => {
     { apiMock, electionDefinition, usbDrive: mockUsbDrive('mounted') }
   );
 
+  await screen.findButton('Load Preview');
   userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Unofficial Tally Report');

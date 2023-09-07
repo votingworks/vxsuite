@@ -23,13 +23,14 @@ test('happy path', async () => {
   const { election } = electionDefinition;
 
   apiMock.expectGetCastVoteRecordFileMode('test');
+  apiMock.expectGetScannerBatches([]);
   renderInAppContext(<TallyReportBuilder />, {
     electionDefinition,
     apiMock,
   });
 
-  expect(screen.getButton('Print Report')).toBeDisabled();
   expect(screen.queryByText('Load Preview')).not.toBeInTheDocument();
+  expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Filter
   userEvent.click(screen.getByText('Add Filter'));
@@ -41,8 +42,8 @@ test('happy path', async () => {
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   userEvent.click(screen.getByText('Absentee'));
 
+  await screen.findButton('Load Preview');
   expect(screen.getButton('Print Report')).not.toBeDisabled();
-  screen.getButton('Load Preview');
 
   // Add Group By
   userEvent.click(screen.getButton('Report By Precinct'));

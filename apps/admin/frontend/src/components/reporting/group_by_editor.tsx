@@ -5,7 +5,13 @@ import { Checkbox, Font } from '@votingworks/ui';
 type Grouping = keyof Tabulation.GroupBy;
 
 function getAllowedGroupings(): Grouping[] {
-  return ['groupByPrecinct', 'groupByVotingMethod', 'groupByBallotStyle'];
+  return [
+    'groupByPrecinct',
+    'groupByVotingMethod',
+    'groupByBallotStyle',
+    'groupByScanner',
+    'groupByBatch',
+  ];
 }
 
 const GROUPING_LABEL: Record<Grouping, string> = {
@@ -24,7 +30,7 @@ export interface GroupByEditorProps {
 
 const Container = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, min-content);
+  grid-template-columns: repeat(5, min-content);
   gap: 0.75rem;
 `;
 
