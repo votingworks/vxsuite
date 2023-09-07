@@ -104,22 +104,22 @@
       "partyId": "0",
       "candidates": [
         {
-          "id": "zebra",
+          "id": "zebra-1",
           "name": "Zebra",
           "partyIds": ["0"]
         },
         {
-          "id": "lion",
+          "id": "lion-1",
           "name": "Lion",
           "partyIds": ["0"]
         },
         {
-          "id": "kangaroo",
+          "id": "kangaroo-1",
           "name": "Kangaroo",
           "partyIds": ["0"]
         },
         {
-          "id": "elephant",
+          "id": "elephant-1",
           "name": "Elephant",
           "partyIds": ["0"]
         }
@@ -135,22 +135,22 @@
       "partyId": "1",
       "candidates": [
         {
-          "id": "manta-ray",
+          "id": "manta-ray-1",
           "name": "Manta Ray",
           "partyIds": ["1"]
         },
         {
-          "id": "pufferfish",
+          "id": "pufferfish-1",
           "name": "Pufferfish",
           "partyIds": ["1"]
         },
         {
-          "id": "rockfish",
+          "id": "rockfish-1",
           "name": "Rockfish",
           "partyIds": ["1"]
         },
         {
-          "id": "triggerfish",
+          "id": "triggerfish-1",
           "name": "Triggerfish",
           "partyIds": ["1"]
         }
@@ -166,22 +166,22 @@
       "partyId": "0",
       "candidates": [
         {
-          "id": "zebra",
+          "id": "zebra-2",
           "name": "Zebra",
           "partyIds": ["0"]
         },
         {
-          "id": "lion",
+          "id": "lion-2",
           "name": "Lion",
           "partyIds": ["0"]
         },
         {
-          "id": "kangaroo",
+          "id": "kangaroo-2",
           "name": "Kangaroo",
           "partyIds": ["0"]
         },
         {
-          "id": "elephant",
+          "id": "elephant-2",
           "name": "Elephant",
           "partyIds": ["0"]
         }
@@ -197,22 +197,22 @@
       "partyId": "1",
       "candidates": [
         {
-          "id": "manta-ray",
+          "id": "manta-ray-2",
           "name": "Manta Ray",
           "partyIds": ["1"]
         },
         {
-          "id": "pufferfish",
+          "id": "pufferfish-2",
           "name": "Pufferfish",
           "partyIds": ["1"]
         },
         {
-          "id": "rockfish",
+          "id": "rockfish-2",
           "name": "Rockfish",
           "partyIds": ["1"]
         },
         {
-          "id": "triggerfish",
+          "id": "triggerfish-2",
           "name": "Triggerfish",
           "partyIds": ["1"]
         }
