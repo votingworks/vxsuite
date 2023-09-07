@@ -1301,19 +1301,23 @@ export class Store {
   }
 
   /**
-   * Gets card tallies grouped by cast vote record attributes.
+   * Gets card tallies, filtered and grouped.
    */
   *getCardTallies({
     electionId,
+    filter = {},
     groupBy = {},
     blankBallotsOnly = false,
   }: {
     electionId: Id;
+    filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
     blankBallotsOnly?: boolean;
   }): Generator<Tabulation.GroupOf<CardTally>> {
-    const whereParts = ['cvrs.election_id = ?'];
-    const params: Bindable[] = [electionId];
+    const [whereParts, params] = this.getTabulationFilterAsSql(
+      electionId,
+      filter
+    );
 
     const selectParts: string[] = [];
     const groupByParts: string[] = [];
@@ -2106,14 +2110,11 @@ export class Store {
     this.deleteAllChildlessWriteInCandidates();
   }
 
-  getManualResults({
-    electionId,
-    filter = {},
-  }: {
-    electionId: Id;
-    filter?: ManualResultsFilter;
-  }): ManualResultsRecord[] {
-    const whereParts = ['manual_results.election_id = ?'];
+  private getManualResultsFilterAsSql(
+    electionId: Id,
+    filter: ManualResultsFilter
+  ): [whereParts: string[], params: Bindable[]] {
+    const whereParts: string[] = ['manual_results.election_id = ?'];
     const params: Bindable[] = [electionId];
     const { precinctIds, partyIds, ballotStyleIds, votingMethods } = filter;
 
@@ -2146,6 +2147,21 @@ export class Store {
       );
       params.push(...votingMethods);
     }
+
+    return [whereParts, params];
+  }
+
+  getManualResults({
+    electionId,
+    filter = {},
+  }: {
+    electionId: Id;
+    filter?: ManualResultsFilter;
+  }): ManualResultsRecord[] {
+    const [whereParts, params] = this.getManualResultsFilterAsSql(
+      electionId,
+      filter
+    );
 
     return (
       this.client.all(
@@ -2187,22 +2203,32 @@ export class Store {
 
   getManualResultsMetadata({
     electionId,
+    filter = {},
   }: {
     electionId: Id;
+    filter?: ManualResultsFilter;
   }): ManualResultsMetadataRecord[] {
+    const [whereParts, params] = this.getManualResultsFilterAsSql(
+      electionId,
+      filter
+    );
+
     return (
       this.client.all(
         `
           select 
-            precinct_id as precinctId,
-            ballot_style_id as ballotStyleId,
-            voting_method as votingMethod,
-            ballot_count as ballotCount,
-            datetime(created_at, 'localtime') as createdAt
+            manual_results.precinct_id as precinctId,
+            manual_results.ballot_style_id as ballotStyleId,
+            manual_results.voting_method as votingMethod,
+            manual_results.ballot_count as ballotCount,
+            datetime(manual_results.created_at, 'localtime') as createdAt
           from manual_results
-          where election_id = ?
+          inner join ballot_styles on
+            manual_results.election_id = ballot_styles.election_id and 
+            manual_results.ballot_style_id = ballot_styles.id
+          where ${whereParts.join(' and ')}
         `,
-        electionId
+        ...params
       ) as Array<
         ManualResultsIdentifier & {
           ballotCount: number;
