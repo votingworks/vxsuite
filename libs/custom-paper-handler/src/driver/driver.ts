@@ -153,7 +153,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async connect(): Promise<void> {
-    return await this.publicApiMutex.withLock(() =>
+    return await this.publicApiMutex.withLockAndLockerId('connect', () =>
       this.webDeviceMutex.withLock(async (webDevice) => {
         await webDevice.open();
         debug('opened web device');
@@ -167,7 +167,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
 
   async disconnect(): Promise<void> {
     // closing the web device will fail if we have pending requests, so wait for them
-    await this.publicApiMutex.withLock(() =>
+    await this.publicApiMutex.withLockAndLockerId('disconnect', () =>
       this.webDeviceMutex.withLock((webDevice) => webDevice.close())
     );
   }
@@ -276,7 +276,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * initialize device but it appears to actually just initialize the printer.
    */
   async initializePrinter(): Promise<void> {
-    await this.publicApiMutex.withLock(() =>
+    await this.publicApiMutex.withLockAndLockerId('initializePrinter', () =>
       this.webDeviceMutex.withLock((webDevice) =>
         this.transferOutGeneric(webDevice, InitializeRequestCommand, undefined)
       )
@@ -300,19 +300,22 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * @returns {ScannerStatus}
    */
   async getScannerStatus(): Promise<SensorStatusRealTimeExchangeResponse> {
-    return await this.publicApiMutex.withLock(async () => {
-      const response = (
-        await this.handleRealTimeExchange(
+    return await this.publicApiMutex.withLockAndLockerId(
+      'getScannerStatus',
+      async () => {
+        const response = (
+          await this.handleRealTimeExchange(
+            RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+            SensorStatusRealTimeExchangeResponse
+          )
+        ).unsafeUnwrap();
+        this.validateRealTimeExchangeResponse(
           RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
-          SensorStatusRealTimeExchangeResponse
-        )
-      ).unsafeUnwrap();
-      this.validateRealTimeExchangeResponse(
-        RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
-        response
-      );
-      return response;
-    });
+          response
+        );
+        return response;
+      }
+    );
   }
 
   /**
@@ -321,51 +324,60 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * @returns {PrinterStatus}
    */
   async getPrinterStatus(): Promise<PrinterStatusRealTimeExchangeResponse> {
-    return await this.publicApiMutex.withLock(async () => {
-      const response = (
-        await this.handleRealTimeExchange(
+    return await this.publicApiMutex.withLockAndLockerId(
+      'getPrinterStatus',
+      async () => {
+        const response = (
+          await this.handleRealTimeExchange(
+            RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+            PrinterStatusRealTimeExchangeResponse
+          )
+        ).unsafeUnwrap();
+        this.validateRealTimeExchangeResponse(
           RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
-          PrinterStatusRealTimeExchangeResponse
-        )
-      ).unsafeUnwrap();
-      this.validateRealTimeExchangeResponse(
-        RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
-        response
-      );
-      return response;
-    });
+          response
+        );
+        return response;
+      }
+    );
   }
 
   async abortScan(): Promise<void> {
-    return await this.publicApiMutex.withLock(async () => {
-      const response = (
-        await this.handleRealTimeExchange(
+    return await this.publicApiMutex.withLockAndLockerId(
+      'abortScan',
+      async () => {
+        const response = (
+          await this.handleRealTimeExchange(
+            RealTimeRequestIds.SCAN_ABORT_REQUEST_ID,
+            RealTimeExchangeResponseWithoutData
+          )
+        ).unsafeUnwrap();
+        this.validateRealTimeExchangeResponse(
           RealTimeRequestIds.SCAN_ABORT_REQUEST_ID,
-          RealTimeExchangeResponseWithoutData
-        )
-      ).unsafeUnwrap();
-      this.validateRealTimeExchangeResponse(
-        RealTimeRequestIds.SCAN_ABORT_REQUEST_ID,
-        response
-      );
-    });
+          response
+        );
+      }
+    );
   }
 
   // reset scan reconnects the scanner, changes the device address, and requires a new WebUSBDevice
   async resetScan(): Promise<void> {
-    return await this.publicApiMutex.withLock(async () => {
-      const response = (
-        await this.handleRealTimeExchange(
-          RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
-          RealTimeExchangeResponseWithoutData
-        )
-      ).unsafeUnwrap();
+    return await this.publicApiMutex.withLockAndLockerId(
+      'resetScan',
+      async () => {
+        const response = (
+          await this.handleRealTimeExchange(
+            RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
+            RealTimeExchangeResponseWithoutData
+          )
+        ).unsafeUnwrap();
 
-      this.validateRealTimeExchangeResponse(
-        RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
-        response
-      );
-    });
+        this.validateRealTimeExchangeResponse(
+          RealTimeRequestIds.SCAN_RESET_REQUEST_ID,
+          response
+        );
+      }
+    );
   }
 
   /**
@@ -373,14 +385,17 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * @returns {PaperHandlerStatus}
    */
   async getPaperHandlerStatus(): Promise<PaperHandlerStatus> {
-    return await this.publicApiMutex.withLock(async () => {
-      const printerStatus = await this.getPrinterStatus();
-      const scannerStatus = await this.getScannerStatus();
-      return {
-        ...scannerStatus,
-        ...printerStatus,
-      };
-    });
+    return await this.publicApiMutex.withLockAndLockerId(
+      'getPaperHandlerStatus',
+      async () => {
+        const printerStatus = await this.getPrinterStatus();
+        const scannerStatus = await this.getScannerStatus();
+        return {
+          ...scannerStatus,
+          ...printerStatus,
+        };
+      }
+    );
   }
 
   /**
@@ -424,18 +439,20 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async getScannerCapability(): Promise<ScannerCapability> {
-    return await this.publicApiMutex.withLock(() =>
-      this.webDeviceMutex.withLock(async (webDevice) => {
-        await this.transferOutGeneric(
-          webDevice,
-          GetScannerCapabilityCommand,
-          undefined
-        );
-        const transferInResult = await this.transferInGeneric(webDevice);
-        const { data } = transferInResult;
-        assert(data);
-        return parseScannerCapability(data);
-      })
+    return await this.publicApiMutex.withLockAndLockerId(
+      'getScannerCapability',
+      () =>
+        this.webDeviceMutex.withLock(async (webDevice) => {
+          await this.transferOutGeneric(
+            webDevice,
+            GetScannerCapabilityCommand,
+            undefined
+          );
+          const transferInResult = await this.transferInGeneric(webDevice);
+          const { data } = transferInResult;
+          assert(data);
+          return parseScannerCapability(data);
+        })
     );
   }
 
@@ -447,17 +464,20 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async setScanLight(scanLight: ScanLight): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() => {
+    return await this.publicApiMutex.withLockAndLockerId('setScanLight', () => {
       this.scannerConfig.scanLight = scanLight;
       return this.syncScannerConfig();
     });
   }
 
   async setScanDataFormat(scanDataFormat: ScanDataFormat): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() => {
-      this.scannerConfig.scanDataFormat = scanDataFormat;
-      return this.syncScannerConfig();
-    });
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setScanDateFormat',
+      () => {
+        this.scannerConfig.scanDataFormat = scanDataFormat;
+        return this.syncScannerConfig();
+      }
+    );
   }
 
   async setScanResolution({
@@ -467,27 +487,36 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     horizontalResolution: Resolution;
     verticalResolution: Resolution;
   }): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() => {
-      this.scannerConfig.horizontalResolution = horizontalResolution;
-      this.scannerConfig.verticalResolution = verticalResolution;
-      return this.syncScannerConfig();
-    });
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setScanResolution',
+      () => {
+        this.scannerConfig.horizontalResolution = horizontalResolution;
+        this.scannerConfig.verticalResolution = verticalResolution;
+        return this.syncScannerConfig();
+      }
+    );
   }
 
   async setPaperMovementAfterScan(
     paperMovementAfterScan: PaperMovementAfterScan
   ): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() => {
-      this.scannerConfig.paperMovementAfterScan = paperMovementAfterScan;
-      return this.syncScannerConfig();
-    });
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setPaperMovementAfterScan',
+      () => {
+        this.scannerConfig.paperMovementAfterScan = paperMovementAfterScan;
+        return this.syncScannerConfig();
+      }
+    );
   }
 
   async setScanDirection(scanDirection: ScanDirection): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() => {
-      this.scannerConfig.scanDirection = scanDirection;
-      return this.syncScannerConfig();
-    });
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setScanDirection',
+      () => {
+        this.scannerConfig.scanDirection = scanDirection;
+        return this.syncScannerConfig();
+      }
+    );
   }
 
   async scan(): Promise<ImageData> {
@@ -554,43 +583,46 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async scanAndSave(pathOut: string): Promise<ImageFromScanner> {
-    return await this.publicApiMutex.withLock(async () => {
-      await this.setScanDirection('backward');
-      const grayscaleResult = await this.scan();
-      debug(
-        `Received imageData with specs:\nHeight=${grayscaleResult.height}, Width=${grayscaleResult.width}, data byte length=${grayscaleResult.data.byteLength}`
-      );
-      const grayscaleData = grayscaleResult.data;
-      const colorResult = createImageData(
-        grayscaleResult.width,
-        grayscaleResult.height
-      );
-      const colorData = new Uint32Array(
-        colorResult.data.buffer,
-        colorResult.data.byteOffset,
-        // `length` is the length in elements of the Uint32Array, not number of bytes
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/length
-        colorResult.data.byteLength / BytesPerUint32
-      );
-      for (let i = 0; i < grayscaleData.byteLength; i += 1) {
-        const luminance = grayscaleData[i];
-        assert(luminance !== undefined);
-        colorData[i] =
-          (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
-      }
-      await writeImageData(pathOut, colorResult);
+    return await this.publicApiMutex.withLockAndLockerId(
+      'scanAndSave',
+      async () => {
+        await this.setScanDirection('backward');
+        const grayscaleResult = await this.scan();
+        debug(
+          `Received imageData with specs:\nHeight=${grayscaleResult.height}, Width=${grayscaleResult.width}, data byte length=${grayscaleResult.data.byteLength}`
+        );
+        const grayscaleData = grayscaleResult.data;
+        const colorResult = createImageData(
+          grayscaleResult.width,
+          grayscaleResult.height
+        );
+        const colorData = new Uint32Array(
+          colorResult.data.buffer,
+          colorResult.data.byteOffset,
+          // `length` is the length in elements of the Uint32Array, not number of bytes
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/length
+          colorResult.data.byteLength / BytesPerUint32
+        );
+        for (let i = 0; i < grayscaleData.byteLength; i += 1) {
+          const luminance = grayscaleData[i];
+          assert(luminance !== undefined);
+          colorData[i] =
+            (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
+        }
+        await writeImageData(pathOut, colorResult);
 
-      const imageMetadata: ImageFromScanner = {
-        imageBuffer: Buffer.from(colorResult.data),
-        imageWidth: grayscaleResult.width,
-        imageHeight: grayscaleResult.height,
-        imageDepth: ImageColorDepthType.Color24bpp, // Hardcode for now?
-        imageFormat: ImageFileFormat.Jpeg,
-        scanSide: ScanSide.A,
-        imageResolution: ImageResolution.RESOLUTION_200_DPI, // Confirm this
-      };
-      return imageMetadata;
-    });
+        const imageMetadata: ImageFromScanner = {
+          imageBuffer: Buffer.from(colorResult.data),
+          imageWidth: grayscaleResult.width,
+          imageHeight: grayscaleResult.height,
+          imageDepth: ImageColorDepthType.Color24bpp, // Hardcode for now?
+          imageFormat: ImageFileFormat.Jpeg,
+          scanSide: ScanSide.A,
+          imageResolution: ImageResolution.RESOLUTION_200_DPI, // Confirm this
+        };
+        return imageMetadata;
+      }
+    );
   }
 
   /**
@@ -598,7 +630,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * attempt to pull paper in. if none is pulled in, command still returns positive.
    */
   async loadPaper(): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() =>
+    return await this.publicApiMutex.withLockAndLockerId('loadPaper', () =>
       this.handleGenericCommandWithAcknowledgement(LoadPaperCommand, undefined)
     );
   }
@@ -608,8 +640,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
   async ejectPaperToFront(): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() =>
-      this.handleGenericCommandWithAcknowledgement(EjectPaperCommand, undefined)
+    return await this.publicApiMutex.withLockAndLockerId(
+      'ejecttPaperToFront',
+      () =>
+        this.handleGenericCommandWithAcknowledgement(
+          EjectPaperCommand,
+          undefined
+        )
     );
   }
 
@@ -619,7 +656,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * positive acknowledgement. When parked, parkSensor should be true.
    */
   async parkPaper(): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() =>
+    return await this.publicApiMutex.withLockAndLockerId('parkPaper', () =>
       this.handleGenericCommandWithAcknowledgement(ParkPaperCommand, undefined)
     );
   }
@@ -630,7 +667,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * state from the state where paper has not been picked up yet?
    */
   presentPaper(): Promise<boolean> {
-    return this.publicApiMutex.withLock(() =>
+    return this.publicApiMutex.withLockAndLockerId('presentPaper', () =>
       this.handleGenericCommandWithAcknowledgement(
         PresentPaperAndHoldCommand,
         undefined
@@ -643,16 +680,18 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
   async ejectBallotToRear(): Promise<boolean> {
-    return await this.publicApiMutex.withLock(() =>
-      this.handleGenericCommandWithAcknowledgement(
-        EjectPaperToBallotCommand,
-        undefined
-      )
+    return await this.publicApiMutex.withLockAndLockerId(
+      'ejectBallotToRear',
+      () =>
+        this.handleGenericCommandWithAcknowledgement(
+          EjectPaperToBallotCommand,
+          undefined
+        )
     );
   }
 
   calibrate(): Promise<boolean> {
-    return this.publicApiMutex.withLock(() =>
+    return this.publicApiMutex.withLockAndLockerId('calibrate', () =>
       this.handleGenericCommandWithAcknowledgement(
         ScannerCalibrationCommand,
         undefined
@@ -668,7 +707,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * a variety of positions.
    */
   enablePrint(): Promise<boolean> {
-    return this.publicApiMutex.withLock(() =>
+    return this.publicApiMutex.withLockAndLockerId('enablePrint', () =>
       this.handleGenericCommandWithAcknowledgement(
         EnablePrintCommand,
         undefined
@@ -680,7 +719,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Moves print head to UP position, does not move paper
    */
   disablePrint(): Promise<boolean> {
-    return this.publicApiMutex.withLock(() =>
+    return this.publicApiMutex.withLockAndLockerId('disablePrint', () =>
       this.handleGenericCommandWithAcknowledgement(
         DisablePrintCommand,
         undefined
@@ -689,7 +728,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async setMotionUnits(x: Uint8, y: Uint8): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
+    return await this.publicApiMutex.withLockAndLockerId('setMotionUnits', () =>
       this.webDeviceMutex.withLock((webDevice) => {
         assertNumberIsInRangeInclusive(x, 0, 2040);
         assertNumberIsInRangeInclusive(y, 0, 4080);
@@ -703,7 +742,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async setLeftMargin(numMotionUnits: Uint16): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
+    return await this.publicApiMutex.withLockAndLockerId('setLeftMargin', () =>
       this.webDeviceMutex.withLock((webDevice) => {
         assertUint16(numMotionUnits);
         const [nH, nL] = Uint16toUint8(numMotionUnits);
@@ -722,24 +761,30 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   async setPrintingAreaWidth(
     numMotionUnits: Uint16 = 0
   ): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
-      this.webDeviceMutex.withLock((webDevice) => {
-        assertNumberIsInRangeInclusive(
-          numMotionUnits,
-          0,
-          DEVICE_MAX_WIDTH_DOTS
-        );
-        const [nH, nL] = Uint16toUint8(numMotionUnits);
-        return this.transferOutGeneric(webDevice, SetPrintingAreaWidthCommand, {
-          nL,
-          nH,
-        });
-      })
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setPrintingAreaWidth',
+      () =>
+        this.webDeviceMutex.withLock((webDevice) => {
+          assertNumberIsInRangeInclusive(
+            numMotionUnits,
+            0,
+            DEVICE_MAX_WIDTH_DOTS
+          );
+          const [nH, nL] = Uint16toUint8(numMotionUnits);
+          return this.transferOutGeneric(
+            webDevice,
+            SetPrintingAreaWidthCommand,
+            {
+              nL,
+              nH,
+            }
+          );
+        })
     );
   }
 
   async setLineSpacing(numMotionUnits: Uint8): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
+    return await this.publicApiMutex.withLockAndLockerId('setLineSpacing', () =>
       this.webDeviceMutex.withLock((webDevice) =>
         this.transferOutGeneric(webDevice, SetLineSpacingCommand, {
           numMotionUnits,
@@ -751,80 +796,98 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   async setPrintingSpeed(
     printingSpeed: PrintingSpeed
   ): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
-      this.webDeviceMutex.withLock((webDevice) =>
-        this.transferOutGeneric(webDevice, SetPrintingSpeedCommand, {
-          speed: PRINTING_SPEED_CODES[printingSpeed],
-        })
-      )
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setPrintingSpeed',
+      () =>
+        this.webDeviceMutex.withLock((webDevice) =>
+          this.transferOutGeneric(webDevice, SetPrintingSpeedCommand, {
+            speed: PRINTING_SPEED_CODES[printingSpeed],
+          })
+        )
     );
   }
 
   async setPrintingDensity(
     printingDensity: PrintingDensity
   ): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
-      this.webDeviceMutex.withLock((webDevice) =>
-        this.transferOutGeneric(webDevice, SetPrintingDensityCommand, {
-          density: PRINTING_DENSITY_CODES[printingDensity],
-        })
-      )
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setPrintingDensity',
+      () =>
+        this.webDeviceMutex.withLock((webDevice) =>
+          this.transferOutGeneric(webDevice, SetPrintingDensityCommand, {
+            density: PRINTING_DENSITY_CODES[printingDensity],
+          })
+        )
     );
   }
 
   async setAbsolutePrintPosition(
     numMotionUnits: Uint16
   ): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
-      this.webDeviceMutex.withLock((webDevice) => {
-        assertUint16(numMotionUnits);
-        const [nH, nL] = Uint16toUint8(numMotionUnits);
-        return this.transferOutGeneric(
-          webDevice,
-          SetAbsolutePrintPositionCommand,
-          { nL, nH }
-        );
-      })
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setAbsolutePrintPosition',
+      () =>
+        this.webDeviceMutex.withLock((webDevice) => {
+          assertUint16(numMotionUnits);
+          const [nH, nL] = Uint16toUint8(numMotionUnits);
+          return this.transferOutGeneric(
+            webDevice,
+            SetAbsolutePrintPositionCommand,
+            { nL, nH }
+          );
+        })
     );
   }
 
   async setRelativePrintPosition(
     numMotionUnits: number
   ): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
-      this.webDeviceMutex.withLock((webDevice) => {
-        assertNumberIsInRangeInclusive(numMotionUnits, INT_16_MIN, INT_16_MAX);
-        const unsignedNumMotionUnits: Uint16 =
-          numMotionUnits < 0
-            ? UINT_16_MAX + 1 - numMotionUnits
-            : numMotionUnits;
-        const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
-        return this.transferOutGeneric(
-          webDevice,
-          SetRelativePrintPositionCommand,
-          { nL, nH }
-        );
-      })
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setRelativePrintPosition',
+      () =>
+        this.webDeviceMutex.withLock((webDevice) => {
+          assertNumberIsInRangeInclusive(
+            numMotionUnits,
+            INT_16_MIN,
+            INT_16_MAX
+          );
+          const unsignedNumMotionUnits: Uint16 =
+            numMotionUnits < 0
+              ? UINT_16_MAX + 1 - numMotionUnits
+              : numMotionUnits;
+          const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
+          return this.transferOutGeneric(
+            webDevice,
+            SetRelativePrintPositionCommand,
+            { nL, nH }
+          );
+        })
     );
   }
 
   async setRelativeVerticalPrintPosition(
     numMotionUnits: number
   ): Promise<USBOutTransferResult> {
-    return await this.publicApiMutex.withLock(() =>
-      this.webDeviceMutex.withLock((webDevice) => {
-        assertNumberIsInRangeInclusive(numMotionUnits, INT_16_MIN, INT_16_MAX);
-        const unsignedNumMotionUnits: Uint16 =
-          numMotionUnits < 0
-            ? UINT_16_MAX + 1 + numMotionUnits
-            : numMotionUnits;
-        const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
-        return this.transferOutGeneric(
-          webDevice,
-          SetRelativeVerticalPrintPositionCommand,
-          { nL, nH }
-        );
-      })
+    return await this.publicApiMutex.withLockAndLockerId(
+      'setRealtiveVerticalPrintPosition',
+      () =>
+        this.webDeviceMutex.withLock((webDevice) => {
+          assertNumberIsInRangeInclusive(
+            numMotionUnits,
+            INT_16_MIN,
+            INT_16_MAX
+          );
+          const unsignedNumMotionUnits: Uint16 =
+            numMotionUnits < 0
+              ? UINT_16_MAX + 1 + numMotionUnits
+              : numMotionUnits;
+          const [nH, nL] = Uint16toUint8(unsignedNumMotionUnits);
+          return this.transferOutGeneric(
+            webDevice,
+            SetRelativeVerticalPrintPositionCommand,
+            { nL, nH }
+          );
+        })
     );
   }
 
@@ -859,7 +922,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   async printChunk(chunkedCustomBitmap: PaperHandlerBitmap): Promise<void> {
     // Implementation is slightly scuffed. We probably want the caller to hold the WebUsbDevice lock
     // so we aren't locking and unlocking every chunk.
-    return await this.publicApiMutex.withLock(() =>
+    return await this.publicApiMutex.withLockAndLockerId('printChunk', () =>
       this.webDeviceMutex.withLock(async (webDevice) => {
         const { width, data } = chunkedCustomBitmap;
         assert(
@@ -911,7 +974,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * be used.
    */
   async print(numMotionUnitsToFeedPaper: Uint8 = 0): Promise<void> {
-    await this.publicApiMutex.withLock(() =>
+    await this.publicApiMutex.withLockAndLockerId('print', () =>
       this.webDeviceMutex.withLock(
         async (webDevice) =>
           await this.transferOutGeneric(webDevice, PrintAndFeedPaperCommand, {
