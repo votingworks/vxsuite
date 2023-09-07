@@ -300,22 +300,17 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * @returns {ScannerStatus}
    */
   async getScannerStatus(): Promise<SensorStatusRealTimeExchangeResponse> {
-    return await this.publicApiMutex.withLockAndLockerId(
-      'getScannerStatus',
-      async () => {
-        const response = (
-          await this.handleRealTimeExchange(
-            RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
-            SensorStatusRealTimeExchangeResponse
-          )
-        ).unsafeUnwrap();
-        this.validateRealTimeExchangeResponse(
-          RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
-          response
-        );
-        return response;
-      }
+    const response = (
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+        SensorStatusRealTimeExchangeResponse
+      )
+    ).unsafeUnwrap();
+    this.validateRealTimeExchangeResponse(
+      RealTimeRequestIds.SCANNER_COMPLETE_STATUS_REQUEST_ID,
+      response
     );
+    return response;
   }
 
   /**
@@ -324,22 +319,17 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * @returns {PrinterStatus}
    */
   async getPrinterStatus(): Promise<PrinterStatusRealTimeExchangeResponse> {
-    return await this.publicApiMutex.withLockAndLockerId(
-      'getPrinterStatus',
-      async () => {
-        const response = (
-          await this.handleRealTimeExchange(
-            RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
-            PrinterStatusRealTimeExchangeResponse
-          )
-        ).unsafeUnwrap();
-        this.validateRealTimeExchangeResponse(
-          RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
-          response
-        );
-        return response;
-      }
+    const response = (
+      await this.handleRealTimeExchange(
+        RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+        PrinterStatusRealTimeExchangeResponse
+      )
+    ).unsafeUnwrap();
+    this.validateRealTimeExchangeResponse(
+      RealTimeRequestIds.PRINTER_STATUS_REQUEST_ID,
+      response
     );
+    return response;
   }
 
   async abortScan(): Promise<void> {
