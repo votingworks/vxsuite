@@ -1,19 +1,18 @@
 import React from 'react';
 import { Route, Router } from 'react-router-dom';
-import { createMemoryHistory } from 'history';
-
-export function withRouter(ui: React.ReactElement, path = '/'): JSX.Element {
-  return (
-    <Router history={createMemoryHistory({ initialEntries: [path] })}>
-      {ui}
-    </Router>
-  );
-}
+import { createMemoryHistory, History } from 'history';
 
 export function withRoute(
   ui: React.ReactElement,
-  paramPath = '/',
-  path = '/'
+  {
+    paramPath = '/',
+    path = '/',
+    history = createMemoryHistory({ initialEntries: [path] }),
+  }: { paramPath?: string; path?: string; history?: History }
 ): JSX.Element {
-  return withRouter(<Route path={paramPath}>{ui}</Route>, path);
+  return (
+    <Router history={history}>
+      <Route path={paramPath}>{ui}</Route>
+    </Router>
+  );
 }

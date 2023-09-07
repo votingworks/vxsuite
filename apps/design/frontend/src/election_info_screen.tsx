@@ -9,10 +9,11 @@ import { Form, FormField, Input, FormActionsRow } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
 import { FileInputButton } from './file_input_button';
+import { SegmentedControl } from './segmented_control';
 
 type ElectionInfo = Pick<
   Election,
-  'title' | 'date' | 'state' | 'county' | 'seal'
+  'title' | 'date' | 'type' | 'state' | 'county' | 'seal'
 >;
 
 function hasBlankElectionInfo(election: Election): boolean {
@@ -83,6 +84,17 @@ function ElectionInfoForm({
             new Date(electionInfo.date).toISOString().slice(0, 10)
           }
           onChange={onInputChange('date')}
+          disabled={!isEditing}
+        />
+      </FormField>
+      <FormField label="Type">
+        <SegmentedControl
+          options={[
+            { label: 'General', value: 'general' },
+            { label: 'Primary', value: 'primary' },
+          ]}
+          value={electionInfo.type}
+          onChange={(type) => setElectionInfo({ ...electionInfo, type })}
           disabled={!isEditing}
         />
       </FormField>

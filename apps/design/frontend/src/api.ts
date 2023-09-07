@@ -29,7 +29,13 @@ export function useApiClient(): ApiClient {
 }
 
 export function createQueryClient(): QueryClient {
-  return new QueryClient();
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 }
 
 export const listElections = {

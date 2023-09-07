@@ -1,4 +1,9 @@
-import { assert, groupBy } from '@votingworks/basics';
+import {
+  assert,
+  groupBy,
+  throwIllegalValue,
+  unique,
+} from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   DEFAULT_LAYOUT_OPTIONS,
@@ -14,6 +19,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   safeParseSystemSettings,
+  CandidateContest,
+  PartyId,
 } from '@votingworks/types';
 import { join } from 'path';
 
@@ -53,20 +60,24 @@ export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
   return 'splits' in precinct && precinct.splits !== undefined;
 }
 
+interface PrecinctOrSplitId {
+  precinctId: PrecinctId;
+  splitId?: Id;
+}
+
 // We also create a new type for a ballot style, that can reference precincts and
 // splits. We generate ballot styles on demand, so it won't be stored in the db.
 export interface BallotStyle {
   id: BallotStyleId;
-  precinctsOrSplits: ReadonlyArray<{
-    precinctId: PrecinctId;
-    splitId?: Id;
-  }>;
+  precinctsOrSplits: readonly PrecinctOrSplitId[];
   districtIds: readonly DistrictId[];
+  partyId?: PartyId;
 }
 
 /**
  * Generates ballot styles for the election based on geography data (districts,
- * precincts, and precinct splits).
+ * precincts, and precinct splits). For primary elections, generates distinct
+ * ballot styles for each party.
  *
  * Each ballot styles should have a unique set of contests. Contests are
  * specified per district. We generate ballot styles by looking at the
@@ -74,31 +85,80 @@ export interface BallotStyle {
  * unique, it gets its own ballot style. Otherwise, we reuse another ballot
  * style with the same district list.
  */
-export function generateBallotStyles(precincts: Precinct[]): BallotStyle[] {
-  const allPrecinctsOrSplits = precincts.flatMap((precinct) => {
-    if (hasSplits(precinct)) {
-      return precinct.splits.map((split) => {
-        return {
-          precinctId: precinct.id,
-          splitId: split.id,
-          districtIds: split.districtIds,
-        };
-      });
-    }
-    return [{ precinctId: precinct.id, districtIds: precinct.districtIds }];
-  });
-  const precinctsOrSplitsByDistricts = groupBy(
-    allPrecinctsOrSplits,
-    (precinctOrSplit) => precinctOrSplit.districtIds
-  );
-  return precinctsOrSplitsByDistricts.map(
-    ([districtIds, precinctsOrSplits], index) => ({
-      id: `ballot-style-${index + 1}`,
-      precinctsOrSplits,
-      districtIds,
-      // TODO for primary elections, ballot styles need to have a partyId association
+export function generateBallotStyles(
+  election: Election,
+  precincts: Precinct[]
+): BallotStyle[] {
+  const allPrecinctsOrSplitsWithDistricts: Array<
+    PrecinctOrSplitId & { districtIds: readonly DistrictId[] }
+  > = precincts
+    .flatMap((precinct) => {
+      if (hasSplits(precinct)) {
+        return precinct.splits.map((split) => {
+          return {
+            precinctId: precinct.id,
+            splitId: split.id,
+            districtIds: split.districtIds,
+          };
+        });
+      }
+      return { precinctId: precinct.id, districtIds: precinct.districtIds };
     })
-  );
+    .filter(({ districtIds }) => districtIds.length > 0);
+
+  const precinctsOrSplitsByDistricts: Array<
+    [readonly DistrictId[], PrecinctOrSplitId[]]
+  > = groupBy(
+    allPrecinctsOrSplitsWithDistricts,
+    ({ districtIds }) => districtIds
+  ).map(([districtIds, group]) => [
+    districtIds,
+    // Remove districtIds after grouping, we don't need them anymore
+    group.map(({ precinctId, splitId }) => ({ precinctId, splitId })),
+  ]);
+
+  switch (election.type) {
+    case 'general':
+      return precinctsOrSplitsByDistricts.map(
+        ([districtIds, precinctsOrSplits], index) => ({
+          id: `ballot-style-${index + 1}`,
+          precinctsOrSplits,
+          districtIds,
+        })
+      );
+
+    case 'primary':
+      return precinctsOrSplitsByDistricts.flatMap(
+        ([districtIds, precinctsOrSplits], index) => {
+          const partyIds = unique(
+            election.contests
+              .filter(
+                (contest): contest is CandidateContest =>
+                  contest.type === 'candidate' &&
+                  contest.partyId !== undefined &&
+                  districtIds.includes(contest.districtId)
+              )
+              .map((contest) => contest.partyId)
+          );
+          assert(
+            partyIds.length > 0,
+            'Primary elections cannot have ballot styles with no partisan contests'
+          );
+          const parties = election.parties.filter((party) =>
+            partyIds.includes(party.id)
+          );
+          return parties.map((party) => ({
+            id: `ballot-style-${index + 1}-${party.abbrev}`,
+            precinctsOrSplits,
+            districtIds,
+            partyId: party.id,
+          }));
+        }
+      );
+
+    default:
+      return throwIllegalValue(election.type);
+  }
 }
 
 function convertSqliteTimestampToIso8601(
@@ -116,19 +176,23 @@ function hydrateElection(row: {
   createdAt: string;
 }): ElectionRecord {
   const rawElection = JSON.parse(row.electionData);
-  const precincts = JSON.parse(row.precinctData);
+  const precincts: Precinct[] = JSON.parse(row.precinctData);
   const layoutOptions = JSON.parse(row.layoutOptionsData);
-  const ballotStyles = generateBallotStyles(precincts);
+  const ballotStyles = generateBallotStyles(rawElection, precincts);
   // Fill in our precinct/ballot style overrides in the VXF election format.
   // This is important for pieces of the code that rely on the VXF election
   // (e.g. rendering ballots)
   const election: Election = {
     ...rawElection,
-    precincts,
+    precincts: precincts.map((precinct) => ({
+      id: precinct.id,
+      name: precinct.name,
+    })),
     ballotStyles: ballotStyles.map((ballotStyle) => ({
-      ...ballotStyle,
+      id: ballotStyle.id,
       precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
       districts: ballotStyle.districtIds,
+      partyId: ballotStyle.partyId,
     })),
   };
 

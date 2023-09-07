@@ -8,6 +8,8 @@ import type { Api } from '../src/app';
 
 tmp.setGracefulCleanup();
 
+export type ApiClient = grout.Client<Api>;
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function testSetupHelpers() {
   const servers: Server[] = [];

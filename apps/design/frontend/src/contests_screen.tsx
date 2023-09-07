@@ -99,18 +99,20 @@ function ContestsTab(): JSX.Element | null {
                 </option>
               ))}
             </Select>
-            <Select
-              value={filterPartyId}
-              onChange={(e) => setFilterPartyId(e.target.value)}
-            >
-              <option value="all">All Parties</option>
-              <option value="nonpartisan">Nonpartisan</option>
-              {parties.map((party) => (
-                <option key={party.id} value={party.id}>
-                  {party.name}
-                </option>
-              ))}
-            </Select>
+            {election.type === 'primary' && (
+              <Select
+                value={filterPartyId}
+                onChange={(e) => setFilterPartyId(e.target.value)}
+              >
+                <option value="all">All Parties</option>
+                <option value="nonpartisan">Nonpartisan</option>
+                {parties.map((party) => (
+                  <option key={party.id} value={party.id}>
+                    {party.name}
+                  </option>
+                ))}
+              </Select>
+            )}
           </React.Fragment>
         )}
         <LinkButton variant="primary" to={contestRoutes.addContest.path}>
@@ -120,7 +122,10 @@ function ContestsTab(): JSX.Element | null {
       {contests.length > 0 &&
         (filteredContests.length === 0 ? (
           <React.Fragment>
-            <P>There are no contests for the district/party you selected.</P>
+            <P>
+              There are no contests for the district
+              {election.type === 'primary' ? '/party' : ''} you selected.
+            </P>
             <P>
               <Button
                 onPress={() => {
@@ -139,7 +144,7 @@ function ContestsTab(): JSX.Element | null {
                 <TH>Title</TH>
                 <TH>ID</TH>
                 <TH>District</TH>
-                <TH>Party</TH>
+                {election.type === 'primary' && <TH>Party</TH>}
                 <TH />
               </tr>
             </thead>
@@ -149,11 +154,13 @@ function ContestsTab(): JSX.Element | null {
                   <TD>{contest.title}</TD>
                   <TD>{contest.id}</TD>
                   <TD nowrap>{districtIdToName[contest.districtId]}</TD>
-                  <TD nowrap>
-                    {contest.type === 'candidate' &&
-                      contest.partyId !== undefined &&
-                      partyIdToName[contest.partyId]}
-                  </TD>
+                  {election.type === 'primary' && (
+                    <TD nowrap>
+                      {contest.type === 'candidate' &&
+                        contest.partyId !== undefined &&
+                        partyIdToName[contest.partyId]}
+                    </TD>
+                  )}
                   <TD nowrap>
                     <LinkButton to={contestRoutes.editContest(contest.id).path}>
                       <Icons.Edit /> Edit
@@ -314,26 +321,28 @@ function ContestForm({
 
       {contest.type === 'candidate' && (
         <React.Fragment>
-          <FormField label="Party">
-            <Select
-              value={contest.partyId ?? ''}
-              onChange={(e) =>
-                setContest({
-                  ...contest,
-                  partyId: e.target.value
-                    ? (e.target.value as PartyId)
-                    : undefined,
-                })
-              }
-            >
-              <option value="">No Party Affiliation</option>
-              {savedElection.parties.map((party) => (
-                <option key={party.id} value={party.id}>
-                  {party.name}
-                </option>
-              ))}
-            </Select>
-          </FormField>
+          {savedElection.type === 'primary' && (
+            <FormField label="Party">
+              <Select
+                value={contest.partyId ?? ''}
+                onChange={(e) =>
+                  setContest({
+                    ...contest,
+                    partyId: e.target.value
+                      ? (e.target.value as PartyId)
+                      : undefined,
+                  })
+                }
+              >
+                <option value="">No Party Affiliation</option>
+                {savedElection.parties.map((party) => (
+                  <option key={party.id} value={party.id}>
+                    {party.name}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+          )}
           <FormField label="Seats">
             <Input
               type="number"
