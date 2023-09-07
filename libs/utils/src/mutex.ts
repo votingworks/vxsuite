@@ -91,11 +91,12 @@ export class Mutex<T> {
     locker: string,
     fn: (value: T) => Promise<U>
   ): Promise<U> {
-    this.lockedBy = locker;
     if (this.isLocked()) {
       debug('%s requested lock but lock is held by %s', locker, this.lockedBy);
     }
+
     const { value, unlock } = await this.asyncLock();
+    this.lockedBy = locker;
     try {
       return await fn(value);
     } finally {
