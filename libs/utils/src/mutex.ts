@@ -1,4 +1,7 @@
 import { deferred, Optional } from '@votingworks/basics';
+import makeDebug from 'debug';
+
+const debug = makeDebug('mutex');
 
 interface LockResult<T> {
   value: T;
@@ -14,6 +17,7 @@ interface LockResult<T> {
  */
 export class Mutex<T> {
   private locked = false;
+  private lockedBy = 'none';
   private readonly asyncQueue: Array<() => void> = [];
 
   constructor(private readonly value: T) {}
@@ -70,6 +74,27 @@ export class Mutex<T> {
    * function and releases the lock automatically.
    */
   async withLock<U>(fn: (value: T) => Promise<U>): Promise<U> {
+    const { value, unlock } = await this.asyncLock();
+    try {
+      return await fn(value);
+    } finally {
+      unlock();
+    }
+  }
+
+  /**
+   * Acquires the lock or waits until it is available, then runs the given
+   * function and releases the lock automatically. For debugging, accepts a
+   * string to identify the locker.
+   */
+  async withLockAndLockerId<U>(
+    locker: string,
+    fn: (value: T) => Promise<U>
+  ): Promise<U> {
+    this.lockedBy = locker;
+    if (this.isLocked()) {
+      debug('%s requested lock but lock is held by %s', locker, this.lockedBy);
+    }
     const { value, unlock } = await this.asyncLock();
     try {
       return await fn(value);
