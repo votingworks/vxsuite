@@ -18,6 +18,8 @@ test('GroupByEditor', () => {
     ['Precinct', true],
     ['Voting Method', false],
     ['Ballot Style', false],
+    ['Scanner', false],
+    ['Batch', false],
   ];
 
   for (const [label, checked] of items) {

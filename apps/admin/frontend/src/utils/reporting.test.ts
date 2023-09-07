@@ -1,12 +1,34 @@
 import { Election, Tabulation } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { err, ok } from '@votingworks/basics';
+import type { ScannerBatch } from '@votingworks/admin-backend';
 import {
   canonicalizeFilter,
   canonicalizeGroupBy,
   generateTallyReportPdfFilename,
   generateTitleForReport,
 } from './reporting';
+
+const scannerBatches: ScannerBatch[] = [
+  {
+    batchId: '12345678-0000-0000-0000-000000000000',
+    scannerId: 'VX-00-001',
+    label: 'Batch 1',
+    electionId: 'id',
+  },
+  {
+    batchId: '23456789-0000-0000-0000-000000000000',
+    scannerId: 'VX-00-001',
+    label: 'Batch 2',
+    electionId: 'id',
+  },
+  {
+    batchId: '34567890-0000-0000-0000-000000000000',
+    scannerId: 'VX-00-002',
+    label: 'Batch 3',
+    electionId: 'id',
+  },
+];
 
 test('generateTitleForReport', () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
@@ -32,25 +54,19 @@ test('generateTitleForReport', () => {
     {
       precinctIds: ['precinct-1'],
       ballotStyleIds: ['1M'],
-      batchIds: ['1'],
+      batchIds: ['12345678-0000-0000-0000-000000000000'],
     },
     {
-      scannerIds: ['1'],
+      scannerIds: ['VX-00-001'],
       votingMethods: ['absentee'],
       partyIds: ['1'],
-    },
-    {
-      batchIds: ['1'], // TODO: add support for batchIds
-    },
-    {
-      scannerIds: ['1'], // TODO: add support for scannerIds
     },
   ];
 
   for (const filter of unsupportedFilters) {
-    expect(generateTitleForReport({ filter, electionDefinition })).toEqual(
-      err('title-not-supported')
-    );
+    expect(
+      generateTitleForReport({ filter, electionDefinition, scannerBatches })
+    ).toEqual(err('title-not-supported'));
   }
 
   const supportedFilters: Array<[filter: Tabulation.Filter, title: string]> = [
@@ -74,6 +90,18 @@ test('generateTitleForReport', () => {
     ],
     [
       {
+        batchIds: ['12345678-0000-0000-0000-000000000000'],
+      },
+      'Scanner VX-00-001 Batch 12345678 Tally Report',
+    ],
+    [
+      {
+        scannerIds: ['VX-00-001'],
+      },
+      'Scanner VX-00-001 Tally Report',
+    ],
+    [
+      {
         precinctIds: ['precinct-1'],
         ballotStyleIds: ['1M'],
       },
@@ -93,12 +121,26 @@ test('generateTitleForReport', () => {
       },
       'Ballot Style 1M Absentee Ballot Tally Report',
     ],
+    [
+      {
+        scannerIds: ['VX-00-001'],
+        batchIds: ['12345678-0000-0000-0000-000000000000'],
+      },
+      'Scanner VX-00-001 Batch 12345678 Tally Report',
+    ],
+    [
+      {
+        precinctIds: ['precinct-1'],
+        scannerIds: ['VX-00-001'],
+      },
+      'Precinct 1 Scanner VX-00-001 Tally Report',
+    ],
   ];
 
   for (const [filter, title] of supportedFilters) {
-    expect(generateTitleForReport({ filter, electionDefinition })).toEqual(
-      ok(title)
-    );
+    expect(
+      generateTitleForReport({ filter, electionDefinition, scannerBatches })
+    ).toEqual(ok(title));
   }
 });
 
@@ -180,6 +222,14 @@ test('generateReportPdfFilename', () => {
         'tally-reports-by-voting-method__2023-12-09_15-59-32.pdf',
     },
     {
+      groupBy: { groupByBatch: true },
+      expectedFilename: 'tally-reports-by-batch__2023-12-09_15-59-32.pdf',
+    },
+    {
+      groupBy: { groupByScanner: true },
+      expectedFilename: 'tally-reports-by-scanner__2023-12-09_15-59-32.pdf',
+    },
+    {
       groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
       expectedFilename:
         'tally-reports-by-precinct-and-voting-method__2023-12-09_15-59-32.pdf',
@@ -214,6 +264,19 @@ test('generateReportPdfFilename', () => {
       },
       expectedFilename:
         'absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: {
+        scannerIds: ['VX-00-000'],
+      },
+      expectedFilename:
+        'scanner-VX-00-000-tally-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: {
+        batchIds: ['12345678-0000-0000-0000-000000000000'],
+      },
+      expectedFilename: 'batch-12345678-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {

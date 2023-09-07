@@ -41,6 +41,32 @@ test('voting method filter', () => {
   );
 });
 
+test('scanner filter', () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      filter={{ scannerIds: ['VX-00-000'] }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    'Scanner: VX-00-000'
+  );
+});
+
+test('batch filter', () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      filter={{ batchIds: ['12345678-0000-0000-0000-000000000000'] }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    'Batch: 12345678'
+  );
+});
+
 test('complex filter', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   render(

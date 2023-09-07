@@ -49,9 +49,25 @@ export function CustomFilterSummary({
       {filter.ballotStyleIds && (
         <FilterDisplayRow>
           <Font weight="semiBold">
-            {pluralize('Ballot Styles', filter.ballotStyleIds.length)}:
+            {pluralize('Ballot Style', filter.ballotStyleIds.length)}:
           </Font>{' '}
           {filter.ballotStyleIds.join(', ')}
+        </FilterDisplayRow>
+      )}
+      {filter.scannerIds && (
+        <FilterDisplayRow>
+          <Font weight="semiBold">
+            {pluralize('Scanner', filter.scannerIds.length)}:
+          </Font>{' '}
+          {filter.scannerIds.join(', ')}
+        </FilterDisplayRow>
+      )}
+      {filter.batchIds && (
+        <FilterDisplayRow>
+          <Font weight="semiBold">
+            {pluralize('Batch', filter.batchIds.length)}:
+          </Font>{' '}
+          {filter.batchIds.map((id) => id.slice(0, 8)).join(', ')}
         </FilterDisplayRow>
       )}
     </div>
