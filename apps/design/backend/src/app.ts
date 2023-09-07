@@ -22,7 +22,7 @@ import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
 import { ElectionRecord, Precinct, Store } from './store';
 
-function createBlankElection(): Election {
+export function createBlankElection(): Election {
   return {
     type: 'general',
     title: '',

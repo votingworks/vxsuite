@@ -1,4 +1,3 @@
-import { assert } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { BallotPaperSize, Election } from '@votingworks/types';
 import { LayoutOptions } from '@votingworks/hmpb-layout';
@@ -8,17 +7,16 @@ import {
   MockApiClient,
 } from '../test/api_helpers';
 import {
-  ballotStyles,
-  election,
   electionId,
-  electionRecord,
-  precincts,
+  generalElectionRecord,
+  primaryElectionRecord,
 } from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { BallotsScreen } from './ballots_screen';
-import { hasSplits } from './utils';
 import { routes } from './routes';
+
+// TODO add tests for ballot viewer
 
 let apiMock: MockApiClient;
 
@@ -34,56 +32,102 @@ function renderScreen() {
   render(
     provideApi(
       apiMock,
-      withRoute(
-        <BallotsScreen />,
-        routes.election(':electionId').ballots.root.path,
-        routes.election(electionId).ballots.root.path
-      )
+      withRoute(<BallotsScreen />, {
+        paramPath: routes.election(':electionId').ballots.root.path,
+        path: routes.election(electionId).ballots.root.path,
+      })
     )
   );
 }
 
-test('Ballot styles tab', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
-  renderScreen();
-  await screen.findByRole('heading', { name: 'Ballots' });
+describe('Ballot styles tab', () => {
+  test('General election with splits', async () => {
+    apiMock.getElection
+      .expectCallWith({ electionId })
+      .resolves(generalElectionRecord);
+    renderScreen();
+    await screen.findByRole('heading', { name: 'Ballots' });
 
-  screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
-  const table = screen.getByRole('table');
-  const headers = within(table).getAllByRole('columnheader');
-  expect(headers.map((header) => header.textContent)).toEqual([
-    'Precinct',
-    'Ballot Style',
-    '',
-  ]);
+    screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
+    const table = screen.getByRole('table');
+    const headers = within(table).getAllByRole('columnheader');
+    expect(headers.map((header) => header.textContent)).toEqual([
+      'Precinct',
+      'Ballot Style',
+      '',
+    ]);
 
-  assert(hasSplits(precincts[1]));
-  expect(
-    within(table)
-      .getAllByRole('row')
-      .slice(1)
-      .map((row) =>
-        within(row)
-          .getAllByRole('cell')
-          .map((cell) => cell.textContent)
-      )
-  ).toEqual([
-    [precincts[0].name, ballotStyles[0].id, 'View Ballot'],
-    [precincts[1].name, '', ''],
-    [precincts[1].splits[0].name, ballotStyles[0].id, 'View Ballot'],
-    [precincts[1].splits[1].name, ballotStyles[1].id, 'View Ballot'],
-    [precincts[2].name, ballotStyles[2].id, 'View Ballot'],
-  ]);
+    expect(
+      within(table)
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) =>
+          within(row)
+            .getAllByRole('cell')
+            .map((cell) => cell.textContent)
+        )
+    ).toEqual([
+      ['Center Springfield', 'ballot-style-1', 'View Ballot'],
+      ['North Springfield', '', ''],
+      ['North Springfield - Split 1', 'ballot-style-1', 'View Ballot'],
+      ['North Springfield - Split 2', 'ballot-style-2', 'View Ballot'],
+    ]);
+  });
 
-  // TODO add tests for ballot viewer
+  test('Primary election with splits', async () => {
+    apiMock.getElection
+      .expectCallWith({ electionId })
+      .resolves(primaryElectionRecord);
+    renderScreen();
+    await screen.findByRole('heading', { name: 'Ballots' });
+
+    screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
+    const table = screen.getByRole('table');
+    const headers = within(table).getAllByRole('columnheader');
+    expect(headers.map((header) => header.textContent)).toEqual([
+      'Precinct',
+      'Ballot Style',
+      'Party',
+      '',
+    ]);
+
+    expect(
+      within(table)
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) =>
+          within(row)
+            .getAllByRole('cell')
+            .map((cell) => cell.textContent)
+        )
+    ).toEqual([
+      ['Precinct 1', 'ballot-style-1-Ma', 'Mammal Party', 'View Ballot'],
+      ['Precinct 1', 'ballot-style-1-F', 'Fish Party', 'View Ballot'],
+      ['Precinct 2', 'ballot-style-1-Ma', 'Mammal Party', 'View Ballot'],
+      ['Precinct 2', 'ballot-style-1-F', 'Fish Party', 'View Ballot'],
+      ['Precinct 3', 'ballot-style-2-Ma', 'Mammal Party', 'View Ballot'],
+      ['Precinct 3', 'ballot-style-2-F', 'Fish Party', 'View Ballot'],
+      ['Precinct 4', '', '', ''],
+      ['Precinct 4 - Split 1', 'ballot-style-3-Ma', 'Mammal', 'View Ballot'],
+      ['Precinct 4 - Split 1', 'ballot-style-3-F', 'Fish', 'View Ballot'],
+      ['Precinct 4 - Split 2', 'ballot-style-4-Ma', 'Mammal', 'View Ballot'],
+      ['Precinct 4 - Split 2', 'ballot-style-4-F', 'Fish', 'View Ballot'],
+    ]);
+  });
 });
 
 test('Ballot layout tab', async () => {
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  const { election } = generalElectionRecord;
+
+  apiMock.getElection
+    .expectCallWith({ electionId })
+    .resolves(generalElectionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Ballots' });
 
-  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
+  apiMock.getElection
+    .expectCallWith({ electionId })
+    .resolves(generalElectionRecord);
   userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
 
   const [paperSizeRadioGroup, densityRadioGroup, bubblePositionControl] =
@@ -179,13 +223,13 @@ test('Ballot layout tab', async () => {
     })
     .resolves();
   apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...electionRecord,
+    ...generalElectionRecord,
     election: updatedElection,
     layoutOptions: updatedLayoutOptions,
   });
   // Extra refetch because of the dual mutations
   apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...electionRecord,
+    ...generalElectionRecord,
     election: updatedElection,
     layoutOptions: updatedLayoutOptions,
   });
