@@ -46,6 +46,7 @@ const Item = styled.button`
   border: none;
   font-weight: 300;
   color: inherit;
+  -webkit-tap-highlight-color: transparent;
 `;
 
 const ItemLabel = styled(Font)`
