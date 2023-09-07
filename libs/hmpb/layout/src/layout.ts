@@ -882,7 +882,10 @@ function CandidateContest({
   const options: Rectangle[] = [];
   let rowHeightUsed = headingRowHeight;
   for (const candidate of contest.candidates) {
-    const partyText = getCandidatePartiesDescription(election, candidate);
+    const partyText =
+      election.type === 'primary'
+        ? undefined
+        : getCandidatePartiesDescription(election, candidate);
     const optionRow = rowHeightUsed;
 
     const optionTextBlock = TextBlock({
@@ -902,9 +905,8 @@ function CandidateContest({
           text: candidate.name,
           fontStyle: { ...m.FontStyles.BODY, fontWeight: FontWeights.BOLD },
         },
-        ...(partyText === ''
-          ? []
-          : [
+        ...(partyText
+          ? [
               {
                 text: partyText,
                 fontStyle: {
@@ -916,7 +918,8 @@ function CandidateContest({
                     (m.FontStyles.BODY.lineHeight === 8 ? 0.75 : 1),
                 },
               },
-            ]),
+            ]
+          : []),
       ],
       align: optionTextAlign,
     });

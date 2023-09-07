@@ -474,7 +474,7 @@ test('getCandidatePartiesDescription', () => {
       id: 'bob-loblaw',
       name: 'Bob Loblaw',
     })
-  ).toEqual('');
+  ).toEqual(undefined);
 
   expect(
     getCandidatePartiesDescription(election, {

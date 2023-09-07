@@ -133,8 +133,11 @@ export function getCandidateParties(
 export function getCandidatePartiesDescription(
   election: Election,
   candidate: Candidate
-): string {
+): string | undefined {
   const parties = getCandidateParties(election.parties, candidate);
+  if (parties.length === 0) {
+    return undefined;
+  }
   return parties.map((p) => p.name).join(', ');
 }
 
