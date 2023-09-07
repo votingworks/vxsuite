@@ -140,6 +140,8 @@ export async function getPaperHandlerWebDevice(): Promise<
 }
 
 export class PaperHandlerDriver implements PaperHandlerDriverInterface {
+  statusInvocationCount = 0;
+
   // By convention, each driver public API method must hold the publicApiMutex lock before starting
   readonly publicApiMutex = new Mutex(undefined);
   // Locks the WebUsbDevice. API methods must acquire this lock before reading from or writing to
@@ -375,8 +377,9 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * @returns {PaperHandlerStatus}
    */
   async getPaperHandlerStatus(): Promise<PaperHandlerStatus> {
+    this.statusInvocationCount += 1;
     return await this.publicApiMutex.withLockAndLockerId(
-      'getPaperHandlerStatus',
+      `getPaperHandlerStatus-${this.statusInvocationCount}`,
       async () => {
         const printerStatus = await this.getPrinterStatus();
         const scannerStatus = await this.getScannerStatus();

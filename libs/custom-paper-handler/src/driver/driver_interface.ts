@@ -26,6 +26,7 @@ import {
 import { ScannerCapability } from './scanner_capability';
 
 export interface PaperHandlerDriverInterface {
+  statusInvocationCount: number;
   readonly publicApiMutex: Mutex<undefined>;
   readonly webDeviceMutex: Mutex<MinimalWebUsbDevice>;
   readonly scannerConfig: ScannerConfig;
