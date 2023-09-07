@@ -623,8 +623,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * attempt to pull paper in. if none is pulled in, command still returns positive.
    */
   async loadPaper(): Promise<boolean> {
-    return await this.publicApiMutex.withLockAndLockerId('loadPaper', () =>
-      this.handleGenericCommandWithAcknowledgement(LoadPaperCommand, undefined)
+    return await this.publicApiMutex.withLockAndLockerId(
+      'loadPaper',
+      async () =>
+        await this.handleGenericCommandWithAcknowledgement(
+          LoadPaperCommand,
+          undefined
+        )
     );
   }
 
@@ -635,8 +640,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   async ejectPaperToFront(): Promise<boolean> {
     return await this.publicApiMutex.withLockAndLockerId(
       'ejecttPaperToFront',
-      () =>
-        this.handleGenericCommandWithAcknowledgement(
+      async () =>
+        await this.handleGenericCommandWithAcknowledgement(
           EjectPaperCommand,
           undefined
         )
@@ -649,8 +654,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * positive acknowledgement. When parked, parkSensor should be true.
    */
   async parkPaper(): Promise<boolean> {
-    return await this.publicApiMutex.withLockAndLockerId('parkPaper', () =>
-      this.handleGenericCommandWithAcknowledgement(ParkPaperCommand, undefined)
+    return await this.publicApiMutex.withLockAndLockerId(
+      'parkPaper',
+      async () =>
+        await this.handleGenericCommandWithAcknowledgement(
+          ParkPaperCommand,
+          undefined
+        )
     );
   }
 
@@ -660,11 +670,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * state from the state where paper has not been picked up yet?
    */
   presentPaper(): Promise<boolean> {
-    return this.publicApiMutex.withLockAndLockerId('presentPaper', () =>
-      this.handleGenericCommandWithAcknowledgement(
-        PresentPaperAndHoldCommand,
-        undefined
-      )
+    return this.publicApiMutex.withLockAndLockerId(
+      'presentPaper',
+      async () =>
+        await this.handleGenericCommandWithAcknowledgement(
+          PresentPaperAndHoldCommand,
+          undefined
+        )
     );
   }
 
@@ -675,8 +687,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   async ejectBallotToRear(): Promise<boolean> {
     return await this.publicApiMutex.withLockAndLockerId(
       'ejectBallotToRear',
-      () =>
-        this.handleGenericCommandWithAcknowledgement(
+      async () =>
+        await this.handleGenericCommandWithAcknowledgement(
           EjectPaperToBallotCommand,
           undefined
         )
@@ -684,11 +696,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   calibrate(): Promise<boolean> {
-    return this.publicApiMutex.withLockAndLockerId('calibrate', () =>
-      this.handleGenericCommandWithAcknowledgement(
-        ScannerCalibrationCommand,
-        undefined
-      )
+    return this.publicApiMutex.withLockAndLockerId(
+      'calibrate',
+      async () =>
+        await this.handleGenericCommandWithAcknowledgement(
+          ScannerCalibrationCommand,
+          undefined
+        )
     );
   }
 
@@ -700,11 +714,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * a variety of positions.
    */
   enablePrint(): Promise<boolean> {
-    return this.publicApiMutex.withLockAndLockerId('enablePrint', () =>
-      this.handleGenericCommandWithAcknowledgement(
-        EnablePrintCommand,
-        undefined
-      )
+    return this.publicApiMutex.withLockAndLockerId(
+      'enablePrint',
+      async () =>
+        await this.handleGenericCommandWithAcknowledgement(
+          EnablePrintCommand,
+          undefined
+        )
     );
   }
 
@@ -712,11 +728,13 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Moves print head to UP position, does not move paper
    */
   disablePrint(): Promise<boolean> {
-    return this.publicApiMutex.withLockAndLockerId('disablePrint', () =>
-      this.handleGenericCommandWithAcknowledgement(
-        DisablePrintCommand,
-        undefined
-      )
+    return this.publicApiMutex.withLockAndLockerId(
+      'disablePrint',
+      async () =>
+        await this.handleGenericCommandWithAcknowledgement(
+          DisablePrintCommand,
+          undefined
+        )
     );
   }
 
