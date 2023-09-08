@@ -76,6 +76,7 @@ type PaperHandlerStatusEvent =
   | { type: 'VOTER_INITIATED_PRINT'; pdfData: Buffer }
   | { type: 'PAPER_IN_OUTPUT' }
   | { type: 'PAPER_IN_INPUT' }
+  | { type: 'CONFIRM_INVALIDATE_BALLOT' }
   | { type: 'SCANNING' }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' };
@@ -123,6 +124,8 @@ export class PaperHandlerStateMachine {
         return 'scanning';
       case state.matches('interpreting'):
         return 'interpreting';
+      case state.matches('invalidating_ballot'):
+        return 'invalidating_ballot';
       case state.matches('presenting_ballot'):
         return 'presenting_ballot';
       case state.matches('eject_to_front'):
@@ -176,6 +179,12 @@ export class PaperHandlerStateMachine {
   invalidateBallot(): void {
     this.machineService.send({
       type: 'VOTER_INVALIDATED_BALLOT',
+    });
+  }
+
+  confirmInvalidateBallot(): void {
+    this.machineService.send({
+      type: 'CONFIRM_INVALIDATE_BALLOT',
     });
   }
 }
@@ -425,7 +434,16 @@ export function buildMachine(
         },
         on: {
           VOTER_VALIDATED_BALLOT: 'eject_to_rear',
-          VOTER_INVALIDATED_BALLOT: 'eject_to_front',
+          // VOTER_INVALIDATED_BALLOT: 'eject_to_front',
+          VOTER_INVALIDATED_BALLOT: 'invalidating_ballot',
+        },
+      },
+      invalidating_ballot: {
+        entry: async (context) => {
+          await context.driver.presentPaper();
+        },
+        on: {
+          CONFIRM_INVALIDATE_BALLOT: 'eject_to_front',
         },
       },
       // Eject-to-rear jam handling is a little clunky. It

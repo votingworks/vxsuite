@@ -32,8 +32,7 @@ export function ValidateBallotPage(): JSX.Element | null {
   const getInterpretationQuery = getInterpretation.useQuery();
   const getElectionDefinitionQuery = getElectionDefinition.useQuery();
   // We use the contest data stored in BallotContext but vote data from the interpreted ballot
-  const { contests, precinctId, resetBallot, endVoterSession } =
-    useContext(BallotContext);
+  const { contests, precinctId, resetBallot } = useContext(BallotContext);
 
   assert(
     typeof precinctId !== 'undefined',
@@ -45,12 +44,7 @@ export function ValidateBallotPage(): JSX.Element | null {
   const invalidateBallotMutation = invalidateBallot.useMutation();
   const validateBallotMutation = validateBallot.useMutation();
   function invalidateBallotCallback() {
-    invalidateBallotMutation.mutate(undefined, {
-      async onSuccess() {
-        resetBallot();
-        await endVoterSession();
-      },
-    });
+    invalidateBallotMutation.mutate(undefined);
   }
   function validateBallotCallback() {
     validateBallotMutation.mutate(undefined, {

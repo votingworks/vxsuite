@@ -78,6 +78,7 @@ import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { JammedPage } from './pages/jammed_page';
 import { JamClearedPage } from './pages/jam_cleared_page';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
+import { BallotInvalidatedPage } from './pages/ballot_invalidated_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -728,6 +729,16 @@ export function AppRoot({
 
     if (pollsState === 'polls_open') {
       if (isCardlessVoterAuth(authStatus)) {
+        let ballotContextProviderChild = <Ballot />;
+
+        // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
+        // frontend browser routing for flow control and is completely independent of the state machine.
+        // We still want to nest pages that condition on the state machine under BallotContext so we render them here.
+        if (stateMachineState === 'presenting_ballot') {
+          ballotContextProviderChild = <ValidateBallotPage />;
+        } else if (stateMachineState === 'invalidating_ballot') {
+          ballotContextProviderChild = <BallotInvalidatedPage />;
+        }
         return (
           <Gamepad onButtonDown={handleGamepadButtonDown}>
             <BallotContext.Provider
@@ -748,14 +759,7 @@ export function AppRoot({
                 votes: votes ?? blankBallotVotes,
               }}
             >
-              {stateMachineState === 'presenting_ballot' ? (
-                // Don't nest ValidateBallotPage under Ballot because Ballot uses frontend browser routing for flow control
-                // and is completely independent of the state machine. ValidateBallotPage interacts with the state machine
-                // so we condition on it here, where we can still access BallotContext, but completely separate it from browser routing
-                <ValidateBallotPage />
-              ) : (
-                <Ballot />
-              )}
+              {ballotContextProviderChild}
             </BallotContext.Provider>
           </Gamepad>
         );

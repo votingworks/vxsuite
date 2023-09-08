@@ -281,3 +281,16 @@ export const invalidateBallot = {
     });
   },
 } as const;
+
+export const confirmInvalidateBallot = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.confirmInvalidateBallot, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
+      },
+    });
+  },
+} as const;

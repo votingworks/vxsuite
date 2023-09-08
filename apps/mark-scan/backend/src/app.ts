@@ -226,6 +226,12 @@ function buildApi(
       debug('API invalidate');
       stateMachine.invalidateBallot();
     },
+
+    confirmInvalidateBallot(): void {
+      assert(stateMachine);
+
+      stateMachine.confirmInvalidateBallot();
+    },
   });
 }
 
