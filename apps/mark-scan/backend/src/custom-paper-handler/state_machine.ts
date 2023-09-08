@@ -429,7 +429,7 @@ export function buildMachine(
         },
       },
       // Eject-to-rear jam handling is a little clunky. It
-      // 1. Tries to trannsition to success if no paper is detected
+      // 1. Tries to transition to success if no paper is detected
       // 2. If after a timeout we have not transitioned away (because paper still present), transition to jammed state
       // 3. Jam detection state transitions to jam reset state once it confirms no paper present
       eject_to_rear: {
