@@ -1,4 +1,4 @@
-import { electionSampleLongContentDefinition as electionDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition as electionDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
   BallotType,
@@ -32,7 +32,7 @@ import {
   decodeBallotConfigFromReader,
 } from './index';
 
-const standardBallotTypeIndex = Object.values(BallotType).indexOf(
+const precinctBallotTypeIndex = Object.values(BallotType).indexOf(
   BallotType.Precinct
 );
 
@@ -128,7 +128,7 @@ test('encodes & decodes empty votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -183,7 +183,7 @@ test('encodes & decodes without a ballot id', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(false)
     // vote roll call only, no vote data
@@ -238,7 +238,7 @@ test('encodes & decodes whether it is a test ballot', () => {
     // test ballot?
     .writeBoolean(true)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -330,7 +330,7 @@ test('encodes & decodes yesno votes correctly', () => {
     'question-c': ['question-c-option-yes'],
     'proposition-1': [],
     'measure-101': ['measure-101-option-no'],
-    '102': ['102-option-yes'],
+    '102': ['measure-102-option-yes'],
   });
   const ballot: CompletedBallot = {
     electionHash,
@@ -364,7 +364,7 @@ test('encodes & decodes yesno votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -519,7 +519,7 @@ test('throws on decoding an incorrect number of precincts', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -560,7 +560,7 @@ test('throws on decoding an incorrect number of ballot styles', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -570,7 +570,7 @@ test('throws on decoding an incorrect number of ballot styles', () => {
     .toUint8Array();
 
   expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'expected 3 ballot style(s), but read 2 from encoded config'
+    'expected 2 ballot style(s), but read 1 from encoded config'
   );
 });
 
@@ -601,7 +601,7 @@ test('throws on decoding an incorrect number of contests', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -611,7 +611,7 @@ test('throws on decoding an incorrect number of contests', () => {
     .toUint8Array();
 
   expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'expected 21 contest(s), but read 20 from encoded config'
+    'expected 20 contest(s), but read 19 from encoded config'
   );
 });
 
@@ -669,7 +669,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
@@ -684,7 +684,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     // - representative-district-6 (plunarkd)
     .writeBoolean(true, ...falses(4))
     // - governor (franz)
-    .writeBoolean(true, ...falses(25))
+    .writeBoolean(true, ...falses(15))
     // - lieutenant-governor (norberg)
     .writeBoolean(true, ...falses(8))
     // - secretary-of-state (shamsi)
@@ -694,7 +694,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     // - state-assembly-district-54 (solis)
     .writeBoolean(true, false, false)
     // - county-commissioners (argent)
-    .writeBoolean(true, ...falses(14))
+    .writeBoolean(true, ...falses(10))
     // --- write-ins
     .writeUint(0, { max: 3 }) // 4 seats - 1 selection = 3 write-ins max
     // - county-registrar-of-wills (ramachandrani)
@@ -759,7 +759,7 @@ test('encodes & decodes write-in votes correctly', () => {
     // test ballot?
     .writeBoolean(false)
     // ballot type
-    .writeUint(standardBallotTypeIndex, { max: BallotTypeMaximumValue })
+    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
     // ballot id?
     .writeBoolean(true)
     // ballot id
