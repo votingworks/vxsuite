@@ -34,10 +34,6 @@ export {
   electionDefinition as electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   election as electionMinimalExhaustiveSampleSinglePrecinct,
 } from './data/electionMinimalExhaustiveSampleSinglePrecinct/election.json';
-export {
-  electionDefinition as electionSampleLongContentDefinition,
-  election as electionSampleLongContent,
-} from './data/electionSampleLongContent.json';
 export * as systemSettings from './data/systemSettings.json';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
