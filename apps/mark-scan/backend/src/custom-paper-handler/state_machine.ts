@@ -440,6 +440,7 @@ export function buildMachine(
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+          PAPER_JAM: 'jammed',
         },
         after: {
           [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',

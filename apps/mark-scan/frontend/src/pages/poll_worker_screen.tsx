@@ -175,7 +175,7 @@ export function PollWorkerScreen({
   hasVotes,
   reload,
   precinctSelection,
-}: PollworkerScreenProps): JSX.Element {
+}: PollworkerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
@@ -305,6 +305,9 @@ export function PollWorkerScreen({
         </Screen>
       );
     }
+
+    // Unexpected state machine state.
+    return null;
   }
 
   if (isDiagnosticsScreenOpen) {
