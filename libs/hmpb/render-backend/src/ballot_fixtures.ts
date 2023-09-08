@@ -32,7 +32,7 @@ import { join } from 'path';
 
 export const fixturesDir = join(__dirname, '../fixtures');
 export const famousNamesDir = join(fixturesDir, 'famous-names');
-export const sampleElectionDir = join(fixturesDir, 'sample-election');
+export const generalElectionDir = join(fixturesDir, 'general-election');
 export const primaryElectionDir = join(fixturesDir, 'primary-election');
 
 export function voteToOptionId(vote: Vote[number]): Id {
@@ -149,7 +149,7 @@ export const famousNamesFixtures = (() => {
   };
 })();
 
-export const sampleElectionFixtures = (() => {
+export const generalElectionFixtures = (() => {
   const fixtures = [];
 
   for (const bubblePosition of BUBBLE_POSITIONS) {
@@ -210,7 +210,7 @@ export const sampleElectionFixtures = (() => {
         });
 
         const electionDir = join(
-          sampleElectionDir,
+          generalElectionDir,
           `${bubblePosition}-${paperSize}-${layoutDensity}`
         );
 
