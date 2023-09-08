@@ -1,5 +1,5 @@
 import {
-  electionComplexGeoSample,
+  electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -64,7 +64,7 @@ test('getContestIdsForBallotStyle', () => {
 });
 
 test('getContestIdsForPrecinct', () => {
-  const { electionDefinition } = electionComplexGeoSample;
+  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
   expect([
     ...getContestIdsForPrecinct(electionDefinition, 'precinct-c1-w1-1'),
   ]).toEqual([
@@ -86,7 +86,7 @@ test('getContestIdsForPrecinct', () => {
 });
 
 test('getContestsForPrecinct', () => {
-  const { electionDefinition } = electionComplexGeoSample;
+  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
   expect(
     getContestsForPrecinct(electionDefinition, 'precinct-c1-w2').map(
       (c) => c.id

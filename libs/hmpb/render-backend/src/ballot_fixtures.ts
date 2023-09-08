@@ -2,7 +2,7 @@ import { assert, assertDefined, find, range } from '@votingworks/basics';
 import {
   electionGeneral,
   electionFamousNames2021Fixtures,
-  electionComplexGeoSample,
+  electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import {
   AnyElement,
@@ -241,7 +241,7 @@ export const generalElectionFixtures = (() => {
 })();
 
 export const primaryElectionFixtures = (() => {
-  const { election } = electionComplexGeoSample;
+  const { election } = electionPrimaryPrecinctSplitsFixtures;
   const { electionDefinition, ballots } = layOutAllBallotStyles({
     election,
     ballotType: BallotType.Precinct,

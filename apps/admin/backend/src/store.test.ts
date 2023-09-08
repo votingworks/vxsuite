@@ -1,5 +1,5 @@
 import {
-  electionComplexGeoSample,
+  electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -280,10 +280,10 @@ function expectArrayMatch<T>(a: T[], b: T[]) {
 describe('getTabulationGroups', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
-    electionData: electionComplexGeoSample.asText(),
+    electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
-  const { election } = electionComplexGeoSample;
+  const { election } = electionPrimaryPrecinctSplitsFixtures;
 
   test('no groupings', () => {
     expect(store.getTabulationGroups({ electionId })).toEqual([{}]);
@@ -459,10 +459,10 @@ describe('getTabulationGroups', () => {
 describe('getFilteredContests', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
-    electionData: electionComplexGeoSample.asText(),
+    electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
-  const { election } = electionComplexGeoSample;
+  const { election } = electionPrimaryPrecinctSplitsFixtures;
 
   test('no filter', () => {
     expectArrayMatch(
