@@ -8,14 +8,14 @@ import { tmpdir } from 'os';
 import { join, sep } from 'path';
 
 /**
- * Data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingResumedSinglePrecinct.json encoded as base64.
+ * Data of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedSinglePrecinct.json encoded as base64.
  *
  * SHA-256 hash of file data: 9aa8657f814548dbca6b7a251f2703ddea59b3bb7c8eb1ec5e40dd0f7d1580f1
  */
 const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogOTcsCiAgImlzTGl2ZU1vZGUiOiBmYWxzZSwKICAicG9sbHNUcmFuc2l0aW9uIjogInJlc3VtZV92b3RpbmciLAogICJtYWNoaW5lSWQiOiAiMDAwMCIsCiAgInRpbWVTYXZlZCI6IDE2NjU2MTc1NTM4NTEsCiAgInRpbWVQb2xsc1RyYW5zaXRpb25lZCI6IDE2NjU2MTc1NTM4NTEsCiAgInByZWNpbmN0U2VsZWN0aW9uIjogewogICAgImtpbmQiOiAiU2luZ2xlUHJlY2luY3QiLAogICAgInByZWNpbmN0SWQiOiAicHJlY2luY3QtMSIKICB9Cn0K';
 
 /**
- * MIME type of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingResumedSinglePrecinct.json.
+ * MIME type of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedSinglePrecinct.json.
  */
 export const mimeType = 'application/json';
 
@@ -32,7 +32,7 @@ export function asFilePath(): string {
 }
 
 /**
- * Convert to a `data:` URL of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingResumedSinglePrecinct.json, suitable for embedding in HTML.
+ * Convert to a `data:` URL of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedSinglePrecinct.json, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: 9aa8657f814548dbca6b7a251f2703ddea59b3bb7c8eb1ec5e40dd0f7d1580f1
  */
@@ -41,7 +41,7 @@ export function asDataUrl(): string {
 }
 
 /**
- * Raw data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingResumedSinglePrecinct.json.
+ * Raw data of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedSinglePrecinct.json.
  *
  * SHA-256 hash of file data: 9aa8657f814548dbca6b7a251f2703ddea59b3bb7c8eb1ec5e40dd0f7d1580f1
  */
@@ -50,7 +50,7 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Text content of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingResumedSinglePrecinct.json.
+ * Text content of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingResumedSinglePrecinct.json.
  *
  * SHA-256 hash of file data: 9aa8657f814548dbca6b7a251f2703ddea59b3bb7c8eb1ec5e40dd0f7d1580f1
  */

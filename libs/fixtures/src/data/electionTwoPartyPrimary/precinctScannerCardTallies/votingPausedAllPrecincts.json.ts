@@ -8,14 +8,14 @@ import { tmpdir } from 'os';
 import { join, sep } from 'path';
 
 /**
- * Data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingPausedAllPrecincts.json encoded as base64.
+ * Data of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingPausedAllPrecincts.json encoded as base64.
  *
  * SHA-256 hash of file data: 388bbdd36b122a6325525d50dd36f3810bb0b8a7523b1b7b1079934b5423121d
  */
 const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogOTcsCiAgImlzTGl2ZU1vZGUiOiBmYWxzZSwKICAicG9sbHNUcmFuc2l0aW9uIjogInBhdXNlX3ZvdGluZyIsCiAgIm1hY2hpbmVJZCI6ICIwMDAwIiwKICAidGltZVNhdmVkIjogMTY2NTYxNjA2OTc2OSwKICAidGltZVBvbGxzVHJhbnNpdGlvbmVkIjogMTY2NTYxNjA2OTc2OSwKICAicHJlY2luY3RTZWxlY3Rpb24iOiB7CiAgICAia2luZCI6ICJBbGxQcmVjaW5jdHMiCiAgfQp9Cg==';
 
 /**
- * MIME type of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingPausedAllPrecincts.json.
+ * MIME type of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingPausedAllPrecincts.json.
  */
 export const mimeType = 'application/json';
 
@@ -32,7 +32,7 @@ export function asFilePath(): string {
 }
 
 /**
- * Convert to a `data:` URL of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingPausedAllPrecincts.json, suitable for embedding in HTML.
+ * Convert to a `data:` URL of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingPausedAllPrecincts.json, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: 388bbdd36b122a6325525d50dd36f3810bb0b8a7523b1b7b1079934b5423121d
  */
@@ -41,7 +41,7 @@ export function asDataUrl(): string {
 }
 
 /**
- * Raw data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingPausedAllPrecincts.json.
+ * Raw data of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingPausedAllPrecincts.json.
  *
  * SHA-256 hash of file data: 388bbdd36b122a6325525d50dd36f3810bb0b8a7523b1b7b1079934b5423121d
  */
@@ -50,7 +50,7 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Text content of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/votingPausedAllPrecincts.json.
+ * Text content of data/electionTwoPartyPrimary/precinctScannerCardTallies/votingPausedAllPrecincts.json.
  *
  * SHA-256 hash of file data: 388bbdd36b122a6325525d50dd36f3810bb0b8a7523b1b7b1079934b5423121d
  */

@@ -6,8 +6,5 @@ export * as castVoteRecordReport from './cvr-files/standard';
 export const batchCsvData = batchResultsCsvAsText();
 export const finalCsvData = finalResultsCsvAsText();
 
-export {
-  election,
-  electionDefinition,
-} from './electionMinimalExhaustiveSample.json';
+export { election, electionDefinition } from './election.json';
 export * as systemSettings from '../systemSettings.json';

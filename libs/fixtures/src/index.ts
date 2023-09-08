@@ -5,7 +5,7 @@ export * as electionGridLayoutNewHampshireAmherstFixtures from './data/electionG
 export * as electionGridLayoutNewHampshireHudsonFixtures from './data/electionGridLayoutNewHampshireHudson';
 export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021';
 export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPrimary';
-export * as electionMinimalExhaustiveSampleFixtures from './data/electionMinimalExhaustiveSample';
+export * as electionTwoPartyPrimaryFixtures from './data/electionTwoPartyPrimary';
 export * as electionComplexGeoSample from './data/electionComplexGeoSample/election.json';
 export * as electionMinimalExhaustiveSampleWithReportingUrlFixtures from './data/electionMinimalExhaustiveSampleWithReportingUrl';
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
@@ -19,9 +19,9 @@ export {
   election as multiPartyPrimaryElection,
 } from './data/electionMultiPartyPrimary';
 export {
-  electionDefinition as electionMinimalExhaustiveSampleDefinition,
-  election as electionMinimalExhaustiveSample,
-} from './data/electionMinimalExhaustiveSample';
+  electionDefinition as electionTwoPartyPrimaryDefinition,
+  election as electionTwoPartyPrimary,
+} from './data/electionTwoPartyPrimary';
 export {
   electionDefinition as electionMinimalExhaustiveSampleWithReportingUrlDefinition,
   election as electionMinimalExhaustiveSampleWithReportingUrl,

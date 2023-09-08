@@ -8,14 +8,14 @@ import { tmpdir } from 'os';
 import { join, sep } from 'path';
 
 /**
- * Data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json encoded as base64.
+ * Data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json encoded as base64.
  *
  * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
 const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogMCwKICAiaXNMaXZlTW9kZSI6IGZhbHNlLAogICJwb2xsc1RyYW5zaXRpb24iOiAiY2xvc2VfcG9sbHMiLAogICJtYWNoaW5lSWQiOiAiMDAwMCIsCiAgInRpbWVTYXZlZCI6IDE2NjU2MTc2MjkzNzksCiAgInRpbWVQb2xsc1RyYW5zaXRpb25lZCI6IDE2NjU2MTc2MjkzNzksCiAgInByZWNpbmN0U2VsZWN0aW9uIjogewogICAgImtpbmQiOiAiU2luZ2xlUHJlY2luY3QiLAogICAgInByZWNpbmN0SWQiOiAicHJlY2luY3QtMSIKICB9LAogICJiYWxsb3RDb3VudHMiOiB7CiAgICAiMCxwcmVjaW5jdC0xIjogWzAsIDBdLAogICAgIjEscHJlY2luY3QtMSI6IFswLCAwXSwKICAgICIwLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXSwKICAgICIxLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXQogIH0sCiAgInRhbGxpZXNCeVByZWNpbmN0IjogewogICAgInByZWNpbmN0LTEiOiBbCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMF0KICAgIF0KICB9LAogICJ0YWxseSI6IFsKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgIFswLCAwLCAwLCAwLCAwXQogIF0KfQo=';
 
 /**
- * MIME type of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
+ * MIME type of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
  */
 export const mimeType = 'application/json';
 
@@ -32,7 +32,7 @@ export function asFilePath(): string {
 }
 
 /**
- * Convert to a `data:` URL of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json, suitable for embedding in HTML.
+ * Convert to a `data:` URL of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
@@ -41,7 +41,7 @@ export function asDataUrl(): string {
 }
 
 /**
- * Raw data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
+ * Raw data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
  *
  * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */
@@ -50,7 +50,7 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Text content of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
+ * Text content of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsClosedSinglePrecinct.json.
  *
  * SHA-256 hash of file data: c66c0133fed9d9a121c35af6601ed44a751aa85e235f87077d6681e5fa863b5d
  */

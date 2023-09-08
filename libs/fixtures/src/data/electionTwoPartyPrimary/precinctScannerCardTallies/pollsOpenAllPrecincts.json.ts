@@ -8,14 +8,14 @@ import { tmpdir } from 'os';
 import { join, sep } from 'path';
 
 /**
- * Data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsOpenAllPrecincts.json encoded as base64.
+ * Data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json encoded as base64.
  *
  * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
  */
 const resourceDataBase64 = 'ewogICJ0YWxseU1hY2hpbmVUeXBlIjogInByZWNpbmN0X3NjYW5uZXIiLAogICJ0b3RhbEJhbGxvdHNTY2FubmVkIjogMCwKICAiaXNMaXZlTW9kZSI6IGZhbHNlLAogICJwb2xsc1RyYW5zaXRpb24iOiAib3Blbl9wb2xscyIsCiAgIm1hY2hpbmVJZCI6ICIwMDAwIiwKICAidGltZVNhdmVkIjogMTY2NTYxNjA2OTc2OSwKICAidGltZVBvbGxzVHJhbnNpdGlvbmVkIjogMTY2NTYxNjA2OTc2OSwKICAicHJlY2luY3RTZWxlY3Rpb24iOiB7CiAgICAia2luZCI6ICJBbGxQcmVjaW5jdHMiCiAgfSwKICAiYmFsbG90Q291bnRzIjogewogICAgIjAscHJlY2luY3QtMSI6IFswLCAwXSwKICAgICIwLHByZWNpbmN0LTIiOiBbMCwgMF0sCiAgICAiMSxwcmVjaW5jdC0xIjogWzAsIDBdLAogICAgIjEscHJlY2luY3QtMiI6IFswLCAwXSwKICAgICIwLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXSwKICAgICIxLF9fQUxMX1BSRUNJTkNUUyI6IFswLCAwXQogIH0sCiAgInRhbGxpZXNCeVByZWNpbmN0IjogewogICAgInByZWNpbmN0LTEiOiBbCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMF0KICAgIF0sCiAgICAicHJlY2luY3QtMiI6IFsKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwXSwKICAgICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgICBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sCiAgICAgIFswLCAwLCAwLCAwLCAwXQogICAgXQogIH0sCiAgInRhbGx5IjogWwogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdLAogICAgWzAsIDAsIDAsIDAsIDBdCiAgXQp9Cg==';
 
 /**
- * MIME type of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
+ * MIME type of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
  */
 export const mimeType = 'application/json';
 
@@ -32,7 +32,7 @@ export function asFilePath(): string {
 }
 
 /**
- * Convert to a `data:` URL of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsOpenAllPrecincts.json, suitable for embedding in HTML.
+ * Convert to a `data:` URL of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
  */
@@ -41,7 +41,7 @@ export function asDataUrl(): string {
 }
 
 /**
- * Raw data of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
+ * Raw data of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
  *
  * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
  */
@@ -50,7 +50,7 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Text content of data/electionMinimalExhaustiveSample/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
+ * Text content of data/electionTwoPartyPrimary/precinctScannerCardTallies/pollsOpenAllPrecincts.json.
  *
  * SHA-256 hash of file data: b6f3bb8ae3d190ccaeb0c9ef68a91519ac6aae451fce5bc57a75ace5ba36ba6e
  */
