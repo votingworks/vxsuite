@@ -22,7 +22,6 @@ import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   InterpretFileResult,
   interpretSheet,
@@ -32,6 +31,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
+  DELAY_BEFORE_DECLARING_REAR_JAM_MS,
   PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
   PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
   RESET_AFTER_JAM_DELAY_MS,
@@ -97,6 +97,10 @@ export class PaperHandlerStateMachine {
 
   stopMachineService(): void {
     this.machineService.stop();
+  }
+
+  getRawDeviceStatus(): Promise<PaperHandlerStatus> {
+    return this.driver.getPaperHandlerStatus();
   }
 
   // Leftover wrapper. Keeping this so the interface between API and state machine is the same until
@@ -189,10 +193,11 @@ function paperHandlerStatusToEvent(
     return { type: 'PAPER_JAM' };
   }
 
+  if (isPaperInOutput(paperHandlerStatus)) {
+    return { type: 'PAPER_IN_OUTPUT' };
+  }
+
   if (isPaperInScanner(paperHandlerStatus)) {
-    if (isPaperInOutput(paperHandlerStatus)) {
-      return { type: 'PAPER_IN_OUTPUT' };
-    }
     if (paperHandlerStatus.parkSensor) {
       return { type: 'PAPER_PARKED' };
     }
@@ -270,17 +275,22 @@ function loadMetadataAndInterpretBallot(
   context: Context
 ): Promise<SheetOf<InterpretFileResult>> {
   const { scannedImagePaths, workspace } = context;
+  assert(scannedImagePaths, 'Expected scannedImagePaths in context');
+
   const { store } = workspace;
   const electionDefinition = store.getElectionDefinition();
+  assert(
+    electionDefinition,
+    'Expected electionDefinition to be defined in store'
+  );
 
-  assert(scannedImagePaths);
-  assert(electionDefinition);
+  const precinctSelection = store.getPrecinctSelection();
+  assert(
+    precinctSelection,
+    'Expected precinctSelection to be defined in store'
+  );
 
-  const { precincts } = electionDefinition.election;
-  // Hard coded for now because we don't store precinct in backend. This
-  // will be replaced with a store read in a future PR.
-  const precinct = precincts[precincts.length - 1];
-  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  // Hardcoded until isLivemode is moved from frontend store to backend store
   const testMode = true;
   const { markThresholds, precinctScanAdjudicationReasons } = assertDefined(
     store.getSystemSettings()
@@ -418,6 +428,10 @@ export function buildMachine(
           VOTER_INVALIDATED_BALLOT: 'eject_to_front',
         },
       },
+      // Eject-to-rear jam handling is a little clunky. It
+      // 1. Tries to transition to success if no paper is detected
+      // 2. If after a timeout we have not transitioned away (because paper still present), transition to jammed state
+      // 3. Jam detection state transitions to jam reset state once it confirms no paper present
       eject_to_rear: {
         invoke: pollPaperStatus(),
         entry: async (context) => {
@@ -426,6 +440,10 @@ export function buildMachine(
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+          PAPER_JAM: 'jammed',
+        },
+        after: {
+          [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
         },
       },
       eject_to_front: {

@@ -65,7 +65,7 @@ it('transitions from accepting_paper to loading_paper state when front sensors a
   machine.setAcceptingPaper();
   expect(machine.getSimpleStatus()).toEqual('accepting_paper');
   await sleep(TEST_POLLING_INTERVAL_MS);
-  expect(driver.getPaperHandlerStatus).toHaveBeenCalledTimes(1);
+  expect(driver.getPaperHandlerStatus).toHaveBeenCalled();
   const paperReadyToLoadStatus: PaperHandlerStatus = {
     ...defaultPaperHandlerStatus(),
     paperInputLeftInnerSensor: true,

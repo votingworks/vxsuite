@@ -175,7 +175,7 @@ export function PollWorkerScreen({
   hasVotes,
   reload,
   precinctSelection,
-}: PollworkerScreenProps): JSX.Element {
+}: PollworkerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
@@ -255,51 +255,59 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerAuth.cardlessVoterUser) {
-    if (stateMachineState === 'accepting_paper') {
+    if (
+      stateMachineState === 'accepting_paper' ||
+      stateMachineState === 'loading_paper'
+    ) {
       return <LoadPaperPage />;
     }
 
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 
-    return (
-      <Screen white>
-        <Main centerChild padded>
-          <Prose id="audiofocus">
-            <FullScreenIconWrapper align="center" color="success">
-              <Icons.Done />
-            </FullScreenIconWrapper>
-            <H2 as="h1" align="center">
-              {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
-            </H2>
-            <p>Paper has been loaded.</p>
-            <ol>
-              <li>
-                <P>
-                  Instruct the voter to press the{' '}
-                  <Font weight="bold" noWrap>
-                    Start Voting
-                  </Font>{' '}
-                  button on the next screen.
-                </P>
-              </li>
-              <li>
-                <P>Remove the poll worker card to continue.</P>
-              </li>
-            </ol>
-            <P>
-              <HorizontalRule>or</HorizontalRule>
-            </P>
-            <P align="center">Deactivate this voter session to start over.</P>
-            <P align="center">
-              <Button small onPress={resetCardlessVoterSession}>
-                Deactivate Voting Session
-              </Button>
-            </P>
-          </Prose>
-        </Main>
-      </Screen>
-    );
+    if (stateMachineState === 'waiting_for_ballot_data') {
+      return (
+        <Screen white>
+          <Main centerChild padded>
+            <Prose id="audiofocus">
+              <FullScreenIconWrapper align="center" color="success">
+                <Icons.Done />
+              </FullScreenIconWrapper>
+              <H2 as="h1" align="center">
+                {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
+              </H2>
+              <p>Paper has been loaded.</p>
+              <ol>
+                <li>
+                  <P>
+                    Instruct the voter to press the{' '}
+                    <Font weight="bold" noWrap>
+                      Start Voting
+                    </Font>{' '}
+                    button on the next screen.
+                  </P>
+                </li>
+                <li>
+                  <P>Remove the poll worker card to continue.</P>
+                </li>
+              </ol>
+              <P>
+                <HorizontalRule>or</HorizontalRule>
+              </P>
+              <P align="center">Deactivate this voter session to start over.</P>
+              <P align="center">
+                <Button small onPress={resetCardlessVoterSession}>
+                  Deactivate Voting Session
+                </Button>
+              </P>
+            </Prose>
+          </Main>
+        </Screen>
+      );
+    }
+
+    // Unexpected state machine state.
+    return null;
   }
 
   if (isDiagnosticsScreenOpen) {

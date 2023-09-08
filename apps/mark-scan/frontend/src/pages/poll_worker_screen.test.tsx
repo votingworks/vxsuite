@@ -6,6 +6,7 @@ import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
+  fakeCardlessVoterUser,
   fakePollWorkerUser,
   fakeSessionExpiresAt,
   hasTextAcrossElements,
@@ -45,6 +46,21 @@ function fakePollWorkerAuth(
     status: 'logged_in',
     user: fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
     sessionExpiresAt: fakeSessionExpiresAt(),
+  };
+}
+
+function fakeCardlessVoterAuth(
+  electionDefinition: ElectionDefinition
+): InsertedSmartCardAuth.PollWorkerLoggedIn {
+  const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
+  const precinctId = electionDefinition.election.precincts[0].id;
+
+  return {
+    ...fakePollWorkerAuth(electionDefinition),
+    cardlessVoterUser: fakeCardlessVoterUser({
+      ballotStyleId,
+      precinctId,
+    }),
   };
 }
 
@@ -192,4 +208,35 @@ test('can toggle between vote activation and "other actions" during polls open',
   // switch back
   userEvent.click(screen.getByText('Back to Ballot Style Selection'));
   screen.getByText('Select Voter’s Ballot Style');
+});
+
+test('returns instruction page if status is `waiting_for_ballot_data`', async () => {
+  const electionDefinition = electionSampleDefinition;
+  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
+
+  renderScreen({
+    pollsState: 'polls_open',
+    pollWorkerAuth,
+    machineConfig: fakeMachineConfig(),
+    electionDefinition,
+  });
+
+  await screen.findByText('Paper has been loaded.');
+});
+
+test('returns null if status is unhandled', () => {
+  const electionDefinition = electionSampleDefinition;
+  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  apiMock.setPaperHandlerState('scanning');
+
+  renderScreen({
+    pollsState: 'polls_open',
+    pollWorkerAuth,
+    machineConfig: fakeMachineConfig(),
+    electionDefinition,
+  });
+
+  expect(screen.queryByText('Paper has been loaded.')).toBeNull();
+  expect(screen.queryByText('Poll Worker Actions')).toBeNull();
 });
