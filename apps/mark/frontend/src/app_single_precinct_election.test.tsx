@@ -1,5 +1,5 @@
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
-import { electionMinimalExhaustiveSampleSinglePrecinctDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { getDisplayElectionHash } from '@votingworks/types';
 import { FakeKiosk, fakeKiosk } from '@votingworks/test-utils';
 import { screen } from '../test/react_testing_library';
@@ -27,7 +27,7 @@ jest.setTimeout(15000);
 
 test('loading election with a single precinct automatically sets precinct', async () => {
   const electionDefinition =
-    electionMinimalExhaustiveSampleSinglePrecinctDefinition;
+    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();

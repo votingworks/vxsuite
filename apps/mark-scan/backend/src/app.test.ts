@@ -1,9 +1,9 @@
 import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionGeneralDefinition,
   systemSettings,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
@@ -153,7 +153,7 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
 
 test('configureBallotPackageFromUsb automatically writes precinct selection if only 1 option', async () => {
   const electionDefinition =
-    electionMinimalExhaustiveSampleSinglePrecinctDefinition;
+    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
   assert(
     electionDefinition.election.precincts.length === 1,
     'Expected election to have exactly 1 precinct'

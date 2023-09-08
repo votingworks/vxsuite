@@ -1,6 +1,6 @@
 import {
   asElectionDefinition,
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import {
@@ -136,7 +136,8 @@ test('precinct change disabled if polls closed', async () => {
 test('precinct selection disabled if single precinct election', async () => {
   apiMock.expectGetPrecinctSelection();
   renderScreen({
-    electionDefinition: electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition,
   });
 
   await screen.findByText('Election Manager Actions');

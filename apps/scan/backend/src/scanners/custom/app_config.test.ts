@@ -1,7 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
   electionGeneralDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
@@ -208,16 +208,14 @@ test('fails to configure ballot package if election definition on card does not 
 });
 
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
   await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
-    mockElectionManager(
-      mockAuth,
-      electionMinimalExhaustiveSampleSinglePrecinctDefinition
-    );
+    mockElectionManager(mockAuth, electionDefinition);
     mockUsbDrive.insertUsbDrive({
       'ballot-packages': {
         'test-ballot-package.zip': await createBallotPackageZipArchive({
-          electionDefinition:
-            electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+          electionDefinition,
         }),
       },
     });
