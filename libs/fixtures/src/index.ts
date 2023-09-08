@@ -11,9 +11,9 @@ export * as electionMinimalExhaustiveSampleWithReportingUrlFixtures from './data
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
 export * as sampleBallotImages from './data/sample-ballot-images';
 export {
-  electionDefinition as electionSampleDefinition,
-  election as electionSample,
-} from './data/electionSample.json';
+  electionDefinition as electionGeneralDefinition,
+  election as electionGeneral,
+} from './data/electionGeneral/election.json';
 export {
   electionDefinition as multiPartyPrimaryElectionDefinition,
   election as multiPartyPrimaryElection,
