@@ -1,7 +1,7 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
 import { render, screen, waitFor } from '../test/react_testing_library';
@@ -72,7 +72,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
 });
 
 test('Voter idle timeout', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();

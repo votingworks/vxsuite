@@ -1,5 +1,5 @@
 import {
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
 
@@ -7,7 +7,7 @@ import { canDistinguishVotingMethods } from './elections';
 
 test('returns true if gridLayouts is absent', () => {
   expect(
-    canDistinguishVotingMethods(electionSampleDefinition.election)
+    canDistinguishVotingMethods(electionGeneralDefinition.election)
   ).toBeTruthy();
 });
 

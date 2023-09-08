@@ -1,11 +1,11 @@
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 
 import { getTestFilePath } from '../test/utils';
 import { LiveCheckConfig } from './config';
 import { LiveCheck } from './live_check';
 
 const machineId = '0000';
-const { electionHash } = electionSampleDefinition;
+const { electionHash } = electionGeneralDefinition;
 
 const vxAdminTestConfig: LiveCheckConfig = {
   machineCertPath: getTestFilePath({

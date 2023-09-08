@@ -4,7 +4,7 @@ import {
   ThemeManagerContext,
   ThemeManagerContextInterface,
 } from '@votingworks/ui';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { PRECINCT_SCANNER_STATES } from '@votingworks/types';
 import { act, render, waitFor } from '../../test/react_testing_library';
@@ -81,7 +81,7 @@ test('Resets theme when election official logs in', async () => {
   );
 
   // Should reset display settings on Election Manager login:
-  act(() => apiMock.authenticateAsElectionManager(electionSampleDefinition));
+  act(() => apiMock.authenticateAsElectionManager(electionGeneralDefinition));
   await waitFor(() =>
     expect(currentTheme).toEqual(
       expect.objectContaining<Partial<DefaultTheme>>({

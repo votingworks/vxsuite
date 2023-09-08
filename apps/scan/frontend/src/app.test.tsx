@@ -14,7 +14,7 @@ import {
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import {
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -132,7 +132,7 @@ test('shows insert USB Drive screen when there is no USB drive', async () => {
 });
 
 test('app can load and configure from a usb stick', async () => {
-  apiMock.authenticateAsElectionManager(electionSampleDefinition);
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   apiMock.expectCheckUltrasonicSupported(false);
 
   apiMock.expectGetConfig({
@@ -165,7 +165,7 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
     .returns(configurePromise);
-  apiMock.expectGetConfig({ electionDefinition: electionSampleDefinition });
+  apiMock.expectGetConfig({ electionDefinition: electionGeneralDefinition });
   await screen.findByText('Configuring VxScan from USB drive…');
   configureResolve(ok());
 
@@ -193,13 +193,13 @@ test('election manager must set precinct', async () => {
   await screen.findByText('No Precinct Selected');
 
   // Poll Worker card does nothing
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('No Precinct Selected');
   apiMock.removeCard();
   await advanceTimersAndPromises(1);
 
   // Insert Election Manager card and set precinct
-  apiMock.authenticateAsElectionManager(electionSampleDefinition);
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Settings');
   screen.getByText(SELECT_PRECINCT_TEXT);
   apiMock.expectSetPrecinct(singlePrecinctSelectionFor('23'));
@@ -214,12 +214,12 @@ test('election manager must set precinct', async () => {
 
   // Poll Worker card can be used to open polls now
   apiMock.expectGetScannerResultsByParty([]);
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
 });
 
 test('election manager and poll worker configuration', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   let config: Partial<PrecinctScannerConfig> = { electionDefinition };
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig(config);
@@ -456,7 +456,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
     },
   ]);
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
 
   // Close Polls
@@ -489,7 +489,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await advanceTimersAndPromises(1);
 
   // Insert Election Manager Card
-  apiMock.authenticateAsElectionManager(electionSampleDefinition);
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Settings');
 
   userEvent.click(screen.getByRole('tab', { name: /data/i }));
@@ -634,7 +634,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   renderApp();
   await screen.findByText('Polls Closed');
   apiMock.expectGetScannerResultsByParty([]);
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   // Open Polls
   apiMock.expectSetPollsState('polls_open');
@@ -660,7 +660,7 @@ test('poll worker can open and close polls without scanning any ballots', async 
 
   // Open Polls Flow
   apiMock.expectGetScannerResultsByParty([]);
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
@@ -680,7 +680,7 @@ test('poll worker can open and close polls without scanning any ballots', async 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
@@ -769,7 +769,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
 
   // Open Polls
   apiMock.expectGetScannerResultsByParty([]);
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
@@ -782,7 +782,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Pause Voting Flow
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
   apiMock.expectSetPollsState('polls_paused');
@@ -800,7 +800,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Polls Paused');
 
   // Resume Voting Flow
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to resume voting?');
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
@@ -813,7 +813,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText(/Insert Your Ballot/i);
 
   // Close Polls Flow
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
@@ -942,7 +942,7 @@ test('replace ballot bag flow', async () => {
   await screen.findByText('Ballot Bag Full');
 
   // Insert a pollworker card to enter confirmation step
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await advanceTimersAndPromises(1);
   await screen.findByText('Ballot Bag Replaced?');
 
@@ -952,7 +952,7 @@ test('replace ballot bag flow', async () => {
   await screen.findByText('Ballot Bag Full');
 
   // Can confirm with pollworker card
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await advanceTimersAndPromises(1);
   await screen.findByText('Ballot Bag Replaced?');
   userEvent.click(screen.getByText('Yes, New Ballot Bag is Ready'));

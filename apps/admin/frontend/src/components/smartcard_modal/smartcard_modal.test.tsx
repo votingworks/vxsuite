@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import {
   electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
@@ -24,7 +24,7 @@ import { buildApp } from '../../../test/helpers/build_app';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { VxFiles } from '../../lib/converters';
 
-const electionDefinition = electionSampleDefinition;
+const electionDefinition = electionGeneralDefinition;
 const { electionHash } = electionDefinition;
 const otherElectionHash =
   electionMinimalExhaustiveSampleDefinition.electionHash;

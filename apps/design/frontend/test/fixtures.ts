@@ -6,7 +6,7 @@ import {
 } from '@votingworks/design-backend';
 import {
   electionComplexGeoSample,
-  electionSample,
+  electionGeneral,
 } from '@votingworks/fixtures';
 import { DEFAULT_LAYOUT_OPTIONS } from '@votingworks/hmpb-layout';
 import { DEFAULT_SYSTEM_SETTINGS, Election } from '@votingworks/types';
@@ -37,7 +37,7 @@ function makeElectionRecord(baseElection: Election): ElectionRecord {
 }
 
 export const blankElectionRecord = makeElectionRecord(createBlankElection());
-export const generalElectionRecord = makeElectionRecord(electionSample);
+export const generalElectionRecord = makeElectionRecord(electionGeneral);
 export const primaryElectionRecord = makeElectionRecord(
   electionComplexGeoSample.election
 );

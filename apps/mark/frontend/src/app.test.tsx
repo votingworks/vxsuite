@@ -10,7 +10,7 @@ import {
 } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useDisplaySettingsManager } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, screen, waitFor } from '../test/react_testing_library';
@@ -174,7 +174,7 @@ it('uses window.location.reload by default', async () => {
   });
 
   // Set up in an already-configured state.
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
 

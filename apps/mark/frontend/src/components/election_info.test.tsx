@@ -1,6 +1,6 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
-import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition as electionDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../../test/react_testing_library';
 import { ElectionInfo } from './election_info';
 

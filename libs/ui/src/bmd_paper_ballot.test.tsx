@@ -10,7 +10,7 @@ import {
 } from '@votingworks/types';
 import {
   electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 
@@ -88,7 +88,7 @@ function renderBmdPaperBallot({
 
 test('BmdPaperBallot renders votes for candidate contests and yes-no contests', () => {
   const { container } = renderBmdPaperBallot({
-    electionDefinition: electionSampleDefinition,
+    electionDefinition: electionGeneralDefinition,
     ballotStyleId: '5',
     precinctId: '21',
     votes: {
@@ -188,7 +188,7 @@ test('BmdPaperBallot renders votes for write-in candidates', () => {
 
 test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
   renderBmdPaperBallot({
-    electionDefinition: electionSampleDefinition,
+    electionDefinition: electionGeneralDefinition,
     ballotStyleId: '12',
     precinctId: '23',
     votes: {
@@ -214,7 +214,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
   const QrCodeSpy = jest.spyOn(QrCodeModule, 'QrCode');
 
   renderBmdPaperBallot({
-    electionDefinition: electionSampleDefinition,
+    electionDefinition: electionGeneralDefinition,
     ballotStyleId: '5',
     precinctId: '21',
     votes: {
@@ -226,12 +226,12 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
   });
 
   expect(encodeBallot).toBeCalledWith(
-    electionSampleDefinition.election,
+    electionGeneralDefinition.election,
     expect.objectContaining({
       ballotStyleId: '5',
       precinctId: '21',
       ballotType: BallotType.Precinct,
-      electionHash: electionSampleDefinition.electionHash,
+      electionHash: electionGeneralDefinition.electionHash,
       isTestMode: true,
       votes: {
         president: [expect.objectContaining({ id: 'barchi-hallaren' })],
@@ -254,7 +254,7 @@ describe('BmdPaperBallot calls onRendered', () => {
   test('when "seal" present', () => {
     const onRendered = jest.fn();
     renderBmdPaperBallot({
-      electionDefinition: electionSampleDefinition,
+      electionDefinition: electionGeneralDefinition,
       ballotStyleId: '5',
       precinctId: '21',
       votes: {},

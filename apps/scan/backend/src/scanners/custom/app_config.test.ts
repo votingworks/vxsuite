@@ -1,7 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
   electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
@@ -159,7 +159,7 @@ test('uses default machine config if not set', async () => {
 
 test("fails to configure if there's no ballot package on the usb drive", async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    mockElectionManager(mockAuth, electionSampleDefinition);
+    mockElectionManager(mockAuth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
       err('no_ballot_package_on_usb_drive')
@@ -178,7 +178,7 @@ test('fails to configure ballot package if logged out', async () => {
     mockUsbDrive.insertUsbDrive({
       'ballot-packages': {
         'test-ballot-package.zip': await createBallotPackageZipArchive({
-          electionDefinition: electionSampleDefinition,
+          electionDefinition: electionGeneralDefinition,
         }),
       },
     });
@@ -197,7 +197,7 @@ test('fails to configure ballot package if election definition on card does not 
     mockUsbDrive.insertUsbDrive({
       'ballot-packages': {
         'test-ballot-package.zip': await createBallotPackageZipArchive({
-          electionDefinition: electionSampleDefinition,
+          electionDefinition: electionGeneralDefinition,
         }),
       },
     });
@@ -234,7 +234,7 @@ test("if there's only one precinct in the election, it's selected automatically 
 
 test('configures using the most recently created ballot package on the usb drive', async () => {
   await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
-    mockElectionManager(mockAuth, electionSampleDefinition);
+    mockElectionManager(mockAuth, electionGeneralDefinition);
 
     mockUsbDrive.insertUsbDrive({
       'ballot-packages': {
@@ -242,7 +242,7 @@ test('configures using the most recently created ballot package on the usb drive
           electionFamousNames2021Fixtures.electionJson.toBallotPackage()
         ),
         'newer-ballot-package.zip': await createBallotPackageZipArchive({
-          electionDefinition: electionSampleDefinition,
+          electionDefinition: electionGeneralDefinition,
         }),
       },
     });
@@ -267,7 +267,7 @@ test('configures using the most recently created ballot package on the usb drive
     );
     const config = await apiClient.getConfig();
     expect(config.electionDefinition?.election.title).toEqual(
-      electionSampleDefinition.election.title
+      electionGeneralDefinition.election.title
     );
   });
 });

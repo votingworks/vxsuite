@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { err, ok } from '@votingworks/basics';
 import {
   electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
   fakeLogger,
@@ -70,7 +70,7 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
-const { electionHash } = electionSampleDefinition;
+const { electionHash } = electionGeneralDefinition;
 const otherElectionHash =
   electionMinimalExhaustiveSampleDefinition.electionHash;
 const defaultConfig: DippedSmartCardAuthConfig = {};

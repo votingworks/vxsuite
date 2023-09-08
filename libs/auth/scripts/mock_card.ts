@@ -52,12 +52,12 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
     )
     .example(
       '$ ./scripts/mock-card --card-type poll-worker \\\n' +
-        '--election-definition ../fixtures/data/electionSample.json',
+        '--election-definition ../fixtures/data/electionGeneral/election.json',
       ''
     )
     .example(
       '$ ./scripts/mock-card --card-type poll-worker-with-pin \\\n' +
-        '--election-definition ../fixtures/data/electionSample.json',
+        '--election-definition ../fixtures/data/electionGeneral/election.json',
       ''
     )
     .example('$ ./scripts/mock-card --card-type unprogrammed', '')

@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
   fakeKiosk,

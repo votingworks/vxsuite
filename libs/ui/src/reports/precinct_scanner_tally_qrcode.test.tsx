@@ -1,6 +1,6 @@
 import {
-  electionSample,
-  electionSampleDefinition,
+  electionGeneral,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { buildElectionResultsFixture, compressTally } from '@votingworks/utils';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
@@ -18,7 +18,7 @@ afterEach(() => {
 const time = new Date(2021, 8, 19, 11, 5).getTime();
 
 const resultsFixture = buildElectionResultsFixture({
-  election: electionSample,
+  election: electionGeneral,
   cardCounts: {
     bmd: 1,
     hmpb: [],
@@ -41,9 +41,9 @@ describe('getSignedQuickResultsReportingUrl', () => {
     mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
     window.kiosk = mockKiosk;
 
-    const compressedTally = compressTally(electionSample, resultsFixture);
+    const compressedTally = compressTally(electionGeneral, resultsFixture);
     await getSignedQuickResultsReportingUrl({
-      electionDefinition: electionSampleDefinition,
+      electionDefinition: electionGeneralDefinition,
       isLiveMode: true,
       compressedTally,
       signingMachineId: 'DEMO-0000',
@@ -52,7 +52,7 @@ describe('getSignedQuickResultsReportingUrl', () => {
     const payloadComponents =
       mockKiosk.sign.mock.calls[0][0].payload.split('.');
     expect(payloadComponents).toEqual([
-      electionSampleDefinition.electionHash,
+      electionGeneralDefinition.electionHash,
       'DEMO-0000',
       '1', // live mode
       expect.any(String),
@@ -65,9 +65,9 @@ describe('getSignedQuickResultsReportingUrl', () => {
     mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
     window.kiosk = mockKiosk;
 
-    const compressedTally = compressTally(electionSample, resultsFixture);
+    const compressedTally = compressTally(electionGeneral, resultsFixture);
     await getSignedQuickResultsReportingUrl({
-      electionDefinition: electionSampleDefinition,
+      electionDefinition: electionGeneralDefinition,
       isLiveMode: false,
       compressedTally,
       signingMachineId: 'DEMO-0000',
@@ -76,7 +76,7 @@ describe('getSignedQuickResultsReportingUrl', () => {
     const payloadComponents =
       mockKiosk.sign.mock.calls[0][0].payload.split('.');
     expect(payloadComponents).toEqual([
-      electionSampleDefinition.electionHash,
+      electionGeneralDefinition.electionHash,
       'DEMO-0000',
       '0', // test mode
       expect.any(String),
@@ -85,9 +85,9 @@ describe('getSignedQuickResultsReportingUrl', () => {
   });
 
   test('gives URL without signed component if no kiosk', async () => {
-    const compressedTally = compressTally(electionSample, resultsFixture);
+    const compressedTally = compressTally(electionGeneral, resultsFixture);
     const signed = await getSignedQuickResultsReportingUrl({
-      electionDefinition: electionSampleDefinition,
+      electionDefinition: electionGeneralDefinition,
       isLiveMode: false,
       compressedTally,
       signingMachineId: 'DEMO-0000',
@@ -100,7 +100,7 @@ test('PrecinctScannerTallyQrCode', () => {
   render(
     <PrecinctScannerTallyQrCode
       pollsTransitionedTime={time}
-      election={electionSample}
+      election={electionGeneral}
       signedQuickResultsReportingUrl=""
     />
   );

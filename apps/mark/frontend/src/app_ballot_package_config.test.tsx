@@ -1,6 +1,6 @@
 import { FakeKiosk, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { fakeLogger } from '@votingworks/logging';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { render, screen } from '../test/react_testing_library';
@@ -27,7 +27,7 @@ test('renders an error if ballot package config endpoint returns an error', asyn
   });
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
-  apiMock.setAuthStatusElectionManagerLoggedIn(electionSampleDefinition);
+  apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
 
   render(
     <App

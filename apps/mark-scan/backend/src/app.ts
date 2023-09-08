@@ -22,7 +22,7 @@ import {
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import makeDebug from 'debug';
 import { getMachineConfig } from './machine_config';
@@ -113,7 +113,7 @@ function buildApi(
       ElectionDefinition,
       BallotPackageConfigurationError
     > {
-      const electionDefinition = electionSampleDefinition;
+      const electionDefinition = electionGeneralDefinition;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
       workspace.store.setElectionAndJurisdiction({
         electionData: electionDefinition.electionData,

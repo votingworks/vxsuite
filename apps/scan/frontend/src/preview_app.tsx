@@ -4,7 +4,7 @@
 
 import {
   electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { PreviewDashboard } from './preview_dashboard';
@@ -34,7 +34,7 @@ export function PreviewApp(): JSX.Element {
     <ScanAppBase>
       <PreviewDashboard
         electionDefinitions={[
-          electionSampleDefinition,
+          electionGeneralDefinition,
           electionMinimalExhaustiveSampleDefinition,
           electionWithMsEitherNeitherDefinition,
         ]}

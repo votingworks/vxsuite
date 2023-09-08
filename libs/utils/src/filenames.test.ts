@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import {
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { Election, ElectionDefinition } from '@votingworks/types';
@@ -76,13 +76,14 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
     const time = new Date(2020, 3, 14);
     expect(
       parseBallotExportPackageInfoFromFilename(
-        generateFilenameForBallotExportPackage(electionSampleDefinition, time)
+        generateFilenameForBallotExportPackage(electionGeneralDefinition, time)
       )
     ).toEqual({
       electionCounty:
-        electionSampleDefinition.election.county.name.toLocaleLowerCase(),
-      electionName: electionSampleDefinition.election.title.toLocaleLowerCase(),
-      electionHash: electionSampleDefinition.electionHash.slice(0, 10),
+        electionGeneralDefinition.election.county.name.toLocaleLowerCase(),
+      electionName:
+        electionGeneralDefinition.election.title.toLocaleLowerCase(),
+      electionHash: electionGeneralDefinition.electionHash.slice(0, 10),
       timestamp: time,
     });
     expect(
@@ -109,7 +110,7 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
 describe('generateElectionBasedSubfolderName', () => {
   test('generates basic election subfolder name as expected', () => {
     const mockElection: Election = {
-      ...electionSampleDefinition.election,
+      ...electionGeneralDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     };
@@ -120,7 +121,7 @@ describe('generateElectionBasedSubfolderName', () => {
 
   test('generates election subfolder name as expected when election county and title have weird characters', () => {
     const mockElection: Election = {
-      ...electionSampleDefinition.election,
+      ...electionGeneralDefinition.election,
       county: { name: '-K(ing&COUN-----TY**', id: '' },
       title: 'General-Election@@',
     };
@@ -131,7 +132,7 @@ describe('generateElectionBasedSubfolderName', () => {
 
   test('generates election subfolder name as expected when election hash length varies', () => {
     const mockElection: Election = {
-      ...electionSampleDefinition.election,
+      ...electionGeneralDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     };
@@ -570,7 +571,7 @@ test('generateBatchResultsDefaultFilename', () => {
   fc.assert(
     fc.property(
       fc.boolean(),
-      fc.constant(electionSampleDefinition.election),
+      fc.constant(electionGeneralDefinition.election),
       fc.oneof(fc.constant(undefined), arbitraryTimestampDate()),
       (isTestModeResults, election, time) => {
         expect(

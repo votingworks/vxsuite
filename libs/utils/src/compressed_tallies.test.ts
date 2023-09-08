@@ -5,7 +5,7 @@ import {
 } from '@votingworks/types';
 import {
   electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import { getZeroCompressedTally } from '@votingworks/test-utils';
@@ -189,15 +189,15 @@ describe('readCompressTally', () => {
 
   test('reads a candidate tally without write ins as expected', () => {
     const compressedTally = getZeroCompressedTally(
-      electionSampleDefinition.election
+      electionGeneralDefinition.election
     );
     compressedTally[0] = [5, 4, 20, 3, 2, 2, 1, 1, 2, 50];
-    const presidentContest = electionSampleDefinition.election.contests.find(
+    const presidentContest = electionGeneralDefinition.election.contests.find(
       (contest) => contest.id === 'president'
     );
     assert(presidentContest?.type === 'candidate');
     const tally = readCompressedTally(
-      electionSampleDefinition.election,
+      electionGeneralDefinition.election,
       compressedTally,
       EMPTY_CARD_COUNTS
     );

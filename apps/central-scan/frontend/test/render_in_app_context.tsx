@@ -1,4 +1,4 @@
-import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { LogSource, Logger } from '@votingworks/logging';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { TestErrorBoundary, UsbDriveStatus } from '@votingworks/ui';

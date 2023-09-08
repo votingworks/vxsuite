@@ -1,7 +1,7 @@
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import {
   electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { FakeKiosk, fakeKiosk } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
@@ -37,9 +37,9 @@ test('app renders a notice when election hash on card does not match that of mac
   apiMock.expectGetMachineConfig();
   // Set up an already-congfigured election
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.expectGetElectionDefinition(electionSampleDefinition);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   apiMock.expectGetPrecinctSelectionResolvesDefault(
-    electionSampleDefinition.election
+    electionGeneralDefinition.election
   );
 
   // setup with typical election

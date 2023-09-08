@@ -1,6 +1,6 @@
 import { assert, assertDefined, find, range } from '@votingworks/basics';
 import {
-  electionSample,
+  electionGeneral,
   electionFamousNames2021Fixtures,
   electionComplexGeoSample,
 } from '@votingworks/fixtures';
@@ -156,9 +156,9 @@ export const sampleElectionFixtures = (() => {
     for (const paperSize of [BallotPaperSize.Letter, BallotPaperSize.Legal]) {
       for (const layoutDensity of LAYOUT_DENSITIES) {
         const election: Election = {
-          ...electionSample,
+          ...electionGeneral,
           ballotLayout: {
-            ...electionSample.ballotLayout,
+            ...electionGeneral.ballotLayout,
             paperSize,
           },
         };

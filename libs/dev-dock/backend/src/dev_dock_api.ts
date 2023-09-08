@@ -170,7 +170,7 @@ export function useDevDockRouter(
   // Set a default election if one is not already set
   if (!api.getElection()) {
     api.setElection({
-      path: 'libs/fixtures/data/electionSample.json',
+      path: 'libs/fixtures/data/electionGeneral/election.json',
     });
   }
 

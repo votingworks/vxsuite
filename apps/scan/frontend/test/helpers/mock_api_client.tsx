@@ -1,5 +1,5 @@
 import React from 'react';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -40,7 +40,7 @@ const defaultConfig: PrecinctScannerConfig = {
   isTestMode: true,
   pollsState: 'polls_closed_initial',
   ballotCountWhenBallotBagLastReplaced: 0,
-  electionDefinition: electionSampleDefinition,
+  electionDefinition: electionGeneralDefinition,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   systemSettings: DEFAULT_SYSTEM_SETTINGS,
 };
