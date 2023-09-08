@@ -11,7 +11,10 @@ import {
   PaperHandlerStateMachine,
 } from './custom-paper-handler/state_machine';
 import { getDefaultAuth } from './util/auth';
-import { DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS } from './custom-paper-handler/constants';
+import {
+  DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
+  DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
+} from './custom-paper-handler/constants';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -42,7 +45,8 @@ export async function start({
         workspace,
         resolvedAuth,
         logger,
-        DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
+        DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
+        DEV_AUTH_STATUS_POLLING_INTERVAL_MS
       )
     : undefined;
 

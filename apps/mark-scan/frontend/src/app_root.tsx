@@ -79,6 +79,8 @@ import { JammedPage } from './pages/jammed_page';
 import { JamClearedPage } from './pages/jam_cleared_page';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
 import { BallotInvalidatedPage } from './pages/ballot_invalidated_page';
+import { BlankPageInterpretationPage } from './pages/blank_page_interpretation_page';
+import { PaperReloadedPage } from './pages/paper_reloaded_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -698,10 +700,21 @@ export function AppRoot({
     }
 
     if (
+      (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) &&
+      stateMachineState === 'blank_page_interpretation'
+    ) {
+      return <BlankPageInterpretationPage authStatus={authStatus} />;
+    }
+
+    if (
       isPollWorkerAuth(authStatus) &&
       // Ballot invalidation requires BallotContext, handled below
       stateMachineState !== 'waiting_for_invalidated_ballot_confirmation'
     ) {
+      if (stateMachineState === 'paper_reloaded') {
+        return <PaperReloadedPage />;
+      }
+
       return (
         <PollWorkerScreen
           pollWorkerAuth={authStatus}

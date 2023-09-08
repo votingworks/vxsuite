@@ -16,8 +16,8 @@ interface Props {
   pollWorkerContent: {
     headerText: string;
     body: JSX.Element;
-    buttonText: string;
-    onButtonPress: () => Promise<void>;
+    buttonText?: string;
+    onButtonPress?: () => Promise<void>;
   };
 }
 
@@ -33,6 +33,19 @@ export function AskPollWorkerPage(props: Props): JSX.Element {
       {pollWorkerContent.body}
     </React.Fragment>
   );
+  const button = isPollWorkerAuth(authStatus) && pollWorkerContent.buttonText &&
+    pollWorkerContent.onButtonPress && (
+      <Button
+        onPress={async (): Promise<void> => {
+          if (!pollWorkerContent.onButtonPress) {
+            return;
+          }
+          await pollWorkerContent.onButtonPress();
+        }}
+      >
+        {pollWorkerContent.buttonText}
+      </Button>
+    );
 
   if (isCardlessVoterAuth(authStatus)) {
     mainContents = (
@@ -53,13 +66,7 @@ export function AskPollWorkerPage(props: Props): JSX.Element {
       <Main padded centerChild>
         <Text center>{mainContents}</Text>
       </Main>
-      {isPollWorkerAuth(authStatus) && (
-        <ButtonFooter>
-          <Button onPress={() => pollWorkerContent.onButtonPress()}>
-            {pollWorkerContent.buttonText}
-          </Button>
-        </ButtonFooter>
-      )}
+      {button && <ButtonFooter>{button}</ButtonFooter>}
     </Screen>
   );
 }
