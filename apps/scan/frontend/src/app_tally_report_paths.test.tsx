@@ -1,9 +1,9 @@
 import {
   electionTwoPartyPrimary,
   electionTwoPartyPrimaryDefinition,
-  electionMinimalExhaustiveSampleWithReportingUrlDefinition,
   electionGeneral,
   electionGeneralDefinition,
+  asElectionDefinition,
 } from '@votingworks/fixtures';
 import {
   expectPrint,
@@ -17,6 +17,7 @@ import {
   buildElectionResultsFixture,
 } from '@votingworks/utils';
 import {
+  Election,
   ElectionDefinition,
   PrecinctReportDestination,
   PrecinctSelection,
@@ -259,9 +260,11 @@ test('polls open, All Precincts, primary election + check additional report', as
 });
 
 test('polls closed, primary election, single precinct + quickresults on', async () => {
-  const electionDefinition =
-    electionMinimalExhaustiveSampleWithReportingUrlDefinition;
-  const { election } = electionDefinition;
+  const election: Election = {
+    ...electionTwoPartyPrimary,
+    quickResultsReportingUrl: 'https://results.voting.works',
+  };
+  const electionDefinition = asElectionDefinition(election);
   const precinctSelection = singlePrecinctSelectionFor('precinct-1');
   apiMock.expectGetConfig({
     electionDefinition,
