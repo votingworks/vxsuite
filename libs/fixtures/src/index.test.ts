@@ -8,13 +8,13 @@ test('has various election definitions', () => {
       .sort()
   ).toMatchInlineSnapshot(`
     [
-      "electionComplexGeoSample",
       "electionFamousNames2021Fixtures",
       "electionGeneral",
       "electionGeneralDefinition",
       "electionGridLayoutNewHampshireAmherstFixtures",
       "electionGridLayoutNewHampshireHudsonFixtures",
       "electionMultiPartyPrimaryFixtures",
+      "electionPrimaryPrecinctSplitsFixtures",
       "electionTwoPartyPrimary",
       "electionTwoPartyPrimaryDefinition",
       "electionTwoPartyPrimaryFixtures",
