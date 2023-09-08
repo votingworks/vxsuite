@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { err, ok } from '@votingworks/basics';
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -76,8 +76,7 @@ afterEach(() => {
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const { election, electionData, electionHash } = electionGeneralDefinition;
-const otherElectionHash =
-  electionMinimalExhaustiveSampleDefinition.electionHash;
+const otherElectionHash = electionTwoPartyPrimaryDefinition.electionHash;
 const defaultConfig: InsertedSmartCardAuthConfig = {};
 const defaultMachineState: InsertedSmartCardAuthMachineState = {
   electionHash,

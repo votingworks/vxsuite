@@ -23,7 +23,7 @@ import {
 } from './election_utils';
 import {
   election,
-  electionMinimalExhaustive,
+  electionTwoPartyPrimary,
   primaryElection,
 } from '../test/election';
 import {
@@ -186,12 +186,12 @@ test('getPrecinctIndexById', () => {
 });
 
 test('getDistrictIdsForPartyId', () => {
-  for (const party of electionMinimalExhaustive.parties) {
-    const ballotStylesByParty = electionMinimalExhaustive.ballotStyles.filter(
+  for (const party of electionTwoPartyPrimary.parties) {
+    const ballotStylesByParty = electionTwoPartyPrimary.ballotStyles.filter(
       ({ partyId }) => party.id === partyId
     );
     for (const districtId of getDistrictIdsForPartyId(
-      electionMinimalExhaustive,
+      electionTwoPartyPrimary,
       party.id
     )) {
       expect(
@@ -204,8 +204,8 @@ test('getDistrictIdsForPartyId', () => {
 });
 
 test('getPartyIdsInBallotStyles', () => {
-  expect(getPartyIdsInBallotStyles(electionMinimalExhaustive)).toEqual(
-    electionMinimalExhaustive.parties.map(({ id }) => id)
+  expect(getPartyIdsInBallotStyles(electionTwoPartyPrimary)).toEqual(
+    electionTwoPartyPrimary.parties.map(({ id }) => id)
   );
 });
 
@@ -226,9 +226,9 @@ test('getContests', () => {
     getContests({
       ballotStyle: getBallotStyle({
         ballotStyleId: '1M',
-        election: electionMinimalExhaustive,
+        election: electionTwoPartyPrimary,
       })!,
-      election: electionMinimalExhaustive,
+      election: electionTwoPartyPrimary,
     }).map((c) => c.id)
   ).toEqual(['best-animal-mammal', 'zoo-council-mammal', 'fishing']);
 
@@ -236,32 +236,32 @@ test('getContests', () => {
     getContests({
       ballotStyle: getBallotStyle({
         ballotStyleId: '2F',
-        election: electionMinimalExhaustive,
+        election: electionTwoPartyPrimary,
       })!,
-      election: electionMinimalExhaustive,
+      election: electionTwoPartyPrimary,
     }).map((c) => c.id)
   ).toEqual(['best-animal-fish', 'aquarium-council-fish', 'fishing']);
 });
 
 test('getContestsFromIds', () => {
-  expect(getContestsFromIds(electionMinimalExhaustive, [])).toEqual([]);
+  expect(getContestsFromIds(electionTwoPartyPrimary, [])).toEqual([]);
   expect(
-    getContestsFromIds(electionMinimalExhaustive, ['best-animal-mammal'])
-  ).toEqual([electionMinimalExhaustive.contests[0]]);
+    getContestsFromIds(electionTwoPartyPrimary, ['best-animal-mammal'])
+  ).toEqual([electionTwoPartyPrimary.contests[0]]);
   expect(
-    getContestsFromIds(electionMinimalExhaustive, [
+    getContestsFromIds(electionTwoPartyPrimary, [
       'best-animal-mammal',
       'best-animal-mammal',
     ])
-  ).toEqual([electionMinimalExhaustive.contests[0]]);
+  ).toEqual([electionTwoPartyPrimary.contests[0]]);
   expect(() =>
-    getContestsFromIds(electionMinimalExhaustive, ['not-a-contest-id'])
+    getContestsFromIds(electionTwoPartyPrimary, ['not-a-contest-id'])
   ).toThrowError('Contest not-a-contest-id not found');
 });
 
 test('getPartyIdsWithContests', () => {
   expect(getPartyIdsWithContests(election)).toMatchObject([undefined]);
-  expect(getPartyIdsWithContests(electionMinimalExhaustive)).toMatchObject([
+  expect(getPartyIdsWithContests(electionTwoPartyPrimary)).toMatchObject([
     '0',
     '1',
     undefined,
@@ -273,10 +273,10 @@ test('getPartySpecificElectionTitle', () => {
     'ELECTION'
   );
   expect(
-    getPartySpecificElectionTitle(electionMinimalExhaustive, '0' as PartyId)
+    getPartySpecificElectionTitle(electionTwoPartyPrimary, '0' as PartyId)
   ).toEqual('Mammal Party Example Primary Election - Minimal Exhaustive');
   expect(
-    getPartySpecificElectionTitle(electionMinimalExhaustive, undefined)
+    getPartySpecificElectionTitle(electionTwoPartyPrimary, undefined)
   ).toEqual(
     'Example Primary Election - Minimal Exhaustive Nonpartisan Contests'
   );
@@ -285,8 +285,8 @@ test('getPartySpecificElectionTitle', () => {
 test('getContestDistrictName', () => {
   expect(
     getContestDistrictName(
-      electionMinimalExhaustive,
-      electionMinimalExhaustive.contests[0]
+      electionTwoPartyPrimary,
+      electionTwoPartyPrimary.contests[0]
     )
   ).toEqual('District 1');
 });
@@ -379,7 +379,7 @@ test('ballot ID schema', () => {
 });
 
 test('election schema', () => {
-  safeParseElection(electionMinimalExhaustive).unsafeUnwrap();
+  safeParseElection(electionTwoPartyPrimary).unsafeUnwrap();
 
   fc.assert(
     fc.property(fc.anything(), (value) => {
@@ -500,7 +500,7 @@ test('ElectionDefinitionSchema', () => {
     unsafeParse(ElectionDefinitionSchema, {
       electionHash: 'abc',
       electionData,
-      election: electionMinimalExhaustive,
+      election: electionTwoPartyPrimary,
     });
   }).toThrowError(/hash/);
 

@@ -1,6 +1,6 @@
 import {
-  electionMinimalExhaustiveSample,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimary,
+  electionTwoPartyPrimaryDefinition,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import { PartyId } from '@votingworks/types';
@@ -94,7 +94,7 @@ test('renders as expected for a single precinct in a general election', () => {
 });
 
 const primaryElectionResults = buildElectionResultsFixture({
-  election: electionMinimalExhaustiveSample,
+  election: electionTwoPartyPrimary,
   cardCounts: {
     bmd: 100,
     hmpb: [],
@@ -119,12 +119,12 @@ test('renders as expected for all precincts in a primary election', () => {
       pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       precinctScannerMachineId="SC-01-000"
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="open_polls"
       isLiveMode
       scannedElectionResults={primaryElectionResults}
-      contests={electionMinimalExhaustiveSample.contests.filter(
+      contests={electionTwoPartyPrimary.contests.filter(
         (c) => c.type === 'yesno' || c.partyId === '0'
       )}
       partyId={'0' as PartyId}
@@ -167,12 +167,12 @@ test('displays only passed contests', () => {
       pollsTransitionedTime={pollsTransitionedTime}
       currentTime={currentTime}
       precinctScannerMachineId="SC-01-000"
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       pollsTransition="open_polls"
       isLiveMode
       scannedElectionResults={primaryElectionResults}
-      contests={electionMinimalExhaustiveSample.contests.filter(
+      contests={electionTwoPartyPrimary.contests.filter(
         (c) => c.id === 'best-animal-mammal'
       )}
       partyId={'0' as PartyId}

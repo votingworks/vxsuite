@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { FilterEditor } from './filter_editor';
@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 test('general flow + precinct, voting method, ballot style selection', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = jest.fn();
 
   apiMock.expectGetScannerBatches([]);
@@ -95,7 +95,7 @@ test('general flow + precinct, voting method, ballot style selection', () => {
 });
 
 test('scanner + batch selection', async () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = jest.fn();
 
   apiMock.expectGetScannerBatches([
@@ -148,7 +148,7 @@ test('scanner + batch selection', async () => {
 });
 
 test('can cancel adding a filter', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = jest.fn();
 
   apiMock.expectGetScannerBatches([]);

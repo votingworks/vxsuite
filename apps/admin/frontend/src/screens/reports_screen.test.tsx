@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { waitFor } from '@testing-library/react';
@@ -35,7 +35,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 
 test('exporting SEMS results', async () => {
   const mockKiosk = fakeKiosk();

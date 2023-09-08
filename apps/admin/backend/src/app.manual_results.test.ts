@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 
 import { BallotStyleId, PrecinctId, Tabulation } from '@votingworks/types';
 import { buildManualResultsFixture } from '@votingworks/utils';
@@ -15,7 +15,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
 });
 
-const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 const { election } = electionDefinition;
 
 test('manual results flow (official candidates only)', async () => {

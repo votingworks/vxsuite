@@ -121,7 +121,7 @@ export const primaryElection: Election = {
   ],
 };
 
-const electionMinimalExhaustiveData = `
+const electionTwoPartyPrimaryData = `
 {
   "type": "primary",
   "title": "Example Primary Election - Minimal Exhaustive",
@@ -309,6 +309,6 @@ const electionMinimalExhaustiveData = `
   "centralScanAdjudicationReasons": ["BlankBallot"],
   "precinctScanAdjudicationReasons": ["BlankBallot"]
 }`;
-export const electionMinimalExhaustive: Election = safeParseElection(
-  electionMinimalExhaustiveData
+export const electionTwoPartyPrimary: Election = safeParseElection(
+  electionTwoPartyPrimaryData
 ).unsafeUnwrap();

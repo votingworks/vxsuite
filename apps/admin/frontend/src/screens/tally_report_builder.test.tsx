@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { expectPrint } from '@votingworks/test-utils';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 test('happy path', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
 
   apiMock.expectGetCastVoteRecordFileMode('test');

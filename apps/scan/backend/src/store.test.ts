@@ -23,7 +23,7 @@ import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
 import { zeroRect } from '../test/fixtures/zero_rect';
@@ -128,7 +128,7 @@ test('get/set system settings', () => {
 
   expect(store.getSystemSettings()).toBeUndefined();
   const systemSettings = safeParseSystemSettings(
-    electionMinimalExhaustiveSampleFixtures.systemSettings.asText()
+    electionTwoPartyPrimaryFixtures.systemSettings.asText()
   ).unsafeUnwrap();
 
   store.setSystemSettings(systemSettings);

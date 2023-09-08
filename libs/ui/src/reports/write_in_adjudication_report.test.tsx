@@ -1,13 +1,13 @@
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 import { WriteInAdjudicationReport } from './write_in_adjudication_report';
 
 test('primary', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   render(
     <WriteInAdjudicationReport

@@ -15,7 +15,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   electionGeneralDefinition,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -408,7 +408,7 @@ async function scanBallot() {
 }
 
 const mockMammalPartyResults = buildElectionResultsFixture({
-  election: electionMinimalExhaustiveSampleDefinition.election,
+  election: electionTwoPartyPrimaryDefinition.election,
   cardCounts: {
     bmd: 1,
     hmpb: [],
@@ -426,7 +426,7 @@ const mockMammalPartyResults = buildElectionResultsFixture({
 });
 
 test('voter can cast a ballot that scans successfully ', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({
     pollsState: 'polls_open',
@@ -701,7 +701,7 @@ test('poll worker can open and close polls without scanning any ballots', async 
 });
 
 test('open polls, scan ballot, close polls, save results', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
   });

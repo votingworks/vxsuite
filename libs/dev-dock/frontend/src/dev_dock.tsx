@@ -76,7 +76,7 @@ const ELECTIONS = [
   },
   {
     title: 'Sample Primary Election',
-    path: 'libs/fixtures/data/electionMinimalExhaustiveSample/electionMinimalExhaustiveSample.json',
+    path: 'libs/fixtures/data/electionTwoPartyPrimary/election.json',
   },
   {
     title: 'Famous Names',

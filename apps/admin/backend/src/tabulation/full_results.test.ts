@@ -1,6 +1,6 @@
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -48,7 +48,7 @@ afterEach(() => {
 
 test('tabulateCastVoteRecords', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
@@ -258,7 +258,7 @@ test('tabulateCastVoteRecords', async () => {
 
 test('tabulateElectionResults - includes empty groups', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,

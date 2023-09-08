@@ -1,8 +1,8 @@
 import { assert, err, ok } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { CVR as CVRType, safeParse } from '@votingworks/types';
@@ -236,18 +236,11 @@ test('happy path - mock election flow', async () => {
 
 test('adding a file with BMD cast vote records', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionMinimalExhaustiveSampleDefinition
-  );
-  mockElectionManagerAuth(
-    auth,
-    electionMinimalExhaustiveSampleDefinition.electionHash
-  );
+  await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
+  mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.electionHash);
 
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
-    path: electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath(),
+    path: electionTwoPartyPrimaryFixtures.castVoteRecordReport.asDirectoryPath(),
   });
   assert(addTestFileResult.isOk());
   expect(addTestFileResult.ok()).toMatchObject({
@@ -668,19 +661,12 @@ test('error if a layout is invalid', async () => {
 
 test('can add file using the report JSON path rather than the directory path', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionMinimalExhaustiveSampleDefinition
-  );
-  mockElectionManagerAuth(
-    auth,
-    electionMinimalExhaustiveSampleDefinition.electionHash
-  );
+  await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
+  mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.electionHash);
 
   const addFileResult = await apiClient.addCastVoteRecordFile({
     path: path.join(
-      electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath(),
+      electionTwoPartyPrimaryFixtures.castVoteRecordReport.asDirectoryPath(),
       CAST_VOTE_RECORD_REPORT_FILENAME
     ),
   });

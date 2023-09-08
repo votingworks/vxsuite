@@ -2,7 +2,7 @@ import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -26,8 +26,7 @@ import { VxFiles } from '../../lib/converters';
 
 const electionDefinition = electionGeneralDefinition;
 const { electionHash } = electionDefinition;
-const otherElectionHash =
-  electionMinimalExhaustiveSampleDefinition.electionHash;
+const otherElectionHash = electionTwoPartyPrimaryDefinition.electionHash;
 
 let apiMock: ApiMock;
 

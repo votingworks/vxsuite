@@ -1,6 +1,6 @@
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -41,7 +41,7 @@ afterEach(() => {
 
 test('card counts', async () => {
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();

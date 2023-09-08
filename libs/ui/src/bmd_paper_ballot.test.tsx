@@ -9,7 +9,7 @@ import {
   vote,
 } from '@votingworks/types';
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
@@ -114,7 +114,7 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
 
 test('BmdPaperBallot uses yes/no option labels if present', () => {
   renderBmdPaperBallot({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
     votes: {

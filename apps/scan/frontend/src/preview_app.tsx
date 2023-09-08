@@ -3,7 +3,7 @@
 /* istanbul ignore file */
 
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
@@ -35,7 +35,7 @@ export function PreviewApp(): JSX.Element {
       <PreviewDashboard
         electionDefinitions={[
           electionGeneralDefinition,
-          electionMinimalExhaustiveSampleDefinition,
+          electionTwoPartyPrimaryDefinition,
           electionWithMsEitherNeitherDefinition,
         ]}
         modules={[

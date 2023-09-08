@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import {
@@ -11,7 +11,7 @@ import { Store } from '../store';
 
 test('uses appropriate headers', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
@@ -225,7 +225,7 @@ test('uses appropriate headers', async () => {
 
 test('includes rows for empty but known result groups', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
@@ -248,7 +248,7 @@ test('includes rows for empty but known result groups', async () => {
 
 test('included contests are specific to each results group', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
@@ -284,7 +284,7 @@ test('included contests are specific to each results group', async () => {
 
 test('included contests are restricted by the overall export filter', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
@@ -311,7 +311,7 @@ test('included contests are restricted by the overall export filter', async () =
 
 test('does not include results groups when they are excluded by the filter', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,

@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { err, ok } from '@votingworks/basics';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   BallotPageMetadata,
   BatchInfo,
@@ -37,7 +37,7 @@ jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
 }));
 
 const electionDefinition: ElectionDefinition = {
-  ...electionMinimalExhaustiveSampleDefinition,
+  ...electionTwoPartyPrimaryDefinition,
   electionHash: '0000000000', // fixed for resiliency to hash change
 };
 const definiteMarkThreshold = 0.15;

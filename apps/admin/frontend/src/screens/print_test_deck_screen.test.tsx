@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { Printer } from '@votingworks/types';
 import {
@@ -52,7 +52,7 @@ afterAll(() => {
 test('Saving L&A package for one precinct', () => {
   const usbDrive = mockUsbDrive('mounted');
   renderInAppContext(<PrintTestDeckScreen />, {
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     logger: mockLogger,
     usbDrive,
     apiMock,
@@ -66,7 +66,7 @@ test('Saving L&A package for one precinct', () => {
 test('Saving L&A package for all precincts', () => {
   const usbDrive = mockUsbDrive('mounted');
   renderInAppContext(<PrintTestDeckScreen />, {
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     logger: mockLogger,
     usbDrive,
     apiMock,

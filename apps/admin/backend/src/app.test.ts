@@ -1,6 +1,6 @@
 import { assert, err, ok } from '@votingworks/basics';
 import {
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
   electionGeneral,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
@@ -61,7 +61,7 @@ test('managing the current election', async () => {
   assert(badConfigureResult.isErr());
   expect(badConfigureResult.err().type).toEqual('invalidElection');
 
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData, electionHash } = electionDefinition;
 
   // try configuring with malformed system settings data
@@ -177,7 +177,7 @@ test('getSystemSettings happy path', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, systemSettings } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionTwoPartyPrimaryFixtures;
   await configureMachine(
     apiClient,
     auth,
@@ -201,7 +201,7 @@ test('getSystemSettings returns default system settings when there is no current
 
 test('saveBallotPackageToUsb', async () => {
   const { apiClient, auth, mockUsb } = buildTestEnvironment();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockUsb.insertUsbDrive({});
@@ -211,7 +211,7 @@ test('saveBallotPackageToUsb', async () => {
 
 test('saveBallotPackageToUsb when no USB drive', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   const response = await apiClient.saveBallotPackageToUsb();

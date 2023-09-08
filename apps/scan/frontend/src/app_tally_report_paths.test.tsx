@@ -1,6 +1,6 @@
 import {
-  electionMinimalExhaustiveSample,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimary,
+  electionTwoPartyPrimaryDefinition,
   electionMinimalExhaustiveSampleWithReportingUrlDefinition,
   electionGeneral,
   electionGeneralDefinition,
@@ -90,7 +90,7 @@ const PRIMARY_ELECTION_RESULTS = [
   {
     partyId: '0',
     ...buildElectionResultsFixture({
-      election: electionMinimalExhaustiveSample,
+      election: electionTwoPartyPrimary,
       cardCounts: {
         bmd: 0,
         hmpb: [80],
@@ -119,7 +119,7 @@ const PRIMARY_ELECTION_RESULTS = [
   {
     partyId: '1',
     ...buildElectionResultsFixture({
-      election: electionMinimalExhaustiveSample,
+      election: electionTwoPartyPrimary,
       cardCounts: {
         bmd: 0,
         hmpb: [70],
@@ -192,7 +192,7 @@ async function closePolls({
 }
 
 test('polls open, All Precincts, primary election + check additional report', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition });
   apiMock.expectGetScannerStatus(statusNoPaper);

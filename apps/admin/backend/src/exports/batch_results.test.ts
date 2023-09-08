@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Tabulation, writeInCandidate } from '@votingworks/types';
 import { buildElectionResultsFixture } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -6,7 +6,7 @@ import { generateBatchResultsFile } from './batch_results';
 import { ScannerBatch } from '../types';
 
 test('generateBatchResultsFile', async () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const batchGroupedResults: Tabulation.ElectionResultsGroupMap = {
     'root&batchId=batch-1': buildElectionResultsFixture({
       election,

@@ -1,6 +1,6 @@
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { FakeKiosk, fakeKiosk } from '@votingworks/test-utils';
@@ -54,7 +54,7 @@ test('app renders a notice when election hash on card does not match that of mac
 
   // insert election manager card with different election
   apiMock.setAuthStatusElectionManagerLoggedIn(
-    electionMinimalExhaustiveSampleDefinition
+    electionTwoPartyPrimaryDefinition
   );
   await screen.findByText('This card is configured for a different election.');
 });

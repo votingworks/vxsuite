@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionMinimalExhaustiveSampleWithReportingUrlDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -12,7 +12,7 @@ import { render, screen, within } from '../../test/react_testing_library';
 import { PrecinctScannerTallyReports } from './precinct_scanner_tally_reports';
 
 test('polls open, primary, single precinct, live mode', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const precinctSelection = singlePrecinctSelectionFor('precinct-1');
 
   const mammalResults = buildElectionResultsFixture({
@@ -71,7 +71,7 @@ test('polls open, primary, single precinct, live mode', () => {
   });
   render(
     <PrecinctScannerTallyReports
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
       precinctSelection={precinctSelection}
       electionResultsByParty={[
         {

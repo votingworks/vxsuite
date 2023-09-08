@@ -1,6 +1,6 @@
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -67,7 +67,7 @@ async function getParsedExport({
 
 it('exports expected results for full election', async () => {
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
@@ -133,7 +133,7 @@ it('exports expected results for full election', async () => {
 
 it('logs failure if export fails for some reason', async () => {
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);

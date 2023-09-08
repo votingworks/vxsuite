@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
 import { act, screen } from '../../test/react_testing_library';
@@ -9,7 +9,7 @@ import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 
 jest.setTimeout(20000);
 
-const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 
 let apiMock: ApiMock;
 

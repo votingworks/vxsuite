@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
@@ -13,7 +13,7 @@ import { StartPage } from './start_page';
 import { Paths } from '../config/globals';
 
 test('renders StartPage', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '1M',
     electionDefinition,
@@ -30,7 +30,7 @@ test('renders StartPage', () => {
 });
 
 test('renders StartPage in Landscape Orientation', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '1M',
     electionDefinition,

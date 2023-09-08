@@ -1,6 +1,6 @@
 import {
   electionComplexGeoSample,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   CandidateContest,
@@ -38,7 +38,7 @@ test('add an election', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
     electionData:
-      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
 
@@ -63,7 +63,7 @@ test('setElectionResultsOfficial', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
     electionData:
-      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
 
@@ -100,7 +100,7 @@ test('current election id', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
     electionData:
-      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
 
@@ -117,7 +117,7 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
   const store = Store.memoryStore();
   const electionId = store.addElection({
     electionData:
-      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
   const retrievedSystemSettings = store.getSystemSettings(electionId);
@@ -128,7 +128,7 @@ test('scanner batches', () => {
   const store = Store.memoryStore();
   const electionId = store.addElection({
     electionData:
-      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
   expect(store.getScannerBatches(electionId)).toEqual([]);
@@ -147,7 +147,7 @@ test('scanner batches', () => {
 });
 
 test('manual results', () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData, election } = electionDefinition;
 
   const store = Store.memoryStore();

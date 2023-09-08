@@ -1,6 +1,6 @@
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -87,7 +87,7 @@ test('batch export', async () => {
 
 test('sems export', async () => {
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);

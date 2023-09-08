@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
@@ -72,7 +72,7 @@ test('general election, precinct report with manual results', () => {
 });
 
 test('primary election, full election report with manual results', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
   render(
     <AdminTallyReportByParty
@@ -139,7 +139,7 @@ test('primary election, full election report with manual results', () => {
 });
 
 test('primary election, party report', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
   render(
     <AdminTallyReportByParty

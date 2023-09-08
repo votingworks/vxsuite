@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
 
 import { getBallotStyle, getContests } from '@votingworks/types';
@@ -20,7 +20,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
 
 const mockValidResults = buildManualResultsFixture({

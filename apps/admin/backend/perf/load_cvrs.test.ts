@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
 import {
   buildTestEnvironment,
@@ -12,7 +12,7 @@ import { getPerformanceTimer } from '../test/timer';
 // depending on the test conditions, you may need to increase this
 jest.setTimeout(3000000);
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 
 // reports can be generated from "libs/cvr-fixture-generator"
 const NUM_REPORTS = 100;

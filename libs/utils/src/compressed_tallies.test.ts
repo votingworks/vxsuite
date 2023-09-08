@@ -4,7 +4,7 @@ import {
   writeInCandidate,
 } from '@votingworks/types';
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
   electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
@@ -269,7 +269,7 @@ describe('readCompressTally', () => {
 });
 
 test('primary tally can compress and be read back and end with the original tally', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const expectedTally = buildElectionResultsFixture({
     election,
     cardCounts: EMPTY_CARD_COUNTS,

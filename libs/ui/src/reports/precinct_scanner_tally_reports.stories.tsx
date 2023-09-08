@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
@@ -10,7 +10,7 @@ import {
   PrecinctScannerTallyReportsProps,
 } from './precinct_scanner_tally_reports';
 
-const { election } = electionMinimalExhaustiveSampleDefinition;
+const { election } = electionTwoPartyPrimaryDefinition;
 
 function PrecinctScannerTallyReportsPreview(
   props: PrecinctScannerTallyReportsProps
@@ -73,7 +73,7 @@ const electionResultsByParty = [
 ];
 
 const reportArgs: PrecinctScannerTallyReportsProps = {
-  electionDefinition: electionMinimalExhaustiveSampleDefinition,
+  electionDefinition: electionTwoPartyPrimaryDefinition,
   electionResultsByParty,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   pollsTransition: 'close_polls',

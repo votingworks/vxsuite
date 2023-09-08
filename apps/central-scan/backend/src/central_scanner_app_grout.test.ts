@@ -1,6 +1,6 @@
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   BallotMetadata,
@@ -93,7 +93,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
 })();
 
 test('getElectionDefinition', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await withApp(async ({ apiClient, importer }) => {
     expect(await apiClient.getElectionDefinition()).toEqual(null);
 

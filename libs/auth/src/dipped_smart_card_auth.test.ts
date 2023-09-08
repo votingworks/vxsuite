@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { err, ok } from '@votingworks/basics';
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -71,8 +71,7 @@ afterEach(() => {
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const { electionHash } = electionGeneralDefinition;
-const otherElectionHash =
-  electionMinimalExhaustiveSampleDefinition.electionHash;
+const otherElectionHash = electionTwoPartyPrimaryDefinition.electionHash;
 const defaultConfig: DippedSmartCardAuthConfig = {};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
   electionHash,

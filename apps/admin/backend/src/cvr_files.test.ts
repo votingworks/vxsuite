@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { CVR, getDisplayElectionHash } from '@votingworks/types';
 import { createMockUsb } from '../test/app';
@@ -8,7 +8,7 @@ import {
   validateCastVoteRecord,
 } from './cvr_files';
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 const file = Buffer.from([]);
 
 describe('list cast vote record files on USB drive', () => {

@@ -1,12 +1,12 @@
 import { Meta } from '@storybook/react';
 
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
 import { ElectionInfoBar, ElectionInfoBarProps } from './election_info_bar';
 
 const initialArgs: ElectionInfoBarProps = {
   codeVersion: '00986543',
-  electionDefinition: electionMinimalExhaustiveSampleDefinition,
+  electionDefinition: electionTwoPartyPrimaryDefinition,
   machineId: '00123456',
   mode: 'admin',
   precinctSelection: {

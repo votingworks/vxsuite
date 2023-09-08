@@ -1,12 +1,12 @@
 import { buildContestResultsFixture } from '@votingworks/utils';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { assert } from '@votingworks/basics';
 import { render, screen, within } from '../../test/react_testing_library';
 
 import { ContestResultsTable } from './contest_results_table';
 
-const { election } = electionMinimalExhaustiveSampleFixtures.electionDefinition;
+const { election } = electionTwoPartyPrimaryFixtures.electionDefinition;
 
 // candidate contest without write-in
 const candidateContestId = 'best-animal-fish';
