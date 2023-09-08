@@ -14,8 +14,6 @@ test('has various election definitions', () => {
       "electionGeneralDefinition",
       "electionGridLayoutNewHampshireAmherstFixtures",
       "electionGridLayoutNewHampshireHudsonFixtures",
-      "electionMinimalExhaustiveSampleSinglePrecinct",
-      "electionMinimalExhaustiveSampleSinglePrecinctDefinition",
       "electionMinimalExhaustiveSampleWithReportingUrl",
       "electionMinimalExhaustiveSampleWithReportingUrlDefinition",
       "electionMinimalExhaustiveSampleWithReportingUrlFixtures",
