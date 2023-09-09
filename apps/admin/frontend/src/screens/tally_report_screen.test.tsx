@@ -9,7 +9,7 @@ import { screen, within } from '@testing-library/react';
 import { Route } from 'react-router-dom';
 import { PartyId } from '@votingworks/types';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
   AllPrecinctsTallyReportScreen,
   BatchTallyReportScreen,

@@ -4,7 +4,7 @@ import { screen, waitFor, within } from '../../test/react_testing_library';
 
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreen } from './settings_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let apiMock: ApiMock;

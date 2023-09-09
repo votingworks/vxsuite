@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { screen, within } from '../../test/react_testing_library';
 import { TallyScreen } from './tally_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 

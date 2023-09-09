@@ -1,7 +1,7 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { expectPrint } from '@votingworks/test-utils';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { TallyReportBuilder } from './tally_report_builder';
 import { screen, within } from '../../test/react_testing_library';

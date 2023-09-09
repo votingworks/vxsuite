@@ -5,7 +5,7 @@ import { createMemoryHistory } from 'history';
 import { act, screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsSummaryScreen } from './write_ins_summary_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 jest.setTimeout(20000);
 

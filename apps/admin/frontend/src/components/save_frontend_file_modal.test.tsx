@@ -7,7 +7,7 @@ import { act, fireEvent, waitFor } from '../../test/react_testing_library';
 import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 jest.useFakeTimers();
 

@@ -3,7 +3,7 @@ import { Tabulation } from '@votingworks/types';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
 import { ExportCsvResultsButton } from './export_csv_button';
-import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;

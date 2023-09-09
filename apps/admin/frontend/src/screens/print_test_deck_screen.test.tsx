@@ -17,7 +17,7 @@ import {
   PrintTestDeckScreen,
 } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;

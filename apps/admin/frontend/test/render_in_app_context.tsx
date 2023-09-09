@@ -25,7 +25,7 @@ import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp } from '../src/config/types';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
-import { ApiMock } from './helpers/api_mock';
+import { ApiMock } from './helpers/mock_api_client';
 import { mockUsbDriveStatus } from './helpers/mock_usb_drive';
 
 export const eitherNeitherElectionDefinition =

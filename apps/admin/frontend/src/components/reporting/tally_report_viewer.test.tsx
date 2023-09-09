@@ -12,7 +12,7 @@ import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { act } from 'react-dom/test-utils';
-import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportViewer } from './tally_report_viewer';

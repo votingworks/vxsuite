@@ -29,7 +29,7 @@ import {
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
-import { ApiMock, createApiMock } from '../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_helpers';
 
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';

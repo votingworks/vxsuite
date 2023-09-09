@@ -17,7 +17,7 @@ import {
 } from '../../test/react_testing_library';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
 import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
