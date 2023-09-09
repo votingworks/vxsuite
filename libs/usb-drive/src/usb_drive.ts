@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { assertDefined } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { exec } from './exec';
 
@@ -20,6 +20,7 @@ export type UsbDriveStatus =
 export interface UsbDrive {
   status(): Promise<UsbDriveStatus>;
   eject(): Promise<void>;
+  format(): Promise<void>;
 }
 
 export interface BlockDeviceInfo {
@@ -100,6 +101,53 @@ async function unmountUsbDrive(mountPoint: string): Promise<void> {
   await exec('sudo', ['-n', join(MOUNT_SCRIPT_PATH, 'unmount.sh'), mountPoint]);
 }
 
+async function formatUsbDrive(
+  devicePath: string,
+  label: string
+): Promise<void> {
+  debug(`Formatting disk ${devicePath} as FAT32 volume with label ${label}`);
+  await exec('sudo', [
+    '-n',
+    join(MOUNT_SCRIPT_PATH, 'format_fat32.sh'),
+    devicePath,
+    label,
+  ]);
+}
+
+const CASE_INSENSITIVE_ALPHANUMERICS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+function randomCaseInsensitiveAlphanumeric(): string {
+  return assertDefined(
+    CASE_INSENSITIVE_ALPHANUMERICS[
+      Math.floor(Math.random() * CASE_INSENSITIVE_ALPHANUMERICS.length)
+    ]
+  );
+}
+
+export const VX_USB_LABEL_REGEXP = /VxUSB-[A-Z0-9]{5}/i;
+
+function generateVxUsbLabel(previousLabel?: string): string {
+  if (previousLabel && VX_USB_LABEL_REGEXP.test(previousLabel)) {
+    return previousLabel;
+  }
+
+  let newLabel = 'VxUSB-';
+
+  for (let i = 0; i < 5; i += 1) {
+    newLabel += randomCaseInsensitiveAlphanumeric();
+  }
+
+  return newLabel;
+}
+
+const PARTITION_REGEX = /^(\/dev\/sd[a-z])\d$/;
+
+function getRootDeviceName(deviceName: string): string {
+  const match = deviceName.match(PARTITION_REGEX);
+  assert(match);
+  return assertDefined(match[1]);
+}
+
 function isFat32(deviceInfo: BlockDeviceInfo): boolean {
   return deviceInfo.fstype === 'vfat' && deviceInfo.fsver === 'FAT32';
 }
@@ -113,8 +161,16 @@ export function detectUsbDrive(): UsbDrive {
   // Store mounting state so we don't try to mount the drive multiple times.
   let isMounting = false;
 
+  // The block device info blips during formatting, so we need to track the
+  // state and ignore the OS-provided device info during formatting.
+  let isFormatting = false;
+
   return {
     async status(): Promise<UsbDriveStatus> {
+      if (isFormatting) {
+        return { status: 'ejected' };
+      }
+
       const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo) {
         // Reset eject state in case the drive was removed
@@ -160,6 +216,33 @@ export function detectUsbDrive(): UsbDrive {
       }
       await unmountUsbDrive(deviceInfo.mountpoint);
       didEject = true;
+    },
+
+    async format(): Promise<void> {
+      const deviceInfo = await getUsbDriveDeviceInfo();
+      if (!deviceInfo) {
+        debug('No USB drive detected, skipping format');
+        return;
+      }
+
+      isFormatting = true;
+      try {
+        if (deviceInfo.mountpoint) {
+          debug('USB drive is mounted, unmounting before formatting');
+          await unmountUsbDrive(deviceInfo.mountpoint);
+          didEject = true;
+        }
+
+        const label = generateVxUsbLabel(deviceInfo.label ?? undefined);
+        await formatUsbDrive(getRootDeviceName(deviceInfo.path), label);
+        debug('USB drive formatted successfully');
+      } catch (error) {
+        debug(`USB drive formatting failed`);
+        throw error;
+      } finally {
+        isFormatting = false;
+        didEject = true; // prevent remount
+      }
     },
   };
 }
