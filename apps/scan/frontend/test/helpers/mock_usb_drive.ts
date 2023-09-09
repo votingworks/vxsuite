@@ -2,7 +2,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
-export function fakeUsbDriveStatus(
+export function mockUsbDriveStatus(
   status: UsbDriveStatus['status']
 ): UsbDriveStatus {
   switch (status) {
