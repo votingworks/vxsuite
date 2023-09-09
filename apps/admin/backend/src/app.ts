@@ -40,7 +40,8 @@ import {
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import { ExportDataError, Exporter } from '@votingworks/backend';
+import { ExportDataError } from '@votingworks/backend';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   CastVoteRecordFileRecord,
   CvrFileImportInfo,
@@ -68,7 +69,6 @@ import {
   getAddCastVoteRecordReportErrorMessage,
   listCastVoteRecordFilesOnUsb,
 } from './cvr_files';
-import { Usb } from './util/usb';
 import { getMachineConfig } from './machine_config';
 import {
   getWriteInAdjudicationContext,
@@ -85,7 +85,7 @@ import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
 import { tabulateTallyReportResults } from './tabulation/tally_reports';
-import { ADMIN_ALLOWED_EXPORT_PATTERNS } from './globals';
+import { buildExporter } from './util/exporter';
 
 const debug = rootDebug.extend('app');
 
@@ -133,12 +133,12 @@ function buildApi({
   auth,
   workspace,
   logger,
-  usb,
+  usbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
-  usb: Usb;
+  usbDrive: UsbDrive;
 }) {
   const { store } = workspace;
 
@@ -198,12 +198,26 @@ function buildApi({
     },
     /* c8 ignore stop */
 
+    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDrive.status();
+    },
+
+    ejectUsbDrive(): Promise<void> {
+      return usbDrive.eject();
+    },
+
+    async formatUsbDrive(): Promise<Result<void, Error>> {
+      try {
+        await usbDrive.format();
+        return ok();
+      } catch (error) {
+        return err(error as Error);
+      }
+    },
+
     async saveBallotPackageToUsb(): Promise<Result<void, ExportDataError>> {
       await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
-      const exporter = new Exporter({
-        allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
-        getUsbDrives: usb.getUsbDrives,
-      });
+      const exporter = buildExporter(usbDrive);
 
       const electionRecord = getCurrentElectionRecord(workspace);
       assert(electionRecord);
@@ -378,7 +392,7 @@ function buildApi({
       assert(electionRecord);
       const { electionDefinition } = electionRecord;
 
-      return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
+      return listCastVoteRecordFilesOnUsb(electionDefinition, usbDrive, logger);
     },
 
     getCastVoteRecordFiles(): CastVoteRecordFileRecord[] {
@@ -797,15 +811,15 @@ export function buildApp({
   auth,
   workspace,
   logger,
-  usb,
+  usbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
-  usb: Usb;
+  usbDrive: UsbDrive;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usb });
+  const api = buildApi({ auth, workspace, logger, usbDrive });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

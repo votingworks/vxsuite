@@ -200,22 +200,58 @@ test('getSystemSettings returns default system settings when there is no current
 });
 
 test('saveBallotPackageToUsb', async () => {
-  const { apiClient, auth, mockUsb } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
-  mockUsb.insertUsbDrive({});
+  mockUsbDrive.insertUsbDrive({});
   const response = await apiClient.saveBallotPackageToUsb();
   expect(response).toEqual(ok());
 });
 
 test('saveBallotPackageToUsb when no USB drive', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
+  mockUsbDrive.usbDrive.status
+    .expectCallWith()
+    .resolves({ status: 'no_drive' });
   const response = await apiClient.saveBallotPackageToUsb();
   expect(response).toEqual(
     err({ type: 'missing-usb-drive', message: 'No USB drive found' })
   );
+});
+
+test('usbDrive', async () => {
+  const {
+    apiClient,
+    auth,
+    mockUsbDrive: { usbDrive },
+  } = buildTestEnvironment();
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  expect(await apiClient.getUsbDriveStatus()).toEqual({
+    status: 'no_drive',
+  });
+
+  usbDrive.status
+    .expectCallWith()
+    .resolves({ status: 'error', reason: 'bad_format' });
+  expect(await apiClient.getUsbDriveStatus()).toMatchObject({
+    status: 'error',
+    reason: 'bad_format',
+  });
+
+  usbDrive.eject.expectCallWith().resolves();
+  await apiClient.ejectUsbDrive();
+
+  usbDrive.format.expectCallWith().resolves();
+  (await apiClient.formatUsbDrive()).assertOk('format failed');
+
+  const error = new Error('format failed');
+  usbDrive.format.expectCallWith().throws(error);
+  expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });

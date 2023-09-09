@@ -15,22 +15,18 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
-import { assert } from '@votingworks/basics';
 import { fakeLogger } from '@votingworks/logging';
 import { AddressInfo } from 'net';
 import { Buffer } from 'buffer';
-import fs from 'fs';
 import tmp from 'tmp';
-import { execSync } from 'child_process';
-import { join } from 'path';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { Api } from '../src';
 import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
-import { Usb } from '../src/util/usb';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
 
 type ActualDirectory = string;
@@ -38,21 +34,6 @@ type MockFileTree = MockFile | MockDirectory | ActualDirectory;
 type MockFile = Buffer;
 interface MockDirectory {
   [name: string]: MockFileTree;
-}
-
-function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
-  if (Buffer.isBuffer(tree)) {
-    fs.writeFileSync(destinationPath, tree);
-  } else if (typeof tree === 'string') {
-    fs.cpSync(tree, destinationPath, { recursive: true });
-  } else {
-    if (!fs.existsSync(destinationPath)) fs.mkdirSync(destinationPath);
-    for (const [name, child] of Object.entries(tree)) {
-      // Sleep 1ms to ensure that each file is created with a distinct timestamp
-      execSync('sleep 0.01');
-      writeMockFileTree(join(destinationPath, name), child);
-    }
-  }
 }
 
 export function mockCastVoteRecordFileTree(
@@ -64,51 +45,6 @@ export function mockCastVoteRecordFileTree(
     [SCANNER_RESULTS_FOLDER]: {
       [generateElectionBasedSubfolderName(election, electionHash)]:
         mockDirectory,
-    },
-  };
-}
-
-interface MockUsb {
-  insertUsbDrive(contents: MockFileTree): void;
-  removeUsbDrive(): void;
-  usb: jest.Mocked<Usb>;
-}
-
-/**
- * Creates a mock of the Usb interface to USB drives. Simulates inserting and
- * removing a USB containing a tree of files and directories. Uses a temporary
- * directory on the filesystem to simulate the USB drive.
- */
-export function createMockUsb(): MockUsb {
-  let mockUsbTmpDir: tmp.DirResult | undefined;
-
-  const usb: jest.Mocked<Usb> = {
-    getUsbDrives: jest.fn().mockImplementation(() => {
-      if (mockUsbTmpDir) {
-        return Promise.resolve([
-          {
-            deviceName: 'mock-usb-drive',
-            mountPoint: mockUsbTmpDir.name,
-          },
-        ]);
-      }
-      return Promise.resolve([]);
-    }),
-  };
-
-  return {
-    usb,
-
-    insertUsbDrive(contents: MockFileTree) {
-      assert(!mockUsbTmpDir, 'Mock USB drive already inserted');
-      mockUsbTmpDir = tmp.dirSync({ unsafeCleanup: true });
-      writeMockFileTree(mockUsbTmpDir.name, contents);
-    },
-
-    removeUsbDrive() {
-      assert(mockUsbTmpDir, 'No mock USB drive to remove');
-      mockUsbTmpDir.removeCallback();
-      mockUsbTmpDir = undefined;
     },
   };
 }
@@ -180,12 +116,12 @@ export function buildTestEnvironment(workspaceRoot?: string) {
       return defaultWorkspaceRoot;
     })();
   const workspace = createWorkspace(resolvedWorkspaceRoot);
-  const mockUsb = createMockUsb();
+  const mockUsbDrive = createMockUsbDrive();
   const app = buildApp({
     auth,
     workspace,
     logger,
-    usb: mockUsb.usb,
+    usbDrive: mockUsbDrive.usbDrive,
   });
   // port 0 will bind to a random, free port assigned by the OS
   const server = app.listen();
@@ -203,6 +139,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     workspace,
     app,
     apiClient,
-    mockUsb,
+    mockUsbDrive,
   };
 }

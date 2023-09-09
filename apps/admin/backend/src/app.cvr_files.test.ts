@@ -79,17 +79,18 @@ async function expectCastVoteRecordCount(
 }
 
 test('happy path - mock election flow', async () => {
-  const { apiClient, auth, mockUsb, logger } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive, logger } = buildTestEnvironment();
+  const { usbDrive, insertUsbDrive, removeUsbDrive } = mockUsbDrive;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // initially, no files or cast vote records
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
+  usbDrive.status.expectRepeatedCallsWith().resolves({ status: 'no_drive' });
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
 
   // insert a USB drive
-  const { insertUsbDrive, removeUsbDrive } = mockUsb;
   const testReportDirectoryName =
     'TEST__machine_0000__184_ballots__2022-07-01_11-21-41';
   const testExportTimestamp = '2022-07-01T11:21:41.000Z';
@@ -175,6 +176,10 @@ test('happy path - mock election flow', async () => {
   await expectCastVoteRecordCount(apiClient, 0);
 
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
+
+  const availableCastVoteRecordFiles3 =
+    await apiClient.listCastVoteRecordFilesOnUsb();
+  expect(availableCastVoteRecordFiles3).toMatchObject([]);
 
   // now try loading official CVR files, as if after L&A
   const officialReportDirectoryName =
