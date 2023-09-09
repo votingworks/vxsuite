@@ -5,20 +5,19 @@ import {
   expectPrint,
   expectPrintToPdf,
   fakeKiosk,
-  fakeUsbDrive,
   hasTextAcrossElements,
   simulateErrorOnNextPrint,
 } from '@votingworks/test-utils';
 import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
-import { mockUsbDrive } from '@votingworks/ui';
 import { act } from 'react-dom/test-utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
 import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportViewer } from './tally_report_viewer';
 import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
+import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
@@ -327,7 +326,6 @@ test('exporting report PDF', async () => {
   jest.setSystemTime(new Date('2023-09-06T21:45:08Z'));
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { election } = electionDefinition;
@@ -357,7 +355,11 @@ test('exporting report PDF', async () => {
       }}
       autoPreview={false}
     />,
-    { apiMock, electionDefinition, usbDrive: mockUsbDrive('mounted') }
+    {
+      apiMock,
+      electionDefinition,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    }
   );
 
   await screen.findButton('Load Preview');

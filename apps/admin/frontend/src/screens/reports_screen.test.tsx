@@ -10,7 +10,6 @@ import {
 } from '@votingworks/test-utils';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { typedAs } from '@votingworks/basics';
-import { mockUsbDrive } from '@votingworks/ui';
 import { ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
@@ -20,6 +19,7 @@ import {
   expectReportsScreenCardCountQueries,
   mockBallotCountsTableGroupBy,
 } from '../../test/helpers/api_expect_helpers';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
@@ -68,7 +68,7 @@ test('exporting SEMS results', async () => {
     apiMock,
     converter: 'ms-sems',
     logger,
-    usbDrive: mockUsbDrive('mounted'),
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
   fetchMock.post(
@@ -94,7 +94,7 @@ test('exporting SEMS results', async () => {
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenLastCalledWith(
-      '/media/vx/mock-usb-drive/votingworks-sems-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.txt',
+      'test-mount-point/votingworks-sems-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.txt',
       'test-content'
     );
   });
@@ -125,7 +125,7 @@ test('exporting batch results', async () => {
   renderInAppContext(<ReportsScreen />, {
     electionDefinition,
     apiMock,
-    usbDrive: mockUsbDrive('mounted'),
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
   apiMock.expectGetCardCounts(
@@ -145,7 +145,7 @@ test('exporting batch results', async () => {
   );
 
   apiMock.expectExportBatchResults(
-    '/media/vx/mock-usb-drive/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
+    'test-mount-point/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
   );
   await advanceTimersAndPromises(1); // wait for modal to resolve USB path
   userEvent.click(screen.getByText('Save'));

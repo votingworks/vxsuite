@@ -7,25 +7,32 @@ import {
   expectPrint,
   fakeFileWriter,
   fakeKiosk,
-  fakeUsbDrive,
 } from '@votingworks/test-utils';
-import { mockUsbDrive } from '@votingworks/ui';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
+import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+
+let apiMock: ApiMock;
 
 beforeEach(() => {
   const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const fileWriter = fakeFileWriter();
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
   window.kiosk = mockKiosk;
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
 });
 
 test('prints appropriate reports for primary election', async () => {
   renderInAppContext(<FullTestDeckTallyReportButton />, {
     electionDefinition: electionTwoPartyPrimaryDefinition,
+    apiMock,
   });
 
   const fullTestDeckButton = screen.getButton(
@@ -64,6 +71,7 @@ test('prints appropriate report for general election', async () => {
 
   renderInAppContext(<FullTestDeckTallyReportButton />, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+    apiMock,
   });
 
   const fullTestDeckButton = screen.getButton(
@@ -87,10 +95,10 @@ test('prints appropriate report for general election', async () => {
 });
 
 test('renders SaveFileToUsb component for saving PDF', async () => {
-  const usbDrive = mockUsbDrive('mounted');
   renderInAppContext(<FullTestDeckTallyReportButton />, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
-    usbDrive,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+    apiMock,
   });
   const fullTestDeckButton = screen.getButton(
     'Save Full Test Deck Tally Report as PDF'
@@ -104,10 +112,10 @@ test('renders SaveFileToUsb component for saving PDF', async () => {
 });
 
 test('closes SaveFileToUsb modal', async () => {
-  const usbDrive = mockUsbDrive('mounted');
   renderInAppContext(<FullTestDeckTallyReportButton />, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
-    usbDrive,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+    apiMock,
   });
   const fullTestDeckButton = screen.getButton(
     'Save Full Test Deck Tally Report as PDF'

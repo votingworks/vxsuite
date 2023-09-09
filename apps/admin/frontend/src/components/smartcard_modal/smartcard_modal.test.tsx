@@ -38,6 +38,7 @@ beforeEach(() => {
   });
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbDriveStatus('no_drive');
 
   fetchMock.reset();
   fetchMock.get(

@@ -1,12 +1,13 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 
-import { ElectronFile, UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
+import { ElectronFile } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import type {
   CastVoteRecordFileMetadata,
   CvrFileImportInfo,
 } from '@votingworks/admin-backend';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   waitFor,
   fireEvent,
@@ -18,6 +19,7 @@ import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
 import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
@@ -71,7 +73,11 @@ afterEach(() => {
 });
 
 test('when USB is not present or valid', async () => {
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
+  const usbStatuses: Array<UsbDriveStatus['status']> = [
+    'no_drive',
+    'ejected',
+    'error',
+  ];
 
   for (const usbStatus of usbStatuses) {
     const closeFn = jest.fn();
@@ -81,7 +87,7 @@ test('when USB is not present or valid', async () => {
     const { unmount } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
-        usbDrive: mockUsbDrive(usbStatus),
+        usbDriveStatus: mockUsbDriveStatus(usbStatus),
         apiMock,
       }
     );
@@ -89,32 +95,6 @@ test('when USB is not present or valid', async () => {
 
     userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
-    unmount();
-  }
-});
-
-test('when USB is mounting or ejecting', async () => {
-  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
-
-  for (const usbStatus of usbStatuses) {
-    apiMock.expectGetCastVoteRecordFileMode('unlocked');
-    apiMock.expectGetCastVoteRecordFiles([]);
-    apiMock.expectListCastVoteRecordFilesOnUsb([]);
-    const closeFn = jest.fn();
-    const { unmount } = renderInAppContext(
-      <ImportCvrFilesModal onClose={closeFn} />,
-      {
-        usbDrive: mockUsbDrive(usbStatus),
-        apiMock,
-      }
-    );
-    // screen is initially loading due to waiting on queries
-    screen.getByText('Loading');
-    await waitFor(() => {
-      apiMock.assertComplete();
-    });
-    // screen is still loading after queries complete
-    await screen.findByText('Loading');
     unmount();
   }
 });
@@ -128,7 +108,7 @@ describe('when USB is properly mounted', () => {
     apiMock.expectListCastVoteRecordFilesOnUsb([]);
 
     renderInAppContext(<ImportCvrFilesModal onClose={closeFn} />, {
-      usbDrive: mockUsbDrive('mounted'),
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });
     await waitFor(() =>
@@ -169,7 +149,7 @@ describe('when USB is properly mounted', () => {
     apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
 
     renderInAppContext(<ImportCvrFilesModal onClose={closeFn} />, {
-      usbDrive: mockUsbDrive('mounted'),
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });
     await screen.findByText('Load CVR Files');
@@ -219,7 +199,7 @@ describe('when USB is properly mounted', () => {
     ]);
     apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
     renderInAppContext(<ImportCvrFilesModal onClose={closeFn} />, {
-      usbDrive: mockUsbDrive('mounted'),
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });
     await screen.findByRole('heading', {
@@ -252,7 +232,7 @@ describe('when USB is properly mounted', () => {
     ]);
     apiMock.expectListCastVoteRecordFilesOnUsb(mockCastVoteRecordFileMetadata);
     renderInAppContext(<ImportCvrFilesModal onClose={jest.fn()} />, {
-      usbDrive: mockUsbDrive('mounted'),
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });
     await screen.findByText('Load Official Ballot Mode CVR Files');

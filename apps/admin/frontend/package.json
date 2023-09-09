@@ -154,6 +154,7 @@
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "express": "^4.18.1",
     "glob": "^8.0.3",

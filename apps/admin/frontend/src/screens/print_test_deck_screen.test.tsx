@@ -8,10 +8,8 @@ import {
   fakeKiosk,
   fakePrinter,
   fakePrinterInfo,
-  fakeUsbDrive,
 } from '@votingworks/test-utils';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { mockUsbDrive } from '@votingworks/ui';
 import { screen, waitFor } from '../../test/react_testing_library';
 
 import {
@@ -20,6 +18,7 @@ import {
 } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let mockLogger: Logger;
@@ -36,7 +35,6 @@ beforeEach(() => {
   window.kiosk = mockKiosk;
   mockLogger = new Logger(LogSource.VxAdminFrontend, mockKiosk);
   mockPrinter = fakePrinter();
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const fileWriter = fakeFileWriter();
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
@@ -50,11 +48,11 @@ afterAll(() => {
 });
 
 test('Saving L&A package for one precinct', () => {
-  const usbDrive = mockUsbDrive('mounted');
+  const usbDriveStatus = mockUsbDriveStatus('mounted');
   renderInAppContext(<PrintTestDeckScreen />, {
     electionDefinition: electionTwoPartyPrimaryDefinition,
     logger: mockLogger,
-    usbDrive,
+    usbDriveStatus,
     apiMock,
   });
 
@@ -64,11 +62,11 @@ test('Saving L&A package for one precinct', () => {
 });
 
 test('Saving L&A package for all precincts', () => {
-  const usbDrive = mockUsbDrive('mounted');
+  const usbDriveStatus = mockUsbDriveStatus('mounted');
   renderInAppContext(<PrintTestDeckScreen />, {
     electionDefinition: electionTwoPartyPrimaryDefinition,
     logger: mockLogger,
-    usbDrive,
+    usbDriveStatus,
     apiMock,
   });
 
