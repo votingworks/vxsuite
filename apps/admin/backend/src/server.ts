@@ -63,9 +63,9 @@ export async function start({
   const resolvedUsbDrive =
     usbDrive ??
     (isIntegrationTest() ? new MockFileUsbDrive() : detectUsbDrive());
+  /* c8 ignore stop */
 
   let resolvedApp = app;
-  /* c8 ignore stop */
 
   /* c8 ignore start */
   if (!resolvedApp) {
