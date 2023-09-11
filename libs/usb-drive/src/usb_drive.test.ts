@@ -1,12 +1,15 @@
 import { promises as fs } from 'fs';
 import { deferred } from '@votingworks/basics';
 import { backendWaitFor } from '@votingworks/test-utils';
+import { join } from 'path';
 import {
   BlockDeviceInfo,
   VX_USB_LABEL_REGEXP,
   detectUsbDrive,
 } from './usb_drive';
 import { exec } from './exec';
+
+const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 jest.mock('fs', () => ({
   promises: {
@@ -118,7 +121,7 @@ describe('status', () => {
     ]);
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
-      `${__dirname}/mount.sh`,
+      `${MOUNT_SCRIPT_PATH}/mount.sh`,
       '/dev/sdb1',
     ]);
     expect(execMock).toHaveBeenNthCalledWith(3, 'lsblk', [
@@ -226,7 +229,7 @@ describe('eject', () => {
 
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
-      `${__dirname}/unmount.sh`,
+      `${MOUNT_SCRIPT_PATH}/unmount.sh`,
       '/media/usb-drive-sdb1',
     ]);
 
@@ -268,12 +271,12 @@ describe('format', () => {
     await usbDrive.format();
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
-      `${__dirname}/unmount.sh`,
+      `${MOUNT_SCRIPT_PATH}/unmount.sh`,
       '/media/usb-drive-sdb1',
     ]);
     expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', [
       '-n',
-      `${__dirname}/format_fat32.sh`,
+      `${MOUNT_SCRIPT_PATH}/format_fat32.sh`,
       '/dev/sdb',
       'VxUSB-00000',
     ]);
@@ -292,7 +295,7 @@ describe('format', () => {
     await usbDrive.format();
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
-      `${__dirname}/format_fat32.sh`,
+      `${MOUNT_SCRIPT_PATH}/format_fat32.sh`,
       '/dev/sdb',
       expect.stringMatching(VX_USB_LABEL_REGEXP),
     ]);

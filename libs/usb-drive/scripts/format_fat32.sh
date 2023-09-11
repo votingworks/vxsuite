@@ -29,9 +29,12 @@ fi
 # partition the device with a single FAT32 (type=c) partition
 echo 'type=c' | sfdisk --wipe always --wipe-partitions always "${DEVICE}"
 
-# there may be a delay before the partition can be recognized by the OS, particularly
-# when there is simultaneous polling (e.g. via lsblk). this pause allows for the delay
-sleep 0.01
+# refresh kernel's data on the USB partition table. sfdisk will try to do so,
+# but it may fail and not retry if device information is separately being polled
+partprobe
 
 # format the partition with a FAT32 filesystem, which must be done as root
 mkfs.fat -F 32 -n "${LABEL}" "${DEVICE}1"
+
+# refresh kernel's data on the USB partition table.
+partprobe

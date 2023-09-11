@@ -89,7 +89,7 @@ async function getUsbDriveDeviceInfo(): Promise<BlockDeviceInfo | undefined> {
   return await getBlockDeviceInfo(devicePath);
 }
 
-const MOUNT_SCRIPT_PATH = join(__dirname, '../src');
+const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 async function mountUsbDrive(devicePath: string): Promise<void> {
   debug(`Mounting USB drive ${devicePath}`);
