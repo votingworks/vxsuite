@@ -260,3 +260,16 @@ test('error in ejecting gets logged as expected', async () => {
     })
   );
 });
+
+test('properly detects an incorrectly formatted USB drive', async () => {
+  const mockKiosk = fakeKiosk();
+  mockKiosk.getUsbDriveInfo.mockResolvedValue([
+    fakeUsbDrive({ mountPoint: undefined, fsType: 'exfat' }),
+  ]);
+  window.kiosk = mockKiosk;
+
+  const { result } = renderHook(() => useUsbDrive({ logger }));
+  await waitFor(() => {
+    expect(result.current.status).toEqual('bad_format');
+  });
+});
