@@ -34,4 +34,4 @@ echo 'type=c' | sfdisk --wipe always --wipe-partitions always "${DEVICE}"
 sleep 0.01
 
 # format the partition with a FAT32 filesystem, which must be done as root
-sudo mkfs.fat -F 32 -n "${LABEL}" "${DEVICE}1"
+mkfs.fat -F 32 -n "${LABEL}" "${DEVICE}1"
