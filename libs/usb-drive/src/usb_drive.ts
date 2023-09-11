@@ -230,7 +230,6 @@ export function detectUsbDrive(): UsbDrive {
         if (deviceInfo.mountpoint) {
           debug('USB drive is mounted, unmounting before formatting');
           await unmountUsbDrive(deviceInfo.mountpoint);
-          didEject = true;
         }
 
         const label = generateVxUsbLabel(deviceInfo.label ?? undefined);
