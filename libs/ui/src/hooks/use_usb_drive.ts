@@ -12,31 +12,6 @@ function isFat32(usbDriveInfo: KioskBrowser.UsbDriveInfo) {
   return usbDriveInfo.fsType === 'vfat' && usbDriveInfo.fsVersion === 'FAT32';
 }
 
-const CASE_INSENSITIVE_ALPHANUMERICS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
-function randomCaseInsensitiveAlphanumeric(): string {
-  return CASE_INSENSITIVE_ALPHANUMERICS[
-    Math.floor(Math.random() * CASE_INSENSITIVE_ALPHANUMERICS.length)
-  ];
-}
-
-const VX_USB_LABEL_REGEXP = /VxUSB-[A-Z0-9]{5,}/i;
-
-function generateVxUsbLabel(usbDriveInfo: KioskBrowser.UsbDriveInfo): string {
-  const oldLabel = usbDriveInfo.label;
-  if (oldLabel && VX_USB_LABEL_REGEXP.test(oldLabel)) {
-    return oldLabel;
-  }
-
-  let newLabel = 'VxUSB-';
-
-  for (let i = 0; i < 5; i += 1) {
-    newLabel += randomCaseInsensitiveAlphanumeric();
-  }
-
-  return newLabel;
-}
-
 export interface PostFormatUsbOptions {
   action: 'mount' | 'eject';
 }
@@ -52,10 +27,6 @@ export type UsbDriveStatus =
 export interface UsbDrive {
   status: UsbDriveStatus;
   eject(currentUser: LoggingUserRole): Promise<void>;
-  format(
-    currentUser: LoggingUserRole,
-    options: PostFormatUsbOptions
-  ): Promise<void>;
 }
 
 export interface UsbDriveProps {
@@ -83,11 +54,6 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
 
   // Application state
   const [status, setStatus] = useState<UsbDriveStatus>('absent');
-
-  // The hardware state blips / flickers during formatting, so we need to
-  // know when to skip polling. We could add this as a `UsbDriveStatus`, but
-  // then we would have to handle in the frontends.
-  const [isFormatting, setIsFormatting] = useState(false);
 
   const eject = useCallback(
     async (currentUser: LoggingUserRole) => {
@@ -136,49 +102,9 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
     }
   }, [logger, makeCancelable]);
 
-  const format = useCallback(
-    async (currentUser: LoggingUserRole, options: PostFormatUsbOptions) => {
-      setIsFormatting(true);
-      try {
-        await logger.log(LogEventId.UsbDriveFormatInit, currentUser);
-        const usbDriveInfo = await usbstick.getInfo();
-        assert(usbDriveInfo);
-        const name = generateVxUsbLabel(usbDriveInfo);
-        await makeCancelable(
-          usbstick.doFormat({
-            format: 'fat32',
-            name,
-          })
-        );
-        await logger.log(LogEventId.UsbDriveFormatted, 'system', {
-          disposition: 'success',
-          message: `USB drive successfully formatted with a single FAT32 volume named "${name}".`,
-        });
-
-        if (options.action === 'mount') {
-          await mount();
-        } else {
-          setStatus('ejected');
-        }
-      } catch (error) {
-        await logger.log(LogEventId.UsbDriveFormatted, 'system', {
-          disposition: 'failure',
-          message: `Failed to format USB drive.`,
-          error: (error as Error).message,
-          result: 'USB drive not formatted.',
-        });
-        // throw the error so handling can take place in the app
-        throw error;
-      } finally {
-        setIsFormatting(false);
-      }
-    },
-    [logger, makeCancelable, mount]
-  );
-
   useInterval(
     async () => {
-      if (isFormatting || status === 'mounting' || status === 'ejecting') {
+      if (status === 'mounting' || status === 'ejecting') {
         return;
       }
 
@@ -237,6 +163,5 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
   return {
     status,
     eject,
-    format,
   };
 }
