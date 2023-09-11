@@ -1,6 +1,10 @@
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
-import { GROUP_KEY_ROOT, groupMapToGroupList } from '@votingworks/utils';
+import {
+  GROUP_KEY_ROOT,
+  buildManualResultsFixture,
+  groupMapToGroupList,
+} from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import { Store } from '../store';
 import {
@@ -227,6 +231,121 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
     bmd: 5,
     hmpb: [6, 7],
   });
+});
+
+test('tabulateFullCardCounts - manual results', () => {
+  const store = Store.memoryStore();
+  const { electionDefinition, election } = electionTwoPartyPrimaryFixtures;
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  store.setCurrentElectionId(electionId);
+
+  // add mock scanned records
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { fishing: ['ban-fishing'] },
+      card: { type: 'bmd' },
+      multiplier: 30,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  // add manual results
+  store.setManualResults({
+    electionId,
+    precinctId: 'precinct-1',
+    ballotStyleId: '1M',
+    votingMethod: 'absentee',
+    manualResults: buildManualResultsFixture({
+      election,
+      ballotCount: 20,
+      contestResultsSummaries: {
+        fishing: {
+          type: 'yesno',
+          ballots: 20,
+          overvotes: 0,
+          undervotes: 0,
+          yesTally: 20,
+          noTally: 0,
+        },
+      },
+    }),
+  });
+
+  // manual ballot counts should be ignored if incompatible with parameters
+  const batchCardCounts = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      store,
+      groupBy: {
+        groupByBatch: true,
+      },
+    })
+  );
+  expect(batchCardCounts).toEqual([
+    {
+      batchId: 'batch-1',
+      bmd: 30,
+      hmpb: [],
+    },
+  ]);
+
+  // manual ballot counts should be merged into results if compatible with parameters
+  const precinctCardCounts = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      store,
+      groupBy: {
+        groupByPrecinct: true,
+      },
+    })
+  );
+  expect(precinctCardCounts).toEqual([
+    {
+      bmd: 30,
+      hmpb: [],
+      manual: 20,
+      precinctId: 'precinct-1',
+    },
+    {
+      bmd: 0,
+      hmpb: [],
+      manual: 0,
+      precinctId: 'precinct-2',
+    },
+  ]);
+
+  const votingMethodCardCounts = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      store,
+      groupBy: {
+        groupByVotingMethod: true,
+      },
+    })
+  );
+  expect(votingMethodCardCounts).toEqual([
+    {
+      bmd: 30,
+      hmpb: [],
+      manual: 0,
+      votingMethod: 'precinct',
+    },
+    {
+      bmd: 0,
+      hmpb: [],
+      manual: 20,
+      votingMethod: 'absentee',
+    },
+  ]);
 });
 
 test('tabulateFullCardCounts - blankBallots', () => {

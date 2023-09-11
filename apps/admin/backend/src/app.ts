@@ -675,6 +675,7 @@ function buildApi({
     getCardCounts(
       input: {
         groupBy?: Tabulation.GroupBy;
+        filter?: Tabulation.Filter;
         blankBallotsOnly?: boolean;
       } = {}
     ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {

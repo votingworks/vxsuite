@@ -67,12 +67,19 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         filter: { batchIds: ['batch-1'] },
       }).err()
     ).toEqual({ type: 'incompatible-filter' });
+
+    expect(
+      tabulateManualBallotCounts({
+        electionId,
+        store,
+        filter: { batchIds: ['batch-1'] },
+      }).err()
+    ).toEqual({ type: 'incompatible-filter' });
   });
 
   test('on incompatible group by', () => {
     const store = Store.memoryStore();
-    const { electionData, election } =
-      electionTwoPartyPrimaryFixtures.electionDefinition;
+    const { electionData } = electionTwoPartyPrimaryFixtures.electionDefinition;
     const electionId = store.addElection({
       electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -89,8 +96,8 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
 
     expect(
       tabulateManualBallotCounts({
-        election,
-        manualResultsMetadataRecords: [],
+        electionId,
+        store,
         groupBy: { groupByBatch: true },
       }).err()
     ).toEqual({ type: 'incompatible-group-by' });
@@ -290,14 +297,11 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       );
     }
 
-    for (const { groupBy, expected } of testCases.filter(
-      (testCase) => testCase.filter === undefined
-    )) {
+    for (const { filter, groupBy, expected } of testCases) {
       const result = tabulateManualBallotCounts({
-        election,
-        manualResultsMetadataRecords: store.getManualResultsMetadata({
-          electionId,
-        }),
+        electionId,
+        store,
+        filter,
         groupBy,
       });
       assert(result.isOk());
