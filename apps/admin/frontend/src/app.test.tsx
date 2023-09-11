@@ -3,8 +3,8 @@ import fetchMock from 'fetch-mock';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { deferred, typedAs } from '@votingworks/basics';
 import {
@@ -327,7 +327,7 @@ test('L&A (logic and accuracy) flow', async () => {
 });
 
 test('marking results as official', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({
@@ -370,7 +370,7 @@ test('marking results as official', async () => {
 });
 
 test('removing election resets cvr and manual data files', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
 
@@ -393,7 +393,7 @@ test('removing election resets cvr and manual data files', async () => {
 });
 
 test('clearing results', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
@@ -645,7 +645,7 @@ test('election manager cannot auth onto machine with different election hash', a
 });
 
 test('primary election flow', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { renderApp } = buildApp(apiMock);
 
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });

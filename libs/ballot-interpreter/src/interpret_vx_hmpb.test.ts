@@ -3,7 +3,7 @@ import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   famousNamesFixtures,
   primaryElectionFixtures,
-  sampleElectionFixtures,
+  generalElectionFixtures,
 } from '@votingworks/hmpb-render-backend';
 import { BallotType, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
@@ -164,8 +164,8 @@ for (const {
   votes,
   blankBallotPath,
   markedBallotPath,
-} of sampleElectionFixtures) {
-  describe(`HMPB - sample election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
+} of generalElectionFixtures) {
+  describe(`HMPB - general election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
     test(`Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
       const sheetImages = iter(ballotImagePaths).chunks(2).toArray();

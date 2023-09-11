@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { screen } from '@testing-library/react';
@@ -31,7 +31,7 @@ test('l&a documents accessible in unlocked mode', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
 
   renderInAppContext(<LogicAndAccuracyScreen />, {
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     logger,
     apiMock,
   });
@@ -43,7 +43,7 @@ test('l&a documents accessible in test mode', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
 
   renderInAppContext(<LogicAndAccuracyScreen />, {
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     logger,
     apiMock,
   });
@@ -55,7 +55,7 @@ test('l&a documents not accessible in official mode', async () => {
   apiMock.expectGetCastVoteRecordFileMode('official');
 
   renderInAppContext(<LogicAndAccuracyScreen />, {
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     logger,
     apiMock,
   });

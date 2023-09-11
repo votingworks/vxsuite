@@ -1,8 +1,8 @@
 import { assert, assertDefined, find, range } from '@votingworks/basics';
 import {
-  electionSample,
+  electionGeneral,
   electionFamousNames2021Fixtures,
-  electionComplexGeoSample,
+  electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import {
   AnyElement,
@@ -32,7 +32,7 @@ import { join } from 'path';
 
 export const fixturesDir = join(__dirname, '../fixtures');
 export const famousNamesDir = join(fixturesDir, 'famous-names');
-export const sampleElectionDir = join(fixturesDir, 'sample-election');
+export const generalElectionDir = join(fixturesDir, 'general-election');
 export const primaryElectionDir = join(fixturesDir, 'primary-election');
 
 export function voteToOptionId(vote: Vote[number]): Id {
@@ -149,16 +149,16 @@ export const famousNamesFixtures = (() => {
   };
 })();
 
-export const sampleElectionFixtures = (() => {
+export const generalElectionFixtures = (() => {
   const fixtures = [];
 
   for (const bubblePosition of BUBBLE_POSITIONS) {
     for (const paperSize of [BallotPaperSize.Letter, BallotPaperSize.Legal]) {
       for (const layoutDensity of LAYOUT_DENSITIES) {
         const election: Election = {
-          ...electionSample,
+          ...electionGeneral,
           ballotLayout: {
-            ...electionSample.ballotLayout,
+            ...electionGeneral.ballotLayout,
             paperSize,
           },
         };
@@ -210,7 +210,7 @@ export const sampleElectionFixtures = (() => {
         });
 
         const electionDir = join(
-          sampleElectionDir,
+          generalElectionDir,
           `${bubblePosition}-${paperSize}-${layoutDensity}`
         );
 
@@ -241,7 +241,7 @@ export const sampleElectionFixtures = (() => {
 })();
 
 export const primaryElectionFixtures = (() => {
-  const { election } = electionComplexGeoSample;
+  const { election } = electionPrimaryPrecinctSplitsFixtures;
   const { electionDefinition, ballots } = layOutAllBallotStyles({
     election,
     ballotType: BallotType.Precinct,

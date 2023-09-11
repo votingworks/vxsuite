@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
@@ -55,7 +55,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     const store = Store.memoryStore();
     const electionId = store.addElection({
       electionData:
-        electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData,
+        electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     });
     store.setCurrentElectionId(electionId);
@@ -72,7 +72,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
   test('on incompatible group by', () => {
     const store = Store.memoryStore();
     const { electionData, election } =
-      electionMinimalExhaustiveSampleFixtures.electionDefinition;
+      electionTwoPartyPrimaryFixtures.electionDefinition;
     const electionId = store.addElection({
       electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
@@ -98,7 +98,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
 
   test('grouping and filtering', () => {
     const store = Store.memoryStore();
-    const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+    const { electionDefinition } = electionTwoPartyPrimaryFixtures;
     const { election, electionData } = electionDefinition;
     const electionId = store.addElection({
       electionData,
@@ -314,7 +314,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
 });
 
 test('extractManualWriteInSummary', () => {
-  const { election } = electionMinimalExhaustiveSampleFixtures;
+  const { election } = electionTwoPartyPrimaryFixtures;
   expect(
     extractWriteInSummary({
       election,

@@ -12,7 +12,7 @@ import { renderDocumentToPdf } from './render_ballot';
 import {
   famousNamesDir,
   famousNamesFixtures,
-  sampleElectionFixtures,
+  generalElectionFixtures,
 } from './ballot_fixtures';
 
 function normalizePdf(pdf: string): string {
@@ -97,8 +97,8 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     electionDefinition,
     blankBallot,
     markedBallot,
-  } of sampleElectionFixtures) {
-    test(`sample election fixtures - ${basename(electionDir)}`, async () => {
+  } of generalElectionFixtures) {
+    test(`general election fixtures - ${basename(electionDir)}`, async () => {
       const savedElection = fs.readFileSync(
         join(electionDir, 'election.json'),
         'utf8'

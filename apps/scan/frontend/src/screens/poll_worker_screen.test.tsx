@@ -11,7 +11,7 @@ import {
 import { mocked } from 'jest-mock';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   screen,
   RenderResult,
@@ -62,7 +62,7 @@ function renderScreen(
       apiMock,
       <PollWorkerScreen
         machineConfig={machineConfig}
-        electionDefinition={electionSampleDefinition}
+        electionDefinition={electionGeneralDefinition}
         precinctSelection={ALL_PRECINCTS_SELECTION}
         scannedBallotCount={0}
         pollsState="polls_closed_initial"

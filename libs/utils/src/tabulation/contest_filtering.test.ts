@@ -1,7 +1,7 @@
 import {
-  electionComplexGeoSample,
+  electionPrimaryPrecinctSplitsFixtures,
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import {
@@ -13,7 +13,7 @@ import {
 
 describe('doesContestAppearOnPartyBallot', () => {
   test('in a primary election', () => {
-    const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+    const electionDefinition = electionTwoPartyPrimaryDefinition;
 
     const { contests } = electionDefinition.election;
     const mammalContest = find(contests, (c) => c.id === 'best-animal-mammal');
@@ -46,7 +46,7 @@ describe('doesContestAppearOnPartyBallot', () => {
 });
 
 test('getContestIdsForBallotStyle', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   expect([...getContestIdsForBallotStyle(electionDefinition, '1M')]).toEqual([
     'best-animal-mammal',
     'zoo-council-mammal',
@@ -64,7 +64,7 @@ test('getContestIdsForBallotStyle', () => {
 });
 
 test('getContestIdsForPrecinct', () => {
-  const { electionDefinition } = electionComplexGeoSample;
+  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
   expect([
     ...getContestIdsForPrecinct(electionDefinition, 'precinct-c1-w1-1'),
   ]).toEqual([
@@ -86,7 +86,7 @@ test('getContestIdsForPrecinct', () => {
 });
 
 test('getContestsForPrecinct', () => {
-  const { electionDefinition } = electionComplexGeoSample;
+  const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
   expect(
     getContestsForPrecinct(electionDefinition, 'precinct-c1-w2').map(
       (c) => c.id

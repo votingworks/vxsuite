@@ -1,4 +1,4 @@
-import { election as electionSample, electionData } from '../test/election';
+import { election as electionGeneral, electionData } from '../test/election';
 import * as t from '.';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 
@@ -8,7 +8,7 @@ test('parsing fails on an empty object', () => {
 
 test('parsing JSON.parses a string', () => {
   expect(t.safeParseElection(electionData).unsafeUnwrap()).toEqual(
-    electionSample
+    electionGeneral
   );
 });
 
@@ -26,11 +26,11 @@ test('parsing gives specific errors for nested objects', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
+        ...electionGeneral,
         contests: [
-          ...electionSample.contests.slice(1),
+          ...electionGeneral.contests.slice(1),
           {
-            ...electionSample.contests[0],
+            ...electionGeneral.contests[0],
             // give title a type it shouldn't have
             title: 42,
           },
@@ -132,7 +132,7 @@ test('ensures dates are ISO 8601-formatted', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
+        ...electionGeneral,
         date: 'not ISO',
       })
       .unsafeUnwrapErr()
@@ -151,26 +151,26 @@ test('ensures dates are ISO 8601-formatted', () => {
 
 test('parsing a valid election object succeeds', () => {
   const parsed = t
-    .safeParseVxfElection(electionSample as unknown)
+    .safeParseVxfElection(electionGeneral as unknown)
     .unsafeUnwrap();
 
   // This check is here to prove TS inferred that `parsed` is an `Election`.
-  expect(parsed.title).toEqual(electionSample.title);
+  expect(parsed.title).toEqual(electionGeneral.title);
 
   // Check the whole thing
-  expect(parsed).toEqual(electionSample);
+  expect(parsed).toEqual(electionGeneral);
 });
 
 test('parsing a valid election', () => {
-  expect(t.safeParseVxfElection(electionSample).unsafeUnwrap()).toEqual(
-    electionSample
+  expect(t.safeParseVxfElection(electionGeneral).unsafeUnwrap()).toEqual(
+    electionGeneral
   );
 });
 
 test('contest IDs cannot start with an underscore', () => {
   expect(
     safeParse(t.CandidateContestSchema, {
-      ...electionSample.contests[0],
+      ...electionGeneral.contests[0],
       id: '_president',
     }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
@@ -188,12 +188,12 @@ test('contest IDs cannot start with an underscore', () => {
 
 test('allows valid adjudication reasons', () => {
   t.safeParseVxfElection({
-    ...electionSample,
+    ...electionGeneral,
     adjudicationReasons: [],
   }).unsafeUnwrap();
 
   t.safeParseVxfElection({
-    ...electionSample,
+    ...electionGeneral,
     adjudicationReasons: [t.AdjudicationReason.MarginalMark],
   }).unsafeUnwrap();
 });
@@ -202,7 +202,7 @@ test('supports ballot layout paper size', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
+        ...electionGeneral,
         ballotLayout: {
           paperSize: 'A4',
           metadataEncoding: 'qr-code',
@@ -233,7 +233,7 @@ test('supports ballot layout paper size', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
+        ...electionGeneral,
         ballotLayout: 'letter',
       })
       .unsafeUnwrapErr()
@@ -256,7 +256,7 @@ test('parsing validates district references', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
+        ...electionGeneral,
         districts: [{ id: 'DIS', name: 'DIS' }],
       })
       .unsafeUnwrapErr()
@@ -280,7 +280,7 @@ test('parsing validates precinct references', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
+        ...electionGeneral,
         precincts: [{ id: 'PRE', name: 'PRE' }],
       })
       .unsafeUnwrapErr()
@@ -301,17 +301,17 @@ test('parsing validates precinct references', () => {
 });
 
 test('parsing validates contest party references', () => {
-  const contest = electionSample.contests.find(
+  const contest = electionGeneral.contests.find(
     ({ id }) => id === 'CC'
   ) as t.CandidateContest;
-  const remainingContests = electionSample.contests.filter(
+  const remainingContests = electionGeneral.contests.filter(
     (c) => contest !== c
   );
 
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
+        ...electionGeneral,
         contests: [
           {
             ...contest,
@@ -338,17 +338,17 @@ test('parsing validates contest party references', () => {
 });
 
 test('parsing validates candidate party references', () => {
-  const contest = electionSample.contests.find(
+  const contest = electionGeneral.contests.find(
     ({ id }) => id === 'CC'
   ) as t.CandidateContest;
-  const remainingContests = electionSample.contests.filter(
+  const remainingContests = electionGeneral.contests.filter(
     (c) => contest !== c
   );
 
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
+        ...electionGeneral,
         contests: [
           {
             ...contest,
@@ -387,8 +387,8 @@ test('validates uniqueness of district ids', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
-        districts: [...electionSample.districts, ...electionSample.districts],
+        ...electionGeneral,
+        districts: [...electionGeneral.districts, ...electionGeneral.districts],
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
@@ -409,8 +409,8 @@ test('validates uniqueness of district ids', () => {
 test('validates uniqueness of ballot style ids', () => {
   expect(
     safeParse(t.BallotStylesSchema, [
-      ...electionSample.ballotStyles,
-      ...electionSample.ballotStyles,
+      ...electionGeneral.ballotStyles,
+      ...electionGeneral.ballotStyles,
     ]).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [ZodError: [
@@ -430,8 +430,8 @@ test('validates uniqueness of precinct ids', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
-        precincts: [...electionSample.precincts, ...electionSample.precincts],
+        ...electionGeneral,
+        precincts: [...electionGeneral.precincts, ...electionGeneral.precincts],
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
@@ -453,8 +453,8 @@ test('validates uniqueness of contest ids', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
-        contests: [...electionSample.contests, ...electionSample.contests],
+        ...electionGeneral,
+        contests: [...electionGeneral.contests, ...electionGeneral.contests],
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
@@ -505,8 +505,8 @@ test('validates uniqueness of party ids', () => {
   expect(
     t
       .safeParseVxfElection({
-        ...electionSample,
-        parties: [...electionSample.parties, ...electionSample.parties],
+        ...electionGeneral,
+        parties: [...electionGeneral.parties, ...electionGeneral.parties],
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
@@ -525,7 +525,7 @@ test('validates uniqueness of party ids', () => {
 });
 
 test('validates uniqueness of candidate ids within a contest', () => {
-  const contest = electionSample.contests[0] as t.CandidateContest;
+  const contest = electionGeneral.contests[0] as t.CandidateContest;
 
   expect(
     safeParse(t.CandidateContestSchema, {

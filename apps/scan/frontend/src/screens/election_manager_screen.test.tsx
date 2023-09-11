@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
 import { fakeKiosk } from '@votingworks/test-utils';
@@ -50,7 +50,7 @@ function renderScreen(
     provideApi(
       apiMock,
       <ElectionManagerScreen
-        electionDefinition={electionSampleDefinition}
+        electionDefinition={electionGeneralDefinition}
         scannerStatus={statusNoPaper}
         usbDrive={fakeUsbDriveStatus('no_drive')}
         logger={fakeLogger()}
@@ -102,7 +102,7 @@ test('renders date and time settings modal', async () => {
 test('option to set precinct if more than one', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
-  const precinct = electionSampleDefinition.election.precincts[0];
+  const precinct = electionGeneralDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   apiMock.expectSetPrecinct(precinctSelection);
   renderScreen();
@@ -116,7 +116,7 @@ test('option to set precinct if more than one', async () => {
 test('no option to change precinct if there is only one precinct', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   const electionDefinition =
-    electionMinimalExhaustiveSampleSinglePrecinctDefinition;
+    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),

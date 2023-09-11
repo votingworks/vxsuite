@@ -1,4 +1,4 @@
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -18,7 +18,7 @@ jest.mock('@votingworks/types', () => {
 test('Renders ElectionInfoBar with appropriate information', () => {
   const { container } = render(
     <ElectionInfoBar
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={electionGeneralDefinition}
       machineId="0000"
       codeVersion="DEV"
       mode="admin"
@@ -37,7 +37,7 @@ test('Renders ElectionInfoBar with appropriate information', () => {
 
   const electionIdLabel = screen.getByText('Election ID');
   expect(electionIdLabel.parentElement?.lastChild).toHaveTextContent(
-    getDisplayElectionHash(electionSampleDefinition)
+    getDisplayElectionHash(electionGeneralDefinition)
   );
   expect(container).toMatchSnapshot();
 });
@@ -45,7 +45,7 @@ test('Renders ElectionInfoBar with appropriate information', () => {
 test('Renders ElectionInfoBar with all precincts when specified', () => {
   render(
     <ElectionInfoBar
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={electionGeneralDefinition}
       machineId="0000"
       codeVersion="DEV"
       mode="admin"
@@ -58,7 +58,7 @@ test('Renders ElectionInfoBar with all precincts when specified', () => {
 test('Renders ElectionInfoBar with specific precinct', () => {
   render(
     <ElectionInfoBar
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={electionGeneralDefinition}
       machineId="0002"
       codeVersion="DEV"
       mode="admin"
@@ -71,7 +71,7 @@ test('Renders ElectionInfoBar with specific precinct', () => {
 test('Renders ElectionInfoBar without admin info in default voter mode', () => {
   render(
     <ElectionInfoBar
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={electionGeneralDefinition}
       machineId="0002"
       codeVersion="DEV"
       precinctSelection={singlePrecinctSelectionFor('23')}
@@ -82,12 +82,12 @@ test('Renders ElectionInfoBar without admin info in default voter mode', () => {
 });
 
 test('Renders ElectionInfoBar seal', () => {
-  render(<ElectionInfoBar electionDefinition={electionSampleDefinition} />);
+  render(<ElectionInfoBar electionDefinition={electionGeneralDefinition} />);
   expect(screen.getByTestId('seal').innerHTML.toString()).toMatch(
     /Seal of Montgomery County, Maryland/
   );
   screen.getByText('Election ID');
   within(screen.getByText('Election ID').parentElement!).getByText(
-    getDisplayElectionHash(electionSampleDefinition)
+    getDisplayElectionHash(electionGeneralDefinition)
   );
 });

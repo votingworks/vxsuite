@@ -1,7 +1,7 @@
 import { ok } from '@votingworks/basics';
 import {
   election,
-  electionMinimalExhaustive,
+  electionTwoPartyPrimary,
   primaryElection,
 } from '../../../test/election';
 import { safeParseElection } from '../../election_parsing';
@@ -32,7 +32,7 @@ test('convertCdfBallotDefinitionToVxfElection', () => {
   ).toEqual(normalizeVxf(testVxfElection));
 });
 
-const elections = [election, primaryElection, electionMinimalExhaustive];
+const elections = [election, primaryElection, electionTwoPartyPrimary];
 
 for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {

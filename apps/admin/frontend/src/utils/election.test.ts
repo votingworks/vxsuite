@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/fixtures';
+import { electionGeneral } from '@votingworks/fixtures';
 import {
   BallotStyle,
   CandidateContest,
@@ -18,17 +18,17 @@ import {
 
 describe('numBallotPositions', () => {
   test('returns 2 for yes-no contests', () => {
-    const yesNoContest = electionSample.contests[13];
+    const yesNoContest = electionGeneral.contests[13];
     expect(numBallotPositions(yesNoContest)).toEqual(2);
   });
 
   test('returns correct count for candidate contest without write-in', () => {
-    const contest = electionSample.contests[0] as CandidateContest;
+    const contest = electionGeneral.contests[0] as CandidateContest;
     expect(numBallotPositions(contest)).toEqual(contest.candidates.length);
   });
 
   test('returns correct count for candidate contest with write-in', () => {
-    const contest = electionSample.contests[8] as CandidateContest;
+    const contest = electionGeneral.contests[8] as CandidateContest;
     expect(numBallotPositions(contest)).toEqual(
       contest.candidates.length + contest.seats
     );
@@ -46,14 +46,14 @@ test('generateTestDeckWriteIn generates valid write-in candidate', () => {
 
 describe('getTestDeckCandidateAtIndex', () => {
   test('returns candidate if index is less than number of candidates', () => {
-    const contest = electionSample.contests[0] as CandidateContest;
+    const contest = electionGeneral.contests[0] as CandidateContest;
     expect(getTestDeckCandidateAtIndex(contest, 0)).toEqual(
       contest.candidates[0]
     );
   });
 
   test('returns test deck write in if allowed and in range', () => {
-    const contest = electionSample.contests[8] as CandidateContest;
+    const contest = electionGeneral.contests[8] as CandidateContest;
     const candidate = getTestDeckCandidateAtIndex(
       contest,
       contest.candidates.length
@@ -64,7 +64,7 @@ describe('getTestDeckCandidateAtIndex', () => {
   });
 
   test('throws error if index out of bounds', () => {
-    const contest = electionSample.contests[0] as CandidateContest;
+    const contest = electionGeneral.contests[0] as CandidateContest;
     expect(() => {
       getTestDeckCandidateAtIndex(contest, contest.candidates.length);
     }).toThrowError();
@@ -76,16 +76,16 @@ describe('generateTestDeckBallots', () => {
     // Precinct with id '23' has one ballot style, with id '12', representing
     // races for 'district-2'
     const ballots = generateTestDeckBallots({
-      election: electionSample,
+      election: electionGeneral,
       precinctId: '23',
       markingMethod: 'hand',
     });
     const votes = ballots.map((b) => b.votes);
     const ballotStyle = getBallotStyle({
       ballotStyleId: '12',
-      election: electionSample,
+      election: electionGeneral,
     }) as BallotStyle;
-    const contests = getContests({ ballotStyle, election: electionSample });
+    const contests = getContests({ ballotStyle, election: electionGeneral });
 
     const allSelections: Dictionary<string[]> = {};
     for (const contest of contests) {

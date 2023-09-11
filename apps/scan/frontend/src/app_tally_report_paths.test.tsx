@@ -1,9 +1,9 @@
 import {
-  electionMinimalExhaustiveSample,
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleWithReportingUrlDefinition,
-  electionSample,
-  electionSampleDefinition,
+  electionTwoPartyPrimary,
+  electionTwoPartyPrimaryDefinition,
+  electionGeneral,
+  electionGeneralDefinition,
+  asElectionDefinition,
 } from '@votingworks/fixtures';
 import {
   expectPrint,
@@ -17,6 +17,7 @@ import {
   buildElectionResultsFixture,
 } from '@votingworks/utils';
 import {
+  Election,
   ElectionDefinition,
   PrecinctReportDestination,
   PrecinctSelection,
@@ -67,7 +68,7 @@ function renderApp({
 
 const GENERAL_ELECTION_RESULTS = [
   buildElectionResultsFixture({
-    election: electionSample,
+    election: electionGeneral,
     cardCounts: {
       bmd: 0,
       hmpb: [100],
@@ -90,7 +91,7 @@ const PRIMARY_ELECTION_RESULTS = [
   {
     partyId: '0',
     ...buildElectionResultsFixture({
-      election: electionMinimalExhaustiveSample,
+      election: electionTwoPartyPrimary,
       cardCounts: {
         bmd: 0,
         hmpb: [80],
@@ -119,7 +120,7 @@ const PRIMARY_ELECTION_RESULTS = [
   {
     partyId: '1',
     ...buildElectionResultsFixture({
-      election: electionMinimalExhaustiveSample,
+      election: electionTwoPartyPrimary,
       cardCounts: {
         bmd: 0,
         hmpb: [70],
@@ -192,7 +193,7 @@ async function closePolls({
 }
 
 test('polls open, All Precincts, primary election + check additional report', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition });
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -259,9 +260,11 @@ test('polls open, All Precincts, primary election + check additional report', as
 });
 
 test('polls closed, primary election, single precinct + quickresults on', async () => {
-  const electionDefinition =
-    electionMinimalExhaustiveSampleWithReportingUrlDefinition;
-  const { election } = electionDefinition;
+  const election: Election = {
+    ...electionTwoPartyPrimary,
+    quickResultsReportingUrl: 'https://results.voting.works',
+  };
+  const electionDefinition = asElectionDefinition(election);
   const precinctSelection = singlePrecinctSelectionFor('precinct-1');
   apiMock.expectGetConfig({
     electionDefinition,
@@ -324,7 +327,7 @@ test('polls closed, primary election, single precinct + quickresults on', async 
 });
 
 test('polls open, general election, single precinct', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const precinctSelection = singlePrecinctSelectionFor('23');
   apiMock.expectGetConfig({
     electionDefinition,
@@ -358,7 +361,7 @@ test('polls open, general election, single precinct', async () => {
 });
 
 test('polls closed, general election, all precincts', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     pollsState: 'polls_open',
@@ -392,7 +395,7 @@ test('polls closed, general election, all precincts', async () => {
 
 test('polls paused', async () => {
   jest.useFakeTimers().setSystemTime(new Date('2022-10-31T16:23:00.000Z'));
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
@@ -436,7 +439,7 @@ test('polls paused', async () => {
 
 test('polls unpaused', async () => {
   jest.useFakeTimers().setSystemTime(new Date('2022-10-31T16:23:00.000Z'));
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
@@ -478,7 +481,7 @@ test('polls unpaused', async () => {
 });
 
 test('polls closed from paused', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     pollsState: 'polls_paused',
@@ -519,7 +522,7 @@ test('polls closed from paused', async () => {
 });
 
 test('must have printer attached to open polls (thermal printer)', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
@@ -551,7 +554,7 @@ test('must have printer attached to open polls (thermal printer)', async () => {
 });
 
 test('must have printer attached to close polls (thermal printer)', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),

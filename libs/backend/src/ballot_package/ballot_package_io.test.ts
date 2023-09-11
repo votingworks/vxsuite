@@ -11,7 +11,7 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import {
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
   electionFamousNames2021Fixtures,
   systemSettings,
 } from '@votingworks/fixtures';
@@ -69,7 +69,7 @@ function assertFilesCreatedInOrder(
 }
 
 test('readBallotPackageFromUsb can read a ballot package from usb', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: fakeElectionManagerUser({
@@ -114,7 +114,7 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
 });
 
 test("readBallotPackageFromUsb uses default system settings when system settings don't exist in the zip file", async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: fakeElectionManagerUser({
@@ -147,7 +147,7 @@ test("readBallotPackageFromUsb uses default system settings when system settings
 });
 
 test('errors if logged-out auth is passed', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_out',
     reason: 'no_card',
@@ -182,7 +182,7 @@ test('errors if logged-out auth is passed', async () => {
 });
 
 test('errors if election hash on provided auth is different than ballot package election hash', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionDefinition: otherElectionDefinition } =
     electionFamousNames2021Fixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
@@ -218,7 +218,7 @@ test('errors if election hash on provided auth is different than ballot package 
 });
 
 test('errors if there is no ballot package on usb drive', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: fakeElectionManagerUser({
@@ -243,7 +243,7 @@ test('errors if there is no ballot package on usb drive', async () => {
 });
 
 test('errors if a user is authenticated but is not an election manager', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: fakePollWorkerUser({
@@ -264,7 +264,7 @@ test('errors if a user is authenticated but is not an election manager', async (
 });
 
 test('configures using the most recently created ballot package on the usb drive', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: fakeElectionManagerUser({
@@ -309,7 +309,7 @@ test('configures using the most recently created ballot package on the usb drive
 });
 
 test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: fakeElectionManagerUser({

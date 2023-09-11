@@ -1,5 +1,5 @@
 import { assert, find, typedAs } from '@votingworks/basics';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
   BallotPageMetadata,
@@ -26,7 +26,7 @@ import {
   getOptionPosition,
 } from './build_cast_vote_record';
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
 
 test('toCdfBallotType', () => {

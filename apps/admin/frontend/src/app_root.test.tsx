@@ -1,7 +1,7 @@
 import { MemoryHardware, NullPrinter } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { BrowserRouter, Route } from 'react-router-dom';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { LogSource, Logger } from '@votingworks/logging';
 import { screen } from '../test/react_testing_library';
 import { renderRootElement } from '../test/render_in_app_context';
@@ -25,7 +25,7 @@ test('renders without crashing', async () => {
     reason: 'machine_locked',
   });
   apiMock.expectGetCurrentElectionMetadata({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
   });
   apiMock.expectGetMachineConfig();
   renderRootElement(

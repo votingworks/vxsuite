@@ -12,7 +12,7 @@ import {
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
@@ -29,7 +29,7 @@ beforeEach(() => {
   setAuthStatus(mockApiClient, {
     status: 'logged_in',
     user: fakeElectionManagerUser({
-      electionHash: electionSampleDefinition.electionHash,
+      electionHash: electionGeneralDefinition.electionHash,
     }),
     sessionExpiresAt: fakeSessionExpiresAt(),
   });

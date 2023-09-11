@@ -13,9 +13,9 @@ import {
 } from '@votingworks/test-utils';
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionFamousNames2021Fixtures,
-  electionSample,
+  electionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'http';
 import { Api, useDevDockRouter } from './dev_dock_api';
@@ -93,7 +93,7 @@ test('card mock endpoints', async () => {
     status: 'ready',
     cardDetails: {
       user: fakeElectionManagerUser({
-        electionHash: electionSampleDefinition.electionHash,
+        electionHash: electionGeneralDefinition.electionHash,
         jurisdiction: DEV_JURISDICTION,
       }),
     },
@@ -106,7 +106,7 @@ test('card mock endpoints', async () => {
     status: 'ready',
     cardDetails: {
       user: fakePollWorkerUser({
-        electionHash: electionSampleDefinition.electionHash,
+        electionHash: electionGeneralDefinition.electionHash,
         jurisdiction: DEV_JURISDICTION,
       }),
       hasPin: false,
@@ -118,8 +118,8 @@ test('election setting', async () => {
   const { apiClient } = setup();
   // Default election
   await expect(apiClient.getElection()).resolves.toEqual({
-    title: electionSample.title,
-    path: 'libs/fixtures/data/electionSample.json',
+    title: electionGeneral.title,
+    path: 'libs/fixtures/data/electionGeneral/election.json',
   });
 
   await apiClient.setElection({

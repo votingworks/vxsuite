@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   expectPrint,
   fakeKiosk,
@@ -71,7 +71,7 @@ test('backend fails to unconfigure', async () => {
     .throws(new ServerError('failed'));
 
   renderApp();
-  apiMock.authenticateAsElectionManager(electionSampleDefinition);
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
   userEvent.click(await screen.findByRole('tab', { name: /data/i }));
 
@@ -224,7 +224,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   });
 
   // Open Polls
-  apiMock.authenticateAsPollWorker(electionSampleDefinition);
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetConfig({ pollsState: 'polls_open' });
   userEvent.click(await screen.findByText('Yes, Open the Polls'));

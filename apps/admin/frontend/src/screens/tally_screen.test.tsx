@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
@@ -20,7 +20,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 const earlierDate = new Date('2022-07-01T12:00:00.000Z');
 const laterDate = new Date('2022-07-01T12:05:00.000Z');
 

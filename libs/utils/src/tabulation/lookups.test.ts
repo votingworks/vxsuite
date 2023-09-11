@@ -1,5 +1,5 @@
 import { ElectionDefinition } from '@votingworks/types';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   getContestById,
   getPartyById,
@@ -10,7 +10,7 @@ import {
 } from './lookups';
 
 test('getPrecinctById', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   expect(getPrecinctById(electionDefinition, 'precinct-1').name).toEqual(
     'Precinct 1'
   );
@@ -45,14 +45,14 @@ test('getPrecinctById', () => {
 });
 
 test('getPartyById', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   expect(getPartyById(electionDefinition, '0').name).toEqual('Mammal');
   expect(getPartyById(electionDefinition, '1').name).toEqual('Fish');
   expect(() => getPartyById(electionDefinition, '2').name).toThrowError();
 });
 
 test('getContestById', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   expect(getContestById(electionDefinition, 'fishing').title).toEqual(
     'Ballot Measure 3'
   );
@@ -60,14 +60,14 @@ test('getContestById', () => {
 });
 
 test('getBallotStyleById', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   expect(getBallotStyleById(electionDefinition, '1M').partyId).toEqual('0');
   expect(getBallotStyleById(electionDefinition, '2F').partyId).toEqual('1');
   expect(() => getBallotStyleById(electionDefinition, '3D')).toThrowError();
 });
 
 test('getBallotStylesByPartyId', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   expect(
     getBallotStylesByPartyId(electionDefinition, '0').map((bs) => bs.id)
   ).toEqual(['1M']);
@@ -77,7 +77,7 @@ test('getBallotStylesByPartyId', () => {
 });
 
 test('getBallotStylesByPrecinct', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   expect(
     getBallotStylesByPrecinctId(electionDefinition, 'precinct-1').map(
       (bs) => bs.id

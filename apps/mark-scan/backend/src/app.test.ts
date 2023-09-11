@@ -1,9 +1,9 @@
 import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
   systemSettings,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
@@ -153,7 +153,7 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
 
 test('configureBallotPackageFromUsb automatically writes precinct selection if only 1 option', async () => {
   const electionDefinition =
-    electionMinimalExhaustiveSampleSinglePrecinctDefinition;
+    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
   assert(
     electionDefinition.election.precincts.length === 1,
     'Expected election to have exactly 1 precinct'
@@ -230,7 +230,7 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
   expect(result.err()).toEqual('auth_required_before_ballot_package_load');
 });
 
-test('configureWithSampleBallotPackageForIntegrationTest configures electionSampleDefinition and DEFAULT_SYSTEM_SETTINGS', async () => {
+test('configureWithSampleBallotPackageForIntegrationTest configures electionGeneralDefinition and DEFAULT_SYSTEM_SETTINGS', async () => {
   const writeResult =
     await apiClient.configureWithSampleBallotPackageForIntegrationTest();
   assert(writeResult.isOk());
@@ -238,5 +238,5 @@ test('configureWithSampleBallotPackageForIntegrationTest configures electionSamp
   const readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
   const electionDefinitionResult = await apiClient.getElectionDefinition();
-  expect(electionDefinitionResult).toEqual(electionSampleDefinition);
+  expect(electionDefinitionResult).toEqual(electionGeneralDefinition);
 });

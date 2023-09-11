@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   expectPrint,
@@ -25,7 +25,7 @@ beforeEach(() => {
 
 test('prints appropriate reports for primary election', async () => {
   renderInAppContext(<FullTestDeckTallyReportButton />, {
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
   });
 
   const fullTestDeckButton = screen.getButton(

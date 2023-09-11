@@ -1,5 +1,5 @@
 import { CandidateContest as CandidateContestInterface } from '@votingworks/types';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
@@ -7,7 +7,7 @@ import { advanceTimers } from '@votingworks/test-utils';
 import { screen, within, render } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
 
-const electionDefinition = electionSampleDefinition;
+const electionDefinition = electionGeneralDefinition;
 
 const candidateContest = electionDefinition.election.contests.find(
   (c) => c.type === 'candidate'

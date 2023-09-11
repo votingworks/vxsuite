@@ -1,9 +1,9 @@
 import { assert, find } from '@votingworks/basics';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { CandidateContest, CVR, YesNoContest } from '@votingworks/types';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
 
-const { election } = electionMinimalExhaustiveSampleDefinition;
+const { election } = electionTwoPartyPrimaryDefinition;
 
 const scannerId = 'SC-00-000';
 const mockDate = new Date(2018, 5, 27, 0, 0, 0);

@@ -1,7 +1,7 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import { LOW_BATTERY_THRESHOLD } from '@votingworks/ui';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   act,
   render,
@@ -172,7 +172,7 @@ describe('Displays setup warning messages and errors screens', () => {
     screen.getByText('No Printer Detected');
 
     // Insert election manager card
-    apiMock.setAuthStatusElectionManagerLoggedIn(electionSampleDefinition);
+    apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
 
     // expect to see election manager screen
     await screen.findByText('Election Manager Actions');

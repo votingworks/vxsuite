@@ -1,6 +1,6 @@
 import {
-  electionSampleDefinition,
-  electionMinimalExhaustiveSampleDefinition,
+  electionGeneralDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
@@ -16,9 +16,11 @@ import { fakeTts } from '../../test/helpers/fake_tts';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiClientContext, createQueryClient } from '../api';
 
-const machineElectionDefinition = electionSampleDefinition;
-const authElectionHash =
-  electionMinimalExhaustiveSampleDefinition.electionHash.slice(0, 10);
+const machineElectionDefinition = electionGeneralDefinition;
+const authElectionHash = electionTwoPartyPrimaryDefinition.electionHash.slice(
+  0,
+  10
+);
 const screenReader = new AriaScreenReader(fakeTts());
 
 let apiMock: ApiMock;

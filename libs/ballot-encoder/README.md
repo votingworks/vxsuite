@@ -16,7 +16,7 @@ pnpm test:watch
 
 ```ts
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
-import { electionSample as election } from '@votingworks/fixtures';
+import { electionGeneral as election } from '@votingworks/fixtures';
 import { CompletedBallot, getContests, vote } from '@votingworks/types';
 
 const ballotStyle = election.ballotStyles[0];

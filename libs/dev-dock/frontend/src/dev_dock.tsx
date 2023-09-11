@@ -72,11 +72,11 @@ const ElectionControlSelect = styled.select`
 const ELECTIONS = [
   {
     title: 'Sample General Election',
-    path: 'libs/fixtures/data/electionSample.json',
+    path: 'libs/fixtures/data/electionGeneral/election.json',
   },
   {
     title: 'Sample Primary Election',
-    path: 'libs/fixtures/data/electionMinimalExhaustiveSample/electionMinimalExhaustiveSample.json',
+    path: 'libs/fixtures/data/electionTwoPartyPrimary/election.json',
   },
   {
     title: 'Famous Names',

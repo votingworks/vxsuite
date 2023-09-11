@@ -1,8 +1,8 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { buildElectionOptionPositionMap } from './option_map';
 
 test('buildElectionOptionMap', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   expect(buildElectionOptionPositionMap(election)).toEqual({
     'aquarium-council-fish': {
       'manta-ray': 0,

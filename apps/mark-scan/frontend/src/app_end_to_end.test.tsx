@@ -11,7 +11,7 @@ import {
 } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 
@@ -50,7 +50,7 @@ jest.setTimeout(40_000);
 
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = fakeLogger();
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();

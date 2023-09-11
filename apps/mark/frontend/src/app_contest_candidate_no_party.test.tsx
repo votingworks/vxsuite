@@ -3,7 +3,7 @@ import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { CandidateContest, Election } from '@votingworks/types';
 import {
   asElectionDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
@@ -17,7 +17,7 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
-const { election } = electionSampleDefinition;
+const { election } = electionGeneralDefinition;
 const electionWithNoPartyCandidateContests: Election = {
   ...election,
   contests: election.contests.map((contest) => {

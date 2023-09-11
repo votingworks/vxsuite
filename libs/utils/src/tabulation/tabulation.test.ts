@@ -1,7 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { assert, find, typedAs } from '@votingworks/basics';
 import {
@@ -79,7 +79,7 @@ function loadCastVoteRecordsFromReport(
 }
 
 test('getEmptyElectionResult', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   const emptyElectionResult = getEmptyElectionResults(election);
 
@@ -151,7 +151,7 @@ test('getEmptyElectionResult', () => {
 });
 
 test('getEmptyElectionResults without generic write-in', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   const emptyElectionResult = getEmptyElectionResults(election, false);
   // check an empty candidate contest
@@ -194,7 +194,7 @@ test('getEmptyElectionResults without generic write-in', () => {
 });
 
 test('getEmptyManualElectionResults', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   const emptyManualElectionResults = getEmptyManualElectionResults(election);
 
@@ -211,7 +211,7 @@ test('getEmptyManualElectionResults', () => {
 });
 
 test('buildElectionResultsFixture', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   const ballotCount = 10;
   const cardCounts: Tabulation.CardCounts = {
@@ -486,9 +486,7 @@ test('getSheetCount', () => {
 
 test('getBallotStyleIdPartyIdLookup', () => {
   expect(
-    getBallotStyleIdPartyIdLookup(
-      electionMinimalExhaustiveSampleDefinition.election
-    )
+    getBallotStyleIdPartyIdLookup(electionTwoPartyPrimaryDefinition.election)
   ).toEqual({
     '1M': '0',
     '2F': '1',
@@ -584,9 +582,9 @@ test('extractGroupSpecifier', () => {
 });
 
 describe('tabulateCastVoteRecords', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const cvrs = loadCastVoteRecordsFromReport(
-    electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath()
+    electionTwoPartyPrimaryFixtures.castVoteRecordReport.asDirectoryPath()
   );
 
   test('without grouping', async () => {
@@ -970,7 +968,7 @@ describe('tabulateCastVoteRecords', () => {
 });
 
 test('getOfficialCandidateNameLookup', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const nameLookup = getOfficialCandidateNameLookup(election);
 
   expect(nameLookup.get('zoo-council-mammal', 'lion')).toEqual('Lion');
@@ -981,7 +979,7 @@ test('getOfficialCandidateNameLookup', () => {
 });
 
 test('combineManualElectionResults', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   const manualResults1 = buildManualResultsFixture({
     election,
@@ -1143,7 +1141,7 @@ test('convertManualElectionResults', () => {
 });
 
 test('mergeManualWriteInTallies', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   expect(
     mergeWriteInTallies(

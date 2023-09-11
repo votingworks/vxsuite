@@ -8,23 +8,16 @@ test('has various election definitions', () => {
       .sort()
   ).toMatchInlineSnapshot(`
     [
-      "electionComplexGeoSample",
       "electionFamousNames2021Fixtures",
+      "electionGeneral",
+      "electionGeneralDefinition",
       "electionGridLayoutNewHampshireAmherstFixtures",
       "electionGridLayoutNewHampshireHudsonFixtures",
-      "electionMinimalExhaustiveSample",
-      "electionMinimalExhaustiveSampleDefinition",
-      "electionMinimalExhaustiveSampleFixtures",
-      "electionMinimalExhaustiveSampleSinglePrecinct",
-      "electionMinimalExhaustiveSampleSinglePrecinctDefinition",
-      "electionMinimalExhaustiveSampleWithReportingUrl",
-      "electionMinimalExhaustiveSampleWithReportingUrlDefinition",
-      "electionMinimalExhaustiveSampleWithReportingUrlFixtures",
       "electionMultiPartyPrimaryFixtures",
-      "electionSample",
-      "electionSampleDefinition",
-      "electionSampleLongContent",
-      "electionSampleLongContentDefinition",
+      "electionPrimaryPrecinctSplitsFixtures",
+      "electionTwoPartyPrimary",
+      "electionTwoPartyPrimaryDefinition",
+      "electionTwoPartyPrimaryFixtures",
       "electionWithMsEitherNeither",
       "electionWithMsEitherNeitherDefinition",
       "electionWithMsEitherNeitherFixtures",
@@ -37,9 +30,9 @@ test('has various election definitions', () => {
 });
 
 test('asElectionDefinition', () => {
-  expect(fixtures.asElectionDefinition(fixtures.electionSample)).toStrictEqual(
+  expect(fixtures.asElectionDefinition(fixtures.electionGeneral)).toStrictEqual(
     expect.objectContaining({
-      election: fixtures.electionSample,
+      election: fixtures.electionGeneral,
       electionData: expect.any(String),
       electionHash: expect.any(String),
     })

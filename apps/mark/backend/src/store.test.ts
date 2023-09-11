@@ -1,5 +1,5 @@
 import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { Store } from './store';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -13,8 +13,7 @@ test('getDbPath', () => {
 });
 
 test('get/set/has election', () => {
-  const { election, electionDefinition } =
-    electionMinimalExhaustiveSampleFixtures;
+  const { election, electionDefinition } = electionTwoPartyPrimaryFixtures;
   const store = Store.memoryStore();
 
   expect(store.getElectionDefinition()).toBeUndefined();
@@ -36,7 +35,7 @@ test('get/set/delete system settings', () => {
 
   expect(store.getSystemSettings()).toBeUndefined();
   const systemSettings = safeParseSystemSettings(
-    electionMinimalExhaustiveSampleFixtures.systemSettings.asText()
+    electionTwoPartyPrimaryFixtures.systemSettings.asText()
   ).unsafeUnwrap();
 
   store.setSystemSettings(systemSettings);
@@ -58,7 +57,7 @@ test('errors when election definition cannot be parsed', () => {
 });
 
 test('reset clears the database', () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const store = Store.memoryStore();
 
   store.setElectionAndJurisdiction({

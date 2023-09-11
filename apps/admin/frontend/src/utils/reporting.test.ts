@@ -1,5 +1,5 @@
 import { Election, Tabulation } from '@votingworks/types';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { err, ok } from '@votingworks/basics';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 import {
@@ -31,7 +31,7 @@ const scannerBatches: ScannerBatch[] = [
 ];
 
 test('generateTitleForReport', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const unsupportedFilters: Tabulation.Filter[] = [
     {
       precinctIds: ['precinct-1', 'precinct-2'],
@@ -197,7 +197,7 @@ test('canonicalizeGroupBy', () => {
 });
 
 test('generateReportPdfFilename', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const testCases: Array<{
     filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
@@ -318,8 +318,7 @@ test('generateReportPdfFilename', () => {
 });
 
 test('generateReportPdfFilename when too long', () => {
-  const { election: originalElection } =
-    electionMinimalExhaustiveSampleDefinition;
+  const { election: originalElection } = electionTwoPartyPrimaryDefinition;
   const election: Election = {
     ...originalElection,
     precincts: [

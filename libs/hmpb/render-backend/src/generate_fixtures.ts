@@ -12,7 +12,7 @@ import {
   fixturesDir,
   primaryElectionDir,
   primaryElectionFixtures,
-  sampleElectionFixtures,
+  generalElectionFixtures,
 } from './ballot_fixtures';
 
 function generateBallotFixture(
@@ -68,13 +68,13 @@ function generateFamousNamesFixtures(): void {
   }
 }
 
-function generateSampleElectionFixtures(): void {
+function generateGeneralElectionFixtures(): void {
   for (const {
     electionDefinition,
     electionDir,
     blankBallot,
     markedBallot,
-  } of sampleElectionFixtures) {
+  } of generalElectionFixtures) {
     fs.mkdirSync(electionDir, { recursive: true });
     fs.writeFileSync(
       join(electionDir, 'election.json'),
@@ -118,6 +118,6 @@ export function main(): void {
 
   generateAllBubbleBallotFixtures();
   generateFamousNamesFixtures();
-  generateSampleElectionFixtures();
+  generateGeneralElectionFixtures();
   generatePrimaryElectionFixtures();
 }

@@ -1,7 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionSample,
+  electionGeneral,
   electionWithMsEitherNeither,
 } from '@votingworks/fixtures';
 import {
@@ -35,11 +35,11 @@ test('getContestVoteOptionsForYesNoContest', () => {
 
 test('getContestVoteOptionsForCandidateContest', () => {
   const contestWithWriteIns = find(
-    electionSample.contests,
+    electionGeneral.contests,
     (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
   );
   const contestWithoutWriteIns = find(
-    electionSample.contests,
+    electionGeneral.contests,
     (c): c is CandidateContest => c.type === 'candidate' && !c.allowWriteIns
   );
   expect(

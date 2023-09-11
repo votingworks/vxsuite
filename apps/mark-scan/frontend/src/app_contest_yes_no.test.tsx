@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/fixtures';
+import { electionGeneral } from '@votingworks/fixtures';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import { getContestDistrictName } from '@votingworks/types';
@@ -125,7 +125,7 @@ it('Single Seat Contest', async () => {
   }
 
   const reviewTitle = getByTextWithMarkup(
-    `${getContestDistrictName(electionSample, measure102Contest)}${
+    `${getContestDistrictName(electionGeneral, measure102Contest)}${
       measure102Contest.title
     }`
   );

@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
   DEFAULT_MARK_THRESHOLDS,
@@ -226,7 +226,7 @@ describe('VX BMD interpretation', () => {
     const interpretationResult = await interpretSheet(
       {
         electionDefinition: {
-          ...electionSampleDefinition,
+          ...electionGeneralDefinition,
           electionHash: 'd34db33f',
         },
         testMode: true,

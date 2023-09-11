@@ -1,6 +1,6 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { FakeKiosk, expectPrint, fakeKiosk } from '@votingworks/test-utils';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
   fireEvent,
@@ -41,7 +41,7 @@ afterEach(() => {
 jest.setTimeout(30000);
 
 test('Cardless Voting Flow', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
@@ -243,14 +243,14 @@ test('Cardless Voting Flow', async () => {
 test('Another Voter submits blank ballot and clicks Done', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
 
-  await setElectionInStorage(storage, electionSampleDefinition);
+  await setElectionInStorage(storage, electionGeneralDefinition);
   await setStateInStorage(storage);
 
   render(
@@ -327,7 +327,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
 });
 
 test('poll worker must select a precinct first', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();

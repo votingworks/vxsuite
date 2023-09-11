@@ -16,7 +16,7 @@
 import '@testing-library/cypress/add-commands';
 import './commands';
 
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { methodUrl } from '@votingworks/grout';
 import { TEST_JURISDICTION } from '@votingworks/types';
 
@@ -25,7 +25,7 @@ import { TEST_JURISDICTION } from '@votingworks/types';
 // eslint-disable-next-line vx/no-import-workspace-subfolders
 import { mockCard } from '@votingworks/auth/src/cypress';
 
-const { electionData, electionHash } = electionSampleDefinition;
+const { electionData, electionHash } = electionGeneralDefinition;
 const PIN = '000000';
 
 function mockCardCypress(mockFileContents) {
