@@ -11,7 +11,7 @@ import { ADMIN_ALLOWED_EXPORT_PATTERNS } from '../globals';
  * Wraps the libs/usb-drive interface in a `getUsbDrives` function
  * which is the pattern currently expected the libs/backend.
  */
-export function getGetUsbDrives(
+export function buildGetUsbDrivesFn(
   usbDrive: UsbDrive
 ): () => Promise<DeprecatedUsbDriveType[]> {
   return async () => {
@@ -27,7 +27,7 @@ export function buildExporter(usbDrive: UsbDrive): Exporter {
   const exporter = new Exporter({
     allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
     // TODO Convert Exporter to use libs/usb-drive types
-    getUsbDrives: getGetUsbDrives(usbDrive),
+    getUsbDrives: buildGetUsbDrivesFn(usbDrive),
   });
   return exporter;
 }

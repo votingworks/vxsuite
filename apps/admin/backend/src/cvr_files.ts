@@ -57,7 +57,7 @@ import {
 } from './types';
 import { sha256File } from './util/sha256_file';
 import { rootDebug } from './util/debug';
-import { getGetUsbDrives } from './util/exporter';
+import { buildGetUsbDrivesFn } from './util/exporter';
 
 const debug = rootDebug.extend('cvr-files');
 
@@ -77,7 +77,7 @@ export async function listCastVoteRecordFilesOnUsb(
       SCANNER_RESULTS_FOLDER,
       generateElectionBasedSubfolderName(election, electionHash)
     ),
-    getGetUsbDrives(usbDrive)
+    buildGetUsbDrivesFn(usbDrive)
   );
 
   if (fileSearchResult.isErr()) {
