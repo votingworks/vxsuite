@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import { deferred } from '@votingworks/basics';
+import { backendWaitFor } from '@votingworks/test-utils';
 import {
   BlockDeviceInfo,
   VX_USB_LABEL_REGEXP,
@@ -325,11 +326,10 @@ describe('format', () => {
     execMock.mockReturnValueOnce(formatScriptPromise); // format
 
     const formatPromise = usbDrive.format();
-    await new Promise((resolve) => {
-      setTimeout(resolve, 0);
-    }); // wait for format state
 
-    expect(await usbDrive.status()).toEqual({ status: 'ejected' });
+    await backendWaitFor(async () => {
+      expect(await usbDrive.status()).toEqual({ status: 'ejected' });
+    });
 
     formatScriptResolve({ stdout: '' });
     await formatPromise;
