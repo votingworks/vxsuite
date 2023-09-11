@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { CVR, getDisplayElectionHash } from '@votingworks/types';
-import { createMockUsb } from '../test/app';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   listCastVoteRecordFilesOnUsb,
   validateCastVoteRecord,
@@ -14,7 +14,7 @@ const file = Buffer.from([]);
 describe('list cast vote record files on USB drive', () => {
   test('lists cast vote record report directories meeting criteria', async () => {
     const logger = fakeLogger();
-    const { usb, insertUsbDrive } = createMockUsb();
+    const { usbDrive, insertUsbDrive } = createMockUsbDrive();
     insertUsbDrive({
       'cast-vote-records': {
         [`sample-county_example-primary-election_${getDisplayElectionHash(
@@ -30,7 +30,7 @@ describe('list cast vote record files on USB drive', () => {
 
     const cvrFileMetadata = await listCastVoteRecordFilesOnUsb(
       electionDefinition,
-      usb,
+      usbDrive,
       logger
     );
 
@@ -65,20 +65,20 @@ describe('list cast vote record files on USB drive', () => {
 
   test('usb not present or mounted', async () => {
     const logger = fakeLogger();
-    const { usb } = createMockUsb();
+    const { usbDrive } = createMockUsbDrive();
+
+    usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
 
     expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger)
+      await listCastVoteRecordFilesOnUsb(electionDefinition, usbDrive, logger)
     ).toEqual([]);
 
-    usb.getUsbDrives.mockResolvedValue([
-      {
-        deviceName: 'mock-usb-drive',
-      },
-    ]);
+    usbDrive.status
+      .expectCallWith()
+      .resolves({ status: 'error', reason: 'bad_format' });
 
     expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger)
+      await listCastVoteRecordFilesOnUsb(electionDefinition, usbDrive, logger)
     ).toEqual([]);
 
     expect(logger.log).not.toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe('list cast vote record files on USB drive', () => {
 
   test('default directory not found on USB', async () => {
     const logger = fakeLogger();
-    const { usb, insertUsbDrive } = createMockUsb();
+    const { usbDrive, insertUsbDrive } = createMockUsbDrive();
 
     insertUsbDrive({
       'cast-vote-records': {
@@ -96,7 +96,7 @@ describe('list cast vote record files on USB drive', () => {
       },
     });
     expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger)
+      await listCastVoteRecordFilesOnUsb(electionDefinition, usbDrive, logger)
     ).toEqual([]);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
@@ -111,7 +111,7 @@ describe('list cast vote record files on USB drive', () => {
 
   test('unexpected issue accessing directory', async () => {
     const logger = fakeLogger();
-    const { usb, insertUsbDrive } = createMockUsb();
+    const { usbDrive, insertUsbDrive } = createMockUsbDrive();
     insertUsbDrive({
       'cast-vote-records': {
         [`sample-county_example-primary-election_${getDisplayElectionHash(
@@ -120,7 +120,7 @@ describe('list cast vote record files on USB drive', () => {
       },
     });
     expect(
-      await listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger)
+      await listCastVoteRecordFilesOnUsb(electionDefinition, usbDrive, logger)
     ).toEqual([]);
     expect(logger.log).toHaveBeenNthCalledWith(
       1,

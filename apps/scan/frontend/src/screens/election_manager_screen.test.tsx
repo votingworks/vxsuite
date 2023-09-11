@@ -24,7 +24,7 @@ import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
 } from './election_manager_screen';
-import { fakeUsbDriveStatus } from '../../test/helpers/fake_usb_drive';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
@@ -52,7 +52,7 @@ function renderScreen(
       <ElectionManagerScreen
         electionDefinition={electionGeneralDefinition}
         scannerStatus={statusNoPaper}
-        usbDrive={fakeUsbDriveStatus('no_drive')}
+        usbDrive={mockUsbDriveStatus('no_drive')}
         logger={fakeLogger()}
         {...props}
       />
@@ -144,7 +144,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
   apiMock.expectGetConfig();
   renderScreen({
     scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-    usbDrive: fakeUsbDriveStatus('no_drive'),
+    usbDrive: mockUsbDriveStatus('no_drive'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
@@ -166,7 +166,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   apiMock.expectGetConfig();
   renderScreen({
     scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-    usbDrive: fakeUsbDriveStatus('mounted'),
+    usbDrive: mockUsbDriveStatus('mounted'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 

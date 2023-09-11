@@ -74,7 +74,7 @@ export interface Props {
 }
 
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
-  const { usbDrive, electionDefinition, auth } = useContext(AppContext);
+  const { usbDriveStatus, electionDefinition, auth } = useContext(AppContext);
   const castVoteRecordFilesQuery = getCastVoteRecordFiles.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const cvrFilesOnUsbQuery = listCastVoteRecordFilesOnUsb.useQuery();
@@ -141,8 +141,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   // React Query pattern, we should invalidate the query on USB drive status
   // change. Currently React Query is not managing USB drive status and polling
   // is being performed elsewhere.
-  useExternalStateChangeListener(usbDrive.status, () => {
-    if (usbDrive.status === 'mounted') {
+  useExternalStateChangeListener(usbDriveStatus.status, () => {
+    if (usbDriveStatus.status === 'mounted') {
       void cvrFilesOnUsbQuery.refetch();
     }
   });
@@ -210,9 +210,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     !castVoteRecordFilesQuery.isSuccess ||
     !castVoteRecordFileModeQuery.isSuccess ||
     !cvrFilesOnUsbQuery.isSuccess ||
-    currentState.state === 'loading' ||
-    usbDrive.status === 'ejecting' ||
-    usbDrive.status === 'mounting'
+    currentState.state === 'loading'
   ) {
     return (
       <Modal
@@ -228,9 +226,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   }
 
   if (
-    usbDrive.status === 'absent' ||
-    usbDrive.status === 'ejected' ||
-    usbDrive.status === 'bad_format'
+    usbDriveStatus.status === 'no_drive' ||
+    usbDriveStatus.status === 'ejected' ||
+    usbDriveStatus.status === 'error'
   ) {
     return (
       <Modal
@@ -245,7 +243,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            {process.env.NODE_ENV === 'development' && (
+            {window.kiosk && process.env.NODE_ENV === 'development' && (
               <FileInputButton
                 data-testid="manual-input"
                 onChange={processCastVoteRecordFileFromFilePicker}
@@ -262,7 +260,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
 
   const fileMode = castVoteRecordFileModeQuery.data;
 
-  if (usbDrive.status === 'mounted') {
+  if (usbDriveStatus.status === 'mounted') {
     // Determine if we are already locked to a filemode based on previously loaded CVRs
     const fileModeLocked = fileMode !== 'unlocked';
 
@@ -387,5 +385,5 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       />
     );
   }
-  throwIllegalValue(usbDrive.status);
+  throwIllegalValue(usbDriveStatus, 'status');
 }

@@ -4,7 +4,6 @@ import { join } from 'path';
 import fileDownload from 'js-file-download';
 import { assert, throwIllegalValue, sleep } from '@votingworks/basics';
 import {
-  usbstick,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -22,6 +21,7 @@ import { LogEventId } from '@votingworks/logging';
 import { PromiseOr } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
+import { ejectUsbDrive, legacyUsbDriveStatus } from '../api';
 
 export const UsbImage = styled.img`
   margin-right: auto;
@@ -62,9 +62,12 @@ export function SaveFrontendFileModal({
   defaultDirectory = '',
   promptToEjectUsb = false,
 }: Props): JSX.Element {
-  const { usbDrive, isOfficialResults, auth, logger } = useContext(AppContext);
+  const { usbDriveStatus, isOfficialResults, auth, logger } =
+    useContext(AppContext);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
+
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
@@ -112,35 +115,34 @@ export function SaveFrontendFileModal({
       let filenameLocation = '';
       if (!window.kiosk) {
         fileDownload(results, defaultFilename, 'text/csv');
-      } else {
-        const usbPath = await usbstick.getPath();
-        if (openFileDialog) {
-          const fileWriter = await window.kiosk.saveAs({
-            defaultPath: defaultFilename,
-          });
+      } else if (openFileDialog) {
+        const fileWriter = await window.kiosk.saveAs({
+          defaultPath: defaultFilename,
+        });
 
-          if (!fileWriter) {
-            throw new Error('could not save; no file was chosen');
-          }
-
-          await fileWriter.write(results);
-          filenameLocation = fileWriter.filename;
-          await fileWriter.end();
-        } else {
-          assert(typeof usbPath !== 'undefined');
-          assert(window.kiosk);
-
-          if (defaultDirectory) {
-            const pathToFolder = join(usbPath, defaultDirectory);
-            await window.kiosk.makeDirectory(pathToFolder, {
-              recursive: true,
-            });
-          }
-
-          const pathToFile = join(usbPath, defaultDirectory, defaultFilename);
-          await window.kiosk.writeFile(pathToFile, results);
-          filenameLocation = defaultFilename;
+        if (!fileWriter) {
+          throw new Error('could not save; no file was chosen');
         }
+
+        await fileWriter.write(results);
+        filenameLocation = fileWriter.filename;
+        await fileWriter.end();
+      } else {
+        assert(usbDriveStatus.status === 'mounted');
+        const usbPath = usbDriveStatus.mountPoint;
+        assert(typeof usbPath !== 'undefined');
+        assert(window.kiosk);
+
+        if (defaultDirectory) {
+          const pathToFolder = join(usbPath, defaultDirectory);
+          await window.kiosk.makeDirectory(pathToFolder, {
+            recursive: true,
+          });
+        }
+
+        const pathToFile = join(usbPath, defaultDirectory, defaultFilename);
+        await window.kiosk.writeFile(pathToFile, results);
+        filenameLocation = defaultFilename;
       }
 
       setSavedFilename(filenameLocation);
@@ -182,14 +184,14 @@ export function SaveFrontendFileModal({
 
   if (currentState === ModalState.DONE) {
     let actions = <Button onPress={onClose}>Close</Button>;
-    if (promptToEjectUsb && usbDrive.status !== 'ejected') {
+    if (promptToEjectUsb && usbDriveStatus.status !== 'ejected') {
       actions = (
         <React.Fragment>
           <UsbControllerButton
             small={false}
             primary
-            usbDriveStatus={usbDrive.status}
-            usbDriveEject={() => usbDrive.eject(userRole)}
+            usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+            usbDriveEject={() => ejectUsbDriveMutation.mutate()}
           />
           <Button onPress={onClose}>Close</Button>
         </React.Fragment>
@@ -233,10 +235,10 @@ export function SaveFrontendFileModal({
     throwIllegalValue(currentState);
   }
 
-  switch (usbDrive.status) {
-    case 'absent':
+  switch (usbDriveStatus.status) {
+    case 'no_drive':
     case 'ejected':
-    case 'bad_format':
+    case 'error':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -244,12 +246,7 @@ export function SaveFrontendFileModal({
           title="No USB Drive Detected"
           content={
             <P>
-              <UsbImage
-                src="/assets/usb-drive.svg"
-                alt="Insert USB Image"
-                // hidden feature to save with file dialog by double-clicking
-                onDoubleClick={() => exportResults(true)}
-              />
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               Please insert a USB drive where you would like the save the{' '}
               {fileName}.
             </P>
@@ -257,7 +254,7 @@ export function SaveFrontendFileModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              {(!window.kiosk || process.env.NODE_ENV === 'development') && (
+              {process.env.NODE_ENV === 'development' && (
                 <Button
                   data-testid="manual-export"
                   onPress={() => exportResults(true)}
@@ -268,15 +265,6 @@ export function SaveFrontendFileModal({
               <Button onPress={onClose}>Cancel</Button>
             </React.Fragment>
           }
-        />
-      );
-    case 'ejecting':
-    case 'mounting':
-      return (
-        <Modal
-          content={<Loading />}
-          onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case 'mounted': {
@@ -304,6 +292,6 @@ export function SaveFrontendFileModal({
       );
     }
     default:
-      throwIllegalValue(usbDrive.status);
+      throwIllegalValue(usbDriveStatus, 'status');
   }
 }

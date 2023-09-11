@@ -33,6 +33,8 @@ import {
   SystemSettings,
   Tabulation,
 } from '@votingworks/types';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { mockUsbDriveStatus } from './mock_usb_drive';
 
 const mockRect: Rect = {
   width: 1000,
@@ -128,6 +130,20 @@ export function createApiMock(
       }
     ) {
       apiClient.getMachineConfig.expectCallWith().resolves(machineConfig);
+    },
+
+    expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {
+      apiClient.getUsbDriveStatus
+        .expectRepeatedCallsWith()
+        .resolves(mockUsbDriveStatus(status));
+    },
+
+    expectEjectUsbDrive(): void {
+      apiClient.ejectUsbDrive.expectCallWith().resolves();
+    },
+
+    expectFormatUsbDrive(): void {
+      apiClient.formatUsbDrive.expectCallWith().resolves(ok());
     },
 
     expectGetCurrentElectionMetadata(

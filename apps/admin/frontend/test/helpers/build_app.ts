@@ -4,7 +4,7 @@ import { ConverterClientType } from '@votingworks/types';
 import { MemoryHardware } from '@votingworks/utils';
 import { App } from '../../src/app';
 import { renderRootElement } from '../render_in_app_context';
-import { ApiMock } from './api_mock';
+import { ApiMock } from './mock_api_client';
 
 function mockRandomBallotId() {
   return 'Asdf1234Asdf12';

@@ -60,7 +60,7 @@ export function ExportCsvResultsButton({
 
   return (
     <React.Fragment>
-      <Button disabled={disabled || !window.kiosk} onPress={openModal}>
+      <Button disabled={disabled} onPress={openModal}>
         Export CSV Results
       </Button>
       {isSaveModalOpen && (

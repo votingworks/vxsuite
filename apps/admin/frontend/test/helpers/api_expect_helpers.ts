@@ -1,6 +1,6 @@
 import { Tabulation } from '@votingworks/types';
 import { getEmptyCardCounts } from '@votingworks/utils';
-import { ApiMock } from './api_mock';
+import { ApiMock } from './mock_api_client';
 
 /**
  * To match backend input exactly, per `MockFunction` requirements, mock out

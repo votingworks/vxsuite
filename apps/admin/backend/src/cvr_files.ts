@@ -48,6 +48,7 @@ import { basename, join, normalize, parse } from 'path';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { Store } from './store';
 import {
   CastVoteRecordFileMetadata,
@@ -55,8 +56,8 @@ import {
   CvrFileMode,
 } from './types';
 import { sha256File } from './util/sha256_file';
-import { Usb } from './util/usb';
 import { rootDebug } from './util/debug';
+import { buildGetUsbDrivesFn } from './util/exporter';
 
 const debug = rootDebug.extend('cvr-files');
 
@@ -67,7 +68,7 @@ const debug = rootDebug.extend('cvr-files');
  */
 export async function listCastVoteRecordFilesOnUsb(
   electionDefinition: ElectionDefinition,
-  usb: Usb,
+  usbDrive: UsbDrive,
   logger: Logger
 ): Promise<CastVoteRecordFileMetadata[]> {
   const { election, electionHash } = electionDefinition;
@@ -76,7 +77,7 @@ export async function listCastVoteRecordFilesOnUsb(
       SCANNER_RESULTS_FOLDER,
       generateElectionBasedSubfolderName(election, electionHash)
     ),
-    usb.getUsbDrives
+    buildGetUsbDrivesFn(usbDrive)
   );
 
   if (fileSearchResult.isErr()) {

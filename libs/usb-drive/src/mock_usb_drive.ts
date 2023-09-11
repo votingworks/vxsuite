@@ -2,20 +2,23 @@
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 import { execSync } from 'child_process';
 import { join } from 'path';
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'fs';
+import { mkdirSync, readdirSync, rmSync, writeFileSync, cpSync } from 'fs';
 import tmp from 'tmp';
 import { Buffer } from 'buffer';
 import { UsbDrive } from './usb_drive';
 
-type MockFileTree = MockFile | MockDirectory;
+type ActualDirectory = string;
 type MockFile = Buffer;
 interface MockDirectory {
   [name: string]: MockFileTree;
 }
+type MockFileTree = MockFile | MockDirectory | ActualDirectory;
 
 function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
   if (Buffer.isBuffer(tree)) {
     writeFileSync(destinationPath, tree);
+  } else if (typeof tree === 'string') {
+    cpSync(tree, destinationPath, { recursive: true });
   } else {
     mkdirSync(destinationPath, { recursive: true });
     for (const [name, child] of Object.entries(tree)) {
@@ -70,6 +73,7 @@ export function createMockUsbDrive(): MockUsbDrive {
   const usbDrive: MockedUsbDrive = {
     status: mockFunction('status'),
     eject: mockFunction('eject'),
+    format: mockFunction('format'),
   };
 
   return {

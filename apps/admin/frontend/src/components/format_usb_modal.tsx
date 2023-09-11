@@ -7,6 +7,7 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
+import { formatUsbDrive } from '../api';
 
 export interface FormatUsbModalProps {
   onClose: () => void;
@@ -20,45 +21,37 @@ type FlowState =
   | { stage: 'error'; message: string };
 
 function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
-  const { usbDrive, auth } = useContext(AppContext);
-  assert(usbDrive.status !== 'absent');
+  const { usbDriveStatus, auth } = useContext(AppContext);
+  assert(usbDriveStatus.status !== 'no_drive');
   assert(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth));
-  const userRole = auth.user.role;
+  const formatUsbDriveMutation = formatUsbDrive.useMutation();
 
   const [state, setState] = useState<FlowState>({ stage: 'init' });
 
+  const formatUsbDriveMutateAsync = formatUsbDriveMutation.mutateAsync;
   const format = useCallback(async () => {
     setState({ stage: 'formatting' });
-    try {
-      await usbDrive.format(userRole, { action: 'eject' });
+    const formatUsbDriveResult = await formatUsbDriveMutateAsync();
+    if (formatUsbDriveResult.isOk()) {
       setState({ stage: 'done' });
-    } catch (error) {
-      setState({ stage: 'error', message: (error as Error).message });
+    } else {
+      setState({ stage: 'error', message: formatUsbDriveResult.err().message });
     }
-  }, [usbDrive, userRole]);
+  }, [formatUsbDriveMutateAsync]);
 
   const { stage } = state;
   switch (stage) {
     case 'init':
-      switch (usbDrive.status) {
-        case 'ejecting':
-        case 'mounting':
-          return (
-            <Modal
-              content={<Loading />}
-              onOverlayClick={onClose}
-              actions={<Button onPress={onClose}>Cancel</Button>}
-            />
-          );
+      switch (usbDriveStatus.status) {
         case 'ejected':
-        case 'bad_format':
+        case 'error':
         case 'mounted': {
           return (
             <Modal
               title="Format USB Drive"
               content={
                 <P>
-                  {usbDrive.status === 'bad_format'
+                  {usbDriveStatus.status === 'error'
                     ? 'The format of the inserted USB drive is not VotingWorks compatible. Would you like to format the USB drive?'
                     : 'The format of the inserted USB drive is already VotingWorks compatible. Would you like to reformat the USB drive?'}
                 </P>
@@ -80,7 +73,7 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
         }
         // istanbul ignore next
         default:
-          throwIllegalValue(usbDrive.status);
+          throwIllegalValue(usbDriveStatus, 'status');
       }
       break;
     case 'confirm':
@@ -135,9 +128,9 @@ function FormatUsbFlow({ onClose }: FormatUsbModalProps): JSX.Element {
 }
 
 export function FormatUsbModal({ onClose }: FormatUsbModalProps): JSX.Element {
-  const { usbDrive } = useContext(AppContext);
+  const { usbDriveStatus } = useContext(AppContext);
 
-  if (usbDrive.status === 'absent') {
+  if (usbDriveStatus.status === 'no_drive') {
     return (
       <Modal
         title="No USB Drive Detected"

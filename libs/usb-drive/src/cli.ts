@@ -15,6 +15,8 @@ async function watchUsbDrive(usbDrive: UsbDrive): Promise<void> {
   }
 }
 
+const USAGE = `Usage: usb-drive status|eject|format|watch\n`;
+
 export async function main(args: string[]): Promise<number> {
   const { stdout, stderr } = process;
   const command = args[2];
@@ -30,17 +32,23 @@ export async function main(args: string[]): Promise<number> {
       await printStatus(usbDrive, stdout);
       break;
     }
+    case 'format': {
+      await usbDrive.format();
+      stdout.write('Formatted\n');
+      await printStatus(usbDrive, stdout);
+      break;
+    }
     case 'watch': {
       await watchUsbDrive(usbDrive);
       break;
     }
     case undefined: {
-      stderr.write(`Usage: usb-drive status|eject|watch\n`);
+      stderr.write(USAGE);
       break;
     }
     default: {
       stderr.write(`Unknown command: ${command}\n`);
-      stderr.write(`Usage: usb-drive status|eject|watch\n`);
+      stderr.write(USAGE);
       return 1;
     }
   }

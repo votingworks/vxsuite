@@ -2,38 +2,31 @@ import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { UsbDriveStatus, mockUsbDrive } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { act, fireEvent, waitFor } from '../../test/react_testing_library';
 import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 jest.useFakeTimers();
 
-test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
-  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
+let apiMock: ApiMock;
 
-  for (const status of usbStatuses) {
-    for (const fileType of Object.values(FileType)) {
-      const closeFn = jest.fn();
-      const { getByText, unmount } = renderInAppContext(
-        <SaveFrontendFileModal
-          onClose={closeFn}
-          generateFileContent={jest.fn()}
-          defaultFilename="file"
-          fileType={fileType}
-        />,
-        {
-          usbDrive: mockUsbDrive(status),
-        }
-      );
-      getByText('Loading');
-      unmount();
-    }
-  }
+beforeEach(() => {
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
 });
 
 test('render no usb found screen when there is not a valid mounted usb drive', () => {
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
+  const usbStatuses: Array<UsbDriveStatus['status']> = [
+    'no_drive',
+    'ejected',
+    'error',
+  ];
 
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
@@ -45,7 +38,8 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
         fileType={FileType.TestDeckTallyReport}
       />,
       {
-        usbDrive: mockUsbDrive(status),
+        usbDriveStatus: mockUsbDriveStatus(status),
+        apiMock,
       }
     );
     getByText('No USB Drive Detected');
@@ -79,8 +73,9 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
       fileType={FileType.Ballot}
     />,
     {
-      usbDrive: mockUsbDrive('mounted'),
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
       logger,
+      apiMock,
     }
   );
   getByText('Save Ballot');
@@ -98,7 +93,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      '/media/vx/mock-usb-drive/this-is-a-file-name.pdf',
+      'test-mount-point/this-is-a-file-name.pdf',
       'this-is-my-file-content'
     );
   });
@@ -139,8 +134,9 @@ test('renders save screen when usb is mounted with results filetype and prompts 
       promptToEjectUsb
     />,
     {
-      usbDrive: mockUsbDrive('mounted'),
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
       logger,
+      apiMock,
     }
   );
   getByText('Save Results');
@@ -159,7 +155,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      '/media/vx/mock-usb-drive/this-is-a-file-name.pdf',
+      'test-mount-point/this-is-a-file-name.pdf',
       'this-is-my-file-content'
     );
   });
@@ -197,8 +193,9 @@ test('render export modal with errors when appropriate', async () => {
       fileType={FileType.TallyReport}
     />,
     {
-      usbDrive: mockUsbDrive('mounted'),
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
       logger,
+      apiMock,
     }
   );
   getByText('Save Unofficial Tally Report');
@@ -238,7 +235,8 @@ test('creates new directory and saves to it, if specified', async () => {
       fileType={FileType.Ballot}
     />,
     {
-      usbDrive: mockUsbDrive('mounted'),
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+      apiMock,
     }
   );
 
@@ -249,12 +247,12 @@ test('creates new directory and saves to it, if specified', async () => {
   await waitFor(() => {
     expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
     expect(mockKiosk.makeDirectory).toHaveBeenCalledWith(
-      '/media/vx/mock-usb-drive/directory',
+      'test-mount-point/directory',
       { recursive: true }
     );
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenCalledWith(
-      '/media/vx/mock-usb-drive/directory/ballot.pdf',
+      'test-mount-point/directory/ballot.pdf',
       'file-content'
     );
   });

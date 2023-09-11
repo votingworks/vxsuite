@@ -19,7 +19,7 @@ import {
   UserWithCard,
 } from '@votingworks/types';
 
-import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { buildApp } from '../../../test/helpers/build_app';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { VxFiles } from '../../lib/converters';
@@ -38,6 +38,7 @@ beforeEach(() => {
   });
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetUsbDriveStatus('no_drive');
 
   fetchMock.reset();
   fetchMock.get(

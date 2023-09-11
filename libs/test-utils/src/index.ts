@@ -1,6 +1,7 @@
 export * from './advance_timers';
 export * from './arbitraries';
 export * from './auth';
+export * from './backend_wait_for';
 export * from './cast_vote_record';
 export * from './child_process';
 export * from './compressed_tallies';

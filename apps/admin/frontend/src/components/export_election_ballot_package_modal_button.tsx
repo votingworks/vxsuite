@@ -8,9 +8,12 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Button, Modal, P, UsbControllerButton } from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
 
-import { saveBallotPackageToUsb as saveBallotPackageToUsbBase } from '../api';
+import {
+  ejectUsbDrive,
+  legacyUsbDriveStatus,
+  saveBallotPackageToUsb as saveBallotPackageToUsbBase,
+} from '../api';
 import { AppContext } from '../contexts/app_context';
-import { Loading } from './loading';
 
 const UsbImage = styled.img`
   margin-right: auto;
@@ -32,12 +35,12 @@ const ErrorMessages: Record<ExportDataError['type'], string> = {
 };
 
 export function ExportElectionBallotPackageModalButton(): JSX.Element {
-  const { electionDefinition, usbDrive, auth } = useContext(AppContext);
+  const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
-  const userRole = auth.user.role;
   const saveBallotPackageToUsbMutation =
     saveBallotPackageToUsbBase.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   const [saveState, setSaveState] = useState<SaveState>({ state: 'unsaved' });
 
@@ -63,10 +66,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
   switch (saveState.state) {
     case 'unsaved':
-      switch (usbDrive.status) {
-        case 'absent':
+      switch (usbDriveStatus.status) {
+        case 'no_drive':
         case 'ejected':
-        case 'bad_format':
+        case 'error':
           actions = <Button onPress={closeModal}>Cancel</Button>;
           title = 'No USB Drive Detected';
           mainContent = (
@@ -75,15 +78,6 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
               Please insert a USB drive in order to save the ballot
               configuration.
             </P>
-          );
-          break;
-        case 'ejecting':
-        case 'mounting':
-          mainContent = <Loading />;
-          actions = (
-            <Button onPress={closeModal} disabled>
-              Cancel
-            </Button>
           );
           break;
         case 'mounted': {
@@ -107,7 +101,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         }
 
         default:
-          throwIllegalValue(usbDrive.status);
+          throwIllegalValue(usbDriveStatus, 'status');
       }
       break;
 
@@ -123,14 +117,14 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     }
 
     case 'saved': {
-      if (usbDrive.status !== 'ejected') {
+      if (usbDriveStatus.status !== 'ejected') {
         actions = (
           <React.Fragment>
             <UsbControllerButton
               primary
               small={false}
-              usbDriveEject={() => usbDrive.eject(userRole)}
-              usbDriveStatus={usbDrive.status}
+              usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+              usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
             />
             <Button onPress={closeModal}>Close</Button>
           </React.Fragment>

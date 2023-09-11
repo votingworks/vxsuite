@@ -27,7 +27,7 @@ import {
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../../src/api';
-import { fakeUsbDriveStatus } from './fake_usb_drive';
+import { mockUsbDriveStatus } from './mock_usb_drive';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -106,7 +106,7 @@ export function createApiMock() {
     expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {
       mockApiClient.getUsbDriveStatus
         .expectRepeatedCallsWith()
-        .resolves(fakeUsbDriveStatus(status));
+        .resolves(mockUsbDriveStatus(status));
     },
 
     expectGetMachineConfig(): void {

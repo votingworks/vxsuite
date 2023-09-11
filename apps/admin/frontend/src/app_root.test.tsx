@@ -6,7 +6,7 @@ import { LogSource, Logger } from '@votingworks/logging';
 import { screen } from '../test/react_testing_library';
 import { renderRootElement } from '../test/render_in_app_context';
 import { AppRoot } from './app_root';
-import { ApiMock, createApiMock } from '../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
@@ -28,6 +28,7 @@ test('renders without crashing', async () => {
     electionDefinition: electionTwoPartyPrimaryDefinition,
   });
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetUsbDriveStatus('mounted');
   renderRootElement(
     <BrowserRouter>
       <Route

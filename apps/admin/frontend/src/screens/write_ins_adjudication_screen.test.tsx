@@ -13,7 +13,7 @@ import {
   renderInAppContext,
 } from '../../test/render_in_app_context';
 import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 const mockPartialWriteInIdentifier = {
   contestId: 'contest-id',

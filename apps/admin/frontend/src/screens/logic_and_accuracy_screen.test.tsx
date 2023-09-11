@@ -4,7 +4,7 @@ import { fakeLogger, Logger } from '@votingworks/logging';
 import { screen } from '@testing-library/react';
 
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { LogicAndAccuracyScreen } from './logic_and_accuracy_screen';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;

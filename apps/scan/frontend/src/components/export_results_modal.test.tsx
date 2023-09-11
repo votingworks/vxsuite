@@ -12,7 +12,7 @@ import {
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client';
-import { fakeUsbDriveStatus } from '../../test/helpers/fake_usb_drive';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
@@ -22,7 +22,7 @@ function renderModal(props: Partial<ExportResultsModalProps> = {}) {
       apiMock,
       <ExportResultsModal
         onClose={jest.fn()}
-        usbDrive={fakeUsbDriveStatus('mounted')}
+        usbDrive={mockUsbDriveStatus('mounted')}
         {...props}
       />
     )
@@ -47,7 +47,7 @@ test('render no usb found screen when there is not a compatible mounted usb driv
   for (const status of usbStatuses) {
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderModal({
-      usbDrive: fakeUsbDriveStatus(status),
+      usbDrive: mockUsbDriveStatus(status),
       onClose: closeFn,
     });
     getByText('No USB Drive Detected');
@@ -65,7 +65,7 @@ test('render export modal when a usb drive is mounted as expected and allows exp
   const onClose = jest.fn();
   const { getByText, rerender } = renderModal({
     onClose,
-    usbDrive: fakeUsbDriveStatus('mounted'),
+    usbDrive: mockUsbDriveStatus('mounted'),
   });
   getByText('Save CVRs');
 
@@ -82,7 +82,7 @@ test('render export modal when a usb drive is mounted as expected and allows exp
       apiMock,
       <ExportResultsModal
         onClose={onClose}
-        usbDrive={fakeUsbDriveStatus('ejected')}
+        usbDrive={mockUsbDriveStatus('ejected')}
       />
     )
   );
