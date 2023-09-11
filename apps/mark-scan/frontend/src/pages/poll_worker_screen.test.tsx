@@ -211,7 +211,7 @@ test('can toggle between vote activation and "other actions" during polls open',
 });
 
 test('returns instruction page if status is `waiting_for_ballot_data`', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 
@@ -226,7 +226,7 @@ test('returns instruction page if status is `waiting_for_ballot_data`', async ()
 });
 
 test('returns null if status is unhandled', () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
   apiMock.setPaperHandlerState('scanning');
 
