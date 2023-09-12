@@ -59,13 +59,12 @@ export class LiveCheck {
       signingPrivateKey: this.machinePrivateKey,
     });
 
-    const machineCert = await fs.readFile(this.machineCertPath);
+    const machineCert = await fs.readFile(this.machineCertPath, 'utf-8');
 
     const qrCodeValueParts: string[] = [
       message,
       messageSignature.toString('base64'),
       machineCert
-        .toString('utf-8')
         // Remove the standard PEM header and footer to make the QR code as small as possible
         .replace('-----BEGIN CERTIFICATE-----', '')
         .replace('-----END CERTIFICATE-----', ''),

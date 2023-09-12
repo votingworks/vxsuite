@@ -91,9 +91,7 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
         `Must specify election definition for election manager and poll worker cards\n\n${helpMessage}`
       );
     }
-    const electionData = fs
-      .readFileSync(args.electionDefinition)
-      .toString('utf-8');
+    const electionData = fs.readFileSync(args.electionDefinition, 'utf-8');
     if (!safeParseElection(electionData).isOk()) {
       throw new Error(
         `${args.electionDefinition} isn't a valid election definition`
