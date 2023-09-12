@@ -56,7 +56,7 @@ async function resolveWorkspace(): Promise<Workspace> {
 
 async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
-  const usbDrive = detectUsbDrive();
+  const usbDrive = detectUsbDrive(logger);
 
   const precinctScannerStateMachine =
     customStateMachine.createPrecinctScannerStateMachine({
@@ -70,6 +70,7 @@ async function main(): Promise<number> {
     precinctScannerStateMachine,
     workspace,
     usbDrive,
+    logger,
   });
 
   return 0;

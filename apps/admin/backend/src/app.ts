@@ -202,13 +202,13 @@ function buildApi({
       return usbDrive.status();
     },
 
-    ejectUsbDrive(): Promise<void> {
-      return usbDrive.eject();
+    async ejectUsbDrive(): Promise<void> {
+      return usbDrive.eject(assertDefined(await getUserRole()));
     },
 
     async formatUsbDrive(): Promise<Result<void, Error>> {
       try {
-        await usbDrive.format();
+        await usbDrive.format(assertDefined(await getUserRole()));
         return ok();
       } catch (error) {
         return err(error as Error);
