@@ -1,12 +1,13 @@
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
-import { fakeKiosk } from '@votingworks/test-utils';
+import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
+import userEvent from '@testing-library/user-event';
 import {
   electionDefinition,
   election,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { App } from './app';
 import { createApiMock, ApiMock } from '../test/helpers/mock_api_client';
 
@@ -99,7 +100,6 @@ test('`invalidating_ballot` state renders ballot invalidation page', async () =>
   await setElectionInStorage(storage);
   await setStateInStorage(storage);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  apiMock.setPaperHandlerState('invalidating_ballot');
 
   render(
     <App
@@ -110,6 +110,20 @@ test('`invalidating_ballot` state renders ballot invalidation page', async () =>
     />
   );
 
+  // Open Polls
+  // Once state is moved to the backend this can be mocked more concisely
+  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
+  userEvent.click(screen.getByText('Open Polls'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+  );
+  await screen.findByText(hasTextAcrossElements('Polls: Open'));
+
+  apiMock.setPaperHandlerState('invalidating_ballot');
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+    precinctId: electionDefinition.election.precincts[0].id,
+  });
   await screen.findByText('Ballot Invalidated');
   screen.getByText(/You have indicated your ballot needs changes./);
 });
