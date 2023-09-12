@@ -16,7 +16,7 @@ import {
   tabulateElectionResults,
 } from './full_results';
 import { Store } from '../store';
-import { addCastVoteRecordReport } from '../cvr_files';
+import { addCastVoteRecordReport } from '../legacy_cast_vote_records';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,

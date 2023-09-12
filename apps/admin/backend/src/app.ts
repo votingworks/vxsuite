@@ -68,7 +68,7 @@ import {
   addCastVoteRecordReport,
   getAddCastVoteRecordReportErrorMessage,
   listCastVoteRecordFilesOnUsb,
-} from './cvr_files';
+} from './legacy_cast_vote_records';
 import { getMachineConfig } from './machine_config';
 import {
   getWriteInAdjudicationContext,

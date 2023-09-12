@@ -1,7 +1,17 @@
-import { assert, Optional } from '@votingworks/basics';
 import {
+  assert,
+  err,
+  integers,
+  ok,
+  Optional,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import {
+  AnyContest,
   ContestId,
   ContestOptionId,
+  Contests,
   CVR,
   Side,
   Tabulation,
@@ -120,4 +130,66 @@ export function getWriteInsFromCastVoteRecord(
   }
 
   return castVoteRecordWriteIns;
+}
+
+/**
+ * Checks whether a cast vote record write-in is valid. See {@link CastVoteRecordWriteIn} for more
+ * context.
+ */
+export function isCastVoteRecordWriteInValid(
+  cvrWriteIn: CastVoteRecordWriteIn
+): boolean {
+  return Boolean(cvrWriteIn.side || cvrWriteIn.text);
+}
+
+function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
+  switch (contest.type) {
+    case 'candidate':
+      return [
+        ...contest.candidates.map((candidate) => candidate.id),
+        ...integers({ from: 0, through: contest.seats - 1 })
+          .map((num) => `write-in-${num}`)
+          .toArray(),
+      ];
+    case 'yesno':
+      return [contest.yesOption.id, contest.noOption.id];
+    /* c8 ignore next 2 */
+    default:
+      return throwIllegalValue(contest);
+  }
+}
+
+export type ContestReferenceError =
+  | 'contest-not-found'
+  | 'contest-option-not-found';
+
+/**
+ * Checks whether all the contest and contest options referenced in a cast vote record are indeed a
+ * part of the specified election
+ */
+export function castVoteRecordHasValidContestReferences(
+  cvr: CVR.CVR,
+  electionContests: Contests
+): Result<void, ContestReferenceError> {
+  for (const cvrSnapshot of cvr.CVRSnapshot) {
+    for (const cvrContest of cvrSnapshot.CVRContest) {
+      const electionContest = electionContests.find(
+        (contest) => contest.id === cvrContest.ContestId
+      );
+      if (!electionContest) {
+        return err('contest-not-found');
+      }
+
+      const validContestOptions = new Set(
+        getValidContestOptions(electionContest)
+      );
+      for (const cvrContestSelection of cvrContest.CVRContestSelection) {
+        if (!validContestOptions.has(cvrContestSelection.ContestSelectionId)) {
+          return err('contest-option-not-found');
+        }
+      }
+    }
+  }
+
+  return ok();
 }

@@ -6,7 +6,7 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   listCastVoteRecordFilesOnUsb,
   validateCastVoteRecord,
-} from './cvr_files';
+} from './legacy_cast_vote_records';
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 const file = Buffer.from([]);
@@ -361,7 +361,7 @@ describe('validateCastVoteRecord', () => {
       reportBatchIds: ['batch-1'],
     });
 
-    expect(result.err()).toEqual('invalid-contest');
+    expect(result.err()).toEqual('contest-not-found');
   });
 
   test('error on invalid contest option id', () => {
@@ -392,7 +392,7 @@ describe('validateCastVoteRecord', () => {
       reportBatchIds: ['batch-1'],
     });
 
-    expect(result.err()).toEqual('invalid-contest-option');
+    expect(result.err()).toEqual('contest-option-not-found');
   });
 
   test('error on unknown ballot image', () => {
