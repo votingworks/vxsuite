@@ -268,6 +268,7 @@ exports[`no votes 1`] = `
   >
     <div
       class="c1"
+      data-testid="header"
     >
       <div
         class="seal"
@@ -1023,6 +1024,7 @@ exports[`with votes 1`] = `
   >
     <div
       class="c1"
+      data-testid="header"
     >
       <div
         class="seal"
@@ -1775,6 +1777,7 @@ exports[`without votes and inline seal 1`] = `
   >
     <div
       class="c1"
+      data-testid="header"
     >
       <div
         class="seal"

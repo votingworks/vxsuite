@@ -51,11 +51,15 @@ const Ballot = styled.div`
   }
 `;
 
-const Header = styled.div`
+interface StyledHeaderProps {
+  largeTopMargin?: boolean;
+}
+const Header = styled.div<StyledHeaderProps>`
   display: flex;
   flex-direction: row;
   align-items: center;
   border-bottom: 0.2em solid #000;
+  margin-top: ${(p) => (p.largeTopMargin ? '1.75in' : undefined)};
 
   & > .seal {
     margin: 0.25em 0;
@@ -217,6 +221,7 @@ interface Props {
   precinctId: PrecinctId;
   votes: VotesDict;
   onRendered?: () => void;
+  largeTopMargin?: boolean;
 }
 
 /**
@@ -242,6 +247,7 @@ export function BmdPaperBallot({
   precinctId,
   votes,
   onRendered,
+  largeTopMargin,
 }: Props): JSX.Element {
   const ballotId = generateBallotId();
   const {
@@ -275,7 +281,7 @@ export function BmdPaperBallot({
 
   return withPrintTheme(
     <Ballot aria-hidden>
-      <Header>
+      <Header largeTopMargin={largeTopMargin} data-testid="header">
         <div
           className="seal"
           dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
