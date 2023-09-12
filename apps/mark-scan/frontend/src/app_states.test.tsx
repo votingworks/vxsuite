@@ -92,3 +92,24 @@ test('`resetting_state_machine_after_jam` state renders jam cleared page', async
   await screen.findByText('Jam Cleared');
   screen.getByText(/The hardware has been reset/);
 });
+
+test('`invalidating_ballot` state renders ballot invalidation page', async () => {
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  apiMock.setPaperHandlerState('invalidating_ballot');
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  await screen.findByText('Ballot Invalidated');
+  screen.getByText(/You have indicated your ballot needs changes./);
+});
