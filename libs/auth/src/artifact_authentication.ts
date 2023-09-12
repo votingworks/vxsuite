@@ -29,7 +29,7 @@ import {
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
-} from './openssl';
+} from './cryptography';
 import { constructPrefixedMessage } from './signatures';
 
 interface CastVoteRecordsToExport {

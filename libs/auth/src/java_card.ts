@@ -34,7 +34,6 @@ import {
   parseCert,
 } from './certs';
 import { constructJavaCardConfig, JavaCardConfig } from './config';
-import { FileKey, TpmKey } from './keys';
 import {
   certDerToPem,
   certPemToDer,
@@ -44,7 +43,8 @@ import {
   publicKeyDerToPem,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
-} from './openssl';
+} from './cryptography';
+import { FileKey, TpmKey } from './keys';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,

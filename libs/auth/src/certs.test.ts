@@ -12,9 +12,9 @@ import {
   parseCardDetailsFromCert,
   parseCert,
 } from './certs';
-import { openssl } from './openssl';
+import { openssl } from './cryptography';
 
-jest.mock('./openssl');
+jest.mock('./cryptography');
 
 const cert = Buffer.from([]);
 const electionHash =

@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { createCertHelper, parseCreateCertInput } from '../openssl';
+import { createCertHelper, parseCreateCertInput } from '../cryptography';
 
 /**
  * An intermediate component of createCert in src/openssl.ts, needed for permissions purposes. See

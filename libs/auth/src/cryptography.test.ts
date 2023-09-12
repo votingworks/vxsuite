@@ -22,7 +22,7 @@ import {
   signMessageHelper,
   SignMessageInput,
   SignMessageInputExcludingMessage,
-} from './openssl';
+} from './cryptography';
 import { OPENSSL_TPM_ENGINE_NAME, TPM_KEY_ID, TPM_KEY_PASSWORD } from './tpm';
 
 jest.mock('child_process');
