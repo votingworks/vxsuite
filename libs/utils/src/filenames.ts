@@ -34,6 +34,12 @@ export interface CastVoteRecordReportListing {
   timestamp: Date;
 }
 
+export interface CastVoteRecordExportDirectoryNameComponents {
+  inTestMode: boolean;
+  machineId: string;
+  time: Date;
+}
+
 export function sanitizeStringForFilename(
   input: string,
   { replaceInvalidCharsWith = '', defaultValue = 'placeholder' } = {}
@@ -121,36 +127,14 @@ export function generateCastVoteRecordReportDirectoryName(
 }
 
 /**
- * Generates a name for a cast vote record export directory
- */
-export function generateCastVoteRecordExportDirectoryName({
-  inTestMode,
-  machineId,
-  time = new Date(),
-}: {
-  inTestMode: boolean;
-  machineId: string;
-  time?: Date;
-}): string {
-  const machineString = [
-    'machine',
-    maybeParse(MachineId, machineId) ?? sanitizeStringForFilename(machineId),
-  ].join(SUBSECTION_SEPARATOR);
-  const timeString = moment(time).format(TIME_FORMAT_STRING);
-  const directoryNameComponents = [machineString, timeString];
-  if (inTestMode) {
-    directoryNameComponents.unshift('TEST');
-  }
-  return directoryNameComponents.join(SECTION_SEPARATOR);
-}
-
-/**
  * Extract information about a CVR file from the filename. Expected filename
  * format with human-readable separators is:
  * [TEST__]machine_{machineId}__{numberOfBallots}_ballots__YYYY-MM-DD_HH-mm-ss.jsonl
  * This format is current as of 2023-02-22 and may be out of date if separator constants have changed
  *
  * If the the parsing is unsuccessful, returns `undefined`.
+ *
+ * @deprecated
  */
 export function parseCastVoteRecordReportDirectoryName(
   filename: string
@@ -325,4 +309,63 @@ export function generateLogFilename(
     default:
       throwIllegalValue(fileType);
   }
+}
+
+/**
+ * Generates a name for a cast vote record export directory
+ */
+export function generateCastVoteRecordExportDirectoryName({
+  inTestMode,
+  machineId,
+  time = new Date(),
+}: Omit<CastVoteRecordExportDirectoryNameComponents, 'time'> & {
+  time?: Date;
+}): string {
+  const machineString = [
+    'machine',
+    maybeParse(MachineId, machineId) ?? sanitizeStringForFilename(machineId),
+  ].join(SUBSECTION_SEPARATOR);
+  const timeString = moment(time).format(TIME_FORMAT_STRING);
+  const directoryNameComponents = [machineString, timeString];
+  if (inTestMode) {
+    directoryNameComponents.unshift('TEST');
+  }
+  return directoryNameComponents.join(SECTION_SEPARATOR);
+}
+
+/**
+ * Extracts information about a cast vote record export from the export directory name
+ */
+export function parseCastVoteRecordReportExportDirectoryName(
+  exportDirectoryName: string
+): Optional<CastVoteRecordExportDirectoryNameComponents> {
+  const sections = exportDirectoryName.split(SECTION_SEPARATOR);
+  const inTestMode = sections.length === 3 && sections[0] === 'TEST';
+  const postTestPrefixSections = inTestMode ? sections.slice(1) : sections;
+  if (postTestPrefixSections.length !== 2) {
+    return;
+  }
+  assert(postTestPrefixSections[0] !== undefined);
+  assert(postTestPrefixSections[1] !== undefined);
+
+  const machineString = postTestPrefixSections[0];
+  const machineSubsections = machineString.split(SUBSECTION_SEPARATOR);
+  if (machineSubsections.length !== 2 || machineSubsections[0] !== 'machine') {
+    return;
+  }
+  assert(machineSubsections[1] !== undefined);
+  const machineId = machineSubsections[1];
+
+  const timeString = postTestPrefixSections[1];
+  const timeMoment = moment(timeString, TIME_FORMAT_STRING);
+  if (!timeMoment.isValid()) {
+    return;
+  }
+  const time = timeMoment.toDate();
+
+  return {
+    inTestMode,
+    machineId,
+    time,
+  };
 }
