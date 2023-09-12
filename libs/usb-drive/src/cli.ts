@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 import { sleep } from '@votingworks/basics';
+import { Logger, LogSource } from '@votingworks/logging';
 import { detectUsbDrive, UsbDrive } from './usb_drive';
 
 async function printStatus(usbDrive: UsbDrive, stdout: NodeJS.WriteStream) {
@@ -20,20 +21,20 @@ const USAGE = `Usage: usb-drive status|eject|format|watch\n`;
 export async function main(args: string[]): Promise<number> {
   const { stdout, stderr } = process;
   const command = args[2];
-  const usbDrive = detectUsbDrive();
+  const usbDrive = detectUsbDrive(new Logger(LogSource.System));
   switch (command) {
     case 'status': {
       await printStatus(usbDrive, stdout);
       break;
     }
     case 'eject': {
-      await usbDrive.eject();
+      await usbDrive.eject('election_manager');
       stdout.write('Ejected\n');
       await printStatus(usbDrive, stdout);
       break;
     }
     case 'format': {
-      await usbDrive.format();
+      await usbDrive.format('system_administrator');
       stdout.write('Formatted\n');
       await printStatus(usbDrive, stdout);
       break;
