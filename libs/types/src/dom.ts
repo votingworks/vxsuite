@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/no-unresolved
-import React from 'react';
+import type React from 'react';
 
 export type SelectChangeEventFunction =
   React.ChangeEventHandler<HTMLSelectElement>;

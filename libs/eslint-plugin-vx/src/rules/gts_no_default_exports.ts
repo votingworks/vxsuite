@@ -10,8 +10,7 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Disallows default exports',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'stylistic',
       requiresTypeChecking: false,
     },
     fixable: 'code',

@@ -9,8 +9,7 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Requires using a safe number parser',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'strict',
       requiresTypeChecking: false,
     },
     messages: {

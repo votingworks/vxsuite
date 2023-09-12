@@ -41,7 +41,7 @@ test('uint2 with enumeration', () => {
   expect(coder.encode(Speed.Fast)).toEqual(ok(Buffer.from([0b11000000])));
   expect(coder.decode(Buffer.from([0b11000000]))).toEqual(ok(Speed.Fast));
 
-  // invalid value
+  // @ts-expect-error - 0 is not a valid enum value
   expect(coder.encode(0)).toEqual(err('InvalidValue'));
   expect(coder.decode(Buffer.from([0b00000000]))).toEqual(err('InvalidValue'));
 
@@ -53,7 +53,7 @@ test('uint2 with enumeration', () => {
     ok({ value: Speed.Fast, bitOffset: 2 })
   );
 
-  // invalid value
+  // @ts-expect-error - 0 is not a valid enum value
   expect(coder.encodeInto(0, buffer, 0)).toEqual(err('InvalidValue'));
   buffer.writeUInt8(0b00000000, 0);
   expect(coder.decodeFrom(buffer, 0)).toEqual(err('InvalidValue'));

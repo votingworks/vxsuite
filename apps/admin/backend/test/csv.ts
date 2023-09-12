@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import { parse } from 'csv-parse/sync';
 
 export function parseCsv(fileContents: string): {

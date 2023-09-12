@@ -28,6 +28,10 @@ export = {
       '@typescript-eslint/parser': tsExtensions,
     },
     'import/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+        project: ['./tsconfig.json'],
+      },
       node: {
         extensions: allExtensions,
       },
@@ -118,10 +122,12 @@ export = {
       },
     ],
     'import/no-self-import': 'off',
+    'import/no-unresolved': 'off',
     'import/prefer-default-export': 'off',
     'lines-between-class-members': 'off',
     'no-await-in-loop': 'off',
     'no-continue': 'off',
+    'no-empty-function': 'off',
     'no-nested-ternary': 'off',
     'no-restricted-globals': ['error', 'Buffer'],
     'no-restricted-syntax': 'off',

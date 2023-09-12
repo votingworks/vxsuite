@@ -10,8 +10,7 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Disallows use of `import type` and `export type`',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'strict',
       requiresTypeChecking: false,
     },
     fixable: 'code',

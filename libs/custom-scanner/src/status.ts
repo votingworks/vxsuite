@@ -1,6 +1,8 @@
 import { StatusInternalMessage } from './protocol';
 import {
   CustomSensorsBitmask,
+  DocumentSensorStatus,
+  HomeSensorStatus,
   JobStatus,
   ScannerA4Status,
   ScannerStatus,
@@ -83,7 +85,7 @@ export function convertFromInternalStatus(
 
   if (internalStatus.paperJam === PAPER_JAM_VALUE) {
     // Verify which kind of jam
-    if (internalStatus.docSensor & CustomSensorsBitmask.ENCODER_ERROR) {
+    if (internalStatus.docSensor & DocumentSensorStatus.ENCODER_ERROR) {
       status.isJamPaperHeldBack = true;
     } else {
       status.isPaperJam = true;
@@ -111,27 +113,27 @@ export function convertFromInternalStatus(
     status.isLoadingPaper = true;
   }
 
-  if (internalStatus.docSensor & CustomSensorsBitmask.DOUBLE_SHEET) {
+  if (internalStatus.docSensor & DocumentSensorStatus.DOUBLE_SHEET) {
     status.isDoubleSheet = true;
   }
 
   status.sensorInputCenterLeft =
-    internalStatus.docSensor & CustomSensorsBitmask.INPUT_CENTER_LEFT
+    internalStatus.docSensor & DocumentSensorStatus.INPUT_CENTER_LEFT
       ? SensorStatus.PaperPresent
       : SensorStatus.NoPaper;
 
   status.sensorInputCenterRight =
-    internalStatus.docSensor & CustomSensorsBitmask.INPUT_CENTER_RIGHT
+    internalStatus.docSensor & DocumentSensorStatus.INPUT_CENTER_RIGHT
       ? SensorStatus.PaperPresent
       : SensorStatus.NoPaper;
 
   status.sensorInputLeftLeft =
-    internalStatus.docSensor & CustomSensorsBitmask.INPUT_LEFT_LEFT
+    internalStatus.docSensor & DocumentSensorStatus.INPUT_LEFT_LEFT
       ? SensorStatus.PaperPresent
       : SensorStatus.NoPaper;
 
   status.sensorInputRightRight =
-    internalStatus.docSensor & CustomSensorsBitmask.INPUT_RIGHT_RIGHT
+    internalStatus.docSensor & DocumentSensorStatus.INPUT_RIGHT_RIGHT
       ? SensorStatus.PaperPresent
       : SensorStatus.NoPaper;
 
@@ -146,22 +148,22 @@ export function convertFromInternalStatus(
       : SensorStatus.NoPaper;
 
   status.sensorOutputCenterLeft =
-    internalStatus.homeSensor & CustomSensorsBitmask.OUTPUT_CENTER_LEFT
+    internalStatus.homeSensor & HomeSensorStatus.OUTPUT_CENTER_LEFT
       ? SensorStatus.PaperPresent
       : SensorStatus.NoPaper;
 
   status.sensorOutputCenterRight =
-    internalStatus.homeSensor & CustomSensorsBitmask.OUTPUT_CENTER_RIGHT
+    internalStatus.homeSensor & HomeSensorStatus.OUTPUT_CENTER_RIGHT
       ? SensorStatus.PaperPresent
       : SensorStatus.NoPaper;
 
   status.sensorOutputLeftLeft =
-    internalStatus.homeSensor & CustomSensorsBitmask.OUTPUT_LEFT_LEFT
+    internalStatus.homeSensor & HomeSensorStatus.OUTPUT_LEFT_LEFT
       ? SensorStatus.PaperPresent
       : SensorStatus.NoPaper;
 
   status.sensorOutputRightRight =
-    internalStatus.homeSensor & CustomSensorsBitmask.OUTPUT_RIGHT_RIGHT
+    internalStatus.homeSensor & HomeSensorStatus.OUTPUT_RIGHT_RIGHT
       ? SensorStatus.PaperPresent
       : SensorStatus.NoPaper;
 

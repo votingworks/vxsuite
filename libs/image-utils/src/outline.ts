@@ -11,7 +11,7 @@ export function outline(
   { color = PIXEL_BLACK } = {}
 ): ImageData {
   const { width, height, data: src } = imageData;
-  const channels = getImageChannelCount({ data: src, width, height });
+  const channels = getImageChannelCount(imageData);
   const result = createImageData(Uint8ClampedArray.from(src), width, height);
   const v1px = width * channels;
   const h1px = channels;

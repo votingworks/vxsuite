@@ -169,7 +169,7 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
 
   if (!('ballotLayout' in election)) {
     election = {
-      ...election,
+      ...(election as Election),
       ballotLayout: {
         paperSize: BallotPaperSize.Letter,
         metadataEncoding: 'qr-code',
@@ -195,8 +195,8 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
   // Add election.type
   if (!('type' in election)) {
     election = {
-      ...election,
-      type: election.contests?.some(
+      ...(election as Election),
+      type: (election as Election).contests?.some(
         (contest) => contest.type === 'candidate' && contest.partyId
       )
         ? 'primary'

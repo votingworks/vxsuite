@@ -1,4 +1,5 @@
 import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
+import assert from 'assert';
 import { createRule } from '../util';
 
 const HOOKS_WITH_DEPS = [
@@ -18,8 +19,7 @@ const rule: TSESLint.RuleModule<'badMutationDependency', readonly unknown[]> =
       docs: {
         description:
           'Prevents react query mutation objects from being used as dependencies in react hooks.',
-        recommended: 'error',
-        suggestion: false,
+        recommended: 'strict',
         requiresTypeChecking: true,
       },
       messages: {
@@ -48,9 +48,14 @@ const rule: TSESLint.RuleModule<'badMutationDependency', readonly unknown[]> =
 
           const { parserServices } = context.getSourceCode();
           const tsNodeMap = parserServices.esTreeNodeToTSNodeMap;
+          assert(parserServices.program);
           const typeChecker = parserServices.program.getTypeChecker();
 
           const mutation = deps.elements.find((element) => {
+            if (!element) {
+              return false;
+            }
+
             const type = typeChecker.getTypeAtLocation(tsNodeMap.get(element));
             // istanbul ignore next - unsure how to reproduce aliasSymbol in tests
             const typeName = type.symbol?.name ?? type.aliasSymbol?.name;

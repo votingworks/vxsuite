@@ -11,8 +11,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Recommends using short form T[] for simple array types (containing only alphanumeric characters and dots). Recommends using long form Array<T> for complex array types.',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'stylistic',
       requiresTypeChecking: false,
     },
     fixable: 'code',

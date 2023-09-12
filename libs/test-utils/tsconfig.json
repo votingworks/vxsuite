@@ -3,7 +3,7 @@
   "include": ["src"],
   "exclude": [],
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "node16",
     "composite": true,
     "noEmit": true,
     "esModuleInterop": true,

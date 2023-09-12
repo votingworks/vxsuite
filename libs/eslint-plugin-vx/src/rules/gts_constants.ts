@@ -10,8 +10,7 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Enforces GTS JSDoc rules.',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'stylistic',
       requiresTypeChecking: false,
     },
     fixable: 'code',
