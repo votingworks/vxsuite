@@ -17,7 +17,7 @@ test('getUsbDriveStatus', async () => {
 
 test('ejectUsbDrive', async () => {
   await withApp({}, async ({ apiClient, mockUsbDrive }) => {
-    mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
+    mockUsbDrive.usbDrive.eject.expectCallWith('unknown').resolves();
     await expect(apiClient.ejectUsbDrive()).resolves.toBeUndefined();
   });
 });

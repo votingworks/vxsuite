@@ -232,6 +232,8 @@ test('usbDrive', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
+  mockSystemAdministratorAuth(auth);
+
   usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
   expect(await apiClient.getUsbDriveStatus()).toEqual({
     status: 'no_drive',
@@ -245,13 +247,13 @@ test('usbDrive', async () => {
     reason: 'bad_format',
   });
 
-  usbDrive.eject.expectCallWith().resolves();
+  usbDrive.eject.expectCallWith('system_administrator').resolves();
   await apiClient.ejectUsbDrive();
 
-  usbDrive.format.expectCallWith().resolves();
+  usbDrive.format.expectCallWith('system_administrator').resolves();
   (await apiClient.formatUsbDrive()).assertOk('format failed');
 
   const error = new Error('format failed');
-  usbDrive.format.expectCallWith().throws(error);
+  usbDrive.format.expectCallWith('system_administrator').throws(error);
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });

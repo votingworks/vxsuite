@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { assert, assertDefined } from '@votingworks/basics';
 import makeDebug from 'debug';
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { exec } from './exec';
 
 const debug = makeDebug('usb-drive');
@@ -19,8 +20,8 @@ export type UsbDriveStatus =
 
 export interface UsbDrive {
   status(): Promise<UsbDriveStatus>;
-  eject(): Promise<void>;
-  format(): Promise<void>;
+  eject(loggingUserRole: LoggingUserRole): Promise<void>;
+  format(loggingUserRole: LoggingUserRole): Promise<void>;
 }
 
 export interface BlockDeviceInfo {
@@ -152,7 +153,100 @@ function isFat32(deviceInfo: BlockDeviceInfo): boolean {
   return deviceInfo.fstype === 'vfat' && deviceInfo.fsver === 'FAT32';
 }
 
-export function detectUsbDrive(): UsbDrive {
+async function logMountInit(logger: Logger): Promise<void> {
+  await logger.log(LogEventId.UsbDriveMountInit, 'system');
+}
+
+async function logMountSuccess(logger: Logger): Promise<void> {
+  await logger.log(LogEventId.UsbDriveMounted, 'system', {
+    disposition: 'success',
+    message: 'USB drive successfully mounted.',
+  });
+}
+
+async function logMountFailure(logger: Logger, error: Error): Promise<void> {
+  await logger.log(LogEventId.UsbDriveMounted, 'system', {
+    disposition: 'failure',
+    message: 'USB drive failed to mount.',
+    error: error.message,
+    result: 'USB drive not mounted.',
+  });
+}
+
+export async function logEjectInit(
+  logger: Logger,
+  loggingUserRole: LoggingUserRole
+): Promise<void> {
+  await logger.log(LogEventId.UsbDriveEjectInit, loggingUserRole);
+}
+
+export async function logEjectSuccess(
+  logger: Logger,
+  loggingUserRole: LoggingUserRole
+): Promise<void> {
+  await logger.log(LogEventId.UsbDriveEjected, loggingUserRole, {
+    disposition: 'success',
+    message: 'USB drive successfully ejected.',
+  });
+}
+
+async function logEjectFailure(
+  logger: Logger,
+  loggingUserRole: LoggingUserRole,
+  error: Error
+): Promise<void> {
+  await logger.log(LogEventId.UsbDriveEjected, loggingUserRole, {
+    disposition: 'failure',
+    message: 'USB drive failed to eject.',
+    error: error.message,
+    result: 'USB drive not ejected.',
+  });
+}
+
+async function logFormatInit(logger: Logger, loggingUserRole: LoggingUserRole) {
+  await logger.log(LogEventId.UsbDriveFormatInit, loggingUserRole);
+}
+
+async function logFormatSuccess(
+  logger: Logger,
+  loggingUserRole: LoggingUserRole,
+  volumeName: string
+) {
+  await logger.log(LogEventId.UsbDriveFormatted, loggingUserRole, {
+    disposition: 'success',
+    message: `USB drive successfully formatted with a single FAT32 volume named "${volumeName}".`,
+  });
+}
+
+async function logFormatFailure(
+  logger: Logger,
+  loggingUserRole: LoggingUserRole,
+  error: Error
+) {
+  await logger.log(LogEventId.UsbDriveFormatted, loggingUserRole, {
+    disposition: 'failure',
+    message: `Failed to format USB drive.`,
+    error: error.message,
+    result: 'USB drive not formatted, error shown to user.',
+  });
+}
+
+async function mount(
+  deviceInfo: BlockDeviceInfo,
+  logger: Logger
+): Promise<void> {
+  await logMountInit(logger);
+  try {
+    await mountUsbDrive(deviceInfo.path);
+    await logMountSuccess(logger);
+    debug('USB drive mounted successfully');
+  } catch (error) {
+    await logMountFailure(logger, error as Error);
+    debug(`USB drive mounting failed: ${error}`);
+  }
+}
+
+export function detectUsbDrive(logger: Logger): UsbDrive {
   // Store eject state so we don't immediately remount the drive on
   // the next status call. We don't need to persist this across restarts, so
   // storing in memory is fine.
@@ -185,14 +279,7 @@ export function detectUsbDrive(): UsbDrive {
       if (!deviceInfo.mountpoint && !didEject) {
         if (!isMounting) {
           isMounting = true;
-          // Mount the drive in the background
-          void mountUsbDrive(deviceInfo.path).catch(
-            /* istanbul ignore next */
-            (error) => {
-              // eslint-disable-next-line no-console
-              console.error(`Error mounting USB drive: ${error}`);
-            }
-          );
+          void mount(deviceInfo, logger);
         }
         return { status: 'no_drive' };
       }
@@ -208,17 +295,26 @@ export function detectUsbDrive(): UsbDrive {
       return { status: 'ejected' };
     },
 
-    async eject(): Promise<void> {
+    async eject(loggingUserRole: LoggingUserRole): Promise<void> {
       const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo?.mountpoint) {
         debug('No USB drive mounted, skipping eject');
         return;
       }
-      await unmountUsbDrive(deviceInfo.mountpoint);
-      didEject = true;
+      await logEjectInit(logger, loggingUserRole);
+      try {
+        await unmountUsbDrive(deviceInfo.mountpoint);
+        didEject = true;
+        await logEjectSuccess(logger, loggingUserRole);
+        debug('USB drive ejected successfully');
+      } catch (error) {
+        await logEjectFailure(logger, loggingUserRole, error as Error);
+        debug(`USB drive ejection failed: ${error}`);
+        throw error;
+      }
     },
 
-    async format(): Promise<void> {
+    async format(loggingUserRole: LoggingUserRole): Promise<void> {
       const deviceInfo = await getUsbDriveDeviceInfo();
       if (!deviceInfo) {
         debug('No USB drive detected, skipping format');
@@ -226,6 +322,7 @@ export function detectUsbDrive(): UsbDrive {
       }
 
       isFormatting = true;
+      await logFormatInit(logger, loggingUserRole);
       try {
         if (deviceInfo.mountpoint) {
           debug('USB drive is mounted, unmounting before formatting');
@@ -234,9 +331,11 @@ export function detectUsbDrive(): UsbDrive {
 
         const label = generateVxUsbLabel(deviceInfo.label ?? undefined);
         await formatUsbDrive(getRootDeviceName(deviceInfo.path), label);
+        await logFormatSuccess(logger, loggingUserRole, label);
         debug('USB drive formatted successfully');
       } catch (error) {
-        debug(`USB drive formatting failed`);
+        await logFormatFailure(logger, loggingUserRole, error as Error);
+        debug(`USB drive formatting failed: ${error}`);
         throw error;
       } finally {
         isFormatting = false;
