@@ -376,13 +376,8 @@ export function buildMachine(
           {
             id: 'printBallot',
             src: (context, event) => {
-              // Need to hint to Typescript that we want the 'VOTER_INITIATED_PRINT' event in our union type of events
-              if ('pdfData' in event) {
-                return driverPrintBallot(context.driver, event.pdfData, {});
-              }
-              throw new Error(
-                `printing_ballot entry called by unsupported event type: ${event.type}`
-              );
+              assert(event.type === 'VOTER_INITIATED_PRINT');
+              return driverPrintBallot(context.driver, event.pdfData, {});
             },
             onDone: {
               target: 'scanning',
