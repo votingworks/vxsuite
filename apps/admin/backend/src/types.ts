@@ -1,4 +1,8 @@
 import {
+  ReadCastVoteRecordError,
+  ReadCastVoteRecordExportError,
+} from '@votingworks/backend';
+import {
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -497,3 +501,33 @@ export type PartySplitTallyReportResults = TallyReportResultsBase & {
 export type TallyReportResults =
   | SingleTallyReportResults
   | PartySplitTallyReportResults;
+
+/**
+ * An error involving the correspondence between the fields in a cast vote record and the election
+ * definition
+ */
+export type CastVoteRecordElectionDefinitionValidationError = {
+  type: 'invalid-cast-vote-record';
+} & (
+  | { subType: 'ballot-style-not-found' }
+  | { subType: 'contest-not-found' }
+  | { subType: 'contest-option-not-found' }
+  | { subType: 'election-mismatch' }
+  | { subType: 'precinct-not-found' }
+);
+
+type WithIndex<T> = T & { index: number };
+
+/**
+ * An error encountered while importing cast vote records
+ */
+export type ImportCastVoteRecordsError =
+  | ReadCastVoteRecordExportError
+  | WithIndex<ReadCastVoteRecordError>
+  | WithIndex<CastVoteRecordElectionDefinitionValidationError>
+  | { type: 'invalid-mode'; currentMode: 'official' | 'test' }
+  | WithIndex<{ type: 'ballot-id-already-exists-with-different-data' }>
+  | WithIndex<{
+      type: 'invalid-cast-vote-record';
+      subType: 'layout-parse-error';
+    }>;
