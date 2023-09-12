@@ -1,7 +1,7 @@
 /* istanbul ignore file - placeholder component that will change */
 import { useContext } from 'react';
 
-import { Screen, H1, Main, Button, CenteredLargeProse } from '@votingworks/ui';
+import { Screen, H1, Main, Button, Text } from '@votingworks/ui';
 
 import { confirmInvalidateBallot } from '../api';
 
@@ -24,8 +24,8 @@ export function BallotInvalidatedPage(): JSX.Element | null {
 
   return (
     <Screen>
-      <Main flexColumn>
-        <CenteredLargeProse>
+      <Main padded centerChild>
+        <Text center>
           <H1>
             <span aria-label="Ballot Invalidated.">Ballot Invalidated</span>
           </H1>
@@ -34,7 +34,7 @@ export function BallotInvalidatedPage(): JSX.Element | null {
             worker to spoil your incorrect ballot and restart your voting
             session.
           </p>
-        </CenteredLargeProse>
+        </Text>
       </Main>
       <ButtonFooter>
         <Button onPress={onPressContinue}>I Have Alerted a Poll Worker</Button>
