@@ -409,29 +409,6 @@ jobs:
       - store_test_results:
           path: apps/scan/frontend/reports/
 
-  # @votingworks/codemods
-  test-codemods:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir codemods build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir codemods lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir codemods test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: codemods/reports/
-
   # @votingworks/api
   test-libs-api:
     executor: nodejs
@@ -1195,7 +1172,6 @@ workflows:
       - test-apps-mark-integration-testing
       - test-apps-scan-backend
       - test-apps-scan-frontend
-      - test-codemods
       - test-libs-api
       - test-libs-auth
       - test-libs-backend
