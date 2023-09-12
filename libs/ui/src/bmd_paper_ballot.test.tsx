@@ -202,31 +202,6 @@ test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
   screen.getByText('[no selection for 1 of 3 choices]');
 });
 
-test('BmdPaperBallot renders a large top margin when prop is passed', () => {
-  renderBmdPaperBallot({
-    electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
-    precinctId: '6525',
-    votes: {},
-    largeTopMargin: true,
-  });
-
-  const header = screen.getByTestId('header');
-  expect(header.className).toContain('large-top-margin');
-});
-
-test('BmdPaperBallot does not render a large top margin when prop is not passed', () => {
-  renderBmdPaperBallot({
-    electionDefinition: electionWithMsEitherNeitherDefinition,
-    ballotStyleId: '1',
-    precinctId: '6525',
-    votes: {},
-  });
-
-  const header = screen.getByTestId('header');
-  expect(header.className).not.toContain('large-top-margin');
-});
-
 test('BmdPaperBallot renders seal', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
@@ -291,4 +266,29 @@ describe('BmdPaperBallot calls onRendered', () => {
 
     expect(onRendered).toHaveBeenCalledTimes(1);
   });
+});
+
+test('BmdPaperBallot renders a large top margin when prop is passed', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionWithMsEitherNeitherDefinition,
+    ballotStyleId: '1',
+    precinctId: '6525',
+    votes: {},
+    largeTopMargin: true,
+  });
+
+  const header = screen.getByTestId('header');
+  expect(header).toHaveStyle(`margin-top: 1.75in`);
+});
+
+test('BmdPaperBallot does not render a large top margin when prop is not passed', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionWithMsEitherNeitherDefinition,
+    ballotStyleId: '1',
+    precinctId: '6525',
+    votes: {},
+  });
+
+  const header = screen.getByTestId('header');
+  expect(header).not.toHaveStyle(`margin-top: 1.75in`);
 });

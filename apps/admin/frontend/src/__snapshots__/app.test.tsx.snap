@@ -1184,10 +1184,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   page-break-after: always;
 }
 
-.c0 > .large-top-margin {
-  margin-top: 1.75in;
-}
-
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;

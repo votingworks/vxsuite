@@ -105,10 +105,6 @@ exports[`no votes 1`] = `
   page-break-after: always;
 }
 
-.c0 > .large-top-margin {
-  margin-top: 1.75in;
-}
-
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -865,10 +861,6 @@ exports[`with votes 1`] = `
   page-break-after: always;
 }
 
-.c0 > .large-top-margin {
-  margin-top: 1.75in;
-}
-
 .c1 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -1620,10 +1612,6 @@ exports[`without votes and inline seal 1`] = `
   font-family: 'Vx Helvetica Neue','Noto Emoji','Helvetica Neue',sans-serif;
   font-size: 16px;
   page-break-after: always;
-}
-
-.c0 > .large-top-margin {
-  margin-top: 1.75in;
 }
 
 .c1 {

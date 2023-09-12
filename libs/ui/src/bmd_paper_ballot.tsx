@@ -281,7 +281,7 @@ export function BmdPaperBallot({
 
   return withPrintTheme(
     <Ballot aria-hidden>
-      <Header largeTopMargin={largeTopMargin}>
+      <Header largeTopMargin={largeTopMargin} data-testid="header">
         <div
           className="seal"
           dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
