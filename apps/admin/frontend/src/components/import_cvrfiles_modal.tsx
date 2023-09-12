@@ -22,7 +22,10 @@ import {
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
-import type { CvrFileImportInfo } from '@votingworks/admin-backend';
+import type {
+  CvrFileImportInfo,
+  ImportCastVoteRecordsError,
+} from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
 import {
@@ -62,6 +65,89 @@ const Content = styled.div`
   overflow: hidden;
 `;
 
+/* c8 ignore start */
+function userReadableMessageFromError(
+  error: ImportCastVoteRecordsError
+): string {
+  switch (error.type) {
+    case 'authentication-error': {
+      return 'Unable to authenticate cast vote records. Try exporting them from the scanner again.';
+    }
+    case 'ballot-id-already-exists-with-different-data': {
+      return `Found a cast vote record at index ${error.index} that has the same ballot ID as a previously imported cast vote record, but with different data.`;
+    }
+    case 'invalid-mode': {
+      return {
+        official:
+          'You are currently tabulating official results but the selected cast vote record export contains test results.',
+        test: 'You are currently tabulating test results but the selected cast vote record export contains official results.',
+      }[error.currentMode];
+    }
+    case 'invalid-cast-vote-record': {
+      const messageBase = `Found an invalid cast vote record at index ${error.index}. `;
+      const messageDetail = (() => {
+        switch (error.subType) {
+          case 'ballot-style-not-found': {
+            return 'The record references a ballot style that does not exist.';
+          }
+          case 'batch-id-not-found': {
+            return 'The record references a batch ID that does not exist.';
+          }
+          case 'contest-not-found': {
+            return 'The record references a contest that does not exist.';
+          }
+          case 'contest-option-not-found': {
+            return 'The record references a contest option that does not exist.';
+          }
+          case 'election-mismatch': {
+            return 'The record references the wrong election.';
+          }
+          case 'image-file-not-found': {
+            return 'The record references an image file that does not exist.';
+          }
+          // These two go hand-in-hand
+          case 'invalid-ballot-image-field':
+          case 'invalid-write-in-field': {
+            return 'The record contains an incorrectly formatted ballot image and/or write-in field.';
+          }
+          case 'invalid-ballot-sheet-id': {
+            return 'The record contains an incorrectly formatted ballot sheet ID.';
+          }
+          case 'layout-file-not-found': {
+            return 'The record references a layout file that does not exist.';
+          }
+          case 'layout-parse-error': {
+            return 'The layout file could not be parsed.';
+          }
+          case 'no-current-snapshot': {
+            return 'The record does not contain a current snapshot of the interpreted results.';
+          }
+          case 'parse-error': {
+            return 'The record could not be parsed.';
+          }
+          case 'precinct-not-found': {
+            return 'The record references a precinct that does not exist.';
+          }
+          default: {
+            throwIllegalValue(error, 'subType');
+          }
+        }
+      })();
+      return [messageBase, messageDetail].join(' ');
+    }
+    case 'metadata-file-not-found': {
+      return 'Unable to find metadata file.';
+    }
+    case 'metadata-file-parse-error': {
+      return 'Unable to parse metadata file.';
+    }
+    default: {
+      throwIllegalValue(error, 'type');
+    }
+  }
+}
+/* c8 ignore stop */
+
 type ModalState =
   | { state: 'error'; errorMessage?: string; filename: string }
   | { state: 'loading' }
@@ -95,9 +181,13 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       {
         onSuccess: (addCastVoteRecordFileResult) => {
           if (addCastVoteRecordFileResult.isErr()) {
+            const error = addCastVoteRecordFileResult.err();
             setCurrentState({
               state: 'error',
-              errorMessage: addCastVoteRecordFileResult.err().message,
+              errorMessage:
+                'message' in error
+                  ? error.message
+                  : userReadableMessageFromError(error),
               filename,
             });
           } else if (addCastVoteRecordFileResult.ok().wasExistingFile) {
