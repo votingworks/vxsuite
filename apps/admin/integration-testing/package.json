@@ -46,7 +46,7 @@
     "@votingworks/grout": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "cypress": "^10.3.1",
+    "cypress": "^13.2.0",
     "start-server-and-test": "^1.12.5"
   },
   "devDependencies": {
