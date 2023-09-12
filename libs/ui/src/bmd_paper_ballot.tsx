@@ -49,17 +49,17 @@ const Ballot = styled.div`
     margin: 0.375in;
     size: letter portrait;
   }
-
-  & > .large-top-margin {
-    margin-top: 1.75in;
-  }
 `;
 
-const Header = styled.div`
+interface StyledHeaderProps {
+  largeTopMargin?: boolean;
+}
+const Header = styled.div<StyledHeaderProps>`
   display: flex;
   flex-direction: row;
   align-items: center;
   border-bottom: 0.2em solid #000;
+  margin-top: ${(p) => (p.largeTopMargin ? '1.75in' : undefined)};
 
   & > .seal {
     margin: 0.25em 0;
@@ -281,10 +281,7 @@ export function BmdPaperBallot({
 
   return withPrintTheme(
     <Ballot aria-hidden>
-      <Header
-        className={largeTopMargin ? 'large-top-margin' : undefined}
-        data-testid="header"
-      >
+      <Header largeTopMargin={largeTopMargin}>
         <div
           className="seal"
           dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
