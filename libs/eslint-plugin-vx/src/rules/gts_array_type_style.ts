@@ -37,10 +37,10 @@ const rule: TSESLint.RuleModule<
         node: TSESTree.TSTypeReference
       ) => {
         if (
-          node.typeParameters?.params.length === 1 &&
-          isSimpleType(node.typeParameters.params[0])
+          node.typeArguments?.params.length === 1 &&
+          isSimpleType(node.typeArguments.params[0])
         ) {
-          const elementType = node.typeParameters.params[0];
+          const elementType = node.typeArguments.params[0];
           context.report({
             messageId: 'useShortArrayType',
             node,

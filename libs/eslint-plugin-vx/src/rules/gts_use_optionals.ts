@@ -31,9 +31,9 @@ function getOptionalTypeReference(
     node.type === AST_NODE_TYPES.TSTypeReference &&
     node.typeName.type === AST_NODE_TYPES.Identifier &&
     node.typeName.name === 'Optional' &&
-    node.typeParameters?.params.length === 1
+    node.typeArguments?.params.length === 1
   ) {
-    return { optionalType: node, wrappedType: node.typeParameters.params[0] };
+    return { optionalType: node, wrappedType: node.typeArguments.params[0] };
   }
 }
 

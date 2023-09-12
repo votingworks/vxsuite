@@ -10,6 +10,7 @@
   },
   "include": [
     "camelCase.ts",
+    "estree.ts",
     "file.ts",
     "kebab-case.ts",
     "react.tsx",

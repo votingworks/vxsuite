@@ -1,15 +1,15 @@
-import { ESLintUtils } from '@typescript-eslint/utils';
+import { RuleTester } from '@typescript-eslint/utils/ts-eslint';
 import * as ts from 'typescript';
 import { join } from 'path';
 import rule from '../../src/rules/gts_jsdoc';
 
-const ruleTester = new ESLintUtils.RuleTester({
+const ruleTester = new RuleTester({
   parserOptions: {
     ecmaVersion: 2018,
     tsconfigRootDir: join(__dirname, '../fixtures'),
     project: './tsconfig.json',
   },
-  parser: '@typescript-eslint/parser',
+  parser: require.resolve('@typescript-eslint/parser'),
 });
 
 const tsSupportsOverride = 'OverrideKeyword' in ts.SyntaxKind;

@@ -39,7 +39,7 @@ const rule: TSESLint.RuleModule<'noArrayConstructor', readonly unknown[]> =
               const result: TSESLint.RuleFix[] = [];
 
               const leftParen = sourceCode.getTokenAfter(
-                node.typeParameters ?? node.callee
+                node.typeArguments ?? node.callee
               );
               assert(leftParen && leftParen.value === '(');
 
@@ -61,7 +61,7 @@ const rule: TSESLint.RuleModule<'noArrayConstructor', readonly unknown[]> =
               }
 
               if (node.arguments.length !== 1) {
-                if (node.typeParameters) {
+                if (node.typeArguments) {
                   result.push(
                     // `Array<number>()` → `Array.of<number>()`
                     //                           ^^^
