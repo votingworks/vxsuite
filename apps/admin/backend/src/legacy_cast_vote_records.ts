@@ -7,6 +7,7 @@ import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
   isTestReport,
+  readCastVoteRecordExportMetadata,
 } from '@votingworks/backend';
 import {
   assert,
@@ -40,6 +41,7 @@ import {
   isCastVoteRecordWriteInValid,
   isFeatureFlagEnabled,
   parseCastVoteRecordReportDirectoryName,
+  parseCastVoteRecordReportExportDirectoryName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import * as fs from 'fs/promises';
@@ -113,6 +115,40 @@ export async function listCastVoteRecordFilesOnUsb(
 
   for (const entry of fileSearchResult.ok()) {
     if (entry.type === FileSystemEntryType.Directory) {
+      /* c8 ignore start */
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+        )
+      ) {
+        const directoryNameComponents =
+          parseCastVoteRecordReportExportDirectoryName(entry.name);
+        if (!directoryNameComponents) {
+          continue;
+        }
+        const metadataResult = await readCastVoteRecordExportMetadata(
+          entry.path
+        );
+        if (metadataResult.isErr()) {
+          continue;
+        }
+        const metadata = metadataResult.ok();
+        castVoteRecordFileMetadataList.push({
+          cvrCount: metadata.castVoteRecordReportMetadata.vxBatch
+            .map((batch) => batch.NumberSheets)
+            .reduce((sum, n) => sum + n, 0),
+          exportTimestamp: new Date(
+            metadata.castVoteRecordReportMetadata.GeneratedDate
+          ),
+          isTestModeResults: directoryNameComponents.inTestMode,
+          name: entry.name,
+          path: entry.path,
+          scannerIds: [directoryNameComponents.machineId],
+        });
+        continue;
+      }
+      /* c8 ignore stop */
+
       const parsedFileInfo = parseCastVoteRecordReportDirectoryName(entry.name);
       if (parsedFileInfo) {
         castVoteRecordFileMetadataList.push({
