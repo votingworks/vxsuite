@@ -22,7 +22,6 @@ test('calls invalidateBallot if voter indicates their ballot is incorrect', asyn
   apiMock.expectGetElectionDefinition(electionDefinition);
   apiMock.expectInvalidateBallot();
   renderWithBallotContext(<ValidateBallotPage />, {
-    route: '/validate',
     precinctId: electionDefinition.election.precincts[0].id,
     ballotStyleId: electionDefinition.election.ballotStyles[0].id,
     apiMock,
