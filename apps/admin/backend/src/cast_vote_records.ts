@@ -10,15 +10,15 @@ import {
   BallotPageLayoutSchema,
   CVR,
   ElectionDefinition,
-  getBallotStyle,
   getContests,
-  getPrecinctById,
   safeParseJson,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordVotesToTabulationVotes,
+  getBallotStyleById,
+  getPrecinctById,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
@@ -54,18 +54,18 @@ function validateCastVoteRecordAgainstElectionDefinition(
     return wrapError({ subType: 'election-mismatch' });
   }
 
-  const precinct = getPrecinctById({
-    election,
-    precinctId: castVoteRecord.BallotStyleUnitId,
-  });
+  const precinct = getPrecinctById(
+    electionDefinition,
+    castVoteRecord.BallotStyleUnitId
+  );
   if (!precinct) {
     return wrapError({ subType: 'precinct-not-found' });
   }
 
-  const ballotStyle = getBallotStyle({
-    ballotStyleId: castVoteRecord.BallotStyleId,
-    election,
-  });
+  const ballotStyle = getBallotStyleById(
+    electionDefinition,
+    castVoteRecord.BallotStyleId
+  );
   if (!ballotStyle) {
     return wrapError({ subType: 'ballot-style-not-found' });
   }
