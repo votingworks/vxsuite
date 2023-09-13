@@ -434,16 +434,15 @@ export function buildMachine(
         },
         on: {
           VOTER_VALIDATED_BALLOT: 'eject_to_rear',
-          // VOTER_INVALIDATED_BALLOT: 'eject_to_front',
           VOTER_INVALIDATED_BALLOT: 'invalidating_ballot',
+          NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
         },
       },
+      // Ballot invalidation is a 2-stage process so the frontend can prompt the voter to get a pollworker
       invalidating_ballot: {
-        entry: async (context) => {
-          await context.driver.presentPaper();
-        },
         on: {
           CONFIRM_INVALIDATE_BALLOT: 'eject_to_front',
+          NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
         },
       },
       // Eject-to-rear jam handling is a little clunky. It
