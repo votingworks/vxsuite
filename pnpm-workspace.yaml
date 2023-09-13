@@ -4,6 +4,7 @@ packages:
   - 'apps/*/frontend/prodserver'
   - 'apps/*/backend'
   - 'apps/*/integration-testing'
+  - 'apps/*/playwright'
 
   # include all the libraries and our custom types
   - 'libs/*'

@@ -15,13 +15,15 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
   }
 
   const hasCypressTests = existsSync(`${pkg.path}/cypress`);
+  const hasPlaywrightTests = existsSync(`${pkg.path}/playwright.config.ts`);
+  const isIntegrationTestJob = hasCypressTests || hasPlaywrightTests;
   const lines = [
     `# ${pkg.name}`,
     `${jobIdForPackage(pkg)}:`,
-    `  executor: ${hasCypressTests ? 'nodejs-browsers' : 'nodejs'}`,
+    `  executor: ${isIntegrationTestJob ? 'nodejs-browsers' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    ...(hasCypressTests ? [`    - install-cypress-browser`] : []),
+    ...(isIntegrationTestJob ? [`    - install-cypress-browser`] : []),
     `    - checkout-and-install`,
     `    - run:`,
     `        name: Build`,
@@ -47,6 +49,13 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
       `        path: ${pkg.relativePath}/cypress/screenshots/`,
       `    - store_artifacts:`,
       `        path: ${pkg.relativePath}/cypress/videos/`
+    );
+  }
+
+  if (hasPlaywrightTests) {
+    lines.push(
+      `    - store_artifacts:`,
+      `        path: ${pkg.relativePath}/test-results/`
     );
   }
 

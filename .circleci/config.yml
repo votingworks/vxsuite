@@ -359,9 +359,7 @@ jobs:
       - store_test_results:
           path: apps/mark/integration-testing/reports/
       - store_artifacts:
-          path: apps/mark/integration-testing/cypress/screenshots/
-      - store_artifacts:
-          path: apps/mark/integration-testing/cypress/videos/
+          path: apps/mark/integration-testing/test-results/
 
   # @votingworks/scan-backend
   test-apps-scan-backend:

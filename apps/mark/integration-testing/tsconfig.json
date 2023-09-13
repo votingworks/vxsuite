@@ -1,7 +1,6 @@
 {
   "extends": "../../../tsconfig.shared.json",
   "compilerOptions": {
-    "types": ["cypress"],
     "isolatedModules": false,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
