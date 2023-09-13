@@ -7,22 +7,19 @@ import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
   isTestReport,
+  readCastVoteRecordExportMetadata,
 } from '@votingworks/backend';
 import {
   assert,
   err,
   ok,
-  integers,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  AnyContest,
   BallotId,
   BallotPageLayoutSchema,
-  ContestOptionId,
-  Contests,
   CVR,
   ElectionDefinition,
   getBallotStyle,
@@ -35,12 +32,16 @@ import {
 import {
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
+  castVoteRecordHasValidContestReferences,
+  ContestReferenceError,
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
   getCurrentSnapshot,
   getWriteInsFromCastVoteRecord,
+  isCastVoteRecordWriteInValid,
   isFeatureFlagEnabled,
   parseCastVoteRecordReportDirectoryName,
+  parseCastVoteRecordReportExportDirectoryName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import * as fs from 'fs/promises';
@@ -114,6 +115,40 @@ export async function listCastVoteRecordFilesOnUsb(
 
   for (const entry of fileSearchResult.ok()) {
     if (entry.type === FileSystemEntryType.Directory) {
+      /* c8 ignore start */
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+        )
+      ) {
+        const directoryNameComponents =
+          parseCastVoteRecordReportExportDirectoryName(entry.name);
+        if (!directoryNameComponents) {
+          continue;
+        }
+        const metadataResult = await readCastVoteRecordExportMetadata(
+          entry.path
+        );
+        if (metadataResult.isErr()) {
+          continue;
+        }
+        const metadata = metadataResult.ok();
+        castVoteRecordFileMetadataList.push({
+          cvrCount: metadata.castVoteRecordReportMetadata.vxBatch
+            .map((batch) => batch.NumberSheets)
+            .reduce((sum, n) => sum + n, 0),
+          exportTimestamp: new Date(
+            metadata.castVoteRecordReportMetadata.GeneratedDate
+          ),
+          isTestModeResults: directoryNameComponents.inTestMode,
+          name: entry.name,
+          path: entry.path,
+          scannerIds: [directoryNameComponents.machineId],
+        });
+        continue;
+      }
+      /* c8 ignore stop */
+
       const parsedFileInfo = parseCastVoteRecordReportDirectoryName(entry.name);
       if (parsedFileInfo) {
         castVoteRecordFileMetadataList.push({
@@ -135,64 +170,6 @@ export async function listCastVoteRecordFilesOnUsb(
 
   return [...castVoteRecordFileMetadataList].sort(
     (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
-  );
-}
-
-// CVR Validation
-
-function getValidContestOptions(contest: AnyContest): ContestOptionId[] {
-  switch (contest.type) {
-    case 'candidate':
-      return [
-        ...contest.candidates.map((candidate) => candidate.id),
-        ...integers({ from: 0, through: contest.seats - 1 })
-          .map((num) => `write-in-${num}`)
-          .toArray(),
-      ];
-    case 'yesno':
-      return [contest.yesOption.id, contest.noOption.id];
-    /* c8 ignore next 2 */
-    default:
-      return throwIllegalValue(contest);
-  }
-}
-
-type ContestReferenceError = 'invalid-contest' | 'invalid-contest-option';
-
-/**
- * Checks whether all the contest and contest options referenced in a cast vote
- * record are indeed a part of the specified election.
- */
-function snapshotHasValidContestReferences(
-  snapshot: CVR.CVRSnapshot,
-  electionContests: Contests
-): Result<void, ContestReferenceError> {
-  for (const cvrContest of snapshot.CVRContest) {
-    const electionContest = electionContests.find(
-      (contest) => contest.id === cvrContest.ContestId
-    );
-    if (!electionContest) return err('invalid-contest');
-
-    const validContestOptions = new Set(
-      getValidContestOptions(electionContest)
-    );
-    for (const cvrContestSelection of cvrContest.CVRContestSelection) {
-      if (!validContestOptions.has(cvrContestSelection.ContestSelectionId)) {
-        return err('invalid-contest-option');
-      }
-    }
-  }
-
-  return ok();
-}
-
-/**
- * Checks whether any of the write-ins in the cast vote record are invalid
- * due to not referencing a top-level ballot image.
- */
-function cvrHasValidWriteInImageReferences(cvr: CVR.CVR) {
-  return getWriteInsFromCastVoteRecord(cvr).every(
-    ({ side, text }) => side || text
   );
 }
 
@@ -276,14 +253,12 @@ export function validateCastVoteRecord({
     return err('no-current-snapshot');
   }
 
-  for (const snapshot of cvr.CVRSnapshot) {
-    const contestValidation = snapshotHasValidContestReferences(
-      snapshot,
-      getContests({ ballotStyle, election })
-    );
-    if (contestValidation.isErr()) {
-      return contestValidation;
-    }
+  const contestValidation = castVoteRecordHasValidContestReferences(
+    cvr,
+    getContests({ ballotStyle, election })
+  );
+  if (contestValidation.isErr()) {
+    return contestValidation;
   }
 
   const ballotImageLocations = cvr.BallotImage?.map(
@@ -298,7 +273,11 @@ export function validateCastVoteRecord({
     }
   }
 
-  if (!cvrHasValidWriteInImageReferences(cvr)) {
+  const castVoteRecordWriteIns = getWriteInsFromCastVoteRecord(cvr);
+  if (
+    castVoteRecordWriteIns.length > 0 &&
+    !castVoteRecordWriteIns.every(isCastVoteRecordWriteInValid)
+  ) {
     return err('invalid-write-in-image-location');
   }
 
@@ -391,9 +370,9 @@ export function getAddCastVoteRecordReportErrorMessage(
             return 'The record references a ballot image which is not included in the report.';
           case 'no-current-snapshot':
             return `The record does not contain a current snapshot of the interpreted results.`;
-          case 'invalid-contest':
+          case 'contest-not-found':
             return `The record references a contest which does not exist for its ballot style.`;
-          case 'invalid-contest-option':
+          case 'contest-option-not-found':
             return `The record references a contest option which does not exist for the contest.`;
           default:
             throwIllegalValue(subErrorType);

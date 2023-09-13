@@ -32,9 +32,11 @@ import { createReadStream, createWriteStream, promises as fs, Stats } from 'fs';
 import { basename, dirname, join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
+  BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
   generateFilenameForBallotExportPackage,
   groupMapToGroupList,
+  isFeatureFlagEnabled,
   isIntegrationTest,
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
@@ -48,6 +50,7 @@ import {
   CvrFileMode,
   ElectionRecord,
   ExportDataResult,
+  ImportCastVoteRecordsError,
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
   ManualResultsRecord,
@@ -68,7 +71,7 @@ import {
   addCastVoteRecordReport,
   getAddCastVoteRecordReportErrorMessage,
   listCastVoteRecordFilesOnUsb,
-} from './cvr_files';
+} from './legacy_cast_vote_records';
 import { getMachineConfig } from './machine_config';
 import {
   getWriteInAdjudicationContext,
@@ -86,6 +89,7 @@ import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
 import { tabulateTallyReportResults } from './tabulation/tally_reports';
 import { buildExporter } from './util/exporter';
+import { importCastVoteRecords } from './cast_vote_records';
 
 const debug = rootDebug.extend('app');
 
@@ -404,9 +408,39 @@ function buildApi({
     }): Promise<
       Result<
         CvrFileImportInfo,
-        AddCastVoteRecordReportError & { message: string }
+        | (AddCastVoteRecordReportError & { message: string })
+        | ImportCastVoteRecordsError
       >
     > {
+      /* c8 ignore start */
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+        )
+      ) {
+        const userRole = assertDefined(await getUserRole());
+        const importResult = await importCastVoteRecords(store, input.path);
+        if (importResult.isErr()) {
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            disposition: 'failure',
+            errorDetails: JSON.stringify(importResult.err()),
+            errorType: importResult.err().type,
+            exportDirectoryPath: input.path,
+            result: 'Cast vote records not imported, error shown to user.',
+          });
+        } else {
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            disposition: 'success',
+            exportDirectoryPath: input.path,
+            numberOfBallotsImported: importResult.ok().newlyAdded,
+            numberOfDuplicateBallotsIgnored: importResult.ok().alreadyPresent,
+            result: 'Cast vote records imported.',
+          });
+        }
+        return importResult;
+      }
+      /* c8 ignore stop */
+
       const userRole = assertDefined(await getUserRole());
       const { path: inputPath } = input;
       // the path passed to the backend may be for the report directory or the

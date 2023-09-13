@@ -6,7 +6,7 @@ import { mockOf } from '@votingworks/test-utils';
 import {
   CastVoteRecordExportMetadata,
   CVR,
-  unsafeParse,
+  safeParseJson,
 } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';
@@ -20,7 +20,7 @@ import { ArtifactAuthenticationConfig } from './config';
 
 jest.mock('@votingworks/types', (): typeof import('@votingworks/types') => ({
   ...jest.requireActual('@votingworks/types'),
-  unsafeParse: jest.fn(),
+  safeParseJson: jest.fn(),
 }));
 
 /**
@@ -46,9 +46,7 @@ let electionPackage: {
 beforeEach(() => {
   // Avoid having to prepare a complete CVR.CastVoteRecordReport object for
   // CastVoteRecordExportMetadata
-  mockOf(unsafeParse).mockImplementation((_, value) =>
-    JSON.parse(value as string)
-  );
+  mockOf(safeParseJson).mockImplementation((value) => ok(JSON.parse(value)));
 
   tempDirectoryPath = dirSync().name;
 
@@ -209,13 +207,9 @@ test.each<{
     importingMachineConfig: vxAdminTestConfig,
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
-      const metadataFilePath = path.join(
-        castVoteRecords.artifactToImport.directoryPath,
-        'metadata.json'
-      );
-      const metadataFileContents = fs
-        .readFileSync(metadataFilePath)
-        .toString('utf-8');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      const metadataFilePath = path.join(directoryPath, 'metadata.json');
+      const metadataFileContents = fs.readFileSync(metadataFilePath, 'utf-8');
       const metadataFileContentsAltered = JSON.stringify({
         ...JSON.parse(metadataFileContents),
         castVoteRecordRootHash: expectedCastVoteRecordRootHash.replace(
@@ -224,6 +218,17 @@ test.each<{
         ),
       });
       fs.writeFileSync(metadataFilePath, metadataFileContentsAltered);
+    },
+  },
+  {
+    description: 'cast vote records, removed metadata file',
+    artifactGenerator: () => castVoteRecords,
+    exportingMachineConfig: vxScanTestConfig,
+    importingMachineConfig: vxAdminTestConfig,
+    tamperFn: () => {
+      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+      const { directoryPath } = castVoteRecords.artifactToImport;
+      fs.rmSync(path.join(directoryPath, 'metadata.json'));
     },
   },
   {
@@ -308,11 +313,11 @@ test.each<{
       // cp and cpSync are experimental so not recommended for use in production but fine for use
       // in tests
       fs.cpSync(
-        path.join(directoryPath, cvrId1),
+        path.join(directoryPath, cvrId2),
         path.join(directoryPath, cvrId3),
         { recursive: true }
       );
-      fs.rmSync(path.join(directoryPath, cvrId1), { recursive: true });
+      fs.rmSync(path.join(directoryPath, cvrId2), { recursive: true });
     },
   },
   {
@@ -352,3 +357,22 @@ test.each<{
     ).toEqual(err(expect.any(Error)));
   }
 );
+
+test('Error parsing cast vote record export metadata file', async () => {
+  mockOf(safeParseJson).mockImplementation(() => err(new Error('Whoa!')));
+
+  const signatureFile = await prepareSignatureFile(
+    castVoteRecords.artifactToExport,
+    vxScanTestConfig
+  );
+  fs.writeFileSync(
+    path.join(tempDirectoryPath, signatureFile.fileName),
+    signatureFile.fileContents
+  );
+  expect(
+    await authenticateArtifactUsingSignatureFile(
+      castVoteRecords.artifactToImport,
+      vxAdminTestConfig
+    )
+  ).toEqual(err(expect.any(Error)));
+});

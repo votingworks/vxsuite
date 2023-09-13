@@ -20,6 +20,8 @@ import {
   generateCastVoteRecordReportDirectoryName,
   parseCastVoteRecordReportDirectoryName,
   generateCastVoteRecordExportDirectoryName,
+  CastVoteRecordExportDirectoryNameComponents,
+  parseCastVoteRecordReportExportDirectoryName,
 } from './filenames';
 
 describe('parseBallotExportPackageInfoFromFilename', () => {
@@ -186,39 +188,6 @@ describe('generateCastVoteRecordReportDirectoryName', () => {
     );
   });
 });
-
-test.each<{
-  inTestMode: boolean;
-  machineId: string;
-  time: Date;
-  expectedDirectoryName: string;
-}>([
-  {
-    inTestMode: true,
-    machineId: 'SCAN-0001',
-    time: new Date(2023, 7, 16, 17, 2, 24),
-    expectedDirectoryName: 'TEST__machine_SCAN-0001__2023-08-16_17-02-24',
-  },
-  {
-    inTestMode: false,
-    machineId: 'SCAN-0001',
-    time: new Date(2023, 7, 16, 17, 2, 24),
-    expectedDirectoryName: 'machine_SCAN-0001__2023-08-16_17-02-24',
-  },
-  {
-    inTestMode: true,
-    machineId: '<3-u!n#icorn<3',
-    time: new Date(2023, 7, 16, 17, 2, 24),
-    expectedDirectoryName: 'TEST__machine_3unicorn3__2023-08-16_17-02-24',
-  },
-])(
-  'generateCastVoteRecordExportDirectoryName',
-  ({ expectedDirectoryName, ...input }) => {
-    expect(generateCastVoteRecordExportDirectoryName(input)).toEqual(
-      expectedDirectoryName
-    );
-  }
-);
 
 test('generates ballot export package names as expected with simple inputs', () => {
   const mockElection: ElectionDefinition = {
@@ -600,3 +569,110 @@ test('generateLogFilename', () => {
     )
   );
 });
+
+test.each<{
+  input: CastVoteRecordExportDirectoryNameComponents;
+  expectedDirectoryName: string;
+}>([
+  {
+    input: {
+      inTestMode: true,
+      machineId: 'SCAN-0001',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+    expectedDirectoryName: 'TEST__machine_SCAN-0001__2023-08-16_17-02-24',
+  },
+  {
+    input: {
+      inTestMode: false,
+      machineId: 'SCAN-0001',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+    expectedDirectoryName: 'machine_SCAN-0001__2023-08-16_17-02-24',
+  },
+  {
+    input: {
+      inTestMode: true,
+      machineId: '<3-u!n#icorn<3',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+    expectedDirectoryName: 'TEST__machine_3unicorn3__2023-08-16_17-02-24',
+  },
+])(
+  'generateCastVoteRecordExportDirectoryName',
+  ({ input, expectedDirectoryName }) => {
+    expect(generateCastVoteRecordExportDirectoryName(input)).toEqual(
+      expectedDirectoryName
+    );
+  }
+);
+
+test.each<{
+  directoryName: string;
+  expectedDirectoryNameComponents?: CastVoteRecordExportDirectoryNameComponents;
+}>([
+  {
+    directoryName: 'TEST__machine_SCAN-0001__2023-08-16_17-02-24',
+    expectedDirectoryNameComponents: {
+      inTestMode: true,
+      machineId: 'SCAN-0001',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+  },
+  {
+    directoryName: 'machine_SCAN-0001__2023-08-16_17-02-24',
+    expectedDirectoryNameComponents: {
+      inTestMode: false,
+      machineId: 'SCAN-0001',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+  },
+  {
+    directoryName:
+      'TEST__machine_SCAN-0001__2023-08-16_17-02-24__extra-section',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'machine_SCAN-0001__2023-08-16_17-02-24__extra-section',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'TEST__machine_SCAN-0001', // Missing time section
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'machine_SCAN-0001', // Missing time section
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'TEST__SCAN-0001__2023-08-16_17-02-24', // Missing machine_ prefix
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'SCAN-0001__2023-08-16_17-02-24', // Missing machine_ prefix
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'TEST__wrong-prefix_SCAN-0001__2023-08-16_17-02-24',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'wrong-prefix_SCAN-0001__2023-08-16_17-02-24',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'TEST__machine_SCAN-0001__invalid-time',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'machine_SCAN-0001__invalid-time',
+    expectedDirectoryNameComponents: undefined,
+  },
+])(
+  'parseCastVoteRecordReportExportDirectoryName',
+  ({ directoryName, expectedDirectoryNameComponents }) => {
+    expect(parseCastVoteRecordReportExportDirectoryName(directoryName)).toEqual(
+      expectedDirectoryNameComponents
+    );
+  }
+);
