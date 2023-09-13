@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import { Route } from 'react-router-dom';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
@@ -22,15 +21,12 @@ test('calls invalidateBallot if voter indicates their ballot is incorrect', asyn
   apiMock.expectGetInterpretation(mockInterpretation);
   apiMock.expectGetElectionDefinition(electionDefinition);
   apiMock.expectInvalidateBallot();
-  renderWithBallotContext(
-    <Route path="/validate" component={ValidateBallotPage} />,
-    {
-      route: '/validate',
-      precinctId: electionDefinition.election.precincts[0].id,
-      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-      apiMock,
-    }
-  );
+  renderWithBallotContext(<ValidateBallotPage />, {
+    route: '/validate',
+    precinctId: electionDefinition.election.precincts[0].id,
+    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+    apiMock,
+  });
 
   await screen.findByText('Review Your Votes');
   apiMock.expectGetInterpretation(mockInterpretation);
