@@ -124,6 +124,5 @@ test('`invalidating_ballot` state renders ballot invalidation page', async () =>
     ballotStyleId: electionDefinition.election.ballotStyles[0].id,
     precinctId: electionDefinition.election.precincts[0].id,
   });
-  await screen.findByText('Ballot Invalidated');
-  screen.getByText(/You have indicated your ballot needs changes./);
+  await screen.findByText('Ask a Poll Worker for Help');
 });

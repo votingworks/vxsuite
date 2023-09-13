@@ -696,7 +696,12 @@ export function AppRoot({
     ) {
       return <WrongElectionScreen />;
     }
-    if (isPollWorkerAuth(authStatus)) {
+
+    if (
+      isPollWorkerAuth(authStatus) &&
+      // Ballot invalidation requires BallotContext, handled below
+      stateMachineState !== 'invalidating_ballot'
+    ) {
       return (
         <PollWorkerScreen
           pollWorkerAuth={authStatus}
@@ -728,7 +733,12 @@ export function AppRoot({
     }
 
     if (pollsState === 'polls_open') {
-      if (isCardlessVoterAuth(authStatus)) {
+      if (
+        isCardlessVoterAuth(authStatus) ||
+        // Special case poll worker auth because both poll worker auth and BallotContext are needed to invalidate the ballot
+        (isPollWorkerAuth(authStatus) &&
+          stateMachineState === 'invalidating_ballot')
+      ) {
         let ballotContextProviderChild = <Ballot />;
 
         // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
@@ -736,9 +746,13 @@ export function AppRoot({
         // We still want to nest pages that condition on the state machine under BallotContext so we render them here.
         if (stateMachineState === 'presenting_ballot') {
           ballotContextProviderChild = <ValidateBallotPage />;
-        } else if (stateMachineState === 'invalidating_ballot') {
-          ballotContextProviderChild = <BallotInvalidatedPage />;
         }
+        if (stateMachineState === 'invalidating_ballot') {
+          ballotContextProviderChild = (
+            <BallotInvalidatedPage authStatus={authStatus} />
+          );
+        }
+
         return (
           <Gamepad onButtonDown={handleGamepadButtonDown}>
             <BallotContext.Provider

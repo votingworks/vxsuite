@@ -5,12 +5,7 @@ import {
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
-import {
-  fakeCardlessVoterUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
-  hasTextAcrossElements,
-} from '@votingworks/test-utils';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -25,6 +20,10 @@ import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
 import { ApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import {
+  fakeCardlessVoterAuth,
+  fakePollWorkerAuth,
+} from '../../test/helpers/fake_auth';
 
 const { election } = electionGeneralDefinition;
 
@@ -38,31 +37,6 @@ beforeEach(() => {
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
-
-function fakePollWorkerAuth(
-  electionDefinition: ElectionDefinition
-): InsertedSmartCardAuth.PollWorkerLoggedIn {
-  return {
-    status: 'logged_in',
-    user: fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
-  };
-}
-
-function fakeCardlessVoterAuth(
-  electionDefinition: ElectionDefinition
-): InsertedSmartCardAuth.PollWorkerLoggedIn {
-  const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
-  const precinctId = electionDefinition.election.precincts[0].id;
-
-  return {
-    ...fakePollWorkerAuth(electionDefinition),
-    cardlessVoterUser: fakeCardlessVoterUser({
-      ballotStyleId,
-      precinctId,
-    }),
-  };
-}
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
