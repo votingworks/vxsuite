@@ -6,7 +6,7 @@
     "composite": true,
     "esModuleInterop": true,
     "lib": ["dom", "esnext"],
-    "module": "commonjs",
+    "module": "node16",
     "noEmit": true,
     "skipLibCheck": true
   },

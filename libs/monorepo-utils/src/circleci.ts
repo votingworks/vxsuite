@@ -14,15 +14,24 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
     return;
   }
 
-  const hasCypressTests = existsSync(`${pkg.path}/cypress`);
+  const hasPlaywrightTests = existsSync(`${pkg.path}/playwright.config.ts`);
+  const isIntegrationTestJob = hasPlaywrightTests;
   const lines = [
     `# ${pkg.name}`,
     `${jobIdForPackage(pkg)}:`,
-    `  executor: ${hasCypressTests ? 'nodejs-browsers' : 'nodejs'}`,
+    `  executor: ${isIntegrationTestJob ? 'nodejs-browsers' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    ...(hasCypressTests ? [`    - install-cypress-browser`] : []),
     `    - checkout-and-install`,
+    ...(hasPlaywrightTests
+      ? [
+          `    - run:`,
+          `        name: Install Browser`,
+          `        command: |`,
+          `          pnpm --dir ${pkg.relativePath} exec playwright install-deps`,
+          `          pnpm --dir ${pkg.relativePath} exec playwright install chromium`,
+        ]
+      : []),
     `    - run:`,
     `        name: Build`,
     `        command: |`,
@@ -41,12 +50,10 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
     `        path: ${pkg.relativePath}/reports/`,
   ];
 
-  if (hasCypressTests) {
+  if (hasPlaywrightTests) {
     lines.push(
       `    - store_artifacts:`,
-      `        path: ${pkg.relativePath}/cypress/screenshots/`,
-      `    - store_artifacts:`,
-      `        path: ${pkg.relativePath}/cypress/videos/`
+      `        path: ${pkg.relativePath}/test-results/`
     );
   }
 
@@ -178,16 +185,7 @@ commands:
             "pnpm-lock.yaml" }}
           paths:
             - /root/.local/share/pnpm/store/v3
-            - /root/.cache/Cypress
+            - /root/.cache/ms-playwright
             - /root/.cargo
-  install-cypress-browser:
-    description: Installs a browser for Cypress tests.
-    steps:
-      - run: sudo apt update
-      - browser-tools/install-chrome:
-          # TODO remove following line when fixed https://github.com/CircleCI-Public/browser-tools-orb/issues/90
-          chrome-version: 116.0.5845.96
-      - browser-tools/install-chromedriver
-
 `.trim();
 }

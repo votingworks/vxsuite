@@ -13,7 +13,7 @@ declare module 'styled-components' {
    *
    * See https://styled-components.com/docs/api#create-a-declarations-file
    */
-  export interface DefaultTheme extends UiTheme {} // eslint-disable-line @typescript-eslint/no-empty-interface
+  export interface DefaultTheme extends UiTheme {}
 }
 
 /**

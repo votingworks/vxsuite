@@ -3,7 +3,7 @@
   "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "node16",
     "lib": ["dom", "esnext"],
     "jsx": "react-jsx",
     "composite": true,

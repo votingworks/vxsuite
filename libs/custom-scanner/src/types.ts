@@ -332,21 +332,35 @@ export enum ErrorCode {
 }
 
 /**
- * Defines for Custom sensors. Bitmask for scanner answer
+ * Document sensor status.
  */
-export enum CustomSensorsBitmask {
-  ENCODER_ERROR = 0x01,
-  DOUBLE_SHEET = 0x02,
-  INTERNAL_LEFT = 0x04,
-  INTERNAL_RIGHT = 0x08,
-  INPUT_LEFT_LEFT = 0x10,
-  INPUT_CENTER_LEFT = 0x20,
-  INPUT_CENTER_RIGHT = 0x40,
-  INPUT_RIGHT_RIGHT = 0x80,
+export enum DocumentSensorStatus {
+  ENCODER_ERROR = 0b00000001,
+  DOUBLE_SHEET = 0b00000010,
+  DESKEW_LEFT = 0b00000100,
+  DESKEW_RIGHT = 0b00001000,
+  INPUT_LEFT_LEFT = 0b00010000,
+  INPUT_CENTER_LEFT = 0b00100000,
+  INPUT_CENTER_RIGHT = 0b01000000,
+  INPUT_RIGHT_RIGHT = 0b10000000,
+}
+
+/**
+ * Home sensor status.
+ */
+export enum HomeSensorStatus {
   OUTPUT_LEFT_LEFT = 0x01,
   OUTPUT_CENTER_LEFT = 0x02,
   OUTPUT_CENTER_RIGHT = 0x04,
   OUTPUT_RIGHT_RIGHT = 0x08,
+}
+
+/**
+ * Defines for Custom sensors. Bitmask for scanner answer
+ */
+export enum CustomSensorsBitmask {
+  INTERNAL_LEFT = 0x04,
+  INTERNAL_RIGHT = 0x08,
 }
 
 /**

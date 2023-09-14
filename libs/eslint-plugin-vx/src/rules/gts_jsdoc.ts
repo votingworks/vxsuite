@@ -5,6 +5,8 @@ import {
   TSESTree,
 } from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
+/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
+// @ts-ignore -- comment-parser v1.4.0 does not have "types" properties in its "exports" map values
 import { parse } from 'comment-parser';
 import { createRule } from '../util';
 
@@ -29,8 +31,7 @@ const rule: TSESLint.RuleModule<
   meta: {
     docs: {
       description: 'Enforces GTS JSDoc rules.',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'stylistic',
       requiresTypeChecking: false,
     },
     fixable: 'code',

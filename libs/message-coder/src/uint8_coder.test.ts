@@ -68,6 +68,7 @@ test('uint8 with enumeration', () => {
   expect(field.bitLength(Enum.A)).toEqual(ok(8));
   expect(field.encode(Enum.A)).toEqual(ok(Buffer.from([1])));
   expect(field.decode(Buffer.from([1]))).toEqual(ok(Enum.A));
+  // @ts-expect-error - 99 is not a valid enum value
   expect(field.encode(99)).toEqual(err('InvalidValue'));
   expect(field.decode(Buffer.from([99]))).toEqual(err('InvalidValue'));
 });

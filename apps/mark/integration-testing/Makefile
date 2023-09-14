@@ -2,9 +2,6 @@ APP := ..
 export PIPENV_VENV_IN_PROJECT=1
 export MARK_WORKSPACE=/tmp/mark-integration-testing
 
-clean-downloads:
-	rm cypress/downloads/*
-
 build-frontend:
 	make -C $(APP)/frontend install; \
 	make -C $(APP)/frontend build; \

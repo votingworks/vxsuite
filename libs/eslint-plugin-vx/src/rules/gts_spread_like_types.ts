@@ -51,8 +51,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Requires spreading iterables in arrays and objects in objects',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'strict',
       requiresTypeChecking: true,
     },
     messages: {

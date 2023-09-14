@@ -2,7 +2,6 @@ import { Election, Tabulation, writeInCandidate } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { Readable } from 'stream';
 import { getBallotCount, groupMapToGroupList } from '@votingworks/utils';
-// eslint-disable-next-line import/no-unresolved
 import { stringify } from 'csv-stringify/sync';
 import { ScannerBatch } from '../types';
 

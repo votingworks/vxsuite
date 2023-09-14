@@ -17,8 +17,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Requires type annotations instead of type assertions on object literals',
-      recommended: 'error',
-      suggestion: true,
+      recommended: 'strict',
       requiresTypeChecking: false,
     },
     messages: {

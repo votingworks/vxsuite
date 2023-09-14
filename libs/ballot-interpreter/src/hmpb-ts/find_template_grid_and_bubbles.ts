@@ -1,6 +1,5 @@
 import { Result, err, ok } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
-// eslint-disable-next-line import/no-unresolved -- `./rust_addon` is a native module
 import { findTemplateGridAndBubbles as findTemplateGridAndBubblesImpl } from './rust_addon';
 import {
   BallotPageTimingMarkMetadata,

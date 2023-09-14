@@ -3,7 +3,7 @@
   "include": ["src", "test", "examples"],
   "exclude": [],
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "node16",
     "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
     "noEmit": true,

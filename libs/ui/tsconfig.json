@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "node16",
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "react-jsx",
     "composite": true,

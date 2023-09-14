@@ -9,8 +9,7 @@ const rule: TSESLint.RuleModule<'directAccessOnly', readonly unknown[]> =
       docs: {
         description:
           'Directly access module import properties rather than passing it around.',
-        recommended: 'error',
-        suggestion: false,
+        recommended: 'stylistic',
         requiresTypeChecking: false,
       },
       messages: {

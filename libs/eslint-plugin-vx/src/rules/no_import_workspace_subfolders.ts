@@ -11,8 +11,7 @@ const rule: TSESLint.RuleModule<'noImportSubfolders', readonly unknown[]> =
       docs: {
         description:
           'When importing libraries from the VotingWorks workspace, do not include subfolders like /src in the import',
-        recommended: 'error',
-        suggestion: false,
+        recommended: 'strict',
         requiresTypeChecking: false,
       },
       fixable: 'code',

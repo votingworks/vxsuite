@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import { stringify } from 'csv-stringify/sync';
 import {
   writeInCandidate,
