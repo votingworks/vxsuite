@@ -30,7 +30,7 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
           `    - run:`,
           `        name: Install Browser`,
           `        command: |`,
-          `          pnpm --dir ${pkg.relativePath} playwright install chromium`,
+          `          pnpm --dir ${pkg.relativePath} exec playwright install chromium`,
         ]
       : []),
     `    - run:`,

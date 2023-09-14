@@ -344,7 +344,7 @@ jobs:
       - run:
           name: Install Browser
           command: |
-            pnpm --dir apps/mark/integration-testing playwright install chromium
+            pnpm --dir apps/mark/integration-testing exec playwright install chromium
       - run:
           name: Build
           command: |
