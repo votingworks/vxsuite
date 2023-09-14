@@ -30,6 +30,7 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
           `    - run:`,
           `        name: Install Browser`,
           `        command: |`,
+          `          pnpm --dir ${pkg.relativePath} exec playwright install-deps`,
           `          pnpm --dir ${pkg.relativePath} exec playwright install chromium`,
         ]
       : []),
@@ -196,6 +197,7 @@ commands:
           paths:
             - /root/.local/share/pnpm/store/v3
             - /root/.cache/Cypress
+            - /root/.cache/ms-playwright
             - /root/.cargo
   install-cypress-browser:
     description: Installs a browser for Cypress tests.
