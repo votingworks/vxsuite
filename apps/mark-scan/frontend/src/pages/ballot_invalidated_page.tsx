@@ -23,13 +23,12 @@ export function BallotInvalidatedPage({
 
   const confirmInvalidateBallotMutation = confirmInvalidateBallot.useMutation();
 
-  function onPressContinue() {
-    confirmInvalidateBallotMutation.mutate(undefined, {
-      async onSuccess() {
-        await endVoterSession();
-        resetBallot();
-      },
-    });
+  async function onPressContinue() {
+    // Reset session and ballot before changing the state machine state. If done
+    // in the reverse order the screen will flicker
+    await endVoterSession();
+    resetBallot();
+    confirmInvalidateBallotMutation.mutate(undefined);
   }
 
   let mainContents = (
