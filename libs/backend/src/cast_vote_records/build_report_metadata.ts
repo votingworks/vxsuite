@@ -152,6 +152,7 @@ interface BuildCastVoteRecordReportMetadataParams {
   reportTypes: CVR.ReportType[];
   isTestMode: boolean;
   batchInfo: BatchInfo[];
+  generatedDate?: Date;
 }
 
 /**
@@ -167,6 +168,7 @@ export function buildCastVoteRecordReportMetadata({
   reportTypes,
   isTestMode,
   batchInfo,
+  generatedDate = new Date(),
 }: BuildCastVoteRecordReportMetadataParams): CastVoteRecordReportMetadata {
   // TODO: pull from ballot definition once it exists. For now, the scope
   // is just the current state
@@ -179,7 +181,7 @@ export function buildCastVoteRecordReportMetadata({
       ? [...reportTypes, CVR.ReportType.Other]
       : reportTypes,
     OtherReportType: isTestMode ? TEST_OTHER_REPORT_TYPE : undefined,
-    GeneratedDate: new Date().toISOString(),
+    GeneratedDate: generatedDate.toISOString(),
     // VVSG 2.0 1.1.5-G.1 requires identification of the creating device
     ReportGeneratingDeviceIds: [generatingDeviceId],
     ReportingDevice: buildReportingDevices(generatingDeviceId, scannerIds),

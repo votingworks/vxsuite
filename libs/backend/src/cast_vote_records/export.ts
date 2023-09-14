@@ -163,7 +163,8 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
 }
 
 function buildCastVoteRecordReportMetadata(
-  exportContext: ExportContext
+  exportContext: ExportContext,
+  options: { hideTime?: boolean } = {}
 ): CVR.CastVoteRecordReport {
   const { scannerState } = exportContext;
   const { batches, electionDefinition, inTestMode } = scannerState;
@@ -174,6 +175,7 @@ function buildCastVoteRecordReportMetadata(
     batchInfo: batches,
     election,
     electionId,
+    generatedDate: options.hideTime ? new Date(election.date) : undefined,
     generatingDeviceId: scannerId,
     isTestMode: inTestMode,
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
@@ -276,8 +278,10 @@ async function exportCastVoteRecordFilesToUsbDrive(
   }
   const canonicalizedSheet = canonicalizeSheetResult.ok();
 
-  const castVoteRecordReportMetadata =
-    buildCastVoteRecordReportMetadata(exportContext);
+  const castVoteRecordReportMetadata = buildCastVoteRecordReportMetadata(
+    exportContext,
+    { hideTime: true } // For voter privacy
+  );
   const castVoteRecord = buildCastVoteRecord(
     exportContext,
     resultSheet,
