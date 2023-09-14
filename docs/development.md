@@ -228,13 +228,14 @@ help you contribute.
    > **NOTE:** You can probably run `python -m SimpleHTTPServer` to serve the
    > files, then view them at http://localhost:8080/.
 
-1. Run integration tests. You will need to make sure to have cypress
-   dependencies installed see: https://on.cypress.io/required-dependencies. You
-   will also need to have chrome installed. While the server is running in
-   another terminal window run:
+1. Run integration tests. You will need to make sure to have Playwright
+   dependencies installed (see: https://playwright.dev/docs/intro). You will
+   also need to have chrome installed. While the server is running in another
+   terminal window run:
 
    ```
-   pnpm cypress:run
+   cd path/to/integration-tests
+   pnpm test:watch
    ```
 
 1. Push your branch to your fork on GitHub.

@@ -114,7 +114,6 @@ export = {
           'test/**/*',
           'src/setupTests.ts',
           'src/setupTests.tsx',
-          'cypress/**/*',
           '**/*.stories.ts',
           '**/*.stories.tsx',
           '**/*.bench.ts',
@@ -162,7 +161,7 @@ export = {
   },
   overrides: [
     {
-      files: ['**/*.test.ts', '**/*.test.tsx', 'cypress/**/*.ts'],
+      files: ['**/*.test.ts', '**/*.test.tsx'],
       rules: {
         '@typescript-eslint/no-non-null-assertion': 'off',
         'no-loop-func': 'off',

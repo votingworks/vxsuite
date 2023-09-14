@@ -148,7 +148,7 @@ function buildApi({
     },
 
     /* c8 ignore start */
-    // This is only used in Cypress tests.
+    // This is only used in Playwright tests.
     async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
       const { electionGridLayoutNewHampshireAmherstFixtures } = await import(
         '@votingworks/fixtures'

@@ -1,8 +1,5 @@
 /build
 /coverage
-/cypress/plugins
-/cypress/integration/examples
-/cypress/support
 /prodserver
 /src/**/*.js
 /config
