@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+import fs from 'fs/promises';
 import path from 'path';
 import {
   computeSingleCastVoteRecordHash,
@@ -104,6 +105,7 @@ interface ExportContext {
   exportOptions: ExportOptions;
   scannerState: ScannerStateUnchangedByExport;
   scannerStore: ScannerStore;
+  usbMountPoint: string;
 }
 
 //
@@ -423,6 +425,76 @@ async function exportSignatureFileToUsbDrive(
   return ok();
 }
 
+/**
+ * Updates the creation timestamp of a directory and its children files (assuming no
+ * sub-directories) using the one method guaranteed to work:
+ * ```
+ * cp -r <directory-path> <directory-path>-temp
+ * rm <directory-path>
+ * mv <directory-path>-temp <directory-path>
+ * ```
+ */
+async function updateCreationTimestampOfDirectoryAndChildrenFiles(
+  directoryPath: string
+): Promise<void> {
+  const tempDirectoryPath = `${directoryPath}-temp`;
+  await fs.mkdir(tempDirectoryPath);
+  const fileNames = (await fs.readdir(directoryPath, { withFileTypes: true }))
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name);
+  for (const fileName of fileNames) {
+    await fs.copyFile(
+      path.join(directoryPath, fileName),
+      path.join(tempDirectoryPath, fileName)
+    );
+  }
+  await fs.rm(directoryPath, { recursive: true });
+  await fs.rename(tempDirectoryPath, directoryPath);
+}
+
+/**
+ * File creation timestamps could reveal the order in which ballots were cast. To maintain
+ * voter privacy, every time a ballot is cast, we randomly select 1 or 2 existing cast vote records
+ * and update their creation timestamps to the present. This approach is equivalent to taking
+ * random ballots from a stack and placing them on top every time a new ballot is added to the
+ * stack, a kind of shuffling as we go.
+ *
+ * This shuffling as we go is irrelevant for full exports, where we already iterate over cast vote
+ * records in an order independent of creation timestamp.
+ */
+async function maintainVoterPrivacy(
+  exportContext: ExportContext
+): Promise<void> {
+  const { usbMountPoint } = exportContext;
+
+  const exportDirectoryPath = path.join(
+    usbMountPoint,
+    getExportDirectoryPathRelativeToUsbMountPoint(exportContext)
+  );
+  const castVoteRecordIds = (
+    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
+  )
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+
+  if (castVoteRecordIds.length < 2) {
+    return;
+  }
+
+  const oneOrTwo = Math.random() < 0.5 ? 1 : 2;
+  for (let i = 0; i < oneOrTwo; i += 1) {
+    const randomCastVoteRecordDirectoryPath = path.join(
+      exportDirectoryPath,
+      assertDefined(
+        castVoteRecordIds[Math.floor(Math.random() * castVoteRecordIds.length)]
+      )
+    );
+    await updateCreationTimestampOfDirectoryAndChildrenFiles(
+      randomCastVoteRecordDirectoryPath
+    );
+  }
+}
+
 //
 // Exported functions
 //
@@ -437,6 +509,17 @@ export async function exportCastVoteRecordsToUsbDrive(
   resultSheets: ResultSheet[] | Generator<ResultSheet>,
   exportOptions: ExportOptions
 ): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+  let usbMountPoint: string | undefined;
+  if ('getUsbDrives' in usbDrive) {
+    usbMountPoint = (await usbDrive.getUsbDrives())[0]?.mountPoint;
+  } else {
+    const usbDriveStatus = await usbDrive.status();
+    usbMountPoint =
+      usbDriveStatus.status === 'mounted'
+        ? usbDriveStatus.mountPoint
+        : undefined;
+  }
+  assert(usbMountPoint !== undefined);
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
@@ -457,6 +540,7 @@ export async function exportCastVoteRecordsToUsbDrive(
       pollsState: scannerStore.getPollsState?.(),
     },
     scannerStore,
+    usbMountPoint,
   };
 
   // Before a full export, clear cast vote record hashes so that they can be recomputed from
@@ -495,6 +579,10 @@ export async function exportCastVoteRecordsToUsbDrive(
   }
   const updatedCastVoteRecordRootHash =
     scannerStore.getCastVoteRecordRootHash();
+
+  if (exportOptions.scannerType === 'precinct' && !exportOptions.isFullExport) {
+    await maintainVoterPrivacy(exportContext);
+  }
 
   const exportMetadataFileResult = await exportMetadataFileToUsbDrive(
     exportContext,
