@@ -143,8 +143,8 @@ jobs:
       - store_test_results:
           path: apps/central-scan/frontend/reports/
 
-  # @votingworks/mark-integration-testing
-  test-apps-mark-integration-testing:
+  # @votingworks/central-scan-integration-testing
+  test-apps-central-scan-integration-testing:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
@@ -152,26 +152,26 @@ jobs:
       - run:
           name: Install Browser
           command: |
-            pnpm --dir apps/mark/integration-testing exec playwright install-deps
-            pnpm --dir apps/mark/integration-testing exec playwright install chromium
+            pnpm --dir apps/central-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/central-scan/integration-testing exec playwright install chromium
       - run:
           name: Build
           command: |
-            pnpm --dir apps/mark/integration-testing build
+            pnpm --dir apps/central-scan/integration-testing build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/mark/integration-testing lint
+            pnpm --dir apps/central-scan/integration-testing lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/mark/integration-testing test
+            pnpm --dir apps/central-scan/integration-testing test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/mark/integration-testing/reports/
+          path: apps/central-scan/integration-testing/reports/
       - store_artifacts:
-          path: apps/mark/integration-testing/test-results/
+          path: apps/central-scan/integration-testing/test-results/
 
   # @votingworks/design-backend
   test-apps-design-backend:
@@ -340,6 +340,36 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/mark/frontend/reports/
+
+  # @votingworks/mark-integration-testing
+  test-apps-mark-integration-testing:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/mark/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/integration-testing/reports/
+      - store_artifacts:
+          path: apps/mark/integration-testing/test-results/
 
   # @votingworks/scan-backend
   test-apps-scan-backend:
@@ -1139,7 +1169,7 @@ workflows:
       - test-apps-admin-integration-testing
       - test-apps-central-scan-backend
       - test-apps-central-scan-frontend
-      - test-apps-mark-integration-testing
+      - test-apps-central-scan-integration-testing
       - test-apps-design-backend
       - test-apps-design-frontend
       - test-apps-mark-scan-backend
@@ -1147,6 +1177,7 @@ workflows:
       - test-apps-mark-scan-integration-testing
       - test-apps-mark-backend
       - test-apps-mark-frontend
+      - test-apps-mark-integration-testing
       - test-apps-scan-backend
       - test-apps-scan-frontend
       - test-libs-api
