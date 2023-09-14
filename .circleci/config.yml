@@ -340,8 +340,11 @@ jobs:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - install-cypress-browser
       - checkout-and-install
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/mark/integration-testing playwright install chromium
       - run:
           name: Build
           command: |

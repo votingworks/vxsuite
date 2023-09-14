@@ -23,8 +23,16 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
     `  executor: ${isIntegrationTestJob ? 'nodejs-browsers' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
-    ...(isIntegrationTestJob ? [`    - install-cypress-browser`] : []),
+    ...(hasCypressTests ? [`    - install-cypress-browser`] : []),
     `    - checkout-and-install`,
+    ...(hasPlaywrightTests
+      ? [
+          `    - run:`,
+          `        name: Install Browser`,
+          `        command: |`,
+          `          pnpm --dir ${pkg.relativePath} playwright install chromium`,
+        ]
+      : []),
     `    - run:`,
     `        name: Build`,
     `        command: |`,
