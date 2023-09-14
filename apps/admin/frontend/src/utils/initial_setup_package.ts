@@ -7,6 +7,7 @@ import {
   readTextEntry,
   getFileByName,
 } from '@votingworks/utils';
+import { BallotPackageFileName } from '@votingworks/types';
 
 // InitialAdminSetupPackage models the zip file read in by VxAdmin when a system admin configures the machine.
 // It's the delivery method for the system settings file.
@@ -24,11 +25,16 @@ async function readInitialAdminSetupPackageFromBuffer(
   const zipfile = await openZip(source);
   const entries = getEntries(zipfile);
 
-  const electionEntry = getFileByName(entries, 'election.json');
+  const electionEntry = getFileByName(entries, BallotPackageFileName.ELECTION);
   const electionString = await readTextEntry(electionEntry);
 
-  const systemSettingsEntry = getFileByName(entries, 'systemSettings.json');
+  const systemSettingsEntry = getFileByName(
+    entries,
+    BallotPackageFileName.SYSTEM_SETTINGS
+  );
   const systemSettingsString = await readTextEntry(systemSettingsEntry);
+
+  // TODO(kofi): Import translation/audio files as well.
 
   return {
     electionString,

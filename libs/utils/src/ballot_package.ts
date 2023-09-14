@@ -1,5 +1,6 @@
 import {
   BallotPackage,
+  BallotPackageFileName,
   DEFAULT_SYSTEM_SETTINGS,
   safeParseElectionDefinition,
   safeParseSystemSettings,
@@ -21,19 +22,25 @@ export async function readBallotPackageFromBuffer(
   const zipfile = await openZip(source);
   const zipName = 'ballot package';
   const entries = getEntries(zipfile);
-  const electionEntry = getFileByName(entries, 'election.json', zipName);
+  const electionEntry = getFileByName(
+    entries,
+    BallotPackageFileName.ELECTION,
+    zipName
+  );
 
   let systemSettingsData = JSON.stringify(DEFAULT_SYSTEM_SETTINGS);
 
   const systemSettingsEntry = maybeGetFileByName(
     entries,
-    'systemSettings.json'
+    BallotPackageFileName.SYSTEM_SETTINGS
   );
   if (systemSettingsEntry) {
     systemSettingsData = await readTextEntry(systemSettingsEntry);
   }
 
   const electionData = await readTextEntry(electionEntry);
+
+  // TODO(kofi): Load metadata, translations, audio from zip file.
 
   return {
     electionDefinition:

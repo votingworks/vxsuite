@@ -9,6 +9,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   BallotType,
+  BallotPackageFileName,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, groupBy, ok, Result } from '@votingworks/basics';
@@ -235,9 +236,9 @@ function buildApi({ store }: { store: Store }) {
       }).unsafeUnwrap();
 
       const zip = new JsZip();
-      zip.file('election.json', electionDefinition.electionData);
+      zip.file(BallotPackageFileName.ELECTION, electionDefinition.electionData);
       zip.file(
-        'systemSettings.json',
+        BallotPackageFileName.SYSTEM_SETTINGS,
         JSON.stringify(DEFAULT_SYSTEM_SETTINGS, null, 2)
       );
 
