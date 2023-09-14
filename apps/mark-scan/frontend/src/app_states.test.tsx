@@ -94,7 +94,7 @@ test('`resetting_state_machine_after_jam` state renders jam cleared page', async
   screen.getByText(/The hardware has been reset/);
 });
 
-test('`invalidating_ballot` state renders ballot invalidation page', async () => {
+test('`invalidating_ballot` state renders ballot invalidation page with cardless voter auth', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await setElectionInStorage(storage);
@@ -125,4 +125,39 @@ test('`invalidating_ballot` state renders ballot invalidation page', async () =>
     precinctId: electionDefinition.election.precincts[0].id,
   });
   await screen.findByText('Ask a Poll Worker for Help');
+});
+
+test('`invalidating_ballot` state renders ballot invalidation page with poll worker auth', async () => {
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  // Open Polls
+  // Once state is moved to the backend this can be mocked more concisely
+  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
+  userEvent.click(screen.getByText('Open Polls'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+  );
+  await screen.findByText(hasTextAcrossElements('Polls: Open'));
+
+  apiMock.setPaperHandlerState('invalidating_ballot');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: {
+      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+      precinctId: electionDefinition.election.precincts[0].id,
+    },
+  });
+  await screen.findByText('Remove Ballot');
 });
