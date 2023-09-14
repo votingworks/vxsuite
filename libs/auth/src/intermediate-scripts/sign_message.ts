@@ -4,7 +4,7 @@ import { extractErrorMessage } from '@votingworks/basics';
 import {
   parseSignMessageInputExcludingMessage,
   signMessageHelper,
-} from '../openssl';
+} from '../cryptography';
 
 /**
  * An intermediate component of signMessage in src/openssl.ts, needed for permissions purposes. See

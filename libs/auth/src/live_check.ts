@@ -3,8 +3,8 @@ import { Readable } from 'stream';
 import { assert } from '@votingworks/basics';
 
 import { constructLiveCheckConfig, LiveCheckConfig } from './config';
+import { signMessage } from './cryptography';
 import { FileKey, TpmKey } from './keys';
-import { signMessage } from './openssl';
 import { constructPrefixedMessage } from './signatures';
 
 const LIVE_CHECK_MESSAGE_PAYLOAD_SEPARATOR = '/';

@@ -15,14 +15,14 @@ import {
   MachineType,
   STANDARD_CERT_FIELDS,
 } from '../src/certs';
-import { DEV_JURISDICTION } from '../src/jurisdictions';
 import {
   certPemToDer,
   createCert,
   openssl,
   OPENSSL_CONFIG_FILE_PATH,
   publicKeyPemToDer,
-} from '../src/openssl';
+} from '../src/cryptography';
+import { DEV_JURISDICTION } from '../src/jurisdictions';
 import { runCommand } from '../src/shell';
 
 async function generateDevPrivateKey(): Promise<Buffer> {

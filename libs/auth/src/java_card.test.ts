@@ -31,6 +31,13 @@ import { CardReader } from './card_reader';
 import { CardType } from './certs';
 import { JavaCardConfig } from './config';
 import {
+  certDerToPem,
+  createCert,
+  openssl,
+  PUBLIC_KEY_IN_DER_FORMAT_HEADER,
+  publicKeyDerToPem,
+} from './cryptography';
+import {
   CARD_VX_ADMIN_CERT,
   CARD_VX_CERT,
   DEFAULT_PIN,
@@ -43,13 +50,6 @@ import {
   VX_ADMIN_CERT_AUTHORITY_CERT,
 } from './java_card';
 import {
-  certDerToPem,
-  createCert,
-  openssl,
-  PUBLIC_KEY_IN_DER_FORMAT_HEADER,
-  publicKeyDerToPem,
-} from './openssl';
-import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
   GENERAL_AUTHENTICATE,
@@ -61,11 +61,11 @@ import {
 } from './piv';
 
 jest.mock('./card_reader');
-jest.mock('./openssl', (): typeof import('./openssl') => ({
-  // We use real openssl commands in these tests to ensure end-to-end correctness, the one
-  // exception being openssl commands for cert creation since two cert creation commands with the
-  // exact same inputs won't necessarily generate the same outputs, making assertions difficult
-  ...jest.requireActual('./openssl'),
+jest.mock('./cryptography', (): typeof import('./cryptography') => ({
+  // We use real cryptographic commands in these tests to ensure end-to-end correctness, the one
+  // exception being commands for cert creation since two cert creation commands with the exact
+  // same inputs won't necessarily generate the same outputs, making assertions difficult
+  ...jest.requireActual('./cryptography'),
   createCert: jest.fn(),
 }));
 

@@ -14,7 +14,7 @@ import {
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
-} from './openssl';
+} from './cryptography';
 
 /**
  * Whereas openssl.test.ts focuses on code coverage, openssl.end_to_end.test.ts uses no mocks and

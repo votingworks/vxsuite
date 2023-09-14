@@ -16,7 +16,7 @@ import {
   TpmKeySchema,
 } from './keys';
 import { runCommand } from './shell';
-import { OPENSSL_TPM_ENGINE_NAME, TPM_KEY_ID, TPM_KEY_PASSWORD } from './tpm';
+import { tpmOpensslParams } from './tpm';
 
 /**
  * The path to the OpenSSL config file
@@ -220,16 +220,7 @@ export async function createCertSigningRequest({
         return ['-key', Buffer.from(certKey.content, 'utf-8')];
       }
       case 'tpm': {
-        return [
-          '-key',
-          TPM_KEY_ID,
-          '-keyform',
-          'engine',
-          '-engine',
-          OPENSSL_TPM_ENGINE_NAME,
-          '-passin',
-          `pass:${TPM_KEY_PASSWORD}`,
-        ];
+        return tpmOpensslParams('-key');
       }
       /* istanbul ignore next: Compile-time check for completeness */
       default: {
@@ -275,16 +266,7 @@ export async function createCertGivenCertSigningRequest({
         return ['-CAkey', signingPrivateKey.path];
       }
       case 'tpm': {
-        return [
-          '-CAkey',
-          TPM_KEY_ID,
-          '-CAkeyform',
-          'engine',
-          '-engine',
-          OPENSSL_TPM_ENGINE_NAME,
-          '-passin',
-          `pass:${TPM_KEY_PASSWORD}`,
-        ];
+        return tpmOpensslParams('-CAkey');
       }
       /* istanbul ignore next: Compile-time check for completeness */
       default: {
@@ -474,16 +456,7 @@ export async function signMessageHelper({
         return ['-sign', signingPrivateKey.path];
       }
       case 'tpm': {
-        return [
-          '-sign',
-          TPM_KEY_ID,
-          '-keyform',
-          'engine',
-          '-engine',
-          OPENSSL_TPM_ENGINE_NAME,
-          '-passin',
-          `pass:${TPM_KEY_PASSWORD}`,
-        ];
+        return tpmOpensslParams('-sign');
       }
       /* istanbul ignore next: Compile-time check for completeness */
       default: {

@@ -2,8 +2,8 @@ import { Buffer } from 'buffer';
 import { extractErrorMessage } from '@votingworks/basics';
 
 import { constructMachineCertSubject } from '../src/certs';
+import { createCertSigningRequest } from '../src/cryptography';
 import { getRequiredEnvVar } from '../src/env_vars';
-import { createCertSigningRequest } from '../src/openssl';
 
 const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
 const jurisdiction =
