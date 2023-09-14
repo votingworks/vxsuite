@@ -30,12 +30,13 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "concurrently": "^7.6.0",
-    "sort-package-json": "^1.50.0"
+    "concurrently": "^7.6.0"
   },
   "devDependencies": {
     "@types/node": "16.18.23",
-    "eslint-plugin-vx": "workspace:*"
+    "eslint-plugin-vx": "workspace:*",
+    "lint-staged": "^11.0.0",
+    "sort-package-json": "^1.50.0"
   },
   "packageManager": "pnpm@8.1.0"
 }
