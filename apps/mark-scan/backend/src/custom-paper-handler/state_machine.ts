@@ -442,7 +442,8 @@ export function buildMachine(
       invalidating_ballot: {
         on: {
           CONFIRM_INVALIDATE_BALLOT: 'eject_to_front',
-          NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+          // Even if ballot is removed from front, we still want the frontend to require pollworker auth before continuing
+          NO_PAPER_ANYWHERE: undefined,
         },
       },
       // Eject-to-rear jam handling is a little clunky. It
