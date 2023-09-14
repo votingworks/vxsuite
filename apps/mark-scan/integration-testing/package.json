@@ -2,19 +2,16 @@
   "name": "@votingworks/mark-scan-integration-testing",
   "version": "0.1.0",
   "private": true,
+  "license": "GPL-3.0",
+  "author": "VotingWorks Engineering <eng@voting.works>",
   "scripts": {
     "build": "pnpm install && make build",
-    "cypress:open": "DISPLAY=:0 cypress open --e2e --browser chromium",
-    "cypress:run": "is-ci cypress:run:ci cypress:run:local",
-    "cypress:run:ci": "cypress run --browser chrome --reporter junit",
-    "cypress:run:local": "cypress run --browser chromium --reporter junit",
-    "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "(cd ../frontend && tsc --build) && eslint .",
-    "lint:fix": "pnpm lint --fix",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "pre-commit": "lint-staged",
-    "start": "make run",
-    "test": "start-server-and-test start http://localhost:3000 cypress:run",
-    "test:watch": "start-server-and-test start http://localhost:3000 cypress:open"
+    "test": "playwright test",
+    "test:watch": "playwright test --ui"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
@@ -27,34 +24,17 @@
       "sort-package-json"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "dependencies": {
-    "@testing-library/cypress": "^8.0.3",
+    "@playwright/test": "^1.37.1",
     "@votingworks/auth": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
-    "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "cypress": "^13.2.0",
-    "start-server-and-test": "^1.12.5"
+    "concurrently": "^7.6.0"
   },
   "devDependencies": {
     "@types/node": "16.18.23",
-    "concurrently": "^7.6.0",
-    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-vx": "workspace:*",
-    "is-ci-cli": "^2.1.2",
     "lint-staged": "^11.0.0",
     "sort-package-json": "^1.50.0"
   },

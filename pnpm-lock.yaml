@@ -1915,9 +1915,9 @@ importers:
 
   apps/mark-scan/integration-testing:
     dependencies:
-      '@testing-library/cypress':
-        specifier: ^8.0.3
-        version: 8.0.3(cypress@13.2.0)
+      '@playwright/test':
+        specifier: ^1.37.1
+        version: 1.37.1
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
@@ -1927,34 +1927,19 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
-      '@votingworks/test-utils':
-        specifier: workspace:*
-        version: link:../../../libs/test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
-      cypress:
-        specifier: ^13.2.0
-        version: 13.2.0
-      start-server-and-test:
-        specifier: ^1.12.5
-        version: 1.14.0
+      concurrently:
+        specifier: ^7.6.0
+        version: 7.6.0
     devDependencies:
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
-      concurrently:
-        specifier: ^7.6.0
-        version: 7.6.0
-      eslint-plugin-cypress:
-        specifier: ^2.12.1
-        version: 2.12.1(eslint@8.49.0)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      is-ci-cli:
-        specifier: ^2.1.2
-        version: 2.2.0
       lint-staged:
         specifier: ^11.0.0
         version: 11.0.0
