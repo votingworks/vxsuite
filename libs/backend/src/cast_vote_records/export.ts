@@ -441,8 +441,8 @@ async function exportSignatureFileToUsbDrive(
  * mv <directory-path>-temp <directory-path>
  * ```
  *
- * Note that the implementation doesn't use fs.cp(src, dest, { recursive: true }) because fs.cp is
- * still experimental.
+ * Doesn't use fs.cp(src, dest, { recursive: true }) under the hood because fs.cp is still
+ * experimental.
  */
 export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
   directoryPath: string
