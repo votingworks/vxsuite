@@ -281,7 +281,9 @@ async function exportCastVoteRecordFilesToUsbDrive(
 
   const castVoteRecordReportMetadata = buildCastVoteRecordReportMetadata(
     exportContext,
-    { hideTime: true } // For voter privacy
+    // Hide the time in the metadata for individual cast vote records so that we don't reveal the
+    // order in which ballots were cast
+    { hideTime: true }
   );
   const castVoteRecord = buildCastVoteRecord(
     exportContext,
@@ -438,6 +440,9 @@ async function exportSignatureFileToUsbDrive(
  * rm <directory-path>
  * mv <directory-path>-temp <directory-path>
  * ```
+ *
+ * Note that the implementation doesn't use fs.cp(src, dest, { recursive: true }) because fs.cp is
+ * still experimental.
  */
 async function updateCreationTimestampOfDirectoryAndChildrenFiles(
   directoryPath: string
