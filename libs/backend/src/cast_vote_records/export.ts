@@ -12,6 +12,7 @@ import {
   assert,
   assertDefined,
   err,
+  getRandomInteger,
   ok,
   Result,
   throwIllegalValue,
@@ -485,12 +486,14 @@ async function maintainVoterPrivacy(
     return;
   }
 
-  const oneOrTwo = Math.random() < 0.5 ? 1 : 2;
+  const oneOrTwo = getRandomInteger({ min: 1, max: 2 });
   for (let i = 0; i < oneOrTwo; i += 1) {
     const randomCastVoteRecordDirectoryPath = path.join(
       exportDirectoryPath,
       assertDefined(
-        castVoteRecordIds[Math.floor(Math.random() * castVoteRecordIds.length)]
+        castVoteRecordIds[
+          getRandomInteger({ min: 0, max: castVoteRecordIds.length - 1 })
+        ]
       )
     );
     await updateCreationTimestampOfDirectoryAndChildrenFiles(
