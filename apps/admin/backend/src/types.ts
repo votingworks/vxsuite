@@ -53,10 +53,8 @@ export interface CastVoteRecordFileMetadata {
 /**
  * Most basic information about a scanner batch.
  */
-export interface ScannerBatch {
-  batchId: string;
+export interface ScannerBatch extends Tabulation.ScannerBatch {
   label: string;
-  scannerId: string;
   electionId: string;
 }
 

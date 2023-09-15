@@ -1,4 +1,4 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { ElectionDefinition, Tabulation } from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   getContestById,
@@ -7,6 +7,7 @@ import {
   getPrecinctById,
   getBallotStylesByPartyId,
   getBallotStylesByPrecinctId,
+  determinePartyId,
 } from './lookups';
 
 test('getPrecinctById', () => {
@@ -88,4 +89,34 @@ test('getBallotStylesByPrecinct', () => {
       (bs) => bs.id
     )
   ).toEqual(['1M', '2F']);
+});
+
+test('determinePartyId', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  const partyCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    partyId: '0',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const ballotStyleCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    ballotStyleId: '1M',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  const precinctCardCounts: Tabulation.GroupOf<Tabulation.CardCounts> = {
+    precinctId: 'precinct-1',
+    bmd: 1,
+    hmpb: [1],
+  };
+
+  expect(determinePartyId(electionDefinition, partyCardCounts)).toEqual('0');
+  expect(determinePartyId(electionDefinition, ballotStyleCardCounts)).toEqual(
+    '0'
+  );
+  expect(determinePartyId(electionDefinition, precinctCardCounts)).toEqual(
+    undefined
+  );
 });

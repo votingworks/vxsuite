@@ -34,6 +34,8 @@ import {
   getGroupKey,
   getGroupSpecifierFromGroupKey,
   getSheetCount,
+  getScannedBallotCount,
+  getHmpbBallotCount,
 } from './tabulation';
 import { CAST_VOTE_RECORD_REPORT_FILENAME } from '../filenames';
 import {
@@ -454,6 +456,38 @@ test('getBallotCount', () => {
       manual: 7,
     })
   ).toEqual(22);
+});
+
+test('getHmpbBallotCount', () => {
+  expect(
+    getHmpbBallotCount({
+      bmd: 10,
+      hmpb: [10, 10],
+    })
+  ).toEqual(10);
+  expect(
+    getHmpbBallotCount({
+      bmd: 10,
+      hmpb: [5, 4, 4, 4],
+      manual: 7,
+    })
+  ).toEqual(5);
+});
+
+test('getScannedBallotCount', () => {
+  expect(
+    getScannedBallotCount({
+      bmd: 10,
+      hmpb: [10, 10],
+    })
+  ).toEqual(20);
+  expect(
+    getScannedBallotCount({
+      bmd: 10,
+      hmpb: [5, 4, 4, 4],
+      manual: 7,
+    })
+  ).toEqual(15);
 });
 
 test('getSheetCount', () => {

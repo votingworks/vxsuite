@@ -456,11 +456,30 @@ export async function tabulateCastVoteRecords({
 }
 
 /**
- * Applies our current, simple method of determining and overall ballot count,
- * which is taking the count of the first cards of HMPBs plus BMD count.
+ * Applies our current, simple method of determining the hand-marked paper ballot
+ * count, which is taking the count of the first ballot cards.
+ */
+export function getHmpbBallotCount(cardCounts: Tabulation.CardCounts): number {
+  return cardCounts.hmpb[0] ?? 0;
+}
+
+/**
+ * Gets total ballot count including HMPB, BMD, and manually entered ballots.
  */
 export function getBallotCount(cardCounts: Tabulation.CardCounts): number {
-  return cardCounts.bmd + (cardCounts.hmpb[0] ?? 0) + (cardCounts.manual ?? 0);
+  return (
+    cardCounts.bmd + getHmpbBallotCount(cardCounts) + (cardCounts.manual ?? 0)
+  );
+}
+
+/**
+ * Gets scanned ballot count including HMPB and BMD ballots. Does not include
+ * manually entered ballots.
+ */
+export function getScannedBallotCount(
+  cardCounts: Tabulation.CardCounts
+): number {
+  return cardCounts.bmd + getHmpbBallotCount(cardCounts);
 }
 
 /**

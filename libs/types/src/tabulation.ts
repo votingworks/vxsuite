@@ -197,3 +197,13 @@ export interface ContestWriteInSummary {
 export interface ElectionWriteInSummary {
   contestWriteInSummaries: Record<ContestId, ContestWriteInSummary>;
 }
+
+/**
+ * Minimal information about a scanner batch.
+ */
+export interface ScannerBatch {
+  batchId: string;
+  scannerId: string;
+}
+
+export const BATCH_ID_DISPLAY_LENGTH = 8;
