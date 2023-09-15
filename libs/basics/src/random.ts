@@ -20,5 +20,5 @@ export function getRandomInteger({
   const range = max - min;
   const byteArray = crypto.randomBytes(4); // 4 bytes for a 32-bit integer
   const randomInteger = byteArray.readUInt32LE(0); // Convert the bytes to an integer
-  return min + (randomInteger % range);
+  return min + (randomInteger % (range + 1));
 }
