@@ -475,63 +475,46 @@ export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
  * moving random ballots to the top of a stack every time a new ballot is added to the stack, a
  * kind of shuffling as we go.
  *
- * This shuffling as we go is irrelevant for full exports, where we already iterate over cast vote
- * records in an order independent of creation timestamp.
+ * This shuffling is irrelevant for full exports, where we already iterate over cast vote records
+ * in an order independent of creation timestamp.
  */
-async function maintainVoterPrivacy(
+async function randomlyUpdateCreationTimestamps(
   exportContext: ExportContext,
-  mostRecentlyAddedCastVoteRecordId: string
+  exportDirectoryPathRelativeToUsbMountPoint: string,
+  options: { castVoteRecordIdToIgnore?: string } = {}
 ): Promise<void> {
   const { usbMountPoint } = exportContext;
 
   const exportDirectoryPath = path.join(
     usbMountPoint,
-    getExportDirectoryPathRelativeToUsbMountPoint(exportContext)
+    exportDirectoryPathRelativeToUsbMountPoint
   );
-  const previouslyAddedCastVoteRecordIds = (
+  const castVoteRecordIds = (
     await fs.readdir(exportDirectoryPath, { withFileTypes: true })
   )
     .filter(
       (entry) =>
-        entry.isDirectory() && entry.name !== mostRecentlyAddedCastVoteRecordId
+        entry.isDirectory() && entry.name !== options.castVoteRecordIdToIgnore
     )
     .map((entry) => entry.name);
 
-  if (previouslyAddedCastVoteRecordIds.length === 0) {
+  if (castVoteRecordIds.length === 0) {
     return;
   }
 
-  const castVoteRecordsToUpdate: string[] = [];
-  if (previouslyAddedCastVoteRecordIds.length === 1) {
-    if (getRandomInteger({ min: 1, max: 2 }) === 1) {
-      castVoteRecordsToUpdate.push(
-        assertDefined(previouslyAddedCastVoteRecordIds[0])
-      );
-    }
-  } else {
-    const oneOrTwo = getRandomInteger({ min: 1, max: 2 });
-    for (let i = 0; i < oneOrTwo; i += 1) {
-      const randomIndex = getRandomInteger({
-        min: 0,
-        max: previouslyAddedCastVoteRecordIds.length - 1,
-      });
-      castVoteRecordsToUpdate.push(
-        assertDefined(previouslyAddedCastVoteRecordIds[randomIndex])
-      );
-    }
-    // 25% of the time, move the most recently added cast vote record back to the top of the stack.
-    // This is meant to protect the privacy of the last voter, whose cast vote record would
-    // otherwise always have the earliest timestamp among the cluster of cast vote records with the
-    // latest timestamps.
-    if (getRandomInteger({ min: 1, max: 4 }) === 1) {
-      castVoteRecordsToUpdate.push(mostRecentlyAddedCastVoteRecordId);
-    }
-  }
-
-  for (const castVoteRecordId of castVoteRecordsToUpdate) {
+  const oneOrTwo = getRandomInteger({ min: 1, max: 2 });
+  for (let i = 0; i < oneOrTwo; i += 1) {
+    const randomCastVoteRecordId = assertDefined(
+      castVoteRecordIds[
+        getRandomInteger({
+          min: 0,
+          max: castVoteRecordIds.length - 1,
+        })
+      ]
+    );
     const castVoteRecordDirectoryPath = path.join(
       exportDirectoryPath,
-      castVoteRecordId
+      randomCastVoteRecordId
     );
     await updateCreationTimestampOfDirectoryAndChildrenFiles(
       castVoteRecordDirectoryPath
@@ -597,9 +580,28 @@ export async function exportCastVoteRecordsToUsbDrive(
   const exportDirectoryPathRelativeToUsbMountPoint =
     getExportDirectoryPathRelativeToUsbMountPoint(exportContext);
 
+  const isCreationTimestampShufflingNecessary =
+    exportOptions.scannerType === 'precinct' && !exportOptions.isFullExport;
+
   const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
-  let mostRecentlyAddedCastVoteRecordId: string | undefined;
   for (const resultSheet of resultSheets) {
+    // Randomly decide whether to shuffle creation timestamps before or after cast vote record
+    // creation. If we always did one or the other, the last voter's cast vote record would be
+    // identifiable, as either the first or the last cast vote record among the cluster of cast
+    // vote records with the latest creation timestamps.
+    const whenToShuffleRelativeToCastVoteRecordCreation = assertDefined(
+      (['before', 'after'] as const)[getRandomInteger({ min: 0, max: 1 })]
+    );
+    if (
+      isCreationTimestampShufflingNecessary &&
+      whenToShuffleRelativeToCastVoteRecordCreation === 'before'
+    ) {
+      await randomlyUpdateCreationTimestamps(
+        exportContext,
+        exportDirectoryPathRelativeToUsbMountPoint
+      );
+    }
+
     const exportCastVoteRecordFilesResult =
       await exportCastVoteRecordFilesToUsbDrive(
         exportContext,
@@ -612,7 +614,18 @@ export async function exportCastVoteRecordsToUsbDrive(
     const { castVoteRecordId, castVoteRecordHash } =
       exportCastVoteRecordFilesResult.ok();
     castVoteRecordHashes[castVoteRecordId] = castVoteRecordHash;
-    mostRecentlyAddedCastVoteRecordId = castVoteRecordId;
+
+    if (
+      isCreationTimestampShufflingNecessary &&
+      whenToShuffleRelativeToCastVoteRecordCreation === 'after'
+    ) {
+      await randomlyUpdateCreationTimestamps(
+        exportContext,
+        exportDirectoryPathRelativeToUsbMountPoint,
+        // Don't randomly select the cast vote record that was just created
+        { castVoteRecordIdToIgnore: castVoteRecordId }
+      );
+    }
   }
 
   for (const [castVoteRecordId, castVoteRecordHash] of Object.entries(
@@ -625,17 +638,6 @@ export async function exportCastVoteRecordsToUsbDrive(
   }
   const updatedCastVoteRecordRootHash =
     scannerStore.getCastVoteRecordRootHash();
-
-  if (
-    exportOptions.scannerType === 'precinct' &&
-    !exportOptions.isFullExport &&
-    mostRecentlyAddedCastVoteRecordId
-  ) {
-    await maintainVoterPrivacy(
-      exportContext,
-      mostRecentlyAddedCastVoteRecordId
-    );
-  }
 
   const exportMetadataFileResult = await exportMetadataFileToUsbDrive(
     exportContext,
