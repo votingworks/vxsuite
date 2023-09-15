@@ -5,7 +5,11 @@ import { getRandomInteger } from './random';
 test.each<{ min: number; max: number; expectedErrorMessage: string }>([
   { min: 0.1, max: 10, expectedErrorMessage: 'min should be an integer' },
   { min: 0, max: 10.1, expectedErrorMessage: 'max should be an integer' },
-  { min: 1000, max: 0, expectedErrorMessage: 'min should be less than max' },
+  {
+    min: 10,
+    max: 0,
+    expectedErrorMessage: 'min should be less than or equal to max',
+  },
 ])(
   'getRandomInteger with invalid inputs',
   ({ min, max, expectedErrorMessage }) => {
@@ -18,9 +22,6 @@ test.each<{ min: number; max: number; expectedErrorMessage: string }>([
 test('getRandomInteger with valid inputs', () => {
   fc.assert(
     fc.property(fc.integer(), fc.integer(), (n1, n2) => {
-      if (n1 === n2) {
-        return;
-      }
       const [min, max] = n1 < n2 ? [n1, n2] : [n2, n1];
       const randomInteger = getRandomInteger({ min, max });
       expect(Number.isInteger(randomInteger)).toEqual(true);
@@ -28,6 +29,10 @@ test('getRandomInteger with valid inputs', () => {
       expect(randomInteger).toBeLessThanOrEqual(max);
     })
   );
+});
+
+test('getRandomInteger with equal min and max', () => {
+  expect(getRandomInteger({ min: 0, max: 0 })).toEqual(0);
 });
 
 test('getRandomInteger is inclusive of min and max', () => {

@@ -15,7 +15,7 @@ export function getRandomInteger({
 }): number {
   assert(Number.isInteger(min), 'min should be an integer');
   assert(Number.isInteger(max), 'max should be an integer');
-  assert(min < max, 'min should be less than max');
+  assert(min <= max, 'min should be less than or equal to max');
 
   const range = max - min;
   const byteArray = crypto.randomBytes(4); // 4 bytes for a 32-bit integer
