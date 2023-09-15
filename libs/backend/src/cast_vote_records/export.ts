@@ -121,20 +121,23 @@ interface ExportContext {
  * function will have us switch to the new directory for continuous export. This provides a path
  * for getting the continuous export directory back to a good state after an unexpected failure.
  */
-function getExportDirectoryPathRelativeToUsbMountPoint(
+async function getExportDirectoryPathRelativeToUsbMountPoint(
   exportContext: ExportContext
-): string {
-  const { exportOptions, scannerState, scannerStore } = exportContext;
+): Promise<string> {
+  const { exportOptions, scannerState, scannerStore, usbMountPoint } =
+    exportContext;
   const { electionDefinition, inTestMode } = scannerState;
   const { election, electionHash } = electionDefinition;
 
   let exportDirectoryName: string | undefined;
+  let exportDirectoryNeedsCreation = false;
   switch (exportOptions.scannerType) {
     case 'central': {
       exportDirectoryName = generateCastVoteRecordExportDirectoryName({
         inTestMode,
         machineId: VX_MACHINE_ID,
       });
+      exportDirectoryNeedsCreation = true;
       break;
     }
     case 'precinct': {
@@ -146,6 +149,7 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
           inTestMode,
           machineId: VX_MACHINE_ID,
         });
+        exportDirectoryNeedsCreation = true;
         scannerStore.setExportDirectoryName(exportDirectoryName);
       }
       break;
@@ -156,11 +160,18 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
     }
   }
 
-  return path.join(
+  const exportDirectoryPathRelativeToUsbMountPoint = path.join(
     SCANNER_RESULTS_FOLDER,
     generateElectionBasedSubfolderName(election, electionHash),
     exportDirectoryName
   );
+  if (exportDirectoryNeedsCreation) {
+    await fs.mkdir(
+      path.join(usbMountPoint, exportDirectoryPathRelativeToUsbMountPoint),
+      { recursive: true }
+    );
+  }
+  return exportDirectoryPathRelativeToUsbMountPoint;
 }
 
 function buildCastVoteRecordReportMetadata(
@@ -578,7 +589,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   }
 
   const exportDirectoryPathRelativeToUsbMountPoint =
-    getExportDirectoryPathRelativeToUsbMountPoint(exportContext);
+    await getExportDirectoryPathRelativeToUsbMountPoint(exportContext);
 
   const isCreationTimestampShufflingNecessary =
     exportOptions.scannerType === 'precinct' && !exportOptions.isFullExport;
