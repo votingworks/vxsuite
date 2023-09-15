@@ -449,9 +449,15 @@ async function updateCreationTimestampOfDirectoryAndChildrenFiles(
 ): Promise<void> {
   const tempDirectoryPath = `${directoryPath}-temp`;
   await fs.mkdir(tempDirectoryPath);
-  const fileNames = (await fs.readdir(directoryPath, { withFileTypes: true }))
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name);
+  const fileNames = (
+    await fs.readdir(directoryPath, { withFileTypes: true })
+  ).map((entry) => {
+    assert(
+      entry.isFile(),
+      `Unexpected sub-directory ${entry.name} in ${directoryPath}`
+    );
+    return entry.name;
+  });
   for (const fileName of fileNames) {
     await fs.copyFile(
       path.join(directoryPath, fileName),
