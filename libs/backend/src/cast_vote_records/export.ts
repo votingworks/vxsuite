@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import {
@@ -12,7 +13,6 @@ import {
   assert,
   assertDefined,
   err,
-  getRandomInteger,
   ok,
   Result,
   throwIllegalValue,
@@ -513,15 +513,10 @@ async function randomlyUpdateCreationTimestamps(
     return;
   }
 
-  const oneOrTwo = getRandomInteger({ min: 1, max: 2 });
+  const oneOrTwo = crypto.randomInt(1, 3);
   for (let i = 0; i < oneOrTwo; i += 1) {
     const randomCastVoteRecordId = assertDefined(
-      castVoteRecordIds[
-        getRandomInteger({
-          min: 0,
-          max: castVoteRecordIds.length - 1,
-        })
-      ]
+      castVoteRecordIds[crypto.randomInt(0, castVoteRecordIds.length)]
     );
     const castVoteRecordDirectoryPath = path.join(
       exportDirectoryPath,
@@ -601,7 +596,7 @@ export async function exportCastVoteRecordsToUsbDrive(
     // identifiable, as either the first or the last cast vote record among the cluster of cast
     // vote records with the latest creation timestamps.
     const whenToShuffleRelativeToCastVoteRecordCreation = assertDefined(
-      (['before', 'after'] as const)[getRandomInteger({ min: 0, max: 1 })]
+      (['before', 'after'] as const)[crypto.randomInt(0, 2)]
     );
     if (
       isCreationTimestampShufflingNecessary &&

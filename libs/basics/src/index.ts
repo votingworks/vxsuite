@@ -8,7 +8,6 @@ export * from './errors';
 export * from './find';
 export * from './iterators';
 export * from './result';
-export * from './random';
 export * from './range';
 export * from './sleep';
 export * from './typed_as';
