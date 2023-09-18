@@ -50,7 +50,7 @@ const FontWeights = {
   BOLD: 700,
 } as const;
 
-type FontWeight = typeof FontWeights[keyof typeof FontWeights];
+type FontWeight = (typeof FontWeights)[keyof typeof FontWeights];
 
 interface FontStyle {
   fontSize: number;
@@ -1488,13 +1488,13 @@ function ContestColumnsChunk({
   return [section, columnPositions];
 }
 export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
-export type BallotMode = typeof BALLOT_MODES[number];
+export type BallotMode = (typeof BALLOT_MODES)[number];
 
 export const BUBBLE_POSITIONS = ['left', 'right'] as const;
-export type BubblePosition = typeof BUBBLE_POSITIONS[number];
+export type BubblePosition = (typeof BUBBLE_POSITIONS)[number];
 
 export const LAYOUT_DENSITIES = [0, 1, 2] as const;
-export type LayoutDensity = typeof LAYOUT_DENSITIES[number];
+export type LayoutDensity = (typeof LAYOUT_DENSITIES)[number];
 
 export const DEFAULT_LAYOUT_OPTIONS: LayoutOptions = {
   bubblePosition: 'left',

@@ -28,7 +28,7 @@ function concatLiteralParts<T extends Array<string | number | Buffer>>(
  * A literal value in a message.
  */
 export class LiteralCoder<
-  T extends ReadonlyArray<string | number | Buffer>
+  T extends ReadonlyArray<string | number | Buffer>,
 > extends BaseCoder<Optional<T>> {
   private readonly values: T;
   private readonly value: Buffer;

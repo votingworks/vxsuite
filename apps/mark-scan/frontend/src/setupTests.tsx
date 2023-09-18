@@ -51,9 +51,10 @@ function makeSpeechSynthesisDouble(): typeof speechSynthesis {
     pending: false,
     removeEventListener: jest.fn(),
     resume: jest.fn(),
-    // eslint-disable-next-line @typescript-eslint/require-await
-    speak: jest.fn(async (utterance) =>
-      utterance.onend?.(new SpeechSynthesisEvent('end', { utterance }))
+    speak: jest.fn(
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async (utterance) =>
+        utterance.onend?.(new SpeechSynthesisEvent('end', { utterance }))
     ),
     speaking: false,
   };

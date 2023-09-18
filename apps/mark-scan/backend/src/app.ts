@@ -131,8 +131,8 @@ function buildApi(
       );
       const usbDrives = await usb.getUsbDrives();
       // mark-scan hardware boots off a USB drive so we need to find the media drive
-      const usbDrive = usbDrives.find((drive) =>
-        drive.mountPoint?.startsWith(dataUsbMountPrefix)
+      const usbDrive = usbDrives.find(
+        (drive) => drive.mountPoint?.startsWith(dataUsbMountPrefix)
       );
       const mountPoints = usbDrives
         .map((drive) => drive.mountPoint || '<none>')
