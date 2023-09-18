@@ -21,4 +21,4 @@ export const PRECINCT_SCANNER_STATES = [
   'unrecoverable_error',
 ] as const;
 
-export type PrecinctScannerState = (typeof PRECINCT_SCANNER_STATES)[number];
+export type PrecinctScannerState = typeof PRECINCT_SCANNER_STATES[number];

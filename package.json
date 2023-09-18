@@ -46,7 +46,7 @@
     "husky": "^7.0.0",
     "lint-staged": "^11.0.0",
     "ora": "^5.2.0",
-    "prettier": "^3.0.3",
+    "prettier": "^2.6.2",
     "sort-package-json": "^1.50.0",
     "storybook": "^7.2.2",
     "typescript": "5.2.2",

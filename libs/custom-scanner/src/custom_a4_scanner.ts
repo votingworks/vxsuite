@@ -300,8 +300,9 @@ export class CustomA4Scanner implements CustomScanner {
       };
 
       timer.checkpoint('set scan parameters');
-      const setScanParametersResult =
-        await this.setScanParametersInternal(scanParameters);
+      const setScanParametersResult = await this.setScanParametersInternal(
+        scanParameters
+      );
 
       if (setScanParametersResult.isErr()) {
         if (setScanParametersResult.err() === ErrorCode.JobNotValid) {

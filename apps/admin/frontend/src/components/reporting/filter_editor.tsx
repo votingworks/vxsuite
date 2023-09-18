@@ -75,7 +75,7 @@ const FILTER_TYPES = [
   'scanner',
   'batch',
 ] as const;
-type FilterType = (typeof FILTER_TYPES)[number];
+type FilterType = typeof FILTER_TYPES[number];
 
 function getAllowedFilterTypes(): FilterType[] {
   return ['precinct', 'voting-method', 'ballot-style', 'scanner', 'batch'];

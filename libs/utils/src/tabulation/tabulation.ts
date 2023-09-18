@@ -253,7 +253,7 @@ const GROUP_KEY_PART_TYPES = [
   'scannerId',
   'votingMethod',
 ] as const;
-type GroupKeyPartType = (typeof GROUP_KEY_PART_TYPES)[number];
+type GroupKeyPartType = typeof GROUP_KEY_PART_TYPES[number];
 
 function escapeGroupKeyValue(groupKeyValue: string): string {
   return groupKeyValue
@@ -326,7 +326,7 @@ export function getGroupSpecifierFromGroupKey(
 
     const [key, escapedValue] = part.split(/(?<!\\)=/) as [
       GroupKeyPartType,
-      string,
+      string
     ];
     const value = unescapeGroupKeyValue(escapedValue);
     switch (key) {
@@ -841,7 +841,7 @@ export function buildElectionResultsFixture({
  * generic write-in tally.
  */
 export function mergeWriteInTallies<
-  T extends Pick<Tabulation.ElectionResults, 'contestResults'>,
+  T extends Pick<Tabulation.ElectionResults, 'contestResults'>
 >(anyResults: T): T {
   const newElectionContestResults: Tabulation.ManualElectionResults['contestResults'] =
     {};

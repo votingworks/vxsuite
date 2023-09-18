@@ -304,7 +304,7 @@ export type BinaryArray = [
   BinaryStringRepresentation,
   BinaryStringRepresentation,
   BinaryStringRepresentation,
-  BinaryStringRepresentation,
+  BinaryStringRepresentation
 ];
 
 export function getZeroBinaryArray(): BinaryArray {
@@ -323,7 +323,7 @@ export type BitArray = [
   boolean,
   boolean,
   boolean,
-  boolean,
+  boolean
 ];
 
 export function getZeroBitArray(): BitArray {

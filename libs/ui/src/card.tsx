@@ -14,8 +14,7 @@ const StyledContainer = styled.div`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => rgba(p.theme.colors.foregroundDisabled, 0.75)};
   border-radius: 0.2rem;
-  box-shadow:
-    0.1rem 0.2rem 0.1rem -0.1rem ${(p) => rgba(p.theme.colors.foreground, 0.25)},
+  box-shadow: 0.1rem 0.2rem 0.1rem -0.1rem ${(p) => rgba(p.theme.colors.foreground, 0.25)},
     0 0.1rem 0.2rem 0 ${(p) => rgba(p.theme.colors.foreground, 0.15)},
     0 0.1rem 0.3rem 0 ${(p) => rgba(p.theme.colors.foreground, 0.125)};
   overflow: hidden;

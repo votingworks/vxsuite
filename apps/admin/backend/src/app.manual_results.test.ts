@@ -111,7 +111,7 @@ test('manual results flow (official candidates only)', async () => {
     [
       precinctId: PrecinctId,
       ballotStyleId: BallotStyleId,
-      manualResults: Tabulation.ManualElectionResults,
+      manualResults: Tabulation.ManualElectionResults
     ]
   > = [
     ['precinct-1', '1M', resultsPrecinct1MammalBallotStyle],
