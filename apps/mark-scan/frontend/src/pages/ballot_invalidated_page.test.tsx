@@ -56,6 +56,6 @@ describe('with cardless voter auth', () => {
     renderWithAuthAndBallotContext(electionDefinition, auth);
 
     await screen.findByText('Ask a Poll Worker for Help');
-    await screen.findByText('Insert a Poll Worker Card to Continue');
+    await screen.findByText('Insert a poll worker card to continue.');
   });
 });

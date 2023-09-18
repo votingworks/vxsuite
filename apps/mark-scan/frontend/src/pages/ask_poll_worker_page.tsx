@@ -2,7 +2,7 @@ import React from 'react';
 import { Screen, H1, Main, Button, Text } from '@votingworks/ui';
 
 import { InsertedSmartCardAuth } from '@votingworks/types';
-import { isCardlessVoterAuth } from '@votingworks/utils';
+import { isCardlessVoterAuth, isPollWorkerAuth } from '@votingworks/utils';
 
 import { ButtonFooter } from '../components/button_footer';
 
@@ -33,11 +33,6 @@ export function AskPollWorkerPage(props: Props): JSX.Element {
       {pollWorkerContent.body}
     </React.Fragment>
   );
-  const button = (
-    <Button onPress={() => pollWorkerContent.onButtonPress()}>
-      {pollWorkerContent.buttonText}
-    </Button>
-  );
 
   if (isCardlessVoterAuth(authStatus)) {
     mainContents = (
@@ -48,14 +43,8 @@ export function AskPollWorkerPage(props: Props): JSX.Element {
           </span>
         </H1>
         {cardlessVoterContent.body}
+        <p>Insert a poll worker card to continue.</p>
       </React.Fragment>
-    );
-    button = (
-      // onPress is a required prop but we want the button to no op
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      <Button disabled onPress={() => {}}>
-        Insert a Poll Worker Card to Continue
-      </Button>
     );
   }
 
@@ -64,7 +53,13 @@ export function AskPollWorkerPage(props: Props): JSX.Element {
       <Main padded centerChild>
         <Text center>{mainContents}</Text>
       </Main>
-      <ButtonFooter>{button}</ButtonFooter>
+      {isPollWorkerAuth(authStatus) && (
+        <ButtonFooter>
+          <Button onPress={() => pollWorkerContent.onButtonPress()}>
+            {pollWorkerContent.buttonText}
+          </Button>
+        </ButtonFooter>
+      )}
     </Screen>
   );
 }
