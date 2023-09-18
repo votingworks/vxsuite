@@ -448,7 +448,7 @@ async function exportSignatureFileToUsbDrive(
  * sub-directories) using the one method guaranteed to work:
  * ```
  * cp -r <directory-path> <directory-path>-temp
- * rm <directory-path>
+ * rm -r <directory-path>
  * mv <directory-path>-temp <directory-path>
  * ```
  *
@@ -458,8 +458,7 @@ async function exportSignatureFileToUsbDrive(
 export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
   directoryPath: string
 ): Promise<void> {
-  const tempDirectoryPath = `${directoryPath}-temp`;
-  await fs.mkdir(tempDirectoryPath);
+  await fs.mkdir(`${directoryPath}-temp`);
   const fileNames = (
     await fs.readdir(directoryPath, { withFileTypes: true })
   ).map((entry) => {
@@ -472,11 +471,16 @@ export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
   for (const fileName of fileNames) {
     await fs.copyFile(
       path.join(directoryPath, fileName),
-      path.join(tempDirectoryPath, fileName)
+      path.join(`${directoryPath}-temp`, fileName)
     );
   }
+  // In case the system loses power while deleting the original directory, mark the copied
+  // directory as complete to facilitate recovery on reboot. On reboot, if we see a *-temp
+  // directory, we can safely delete it, and if we see a *-temp-complete directory, we can safely
+  // delete the original directory and move the *-temp-complete directory to the original path.
+  await fs.rename(`${directoryPath}-temp`, `${directoryPath}-temp-complete`);
   await fs.rm(directoryPath, { recursive: true });
-  await fs.rename(tempDirectoryPath, directoryPath);
+  await fs.rename(`${directoryPath}-temp-complete`, directoryPath);
 }
 
 /**
