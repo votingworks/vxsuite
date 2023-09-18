@@ -34,7 +34,7 @@ const METADATA_ATTRIBUTES = [
   'batch',
 ] as const;
 
-type MetadataAttribute = typeof METADATA_ATTRIBUTES[number];
+type MetadataAttribute = (typeof METADATA_ATTRIBUTES)[number];
 
 const METADATA_ATTRIBUTE_MULTI_LABEL: Record<MetadataAttribute, string> = {
   precinct: 'Precincts',

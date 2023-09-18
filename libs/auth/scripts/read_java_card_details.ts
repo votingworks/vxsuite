@@ -11,7 +11,7 @@ import { waitForReadyCardStatus } from './utils';
 
 const ENVS = ['development', 'production'] as const;
 
-type Env = typeof ENVS[number];
+type Env = (typeof ENVS)[number];
 
 interface ExtendedCardDetails {
   cardDetails?: CardDetails;

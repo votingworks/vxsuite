@@ -69,9 +69,15 @@ async function defaultCreateCustomClient(): Promise<
 export type CreateCustomClient = typeof defaultCreateCustomClient;
 
 class PrecinctScannerError extends Error {
-  // eslint-disable-next-line vx/gts-no-public-class-fields
-  constructor(public type: PrecinctScannerErrorType, message?: string) {
-    super(message ?? type);
+  constructor(
+    private readonly precinctType: PrecinctScannerErrorType,
+    message?: string
+  ) {
+    super(message ?? precinctType);
+  }
+
+  get type(): PrecinctScannerErrorType {
+    return this.precinctType;
   }
 }
 

@@ -244,9 +244,8 @@ export async function readCastVoteRecordExport(
     return err({ type: 'authentication-error' });
   }
 
-  const metadataResult = await readCastVoteRecordExportMetadata(
-    exportDirectoryPath
-  );
+  const metadataResult =
+    await readCastVoteRecordExportMetadata(exportDirectoryPath);
   if (metadataResult.isErr()) {
     return metadataResult;
   }

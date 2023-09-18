@@ -49,7 +49,7 @@ export type Corners = readonly [
   topLeft: Point,
   topRight: Point,
   bottomLeft: Point,
-  bottomRight: Point
+  bottomRight: Point,
 ];
 export const CornersSchema: z.ZodSchema<Corners> = z.tuple([
   PointSchema,
