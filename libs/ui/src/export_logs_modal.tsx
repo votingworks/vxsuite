@@ -68,9 +68,8 @@ export function ExportLogsModal({
   useEffect(() => {
     async function checkLogFile() {
       if (window.kiosk) {
-        const allLogs = await window.kiosk.getFileSystemEntries(
-          LOGS_ROOT_LOCATION
-        );
+        const allLogs =
+          await window.kiosk.getFileSystemEntries(LOGS_ROOT_LOCATION);
         const vxLogFile = allLogs.filter((f) => f.name === `${LOG_NAME}.log`);
         if (vxLogFile.length > 0) {
           setFoundLogFile(true);

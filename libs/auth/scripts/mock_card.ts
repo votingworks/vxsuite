@@ -20,7 +20,7 @@ const CARD_TYPES = [
   'unprogrammed',
   'no-card',
 ] as const;
-type CardType = typeof CARD_TYPES[number];
+type CardType = (typeof CARD_TYPES)[number];
 
 interface MockCardInput {
   cardType: CardType;

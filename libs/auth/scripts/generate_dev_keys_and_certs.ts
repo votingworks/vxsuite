@@ -121,9 +121,8 @@ async function generateDevKeysAndCerts({
   const vxCertAuthorityCertPath = `${outputDir}/vx-cert-authority-cert.pem`;
   const vxPrivateKey = await generateDevPrivateKey();
   await fs.writeFile(vxPrivateKeyPath, vxPrivateKey);
-  const vxCertAuthorityCert = await generateDevVxCertAuthorityCert(
-    vxPrivateKeyPath
-  );
+  const vxCertAuthorityCert =
+    await generateDevVxCertAuthorityCert(vxPrivateKeyPath);
   await fs.writeFile(vxCertAuthorityCertPath, vxCertAuthorityCert);
 
   // Generate VxAdmin private key and cert authority cert
@@ -214,9 +213,8 @@ async function generateDevKeysAndCerts({
       const cardVxCertPath = `${outputDir}/${cardType}/card-vx-cert.der`;
       const cardVxPrivateKey = await generateDevPrivateKey();
       await fs.writeFile(cardVxPrivateKeyPath, cardVxPrivateKey);
-      const cardVxPublicKey = await extractPublicKeyFromDevPrivateKey(
-        cardVxPrivateKeyPath
-      );
+      const cardVxPublicKey =
+        await extractPublicKeyFromDevPrivateKey(cardVxPrivateKeyPath);
       await fs.writeFile(
         cardVxPublicKeyPath,
         await publicKeyPemToDer(cardVxPublicKey)

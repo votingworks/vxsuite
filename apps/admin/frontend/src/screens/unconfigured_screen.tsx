@@ -114,9 +114,8 @@ export function UnconfiguredScreen(): JSX.Element {
     const file = input.files && input.files[0];
 
     if (file) {
-      const initialSetupPackage = await readInitialAdminSetupPackageFromFile(
-        file
-      );
+      const initialSetupPackage =
+        await readInitialAdminSetupPackageFromFile(file);
       await configureFromElectionPackage(
         initialSetupPackage.electionString,
         initialSetupPackage.systemSettingsString

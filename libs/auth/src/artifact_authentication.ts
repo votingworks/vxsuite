@@ -246,9 +246,8 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
   const { signature: messageSignature, signingMachineCert } =
     artifactSignatureBundle;
   await validateSigningMachineCert(config, signingMachineCert, artifact);
-  const signingMachinePublicKey = await extractPublicKeyFromCert(
-    signingMachineCert
-  );
+  const signingMachinePublicKey =
+    await extractPublicKeyFromCert(signingMachineCert);
   await verifySignature({
     message,
     messageSignature,
