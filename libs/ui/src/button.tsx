@@ -22,7 +22,7 @@ export const ALL_BUTTON_VARIANTS = [
   'warning',
 ] as const;
 
-export type ButtonVariant = (typeof ALL_BUTTON_VARIANTS)[number];
+export type ButtonVariant = typeof ALL_BUTTON_VARIANTS[number];
 
 type ClickHandler = () => void;
 type TypedClickHandler<T> = (value: T) => void;

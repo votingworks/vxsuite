@@ -130,8 +130,8 @@ test('adds write-ins for contests that allow them', async () => {
     );
 
     if (
-      cvrContest.CVRContestSelection?.some(
-        (selection) => selection.ContestSelectionId?.startsWith('write-in-')
+      cvrContest.CVRContestSelection?.some((selection) =>
+        selection.ContestSelectionId?.startsWith('write-in-')
       )
     ) {
       seenWriteIn = true;
@@ -164,8 +164,8 @@ test('adds write-ins for contests that have 1 seat', async () => {
     );
 
     if (
-      cvrContest.CVRContestSelection?.some(
-        (selection) => selection.ContestSelectionId?.startsWith('write-in-')
+      cvrContest.CVRContestSelection?.some((selection) =>
+        selection.ContestSelectionId?.startsWith('write-in-')
       )
     ) {
       seenWriteIn = true;

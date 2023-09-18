@@ -70,6 +70,6 @@ export class BitCursor {
     Uint8,
     Uint8,
     Uint8,
-    Uint8,
+    Uint8
   ];
 }

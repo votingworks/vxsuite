@@ -207,8 +207,10 @@ export function buildSchema(
   }
 
   for (const enumeration of enums) {
-    enumeration.documentation ??= findDocForType(docs, enumeration.name)
-      ?.documentation;
+    enumeration.documentation ??= findDocForType(
+      docs,
+      enumeration.name
+    )?.documentation;
 
     for (const enumValue of enumeration.values) {
       // There's no way to add a description to an enum value in JSON schema.

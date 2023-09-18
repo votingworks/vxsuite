@@ -437,7 +437,7 @@ export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
 });
 
 export const ELECTION_TYPES = ['general', 'primary'] as const;
-export type ElectionType = (typeof ELECTION_TYPES)[number];
+export type ElectionType = typeof ELECTION_TYPES[number];
 const ElectionTypeSchema: z.ZodSchema<ElectionType> = z.enum(ELECTION_TYPES);
 
 export interface Election {

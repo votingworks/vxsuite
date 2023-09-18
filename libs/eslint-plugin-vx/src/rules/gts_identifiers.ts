@@ -62,7 +62,7 @@ const rule: TSESLint.RuleModule<
         )
         .join('|')}$`
     );
-    const processedScopes = new Set<ReturnType<(typeof context)['getScope']>>();
+    const processedScopes = new Set<ReturnType<typeof context['getScope']>>();
 
     function isAllowedName(name: string): boolean {
       return allowedNamesPattern.test(name);

@@ -14,7 +14,7 @@ export interface MachineConfig {
 }
 
 export interface PageInterpretationWithAdjudication<
-  T extends PageInterpretation = PageInterpretation,
+  T extends PageInterpretation = PageInterpretation
 > {
   interpretation: T;
   contestIds?: readonly string[];

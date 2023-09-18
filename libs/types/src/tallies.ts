@@ -65,7 +65,7 @@ export type YesNoContestCompressedTally = [
   overvotes: number,
   ballotsCast: number,
   yes: number,
-  no: number,
+  no: number
 ];
 export const YesNoContestCompressedTallySchema: z.ZodSchema<YesNoContestCompressedTally> =
   z.tuple([
@@ -80,7 +80,7 @@ export type CandidateContestWithWriteInsCompressedTally = [
   overvotes: number,
   ballotsCast: number,
   ...candidates: number[],
-  writeIns: number,
+  writeIns: number
 ];
 export const CandidateContestWithWriteInsCompressedTallySchema: z.ZodSchema<CandidateContestWithWriteInsCompressedTally> =
   z
@@ -92,7 +92,7 @@ export type CandidateContestWithoutWriteInsCompressedTally = [
   undervotes: number,
   overvotes: number,
   ballotsCast: number,
-  ...candidates: number[],
+  ...candidates: number[]
 ];
 export const CandidateContestWithoutWriteInsCompressedTallySchema: z.ZodSchema<CandidateContestWithoutWriteInsCompressedTally> =
   z

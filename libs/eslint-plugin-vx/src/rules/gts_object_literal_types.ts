@@ -39,7 +39,7 @@ const rule: TSESLint.RuleModule<
     const sourceCode = context.getSourceCode();
 
     type ReportSuggestionArray = Exclude<
-      Parameters<(typeof context)['report']>[0]['suggest'],
+      Parameters<typeof context['report']>[0]['suggest'],
       undefined | null
     >;
     type MutableReportSuggestionArray =

@@ -21,7 +21,7 @@ export interface SegmentedButtonProps<T extends SegmentedButtonOptionId> {
 
 /** Option schema for {@link SegmentedButton}. */
 export interface SegmentedButtonOption<
-  T extends SegmentedButtonOptionId = string,
+  T extends SegmentedButtonOptionId = string
 > {
   id: T;
   label: React.ReactNode;

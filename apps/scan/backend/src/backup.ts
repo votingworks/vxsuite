@@ -28,10 +28,7 @@ const debug = rootDebug.extend('backup');
 export class Backup {
   private readonly entries = new Set<string>();
 
-  constructor(
-    private readonly zip: ZipStream,
-    private readonly store: Store
-  ) {}
+  constructor(private readonly zip: ZipStream, private readonly store: Store) {}
 
   /**
    * Add an entry to the zip file from a static or stream data source.
