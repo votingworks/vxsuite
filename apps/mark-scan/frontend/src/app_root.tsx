@@ -700,7 +700,7 @@ export function AppRoot({
     if (
       isPollWorkerAuth(authStatus) &&
       // Ballot invalidation requires BallotContext, handled below
-      stateMachineState !== 'invalidating_ballot'
+      stateMachineState !== 'waiting_for_invalidated_ballot_confirmation'
     ) {
       return (
         <PollWorkerScreen
@@ -737,7 +737,7 @@ export function AppRoot({
         isCardlessVoterAuth(authStatus) ||
         // Special case poll worker auth because both poll worker auth and BallotContext are needed to invalidate the ballot
         (isPollWorkerAuth(authStatus) &&
-          stateMachineState === 'invalidating_ballot')
+          stateMachineState === 'waiting_for_invalidated_ballot_confirmation')
       ) {
         let ballotContextProviderChild = <Ballot />;
 
@@ -747,7 +747,9 @@ export function AppRoot({
         if (stateMachineState === 'presenting_ballot') {
           ballotContextProviderChild = <ValidateBallotPage />;
         }
-        if (stateMachineState === 'invalidating_ballot') {
+        if (
+          stateMachineState === 'waiting_for_invalidated_ballot_confirmation'
+        ) {
           ballotContextProviderChild = (
             <BallotInvalidatedPage authStatus={authStatus} />
           );

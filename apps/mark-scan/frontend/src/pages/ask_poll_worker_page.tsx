@@ -33,7 +33,7 @@ export function AskPollWorkerPage(props: Props): JSX.Element {
       {pollWorkerContent.body}
     </React.Fragment>
   );
-  let button = (
+  const button = (
     <Button onPress={() => pollWorkerContent.onButtonPress()}>
       {pollWorkerContent.buttonText}
     </Button>

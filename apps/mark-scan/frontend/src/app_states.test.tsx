@@ -94,7 +94,7 @@ test('`resetting_state_machine_after_jam` state renders jam cleared page', async
   screen.getByText(/The hardware has been reset/);
 });
 
-test('`invalidating_ballot` state renders ballot invalidation page with cardless voter auth', async () => {
+test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with cardless voter auth', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await setElectionInStorage(storage);
@@ -119,7 +119,7 @@ test('`invalidating_ballot` state renders ballot invalidation page with cardless
   );
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
 
-  apiMock.setPaperHandlerState('invalidating_ballot');
+  apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: electionDefinition.election.ballotStyles[0].id,
     precinctId: electionDefinition.election.precincts[0].id,
@@ -127,7 +127,7 @@ test('`invalidating_ballot` state renders ballot invalidation page with cardless
   await screen.findByText('Ask a Poll Worker for Help');
 });
 
-test('`invalidating_ballot` state renders ballot invalidation page with poll worker auth', async () => {
+test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with poll worker auth', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await setElectionInStorage(storage);
@@ -152,7 +152,7 @@ test('`invalidating_ballot` state renders ballot invalidation page with poll wor
   );
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
 
-  apiMock.setPaperHandlerState('invalidating_ballot');
+  apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: electionDefinition.election.ballotStyles[0].id,

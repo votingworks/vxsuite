@@ -5,7 +5,7 @@ export type SimpleStatus =
   | 'ejecting_to_front'
   | 'ejecting_to_rear'
   | 'interpreting'
-  | 'invalidating_ballot'
+  | 'waiting_for_invalidated_ballot_confirmation'
   | 'jam_cleared'
   | 'jammed'
   | 'loading_paper'
@@ -22,7 +22,7 @@ export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('ejecting_to_front'),
   z.literal('ejecting_to_rear'),
   z.literal('interpreting'),
-  z.literal('invalidating_ballot'),
+  z.literal('waiting_for_invalidated_ballot_confirmation'),
   z.literal('jam_cleared'),
   z.literal('jammed'),
   z.literal('loading_paper'),
