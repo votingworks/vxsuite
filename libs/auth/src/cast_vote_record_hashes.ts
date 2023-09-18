@@ -372,9 +372,13 @@ export async function computeCastVoteRecordRootHashFromScratch(
     const cvrDirectoryPath = path.join(exportDirectoryPath, cvrId);
     const cvrFileNames = (
       await fs.readdir(cvrDirectoryPath, { withFileTypes: true })
-    )
-      .filter((entry) => entry.isFile())
-      .map((file) => file.name);
+    ).map((entry) => {
+      assert(
+        entry.isFile(),
+        `Unexpected sub-directory ${entry.name} in ${cvrDirectoryPath}`
+      );
+      return entry.name;
+    });
     const cvrFiles: HashableFile[] = [];
     for (const fileName of cvrFileNames) {
       const filePath = path.join(cvrDirectoryPath, fileName);

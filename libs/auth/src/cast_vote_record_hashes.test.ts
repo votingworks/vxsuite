@@ -48,20 +48,20 @@ function file(fileName: string, fileContents: string): FileWithContents {
 // A minimal set of mock cast vote records for testing a branching factor of 3 at every level of
 // the Merkle tree
 const castVoteRecords: Record<CastVoteRecordId, FileWithContents[]> = {
-  'a1234567-0000-0000-0000-000000000000': [file('a', 'a1'), file('b', 'b1')],
-  'a2345678-0000-0000-0000-000000000000': [file('a', 'a2'), file('b', 'b2')],
-  'ab123456-0000-0000-0000-000000000000': [file('a', 'a3'), file('b', 'b3')],
-  'ab234567-0000-0000-0000-000000000000': [file('a', 'a4'), file('b', 'b4')],
-  'ab345678-0000-0000-0000-000000000000': [file('a', 'a5'), file('b', 'b5')],
-  'c1234567-0000-0000-0000-000000000000': [file('a', 'a6'), file('b', 'b6')],
-  'e1234567-0000-0000-0000-000000000000': [file('a', 'a7'), file('b', 'b7')],
+  'a1234567-0000-0000-0000-000000000000': [file('1', '1a'), file('2', '2a')],
+  'a2345678-0000-0000-0000-000000000000': [file('1', '1b'), file('2', '2b')],
+  'ab123456-0000-0000-0000-000000000000': [file('1', '1c'), file('2', '2c')],
+  'ab234567-0000-0000-0000-000000000000': [file('1', '1d'), file('2', '2d')],
+  'ab345678-0000-0000-0000-000000000000': [file('1', '1e'), file('2', '2e')],
+  'c1234567-0000-0000-0000-000000000000': [file('1', '1f'), file('2', '2f')],
+  'e1234567-0000-0000-0000-000000000000': [file('1', '1g'), file('2', '2g')],
 };
 
 /**
  * The root hash for the mock cast vote records represented by {@link castVoteRecords}
  */
 const expectedCastVoteRecordRootHash =
-  '03b88fdbe32c1115f6427953fd4364a737d85c0cf56a831249f1a4cd4c2a6b8a';
+  '7ba8f3a1ba98c7bbe19c9514e6218a6a9bb31a23c47a20eea2f37556407bc4df';
 
 test('readableFileFromData', async () => {
   const readableFile = readableFileFromData('1', 'a');

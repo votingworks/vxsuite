@@ -8,6 +8,7 @@ import { Readable, Stream } from 'stream';
 import {
   assert,
   err,
+  extractErrorMessage,
   ok,
   Result,
   throwIllegalValue,
@@ -369,11 +370,12 @@ export async function authenticateArtifactUsingSignatureFile(
       artifactSignatureBundle
     );
     await performArtifactSpecificAuthenticationChecks(artifact);
-  } catch {
-    // TODO: Log raw error
+  } catch (error) {
+    const artifactSummary = JSON.stringify(artifact);
+    const errorMessage = extractErrorMessage(error);
     return err(
       new Error(
-        `Error authenticating ${JSON.stringify(artifact)} using signature file`
+        `Error authenticating ${artifactSummary} using signature file: ${errorMessage}`
       )
     );
   }

@@ -1,4 +1,6 @@
 /* istanbul ignore file */
+import crypto from 'crypto';
+import fs from 'fs/promises';
 import path from 'path';
 import {
   computeSingleCastVoteRecordHash,
@@ -104,6 +106,7 @@ interface ExportContext {
   exportOptions: ExportOptions;
   scannerState: ScannerStateUnchangedByExport;
   scannerStore: ScannerStore;
+  usbMountPoint: string;
 }
 
 //
@@ -118,20 +121,23 @@ interface ExportContext {
  * function will have us switch to the new directory for continuous export. This provides a path
  * for getting the continuous export directory back to a good state after an unexpected failure.
  */
-function getExportDirectoryPathRelativeToUsbMountPoint(
+async function getExportDirectoryPathRelativeToUsbMountPoint(
   exportContext: ExportContext
-): string {
-  const { exportOptions, scannerState, scannerStore } = exportContext;
+): Promise<string> {
+  const { exportOptions, scannerState, scannerStore, usbMountPoint } =
+    exportContext;
   const { electionDefinition, inTestMode } = scannerState;
   const { election, electionHash } = electionDefinition;
 
   let exportDirectoryName: string | undefined;
+  let exportDirectoryNeedsCreation = false;
   switch (exportOptions.scannerType) {
     case 'central': {
       exportDirectoryName = generateCastVoteRecordExportDirectoryName({
         inTestMode,
         machineId: VX_MACHINE_ID,
       });
+      exportDirectoryNeedsCreation = true;
       break;
     }
     case 'precinct': {
@@ -143,6 +149,7 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
           inTestMode,
           machineId: VX_MACHINE_ID,
         });
+        exportDirectoryNeedsCreation = true;
         scannerStore.setExportDirectoryName(exportDirectoryName);
       }
       break;
@@ -153,15 +160,23 @@ function getExportDirectoryPathRelativeToUsbMountPoint(
     }
   }
 
-  return path.join(
+  const exportDirectoryPathRelativeToUsbMountPoint = path.join(
     SCANNER_RESULTS_FOLDER,
     generateElectionBasedSubfolderName(election, electionHash),
     exportDirectoryName
   );
+  if (exportDirectoryNeedsCreation) {
+    await fs.mkdir(
+      path.join(usbMountPoint, exportDirectoryPathRelativeToUsbMountPoint),
+      { recursive: true }
+    );
+  }
+  return exportDirectoryPathRelativeToUsbMountPoint;
 }
 
 function buildCastVoteRecordReportMetadata(
-  exportContext: ExportContext
+  exportContext: ExportContext,
+  options: { hideTime?: boolean } = {}
 ): CVR.CastVoteRecordReport {
   const { scannerState } = exportContext;
   const { batches, electionDefinition, inTestMode } = scannerState;
@@ -172,6 +187,7 @@ function buildCastVoteRecordReportMetadata(
     batchInfo: batches,
     election,
     electionId,
+    generatedDate: options.hideTime ? new Date(election.date) : undefined,
     generatingDeviceId: scannerId,
     isTestMode: inTestMode,
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
@@ -274,8 +290,12 @@ async function exportCastVoteRecordFilesToUsbDrive(
   }
   const canonicalizedSheet = canonicalizeSheetResult.ok();
 
-  const castVoteRecordReportMetadata =
-    buildCastVoteRecordReportMetadata(exportContext);
+  const castVoteRecordReportMetadata = buildCastVoteRecordReportMetadata(
+    exportContext,
+    // Hide the time in the metadata for individual cast vote records so that we don't reveal the
+    // order in which ballots were cast
+    { hideTime: true }
+  );
   const castVoteRecord = buildCastVoteRecord(
     exportContext,
     resultSheet,
@@ -423,6 +443,95 @@ async function exportSignatureFileToUsbDrive(
   return ok();
 }
 
+/**
+ * Updates the creation timestamp of a directory and its children files (assuming no
+ * sub-directories) using the one method guaranteed to work:
+ * ```
+ * cp -r <directory-path> <directory-path>-temp
+ * rm -r <directory-path>
+ * mv <directory-path>-temp <directory-path>
+ * ```
+ *
+ * Doesn't use fs.cp(src, dest, { recursive: true }) under the hood because fs.cp is still
+ * experimental.
+ */
+export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
+  directoryPath: string
+): Promise<void> {
+  await fs.mkdir(`${directoryPath}-temp`);
+  const fileNames = (
+    await fs.readdir(directoryPath, { withFileTypes: true })
+  ).map((entry) => {
+    assert(
+      entry.isFile(),
+      `Unexpected sub-directory ${entry.name} in ${directoryPath}`
+    );
+    return entry.name;
+  });
+  for (const fileName of fileNames) {
+    await fs.copyFile(
+      path.join(directoryPath, fileName),
+      path.join(`${directoryPath}-temp`, fileName)
+    );
+  }
+  // In case the system loses power while deleting the original directory, mark the copied
+  // directory as complete to facilitate recovery on reboot. On reboot, if we see a *-temp
+  // directory, we can safely delete it, and if we see a *-temp-complete directory, we can safely
+  // delete the original directory and move the *-temp-complete directory to the original path.
+  await fs.rename(`${directoryPath}-temp`, `${directoryPath}-temp-complete`);
+  await fs.rm(directoryPath, { recursive: true });
+  await fs.rename(`${directoryPath}-temp-complete`, directoryPath);
+}
+
+/**
+ * File creation timestamps could reveal the order in which ballots were cast. To maintain
+ * voter privacy, every time a ballot is cast, we randomly select 1 or 2 previously added cast vote
+ * records and update their creation timestamps to the present. This approach is equivalent to
+ * moving random ballots to the top of a stack every time a new ballot is added to the stack, a
+ * kind of shuffling as we go.
+ *
+ * This shuffling is irrelevant for full exports, where we already iterate over cast vote records
+ * in an order independent of creation timestamp.
+ */
+async function randomlyUpdateCreationTimestamps(
+  exportContext: ExportContext,
+  exportDirectoryPathRelativeToUsbMountPoint: string,
+  options: { castVoteRecordIdToIgnore?: string } = {}
+): Promise<void> {
+  const { usbMountPoint } = exportContext;
+
+  const exportDirectoryPath = path.join(
+    usbMountPoint,
+    exportDirectoryPathRelativeToUsbMountPoint
+  );
+  const castVoteRecordIds = (
+    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
+  )
+    .filter(
+      (entry) =>
+        entry.isDirectory() && entry.name !== options.castVoteRecordIdToIgnore
+    )
+    .map((entry) => entry.name);
+
+  if (castVoteRecordIds.length === 0) {
+    return;
+  }
+
+  const oneOrTwo = crypto.randomInt(1, 3);
+  for (let i = 0; i < oneOrTwo; i += 1) {
+    const randomCastVoteRecordId = assertDefined(
+      castVoteRecordIds[crypto.randomInt(0, castVoteRecordIds.length)]
+    );
+    const castVoteRecordDirectoryPath = path.join(
+      exportDirectoryPath,
+      randomCastVoteRecordId
+    );
+    await updateCreationTimestampOfDirectoryAndChildrenFiles(
+      castVoteRecordDirectoryPath
+    );
+  }
+}
+
 //
 // Exported functions
 //
@@ -437,6 +546,17 @@ export async function exportCastVoteRecordsToUsbDrive(
   resultSheets: ResultSheet[] | Generator<ResultSheet>,
   exportOptions: ExportOptions
 ): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+  let usbMountPoint: string | undefined;
+  if ('getUsbDrives' in usbDrive) {
+    usbMountPoint = (await usbDrive.getUsbDrives())[0]?.mountPoint;
+  } else {
+    const usbDriveStatus = await usbDrive.status();
+    usbMountPoint =
+      usbDriveStatus.status === 'mounted'
+        ? usbDriveStatus.mountPoint
+        : undefined;
+  }
+  assert(usbMountPoint !== undefined);
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
@@ -457,6 +577,7 @@ export async function exportCastVoteRecordsToUsbDrive(
       pollsState: scannerStore.getPollsState?.(),
     },
     scannerStore,
+    usbMountPoint,
   };
 
   // Before a full export, clear cast vote record hashes so that they can be recomputed from
@@ -467,10 +588,30 @@ export async function exportCastVoteRecordsToUsbDrive(
   }
 
   const exportDirectoryPathRelativeToUsbMountPoint =
-    getExportDirectoryPathRelativeToUsbMountPoint(exportContext);
+    await getExportDirectoryPathRelativeToUsbMountPoint(exportContext);
+
+  const isCreationTimestampShufflingNecessary =
+    exportOptions.scannerType === 'precinct' && !exportOptions.isFullExport;
 
   const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
   for (const resultSheet of resultSheets) {
+    // Randomly decide whether to shuffle creation timestamps before or after cast vote record
+    // creation. If we always did one or the other, the last voter's cast vote record would be
+    // identifiable, as either the first or the last cast vote record among the cluster of cast
+    // vote records with the latest creation timestamps.
+    const whenToShuffleRelativeToCastVoteRecordCreation = assertDefined(
+      (['before', 'after'] as const)[crypto.randomInt(0, 2)]
+    );
+    if (
+      isCreationTimestampShufflingNecessary &&
+      whenToShuffleRelativeToCastVoteRecordCreation === 'before'
+    ) {
+      await randomlyUpdateCreationTimestamps(
+        exportContext,
+        exportDirectoryPathRelativeToUsbMountPoint
+      );
+    }
+
     const exportCastVoteRecordFilesResult =
       await exportCastVoteRecordFilesToUsbDrive(
         exportContext,
@@ -483,6 +624,18 @@ export async function exportCastVoteRecordsToUsbDrive(
     const { castVoteRecordId, castVoteRecordHash } =
       exportCastVoteRecordFilesResult.ok();
     castVoteRecordHashes[castVoteRecordId] = castVoteRecordHash;
+
+    if (
+      isCreationTimestampShufflingNecessary &&
+      whenToShuffleRelativeToCastVoteRecordCreation === 'after'
+    ) {
+      await randomlyUpdateCreationTimestamps(
+        exportContext,
+        exportDirectoryPathRelativeToUsbMountPoint,
+        // Don't randomly select the cast vote record that was just created
+        { castVoteRecordIdToIgnore: castVoteRecordId }
+      );
+    }
   }
 
   for (const [castVoteRecordId, castVoteRecordHash] of Object.entries(

@@ -27,7 +27,7 @@ jest.mock('@votingworks/types', (): typeof import('@votingworks/types') => ({
  * The root hash for the mock cast vote records created in the beforeEach block
  */
 const expectedCastVoteRecordRootHash =
-  '9136de224abc5d5c84100eecbcb8e4f2de40a7d79be9d1b5cfad46f4fffe54c2';
+  '2b0e230f18ffbb4f40c00930b456fcc3a3b3c279c099a67d404a1bb03020cb3b';
 
 const cvrId1 = 'a1234567-0000-0000-0000-000000000000';
 const cvrId2 = 'a2345678-0000-0000-0000-000000000000';
@@ -59,10 +59,10 @@ beforeEach(() => {
   fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId1));
   fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId2));
   for (const { directoryName, fileName, fileContents } of [
-    { directoryName: cvrId1, fileName: 'a', fileContents: 'a1' },
-    { directoryName: cvrId1, fileName: 'b', fileContents: 'b1' },
-    { directoryName: cvrId2, fileName: 'a', fileContents: 'a2' },
-    { directoryName: cvrId2, fileName: 'b', fileContents: 'b2' },
+    { directoryName: cvrId1, fileName: '1', fileContents: '1a' },
+    { directoryName: cvrId1, fileName: '2', fileContents: '2a' },
+    { directoryName: cvrId2, fileName: '1', fileContents: '1b' },
+    { directoryName: cvrId2, fileName: '2', fileContents: '2b' },
   ]) {
     fs.writeFileSync(
       path.join(castVoteRecordExportDirectoryPath, directoryName, fileName),
@@ -239,7 +239,7 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.appendFileSync(path.join(directoryPath, cvrId1, 'a'), '!');
+      fs.appendFileSync(path.join(directoryPath, cvrId1, '1'), '!');
     },
   },
   {
@@ -250,7 +250,7 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.writeFileSync(path.join(directoryPath, cvrId1, 'c'), '');
+      fs.writeFileSync(path.join(directoryPath, cvrId1, '3'), '');
     },
   },
   {
@@ -261,7 +261,7 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.rmSync(path.join(directoryPath, cvrId1, 'a'));
+      fs.rmSync(path.join(directoryPath, cvrId1, '1'));
     },
   },
   {
@@ -274,8 +274,8 @@ test.each<{
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       fs.renameSync(
-        path.join(directoryPath, cvrId1, 'a'),
-        path.join(directoryPath, cvrId1, 'a-renamed')
+        path.join(directoryPath, cvrId1, '1'),
+        path.join(directoryPath, cvrId1, '1-renamed')
       );
     },
   },
