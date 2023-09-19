@@ -45,7 +45,7 @@
     "jest-junit": "^16.0.0",
     "jest-mock-extended": "^3.0.4",
     "jest-watch-typeahead": "^2.2.2",
-    "ts-jest": "29.0.5",
+    "ts-jest": "29.1.1",
     "vite": "^4.0.4"
   },
   "packageManager": "pnpm@8.1.0"
