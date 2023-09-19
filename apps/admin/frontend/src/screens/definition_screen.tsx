@@ -47,9 +47,9 @@ export function DefinitionScreen(): JSX.Element {
         <P>
           <Font weight="semiBold">State:</Font> {election.state}
         </P>
-        <P>
+        <div>
           <Font weight="semiBold">Seal:</Font> <Seal seal={election.seal} />
-        </P>
+        </div>
         <H3 as="h2">Advanced Features</H3>
         <ButtonList>
           <LinkButton to={routerPaths.definitionViewer}>
