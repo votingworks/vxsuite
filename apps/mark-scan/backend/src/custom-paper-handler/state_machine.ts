@@ -403,12 +403,11 @@ export function buildMachine(
         },
         initial: 'presenting_paper',
         // These nested states differ slightly from the top-level paper load states so we can't reuse the latter.
-        // Notably, the frontend needs to handle this paper loading sequence differently so the states must be different.
         states: {
           presenting_paper: {
             // Heavier paper can fail to eject completely and trigger a jam state even though the paper isn't physically jammed.
             // To work around this, we avoid ejecting to front. Instead, we present the paper so it's held by the device in a
-            // stable non-jam state. We instruct the poll worker to remove the paper directly from the present state.
+            // stable non-jam state. We instruct the poll worker to remove the paper directly from the 'presenting' state.
             entry: async (context) => await context.driver.presentPaper(),
             on: { NO_PAPER_ANYWHERE: 'accepting_paper' },
           },
@@ -439,8 +438,9 @@ export function buildMachine(
         },
         onDone: { target: 'paper_reloaded' },
       },
-      // paper_reloaded is a distinct state from paper_parked only
-      // because the frontend handles them differently
+      // `paper_reloaded` could be a substate of `blank_page_interpretation` but by keeping
+      // them separate we can avoid exposing all the substates of `blank_page_interpretation`
+      // to the frontend.
       paper_reloaded: {
         invoke: pollAuthStatus(),
         entry: () => {
