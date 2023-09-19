@@ -28,7 +28,7 @@ import {
   PollsState,
   unsafeParse,
 } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   generateCastVoteRecordExportDirectoryName,
@@ -47,6 +47,7 @@ import {
   canonicalizeSheet,
   describeSheetValidationError,
 } from './canonicalize';
+import { readCastVoteRecordExportMetadata } from './import';
 import { ResultSheet } from './legacy_export';
 import { buildElectionOptionPositionMap } from './option_map';
 
@@ -114,6 +115,21 @@ interface ExportContext {
 //
 
 /**
+ * A cached result for {@link doesUsbDriveRequireCastVoteRecordSync}. See
+ * {@link doesUsbDriveRequireCastVoteRecordSync} for more context.
+ */
+let doesUsbDriveRequireCastVoteRecordSyncCachedResult:
+  | { previousUsbDriveStatus: UsbDriveStatus; previousValue: boolean }
+  | undefined;
+
+/**
+ * Clears {@link doesUsbDriveRequireCastVoteRecordSyncCachedResult}
+ */
+function clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult(): void {
+  doesUsbDriveRequireCastVoteRecordSyncCachedResult = undefined;
+}
+
+/**
  * Returns the export directory path relative to the USB mount point. Creates a new export
  * directory if one hasn't been created yet or if we're performing a full export.
  *
@@ -130,14 +146,12 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
   const { election, electionHash } = electionDefinition;
 
   let exportDirectoryName: string | undefined;
-  let exportDirectoryNeedsCreation = false;
   switch (exportOptions.scannerType) {
     case 'central': {
       exportDirectoryName = generateCastVoteRecordExportDirectoryName({
         inTestMode,
         machineId: VX_MACHINE_ID,
       });
-      exportDirectoryNeedsCreation = true;
       break;
     }
     case 'precinct': {
@@ -149,7 +163,6 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
           inTestMode,
           machineId: VX_MACHINE_ID,
         });
-        exportDirectoryNeedsCreation = true;
         scannerStore.setExportDirectoryName(exportDirectoryName);
       }
       break;
@@ -165,12 +178,10 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
     generateElectionBasedSubfolderName(election, electionHash),
     exportDirectoryName
   );
-  if (exportDirectoryNeedsCreation) {
-    await fs.mkdir(
-      path.join(usbMountPoint, exportDirectoryPathRelativeToUsbMountPoint),
-      { recursive: true }
-    );
-  }
+  await fs.mkdir(
+    path.join(usbMountPoint, exportDirectoryPathRelativeToUsbMountPoint),
+    { recursive: true }
+  );
   return exportDirectoryPathRelativeToUsbMountPoint;
 }
 
@@ -668,5 +679,81 @@ export async function exportCastVoteRecordsToUsbDrive(
     return exportSignatureFileResult;
   }
 
+  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+
   return ok();
+}
+
+/**
+ * Returns whether a USB drive is inserted and requires a cast vote record sync because the cast
+ * vote records on it don't match the cast vote records on the machine. Only relevant for machines
+ * that continuously export cast vote records.
+ *
+ * Because this function 1) requires reading data from the USB drive and 2) is polled by consumers,
+ * we use a caching mechanism to avoid constantly reading from the USB drive. We recompute whenever
+ * 1) the USB drive status changes (e.g. on insertion and removal) or 2) the cache is explicitly
+ * cleared (e.g. after cast vote record export).
+ */
+export async function doesUsbDriveRequireCastVoteRecordSync(
+  scannerStore: ScannerStore & {
+    getBallotsCounted: () => number;
+    getExportDirectoryName: NonNullable<ScannerStore['getExportDirectoryName']>;
+  },
+  usbDriveStatus: UsbDriveStatus
+): Promise<boolean> {
+  if (
+    doesUsbDriveRequireCastVoteRecordSyncCachedResult &&
+    doesUsbDriveRequireCastVoteRecordSyncCachedResult.previousUsbDriveStatus
+      .status === usbDriveStatus.status
+  ) {
+    return doesUsbDriveRequireCastVoteRecordSyncCachedResult.previousValue;
+  }
+
+  const value = await (async () => {
+    if (usbDriveStatus.status !== 'mounted') {
+      return false;
+    }
+    const usbMountPoint = usbDriveStatus.mountPoint;
+
+    const electionDefinition = scannerStore.getElectionDefinition();
+    if (!electionDefinition) {
+      return false;
+    }
+    const exportDirectoryName = scannerStore.getExportDirectoryName();
+    if (!exportDirectoryName) {
+      return false;
+    }
+    const ballotsCounted = scannerStore.getBallotsCounted();
+    if (ballotsCounted === 0) {
+      return false;
+    }
+    const castVoteRecordRootHash = scannerStore.getCastVoteRecordRootHash();
+
+    const { election, electionHash } = electionDefinition;
+    const exportDirectoryPath = path.join(
+      usbMountPoint,
+      SCANNER_RESULTS_FOLDER,
+      generateElectionBasedSubfolderName(election, electionHash),
+      exportDirectoryName
+    );
+    const metadataResult =
+      await readCastVoteRecordExportMetadata(exportDirectoryPath);
+    if (metadataResult.isErr()) {
+      return true;
+    }
+    const castVoteRecordExportMetadata = metadataResult.ok();
+    if (
+      castVoteRecordExportMetadata.castVoteRecordRootHash !==
+      castVoteRecordRootHash
+    ) {
+      return true;
+    }
+    return false;
+  })();
+  doesUsbDriveRequireCastVoteRecordSyncCachedResult = {
+    previousUsbDriveStatus: usbDriveStatus,
+    previousValue: value,
+  };
+
+  return value;
 }
