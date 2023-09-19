@@ -12,8 +12,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Disallows generics in functions where the only use is in the return type',
-      recommended: 'error',
-      suggestion: true,
+      recommended: 'strict',
       requiresTypeChecking: true,
     },
     messages: {

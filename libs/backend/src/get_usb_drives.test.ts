@@ -1,7 +1,7 @@
 import { mockOf } from '@votingworks/test-utils';
 import * as fs from 'fs/promises';
 import { getUsbDrives } from './get_usb_drives';
-import { execFile } from './utils/exec';
+import { execFile } from './exec';
 
 const execMock = mockOf(execFile);
 const accessMock = fs.access as unknown as jest.MockedFunction<
@@ -20,8 +20,8 @@ jest.mock('fs/promises', () => ({
   readlink: jest.fn(),
 }));
 
-jest.mock('./utils/exec', (): typeof import('./utils/exec') => ({
-  ...jest.requireActual('./utils/exec'),
+jest.mock('./exec', (): typeof import('./exec') => ({
+  ...jest.requireActual('./exec'),
   execFile: jest.fn(),
 }));
 

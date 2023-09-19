@@ -1,5 +1,5 @@
 import JsZip from 'jszip';
-import { BallotPackage } from '@votingworks/types';
+import { BallotPackage, BallotPackageFileName } from '@votingworks/types';
 import { Buffer } from 'buffer';
 
 /**
@@ -9,10 +9,13 @@ export function createBallotPackageZipArchive(
   ballotPackage: BallotPackage
 ): Promise<Buffer> {
   const jsZip = new JsZip();
-  jsZip.file('election.json', ballotPackage.electionDefinition.electionData);
+  jsZip.file(
+    BallotPackageFileName.ELECTION,
+    ballotPackage.electionDefinition.electionData
+  );
   if (ballotPackage.systemSettings) {
     jsZip.file(
-      'systemSettings.json',
+      BallotPackageFileName.SYSTEM_SETTINGS,
       JSON.stringify(ballotPackage.systemSettings, null, 2)
     );
   }

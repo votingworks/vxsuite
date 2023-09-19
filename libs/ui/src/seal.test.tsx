@@ -1,9 +1,9 @@
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 import { Seal } from './seal';
 
 test('Seal with svg value', () => {
-  render(<Seal seal={electionSampleDefinition.election.seal} />);
+  render(<Seal seal={electionGeneralDefinition.election.seal} />);
   expect(
     screen.queryByText('Seal of Montgomery County, Maryland.')
   ).toBeInTheDocument();
@@ -12,12 +12,12 @@ test('Seal with svg value', () => {
 
 test('varies container styling based on UI theme', () => {
   const lightThemeSeal = render(
-    <Seal seal={electionSampleDefinition.election.seal} />,
+    <Seal seal={electionGeneralDefinition.election.seal} />,
     { vxTheme: { colorMode: 'contrastHighDark' } }
   );
 
   const darkThemeSeal = render(
-    <Seal seal={electionSampleDefinition.election.seal} />,
+    <Seal seal={electionGeneralDefinition.election.seal} />,
     { vxTheme: { colorMode: 'contrastHighDark' } }
   );
 

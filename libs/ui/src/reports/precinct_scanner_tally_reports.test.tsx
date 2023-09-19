@@ -1,8 +1,10 @@
 import {
+  asElectionDefinition,
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleWithReportingUrlDefinition,
+  electionTwoPartyPrimary,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
+import { Election } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
@@ -11,8 +13,16 @@ import {
 import { render, screen, within } from '../../test/react_testing_library';
 import { PrecinctScannerTallyReports } from './precinct_scanner_tally_reports';
 
+const electionWithReportingUrl: Election = {
+  ...electionTwoPartyPrimary,
+  quickResultsReportingUrl: 'https://results.voting.works',
+};
+const electionDefinitionWithReportingUrl = asElectionDefinition(
+  electionWithReportingUrl
+);
+
 test('polls open, primary, single precinct, live mode', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const precinctSelection = singlePrecinctSelectionFor('precinct-1');
 
   const mammalResults = buildElectionResultsFixture({
@@ -71,7 +81,7 @@ test('polls open, primary, single precinct, live mode', () => {
   });
   render(
     <PrecinctScannerTallyReports
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
       precinctSelection={precinctSelection}
       electionResultsByParty={[
         {
@@ -189,9 +199,7 @@ test('polls closed, general, All Precincts, test mode', () => {
 test('includes quick results page under right conditions', () => {
   render(
     <PrecinctScannerTallyReports
-      electionDefinition={
-        electionMinimalExhaustiveSampleWithReportingUrlDefinition
-      }
+      electionDefinition={electionDefinitionWithReportingUrl}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       electionResultsByParty={[]}
       pollsTransition="close_polls" // to trigger qrcode
@@ -209,9 +217,7 @@ test('includes quick results page under right conditions', () => {
 test('does not include quick results page if ballot count is 0', () => {
   render(
     <PrecinctScannerTallyReports
-      electionDefinition={
-        electionMinimalExhaustiveSampleWithReportingUrlDefinition
-      }
+      electionDefinition={electionDefinitionWithReportingUrl}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       electionResultsByParty={[]}
       pollsTransition="close_polls" // to trigger qrcode
@@ -231,9 +237,7 @@ test('does not include quick results page if ballot count is 0', () => {
 test('does not include quick results page if polls are being opened', () => {
   render(
     <PrecinctScannerTallyReports
-      electionDefinition={
-        electionMinimalExhaustiveSampleWithReportingUrlDefinition
-      }
+      electionDefinition={electionDefinitionWithReportingUrl}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       electionResultsByParty={[]}
       pollsTransition="open_polls" // to disable qrcode

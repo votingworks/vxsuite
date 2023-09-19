@@ -166,9 +166,7 @@ export function CardDetailsView({
   return (
     <React.Fragment>
       {actionStatus?.status === 'Error' && (
-        <P align="center">
-          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
-        </P>
+        <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
       )}
 
       <Font align="center">

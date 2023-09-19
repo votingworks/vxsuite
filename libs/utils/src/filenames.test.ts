@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import {
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { Election, ElectionDefinition } from '@votingworks/types';
@@ -20,6 +20,8 @@ import {
   generateCastVoteRecordReportDirectoryName,
   parseCastVoteRecordReportDirectoryName,
   generateCastVoteRecordExportDirectoryName,
+  CastVoteRecordExportDirectoryNameComponents,
+  parseCastVoteRecordReportExportDirectoryName,
 } from './filenames';
 
 describe('parseBallotExportPackageInfoFromFilename', () => {
@@ -76,13 +78,14 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
     const time = new Date(2020, 3, 14);
     expect(
       parseBallotExportPackageInfoFromFilename(
-        generateFilenameForBallotExportPackage(electionSampleDefinition, time)
+        generateFilenameForBallotExportPackage(electionGeneralDefinition, time)
       )
     ).toEqual({
       electionCounty:
-        electionSampleDefinition.election.county.name.toLocaleLowerCase(),
-      electionName: electionSampleDefinition.election.title.toLocaleLowerCase(),
-      electionHash: electionSampleDefinition.electionHash.slice(0, 10),
+        electionGeneralDefinition.election.county.name.toLocaleLowerCase(),
+      electionName:
+        electionGeneralDefinition.election.title.toLocaleLowerCase(),
+      electionHash: electionGeneralDefinition.electionHash.slice(0, 10),
       timestamp: time,
     });
     expect(
@@ -109,7 +112,7 @@ describe('parseBallotExportPackageInfoFromFilename', () => {
 describe('generateElectionBasedSubfolderName', () => {
   test('generates basic election subfolder name as expected', () => {
     const mockElection: Election = {
-      ...electionSampleDefinition.election,
+      ...electionGeneralDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     };
@@ -120,7 +123,7 @@ describe('generateElectionBasedSubfolderName', () => {
 
   test('generates election subfolder name as expected when election county and title have weird characters', () => {
     const mockElection: Election = {
-      ...electionSampleDefinition.election,
+      ...electionGeneralDefinition.election,
       county: { name: '-K(ing&COUN-----TY**', id: '' },
       title: 'General-Election@@',
     };
@@ -131,7 +134,7 @@ describe('generateElectionBasedSubfolderName', () => {
 
   test('generates election subfolder name as expected when election hash length varies', () => {
     const mockElection: Election = {
-      ...electionSampleDefinition.election,
+      ...electionGeneralDefinition.election,
       county: { name: 'King County', id: '' },
       title: 'General Election',
     };
@@ -185,39 +188,6 @@ describe('generateCastVoteRecordReportDirectoryName', () => {
     );
   });
 });
-
-test.each<{
-  inTestMode: boolean;
-  machineId: string;
-  time: Date;
-  expectedDirectoryName: string;
-}>([
-  {
-    inTestMode: true,
-    machineId: 'SCAN-0001',
-    time: new Date(2023, 7, 16, 17, 2, 24),
-    expectedDirectoryName: 'TEST__machine_SCAN-0001__2023-08-16_17-02-24',
-  },
-  {
-    inTestMode: false,
-    machineId: 'SCAN-0001',
-    time: new Date(2023, 7, 16, 17, 2, 24),
-    expectedDirectoryName: 'machine_SCAN-0001__2023-08-16_17-02-24',
-  },
-  {
-    inTestMode: true,
-    machineId: '<3-u!n#icorn<3',
-    time: new Date(2023, 7, 16, 17, 2, 24),
-    expectedDirectoryName: 'TEST__machine_3unicorn3__2023-08-16_17-02-24',
-  },
-])(
-  'generateCastVoteRecordExportDirectoryName',
-  ({ expectedDirectoryName, ...input }) => {
-    expect(generateCastVoteRecordExportDirectoryName(input)).toEqual(
-      expectedDirectoryName
-    );
-  }
-);
 
 test('generates ballot export package names as expected with simple inputs', () => {
   const mockElection: ElectionDefinition = {
@@ -570,7 +540,7 @@ test('generateBatchResultsDefaultFilename', () => {
   fc.assert(
     fc.property(
       fc.boolean(),
-      fc.constant(electionSampleDefinition.election),
+      fc.constant(electionGeneralDefinition.election),
       fc.oneof(fc.constant(undefined), arbitraryTimestampDate()),
       (isTestModeResults, election, time) => {
         expect(
@@ -599,3 +569,110 @@ test('generateLogFilename', () => {
     )
   );
 });
+
+test.each<{
+  input: CastVoteRecordExportDirectoryNameComponents;
+  expectedDirectoryName: string;
+}>([
+  {
+    input: {
+      inTestMode: true,
+      machineId: 'SCAN-0001',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+    expectedDirectoryName: 'TEST__machine_SCAN-0001__2023-08-16_17-02-24',
+  },
+  {
+    input: {
+      inTestMode: false,
+      machineId: 'SCAN-0001',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+    expectedDirectoryName: 'machine_SCAN-0001__2023-08-16_17-02-24',
+  },
+  {
+    input: {
+      inTestMode: true,
+      machineId: '<3-u!n#icorn<3',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+    expectedDirectoryName: 'TEST__machine_3unicorn3__2023-08-16_17-02-24',
+  },
+])(
+  'generateCastVoteRecordExportDirectoryName',
+  ({ input, expectedDirectoryName }) => {
+    expect(generateCastVoteRecordExportDirectoryName(input)).toEqual(
+      expectedDirectoryName
+    );
+  }
+);
+
+test.each<{
+  directoryName: string;
+  expectedDirectoryNameComponents?: CastVoteRecordExportDirectoryNameComponents;
+}>([
+  {
+    directoryName: 'TEST__machine_SCAN-0001__2023-08-16_17-02-24',
+    expectedDirectoryNameComponents: {
+      inTestMode: true,
+      machineId: 'SCAN-0001',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+  },
+  {
+    directoryName: 'machine_SCAN-0001__2023-08-16_17-02-24',
+    expectedDirectoryNameComponents: {
+      inTestMode: false,
+      machineId: 'SCAN-0001',
+      time: new Date(2023, 7, 16, 17, 2, 24),
+    },
+  },
+  {
+    directoryName:
+      'TEST__machine_SCAN-0001__2023-08-16_17-02-24__extra-section',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'machine_SCAN-0001__2023-08-16_17-02-24__extra-section',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'TEST__machine_SCAN-0001', // Missing time section
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'machine_SCAN-0001', // Missing time section
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'TEST__SCAN-0001__2023-08-16_17-02-24', // Missing machine_ prefix
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'SCAN-0001__2023-08-16_17-02-24', // Missing machine_ prefix
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'TEST__wrong-prefix_SCAN-0001__2023-08-16_17-02-24',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'wrong-prefix_SCAN-0001__2023-08-16_17-02-24',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'TEST__machine_SCAN-0001__invalid-time',
+    expectedDirectoryNameComponents: undefined,
+  },
+  {
+    directoryName: 'machine_SCAN-0001__invalid-time',
+    expectedDirectoryNameComponents: undefined,
+  },
+])(
+  'parseCastVoteRecordReportExportDirectoryName',
+  ({ directoryName, expectedDirectoryNameComponents }) => {
+    expect(parseCastVoteRecordReportExportDirectoryName(directoryName)).toEqual(
+      expectedDirectoryNameComponents
+    );
+  }
+);

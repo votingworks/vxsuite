@@ -1,6 +1,6 @@
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -41,7 +41,7 @@ afterEach(() => {
 
 test('card counts', async () => {
   const { electionDefinition, castVoteRecordReport } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();
@@ -66,40 +66,23 @@ test('card counts', async () => {
 
   expect(
     await apiClient.getCardCounts({
-      groupBy: { groupByPrecinct: true, groupByBallotStyle: true },
+      filter: { ballotStyleIds: ['1M'] },
+      groupBy: { groupByPrecinct: true },
     })
-  ).toMatchObject(
-    expect.arrayContaining([
-      {
-        ballotStyleId: '1M',
-        precinctId: 'precinct-1',
-        bmd: 28,
-        hmpb: [],
-        manual: 10,
-      },
-      {
-        ballotStyleId: '2F',
-        precinctId: 'precinct-1',
-        bmd: 28,
-        hmpb: [],
-        manual: 0,
-      },
-      {
-        ballotStyleId: '1M',
-        precinctId: 'precinct-2',
-        bmd: 28,
-        hmpb: [],
-        manual: 0,
-      },
-      {
-        ballotStyleId: '2F',
-        precinctId: 'precinct-2',
-        bmd: 28,
-        hmpb: [],
-        manual: 0,
-      },
-    ])
-  );
+  ).toEqual([
+    {
+      precinctId: 'precinct-1',
+      bmd: 28,
+      hmpb: [],
+      manual: 10,
+    },
+    {
+      precinctId: 'precinct-2',
+      bmd: 28,
+      hmpb: [],
+      manual: 0,
+    },
+  ]);
 });
 
 test('election write-in adjudication summary', async () => {

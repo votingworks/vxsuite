@@ -10,7 +10,9 @@ import {
   famousNamesDir,
   famousNamesFixtures,
   fixturesDir,
-  sampleElectionFixtures,
+  primaryElectionDir,
+  primaryElectionFixtures,
+  generalElectionFixtures,
 } from './ballot_fixtures';
 
 function generateBallotFixture(
@@ -66,13 +68,13 @@ function generateFamousNamesFixtures(): void {
   }
 }
 
-function generateSampleElectionFixtures(): void {
+function generateGeneralElectionFixtures(): void {
   for (const {
     electionDefinition,
     electionDir,
     blankBallot,
     markedBallot,
-  } of sampleElectionFixtures) {
+  } of generalElectionFixtures) {
     fs.mkdirSync(electionDir, { recursive: true });
     fs.writeFileSync(
       join(electionDir, 'election.json'),
@@ -89,10 +91,33 @@ function generateSampleElectionFixtures(): void {
   }
 }
 
+function generatePrimaryElectionFixtures(): void {
+  fs.mkdirSync(primaryElectionDir, { recursive: true });
+  const { electionDefinition, mammalParty, fishParty } =
+    primaryElectionFixtures;
+
+  fs.writeFileSync(
+    join(primaryElectionDir, 'election.json'),
+    electionDefinition.electionData
+  );
+
+  for (const partyFixtures of [mammalParty, fishParty]) {
+    const { partyLabel, blankBallot, markedBallot } = partyFixtures;
+    const ballots = {
+      [`${partyLabel}-blank-ballot`]: blankBallot,
+      [`${partyLabel}-marked-ballot`]: markedBallot,
+    } as const;
+    for (const [label, document] of Object.entries(ballots)) {
+      generateBallotFixture(primaryElectionDir, label, document);
+    }
+  }
+}
+
 export function main(): void {
   fs.rmSync(fixturesDir, { recursive: true });
 
   generateAllBubbleBallotFixtures();
   generateFamousNamesFixtures();
-  generateSampleElectionFixtures();
+  generateGeneralElectionFixtures();
+  generatePrimaryElectionFixtures();
 }

@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { screen, within } from '../../test/react_testing_library';
 import { ManualDataSummaryScreen } from './manual_data_summary_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
@@ -21,7 +21,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 
 test('navigating back to tally page', async () => {
   const history = createMemoryHistory();

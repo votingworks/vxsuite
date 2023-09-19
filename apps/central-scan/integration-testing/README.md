@@ -1,8 +1,7 @@
-# VxCentralScan Integration Testing
+# VxMark Integration Testing
 
-Integration tests for VxCentralScan using the backend
-(`apps/central-scan/backend`), frontend (`apps/central-scan/frontend`), and
-dependent services.
+Integration tests for VxMark using the backend (`apps/mark/backend`), frontend
+(`apps/mark/frontend`), and dependent services.
 
 ## Development
 
@@ -17,8 +16,8 @@ The tests can also be run in Chrome (and in CircleCI, they do run in Chrome) but
 currently there is not a Debian 11 ARM version of Chrome available so we use
 Chromium locally.
 
-You will also need to make sure to have cypress dependencies installed see:
-https://on.cypress.io/required-dependencies.
+See the "Installation" section of the Playwright docs for more information:
+https://playwright.dev/docs/intro.
 
 ```bash
 # build the frontend, backend, and required services
@@ -27,14 +26,6 @@ pnpm build
 # to run tests in headless mode
 pnpm test
 
-# to run tests via the Cypress window
+# to run tests via the Playwright window
 pnpm test:watch
 ```
-
-### Notes
-
-Cypress makes it easy to use fixtures files in the `cypress/fixtures` directory.
-For this reason some fixtures from the shared `lib/fixtures` module are
-duplicated into tests fixtures folders. Tests also rely on the data in
-`lib/fixtures` so you must run pnpm build to make sure those files get built
-properly.

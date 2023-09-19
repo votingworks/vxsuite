@@ -1,8 +1,15 @@
-import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  throwIllegalValue,
+  typedAs,
+  unique,
+} from '@votingworks/basics';
 import { Election, Tabulation } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { SearchSelect, SelectOption, Icons, Button } from '@votingworks/ui';
+import type { ScannerBatch } from '@votingworks/admin-backend';
+import { getScannerBatches } from '../../api';
 
 export interface FilterEditorProps {
   onChange: (filter: Tabulation.Filter) => void;
@@ -61,11 +68,17 @@ const RemoveButton = styled.button`
   }
 `;
 
-const FILTER_TYPES = ['precinct', 'voting-method', 'ballot-style'] as const;
-type FilterType = typeof FILTER_TYPES[number];
+const FILTER_TYPES = [
+  'precinct',
+  'voting-method',
+  'ballot-style',
+  'scanner',
+  'batch',
+] as const;
+type FilterType = (typeof FILTER_TYPES)[number];
 
 function getAllowedFilterTypes(): FilterType[] {
-  return ['precinct', 'voting-method', 'ballot-style'];
+  return ['precinct', 'voting-method', 'ballot-style', 'scanner', 'batch'];
 }
 
 interface FilterRow {
@@ -79,6 +92,8 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   precinct: 'Precinct',
   'voting-method': 'Voting Method',
   'ballot-style': 'Ballot Style',
+  scanner: 'Scanner',
+  batch: 'Batch',
 };
 
 function getFilterTypeOption(filterType: FilterType): SelectOption<FilterType> {
@@ -88,10 +103,15 @@ function getFilterTypeOption(filterType: FilterType): SelectOption<FilterType> {
   };
 }
 
-function generateOptionsForFilter(
-  filterType: FilterType,
-  election: Election
-): SelectOption[] {
+function generateOptionsForFilter({
+  filterType,
+  election,
+  scannerBatches,
+}: {
+  filterType: FilterType;
+  election: Election;
+  scannerBatches: ScannerBatch[];
+}): SelectOption[] {
   switch (filterType) {
     case 'precinct':
       return election.precincts.map((precinct) => ({
@@ -114,6 +134,18 @@ function generateOptionsForFilter(
           label: 'Absentee',
         },
       ]);
+    case 'scanner':
+      return unique(scannerBatches.map((sb) => sb.scannerId)).map(
+        (scannerId) => ({
+          value: scannerId,
+          label: scannerId,
+        })
+      );
+    case 'batch':
+      return scannerBatches.map((sb) => ({
+        value: sb.batchId,
+        label: `${sb.scannerId} • ${sb.batchId.slice(0, 8)}`,
+      }));
     /* istanbul ignore next - compile-time check for completeness */
     default:
       throwIllegalValue(filterType);
@@ -140,6 +172,12 @@ function convertFilterRowsToTabulationFilter(
       case 'ballot-style':
         tabulationFilter.ballotStyleIds = filterValues;
         break;
+      case 'scanner':
+        tabulationFilter.scannerIds = filterValues;
+        break;
+      case 'batch':
+        tabulationFilter.batchIds = filterValues;
+        break;
       /* istanbul ignore next - compile-time check for completeness */
       default:
         throwIllegalValue(filterType);
@@ -156,6 +194,9 @@ export function FilterEditor({
   const [rows, setRows] = useState<FilterRows>([]);
   const [nextRowId, setNextRowId] = useState(0);
   const [isAddingRow, setIsAddingRow] = useState(false);
+
+  const scannerBatchesQuery = getScannerBatches.useQuery();
+  const scannerBatches = scannerBatchesQuery.data ?? [];
 
   function onUpdatedRows(updatedRows: FilterRows) {
     setRows(updatedRows);
@@ -230,7 +271,11 @@ export function FilterEditor({
                 isMulti
                 isSearchable
                 key={filterType}
-                options={generateOptionsForFilter(filterType, election)}
+                options={generateOptionsForFilter({
+                  filterType,
+                  election,
+                  scannerBatches,
+                })}
                 value={row.filterValues}
                 onChange={(filterValues) => {
                   updateRowFilterValues(rowId, filterValues);

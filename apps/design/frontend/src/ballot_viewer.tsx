@@ -1,11 +1,12 @@
 /* eslint-disable react/no-array-index-key */
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   BallotPaperSize,
   BallotStyle,
   BallotType,
   Election,
+  getPartyForBallotStyle,
   Precinct,
 } from '@votingworks/types';
 import styled from 'styled-components';
@@ -319,6 +320,18 @@ export function BallotViewer({
           <Column style={{ gap: '1rem' }}>
             <FormField label="Ballot Style">{ballotStyle.id}</FormField>
             <FormField label="Precinct">{precinct.name}</FormField>
+            {election.type === 'primary' && (
+              <FormField label="Party">
+                {
+                  assertDefined(
+                    getPartyForBallotStyle({
+                      election,
+                      ballotStyleId: ballotStyle.id,
+                    })
+                  ).fullName
+                }
+              </FormField>
+            )}
             <FormField label="Page Size">
               {paperSizeLabels[paperSize]}{' '}
             </FormField>

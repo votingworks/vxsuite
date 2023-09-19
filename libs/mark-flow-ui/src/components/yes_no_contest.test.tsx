@@ -1,11 +1,11 @@
-import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
+import { electionTwoPartyPrimary } from '@votingworks/fixtures';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { advanceTimers } from '@votingworks/test-utils';
 import { screen, within, render } from '../../test/react_testing_library';
 import { YesNoContest } from './yes_no_contest';
 
-const contest = electionMinimalExhaustiveSample.contests.find(
+const contest = electionTwoPartyPrimary.contests.find(
   (c) => c.id === 'fishing' && c.type === 'yesno'
 ) as YesNoContestInterface;
 
@@ -13,7 +13,7 @@ test('voting for both yes and no', () => {
   const updateVote = jest.fn();
   const { container } = render(
     <YesNoContest
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       contest={contest}
       updateVote={updateVote}
     />
@@ -32,7 +32,7 @@ test('changing votes', () => {
   const updateVote = jest.fn();
   const { container } = render(
     <YesNoContest
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       contest={contest}
       vote={[contest.yesOption.id]}
       updateVote={updateVote}
@@ -57,7 +57,7 @@ test('audio cue for vote', () => {
   const updateVote = jest.fn();
   const { rerender } = render(
     <YesNoContest
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       contest={contest}
       updateVote={updateVote}
     />
@@ -73,7 +73,7 @@ test('audio cue for vote', () => {
   // manually handle updating the vote
   rerender(
     <YesNoContest
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       contest={contest}
       vote={[contest.yesOption.id]}
       updateVote={updateVote}
@@ -89,7 +89,7 @@ test('audio cue for vote', () => {
   // manually handle updating the vote
   rerender(
     <YesNoContest
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       contest={contest}
       vote={[]}
       updateVote={updateVote}

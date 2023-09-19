@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { screen } from '../../test/react_testing_library';
@@ -10,16 +10,16 @@ import { render as renderWithBallotContext } from '../../test/test_utils';
 import { ContestPage } from './contest_page';
 import { Paths } from '../config/globals';
 
-const electionSample = electionSampleDefinition.election;
-const firstContestTitle = electionSample.contests[0].title;
+const electionGeneral = electionGeneralDefinition.election;
+const firstContestTitle = electionGeneral.contests[0].title;
 
 it('Renders ContestPage', () => {
   const { container } = renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       route: '/contests/0',
-      precinctId: electionSample.precincts[0].id,
-      ballotStyleId: electionSample.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0].id,
+      ballotStyleId: electionGeneral.ballotStyles[0].id,
     }
   );
   screen.getByText(firstContestTitle);
@@ -31,8 +31,8 @@ it('Renders ContestPage in Landscape orientation', () => {
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       route: '/contests/0',
-      precinctId: electionSample.precincts[0].id,
-      ballotStyleId: electionSample.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0].id,
+      ballotStyleId: electionGeneral.ballotStyles[0].id,
       machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
@@ -45,8 +45,8 @@ it('Renders ContestPage in Landscape orientation in Review Mode', () => {
     <Route path="/contests/:contestNumber" component={ContestPage} />,
     {
       route: '/contests/0#review',
-      precinctId: electionSample.precincts[0].id,
-      ballotStyleId: electionSample.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0].id,
+      ballotStyleId: electionGeneral.ballotStyles[0].id,
       machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
@@ -62,8 +62,8 @@ it('renders display settings button', () => {
     {
       history,
       route: '/contests/0',
-      precinctId: electionSample.precincts[0].id,
-      ballotStyleId: electionSample.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0].id,
+      ballotStyleId: electionGeneral.ballotStyles[0].id,
     }
   );
 

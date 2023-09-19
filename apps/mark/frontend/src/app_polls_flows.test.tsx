@@ -1,6 +1,6 @@
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { screen, waitFor, within } from '../test/react_testing_library';
 import {
@@ -33,14 +33,14 @@ test('full polls flow', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   const { renderApp, storage, logger } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  await setElectionInStorage(storage, electionGeneralDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
   // Open Polls
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   userEvent.click(await screen.findByText('Open Polls'));
   const openModal = await screen.findByRole('alertdialog');
@@ -55,7 +55,7 @@ test('full polls flow', async () => {
   );
 
   // Pause Voting
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(await screen.findByText('Pause Voting'));
@@ -71,7 +71,7 @@ test('full polls flow', async () => {
   );
 
   // Resume Voting
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(await screen.findByText('Resume Voting'));
   const resumeModal = await screen.findByRole('alertdialog');
@@ -86,7 +86,7 @@ test('full polls flow', async () => {
   );
 
   // Close Polls
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
@@ -105,14 +105,14 @@ test('full polls flow', async () => {
 
 test('can close polls from paused', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  await setElectionInStorage(storage, electionGeneralDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_paused' });
   renderApp();
   await screen.findByText('Voting Paused');
   screen.getByText('Insert Poll Worker card to resume voting.');
 
   // Close Polls
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Close Polls'));
   const closeModal = await screen.findByRole('alertdialog');
@@ -125,13 +125,13 @@ test('can close polls from paused', async () => {
 
 test('no buttons to change polls from closed final', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  await setElectionInStorage(storage, electionGeneralDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
 
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionSampleDefinition);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   expect(
     screen.queryByRole('button', { name: /open/i })
@@ -146,7 +146,7 @@ test('no buttons to change polls from closed final', async () => {
 
 test('can reset polls to paused with system administrator card', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionSampleDefinition);
+  await setElectionInStorage(storage, electionGeneralDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');

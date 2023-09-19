@@ -1,7 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -24,7 +24,7 @@ import {
 import { Store } from '../store';
 
 test('getEmptyElectionWriteInSummary', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   expect(getEmptyElectionWriteInSummary(election)).toEqual({
     contestWriteInSummaries: {
@@ -150,7 +150,7 @@ const mockAquariumCouncilFishSummary: Tabulation.ContestWriteInSummary = {
 
 test('tabulateWriteInTallies', () => {
   const store = Store.memoryStore();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,
@@ -351,7 +351,7 @@ test('tabulateWriteInTallies', () => {
 });
 
 test('modifyElectionResultsWithWriteInSummary', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   const electionResults = getEmptyElectionResults(election);
 
   electionResults.cardCounts.bmd = 112;

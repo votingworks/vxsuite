@@ -12,9 +12,11 @@ export type {
   PrecinctWithSplits,
   PrecinctWithoutSplits,
 } from './store';
-export { generateBallotStyles } from './store';
-export { convertVxfPrecincts } from './app';
 export type { Api } from './app';
+
+// Frontend tests import these for generating test data
+export { generateBallotStyles } from './store';
+export { createBlankElection, convertVxfPrecincts } from './app';
 
 function main(): Promise<number> {
   if (!WORKSPACE) {

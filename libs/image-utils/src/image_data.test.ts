@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { createImageData } from 'canvas';
+import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';
 import { writeFile } from 'fs/promises';
 import { fileSync } from 'tmp';
@@ -21,6 +21,7 @@ import {
   toImageData,
   toRgba,
   writeImageData,
+  ensureImageData,
 } from './image_data';
 
 test('channels', () => {
@@ -283,4 +284,19 @@ test('toDataUrl image/x-portable-graymap with more than one channel', () => {
   expect(() => toDataUrl(imageData, 'image/x-portable-graymap')).toThrow(
     'image/x-portable-graymap only supports one channel'
   );
+});
+
+test('ensureImageData', () => {
+  const imageData = createImageData(1, 1);
+  expect(ensureImageData(imageData) === imageData).toBeTruthy();
+  expect(ensureImageData(imageData)).toBeInstanceOf(ImageData);
+
+  const imageDataLike: ImageData = {
+    width: 1,
+    height: 1,
+    data: Uint8ClampedArray.of(0),
+    colorSpace: 'srgb',
+  };
+  expect(ensureImageData(imageDataLike) === imageDataLike).toBeFalsy();
+  expect(ensureImageData(imageDataLike)).toBeInstanceOf(ImageData);
 });

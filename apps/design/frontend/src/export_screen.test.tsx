@@ -28,11 +28,10 @@ function renderScreen() {
   render(
     provideApi(
       apiMock,
-      withRoute(
-        <ExportScreen />,
-        routes.election(':electionId').export.path,
-        routes.election(electionId).export.path
-      )
+      withRoute(<ExportScreen />, {
+        paramPath: routes.election(':electionId').export.path,
+        path: routes.election(electionId).export.path,
+      })
     )
   );
 }

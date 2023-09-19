@@ -10,8 +10,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Flags unnecessary `hasOwnProperty` checks inside `for-of` loops',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'strict',
       requiresTypeChecking: false,
     },
     messages: {

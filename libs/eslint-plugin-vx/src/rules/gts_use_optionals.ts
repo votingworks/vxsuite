@@ -31,9 +31,9 @@ function getOptionalTypeReference(
     node.type === AST_NODE_TYPES.TSTypeReference &&
     node.typeName.type === AST_NODE_TYPES.Identifier &&
     node.typeName.name === 'Optional' &&
-    node.typeParameters?.params.length === 1
+    node.typeArguments?.params.length === 1
   ) {
-    return { optionalType: node, wrappedType: node.typeParameters.params[0] };
+    return { optionalType: node, wrappedType: node.typeArguments.params[0] };
   }
 }
 
@@ -48,8 +48,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Use optional fields (on interfaces or classes) and parameters rather than a |undefined type.',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'stylistic',
       requiresTypeChecking: false,
     },
     fixable: 'code',

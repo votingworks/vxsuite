@@ -49,7 +49,7 @@ export function start({
     });
   /* c8 ignore stop */
 
-  const resolvedUsbDrive = usbDrive ?? detectUsbDrive();
+  const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
 
   // Clear any cached data
   workspace.clearUploads();

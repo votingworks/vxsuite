@@ -19,12 +19,14 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import type { MachineConfig } from '@votingworks/admin-backend';
-import { UsbDrive, mockUsbDrive, TestErrorBoundary } from '@votingworks/ui';
+import { TestErrorBoundary } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp } from '../src/config/types';
 import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
-import { ApiMock } from './helpers/api_mock';
+import { ApiMock } from './helpers/mock_api_client';
+import { mockUsbDriveStatus } from './helpers/mock_usb_drive';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -37,7 +39,7 @@ export interface RenderInAppContextParams {
   converter?: ConverterClientType;
   isOfficialResults?: boolean;
   printer?: Printer;
-  usbDrive?: UsbDrive;
+  usbDriveStatus?: UsbDriveStatus;
   generateBallotId?: () => string;
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
@@ -84,7 +86,7 @@ export function renderInAppContext(
     isOfficialResults = false,
     converter = undefined,
     printer = new NullPrinter(),
-    usbDrive = mockUsbDrive(),
+    usbDriveStatus = mockUsbDriveStatus('no_drive'),
     generateBallotId = randomBallotId,
     auth = electionDefinition === 'NONE'
       ? {
@@ -120,7 +122,7 @@ export function renderInAppContext(
         isOfficialResults,
         converter,
         printer,
-        usbDrive,
+        usbDriveStatus,
         generateBallotId,
         auth,
         machineConfig,

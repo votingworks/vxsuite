@@ -29,8 +29,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Disallows use of $ in identifiers, except when aligning with naming conventions for third party frameworks.',
-      recommended: 'error',
-      suggestion: true,
+      recommended: 'stylistic',
       requiresTypeChecking: false,
     },
     messages: {
@@ -63,7 +62,7 @@ const rule: TSESLint.RuleModule<
         )
         .join('|')}$`
     );
-    const processedScopes = new Set<ReturnType<typeof context['getScope']>>();
+    const processedScopes = new Set<ReturnType<(typeof context)['getScope']>>();
 
     function isAllowedName(name: string): boolean {
       return allowedNamesPattern.test(name);

@@ -1,7 +1,7 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { expectPrint } from '@votingworks/test-utils';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { TallyReportBuilder } from './tally_report_builder';
 import { screen, within } from '../../test/react_testing_library';
@@ -19,17 +19,18 @@ afterEach(() => {
 });
 
 test('happy path', async () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
 
   apiMock.expectGetCastVoteRecordFileMode('test');
+  apiMock.expectGetScannerBatches([]);
   renderInAppContext(<TallyReportBuilder />, {
     electionDefinition,
     apiMock,
   });
 
-  expect(screen.getButton('Print Report')).toBeDisabled();
   expect(screen.queryByText('Load Preview')).not.toBeInTheDocument();
+  expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Filter
   userEvent.click(screen.getByText('Add Filter'));
@@ -41,8 +42,8 @@ test('happy path', async () => {
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   userEvent.click(screen.getByText('Absentee'));
 
+  await screen.findButton('Load Preview');
   expect(screen.getButton('Print Report')).not.toBeDisabled();
-  screen.getButton('Load Preview');
 
   // Add Group By
   userEvent.click(screen.getButton('Report By Precinct'));

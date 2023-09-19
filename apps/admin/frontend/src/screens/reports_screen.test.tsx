@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
 import { waitFor } from '@testing-library/react';
@@ -10,16 +10,16 @@ import {
 } from '@votingworks/test-utils';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { typedAs } from '@votingworks/basics';
-import { mockUsbDrive } from '@votingworks/ui';
 import { ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
-import { screen, within } from '../../test/react_testing_library';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { screen } from '../../test/react_testing_library';
 import { VxFiles } from '../lib/converters';
 import {
   expectReportsScreenCardCountQueries,
   mockBallotCountsTableGroupBy,
 } from '../../test/helpers/api_expect_helpers';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
@@ -35,7 +35,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 
 test('exporting SEMS results', async () => {
   const mockKiosk = fakeKiosk();
@@ -68,7 +68,7 @@ test('exporting SEMS results', async () => {
     apiMock,
     converter: 'ms-sems',
     logger,
-    usbDrive: mockUsbDrive('mounted'),
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
   fetchMock.post(
@@ -94,7 +94,7 @@ test('exporting SEMS results', async () => {
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenLastCalledWith(
-      '/media/vx/mock-usb-drive/votingworks-sems-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.txt',
+      'test-mount-point/votingworks-sems-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.txt',
       'test-content'
     );
   });
@@ -125,7 +125,7 @@ test('exporting batch results', async () => {
   renderInAppContext(<ReportsScreen />, {
     electionDefinition,
     apiMock,
-    usbDrive: mockUsbDrive('mounted'),
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
   apiMock.expectGetCardCounts(
@@ -145,52 +145,11 @@ test('exporting batch results', async () => {
   );
 
   apiMock.expectExportBatchResults(
-    '/media/vx/mock-usb-drive/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
+    'test-mount-point/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
   );
   await advanceTimersAndPromises(1); // wait for modal to resolve USB path
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Batch Results Saved/);
-});
-
-test('exporting results csv', async () => {
-  const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = mockKiosk;
-
-  apiMock.expectGetCastVoteRecordFileMode('test');
-  expectReportsScreenCardCountQueries({
-    apiMock,
-    isPrimary: true,
-  });
-  apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetManualResultsMetadata([]);
-
-  renderInAppContext(<ReportsScreen />, {
-    electionDefinition,
-    apiMock,
-    usbDrive: mockUsbDrive('mounted'),
-  });
-
-  await waitFor(() => {
-    expect(screen.getButton('Save Results')).toBeEnabled();
-  });
-  userEvent.click(screen.getButton('Save Results'));
-
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Save Results' });
-  within(modal).getByText(
-    'votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
-  );
-
-  apiMock.expectExportResultsCsv(
-    '/media/vx/mock-usb-drive/votingworks-test-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv',
-    { groupByPrecinct: true, groupByVotingMethod: true }
-  );
-  const button = within(modal).getButton('Save');
-  await advanceTimersAndPromises(1); // wait for modal to resolve USB path
-  userEvent.click(button);
-
-  await screen.findByText(/Results Saved/);
 });
 
 describe('ballot count summary text', () => {

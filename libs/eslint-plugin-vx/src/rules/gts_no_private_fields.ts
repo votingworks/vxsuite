@@ -11,8 +11,7 @@ const rule: TSESLint.RuleModule<'noPrivateFields', readonly unknown[]> =
     meta: {
       docs: {
         description: 'Disallows use of private fields aka private identifiers',
-        recommended: 'error',
-        suggestion: false,
+        recommended: 'strict',
         requiresTypeChecking: false,
       },
       messages: {

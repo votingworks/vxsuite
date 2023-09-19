@@ -1,4 +1,4 @@
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { render, screen } from '../../test/react_testing_library';
 
@@ -11,7 +11,7 @@ test('renders info properly', () => {
   jest.useFakeTimers().setSystemTime(currentTime);
   render(
     <PrecinctScannerBallotCountReport
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={electionGeneralDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
       totalBallotsScanned={23}
       pollsTransition="pause_voting"

@@ -1,6 +1,6 @@
 import {
   asElectionDefinition,
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import {
@@ -129,7 +129,8 @@ test('precinct change disabled if polls closed', () => {
 
 test('precinct selection disabled if single precinct election', async () => {
   renderScreen({
-    electionDefinition: electionMinimalExhaustiveSampleSinglePrecinctDefinition,
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition,
     appPrecinct: singlePrecinctSelectionFor('precinct-1'),
   });
 

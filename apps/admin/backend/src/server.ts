@@ -1,17 +1,20 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
-import { getUsbDrives } from '@votingworks/backend';
 import { Server } from 'http';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
+import {
+  detectUsbDrive,
+  MockFileUsbDrive,
+  UsbDrive,
+} from '@votingworks/usb-drive';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
-import { Usb } from './util/usb';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('server');
@@ -24,6 +27,7 @@ export interface StartOptions {
   logger: Logger;
   port: number | string;
   workspace: Workspace;
+  usbDrive?: UsbDrive;
 }
 
 /**
@@ -34,6 +38,7 @@ export async function start({
   logger = new Logger(LogSource.VxAdminService),
   port = PORT,
   workspace,
+  usbDrive,
 }: Partial<StartOptions>): Promise<Server> {
   debug('starting server...');
   let resolvedWorkspace = workspace;
@@ -54,6 +59,12 @@ export async function start({
   }
   /* c8 ignore stop */
 
+  /* c8 ignore start */
+  const resolvedUsbDrive =
+    usbDrive ??
+    (isIntegrationTest() ? new MockFileUsbDrive() : detectUsbDrive(logger));
+  /* c8 ignore stop */
+
   let resolvedApp = app;
 
   /* c8 ignore start */
@@ -70,12 +81,10 @@ export async function start({
       logger,
     });
 
-    const usb: Usb = { getUsbDrives };
-
     resolvedApp = buildApp({
       auth,
       logger,
-      usb,
+      usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
     });
   }

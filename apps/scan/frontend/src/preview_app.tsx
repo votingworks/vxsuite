@@ -3,8 +3,8 @@
 /* istanbul ignore file */
 
 import {
-  electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { PreviewDashboard } from './preview_dashboard';
@@ -34,8 +34,8 @@ export function PreviewApp(): JSX.Element {
     <ScanAppBase>
       <PreviewDashboard
         electionDefinitions={[
-          electionSampleDefinition,
-          electionMinimalExhaustiveSampleDefinition,
+          electionGeneralDefinition,
+          electionTwoPartyPrimaryDefinition,
           electionWithMsEitherNeitherDefinition,
         ]}
         modules={[

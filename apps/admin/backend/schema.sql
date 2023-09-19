@@ -125,7 +125,7 @@ create table cvrs (
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
     on delete cascade,
-  foreign key (batch_id) references scanner_batches(id)
+  foreign key (election_id, batch_id) references scanner_batches(election_id, id)
 );
 
 create index idx_cvrs_election_id on cvrs(election_id);
@@ -136,7 +136,7 @@ create table scanner_batches (
   label text not null,
   scanner_id text not null,
   election_id varchar(36) not null,
-  primary key (id),
+  primary key (election_id, id),
   foreign key (election_id) references elections(id)
     on delete cascade
 );

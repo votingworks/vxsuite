@@ -6,10 +6,10 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor, Storage } from '@votingworks/utils';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { electionStorageKey, State, stateStorageKey } from '../../src/app_root';
 
-export const electionDefinition = electionSampleDefinition;
+export const electionDefinition = electionGeneralDefinition;
 export const { election } = electionDefinition;
 
 export const contest0 = election.contests[0] as CandidateContest;

@@ -1,11 +1,11 @@
 import { zipFile } from '@votingworks/test-utils';
-import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { readInitialAdminSetupPackageFromFile } from './initial_setup_package';
 
 test('readInitialAdminSetupPackageFromFile happy path', async () => {
   const { electionDefinition, systemSettings } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionTwoPartyPrimaryFixtures;
   const pkg = await zipFile({
     'election.json': electionDefinition.electionData,
     'systemSettings.json': systemSettings.asText(),

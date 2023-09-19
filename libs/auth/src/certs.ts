@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import { arePollWorkerCardDetails, CardDetails } from './card';
-import { openssl } from './openssl';
+import { openssl } from './cryptography';
 
 /**
  * VotingWorks's IANA-assigned enterprise OID

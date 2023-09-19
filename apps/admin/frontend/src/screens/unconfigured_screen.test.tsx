@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryFixtures,
   systemSettings,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
@@ -9,7 +9,7 @@ import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { screen } from '../../test/react_testing_library';
 
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { UnconfiguredScreen } from './unconfigured_screen';
 
 let apiMock: ApiMock;
@@ -31,7 +31,7 @@ test('renders a button to load setup package', async () => {
 });
 
 test('handles an uploaded file', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 
   apiMock.expectConfigure(
     electionDefinition.electionData,
@@ -60,7 +60,7 @@ test('handles an uploaded file', async () => {
 });
 
 test('uploads default system settings if loading only an election.json file', async () => {
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 
   apiMock.expectConfigure(
     electionDefinition.electionData,

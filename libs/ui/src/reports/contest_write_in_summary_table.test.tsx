@@ -1,11 +1,11 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
 
 test('renders official candidates', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   render(
     <ContestWriteInSummaryTable
       election={election}
@@ -44,7 +44,7 @@ test('renders official candidates', () => {
 });
 
 test('renders write-in candidates', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   render(
     <ContestWriteInSummaryTable
       election={election}
@@ -85,7 +85,7 @@ test('renders write-in candidates', () => {
 });
 
 test('renders headers only if none adjudicated', () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
   render(
     <ContestWriteInSummaryTable
       election={election}

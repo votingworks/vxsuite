@@ -22,7 +22,6 @@ import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   InterpretFileResult,
   interpretSheet,
@@ -32,6 +31,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
+  DELAY_BEFORE_DECLARING_REAR_JAM_MS,
   PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
   PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
   RESET_AFTER_JAM_DELAY_MS,
@@ -76,6 +76,7 @@ type PaperHandlerStatusEvent =
   | { type: 'VOTER_INITIATED_PRINT'; pdfData: Buffer }
   | { type: 'PAPER_IN_OUTPUT' }
   | { type: 'PAPER_IN_INPUT' }
+  | { type: 'VOTER_CONFIRMED_INVALIDATED_BALLOT' }
   | { type: 'SCANNING' }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' };
@@ -83,97 +84,16 @@ type PaperHandlerStatusEvent =
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
 
-export class PaperHandlerStateMachine {
-  constructor(
-    private readonly driver: PaperHandlerDriver,
-    private readonly machineService: Interpreter<
-      Context,
-      any,
-      PaperHandlerStatusEvent,
-      any,
-      any
-    >
-  ) {}
-
-  stopMachineService(): void {
-    this.machineService.stop();
-  }
-
-  // Leftover wrapper. Keeping this so the interface between API and state machine is the same until
-  // I can get around to migrating it later in the PR
-  getSimpleStatus(): SimpleServerStatus {
-    const { state } = this.machineService;
-
-    switch (true) {
-      case state.matches('not_accepting_paper'):
-        return 'not_accepting_paper';
-      case state.matches('accepting_paper'):
-        return 'accepting_paper';
-      case state.matches('loading_paper'):
-        return 'loading_paper';
-      case state.matches('waiting_for_ballot_data'):
-        return 'waiting_for_ballot_data';
-      case state.matches('printing_ballot'):
-        return 'printing_ballot';
-      case state.matches('scanning'):
-        return 'scanning';
-      case state.matches('interpreting'):
-        return 'interpreting';
-      case state.matches('presenting_ballot'):
-        return 'presenting_ballot';
-      case state.matches('eject_to_front'):
-        return 'ejecting_to_front';
-      case state.matches('eject_to_rear'):
-        return 'ejecting_to_rear';
-      case state.matches('jammed'):
-        return 'jammed';
-      case state.matches('jam_physically_cleared'):
-        return 'jam_cleared';
-      case state.matches('resetting_state_machine_after_jam'):
-        return 'resetting_state_machine_after_jam';
-      case state.matches('resetting_state_machine_after_success'):
-        return 'resetting_state_machine_after_success';
-      default:
-        return 'no_hardware';
-    }
-  }
-
-  setAcceptingPaper(): void {
-    this.machineService.send({
-      type: 'BEGIN_ACCEPTING_PAPER',
-    });
-  }
-
-  printBallot(pdfData: Buffer): void {
-    this.machineService.send({
-      type: 'VOTER_INITIATED_PRINT',
-      pdfData,
-    });
-  }
-
-  getInterpretation(): Optional<SheetOf<InterpretFileResult>> {
-    const { state } = this.machineService;
-    const { context } = state;
-    debug(
-      'Returning interpretation of type:',
-      context.interpretation
-        ? JSON.stringify(context.interpretation[0].interpretation.type)
-        : 'no_interpretation_found'
-    );
-    return context.interpretation;
-  }
-
-  validateBallot(): void {
-    this.machineService.send({
-      type: 'VOTER_VALIDATED_BALLOT',
-    });
-  }
-
-  invalidateBallot(): void {
-    this.machineService.send({
-      type: 'VOTER_INVALIDATED_BALLOT',
-    });
-  }
+export interface PaperHandlerStateMachine {
+  stopMachineService(): void;
+  getRawDeviceStatus(): Promise<PaperHandlerStatus>;
+  getSimpleStatus(): SimpleServerStatus;
+  setAcceptingPaper(): void;
+  printBallot(pdfData: Buffer): void;
+  getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
+  validateBallot(): void;
+  invalidateBallot(): void;
+  confirmInvalidateBallot(): void;
 }
 
 function paperHandlerStatusToEvent(
@@ -189,10 +109,11 @@ function paperHandlerStatusToEvent(
     return { type: 'PAPER_JAM' };
   }
 
+  if (isPaperInOutput(paperHandlerStatus)) {
+    return { type: 'PAPER_IN_OUTPUT' };
+  }
+
   if (isPaperInScanner(paperHandlerStatus)) {
-    if (isPaperInOutput(paperHandlerStatus)) {
-      return { type: 'PAPER_IN_OUTPUT' };
-    }
     if (paperHandlerStatus.parkSensor) {
       return { type: 'PAPER_PARKED' };
     }
@@ -270,17 +191,22 @@ function loadMetadataAndInterpretBallot(
   context: Context
 ): Promise<SheetOf<InterpretFileResult>> {
   const { scannedImagePaths, workspace } = context;
+  assert(scannedImagePaths, 'Expected scannedImagePaths in context');
+
   const { store } = workspace;
   const electionDefinition = store.getElectionDefinition();
+  assert(
+    electionDefinition,
+    'Expected electionDefinition to be defined in store'
+  );
 
-  assert(scannedImagePaths);
-  assert(electionDefinition);
+  const precinctSelection = store.getPrecinctSelection();
+  assert(
+    precinctSelection,
+    'Expected precinctSelection to be defined in store'
+  );
 
-  const { precincts } = electionDefinition.election;
-  // Hard coded for now because we don't store precinct in backend. This
-  // will be replaced with a store read in a future PR.
-  const precinct = precincts[precincts.length - 1];
-  const precinctSelection = singlePrecinctSelectionFor(precinct.id);
+  // Hardcoded until isLivemode is moved from frontend store to backend store
   const testMode = true;
   const { markThresholds, precinctScanAdjudicationReasons } = assertDefined(
     store.getSystemSettings()
@@ -362,20 +288,19 @@ export function buildMachine(
         },
       },
       printing_ballot: {
-        invoke: pollPaperStatus(),
-        entry: (context, event) => {
-          // Need to hint to Typescript that we want the 'VOTER_INITIATED_PRINT' event in our union type of events
-          if ('pdfData' in event) {
-            void driverPrintBallot(context.driver, event.pdfData, {});
-          } else {
-            throw new Error(
-              `printing_ballot entry called by unsupported event type: ${event.type}`
-            );
-          }
-        },
-        on: {
-          PAPER_IN_OUTPUT: 'scanning',
-        },
+        invoke: [
+          {
+            id: 'printBallot',
+            src: (context, event) => {
+              assert(event.type === 'VOTER_INITIATED_PRINT');
+              return driverPrintBallot(context.driver, event.pdfData, {});
+            },
+            onDone: {
+              target: 'scanning',
+            },
+          },
+          pollPaperStatus(),
+        ],
       },
       scanning: {
         invoke: [
@@ -415,9 +340,23 @@ export function buildMachine(
         },
         on: {
           VOTER_VALIDATED_BALLOT: 'eject_to_rear',
-          VOTER_INVALIDATED_BALLOT: 'eject_to_front',
+          VOTER_INVALIDATED_BALLOT:
+            'waiting_for_invalidated_ballot_confirmation',
+          NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
         },
       },
+      // Ballot invalidation is a 2-stage process so the frontend can prompt the voter to get a pollworker
+      waiting_for_invalidated_ballot_confirmation: {
+        on: {
+          VOTER_CONFIRMED_INVALIDATED_BALLOT: 'eject_to_front',
+          // Even if ballot is removed from front, we still want the frontend to require pollworker auth before continuing
+          NO_PAPER_ANYWHERE: undefined,
+        },
+      },
+      // Eject-to-rear jam handling is a little clunky. It
+      // 1. Tries to transition to success if no paper is detected
+      // 2. If after a timeout we have not transitioned away (because paper still present), transition to jammed state
+      // 3. Jam detection state transitions to jam reset state once it confirms no paper present
       eject_to_rear: {
         invoke: pollPaperStatus(),
         entry: async (context) => {
@@ -426,6 +365,10 @@ export function buildMachine(
         },
         on: {
           NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+          PAPER_JAM: 'jammed',
+        },
+        after: {
+          [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
         },
       },
       eject_to_front: {
@@ -559,25 +502,113 @@ function setUpLogging(
 }
 
 export async function getPaperHandlerStateMachine(
-  paperHandlerDriver: PaperHandlerDriverInterface,
+  driver: PaperHandlerDriverInterface,
   workspace: Workspace,
   auth: InsertedSmartCardAuthApi,
   logger: Logger,
   pollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
 ): Promise<Optional<PaperHandlerStateMachine>> {
-  const context: Context = {
+  const initialContext: Context = {
     workspace,
-    driver: paperHandlerDriver,
+    driver,
     pollingIntervalMs,
   };
 
-  const machine = buildMachine(context, auth);
+  const machine = buildMachine(initialContext, auth);
   const machineService = interpret(machine).start();
   setUpLogging(machineService, logger);
-  const paperHandlerStateMachine = new PaperHandlerStateMachine(
-    paperHandlerDriver,
-    machineService
-  );
-  await setDefaults(paperHandlerDriver);
-  return paperHandlerStateMachine;
+  await setDefaults(driver);
+
+  return {
+    stopMachineService(): void {
+      machineService.stop();
+    },
+
+    getRawDeviceStatus(): Promise<PaperHandlerStatus> {
+      return driver.getPaperHandlerStatus();
+    },
+
+    getSimpleStatus(): SimpleServerStatus {
+      const { state } = machineService;
+
+      switch (true) {
+        case state.matches('not_accepting_paper'):
+          return 'not_accepting_paper';
+        case state.matches('accepting_paper'):
+          return 'accepting_paper';
+        case state.matches('loading_paper'):
+          return 'loading_paper';
+        case state.matches('waiting_for_ballot_data'):
+          return 'waiting_for_ballot_data';
+        case state.matches('printing_ballot'):
+          return 'printing_ballot';
+        case state.matches('scanning'):
+          return 'scanning';
+        case state.matches('interpreting'):
+          return 'interpreting';
+        case state.matches('waiting_for_invalidated_ballot_confirmation'):
+          return 'waiting_for_invalidated_ballot_confirmation';
+        case state.matches('presenting_ballot'):
+          return 'presenting_ballot';
+        case state.matches('eject_to_front'):
+          return 'ejecting_to_front';
+        case state.matches('eject_to_rear'):
+          return 'ejecting_to_rear';
+        case state.matches('jammed'):
+          return 'jammed';
+        case state.matches('jam_physically_cleared'):
+          return 'jam_cleared';
+        case state.matches('resetting_state_machine_after_jam'):
+          return 'resetting_state_machine_after_jam';
+        case state.matches('resetting_state_machine_after_success'):
+          return 'resetting_state_machine_after_success';
+        default:
+          return 'no_hardware';
+      }
+    },
+
+    setAcceptingPaper(): void {
+      machineService.send({
+        type: 'BEGIN_ACCEPTING_PAPER',
+      });
+    },
+
+    printBallot(pdfData: Buffer): void {
+      machineService.send({
+        type: 'VOTER_INITIATED_PRINT',
+        pdfData,
+      });
+    },
+
+    getInterpretation(): Optional<SheetOf<InterpretFileResult>> {
+      const { state } = machineService;
+      const { context } = state;
+
+      debug(
+        'Returning interpretation of type:',
+        context.interpretation
+          ? JSON.stringify(context.interpretation[0].interpretation.type)
+          : 'no_interpretation_found'
+      );
+      return context.interpretation;
+    },
+
+    validateBallot(): void {
+      machineService.send({
+        type: 'VOTER_VALIDATED_BALLOT',
+      });
+    },
+
+    invalidateBallot(): void {
+      machineService.send({
+        type: 'VOTER_INVALIDATED_BALLOT',
+      });
+    },
+
+    confirmInvalidateBallot(): void {
+      machineService.send({
+        type: 'VOTER_CONFIRMED_INVALIDATED_BALLOT',
+      });
+    },
+  };
 }

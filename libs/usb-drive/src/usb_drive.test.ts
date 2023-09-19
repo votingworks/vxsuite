@@ -1,6 +1,16 @@
 import { promises as fs } from 'fs';
-import { BlockDeviceInfo, detectUsbDrive } from './usb_drive';
+import { deferred } from '@votingworks/basics';
+import { backendWaitFor } from '@votingworks/test-utils';
+import { join } from 'path';
+import { LogEventId, fakeLogger } from '@votingworks/logging';
+import {
+  BlockDeviceInfo,
+  VX_USB_LABEL_REGEXP,
+  detectUsbDrive,
+} from './usb_drive';
 import { exec } from './exec';
+
+const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 jest.mock('fs', () => ({
   promises: {
@@ -39,7 +49,8 @@ function lsblkOutput(device: Partial<BlockDeviceInfo> = {}) {
 
 describe('status', () => {
   test('no drive', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce([]);
 
@@ -51,7 +62,8 @@ describe('status', () => {
   });
 
   test('one drive, mounted', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
     readlinkMock.mockResolvedValueOnce('../../sdb1');
@@ -80,7 +92,8 @@ describe('status', () => {
   });
 
   test('one drive, unmounted', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
     readlinkMock.mockResolvedValue('../../sdb1');
@@ -112,7 +125,7 @@ describe('status', () => {
     ]);
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
-      `${__dirname}/mount.sh`,
+      `${MOUNT_SCRIPT_PATH}/mount.sh`,
       '/dev/sdb1',
     ]);
     expect(execMock).toHaveBeenNthCalledWith(3, 'lsblk', [
@@ -123,10 +136,24 @@ describe('status', () => {
       ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL'].join(','),
       '/dev/sdb1',
     ]);
+
+    // check logging
+    expect(logger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.UsbDriveMountInit,
+      'system'
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.UsbDriveMounted,
+      'system',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 
   test('multiple usb devices', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue([
       'notausb-bazbar-part21', // Should be ignored
@@ -145,7 +172,8 @@ describe('status', () => {
   });
 
   test('error getting block device info', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
     readlinkMock.mockResolvedValueOnce('../../sdb1');
@@ -157,7 +185,8 @@ describe('status', () => {
   });
 
   test('bad format', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
     readlinkMock.mockResolvedValue('../../sdb1');
@@ -183,70 +212,241 @@ describe('status', () => {
       reason: 'bad_format',
     });
   });
+
+  test('fails to mount', async () => {
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
+
+    readdirMock.mockResolvedValue(['usb-foobar-part23']);
+    readlinkMock.mockResolvedValue('../../sdb1');
+    // Initial status
+    execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
+    // Mount
+    execMock.mockRejectedValueOnce(new Error('Failed'));
+
+    // While mounting, status is 'no_drive'
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
+
+    // check logging
+    await backendWaitFor(() => {
+      expect(logger.log).toHaveBeenCalledWith(
+        LogEventId.UsbDriveMounted,
+        'system',
+        expect.objectContaining({ disposition: 'failure' })
+      );
+    });
+  });
 });
+
+function mockBlockDeviceOnce(device: Partial<BlockDeviceInfo> = {}): void {
+  readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
+  readlinkMock.mockResolvedValueOnce('../../sdb1');
+  execMock.mockResolvedValueOnce(lsblkOutput(device));
+}
 
 describe('eject', () => {
   test('no drive - no op', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce([]);
 
-    await expect(usbDrive.eject()).resolves.toBeUndefined();
+    await expect(usbDrive.eject('election_manager')).resolves.toBeUndefined();
   });
 
   test('not mounted - no op', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
-    readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
-    readlinkMock.mockResolvedValueOnce('../../sdb1');
-    execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
+    mockBlockDeviceOnce({ mountpoint: null });
 
-    await expect(usbDrive.eject()).resolves.toBeUndefined();
+    await expect(usbDrive.eject('election_manager')).resolves.toBeUndefined();
   });
 
   test('mounted', async () => {
-    const usbDrive = detectUsbDrive();
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
 
-    readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
-    readlinkMock.mockResolvedValueOnce('../../sdb1');
-    // Initial status
-    execMock.mockResolvedValueOnce(
-      lsblkOutput({ mountpoint: '/media/usb-drive-sdb1' })
-    );
+    mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
+
     // Unmount
     execMock.mockResolvedValueOnce({ stdout: '' });
 
-    await expect(usbDrive.eject()).resolves.toBeUndefined();
+    await expect(usbDrive.eject('election_manager')).resolves.toBeUndefined();
 
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
-      `${__dirname}/unmount.sh`,
+      `${MOUNT_SCRIPT_PATH}/unmount.sh`,
       '/media/usb-drive-sdb1',
     ]);
 
-    readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
-    readlinkMock.mockResolvedValueOnce('../../sdb1');
-    execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
+    mockBlockDeviceOnce({ mountpoint: null });
 
     await expect(usbDrive.status()).resolves.toEqual({ status: 'ejected' });
 
     // Remove USB and reinsert, should be detected and mounted again
     readdirMock.mockResolvedValueOnce([]);
     await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
-    readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
-    readlinkMock.mockResolvedValueOnce('../../sdb1');
-    execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
+    mockBlockDeviceOnce({ mountpoint: null });
     execMock.mockResolvedValueOnce({ stdout: '' });
     await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
-    readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
-    readlinkMock.mockResolvedValueOnce('../../sdb1');
-    execMock.mockResolvedValueOnce(
-      lsblkOutput({ mountpoint: '/media/vx/usb-drive' })
-    );
+    mockBlockDeviceOnce({ mountpoint: '/media/vx/usb-drive' });
     await expect(usbDrive.status()).resolves.toEqual({
       status: 'mounted',
       mountPoint: '/media/vx/usb-drive',
       deviceName: 'sdb1',
     });
+
+    // check logging
+    expect(logger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.UsbDriveEjectInit,
+      'election_manager'
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.UsbDriveEjected,
+      'election_manager',
+      expect.objectContaining({ disposition: 'success' })
+    );
+  });
+
+  test('fails to eject', async () => {
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
+
+    mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
+
+    // Unmount
+    execMock.mockRejectedValueOnce(new Error('Failed'));
+
+    await expect(usbDrive.eject('election_manager')).rejects.toThrowError(
+      new Error('Failed')
+    );
+
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveEjected,
+      'election_manager',
+      expect.objectContaining({ disposition: 'failure' })
+    );
+  });
+});
+
+describe('format', () => {
+  test('no drive - no op', async () => {
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
+    readdirMock.mockResolvedValueOnce([]);
+
+    await expect(
+      usbDrive.format('system_administrator')
+    ).resolves.toBeUndefined();
+    expect(execMock).not.toHaveBeenCalled();
+  });
+
+  test('on mounted, previously formatted drive', async () => {
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
+    mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
+    execMock.mockResolvedValueOnce({ stdout: '' }); // unmount
+    execMock.mockResolvedValueOnce({ stdout: '' }); // format
+
+    // format should call unmount and format scripts
+    await usbDrive.format('system_administrator');
+    expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/unmount.sh`,
+      '/media/usb-drive-sdb1',
+    ]);
+    expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/format_fat32.sh`,
+      '/dev/sdb',
+      'VxUSB-00000',
+    ]);
+
+    // status should be ejected
+    mockBlockDeviceOnce({ mountpoint: null });
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'ejected' });
+
+    // check logging
+    expect(logger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.UsbDriveFormatInit,
+      'system_administrator'
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.UsbDriveFormatted,
+      'system_administrator',
+      expect.objectContaining({ disposition: 'success' })
+    );
+  });
+
+  test('on bad format drive', async () => {
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
+    mockBlockDeviceOnce({ fstype: 'exfat', mountpoint: null, label: 'DATA' });
+    execMock.mockResolvedValueOnce({ stdout: '' }); // format
+
+    // format should call format script only
+    await usbDrive.format('system_administrator');
+    expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/format_fat32.sh`,
+      '/dev/sdb',
+      expect.stringMatching(VX_USB_LABEL_REGEXP),
+    ]);
+
+    // status should be ejected
+    mockBlockDeviceOnce({ mountpoint: null });
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'ejected' });
+  });
+
+  test('on format failure', async () => {
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
+    mockBlockDeviceOnce({ fstype: 'unknown', mountpoint: null, label: null });
+    execMock.mockRejectedValueOnce(new Error('Command: failed')); // format
+
+    // format should call format script only
+    await expect(usbDrive.format('system_administrator')).rejects.toThrow(
+      'Command: failed'
+    );
+
+    // status should be ejected
+    mockBlockDeviceOnce({ mountpoint: null });
+    await expect(usbDrive.status()).resolves.toEqual({ status: 'ejected' });
+
+    // check logging
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.UsbDriveFormatted,
+      'system_administrator',
+      expect.objectContaining({ disposition: 'failure' })
+    );
+  });
+
+  test('status polling while formatting', async () => {
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
+    mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
+    execMock.mockResolvedValueOnce({ stdout: '' }); // unmount
+    const { promise: formatScriptPromise, resolve: formatScriptResolve } =
+      deferred<{
+        stdout: string;
+      }>();
+    execMock.mockReturnValueOnce(formatScriptPromise); // format
+
+    const formatPromise = usbDrive.format('system_administrator');
+
+    await backendWaitFor(async () => {
+      expect(await usbDrive.status()).toEqual({ status: 'ejected' });
+    });
+
+    formatScriptResolve({ stdout: '' });
+    await formatPromise;
+
+    mockBlockDeviceOnce({ mountpoint: null });
+    expect(await usbDrive.status()).toEqual({ status: 'ejected' });
   });
 });

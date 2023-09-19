@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
@@ -9,7 +9,7 @@ import { screen, within } from '@testing-library/react';
 import { Route } from 'react-router-dom';
 import { PartyId } from '@votingworks/types';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
   AllPrecinctsTallyReportScreen,
   BatchTallyReportScreen,
@@ -102,7 +102,7 @@ test('full election tally report screen, general', async () => {
 });
 
 test('full election tally report screen, primary', async () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetResultsForTallyReports(
@@ -122,7 +122,7 @@ test('full election tally report screen, primary', async () => {
   );
 
   renderInAppContext(<FullElectionTallyReportScreen />, {
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     logger,
     apiMock,
     route: routerPaths.tallyFullReport,
@@ -293,7 +293,7 @@ test('voting method tally report screen', async () => {
 });
 
 test('party tally report screen', async () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetResultsForTallyReports(
@@ -323,7 +323,7 @@ test('party tally report screen', async () => {
       <PartyTallyReportScreen />
     </Route>,
     {
-      electionDefinition: electionMinimalExhaustiveSampleDefinition,
+      electionDefinition: electionTwoPartyPrimaryDefinition,
       logger,
       apiMock,
       route: routerPaths.tallyPartyReport({ partyId: '0' as PartyId }),
@@ -354,7 +354,7 @@ test('party tally report screen', async () => {
 });
 
 test('all precincts tally report screen', async () => {
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } = electionTwoPartyPrimaryDefinition;
 
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetResultsForTallyReports(
@@ -388,7 +388,7 @@ test('all precincts tally report screen', async () => {
   );
 
   renderInAppContext(<AllPrecinctsTallyReportScreen />, {
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     logger,
     apiMock,
     route: routerPaths.tallyAllPrecinctsReport,

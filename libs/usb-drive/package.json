@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
+    "@votingworks/logging": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "debug": "^4.3.2",
     "tmp": "^0.2.1"

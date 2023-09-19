@@ -1,5 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
+  BallotPackageFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   Id,
@@ -32,21 +33,25 @@ import { createReadStream, createWriteStream, promises as fs, Stats } from 'fs';
 import { basename, dirname, join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
+  BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
   generateFilenameForBallotExportPackage,
   groupMapToGroupList,
+  isFeatureFlagEnabled,
   isIntegrationTest,
   parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import { ExportDataError, Exporter } from '@votingworks/backend';
+import { ExportDataError } from '@votingworks/backend';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   CastVoteRecordFileRecord,
   CvrFileImportInfo,
   CvrFileMode,
   ElectionRecord,
   ExportDataResult,
+  ImportCastVoteRecordsError,
   ManualResultsIdentifier,
   ManualResultsMetadataRecord,
   ManualResultsRecord,
@@ -67,8 +72,7 @@ import {
   addCastVoteRecordReport,
   getAddCastVoteRecordReportErrorMessage,
   listCastVoteRecordFilesOnUsb,
-} from './cvr_files';
-import { Usb } from './util/usb';
+} from './legacy_cast_vote_records';
 import { getMachineConfig } from './machine_config';
 import {
   getWriteInAdjudicationContext,
@@ -85,7 +89,8 @@ import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
 import { tabulateTallyReportResults } from './tabulation/tally_reports';
-import { ADMIN_ALLOWED_EXPORT_PATTERNS } from './globals';
+import { buildExporter } from './util/exporter';
+import { importCastVoteRecords } from './cast_vote_records';
 
 const debug = rootDebug.extend('app');
 
@@ -133,12 +138,12 @@ function buildApi({
   auth,
   workspace,
   logger,
-  usb,
+  usbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
-  usb: Usb;
+  usbDrive: UsbDrive;
 }) {
   const { store } = workspace;
 
@@ -198,12 +203,26 @@ function buildApi({
     },
     /* c8 ignore stop */
 
+    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDrive.status();
+    },
+
+    async ejectUsbDrive(): Promise<void> {
+      return usbDrive.eject(assertDefined(await getUserRole()));
+    },
+
+    async formatUsbDrive(): Promise<Result<void, Error>> {
+      try {
+        await usbDrive.format(assertDefined(await getUserRole()));
+        return ok();
+      } catch (error) {
+        return err(error as Error);
+      }
+    },
+
     async saveBallotPackageToUsb(): Promise<Result<void, ExportDataError>> {
       await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
-      const exporter = new Exporter({
-        allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
-        getUsbDrives: usb.getUsbDrives,
-      });
+      const exporter = buildExporter(usbDrive);
 
       const electionRecord = getCurrentElectionRecord(workspace);
       assert(electionRecord);
@@ -229,13 +248,16 @@ function buildApi({
           createWriteStream(tempDirectoryBallotPackageFilePath)
         );
         await addFileToZipStream(ballotPackageZipStream, {
-          path: 'election.json',
+          path: BallotPackageFileName.ELECTION,
           contents: electionDefinition.electionData,
         });
         await addFileToZipStream(ballotPackageZipStream, {
-          path: 'systemSettings.json',
+          path: BallotPackageFileName.SYSTEM_SETTINGS,
           contents: JSON.stringify(systemSettings, null, 2),
         });
+
+        // TODO(kofi): Include translation/audio files in the package export.
+
         ballotPackageZipStream.finish();
         await ballotPackageZipPromise.promise;
 
@@ -378,7 +400,7 @@ function buildApi({
       assert(electionRecord);
       const { electionDefinition } = electionRecord;
 
-      return listCastVoteRecordFilesOnUsb(electionDefinition, usb, logger);
+      return listCastVoteRecordFilesOnUsb(electionDefinition, usbDrive, logger);
     },
 
     getCastVoteRecordFiles(): CastVoteRecordFileRecord[] {
@@ -390,9 +412,39 @@ function buildApi({
     }): Promise<
       Result<
         CvrFileImportInfo,
-        AddCastVoteRecordReportError & { message: string }
+        | (AddCastVoteRecordReportError & { message: string })
+        | ImportCastVoteRecordsError
       >
     > {
+      /* c8 ignore start */
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+        )
+      ) {
+        const userRole = assertDefined(await getUserRole());
+        const importResult = await importCastVoteRecords(store, input.path);
+        if (importResult.isErr()) {
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            disposition: 'failure',
+            errorDetails: JSON.stringify(importResult.err()),
+            errorType: importResult.err().type,
+            exportDirectoryPath: input.path,
+            result: 'Cast vote records not imported, error shown to user.',
+          });
+        } else {
+          await logger.log(LogEventId.CvrLoaded, userRole, {
+            disposition: 'success',
+            exportDirectoryPath: input.path,
+            numberOfBallotsImported: importResult.ok().newlyAdded,
+            numberOfDuplicateBallotsIgnored: importResult.ok().alreadyPresent,
+            result: 'Cast vote records imported.',
+          });
+        }
+        return importResult;
+      }
+      /* c8 ignore stop */
+
       const userRole = assertDefined(await getUserRole());
       const { path: inputPath } = input;
       // the path passed to the backend may be for the report directory or the
@@ -661,6 +713,7 @@ function buildApi({
     getCardCounts(
       input: {
         groupBy?: Tabulation.GroupBy;
+        filter?: Tabulation.Filter;
         blankBallotsOnly?: boolean;
       } = {}
     ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
@@ -797,15 +850,15 @@ export function buildApp({
   auth,
   workspace,
   logger,
-  usb,
+  usbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
-  usb: Usb;
+  usbDrive: UsbDrive;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usb });
+  const api = buildApi({ auth, workspace, logger, usbDrive });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

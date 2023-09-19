@@ -2,7 +2,8 @@ import { assert, iter } from '@votingworks/basics';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import {
   famousNamesFixtures,
-  sampleElectionFixtures,
+  primaryElectionFixtures,
+  generalElectionFixtures,
 } from '@votingworks/hmpb-render-backend';
 import { BallotType, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
@@ -163,8 +164,8 @@ for (const {
   votes,
   blankBallotPath,
   markedBallotPath,
-} of sampleElectionFixtures) {
-  describe(`HMPB - sample election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
+} of generalElectionFixtures) {
+  describe(`HMPB - general election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
     test(`Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
       const sheetImages = iter(ballotImagePaths).chunks(2).toArray();
@@ -241,3 +242,85 @@ for (const {
     });
   });
 }
+
+describe('HMPB - primary election', () => {
+  const { electionDefinition, mammalParty, fishParty } =
+    primaryElectionFixtures;
+
+  for (const partyFixtures of [mammalParty, fishParty]) {
+    const {
+      partyLabel,
+      blankBallotPath,
+      markedBallotPath,
+      precinctId,
+      votes,
+      gridLayout,
+    } = partyFixtures;
+    const { ballotStyleId } = gridLayout;
+
+    test(`${partyLabel} - Blank ballot interpretation`, async () => {
+      const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+      expect(ballotImagePaths.length).toEqual(2);
+
+      const [frontResult, backResult] = await interpretSheet(
+        {
+          electionDefinition,
+          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          testMode: true,
+          markThresholds: DEFAULT_MARK_THRESHOLDS,
+          adjudicationReasons: [],
+        },
+        ballotImagePaths as [string, string]
+      );
+
+      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+      expect(frontResult.interpretation.votes).toEqual({});
+      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+      expect(backResult.interpretation.votes).toEqual({});
+
+      expect(frontResult.interpretation.metadata).toEqual({
+        source: 'qr-code',
+        electionHash: sliceElectionHash(electionDefinition.electionHash),
+        precinctId,
+        ballotStyleId,
+        pageNumber: 1,
+        isTestMode: true,
+        ballotType: BallotType.Precinct,
+      });
+      expect(backResult.interpretation.metadata).toEqual({
+        source: 'qr-code',
+        electionHash: sliceElectionHash(electionDefinition.electionHash),
+        precinctId,
+        ballotStyleId,
+        pageNumber: 2,
+        isTestMode: true,
+        ballotType: BallotType.Precinct,
+      });
+    });
+
+    test(`${partyLabel} - Marked ballot interpretation`, async () => {
+      const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
+      expect(ballotImagePaths.length).toEqual(2);
+
+      const [frontResult, backResult] = await interpretSheet(
+        {
+          electionDefinition,
+          precinctSelection: singlePrecinctSelectionFor(precinctId),
+          testMode: true,
+          markThresholds: DEFAULT_MARK_THRESHOLDS,
+          adjudicationReasons: [],
+        },
+        ballotImagePaths as [string, string]
+      );
+
+      assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
+      assert(backResult.interpretation.type === 'InterpretedHmpbPage');
+      expect(
+        sortVotesDict({
+          ...frontResult.interpretation.votes,
+          ...backResult.interpretation.votes,
+        })
+      ).toEqual(sortVotesDict(votes));
+    });
+  }
+});

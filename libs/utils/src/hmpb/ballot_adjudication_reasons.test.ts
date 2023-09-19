@@ -5,7 +5,7 @@ import {
   MarkStatus,
   YesNoContest,
 } from '@votingworks/types';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
 import {
   ballotAdjudicationReasons,
@@ -13,11 +13,11 @@ import {
 } from './ballot_adjudication_reasons';
 
 const bestAnimalMammal =
-  electionMinimalExhaustiveSampleDefinition.election.contests.find(
+  electionTwoPartyPrimaryDefinition.election.contests.find(
     ({ id }) => id === 'best-animal-mammal'
   ) as CandidateContest;
 const zooCouncilMammal =
-  electionMinimalExhaustiveSampleDefinition.election.contests.find(
+  electionTwoPartyPrimaryDefinition.election.contests.find(
     ({ id }) => id === 'zoo-council-mammal'
   ) as CandidateContest;
 const [bestAnimalMammalCandidate1, bestAnimalMammalCandidate2] =
@@ -35,10 +35,9 @@ assert(
     zooCouncilMammalCandidate3 &&
     zooCouncilMammalCandidate4
 );
-const ballotMeasure3 =
-  electionMinimalExhaustiveSampleDefinition.election.contests.find(
-    ({ id }) => id === 'fishing'
-  ) as YesNoContest;
+const ballotMeasure3 = electionTwoPartyPrimaryDefinition.election.contests.find(
+  ({ id }) => id === 'fishing'
+) as YesNoContest;
 
 test('a ballot with no adjudication reasons', () => {
   expect([

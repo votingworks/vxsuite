@@ -1,5 +1,5 @@
 import fetchMock from 'fetch-mock';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
   fakeKiosk,
@@ -82,13 +82,13 @@ afterEach(() => {
 function expectConfigureFromBallotPackageOnUsbDrive() {
   mockApiClient.configureFromBallotPackageOnUsbDrive
     .expectCallWith()
-    .resolves(ok(electionSampleDefinition));
+    .resolves(ok(electionGeneralDefinition));
   mockApiClient.getSystemSettings
     .expectCallWith()
     .resolves(DEFAULT_SYSTEM_SETTINGS);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 }
 
 export async function authenticateAsSystemAdministrator(
@@ -128,7 +128,7 @@ test('renders without crashing', async () => {
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
   render(<App apiClient={mockApiClient} hardware={hardware} />);
@@ -139,11 +139,11 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
   mockApiClient.getTestMode.expectCallWith().resolves(false);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
   render(<App apiClient={mockApiClient} hardware={hardware} />);
-  await authenticateAsElectionManager(electionSampleDefinition);
+  await authenticateAsElectionManager(electionGeneralDefinition);
 
   userEvent.click(screen.getByText('Admin'));
 
@@ -158,11 +158,11 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
   render(<App apiClient={mockApiClient} hardware={hardware} />);
-  await authenticateAsElectionManager(electionSampleDefinition);
+  await authenticateAsElectionManager(electionGeneralDefinition);
 
   userEvent.click(screen.getByText('Admin'));
 
@@ -177,7 +177,7 @@ test('clicking Scan Batch will scan a batch', async () => {
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 
   const scanBatchResponseBody: Scan.ScanBatchResponse = {
     status: 'error',
@@ -192,7 +192,7 @@ test('clicking Scan Batch will scan a batch', async () => {
   const hardware = MemoryHardware.buildStandard();
 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
-  await authenticateAsElectionManager(electionSampleDefinition);
+  await authenticateAsElectionManager(electionGeneralDefinition);
 
   // error scan
   userEvent.click(screen.getButton('Scan New Batch'));
@@ -219,7 +219,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
   const scanStatusResponseBody: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
@@ -246,7 +246,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   const hardware = MemoryHardware.buildStandard();
 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
-  await authenticateAsElectionManager(electionSampleDefinition);
+  await authenticateAsElectionManager(electionGeneralDefinition);
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   // wait for the config to load
@@ -273,7 +273,7 @@ test('configuring election from usb ballot package works end to end', async () =
     <App apiClient={mockApiClient} hardware={hardware} />
   );
   await authenticateAsElectionManager(
-    electionSampleDefinition,
+    electionGeneralDefinition,
     'VxCentralScan is Not Configured',
     'VxCentralScan is Not Configured'
   );
@@ -322,7 +322,7 @@ test('authentication works', async () => {
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
 
@@ -341,7 +341,7 @@ test('authentication works', async () => {
   // Insert an election manager card and enter the wrong PIN.
   setAuthStatus(mockApiClient, {
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionSampleDefinition),
+    user: fakeElectionManagerUser(electionGeneralDefinition),
   });
   await screen.findByText('Enter the card PIN to unlock.');
   mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
@@ -353,7 +353,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   setAuthStatus(mockApiClient, {
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionSampleDefinition),
+    user: fakeElectionManagerUser(electionGeneralDefinition),
     wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');
@@ -377,7 +377,7 @@ test('authentication works', async () => {
   // Insert election manager card and enter correct PIN.
   setAuthStatus(mockApiClient, {
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionSampleDefinition),
+    user: fakeElectionManagerUser(electionGeneralDefinition),
   });
   await screen.findByText('Enter the card PIN to unlock.');
   mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
@@ -391,7 +391,7 @@ test('authentication works', async () => {
   // 'Remove Card' screen is shown after successful authentication.
   setAuthStatus(mockApiClient, {
     status: 'remove_card',
-    user: fakeElectionManagerUser(electionSampleDefinition),
+    user: fakeElectionManagerUser(electionGeneralDefinition),
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('Remove card to continue.');
@@ -400,7 +400,7 @@ test('authentication works', async () => {
   // Machine is unlocked when card removed
   setAuthStatus(mockApiClient, {
     status: 'logged_in',
-    user: fakeElectionManagerUser(electionSampleDefinition),
+    user: fakeElectionManagerUser(electionGeneralDefinition),
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
   await screen.findByText('No Scanner');
@@ -419,7 +419,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
   render(<App apiClient={mockApiClient} hardware={hardware} />);
@@ -449,7 +449,7 @@ test('election manager cannot auth onto machine with different election hash', a
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
   render(<App apiClient={mockApiClient} hardware={hardware} />);
@@ -469,13 +469,13 @@ test('error boundary', async () => {
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
-    .resolves(electionSampleDefinition);
+    .resolves(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
   await suppressingConsoleOutput(async () => {
     render(<App apiClient={mockApiClient} hardware={hardware} />);
 
-    await authenticateAsElectionManager(electionSampleDefinition);
+    await authenticateAsElectionManager(electionGeneralDefinition);
 
     mockApiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
     userEvent.click(screen.getByText('Lock Machine'));

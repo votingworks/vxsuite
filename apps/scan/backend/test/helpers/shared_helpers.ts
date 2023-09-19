@@ -84,9 +84,8 @@ export async function configureApp(
 
   mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
-      'test-ballot-package.zip': await createBallotPackageZipArchive(
-        ballotPackage
-      ),
+      'test-ballot-package.zip':
+        await createBallotPackageZipArchive(ballotPackage),
     },
   });
 

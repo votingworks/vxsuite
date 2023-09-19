@@ -1,4 +1,4 @@
-import { buildCVRContestsFromVotes, hasWriteIns } from '@votingworks/backend';
+import { buildCVRContestsFromVotes } from '@votingworks/backend';
 import { iter, throwIllegalValue } from '@votingworks/basics';
 import {
   BallotMetadata,
@@ -20,7 +20,7 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { allContestOptions } from '@votingworks/utils';
+import { allContestOptions, hasWriteIns } from '@votingworks/utils';
 import {
   arrangeContestsBySheet,
   filterVotesByContests,

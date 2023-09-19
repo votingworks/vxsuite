@@ -1,12 +1,13 @@
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
-import { fakeKiosk } from '@votingworks/test-utils';
+import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
+import userEvent from '@testing-library/user-event';
 import {
   electionDefinition,
   election,
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { App } from './app';
 import { createApiMock, ApiMock } from '../test/helpers/mock_api_client';
 
@@ -91,4 +92,72 @@ test('`resetting_state_machine_after_jam` state renders jam cleared page', async
 
   await screen.findByText('Jam Cleared');
   screen.getByText(/The hardware has been reset/);
+});
+
+test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with cardless voter auth', async () => {
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  // Open Polls
+  // Once state is moved to the backend this can be mocked more concisely
+  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
+  userEvent.click(screen.getByText('Open Polls'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+  );
+  await screen.findByText(hasTextAcrossElements('Polls: Open'));
+
+  apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+    precinctId: electionDefinition.election.precincts[0].id,
+  });
+  await screen.findByText('Ask a Poll Worker for Help');
+});
+
+test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with poll worker auth', async () => {
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  // Open Polls
+  // Once state is moved to the backend this can be mocked more concisely
+  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
+  userEvent.click(screen.getByText('Open Polls'));
+  userEvent.click(
+    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
+  );
+  await screen.findByText(hasTextAcrossElements('Polls: Open'));
+
+  apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: {
+      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+      precinctId: electionDefinition.election.precincts[0].id,
+    },
+  });
+  await screen.findByText('Remove Ballot');
 });

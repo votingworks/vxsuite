@@ -13,7 +13,7 @@ import {
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { TabulationScreen } from './tabulation_screen';
-import { electionId, electionRecord } from '../test/fixtures';
+import { electionId, generalElectionRecord } from '../test/fixtures';
 
 let apiMock: MockApiClient;
 
@@ -29,21 +29,18 @@ function renderScreen() {
   render(
     provideApi(
       apiMock,
-      withRoute(
-        <TabulationScreen />,
-        routes.election(':electionId').export.path,
-        routes.election(electionId).export.path
-      )
+      withRoute(<TabulationScreen />, {
+        paramPath: routes.election(':electionId').tabulation.path,
+        path: routes.election(electionId).tabulation.path,
+      })
     )
   );
 }
 
 test('mark thresholds', async () => {
   apiMock.getElection
-    .expectCallWith({
-      electionId,
-    })
-    .resolves(electionRecord);
+    .expectCallWith({ electionId })
+    .resolves(generalElectionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -54,7 +51,7 @@ test('mark thresholds', async () => {
   });
   expect(definiteInput).toBeDisabled();
   expect(definiteInput).toHaveValue(
-    electionRecord.systemSettings.markThresholds.definite
+    generalElectionRecord.systemSettings.markThresholds.definite
   );
 
   const marginalInput = screen.getByRole('spinbutton', {
@@ -62,7 +59,7 @@ test('mark thresholds', async () => {
   });
   expect(marginalInput).toBeDisabled();
   expect(marginalInput).toHaveValue(
-    electionRecord.systemSettings.markThresholds.marginal
+    generalElectionRecord.systemSettings.markThresholds.marginal
   );
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
@@ -80,19 +77,12 @@ test('mark thresholds', async () => {
     },
   };
   apiMock.updateSystemSettings
-    .expectCallWith({
-      electionId,
-      systemSettings: updatedSystemSettings,
-    })
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection
-    .expectCallWith({
-      electionId,
-    })
-    .resolves({
-      ...electionRecord,
-      systemSettings: updatedSystemSettings,
-    });
+  apiMock.getElection.expectCallWith({ electionId }).resolves({
+    ...generalElectionRecord,
+    systemSettings: updatedSystemSettings,
+  });
 
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -110,10 +100,8 @@ test('mark thresholds', async () => {
 
 test('adjudication reasons', async () => {
   apiMock.getElection
-    .expectCallWith({
-      electionId,
-    })
-    .resolves(electionRecord);
+    .expectCallWith({ electionId })
+    .resolves(generalElectionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -153,19 +141,12 @@ test('adjudication reasons', async () => {
     centralScanAdjudicationReasons: [AdjudicationReason.Overvote],
   };
   apiMock.updateSystemSettings
-    .expectCallWith({
-      electionId,
-      systemSettings: updatedSystemSettings,
-    })
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
-  apiMock.getElection
-    .expectCallWith({
-      electionId,
-    })
-    .resolves({
-      ...electionRecord,
-      systemSettings: updatedSystemSettings,
-    });
+  apiMock.getElection.expectCallWith({ electionId }).resolves({
+    ...generalElectionRecord,
+    systemSettings: updatedSystemSettings,
+  });
 
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
 

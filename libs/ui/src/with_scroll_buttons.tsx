@@ -1,4 +1,4 @@
-/* istanbul ignore file - tested via VxMark cypress tests */
+/* istanbul ignore file - tested via VxMark Playwright tests */
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
@@ -73,7 +73,8 @@ const ControlLabel = styled.span`
 `;
 
 const TopShadow = styled.div`
-  box-shadow: 0 0.2rem 0.1rem -0.1rem ${(p) => rgba(p.theme.colors.foreground, 0.25)},
+  box-shadow:
+    0 0.2rem 0.1rem -0.1rem ${(p) => rgba(p.theme.colors.foreground, 0.25)},
     0 0.1rem 0.2rem 0 ${(p) => rgba(p.theme.colors.foreground, 0.25)},
     0 0.1rem 0.3rem 0 ${(p) => rgba(p.theme.colors.foreground, 0.15)};
   height: 1rem;
@@ -84,7 +85,8 @@ const TopShadow = styled.div`
 `;
 
 const BottomShadow = styled.div`
-  box-shadow: 0 -0.1rem 0.1rem 0.1rem ${(p) => rgba(p.theme.colors.foreground, 0.25)},
+  box-shadow:
+    0 -0.1rem 0.1rem 0.1rem ${(p) => rgba(p.theme.colors.foreground, 0.25)},
     0 -0.05rem 0.2rem 0 ${(p) => rgba(p.theme.colors.foreground, 0.25)},
     0 -0.05rem 0.3rem 0 ${(p) => rgba(p.theme.colors.foreground, 0.15)};
   bottom: -1rem;

@@ -271,6 +271,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   >
     <div
       class="c1"
+      data-testid="header"
     >
       <div
         class="seal"

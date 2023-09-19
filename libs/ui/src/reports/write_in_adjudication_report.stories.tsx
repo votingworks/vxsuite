@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import {
   electionFamousNames2021Fixtures,
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { TallyReportPreview } from './tally_report';
 import {
@@ -9,7 +9,7 @@ import {
   WriteInAdjudicationReportProps,
 } from './write_in_adjudication_report';
 
-const { election } = electionMinimalExhaustiveSampleDefinition;
+const { election } = electionTwoPartyPrimaryDefinition;
 
 function WriteInTallyReportPreview(
   props: WriteInAdjudicationReportProps

@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ExportReportPdfButton } from './export_report_pdf_button';
@@ -14,7 +14,7 @@ test('disabled by disabled prop', () => {
   expect(window.kiosk).toBeDefined();
   renderInAppContext(
     <ExportReportPdfButton
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
       generateReportPdf={() => Promise.resolve(new Uint8Array())}
       defaultFilename="some-file"
       disabled
@@ -27,7 +27,7 @@ test('disabled by disabled prop', () => {
 test('disabled when window.kiosk is undefined', () => {
   renderInAppContext(
     <ExportReportPdfButton
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
       generateReportPdf={() => Promise.resolve(new Uint8Array())}
       defaultFilename="some-file"
       disabled={false}

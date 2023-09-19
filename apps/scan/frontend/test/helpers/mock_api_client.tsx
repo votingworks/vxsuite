@@ -1,5 +1,5 @@
 import React from 'react';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -27,7 +27,7 @@ import {
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../../src/api';
-import { fakeUsbDriveStatus } from './fake_usb_drive';
+import { mockUsbDriveStatus } from './mock_usb_drive';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -40,7 +40,7 @@ const defaultConfig: PrecinctScannerConfig = {
   isTestMode: true,
   pollsState: 'polls_closed_initial',
   ballotCountWhenBallotBagLastReplaced: 0,
-  electionDefinition: electionSampleDefinition,
+  electionDefinition: electionGeneralDefinition,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   systemSettings: DEFAULT_SYSTEM_SETTINGS,
 };
@@ -106,7 +106,7 @@ export function createApiMock() {
     expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {
       mockApiClient.getUsbDriveStatus
         .expectRepeatedCallsWith()
-        .resolves(fakeUsbDriveStatus(status));
+        .resolves(mockUsbDriveStatus(status));
     },
 
     expectGetMachineConfig(): void {

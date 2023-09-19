@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import fs from 'fs';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
@@ -16,7 +16,7 @@ import {
   serializeMockFileContents,
 } from './mock_file_card';
 
-const { electionHash } = electionSampleDefinition;
+const { electionHash } = electionGeneralDefinition;
 const pin = '123456';
 const wrongPin = '234567';
 

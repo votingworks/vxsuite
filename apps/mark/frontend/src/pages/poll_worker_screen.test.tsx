@@ -1,6 +1,6 @@
 import {
   asElectionDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
@@ -27,7 +27,7 @@ import { fakeTts } from '../../test/helpers/fake_tts';
 import { ApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
-const electionSampleWithSeal = electionSampleDefinition.election;
+const { election } = electionGeneralDefinition;
 
 let apiMock: ApiMock;
 
@@ -53,9 +53,9 @@ function fakePollWorkerAuth(
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
   pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = fakePollWorkerAuth(
-    electionSampleDefinition
+    electionGeneralDefinition
   ),
-  electionDefinition: ElectionDefinition = electionSampleDefinition
+  electionDefinition: ElectionDefinition = electionGeneralDefinition
 ) {
   return render(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
@@ -94,7 +94,7 @@ test('renders PollWorkerScreen', () => {
 
 test('switching out of test mode on election day', () => {
   const electionDefinition = asElectionDefinition({
-    ...electionSampleWithSeal,
+    ...election,
     date: new Date().toISOString(),
   });
   const enableLiveMode = jest.fn();
@@ -113,7 +113,7 @@ test('switching out of test mode on election day', () => {
 
 test('keeping test mode on election day', () => {
   const electionDefinition = asElectionDefinition({
-    ...electionSampleWithSeal,
+    ...election,
     date: new Date().toISOString(),
   });
   const enableLiveMode = jest.fn();

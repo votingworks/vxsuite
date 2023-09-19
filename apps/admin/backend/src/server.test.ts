@@ -4,11 +4,11 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { Server } from 'http';
 import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
 import { buildApp } from './app';
-import { createMockUsb } from '../test/app';
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -18,8 +18,8 @@ test('starts with default logger and port', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
-  const { usb } = createMockUsb();
-  const app = buildApp({ auth, workspace, logger, usb });
+  const { usbDrive } = createMockUsbDrive();
+  const app = buildApp({ auth, workspace, logger, usbDrive });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -41,8 +41,8 @@ test('start with config options', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
-  const { usb } = createMockUsb();
-  const app = buildApp({ auth, workspace, logger, usb });
+  const { usbDrive } = createMockUsbDrive();
+  const app = buildApp({ auth, workspace, logger, usbDrive });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -62,8 +62,8 @@ test('errors on start with no workspace', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
-  const { usb } = createMockUsb();
-  const app = buildApp({ auth, workspace, logger, usb });
+  const { usbDrive } = createMockUsbDrive();
+  const app = buildApp({ auth, workspace, logger, usbDrive });
 
   // start up the server
   try {

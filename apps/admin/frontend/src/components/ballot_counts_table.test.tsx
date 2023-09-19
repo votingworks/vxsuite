@@ -13,7 +13,7 @@ import {
 import { renderInAppContext } from '../../test/render_in_app_context';
 
 import { BallotCountsTable } from './ballot_counts_table';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { mockBallotCountsTableGroupBy } from '../../test/helpers/api_expect_helpers';
 
 let apiMock: ApiMock;

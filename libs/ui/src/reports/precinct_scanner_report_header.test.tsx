@@ -3,7 +3,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
-  electionMinimalExhaustiveSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import { PartyId } from '@votingworks/types';
@@ -49,7 +49,7 @@ test('general election, all precincts, polls open, test mode', () => {
 test('primary election, single precinct, polls closed, live mode', () => {
   render(
     <PrecinctScannerReportHeader
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
       precinctSelection={singlePrecinctSelectionFor('precinct-1')}
       partyId={'0' as PartyId}
       pollsTransition="close_polls"

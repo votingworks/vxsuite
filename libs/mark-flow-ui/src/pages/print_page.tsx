@@ -33,6 +33,7 @@ export interface PrintPageProps {
     element: JSX.Element,
     printOptions: PrintOptions
   ) => Promise<void>;
+  largeTopMargin?: boolean;
 }
 
 export function PrintPage({
@@ -44,6 +45,7 @@ export function PrintPage({
   generateBallotId,
   onPrintStarted,
   printElement = DefaultPrintElement,
+  largeTopMargin,
 }: PrintPageProps): JSX.Element {
   const printLock = useLock();
 
@@ -58,6 +60,7 @@ export function PrintPage({
         isLiveMode={isLiveMode}
         precinctId={precinctId}
         votes={votes}
+        largeTopMargin={largeTopMargin}
       />,
       { sides: 'one-sided' }
     );
@@ -72,6 +75,7 @@ export function PrintPage({
     votes,
     onPrintStarted,
     printElement,
+    largeTopMargin,
   ]);
 
   useEffect(() => {

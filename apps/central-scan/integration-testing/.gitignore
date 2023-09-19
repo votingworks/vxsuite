@@ -22,9 +22,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# cypress
-/cypress/videos
-/cypress/downloads
-/cypress/screenshots
-/cypress/examples
-test-results.xml
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/

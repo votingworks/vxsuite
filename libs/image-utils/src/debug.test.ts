@@ -157,11 +157,11 @@ test('imageData with non-ImageData object', async () => {
     write: writeFn,
   });
 
-  imdebug.imageData(0, 0, {
-    data: Uint8ClampedArray.of(255, 0, 0, 255),
-    width: 1,
-    height: 1,
-  });
+  imdebug.imageData(
+    0,
+    0,
+    createImageData(Uint8ClampedArray.of(255, 0, 0, 255), 1, 1)
+  );
 
   imdebug.write('test');
   expect(writeFn).toHaveBeenNthCalledWith(1, ['test'], expect.any(Buffer));

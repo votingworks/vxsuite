@@ -98,8 +98,13 @@ function buildApi(
       return usbDrive.status();
     },
 
-    ejectUsbDrive(): Promise<void> {
-      return usbDrive.eject();
+    async ejectUsbDrive(): Promise<void> {
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+      return usbDrive.eject(
+        authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown'
+      );
     },
 
     async configureFromBallotPackageOnUsbDrive(): Promise<

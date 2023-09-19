@@ -58,7 +58,7 @@ beforeEach(() => {
   mockApiClient.getUsbDriveStatus.expectCallWith().resolves('removed');
   mockApiClient.getElection.expectCallWith().resolves({
     title: 'Sample General Election',
-    path: 'libs/fixtures/data/electionSample.json',
+    path: 'libs/fixtures/data/electionGeneral/election.json',
   });
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
@@ -196,7 +196,7 @@ test('election selector', async () => {
   const electionSelector = screen.getByRole('combobox');
   await waitFor(() => {
     expect(electionSelector).toHaveValue(
-      'libs/fixtures/data/electionSample.json'
+      'libs/fixtures/data/electionGeneral/election.json'
     );
   });
 

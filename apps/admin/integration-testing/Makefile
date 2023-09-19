@@ -3,9 +3,6 @@ SEMS := ../../../services/converter-ms-sems
 export ADMIN_WORKSPACE=/tmp/admin-integration-testing
 export PIPENV_VENV_IN_PROJECT=1
 
-clean-downloads:
-	rm cypress/downloads/*
-
 build-frontend:
 	make -C $(APP)/frontend install; \
 	make -C $(APP)/frontend build; \

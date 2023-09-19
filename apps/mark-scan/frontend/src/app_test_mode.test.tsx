@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
   asElectionDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import { render, screen, waitFor } from '../test/react_testing_library';
@@ -29,7 +29,7 @@ afterEach(() => {
 
 it('Prompts to change from test mode to live mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
-    ...electionSampleDefinition.election,
+    ...electionGeneralDefinition.election,
     date: new Date().toISOString(),
   });
   const hardware = MemoryHardware.buildStandard();

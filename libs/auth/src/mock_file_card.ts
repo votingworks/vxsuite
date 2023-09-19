@@ -9,8 +9,6 @@ import {
 
 import { Card, CardStatus, CheckPinResponse } from './card';
 
-type WriteFileFn = (filePath: string, fileContents: Buffer) => void;
-
 /**
  * The path of the file underlying a MockFileCard
  */
@@ -54,12 +52,8 @@ export function deserializeMockFileContents(file: Buffer): MockFileContents {
   };
 }
 
-function writeToMockFile(
-  mockFileContents: MockFileContents,
-  // Allow Cypress tests to use cy.writeFile for file writing
-  writeFileFn: WriteFileFn = fs.writeFileSync
-): void {
-  writeFileFn(MOCK_FILE_PATH, serializeMockFileContents(mockFileContents));
+function writeToMockFile(mockFileContents: MockFileContents): void {
+  fs.writeFileSync(MOCK_FILE_PATH, serializeMockFileContents(mockFileContents));
 }
 
 /**

@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/fixtures';
+import { electionGeneral } from '@votingworks/fixtures';
 import { generateDefaultReportFilename } from './save_as_pdf';
 
 test('file path name is generated properly', () => {
@@ -43,13 +43,13 @@ test('file path name is generated properly', () => {
   ];
   for (const { prefix, precinctName, expected } of testCases) {
     expect(
-      generateDefaultReportFilename(prefix, electionSample, precinctName)
+      generateDefaultReportFilename(prefix, electionGeneral, precinctName)
     ).toEqual(expected);
   }
 });
 
 test('precinct name fills in all-precincts as default value', () => {
-  expect(generateDefaultReportFilename('test', electionSample)).toEqual(
+  expect(generateDefaultReportFilename('test', electionGeneral)).toEqual(
     'test-franklin-county-general-election-all-precincts.pdf'
   );
 });

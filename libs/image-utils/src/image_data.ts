@@ -174,7 +174,7 @@ function loadPgmImageData(buffer: Buffer): ImageData | undefined {
     `Invalid PGM image max: ${maxString}`
   );
 
-  const data = buffer.subarray((header as string).length);
+  const data = buffer.subarray(header.length);
   return createImageData(Uint8ClampedArray.from(data), width, height);
 }
 

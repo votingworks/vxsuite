@@ -6,8 +6,7 @@ const rule: TSESLint.RuleModule<'noJestToBe', readonly unknown[]> = createRule({
   meta: {
     docs: {
       description: 'Use `toEqual` rather than `toBe` in jest assertions.',
-      recommended: 'error',
-      suggestion: false,
+      recommended: 'strict',
       requiresTypeChecking: false,
     },
     fixable: 'code',

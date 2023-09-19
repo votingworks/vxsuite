@@ -6,7 +6,6 @@ const shared = require('../../jest.config.shared');
 module.exports = {
   ...shared,
   coveragePathIgnorePatterns: [
-    'src/cypress.ts',
     'src/index.ts',
     'src/intermediate-scripts',
     'src/jurisdictions.ts',

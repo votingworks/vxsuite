@@ -42,7 +42,7 @@ export type PairColumnEntriesIssue<T extends GridEntry, U extends GridEntry> =
  */
 export type PairColumnEntriesResult<
   T extends GridEntry,
-  U extends GridEntry
+  U extends GridEntry,
 > = Result<
   {
     readonly pairs: ReadonlyArray<[T, U]>;

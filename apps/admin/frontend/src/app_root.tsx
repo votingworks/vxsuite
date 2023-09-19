@@ -1,7 +1,7 @@
 import { Logger } from '@votingworks/logging';
 import { Printer, ConverterClientType } from '@votingworks/types';
 import { Hardware, randomBallotId } from '@votingworks/utils';
-import { useUsbDrive, useDevices } from '@votingworks/ui';
+import { useDevices } from '@votingworks/ui';
 
 import { AppContext } from './contexts/app_context';
 import { ElectionManager } from './components/election_manager';
@@ -9,6 +9,7 @@ import {
   getAuthStatus,
   getCurrentElectionMetadata,
   getMachineConfig,
+  getUsbDriveStatus,
 } from './api';
 
 export interface Props {
@@ -29,21 +30,23 @@ export function AppRoot({
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
 
   const authStatusQuery = getAuthStatus.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();
 
   const electionDefinition =
     currentElectionMetadataQuery.data?.electionDefinition;
 
-  const usbDrive = useUsbDrive({ logger });
-
   if (
     !authStatusQuery.isSuccess ||
+    !usbDriveStatusQuery.isSuccess ||
     !getMachineConfigQuery.isSuccess ||
     !currentElectionMetadataQuery.isSuccess
   ) {
     return null;
   }
+
+  const usbDriveStatus = usbDriveStatusQuery.data;
 
   return (
     <AppContext.Provider
@@ -54,7 +57,7 @@ export function AppRoot({
         isOfficialResults:
           currentElectionMetadataQuery.data?.isOfficialResults ?? false,
         printer,
-        usbDrive,
+        usbDriveStatus,
         generateBallotId,
         auth: authStatusQuery.data,
         machineConfig: getMachineConfigQuery.data,

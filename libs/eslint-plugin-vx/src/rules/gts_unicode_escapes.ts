@@ -20,7 +20,7 @@ const rule: TSESLint.RuleModule<
     docs: {
       description:
         'Requires the use of real Unicode characters when printable, escapes when non-printable.',
-      recommended: 'error',
+      recommended: 'stylistic',
       requiresTypeChecking: false,
     },
     messages: {

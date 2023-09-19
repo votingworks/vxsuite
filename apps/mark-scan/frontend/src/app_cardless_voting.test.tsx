@@ -9,7 +9,7 @@ import {
   expectPrintToPdf,
   fakeKiosk,
 } from '@votingworks/test-utils';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
   fireEvent,
@@ -55,7 +55,7 @@ async function awaitRenderAndClickBallotStyle(): Promise<void> {
 }
 
 test('Cardless Voting Flow', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
@@ -272,7 +272,7 @@ test('Cardless Voting Flow', async () => {
 });
 
 test('Voter can submit a blank ballot', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
@@ -424,7 +424,7 @@ test('Voter can submit a blank ballot', async () => {
 });
 
 test('poll worker must select a precinct first', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();

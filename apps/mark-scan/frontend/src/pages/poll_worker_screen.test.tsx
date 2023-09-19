@@ -1,15 +1,11 @@
 import {
   asElectionDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
-import {
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
-  hasTextAcrossElements,
-} from '@votingworks/test-utils';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -24,8 +20,12 @@ import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
 import { ApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import {
+  fakeCardlessVoterAuth,
+  fakePollWorkerAuth,
+} from '../../test/helpers/fake_auth';
 
-const electionSampleWithSeal = electionSampleDefinition.election;
+const { election } = electionGeneralDefinition;
 
 let apiMock: ApiMock;
 
@@ -38,22 +38,12 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function fakePollWorkerAuth(
-  electionDefinition: ElectionDefinition
-): InsertedSmartCardAuth.PollWorkerLoggedIn {
-  return {
-    status: 'logged_in',
-    user: fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
-  };
-}
-
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
   pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = fakePollWorkerAuth(
-    electionSampleDefinition
+    electionGeneralDefinition
   ),
-  electionDefinition: ElectionDefinition = electionSampleDefinition
+  electionDefinition: ElectionDefinition = electionGeneralDefinition
 ) {
   return render(
     <ApiClientContext.Provider value={apiMock.mockApiClient}>
@@ -94,7 +84,7 @@ test('renders PollWorkerScreen', () => {
 
 test('switching out of test mode on election day', () => {
   const electionDefinition = asElectionDefinition({
-    ...electionSampleWithSeal,
+    ...election,
     date: new Date().toISOString(),
   });
   const enableLiveMode = jest.fn();
@@ -113,7 +103,7 @@ test('switching out of test mode on election day', () => {
 
 test('keeping test mode on election day', () => {
   const electionDefinition = asElectionDefinition({
-    ...electionSampleWithSeal,
+    ...election,
     date: new Date().toISOString(),
   });
   const enableLiveMode = jest.fn();
@@ -192,4 +182,35 @@ test('can toggle between vote activation and "other actions" during polls open',
   // switch back
   userEvent.click(screen.getByText('Back to Ballot Style Selection'));
   screen.getByText('Select Voter’s Ballot Style');
+});
+
+test('returns instruction page if status is `waiting_for_ballot_data`', async () => {
+  const electionDefinition = electionGeneralDefinition;
+  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
+
+  renderScreen({
+    pollsState: 'polls_open',
+    pollWorkerAuth,
+    machineConfig: fakeMachineConfig(),
+    electionDefinition,
+  });
+
+  await screen.findByText('Paper has been loaded.');
+});
+
+test('returns null if status is unhandled', () => {
+  const electionDefinition = electionGeneralDefinition;
+  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  apiMock.setPaperHandlerState('scanning');
+
+  renderScreen({
+    pollsState: 'polls_open',
+    pollWorkerAuth,
+    machineConfig: fakeMachineConfig(),
+    electionDefinition,
+  });
+
+  expect(screen.queryByText('Paper has been loaded.')).toBeNull();
+  expect(screen.queryByText('Poll Worker Actions')).toBeNull();
 });

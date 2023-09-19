@@ -72,8 +72,12 @@ jobs:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - install-cypress-browser
       - checkout-and-install
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/admin/integration-testing exec playwright install-deps
+            pnpm --dir apps/admin/integration-testing exec playwright install chromium
       - run:
           name: Build
           command: |
@@ -91,9 +95,7 @@ jobs:
       - store_test_results:
           path: apps/admin/integration-testing/reports/
       - store_artifacts:
-          path: apps/admin/integration-testing/cypress/screenshots/
-      - store_artifacts:
-          path: apps/admin/integration-testing/cypress/videos/
+          path: apps/admin/integration-testing/test-results/
 
   # @votingworks/central-scan-backend
   test-apps-central-scan-backend:
@@ -146,8 +148,12 @@ jobs:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - install-cypress-browser
       - checkout-and-install
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/central-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/central-scan/integration-testing exec playwright install chromium
       - run:
           name: Build
           command: |
@@ -165,9 +171,7 @@ jobs:
       - store_test_results:
           path: apps/central-scan/integration-testing/reports/
       - store_artifacts:
-          path: apps/central-scan/integration-testing/cypress/screenshots/
-      - store_artifacts:
-          path: apps/central-scan/integration-testing/cypress/videos/
+          path: apps/central-scan/integration-testing/test-results/
 
   # @votingworks/design-backend
   test-apps-design-backend:
@@ -266,8 +270,12 @@ jobs:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - install-cypress-browser
       - checkout-and-install
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark-scan/integration-testing exec playwright install chromium
       - run:
           name: Build
           command: |
@@ -285,9 +293,7 @@ jobs:
       - store_test_results:
           path: apps/mark-scan/integration-testing/reports/
       - store_artifacts:
-          path: apps/mark-scan/integration-testing/cypress/screenshots/
-      - store_artifacts:
-          path: apps/mark-scan/integration-testing/cypress/videos/
+          path: apps/mark-scan/integration-testing/test-results/
 
   # @votingworks/mark-backend
   test-apps-mark-backend:
@@ -340,8 +346,12 @@ jobs:
     executor: nodejs-browsers
     resource_class: xlarge
     steps:
-      - install-cypress-browser
       - checkout-and-install
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/mark/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark/integration-testing exec playwright install chromium
       - run:
           name: Build
           command: |
@@ -359,9 +369,7 @@ jobs:
       - store_test_results:
           path: apps/mark/integration-testing/reports/
       - store_artifacts:
-          path: apps/mark/integration-testing/cypress/screenshots/
-      - store_artifacts:
-          path: apps/mark/integration-testing/cypress/videos/
+          path: apps/mark/integration-testing/test-results/
 
   # @votingworks/scan-backend
   test-apps-scan-backend:
@@ -408,29 +416,6 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/scan/frontend/reports/
-
-  # @votingworks/codemods
-  test-codemods:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir codemods build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir codemods lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir codemods test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: codemods/reports/
 
   # @votingworks/api
   test-libs-api:
@@ -1195,7 +1180,6 @@ workflows:
       - test-apps-mark-integration-testing
       - test-apps-scan-backend
       - test-apps-scan-frontend
-      - test-codemods
       - test-libs-api
       - test-libs-auth
       - test-libs-backend
@@ -1256,13 +1240,5 @@ commands:
             "pnpm-lock.yaml" }}
           paths:
             - /root/.local/share/pnpm/store/v3
-            - /root/.cache/Cypress
+            - /root/.cache/ms-playwright
             - /root/.cargo
-  install-cypress-browser:
-    description: Installs a browser for Cypress tests.
-    steps:
-      - run: sudo apt update
-      - browser-tools/install-chrome:
-          # TODO remove following line when fixed https://github.com/CircleCI-Public/browser-tools-orb/issues/90
-          chrome-version: 116.0.5845.96
-      - browser-tools/install-chromedriver

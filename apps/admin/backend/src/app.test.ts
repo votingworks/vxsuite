@@ -1,7 +1,7 @@
 import { assert, err, ok } from '@votingworks/basics';
 import {
-  electionMinimalExhaustiveSampleFixtures,
-  electionSample,
+  electionTwoPartyPrimaryFixtures,
+  electionGeneral,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 
@@ -61,7 +61,7 @@ test('managing the current election', async () => {
   assert(badConfigureResult.isErr());
   expect(badConfigureResult.err().type).toEqual('invalidElection');
 
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData, electionHash } = electionDefinition;
 
   // try configuring with malformed system settings data
@@ -144,7 +144,7 @@ test('configuring with a CDF election', async () => {
   mockSystemAdministratorAuth(auth);
 
   const { electionData, electionHash } = safeParseElectionDefinition(
-    JSON.stringify(convertVxfElectionToCdfBallotDefinition(electionSample))
+    JSON.stringify(convertVxfElectionToCdfBallotDefinition(electionGeneral))
   ).unsafeUnwrap();
 
   // configure with well-formed election data
@@ -177,7 +177,7 @@ test('getSystemSettings happy path', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   const { electionDefinition, systemSettings } =
-    electionMinimalExhaustiveSampleFixtures;
+    electionTwoPartyPrimaryFixtures;
   await configureMachine(
     apiClient,
     auth,
@@ -200,22 +200,60 @@ test('getSystemSettings returns default system settings when there is no current
 });
 
 test('saveBallotPackageToUsb', async () => {
-  const { apiClient, auth, mockUsb } = buildTestEnvironment();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
-  mockUsb.insertUsbDrive({});
+  mockUsbDrive.insertUsbDrive({});
   const response = await apiClient.saveBallotPackageToUsb();
   expect(response).toEqual(ok());
 });
 
 test('saveBallotPackageToUsb when no USB drive', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-  const { electionDefinition } = electionMinimalExhaustiveSampleFixtures;
+  const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
+  mockUsbDrive.usbDrive.status
+    .expectCallWith()
+    .resolves({ status: 'no_drive' });
   const response = await apiClient.saveBallotPackageToUsb();
   expect(response).toEqual(
     err({ type: 'missing-usb-drive', message: 'No USB drive found' })
   );
+});
+
+test('usbDrive', async () => {
+  const {
+    apiClient,
+    auth,
+    mockUsbDrive: { usbDrive },
+  } = buildTestEnvironment();
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  mockSystemAdministratorAuth(auth);
+
+  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  expect(await apiClient.getUsbDriveStatus()).toEqual({
+    status: 'no_drive',
+  });
+
+  usbDrive.status
+    .expectCallWith()
+    .resolves({ status: 'error', reason: 'bad_format' });
+  expect(await apiClient.getUsbDriveStatus()).toMatchObject({
+    status: 'error',
+    reason: 'bad_format',
+  });
+
+  usbDrive.eject.expectCallWith('system_administrator').resolves();
+  await apiClient.ejectUsbDrive();
+
+  usbDrive.format.expectCallWith('system_administrator').resolves();
+  (await apiClient.formatUsbDrive()).assertOk('format failed');
+
+  const error = new Error('format failed');
+  usbDrive.format.expectCallWith('system_administrator').throws(error);
+  expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });

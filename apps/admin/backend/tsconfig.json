@@ -8,8 +8,8 @@
     "composite": true,
     "esModuleInterop": true,
     "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "noEmit": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
@@ -28,6 +28,7 @@
     { "path": "../../../libs/logging/tsconfig.build.json" },
     { "path": "../../../libs/test-utils/tsconfig.build.json" },
     { "path": "../../../libs/types/tsconfig.build.json" },
+    { "path": "../../../libs/usb-drive/tsconfig.build.json" },
     { "path": "../../../libs/utils/tsconfig.build.json" }
   ]
 }

@@ -1,6 +1,6 @@
 import { assert, find } from '@votingworks/basics';
 import {
-  electionSample,
+  electionGeneral,
   electionWithMsEitherNeither,
 } from '@votingworks/fixtures';
 import {
@@ -45,7 +45,7 @@ test('mergeMsEitherNeitherContests detects pairs of ballot measures and merges t
 });
 
 test('mergeMsEitherNeitherContests does nothing if there are no either-neither contests', () => {
-  const { contests } = electionSample;
+  const { contests } = electionGeneral;
   const mergedContests = mergeMsEitherNeitherContests(contests);
   expect(mergedContests).toEqual(contests);
 });

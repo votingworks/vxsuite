@@ -78,6 +78,7 @@ import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { JammedPage } from './pages/jammed_page';
 import { JamClearedPage } from './pages/jam_cleared_page';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
+import { BallotInvalidatedPage } from './pages/ballot_invalidated_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -695,7 +696,12 @@ export function AppRoot({
     ) {
       return <WrongElectionScreen />;
     }
-    if (isPollWorkerAuth(authStatus)) {
+
+    if (
+      isPollWorkerAuth(authStatus) &&
+      // Ballot invalidation requires BallotContext, handled below
+      stateMachineState !== 'waiting_for_invalidated_ballot_confirmation'
+    ) {
       return (
         <PollWorkerScreen
           pollWorkerAuth={authStatus}
@@ -727,7 +733,28 @@ export function AppRoot({
     }
 
     if (pollsState === 'polls_open') {
-      if (isCardlessVoterAuth(authStatus)) {
+      if (
+        isCardlessVoterAuth(authStatus) ||
+        // Special case poll worker auth because both poll worker auth and BallotContext are needed to invalidate the ballot
+        (isPollWorkerAuth(authStatus) &&
+          stateMachineState === 'waiting_for_invalidated_ballot_confirmation')
+      ) {
+        let ballotContextProviderChild = <Ballot />;
+
+        // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
+        // frontend browser routing for flow control and is completely independent of the state machine.
+        // We still want to nest pages that condition on the state machine under BallotContext so we render them here.
+        if (stateMachineState === 'presenting_ballot') {
+          ballotContextProviderChild = <ValidateBallotPage />;
+        }
+        if (
+          stateMachineState === 'waiting_for_invalidated_ballot_confirmation'
+        ) {
+          ballotContextProviderChild = (
+            <BallotInvalidatedPage authStatus={authStatus} />
+          );
+        }
+
         return (
           <Gamepad onButtonDown={handleGamepadButtonDown}>
             <BallotContext.Provider
@@ -748,14 +775,7 @@ export function AppRoot({
                 votes: votes ?? blankBallotVotes,
               }}
             >
-              {stateMachineState === 'presenting_ballot' ? (
-                // Don't nest ValidateBallotPage under Ballot because Ballot uses frontend browser routing for flow control
-                // and is completely independent of the state machine. ValidateBallotPage interacts with the state machine
-                // so we condition on it here, where we can still access BallotContext, but completely separate it from browser routing
-                <ValidateBallotPage />
-              ) : (
-                <Ballot />
-              )}
+              {ballotContextProviderChild}
             </BallotContext.Provider>
           </Gamepad>
         );

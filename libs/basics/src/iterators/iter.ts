@@ -19,11 +19,11 @@ export function iter<T>(
   iterable: Iterable<T> | AsyncIterable<T>
 ): IteratorPlus<T> | AsyncIteratorPlus<T> {
   if (typeof iterable === 'string' || Symbol.iterator in iterable) {
-    return new IteratorPlusImpl(iterable as Iterable<T>);
+    return new IteratorPlusImpl(iterable);
   }
 
   if (Symbol.asyncIterator in iterable) {
-    return new AsyncIteratorPlusImpl(iterable as AsyncIterable<T>);
+    return new AsyncIteratorPlusImpl(iterable);
   }
 
   throw new Error('iterable is not iterable');

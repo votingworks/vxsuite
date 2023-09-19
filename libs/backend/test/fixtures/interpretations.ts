@@ -10,9 +10,9 @@ import {
   TargetShape,
   YesNoContest,
 } from '@votingworks/types';
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election, electionHash } = electionDefinition;
 
 export const fishingContest = find(

@@ -1,8 +1,8 @@
 import { assert, err, ok } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
-  electionMinimalExhaustiveSampleDefinition,
-  electionMinimalExhaustiveSampleFixtures,
+  electionTwoPartyPrimaryDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { CVR as CVRType, safeParse } from '@votingworks/types';
@@ -79,17 +79,18 @@ async function expectCastVoteRecordCount(
 }
 
 test('happy path - mock election flow', async () => {
-  const { apiClient, auth, mockUsb, logger } = buildTestEnvironment();
+  const { apiClient, auth, mockUsbDrive, logger } = buildTestEnvironment();
+  const { usbDrive, insertUsbDrive, removeUsbDrive } = mockUsbDrive;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // initially, no files or cast vote records
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
+  usbDrive.status.expectRepeatedCallsWith().resolves({ status: 'no_drive' });
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
 
   // insert a USB drive
-  const { insertUsbDrive, removeUsbDrive } = mockUsb;
   const testReportDirectoryName =
     'TEST__machine_0000__184_ballots__2022-07-01_11-21-41';
   const testExportTimestamp = '2022-07-01T11:21:41.000Z';
@@ -176,6 +177,10 @@ test('happy path - mock election flow', async () => {
 
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
 
+  const availableCastVoteRecordFiles3 =
+    await apiClient.listCastVoteRecordFilesOnUsb();
+  expect(availableCastVoteRecordFiles3).toMatchObject([]);
+
   // now try loading official CVR files, as if after L&A
   const officialReportDirectoryName =
     'machine_0000__184_ballots__2022-07-01_11-21-41';
@@ -236,18 +241,11 @@ test('happy path - mock election flow', async () => {
 
 test('adding a file with BMD cast vote records', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionMinimalExhaustiveSampleDefinition
-  );
-  mockElectionManagerAuth(
-    auth,
-    electionMinimalExhaustiveSampleDefinition.electionHash
-  );
+  await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
+  mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.electionHash);
 
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
-    path: electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath(),
+    path: electionTwoPartyPrimaryFixtures.castVoteRecordReport.asDirectoryPath(),
   });
   assert(addTestFileResult.isOk());
   expect(addTestFileResult.ok()).toMatchObject({
@@ -668,19 +666,12 @@ test('error if a layout is invalid', async () => {
 
 test('can add file using the report JSON path rather than the directory path', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionMinimalExhaustiveSampleDefinition
-  );
-  mockElectionManagerAuth(
-    auth,
-    electionMinimalExhaustiveSampleDefinition.electionHash
-  );
+  await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
+  mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.electionHash);
 
   const addFileResult = await apiClient.addCastVoteRecordFile({
     path: path.join(
-      electionMinimalExhaustiveSampleFixtures.castVoteRecordReport.asDirectoryPath(),
+      electionTwoPartyPrimaryFixtures.castVoteRecordReport.asDirectoryPath(),
       CAST_VOTE_RECORD_REPORT_FILENAME
     ),
   });

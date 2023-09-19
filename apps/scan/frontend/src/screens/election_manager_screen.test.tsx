@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
-  electionMinimalExhaustiveSampleSinglePrecinctDefinition,
-  electionSampleDefinition,
+  electionGeneralDefinition,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
 import { fakeKiosk } from '@votingworks/test-utils';
@@ -24,7 +24,7 @@ import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
 } from './election_manager_screen';
-import { fakeUsbDriveStatus } from '../../test/helpers/fake_usb_drive';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
@@ -50,9 +50,9 @@ function renderScreen(
     provideApi(
       apiMock,
       <ElectionManagerScreen
-        electionDefinition={electionSampleDefinition}
+        electionDefinition={electionGeneralDefinition}
         scannerStatus={statusNoPaper}
-        usbDrive={fakeUsbDriveStatus('no_drive')}
+        usbDrive={mockUsbDriveStatus('no_drive')}
         logger={fakeLogger()}
         {...props}
       />
@@ -102,7 +102,7 @@ test('renders date and time settings modal', async () => {
 test('option to set precinct if more than one', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
-  const precinct = electionSampleDefinition.election.precincts[0];
+  const precinct = electionGeneralDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   apiMock.expectSetPrecinct(precinctSelection);
   renderScreen();
@@ -116,7 +116,7 @@ test('option to set precinct if more than one', async () => {
 test('no option to change precinct if there is only one precinct', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   const electionDefinition =
-    electionMinimalExhaustiveSampleSinglePrecinctDefinition;
+    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('precinct-1'),
@@ -144,7 +144,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
   apiMock.expectGetConfig();
   renderScreen({
     scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-    usbDrive: fakeUsbDriveStatus('no_drive'),
+    usbDrive: mockUsbDriveStatus('no_drive'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
@@ -166,7 +166,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   apiMock.expectGetConfig();
   renderScreen({
     scannerStatus: { ...statusNoPaper, canUnconfigure: true },
-    usbDrive: fakeUsbDriveStatus('mounted'),
+    usbDrive: mockUsbDriveStatus('mounted'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 

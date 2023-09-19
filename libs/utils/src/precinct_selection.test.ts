@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/fixtures';
+import { electionGeneral } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
@@ -18,7 +18,7 @@ describe('getPrecinctSelectionName', () => {
   test('handles All Precinct case', () => {
     expect(
       getPrecinctSelectionName(
-        electionSample.precincts,
+        electionGeneral.precincts,
         ALL_PRECINCTS_SELECTION
       )
     ).toEqual(ALL_PRECINCTS_NAME);
@@ -26,7 +26,7 @@ describe('getPrecinctSelectionName', () => {
 
   test('handles Single Precinct case', () => {
     expect(
-      getPrecinctSelectionName(electionSample.precincts, {
+      getPrecinctSelectionName(electionGeneral.precincts, {
         kind: 'SinglePrecinct',
         precinctId: '23',
       })
@@ -35,7 +35,7 @@ describe('getPrecinctSelectionName', () => {
 
   test('throws error if precinct not found', () => {
     expect(() => {
-      getPrecinctSelectionName(electionSample.precincts, {
+      getPrecinctSelectionName(electionGeneral.precincts, {
         kind: 'SinglePrecinct',
         precinctId: 'none',
       });

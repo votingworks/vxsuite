@@ -1,6 +1,8 @@
 import { Election, ElectionDefinition, Tabulation } from '@votingworks/types';
 import { Optional, Result, err, find, ok } from '@votingworks/basics';
 import { getPrecinctById, sanitizeStringForFilename } from '@votingworks/utils';
+import moment from 'moment';
+import type { ScannerBatch } from '@votingworks/admin-backend';
 
 const VOTING_METHOD_LABELS: Record<Tabulation.VotingMethod, string> = {
   absentee: 'Absentee',
@@ -36,15 +38,19 @@ function getFilterRank(filter: Tabulation.Filter): number {
   );
 }
 
+export const BATCH_ID_TRUNCATE_LENGTH = 8;
+
 /**
  * Attempts to generate a title for an individual tally report based on its filter.
  */
 export function generateTitleForReport({
   filter,
   electionDefinition,
+  scannerBatches,
 }: {
   filter: Tabulation.Filter;
   electionDefinition: ElectionDefinition;
+  scannerBatches: ScannerBatch[];
 }): Result<Optional<string>, 'title-not-supported'> {
   if (isCompoundFilter(filter)) {
     return err('title-not-supported');
@@ -53,6 +59,8 @@ export function generateTitleForReport({
   const ballotStyleId = filter.ballotStyleIds?.[0];
   const precinctId = filter.precinctIds?.[0];
   const votingMethod = filter.votingMethods?.[0];
+  const batchId = filter.batchIds?.[0];
+  const scannerId = filter.scannerIds?.[0];
 
   const reportRank = getFilterRank(filter);
 
@@ -74,6 +82,20 @@ export function generateTitleForReport({
 
     if (votingMethod) {
       return ok(`${VOTING_METHOD_LABELS[votingMethod]} Ballot Tally Report`);
+    }
+
+    if (batchId) {
+      const batch = find(scannerBatches, (b) => b.batchId === batchId);
+      return ok(
+        `Scanner ${batch.scannerId} Batch ${batch.batchId.slice(
+          0,
+          BATCH_ID_TRUNCATE_LENGTH
+        )} Tally Report`
+      );
+    }
+
+    if (scannerId) {
+      return ok(`Scanner ${scannerId} Tally Report`);
     }
   }
 
@@ -97,6 +119,23 @@ export function generateTitleForReport({
         `Ballot Style ${ballotStyleId} ${
           getPrecinctById(electionDefinition, precinctId).name
         } Tally Report`
+      );
+    }
+
+    if (precinctId && scannerId) {
+      return ok(
+        `${
+          getPrecinctById(electionDefinition, precinctId).name
+        } Scanner ${scannerId} Tally Report`
+      );
+    }
+
+    if (scannerId && batchId) {
+      return ok(
+        `Scanner ${scannerId} Batch ${batchId.slice(
+          0,
+          BATCH_ID_TRUNCATE_LENGTH
+        )} Tally Report`
       );
     }
   }
@@ -154,7 +193,12 @@ export function canonicalizeGroupBy(
   };
 }
 
+const SECTION_SEPARATOR = '__';
 const WORD_SEPARATOR = '-';
+const SUBSECTION_SEPARATOR = '_';
+const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
+
+const TEST_MODE_PREFIX = 'TEST';
 
 function generateReportFilenameFilterPrefix({
   election,
@@ -183,6 +227,8 @@ function generateReportFilenameFilterPrefix({
   const ballotStyleId = filter.ballotStyleIds?.[0];
   const precinctId = filter.precinctIds?.[0];
   const votingMethod = filter.votingMethods?.[0];
+  const scannerId = filter.scannerIds?.[0];
+  const batchId = filter.batchIds?.[0];
 
   if (ballotStyleId) {
     filterPrefixes.push(`ballot-style-${ballotStyleId}`);
@@ -202,6 +248,14 @@ function generateReportFilenameFilterPrefix({
 
   if (votingMethod) {
     filterPrefixes.push(`${votingMethod}-ballots`);
+  }
+
+  if (scannerId) {
+    filterPrefixes.push(`scanner-${scannerId}`);
+  }
+
+  if (batchId) {
+    filterPrefixes.push(`batch-${batchId.slice(0, BATCH_ID_TRUNCATE_LENGTH)}`);
   }
 
   return filterPrefixes.join(WORD_SEPARATOR);
@@ -241,42 +295,123 @@ function generateReportFilenameGroupByPostfix({
   return postfixes.join(`${WORD_SEPARATOR}and${WORD_SEPARATOR}`);
 }
 
-export function generateReportPdfFilename({
+function generateReportFilename({
   election,
   filter,
   groupBy,
   isTestMode,
+  extension,
+  type: typeSingular,
+  typePlural,
+  time,
 }: {
   election: Election;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
+  extension: string;
+  type: string;
+  typePlural?: string;
+  time: Date;
 }): string {
-  const prefix = generateReportFilenameFilterPrefix({ election, filter });
-  const postfix = generateReportFilenameGroupByPostfix({ groupBy });
+  const descriptionFilterPrefix = generateReportFilenameFilterPrefix({
+    election,
+    filter,
+  });
+  const descriptionGroupByPostfix = generateReportFilenameGroupByPostfix({
+    groupBy,
+  });
 
-  const filenameParts: string[] = [];
+  const descriptionParts: string[] = [];
+  const shortDescriptionParts: string[] = []; // in case description is too long
 
   if (isTestMode) {
-    filenameParts.push('TEST');
+    descriptionParts.push(TEST_MODE_PREFIX);
+    shortDescriptionParts.push(TEST_MODE_PREFIX);
   }
 
-  if (prefix) {
-    filenameParts.push(prefix);
-  } else if (!postfix) {
-    filenameParts.push('full-election');
+  if (descriptionFilterPrefix) {
+    descriptionParts.push(descriptionFilterPrefix);
+    shortDescriptionParts.push('custom');
+  } else if (!descriptionGroupByPostfix) {
+    descriptionParts.push('full-election');
   }
 
-  if (postfix) {
-    filenameParts.push('tally-reports');
-  } else {
-    filenameParts.push('tally-report');
+  const type =
+    descriptionGroupByPostfix && typePlural ? typePlural : typeSingular;
+  descriptionParts.push(type);
+  shortDescriptionParts.push(type);
+
+  if (descriptionGroupByPostfix) {
+    descriptionParts.push('by');
+    descriptionParts.push(descriptionGroupByPostfix);
   }
 
-  if (postfix) {
-    filenameParts.push('by');
-    filenameParts.push(postfix);
+  const description = descriptionParts.join(WORD_SEPARATOR);
+  const timestamp = moment(time).format(TIME_FORMAT_STRING);
+  const filename = `${[description, timestamp].join(
+    SECTION_SEPARATOR
+  )}.${extension}`;
+
+  if (filename.length <= 255) {
+    return filename;
   }
 
-  return `${filenameParts.join(WORD_SEPARATOR)}.pdf`;
+  // FAT32 has a 255 character limit on filenames
+  const shortDescription = shortDescriptionParts.join(WORD_SEPARATOR);
+  const shortFilename = `${[shortDescription, timestamp].join(
+    SECTION_SEPARATOR
+  )}.${extension}`;
+  return shortFilename;
+}
+
+export const REPORT_SUBFOLDER = 'reports';
+
+export function generateTallyReportPdfFilename({
+  election,
+  filter,
+  groupBy,
+  isTestMode,
+  time = new Date(),
+}: {
+  election: Election;
+  filter: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  isTestMode: boolean;
+  time?: Date;
+}): string {
+  return generateReportFilename({
+    election,
+    filter,
+    groupBy,
+    isTestMode,
+    extension: 'pdf',
+    type: 'tally-report',
+    typePlural: 'tally-reports',
+    time,
+  });
+}
+
+export function generateTallyReportCsvFilename({
+  election,
+  filter,
+  groupBy,
+  isTestMode,
+  time = new Date(),
+}: {
+  election: Election;
+  filter: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  isTestMode: boolean;
+  time?: Date;
+}): string {
+  return generateReportFilename({
+    election,
+    filter,
+    groupBy,
+    isTestMode,
+    extension: 'csv',
+    type: 'tally-report',
+    time,
+  });
 }

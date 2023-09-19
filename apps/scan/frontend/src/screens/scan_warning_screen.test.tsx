@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CandidateContest } from '@votingworks/types';
 import {
   isFeatureFlagEnabled,
@@ -62,7 +62,7 @@ function renderScreen(props: Partial<Props> = {}) {
     provideApi(
       apiMock,
       <ScanWarningScreen
-        electionDefinition={electionSampleDefinition}
+        electionDefinition={electionGeneralDefinition}
         adjudicationReasonInfo={[]}
         {...props}
       />
@@ -72,7 +72,7 @@ function renderScreen(props: Partial<Props> = {}) {
 
 test('overvote', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  const contest = electionSampleDefinition.election.contests.find(
+  const contest = electionGeneralDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
 
@@ -126,7 +126,7 @@ test('overvote when casting overvotes is disallowed', async () => {
     }
   );
 
-  const contest = electionSampleDefinition.election.contests.find(
+  const contest = electionGeneralDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
 
@@ -180,7 +180,7 @@ test('blank ballot', async () => {
 
 test('undervote no votes', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  const contest = electionSampleDefinition.election.contests.find(
+  const contest = electionGeneralDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
 
@@ -228,7 +228,7 @@ test('undervote no votes', async () => {
 
 test('undervote by 1', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  const contest = electionSampleDefinition.election.contests.find(
+  const contest = electionGeneralDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
   )!;
 
@@ -276,7 +276,7 @@ test('undervote by 1', async () => {
 
 test('multiple undervotes', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
-  const contests = electionSampleDefinition.election.contests
+  const contests = electionGeneralDefinition.election.contests
     .filter((c): c is CandidateContest => c.type === 'candidate')
     .slice(0, 2);
 

@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
 
 import { getBallotStyle, getContests } from '@votingworks/types';
@@ -8,7 +8,7 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ManualDataEntryScreen } from './manual_data_entry_screen';
-import { ApiMock, createApiMock } from '../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
@@ -20,7 +20,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
 
 const mockValidResults = buildManualResultsFixture({

@@ -1,19 +1,19 @@
 {
   "extends": "../../../tsconfig.shared.json",
   "compilerOptions": {
-    "types": ["cypress"],
     "isolatedModules": false,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false
   },
   "include": ["**/*.ts"],
   "exclude": [],
@@ -22,6 +22,7 @@
     { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },
+    { "path": "../../../libs/test-utils/tsconfig.build.json" },
     { "path": "../../../libs/types/tsconfig.build.json" }
   ]
 }

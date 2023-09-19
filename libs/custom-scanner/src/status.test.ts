@@ -3,7 +3,7 @@ import fc from 'fast-check';
 import { arbitraryStatusInternalMessage } from '../test/arbitraries';
 import { StatusInternalMessage } from './protocol';
 import { convertFromInternalStatus } from './status';
-import { CustomSensorsBitmask, ScannerA4Status, ScannerStatus } from './types';
+import { DocumentSensorStatus, ScannerA4Status, ScannerStatus } from './types';
 
 test('convertFromInternalStatus', () => {
   fc.assert(
@@ -72,7 +72,7 @@ test('convertFromInternalStatus paperJam', () => {
     convertFromInternalStatus({
       ...status,
       paperJam: 'J'.charCodeAt(0),
-      docSensor: status.docSensor & ~CustomSensorsBitmask.ENCODER_ERROR,
+      docSensor: status.docSensor & ~DocumentSensorStatus.ENCODER_ERROR,
     }).status
   ).toEqual(
     expect.objectContaining(
@@ -86,7 +86,7 @@ test('convertFromInternalStatus paperJam', () => {
     convertFromInternalStatus({
       ...status,
       paperJam: 'J'.charCodeAt(0),
-      docSensor: status.docSensor | CustomSensorsBitmask.ENCODER_ERROR,
+      docSensor: status.docSensor | DocumentSensorStatus.ENCODER_ERROR,
     }).status
   ).toEqual(
     expect.objectContaining(

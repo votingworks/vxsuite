@@ -7,9 +7,10 @@ import {
 } from '@votingworks/types';
 import { NullPrinter } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
-import { UsbDrive } from '@votingworks/ui';
 import type { MachineConfig } from '@votingworks/admin-backend';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Iso8601Timestamp } from '../config/types';
+import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;
@@ -17,7 +18,7 @@ export interface AppContextInterface {
   converter?: ConverterClientType;
   isOfficialResults: boolean;
   printer: Printer;
-  usbDrive: UsbDrive;
+  usbDriveStatus: UsbDriveStatus;
   generateBallotId: () => string;
   auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
@@ -26,17 +27,12 @@ export interface AppContextInterface {
   logger: Logger;
 }
 
-/* eslint-disable @typescript-eslint/require-await */
 const appContext: AppContextInterface = {
   electionDefinition: undefined,
   configuredAt: undefined,
   isOfficialResults: false,
   printer: new NullPrinter(),
-  usbDrive: {
-    status: 'absent',
-    eject: async () => undefined,
-    format: async () => undefined,
-  },
+  usbDriveStatus: mockUsbDriveStatus('no_drive'),
   generateBallotId: () => '',
   auth: DippedSmartCardAuth.DEFAULT_AUTH_STATUS,
   machineConfig: {

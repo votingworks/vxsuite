@@ -1,7 +1,7 @@
 import { Route } from 'react-router-dom';
 import {
-  electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
@@ -13,7 +13,7 @@ import { StartPage } from './start_page';
 import { Paths } from '../config/globals';
 
 test('renders StartPage', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '1M',
     electionDefinition,
@@ -26,7 +26,7 @@ test('renders StartPage', () => {
 });
 
 test('renders StartPage in Landscape Orientation', () => {
-  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
   render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '1M',
     electionDefinition,
@@ -40,7 +40,7 @@ test('renders StartPage in Landscape Orientation', () => {
 });
 
 test('renders StartPage with inline SVG seal', () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',
@@ -51,7 +51,7 @@ test('renders StartPage with inline SVG seal', () => {
 });
 
 it('renders display settings button', () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
   render(<Route path="/" component={StartPage} />, {

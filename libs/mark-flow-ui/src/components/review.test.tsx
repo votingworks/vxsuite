@@ -1,5 +1,5 @@
 import {
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import { CandidateContest, YesNoContest } from '@votingworks/types';
@@ -9,15 +9,15 @@ import { screen, within, render } from '../../test/react_testing_library';
 import { mergeMsEitherNeitherContests } from '../utils/ms_either_neither_contests';
 import { Review } from './review';
 
-const electionSample = electionSampleDefinition.election;
+const electionGeneral = electionGeneralDefinition.election;
 
 test('renders', () => {
-  const contests = mergeMsEitherNeitherContests(electionSample.contests);
+  const contests = mergeMsEitherNeitherContests(electionGeneral.contests);
   render(
     <Review
-      election={electionSample}
+      election={electionGeneral}
       contests={contests}
-      precinctId={electionSample.precincts[0].id}
+      precinctId={electionGeneral.precincts[0].id}
       votes={{}}
       returnToContest={jest.fn()}
     />
@@ -28,16 +28,16 @@ test('renders', () => {
 });
 
 test('candidate contest with no votes', () => {
-  const contest = electionSample.contests.find(
+  const contest = electionGeneral.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   );
   assert(contest);
   const contests = [contest];
   render(
     <Review
-      election={electionSample}
+      election={electionGeneral}
       contests={contests}
-      precinctId={electionSample.precincts[0].id}
+      precinctId={electionGeneral.precincts[0].id}
       votes={{}}
       returnToContest={jest.fn()}
     />
@@ -46,16 +46,16 @@ test('candidate contest with no votes', () => {
 });
 
 test('candidate contest with votes but still undervoted', () => {
-  const contest = electionSample.contests.find(
+  const contest = electionGeneral.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
   );
   assert(contest);
   const contests = [contest];
   render(
     <Review
-      election={electionSample}
+      election={electionGeneral}
       contests={contests}
-      precinctId={electionSample.precincts[0].id}
+      precinctId={electionGeneral.precincts[0].id}
       votes={{
         [contest.id]: [contest.candidates[0]],
       }}
@@ -67,15 +67,15 @@ test('candidate contest with votes but still undervoted', () => {
 
 test('candidate contest fully voted', () => {
   const contest = find(
-    electionSample.contests,
+    electionGeneral.contests,
     (c): c is CandidateContest => c.type === 'candidate'
   );
   const contests = [contest];
   render(
     <Review
-      election={electionSample}
+      election={electionGeneral}
       contests={contests}
-      precinctId={electionSample.precincts[0].id}
+      precinctId={electionGeneral.precincts[0].id}
       votes={{
         [contest.id]: contest.candidates.slice(0, contest.seats),
       }}
@@ -86,7 +86,7 @@ test('candidate contest fully voted', () => {
 });
 
 describe('yesno contest', () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   const contest = find(
     electionDefinition.election.contests,
     (c): c is YesNoContest => c.type === 'yesno'

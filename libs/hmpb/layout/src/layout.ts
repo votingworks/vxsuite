@@ -20,6 +20,7 @@ import {
   ElectionDefinition,
   getCandidatePartiesDescription,
   getContests,
+  getPartyForBallotStyle,
   getPrecinctById,
   GridLayout,
   GridPosition,
@@ -49,7 +50,7 @@ const FontWeights = {
   BOLD: 700,
 } as const;
 
-type FontWeight = typeof FontWeights[keyof typeof FontWeights];
+type FontWeight = (typeof FontWeights)[keyof typeof FontWeights];
 
 interface FontStyle {
   fontSize: number;
@@ -392,6 +393,7 @@ export function TimingMarkGrid({ m }: { m: Measurements }): AnyElement {
 
 function HeaderAndInstructions({
   election,
+  ballotStyle,
   precinct,
   pageNumber,
   ballotType,
@@ -399,6 +401,7 @@ function HeaderAndInstructions({
   m,
 }: {
   election: Election;
+  ballotStyle: BallotStyle;
   precinct: Precinct;
   pageNumber: number;
   ballotType: BallotType;
@@ -422,6 +425,14 @@ function HeaderAndInstructions({
     [BallotType.Provisional]: ' Provisional',
   };
   const title = `${ballotModeLabel[ballotMode]}${ballotTypeLabel[ballotType]} Ballot`;
+  const party =
+    election.type === 'primary'
+      ? ` • ${
+          assertDefined(
+            getPartyForBallotStyle({ election, ballotStyleId: ballotStyle.id })
+          ).fullName
+        }`
+      : '';
 
   const date = Intl.DateTimeFormat('en-US', {
     month: 'long',
@@ -444,7 +455,7 @@ function HeaderAndInstructions({
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
         textGroups: [
           {
-            text: title,
+            text: `${title}${party}`,
             fontStyle: {
               ...m.FontStyles.H1,
               lineHeight: m.FontStyles.H1.lineHeight * 0.85,
@@ -871,7 +882,10 @@ function CandidateContest({
   const options: Rectangle[] = [];
   let rowHeightUsed = headingRowHeight;
   for (const candidate of contest.candidates) {
-    const partyText = getCandidatePartiesDescription(election, candidate);
+    const partyText =
+      election.type === 'primary'
+        ? undefined
+        : getCandidatePartiesDescription(election, candidate);
     const optionRow = rowHeightUsed;
 
     const optionTextBlock = TextBlock({
@@ -891,9 +905,8 @@ function CandidateContest({
           text: candidate.name,
           fontStyle: { ...m.FontStyles.BODY, fontWeight: FontWeights.BOLD },
         },
-        ...(partyText === ''
-          ? []
-          : [
+        ...(partyText
+          ? [
               {
                 text: partyText,
                 fontStyle: {
@@ -905,7 +918,8 @@ function CandidateContest({
                     (m.FontStyles.BODY.lineHeight === 8 ? 0.75 : 1),
                 },
               },
-            ]),
+            ]
+          : []),
       ],
       align: optionTextAlign,
     });
@@ -1474,13 +1488,13 @@ function ContestColumnsChunk({
   return [section, columnPositions];
 }
 export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
-export type BallotMode = typeof BALLOT_MODES[number];
+export type BallotMode = (typeof BALLOT_MODES)[number];
 
 export const BUBBLE_POSITIONS = ['left', 'right'] as const;
-export type BubblePosition = typeof BUBBLE_POSITIONS[number];
+export type BubblePosition = (typeof BUBBLE_POSITIONS)[number];
 
 export const LAYOUT_DENSITIES = [0, 1, 2] as const;
-export type LayoutDensity = typeof LAYOUT_DENSITIES[number];
+export type LayoutDensity = (typeof LAYOUT_DENSITIES)[number];
 
 export const DEFAULT_LAYOUT_OPTIONS: LayoutOptions = {
   bubblePosition: 'left',
@@ -1542,6 +1556,7 @@ function layOutBallotHelper({
     );
     const headerAndInstructions = HeaderAndInstructions({
       election,
+      ballotStyle,
       precinct,
       pageNumber,
       ballotType,

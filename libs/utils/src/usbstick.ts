@@ -68,23 +68,3 @@ export async function doSync(): Promise<void> {
 
   await window.kiosk.syncUsbDrive(mountPoint);
 }
-
-/**
- * Formats the USB drive, if there is one, according to the provided options.
- * Ejects the drive first if necessary.
- */
-export async function doFormat(
-  options: KioskBrowser.FormatUsbOptions
-): Promise<void> {
-  assert(window.kiosk);
-  const usbDriveInfo = await getInfo();
-  if (!usbDriveInfo) {
-    return;
-  }
-
-  if (usbDriveInfo.mountPoint) {
-    await window.kiosk.unmountUsbDrive();
-  }
-
-  await window.kiosk.formatUsbDrive(usbDriveInfo.deviceName, options);
-}

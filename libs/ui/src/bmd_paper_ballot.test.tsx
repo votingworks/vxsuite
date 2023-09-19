@@ -9,8 +9,8 @@ import {
   vote,
 } from '@votingworks/types';
 import {
-  electionMinimalExhaustiveSampleDefinition,
-  electionSampleDefinition,
+  electionTwoPartyPrimaryDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 
@@ -57,6 +57,7 @@ function renderBmdPaperBallot({
   votes,
   isLiveMode = false,
   onRendered,
+  largeTopMargin,
 }: {
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
@@ -64,6 +65,7 @@ function renderBmdPaperBallot({
   votes: { [key: string]: string | string[] | Candidate };
   isLiveMode?: boolean;
   onRendered?: () => void;
+  largeTopMargin?: boolean;
 }) {
   return render(
     <BmdPaperBallot
@@ -82,13 +84,14 @@ function renderBmdPaperBallot({
         votes
       )}
       onRendered={onRendered}
+      largeTopMargin={largeTopMargin}
     />
   );
 }
 
 test('BmdPaperBallot renders votes for candidate contests and yes-no contests', () => {
   const { container } = renderBmdPaperBallot({
-    electionDefinition: electionSampleDefinition,
+    electionDefinition: electionGeneralDefinition,
     ballotStyleId: '5',
     precinctId: '21',
     votes: {
@@ -114,7 +117,7 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
 
 test('BmdPaperBallot uses yes/no option labels if present', () => {
   renderBmdPaperBallot({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
     ballotStyleId: '1M',
     precinctId: 'precinct-1',
     votes: {
@@ -188,7 +191,7 @@ test('BmdPaperBallot renders votes for write-in candidates', () => {
 
 test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
   renderBmdPaperBallot({
-    electionDefinition: electionSampleDefinition,
+    electionDefinition: electionGeneralDefinition,
     ballotStyleId: '12',
     precinctId: '23',
     votes: {
@@ -214,7 +217,7 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
   const QrCodeSpy = jest.spyOn(QrCodeModule, 'QrCode');
 
   renderBmdPaperBallot({
-    electionDefinition: electionSampleDefinition,
+    electionDefinition: electionGeneralDefinition,
     ballotStyleId: '5',
     precinctId: '21',
     votes: {
@@ -226,12 +229,12 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
   });
 
   expect(encodeBallot).toBeCalledWith(
-    electionSampleDefinition.election,
+    electionGeneralDefinition.election,
     expect.objectContaining({
       ballotStyleId: '5',
       precinctId: '21',
       ballotType: BallotType.Precinct,
-      electionHash: electionSampleDefinition.electionHash,
+      electionHash: electionGeneralDefinition.electionHash,
       isTestMode: true,
       votes: {
         president: [expect.objectContaining({ id: 'barchi-hallaren' })],
@@ -254,7 +257,7 @@ describe('BmdPaperBallot calls onRendered', () => {
   test('when "seal" present', () => {
     const onRendered = jest.fn();
     renderBmdPaperBallot({
-      electionDefinition: electionSampleDefinition,
+      electionDefinition: electionGeneralDefinition,
       ballotStyleId: '5',
       precinctId: '21',
       votes: {},
@@ -263,4 +266,29 @@ describe('BmdPaperBallot calls onRendered', () => {
 
     expect(onRendered).toHaveBeenCalledTimes(1);
   });
+});
+
+test('BmdPaperBallot renders a large top margin when prop is passed', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionWithMsEitherNeitherDefinition,
+    ballotStyleId: '1',
+    precinctId: '6525',
+    votes: {},
+    largeTopMargin: true,
+  });
+
+  const header = screen.getByTestId('header');
+  expect(header).toHaveStyle(`margin-top: 1.75in`);
+});
+
+test('BmdPaperBallot does not render a large top margin when prop is not passed', () => {
+  renderBmdPaperBallot({
+    electionDefinition: electionWithMsEitherNeitherDefinition,
+    ballotStyleId: '1',
+    precinctId: '6525',
+    votes: {},
+  });
+
+  const header = screen.getByTestId('header');
+  expect(header).not.toHaveStyle(`margin-top: 1.75in`);
 });

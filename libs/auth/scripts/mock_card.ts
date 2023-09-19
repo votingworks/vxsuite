@@ -20,7 +20,7 @@ const CARD_TYPES = [
   'unprogrammed',
   'no-card',
 ] as const;
-type CardType = typeof CARD_TYPES[number];
+type CardType = (typeof CARD_TYPES)[number];
 
 interface MockCardInput {
   cardType: CardType;
@@ -52,12 +52,12 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
     )
     .example(
       '$ ./scripts/mock-card --card-type poll-worker \\\n' +
-        '--election-definition ../fixtures/data/electionSample.json',
+        '--election-definition ../fixtures/data/electionGeneral/election.json',
       ''
     )
     .example(
       '$ ./scripts/mock-card --card-type poll-worker-with-pin \\\n' +
-        '--election-definition ../fixtures/data/electionSample.json',
+        '--election-definition ../fixtures/data/electionGeneral/election.json',
       ''
     )
     .example('$ ./scripts/mock-card --card-type unprogrammed', '')
@@ -91,9 +91,7 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
         `Must specify election definition for election manager and poll worker cards\n\n${helpMessage}`
       );
     }
-    const electionData = fs
-      .readFileSync(args.electionDefinition)
-      .toString('utf-8');
+    const electionData = fs.readFileSync(args.electionDefinition, 'utf-8');
     if (!safeParseElection(electionData).isOk()) {
       throw new Error(
         `${args.electionDefinition} isn't a valid election definition`

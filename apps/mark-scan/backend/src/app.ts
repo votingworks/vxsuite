@@ -22,7 +22,7 @@ import {
 
 import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import makeDebug from 'debug';
 import { getMachineConfig } from './machine_config';
@@ -113,7 +113,7 @@ function buildApi(
       ElectionDefinition,
       BallotPackageConfigurationError
     > {
-      const electionDefinition = electionSampleDefinition;
+      const electionDefinition = electionGeneralDefinition;
       const systemSettings = DEFAULT_SYSTEM_SETTINGS;
       workspace.store.setElectionAndJurisdiction({
         electionData: electionDefinition.electionData,
@@ -131,8 +131,8 @@ function buildApi(
       );
       const usbDrives = await usb.getUsbDrives();
       // mark-scan hardware boots off a USB drive so we need to find the media drive
-      const usbDrive = usbDrives.find((drive) =>
-        drive.mountPoint?.startsWith(dataUsbMountPrefix)
+      const usbDrive = usbDrives.find(
+        (drive) => drive.mountPoint?.startsWith(dataUsbMountPrefix)
       );
       const mountPoints = usbDrives
         .map((drive) => drive.mountPoint || '<none>')
@@ -225,6 +225,12 @@ function buildApi(
 
       debug('API invalidate');
       stateMachine.invalidateBallot();
+    },
+
+    confirmInvalidateBallot(): void {
+      assert(stateMachine);
+
+      stateMachine.confirmInvalidateBallot();
     },
   });
 }

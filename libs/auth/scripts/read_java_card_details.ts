@@ -5,13 +5,13 @@ import {
   PROD_VX_CERT_AUTHORITY_CERT_PATH,
 } from '../src';
 import { CardDetails } from '../src/card';
+import { verifyFirstCertWasSignedBySecondCert } from '../src/cryptography';
 import { JavaCard } from '../src/java_card';
 import { waitForReadyCardStatus } from './utils';
-import { verifyFirstCertWasSignedBySecondCert } from '../src/openssl';
 
 const ENVS = ['development', 'production'] as const;
 
-type Env = typeof ENVS[number];
+type Env = (typeof ENVS)[number];
 
 interface ExtendedCardDetails {
   cardDetails?: CardDetails;

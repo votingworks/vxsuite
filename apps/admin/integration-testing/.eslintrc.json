@@ -2,17 +2,10 @@
   "extends": ["plugin:vx/recommended"],
   "overrides": [
     {
-      "files": ["cypress/**/*", "cypress.config.ts"],
-      "env": {
-        "cypress/globals": true
-      },
-      "parserOptions": {
-        "project": "./tsconfig.json"
-      },
-      "extends": ["plugin:cypress/recommended"],
+      "files": ["playwright.config.ts"],
       "rules": {
-        // Cypress requires `cypress.config.ts` to use a default export.
-        "vx/gts-no-default-exports": "off"
+        "vx/gts-no-default-exports": "off",
+        "vx/gts-identifiers": ["error", { "allowedNames": ["baseURL"] }]
       }
     }
   ]

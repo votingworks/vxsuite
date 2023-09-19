@@ -9,7 +9,6 @@ import {
   Exporter,
   Usb,
   readBallotPackageFromUsb,
-  getContestsForBallotPage,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
 import {
@@ -23,6 +22,7 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
+  getContestsForBallotPage,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
@@ -148,7 +148,7 @@ function buildApi({
     },
 
     /* c8 ignore start */
-    // This is only used in Cypress tests.
+    // This is only used in Playwright tests.
     async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
       const { electionGridLayoutNewHampshireAmherstFixtures } = await import(
         '@votingworks/fixtures'

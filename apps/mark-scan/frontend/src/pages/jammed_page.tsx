@@ -7,8 +7,8 @@ export function JammedPage(): JSX.Element {
         <Text center>
           <H1>Paper is Jammed</H1>
           <p>
-            Please alert a poll worker to remove the paper and restart the
-            voting session, opening the printer cover if necessary.
+            Please alert a poll worker to clear the jam, opening the printer
+            cover or ballot box if necessary.
           </p>
         </Text>
       </Main>

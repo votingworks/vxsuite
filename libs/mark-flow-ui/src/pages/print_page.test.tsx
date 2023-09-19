@@ -1,6 +1,6 @@
 import {
-  electionSample,
-  electionSampleDefinition,
+  electionGeneral,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { getBallotStyle, getContests, vote } from '@votingworks/types';
 import { expectPrintToMatchSnapshot } from '@votingworks/test-utils';
@@ -10,7 +10,7 @@ import { PrintPage } from './print_page';
 test('no votes', async () => {
   render(
     <PrintPage
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={electionGeneralDefinition}
       ballotStyleId="5"
       precinctId="21"
       generateBallotId={() => 'CHhgYxfN5GeqnK8KaVOt1w'}
@@ -25,17 +25,17 @@ test('no votes', async () => {
 test('with votes', async () => {
   render(
     <PrintPage
-      electionDefinition={electionSampleDefinition}
+      electionDefinition={electionGeneralDefinition}
       ballotStyleId="5"
       precinctId="21"
       generateBallotId={() => 'CHhgYxfN5GeqnK8KaVOt1w'}
       votes={vote(
         getContests({
           ballotStyle: getBallotStyle({
-            election: electionSample,
+            election: electionGeneral,
             ballotStyleId: '5',
           })!,
-          election: electionSample,
+          election: electionGeneral,
         }),
         {
           president: 'barchi-hallaren',
@@ -52,7 +52,7 @@ test('with votes', async () => {
 });
 
 test('without votes and inline seal', async () => {
-  const electionDefinition = electionSampleDefinition;
+  const electionDefinition = electionGeneralDefinition;
   render(
     <PrintPage
       electionDefinition={electionDefinition}

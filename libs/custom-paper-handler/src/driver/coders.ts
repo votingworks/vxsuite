@@ -71,7 +71,10 @@ export const SensorStatusRealTimeExchangeResponse = message({
   // Byte 2
   notUsedByte2: padding(4),
   optoSensor: uint1(),
+  // Ballot box sensor state bits are confusing, but might be thought of as "true when the ballot box needs attention"
+  // true when the door is open or the ballot box itself is not attached
   ballotBoxDoorSensor: uint1(),
+  // true when the ballot box is not attached
   ballotBoxAttachSensor: uint1(),
   preHeadSensor: uint1(),
   notUsedByte3: padding(8),

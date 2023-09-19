@@ -5,26 +5,26 @@ import {
   expectPrint,
   expectPrintToPdf,
   fakeKiosk,
-  fakeUsbDrive,
   hasTextAcrossElements,
   simulateErrorOnNextPrint,
 } from '@votingworks/test-utils';
 import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
-import { mockUsbDrive } from '@votingworks/ui';
 import { act } from 'react-dom/test-utils';
-import { ApiMock, createApiMock } from '../../../test/helpers/api_mock';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportViewer } from './tally_report_viewer';
 import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
+import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetCastVoteRecordFileMode('official');
+  apiMock.expectGetScannerBatches([]);
 });
 
 afterEach(() => {
@@ -40,6 +40,8 @@ test('disabled shows disabled buttons and no preview', () => {
   );
 
   expect(screen.getButton('Print Report')).toBeDisabled();
+  expect(screen.getButton('Export Report PDF')).toBeDisabled();
+  expect(screen.getButton('Export CSV Results')).toBeDisabled();
 });
 
 test('autoPreview loads preview automatically', async () => {
@@ -63,14 +65,13 @@ test('autoPreview loads preview automatically', async () => {
     { apiMock, electionDefinition }
   );
 
-  expect(screen.getButton('Print Report')).not.toBeDisabled();
   await screen.findByText(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('10');
 });
 
-test('autoPreview = false does not load preview automatically', () => {
+test('autoPreview = false does not load preview automatically', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
   renderInAppContext(
@@ -83,8 +84,7 @@ test('autoPreview = false does not load preview automatically', () => {
     { apiMock, electionDefinition }
   );
 
-  expect(screen.getButton('Print Report')).not.toBeDisabled();
-  screen.getButton('Load Preview');
+  await screen.findButton('Load Preview');
 });
 
 test('print before loading preview', async () => {
@@ -114,7 +114,7 @@ test('print before loading preview', async () => {
     { apiMock, electionDefinition }
   );
 
-  screen.getButton('Load Preview');
+  await screen.findButton('Load Preview');
   const { resolve: resolvePrint } = deferNextPrint();
   userEvent.click(screen.getButton('Print Report'));
   const modal = await screen.findByRole('alertdialog');
@@ -216,7 +216,7 @@ test('print while preview is loading', async () => {
     { apiMock, electionDefinition }
   );
 
-  userEvent.click(screen.getButton('Load Preview'));
+  userEvent.click(await screen.findButton('Load Preview'));
   await screen.findByText('Generating Report');
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   const { resolve: resolvePrint } = deferNextPrint();
@@ -323,9 +323,9 @@ test('displays custom filter rather than specific title when necessary', async (
 
 test('exporting report PDF', async () => {
   jest.useFakeTimers();
+  jest.setSystemTime(new Date('2023-09-06T21:45:08Z'));
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { election } = electionDefinition;
@@ -355,13 +355,20 @@ test('exporting report PDF', async () => {
       }}
       autoPreview={false}
     />,
-    { apiMock, electionDefinition, usbDrive: mockUsbDrive('mounted') }
+    {
+      apiMock,
+      electionDefinition,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    }
   );
 
+  await screen.findButton('Load Preview');
   userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Unofficial Tally Report');
-  within(modal).getByText(/tally-reports-by-precinct-and-voting-method\.pdf/);
+  within(modal).getByText(
+    /tally-reports-by-precinct-and-voting-method__2023-09-06_21-45-08\.pdf/
+  );
   userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Saving Unofficial Tally Report');
   act(() => {

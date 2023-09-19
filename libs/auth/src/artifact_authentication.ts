@@ -8,14 +8,14 @@ import { Readable, Stream } from 'stream';
 import {
   assert,
   err,
+  extractErrorMessage,
   ok,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  CastVoteRecordExportMetadata,
   CastVoteRecordExportMetadataSchema,
-  unsafeParse,
+  safeParseJson,
 } from '@votingworks/types';
 
 import { computeCastVoteRecordRootHashFromScratch } from './cast_vote_record_hashes';
@@ -29,7 +29,7 @@ import {
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
-} from './openssl';
+} from './cryptography';
 import { constructPrefixedMessage } from './signatures';
 
 interface CastVoteRecordsToExport {
@@ -246,9 +246,8 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
   const { signature: messageSignature, signingMachineCert } =
     artifactSignatureBundle;
   await validateSigningMachineCert(config, signingMachineCert, artifact);
-  const signingMachinePublicKey = await extractPublicKeyFromCert(
-    signingMachineCert
-  );
+  const signingMachinePublicKey =
+    await extractPublicKeyFromCert(signingMachineCert);
   await verifySignature({
     message,
     messageSignature,
@@ -296,18 +295,26 @@ async function performArtifactSpecificAuthenticationChecks(
 ): Promise<void> {
   switch (artifact.type) {
     case 'cast_vote_records': {
-      const metadataFileContents = (
-        await fs.readFile(path.join(artifact.directoryPath, 'metadata.json'))
-      ).toString('utf-8');
-      const metadata: CastVoteRecordExportMetadata = unsafeParse(
-        CastVoteRecordExportMetadataSchema,
-        metadataFileContents
+      const metadataFileContents = await fs.readFile(
+        path.join(artifact.directoryPath, 'metadata.json'),
+        'utf-8'
       );
+      const parseResult = safeParseJson(
+        metadataFileContents,
+        CastVoteRecordExportMetadataSchema
+      );
+      if (parseResult.isErr()) {
+        throw new Error(
+          `Error parsing metadata file: ${parseResult.err().message}`
+        );
+      }
+      const metadata = parseResult.ok();
       const castVoteRecordRootHash =
         await computeCastVoteRecordRootHashFromScratch(artifact.directoryPath);
       assert(
         metadata.castVoteRecordRootHash === castVoteRecordRootHash,
-        "Cast vote record root hash in metadata file doesn't match recomputed hash"
+        `Cast vote record root hash in metadata file doesn't match recomputed hash: ` +
+          `${metadata.castVoteRecordRootHash} != ${castVoteRecordRootHash}`
       );
       break;
     }
@@ -362,11 +369,12 @@ export async function authenticateArtifactUsingSignatureFile(
       artifactSignatureBundle
     );
     await performArtifactSpecificAuthenticationChecks(artifact);
-  } catch {
-    // TODO: Log raw error
+  } catch (error) {
+    const artifactSummary = JSON.stringify(artifact);
+    const errorMessage = extractErrorMessage(error);
     return err(
       new Error(
-        `Error authenticating ${JSON.stringify(artifact)} using signature file`
+        `Error authenticating ${artifactSummary} using signature file: ${errorMessage}`
       )
     );
   }

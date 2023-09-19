@@ -1,5 +1,5 @@
 import {
-  electionSampleDefinition,
+  electionGeneralDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
@@ -13,15 +13,15 @@ import {
   mergeMsEitherNeitherContests,
 } from '../utils/ms_either_neither_contests';
 
-const electionSample = electionSampleDefinition.election;
-const firstContestTitle = electionSample.contests[0].title;
+const electionGeneral = electionGeneralDefinition.election;
+const firstContestTitle = electionGeneral.contests[0].title;
 
 const candidateContest = find(
-  electionSample.contests,
+  electionGeneral.contests,
   (c): c is CandidateContest => c.type === 'candidate'
 );
 const yesnoContest = find(
-  electionSample.contests,
+  electionGeneral.contests,
   (c): c is YesNoContest => c.type === 'yesno'
 );
 const msEitherNeitherContest = find(
@@ -34,8 +34,8 @@ const msEitherNeitherContest = find(
 test('renders', () => {
   const { container } = render(
     <Contest
-      election={electionSample}
-      contest={electionSample.contests[0]}
+      election={electionGeneral}
+      contest={electionGeneral.contests[0]}
       votes={{}}
       updateVote={jest.fn()}
     />
@@ -50,7 +50,7 @@ test.each([
 ])('candidate contest %s', (_, vote) => {
   render(
     <Contest
-      election={electionSample}
+      election={electionGeneral}
       contest={candidateContest}
       votes={{
         [candidateContest.id]: vote,
@@ -64,7 +64,7 @@ test.each([
 test('yesno contest', () => {
   render(
     <Contest
-      election={electionSample}
+      election={electionGeneral}
       contest={yesnoContest}
       votes={{
         [yesnoContest.id]: [yesnoContest.yesOption.id],

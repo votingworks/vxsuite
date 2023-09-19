@@ -1,4 +1,4 @@
-import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
+import { electionTwoPartyPrimary } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -25,7 +25,7 @@ test('default mode: set precinct from unset', async () => {
     <ChangePrecinctButton
       appPrecinctSelection={undefined}
       updatePrecinctSelection={updatePrecinctSelection}
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       mode="default"
       logger={logger}
     />
@@ -74,7 +74,7 @@ test('default mode: switch precinct', async () => {
     <ChangePrecinctButton
       appPrecinctSelection={ALL_PRECINCTS_SELECTION}
       updatePrecinctSelection={updatePrecinctSelection}
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       mode="default"
       logger={logger}
     />
@@ -111,7 +111,7 @@ test('confirmation required mode', async () => {
     <ChangePrecinctButton
       appPrecinctSelection={singlePrecinctSelectionFor('precinct-1')}
       updatePrecinctSelection={updatePrecinctSelection}
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       mode="confirmation_required"
       logger={logger}
     />
@@ -178,7 +178,7 @@ test('disabled mode', () => {
     <ChangePrecinctButton
       appPrecinctSelection={undefined}
       updatePrecinctSelection={jest.fn()}
-      election={electionMinimalExhaustiveSample}
+      election={electionTwoPartyPrimary}
       mode="disabled"
       logger={fakeLogger()}
     />

@@ -92,7 +92,7 @@ test('watchStatus sleeps 250ms between status checks by default', async () => {
     const [, secondWriteTimestamp, thirdWriteTimestamp] = writeTimestamps as [
       number,
       number,
-      number
+      number,
     ];
     expect(thirdWriteTimestamp - secondWriteTimestamp).toBeGreaterThanOrEqual(
       250

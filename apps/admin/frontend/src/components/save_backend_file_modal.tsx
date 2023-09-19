@@ -1,22 +1,14 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { basename, join } from 'path';
 import { assert, throwIllegalValue, assertDefined } from '@votingworks/basics';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
-  usbstick,
 } from '@votingworks/utils';
 import type { ExportDataResult } from '@votingworks/admin-backend';
 
-import {
-  Button,
-  Modal,
-  P,
-  useExternalStateChangeListener,
-  Font,
-  ModalWidth,
-} from '@votingworks/ui';
+import { Button, Modal, P, Font, ModalWidth } from '@votingworks/ui';
 
 import { MutationStatus } from '@tanstack/react-query';
 import { AppContext } from '../contexts/app_context';
@@ -30,10 +22,15 @@ export const UsbImage = styled.img`
 
 interface SaveAsButtonProps {
   onSave: (location: string) => void;
+  disabled?: boolean;
   options?: KioskBrowser.SaveDialogOptions;
 }
 
-function SaveAsButton({ onSave, options }: SaveAsButtonProps): JSX.Element {
+function SaveAsButton({
+  onSave,
+  disabled,
+  options,
+}: SaveAsButtonProps): JSX.Element {
   async function useSaveDialog() {
     assert(window.kiosk);
     const { filePath } = await window.kiosk.showSaveDialog(options);
@@ -41,7 +38,11 @@ function SaveAsButton({ onSave, options }: SaveAsButtonProps): JSX.Element {
       onSave(filePath);
     }
   }
-  return <Button onPress={useSaveDialog}>Save As…</Button>;
+  return (
+    <Button onPress={useSaveDialog} disabled={disabled}>
+      Save As…
+    </Button>
+  );
 }
 
 export interface SaveBackendFileModalProps {
@@ -74,18 +75,8 @@ export function SaveBackendFileModal({
   fileType,
   defaultRelativePath,
 }: SaveBackendFileModalProps): JSX.Element {
-  const { usbDrive, auth } = useContext(AppContext);
+  const { usbDriveStatus, auth } = useContext(AppContext);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
-
-  const [usbDrivePath, setUsbDrivePath] = useState<string>();
-
-  useExternalStateChangeListener(usbDrive.status, async (newStatus) => {
-    if (newStatus === 'mounted') {
-      const usbDriveInfo = await usbstick.getInfo();
-      assert(usbDriveInfo);
-      setUsbDrivePath(usbDriveInfo.mountPoint);
-    }
-  });
 
   function onClose() {
     resetSaveFileResult();
@@ -93,10 +84,10 @@ export function SaveBackendFileModal({
   }
 
   if (saveFileStatus === 'idle') {
-    switch (usbDrive.status) {
-      case 'absent':
+    switch (usbDriveStatus.status) {
+      case 'no_drive':
       case 'ejected':
-      case 'bad_format':
+      case 'error':
         return (
           <Modal
             title="No USB Drive Detected"
@@ -125,15 +116,6 @@ export function SaveBackendFileModal({
             }
           />
         );
-      case 'ejecting':
-      case 'mounting':
-        return (
-          <Modal
-            content={<Loading />}
-            onOverlayClick={onClose}
-            actions={<Button onPress={onClose}>Cancel</Button>}
-          />
-        );
       case 'mounted': {
         return (
           <Modal
@@ -141,8 +123,8 @@ export function SaveBackendFileModal({
             content={
               <P>
                 Save the {fileType} as{' '}
-                <Font weight="bold">{defaultRelativePath}</Font> on the inserted
-                USB drive?
+                <Font weight="bold">{basename(defaultRelativePath)}</Font> on
+                the inserted USB drive?
               </P>
             }
             onOverlayClick={onClose}
@@ -153,7 +135,7 @@ export function SaveBackendFileModal({
                   onPress={() =>
                     saveFile({
                       path: join(
-                        assertDefined(usbDrivePath),
+                        usbDriveStatus.mountPoint,
                         defaultRelativePath
                       ),
                     })
@@ -167,10 +149,11 @@ export function SaveBackendFileModal({
                   options={{
                     // Provide a file name and default to the USB drive's root directory.
                     defaultPath: join(
-                      usbDrivePath ?? '',
+                      usbDriveStatus.mountPoint,
                       basename(defaultRelativePath)
                     ),
                   }}
+                  disabled={!window.kiosk}
                 />
               </React.Fragment>
             }
@@ -179,7 +162,7 @@ export function SaveBackendFileModal({
       }
       // istanbul ignore next
       default:
-        throwIllegalValue(usbDrive.status);
+        throwIllegalValue(usbDriveStatus, 'status');
     }
   }
 

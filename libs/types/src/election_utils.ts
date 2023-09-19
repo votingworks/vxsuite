@@ -10,6 +10,7 @@ import {
   Election,
   ElectionDefinition,
   Parties,
+  Party,
   PartyId,
   Precinct,
   PrecinctId,
@@ -132,8 +133,11 @@ export function getCandidateParties(
 export function getCandidatePartiesDescription(
   election: Election,
   candidate: Candidate
-): string {
+): string | undefined {
   const parties = getCandidateParties(election.parties, candidate);
+  if (parties.length === 0) {
+    return undefined;
+  }
   return parties.map((p) => p.name).join(', ');
 }
 
@@ -188,6 +192,20 @@ export function getPartyPrimaryAdjectiveFromBallotStyle({
 }
 
 /**
+ * Gets the party for a ballot style, if any.
+ */
+export function getPartyForBallotStyle({
+  ballotStyleId,
+  election,
+}: {
+  ballotStyleId: BallotStyleId;
+  election: Election;
+}): Party | undefined {
+  const ballotStyle = getBallotStyle({ ballotStyleId, election });
+  return election.parties.find((p) => p.id === ballotStyle?.partyId);
+}
+
+/**
  * Gets the full name of the political party for a primary election,
  * e.g. "Republican Party" or "Democratic Party".
  */
@@ -198,8 +216,7 @@ export function getPartyFullNameFromBallotStyle({
   ballotStyleId: BallotStyleId;
   election: Election;
 }): string {
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  const party = election.parties.find((p) => p.id === ballotStyle?.partyId);
+  const party = getPartyForBallotStyle({ ballotStyleId, election });
   return party?.fullName ?? '';
 }
 

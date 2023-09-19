@@ -3,7 +3,7 @@ const tsExtensions = ['.ts', '.tsx'];
 const allExtensions = jsExtensions.concat(tsExtensions);
 
 export = {
-  parser: '@typescript-eslint/parser',
+  parser: require.resolve('@typescript-eslint/parser'),
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -28,6 +28,10 @@ export = {
       '@typescript-eslint/parser': tsExtensions,
     },
     'import/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+        project: ['./tsconfig.json'],
+      },
       node: {
         extensions: allExtensions,
       },
@@ -110,7 +114,6 @@ export = {
           'test/**/*',
           'src/setupTests.ts',
           'src/setupTests.tsx',
-          'cypress/**/*',
           '**/*.stories.ts',
           '**/*.stories.tsx',
           '**/*.bench.ts',
@@ -118,10 +121,12 @@ export = {
       },
     ],
     'import/no-self-import': 'off',
+    'import/no-unresolved': 'off',
     'import/prefer-default-export': 'off',
     'lines-between-class-members': 'off',
     'no-await-in-loop': 'off',
     'no-continue': 'off',
+    'no-empty-function': 'off',
     'no-nested-ternary': 'off',
     'no-restricted-globals': ['error', 'Buffer'],
     'no-restricted-syntax': 'off',
@@ -156,7 +161,7 @@ export = {
   },
   overrides: [
     {
-      files: ['**/*.test.ts', '**/*.test.tsx', 'cypress/**/*.ts'],
+      files: ['**/*.test.ts', '**/*.test.tsx'],
       rules: {
         '@typescript-eslint/no-non-null-assertion': 'off',
         'no-loop-func': 'off',
