@@ -1,5 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
+  BallotPackageFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   Id,
@@ -247,13 +248,16 @@ function buildApi({
           createWriteStream(tempDirectoryBallotPackageFilePath)
         );
         await addFileToZipStream(ballotPackageZipStream, {
-          path: 'election.json',
+          path: BallotPackageFileName.ELECTION,
           contents: electionDefinition.electionData,
         });
         await addFileToZipStream(ballotPackageZipStream, {
-          path: 'systemSettings.json',
+          path: BallotPackageFileName.SYSTEM_SETTINGS,
           contents: JSON.stringify(systemSettings, null, 2),
         });
+
+        // TODO(kofi): Include translation/audio files in the package export.
+
         ballotPackageZipStream.finish();
         await ballotPackageZipPromise.promise;
 

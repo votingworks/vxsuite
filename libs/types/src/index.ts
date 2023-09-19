@@ -26,5 +26,8 @@ export * from './printing';
 export * from './system_settings';
 export * as Tabulation from './tabulation';
 export * from './tallies';
+export * from './ui_string_audio_clips';
+export * from './ui_string_audio_keys';
+export * from './ui_string_translations';
 export * from './ui_theme';
 export * from './voting_method';
