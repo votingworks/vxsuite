@@ -20,7 +20,7 @@ import {
 } from 'xstate';
 import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
-import { Optional, assert, assertDefined, sleep } from '@votingworks/basics';
+import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import {
   InterpretFileResult,
@@ -400,35 +400,31 @@ export function buildMachine(
         invoke: pollPaperStatus(),
         entry: async (context) => {
           await context.driver.presentPaper();
-          await sleep(500);
-          await context.driver.ejectPaperToFront();
         },
-        initial: '_accepting_paper',
+        initial: 'presenting_paper',
+        // These nested states differ slightly from the top-level paper load states so we can't reuse the latter.
+        // Notably, the frontend needs to handle this paper loading sequence differently so the states must be different.
         states: {
-          // Reimplement paper load states because the initial paper loading has constraints
-          // that 2nd paper load doesn't.
-          // e.g. Initial load requires empty ballot state, but 2nd load wants the opposite;
-          // voter should be able to return to their ballot state after the paper is reloaded
-          _accepting_paper: {
+          presenting_paper: {
+            // Heavier paper can fail to eject completely and trigger a jam state even though the paper isn't physically jammed.
+            // To work around this, we avoid ejecting to front. Instead, we present the paper so it's held by the device in a
+            // stable non-jam state. We instruct the poll worker to remove the paper directly from the present state.
+            entry: async (context) => await context.driver.presentPaper(),
+            on: { NO_PAPER_ANYWHERE: 'accepting_paper' },
+          },
+          accepting_paper: {
             on: {
-              // Due to low force from motors when ejecting to front, paper may still be present
-              // in input after front eject. This will trigger transition to _load_paper. Since we can't
-              // know for sure if the paper is actually ready to load or if it's just triggering the sensors,
-              // we always try to load and return to _accepting_paper if the load failed.
-              PAPER_READY_TO_LOAD: '_load_paper',
-              // Heavy-weight paper can trigger paperInInput sensors immediately after eject.
-              // We don't want to treat that like a jam clear.
-              NO_PAPER_ANYWHERE: undefined,
+              PAPER_READY_TO_LOAD: 'load_paper',
             },
           },
-          _load_paper: {
+          load_paper: {
             entry: async (context) => {
               await context.driver.loadPaper();
               await context.driver.parkPaper();
             },
             on: {
               PAPER_PARKED: 'done',
-              NO_PAPER_ANYWHERE: '_accepting_paper',
+              NO_PAPER_ANYWHERE: 'accepting_paper',
             },
           },
           done: {
@@ -440,11 +436,6 @@ export function buildMachine(
               });
             },
           },
-        },
-        on: {
-          // no-op for paper jam because ejecting heavy-weight paper to front results
-          // in false positive
-          PAPER_JAM: undefined,
         },
         onDone: { target: 'paper_reloaded' },
       },
@@ -694,6 +685,7 @@ export async function getPaperHandlerStateMachine(
         case state.matches('transition_interpretation'):
           return 'transition_interpretation';
         case state.matches('blank_page_interpretation'):
+          // blank_page_interpretation has multiple child states but all are handled the same by the frontend
           return 'blank_page_interpretation';
         case state.matches('paper_reloaded'):
           return 'paper_reloaded';

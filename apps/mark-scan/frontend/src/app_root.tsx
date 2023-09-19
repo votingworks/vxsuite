@@ -699,6 +699,9 @@ export function AppRoot({
       return <WrongElectionScreen />;
     }
 
+    // Blank page interpretation handling must take priority over PollWorkerScreen.
+    // PollWorkerScreen will warn that votes exist in ballot state, but preserving
+    // ballot state is the desired behavior when handling blank page interpretations.
     if (
       (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) &&
       stateMachineState === 'blank_page_interpretation'

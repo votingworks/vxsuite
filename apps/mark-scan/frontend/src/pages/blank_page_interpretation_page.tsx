@@ -18,12 +18,12 @@ export function BlankPageInterpretationPage({
         body: <p>There was a problem interpreting your ballot.</p>,
       }}
       pollWorkerContent={{
-        headerText: 'Ballot Sheet Upside Down',
+        headerText: 'Load New Ballot Sheet',
         body: (
           <p>
-            The ballot page is blank. It may have been loaded with the print
-            side facing down. Please load a ballot sheet with the print side
-            facing up.
+            The ballot page is blank after printing. It may have been loaded
+            with the print side facing down. Please remove the ballot sheet and
+            load a new sheet.
           </p>
         ),
         buttonText: 'Load Sheet to Continue',

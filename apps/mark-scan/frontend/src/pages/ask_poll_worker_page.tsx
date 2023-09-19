@@ -4,6 +4,7 @@ import { Screen, H1, Main, Button, Text } from '@votingworks/ui';
 import { InsertedSmartCardAuth } from '@votingworks/types';
 import { isCardlessVoterAuth, isPollWorkerAuth } from '@votingworks/utils';
 
+import { assert } from '@votingworks/basics';
 import { ButtonFooter } from '../components/button_footer';
 
 interface Props {
@@ -33,13 +34,12 @@ export function AskPollWorkerPage(props: Props): JSX.Element {
       {pollWorkerContent.body}
     </React.Fragment>
   );
-  const button = isPollWorkerAuth(authStatus) && pollWorkerContent.buttonText &&
+  const button = isPollWorkerAuth(authStatus) &&
+    pollWorkerContent.buttonText &&
     pollWorkerContent.onButtonPress && (
       <Button
         onPress={async (): Promise<void> => {
-          if (!pollWorkerContent.onButtonPress) {
-            return;
-          }
+          assert(pollWorkerContent.onButtonPress);
           await pollWorkerContent.onButtonPress();
         }}
       >
