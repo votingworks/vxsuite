@@ -301,7 +301,7 @@ test('exportCastVoteRecordsToUsbDrive when continuous export is enabled', async 
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       await scanBallot(mockScanner, apiClient, 0);
       await scanBallot(mockScanner, apiClient, 1);
-      await sleep(1000); // Let background continuous export to USB finish
+      await sleep(1000); // Let background continuous export to USB drive finish
 
       expect(
         await apiClient.exportCastVoteRecordsToUsbDrive({
