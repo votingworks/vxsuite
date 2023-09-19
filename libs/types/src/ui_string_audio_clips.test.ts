@@ -1,6 +1,6 @@
 import { safeParseJson } from './generic';
 import { LanguageCode } from './language_code';
-import { UiStringAudioClipJsonSchema } from './ui_string_audio_clips';
+import { UiStringAudioClipSchema } from './ui_string_audio_clips';
 
 test('valid structure', () => {
   const result = safeParseJson(
@@ -9,7 +9,7 @@ test('valid structure', () => {
       key: 'testKey',
       lang: LanguageCode.CHINESE,
     }),
-    UiStringAudioClipJsonSchema
+    UiStringAudioClipSchema
   );
 
   expect(result.isOk()).toEqual(true);
@@ -27,7 +27,7 @@ test('invalid language code', () => {
       key: 'testKey',
       lang: 'Klingon',
     }),
-    UiStringAudioClipJsonSchema
+    UiStringAudioClipSchema
   );
 
   expect(result.isOk()).toEqual(false);
@@ -39,7 +39,7 @@ test('missing field', () => {
       data: 'test data',
       lang: LanguageCode.SPANISH,
     }),
-    UiStringAudioClipJsonSchema
+    UiStringAudioClipSchema
   );
 
   expect(result.isOk()).toEqual(false);

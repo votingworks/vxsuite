@@ -14,12 +14,11 @@ export interface UiStringAudioClip {
 /**
  * A single audio clip record in the audio clips JSONL file in a ballot package.
  */
-export const UiStringAudioClipJsonSchema: z.ZodType<UiStringAudioClip> =
-  z.object({
-    data: z.string(),
-    key: z.string(),
-    lang: z.nativeEnum(LanguageCode),
-  });
+export const UiStringAudioClipSchema: z.ZodType<UiStringAudioClip> = z.object({
+  data: z.string(),
+  key: z.string(),
+  lang: z.nativeEnum(LanguageCode),
+});
 
 /**
  * Audio clip records from the audio clips JSONL file in a ballot package.
