@@ -48,6 +48,7 @@ import {
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
 import { LiveCheckButton } from './components/live_check_button';
+import { CastVoteRecordSyncModal } from './components/cast_vote_record_sync_modal';
 
 export interface Props {
   hardware: Hardware;
@@ -278,11 +279,14 @@ export function AppRoot({
   }
 
   return (
-    <VoterScreen
-      electionDefinition={electionDefinition}
-      isTestMode={isTestMode}
-      isSoundMuted={isSoundMuted}
-      batteryIsCharging={computer.batteryIsCharging}
-    />
+    <React.Fragment>
+      <VoterScreen
+        electionDefinition={electionDefinition}
+        isTestMode={isTestMode}
+        isSoundMuted={isSoundMuted}
+        batteryIsCharging={computer.batteryIsCharging}
+      />
+      <CastVoteRecordSyncModal />
+    </React.Fragment>
   );
 }
