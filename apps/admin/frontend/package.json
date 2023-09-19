@@ -167,7 +167,7 @@
     "lint-staged": "^10.0.7",
     "react-refresh": "^0.9.0",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "^29.1.1",
+    "ts-jest": "29.1.1",
     "vite": "^2.9.12"
   },
   "packageManager": "pnpm@8.1.0",

@@ -114,7 +114,7 @@
     "sort-package-json": "^1.50.0",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.11",
-    "ts-jest": "^29.1.1",
+    "ts-jest": "29.1.1",
     "util": "^0.12.4",
     "vite": "^4.0.4"
   },

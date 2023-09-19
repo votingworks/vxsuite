@@ -52,7 +52,7 @@
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "^10.5.1",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "^29.1.1"
+    "ts-jest": "29.1.1"
   },
   "engines": {
     "node": ">= 12"
