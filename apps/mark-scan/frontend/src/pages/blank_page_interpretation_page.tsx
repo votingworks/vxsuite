@@ -26,7 +26,6 @@ export function BlankPageInterpretationPage({
             load a new sheet.
           </p>
         ),
-        buttonText: 'Load Sheet to Continue',
       }}
     />
   );
