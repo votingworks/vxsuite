@@ -21,7 +21,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { getImageChannelCount } from '@votingworks/image-utils';
 import { Logger, fakeLogger } from '@votingworks/logging';
-import { SheetOf, mapSheet } from '@votingworks/types';
+import { SheetInterpretation, SheetOf, mapSheet } from '@votingworks/types';
 import { Application } from 'express';
 import { Server } from 'http';
 import { AddressInfo } from 'net';
@@ -206,5 +206,48 @@ export function simulateScan(
   mockScanner.scan.mockImplementationOnce(() => {
     didScan = true;
     return Promise.resolve(ok(ballotImage));
+  });
+}
+
+export async function scanBallot(
+  mockScanner: jest.Mocked<CustomScanner>,
+  apiClient: grout.Client<Api>,
+  initialBallotsCounted: number
+): Promise<void> {
+  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+  await waitForStatus(apiClient, {
+    state: 'ready_to_scan',
+    ballotsCounted: initialBallotsCounted,
+    canUnconfigure:
+      initialBallotsCounted === 0 || (await apiClient.getConfig()).isTestMode,
+  });
+
+  const interpretation: SheetInterpretation = {
+    type: 'ValidSheet',
+  };
+
+  mockScanner.scan.mockResolvedValueOnce(ok(await ballotImages.completeBmd()));
+  await apiClient.scanBallot();
+  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
+  await waitForStatus(apiClient, {
+    state: 'ready_to_accept',
+    interpretation,
+    ballotsCounted: initialBallotsCounted,
+    canUnconfigure: true,
+  });
+  await apiClient.acceptBallot();
+  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
+  await waitForStatus(apiClient, {
+    ballotsCounted: initialBallotsCounted + 1,
+    state: 'accepted',
+    interpretation,
+    canUnconfigure: true,
+  });
+
+  // Wait for transition back to no paper
+  await waitForStatus(apiClient, {
+    state: 'no_paper',
+    ballotsCounted: initialBallotsCounted + 1,
+    canUnconfigure: true,
   });
 }

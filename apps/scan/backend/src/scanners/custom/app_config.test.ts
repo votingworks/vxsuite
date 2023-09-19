@@ -5,7 +5,6 @@ import {
 } from '@votingworks/fixtures';
 import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
-import * as grout from '@votingworks/grout';
 import {
   BooleanEnvironmentVariableName,
   CAST_VOTE_RECORD_REPORT_FILENAME,
@@ -36,19 +35,9 @@ import {
   validateCastVoteRecordReportDirectoryStructure,
 } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import {
-  CVR,
-  ElectionDefinition,
-  SheetInterpretation,
-  unsafeParse,
-} from '@votingworks/types';
-import { CustomScanner, mocks } from '@votingworks/custom-scanner';
-import {
-  configureApp,
-  waitForStatus,
-} from '../../../test/helpers/shared_helpers';
-import { Api } from '../../app';
-import { ballotImages, withApp } from '../../../test/helpers/custom_helpers';
+import { CVR, ElectionDefinition, unsafeParse } from '@votingworks/types';
+import { configureApp } from '../../../test/helpers/shared_helpers';
+import { scanBallot, withApp } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
 
@@ -60,49 +49,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
   };
 });
-
-async function scanBallot(
-  mockScanner: jest.Mocked<CustomScanner>,
-  apiClient: grout.Client<Api>,
-  initialBallotsCounted: number
-) {
-  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-  await waitForStatus(apiClient, {
-    state: 'ready_to_scan',
-    ballotsCounted: initialBallotsCounted,
-    canUnconfigure:
-      initialBallotsCounted === 0 || (await apiClient.getConfig()).isTestMode,
-  });
-
-  const interpretation: SheetInterpretation = {
-    type: 'ValidSheet',
-  };
-
-  mockScanner.scan.mockResolvedValueOnce(ok(await ballotImages.completeBmd()));
-  await apiClient.scanBallot();
-  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
-  await waitForStatus(apiClient, {
-    state: 'ready_to_accept',
-    interpretation,
-    ballotsCounted: initialBallotsCounted,
-    canUnconfigure: true,
-  });
-  await apiClient.acceptBallot();
-  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
-  await waitForStatus(apiClient, {
-    ballotsCounted: initialBallotsCounted + 1,
-    state: 'accepted',
-    interpretation,
-    canUnconfigure: true,
-  });
-
-  // Wait for transition back to no paper
-  await waitForStatus(apiClient, {
-    state: 'no_paper',
-    ballotsCounted: initialBallotsCounted + 1,
-    canUnconfigure: true,
-  });
-}
 
 function mockElectionManager(
   mockAuth: InsertedSmartCardAuthApi,
