@@ -1,5 +1,10 @@
 import { ElectionDefinition, Tabulation } from '@votingworks/types';
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import {
+  Optional,
+  assert,
+  assertDefined,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import styled, { ThemeProvider } from 'styled-components';
 import {
   combineCardCounts,
@@ -22,58 +27,61 @@ import { CustomFilterSummary } from './custom_filter_summary';
 /**
  * Columns that may appear in a the ballot count report table.
  */
-const COLUMN_TYPES = [
+const COLUMNS = [
   'precinct',
   'ballot-style',
   'party',
   'voting-method',
   'scanner',
   'batch',
-  'filler', // spacing between the attributes and the counts
+  'center-fill', // spacing between the attributes and the counts
   'manual',
   'scanned',
   'bmd',
   'hmpb',
   'total',
+  'right-fill', // spacing to bring the total away from the right margin
 ] as const;
 
-export type ColumnType = typeof COLUMN_TYPES[number];
+export type Column = (typeof COLUMNS)[number];
 
-const COLUMN_LABELS: Record<ColumnType, string> = {
+const COLUMN_LABELS: Record<Column, string> = {
   precinct: 'Precinct',
   'ballot-style': 'Ballot Style',
   party: 'Party',
   'voting-method': 'Voting Method',
   scanner: 'Scanner ID',
   batch: 'Batch ID',
-  filler: '',
+  'center-fill': '',
   manual: 'Manual',
   scanned: 'Scanned',
   bmd: 'BMD',
   hmpb: 'HMPB',
   total: 'Total',
+  'right-fill': '',
 };
 
 // minmax(0, max-content) = fit to content unless table is overflowing
 // max-content = fit to content
 // fr = expand to fit remaining space proportionally
-const COLUMN_WIDTHS: Record<ColumnType, string> = {
+const COLUMN_WIDTHS: Record<Column, string> = {
   precinct: 'minmax(0, max-content)',
   'ballot-style': 'minmax(0, max-content)',
   party: 'minmax(0, max-content)',
   'voting-method': 'minmax(0, max-content)',
   scanner: 'minmax(0, max-content)',
   batch: 'minmax(0, max-content)',
-  filler: '5fr',
+  'center-fill': '5fr',
   manual: 'max-content',
   scanned: 'max-content',
   bmd: 'max-content',
   hmpb: 'max-content',
-  total: 'minmax(min-content, 2fr)',
+  total: 'max-content',
+  'right-fill': '2fr',
 };
 
 const BallotCountGrid = styled.div<{
-  columns: ColumnType[];
+  columns: Column[];
   hasGroups: boolean;
 }>`
   width: 7.5in;
@@ -131,8 +139,12 @@ const BallotCountGrid = styled.div<{
     border-top: ${({ hasGroups }) => (hasGroups ? '1.5px' : '0')} solid #ddd;
   }
 
-  .no-border-left {
+  .filler {
     border-left: none !important;
+  }
+
+  .number {
+    text-align: right;
   }
 
   .sum-total {
@@ -142,14 +154,14 @@ const BallotCountGrid = styled.div<{
   }
 `;
 
-type NumberColumnType = Extract<
-  ColumnType,
+type NumberColumn = Extract<
+  Column,
   'manual' | 'scanned' | 'bmd' | 'hmpb' | 'total'
 >;
 
-function getCount(
+function getFormattedCount(
   cardCounts: Tabulation.CardCounts,
-  column: NumberColumnType
+  column: NumberColumn
 ): string {
   const number = (() => {
     switch (column) {
@@ -170,6 +182,31 @@ function getCount(
   })();
 
   return format.count(number);
+}
+
+function getCellClass(column: Column): Optional<string> {
+  switch (column) {
+    case 'precinct':
+    case 'ballot-style':
+    case 'party':
+    case 'voting-method':
+    case 'scanner':
+    case 'batch':
+      return undefined;
+    case 'center-fill':
+      return 'filler';
+    case 'right-fill':
+      return undefined;
+    case 'manual':
+    case 'scanned':
+    case 'bmd':
+    case 'hmpb':
+    case 'total':
+      return 'number';
+    // istanbul ignore next - compile time check for completeness
+    default:
+      throwIllegalValue(column);
+  }
 }
 
 export type BallotCountBreakdown = 'none' | 'manual' | 'all';
@@ -193,7 +230,7 @@ function BallotCountTable({
     batchLookup[scannerBatch.batchId] = scannerBatch;
   }
 
-  const columns: ColumnType[] = [];
+  const columns: Column[] = [];
   const hasGroups = !isGroupByEmpty(groupBy);
 
   if (groupBy.groupByPrecinct) {
@@ -219,7 +256,7 @@ function BallotCountTable({
   }
 
   if (hasGroups) {
-    columns.push('filler');
+    columns.push('center-fill');
   }
 
   const hasNonZeroManualData = cardCountsList.some((cc) => !!cc.manual);
@@ -237,6 +274,7 @@ function BallotCountTable({
     columns.push('hmpb');
   }
   columns.push('total');
+  columns.push('right-fill');
 
   const totalCardCounts = combineCardCounts(cardCountsList);
 
@@ -250,7 +288,7 @@ function BallotCountTable({
       {columns.map((column) => (
         <span
           key={column}
-          className={column === 'filler' ? 'no-border-left' : undefined}
+          className={getCellClass(column)}
           data-testid={`header-${column}`}
         >
           {COLUMN_LABELS[column]}
@@ -300,14 +338,15 @@ function BallotCountTable({
                     Tabulation.BATCH_ID_DISPLAY_LENGTH
                   );
                   break;
-                case 'filler':
+                case 'center-fill':
+                case 'right-fill':
                   break;
                 case 'manual':
                 case 'scanned':
                 case 'bmd':
                 case 'hmpb':
                 case 'total':
-                  content = getCount(cardCounts, column);
+                  content = getFormattedCount(cardCounts, column);
                   break;
                 // istanbul ignore next - compile time check for completeness
                 default:
@@ -316,7 +355,7 @@ function BallotCountTable({
               return (
                 <span
                   key={column}
-                  className={column === 'filler' ? 'no-border-left' : undefined}
+                  className={getCellClass(column)}
                   data-testid={`data-${column}`}
                 >
                   {content}
@@ -334,29 +373,28 @@ function BallotCountTable({
           </span>
           {/* eslint-disable-next-line array-callback-return */}
           {columns.slice(1).map((column) => {
-            assert(column !== COLUMN_TYPES[0]);
+            assert(column !== COLUMNS[0]);
             switch (column) {
               case 'ballot-style':
               case 'party':
               case 'voting-method':
               case 'scanner':
               case 'batch':
-              case 'filler':
-                return (
-                  <span
-                    key={column}
-                    data-testid={`footer-${column}`}
-                    className="no-border-left"
-                  />
-                );
+              case 'center-fill':
+              case 'right-fill':
+                return <span key={column} className="filler" />;
               case 'manual':
               case 'scanned':
               case 'bmd':
               case 'hmpb':
               case 'total':
                 return (
-                  <span key={column} data-testid={`footer-${column}`}>
-                    {getCount(totalCardCounts, column)}
+                  <span
+                    key={column}
+                    data-testid={`footer-${column}`}
+                    className="number"
+                  >
+                    {getFormattedCount(totalCardCounts, column)}
                   </span>
                 );
               // istanbul ignore next - compile time check for completeness

@@ -6,7 +6,7 @@ import { render, screen } from '../../test/react_testing_library';
 import {
   BallotCountBreakdown,
   BallotCountReport,
-  ColumnType,
+  Column,
 } from './ballot_count_report';
 
 const mockScannerBatches: Tabulation.ScannerBatch[] = [
@@ -38,7 +38,7 @@ function cc(
 }
 
 type RowData = {
-  [T in ColumnType]?: string;
+  [T in Column]?: string;
 };
 
 /**
@@ -50,9 +50,9 @@ function parseGrid({ expectFooter }: { expectFooter: boolean }) {
 
   const columns = within(grid)
     .getAllByTestId(/header-/)
-    .map((cell) =>
-      cell.getAttribute('data-testid')?.replace('header-', '')
-    ) as ColumnType[];
+    .map(
+      (cell) => cell.getAttribute('data-testid')?.replace('header-', '')
+    ) as Column[];
 
   const width = columns.length;
   const allCells = grid.childNodes;
@@ -66,13 +66,14 @@ function parseGrid({ expectFooter }: { expectFooter: boolean }) {
     const row: RowData = {};
     const cells = [...allCells].slice((i + 1) * width, (i + 2) * width);
     for (let j = 0; j < width; j += 1) {
-      if (columns[j] === 'filler') continue;
-      row[columns[j]] = cells[j].textContent ?? undefined;
+      const column = columns[j];
+      if (column === 'center-fill' || column === 'right-fill') continue;
+      row[column] = cells[j].textContent ?? undefined;
     }
     rows.push(row);
   }
 
-  const FOOTER_COLUMNS: ColumnType[] = [
+  const FOOTER_COLUMNS: Column[] = [
     'scanned',
     'manual',
     'hmpb',
@@ -143,15 +144,16 @@ test('can render all attribute columns', () => {
     />
   );
 
-  const expectedColumns: ColumnType[] = [
+  const expectedColumns: Column[] = [
     'precinct',
     'ballot-style',
     'party',
     'voting-method',
     'scanner',
     'batch',
-    'filler',
+    'center-fill',
     'total',
+    'right-fill',
   ];
   const expectedRows: RowData[] = [
     {
@@ -231,13 +233,13 @@ test('ballot count breakdowns', () => {
 
   const testCases: Array<{
     breakdown: BallotCountBreakdown;
-    expectedColumns: ColumnType[];
+    expectedColumns: Column[];
     expectedRows: RowData[];
     expectedFooter: RowData;
   }> = [
     {
       breakdown: 'none',
-      expectedColumns: ['precinct', 'filler', 'total'],
+      expectedColumns: ['precinct', 'center-fill', 'total', 'right-fill'],
       expectedRows: [
         {
           precinct: 'Precinct 1',
@@ -254,7 +256,14 @@ test('ballot count breakdowns', () => {
     },
     {
       breakdown: 'manual',
-      expectedColumns: ['precinct', 'filler', 'manual', 'scanned', 'total'],
+      expectedColumns: [
+        'precinct',
+        'center-fill',
+        'manual',
+        'scanned',
+        'total',
+        'right-fill',
+      ],
       expectedRows: [
         {
           precinct: 'Precinct 1',
@@ -277,7 +286,15 @@ test('ballot count breakdowns', () => {
     },
     {
       breakdown: 'all',
-      expectedColumns: ['precinct', 'filler', 'manual', 'bmd', 'hmpb', 'total'],
+      expectedColumns: [
+        'precinct',
+        'center-fill',
+        'manual',
+        'bmd',
+        'hmpb',
+        'total',
+        'right-fill',
+      ],
       expectedRows: [
         {
           precinct: 'Precinct 1',
@@ -344,7 +361,7 @@ test('ungrouped case', () => {
   );
 
   const { columns, rows } = parseGrid({ expectFooter: false });
-  expect(columns).toEqual(['bmd', 'hmpb', 'total']);
+  expect(columns).toEqual(['bmd', 'hmpb', 'total', 'right-fill']);
   expect(rows).toEqual([
     {
       bmd: '10',
