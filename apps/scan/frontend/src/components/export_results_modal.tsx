@@ -83,7 +83,7 @@ export function ExportResultsModal({
           title="USB Drive Ejected"
           content={
             <Prose>
-              <P>You may now take the USB Drive to VxAdmin for tabulation.</P>
+              <P>You may now take the USB drive to VxAdmin for tabulation.</P>
             </Prose>
           }
           onOverlayClick={onClose}

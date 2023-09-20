@@ -22,6 +22,7 @@ import {
   ExportCastVoteRecordReportToUsbDriveError,
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
+  doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
 } from '@votingworks/backend';
 import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -94,8 +95,21 @@ function buildApi(
       });
     },
 
-    getUsbDriveStatus(): Promise<UsbDriveStatus> {
-      return usbDrive.status();
+    async getUsbDriveStatus(): Promise<
+      UsbDriveStatus & { doesUsbDriveRequireCastVoteRecordSync?: true }
+    > {
+      const usbDriveStatus = await usbDrive.status();
+      return {
+        ...usbDriveStatus,
+        doesUsbDriveRequireCastVoteRecordSync: isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+        )
+          ? (await doesUsbDriveRequireCastVoteRecordSyncFn(
+              store,
+              usbDriveStatus
+            )) || undefined
+          : undefined,
+      };
     },
 
     async ejectUsbDrive(): Promise<void> {

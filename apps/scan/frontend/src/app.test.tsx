@@ -1008,3 +1008,17 @@ test('renders DisplaySettingsManager', async () => {
 
   expect(mockOf(DisplaySettingsManager)).toBeCalled();
 });
+
+test('renders cast vote record sync modal', async () => {
+  apiMock.expectGetConfig({ pollsState: 'polls_open' });
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+
+  renderApp();
+  await screen.findByText(
+    'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
+      'Cast vote records (CVRs) need to be synced to the USB drive.'
+  );
+});
