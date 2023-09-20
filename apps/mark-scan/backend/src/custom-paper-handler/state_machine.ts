@@ -33,6 +33,7 @@ import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
+  AUTH_STATUS_POLLING_TIMEOUT_MS,
   DELAY_BEFORE_DECLARING_REAR_JAM_MS,
   PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
   PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
@@ -218,8 +219,8 @@ function buildAuthStatusObservable() {
         }
       }),
       timeout({
-        each: PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
-        with: () => throwError(() => new Error('paper_status_timed_out')),
+        each: AUTH_STATUS_POLLING_TIMEOUT_MS,
+        with: () => throwError(() => new Error('auth_status_timed_out')),
       })
     );
   };
@@ -378,6 +379,7 @@ export function buildMachine(
       },
       // Intermediate state to conditionally transition based on ballot interpretation
       transition_interpretation: {
+        entry: (context) => assert(context.interpretation),
         always: [
           {
             target: 'presenting_ballot',
@@ -398,9 +400,6 @@ export function buildMachine(
       },
       blank_page_interpretation: {
         invoke: pollPaperStatus(),
-        entry: async (context) => {
-          await context.driver.presentPaper();
-        },
         initial: 'presenting_paper',
         // These nested states differ slightly from the top-level paper load states so we can't reuse the latter.
         states: {
@@ -422,21 +421,19 @@ export function buildMachine(
               await context.driver.parkPaper();
             },
             on: {
-              PAPER_PARKED: 'done',
+              PAPER_PARKED: {
+                target: 'paper_reloaded',
+                actions: () => {
+                  assign({
+                    interpretation: undefined,
+                    scannedImagePaths: undefined,
+                  });
+                },
+              },
               NO_PAPER_ANYWHERE: 'accepting_paper',
             },
           },
-          done: {
-            type: 'final',
-            entry: () => {
-              assign({
-                interpretation: undefined,
-                scannedImagePaths: undefined,
-              });
-            },
-          },
         },
-        onDone: { target: 'paper_reloaded' },
       },
       // `paper_reloaded` could be a substate of `blank_page_interpretation` but by keeping
       // them separate we can avoid exposing all the substates of `blank_page_interpretation`
