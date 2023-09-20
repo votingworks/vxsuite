@@ -440,9 +440,6 @@ export function buildMachine(
       // to the frontend.
       paper_reloaded: {
         invoke: pollAuthStatus(),
-        entry: () => {
-          debug('Placeholder paper_reloaded');
-        },
         on: {
           AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
         },
@@ -680,7 +677,7 @@ export async function getPaperHandlerStateMachine(
         case state.matches('resetting_state_machine_after_success'):
           return 'resetting_state_machine_after_success';
         case state.matches('transition_interpretation'):
-          return 'transition_interpretation';
+          return 'interpreting';
         case state.matches('blank_page_interpretation'):
           // blank_page_interpretation has multiple child states but all are handled the same by the frontend
           return 'blank_page_interpretation';
