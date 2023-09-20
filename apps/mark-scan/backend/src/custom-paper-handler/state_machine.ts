@@ -28,9 +28,12 @@ import {
 } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { isCardlessVoterAuth, isPollWorkerAuth } from '@votingworks/utils';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
+  AUTH_STATUS_POLLING_TIMEOUT_MS,
   DELAY_BEFORE_DECLARING_REAR_JAM_MS,
   PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
   PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
@@ -51,9 +54,11 @@ import {
 } from './application_driver';
 
 interface Context {
+  auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   driver: PaperHandlerDriver;
-  pollingIntervalMs: number;
+  devicePollingIntervalMs: number;
+  authPollingIntervalMs: number;
   scannedImagePaths?: SheetOf<string>;
   interpretation?: SheetOf<InterpretFileResult>;
 }
@@ -79,7 +84,10 @@ type PaperHandlerStatusEvent =
   | { type: 'VOTER_CONFIRMED_INVALIDATED_BALLOT' }
   | { type: 'SCANNING' }
   | { type: 'VOTER_VALIDATED_BALLOT' }
-  | { type: 'VOTER_INVALIDATED_BALLOT' };
+  | { type: 'VOTER_INVALIDATED_BALLOT' }
+  | { type: 'AUTH_STATUS_CARDLESS_VOTER' }
+  | { type: 'AUTH_STATUS_POLL_WORKER' }
+  | { type: 'AUTH_STATUS_UNHANDLED' };
 
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
@@ -143,14 +151,12 @@ function paperHandlerStatusToEvent(
  * "Observables can be invoked, which is expected to send events (strings or objects) to the parent machine,
  * yet not receive events (uni-directional). An observable invocation is a function that takes context and
  * event as arguments and returns an observable stream of events."
- *
- *
  */
 function buildPaperStatusObservable() {
-  return ({ driver, pollingIntervalMs }: Context) => {
+  return ({ driver, devicePollingIntervalMs }: Context) => {
     // `timer` returns an Observable that emits values with `pollingInterval` delay between each event
     return (
-      timer(0, pollingIntervalMs)
+      timer(0, devicePollingIntervalMs)
         // `pipe` forwards the value from the previous function to the next unary function ie. switchMap.
         // In this case there is no value. The combination of timer(...).pipe() is so we can execute the
         // function supplied to `switchMap` on the specified interval.
@@ -184,6 +190,46 @@ function pollPaperStatus(): InvokeConfig<Context, PaperHandlerStatusEvent> {
   return {
     id: 'pollPaperStatus',
     src: buildPaperStatusObservable(),
+  };
+}
+
+function buildAuthStatusObservable() {
+  return ({ auth, authPollingIntervalMs, workspace }: Context) => {
+    return timer(0, authPollingIntervalMs).pipe(
+      switchMap(async () => {
+        try {
+          const authStatus = await auth.getAuthStatus(
+            constructAuthMachineState(workspace)
+          );
+          debug('auth status polled');
+          if (isCardlessVoterAuth(authStatus)) {
+            debug('emit cardless voter auth event');
+            return { type: 'AUTH_STATUS_CARDLESS_VOTER' };
+          }
+          if (isPollWorkerAuth(authStatus)) {
+            debug('emit poll worker auth event');
+            return { type: 'AUTH_STATUS_POLL_WORKER' };
+          }
+
+          debug('Unhandled auth status in observable: %O', authStatus);
+          return { type: 'AUTH_STATUS_UNHANDLED' };
+        } catch (err) {
+          debug('Error in auth observable: %O', err);
+          return { type: 'AUTH_STATUS_UNHANDLED' };
+        }
+      }),
+      timeout({
+        each: AUTH_STATUS_POLLING_TIMEOUT_MS,
+        with: () => throwError(() => new Error('auth_status_timed_out')),
+      })
+    );
+  };
+}
+
+function pollAuthStatus(): InvokeConfig<Context, PaperHandlerStatusEvent> {
+  return {
+    id: 'pollAuthStatus',
+    src: buildAuthStatusObservable(),
   };
 }
 
@@ -295,9 +341,7 @@ export function buildMachine(
               assert(event.type === 'VOTER_INITIATED_PRINT');
               return driverPrintBallot(context.driver, event.pdfData, {});
             },
-            onDone: {
-              target: 'scanning',
-            },
+            onDone: 'scanning',
           },
           pollPaperStatus(),
         ],
@@ -324,13 +368,88 @@ export function buildMachine(
           id: 'interpretScannedBallot',
           src: loadMetadataAndInterpretBallot,
           onDone: {
-            target: 'presenting_ballot',
+            target: 'transition_interpretation',
             actions: assign({
-              interpretation: (_, event) => {
-                return event.data;
-              },
+              interpretation: (_, event) => event.data,
             }),
           },
+        },
+      },
+      // Intermediate state to conditionally transition based on ballot interpretation
+      transition_interpretation: {
+        entry: (context) => {
+          const interpretationType = assertDefined(context.interpretation)[0]
+            .interpretation.type;
+          assert(
+            interpretationType === 'InterpretedBmdPage' ||
+              interpretationType === 'BlankPage',
+            `Unexpected interpretation type: ${interpretationType}`
+          );
+        },
+        always: [
+          {
+            target: 'presenting_ballot',
+            cond: (context) =>
+              // context.interpretation is already asserted in the entry function but Typescript is unaware
+              assertDefined(context.interpretation)[0].interpretation.type ===
+              'InterpretedBmdPage',
+          },
+          {
+            target: 'blank_page_interpretation',
+            cond: (context) =>
+              assertDefined(context.interpretation)[0].interpretation.type ===
+              'BlankPage',
+          },
+        ],
+      },
+      blank_page_interpretation: {
+        invoke: pollPaperStatus(),
+        initial: 'presenting_paper',
+        // These nested states differ slightly from the top-level paper load states so we can't reuse the latter.
+        states: {
+          presenting_paper: {
+            // Heavier paper can fail to eject completely and trigger a jam state even though the paper isn't physically jammed.
+            // To work around this, we avoid ejecting to front. Instead, we present the paper so it's held by the device in a
+            // stable non-jam state. We instruct the poll worker to remove the paper directly from the 'presenting' state.
+            entry: async (context) => await context.driver.presentPaper(),
+            on: { NO_PAPER_ANYWHERE: 'accepting_paper' },
+          },
+          accepting_paper: {
+            on: {
+              PAPER_READY_TO_LOAD: 'load_paper',
+            },
+          },
+          load_paper: {
+            entry: async (context) => {
+              await context.driver.loadPaper();
+              await context.driver.parkPaper();
+            },
+            on: {
+              PAPER_PARKED: {
+                target: 'done',
+                actions: () => {
+                  assign({
+                    interpretation: undefined,
+                    scannedImagePaths: undefined,
+                  });
+                },
+              },
+              NO_PAPER_ANYWHERE: 'accepting_paper',
+            },
+          },
+          done: {
+            type: 'final',
+          },
+        },
+        onDone: 'paper_reloaded',
+      },
+      // `paper_reloaded` could be a substate of `blank_page_interpretation` but by keeping
+      // them separate we can avoid exposing all the substates of `blank_page_interpretation`
+      // to the frontend.
+      paper_reloaded: {
+        invoke: pollAuthStatus(),
+        on: {
+          AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
         },
       },
       presenting_ballot: {
@@ -506,12 +625,15 @@ export async function getPaperHandlerStateMachine(
   workspace: Workspace,
   auth: InsertedSmartCardAuthApi,
   logger: Logger,
-  pollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
+  devicePollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
+  authPollingIntervalMs: number = AUTH_STATUS_POLLING_INTERVAL_MS
 ): Promise<Optional<PaperHandlerStateMachine>> {
   const initialContext: Context = {
+    auth,
     workspace,
     driver,
-    pollingIntervalMs,
+    devicePollingIntervalMs,
+    authPollingIntervalMs,
   };
 
   const machine = buildMachine(initialContext, auth);
@@ -562,6 +684,13 @@ export async function getPaperHandlerStateMachine(
           return 'resetting_state_machine_after_jam';
         case state.matches('resetting_state_machine_after_success'):
           return 'resetting_state_machine_after_success';
+        case state.matches('transition_interpretation'):
+          return 'interpreting';
+        case state.matches('blank_page_interpretation'):
+          // blank_page_interpretation has multiple child states but all are handled the same by the frontend
+          return 'blank_page_interpretation';
+        case state.matches('paper_reloaded'):
+          return 'paper_reloaded';
         default:
           return 'no_hardware';
       }

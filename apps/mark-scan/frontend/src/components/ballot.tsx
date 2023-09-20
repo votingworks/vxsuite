@@ -10,6 +10,7 @@ import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
 import { ReviewPage } from '../pages/review_page';
 import { StartPage } from '../pages/start_page';
+import { ContinueToReviewPage } from '../pages/continue_to_review_page';
 
 export function Ballot(): JSX.Element {
   const [isIdle, setIsIdle] = useState(false);
@@ -42,6 +43,12 @@ export function Ballot(): JSX.Element {
           </Route>
           <Route path={Paths.DISPLAY_SETTINGS} exact>
             <DisplaySettingsPage />
+          </Route>
+          <Route path="/ready-to-review">
+            {/* This page renders a button that lets the voter navigate to /review.
+             * During the blank ballot interpretation flow, it's important to render this page
+             * before rerendering `<Ballot>`, or Ballot will render PrintPage, the last place we left off */}
+            <ContinueToReviewPage />
           </Route>
           <Route path="/contests/:contestNumber">
             <ContestPage />

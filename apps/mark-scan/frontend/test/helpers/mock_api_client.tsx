@@ -130,6 +130,16 @@ export function createApiMock() {
       });
     },
 
+    // Sets auth status to cardless voter logged in with the first precinct and ballot style on the election definition parameter.
+    setAuthStatusCardlessVoterLoggedInWithDefaults(
+      electionDefinition: ElectionDefinition
+    ) {
+      this.setAuthStatusCardlessVoterLoggedIn({
+        ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+        precinctId: electionDefinition.election.precincts[0].id,
+      });
+    },
+
     setAuthStatusLoggedOut() {
       setAuthStatus({
         status: 'logged_out',

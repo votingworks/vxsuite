@@ -230,7 +230,14 @@ export function PollWorkerScreen({
     setIsConfirmingEnableLiveMode(false);
   }
 
-  if (hasVotes && pollWorkerAuth.cardlessVoterUser) {
+  if (
+    hasVotes &&
+    pollWorkerAuth.cardlessVoterUser &&
+    // It's expected there are votes in app state if the state machine reports a blank page after printing.
+    // The paper was likely inserted upside down so the solution is to reload paper correctly and go back to
+    // the voting screen
+    stateMachineState !== 'blank_page_interpretation'
+  ) {
     return (
       <Screen white>
         <Main centerChild>

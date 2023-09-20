@@ -13,13 +13,20 @@ import { createApiMock, ApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 let kiosk = fakeKiosk();
+let hardware: MemoryHardware;
+let storage: MemoryStorage;
 
-beforeEach(() => {
+beforeEach(async () => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
   kiosk = fakeKiosk();
   window.kiosk = kiosk;
+
+  hardware = MemoryHardware.buildStandard();
+  storage = new MemoryStorage();
+  await setElectionInStorage(storage);
+  await setStateInStorage(storage);
 
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionDefinition);
@@ -34,10 +41,6 @@ afterEach(() => {
 jest.setTimeout(30000);
 
 test('`jammed` state renders jam page', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
   apiMock.setPaperHandlerState('jammed');
 
   render(
@@ -53,10 +56,6 @@ test('`jammed` state renders jam page', async () => {
 });
 
 test('`jam_cleared` state renders jam cleared page', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.setPaperHandlerState('jam_cleared');
 
@@ -74,10 +73,6 @@ test('`jam_cleared` state renders jam cleared page', async () => {
 });
 
 test('`resetting_state_machine_after_jam` state renders jam cleared page', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.setPaperHandlerState('resetting_state_machine_after_jam');
 
@@ -95,10 +90,6 @@ test('`resetting_state_machine_after_jam` state renders jam cleared page', async
 });
 
 test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with cardless voter auth', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   render(
@@ -120,18 +111,11 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
 
   apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
-  apiMock.setAuthStatusCardlessVoterLoggedIn({
-    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-    precinctId: electionDefinition.election.precincts[0].id,
-  });
+  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
   await screen.findByText('Ask a Poll Worker for Help');
 });
 
 test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with poll worker auth', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   render(
@@ -160,4 +144,68 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
     },
   });
   await screen.findByText('Remove Ballot');
+});
+
+test('`blank_page_interpretation` state renders BlankPageInterpretationPage for cardless voter auth', async () => {
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  apiMock.setPaperHandlerState('blank_page_interpretation');
+  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
+  await screen.findByText('Ask a Poll Worker for Help');
+  screen.getByText('There was a problem interpreting your ballot.');
+});
+
+test('`blank_page_interpretation` state renders BlankPageInterpretationPage for poll worker auth', async () => {
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  apiMock.setPaperHandlerState('blank_page_interpretation');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: {
+      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+      precinctId: electionDefinition.election.precincts[0].id,
+    },
+  });
+  await screen.findByText('Load New Ballot Sheet');
+});
+
+test('`paper_reloaded` state renders PaperReloadedPage', async () => {
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  apiMock.setPaperHandlerState('paper_reloaded');
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
+    cardlessVoterUserParams: {
+      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+      precinctId: electionDefinition.election.precincts[0].id,
+    },
+  });
+  await screen.findByText(
+    'The ballot sheet has been loaded. Remove the poll worker card to continue.'
+  );
 });
