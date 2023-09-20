@@ -103,10 +103,13 @@ export function createApiMock() {
       });
     },
 
-    expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {
+    expectGetUsbDriveStatus(
+      status: UsbDriveStatus['status'],
+      options: { doesUsbDriveRequireCastVoteRecordSync?: true } = {}
+    ): void {
       mockApiClient.getUsbDriveStatus
         .expectRepeatedCallsWith()
-        .resolves(mockUsbDriveStatus(status));
+        .resolves(mockUsbDriveStatus(status, options));
     },
 
     expectGetMachineConfig(): void {

@@ -1008,3 +1008,14 @@ test('renders DisplaySettingsManager', async () => {
 
   expect(mockOf(DisplaySettingsManager)).toBeCalled();
 });
+
+test('renders cast vote record sync modal', async () => {
+  apiMock.expectGetConfig({ pollsState: 'polls_open' });
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+
+  renderApp();
+  await screen.findByText('CVRs need to be synced to the inserted USB drive.');
+});
