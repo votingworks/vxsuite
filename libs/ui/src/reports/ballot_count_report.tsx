@@ -43,7 +43,7 @@ const COLUMNS = [
   'right-fill', // spacing to bring the total away from the right margin
 ] as const;
 
-export type Column = (typeof COLUMNS)[number];
+export type Column = typeof COLUMNS[number];
 
 const COLUMN_LABELS: Record<Column, string> = {
   precinct: 'Precinct',

@@ -50,8 +50,8 @@ function parseGrid({ expectFooter }: { expectFooter: boolean }) {
 
   const columns = within(grid)
     .getAllByTestId(/header-/)
-    .map(
-      (cell) => cell.getAttribute('data-testid')?.replace('header-', '')
+    .map((cell) =>
+      cell.getAttribute('data-testid')?.replace('header-', '')
     ) as Column[];
 
   const width = columns.length;
