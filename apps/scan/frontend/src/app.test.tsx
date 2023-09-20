@@ -1017,5 +1017,8 @@ test('renders cast vote record sync modal', async () => {
   });
 
   renderApp();
-  await screen.findByText('CVRs need to be synced to the inserted USB drive.');
+  await screen.findByText(
+    'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
+      'Cast vote records (CVRs) need to be synced to the USB drive.'
+  );
 });

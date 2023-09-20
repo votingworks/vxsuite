@@ -53,7 +53,13 @@ export function CastVoteRecordSyncModal(): JSX.Element | null {
       return (
         <Modal
           title="CVR Sync Required"
-          content={<P>CVRs need to be synced to the inserted USB drive.</P>}
+          content={
+            <P>
+              The inserted USB drive does not contain up-to-date records of the
+              votes cast at this scanner. Cast vote records (CVRs) need to be
+              synced to the USB drive.
+            </P>
+          }
           actions={
             <Button variant="primary" onPress={syncCastVoteRecords}>
               Sync CVRs

@@ -34,7 +34,10 @@ test('CVR sync modal success case', async () => {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('CVRs need to be synced to the inserted USB drive.');
+  within(modal).getByText(
+    'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
+      'Cast vote records (CVRs) need to be synced to the USB drive.'
+  );
 
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
   userEvent.click(within(modal).getByRole('button', { name: 'Sync CVRs' }));
@@ -55,7 +58,10 @@ test('CVR sync modal error case', async () => {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('CVRs need to be synced to the inserted USB drive.');
+  within(modal).getByText(
+    'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
+      'Cast vote records (CVRs) need to be synced to the USB drive.'
+  );
 
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ mode: 'full_export' })
