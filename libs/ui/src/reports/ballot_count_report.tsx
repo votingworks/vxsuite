@@ -381,7 +381,6 @@ function BallotCountTable({
               case 'scanner':
               case 'batch':
               case 'center-fill':
-              case 'right-fill':
                 return <span key={column} className="filler" />;
               case 'manual':
               case 'scanned':
@@ -397,6 +396,8 @@ function BallotCountTable({
                     {getFormattedCount(totalCardCounts, column)}
                   </span>
                 );
+              case 'right-fill':
+                return <span key={column} />;
               // istanbul ignore next - compile time check for completeness
               default:
                 throwIllegalValue(column);
