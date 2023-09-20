@@ -341,9 +341,7 @@ export function buildMachine(
               assert(event.type === 'VOTER_INITIATED_PRINT');
               return driverPrintBallot(context.driver, event.pdfData, {});
             },
-            onDone: {
-              target: 'scanning',
-            },
+            onDone: 'scanning',
           },
           pollPaperStatus(),
         ],
@@ -379,22 +377,28 @@ export function buildMachine(
       },
       // Intermediate state to conditionally transition based on ballot interpretation
       transition_interpretation: {
-        entry: (context) => assert(context.interpretation),
+        entry: (context) => {
+          const interpretationType = assertDefined(context.interpretation)[0]
+            .interpretation.type;
+          assert(
+            interpretationType === 'InterpretedBmdPage' ||
+              interpretationType === 'BlankPage',
+            `Unexpected interpretation type: ${interpretationType}`
+          );
+        },
         always: [
           {
             target: 'presenting_ballot',
             cond: (context) =>
-              context.interpretation
-                ? context.interpretation[0].interpretation.type ===
-                  'InterpretedBmdPage'
-                : false,
+              // context.interpretation is already asserted in the entry function but Typescript is unaware
+              assertDefined(context.interpretation)[0].interpretation.type ===
+              'InterpretedBmdPage',
           },
           {
             target: 'blank_page_interpretation',
             cond: (context) =>
-              context.interpretation
-                ? context.interpretation[0].interpretation.type === 'BlankPage'
-                : false,
+              assertDefined(context.interpretation)[0].interpretation.type ===
+              'BlankPage',
           },
         ],
       },
@@ -422,7 +426,7 @@ export function buildMachine(
             },
             on: {
               PAPER_PARKED: {
-                target: 'paper_reloaded',
+                target: 'done',
                 actions: () => {
                   assign({
                     interpretation: undefined,
@@ -433,7 +437,11 @@ export function buildMachine(
               NO_PAPER_ANYWHERE: 'accepting_paper',
             },
           },
+          done: {
+            type: 'final',
+          },
         },
+        onDone: 'paper_reloaded',
       },
       // `paper_reloaded` could be a substate of `blank_page_interpretation` but by keeping
       // them separate we can avoid exposing all the substates of `blank_page_interpretation`
