@@ -5,27 +5,27 @@ import { UiStringAudioClipSchema } from './ui_string_audio_clips';
 test('valid structure', () => {
   const result = safeParseJson(
     JSON.stringify({
-      data: 'test data',
-      key: 'testKey',
-      lang: LanguageCode.CHINESE,
+      dataBase64: 'test data',
+      id: 'testKey',
+      languageCode: LanguageCode.CHINESE,
     }),
     UiStringAudioClipSchema
   );
 
   expect(result.isOk()).toEqual(true);
   expect(result.ok()).toEqual({
-    data: 'test data',
-    key: 'testKey',
-    lang: LanguageCode.CHINESE,
+    dataBase64: 'test data',
+    id: 'testKey',
+    languageCode: LanguageCode.CHINESE,
   });
 });
 
 test('invalid language code', () => {
   const result = safeParseJson(
     JSON.stringify({
-      data: 'test data',
-      key: 'testKey',
-      lang: 'Klingon',
+      dataBase64: 'test data',
+      id: 'testKey',
+      languageCode: 'Klingon',
     }),
     UiStringAudioClipSchema
   );
@@ -36,8 +36,8 @@ test('invalid language code', () => {
 test('missing field', () => {
   const result = safeParseJson(
     JSON.stringify({
-      data: 'test data',
-      lang: LanguageCode.SPANISH,
+      dataBase64: 'test data',
+      languageCode: LanguageCode.SPANISH,
     }),
     UiStringAudioClipSchema
   );
