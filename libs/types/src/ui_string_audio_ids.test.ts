@@ -1,12 +1,12 @@
 import { safeParseJson } from './generic';
 import { LanguageCode } from './language_code';
 import {
-  UiStringAudioKeysPackage,
-  UiStringAudioKeysPackageSchema,
-} from './ui_string_audio_keys';
+  UiStringAudioIdsPackage,
+  UiStringAudioIdsPackageSchema,
+} from './ui_string_audio_ids';
 
 test('valid structure', () => {
-  const testPackage: UiStringAudioKeysPackage = {
+  const testPackage: UiStringAudioIdsPackage = {
     [LanguageCode.SPANISH]: {
       appString: ['a1b2c3', 'f5e6d7'],
       appStringNested: {
@@ -21,7 +21,7 @@ test('valid structure', () => {
 
   const result = safeParseJson(
     JSON.stringify(testPackage),
-    UiStringAudioKeysPackageSchema
+    UiStringAudioIdsPackageSchema
   );
 
   expect(result.isOk()).toEqual(true);
@@ -38,7 +38,7 @@ test('invalid language code', () => {
         appString: ['4f4f4f', '3d3d3d'],
       },
     }),
-    UiStringAudioKeysPackageSchema
+    UiStringAudioIdsPackageSchema
   );
 
   expect(result.isOk()).toEqual(false);
@@ -52,7 +52,7 @@ test('invalid values', () => {
         invalid: '4f4f4f',
       },
     }),
-    UiStringAudioKeysPackageSchema
+    UiStringAudioIdsPackageSchema
   );
 
   expect(result.isOk()).toEqual(false);
@@ -70,7 +70,7 @@ test('invalid nesting', () => {
         },
       },
     }),
-    UiStringAudioKeysPackageSchema
+    UiStringAudioIdsPackageSchema
   );
 
   expect(result.isOk()).toEqual(false);

@@ -33,9 +33,9 @@ export function runUiStringApiTests(params: {
     ).toThrow(/not yet implemented/i);
   });
 
-  test('getUiStringAudioKeys throws not-yet-implemented error', () => {
+  test('getUiStringAudioIds throws not-yet-implemented error', () => {
     expect(() =>
-      api.getUiStringAudioKeys({ languageCode: LanguageCode.CHINESE })
+      api.getUiStringAudioIds({ languageCode: LanguageCode.CHINESE })
     ).toThrow(/not yet implemented/i);
   });
 
@@ -43,7 +43,7 @@ export function runUiStringApiTests(params: {
     expect(() =>
       api.getAudioClipsBase64({
         languageCode: LanguageCode.ENGLISH,
-        audioKeys: ['abc123', 'd1e2f3'],
+        audioIds: ['abc123', 'd1e2f3'],
       })
     ).toThrow(/not yet implemented/i);
   });

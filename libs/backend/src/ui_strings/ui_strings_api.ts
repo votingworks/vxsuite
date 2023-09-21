@@ -5,7 +5,7 @@ import { Logger } from '@votingworks/logging';
 import {
   Dictionary,
   LanguageCode,
-  UiStringAudioKeys,
+  UiStringAudioIds,
   UiStringTranslations,
   UiStringsApi,
 } from '@votingworks/types';
@@ -35,9 +35,9 @@ export function createUiStringsApi(context: UiStringsApiContext): UiStringsApi {
       );
     },
 
-    getUiStringAudioKeys(input: {
+    getUiStringAudioIds(input: {
       languageCode: LanguageCode;
-    }): Optional<UiStringAudioKeys> {
+    }): Optional<UiStringAudioIds> {
       throw new Error(
         `Not yet implemented. Requested language code: ${input.languageCode}`
       );
@@ -45,10 +45,10 @@ export function createUiStringsApi(context: UiStringsApiContext): UiStringsApi {
 
     getAudioClipsBase64(input: {
       languageCode: LanguageCode;
-      audioKeys: string[];
+      audioIds: string[];
     }): Dictionary<string> {
       throw new Error(
-        `Not yet implemented. Requested language code: ${input.languageCode} | audioKeys: ${input.audioKeys}`
+        `Not yet implemented. Requested language code: ${input.languageCode} | audioIds: ${input.audioIds}`
       );
     },
   };

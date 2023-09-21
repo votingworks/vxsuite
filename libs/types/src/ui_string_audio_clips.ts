@@ -6,18 +6,18 @@ import { LanguageCode } from './language_code';
  * A single audio clip record in the audio clips JSONL file in a ballot package.
  */
 export interface UiStringAudioClip {
-  data: string;
-  key: string;
-  lang: LanguageCode;
+  dataBase64: string;
+  id: string;
+  languageCode: LanguageCode;
 }
 
 /**
  * A single audio clip record in the audio clips JSONL file in a ballot package.
  */
 export const UiStringAudioClipSchema: z.ZodType<UiStringAudioClip> = z.object({
-  data: z.string(),
-  key: z.string(),
-  lang: z.nativeEnum(LanguageCode),
+  dataBase64: z.string(),
+  id: z.string(),
+  languageCode: z.nativeEnum(LanguageCode),
 });
 
 /**

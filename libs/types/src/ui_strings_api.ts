@@ -2,7 +2,7 @@ import { Optional } from '@votingworks/basics';
 
 import { Dictionary } from './generic';
 import { LanguageCode } from './language_code';
-import { UiStringAudioKeys } from './ui_string_audio_keys';
+import { UiStringAudioIds } from './ui_string_audio_ids';
 import { UiStringTranslations } from './ui_string_translations';
 
 export interface UiStringsApi {
@@ -12,16 +12,16 @@ export interface UiStringsApi {
     languageCode: LanguageCode;
   }): Optional<UiStringTranslations>;
 
-  getUiStringAudioKeys(input: {
+  getUiStringAudioIds(input: {
     languageCode: LanguageCode;
-  }): Optional<UiStringAudioKeys>;
+  }): Optional<UiStringAudioIds>;
 
   /**
-   * Returns a map of the given audio keys to corresponding audio data in
+   * Returns a map of the given audio IDs to corresponding audio data in
    * Base64-encoded byte format.
    */
   getAudioClipsBase64(input: {
     languageCode: LanguageCode;
-    audioKeys: string[];
+    audioIds: string[];
   }): Dictionary<string>;
 }
