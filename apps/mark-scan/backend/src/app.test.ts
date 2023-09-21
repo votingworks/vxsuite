@@ -62,6 +62,7 @@ beforeEach(async () => {
 afterEach(() => {
   stateMachine.stopMachineService();
   server?.close();
+  jest.resetAllMocks();
 });
 
 async function setUpUsbAndConfigureElection(

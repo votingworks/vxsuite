@@ -36,12 +36,15 @@ export function constructAuthMachineState(
   };
 }
 
-export function createWorkspace(root: string): Workspace {
+export function createWorkspace(
+  root: string,
+  options: { store?: Store } = {}
+): Workspace {
   const resolvedRoot = resolve(root);
   ensureDirSync(resolvedRoot);
 
   const dbPath = join(resolvedRoot, 'mark.db');
-  const store = Store.fileStore(dbPath);
+  const store = options.store || Store.fileStore(dbPath);
 
   return {
     path: resolvedRoot,

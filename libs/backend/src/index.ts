@@ -7,3 +7,4 @@ export * from './list_directory';
 export * from './mock_usb';
 export * from './scan_globals';
 export * from './split';
+export * from './ui_strings';

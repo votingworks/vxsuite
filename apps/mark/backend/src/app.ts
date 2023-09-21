@@ -16,7 +16,11 @@ import {
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
-import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
+import {
+  createUiStringsApi,
+  Usb,
+  readBallotPackageFromUsb,
+} from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -37,7 +41,8 @@ function constructAuthMachineState(
   };
 }
 
-function buildApi(
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildApi(
   auth: InsertedSmartCardAuthApi,
   usb: Usb,
   logger: Logger,
@@ -139,6 +144,11 @@ function buildApi(
 
       return ok(electionDefinition);
     },
+
+    ...createUiStringsApi({
+      logger,
+      store: workspace.store.getUiStringsStore(),
+    }),
   });
 }
 

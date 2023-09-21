@@ -2,6 +2,7 @@
 // The durable datastore for configuration info.
 //
 
+import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
 import { Optional } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
@@ -21,7 +22,10 @@ const SchemaPath = join(__dirname, '../schema.sql');
  * Manages a data store for imported election definition and system settings
  */
 export class Store {
-  private constructor(private readonly client: DbClient) {}
+  private constructor(
+    private readonly client: DbClient,
+    private readonly uiStringsStore: UiStringsStore
+  ) {}
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -31,14 +35,18 @@ export class Store {
    * Builds and returns a new store whose data is kept in memory.
    */
   static memoryStore(): Store {
-    return new Store(DbClient.memoryClient(SchemaPath));
+    const client = DbClient.memoryClient(SchemaPath);
+    const uiStringsStore = createUiStringStore(client);
+    return new Store(client, uiStringsStore);
   }
 
   /**
    * Builds and returns a new store at `dbPath`.
    */
   static fileStore(dbPath: string): Store {
-    return new Store(DbClient.fileClient(dbPath, SchemaPath));
+    const client = DbClient.fileClient(dbPath, SchemaPath);
+    const uiStringsStore = createUiStringStore(client);
+    return new Store(client, uiStringsStore);
   }
 
   /**
@@ -183,5 +191,9 @@ export class Store {
 
     if (!result) return undefined;
     return safeParseSystemSettings(result.data).unsafeUnwrap();
+  }
+
+  getUiStringsStore(): UiStringsStore {
+    return this.uiStringsStore;
   }
 }

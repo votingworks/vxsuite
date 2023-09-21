@@ -2958,6 +2958,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/db':
+        specifier: workspace:*
+        version: link:../db
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
