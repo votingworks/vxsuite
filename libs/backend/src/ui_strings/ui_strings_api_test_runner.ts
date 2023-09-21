@@ -18,6 +18,7 @@ export function runUiStringApiTests(params: {
     expect(api.getAvailableLanguages()).toEqual([]);
 
     store.addLanguage(LanguageCode.ENGLISH);
+    store.addLanguage(LanguageCode.ENGLISH); // Should be a no-op.
     expect(api.getAvailableLanguages()).toEqual([LanguageCode.ENGLISH]);
 
     store.addLanguage(LanguageCode.CHINESE);

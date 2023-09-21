@@ -16,6 +16,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   safeParseJson,
   SystemSettingsSchema,
+  LanguageCode,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -23,7 +24,11 @@ import {
 } from '@votingworks/utils';
 
 import { Buffer } from 'buffer';
-import { createBallotPackageZipArchive, MockUsb } from '@votingworks/backend';
+import {
+  createBallotPackageZipArchive,
+  createUiStringsApiMock,
+  MockUsb,
+} from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { createApp } from '../test/app_helpers';
@@ -35,6 +40,14 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
     ...jest.requireActual('@votingworks/utils'),
     isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
+const mockUiStringsApi = createUiStringsApiMock();
+jest.mock('@votingworks/backend', (): typeof import('@votingworks/backend') => {
+  return {
+    ...jest.requireActual('@votingworks/backend'),
+    createUiStringsApi: () => mockUiStringsApi,
   };
 });
 
@@ -189,4 +202,41 @@ test('configureWithSampleBallotPackageForIntegrationTest configures electionGene
   expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
   const electionDefinitionResult = await apiClient.getElectionDefinition();
   expect(electionDefinitionResult).toEqual(electionGeneralDefinition);
+});
+
+test('installs UI Strings API', async () => {
+  mockOf(mockUiStringsApi.getAvailableLanguages).mockImplementation(() => [
+    LanguageCode.SPANISH,
+  ]);
+  await expect(apiClient.getAvailableLanguages()).resolves.toEqual([
+    LanguageCode.SPANISH,
+  ]);
+
+  mockOf(mockUiStringsApi.getUiStrings).mockImplementation(() => ({
+    foo: 'bar',
+  }));
+  await expect(
+    apiClient.getUiStrings({ languageCode: LanguageCode.SPANISH })
+  ).resolves.toEqual({
+    foo: 'bar',
+  });
+
+  mockOf(mockUiStringsApi.getUiStringAudioKeys).mockImplementation(() => ({
+    foo: ['123', '456'],
+  }));
+  await expect(
+    apiClient.getUiStringAudioKeys({ languageCode: LanguageCode.SPANISH })
+  ).resolves.toEqual({
+    foo: ['123', '456'],
+  });
+
+  mockOf(mockUiStringsApi.getAudioClipsBase64).mockImplementation(() => ({
+    abc: 'data-abc',
+  }));
+  await expect(
+    apiClient.getAudioClipsBase64({
+      languageCode: LanguageCode.ENGLISH,
+      audioKeys: ['abc'],
+    })
+  ).resolves.toEqual({ abc: 'data-abc' });
 });
