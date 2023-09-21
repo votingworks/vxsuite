@@ -95,7 +95,8 @@ export async function importCastVoteRecords(
   if (readResult.isErr()) {
     return readResult;
   }
-  const { castVoteRecordExportMetadata, castVoteRecords } = readResult.ok();
+  const { castVoteRecordExportMetadata, castVoteRecordIterator } =
+    readResult.ok();
   const { castVoteRecordReportMetadata } = castVoteRecordExportMetadata;
 
   const exportDirectoryName = path.basename(exportDirectoryPath);
@@ -158,7 +159,7 @@ export async function importCastVoteRecords(
     let newlyAdded = 0;
     let alreadyPresent = 0;
     const precinctIds = new Set<string>();
-    for await (const castVoteRecordResult of castVoteRecords) {
+    for await (const castVoteRecordResult of castVoteRecordIterator) {
       if (castVoteRecordResult.isErr()) {
         return err({
           ...castVoteRecordResult.err(),
@@ -216,6 +217,7 @@ export async function importCastVoteRecords(
         if (hmpbCastVoteRecordWriteIns.length > 0) {
           // Guaranteed to exist given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
+          assert(referencedFiles.layoutFilePaths !== undefined);
 
           for (const i of [0, 1] as const) {
             const imageData = await fs.readFile(
