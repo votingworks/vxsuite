@@ -178,9 +178,9 @@ commands:
       - run:
           name: Setup Dependencies
           command: |
+            pnpm install --frozen-lockfile
             pnpm --dir libs/ballot-interpreter install:rust-addon
             pnpm --dir libs/ballot-interpreter build:rust-addon
-            pnpm install --frozen-lockfile
       - save_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
