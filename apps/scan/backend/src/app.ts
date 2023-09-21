@@ -17,6 +17,7 @@ import {
 } from '@votingworks/utils';
 import express, { Application } from 'express';
 import {
+  createUiStringsApi,
   ExportDataError,
   exportCastVoteRecordReportToUsbDrive,
   ExportCastVoteRecordReportToUsbDriveError,
@@ -55,7 +56,8 @@ function constructAuthMachineState(
   };
 }
 
-function buildApi(
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildApi(
   auth: InsertedSmartCardAuthApi,
   machine: PrecinctScannerStateMachine,
   workspace: Workspace,
@@ -367,6 +369,11 @@ function buildApi(
     supportsUltrasonic(): boolean {
       return machine.supportsUltrasonic();
     },
+
+    ...createUiStringsApi({
+      logger,
+      store: workspace.store.getUiStringsStore(),
+    }),
   });
 }
 

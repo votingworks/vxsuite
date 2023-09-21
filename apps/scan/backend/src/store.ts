@@ -32,7 +32,11 @@ import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { ResultSheet } from '@votingworks/backend';
+import {
+  ResultSheet,
+  UiStringsStore,
+  createUiStringStore,
+} from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
   getCastVoteRecordRootHash,
@@ -101,7 +105,10 @@ function resultSheetRowToResultSheet(row: ResultSheetRow): ResultSheet {
  * interpreted by reading the sheets.
  */
 export class Store {
-  private constructor(private readonly client: DbClient) {}
+  private constructor(
+    private readonly client: DbClient,
+    private readonly uiStringsStore: UiStringsStore
+  ) {}
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -119,14 +126,18 @@ export class Store {
    * Builds and returns a new store whose data is kept in memory.
    */
   static memoryStore(): Store {
-    return new Store(DbClient.memoryClient(SchemaPath));
+    const client = DbClient.memoryClient(SchemaPath);
+    const uiStringsStore = createUiStringStore(client);
+    return new Store(client, uiStringsStore);
   }
 
   /**
    * Builds and returns a new store at `dbPath`.
    */
   static fileStore(dbPath: string): Store {
-    return new Store(DbClient.fileClient(dbPath, SchemaPath));
+    const client = DbClient.fileClient(dbPath, SchemaPath);
+    const uiStringsStore = createUiStringStore(client);
+    return new Store(client, uiStringsStore);
   }
 
   // TODO(jonah): Make this the only way to access the store so that we always
@@ -572,7 +583,7 @@ export class Store {
     // Adding or deleting sheets would have updated the CVR count
     const { maxSheetsCreatedAt, maxSheetsDeletedAt } = this.client.one(`
         select
-          max(created_at) as maxSheetsCreatedAt, 
+          max(created_at) as maxSheetsCreatedAt,
           max(deleted_at) as maxSheetsDeletedAt
         from sheets
       `) as {
@@ -965,5 +976,9 @@ export class Store {
 
   clearCastVoteRecordHashes(): void {
     clearCastVoteRecordHashes(this.client);
+  }
+
+  getUiStringsStore(): UiStringsStore {
+    return this.uiStringsStore;
   }
 }

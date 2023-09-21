@@ -20,7 +20,11 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
-import { Usb, readBallotPackageFromUsb } from '@votingworks/backend';
+import {
+  createUiStringsApi,
+  Usb,
+  readBallotPackageFromUsb,
+} from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -36,7 +40,8 @@ const debug = makeDebug('mark-scan:app-backend');
 
 const defaultMediaMountDir = '/media';
 
-function buildApi(
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildApi(
   auth: InsertedSmartCardAuthApi,
   usb: Usb,
   logger: Logger,
@@ -232,6 +237,11 @@ function buildApi(
 
       stateMachine.confirmInvalidateBallot();
     },
+
+    ...createUiStringsApi({
+      logger,
+      store: workspace.store.getUiStringsStore(),
+    }),
   });
 }
 
