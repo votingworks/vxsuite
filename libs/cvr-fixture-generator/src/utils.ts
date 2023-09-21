@@ -1,11 +1,8 @@
-import {
-  CVR_BALLOT_IMAGES_SUBDIRECTORY,
-  CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
-} from '@votingworks/backend';
 import { assert, assertDefined } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import {
   BallotPageLayout,
+  BallotPaperSize,
   Contests,
   CVR,
   Election,
@@ -14,6 +11,18 @@ import {
   SheetOf,
   VotesDict,
 } from '@votingworks/types';
+
+/**
+ * A mapping from ballot paper size to page height, in inches
+ */
+export const PAGE_HEIGHT_INCHES: Record<BallotPaperSize, number> = {
+  [BallotPaperSize.Letter]: 11,
+  [BallotPaperSize.Legal]: 14,
+  [BallotPaperSize.Custom17]: 17,
+  [BallotPaperSize.Custom18]: 18,
+  [BallotPaperSize.Custom21]: 21,
+  [BallotPaperSize.Custom22]: 22,
+};
 
 /**
  * Generate all combinations of an array.
@@ -139,34 +148,22 @@ export function filterVotesByContests(
 /**
  * Format of the image URIs used in generated fixtures.
  */
-export const IMAGE_URI_REGEX = new RegExp(
-  String.raw`file:${CVR_BALLOT_IMAGES_SUBDIRECTORY}\/(.+)\/(.+)__(.+)__(.+)\.jpg`
-);
+export const IMAGE_URI_REGEX = /file:(.+)-(front|back)\.jpg/;
 
 /**
- * Generates the relative path, from the root of a cast vote record directory,
- * to an asset specified by the parameters.
+ * Generates the path to a ballot asset, relative to an individual cast vote record directory.
  */
 export function generateBallotAssetPath({
-  ballotStyleId,
-  precinctId,
-  batchId,
-  pageNumber,
+  castVoteRecordId,
   assetType,
+  frontOrBack,
 }: {
-  ballotStyleId: string;
-  batchId: string;
-  precinctId: string;
-  pageNumber: number;
+  castVoteRecordId: string;
   assetType: 'image' | 'layout';
+  frontOrBack: 'front' | 'back';
 }): string {
-  return `${
-    assetType === 'image'
-      ? CVR_BALLOT_IMAGES_SUBDIRECTORY
-      : CVR_BALLOT_LAYOUTS_SUBDIRECTORY
-  }/${batchId}/${ballotStyleId}__${precinctId}__${pageNumber}.${
-    assetType === 'image' ? 'jpg' : 'layout.json'
-  }`;
+  const fileExtension = assetType === 'image' ? '.jpg' : '.layout.json';
+  return `${castVoteRecordId}-${frontOrBack}${fileExtension}`;
 }
 
 /**

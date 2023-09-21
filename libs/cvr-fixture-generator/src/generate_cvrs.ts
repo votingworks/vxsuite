@@ -314,18 +314,14 @@ export function* generateCvrs({
                 const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
 
                 const frontImageFileUri = `file:${generateBallotAssetPath({
-                  ballotStyleId: ballotStyle.id,
-                  precinctId,
-                  batchId,
+                  castVoteRecordId: castVoteRecordId.toString(),
                   assetType: 'image',
-                  pageNumber: sheetIndex * 2 + 1,
+                  frontOrBack: 'front',
                 })}`;
                 const backImageFileUri = `file:${generateBallotAssetPath({
-                  ballotStyleId: ballotStyle.id,
-                  precinctId,
-                  batchId,
+                  castVoteRecordId: castVoteRecordId.toString(),
                   assetType: 'image',
-                  pageNumber: sheetIndex * 2 + 2,
+                  frontOrBack: 'back',
                 })}`;
 
                 yield {
@@ -371,15 +367,11 @@ export function* generateCvrs({
                     ? [
                         {
                           '@type': 'CVR.ImageData',
-                          Location: frontHasWriteIns
-                            ? frontImageFileUri
-                            : undefined,
+                          Location: frontImageFileUri,
                         },
                         {
                           '@type': 'CVR.ImageData',
-                          Location: backHasWriteIns
-                            ? backImageFileUri
-                            : undefined,
+                          Location: backImageFileUri,
                         },
                       ]
                     : undefined,
