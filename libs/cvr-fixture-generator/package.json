@@ -22,6 +22,7 @@
     "pre-commit": "lint-staged"
   },
   "dependencies": {
+    "@votingworks/auth": "*",
     "@votingworks/backend": "*",
     "@votingworks/basics": "*",
     "@votingworks/converter-nh-accuvote": "workspace:^",

@@ -3602,6 +3602,9 @@ importers:
 
   libs/cvr-fixture-generator:
     dependencies:
+      '@votingworks/auth':
+        specifier: '*'
+        version: link:../auth
       '@votingworks/backend':
         specifier: '*'
         version: link:../backend
