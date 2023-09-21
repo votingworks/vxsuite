@@ -32,6 +32,6 @@ create table audio_clips (
 
 create table ui_string_audio_keys (
   language_code text primary key,
-  data text not null, -- JSON blob - see libs/types/UiStringTranslationsSchema
+  data text not null, -- JSON blob - see libs/types/UiStringAudioKeysSchema
   foreign key (language_code) references languages(code)
 );
