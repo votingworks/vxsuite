@@ -43,7 +43,7 @@ const COLUMNS = [
   'right-fill', // spacing to bring the total away from the right margin
 ] as const;
 
-export type Column = typeof COLUMNS[number];
+export type Column = (typeof COLUMNS)[number];
 
 const COLUMN_LABELS: Record<Column, string> = {
   precinct: 'Precinct',
@@ -381,7 +381,6 @@ function BallotCountTable({
               case 'scanner':
               case 'batch':
               case 'center-fill':
-              case 'right-fill':
                 return <span key={column} className="filler" />;
               case 'manual':
               case 'scanned':
@@ -397,6 +396,8 @@ function BallotCountTable({
                     {getFormattedCount(totalCardCounts, column)}
                   </span>
                 );
+              case 'right-fill':
+                return <span key={column} />;
               // istanbul ignore next - compile time check for completeness
               default:
                 throwIllegalValue(column);
