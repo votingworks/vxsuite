@@ -94,17 +94,15 @@ export async function readBallotPackageFromUsb(
     return filepathResult;
   }
 
-  const artifactAuthenticationResult =
-    await authenticateArtifactUsingSignatureFile({
-      type: 'election_package',
-      filePath: filepathResult.ok(),
-    });
-  if (
-    artifactAuthenticationResult.isErr() &&
-    !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
-    )
-  ) {
+  const artifactAuthenticationResult = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+  )
+    ? ok()
+    : await authenticateArtifactUsingSignatureFile({
+        type: 'election_package',
+        filePath: filepathResult.ok(),
+      });
+  if (artifactAuthenticationResult.isErr()) {
     await logger.log(LogEventId.BallotPackageLoadedFromUsb, 'system', {
       disposition: 'failure',
       message: 'Ballot package authentication erred.',

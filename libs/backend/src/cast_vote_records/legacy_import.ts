@@ -20,10 +20,7 @@ import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
 } from './legacy_export';
-import {
-  CastVoteRecordReportMetadata,
-  TEST_OTHER_REPORT_TYPE,
-} from './build_report_metadata';
+import { CastVoteRecordReportMetadata } from './build_report_metadata';
 
 /**
  * Variant of {@link CastVoteRecordReport} in which the `CVR` array is replaced
@@ -223,23 +220,4 @@ export async function validateCastVoteRecordReportDirectoryStructure(
   }
 
   return ok(relativeImagePaths);
-}
-
-/**
- * Determines whether a cast vote record report is a test report or not. A report
- * is a test report if `CVR.ReportType` contains `ReportType.Other` and
- * `CVR.OtherReportType`, as a comma-separated list of strings, contains
- * {@link TEST_OTHER_REPORT_TYPE}.
- */
-export function isTestReport(metadata: CastVoteRecordReportMetadata): boolean {
-  const containsOtherReportType = metadata.ReportType?.some(
-    (reportType) => reportType === CVR.ReportType.Other
-  );
-  if (!containsOtherReportType) return false;
-
-  const otherReportTypeContainsTest = metadata.OtherReportType?.split(
-    ','
-  ).includes(TEST_OTHER_REPORT_TYPE);
-
-  return Boolean(otherReportTypeContainsTest);
 }
