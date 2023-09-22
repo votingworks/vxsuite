@@ -34,6 +34,7 @@
     "esbuild-runner": "^2.2.1",
     "js-sha256": "^0.9.0",
     "lodash.clonedeep": "^4.5.0",
+    "uuid": "^9.0.1",
     "yargs": "^17.5.1"
   },
   "devDependencies": {
@@ -41,6 +42,7 @@
     "@types/lodash.clonedeep": "^4.5.7",
     "@types/node": "16.18.23",
     "@types/tmp": "^0.2.3",
+    "@types/uuid": "^9.0.4",
     "@types/yargs": "^17.0.12",
     "@votingworks/test-utils": "*",
     "eslint-plugin-vx": "*",

@@ -258,13 +258,15 @@ test('including ballot images', async () => {
       const castVoteRecordDirectoryContents = (
         await fs.readdir(join(outputDirectory.name, castVoteRecord.UniqueId))
       ).sort();
-      expect(castVoteRecordDirectoryContents).toEqual([
-        `${castVoteRecord.UniqueId}-back.jpg`,
-        `${castVoteRecord.UniqueId}-back.layout.json`,
-        `${castVoteRecord.UniqueId}-front.jpg`,
-        `${castVoteRecord.UniqueId}-front.layout.json`,
-        'cast-vote-record-report.json',
-      ]);
+      expect(castVoteRecordDirectoryContents).toEqual(
+        [
+          `${castVoteRecord.UniqueId}-back.jpg`,
+          `${castVoteRecord.UniqueId}-back.layout.json`,
+          `${castVoteRecord.UniqueId}-front.jpg`,
+          `${castVoteRecord.UniqueId}-front.layout.json`,
+          'cast-vote-record-report.json',
+        ].sort()
+      );
     }
   }
 });

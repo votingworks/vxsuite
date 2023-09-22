@@ -3638,6 +3638,9 @@ importers:
       lodash.clonedeep:
         specifier: ^4.5.0
         version: 4.5.0
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
       yargs:
         specifier: ^17.5.1
         version: 17.5.1
@@ -3654,6 +3657,9 @@ importers:
       '@types/tmp':
         specifier: ^0.2.3
         version: 0.2.3
+      '@types/uuid':
+        specifier: ^9.0.4
+        version: 9.0.4
       '@types/yargs':
         specifier: ^17.0.12
         version: 17.0.12
@@ -10028,7 +10034,7 @@ packages:
       react-inspector: 6.0.1(react@18.2.0)
       telejson: 7.0.4
       ts-dedent: 2.2.0
-      uuid: 9.0.0
+      uuid: 9.0.1
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
@@ -11683,6 +11689,10 @@ packages:
 
   /@types/uuid@9.0.2:
     resolution: {integrity: sha512-kNnC1GFBLuhImSnV7w4njQkUiJi0ZXUycu1rUaouPqiKlXkh77JKgdRnTAp1x5eBwcIwbtI+3otwzuIDEuDoxQ==}
+    dev: true
+
+  /@types/uuid@9.0.4:
+    resolution: {integrity: sha512-zAuJWQflfx6dYJM62vna+Sn5aeSWhh3OB+wfUEACNcqUSc0AGc5JKl+ycL1vrH7frGTXhJchYjE1Hak8L819dA==}
     dev: true
 
   /@types/w3c-web-usb@1.0.6:
@@ -24819,6 +24829,11 @@ packages:
 
   /uuid@9.0.0:
     resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
+    dev: false
+
+  /uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
 
   /v8-to-istanbul@9.1.0:
