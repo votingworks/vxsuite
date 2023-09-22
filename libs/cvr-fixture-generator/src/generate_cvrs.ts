@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import { buildCVRContestsFromVotes } from '@votingworks/backend';
 import { iter, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -198,7 +199,6 @@ export function* generateCvrs({
   // not be realistic since they cannot currently be scanned.
   const bmdBallots = Boolean(!election.gridLayouts);
 
-  let castVoteRecordId = 0;
   for (const ballotStyle of ballotStyles) {
     const { precincts: precinctIds, id: ballotStyleId, partyId } = ballotStyle;
     // For each contest, determine all possible contest choices
@@ -259,6 +259,7 @@ export function* generateCvrs({
 
           // Add the generated vote combinations as CVRs
           for (const votes of voteConfigurations) {
+            const castVoteRecordId = uuid();
             if (bmdBallots) {
               yield {
                 '@type': 'CVR.CVR',
@@ -288,8 +289,6 @@ export function* generateCvrs({
                   },
                 ],
               };
-
-              castVoteRecordId += 1;
             } else {
               // Since this is HMPB, we generate a CVR for each sheet (not fully supported yet)
               const contestsBySheet = arrangeContestsBySheet(
@@ -314,18 +313,14 @@ export function* generateCvrs({
                 const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
 
                 const frontImageFileUri = `file:${generateBallotAssetPath({
-                  ballotStyleId: ballotStyle.id,
-                  precinctId,
-                  batchId,
+                  castVoteRecordId: castVoteRecordId.toString(),
                   assetType: 'image',
-                  pageNumber: sheetIndex * 2 + 1,
+                  frontOrBack: 'front',
                 })}`;
                 const backImageFileUri = `file:${generateBallotAssetPath({
-                  ballotStyleId: ballotStyle.id,
-                  precinctId,
-                  batchId,
+                  castVoteRecordId: castVoteRecordId.toString(),
                   assetType: 'image',
-                  pageNumber: sheetIndex * 2 + 2,
+                  frontOrBack: 'back',
                 })}`;
 
                 yield {
@@ -371,21 +366,15 @@ export function* generateCvrs({
                     ? [
                         {
                           '@type': 'CVR.ImageData',
-                          Location: frontHasWriteIns
-                            ? frontImageFileUri
-                            : undefined,
+                          Location: frontImageFileUri,
                         },
                         {
                           '@type': 'CVR.ImageData',
-                          Location: backHasWriteIns
-                            ? backImageFileUri
-                            : undefined,
+                          Location: backImageFileUri,
                         },
                       ]
                     : undefined,
                 };
-
-                castVoteRecordId += 1;
               }
             }
           }

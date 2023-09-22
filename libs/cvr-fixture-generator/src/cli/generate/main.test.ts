@@ -3,35 +3,23 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
-import { safeParseJson, CVR, unsafeParse } from '@votingworks/types';
-import { readFileSync } from 'fs';
+import { CVR } from '@votingworks/types';
 import fs from 'fs/promises';
 import { join, resolve } from 'path';
 import { dirSync } from 'tmp';
 import {
-  CAST_VOTE_RECORD_REPORT_FILENAME,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
 } from '@votingworks/utils';
-import { getCastVoteRecordReportImport } from '@votingworks/backend';
+import { readCastVoteRecordExport } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
-import { DEFAULT_SCANNER_ID, main } from './main';
-import { getBatchIdForScannerId } from '../../utils';
+import { main } from './main';
+import { IMAGE_URI_REGEX } from '../../utils';
 
 jest.setTimeout(30_000);
 
 const electionDefinitionPathAmherst =
   electionGridLayoutNewHampshireAmherstFixtures.electionJson.asFilePath();
-
-function reportFromFile(directory: string) {
-  const filename = join(directory, CAST_VOTE_RECORD_REPORT_FILENAME);
-  const reportParseResult = safeParseJson(
-    readFileSync(filename, 'utf8'),
-    CVR.CastVoteRecordReportSchema
-  );
-  expect(reportParseResult.isOk()).toBeTruthy();
-  return reportParseResult.unsafeUnwrap();
-}
 
 async function run(
   args: string[]
@@ -49,6 +37,29 @@ async function run(
     exitCode,
     stdout: stdout.toString(),
     stderr: stderr.toString(),
+  };
+}
+
+async function readAndValidateCastVoteRecordExport(
+  exportDirectoryPath: string
+): Promise<{
+  castVoteRecordReportMetadata: CVR.CastVoteRecordReport;
+  castVoteRecords: CVR.CVR[];
+}> {
+  const readResult = await readCastVoteRecordExport(exportDirectoryPath);
+  assert(readResult.isOk());
+  const { castVoteRecordExportMetadata, castVoteRecordIterator } =
+    readResult.ok();
+  const castVoteRecords: CVR.CVR[] = [];
+  for await (const castVoteRecordResult of castVoteRecordIterator) {
+    assert(castVoteRecordResult.isOk());
+    const { castVoteRecord } = castVoteRecordResult.ok();
+    castVoteRecords.push(castVoteRecord);
+  }
+  return {
+    castVoteRecordReportMetadata:
+      castVoteRecordExportMetadata.castVoteRecordReportMetadata,
+    castVoteRecords,
   };
 }
 
@@ -101,8 +112,10 @@ test('generate with defaults', async () => {
     stderr: '',
   });
 
-  const report = reportFromFile(outputDirectory.name);
-  expect(report.CVR).toHaveLength(184);
+  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
+    outputDirectory.name
+  );
+  expect(castVoteRecords).toHaveLength(184);
 });
 
 test('generate with custom number of records below the suggested number', async () => {
@@ -124,8 +137,10 @@ test('generate with custom number of records below the suggested number', async 
     stderr: expect.stringContaining('WARNING:'),
   });
 
-  const report = reportFromFile(outputDirectory.name);
-  expect(report.CVR).toHaveLength(100);
+  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
+    outputDirectory.name
+  );
+  expect(castVoteRecords).toHaveLength(100);
 });
 
 test('generate with custom number of records above the suggested number', async () => {
@@ -149,20 +164,13 @@ test('generate with custom number of records above the suggested number', async 
     stderr: '',
   });
 
-  const castVoteRecordReportImport = (
-    await getCastVoteRecordReportImport(
-      join(outputDirectory.name, CAST_VOTE_RECORD_REPORT_FILENAME)
-    )
-  ).assertOk('generated cast vote record should be valid');
-
-  let cvrCount = 0;
-  for await (const unparsedCastVoteRecord of castVoteRecordReportImport.CVR) {
-    const castVoteRecord = unsafeParse(CVR.CVRSchema, unparsedCastVoteRecord);
-    expect(castVoteRecord.UniqueId).toEqual(`pre-${cvrCount}`);
-    cvrCount += 1;
+  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
+    outputDirectory.name
+  );
+  expect(castVoteRecords).toHaveLength(500);
+  for (const castVoteRecord of castVoteRecords) {
+    expect(castVoteRecord.UniqueId).toEqual(expect.stringMatching(/pre-(.+)/));
   }
-
-  expect(cvrCount).toEqual(500);
 });
 
 test('generate live mode CVRs', async () => {
@@ -179,8 +187,9 @@ test('generate live mode CVRs', async () => {
     '10',
   ]);
 
-  const report = reportFromFile(outputDirectory.name);
-  expect(report.OtherReportType).toBeUndefined();
+  const { castVoteRecordReportMetadata } =
+    await readAndValidateCastVoteRecordExport(outputDirectory.name);
+  expect(castVoteRecordReportMetadata.OtherReportType).toBeUndefined();
 });
 
 test('generate test mode CVRs', async () => {
@@ -196,8 +205,11 @@ test('generate test mode CVRs', async () => {
     '10',
   ]);
 
-  const report = reportFromFile(outputDirectory.name);
-  expect(report.OtherReportType?.split(',')).toContain('test');
+  const { castVoteRecordReportMetadata } =
+    await readAndValidateCastVoteRecordExport(outputDirectory.name);
+  expect(castVoteRecordReportMetadata.OtherReportType?.split(',')).toContain(
+    'test'
+  );
 });
 
 test('specifying scanner ids', async () => {
@@ -213,9 +225,11 @@ test('specifying scanner ids', async () => {
     'scanner1,scanner2',
   ]);
 
-  const report = reportFromFile(outputDirectory.name);
-  for (const cvr of report.CVR!) {
-    expect(cvr.CreatingDeviceId).toMatch(/scanner[12]/);
+  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
+    outputDirectory.name
+  );
+  for (const castVoteRecord of castVoteRecords) {
+    expect(castVoteRecord.CreatingDeviceId).toMatch(/scanner[12]/);
   }
 });
 
@@ -230,52 +244,31 @@ test('including ballot images', async () => {
     outputDirectory.name,
   ]);
 
-  const report = reportFromFile(outputDirectory.name);
-  const imageFileUris = new Set<string>();
-  assert(report.CVR);
-  for (const cvr of report.CVR) {
-    const ballotImages = cvr.BallotImage;
-    if (ballotImages) {
-      if (ballotImages[0]?.Location) {
-        imageFileUris.add(ballotImages[0]?.Location);
-      }
-      if (ballotImages[1]?.Location) {
-        imageFileUris.add(ballotImages[1]?.Location);
-      }
+  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
+    outputDirectory.name
+  );
+  for (const castVoteRecord of castVoteRecords) {
+    if (castVoteRecord.BallotImage) {
+      expect(castVoteRecord.BallotImage[0]?.Location).toEqual(
+        expect.stringMatching(IMAGE_URI_REGEX)
+      );
+      expect(castVoteRecord.BallotImage[1]?.Location).toEqual(
+        expect.stringMatching(IMAGE_URI_REGEX)
+      );
+      const castVoteRecordDirectoryContents = (
+        await fs.readdir(join(outputDirectory.name, castVoteRecord.UniqueId))
+      ).sort();
+      expect(castVoteRecordDirectoryContents).toEqual(
+        [
+          `${castVoteRecord.UniqueId}-back.jpg`,
+          `${castVoteRecord.UniqueId}-back.layout.json`,
+          `${castVoteRecord.UniqueId}-front.jpg`,
+          `${castVoteRecord.UniqueId}-front.layout.json`,
+          'cast-vote-record-report.json',
+        ].sort()
+      );
     }
   }
-
-  const defaultBatchId = getBatchIdForScannerId(DEFAULT_SCANNER_ID);
-
-  // files referenced from the report
-  expect(Array.from(imageFileUris)).toMatchObject([
-    `file:ballot-images/${defaultBatchId}/card-number-3__town-id-00701-precinct-id-__2.jpg`,
-    `file:ballot-images/${defaultBatchId}/card-number-3__town-id-00701-precinct-id-__1.jpg`,
-  ]);
-
-  // images exported
-  expect(
-    await fs.readdir(
-      join(outputDirectory.name, 'ballot-images', defaultBatchId)
-    )
-  ).toMatchInlineSnapshot(`
-    [
-      "card-number-3__town-id-00701-precinct-id-__1.jpg",
-      "card-number-3__town-id-00701-precinct-id-__2.jpg",
-    ]
-  `);
-
-  // layouts exported
-  expect(
-    await fs.readdir(
-      join(outputDirectory.name, 'ballot-layouts', defaultBatchId)
-    )
-  ).toMatchInlineSnapshot(`
-    [
-      "card-number-3__town-id-00701-precinct-id-__1.layout.json",
-      "card-number-3__town-id-00701-precinct-id-__2.layout.json",
-    ]
-  `);
 });
 
 test('generating as BMD ballots (non-gridlayouts election)', async () => {
@@ -296,17 +289,18 @@ test('generating as BMD ballots (non-gridlayouts election)', async () => {
     stderr: '',
   });
 
-  const report = reportFromFile(outputDirectory.name);
-  assert(report.CVR);
-  for (const [index, cvr] of report.CVR.entries()) {
-    expect(cvr.BallotImage).toBeUndefined();
-    expect(cvr.UniqueId).toEqual(index.toString());
+  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
+    outputDirectory.name
+  );
+  for (const castVoteRecord of castVoteRecords) {
+    expect(castVoteRecord.BallotImage).toBeUndefined();
+    expect(castVoteRecord.UniqueId).toEqual(expect.stringMatching(/[0-9]+/));
     expect(
-      getWriteInsFromCastVoteRecord(cvr).every((castVoteRecordWriteIn) =>
-        Boolean(castVoteRecordWriteIn.text)
+      getWriteInsFromCastVoteRecord(castVoteRecord).every(
+        (castVoteRecordWriteIn) => Boolean(castVoteRecordWriteIn.text)
       )
     ).toEqual(true);
-    const writeIns = cvr.CVRSnapshot[0]!.CVRContest.flatMap(
+    const writeIns = castVoteRecord.CVRSnapshot[0]!.CVRContest.flatMap(
       (contest) => contest.CVRContestSelection
     )
       .flatMap((contestSelection) => contestSelection.SelectionPosition)

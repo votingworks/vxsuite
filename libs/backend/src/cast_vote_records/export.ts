@@ -24,8 +24,11 @@ import {
   CastVoteRecordExportMetadata,
   CVR,
   ElectionDefinition,
+  Id,
   MarkThresholds,
+  PageInterpretation,
   PollsState,
+  SheetOf,
   unsafeParse,
 } from '@votingworks/types';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -48,12 +51,7 @@ import {
   describeSheetValidationError,
 } from './canonicalize';
 import { readCastVoteRecordExportMetadata } from './import';
-import { ResultSheet } from './legacy_export';
 import { buildElectionOptionPositionMap } from './option_map';
-
-type ExportCastVoteRecordsToUsbDriveError =
-  | { type: 'invalid-sheet-found'; message: string }
-  | ExportDataError;
 
 /**
  * The subset of scanner store methods relevant to exporting cast vote records
@@ -109,6 +107,32 @@ interface ExportContext {
   scannerStore: ScannerStore;
   usbMountPoint: string;
 }
+
+/**
+ * A sheet to be included in a CVR export
+ */
+export interface ResultSheet {
+  readonly id: Id;
+  readonly batchId: Id;
+  readonly interpretation: SheetOf<PageInterpretation>;
+  readonly frontImagePath: string;
+  readonly backImagePath: string;
+
+  /**
+   * Required per VVSG 2.0 1.1.5-G.7 but only relevant for central scanners. On precinct scanners,
+   * this would compromise voter privacy.
+   */
+  readonly indexInBatch?: number;
+
+  /**
+   * TODO: Determine whether this field is still used and, if not, remove
+   */
+  readonly batchLabel?: string;
+}
+
+type ExportCastVoteRecordsToUsbDriveError =
+  | { type: 'invalid-sheet-found'; message: string }
+  | ExportDataError;
 
 //
 // Helpers

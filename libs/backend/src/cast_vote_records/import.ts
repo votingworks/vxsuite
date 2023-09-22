@@ -27,6 +27,8 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
+import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
+
 type ReadCastVoteRecordExportMetadataError =
   | { type: 'metadata-file-not-found' }
   | { type: 'metadata-file-parse-error' };
@@ -55,7 +57,7 @@ export type ReadCastVoteRecordExportError =
 
 interface ReferencedFiles {
   imageFilePaths: [string, string]; // [front, back]
-  layoutFilePaths: [string, string]; // [front, back]
+  layoutFilePaths?: [string, string]; // [front, back]
 }
 
 interface CastVoteRecordAndReferencedFiles {
@@ -68,7 +70,7 @@ interface CastVoteRecordAndReferencedFiles {
 
 interface CastVoteRecordExportContents {
   castVoteRecordExportMetadata: CastVoteRecordExportMetadata;
-  castVoteRecords: AsyncIteratorPlus<
+  castVoteRecordIterator: AsyncIteratorPlus<
     Result<CastVoteRecordAndReferencedFiles, ReadCastVoteRecordError>
   >;
 }
@@ -146,11 +148,12 @@ async function* castVoteRecordGenerator(
 
     // Only relevant for HMPBs
     let castVoteRecordBallotSheetId: number | undefined;
+    const isHandMarkedPaperBallot = Boolean(castVoteRecord.BallotSheetId);
     if (castVoteRecord.BallotSheetId) {
       const parseBallotSheetIdResult = safeParseNumber(
         castVoteRecord.BallotSheetId
       );
-      if (parseResult.isErr()) {
+      if (parseBallotSheetIdResult.isErr()) {
         yield wrapError({ subType: 'invalid-ballot-sheet-id' });
         return;
       }
@@ -188,18 +191,23 @@ async function* castVoteRecordGenerator(
       const imageFilePaths = ballotImageLocations.map((location) =>
         path.join(castVoteRecordDirectoryPath, location)
       ) as [string, string];
-      const layoutFilePaths = ballotImageLocations.map((location) =>
-        path.join(
-          castVoteRecordDirectoryPath,
-          `${path.parse(location).name}.layout.json`
-        )
-      ) as [string, string];
+      const layoutFilePaths = isHandMarkedPaperBallot
+        ? (ballotImageLocations.map((location) =>
+            path.join(
+              castVoteRecordDirectoryPath,
+              `${path.parse(location).name}.layout.json`
+            )
+          ) as [string, string])
+        : undefined;
 
       if (!imageFilePaths.every((filePath) => existsSync(filePath))) {
         yield wrapError({ subType: 'image-file-not-found' });
         return;
       }
-      if (!layoutFilePaths.every((filePath) => existsSync(filePath))) {
+      if (
+        layoutFilePaths &&
+        !layoutFilePaths.every((filePath) => existsSync(filePath))
+      ) {
         yield wrapError({ subType: 'layout-file-not-found' });
         return;
       }
@@ -230,17 +238,16 @@ export async function readCastVoteRecordExport(
 ): Promise<
   Result<CastVoteRecordExportContents, ReadCastVoteRecordExportError>
 > {
-  const authenticationResult = await authenticateArtifactUsingSignatureFile({
-    type: 'cast_vote_records',
-    context: 'import',
-    directoryPath: exportDirectoryPath,
-  });
-  if (
-    authenticationResult.isErr() &&
-    !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
-    )
-  ) {
+  const authenticationResult = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+  )
+    ? ok()
+    : await authenticateArtifactUsingSignatureFile({
+        type: 'cast_vote_records',
+        context: 'import',
+        directoryPath: exportDirectoryPath,
+      });
+  if (authenticationResult.isErr()) {
     return err({ type: 'authentication-error' });
   }
 
@@ -256,12 +263,31 @@ export async function readCastVoteRecordExport(
       (batch) => batch['@id']
     )
   );
-  const castVoteRecords = iter(
+  const castVoteRecordIterator = iter(
     castVoteRecordGenerator(exportDirectoryPath, batchIds)
   );
 
   return ok({
     castVoteRecordExportMetadata,
-    castVoteRecords,
+    castVoteRecordIterator,
   });
+}
+
+/**
+ * Determines whether or not a cast vote record report was generated on a machine in test mode
+ */
+export function isTestReport(
+  castVoteRecordReport: Omit<CVR.CastVoteRecordReport, 'CVR'>
+): boolean {
+  const containsOtherReportType = Boolean(
+    castVoteRecordReport.ReportType?.some(
+      (reportType) => reportType === CVR.ReportType.Other
+    )
+  );
+  const otherReportTypeContainsTest = Boolean(
+    castVoteRecordReport.OtherReportType?.split(',').includes(
+      TEST_OTHER_REPORT_TYPE
+    )
+  );
+  return containsOtherReportType && otherReportTypeContainsTest;
 }

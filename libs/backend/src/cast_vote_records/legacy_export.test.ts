@@ -28,8 +28,8 @@ import {
   exportCastVoteRecordReportToUsbDrive,
   getCastVoteRecordReportStream,
   InvalidSheetFoundError,
-  ResultSheet,
 } from './legacy_export';
+import { ResultSheet } from './export';
 
 jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
   ...jest.requireActual('@votingworks/auth'),

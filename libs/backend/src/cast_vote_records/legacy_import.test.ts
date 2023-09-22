@@ -6,14 +6,12 @@ import { rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import {
   getCastVoteRecordReportImport,
-  isTestReport,
   validateCastVoteRecordReportDirectoryStructure,
 } from './legacy_import';
 import {
   CVR_BALLOT_IMAGES_SUBDIRECTORY,
   CVR_BALLOT_LAYOUTS_SUBDIRECTORY,
 } from './legacy_export';
-import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
 
 const cdfCvrReport =
   electionGridLayoutNewHampshireAmherstFixtures.castVoteRecordReport;
@@ -160,43 +158,5 @@ describe('validateCastVoteRecordReportDirectoryStructure', () => {
       await validateCastVoteRecordReportDirectoryStructure(directoryPath);
     expect(validationResult.isErr()).toBeTruthy();
     expect(validationResult.err()).toMatchObject({ type: 'invalid-directory' });
-  });
-});
-
-describe('isTestReport', () => {
-  test('when test', () => {
-    expect(
-      isTestReport({
-        '@type': 'CVR.CastVoteRecordReport',
-        ReportType: [
-          CVR.ReportType.OriginatingDeviceExport,
-          CVR.ReportType.Other,
-        ],
-        OtherReportType: TEST_OTHER_REPORT_TYPE,
-        GeneratedDate: Date.now().toString(),
-        GpUnit: [],
-        Election: [],
-        ReportGeneratingDeviceIds: [],
-        ReportingDevice: [],
-        Version: CVR.CastVoteRecordVersion.v1_0_0,
-        vxBatch: [],
-      })
-    ).toBeTruthy();
-  });
-
-  test('when not test', () => {
-    expect(
-      isTestReport({
-        '@type': 'CVR.CastVoteRecordReport',
-        ReportType: [CVR.ReportType.OriginatingDeviceExport],
-        GeneratedDate: Date.now().toString(),
-        GpUnit: [],
-        Election: [],
-        ReportGeneratingDeviceIds: [],
-        ReportingDevice: [],
-        Version: CVR.CastVoteRecordVersion.v1_0_0,
-        vxBatch: [],
-      })
-    ).toBeFalsy();
   });
 });
