@@ -3,15 +3,15 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { assert, find, typedAs } from '@votingworks/basics';
+import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import {
   CVR,
   Tabulation,
-  safeParse,
   writeInCandidate,
   YesNoContest,
+  safeParseJson,
 } from '@votingworks/types';
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { GroupSpecifier } from '@votingworks/types/src/tabulation';
 import {
@@ -37,47 +37,59 @@ import {
   getScannedBallotCount,
   getHmpbBallotCount,
 } from './tabulation';
-import { CAST_VOTE_RECORD_REPORT_FILENAME } from '../filenames';
 import {
   convertCastVoteRecordVotesToTabulationVotes,
   getCurrentSnapshot,
 } from '../cast_vote_records';
 
-/**
- * For testing with small cast vote record files only.
- */
-function loadCastVoteRecordsFromReport(
-  directoryPath: string
-): Tabulation.CastVoteRecord[] {
-  const cvrReport = safeParse(
-    CVR.CastVoteRecordReportSchema,
-    JSON.parse(
-      readFileSync(
-        join(directoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
-      ).toString()
-    )
-  ).unsafeUnwrap();
+function castVoteRecordToTabulationCastVoteRecord(
+  castVoteRecord: CVR.CVR
+): Tabulation.CastVoteRecord {
+  return {
+    ballotStyleId: castVoteRecord.BallotStyleId,
+    batchId: castVoteRecord.BatchId,
+    card: castVoteRecord.BallotSheetId
+      ? // eslint-disable-next-line vx/gts-safe-number-parse
+        { type: 'hmpb', sheetNumber: Number(castVoteRecord.BallotSheetId) }
+      : { type: 'bmd' },
+    partyId: castVoteRecord.PartyIds?.[0],
+    precinctId: castVoteRecord.BallotStyleUnitId,
+    scannerId: castVoteRecord.CreatingDeviceId,
+    votes: convertCastVoteRecordVotesToTabulationVotes(
+      assertDefined(getCurrentSnapshot(castVoteRecord))
+    ),
+    votingMethod: castVoteRecord.vxBallotType,
+  };
+}
 
-  const cvrs: Tabulation.CastVoteRecord[] = [];
-  for (const cvr of cvrReport.CVR!) {
-    cvrs.push({
-      ballotStyleId: cvr.BallotStyleId,
-      batchId: cvr.BatchId,
-      scannerId: cvr.CreatingDeviceId,
-      partyId: cvr.PartyIds?.[0],
-      precinctId: cvr.BallotStyleUnitId,
-      votingMethod: cvr.vxBallotType as Tabulation.VotingMethod,
-      card: cvr.BallotSheetId
-        ? // eslint-disable-next-line vx/gts-safe-number-parse
-          { type: 'hmpb', sheetNumber: Number(cvr.BallotSheetId) }
-        : { type: 'bmd' },
-      votes: convertCastVoteRecordVotesToTabulationVotes(
-        getCurrentSnapshot(cvr)!
+function readCastVoteRecordExport(
+  exportDirectoryPath: string
+): Tabulation.CastVoteRecord[] {
+  const castVoteRecordIds = readdirSync(exportDirectoryPath, {
+    withFileTypes: true,
+  })
+    .filter((entry) => entry.isDirectory())
+    .map((directory) => directory.name)
+    .sort();
+
+  const castVoteRecords: CVR.CVR[] = [];
+  for (const castVoteRecordId of castVoteRecordIds) {
+    const castVoteRecordDirectoryPath = join(
+      exportDirectoryPath,
+      castVoteRecordId
+    );
+    const castVoteRecordReport = safeParseJson(
+      readFileSync(
+        join(castVoteRecordDirectoryPath, 'cast-vote-record-report.json'),
+        'utf-8'
       ),
-    });
+      CVR.CastVoteRecordReportSchema
+    ).unsafeUnwrap();
+    const castVoteRecord = assertDefined(castVoteRecordReport.CVR?.[0]);
+    castVoteRecords.push(castVoteRecord);
   }
 
-  return cvrs;
+  return castVoteRecords.map(castVoteRecordToTabulationCastVoteRecord);
 }
 
 test('getEmptyElectionResult', () => {
@@ -617,8 +629,8 @@ test('extractGroupSpecifier', () => {
 
 describe('tabulateCastVoteRecords', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
-  const cvrs = loadCastVoteRecordsFromReport(
-    electionTwoPartyPrimaryFixtures.castVoteRecordReport.asDirectoryPath()
+  const cvrs: Tabulation.CastVoteRecord[] = readCastVoteRecordExport(
+    electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath()
   );
 
   test('without grouping', async () => {
@@ -989,7 +1001,7 @@ describe('tabulateCastVoteRecords', () => {
       Object.values(resultsByMethodAndPrecinct).map((results) =>
         getBallotCount(results.cardCounts)
       )
-    ).toEqual([1, 0, 0, 0]);
+    ).toEqual([0, 0, 0, 1]);
 
     // keys should be ordered as the groups were passed in
     expect(Object.keys(resultsByMethodAndPrecinct)).toEqual([
