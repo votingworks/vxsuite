@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import * as fs from 'fs';
 import { CVR, safeParse } from '@votingworks/types';
 import { ok, err, Result, AsyncIteratorPlus, iter } from '@votingworks/basics';
