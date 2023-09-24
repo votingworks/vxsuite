@@ -20,7 +20,7 @@ export function asDirectoryPath(): string {
   const tmpDir = fs.mkdtempSync(tmpdir() + sep);
   const resolved = resolve(
     __dirname,
-    '../../../../data/electionGridLayoutNewHampshireAmherst/cvr-files/TEST__machine_000__25_ballots__2023-04-13_14-23-38'
+    '../../../data/electionTwoPartyPrimary/castVoteRecords'
   );
   fs.cpSync(resolved, tmpDir, { recursive: true });
   copiedDirectories.push(tmpDir);
