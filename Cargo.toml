@@ -1,11 +1,12 @@
 [workspace]
 resolver = "2"
 members = [
-  "libs/ballot-interpreter",
-  "libs/logging",
-  "libs/types-rs",
   "apps/mark-scan/accessible-controller",
   "apps/mark-scan/pat-device-input",
+  "libs/ballot-interpreter",
+  "libs/logging",
+  "libs/pdi-rs",
+  "libs/types-rs",
 ]
 
 [workspace.dependencies]

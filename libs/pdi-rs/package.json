@@ -1,0 +1,34 @@
+{
+  "name": "@votingworks/pdi-rs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scanner interface for the PDI PageScan 5",
+  "license": "AGPL-3.0",
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "main": "build/index.js",
+  "types": "build/index.d.js",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "cargo build",
+    "clean": "cargo clean",
+    "lint": "cargo fmt -- --check && cargo clippy -- -D warnings",
+    "pre-commit": "lint-staged",
+    "test": "cargo test"
+  },
+  "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --quiet --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "packageManager": "pnpm@8.1.0"
+}
