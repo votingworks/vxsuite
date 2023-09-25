@@ -1,0 +1,19 @@
+[package]
+name = "pdi-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.75"
+chrono = "0.4.31"
+crossterm = "0.27.0"
+image = { version = "0.24.7", default-features = false, features = [
+    "bmp",
+    "jpeg",
+] }
+lazy_static = "1.4.0"
+ratatui = "0.23.0"
+rayon = "1.5.3"
+users = "0.11.0"
