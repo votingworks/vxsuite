@@ -5094,6 +5094,8 @@ importers:
         specifier: 5.2.2
         version: 5.2.2
 
+  libs/pdi-rs: {}
+
   libs/printing:
     dependencies:
       '@votingworks/basics':

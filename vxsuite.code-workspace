@@ -173,6 +173,10 @@
       "path": "libs/custom-scanner"
     },
     {
+      "name": "libs/pdi-rs",
+      "path": "libs/pdi-rs"
+    },
+    {
       "name": "libs/custom-paper-handler",
       "path": "libs/custom-paper-handler"
     },

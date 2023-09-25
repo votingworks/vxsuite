@@ -1,12 +1,13 @@
 [workspace]
 resolver = "2"
 members = [
+  "apps/mark-scan/accessible-controller",
+  "apps/mark-scan/daemon-utils",
+  "apps/mark-scan/pat-device-input",
   "libs/ballot-interpreter",
   "libs/logging",
+  "libs/pdi-rs",
   "libs/types-rs",
-  "apps/mark-scan/accessible-controller",
-  "apps/mark-scan/pat-device-input",
-  "apps/mark-scan/daemon-utils",
 ]
 
 [workspace.dependencies]
