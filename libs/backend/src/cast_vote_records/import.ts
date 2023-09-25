@@ -123,23 +123,24 @@ async function* castVoteRecordGenerator(
       exportDirectoryPath,
       castVoteRecordId
     );
-    const castVoteRecordReport = await fs.readFile(
+    const castVoteRecordReportContents = await fs.readFile(
       path.join(castVoteRecordDirectoryPath, 'cast-vote-record-report.json'),
       'utf-8'
     );
     const parseResult = safeParseJson(
-      castVoteRecordReport,
+      castVoteRecordReportContents,
       CVR.CastVoteRecordReportSchema
     );
     if (parseResult.isErr()) {
       yield wrapError({ subType: 'parse-error' });
       return;
     }
-    if (parseResult.ok().CVR?.length !== 1) {
+    const castVoteRecordReport = parseResult.ok();
+    if (castVoteRecordReport.CVR?.length !== 1) {
       yield wrapError({ subType: 'parse-error' });
       return;
     }
-    const castVoteRecord = assertDefined(parseResult.ok().CVR?.[0]);
+    const castVoteRecord = assertDefined(castVoteRecordReport.CVR[0]);
 
     if (!batchIds.has(castVoteRecord.BatchId)) {
       yield wrapError({ subType: 'batch-id-not-found' });
