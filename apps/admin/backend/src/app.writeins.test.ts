@@ -1,16 +1,15 @@
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { assert, typedAs } from '@votingworks/basics';
-import { CVR_BALLOT_IMAGES_SUBDIRECTORY } from '@votingworks/backend';
 import { toDataUrl, loadImage, toImageData } from '@votingworks/image-utils';
 import { join } from 'path';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { Id, Rect, CVR as CVRType, safeParse } from '@votingworks/types';
+import { Id, Rect } from '@votingworks/types';
+import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import { buildTestEnvironment, configureMachine } from '../test/app';
 import { WriteInAdjudicationContext, WriteInRecord } from './types';
-import { modifyCastVoteRecordReport } from '../test/utils';
 
 jest.setTimeout(30_000);
 
@@ -40,13 +39,13 @@ afterEach(() => {
 
 test('getWriteInAdjudicationQueue', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   (
     await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordReport.asDirectoryPath(),
+      path: castVoteRecordExport.asDirectoryPath(),
     })
   ).unsafeUnwrap();
 
@@ -60,17 +59,14 @@ test('getWriteInAdjudicationQueue', async () => {
   ).toHaveLength(2);
 
   // add another file, whose write-ins should end up at the end of the queue
-  const secondReportPath = await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    ({ CVR }) => ({
-      CVR: CVR.map((unparsed) => {
-        const cvr = safeParse(CVRType.CVRSchema, unparsed).unsafeUnwrap();
-        return {
-          ...cvr,
-          UniqueId: `x-${cvr.UniqueId}`,
-        };
+  const secondReportPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (castVoteRecord) => ({
+        ...castVoteRecord,
+        UniqueId: `x-${castVoteRecord.UniqueId}`,
       }),
-    })
+    }
   );
   (
     await apiClient.addCastVoteRecordFile({
@@ -85,13 +81,13 @@ test('getWriteInAdjudicationQueue', async () => {
 
 test('getWriteInAdjudicationQueueMetadata', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   (
     await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordReport.asDirectoryPath(),
+      path: castVoteRecordExport.asDirectoryPath(),
     })
   ).unsafeUnwrap();
 
@@ -123,13 +119,13 @@ test('getWriteInAdjudicationQueueMetadata', async () => {
 
 test('adjudicateWriteIn', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   (
     await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordReport.asDirectoryPath(),
+      path: castVoteRecordExport.asDirectoryPath(),
     })
   ).unsafeUnwrap();
 
@@ -292,12 +288,11 @@ test('adjudicateWriteIn', async () => {
 
 test('getWriteInAdjudicationContext', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, manualCastVoteRecordReportSingle } =
+  const { electionDefinition, manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
-  const reportDirectoryPath =
-    manualCastVoteRecordReportSingle.asDirectoryPath();
+  const reportDirectoryPath = manualCastVoteRecordExport.asDirectoryPath();
   (
     await apiClient.addCastVoteRecordFile({
       path: reportDirectoryPath,
@@ -406,12 +401,11 @@ test('getWriteInAdjudicationContext', async () => {
 
 test('getWriteInImageView', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, manualCastVoteRecordReportSingle } =
+  const { electionDefinition, manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
-  const reportDirectoryPath =
-    manualCastVoteRecordReportSingle.asDirectoryPath();
+  const reportDirectoryPath = manualCastVoteRecordExport.asDirectoryPath();
   (
     await apiClient.addCastVoteRecordFile({
       path: reportDirectoryPath,
@@ -467,9 +461,8 @@ test('getWriteInImageView', async () => {
   const expectedImage = await loadImage(
     join(
       reportDirectoryPath,
-      CVR_BALLOT_IMAGES_SUBDIRECTORY,
-      '378f6a69-62d3-4184-a1a7-3a5d90083e21',
-      'a6f30699-8d95-462c-b1d2-fc078048f760-front.jpeg-864a2854-ee26-4223-8097-9633b7bed096-normalized.jpg'
+      '864a2854-ee26-4223-8097-9633b7bed096',
+      '864a2854-ee26-4223-8097-9633b7bed096-front.jpg'
     )
   );
   const expectedImageUrl = toDataUrl(
@@ -507,13 +500,13 @@ test('getWriteInImageView', async () => {
 
 test('getFirstPendingWriteInId', async () => {
   const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   (
     await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordReport.asDirectoryPath(),
+      path: castVoteRecordExport.asDirectoryPath(),
     })
   ).unsafeUnwrap();
 

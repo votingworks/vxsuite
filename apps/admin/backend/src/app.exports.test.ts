@@ -42,7 +42,7 @@ afterEach(() => {
 });
 
 test('batch export', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
 
   const { apiClient, auth, logger } = buildTestEnvironment();
@@ -50,7 +50,7 @@ test('batch export', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -86,7 +86,7 @@ test('batch export', async () => {
 });
 
 test('sems export', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
@@ -94,7 +94,7 @@ test('sems export', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 

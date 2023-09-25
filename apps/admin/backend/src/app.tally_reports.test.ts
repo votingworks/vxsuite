@@ -42,7 +42,7 @@ afterEach(() => {
 });
 
 test('general, full election, write in adjudication', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
@@ -50,7 +50,7 @@ test('general, full election, write in adjudication', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -161,7 +161,7 @@ test('general, full election, write in adjudication', async () => {
 });
 
 test('general, reports by voting method, manual data', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election } = electionDefinition;
 
@@ -170,7 +170,7 @@ test('general, reports by voting method, manual data', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -292,7 +292,7 @@ test('general, reports by voting method, manual data', async () => {
 });
 
 test('primary, full election', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
@@ -301,7 +301,7 @@ test('primary, full election', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -355,7 +355,7 @@ test('primary, full election', async () => {
 });
 
 test('primary, full election, with manual results', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
@@ -364,7 +364,7 @@ test('primary, full election, with manual results', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -410,7 +410,7 @@ test('primary, full election, with manual results', async () => {
 });
 
 test('primary, reports by ballot style', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
@@ -418,7 +418,7 @@ test('primary, reports by ballot style', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -469,7 +469,7 @@ test('primary, reports by ballot style', async () => {
 });
 
 test('primary, reports grouped by voting method, filtered by precinct', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth } = buildTestEnvironment();
@@ -477,7 +477,7 @@ test('primary, reports grouped by voting method, filtered by precinct', async ()
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
