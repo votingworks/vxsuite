@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["libs/ballot-interpreter", "libs/types-rs"]
+members = ["libs/ballot-interpreter", "libs/pdi-rs", "libs/types-rs"]
 
 [workspace.dependencies]
 base64 = "0.21.4"
