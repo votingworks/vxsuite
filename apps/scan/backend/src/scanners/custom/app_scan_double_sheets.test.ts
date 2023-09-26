@@ -129,7 +129,6 @@ test('insert second ballot while first ballot is accepting', async () => {
 });
 
 test('insert second ballot while first ballot needs review', async () => {
-  // const interpretation = needsReviewInterpretation;
   const interpretation: SheetInterpretation = {
     type: 'NeedsReviewSheet',
     reasons: [
