@@ -17,7 +17,6 @@ import {
   screen,
   within,
 } from '../test/react_testing_library';
-import * as GLOBALS from './config/globals';
 
 import { App } from './app';
 
@@ -37,6 +36,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   kiosk = fakeKiosk();
   window.kiosk = kiosk;
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 
 afterEach(() => {
@@ -257,16 +257,9 @@ test('Cardless Voting Flow', async () => {
   apiMock.expectGetInterpretation(mockInterpretation);
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
-  // Reset Ballot is called
-  // Show Verify and Scan Instructions
-  await screen.findByText('You’re Almost Done');
-  expect(
-    screen.queryByText('3. Return the card to a poll worker.')
-  ).toBeFalsy();
+  apiMock.setPaperHandlerState('ejecting_to_rear');
+  await screen.findByText('Casting Ballot');
 
-  // Wait for timeout to return to Insert Card screen
-  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 });
@@ -411,14 +404,9 @@ test('Voter can submit a blank ballot', async () => {
   apiMock.expectGetInterpretation(mockInterpretation);
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
-  // Reset Ballot is called
-  // Show Verify and Scan Instructions
-  await screen.findByText('You’re Almost Done');
-  expect(screen.queryByText('3. Return the card.')).toBeFalsy();
+  apiMock.setPaperHandlerState('ejecting_to_rear');
+  await screen.findByText('Casting Ballot');
 
-  // Click "Done" to get back to Insert Card screen
-  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  fireEvent.click(screen.getByText('Done'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 });
@@ -635,16 +623,9 @@ test('poll worker must select a precinct first', async () => {
   apiMock.expectGetInterpretation(mockInterpretation);
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
-  // Reset Ballot is called
-  // Show Verify and Scan Instructions
-  await screen.findByText('You’re Almost Done');
-  expect(
-    screen.queryByText('3. Return the card to a poll worker.')
-  ).toBeFalsy();
+  apiMock.setPaperHandlerState('ejecting_to_rear');
+  await screen.findByText('Casting Ballot');
 
-  // Wait for timeout to return to Insert Card screen
-  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
 });

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import {
   ElectionDefinition,
   OptionalElectionDefinition,
@@ -42,7 +42,6 @@ import {
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
-  CastBallotPage,
   useDisplaySettingsManager,
 } from '@votingworks/mark-flow-ui';
 import {
@@ -85,10 +84,10 @@ import { BallotInvalidatedPage } from './pages/ballot_invalidated_page';
 import { BlankPageInterpretationPage } from './pages/blank_page_interpretation_page';
 import { PaperReloadedPage } from './pages/paper_reloaded_page';
 import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
+import { CastingBallotPage } from './pages/casting_ballot_page';
 
 interface UserState {
   votes?: VotesDict;
-  showPostVotingInstructions?: boolean;
 }
 
 interface SharedState {
@@ -128,7 +127,6 @@ export const blankBallotVotes: VotesDict = {};
 
 const initialVoterState: Readonly<UserState> = {
   votes: undefined,
-  showPostVotingInstructions: undefined,
 };
 
 const initialSharedState: Readonly<SharedState> = {
@@ -162,7 +160,7 @@ type AppAction =
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'forceSaveVote' }
-  | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
+  | { type: 'resetBallot' }
   | { type: 'enableLiveMode' }
   | { type: 'toggleLiveMode' }
   | { type: 'updatePollsState'; pollsState: PollsState }
@@ -203,7 +201,6 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         ...initialVoterState,
-        showPostVotingInstructions: action.showPostVotingInstructions,
       };
     case 'enableLiveMode':
       return {
@@ -256,7 +253,6 @@ export function AppRoot({
   reload,
   logger,
 }: Props): JSX.Element | null {
-  const PostVotingInstructionsTimeout = useRef(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
     ballotsPrintedCount,
@@ -264,7 +260,6 @@ export function AppRoot({
     isLiveMode,
     pollsState,
     initializedFromStorage,
-    showPostVotingInstructions,
     votes,
   } = appState;
 
@@ -367,7 +362,6 @@ export function AppRoot({
     (newShowPostVotingInstructions?: boolean) => {
       dispatchAppState({
         type: 'resetBallot',
-        showPostVotingInstructions: newShowPostVotingInstructions,
       });
       history.push('/');
 
@@ -379,33 +373,6 @@ export function AppRoot({
     },
     [history, themeManager]
   );
-
-  const hidePostVotingInstructions = useCallback(() => {
-    clearTimeout(PostVotingInstructionsTimeout.current);
-    endCardlessVoterSessionMutate(undefined, {
-      onSuccess() {
-        resetBallot();
-      },
-    });
-  }, [endCardlessVoterSessionMutate, resetBallot]);
-
-  // Hide Verify and Scan Instructions
-  useEffect(() => {
-    if (showPostVotingInstructions) {
-      PostVotingInstructionsTimeout.current = window.setTimeout(
-        hidePostVotingInstructions,
-        GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS * 1000
-      );
-    }
-    return () => {
-      clearTimeout(PostVotingInstructionsTimeout.current);
-    };
-    /* We don't include hidePostVotingInstructions because it is updated
-     * frequently due to its dependency on auth, which causes this effect to
-     * run/cleanup,clearing the timeout.
-     */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showPostVotingInstructions]);
 
   const unconfigure = useCallback(async () => {
     await storage.clear();
@@ -756,14 +723,6 @@ export function AppRoot({
       );
     }
 
-    if (pollsState === 'polls_open' && showPostVotingInstructions) {
-      return (
-        <CastBallotPage
-          hidePostVotingInstructions={hidePostVotingInstructions}
-        />
-      );
-    }
-
     if (pollsState === 'polls_open') {
       if (
         isCardlessVoterAuth(authStatus) ||
@@ -771,6 +730,17 @@ export function AppRoot({
         (isPollWorkerAuth(authStatus) &&
           stateMachineState === 'waiting_for_invalidated_ballot_confirmation')
       ) {
+        if (
+          stateMachineState === 'ejecting_to_rear' ||
+          stateMachineState === 'resetting_state_machine_after_success' ||
+          // Cardless voter auth is ended in the backend when the voting session ends but the frontend
+          // may have a stale value. Cardless voter auth + 'not_accepting_paper' state means the frontend
+          // is stale, so we want to render the previous loading screen until the frontend auth status updates.
+          stateMachineState === 'not_accepting_paper'
+        ) {
+          return <CastingBallotPage />;
+        }
+
         let ballotContextProviderChild = <Ballot />;
         // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
         // frontend browser routing for flow control and is completely independent of the state machine.
