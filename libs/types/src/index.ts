@@ -8,6 +8,7 @@ export * as EventLogging from './cdf/election-event-logging';
 export * as CVR from './cdf/cast-vote-records';
 export * as BallotDefinition from './cdf/ballot-definition';
 export * from './cdf/ballot-definition/convert';
+export * from './cdf/ballot-definition/fixtures';
 export * from './converter_client';
 export * from './dom';
 export * from './election';
