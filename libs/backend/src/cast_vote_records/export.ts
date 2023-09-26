@@ -36,6 +36,7 @@ import {
   BooleanEnvironmentVariableName,
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
+  getExportedCastVoteRecordIds,
   isFeatureFlagEnabled,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -540,13 +541,10 @@ async function randomlyUpdateCreationTimestamps(
     exportDirectoryPathRelativeToUsbMountPoint
   );
   const castVoteRecordIds = (
-    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
-  )
-    .filter(
-      (entry) =>
-        entry.isDirectory() && entry.name !== options.castVoteRecordIdToIgnore
-    )
-    .map((entry) => entry.name);
+    await getExportedCastVoteRecordIds(exportDirectoryPath)
+  ).filter(
+    (castVoteRecordId) => castVoteRecordId !== options.castVoteRecordIdToIgnore
+  );
 
   if (castVoteRecordIds.length === 0) {
     return;

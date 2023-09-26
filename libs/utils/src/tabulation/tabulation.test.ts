@@ -11,7 +11,7 @@ import {
   YesNoContest,
   safeParseJson,
 } from '@votingworks/types';
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync } from 'fs';
 import { join } from 'path';
 import { GroupSpecifier } from '@votingworks/types/src/tabulation';
 import {
@@ -40,6 +40,7 @@ import {
 import {
   convertCastVoteRecordVotesToTabulationVotes,
   getCurrentSnapshot,
+  getExportedCastVoteRecordIds,
 } from '../cast_vote_records';
 
 function castVoteRecordToTabulationCastVoteRecord(
@@ -62,16 +63,12 @@ function castVoteRecordToTabulationCastVoteRecord(
   };
 }
 
-function readCastVoteRecordExport(
+async function readCastVoteRecordExport(
   exportDirectoryPath: string
-): Tabulation.CastVoteRecord[] {
-  const castVoteRecordIds = readdirSync(exportDirectoryPath, {
-    withFileTypes: true,
-  })
-    .filter((entry) => entry.isDirectory())
-    .map((directory) => directory.name)
-    .sort();
-
+): Promise<Tabulation.CastVoteRecord[]> {
+  const castVoteRecordIds = (
+    await getExportedCastVoteRecordIds(exportDirectoryPath)
+  ).sort();
   const castVoteRecords: CVR.CVR[] = [];
   for (const castVoteRecordId of castVoteRecordIds) {
     const castVoteRecordDirectoryPath = join(
@@ -88,7 +85,6 @@ function readCastVoteRecordExport(
     const castVoteRecord = assertDefined(castVoteRecordReport.CVR?.[0]);
     castVoteRecords.push(castVoteRecord);
   }
-
   return castVoteRecords.map(castVoteRecordToTabulationCastVoteRecord);
 }
 
@@ -629,9 +625,12 @@ test('extractGroupSpecifier', () => {
 
 describe('tabulateCastVoteRecords', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
-  const cvrs: Tabulation.CastVoteRecord[] = readCastVoteRecordExport(
-    electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath()
-  );
+  let cvrs: Tabulation.CastVoteRecord[] = [];
+  beforeAll(async () => {
+    cvrs = await readCastVoteRecordExport(
+      electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath()
+    );
+  });
 
   test('without grouping', async () => {
     // empty election

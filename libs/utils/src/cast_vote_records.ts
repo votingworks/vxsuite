@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import {
   assert,
   err,
@@ -192,4 +193,18 @@ export function castVoteRecordHasValidContestReferences(
   }
 
   return ok();
+}
+
+/**
+ * Returns a list of cast vote record IDs given an export directory path
+ */
+export async function getExportedCastVoteRecordIds(
+  exportDirectoryPath: string
+): Promise<string[]> {
+  const castVoteRecordIds = (
+    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
+  )
+    .filter((entry) => entry.isDirectory())
+    .map((directory) => directory.name);
+  return castVoteRecordIds;
 }

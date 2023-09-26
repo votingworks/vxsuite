@@ -4,6 +4,7 @@ import path from 'path';
 import { computeCastVoteRecordRootHashFromScratch } from '@votingworks/auth';
 import { assertDefined } from '@votingworks/basics';
 import { CVR, safeParseJson } from '@votingworks/types';
+import { getExportedCastVoteRecordIds } from '@votingworks/utils';
 
 import { readCastVoteRecordExportMetadata } from './import';
 
@@ -35,11 +36,9 @@ export async function modifyCastVoteRecordExport(
     recursive: true,
   });
 
-  const castVoteRecordIds = fs
-    .readdirSync(modifiedExportDirectoryPath, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((directory) => directory.name);
-
+  const castVoteRecordIds = await getExportedCastVoteRecordIds(
+    modifiedExportDirectoryPath
+  );
   for (const [i, castVoteRecordId] of [...castVoteRecordIds].sort().entries()) {
     const castVoteRecordDirectoryPath = path.join(
       modifiedExportDirectoryPath,

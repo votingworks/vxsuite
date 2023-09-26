@@ -22,6 +22,7 @@ import {
   BooleanEnvironmentVariableName,
   CastVoteRecordWriteIn,
   getCurrentSnapshot,
+  getExportedCastVoteRecordIds,
   getWriteInsFromCastVoteRecord,
   isCastVoteRecordWriteInValid,
   isFeatureFlagEnabled,
@@ -112,12 +113,8 @@ async function* castVoteRecordGenerator(
     return err({ ...error, type: 'invalid-cast-vote-record' });
   }
 
-  const castVoteRecordIds = (
-    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
-  )
-    .filter((entry) => entry.isDirectory())
-    .map((directory) => directory.name);
-
+  const castVoteRecordIds =
+    await getExportedCastVoteRecordIds(exportDirectoryPath);
   for (const castVoteRecordId of castVoteRecordIds) {
     const castVoteRecordDirectoryPath = path.join(
       exportDirectoryPath,
