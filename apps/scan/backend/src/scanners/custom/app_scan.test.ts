@@ -26,6 +26,7 @@ import {
 import {
   ballotImages,
   simulateScan,
+  waitForContinuousExportToUsbDrive,
   withApp,
 } from '../../../test/helpers/custom_helpers';
 
@@ -121,6 +122,7 @@ test('configure and scan hmpb', async () => {
       });
 
       checkLogs(logger);
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });
@@ -183,6 +185,7 @@ test('configure and scan bmd ballot', async () => {
       });
 
       checkLogs(logger);
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });

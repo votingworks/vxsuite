@@ -1,4 +1,3 @@
-import { sleep } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -46,9 +45,6 @@ test('ejectUsbDrive', async () => {
 });
 
 test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
-  );
   await withApp(
     {},
     async ({ apiClient, mockAuth, mockUsbDrive, mockScanner }) => {
@@ -63,7 +59,6 @@ test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => 
         mountedUsbDriveStatus
       );
       await scanBallot(mockScanner, apiClient, 0);
-      await sleep(500); // Let background continuous export to USB drive finish
       await expect(apiClient.getUsbDriveStatus()).resolves.toEqual(
         mountedUsbDriveStatus
       );
