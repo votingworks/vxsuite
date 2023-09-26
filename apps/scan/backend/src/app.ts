@@ -10,20 +10,17 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName,
   isElectionManagerAuth,
-  isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
 import {
   createUiStringsApi,
   ExportDataError,
-  exportCastVoteRecordReportToUsbDrive,
-  ExportCastVoteRecordReportToUsbDriveError,
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
+  ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/backend';
 import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -103,14 +100,11 @@ export function buildApi(
       const usbDriveStatus = await usbDrive.status();
       return {
         ...usbDriveStatus,
-        doesUsbDriveRequireCastVoteRecordSync: isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
-        )
-          ? (await doesUsbDriveRequireCastVoteRecordSyncFn(
-              store,
-              usbDriveStatus
-            )) || undefined
-          : undefined,
+        doesUsbDriveRequireCastVoteRecordSync:
+          (await doesUsbDriveRequireCastVoteRecordSyncFn(
+            store,
+            usbDriveStatus
+          )) || undefined,
       };
     },
 
@@ -278,61 +272,28 @@ export function buildApi(
 
     async exportCastVoteRecordsToUsbDrive(input: {
       mode: 'full_export' | 'polls_closing';
-    }): Promise<Result<void, ExportCastVoteRecordReportToUsbDriveError>> {
-      if (
-        isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
-        )
-      ) {
-        switch (input.mode) {
-          case 'full_export': {
-            return exportCastVoteRecordsToUsbDrive(
-              store,
-              usbDrive,
-              store.forEachResultSheet(),
-              { scannerType: 'precinct', isFullExport: true }
-            );
-          }
-          case 'polls_closing': {
-            return exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
-              scannerType: 'precinct',
-              arePollsClosing: true,
-            });
-          }
-          /* c8 ignore start: Compile-time check for completeness */
-          default: {
-            throwIllegalValue(input.mode);
-          }
-          /* c8 ignore stop */
+    }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+      switch (input.mode) {
+        case 'full_export': {
+          return exportCastVoteRecordsToUsbDrive(
+            store,
+            usbDrive,
+            store.forEachResultSheet(),
+            { scannerType: 'precinct', isFullExport: true }
+          );
         }
-      }
-
-      const electionDefinition = store.getElectionDefinition();
-      assert(electionDefinition);
-
-      const exportResult = await exportCastVoteRecordReportToUsbDrive(
-        {
-          electionDefinition,
-          isTestMode: store.getTestMode(),
-          ballotsCounted: store.getBallotsCounted(),
-          batchInfo: store.getBatches(),
-          getResultSheetGenerator: store.forEachResultSheet.bind(store),
-          definiteMarkThreshold: store.getMarkThresholds().definite,
-          disableOriginalSnapshots: isFeatureFlagEnabled(
-            BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
-          ),
-        },
-        async () => {
-          const drive = await usbDrive.status();
-          return drive.status === 'mounted' ? [drive] : [];
+        case 'polls_closing': {
+          return exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
+            scannerType: 'precinct',
+            arePollsClosing: true,
+          });
         }
-      );
-
-      if (exportResult.isOk()) {
-        store.setCvrsBackedUp();
+        /* c8 ignore start: Compile-time check for completeness */
+        default: {
+          throwIllegalValue(input.mode);
+        }
+        /* c8 ignore stop */
       }
-
-      return exportResult;
     },
 
     async getScannerResultsByParty(): Promise<

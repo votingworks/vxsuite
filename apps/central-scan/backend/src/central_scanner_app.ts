@@ -5,7 +5,6 @@ import {
 } from '@votingworks/auth';
 import { Result, assert, ok } from '@votingworks/basics';
 import {
-  exportCastVoteRecordReportToUsbDrive,
   Exporter,
   Usb,
   readBallotPackageFromUsb,
@@ -21,10 +20,8 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName,
   getContestsForBallotPage,
   isElectionManagerAuth,
-  isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
@@ -354,29 +351,12 @@ export function buildCentralScannerApp({
       return;
     }
 
-    const exportResult = isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
-    )
-      ? await exportCastVoteRecordsToUsbDrive(
-          store,
-          usb,
-          store.forEachResultSheet(),
-          { scannerType: 'central' }
-        )
-      : await exportCastVoteRecordReportToUsbDrive(
-          {
-            electionDefinition,
-            isTestMode: store.getTestMode(),
-            ballotsCounted: store.getBallotsCounted(),
-            batchInfo: store.getBatches(),
-            getResultSheetGenerator: store.forEachResultSheet.bind(store),
-            definiteMarkThreshold: store.getMarkThresholds().definite,
-            disableOriginalSnapshots: isFeatureFlagEnabled(
-              BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
-            ),
-          },
-          usb.getUsbDrives
-        );
+    const exportResult = await exportCastVoteRecordsToUsbDrive(
+      store,
+      usb,
+      store.forEachResultSheet(),
+      { scannerType: 'central' }
+    );
 
     if (exportResult.isErr()) {
       response.status(500).json({
