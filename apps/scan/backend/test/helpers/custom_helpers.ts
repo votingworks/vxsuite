@@ -3,7 +3,7 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { Result, deferred, ok } from '@votingworks/basics';
+import { Result, deferred, ok, sleep } from '@votingworks/basics';
 import {
   CustomScanner,
   ErrorCode,
@@ -209,6 +209,10 @@ export function simulateScan(
   });
 }
 
+export async function waitForContinuousExportToUsbDrive(): Promise<void> {
+  return sleep(1000);
+}
+
 export async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
   apiClient: grout.Client<Api>,
@@ -250,4 +254,6 @@ export async function scanBallot(
     ballotsCounted: initialBallotsCounted + 1,
     canUnconfigure: true,
   });
+
+  await waitForContinuousExportToUsbDrive();
 }
