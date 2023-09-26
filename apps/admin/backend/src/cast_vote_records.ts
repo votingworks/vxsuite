@@ -107,7 +107,10 @@ export async function listCastVoteRecordExportsOnUsbDrive(
   usbDrive: UsbDrive,
   electionDefinition: ElectionDefinition
 ): Promise<
-  Result<CastVoteRecordFileMetadata[], 'no-usb-drive' | 'permission-denied'>
+  Result<
+    CastVoteRecordFileMetadata[],
+    'found-file-instead-of-directory' | 'no-usb-drive' | 'permission-denied'
+  >
 > {
   const { election, electionHash } = electionDefinition;
 
@@ -121,13 +124,15 @@ export async function listCastVoteRecordExportsOnUsbDrive(
   if (listDirectoryResult.isErr()) {
     const errorType = listDirectoryResult.err().type;
     switch (errorType) {
-      case 'no-entity':
-      case 'not-directory': {
+      case 'no-entity': {
         return ok([]);
       }
       case 'no-usb-drive':
       case 'usb-drive-not-mounted': {
         return err('no-usb-drive');
+      }
+      case 'not-directory': {
+        return err('found-file-instead-of-directory');
       }
       case 'permission-denied': {
         return err('permission-denied');
