@@ -3,6 +3,7 @@ import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
+import * as Cdf from './cdf/ballot-definition';
 import {
   BallotPaperSize,
   Candidate,
@@ -220,20 +221,24 @@ export function safeParseVxfElection(
  * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
  * string, will attempt to parse it as JSON first.
  */
-export function safeParseElection(
-  value: unknown
-): Result<Election, Error | SyntaxError> {
+function safeParseElectionExtended(value: unknown): Result<
+  {
+    vxfElection: Election;
+    cdfElection?: Cdf.BallotDefinition;
+  },
+  Error | SyntaxError
+> {
   if (typeof value === 'string') {
     const parsed = safeParseJson(value);
     if (parsed.isErr()) {
       return parsed;
     }
-    return safeParseElection(parsed.ok());
+    return safeParseElectionExtended(parsed.ok());
   }
 
   const vxfResult = safeParseVxfElection(value);
   if (vxfResult.isOk()) {
-    return vxfResult;
+    return ok({ vxfElection: vxfResult.ok() });
   }
 
   const cdfResult = safeParseCdfBallotDefinition(value);
@@ -253,18 +258,54 @@ export function safeParseElection(
 }
 
 /**
+ * Parses `value` as an `Election` object. Supports both VXF and CDF. If given a
+ * string, will attempt to parse it as JSON first.
+ */
+export function safeParseElection(
+  value: unknown
+): Result<Election, Error | SyntaxError> {
+  const result = safeParseElectionExtended(value);
+
+  if (result.isErr()) {
+    return err(result.err());
+  }
+
+  return ok(result.ok().vxfElection);
+}
+
+export interface ExtendedElectionDefinition {
+  cdfElection?: Cdf.BallotDefinition;
+  electionDefinition: ElectionDefinition;
+}
+
+/**
+ * Parses `value` as a JSON `Election`, computing the election hash if the
+ * result is `Ok`.
+ */
+export function safeParseElectionDefinitionExtended(
+  value: string
+): Result<ExtendedElectionDefinition, z.ZodError | SyntaxError> {
+  const result = safeParseElectionExtended(value);
+  return result.isErr()
+    ? result
+    : ok({
+        cdfElection: result.ok().cdfElection,
+        electionDefinition: {
+          election: result.ok().vxfElection,
+          electionData: value,
+          electionHash: sha256(value),
+        },
+      });
+}
+
+/**
  * Parses `value` as a JSON `Election`, computing the election hash if the
  * result is `Ok`.
  */
 export function safeParseElectionDefinition(
   value: string
 ): Result<ElectionDefinition, z.ZodError | SyntaxError> {
-  const result = safeParseElection(value);
-  return result.isErr()
-    ? result
-    : ok({
-        election: result.ok(),
-        electionData: value,
-        electionHash: sha256(value),
-      });
+  const result = safeParseElectionDefinitionExtended(value);
+
+  return result.isErr() ? result : ok(result.ok().electionDefinition);
 }

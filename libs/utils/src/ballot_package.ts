@@ -1,8 +1,13 @@
+import _ from 'lodash';
+
 import {
   BallotPackage,
   BallotPackageFileName,
   DEFAULT_SYSTEM_SETTINGS,
-  safeParseElectionDefinition,
+  UiStringsPackage,
+  UiStringsPackageSchema,
+  safeParseElectionDefinitionExtended,
+  safeParseJson,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
@@ -15,6 +20,7 @@ import {
   getEntries,
   readTextEntry,
 } from './file_reading';
+import { extractCdfUiStrings } from './extract_cdf_ui_strings';
 
 export async function readBallotPackageFromBuffer(
   source: Buffer
@@ -28,6 +34,8 @@ export async function readBallotPackageFromBuffer(
     zipName
   );
 
+  // System Settings:
+
   let systemSettingsData = JSON.stringify(DEFAULT_SYSTEM_SETTINGS);
 
   const systemSettingsEntry = maybeGetFileByName(
@@ -38,14 +46,39 @@ export async function readBallotPackageFromBuffer(
     systemSettingsData = await readTextEntry(systemSettingsEntry);
   }
 
-  const electionData = await readTextEntry(electionEntry);
+  // Election Definition:
 
-  // TODO(kofi): Load metadata, translations, audio from zip file.
+  const electionData = await readTextEntry(electionEntry);
+  const { cdfElection, electionDefinition } =
+    safeParseElectionDefinitionExtended(electionData).unsafeUnwrap();
+
+  // UI Strings:
+
+  const uiStrings: UiStringsPackage = {};
+  const appStringsEntry = maybeGetFileByName(
+    entries,
+    BallotPackageFileName.APP_STRINGS
+  );
+  if (appStringsEntry) {
+    const appStrings = safeParseJson(
+      await readTextEntry(appStringsEntry),
+      UiStringsPackageSchema
+    ).unsafeUnwrap();
+
+    _.merge(uiStrings, appStrings);
+  }
+  if (cdfElection) {
+    const electionStrings = extractCdfUiStrings(cdfElection);
+    _.merge(uiStrings, electionStrings);
+  }
+
+  // TODO(kofi): Load metadata, audio key, and audio clips from zip file.
+  // TODO(kofi): Verify package version matches machine build version.
 
   return {
-    electionDefinition:
-      safeParseElectionDefinition(electionData).unsafeUnwrap(),
+    electionDefinition,
     systemSettings: safeParseSystemSettings(systemSettingsData).unsafeUnwrap(),
+    uiStrings,
   };
 }
 

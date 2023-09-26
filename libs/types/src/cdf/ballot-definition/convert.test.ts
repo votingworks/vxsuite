@@ -80,6 +80,9 @@ test('safeParseCdfBallotDefinition', () => {
   `);
 
   expect(safeParseCdfBallotDefinition(testCdfBallotDefinition)).toEqual(
-    ok(normalizeVxf(testVxfElection))
+    ok({
+      vxfElection: normalizeVxf(testVxfElection),
+      cdfElection: testCdfBallotDefinition,
+    })
   );
 });
