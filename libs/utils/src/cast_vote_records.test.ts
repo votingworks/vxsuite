@@ -1,7 +1,12 @@
+import fs from 'fs';
+import path from 'path';
+import { dirSync } from 'tmp';
 import { CVR } from '@votingworks/types';
+
 import {
   convertCastVoteRecordVotesToTabulationVotes,
   getCurrentSnapshot,
+  getExportedCastVoteRecordIds,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
 } from './cast_vote_records';
@@ -22,6 +27,16 @@ const mockCastVoteRecord: CVR.CVR = {
   ],
   CVRSnapshot: [],
 };
+
+let tempDirectoryPath: string;
+
+beforeEach(() => {
+  tempDirectoryPath = dirSync().name;
+});
+
+afterEach(() => {
+  fs.rmSync(tempDirectoryPath, { recursive: true });
+});
 
 describe('getCurrentSnapshot', () => {
   test('happy path', () => {
@@ -373,4 +388,16 @@ test('isBmdWriteIn', () => {
       WriteInImage: { '@type': 'CVR.ImageData', Location: 'file:' },
     })
   ).toEqual(false);
+});
+
+test('getExportedCastVoteRecordIds', async () => {
+  const exportDirectoryPath = tempDirectoryPath;
+  fs.mkdirSync(path.join(exportDirectoryPath, '1'));
+  fs.mkdirSync(path.join(exportDirectoryPath, '2'));
+  fs.mkdirSync(path.join(exportDirectoryPath, '3'));
+  fs.writeFileSync(path.join(exportDirectoryPath, '0'), '');
+
+  const castVoteRecordIds =
+    await getExportedCastVoteRecordIds(exportDirectoryPath);
+  expect([...castVoteRecordIds].sort()).toEqual(['1', '2', '3']);
 });

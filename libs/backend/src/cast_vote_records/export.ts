@@ -21,6 +21,7 @@ import {
   BallotIdSchema,
   BallotPageLayout,
   BatchInfo,
+  CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CVR,
   ElectionDefinition,
@@ -36,6 +37,7 @@ import {
   BooleanEnvironmentVariableName,
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
+  getExportedCastVoteRecordIds,
   isFeatureFlagEnabled,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -354,7 +356,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
 
   const castVoteRecordFilesToExport: ReadableFile[] = [
     readableFileFromData(
-      'cast-vote-record-report.json',
+      CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT,
       JSON.stringify(castVoteRecordReport)
     ),
     readableFileFromDisk(frontImageFilePath),
@@ -438,7 +440,7 @@ async function exportMetadataFileToUsbDrive(
 
   const exportResult = await exporter.exportDataToUsbDrive(
     exportDirectoryPathRelativeToUsbMountPoint,
-    'metadata.json',
+    CastVoteRecordExportFileName.METADATA,
     metadataFileContents
   );
   if (exportResult.isErr()) {
@@ -540,13 +542,10 @@ async function randomlyUpdateCreationTimestamps(
     exportDirectoryPathRelativeToUsbMountPoint
   );
   const castVoteRecordIds = (
-    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
-  )
-    .filter(
-      (entry) =>
-        entry.isDirectory() && entry.name !== options.castVoteRecordIdToIgnore
-    )
-    .map((entry) => entry.name);
+    await getExportedCastVoteRecordIds(exportDirectoryPath)
+  ).filter(
+    (castVoteRecordId) => castVoteRecordId !== options.castVoteRecordIdToIgnore
+  );
 
   if (castVoteRecordIds.length === 0) {
     return;

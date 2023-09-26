@@ -5,27 +5,24 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
-import { CVR as CVRType, safeParse } from '@votingworks/types';
-import path, { basename, join } from 'path';
-import * as fs from 'fs';
-import { CVR_BALLOT_LAYOUTS_SUBDIRECTORY } from '@votingworks/backend';
+import { CVR, CVR as CVRType } from '@votingworks/types';
+import { basename } from 'path';
 import { vxBallotType } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
   BooleanEnvironmentVariableName,
-  CAST_VOTE_RECORD_REPORT_FILENAME,
   getFeatureFlagMock,
   getSheetCount,
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
 import { Client } from '@votingworks/grout';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
+import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import {
   buildTestEnvironment,
   configureMachine,
   mockCastVoteRecordFileTree,
   mockElectionManagerAuth,
 } from '../test/app';
-import { modifyCastVoteRecordReport } from '../test/utils';
 import { Api } from './app';
 
 jest.setTimeout(60_000);
@@ -57,17 +54,20 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
-const { electionDefinition, castVoteRecordReport } =
+const { electionDefinition, castVoteRecordExport } =
   electionGridLayoutNewHampshireAmherstFixtures;
 
 async function getOfficialReportPath(): Promise<string> {
-  return await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    ({ CVR }) => ({
-      ReportType: [CVRType.ReportType.OriginatingDeviceExport],
-      OtherReportType: undefined,
-      CVR: CVR.take(10), // speeds up tests
-    })
+  return await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordReportMetadataModifier: (castVoteRecordReportMetadata) => ({
+        ...castVoteRecordReportMetadata,
+        OtherReportType: undefined,
+        ReportType: [CVRType.ReportType.OriginatingDeviceExport],
+      }),
+      numCastVoteRecordsToKeep: 10,
+    }
   );
 }
 
@@ -89,21 +89,29 @@ test('happy path - mock election flow', async () => {
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
   usbDrive.status.expectRepeatedCallsWith().resolves({ status: 'no_drive' });
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.CvrFilesReadFromUsb,
+    'system',
+    {
+      disposition: 'failure',
+      message: 'Error listing cast vote record exports on USB drive.',
+      reason: 'no-usb-drive',
+    }
+  );
 
   // insert a USB drive
-  const testReportDirectoryName =
-    'TEST__machine_0000__184_ballots__2022-07-01_11-21-41';
-  const testExportTimestamp = '2022-07-01T11:21:41.000Z';
+  const testExportDirectoryName = 'TEST__machine_0000__2022-09-24_18-00-00';
+  const testExportTimestamp = '2023-09-24T18:28:13.913Z';
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
-      [testReportDirectoryName]: castVoteRecordReport.asDirectoryPath(),
+      [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
     })
   );
   const availableCastVoteRecordFiles =
     await apiClient.listCastVoteRecordFilesOnUsb();
   expect(availableCastVoteRecordFiles).toMatchObject([
     expect.objectContaining({
-      name: testReportDirectoryName,
+      name: testExportDirectoryName,
       cvrCount: 184,
       exportTimestamp: new Date(testExportTimestamp),
       isTestModeResults: true,
@@ -115,7 +123,7 @@ test('happy path - mock election flow', async () => {
     'system',
     {
       disposition: 'success',
-      message: 'Found 1 CVR files on USB drive, user shown option to load.',
+      message: 'Found 1 cast vote record export(s) on USB drive.',
     }
   );
 
@@ -130,26 +138,27 @@ test('happy path - mock election flow', async () => {
     alreadyPresent: 0,
     newlyAdded: 184,
     fileMode: 'test',
-    fileName: testReportDirectoryName,
+    fileName: testExportDirectoryName,
   });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.CvrLoaded,
     'election_manager',
     {
       disposition: 'success',
-      filename: testReportDirectoryName,
-      message: expect.anything(),
+      exportDirectoryPath: expect.stringMatching(testExportDirectoryName),
       numberOfBallotsImported: 184,
-      duplicateBallotsIgnored: 0,
+      numberOfDuplicateBallotsIgnored: 0,
+      result: 'Cast vote records imported.',
     }
   );
+
   removeUsbDrive();
 
   // file and cast vote records should now be present
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([
     expect.objectContaining({
       exportTimestamp: testExportTimestamp,
-      filename: testReportDirectoryName,
+      filename: testExportDirectoryName,
       numCvrsImported: 184,
       precinctIds: ['town-id-00701-precinct-id-'],
       scannerIds: ['VX-00-000'],
@@ -182,26 +191,28 @@ test('happy path - mock election flow', async () => {
   expect(availableCastVoteRecordFiles3).toMatchObject([]);
 
   // now try loading official CVR files, as if after L&A
-  const officialReportDirectoryName =
-    'machine_0000__184_ballots__2022-07-01_11-21-41';
-  const officialExportTimestamp = '2022-07-01T11:21:41.000Z';
-  const officialReportDirectoryPath = await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    () => ({
-      ReportType: [CVRType.ReportType.OriginatingDeviceExport],
-      OtherReportType: undefined,
-    })
+  const officialExportDirectoryName = 'machine_0000__2022-09-24_18-00-00';
+  const officialExportTimestamp = '2023-09-24T18:28:13.913Z';
+  const officialReportDirectoryPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordReportMetadataModifier: (castVoteRecordReportMetadata) => ({
+        ...castVoteRecordReportMetadata,
+        OtherReportType: undefined,
+        ReportType: [CVRType.ReportType.OriginatingDeviceExport],
+      }),
+    }
   );
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
-      [officialReportDirectoryName]: officialReportDirectoryPath,
+      [officialExportDirectoryName]: officialReportDirectoryPath,
     })
   );
   const availableCastVoteRecordFiles2 =
     await apiClient.listCastVoteRecordFilesOnUsb();
   expect(availableCastVoteRecordFiles2).toMatchObject([
     expect.objectContaining({
-      name: officialReportDirectoryName,
+      name: officialExportDirectoryName,
       cvrCount: 184,
       exportTimestamp: new Date(officialExportTimestamp),
       isTestModeResults: false,
@@ -213,7 +224,7 @@ test('happy path - mock election flow', async () => {
     'system',
     {
       disposition: 'success',
-      message: 'Found 1 CVR files on USB drive, user shown option to load.',
+      message: 'Found 1 cast vote record export(s) on USB drive.',
     }
   );
 
@@ -226,10 +237,10 @@ test('happy path - mock election flow', async () => {
     'election_manager',
     {
       disposition: 'success',
-      filename: officialReportDirectoryName,
-      message: expect.anything(),
+      exportDirectoryPath: expect.any(String),
       numberOfBallotsImported: 184,
-      duplicateBallotsIgnored: 0,
+      numberOfDuplicateBallotsIgnored: 0,
+      result: 'Cast vote records imported.',
     }
   );
   removeUsbDrive();
@@ -245,7 +256,7 @@ test('adding a file with BMD cast vote records', async () => {
   mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.electionHash);
 
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
-    path: electionTwoPartyPrimaryFixtures.castVoteRecordReport.asDirectoryPath(),
+    path: electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath(),
   });
   assert(addTestFileResult.isOk());
   expect(addTestFileResult.ok()).toMatchObject({
@@ -278,7 +289,7 @@ test('adding a duplicate file returns OK to client but logs an error', async () 
   // initially, no files
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([]);
 
-  const reportDirectoryPath = castVoteRecordReport.asDirectoryPath();
+  const reportDirectoryPath = castVoteRecordExport.asDirectoryPath();
 
   // add file once
   (
@@ -305,8 +316,11 @@ test('adding a duplicate file returns OK to client but logs an error', async () 
     LogEventId.CvrLoaded,
     'election_manager',
     expect.objectContaining({
-      disposition: 'failure',
-      filename: basename(reportDirectoryPath),
+      disposition: 'success',
+      exportDirectoryPath: expect.any(String),
+      numberOfBallotsImported: 0,
+      numberOfDuplicateBallotsIgnored: 184,
+      result: 'Cast vote records imported.',
     })
   );
 });
@@ -316,9 +330,9 @@ test('handles file with previously added entries by adding only the new entries'
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  const initialReportDirectoryPath = await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    ({ CVR }) => ({ CVR: CVR.take(10) })
+  const initialReportDirectoryPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    { numCastVoteRecordsToKeep: 10 }
   );
   // add file
   (
@@ -330,9 +344,9 @@ test('handles file with previously added entries by adding only the new entries'
   await expectCastVoteRecordCount(apiClient, 10);
 
   // create file that is duplicate but with new entries
-  const laterReportDirectoryPath = await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    ({ CVR }) => ({ CVR: CVR.take(20) })
+  const laterReportDirectoryPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    { numCastVoteRecordsToKeep: 20 }
   );
   const addDuplicateEntriesResult = await apiClient.addCastVoteRecordFile({
     path: laterReportDirectoryPath,
@@ -359,15 +373,14 @@ test('error if path to report is not valid', async () => {
     path: '/tmp/does-not-exist',
   });
   expect(addNonExistentFileResult.err()).toEqual({
-    type: 'report-access-failure',
-    message: 'Unable to access cast vote record report for import.',
+    type: 'metadata-file-not-found',
   });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.CvrLoaded,
     'election_manager',
     expect.objectContaining({
       disposition: 'failure',
-      filename: 'does-not-exist',
+      errorType: 'metadata-file-not-found',
     })
   );
 
@@ -385,13 +398,11 @@ test('cast vote records authentication error', async () => {
   );
 
   const result = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   expect(result).toEqual(
     err({
-      type: 'cast-vote-records-authentication-error',
-      message:
-        'Unable to authenticate cast vote records. Try exporting them from the scanner again.',
+      type: 'authentication-error',
     })
   );
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -399,8 +410,7 @@ test('cast vote records authentication error', async () => {
     'election_manager',
     expect.objectContaining({
       disposition: 'failure',
-      message:
-        'Unable to authenticate cast vote records. Try exporting them from the scanner again.',
+      errorType: 'authentication-error',
     })
   );
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -420,34 +430,9 @@ test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_A
   );
 
   const result = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   expect(result.isOk()).toEqual(true);
-});
-
-test('error if report has invalid directory structure', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
-
-  const reportDirectoryPath = castVoteRecordReport.asDirectoryPath();
-  fs.rmSync(join(reportDirectoryPath, CVR_BALLOT_LAYOUTS_SUBDIRECTORY), {
-    recursive: true,
-    force: true,
-  });
-
-  const invalidReportStructureResult = await apiClient.addCastVoteRecordFile({
-    path: reportDirectoryPath,
-  });
-
-  expect(invalidReportStructureResult.err()).toMatchObject({
-    type: 'invalid-report-structure',
-    message: 'Cast vote record report has invalid file structure.',
-  });
-
-  expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  await expectCastVoteRecordCount(apiClient, 0);
 });
 
 test('error if report metadata is not parseable', async () => {
@@ -456,11 +441,14 @@ test('error if report metadata is not parseable', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  const reportDirectoryPath = await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    () => ({
-      ReportType: ['not-a-report-type'] as unknown as CVRType.ReportType[],
-    })
+  const reportDirectoryPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordReportMetadataModifier: (castVoteRecordReportMetadata) => ({
+        ...castVoteRecordReportMetadata,
+        ReportType: ['not-a-report-type' as CVRType.ReportType],
+      }),
+    }
   );
 
   const result = await apiClient.addCastVoteRecordFile({
@@ -468,8 +456,7 @@ test('error if report metadata is not parseable', async () => {
   });
 
   expect(result.err()).toMatchObject({
-    type: 'malformed-report-metadata',
-    message: 'Unable to parse cast vote record report, it may be malformed.',
+    type: 'metadata-file-parse-error',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -489,14 +476,12 @@ test('error if adding test report while in official mode', async () => {
   ).assertOk('expected to load cast vote record report successfully');
 
   const addTestReportResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
 
   expect(addTestReportResult.isErr()).toBeTruthy();
   expect(addTestReportResult.err()).toMatchObject({
-    type: 'invalid-report-file-mode',
-    message:
-      'You are currently tabulating official results but the selected cast vote record report contains test results.',
+    type: 'invalid-mode',
   });
 });
 
@@ -507,7 +492,7 @@ test('error if adding official report while in test mode', async () => {
 
   (
     await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordReport.asDirectoryPath(),
+      path: castVoteRecordExport.asDirectoryPath(),
     })
   ).assertOk('expected to load cast vote record report successfully');
 
@@ -517,9 +502,7 @@ test('error if adding official report while in test mode', async () => {
 
   expect(addOfficialReportResult.isErr()).toBeTruthy();
   expect(addOfficialReportResult.err()).toMatchObject({
-    type: 'invalid-report-file-mode',
-    message:
-      'You are currently tabulating test results but the selected cast vote record report contains official results.',
+    type: 'invalid-mode',
   });
 });
 
@@ -529,15 +512,12 @@ test('error if a cast vote record not parseable', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  async function* badCastVoteRecordGenerator() {
-    yield await Promise.resolve('not-a-cvr');
-  }
-
-  const reportDirectoryPath = await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    ({ CVR }) => ({
-      CVR: CVR.take(10).chain(badCastVoteRecordGenerator()),
-    })
+  const reportDirectoryPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: () => ({}) as unknown as CVR.CVR,
+      numCastVoteRecordsToKeep: 10,
+    }
   );
 
   const result = await apiClient.addCastVoteRecordFile({
@@ -545,8 +525,8 @@ test('error if a cast vote record not parseable', async () => {
   });
 
   expect(result.err()).toMatchObject({
-    type: 'malformed-cast-vote-record',
-    message: 'Unable to parse cast vote record report, it may be malformed.',
+    type: 'invalid-cast-vote-record',
+    subType: 'parse-error',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -562,16 +542,15 @@ test('error if a cast vote record is somehow invalid', async () => {
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
-  const reportDirectoryPath = await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    ({ CVR }) => ({
-      CVR: CVR.take(10).map((unparsed) => {
-        return {
-          ...safeParse(CVRType.CVRSchema, unparsed).unsafeUnwrap(),
-          ElectionId: 'wrong-election',
-        };
+  const reportDirectoryPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (castVoteRecord) => ({
+        ...castVoteRecord,
+        ElectionId: 'wrong-election',
       }),
-    })
+      numCastVoteRecordsToKeep: 10,
+    }
   );
 
   const result = await apiClient.addCastVoteRecordFile({
@@ -580,8 +559,7 @@ test('error if a cast vote record is somehow invalid', async () => {
 
   expect(result.err()).toMatchObject({
     type: 'invalid-cast-vote-record',
-    message:
-      'Found an invalid cast vote record at index 0 in the current report. The record references an election other than the current election.',
+    subType: 'election-mismatch',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -596,23 +574,22 @@ test('error if cast vote records from different files share same ballot id but h
 
   (
     await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordReport.asDirectoryPath(),
+      path: castVoteRecordExport.asDirectoryPath(),
     })
   ).assertOk('expected to load cast vote record report successfully');
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   await expectCastVoteRecordCount(apiClient, 184);
 
-  const reportDirectoryPath = await modifyCastVoteRecordReport(
-    castVoteRecordReport.asDirectoryPath(),
-    ({ CVR }) => ({
-      CVR: CVR.take(10).map((unparsed) => {
-        return {
-          ...safeParse(CVRType.CVRSchema, unparsed).unsafeUnwrap(),
-          vxBallotType: vxBallotType.Provisional,
-        };
+  const reportDirectoryPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (castVoteRecord) => ({
+        ...castVoteRecord,
+        vxBallotType: vxBallotType.Provisional,
       }),
-    })
+      numCastVoteRecordsToKeep: 10,
+    }
   );
 
   const result = await apiClient.addCastVoteRecordFile({
@@ -621,59 +598,8 @@ test('error if cast vote records from different files share same ballot id but h
 
   expect(result.err()).toMatchObject({
     type: 'ballot-id-already-exists-with-different-data',
-    message:
-      'Found cast vote record at index 0 that has the same ballot id as a previously imported cast vote record, but with different data.',
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   await expectCastVoteRecordCount(apiClient, 184);
-});
-
-test('error if a layout is invalid', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-
-  await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
-
-  const reportDirectoryPath = castVoteRecordReport.asDirectoryPath();
-
-  // Overwrite a layout file with an invalid layout
-  const layoutsDirectoryPath = join(
-    reportDirectoryPath,
-    CVR_BALLOT_LAYOUTS_SUBDIRECTORY
-  );
-  const batchDirectoryPath = join(
-    layoutsDirectoryPath,
-    fs.readdirSync(layoutsDirectoryPath)[0]!
-  );
-  fs.writeFileSync(
-    join(batchDirectoryPath, fs.readdirSync(batchDirectoryPath)[0]!),
-    '{}'
-  );
-
-  const result = await apiClient.addCastVoteRecordFile({
-    path: reportDirectoryPath,
-  });
-
-  expect(result.err()).toMatchObject({
-    type: 'invalid-layout',
-    message: /Unable to parse a layout associated with a ballot image. Path:/,
-  });
-
-  expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  await expectCastVoteRecordCount(apiClient, 0);
-});
-
-test('can add file using the report JSON path rather than the directory path', async () => {
-  const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
-  mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.electionHash);
-
-  const addFileResult = await apiClient.addCastVoteRecordFile({
-    path: path.join(
-      electionTwoPartyPrimaryFixtures.castVoteRecordReport.asDirectoryPath(),
-      CAST_VOTE_RECORD_REPORT_FILENAME
-    ),
-  });
-  assert(addFileResult.isOk());
 });

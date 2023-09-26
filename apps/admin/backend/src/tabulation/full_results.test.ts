@@ -16,7 +16,7 @@ import {
   tabulateElectionResults,
 } from './full_results';
 import { Store } from '../store';
-import { addCastVoteRecordReport } from '../legacy_cast_vote_records';
+import { importCastVoteRecords } from '../cast_vote_records';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
@@ -285,7 +285,7 @@ const candidateContestId =
 test('tabulateElectionResults - write-in handling', async () => {
   const store = Store.memoryStore();
 
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election } = electionDefinition;
   const electionId = store.addElection({
@@ -294,12 +294,11 @@ test('tabulateElectionResults - write-in handling', async () => {
   });
   store.setCurrentElectionId(electionId);
 
-  const addReportResult = await addCastVoteRecordReport({
+  const importResult = await importCastVoteRecords(
     store,
-    reportDirectoryPath: castVoteRecordReport.asDirectoryPath(),
-    exportedTimestamp: new Date().toISOString(),
-  });
-  const { id: fileId } = addReportResult.unsafeUnwrap();
+    castVoteRecordExport.asDirectoryPath()
+  );
+  const { id: fileId } = importResult.unsafeUnwrap();
   expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
 
   /*  ******************* 
@@ -625,7 +624,7 @@ test('tabulateElectionResults - write-in handling', async () => {
 
 test('tabulateElectionResults - group and filter by voting method', async () => {
   const store = Store.memoryStore();
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({
@@ -633,12 +632,11 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
   });
   store.setCurrentElectionId(electionId);
-  const addReportResult = await addCastVoteRecordReport({
+  const importResult = await importCastVoteRecords(
     store,
-    reportDirectoryPath: castVoteRecordReport.asDirectoryPath(),
-    exportedTimestamp: new Date().toISOString(),
-  });
-  const { id: fileId } = addReportResult.unsafeUnwrap();
+    castVoteRecordExport.asDirectoryPath()
+  );
+  const { id: fileId } = importResult.unsafeUnwrap();
   expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
 
   // generate write-in adjudication data to confirm it is filtered

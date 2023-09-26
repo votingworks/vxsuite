@@ -12,6 +12,7 @@ import {
   Result,
 } from '@votingworks/basics';
 import {
+  CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CastVoteRecordExportMetadataSchema,
   CVR,
@@ -22,6 +23,7 @@ import {
   BooleanEnvironmentVariableName,
   CastVoteRecordWriteIn,
   getCurrentSnapshot,
+  getExportedCastVoteRecordIds,
   getWriteInsFromCastVoteRecord,
   isCastVoteRecordWriteInValid,
   isFeatureFlagEnabled,
@@ -85,7 +87,10 @@ export async function readCastVoteRecordExportMetadata(
 ): Promise<
   Result<CastVoteRecordExportMetadata, ReadCastVoteRecordExportMetadataError>
 > {
-  const metadataFilePath = path.join(exportDirectoryPath, 'metadata.json');
+  const metadataFilePath = path.join(
+    exportDirectoryPath,
+    CastVoteRecordExportFileName.METADATA
+  );
   if (!existsSync(metadataFilePath)) {
     return err({ type: 'metadata-file-not-found' });
   }
@@ -112,34 +117,34 @@ async function* castVoteRecordGenerator(
     return err({ ...error, type: 'invalid-cast-vote-record' });
   }
 
-  const castVoteRecordIds = (
-    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
-  )
-    .filter((entry) => entry.isDirectory())
-    .map((directory) => directory.name);
-
+  const castVoteRecordIds =
+    await getExportedCastVoteRecordIds(exportDirectoryPath);
   for (const castVoteRecordId of castVoteRecordIds) {
     const castVoteRecordDirectoryPath = path.join(
       exportDirectoryPath,
       castVoteRecordId
     );
-    const castVoteRecordReport = await fs.readFile(
-      path.join(castVoteRecordDirectoryPath, 'cast-vote-record-report.json'),
+    const castVoteRecordReportContents = await fs.readFile(
+      path.join(
+        castVoteRecordDirectoryPath,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
       'utf-8'
     );
     const parseResult = safeParseJson(
-      castVoteRecordReport,
+      castVoteRecordReportContents,
       CVR.CastVoteRecordReportSchema
     );
     if (parseResult.isErr()) {
       yield wrapError({ subType: 'parse-error' });
       return;
     }
-    if (parseResult.ok().CVR?.length !== 1) {
+    const castVoteRecordReport = parseResult.ok();
+    if (castVoteRecordReport.CVR?.length !== 1) {
       yield wrapError({ subType: 'parse-error' });
       return;
     }
-    const castVoteRecord = assertDefined(parseResult.ok().CVR?.[0]);
+    const castVoteRecord = assertDefined(castVoteRecordReport.CVR[0]);
 
     if (!batchIds.has(castVoteRecord.BatchId)) {
       yield wrapError({ subType: 'batch-id-not-found' });

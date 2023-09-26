@@ -6,6 +6,7 @@ import path from 'path';
 import { Readable } from 'stream';
 import { assert, groupBy } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
+import { getExportedCastVoteRecordIds } from '@votingworks/utils';
 
 /**
  * A representation of a file that only provides its hash
@@ -361,12 +362,7 @@ export function clearCastVoteRecordHashes(client: Client): void {
 export async function computeCastVoteRecordRootHashFromScratch(
   exportDirectoryPath: string
 ): Promise<string> {
-  const cvrIds = (
-    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
-  )
-    .filter((entry) => entry.isDirectory())
-    .map((directory) => directory.name);
-
+  const cvrIds = await getExportedCastVoteRecordIds(exportDirectoryPath);
   const cvrHashes: CombinableHash[] = [];
   for (const cvrId of cvrIds) {
     const cvrDirectoryPath = path.join(exportDirectoryPath, cvrId);

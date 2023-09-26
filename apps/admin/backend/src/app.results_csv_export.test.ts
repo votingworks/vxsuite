@@ -66,7 +66,7 @@ async function getParsedExport({
 }
 
 it('exports expected results for full election', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger } = buildTestEnvironment();
@@ -74,7 +74,7 @@ it('exports expected results for full election', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -132,7 +132,7 @@ it('exports expected results for full election', async () => {
 });
 
 it('logs failure if export fails for some reason', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
 
   const { apiClient, auth, logger } = buildTestEnvironment();
@@ -140,7 +140,7 @@ it('logs failure if export fails for some reason', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -161,7 +161,7 @@ it('logs failure if export fails for some reason', async () => {
 });
 
 it('incorporates wia and manual data', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election } = electionDefinition;
 
@@ -170,7 +170,7 @@ it('incorporates wia and manual data', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 

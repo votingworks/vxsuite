@@ -5,3 +5,4 @@ export * from './export';
 export * from './import';
 export * from './legacy_export';
 export * from './legacy_import';
+export * from './test_utils';

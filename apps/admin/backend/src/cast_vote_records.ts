@@ -3,8 +3,21 @@ import * as fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
-import { isTestReport, readCastVoteRecordExport } from '@votingworks/backend';
-import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
+import {
+  FileSystemEntryType,
+  isTestReport,
+  listDirectoryOnUsbDrive,
+  readCastVoteRecordExport,
+  readCastVoteRecordExportMetadata,
+} from '@votingworks/backend';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   BallotId,
   BallotPageLayoutSchema,
@@ -13,22 +26,28 @@ import {
   getContests,
   safeParseJson,
 } from '@votingworks/types';
+import { UsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordVotesToTabulationVotes,
+  generateElectionBasedSubfolderName,
   getBallotStyleById,
   getPrecinctById,
   isFeatureFlagEnabled,
+  parseCastVoteRecordReportExportDirectoryName,
+  SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
 import { Store } from './store';
 import {
   CastVoteRecordElectionDefinitionValidationError,
+  CastVoteRecordFileMetadata,
   CvrFileImportInfo,
   CvrFileMode,
   ImportCastVoteRecordsError,
 } from './types';
+import { buildGetUsbDrivesFn } from './util/exporter';
 
 /**
  * Validates that the fields in a cast vote record and the election definition correspond
@@ -79,6 +98,84 @@ function validateCastVoteRecordAgainstElectionDefinition(
   }
 
   return ok();
+}
+
+/**
+ * Lists the cast vote record exports on the inserted USB drive
+ */
+export async function listCastVoteRecordExportsOnUsbDrive(
+  usbDrive: UsbDrive,
+  electionDefinition: ElectionDefinition
+): Promise<
+  Result<
+    CastVoteRecordFileMetadata[],
+    'found-file-instead-of-directory' | 'no-usb-drive' | 'permission-denied'
+  >
+> {
+  const { election, electionHash } = electionDefinition;
+
+  const listDirectoryResult = await listDirectoryOnUsbDrive(
+    path.join(
+      SCANNER_RESULTS_FOLDER,
+      generateElectionBasedSubfolderName(election, electionHash)
+    ),
+    buildGetUsbDrivesFn(usbDrive)
+  );
+  if (listDirectoryResult.isErr()) {
+    const errorType = listDirectoryResult.err().type;
+    switch (errorType) {
+      case 'no-entity': {
+        return ok([]);
+      }
+      case 'no-usb-drive':
+      case 'usb-drive-not-mounted': {
+        return err('no-usb-drive');
+      }
+      case 'not-directory': {
+        return err('found-file-instead-of-directory');
+      }
+      case 'permission-denied': {
+        return err('permission-denied');
+      }
+      default: {
+        throwIllegalValue(errorType);
+      }
+    }
+  }
+
+  const castVoteRecordExportSummaries: CastVoteRecordFileMetadata[] = [];
+  for (const entry of listDirectoryResult.ok()) {
+    if (entry.type === FileSystemEntryType.Directory) {
+      const exportDirectoryNameComponents =
+        parseCastVoteRecordReportExportDirectoryName(entry.name);
+      if (!exportDirectoryNameComponents) {
+        continue;
+      }
+      const metadataResult = await readCastVoteRecordExportMetadata(entry.path);
+      if (metadataResult.isErr()) {
+        continue;
+      }
+      const metadata = metadataResult.ok();
+      castVoteRecordExportSummaries.push({
+        cvrCount: metadata.castVoteRecordReportMetadata.vxBatch
+          .map((batch) => batch.NumberSheets)
+          .reduce((sum, n) => sum + n, 0),
+        exportTimestamp: new Date(
+          metadata.castVoteRecordReportMetadata.GeneratedDate
+        ),
+        isTestModeResults: exportDirectoryNameComponents.inTestMode,
+        name: entry.name,
+        path: entry.path,
+        scannerIds: [exportDirectoryNameComponents.machineId],
+      });
+    }
+  }
+
+  return ok(
+    [...castVoteRecordExportSummaries].sort(
+      (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
+    )
+  );
 }
 
 /**

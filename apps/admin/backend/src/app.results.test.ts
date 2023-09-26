@@ -40,7 +40,7 @@ afterEach(() => {
 });
 
 test('card counts', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionTwoPartyPrimaryFixtures;
   const { election } = electionDefinition;
 
@@ -49,7 +49,7 @@ test('card counts', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 
@@ -86,7 +86,7 @@ test('card counts', async () => {
 });
 
 test('election write-in adjudication summary', async () => {
-  const { electionDefinition, castVoteRecordReport } =
+  const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election } = electionDefinition;
 
@@ -95,7 +95,7 @@ test('election write-in adjudication summary', async () => {
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordReport.asDirectoryPath(),
+    path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
 

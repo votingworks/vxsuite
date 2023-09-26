@@ -14,6 +14,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
+  CastVoteRecordExportFileName,
   CastVoteRecordExportMetadataSchema,
   safeParseJson,
 } from '@votingworks/types';
@@ -125,7 +126,10 @@ async function constructMessage(artifact: Artifact): Promise<Stream> {
         }
         case 'import': {
           metadataFileContents = createReadStream(
-            path.join(artifact.directoryPath, 'metadata.json')
+            path.join(
+              artifact.directoryPath,
+              CastVoteRecordExportFileName.METADATA
+            )
           );
           break;
         }
@@ -296,7 +300,10 @@ async function performArtifactSpecificAuthenticationChecks(
   switch (artifact.type) {
     case 'cast_vote_records': {
       const metadataFileContents = await fs.readFile(
-        path.join(artifact.directoryPath, 'metadata.json'),
+        path.join(
+          artifact.directoryPath,
+          CastVoteRecordExportFileName.METADATA
+        ),
         'utf-8'
       );
       const parseResult = safeParseJson(

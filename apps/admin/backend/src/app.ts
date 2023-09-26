@@ -29,17 +29,13 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { createReadStream, createWriteStream, promises as fs, Stats } from 'fs';
-import { basename, dirname, join } from 'path';
+import { createReadStream, createWriteStream, promises as fs } from 'fs';
+import { join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
-  BooleanEnvironmentVariableName,
-  CAST_VOTE_RECORD_REPORT_FILENAME,
   generateFilenameForBallotExportPackage,
   groupMapToGroupList,
-  isFeatureFlagEnabled,
   isIntegrationTest,
-  parseCastVoteRecordReportDirectoryName,
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
@@ -67,12 +63,6 @@ import {
   ConfigureError,
 } from './types';
 import { Workspace } from './util/workspace';
-import {
-  AddCastVoteRecordReportError,
-  addCastVoteRecordReport,
-  getAddCastVoteRecordReportErrorMessage,
-  listCastVoteRecordFilesOnUsb,
-} from './legacy_cast_vote_records';
 import { getMachineConfig } from './machine_config';
 import {
   getWriteInAdjudicationContext,
@@ -90,7 +80,10 @@ import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
 import { tabulateTallyReportResults } from './tabulation/tally_reports';
 import { buildExporter } from './util/exporter';
-import { importCastVoteRecords } from './cast_vote_records';
+import {
+  importCastVoteRecords,
+  listCastVoteRecordExportsOnUsbDrive,
+} from './cast_vote_records';
 
 const debug = rootDebug.extend('app');
 
@@ -287,7 +280,7 @@ function buildApi({
         if (exportSignatureFileResult.isErr()) {
           return exportSignatureFileResult;
         }
-        /* c8 ignore end */
+        /* c8 ignore stop */
       } finally {
         await fs.rm(tempDirectory, { recursive: true });
       }
@@ -395,12 +388,28 @@ function buildApi({
       );
     },
 
-    listCastVoteRecordFilesOnUsb() {
-      const electionRecord = getCurrentElectionRecord(workspace);
-      assert(electionRecord);
+    async listCastVoteRecordFilesOnUsb() {
+      const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
-      return listCastVoteRecordFilesOnUsb(electionDefinition, usbDrive, logger);
+      const listResult = await listCastVoteRecordExportsOnUsbDrive(
+        usbDrive,
+        electionDefinition
+      );
+      if (listResult.isErr()) {
+        await logger.log(LogEventId.CvrFilesReadFromUsb, 'system', {
+          disposition: 'failure',
+          message: 'Error listing cast vote record exports on USB drive.',
+          reason: listResult.err(),
+        });
+        return [];
+      }
+      const castVoteRecordExportSummaries = listResult.ok();
+      await logger.log(LogEventId.CvrFilesReadFromUsb, 'system', {
+        disposition: 'success',
+        message: `Found ${castVoteRecordExportSummaries.length} cast vote record export(s) on USB drive.`,
+      });
+      return castVoteRecordExportSummaries;
     },
 
     getCastVoteRecordFiles(): CastVoteRecordFileRecord[] {
@@ -409,121 +418,27 @@ function buildApi({
 
     async addCastVoteRecordFile(input: {
       path: string;
-    }): Promise<
-      Result<
-        CvrFileImportInfo,
-        | (AddCastVoteRecordReportError & { message: string })
-        | ImportCastVoteRecordsError
-      >
-    > {
-      /* c8 ignore start */
-      if (
-        isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
-        )
-      ) {
-        const userRole = assertDefined(await getUserRole());
-        const importResult = await importCastVoteRecords(store, input.path);
-        if (importResult.isErr()) {
-          await logger.log(LogEventId.CvrLoaded, userRole, {
-            disposition: 'failure',
-            errorDetails: JSON.stringify(importResult.err()),
-            errorType: importResult.err().type,
-            exportDirectoryPath: input.path,
-            result: 'Cast vote records not imported, error shown to user.',
-          });
-        } else {
-          await logger.log(LogEventId.CvrLoaded, userRole, {
-            disposition: 'success',
-            exportDirectoryPath: input.path,
-            numberOfBallotsImported: importResult.ok().newlyAdded,
-            numberOfDuplicateBallotsIgnored: importResult.ok().alreadyPresent,
-            result: 'Cast vote records imported.',
-          });
-        }
-        return importResult;
-      }
-      /* c8 ignore stop */
-
+    }): Promise<Result<CvrFileImportInfo, ImportCastVoteRecordsError>> {
       const userRole = assertDefined(await getUserRole());
-      const { path: inputPath } = input;
-      // the path passed to the backend may be for the report directory or the
-      // contained .json report, so we resolve to the report directory path
-      const path =
-        basename(inputPath) === CAST_VOTE_RECORD_REPORT_FILENAME
-          ? dirname(inputPath)
-          : inputPath;
-
-      const filename = basename(path);
-      let fileStat: Stats;
-      try {
-        fileStat = await fs.stat(path);
-      } catch (error) {
-        const message = getAddCastVoteRecordReportErrorMessage({
-          type: 'report-access-failure',
-        });
+      const importResult = await importCastVoteRecords(store, input.path);
+      if (importResult.isErr()) {
         await logger.log(LogEventId.CvrLoaded, userRole, {
-          message,
           disposition: 'failure',
-          filename,
-          error: message,
-          result: 'Report not loaded, error shown to user.',
-        });
-        return err({
-          type: 'report-access-failure',
-          message,
-        });
-      }
-
-      // try to get the exported timestamp from the filename, otherwise use file last modified
-      const exportedTimestamp =
-        parseCastVoteRecordReportDirectoryName(basename(path))?.timestamp ||
-        fileStat.mtime;
-
-      const addCastVoteRecordReportResult = await addCastVoteRecordReport({
-        store,
-        reportDirectoryPath: path,
-        exportedTimestamp: exportedTimestamp.toISOString(),
-      });
-
-      if (addCastVoteRecordReportResult.isErr()) {
-        const message = getAddCastVoteRecordReportErrorMessage(
-          addCastVoteRecordReportResult.err()
-        );
-        await logger.log(LogEventId.CvrLoaded, userRole, {
-          message,
-          disposition: 'failure',
-          filename,
-          result: 'Report not loaded, error shown to user.',
-        });
-        return err({
-          ...addCastVoteRecordReportResult.err(),
-          message,
-        });
-      }
-
-      if (addCastVoteRecordReportResult.ok().wasExistingFile) {
-        // log failure if the file was a duplicate
-        await logger.log(LogEventId.CvrLoaded, userRole, {
-          message:
-            'Cast vote record report was not loaded as it is a duplicate of a previously loaded file.',
-          disposition: 'failure',
-          filename,
-          result: 'Report not loaded, error shown to user.',
+          errorDetails: JSON.stringify(importResult.err()),
+          errorType: importResult.err().type,
+          exportDirectoryPath: input.path,
+          result: 'Cast vote records not imported, error shown to user.',
         });
       } else {
-        // log success otherwise
         await logger.log(LogEventId.CvrLoaded, userRole, {
-          message: 'Cast vote record report successfully loaded.',
           disposition: 'success',
-          filename,
-          numberOfBallotsImported:
-            addCastVoteRecordReportResult.ok().newlyAdded,
-          duplicateBallotsIgnored:
-            addCastVoteRecordReportResult.ok().alreadyPresent,
+          exportDirectoryPath: input.path,
+          numberOfBallotsImported: importResult.ok().newlyAdded,
+          numberOfDuplicateBallotsIgnored: importResult.ok().alreadyPresent,
+          result: 'Cast vote records imported.',
         });
       }
-      return addCastVoteRecordReportResult;
+      return importResult;
     },
 
     async clearCastVoteRecordFiles(): Promise<void> {

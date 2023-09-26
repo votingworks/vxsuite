@@ -65,7 +65,6 @@ const Content = styled.div`
   overflow: hidden;
 `;
 
-/* c8 ignore start */
 function userReadableMessageFromError(
   error: ImportCastVoteRecordsError
 ): string {
@@ -146,7 +145,6 @@ function userReadableMessageFromError(
     }
   }
 }
-/* c8 ignore stop */
 
 type ModalState =
   | { state: 'error'; errorMessage?: string; filename: string }
@@ -184,10 +182,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
             const error = addCastVoteRecordFileResult.err();
             setCurrentState({
               state: 'error',
-              errorMessage:
-                'message' in error
-                  ? error.message
-                  : userReadableMessageFromError(error),
+              errorMessage: userReadableMessageFromError(error),
               filename,
             });
           } else if (addCastVoteRecordFileResult.ok().wasExistingFile) {

@@ -1,6 +1,5 @@
-rm -rf src/data/*.{csv,jsonl,json,txt,jpeg,jpg,png,xml,zip}.ts
-rm -rf src/data/**/*.{csv,jsonl,json,txt,jpeg,jpg,png,xml,zip}.ts
+find src/data -type f -not -name index.ts -exec rm {} \;
 ./node_modules/.bin/res-to-ts --rootDir data --outDir src/data \
-    'data/**/*.{csv,jsonl,json,txt,jpeg,jpg,png,pdf,xml,zip}' \
-    '!data/**/cvr-files/**/*.{csv,jsonl,json,txt,jpeg,jpg,png,pdf,xml,zip}'  \
-    'data/**/cvr-files/*'
+    'data/**/*.{csv,jpeg,jpg,json,jsonl,pdf,png,txt,xml,zip}' \
+    '!data/**/castVoteRecords/**/*.{csv,jpeg,jpg,json,jsonl,pdf,png,txt,xml,zip}' \
+    'data/**/castVoteRecords'

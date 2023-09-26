@@ -1,10 +1,10 @@
+import path from 'path';
 import { Election } from '@votingworks/types';
 import { asElectionDefinition } from '../../util';
 import { asText as batchResultsCsvAsText } from './csvFiles/batchResults.csv';
 import { asText as finalResultsCsvAsText } from './csvFiles/finalResults.csv';
 import { election } from './election.json';
-
-export * as castVoteRecordReport from './cvr-files/standard';
+import * as castVoteRecords from './castVoteRecords';
 
 export const batchCsvData = batchResultsCsvAsText();
 export const finalCsvData = finalResultsCsvAsText();
@@ -24,3 +24,8 @@ export const singlePrecinctElectionDefinition = asElectionDefinition(
 );
 
 export * as systemSettings from '../systemSettings.json';
+
+export const castVoteRecordExport = {
+  asDirectoryPath: () =>
+    path.join(castVoteRecords.asDirectoryPath(), 'generated'),
+} as const;

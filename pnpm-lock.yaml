@@ -5380,6 +5380,9 @@ importers:
       readline:
         specifier: ^1.3.0
         version: 1.3.0
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
       yargs:
         specifier: ^17.5.1
         version: 17.5.1
@@ -5408,6 +5411,9 @@ importers:
       '@types/randombytes':
         specifier: ^2.0.0
         version: 2.0.0
+      '@types/tmp':
+        specifier: ^0.2.4
+        version: 0.2.4
       '@types/yargs':
         specifier: ^17.0.12
         version: 17.0.12
@@ -11664,6 +11670,10 @@ packages:
 
   /@types/tmp@0.2.3:
     resolution: {integrity: sha512-dDZH/tXzwjutnuk4UacGgFRwV+JSLaXL1ikvidfJprkb7L9Nx1njcRHHmi3Dsvt7pgqqTEeucQuOrWHPFgzVHA==}
+    dev: true
+
+  /@types/tmp@0.2.4:
+    resolution: {integrity: sha512-Vq3rwM+2KgiLacq68EjTJD9cuJ/ne5pXntWn8B8Rxj25SLkGAhCgooCZ1lhcIcV5OFveJ+s5Cqpi+XKfFM/xZA==}
     dev: true
 
   /@types/tough-cookie@4.0.1:
