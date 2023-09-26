@@ -1,9 +1,8 @@
 import { Scan } from '@votingworks/api';
-import { getCastVoteRecordReportStream, Exporter } from '@votingworks/backend';
+import { Exporter } from '@votingworks/backend';
 import { FULL_LOG_PATH } from '@votingworks/logging';
 import { err } from '@votingworks/basics';
 import {
-  CAST_VOTE_RECORD_REPORT_FILENAME,
   SCANNER_BACKUPS_FOLDER,
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
@@ -83,21 +82,6 @@ export class Backup {
     debug('adding election.json to backup...');
     await this.addEntry('election.json', electionDefinition.electionData);
     debug('added election.json to backup');
-
-    debug('adding CVRs to backup...');
-    await this.addEntry(
-      CAST_VOTE_RECORD_REPORT_FILENAME,
-      getCastVoteRecordReportStream({
-        electionDefinition,
-        definiteMarkThreshold: this.store.getMarkThresholds().definite,
-        isTestMode: this.store.getTestMode(),
-        resultSheetGenerator: this.store.forEachResultSheet(),
-        batchInfo: this.store.getBatches(),
-        reportContext: 'backup',
-      })
-    );
-
-    debug('added CVRs to backup');
 
     debug('adding database files to backup...');
     const dbBackupFile = fileSync();
