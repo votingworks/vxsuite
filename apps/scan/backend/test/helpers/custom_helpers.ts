@@ -210,13 +210,14 @@ export function simulateScan(
 }
 
 export async function waitForContinuousExportToUsbDrive(): Promise<void> {
-  return sleep(1000);
+  return sleep(3000);
 }
 
 export async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
   apiClient: grout.Client<Api>,
-  initialBallotsCounted: number
+  initialBallotsCounted: number,
+  options: { skipWaitForContinuousExportToUsbDrive?: boolean } = {}
 ): Promise<void> {
   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
   await waitForStatus(apiClient, {
@@ -255,5 +256,7 @@ export async function scanBallot(
     canUnconfigure: true,
   });
 
-  await waitForContinuousExportToUsbDrive();
+  if (!options.skipWaitForContinuousExportToUsbDrive) {
+    await waitForContinuousExportToUsbDrive();
+  }
 }

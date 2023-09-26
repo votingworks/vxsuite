@@ -32,8 +32,12 @@ test('end-to-end tabulated results', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       // scan a few ballots
-      await scanBallot(mockScanner, apiClient, 0);
-      await scanBallot(mockScanner, apiClient, 1);
+      await scanBallot(mockScanner, apiClient, 0, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
+      await scanBallot(mockScanner, apiClient, 1, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       await scanBallot(mockScanner, apiClient, 2);
 
       const allResults = await apiClient.getScannerResultsByParty();

@@ -118,7 +118,6 @@ afterEach(async () => {
 const jurisdiction = TEST_JURISDICTION;
 
 test('going through the whole process works', async () => {
-  jest.setTimeout(25000);
   const { election, electionDefinition } =
     electionGridLayoutNewHampshireAmherstFixtures;
 
@@ -284,4 +283,4 @@ test('going through the whole process works', async () => {
       }
     `);
   }
-});
+}, 25_000);

@@ -272,7 +272,9 @@ test('continuous CVR export, including polls closing, followed by a full export'
     {},
     async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, 0, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       await scanBallot(mockScanner, apiClient, 1);
 
       expect(
@@ -332,8 +334,12 @@ test('ballot batching', async () => {
       }
 
       // Scan two ballots, which should have the same batch
-      await scanBallot(mockScanner, apiClient, 0);
-      await scanBallot(mockScanner, apiClient, 1);
+      await scanBallot(mockScanner, apiClient, 0, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
+      await scanBallot(mockScanner, apiClient, 1, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       let batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(2);
       expect(batchIds).toHaveLength(1);
@@ -370,8 +376,12 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a new, second batch distinct from the first
-      await scanBallot(mockScanner, apiClient, 2);
-      await scanBallot(mockScanner, apiClient, 3);
+      await scanBallot(mockScanner, apiClient, 2, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
+      await scanBallot(mockScanner, apiClient, 3, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(4);
       expect(batchIds).toHaveLength(2);
@@ -408,7 +418,9 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a third batch, distinct from the second
-      await scanBallot(mockScanner, apiClient, 4);
+      await scanBallot(mockScanner, apiClient, 4, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       await scanBallot(mockScanner, apiClient, 5);
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(6);
