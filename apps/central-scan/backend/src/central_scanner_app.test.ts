@@ -1,7 +1,7 @@
 import {
   MockUsb,
   createMockUsb,
-  getCastVoteRecordReportImport,
+  readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
@@ -15,17 +15,12 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import {
-  BooleanEnvironmentVariableName,
-  CAST_VOTE_RECORD_REPORT_FILENAME,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
+import { getFeatureFlagMock } from '@votingworks/utils';
 import { Application } from 'express';
 import * as fs from 'fs/promises';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
-import path from 'path';
 import { typedAs } from '@votingworks/basics';
 import {
   buildMockDippedSmartCardAuth,
@@ -210,27 +205,11 @@ test('POST /scan/export-to-usb-drive', async () => {
 
   const [usbDrive] = await mockUsb.mock.getUsbDrives();
   const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
-  expect(cvrReportDirectoryPath).toContain('machine_000__0_ballots__');
-  const castVoteRecordReportImportResult = await getCastVoteRecordReportImport(
-    path.join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
-  );
-  expect(
-    await castVoteRecordReportImportResult.assertOk('test').CVR.count()
-  ).toEqual(0);
-});
-
-test('POST /scan/export-to-usb-drive when continuous export is enabled', async () => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
-  );
-  mockUsb.insertUsbDrive({});
-
-  // Just test that the app has been wired properly. Rely on libs/backend tests for more detailed
-  // coverage of export logic.
-  await request(app)
-    .post('/central-scanner/scan/export-to-usb-drive')
-    .set('Accept', 'application/json')
-    .expect(200);
+  expect(cvrReportDirectoryPath).toContain('machine_000__');
+  const { castVoteRecordIterator } = (
+    await readCastVoteRecordExport(cvrReportDirectoryPath)
+  ).unsafeUnwrap();
+  expect(await castVoteRecordIterator.count()).toEqual(0);
 });
 
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {

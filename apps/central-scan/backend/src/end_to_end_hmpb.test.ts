@@ -3,9 +3,8 @@ import {
   MockUsb,
   createBallotPackageZipArchive,
   createMockUsb,
-  getCastVoteRecordReportImport,
   isTestReport,
-  validateCastVoteRecordReportDirectoryStructure,
+  readCastVoteRecordExport,
 } from '@votingworks/backend';
 import {
   asElectionDefinition,
@@ -15,12 +14,10 @@ import {
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
-  unsafeParse,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import {
   BooleanEnvironmentVariableName,
-  CAST_VOTE_RECORD_REPORT_FILENAME,
   convertCastVoteRecordVotesToTabulationVotes,
   getFeatureFlagMock,
 } from '@votingworks/utils';
@@ -218,30 +215,20 @@ test('going through the whole process works', async () => {
 
     const [usbDrive] = await mockUsb.mock.getUsbDrives();
     const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
-    expect(cvrReportDirectoryPath).toContain('machine_000__1_ballot__');
+    expect(cvrReportDirectoryPath).toContain('machine_000__');
 
-    // exported report directory appears valid
-    expect(
-      (
-        await validateCastVoteRecordReportDirectoryStructure(
-          cvrReportDirectoryPath
-        )
-      ).isOk()
-    ).toBeTruthy();
-
-    const castVoteRecordReportImportResult =
-      await getCastVoteRecordReportImport(
-        join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
-      );
-    expect(castVoteRecordReportImportResult.isOk()).toBeTruthy();
-    const castVoteRecordReportImport =
-      castVoteRecordReportImportResult.assertOk('test');
-    const cvrs = await castVoteRecordReportImport.CVR.map((unparsed) =>
-      unsafeParse(CVR.CVRSchema, unparsed)
-    ).toArray();
+    const { castVoteRecordExportMetadata, castVoteRecordIterator } = (
+      await readCastVoteRecordExport(cvrReportDirectoryPath)
+    ).unsafeUnwrap();
+    const cvrs: CVR.CVR[] = (await castVoteRecordIterator.toArray()).map(
+      (castVoteRecordResult) =>
+        castVoteRecordResult.unsafeUnwrap().castVoteRecord
+    );
     expect(cvrs).toHaveLength(1);
     const [cvr] = cvrs;
-    expect(isTestReport(castVoteRecordReportImport)).toBeFalsy();
+    expect(
+      isTestReport(castVoteRecordExportMetadata.castVoteRecordReportMetadata)
+    ).toBeFalsy();
     expect(cvr.BallotStyleId).toEqual('card-number-3');
     expect(cvr.BallotStyleUnitId).toEqual('town-id-00701-precinct-id-');
     expect(cvr.CreatingDeviceId).toEqual('000');
