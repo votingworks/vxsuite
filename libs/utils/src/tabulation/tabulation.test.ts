@@ -67,11 +67,10 @@ function castVoteRecordToTabulationCastVoteRecord(
 async function readCastVoteRecordExport(
   exportDirectoryPath: string
 ): Promise<Tabulation.CastVoteRecord[]> {
-  const castVoteRecordIds = (
-    await getExportedCastVoteRecordIds(exportDirectoryPath)
-  ).sort();
+  const castVoteRecordIds =
+    await getExportedCastVoteRecordIds(exportDirectoryPath);
   const castVoteRecords: CVR.CVR[] = [];
-  for (const castVoteRecordId of castVoteRecordIds) {
+  for (const castVoteRecordId of [...castVoteRecordIds].sort()) {
     const castVoteRecordDirectoryPath = join(
       exportDirectoryPath,
       castVoteRecordId
