@@ -12,6 +12,7 @@ import {
   Result,
 } from '@votingworks/basics';
 import {
+  CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CastVoteRecordExportMetadataSchema,
   CVR,
@@ -86,7 +87,10 @@ export async function readCastVoteRecordExportMetadata(
 ): Promise<
   Result<CastVoteRecordExportMetadata, ReadCastVoteRecordExportMetadataError>
 > {
-  const metadataFilePath = path.join(exportDirectoryPath, 'metadata.json');
+  const metadataFilePath = path.join(
+    exportDirectoryPath,
+    CastVoteRecordExportFileName.METADATA
+  );
   if (!existsSync(metadataFilePath)) {
     return err({ type: 'metadata-file-not-found' });
   }
@@ -121,7 +125,10 @@ async function* castVoteRecordGenerator(
       castVoteRecordId
     );
     const castVoteRecordReportContents = await fs.readFile(
-      path.join(castVoteRecordDirectoryPath, 'cast-vote-record-report.json'),
+      path.join(
+        castVoteRecordDirectoryPath,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
       'utf-8'
     );
     const parseResult = safeParseJson(

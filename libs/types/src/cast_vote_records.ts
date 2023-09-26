@@ -44,3 +44,8 @@ export const CastVoteRecordExportMetadataSchema: z.ZodSchema<CastVoteRecordExpor
     castVoteRecordReportMetadata: CastVoteRecordReportSchema,
     castVoteRecordRootHash: z.string(),
   });
+
+export enum CastVoteRecordExportFileName {
+  CAST_VOTE_RECORD_REPORT = 'cast-vote-record-report.json',
+  METADATA = 'metadata.json',
+}

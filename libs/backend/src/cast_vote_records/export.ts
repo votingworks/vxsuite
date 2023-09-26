@@ -21,6 +21,7 @@ import {
   BallotIdSchema,
   BallotPageLayout,
   BatchInfo,
+  CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CVR,
   ElectionDefinition,
@@ -355,7 +356,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
 
   const castVoteRecordFilesToExport: ReadableFile[] = [
     readableFileFromData(
-      'cast-vote-record-report.json',
+      CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT,
       JSON.stringify(castVoteRecordReport)
     ),
     readableFileFromDisk(frontImageFilePath),
@@ -439,7 +440,7 @@ async function exportMetadataFileToUsbDrive(
 
   const exportResult = await exporter.exportDataToUsbDrive(
     exportDirectoryPathRelativeToUsbMountPoint,
-    'metadata.json',
+    CastVoteRecordExportFileName.METADATA,
     metadataFileContents
   );
   if (exportResult.isErr()) {

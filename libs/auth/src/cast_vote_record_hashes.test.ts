@@ -3,6 +3,7 @@ import { sha256 } from 'js-sha256';
 import path from 'path';
 import { dirSync } from 'tmp';
 import { Client } from '@votingworks/db';
+import { CastVoteRecordExportFileName } from '@votingworks/types';
 
 import {
   CAST_VOTE_RECORD_HASHES_TABLE_SCHEMA,
@@ -209,7 +210,10 @@ test('computeCastVoteRecordRootHashFromScratch', async () => {
     'cast-vote-record-export'
   );
   fs.mkdirSync(exportDirectoryPath);
-  fs.writeFileSync(path.join(exportDirectoryPath, 'metadata.json'), '');
+  fs.writeFileSync(
+    path.join(exportDirectoryPath, CastVoteRecordExportFileName.METADATA),
+    ''
+  );
   for (const [cvrId, cvrFiles] of Object.entries(castVoteRecords)) {
     fs.mkdirSync(path.join(exportDirectoryPath, cvrId));
     for (const { fileName, fileContents } of cvrFiles) {

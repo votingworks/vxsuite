@@ -3,7 +3,11 @@ import fs from 'fs';
 import path from 'path';
 import { computeCastVoteRecordRootHashFromScratch } from '@votingworks/auth';
 import { assertDefined } from '@votingworks/basics';
-import { CVR, safeParseJson } from '@votingworks/types';
+import {
+  CastVoteRecordExportFileName,
+  CVR,
+  safeParseJson,
+} from '@votingworks/types';
 import { getExportedCastVoteRecordIds } from '@votingworks/utils';
 
 import { readCastVoteRecordExportMetadata } from './import';
@@ -54,7 +58,7 @@ export async function modifyCastVoteRecordExport(
 
     const castVoteRecordReportPath = path.join(
       castVoteRecordDirectoryPath,
-      'cast-vote-record-report.json'
+      CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
     );
     const castVoteRecordReport = safeParseJson(
       fs.readFileSync(castVoteRecordReportPath, 'utf-8'),
@@ -62,7 +66,10 @@ export async function modifyCastVoteRecordExport(
     ).unsafeUnwrap();
     const castVoteRecord = assertDefined(castVoteRecordReport.CVR?.[0]);
     fs.writeFileSync(
-      path.join(castVoteRecordDirectoryPath, 'cast-vote-record-report.json'),
+      path.join(
+        castVoteRecordDirectoryPath,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
       JSON.stringify({
         ...castVoteRecordReport,
         CVR: [castVoteRecordModifier(castVoteRecord)],
@@ -74,7 +81,10 @@ export async function modifyCastVoteRecordExport(
     await readCastVoteRecordExportMetadata(modifiedExportDirectoryPath)
   ).unsafeUnwrap();
   fs.writeFileSync(
-    path.join(modifiedExportDirectoryPath, 'metadata.json'),
+    path.join(
+      modifiedExportDirectoryPath,
+      CastVoteRecordExportFileName.METADATA
+    ),
     JSON.stringify({
       ...metadata,
       castVoteRecordReportMetadata: castVoteRecordReportMetadataModifier(

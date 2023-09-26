@@ -4,6 +4,7 @@ import { dirSync } from 'tmp';
 import { assert, err, ok } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
 import {
+  CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CVR,
   safeParseJson,
@@ -75,7 +76,10 @@ beforeEach(() => {
     castVoteRecordRootHash: expectedCastVoteRecordRootHash,
   };
   fs.writeFileSync(
-    path.join(castVoteRecordExportDirectoryPath, 'metadata.json'),
+    path.join(
+      castVoteRecordExportDirectoryPath,
+      CastVoteRecordExportFileName.METADATA
+    ),
     JSON.stringify(castVoteRecordExportMetadata)
   );
   castVoteRecords = {
@@ -208,7 +212,10 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      const metadataFilePath = path.join(directoryPath, 'metadata.json');
+      const metadataFilePath = path.join(
+        directoryPath,
+        CastVoteRecordExportFileName.METADATA
+      );
       const metadataFileContents = fs.readFileSync(metadataFilePath, 'utf-8');
       const metadataFileContentsAltered = JSON.stringify({
         ...JSON.parse(metadataFileContents),
@@ -228,7 +235,9 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.rmSync(path.join(directoryPath, 'metadata.json'));
+      fs.rmSync(
+        path.join(directoryPath, CastVoteRecordExportFileName.METADATA)
+      );
     },
   },
   {

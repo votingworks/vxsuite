@@ -3,7 +3,7 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
-import { CVR } from '@votingworks/types';
+import { CVR, CastVoteRecordExportFileName } from '@votingworks/types';
 import fs from 'fs/promises';
 import { join, resolve } from 'path';
 import { dirSync } from 'tmp';
@@ -264,7 +264,7 @@ test('including ballot images', async () => {
           `${castVoteRecord.UniqueId}-back.layout.json`,
           `${castVoteRecord.UniqueId}-front.jpg`,
           `${castVoteRecord.UniqueId}-front.layout.json`,
-          'cast-vote-record-report.json',
+          CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT,
         ].sort()
       );
     }

@@ -10,6 +10,7 @@ import {
   writeInCandidate,
   YesNoContest,
   safeParseJson,
+  CastVoteRecordExportFileName,
 } from '@votingworks/types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -77,7 +78,10 @@ async function readCastVoteRecordExport(
     );
     const castVoteRecordReport = safeParseJson(
       readFileSync(
-        join(castVoteRecordDirectoryPath, 'cast-vote-record-report.json'),
+        join(
+          castVoteRecordDirectoryPath,
+          CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+        ),
         'utf-8'
       ),
       CVR.CastVoteRecordReportSchema

@@ -1,6 +1,7 @@
 import {
   BallotType,
   CVR,
+  CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -220,7 +221,10 @@ export async function main(
       CVR: [castVoteRecord],
     };
     fs.writeFileSync(
-      join(castVoteRecordDirectory, 'cast-vote-record-report.json'),
+      join(
+        castVoteRecordDirectory,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
       JSON.stringify(castVoteRecordReport)
     );
     if (castVoteRecord.BallotImage) {
@@ -269,7 +273,10 @@ export async function main(
       await computeCastVoteRecordRootHashFromScratch(outputPath),
   };
   const metadataFileContents = JSON.stringify(castVoteRecordExportMetadata);
-  fs.writeFileSync(join(outputPath, 'metadata.json'), metadataFileContents);
+  fs.writeFileSync(
+    join(outputPath, CastVoteRecordExportFileName.METADATA),
+    metadataFileContents
+  );
 
   process.env['VX_MACHINE_TYPE'] = 'scan'; // Required by prepareSignatureFile
   const signatureFile = await prepareSignatureFile({
