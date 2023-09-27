@@ -3,6 +3,24 @@ import { Dictionary } from './generic';
 import { LanguageCode } from './language_code';
 
 /**
+ * Voter-facing election string content that need to be translated and/or
+ * spoken.
+ */
+export enum ElectionStringKey {
+  BALLOT_STYLE_ID = 'ballotStyleId',
+  CANDIDATE_NAME = 'candidateName',
+  CONTEST_DESCRIPTION = 'contestDescription',
+  CONTEST_OPTION_LABEL = 'contestOptionLabel',
+  CONTEST_TITLE = 'contestTitle',
+  COUNTY_NAME = 'countyName',
+  DISTRICT_NAME = 'districtName',
+  ELECTION_TITLE = 'electionTitle',
+  PARTY_NAME = 'partyName',
+  PRECINCT_NAME = 'precinctName',
+  STATE_NAME = 'stateName',
+}
+
+/**
  * Map of UI string key to related translation in a given language.
  *
  * Follows i18next key schema and supports one level of nesting.

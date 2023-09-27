@@ -739,9 +739,13 @@ function findDuplicateIds(ballotDefinition: Cdf.BallotDefinition): string[] {
   return duplicates(allIds);
 }
 
-export function safeParseCdfBallotDefinition(
-  value: unknown
-): Result<Vxf.Election, Error> {
+export function safeParseCdfBallotDefinition(value: unknown): Result<
+  {
+    cdfElection: Cdf.BallotDefinition;
+    vxfElection: Vxf.Election;
+  },
+  Error
+> {
   const parseResult = safeParse(Cdf.BallotDefinitionSchema, value);
   if (parseResult.isErr()) return parseResult;
   const ballotDefinition = parseResult.ok();
@@ -756,7 +760,10 @@ export function safeParseCdfBallotDefinition(
   }
 
   try {
-    return ok(convertCdfBallotDefinitionToVxfElection(ballotDefinition));
+    return ok({
+      cdfElection: ballotDefinition,
+      vxfElection: convertCdfBallotDefinitionToVxfElection(ballotDefinition),
+    });
   } catch (error) {
     return wrapException(error);
   }
