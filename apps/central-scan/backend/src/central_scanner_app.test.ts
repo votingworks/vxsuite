@@ -15,7 +15,6 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { getFeatureFlagMock } from '@votingworks/utils';
 import { Application } from 'express';
 import * as fs from 'fs/promises';
 import request from 'supertest';
@@ -36,15 +35,6 @@ import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 jest.mock('./importer');
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  };
-});
-
 const jurisdiction = TEST_JURISDICTION;
 
 let app: Application;
@@ -56,7 +46,6 @@ let logger: Logger;
 let mockUsb: MockUsb;
 
 beforeEach(() => {
-  mockFeatureFlagger.resetFeatureFlags();
   auth = buildMockDippedSmartCardAuth();
   importer = makeMock(Importer);
   mockUsb = createMockUsb();
