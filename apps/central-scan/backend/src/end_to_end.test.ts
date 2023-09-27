@@ -1,28 +1,23 @@
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import {
   createMockUsb,
-  getCastVoteRecordReportImport,
-  isTestReport,
   MockUsb,
-  validateCastVoteRecordReportDirectoryStructure,
+  readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
-  unsafeParse,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  CAST_VOTE_RECORD_REPORT_FILENAME,
   convertCastVoteRecordVotesToTabulationVotes,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { Application } from 'express';
 import * as fsExtra from 'fs-extra';
 import { Server } from 'http';
-import * as path from 'path';
 import * as grout from '@votingworks/grout';
 import request from 'supertest';
 import { dirSync } from 'tmp';
@@ -165,27 +160,15 @@ test('going through the whole process works', async () => {
 
     const [usbDrive] = await mockUsb.mock.getUsbDrives();
     const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
-    expect(cvrReportDirectoryPath).toContain('TEST__machine_000__1_ballot__');
+    expect(cvrReportDirectoryPath).toContain('TEST__machine_000__');
 
-    // check that exported report directory appears valid
-    expect(
-      (
-        await validateCastVoteRecordReportDirectoryStructure(
-          cvrReportDirectoryPath
-        )
-      ).isOk()
-    ).toBeTruthy();
-
-    const castVoteRecordReportImportResult =
-      await getCastVoteRecordReportImport(
-        path.join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
-      );
-    const castVoteRecordReportImport =
-      castVoteRecordReportImportResult.assertOk('test');
-    expect(isTestReport(castVoteRecordReportImport)).toBeTruthy();
-    const cvrs = await castVoteRecordReportImport.CVR.map((unparsed) =>
-      unsafeParse(CVR.CVRSchema, unparsed)
-    ).toArray();
+    const { castVoteRecordIterator } = (
+      await readCastVoteRecordExport(cvrReportDirectoryPath)
+    ).unsafeUnwrap();
+    const cvrs: CVR.CVR[] = (await castVoteRecordIterator.toArray()).map(
+      (castVoteRecordResult) =>
+        castVoteRecordResult.unsafeUnwrap().castVoteRecord
+    );
     expect(
       cvrs.map((cvr) =>
         convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0])
@@ -232,14 +215,12 @@ test('going through the whole process works', async () => {
   const cvrReportDirectoryPaths = getCastVoteRecordReportPaths(usbDrive);
   expect(cvrReportDirectoryPaths).toHaveLength(2);
   const cvrReportDirectoryPath = cvrReportDirectoryPaths[0];
-  const castVoteRecordReportImportResult = await getCastVoteRecordReportImport(
-    path.join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
-  );
+  const { castVoteRecordIterator } = (
+    await readCastVoteRecordExport(cvrReportDirectoryPath)
+  ).unsafeUnwrap();
 
   // there should be no CVRs in the file.
-  expect(
-    await castVoteRecordReportImportResult.assertOk('test').CVR.count()
-  ).toEqual(0);
+  expect(await castVoteRecordIterator.count()).toEqual(0);
 
   // clean up
   await apiClient.unconfigure();

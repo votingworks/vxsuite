@@ -132,7 +132,10 @@ export interface ResultSheet {
   readonly batchLabel?: string;
 }
 
-type ExportCastVoteRecordsToUsbDriveError =
+/**
+ * An error encountered while exporting cast vote records to a USB drive
+ */
+export type ExportCastVoteRecordsToUsbDriveError =
   | { type: 'invalid-sheet-found'; message: string }
   | ExportDataError;
 

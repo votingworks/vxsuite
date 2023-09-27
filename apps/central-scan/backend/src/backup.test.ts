@@ -3,15 +3,7 @@ import {
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
-import {
-  BallotIdSchema,
-  BallotType,
-  CVR,
-  DEFAULT_SYSTEM_SETTINGS,
-  safeParseJson,
-  TEST_JURISDICTION,
-  unsafeParse,
-} from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, TEST_JURISDICTION } from '@votingworks/types';
 import Database from 'better-sqlite3';
 import { createWriteStream, readFileSync, writeFileSync } from 'fs';
 import { writeFile, existsSync } from 'fs-extra';
@@ -225,69 +217,6 @@ test('has all files referenced in the database', async () => {
   expect(row).toEqual({
     filename: basename(frontImagePath.name),
   });
-});
-
-test('has cast vote record report', async () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction,
-  });
-  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
-  const { outputFile, outputStream } = tmpOutputFile();
-
-  const batchId = store.addBatch();
-  const imageFile = fileSync();
-  await writeFile(imageFile.fd, 'front image path');
-  store.addSheet('sheet-1', batchId, [
-    {
-      interpretation: {
-        type: 'InterpretedBmdPage',
-        ballotId: unsafeParse(BallotIdSchema, 'abc'),
-        metadata: {
-          ballotStyleId: 'card-number-3',
-          precinctId: 'town-id-00701-precinct-id-',
-          ballotType: BallotType.Precinct,
-          electionHash: electionDefinition.electionHash,
-          isTestMode: false,
-        },
-        votes: {
-          'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc':
-            [
-              'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
-            ],
-        },
-      },
-      imagePath: imageFile.name,
-    },
-    {
-      interpretation: { type: 'BlankPage' },
-      imagePath: imageFile.name,
-    },
-  ]);
-
-  await new Promise((resolve, reject) => {
-    backup(store).on('error', reject).pipe(outputStream).on('finish', resolve);
-  });
-
-  const zipfile = await openZip(readFileSync(outputFile));
-  const entries = getEntries(zipfile);
-  expect(entries.map(({ name }) => name)).toContain(
-    CAST_VOTE_RECORD_REPORT_FILENAME
-  );
-
-  const cvrsEntry = entries.find(
-    ({ name }) => name === CAST_VOTE_RECORD_REPORT_FILENAME
-  )!;
-  const exportedReport = unsafeParse(
-    CVR.CastVoteRecordReportSchema,
-    safeParseJson(await readTextEntry(cvrsEntry)).unsafeUnwrap()
-  );
-  expect(exportedReport.CVR).toHaveLength(1);
-  const exportedCvr = exportedReport.CVR![0]!;
-  expect(exportedCvr.UniqueId).toEqual('abc');
-  expect(exportedCvr.BatchId).toEqual(batchId);
-  expect(exportedCvr.BatchSequenceId).toEqual(1);
 });
 
 test('does not have vx-logs.log if file does not exist', async () => {

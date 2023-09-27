@@ -15,7 +15,6 @@ import {
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
-  BooleanEnvironmentVariableName,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -518,27 +517,6 @@ test('canUnconfigure not in test mode', async () => {
   // Can unconfigure if no counted ballots
   await sleep(1000);
   store.deleteSheet(sheetId3);
-  expect(store.getCanUnconfigure()).toEqual(true);
-});
-
-test('getCanUnconfigure when continuous export is enabled', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
-    jurisdiction,
-  });
-  store.setTestMode(false);
-  const batchId = store.addBatch();
-  store.addSheet(uuid(), batchId, testSheetWithFiles);
-
-  expect(store.getCanUnconfigure()).toEqual(false);
-
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
-  );
-
   expect(store.getCanUnconfigure()).toEqual(true);
 });
 

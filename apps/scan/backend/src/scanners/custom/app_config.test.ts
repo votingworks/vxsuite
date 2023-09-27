@@ -7,21 +7,12 @@ import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
-  CAST_VOTE_RECORD_REPORT_FILENAME,
   SCANNER_RESULTS_FOLDER,
   convertCastVoteRecordVotesToTabulationVotes,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import {
-  assert,
-  err,
-  find,
-  iter,
-  ok,
-  sleep,
-  unique,
-} from '@votingworks/basics';
+import { assert, err, find, iter, ok, unique } from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
 import {
@@ -31,8 +22,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   createBallotPackageZipArchive,
-  getCastVoteRecordReportImport,
-  validateCastVoteRecordReportDirectoryStructure,
+  readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { CVR, ElectionDefinition, unsafeParse } from '@votingworks/types';
@@ -216,15 +206,12 @@ test('configures using the most recently created ballot package on the usb drive
   });
 });
 
-test('export CVRs to USB', async () => {
+test('continuous CVR export', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, workspace }) => {
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       await scanBallot(mockScanner, apiClient, 0);
-      expect(
-        await apiClient.exportCastVoteRecordsToUsbDrive({ mode: 'full_export' })
-      ).toEqual(ok());
 
       const usbDrive = await mockUsbDrive.usbDrive.status();
       assert(usbDrive.status === 'mounted');
@@ -237,26 +224,19 @@ test('export CVRs to USB', async () => {
         // Filter out signature files
         .filter((path) => !path.endsWith('.vxsig'));
       expect(cvrReportDirectories).toHaveLength(1);
-      expect(cvrReportDirectories[0]).toMatch(/machine_000__1_ballot__*/);
+      expect(cvrReportDirectories[0]).toMatch(/TEST__machine_000__*/);
       const cvrReportDirectoryPath = join(
         electionDirPath,
         cvrReportDirectories[0]
       );
 
-      // Confirm we've exported a valid CVR report in the form of a directory
-      const directoryValidationResult =
-        await validateCastVoteRecordReportDirectoryStructure(
-          cvrReportDirectoryPath
-        );
-      expect(directoryValidationResult.isOk()).toBeTruthy();
-      const castVoteRecordReportImportResult =
-        await getCastVoteRecordReportImport(
-          join(cvrReportDirectoryPath, CAST_VOTE_RECORD_REPORT_FILENAME)
-        );
-      const cvrs = await castVoteRecordReportImportResult
-        .assertOk('test')
-        .CVR.toArray();
-
+      const { castVoteRecordIterator } = (
+        await readCastVoteRecordExport(cvrReportDirectoryPath)
+      ).unsafeUnwrap();
+      const cvrs: CVR.CVR[] = (await castVoteRecordIterator.toArray()).map(
+        (castVoteRecordResult) =>
+          castVoteRecordResult.unsafeUnwrap().castVoteRecord
+      );
       const cvr = cvrs[0];
       expect(cvrs.length).toEqual(1);
       expect(
@@ -283,25 +263,19 @@ test('export CVRs to USB', async () => {
         'parks-and-recreation-director': ['charles-darwin'],
         'public-works-director': ['benjamin-franklin'],
       });
-      expect(workspace.store.getCvrsBackupTimestamp()).toBeDefined();
     }
   );
 });
 
-test('exportCastVoteRecordsToUsbDrive when continuous export is enabled', async () => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
-  );
-
-  // Just test that the app has been wired properly. Rely on libs/backend tests for more detailed
-  // coverage of export logic.
+test('continuous CVR export, including polls closing, followed by a full export', async () => {
   await withApp(
     {},
     async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, 0, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       await scanBallot(mockScanner, apiClient, 1);
-      await sleep(1000); // Let background continuous export to USB drive finish
 
       expect(
         await apiClient.exportCastVoteRecordsToUsbDrive({
@@ -360,8 +334,12 @@ test('ballot batching', async () => {
       }
 
       // Scan two ballots, which should have the same batch
-      await scanBallot(mockScanner, apiClient, 0);
-      await scanBallot(mockScanner, apiClient, 1);
+      await scanBallot(mockScanner, apiClient, 0, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
+      await scanBallot(mockScanner, apiClient, 1, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       let batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(2);
       expect(batchIds).toHaveLength(1);
@@ -398,8 +376,12 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a new, second batch distinct from the first
-      await scanBallot(mockScanner, apiClient, 2);
-      await scanBallot(mockScanner, apiClient, 3);
+      await scanBallot(mockScanner, apiClient, 2, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
+      await scanBallot(mockScanner, apiClient, 3, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(4);
       expect(batchIds).toHaveLength(2);
@@ -436,7 +418,9 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a third batch, distinct from the second
-      await scanBallot(mockScanner, apiClient, 4);
+      await scanBallot(mockScanner, apiClient, 4, {
+        skipWaitForContinuousExportToUsbDrive: true,
+      });
       await scanBallot(mockScanner, apiClient, 5);
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(6);

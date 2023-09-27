@@ -8,6 +8,7 @@ import {
 import {
   configureApp,
   mockInterpret,
+  waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -107,6 +108,8 @@ test('scanner powered off while accepting', async () => {
         state: 'rejected',
         error: 'paper_in_back_after_reconnect',
       });
+
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });
@@ -116,11 +119,9 @@ test('scanner powered off after accepting', async () => {
     type: 'ValidSheet',
   };
   await withApp(
-    {
-      interpret: mockInterpret(interpretation),
-    },
+    {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -141,16 +142,24 @@ test('scanner powered off after accepting', async () => {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
+        canUnconfigure: true,
       });
 
       mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
       await waitForStatus(apiClient, {
         state: 'disconnected',
         ballotsCounted: 1,
+        canUnconfigure: true,
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
-      await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
+      await waitForStatus(apiClient, {
+        state: 'no_paper',
+        ballotsCounted: 1,
+        canUnconfigure: true,
+      });
+
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });

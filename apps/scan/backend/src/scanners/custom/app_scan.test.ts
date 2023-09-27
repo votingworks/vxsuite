@@ -21,6 +21,7 @@ import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import {
   configureApp,
   expectStatus,
+  waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -121,6 +122,7 @@ test('configure and scan hmpb', async () => {
       });
 
       checkLogs(logger);
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });
@@ -183,6 +185,7 @@ test('configure and scan bmd ballot', async () => {
       });
 
       checkLogs(logger);
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });

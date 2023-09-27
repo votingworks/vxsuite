@@ -34,7 +34,11 @@ import {
   createPrecinctScannerStateMachine,
 } from '../../src/scanners/custom/state_machine';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
-import { expectStatus, waitForStatus } from './shared_helpers';
+import {
+  expectStatus,
+  waitForContinuousExportToUsbDrive,
+  waitForStatus,
+} from './shared_helpers';
 
 export async function withApp(
   {
@@ -212,7 +216,8 @@ export function simulateScan(
 export async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
   apiClient: grout.Client<Api>,
-  initialBallotsCounted: number
+  initialBallotsCounted: number,
+  options: { skipWaitForContinuousExportToUsbDrive?: boolean } = {}
 ): Promise<void> {
   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
   await waitForStatus(apiClient, {
@@ -250,4 +255,8 @@ export async function scanBallot(
     ballotsCounted: initialBallotsCounted + 1,
     canUnconfigure: true,
   });
+
+  if (!options.skipWaitForContinuousExportToUsbDrive) {
+    await waitForContinuousExportToUsbDrive();
+  }
 }

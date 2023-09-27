@@ -363,6 +363,10 @@ export async function computeCastVoteRecordRootHashFromScratch(
   exportDirectoryPath: string
 ): Promise<string> {
   const cvrIds = await getExportedCastVoteRecordIds(exportDirectoryPath);
+  if (cvrIds.length === 0) {
+    return '';
+  }
+
   const cvrHashes: CombinableHash[] = [];
   for (const cvrId of cvrIds) {
     const cvrDirectoryPath = path.join(exportDirectoryPath, cvrId);

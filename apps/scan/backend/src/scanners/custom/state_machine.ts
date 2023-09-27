@@ -39,10 +39,6 @@ import {
 } from 'xstate';
 import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import { Store } from '../../store';
@@ -443,20 +439,14 @@ async function recordAcceptedSheet(
   if (interpretation.type === 'NeedsReviewSheet') {
     store.adjudicateSheet(sheetId);
   }
-  if (
-    isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_CONTINUOUS_EXPORT
+  (
+    await exportCastVoteRecordsToUsbDrive(
+      store,
+      usbDrive,
+      [assertDefined(store.getResultSheet(sheetId))],
+      { scannerType: 'precinct' }
     )
-  ) {
-    (
-      await exportCastVoteRecordsToUsbDrive(
-        store,
-        usbDrive,
-        [assertDefined(store.getResultSheet(sheetId))],
-        { scannerType: 'precinct' }
-      )
-    ).unsafeUnwrap();
-  }
+  ).unsafeUnwrap();
   debug('Stored accepted sheet: %s', sheetId);
 }
 

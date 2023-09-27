@@ -1,5 +1,5 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { ok } from '@votingworks/basics';
+import { ok, sleep } from '@votingworks/basics';
 import { createBallotPackageZipArchive } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
@@ -132,4 +132,15 @@ export function mockInterpret(
       ],
     })
   );
+}
+
+/**
+ * Continuous export to USB drive happens in the background as ballots are scanned. Ending a test
+ * before continuous export finishes can result in errors due to directories getting cleaned up
+ * while they're still being read from / written to.
+ */
+export function waitForContinuousExportToUsbDrive(): Promise<void> {
+  // TODO: Replace this with a less arbitrary method, like actually checking the contents of the
+  // mock USB drive
+  return sleep(3000);
 }

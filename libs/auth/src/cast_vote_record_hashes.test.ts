@@ -230,3 +230,15 @@ test('computeCastVoteRecordRootHashFromScratch', async () => {
     await computeCastVoteRecordRootHashFromScratch(exportDirectoryPath)
   ).toEqual(expectedCastVoteRecordRootHash);
 });
+
+test('computeCastVoteRecordRootHashFromScratch when no cast vote records', async () => {
+  const exportDirectoryPath = path.join(
+    tempDirectoryPath,
+    'cast-vote-record-export'
+  );
+  fs.mkdirSync(exportDirectoryPath);
+
+  expect(
+    await computeCastVoteRecordRootHashFromScratch(exportDirectoryPath)
+  ).toEqual('');
+});

@@ -1,15 +1,21 @@
-import { AdjudicationReason, SheetInterpretation } from '@votingworks/types';
-import { ok } from '@votingworks/basics';
+import {
+  AdjudicationReason,
+  AdjudicationReasonInfo,
+  DEFAULT_SYSTEM_SETTINGS,
+  SheetInterpretation,
+} from '@votingworks/types';
+import { ok, typedAs } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import waitForExpect from 'wait-for-expect';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   configureApp,
   expectStatus,
-  mockInterpret,
+  waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -28,11 +34,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
   };
 });
-
-const needsReviewInterpretation: SheetInterpretation = {
-  type: 'NeedsReviewSheet',
-  reasons: [{ type: AdjudicationReason.BlankBallot }],
-};
 
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
@@ -76,6 +77,8 @@ test('insert second ballot before first ballot accept', async () => {
         ballotsCounted: 1,
         canUnconfigure: true,
       });
+
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });
@@ -90,10 +93,9 @@ test('insert second ballot while first ballot is accepting', async () => {
         DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 1000,
         DELAY_ACCEPTED_RESET_TO_NO_PAPER: 2000,
       },
-      interpret: mockInterpret(interpretation),
     },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -113,31 +115,51 @@ test('insert second ballot while first ballot is accepting', async () => {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
+        canUnconfigure: true,
       });
       await waitForStatus(apiClient, {
         state: 'returning_to_rescan',
         ballotsCounted: 1,
+        canUnconfigure: true,
       });
+
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });
 
 test('insert second ballot while first ballot needs review', async () => {
-  const interpretation = needsReviewInterpretation;
+  const interpretation: SheetInterpretation = {
+    type: 'NeedsReviewSheet',
+    reasons: [
+      expect.objectContaining(
+        typedAs<Partial<AdjudicationReasonInfo>>({
+          type: AdjudicationReason.Overvote,
+        })
+      ),
+    ],
+  };
   await withApp(
     {
       delays: {
         DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 3000,
       },
-      interpret: mockInterpret(interpretation),
     },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        ballotPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+            {
+              ...DEFAULT_SYSTEM_SETTINGS,
+              precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
+            }
+          ),
+      });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
 
-      simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
+      simulateScan(mockScanner, await ballotImages.overvoteHmpb());
       await apiClient.scanBallot();
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
@@ -164,6 +186,8 @@ test('insert second ballot while first ballot needs review', async () => {
         interpretation,
         ballotsCounted: 1,
       });
+
+      await waitForContinuousExportToUsbDrive();
     }
   );
 });
