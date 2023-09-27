@@ -21,6 +21,7 @@ import {
   exportCastVoteRecordsToUsbDrive,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   ExportCastVoteRecordsToUsbDriveError,
+  configureUiStrings,
 } from '@votingworks/backend';
 import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -156,6 +157,13 @@ export function buildApi(
           store.setPrecinctSelection(precinctSelection);
         }
         store.setSystemSettings(systemSettings);
+
+        configureUiStrings({
+          ballotPackage,
+          logger,
+          noAudio: true,
+          store: workspace.store.getUiStringsStore(),
+        });
       });
 
       return ok();

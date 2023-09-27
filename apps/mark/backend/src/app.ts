@@ -20,6 +20,7 @@ import {
   createUiStringsApi,
   Usb,
   readBallotPackageFromUsb,
+  configureUiStrings,
 } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -133,14 +134,23 @@ export function buildApi(
         return ballotPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const { electionDefinition, systemSettings } = ballotPackageResult.ok();
+      const ballotPackage = ballotPackageResult.ok();
+      const { electionDefinition, systemSettings } = ballotPackage;
       assert(systemSettings);
 
-      workspace.store.setElectionAndJurisdiction({
-        electionData: electionDefinition.electionData,
-        jurisdiction: authStatus.user.jurisdiction,
+      workspace.store.withTransaction(() => {
+        workspace.store.setElectionAndJurisdiction({
+          electionData: electionDefinition.electionData,
+          jurisdiction: authStatus.user.jurisdiction,
+        });
+        workspace.store.setSystemSettings(systemSettings);
+
+        configureUiStrings({
+          ballotPackage,
+          logger,
+          store: workspace.store.getUiStringsStore(),
+        });
       });
-      workspace.store.setSystemSettings(systemSettings);
 
       return ok(electionDefinition);
     },
