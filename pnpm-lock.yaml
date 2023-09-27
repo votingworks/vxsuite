@@ -2876,9 +2876,6 @@ importers:
       pcsclite:
         specifier: ^1.0.1
         version: 1.0.1
-      recursive-readdir:
-        specifier: ^2.2.3
-        version: 2.2.3
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
@@ -2904,9 +2901,6 @@ importers:
       '@types/node-fetch':
         specifier: ^2.6.0
         version: 2.6.2
-      '@types/recursive-readdir':
-        specifier: ^2.2.1
-        version: 2.2.1
       '@types/tmp':
         specifier: ^0.2.3
         version: 0.2.3
@@ -11592,12 +11586,6 @@ packages:
     dependencies:
       '@types/node': 16.18.23
       safe-buffer: 5.2.1
-
-  /@types/recursive-readdir@2.2.1:
-    resolution: {integrity: sha512-Xd+Ptc4/F2ueInqy5yK2FI5FxtwwbX2+VZpcg+9oYsFJVen8qQKGapCr+Bi5wQtHU1cTXT8s+07lo/nKPgu8Gg==}
-    dependencies:
-      '@types/node': 16.18.23
-    dev: true
 
   /@types/responselike@1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
@@ -22523,13 +22511,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       minimatch: 3.0.4
-
-  /recursive-readdir@2.2.3:
-    resolution: {integrity: sha512-8HrF5ZsXk5FAH9dgsx3BlUer73nIhuj+9OrQwEbLTPOBzGkL1lsFCR01am+v+0m2Cmbs1nP12hLDl5FA7EszKA==}
-    engines: {node: '>=6.0.0'}
-    dependencies:
-      minimatch: 3.1.2
-    dev: false
 
   /redent@3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
