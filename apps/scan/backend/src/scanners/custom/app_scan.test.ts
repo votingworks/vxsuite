@@ -21,12 +21,12 @@ import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
 import {
   configureApp,
   expectStatus,
+  waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
   ballotImages,
   simulateScan,
-  waitForContinuousExportToUsbDrive,
   withApp,
 } from '../../../test/helpers/custom_helpers';
 

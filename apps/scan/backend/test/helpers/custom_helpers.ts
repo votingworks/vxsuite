@@ -3,7 +3,7 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { Result, deferred, ok, sleep } from '@votingworks/basics';
+import { Result, deferred, ok } from '@votingworks/basics';
 import {
   CustomScanner,
   ErrorCode,
@@ -34,7 +34,11 @@ import {
   createPrecinctScannerStateMachine,
 } from '../../src/scanners/custom/state_machine';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
-import { expectStatus, waitForStatus } from './shared_helpers';
+import {
+  expectStatus,
+  waitForContinuousExportToUsbDrive,
+  waitForStatus,
+} from './shared_helpers';
 
 export async function withApp(
   {
@@ -207,10 +211,6 @@ export function simulateScan(
     didScan = true;
     return Promise.resolve(ok(ballotImage));
   });
-}
-
-export async function waitForContinuousExportToUsbDrive(): Promise<void> {
-  return sleep(3000);
 }
 
 export async function scanBallot(

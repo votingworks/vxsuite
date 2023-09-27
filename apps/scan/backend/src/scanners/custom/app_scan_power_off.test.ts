@@ -8,12 +8,12 @@ import {
 import {
   configureApp,
   mockInterpret,
+  waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
   ballotImages,
   simulateScan,
-  waitForContinuousExportToUsbDrive,
   withApp,
 } from '../../../test/helpers/custom_helpers';
 

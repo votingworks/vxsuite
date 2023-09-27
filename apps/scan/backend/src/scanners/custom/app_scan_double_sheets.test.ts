@@ -15,12 +15,12 @@ import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixt
 import {
   configureApp,
   expectStatus,
+  waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
   ballotImages,
   simulateScan,
-  waitForContinuousExportToUsbDrive,
   withApp,
 } from '../../../test/helpers/custom_helpers';
 
