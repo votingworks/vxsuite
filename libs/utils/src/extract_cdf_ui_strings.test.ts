@@ -175,6 +175,6 @@ const tests: Record<ElectionStringKey, () => void> = {
   },
 };
 
-for (const [electionStringKey, testFn] of Object.entries(tests)) {
-  test(electionStringKey, testFn);
-}
+test.each(Object.entries(tests))('extract %s', (_electionStringKey, testFn) =>
+  testFn()
+);
