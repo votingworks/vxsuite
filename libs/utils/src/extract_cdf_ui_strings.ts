@@ -14,16 +14,24 @@ import { assertDefined } from '@votingworks/basics';
 const SUPPORTED_LANGUAGES = new Set<string>(Object.values(LanguageCode));
 
 /**
+ * String translation string key, with support for one level of optional nesting
+ * for strings of the same type that vary based on content ID(e.g.
+ * `['contestTitle', contest.id]`).
+ *
+ * See https://www.i18next.com/translation-function/essentials#accessing-keys
+ */
+type StringKey = ElectionStringKey | [ElectionStringKey, string];
+
+/**
  * Sets the appropriate language strings in supported languages for the given
  * internationalized CDF ballot content text.
  */
 function setInternationalizedUiStrings(params: {
   uiStrings: UiStringsPackage;
-  stringKey: ElectionStringKey;
-  entityId?: string;
+  stringKey: StringKey;
   values: readonly BallotDefinition.LanguageString[];
 }) {
-  const { entityId, stringKey, uiStrings, values } = params;
+  const { stringKey, uiStrings, values } = params;
 
   for (const value of values) {
     const languageCode = value.Language;
@@ -31,7 +39,7 @@ function setInternationalizedUiStrings(params: {
       continue;
     }
 
-    const valuePath = _.compact([languageCode, stringKey, entityId]);
+    const valuePath = [languageCode, stringKey].flat();
     _.set(uiStrings, valuePath, value.Content);
   }
 }
@@ -42,13 +50,12 @@ function setInternationalizedUiStrings(params: {
  */
 function setStaticUiString(params: {
   uiStrings: UiStringsPackage;
-  stringKey: ElectionStringKey;
-  entityId?: string;
+  stringKey: StringKey;
   value: string;
 }) {
-  const { entityId, stringKey, uiStrings, value } = params;
+  const { stringKey, uiStrings, value } = params;
 
-  const valuePath = _.compact([LanguageCode.ENGLISH, stringKey, entityId]);
+  const valuePath = [LanguageCode.ENGLISH, stringKey].flat();
   _.set(uiStrings, valuePath, value);
 }
 
@@ -62,9 +69,12 @@ const extractorFns: Record<
   [ElectionStringKey.BALLOT_STYLE_ID](cdfElection, uiStrings) {
     for (const ballotStyle of assertDefined(cdfElection.Election[0])
       .BallotStyle) {
+      const ballotStyleId = assertDefined(
+        ballotStyle.ExternalIdentifier[0]
+      ).Value;
+
       setStaticUiString({
-        entityId: assertDefined(ballotStyle.ExternalIdentifier[0]).Value,
-        stringKey: ElectionStringKey.BALLOT_STYLE_ID,
+        stringKey: [ElectionStringKey.BALLOT_STYLE_ID, ballotStyleId],
         uiStrings,
         // TODO(kofi): Should we start populating the `Label` field to provide
         // more user-friendly display values?
@@ -88,8 +98,7 @@ const extractorFns: Record<
   [ElectionStringKey.CONTEST_TITLE](cdfElection, uiStrings) {
     for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
       setInternationalizedUiStrings({
-        entityId: contest['@id'],
-        stringKey: ElectionStringKey.CONTEST_TITLE,
+        stringKey: [ElectionStringKey.CONTEST_TITLE, contest['@id']],
         uiStrings,
         values: contest.BallotTitle.Text,
       });
