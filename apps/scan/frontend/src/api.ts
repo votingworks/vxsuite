@@ -14,6 +14,7 @@ import {
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   UsbDriveStatus as LegacyUsbDriveStatus,
+  createUiStringsApi,
 } from '@votingworks/ui';
 import { typedAs } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -164,6 +165,8 @@ export const ejectUsbDrive = {
   },
 } as const;
 
+export const uiStringsApi = createUiStringsApi(useApiClient);
+
 export const configureFromBallotPackageOnUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
@@ -171,6 +174,7 @@ export const configureFromBallotPackageOnUsbDrive = {
     return useMutation(apiClient.configureFromBallotPackageOnUsbDrive, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
+        await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
   },
@@ -183,6 +187,7 @@ export const unconfigureElection = {
     return useMutation(apiClient.unconfigureElection, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
+        await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
   },

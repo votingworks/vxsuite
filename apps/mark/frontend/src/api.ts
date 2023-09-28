@@ -11,6 +11,7 @@ import {
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
+  createUiStringsApi,
 } from '@votingworks/ui';
 
 export type ApiClient = grout.Client<Api>;
@@ -150,6 +151,8 @@ export const endCardlessVoterSession = {
   },
 } as const;
 
+export const uiStringsApi = createUiStringsApi(useApiClient);
+
 export const configureBallotPackageFromUsb = {
   useMutation() {
     const apiClient = useApiClient();
@@ -158,6 +161,7 @@ export const configureBallotPackageFromUsb = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
   },
@@ -171,6 +175,7 @@ export const unconfigureMachine = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
   },

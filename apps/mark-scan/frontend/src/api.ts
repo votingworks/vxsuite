@@ -11,6 +11,7 @@ import {
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
+  createUiStringsApi,
 } from '@votingworks/ui';
 import { STATE_MACHINE_POLLING_INTERVAL_MS } from './constants';
 
@@ -193,6 +194,8 @@ export const endCardlessVoterSession = {
   },
 } as const;
 
+export const uiStringsApi = createUiStringsApi(useApiClient);
+
 export const configureBallotPackageFromUsb = {
   useMutation() {
     const apiClient = useApiClient();
@@ -201,6 +204,7 @@ export const configureBallotPackageFromUsb = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
   },
@@ -215,6 +219,7 @@ export const unconfigureMachine = {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
         await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+        await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
   },
