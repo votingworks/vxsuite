@@ -90,7 +90,7 @@ export async function main(): Promise<number> {
     'eject - Ejects the paper forward',
     'retract - Retracts the paper',
     'load - Loads paper',
-    'autoscan - Continously watch for paper and scan and eject everything',
+    'autoscan - Continuously watch for paper and scan and eject everything',
     '',
     chalk.bold('Enter a command: '),
   ].join('\n');
