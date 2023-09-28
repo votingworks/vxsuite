@@ -1,9 +1,7 @@
 import { Buffer } from 'buffer';
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
-import { sha256 } from 'js-sha256';
 import path from 'path';
-import recursiveReadDir from 'recursive-readdir';
 import { Readable, Stream } from 'stream';
 import {
   assert,
@@ -53,34 +51,20 @@ interface ElectionPackage {
   filePath: string;
 }
 
-interface LegacyCastVoteRecords {
-  type: 'legacy_cast_vote_records';
-  directoryPath: string;
-}
-
 /**
  * An export-time representation of an {@link Artifact}
  */
-export type ArtifactToExport =
-  | CastVoteRecordsToExport
-  | ElectionPackage
-  | LegacyCastVoteRecords;
+export type ArtifactToExport = CastVoteRecordsToExport | ElectionPackage;
 
 /**
  * An import-time representation of an {@link Artifact}
  */
-export type ArtifactToImport =
-  | CastVoteRecordsToImport
-  | ElectionPackage
-  | LegacyCastVoteRecords;
+export type ArtifactToImport = CastVoteRecordsToImport | ElectionPackage;
 
 /**
  * A machine-exported artifact whose authenticity we want to be able to verify
  */
-export type Artifact =
-  | CastVoteRecords
-  | ElectionPackage
-  | LegacyCastVoteRecords;
+export type Artifact = CastVoteRecords | ElectionPackage;
 
 interface ArtifactSignatureBundle {
   signature: Buffer;
@@ -91,31 +75,7 @@ interface ArtifactSignatureBundle {
 // Helpers
 //
 
-/**
- * Recursively hashes every file in a directory and outputs a buffer that if written to a file
- * would look something like this:
- * 88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589  file-1.txt
- * e5e088a0b66163a0a26a5e053d2a4496dc16ab6e0e3dd1adf2d16aa84a078c9d  file-2.txt
- * 005c19658919186b85618c5870463eec8d9b8c1a9d00208a5352891ba5bbe086  sub-dir/file-3.txt
- *
- * File paths are sorted alphabetically to ensure a consistent output.
- */
-/* istanbul ignore next */
-async function hashDirectoryContents(directoryPath: string): Promise<Buffer> {
-  const filePaths = (await recursiveReadDir(directoryPath)).sort();
-  const fileHashEntries: Buffer[] = [];
-  for (const filePath of filePaths) {
-    const fileHash = sha256(await fs.readFile(filePath));
-    const relativeFilePath = path.relative(directoryPath, filePath);
-    fileHashEntries.push(
-      // Mimic the output of the sha256sum command-line tool
-      Buffer.from(`${fileHash}  ${relativeFilePath}\n`, 'utf-8')
-    );
-  }
-  return Buffer.concat(fileHashEntries);
-}
-
-async function constructMessage(artifact: Artifact): Promise<Stream> {
+function constructMessage(artifact: Artifact): Stream {
   switch (artifact.type) {
     case 'cast_vote_records': {
       let metadataFileContents: NodeJS.ReadableStream;
@@ -144,13 +104,6 @@ async function constructMessage(artifact: Artifact): Promise<Stream> {
       const fileContents = createReadStream(artifact.filePath);
       return constructPrefixedMessage(artifact.type, fileContents);
     }
-    /* istanbul ignore next */
-    case 'legacy_cast_vote_records': {
-      const directoryContents = await hashDirectoryContents(
-        artifact.directoryPath
-      );
-      return constructPrefixedMessage(artifact.type, directoryContents);
-    }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
       throwIllegalValue(artifact, 'type');
@@ -162,7 +115,7 @@ async function constructArtifactSignatureBundle(
   config: ArtifactAuthenticationConfig,
   artifact: Artifact
 ): Promise<ArtifactSignatureBundle> {
-  const message = await constructMessage(artifact);
+  const message = constructMessage(artifact);
   const messageSignature = await signMessage({
     message,
     signingPrivateKey: config.signingMachinePrivateKey,
@@ -211,8 +164,7 @@ async function validateSigningMachineCert(
 ): Promise<void> {
   const certDetails = await parseCert(signingMachineCert);
   switch (artifact.type) {
-    case 'cast_vote_records':
-    case 'legacy_cast_vote_records': {
+    case 'cast_vote_records': {
       assert(
         certDetails.component === 'central-scan' ||
           certDetails.component === 'scan',
@@ -246,7 +198,7 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
   artifact: ArtifactToImport,
   artifactSignatureBundle: ArtifactSignatureBundle
 ): Promise<void> {
-  const message = await constructMessage(artifact);
+  const message = constructMessage(artifact);
   const { signature: messageSignature, signingMachineCert } =
     artifactSignatureBundle;
   await validateSigningMachineCert(config, signingMachineCert, artifact);
@@ -267,10 +219,6 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
     case 'election_package': {
       return `${path.basename(artifact.filePath)}.vxsig`;
     }
-    /* istanbul ignore next */
-    case 'legacy_cast_vote_records': {
-      return `${path.basename(artifact.directoryPath)}.vxsig`;
-    }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
       throwIllegalValue(artifact, 'type');
@@ -280,8 +228,7 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
 
 function constructSignatureFilePath(artifact: ArtifactToImport): string {
   switch (artifact.type) {
-    case 'cast_vote_records':
-    case 'legacy_cast_vote_records': {
+    case 'cast_vote_records': {
       return `${artifact.directoryPath}.vxsig`;
     }
     case 'election_package': {
