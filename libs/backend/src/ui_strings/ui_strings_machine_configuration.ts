@@ -4,7 +4,7 @@ import { BallotPackage, LanguageCode } from '@votingworks/types';
 import { Logger } from '@votingworks/logging';
 import { UiStringsStore } from './ui_strings_store';
 
-/** Input for {@link processBallotPackage}. */
+/** Input for {@link configureUiStrings}. */
 export interface BallotPackageProcessorInput {
   ballotPackage: BallotPackage;
   logger: Logger;
