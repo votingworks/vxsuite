@@ -50,7 +50,7 @@ runUiStringApiTests({
   store: store.getUiStringsStore(),
 });
 
-describe('configureMachine', () => {
+describe('configureBallotPackageFromUsb', () => {
   let mockUsbDrive: MockUsb;
   let api: Api;
 

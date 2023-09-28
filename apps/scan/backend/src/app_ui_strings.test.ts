@@ -62,7 +62,7 @@ runUiStringApiTests({
   store: store.getUiStringsStore(),
 });
 
-describe('configureMachine', () => {
+describe('configureFromBallotPackageOnUsbDrive', () => {
   beforeEach(() => {
     mockFeatureFlagger.resetFeatureFlags();
     mockFeatureFlagger.enableFeatureFlag(
