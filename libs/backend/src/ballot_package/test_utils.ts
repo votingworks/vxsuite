@@ -19,5 +19,11 @@ export function createBallotPackageZipArchive(
       JSON.stringify(ballotPackage.systemSettings, null, 2)
     );
   }
+  if (ballotPackage.uiStrings) {
+    jsZip.file(
+      BallotPackageFileName.APP_STRINGS,
+      JSON.stringify(ballotPackage.uiStrings, null, 2)
+    );
+  }
   return jsZip.generateAsync({ type: 'nodebuffer' });
 }

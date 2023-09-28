@@ -24,6 +24,7 @@ import {
   createUiStringsApi,
   Usb,
   readBallotPackageFromUsb,
+  configureUiStrings,
 } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -156,21 +157,30 @@ export function buildApi(
         return ballotPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const { electionDefinition, systemSettings } = ballotPackageResult.ok();
+      const ballotPackage = ballotPackageResult.ok();
+      const { electionDefinition, systemSettings } = ballotPackage;
       assert(systemSettings);
 
-      workspace.store.setElectionAndJurisdiction({
-        electionData: electionDefinition.electionData,
-        jurisdiction: authStatus.user.jurisdiction,
-      });
-      workspace.store.setSystemSettings(systemSettings);
+      workspace.store.withTransaction(() => {
+        workspace.store.setElectionAndJurisdiction({
+          electionData: electionDefinition.electionData,
+          jurisdiction: authStatus.user.jurisdiction,
+        });
+        workspace.store.setSystemSettings(systemSettings);
 
-      const { precincts } = electionDefinition.election;
-      if (precincts.length === 1) {
-        workspace.store.setPrecinctSelection(
-          singlePrecinctSelectionFor(precincts[0].id)
-        );
-      }
+        const { precincts } = electionDefinition.election;
+        if (precincts.length === 1) {
+          workspace.store.setPrecinctSelection(
+            singlePrecinctSelectionFor(precincts[0].id)
+          );
+        }
+
+        configureUiStrings({
+          ballotPackage,
+          logger,
+          store: workspace.store.getUiStringsStore(),
+        });
+      });
 
       return ok(electionDefinition);
     },

@@ -50,6 +50,18 @@ export class Store {
   }
 
   /**
+   * Runs the given function in a transaction. If the function throws an error,
+   * the transaction is rolled back. Otherwise, the transaction is committed.
+   *
+   * Returns the result of the function.
+   */
+  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
+  withTransaction<T>(fn: () => T): T;
+  withTransaction<T>(fn: () => T): T {
+    return this.client.transaction(() => fn());
+  }
+
+  /**
    * Resets the database and any cached data in the store.
    */
   reset(): void {
