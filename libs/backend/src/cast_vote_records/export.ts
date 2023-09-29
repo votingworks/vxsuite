@@ -798,7 +798,7 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     }
     const castVoteRecordRootHash = scannerStore.getCastVoteRecordRootHash();
 
-    // A previous export may have failed midway
+    // A previous export operation may have failed midway
     if (areOrWereCastVoteRecordsBeingExportedToUsbDrive(usbDriveStatus)) {
       return true;
     }
