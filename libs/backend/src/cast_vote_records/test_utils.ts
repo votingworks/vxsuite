@@ -1,14 +1,21 @@
 /* istanbul ignore file */
 import fs from 'fs';
 import path from 'path';
-import { computeCastVoteRecordRootHashFromScratch } from '@votingworks/auth';
-import { assertDefined } from '@votingworks/basics';
+import {
+  computeCastVoteRecordRootHashFromScratch,
+  SIGNATURE_FILE_EXTENSION,
+} from '@votingworks/auth';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   CastVoteRecordExportFileName,
   CVR,
   safeParseJson,
 } from '@votingworks/types';
-import { getExportedCastVoteRecordIds } from '@votingworks/utils';
+import { UsbDrive } from '@votingworks/usb-drive';
+import {
+  getExportedCastVoteRecordIds,
+  SCANNER_RESULTS_FOLDER,
+} from '@votingworks/utils';
 
 import { readCastVoteRecordExportMetadata } from './import';
 
@@ -97,4 +104,30 @@ export async function modifyCastVoteRecordExport(
   );
 
   return modifiedExportDirectoryPath;
+}
+
+/**
+ * Gets the paths of the cast vote record export directories on the inserted USB drive. Assumes
+ * that there's only one election directory.
+ */
+export async function getCastVoteRecordExportDirectoryPaths(
+  usbDrive: UsbDrive
+): Promise<string[]> {
+  const usbDriveStatus = await usbDrive.status();
+  assert(usbDriveStatus.status === 'mounted');
+  const usbMountPoint = usbDriveStatus.mountPoint;
+
+  const resultsDirectoryPath = path.join(usbMountPoint, SCANNER_RESULTS_FOLDER);
+  const electionDirectoryNames = fs.readdirSync(resultsDirectoryPath);
+  assert(electionDirectoryNames.length === 1);
+  const electionDirectoryPath = path.join(
+    resultsDirectoryPath,
+    assertDefined(electionDirectoryNames[0])
+  );
+  const castVoteRecordExportDirectoryPaths = fs
+    .readdirSync(electionDirectoryPath)
+    // Filter out signature files
+    .filter((entryName) => !entryName.endsWith(SIGNATURE_FILE_EXTENSION))
+    .map((entryName) => path.join(electionDirectoryPath, entryName));
+  return castVoteRecordExportDirectoryPaths;
 }

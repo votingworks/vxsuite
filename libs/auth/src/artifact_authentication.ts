@@ -31,6 +31,11 @@ import {
 } from './cryptography';
 import { constructPrefixedMessage } from './signatures';
 
+/**
+ * The file extension for VotingWorks signature files
+ */
+export const SIGNATURE_FILE_EXTENSION = '.vxsig';
+
 interface CastVoteRecordsToExport {
   type: 'cast_vote_records';
   context: 'export';
@@ -214,10 +219,10 @@ async function authenticateArtifactUsingArtifactSignatureBundle(
 function constructSignatureFileName(artifact: ArtifactToExport): string {
   switch (artifact.type) {
     case 'cast_vote_records': {
-      return `${artifact.directoryName}.vxsig`;
+      return `${artifact.directoryName}${SIGNATURE_FILE_EXTENSION}`;
     }
     case 'election_package': {
-      return `${path.basename(artifact.filePath)}.vxsig`;
+      return `${path.basename(artifact.filePath)}${SIGNATURE_FILE_EXTENSION}`;
     }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
@@ -229,10 +234,10 @@ function constructSignatureFileName(artifact: ArtifactToExport): string {
 function constructSignatureFilePath(artifact: ArtifactToImport): string {
   switch (artifact.type) {
     case 'cast_vote_records': {
-      return `${artifact.directoryPath}.vxsig`;
+      return `${artifact.directoryPath}${SIGNATURE_FILE_EXTENSION}`;
     }
     case 'election_package': {
-      return `${artifact.filePath}.vxsig`;
+      return `${artifact.filePath}${SIGNATURE_FILE_EXTENSION}`;
     }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
