@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 import crypto from 'crypto';
+import { existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import {
@@ -569,8 +570,31 @@ async function randomlyUpdateCreationTimestamps(
   }
 }
 
+function getCastVoteRecordExportInProgressMarkerFilePath(
+  usbMountPoint: string
+): string {
+  return path.join(usbMountPoint, '.export-in-progress');
+}
+
+async function markCastVoteRecordExportAsInProgress(
+  usbMountPoint: string
+): Promise<void> {
+  await fs.writeFile(
+    getCastVoteRecordExportInProgressMarkerFilePath(usbMountPoint),
+    ''
+  );
+}
+
+async function markCastVoteRecordExportAsComplete(
+  usbMountPoint: string
+): Promise<void> {
+  await fs.rm(getCastVoteRecordExportInProgressMarkerFilePath(usbMountPoint), {
+    force: true,
+  });
+}
+
 //
-// Exported functions
+// Top-level functions
 //
 
 /**
@@ -616,6 +640,8 @@ export async function exportCastVoteRecordsToUsbDrive(
     scannerStore,
     usbMountPoint,
   };
+
+  await markCastVoteRecordExportAsInProgress(usbMountPoint);
 
   // Before a full export, clear cast vote record hashes so that they can be recomputed from
   // scratch. This is particularly important for VxCentralScan, where batches can be deleted
@@ -706,19 +732,36 @@ export async function exportCastVoteRecordsToUsbDrive(
   }
 
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+  await markCastVoteRecordExportAsComplete(usbMountPoint);
 
   return ok();
 }
 
 /**
+ * Checks whether cast vote records are being exported to a USB drive (or were being exported
+ * to the USB drive before it was last removed)
+ */
+export function areOrWereCastVoteRecordsBeingExportedToUsbDrive(
+  usbDriveStatus: UsbDriveStatus
+): boolean {
+  if (usbDriveStatus.status !== 'mounted') {
+    return false;
+  }
+  return existsSync(
+    getCastVoteRecordExportInProgressMarkerFilePath(usbDriveStatus.mountPoint)
+  );
+}
+
+/**
  * Returns whether a USB drive is inserted and requires a cast vote record sync because the cast
- * vote records on it don't match the cast vote records on the machine. Only relevant for machines
+ * vote records on it don't match the cast vote records on the scanner. Only relevant for scanners
  * that continuously export cast vote records.
  *
  * Because this function 1) requires reading data from the USB drive and 2) is polled by consumers,
  * we use a caching mechanism to avoid constantly reading from the USB drive. We recompute whenever
  * 1) the USB drive status changes (e.g. on insertion and removal) or 2) the cache is explicitly
- * cleared (e.g. after cast vote record export).
+ * cleared (e.g. after cast vote record export). A scanner reboot will also result in
+ * recomputation.
  */
 export async function doesUsbDriveRequireCastVoteRecordSync(
   scannerStore: ScannerStore & {
@@ -755,6 +798,11 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     }
     const castVoteRecordRootHash = scannerStore.getCastVoteRecordRootHash();
 
+    // A previous export may have failed midway
+    if (areOrWereCastVoteRecordsBeingExportedToUsbDrive(usbDriveStatus)) {
+      return true;
+    }
+
     const { election, electionHash } = electionDefinition;
     const exportDirectoryPath = path.join(
       usbMountPoint,
@@ -774,6 +822,7 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     ) {
       return true;
     }
+
     return false;
   })();
   doesUsbDriveRequireCastVoteRecordSyncCachedResult = {
