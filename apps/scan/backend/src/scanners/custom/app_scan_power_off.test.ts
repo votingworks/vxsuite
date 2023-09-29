@@ -8,7 +8,6 @@ import {
 import {
   configureApp,
   mockInterpret,
-  waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -108,8 +107,6 @@ test('scanner powered off while accepting', async () => {
         state: 'rejected',
         error: 'paper_in_back_after_reconnect',
       });
-
-      await waitForContinuousExportToUsbDrive();
     }
   );
 });
@@ -158,8 +155,6 @@ test('scanner powered off after accepting', async () => {
         ballotsCounted: 1,
         canUnconfigure: true,
       });
-
-      await waitForContinuousExportToUsbDrive();
     }
   );
 });
