@@ -123,6 +123,7 @@ export async function withApp(
     });
     mockUsbDrive.assertComplete();
   } finally {
+    await waitForContinuousExportToUsbDrive(mockUsbDrive);
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });
@@ -215,9 +216,9 @@ export function simulateScan(
 
 export async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
+  mockUsbDrive: MockUsbDrive,
   apiClient: grout.Client<Api>,
-  initialBallotsCounted: number,
-  options: { skipWaitForContinuousExportToUsbDrive?: boolean } = {}
+  initialBallotsCounted: number
 ): Promise<void> {
   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
   await waitForStatus(apiClient, {
@@ -256,7 +257,5 @@ export async function scanBallot(
     canUnconfigure: true,
   });
 
-  if (!options.skipWaitForContinuousExportToUsbDrive) {
-    await waitForContinuousExportToUsbDrive();
-  }
+  await waitForContinuousExportToUsbDrive(mockUsbDrive);
 }

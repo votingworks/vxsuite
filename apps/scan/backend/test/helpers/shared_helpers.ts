@@ -1,6 +1,9 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { ok, sleep } from '@votingworks/basics';
-import { createBallotPackageZipArchive } from '@votingworks/backend';
+import { ok } from '@votingworks/basics';
+import {
+  areOrWereCastVoteRecordsBeingExportedToUsbDrive,
+  createBallotPackageZipArchive,
+} from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
@@ -139,8 +142,19 @@ export function mockInterpret(
  * before continuous export finishes can result in errors due to directories getting cleaned up
  * while they're still being read from / written to.
  */
-export function waitForContinuousExportToUsbDrive(): Promise<void> {
-  // TODO: Replace this with a less arbitrary method, like actually checking the contents of the
-  // mock USB drive
-  return sleep(3000);
+export async function waitForContinuousExportToUsbDrive(
+  mockUsbDrive: MockUsbDrive
+): Promise<void> {
+  // Check that mockUsbDrive.usbDrive.status has been configured before calling it
+  if (mockUsbDrive.usbDrive.status.hasExpectedCalls()) {
+    const usbDriveStatus = await mockUsbDrive.usbDrive.status();
+    await waitForExpect(
+      () =>
+        expect(
+          areOrWereCastVoteRecordsBeingExportedToUsbDrive(usbDriveStatus)
+        ).toEqual(false),
+      10000,
+      250
+    );
+  }
 }
