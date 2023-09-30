@@ -20,7 +20,6 @@ import {
 } from '@votingworks/basics';
 import {
   BallotIdSchema,
-  BallotPageLayout,
   BatchInfo,
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
@@ -38,7 +37,7 @@ import {
   BooleanEnvironmentVariableName,
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
-  getExportedCastVoteRecordIds,
+  getCastVoteRecordExportSubDirectoryNames,
   isFeatureFlagEnabled,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -112,9 +111,10 @@ interface ExportContext {
 }
 
 /**
- * A sheet to be included in a CVR export
+ * A scanned sheet that was accepted and should be tabulated
  */
-export interface ResultSheet {
+export interface AcceptedSheet {
+  readonly type: 'accepted';
   readonly id: Id;
   readonly batchId: Id;
   readonly interpretation: SheetOf<PageInterpretation>;
@@ -132,6 +132,21 @@ export interface ResultSheet {
    */
   readonly batchLabel?: string;
 }
+
+/**
+ * A scanned sheet that was rejected
+ */
+export interface RejectedSheet {
+  readonly type: 'rejected';
+  readonly id: Id;
+  readonly frontImagePath: string;
+  readonly backImagePath: string;
+}
+
+/**
+ * A scanned sheet, accepted or rejected
+ */
+export type Sheet = AcceptedSheet | RejectedSheet;
 
 /**
  * An error encountered while exporting cast vote records to a USB drive
@@ -238,7 +253,7 @@ function buildCastVoteRecordReportMetadata(
 
 function buildCastVoteRecord(
   exportContext: ExportContext,
-  resultSheet: ResultSheet,
+  sheet: AcceptedSheet,
   canonicalizedSheet: CanonicalizedSheet
 ): CVR.CVR {
   const { scannerState } = exportContext;
@@ -247,11 +262,16 @@ function buildCastVoteRecord(
   const electionOptionPositionMap = buildElectionOptionPositionMap(election);
   const scannerId = VX_MACHINE_ID;
 
-  const { id, batchId, indexInBatch } = resultSheet;
+  const { id, batchId, indexInBatch } = sheet;
   const castVoteRecordId =
     (canonicalizedSheet.type === 'bmd' &&
       canonicalizedSheet.interpretation.ballotId) ||
     unsafeParse(BallotIdSchema, id);
+  const [frontImageFilePath, backImageFilePath] = canonicalizedSheet.filenames;
+  const imageFileUris: SheetOf<string> = [
+    `file:${path.basename(frontImageFilePath)}`,
+    `file:${path.basename(backImageFilePath)}`,
+  ];
 
   // BMD ballot
   if (canonicalizedSheet.type === 'bmd') {
@@ -262,24 +282,15 @@ function buildCastVoteRecord(
       election,
       electionId,
       electionOptionPositionMap,
-      indexInBatch,
+      imageFileUris,
       interpretation: canonicalizedSheet.interpretation,
       scannerId,
     });
   }
 
   // HMPB ballot
-  const [frontFileName, backFileName] = canonicalizedSheet.filenames;
   const [frontInterpretation, backInterpretation] =
     canonicalizedSheet.interpretation;
-  const frontPage = {
-    imageFileUri: `file:${path.basename(frontFileName)}`,
-    interpretation: frontInterpretation,
-  } as const;
-  const backPage = {
-    imageFileUri: `file:${path.basename(backFileName)}`,
-    interpretation: backInterpretation,
-  } as const;
   return baseBuildCastVoteRecord({
     ballotMarkingMode: 'hand',
     batchId,
@@ -291,8 +302,9 @@ function buildCastVoteRecord(
     election,
     electionId,
     electionOptionPositionMap,
+    imageFileUris,
     indexInBatch,
-    pages: [frontPage, backPage],
+    interpretations: [frontInterpretation, backInterpretation],
     scannerId,
   });
 }
@@ -309,7 +321,7 @@ function buildCastVoteRecord(
  */
 async function exportCastVoteRecordFilesToUsbDrive(
   exportContext: ExportContext,
-  resultSheet: ResultSheet,
+  sheet: AcceptedSheet,
   exportDirectoryPathRelativeToUsbMountPoint: string
 ): Promise<
   Result<
@@ -319,10 +331,10 @@ async function exportCastVoteRecordFilesToUsbDrive(
 > {
   const { exporter } = exportContext;
 
-  const canonicalizeSheetResult = canonicalizeSheet(
-    resultSheet.interpretation,
-    [resultSheet.frontImagePath, resultSheet.backImagePath]
-  );
+  const canonicalizeSheetResult = canonicalizeSheet(sheet.interpretation, [
+    sheet.frontImagePath,
+    sheet.backImagePath,
+  ]);
   if (canonicalizeSheetResult.isErr()) {
     return err({
       type: 'invalid-sheet-found',
@@ -339,7 +351,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
   );
   const castVoteRecord = buildCastVoteRecord(
     exportContext,
-    resultSheet,
+    sheet,
     canonicalizedSheet
   );
   const castVoteRecordId = castVoteRecord.UniqueId;
@@ -348,37 +360,30 @@ async function exportCastVoteRecordFilesToUsbDrive(
     CVR: [castVoteRecord],
   };
 
-  const [frontImageFilePath, backImageFilePath] = canonicalizedSheet.filenames;
-  const frontLayout: BallotPageLayout | undefined =
-    canonicalizedSheet.type === 'hmpb'
-      ? canonicalizedSheet.interpretation[0].layout
-      : undefined;
-  const backLayout: BallotPageLayout | undefined =
-    canonicalizedSheet.type === 'hmpb'
-      ? canonicalizedSheet.interpretation[0].layout
-      : undefined;
-
   const castVoteRecordFilesToExport: ReadableFile[] = [
     readableFileFromData(
       CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT,
       JSON.stringify(castVoteRecordReport)
     ),
-    readableFileFromDisk(frontImageFilePath),
-    readableFileFromDisk(backImageFilePath),
   ];
-  if (frontLayout) {
+
+  const [frontImageFilePath, backImageFilePath] = canonicalizedSheet.filenames;
+  castVoteRecordFilesToExport.push(readableFileFromDisk(frontImageFilePath));
+  castVoteRecordFilesToExport.push(readableFileFromDisk(backImageFilePath));
+
+  if (canonicalizedSheet.type === 'hmpb') {
+    const [frontInterpretation, backInterpretation] =
+      canonicalizedSheet.interpretation;
     castVoteRecordFilesToExport.push(
       readableFileFromData(
         `${path.parse(frontImageFilePath).name}.layout.json`,
-        JSON.stringify(frontLayout)
+        JSON.stringify(frontInterpretation.layout)
       )
     );
-  }
-  if (backLayout) {
     castVoteRecordFilesToExport.push(
       readableFileFromData(
         `${path.parse(backImageFilePath).name}.layout.json`,
-        JSON.stringify(frontLayout)
+        JSON.stringify(backInterpretation.layout)
       )
     );
   }
@@ -400,6 +405,34 @@ async function exportCastVoteRecordFilesToUsbDrive(
   });
 
   return ok({ castVoteRecordId, castVoteRecordHash });
+}
+
+async function exportRejectedSheetToUsbDrive(
+  exportContext: ExportContext,
+  sheet: RejectedSheet,
+  exportDirectoryPathRelativeToUsbMountPoint: string
+): Promise<
+  Result<{ subDirectoryName: string }, ExportCastVoteRecordsToUsbDriveError>
+> {
+  const { exporter } = exportContext;
+
+  const subDirectoryName = `${CastVoteRecordExportFileName.REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX}${sheet.id}`;
+  const filesToExport: ReadableFile[] = [
+    readableFileFromDisk(sheet.frontImagePath),
+    readableFileFromDisk(sheet.backImagePath),
+  ];
+  for (const file of filesToExport) {
+    const exportResult = await exporter.exportDataToUsbDrive(
+      exportDirectoryPathRelativeToUsbMountPoint,
+      path.join(subDirectoryName, file.fileName),
+      file.open()
+    );
+    if (exportResult.isErr()) {
+      return exportResult;
+    }
+  }
+
+  return ok({ subDirectoryName });
 }
 
 /**
@@ -526,18 +559,18 @@ export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
 
 /**
  * File creation timestamps could reveal the order in which ballots were cast. To maintain
- * voter privacy, every time a ballot is cast, we randomly select 1 or 2 previously added cast vote
- * records and update their creation timestamps to the present. This approach is equivalent to
- * moving random ballots to the top of a stack every time a new ballot is added to the stack, a
- * kind of shuffling as we go.
+ * voter privacy, every time a ballot is cast, we randomly select 1 or 2 previous ballots and
+ * update their creation timestamps to the present. This approach is equivalent to moving random
+ * ballots to the top of a stack every time a new ballot is added to the stack, a kind of shuffling
+ * as we go.
  *
- * This shuffling is irrelevant for full exports, where we already iterate over cast vote records
- * in an order independent of creation timestamp.
+ * This shuffling is irrelevant for full exports, where we already iterate over ballots in an order
+ * independent of creation timestamp.
  */
 async function randomlyUpdateCreationTimestamps(
   exportContext: ExportContext,
   exportDirectoryPathRelativeToUsbMountPoint: string,
-  options: { castVoteRecordIdToIgnore?: string } = {}
+  options: { subDirectoryNameToIgnore?: string } = {}
 ): Promise<void> {
   const { usbMountPoint } = exportContext;
 
@@ -545,28 +578,26 @@ async function randomlyUpdateCreationTimestamps(
     usbMountPoint,
     exportDirectoryPathRelativeToUsbMountPoint
   );
-  const castVoteRecordIds = (
-    await getExportedCastVoteRecordIds(exportDirectoryPath)
+  const subDirectoryNames = (
+    await getCastVoteRecordExportSubDirectoryNames(exportDirectoryPath)
   ).filter(
-    (castVoteRecordId) => castVoteRecordId !== options.castVoteRecordIdToIgnore
+    (subDirectoryName) => subDirectoryName !== options.subDirectoryNameToIgnore
   );
 
-  if (castVoteRecordIds.length === 0) {
+  if (subDirectoryNames.length === 0) {
     return;
   }
 
   const oneOrTwo = crypto.randomInt(1, 3);
   for (let i = 0; i < oneOrTwo; i += 1) {
-    const randomCastVoteRecordId = assertDefined(
-      castVoteRecordIds[crypto.randomInt(0, castVoteRecordIds.length)]
+    const randomSubDirectoryName = assertDefined(
+      subDirectoryNames[crypto.randomInt(0, subDirectoryNames.length)]
     );
-    const castVoteRecordDirectoryPath = path.join(
+    const subDirectoryPath = path.join(
       exportDirectoryPath,
-      randomCastVoteRecordId
+      randomSubDirectoryName
     );
-    await updateCreationTimestampOfDirectoryAndChildrenFiles(
-      castVoteRecordDirectoryPath
-    );
+    await updateCreationTimestampOfDirectoryAndChildrenFiles(subDirectoryPath);
   }
 }
 
@@ -604,7 +635,7 @@ async function markCastVoteRecordExportAsComplete(
 export async function exportCastVoteRecordsToUsbDrive(
   scannerStore: ScannerStore,
   usbDrive: UsbDrive | LegacyUsb,
-  resultSheets: ResultSheet[] | Generator<ResultSheet>,
+  sheets: Iterable<Sheet>,
   exportOptions: ExportOptions
 ): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
   let usbMountPoint: string | undefined;
@@ -657,7 +688,7 @@ export async function exportCastVoteRecordsToUsbDrive(
     exportOptions.scannerType === 'precinct' && !exportOptions.isFullExport;
 
   const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
-  for (const resultSheet of resultSheets) {
+  for (const sheet of sheets) {
     // Randomly decide whether to shuffle creation timestamps before or after cast vote record
     // creation. If we always did one or the other, the last voter's cast vote record would be
     // identifiable, as either the first or the last cast vote record among the cluster of cast
@@ -675,18 +706,31 @@ export async function exportCastVoteRecordsToUsbDrive(
       );
     }
 
-    const exportCastVoteRecordFilesResult =
-      await exportCastVoteRecordFilesToUsbDrive(
+    let mostRecentlyCreatedSubDirectoryName: string | undefined;
+    if (sheet.type === 'rejected') {
+      const exportResult = await exportRejectedSheetToUsbDrive(
         exportContext,
-        resultSheet,
+        sheet,
         exportDirectoryPathRelativeToUsbMountPoint
       );
-    if (exportCastVoteRecordFilesResult.isErr()) {
-      return exportCastVoteRecordFilesResult;
+      if (exportResult.isErr()) {
+        return exportResult;
+      }
+      const { subDirectoryName } = exportResult.ok();
+      mostRecentlyCreatedSubDirectoryName = subDirectoryName;
+    } else {
+      const exportResult = await exportCastVoteRecordFilesToUsbDrive(
+        exportContext,
+        sheet,
+        exportDirectoryPathRelativeToUsbMountPoint
+      );
+      if (exportResult.isErr()) {
+        return exportResult;
+      }
+      const { castVoteRecordId, castVoteRecordHash } = exportResult.ok();
+      castVoteRecordHashes[castVoteRecordId] = castVoteRecordHash;
+      mostRecentlyCreatedSubDirectoryName = castVoteRecordId;
     }
-    const { castVoteRecordId, castVoteRecordHash } =
-      exportCastVoteRecordFilesResult.ok();
-    castVoteRecordHashes[castVoteRecordId] = castVoteRecordHash;
 
     if (
       isCreationTimestampShufflingNecessary &&
@@ -695,8 +739,7 @@ export async function exportCastVoteRecordsToUsbDrive(
       await randomlyUpdateCreationTimestamps(
         exportContext,
         exportDirectoryPathRelativeToUsbMountPoint,
-        // Don't randomly select the cast vote record that was just created
-        { castVoteRecordIdToIgnore: castVoteRecordId }
+        { subDirectoryNameToIgnore: mostRecentlyCreatedSubDirectoryName }
       );
     }
   }
