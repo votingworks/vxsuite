@@ -40,7 +40,6 @@ export interface PrecinctScannerMachineStatus {
 
 export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
   ballotsCounted: number;
-  canUnconfigure: boolean;
 }
 
 export interface PrecinctScannerConfig {
