@@ -47,7 +47,6 @@ const defaultConfig: PrecinctScannerConfig = {
 
 export const statusNoPaper: PrecinctScannerStatus = {
   state: 'no_paper',
-  canUnconfigure: false,
   ballotsCounted: 0,
 };
 

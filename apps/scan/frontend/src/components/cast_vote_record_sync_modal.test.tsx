@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
 import { err } from '@votingworks/basics';
+
 import {
   ApiMock,
   createApiMock,
