@@ -731,8 +731,8 @@ export async function exportCastVoteRecordsToUsbDrive(
     return exportSignatureFileResult;
   }
 
-  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   await markCastVoteRecordExportAsComplete(usbMountPoint);
+  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
 
   return ok();
 }
