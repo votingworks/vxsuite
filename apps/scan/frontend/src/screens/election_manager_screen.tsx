@@ -9,7 +9,6 @@ import {
   SetClockButton,
   ChangePrecinctButton,
   P,
-  Caption,
   TabbedSection,
   H1,
 } from '@votingworks/ui';
@@ -21,7 +20,6 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
 import {
@@ -71,7 +69,6 @@ export function ElectionManagerScreen({
   ] = useState(false);
 
   const [isExportingResults, setIsExportingResults] = useState(false);
-  const [isExportingBackup, setIsExportingBackup] = useState(false);
 
   const [confirmUnconfigure, setConfirmUnconfigure] = useState(false);
   const [isUnconfiguring, setIsUnconfiguring] = useState(false);
@@ -88,7 +85,7 @@ export function ElectionManagerScreen({
   } = configQuery.data;
 
   function handleTogglingTestMode() {
-    if (!isTestMode && !scannerStatus.canUnconfigure) {
+    if (!isTestMode) {
       setIsShowingToggleTestModeWarningModal(true);
     } else {
       setTestModeMutation.mutate({ isTestMode: !isTestMode });
@@ -102,11 +99,11 @@ export function ElectionManagerScreen({
     if (usbDrive.status === 'mounted') {
       ejectUsbDriveMutation.mutate(undefined, {
         onSuccess() {
-          unconfigureMutation.mutate({});
+          unconfigureMutation.mutate();
         },
       });
     } else {
-      unconfigureMutation.mutate({});
+      unconfigureMutation.mutate();
     }
   }
 
@@ -167,7 +164,6 @@ export function ElectionManagerScreen({
   const dataExportButtons = (
     <P>
       <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
-      <Button onPress={() => setIsExportingBackup(true)}>Save Backup</Button>
     </P>
   );
 
@@ -205,19 +201,9 @@ export function ElectionManagerScreen({
 
   const unconfigureElectionButton = (
     <P>
-      <Button
-        disabled={!scannerStatus.canUnconfigure}
-        onPress={() => setConfirmUnconfigure(true)}
-      >
+      <Button onPress={() => setConfirmUnconfigure(true)}>
         Delete All Election Data from VxScan
       </Button>
-      <br />
-      {!scannerStatus.canUnconfigure && (
-        <Caption>
-          You must “Save Backup” before you can delete election data from
-          VxScan.
-        </Caption>
-      )}
     </P>
   );
 
@@ -285,7 +271,6 @@ export function ElectionManagerScreen({
                 variant="primary"
                 onPress={() => {
                   setIsShowingToggleTestModeWarningModal(false);
-                  setIsExportingBackup(true);
                 }}
               >
                 Save Backup
@@ -337,12 +322,6 @@ export function ElectionManagerScreen({
           usbDrive={usbDrive}
         />
       )}
-      {isExportingBackup && (
-        <ExportBackupModal
-          onClose={() => setIsExportingBackup(false)}
-          usbDrive={usbDrive}
-        />
-      )}
     </Screen>
   );
 }
@@ -356,7 +335,6 @@ export function DefaultPreview(): JSX.Element {
       scannerStatus={{
         state: 'no_paper',
         ballotsCounted: 1234,
-        canUnconfigure: true,
       }}
       usbDrive={{ status: 'no_drive' }}
       logger={new Logger(LogSource.VxScanFrontend)}
