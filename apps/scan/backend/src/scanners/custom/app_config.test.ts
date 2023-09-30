@@ -319,13 +319,13 @@ test('ballot batching', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       const { store } = workspace;
       function getCvrIds() {
-        return iter(store.forEachResultSheet())
+        return iter(store.forEachAcceptedSheet())
           .map((r) => r.id)
           .toArray();
       }
       function getBatchIds() {
         return unique(
-          iter(store.forEachResultSheet())
+          iter(store.forEachAcceptedSheet())
             .map((r) => r.batchId)
             .toArray()
         );
@@ -425,7 +425,7 @@ test('unconfiguring machine', async () => {
 
       jest.spyOn(workspace, 'reset');
 
-      await apiClient.unconfigureElection({});
+      await apiClient.unconfigureElection();
 
       expect(workspace.reset).toHaveBeenCalledTimes(1);
     }

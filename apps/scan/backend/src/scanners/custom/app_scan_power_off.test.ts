@@ -1,13 +1,17 @@
-import { AdjudicationReason, SheetInterpretation } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  DEFAULT_SYSTEM_SETTINGS,
+  SheetInterpretation,
+} from '@votingworks/types';
 import { ErrorCode, mocks } from '@votingworks/custom-scanner';
 import { err, ok } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   configureApp,
-  mockInterpret,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -57,7 +61,7 @@ test('scanner powered off while scanning', async () => {
   await withApp(
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -78,11 +82,9 @@ test('scanner powered off while accepting', async () => {
     type: 'ValidSheet',
   };
   await withApp(
-    {
-      interpret: mockInterpret(interpretation),
-    },
+    {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -139,21 +141,18 @@ test('scanner powered off after accepting', async () => {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
-        canUnconfigure: true,
       });
 
       mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
       await waitForStatus(apiClient, {
         state: 'disconnected',
         ballotsCounted: 1,
-        canUnconfigure: true,
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
       await waitForStatus(apiClient, {
         state: 'no_paper',
         ballotsCounted: 1,
-        canUnconfigure: true,
       });
     }
   );
@@ -165,9 +164,7 @@ test('scanner powered off while rejecting', async () => {
     reason: 'invalid_election_hash',
   };
   await withApp(
-    {
-      interpret: mockInterpret(interpretation),
-    },
+    {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
@@ -193,11 +190,17 @@ test('scanner powered off while rejecting', async () => {
 test('scanner powered off while returning', async () => {
   const interpretation = needsReviewInterpretation;
   await withApp(
-    {
-      interpret: mockInterpret(interpretation),
-    },
+    {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        ballotPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+            {
+              ...DEFAULT_SYSTEM_SETTINGS,
+              precinctScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
+            }
+          ),
+      });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -224,11 +227,17 @@ test('scanner powered off while returning', async () => {
 test('scanner powered off after returning', async () => {
   const interpretation = needsReviewInterpretation;
   await withApp(
-    {
-      interpret: mockInterpret(interpretation),
-    },
+    {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        ballotPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+            {
+              ...DEFAULT_SYSTEM_SETTINGS,
+              precinctScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
+            }
+          ),
+      });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });

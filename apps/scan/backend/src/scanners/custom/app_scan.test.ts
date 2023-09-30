@@ -150,28 +150,24 @@ test('configure and scan bmd ballot', async () => {
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
-        canUnconfigure: true,
       });
 
       await apiClient.acceptBallot();
       await expectStatus(apiClient, {
         state: 'accepting',
         interpretation,
-        canUnconfigure: true,
       });
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
-        canUnconfigure: true,
       });
 
       // Test scanning again without first transitioning back to no_paper
       await waitForStatus(apiClient, {
         state: 'ready_to_scan',
         ballotsCounted: 1,
-        canUnconfigure: true,
       });
 
       // Check the ballot appears in the results
@@ -252,7 +248,7 @@ test('ballot needs review - return', async () => {
       );
 
       // Make sure the ballot was still recorded in the db for backup purposes
-      expect(Array.from(workspace.store.getSheets())).toHaveLength(1);
+      expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
 
       checkLogs(logger);
     }
@@ -304,7 +300,7 @@ test('invalid ballot rejected', async () => {
       );
 
       // Make sure the ballot was still recorded in the db for backup purposes
-      expect(Array.from(workspace.store.getSheets())).toHaveLength(1);
+      expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
 
       checkLogs(logger);
     }

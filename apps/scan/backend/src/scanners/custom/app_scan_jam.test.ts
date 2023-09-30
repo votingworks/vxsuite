@@ -1,13 +1,17 @@
-import { AdjudicationReason, SheetInterpretation } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  DEFAULT_SYSTEM_SETTINGS,
+  SheetInterpretation,
+} from '@votingworks/types';
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   configureApp,
-  mockInterpret,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -73,7 +77,6 @@ test('jam on accept', async () => {
       delays: {
         DELAY_ACCEPTING_TIMEOUT: 500,
       },
-      interpret: mockInterpret(interpretation),
     },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
@@ -113,11 +116,17 @@ test('jam on accept', async () => {
 test('jam on return', async () => {
   const interpretation = needsReviewInterpretation;
   await withApp(
-    {
-      interpret: mockInterpret(interpretation),
-    },
+    {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        ballotPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+            {
+              ...DEFAULT_SYSTEM_SETTINGS,
+              precinctScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
+            }
+          ),
+      });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       await waitForStatus(apiClient, { state: 'ready_to_scan' });
@@ -145,9 +154,7 @@ test('jam on reject', async () => {
     reason: 'invalid_election_hash',
   };
   await withApp(
-    {
-      interpret: mockInterpret(interpretation),
-    },
+    {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 

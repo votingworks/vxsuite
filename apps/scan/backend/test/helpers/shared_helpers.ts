@@ -15,7 +15,6 @@ import {
   BallotPackage,
   PrecinctId,
   PrecinctScannerState,
-  SheetInterpretation,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -23,7 +22,6 @@ import {
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { InterpretFn } from '../../src/interpret';
 import { Api } from '../../src/app';
 import { PrecinctScannerStatus } from '../../src/types';
 
@@ -36,9 +34,6 @@ export async function expectStatus(
   const status = await apiClient.getScannerStatus();
   expect(status).toEqual({
     ballotsCounted: 0,
-    // TODO canUnconfigure should probably not be part of this endpoint - it's
-    // only needed on the admin screen
-    canUnconfigure: !expectedStatus?.ballotsCounted,
     error: undefined,
     interpretation: undefined,
     ...expectedStatus,
@@ -101,40 +96,6 @@ export async function configureApp(
   });
   await apiClient.setTestMode({ isTestMode: testMode });
   await apiClient.setPollsState({ pollsState: 'polls_open' });
-}
-
-/**
- * Interpretation is generally the slowest part of tests in this file. To speed
- * up a test, you can use this function to mock interpretation. It should only
- * be used when:
- * - The test isn't meant to check that interpretation works correctly. There
- *   should already be another test that covers the same interpretation case.
- * - The test doesn't check the CVR export at the end. The interpreter stores
- *   the ballot images which are used in the CVR, and mocking will forgo that
- *   logic.
- * - The test doesn't depend on the actual page interpretations. This function
- *   adds fake page interpretations that don't actually match the passed in
- *   ballot interpretation (because the state machine doesn't actually use those
- *   page interpretations, they are just stored for the CVR).
- */
-export function mockInterpret(
-  interpretation: SheetInterpretation
-): jest.MockedFn<InterpretFn> {
-  return jest.fn().mockResolvedValue(
-    ok({
-      ...interpretation,
-      pages: [
-        {
-          interpretation: { type: 'BlankPage' },
-          imagePath: 'fake_filename',
-        },
-        {
-          interpretation: { type: 'BlankPage' },
-          imagePath: 'fake_filename',
-        },
-      ],
-    })
-  );
 }
 
 /**

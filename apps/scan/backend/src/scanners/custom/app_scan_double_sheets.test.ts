@@ -74,7 +74,6 @@ test('insert second ballot before first ballot accept', async () => {
       await waitForStatus(apiClient, {
         state: 'no_paper',
         ballotsCounted: 1,
-        canUnconfigure: true,
       });
     }
   );
@@ -112,12 +111,10 @@ test('insert second ballot while first ballot is accepting', async () => {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
-        canUnconfigure: true,
       });
       await waitForStatus(apiClient, {
         state: 'returning_to_rescan',
         ballotsCounted: 1,
-        canUnconfigure: true,
       });
     }
   );
