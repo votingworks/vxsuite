@@ -48,4 +48,5 @@ export const CastVoteRecordExportMetadataSchema: z.ZodSchema<CastVoteRecordExpor
 export enum CastVoteRecordExportFileName {
   CAST_VOTE_RECORD_REPORT = 'cast-vote-record-report.json',
   METADATA = 'metadata.json',
+  REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
 }

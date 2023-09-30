@@ -10,6 +10,7 @@ import {
 } from '@votingworks/basics';
 import {
   AnyContest,
+  CastVoteRecordExportFileName,
   ContestId,
   ContestOptionId,
   Contests,
@@ -196,15 +197,28 @@ export function castVoteRecordHasValidContestReferences(
 }
 
 /**
- * Returns a list of cast vote record IDs given an export directory path
+ * Gets the names of the sub-directories in a cast vote record export
+ */
+export async function getCastVoteRecordExportSubDirectoryNames(
+  exportDirectoryPath: string
+): Promise<string[]> {
+  return (await fs.readdir(exportDirectoryPath, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((directory) => directory.name);
+}
+
+/**
+ * Gets the IDs of the cast vote records in a cast vote record export
  */
 export async function getExportedCastVoteRecordIds(
   exportDirectoryPath: string
 ): Promise<string[]> {
-  const castVoteRecordIds = (
-    await fs.readdir(exportDirectoryPath, { withFileTypes: true })
-  )
-    .filter((entry) => entry.isDirectory())
-    .map((directory) => directory.name);
-  return castVoteRecordIds;
+  return (
+    await getCastVoteRecordExportSubDirectoryNames(exportDirectoryPath)
+  ).filter(
+    (subDirectoryName) =>
+      !subDirectoryName.startsWith(
+        CastVoteRecordExportFileName.REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX
+      )
+  );
 }
