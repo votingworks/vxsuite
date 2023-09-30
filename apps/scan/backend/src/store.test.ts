@@ -1,5 +1,4 @@
-import { ResultSheet } from '@votingworks/backend';
-import { sleep, typedAs } from '@votingworks/basics';
+import { AcceptedSheet, RejectedSheet, Sheet } from '@votingworks/backend';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -100,6 +99,10 @@ const testSheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
     },
   },
 ];
+
+function sortSheets(sheets: Sheet[]): Sheet[] {
+  return [...sheets].sort((s1, s2) => s1.id.localeCompare(s2.id));
+}
 
 test('get/set election', () => {
   const store = Store.memoryStore();
@@ -275,36 +278,6 @@ test('get/set polls state', () => {
   expect(store.getPollsState()).toEqual('polls_open');
 });
 
-test('get/set scanner as backed up', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
-    jurisdiction,
-  });
-  expect(store.getScannerBackupTimestamp()).toBeFalsy();
-  store.setScannerBackedUp();
-  expect(store.getScannerBackupTimestamp()).toBeTruthy();
-  store.setScannerBackedUp(false);
-  expect(store.getScannerBackupTimestamp()).toBeFalsy();
-});
-
-test('get/set cvrs as backed up', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
-    jurisdiction,
-  });
-  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
-  store.setCvrsBackedUp();
-  expect(store.getCvrsBackupTimestamp()).toBeTruthy();
-  store.setCvrsBackedUp(false);
-  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
-});
-
 test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
   const store = Store.fileStore(dbFile.name);
@@ -398,126 +371,6 @@ test('getBatches', () => {
   store.deleteBatch(batchId);
   batches = store.getBatches();
   expect(batches).toHaveLength(0);
-});
-
-test('canUnconfigure in test mode', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
-    jurisdiction,
-  });
-  store.setTestMode(true);
-
-  // With an unexported batch, we should be able to unconfigure the machine in test mode
-  store.addBatch();
-  expect(store.getCanUnconfigure()).toEqual(true);
-});
-
-test('canUnconfigure not in test mode', async () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
-    jurisdiction,
-  });
-  store.setTestMode(false);
-
-  // Can unconfigure if no batches added
-  expect(store.getCanUnconfigure()).toEqual(true);
-
-  // Create a batch
-  const batchId = store.addBatch();
-
-  // Can unconfigure if only empty batches added
-  expect(store.getCanUnconfigure()).toEqual(true);
-
-  // Cannot unconfigure after new sheet added
-  const sheetId = store.addSheet(uuid(), batchId, [
-    {
-      imagePath: '/tmp/front-page.png',
-      interpretation: {
-        type: 'UnreadablePage',
-      },
-    },
-    {
-      imagePath: '/tmp/back-page.png',
-      interpretation: {
-        type: 'UnreadablePage',
-      },
-    },
-  ]);
-  expect(store.getCanUnconfigure()).toEqual(false);
-  store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toEqual(true);
-
-  // Setup second batch with second sheet
-  await sleep(1000);
-  const batchId2 = store.addBatch();
-  store.addSheet(uuid(), batchId2, [
-    {
-      imagePath: '/tmp/front-page2.png',
-      interpretation: {
-        type: 'UnreadablePage',
-      },
-    },
-    {
-      imagePath: '/tmp/back-page2.png',
-      interpretation: {
-        type: 'UnreadablePage',
-      },
-    },
-  ]);
-  expect(store.getCanUnconfigure()).toEqual(false);
-  store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toEqual(true);
-
-  // Setup third batch with third sheet
-  await sleep(1000);
-  const batchId3 = store.addBatch();
-  const sheetId3 = store.addSheet(uuid(), batchId3, [
-    {
-      imagePath: '/tmp/front-page3.png',
-      interpretation: {
-        type: 'UnreadablePage',
-      },
-    },
-    {
-      imagePath: '/tmp/back-page3.png',
-      interpretation: {
-        type: 'UnreadablePage',
-      },
-    },
-  ]);
-  expect(store.getCanUnconfigure()).toEqual(false);
-  store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toEqual(true);
-
-  // Cannot unconfigure after sheet deleted
-  await sleep(1000);
-  store.deleteSheet(sheetId);
-  expect(store.getCanUnconfigure()).toEqual(false);
-  store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toEqual(true);
-
-  // Can unconfigure after empty batch deleted
-  await sleep(1000);
-  store.deleteBatch(batchId);
-  expect(store.getCanUnconfigure()).toEqual(true);
-
-  // Cannot unconfigure after non-empty batch deleted
-  await sleep(1000);
-  store.deleteBatch(batchId2);
-  expect(store.getCanUnconfigure()).toEqual(false);
-  store.setScannerBackedUp();
-  expect(store.getCanUnconfigure()).toEqual(true);
-
-  // Can unconfigure if no counted ballots
-  await sleep(1000);
-  store.deleteSheet(sheetId3);
-  expect(store.getCanUnconfigure()).toEqual(true);
 });
 
 test('adjudication', () => {
@@ -633,7 +486,7 @@ test('adjudication', () => {
   store.cleanupIncompleteBatches();
 });
 
-test('iterating over all result sheets', () => {
+test('iterating over sheets', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
     electionData:
@@ -642,107 +495,116 @@ test('iterating over all result sheets', () => {
     jurisdiction,
   });
 
-  // starts empty
-  expect(Array.from(store.forEachResultSheet())).toEqual([]);
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
+  expect(Array.from(store.forEachSheet())).toEqual([]);
 
-  // add a batch with a sheet
+  // Add and retrieve an accepted sheet
   const batchId = store.addBatch();
-  store.addSheet(uuid(), batchId, testSheetWithFiles);
-  store.finishBatch({ batchId });
+  const sheet1Id = uuid();
+  store.addSheet(sheet1Id, batchId, [
+    { ...testSheetWithFiles[0], imagePath: '1-front.jpg' },
+    { ...testSheetWithFiles[1], imagePath: '1-back.jpg' },
+  ]);
+  const expectedSheet1: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet1Id,
+    batchId,
+    batchLabel: 'Batch 1',
+    interpretation: mapSheet(testSheetWithFiles, (page) => page.interpretation),
+    frontImagePath: '1-front.jpg',
+    backImagePath: '1-back.jpg',
+  };
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual([expectedSheet1]);
+  expect(Array.from(store.forEachSheet())).toEqual([expectedSheet1]);
 
-  // has one sheet
-  expect(Array.from(store.forEachResultSheet())).toEqual(
-    typedAs<ResultSheet[]>([
-      {
-        id: expect.any(String),
-        batchId,
-        batchLabel: 'Batch 1',
-        interpretation: mapSheet(
-          testSheetWithFiles,
-          (page) => page.interpretation
-        ),
-        frontImagePath: '/front.png',
-        backImagePath: '/back.png',
-      },
-    ])
+  // Add and retrieve a rejected sheet
+  const sheet2Id = uuid();
+  store.addSheet(sheet2Id, batchId, [
+    { ...testSheetWithFiles[0], imagePath: '2-front.jpg' },
+    { ...testSheetWithFiles[1], imagePath: '2-back.jpg' },
+  ]);
+  store.deleteSheet(sheet2Id);
+  const expectedSheet2: RejectedSheet = {
+    type: 'rejected',
+    id: sheet2Id,
+    frontImagePath: '2-front.jpg',
+    backImagePath: '2-back.jpg',
+  };
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual([expectedSheet1]);
+  expect(Array.from(store.forEachSheet())).toEqual(
+    sortSheets([expectedSheet1, expectedSheet2])
   );
 
-  // delete the batch and the results are empty again
-  store.deleteBatch(batchId);
-  expect(Array.from(store.forEachResultSheet())).toEqual([]);
-
-  // add a sheet requiring adjudication and check that it is not included
-  const batchId2 = store.addBatch();
-  store.addSheet(uuid(), batchId2, [
+  // Add and retrieve an accepted adjudicated sheet
+  const sheet3Id = uuid();
+  const interpretationRequiringAdjudication: InterpretedHmpbPage = {
+    ...(testSheetWithFiles[0].interpretation as InterpretedHmpbPage),
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [AdjudicationReason.Overvote],
+      enabledReasonInfos: [],
+      ignoredReasonInfos: [],
+    },
+  };
+  store.addSheet(sheet3Id, batchId, [
     {
       ...testSheetWithFiles[0],
-      interpretation: {
-        ...(testSheetWithFiles[0].interpretation as InterpretedHmpbPage),
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          enabledReasons: [AdjudicationReason.Overvote],
-          enabledReasonInfos: [
-            {
-              type: AdjudicationReason.Overvote,
-              contestId: 'contest-1',
-              optionIds: ['candidate-1', 'candidate-2'],
-              optionIndexes: [0, 1],
-              expected: 1,
-            },
-          ],
-          ignoredReasonInfos: [],
-        },
-      },
+      imagePath: '3-front.jpg',
+      interpretation: interpretationRequiringAdjudication,
     },
-    testSheetWithFiles[1],
+    { ...testSheetWithFiles[1], imagePath: '3-back.jpg' },
   ]);
-  expect(Array.from(store.forEachResultSheet())).toEqual([]);
+  store.adjudicateSheet(sheet3Id);
+  const expectedSheet3: AcceptedSheet = {
+    type: 'accepted',
+    id: sheet3Id,
+    batchId,
+    batchLabel: 'Batch 1',
+    interpretation: [
+      interpretationRequiringAdjudication,
+      testSheetWithFiles[1].interpretation,
+    ],
+    frontImagePath: '3-front.jpg',
+    backImagePath: '3-back.jpg',
+  };
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual(
+    sortSheets([expectedSheet1, expectedSheet3])
+  );
+  expect(Array.from(store.forEachSheet())).toEqual(
+    sortSheets([expectedSheet1, expectedSheet2, expectedSheet3])
+  );
+
+  // Mark batch as deleted
+  store.deleteBatch(batchId);
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
+  expect(Array.from(store.forEachSheet())).toEqual([]);
 });
 
-test('getResultSheet', () => {
+test('getSheet', () => {
   const store = Store.memoryStore();
 
   const batchId = store.addBatch();
-  const sheet1Id = uuid();
-  const sheet2Id = uuid();
-  store.addSheet(sheet1Id, batchId, testSheetWithFiles);
-  store.addSheet(sheet2Id, batchId, [
-    {
-      ...testSheetWithFiles[0],
-      interpretation: {
-        ...(testSheetWithFiles[0].interpretation as InterpretedHmpbPage),
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          enabledReasons: [AdjudicationReason.Overvote],
-          enabledReasonInfos: [],
-          ignoredReasonInfos: [],
-        },
-      },
-    },
-    testSheetWithFiles[1],
-  ]);
+  const sheetId = uuid();
+  store.addSheet(sheetId, batchId, testSheetWithFiles);
+  expect(store.getSheet(sheetId)).toEqual({
+    type: 'accepted',
+    id: sheetId,
+    batchId,
+    batchLabel: 'Batch 1',
+    interpretation: mapSheet(testSheetWithFiles, (page) => page.interpretation),
+    frontImagePath: '/front.png',
+    backImagePath: '/back.png',
+  });
 
-  expect(store.getResultSheet(sheet1Id)).toEqual(
-    typedAs<ResultSheet>({
-      id: sheet1Id,
-      batchId,
-      batchLabel: 'Batch 1',
-      interpretation: mapSheet(
-        testSheetWithFiles,
-        (page) => page.interpretation
-      ),
-      frontImagePath: '/front.png',
-      backImagePath: '/back.png',
-    })
-  );
+  store.deleteSheet(sheetId);
+  expect(store.getSheet(sheetId)).toEqual({
+    type: 'rejected',
+    id: sheetId,
+    frontImagePath: '/front.png',
+    backImagePath: '/back.png',
+  });
 
-  // Sheets requiring adjudication are not part of the "result" set
-  expect(store.getResultSheet(sheet2Id)).toEqual(undefined);
-
-  expect(store.getResultSheet('non-existent-id')).toEqual(undefined);
-
-  store.deleteSheet(sheet1Id);
-  expect(store.getResultSheet(sheet1Id)).toEqual(undefined);
+  expect(store.getSheet('non-existent-id')).toEqual(undefined);
 });
 
 test('resetElectionSession', () => {
@@ -767,15 +629,10 @@ test('resetElectionSession', () => {
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
 
-  store.setScannerBackedUp();
-  store.setCvrsBackedUp();
-
   store.resetElectionSession();
   // resetElectionSession should reset election session state
   expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
-  expect(store.getScannerBackupTimestamp()).toBeFalsy();
-  expect(store.getCvrsBackupTimestamp()).toBeFalsy();
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);
 
