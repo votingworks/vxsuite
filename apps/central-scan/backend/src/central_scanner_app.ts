@@ -354,7 +354,7 @@ export function buildCentralScannerApp({
     const exportResult = await exportCastVoteRecordsToUsbDrive(
       store,
       usb,
-      store.forEachResultSheet(),
+      store.forEachAcceptedSheet(),
       { scannerType: 'central' }
     );
 
