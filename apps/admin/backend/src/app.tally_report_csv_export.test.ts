@@ -87,7 +87,7 @@ it('exports expected results for full election', async () => {
     {
       disposition: 'success',
       filename: path,
-      message: `Saved csv results to ${path} on the USB drive.`,
+      message: `Saved tally report CSV file to ${path} on the USB drive.`,
     }
   );
 
@@ -155,7 +155,7 @@ it('logs failure if export fails for some reason', async () => {
     {
       disposition: 'failure',
       filename: offLimitsPath,
-      message: `Failed to save csv results to ${offLimitsPath} on the USB drive.`,
+      message: `Failed to save tally report CSV file to ${offLimitsPath} on the USB drive.`,
     }
   );
 });

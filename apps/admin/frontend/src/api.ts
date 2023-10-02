@@ -667,10 +667,10 @@ export const exportBatchResults = {
   },
 } as const;
 
-export const exportResultsCsv = {
+export const exportTallyReportCsv = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.exportResultsCsv);
+    return useMutation(apiClient.exportTallyReportCsv);
   },
 } as const;
 
