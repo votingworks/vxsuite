@@ -7,8 +7,6 @@ build: FORCE
 bootstrap: build
 
 install:
-	sudo apt -y update
-	sudo apt -y install libpcsclite1 libpcsclite-dev
 
 run:
 	pnpm start

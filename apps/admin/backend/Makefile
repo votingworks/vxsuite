@@ -4,8 +4,6 @@ NODE_ENV ?= development
 FORCE:
 
 install:
-	sudo apt -y update
-	sudo apt -y install libpcsclite1 libpcsclite-dev
 
 build: FORCE
 	pnpm install && pnpm build

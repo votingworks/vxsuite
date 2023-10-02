@@ -3,7 +3,6 @@ BACKEND := ../backend
 # a phony dependency that can be used as a dependency to force builds
 FORCE:
 
-# install any required dependencies here, i.e. `sudo apt install -y DEPS`
 install:
 
 build-backend:
@@ -18,7 +17,7 @@ run-all:
 	(trap 'kill 0' SIGINT SIGHUP; make -C $(BACKEND) run & cd prodserver && node index.js)
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install && pnpm --dir ../../../libs/ballot-interpreter build && pnpm build
 
 bootstrap: install build
 
