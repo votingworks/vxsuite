@@ -36,7 +36,7 @@ function generateHeaders({
   return headers;
 }
 
-function buildCsvRow({
+function buildRow({
   metadataValues,
   contest,
   selection,
@@ -65,7 +65,7 @@ function buildCsvRow({
   return stringify([values]);
 }
 
-function* generateRows({
+function* generateDataRows({
   electionId,
   electionDefinition,
   overallExportFilter,
@@ -122,7 +122,7 @@ function* generateRows({
         for (const candidate of contest.candidates) {
           /* c8 ignore next -- trivial fallthrough zero branch */
           const votes = contestResults.tallies[candidate.id]?.tally ?? 0;
-          yield buildCsvRow({
+          yield buildRow({
             metadataValues,
             contest,
             selection: candidate.name,
@@ -135,7 +135,7 @@ function* generateRows({
         if (contest.allowWriteIns) {
           const votes = contestResults.tallies[writeInCandidate.id]?.tally ?? 0;
           if (votes) {
-            yield buildCsvRow({
+            yield buildRow({
               metadataValues,
               contest,
               selection: writeInCandidate.name,
@@ -152,7 +152,7 @@ function* generateRows({
             contestResults.tallies[contestWriteInCandidate.id]?.tally ?? 0;
 
           if (votes) {
-            yield buildCsvRow({
+            yield buildRow({
               metadataValues,
               contest,
               selection: contestWriteInCandidate.name,
@@ -163,14 +163,14 @@ function* generateRows({
         }
       } else if (contest.type === 'yesno') {
         assert(contestResults.contestType === 'yesno');
-        yield buildCsvRow({
+        yield buildRow({
           metadataValues,
           contest,
           selection: contest.yesOption.label,
           selectionId: contest.yesOption.id,
           votes: contestResults.yesTally,
         });
-        yield buildCsvRow({
+        yield buildRow({
           metadataValues,
           contest,
           selection: contest.noOption.label,
@@ -179,7 +179,7 @@ function* generateRows({
         });
       }
 
-      yield buildCsvRow({
+      yield buildRow({
         metadataValues,
         contest,
         selection: 'Overvotes',
@@ -187,7 +187,7 @@ function* generateRows({
         votes: contestResults.overvotes,
       });
 
-      yield buildCsvRow({
+      yield buildRow({
         metadataValues,
         contest,
         selection: 'Undervotes',
@@ -206,7 +206,7 @@ function* generateRows({
  *
  * Returns the file as a `NodeJS.ReadableStream` emitting line by line.
  */
-export async function generateResultsCsv({
+export async function generateTallyReportCsv({
   store,
   filter = {},
   groupBy = {},
@@ -243,10 +243,10 @@ export async function generateResultsCsv({
     })
   );
 
-  function* generateResultsCsvRows() {
+  function* generateAllRows() {
     yield headerRow;
 
-    for (const dataRow of generateRows({
+    for (const dataRow of generateDataRows({
       electionDefinition,
       electionId: assertDefined(electionId),
       overallExportFilter: filter,
@@ -258,5 +258,5 @@ export async function generateResultsCsv({
     }
   }
 
-  return Readable.from(generateResultsCsvRows());
+  return Readable.from(generateAllRows());
 }

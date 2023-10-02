@@ -74,7 +74,7 @@ import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
-import { generateResultsCsv } from './exports/csv_results';
+import { generateTallyReportCsv } from './exports/csv_tally_report';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
@@ -721,7 +721,7 @@ function buildApi({
       debug('exporting results CSV file: %o', input);
       const exportFileResult = await exportFile({
         path: input.path,
-        data: await generateResultsCsv({
+        data: await generateTallyReportCsv({
           store,
           filter: input.filter,
           groupBy: input.groupBy,

@@ -5,7 +5,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
-import { generateResultsCsv } from './csv_results';
+import { generateTallyReportCsv } from './csv_tally_report';
 import { parseCsv, streamToString } from '../../test/csv';
 import { Store } from '../store';
 
@@ -200,7 +200,7 @@ test('uses appropriate headers', async () => {
   ];
 
   for (const testCase of testCases) {
-    const stream = await generateResultsCsv({
+    const stream = await generateTallyReportCsv({
       store,
       filter: testCase.filter,
       groupBy: testCase.groupBy,
@@ -234,7 +234,7 @@ test('includes rows for empty but known result groups', async () => {
   store.setCurrentElectionId(electionId);
 
   // no CVRs, so all groups should be empty
-  const stream = await generateResultsCsv({
+  const stream = await generateTallyReportCsv({
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
@@ -256,7 +256,7 @@ test('included contests are specific to each results group', async () => {
   });
   store.setCurrentElectionId(electionId);
 
-  const stream = await generateResultsCsv({
+  const stream = await generateTallyReportCsv({
     store,
     filter: {},
     groupBy: { groupByBallotStyle: true },
@@ -292,7 +292,7 @@ test('included contests are restricted by the overall export filter', async () =
   });
   store.setCurrentElectionId(electionId);
 
-  const stream = await generateResultsCsv({
+  const stream = await generateTallyReportCsv({
     store,
     filter: { ballotStyleIds: ['1M'] },
   });
@@ -320,7 +320,7 @@ test('does not include results groups when they are excluded by the filter', asy
   store.setCurrentElectionId(electionId);
 
   // grouping on voting method should include both precinct and absentee rows
-  const byVotingMethodStream = await generateResultsCsv({
+  const byVotingMethodStream = await generateTallyReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
   });
@@ -334,7 +334,7 @@ test('does not include results groups when they are excluded by the filter', asy
   ).toBeTruthy();
 
   // but if we add on a filter that excludes absentee, absentee rows should not be included
-  const precinctStream = await generateResultsCsv({
+  const precinctStream = await generateTallyReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
     filter: { votingMethods: ['precinct'] },
