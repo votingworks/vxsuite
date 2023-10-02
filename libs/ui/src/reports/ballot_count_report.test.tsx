@@ -3,11 +3,7 @@ import { Tabulation } from '@votingworks/types';
 import { within } from '@testing-library/react';
 import { Optional } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
-import {
-  BallotCountBreakdown,
-  BallotCountReport,
-  Column,
-} from './ballot_count_report';
+import { BallotCountReport, Column } from './ballot_count_report';
 
 const mockScannerBatches: Tabulation.ScannerBatch[] = [
   {
@@ -232,7 +228,7 @@ test('ballot count breakdowns', () => {
   ];
 
   const testCases: Array<{
-    breakdown: BallotCountBreakdown;
+    breakdown: Tabulation.BallotCountBreakdown;
     expectedColumns: Column[];
     expectedRows: RowData[];
     expectedFooter: RowData;

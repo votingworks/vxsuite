@@ -207,3 +207,5 @@ export interface ScannerBatch {
 }
 
 export const BATCH_ID_DISPLAY_LENGTH = 8;
+
+export type BallotCountBreakdown = 'none' | 'manual' | 'all';
