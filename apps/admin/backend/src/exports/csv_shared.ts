@@ -1,4 +1,17 @@
-import { Tabulation } from '@votingworks/types';
+import {
+  Election,
+  ElectionDefinition,
+  Id,
+  Tabulation,
+} from '@votingworks/types';
+import { assert, assertDefined } from '@votingworks/basics';
+import {
+  getBallotStyleById,
+  getPartyById,
+  getPrecinctById,
+} from '@votingworks/utils';
+import { ScannerBatchLookup } from '../types';
+import { Store } from '../store';
 
 /**
  * Possible metadata attributes that can be included in the CSV, in the order
@@ -107,4 +120,209 @@ export function determineCsvMetadataStructure({
       ? 'single'
       : filterStructure.votingMethod,
   };
+}
+
+/**
+ * Based on the determined metadata structure of the export, generate the
+ * metadata headers. Does not include the included data columns, e.g.
+ * ballot counts or vote tallies.
+ */
+export function generateCsvMetadataHeaders({
+  election,
+  metadataStructure,
+}: {
+  election: Election;
+  metadataStructure: CsvMetadataStructure;
+}): string[] {
+  const headers = [];
+
+  // Simple Attributes
+  // -----------------
+
+  if (metadataStructure.precinct === 'single') {
+    headers.push('Precinct');
+    headers.push('Precinct ID');
+  }
+
+  if (
+    election.type === 'primary' &&
+    (metadataStructure.party === 'single' ||
+      metadataStructure.ballotStyle === 'single')
+  ) {
+    headers.push('Party');
+    headers.push('Party ID');
+  }
+
+  if (metadataStructure.ballotStyle === 'single') {
+    headers.push('Ballot Style ID');
+  }
+
+  if (metadataStructure.votingMethod === 'single') {
+    headers.push('Voting Method');
+  }
+
+  if (
+    metadataStructure.scanner === 'single' ||
+    metadataStructure.batch === 'single'
+  ) {
+    headers.push('Scanner ID');
+  }
+
+  if (metadataStructure.batch === 'single') {
+    headers.push('Batch ID');
+  }
+
+  // Compound Attributes
+  // -----------------
+
+  for (const attribute of CSV_METADATA_ATTRIBUTES) {
+    if (metadataStructure[attribute] === 'multi') {
+      headers.push(`Included ${CSV_METADATA_ATTRIBUTE_MULTI_LABEL[attribute]}`);
+    }
+  }
+
+  return headers;
+}
+
+function assertOnlyElement<T>(array?: T[]): T {
+  assert(array);
+  assert(array.length === 1);
+  return assertDefined(array[0]);
+}
+
+/**
+ * Gets the metadata values for a single row of the CSV export.
+ */
+export function getCsvMetadataRowValues({
+  filter,
+  metadataStructure,
+  electionDefinition,
+  batchLookup,
+}: {
+  filter: Tabulation.Filter;
+  metadataStructure: CsvMetadataStructure;
+  electionDefinition: ElectionDefinition;
+  batchLookup: ScannerBatchLookup;
+}): string[] {
+  const { election } = electionDefinition;
+  const values: string[] = [];
+
+  // Single Attributes
+  // -----------------
+
+  if (metadataStructure.precinct === 'single') {
+    const precinctId = assertOnlyElement(filter.precinctIds);
+    values.push(getPrecinctById(electionDefinition, precinctId).name);
+    values.push(precinctId);
+  }
+
+  if (
+    election.type === 'primary' &&
+    (metadataStructure.party === 'single' ||
+      metadataStructure.ballotStyle === 'single')
+  ) {
+    const partyId = (() => {
+      if (metadataStructure.party === 'single') {
+        return assertOnlyElement(filter.partyIds);
+      }
+
+      const ballotStyleId = assertOnlyElement(filter.ballotStyleIds);
+      return assertDefined(
+        getBallotStyleById(electionDefinition, ballotStyleId).partyId
+      );
+    })();
+
+    values.push(getPartyById(electionDefinition, partyId).name);
+    values.push(partyId);
+  }
+
+  if (metadataStructure.ballotStyle === 'single') {
+    values.push(assertOnlyElement(filter.ballotStyleIds));
+  }
+
+  if (metadataStructure.votingMethod === 'single') {
+    values.push(
+      Tabulation.VOTING_METHOD_LABELS[assertOnlyElement(filter.votingMethods)]
+    );
+  }
+
+  if (
+    metadataStructure.scanner === 'single' ||
+    metadataStructure.batch === 'single'
+  ) {
+    const scannerId = (() => {
+      if (metadataStructure.scanner === 'single') {
+        return assertOnlyElement(filter.scannerIds);
+      }
+
+      return assertDefined(batchLookup[assertOnlyElement(filter.batchIds)])
+        .scannerId;
+    })();
+    values.push(scannerId);
+  }
+
+  if (metadataStructure.batch === 'single') {
+    values.push(assertOnlyElement(filter.batchIds));
+  }
+
+  // Multi Attributes
+  // -------------------
+
+  if (metadataStructure.precinct === 'multi') {
+    values.push(
+      assertDefined(filter.precinctIds)
+        .map((id) => getPrecinctById(electionDefinition, id).name)
+        .join(CSV_MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.party === 'multi') {
+    values.push(
+      assertDefined(filter.partyIds)
+        .map((id) => getPartyById(electionDefinition, id).name)
+        .join(CSV_MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.ballotStyle === 'multi') {
+    values.push(
+      assertDefined(filter.ballotStyleIds).join(CSV_MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.votingMethod === 'multi') {
+    values.push(
+      assertDefined(filter.votingMethods)
+        .map((method) => Tabulation.VOTING_METHOD_LABELS[method])
+        .join(CSV_MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.scanner === 'multi') {
+    values.push(
+      assertDefined(filter.scannerIds).join(CSV_MULTI_VALUE_SEPARATOR)
+    );
+  }
+
+  if (metadataStructure.batch === 'multi') {
+    values.push(assertDefined(filter.batchIds).join(CSV_MULTI_VALUE_SEPARATOR));
+  }
+
+  return values;
+}
+
+/**
+ * Create a dictionary of batch IDs to {@link ScannerBatch} objects for
+ * efficient lookup.
+ */
+export function generateBatchLookup(
+  store: Store,
+  electionId: Id
+): ScannerBatchLookup {
+  const batches = store.getScannerBatches(electionId);
+  const lookup: ScannerBatchLookup = {};
+  for (const batch of batches) {
+    lookup[batch.batchId] = batch;
+  }
+  return lookup;
 }
