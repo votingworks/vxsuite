@@ -7,12 +7,20 @@ import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
-  SCANNER_RESULTS_FOLDER,
   convertCastVoteRecordVotesToTabulationVotes,
+  getCurrentSnapshot,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assert, err, find, iter, ok, unique } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  find,
+  iter,
+  ok,
+  unique,
+} from '@votingworks/basics';
 import fs from 'fs';
 import { join } from 'path';
 import {
@@ -22,10 +30,11 @@ import {
 } from '@votingworks/test-utils';
 import {
   createBallotPackageZipArchive,
+  getCastVoteRecordExportDirectoryPaths,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { CVR, ElectionDefinition, unsafeParse } from '@votingworks/types';
+import { CVR, ElectionDefinition } from '@votingworks/types';
 import { configureApp } from '../../../test/helpers/shared_helpers';
 import { scanBallot, withApp } from '../../../test/helpers/custom_helpers';
 
@@ -209,41 +218,32 @@ test('configures using the most recently created ballot package on the usb drive
 test('continuous CVR export', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, apiClient, 0);
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
 
-      const usbDrive = await mockUsbDrive.usbDrive.status();
-      assert(usbDrive.status === 'mounted');
-      const resultsDirPath = join(usbDrive.mountPoint, SCANNER_RESULTS_FOLDER);
-      const electionDirs = fs.readdirSync(resultsDirPath);
-      expect(electionDirs).toHaveLength(1);
-      const electionDirPath = join(resultsDirPath, electionDirs[0]);
-      const cvrReportDirectories = fs
-        .readdirSync(electionDirPath)
-        // Filter out signature files
-        .filter((path) => !path.endsWith('.vxsig'));
-      expect(cvrReportDirectories).toHaveLength(1);
-      expect(cvrReportDirectories[0]).toMatch(/TEST__machine_000__*/);
-      const cvrReportDirectoryPath = join(
-        electionDirPath,
-        cvrReportDirectories[0]
+      const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+        mockUsbDrive.usbDrive
       );
+      expect(exportDirectoryPaths).toHaveLength(1);
+      const exportDirectoryPath = exportDirectoryPaths[0];
+      expect(exportDirectoryPath).toMatch(/TEST__machine_000__*/);
 
       const { castVoteRecordIterator } = (
-        await readCastVoteRecordExport(cvrReportDirectoryPath)
+        await readCastVoteRecordExport(exportDirectoryPath)
       ).unsafeUnwrap();
-      const cvrs: CVR.CVR[] = (await castVoteRecordIterator.toArray()).map(
+      const castVoteRecords: CVR.CVR[] = (
+        await castVoteRecordIterator.toArray()
+      ).map(
         (castVoteRecordResult) =>
           castVoteRecordResult.unsafeUnwrap().castVoteRecord
       );
-      const cvr = cvrs[0];
-      expect(cvrs.length).toEqual(1);
-      expect(
-        convertCastVoteRecordVotesToTabulationVotes(
-          unsafeParse(CVR.CVRSchema, cvr).CVRSnapshot[0]
-        )
-      ).toMatchObject({
+      expect(castVoteRecords).toHaveLength(1);
+      const castVoteRecord = castVoteRecords[0];
+      const tabulationVotes = convertCastVoteRecordVotesToTabulationVotes(
+        assertDefined(getCurrentSnapshot(castVoteRecord))
+      );
+      expect(tabulationVotes).toMatchObject({
         attorney: ['john-snow'],
         'board-of-alderman': [
           'helen-keller',
@@ -272,10 +272,8 @@ test('continuous CVR export, including polls closing, followed by a full export'
     {},
     async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, apiClient, 0, {
-        skipWaitForContinuousExportToUsbDrive: true,
-      });
-      await scanBallot(mockScanner, apiClient, 1);
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 1);
 
       expect(
         await apiClient.exportCastVoteRecordsToUsbDrive({
@@ -334,12 +332,8 @@ test('ballot batching', async () => {
       }
 
       // Scan two ballots, which should have the same batch
-      await scanBallot(mockScanner, apiClient, 0, {
-        skipWaitForContinuousExportToUsbDrive: true,
-      });
-      await scanBallot(mockScanner, apiClient, 1, {
-        skipWaitForContinuousExportToUsbDrive: true,
-      });
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 1);
       let batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(2);
       expect(batchIds).toHaveLength(1);
@@ -376,12 +370,8 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a new, second batch distinct from the first
-      await scanBallot(mockScanner, apiClient, 2, {
-        skipWaitForContinuousExportToUsbDrive: true,
-      });
-      await scanBallot(mockScanner, apiClient, 3, {
-        skipWaitForContinuousExportToUsbDrive: true,
-      });
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 2);
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 3);
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(4);
       expect(batchIds).toHaveLength(2);
@@ -418,10 +408,8 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a third batch, distinct from the second
-      await scanBallot(mockScanner, apiClient, 4, {
-        skipWaitForContinuousExportToUsbDrive: true,
-      });
-      await scanBallot(mockScanner, apiClient, 5);
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 4);
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 5);
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(6);
       expect(batchIds).toHaveLength(3);

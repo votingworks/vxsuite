@@ -58,7 +58,8 @@ test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => 
       await expect(apiClient.getUsbDriveStatus()).resolves.toEqual(
         mountedUsbDriveStatus
       );
-      await scanBallot(mockScanner, apiClient, 0);
+
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
       await expect(apiClient.getUsbDriveStatus()).resolves.toEqual(
         mountedUsbDriveStatus
       );

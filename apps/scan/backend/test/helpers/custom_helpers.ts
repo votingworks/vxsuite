@@ -21,7 +21,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { getImageChannelCount } from '@votingworks/image-utils';
 import { Logger, fakeLogger } from '@votingworks/logging';
-import { SheetInterpretation, SheetOf, mapSheet } from '@votingworks/types';
+import { SheetOf, mapSheet } from '@votingworks/types';
 import { Application } from 'express';
 import { Server } from 'http';
 import { AddressInfo } from 'net';
@@ -123,6 +123,7 @@ export async function withApp(
     });
     mockUsbDrive.assertComplete();
   } finally {
+    await waitForContinuousExportToUsbDrive(mockUsbDrive);
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });
@@ -215,9 +216,9 @@ export function simulateScan(
 
 export async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
+  mockUsbDrive: MockUsbDrive,
   apiClient: grout.Client<Api>,
-  initialBallotsCounted: number,
-  options: { skipWaitForContinuousExportToUsbDrive?: boolean } = {}
+  initialBallotsCounted: number
 ): Promise<void> {
   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
   await waitForStatus(apiClient, {
@@ -227,36 +228,23 @@ export async function scanBallot(
       initialBallotsCounted === 0 || (await apiClient.getConfig()).isTestMode,
   });
 
-  const interpretation: SheetInterpretation = {
-    type: 'ValidSheet',
-  };
-
   mockScanner.scan.mockResolvedValueOnce(ok(await ballotImages.completeBmd()));
   await apiClient.scanBallot();
   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
   await waitForStatus(apiClient, {
     state: 'ready_to_accept',
-    interpretation,
     ballotsCounted: initialBallotsCounted,
     canUnconfigure: true,
-  });
-  await apiClient.acceptBallot();
-  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
-  await waitForStatus(apiClient, {
-    ballotsCounted: initialBallotsCounted + 1,
-    state: 'accepted',
-    interpretation,
-    canUnconfigure: true,
+    interpretation: { type: 'ValidSheet' },
   });
 
-  // Wait for transition back to no paper
+  await apiClient.acceptBallot();
+  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
   await waitForStatus(apiClient, {
     state: 'no_paper',
     ballotsCounted: initialBallotsCounted + 1,
     canUnconfigure: true,
   });
 
-  if (!options.skipWaitForContinuousExportToUsbDrive) {
-    await waitForContinuousExportToUsbDrive();
-  }
+  await waitForContinuousExportToUsbDrive(mockUsbDrive);
 }

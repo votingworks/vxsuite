@@ -15,7 +15,6 @@ import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixt
 import {
   configureApp,
   expectStatus,
-  waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -77,8 +76,6 @@ test('insert second ballot before first ballot accept', async () => {
         ballotsCounted: 1,
         canUnconfigure: true,
       });
-
-      await waitForContinuousExportToUsbDrive();
     }
   );
 });
@@ -122,8 +119,6 @@ test('insert second ballot while first ballot is accepting', async () => {
         ballotsCounted: 1,
         canUnconfigure: true,
       });
-
-      await waitForContinuousExportToUsbDrive();
     }
   );
 });
@@ -186,8 +181,6 @@ test('insert second ballot while first ballot needs review', async () => {
         interpretation,
         ballotsCounted: 1,
       });
-
-      await waitForContinuousExportToUsbDrive();
     }
   );
 });
