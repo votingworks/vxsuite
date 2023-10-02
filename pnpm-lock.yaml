@@ -5066,6 +5066,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/grout':
+        specifier: workspace:*
+        version: link:../grout
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../logging
