@@ -3,6 +3,7 @@ import {
   MockUsb,
   createBallotPackageZipArchive,
   createMockUsb,
+  getCastVoteRecordExportDirectoryPaths,
   isTestReport,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
@@ -31,11 +32,11 @@ import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { Server } from 'http';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
+import { ok } from '@votingworks/basics';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { Api, buildCentralScannerApp } from './central_scanner_app';
-import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 import { start } from './server';
 
 // mock SKIP_SCAN_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
@@ -207,13 +208,15 @@ test('going through the whole process works', async () => {
     await fs.mkdir(mockUsbMountPoint, { recursive: true });
     mockUsb.insertUsbDrive({});
 
-    await request(app)
-      .post('/central-scanner/scan/export-to-usb-drive')
-      .set('Accept', 'application/json')
-      .expect(200);
+    expect(
+      await apiClient.exportCastVoteRecordsToUsbDrive({
+        isMinimalExport: true,
+      })
+    ).toEqual(ok());
 
-    const [usbDrive] = await mockUsb.mock.getUsbDrives();
-    const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
+    const cvrReportDirectoryPath = (
+      await getCastVoteRecordExportDirectoryPaths(mockUsb.mock)
+    )[0];
     expect(cvrReportDirectoryPath).toContain('machine_000__');
 
     const { castVoteRecordExportMetadata, castVoteRecordIterator } = (

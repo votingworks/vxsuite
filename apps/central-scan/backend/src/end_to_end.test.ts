@@ -1,6 +1,7 @@
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import {
   createMockUsb,
+  getCastVoteRecordExportDirectoryPaths,
   MockUsb,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
@@ -24,11 +25,11 @@ import { dirSync } from 'tmp';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import getPort from 'get-port';
+import { ok, sleep } from '@votingworks/basics';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 import { start } from './server';
 
 // we need more time for ballot interpretation
@@ -106,12 +107,6 @@ test('going through the whole process works', async () => {
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
 
-  // try export before configure
-  await request(app)
-    .post('/central-scanner/scan/export-to-usb-drive')
-    .set('Accept', 'application/json')
-    .expect(400);
-
   importer.configure(
     electionFamousNames2021Fixtures.electionDefinition,
     jurisdiction
@@ -153,13 +148,24 @@ test('going through the whole process works', async () => {
   {
     mockUsb.insertUsbDrive({});
 
-    await request(app)
-      .post('/central-scanner/scan/export-to-usb-drive')
-      .set('Accept', 'application/json')
-      .expect(200);
+    expect(
+      await apiClient.exportCastVoteRecordsToUsbDrive({
+        isMinimalExport: true,
+      })
+    ).toEqual(ok());
 
-    const [usbDrive] = await mockUsb.mock.getUsbDrives();
-    const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
+    // Sleep 1 second to guarantee that this next export directory has a different name than the
+    // previously created one
+    await sleep(1000);
+    expect(
+      await apiClient.exportCastVoteRecordsToUsbDrive({
+        isMinimalExport: false,
+      })
+    ).toEqual(ok());
+
+    const cvrReportDirectoryPath = (
+      await getCastVoteRecordExportDirectoryPaths(mockUsb.mock)
+    )[0];
     expect(cvrReportDirectoryPath).toContain('TEST__machine_000__');
 
     const { castVoteRecordIterator } = (
@@ -205,16 +211,20 @@ test('going through the whole process works', async () => {
     expect(JSON.parse(status.text).batches).toEqual([]);
   }
 
-  // re-export with no CVRs
-  await request(app)
-    .post('/central-scanner/scan/export-to-usb-drive')
-    .set('Accept', 'application/json')
-    .expect(200);
+  // Sleep 1 second to guarantee that this next export directory has a different name than the
+  // previously created one
+  await sleep(1000);
+  expect(
+    await apiClient.exportCastVoteRecordsToUsbDrive({
+      isMinimalExport: true,
+    })
+  ).toEqual(ok());
 
-  const [usbDrive] = await mockUsb.mock.getUsbDrives();
-  const cvrReportDirectoryPaths = getCastVoteRecordReportPaths(usbDrive);
-  expect(cvrReportDirectoryPaths).toHaveLength(2);
-  const cvrReportDirectoryPath = cvrReportDirectoryPaths[0];
+  const cvrReportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+    mockUsb.mock
+  );
+  expect(cvrReportDirectoryPaths).toHaveLength(3);
+  const cvrReportDirectoryPath = cvrReportDirectoryPaths[2];
   const { castVoteRecordIterator } = (
     await readCastVoteRecordExport(cvrReportDirectoryPath)
   ).unsafeUnwrap();

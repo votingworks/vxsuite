@@ -1,8 +1,4 @@
-import {
-  MockUsb,
-  createMockUsb,
-  readCastVoteRecordExport,
-} from '@votingworks/backend';
+import { MockUsb, createMockUsb } from '@votingworks/backend';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -31,7 +27,6 @@ import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './central_scanner_app';
-import { getCastVoteRecordReportPaths } from '../test/helpers/usb';
 
 jest.mock('./importer');
 
@@ -182,23 +177,6 @@ test('POST /scan/scanBatch errors', async () => {
       errors: [{ type: 'scan-error', message: 'scanner is a teapot' }],
     });
   expect(importer.startImport).toBeCalled();
-});
-
-test('POST /scan/export-to-usb-drive', async () => {
-  mockUsb.insertUsbDrive({});
-
-  await request(app)
-    .post('/central-scanner/scan/export-to-usb-drive')
-    .set('Accept', 'application/json')
-    .expect(200);
-
-  const [usbDrive] = await mockUsb.mock.getUsbDrives();
-  const cvrReportDirectoryPath = getCastVoteRecordReportPaths(usbDrive)[0];
-  expect(cvrReportDirectoryPath).toContain('machine_000__');
-  const { castVoteRecordIterator } = (
-    await readCastVoteRecordExport(cvrReportDirectoryPath)
-  ).unsafeUnwrap();
-  expect(await castVoteRecordIterator.count()).toEqual(0);
 });
 
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
