@@ -1,7 +1,6 @@
 import { ElectionDefinition } from '@votingworks/types';
-import React, { useCallback, useState, useContext } from 'react';
-import { LogEventId } from '@votingworks/logging';
-import { assert, Result } from '@votingworks/basics';
+import React, { useState, useContext } from 'react';
+import { assert } from '@votingworks/basics';
 import {
   Button,
   ExportLogsButtonRow,
@@ -17,13 +16,17 @@ import {
   SetClockButton,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import { Scan } from '@votingworks/api';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { MainNav } from '../components/main_nav';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { AppContext } from '../contexts/app_context';
-import { logOut, unconfigure, clearBallotData } from '../api';
+import {
+  logOut,
+  unconfigure,
+  clearBallotData,
+  exportCastVoteRecordsToUsbDrive,
+} from '../api';
 
 const ButtonRow = styled.div`
   &:not(:last-child) {
@@ -32,14 +35,12 @@ const ButtonRow = styled.div`
 `;
 
 export interface AdminActionScreenProps {
-  backup: () => Promise<Result<string[], Scan.BackupError | Error>>;
   isTestMode: boolean;
   canUnconfigure: boolean;
   electionDefinition: ElectionDefinition;
 }
 
 export function AdminActionsScreen({
-  backup,
   isTestMode,
   canUnconfigure,
   electionDefinition,
@@ -52,6 +53,8 @@ export function AdminActionsScreen({
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
   const clearBallotDataMutation = clearBallotData.useMutation();
+  const exportCastVoteRecordsToUsbDriveMutation =
+    exportCastVoteRecordsToUsbDrive.useMutation();
 
   function redirectToDashboard() {
     history.replace('/');
@@ -89,26 +92,21 @@ export function AdminActionsScreen({
 
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [backupError, setBackupError] = useState('');
-  const exportBackup = useCallback(async () => {
-    setBackupError('');
+
+  function saveBackup() {
     setIsBackingUp(true);
-    const result = await backup();
-    if (result.isErr()) {
-      const error = result.err();
-      setBackupError(error.message);
-      await logger.log(LogEventId.SavedScanImageBackup, userRole, {
-        disposition: 'failure',
-        message: `Error saving ballot data backup: ${error.message}`,
-        result: 'No backup saved.',
-      });
-    } else {
-      await logger.log(LogEventId.SavedScanImageBackup, userRole, {
-        disposition: 'success',
-        message: 'User successfully saved ballot data backup files.',
-      });
-    }
-    setIsBackingUp(false);
-  }, [backup, logger, userRole]);
+    exportCastVoteRecordsToUsbDriveMutation.mutate(
+      { isMinimalExport: false },
+      {
+        onSuccess(result) {
+          if (result.isErr()) {
+            setBackupError(result.err().message);
+          }
+          setIsBackingUp(false);
+        },
+      }
+    );
+  }
 
   return (
     <React.Fragment>
@@ -124,7 +122,7 @@ export function AdminActionsScreen({
             </ButtonRow>
             {backupError && <P style={{ color: 'red' }}>{backupError}</P>}
             <ButtonRow>
-              <Button onPress={exportBackup} disabled={isBackingUp}>
+              <Button onPress={saveBackup} disabled={isBackingUp}>
                 {isBackingUp ? 'Saving…' : 'Save Backup'}
               </Button>
             </ButtonRow>
@@ -252,7 +250,7 @@ export function AdminActionsScreen({
         />
       )}
       {isBackingUp && (
-        <Modal centerContent content={<Loading>Saving Backup</Loading>} />
+        <Modal centerContent content={<Loading>Saving backup</Loading>} />
       )}
     </React.Fragment>
   );

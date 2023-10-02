@@ -25,7 +25,7 @@ import {
   H1,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { assert, Result, ok, err } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
@@ -65,10 +65,6 @@ export function AppRoot({
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
   });
-  const currentNumberOfBallots = status.batches.reduce(
-    (prev, next) => prev + next.count,
-    0
-  );
 
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
@@ -288,27 +284,6 @@ export function AppRoot({
     [logger, userRole]
   );
 
-  const backup = useCallback(async (): Promise<
-    Result<string[], Scan.BackupError | Error>
-  > => {
-    const httpResponse = await fetch(
-      '/central-scanner/scan/backup-to-usb-drive',
-      { method: 'POST' }
-    );
-
-    const httpResult = safeParseJson(
-      await httpResponse.text(),
-      Scan.BackupToUsbResponseSchema
-    );
-
-    if (httpResult.isErr()) {
-      return httpResult;
-    }
-
-    const result = httpResult.ok();
-    return result.status === 'ok' ? ok(result.paths) : err(result.errors[0]);
-  }, []);
-
   // poll for scanning status on an interval if configured
   useInterval(
     useCallback(async () => {
@@ -461,7 +436,6 @@ export function AppRoot({
       <Switch>
         <Route path="/admin">
           <AdminActionsScreen
-            backup={backup}
             isTestMode={isTestMode}
             canUnconfigure={status.canUnconfigure}
             electionDefinition={electionDefinition}
@@ -507,10 +481,7 @@ export function AppRoot({
             />
           </Screen>
           {isExportingCvrs && (
-            <ExportResultsModal
-              onClose={() => setIsExportingCvrs(false)}
-              numberOfBallots={currentNumberOfBallots}
-            />
+            <ExportResultsModal onClose={() => setIsExportingCvrs(false)} />
           )}
         </Route>
       </Switch>

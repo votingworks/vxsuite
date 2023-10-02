@@ -39,14 +39,15 @@ export function ExportResultsModal({
   onClose,
   usbDrive,
 }: ExportResultsModalProps): JSX.Element {
-  const exportMutation = exportCastVoteRecordsToUsbDrive.useMutation();
+  const exportCastVoteRecordsToUsbDriveMutation =
+    exportCastVoteRecordsToUsbDrive.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
   function exportResults() {
     setCurrentState(ModalState.SAVING);
-    exportMutation.mutate(
+    exportCastVoteRecordsToUsbDriveMutation.mutate(
       { mode: 'full_export' },
       {
         onSuccess: (result) => {

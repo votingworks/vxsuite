@@ -4,11 +4,10 @@ import styled from 'styled-components';
 import { Button, Modal, P, UsbControllerButton } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
-import { LogEventId } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
-import { exportCastVoteRecords } from '../api/config';
+import { exportCastVoteRecordsToUsbDrive } from '../api';
 
 function throwBadStatus(s: never): never {
   throw new Error(`Bad status: ${s}`);
@@ -22,7 +21,6 @@ export const UsbImage = styled.img`
 
 export interface Props {
   onClose: () => void;
-  numberOfBallots: number;
 }
 
 enum ModalState {
@@ -32,43 +30,31 @@ enum ModalState {
   INIT = 'init',
 }
 
-export function ExportResultsModal({
-  onClose,
-  numberOfBallots,
-}: Props): JSX.Element {
+export function ExportResultsModal({ onClose }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { usbDriveEject, usbDriveStatus, auth, logger } =
-    useContext(AppContext);
+  const { usbDriveEject, usbDriveStatus, auth } = useContext(AppContext);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
+  const exportCastVoteRecordsToUsbDriveMutation =
+    exportCastVoteRecordsToUsbDrive.useMutation();
 
-  async function exportResults() {
+  function exportResults() {
     setCurrentState(ModalState.SAVING);
-
-    try {
-      await logger.log(LogEventId.SaveCvrInit, userRole);
-
-      await exportCastVoteRecords();
-
-      setCurrentState(ModalState.DONE);
-      await logger.log(LogEventId.SaveCvrComplete, userRole, {
-        message: `Successfully saved CVR file with ${numberOfBallots} ballots.`,
-        disposition: 'success',
-        numberOfBallots,
-      });
-    } catch (error) {
-      assert(error instanceof Error);
-      setErrorMessage(`Failed to save CVRs. ${error.message}`);
-      setCurrentState(ModalState.ERROR);
-      await logger.log(LogEventId.SaveCvrComplete, userRole, {
-        message: 'Error saving CVR file.',
-        error: error.message,
-        result: 'User shown error, CVR file not saved.',
-        disposition: 'failure',
-      });
-    }
+    exportCastVoteRecordsToUsbDriveMutation.mutate(
+      { isMinimalExport: true },
+      {
+        onSuccess: (result) => {
+          if (result.isErr()) {
+            setErrorMessage(`Failed to save CVRs. ${result.err().message}`);
+            setCurrentState(ModalState.ERROR);
+          } else {
+            setCurrentState(ModalState.DONE);
+          }
+        },
+      }
+    );
   }
 
   if (currentState === ModalState.ERROR) {
