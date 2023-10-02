@@ -90,12 +90,21 @@ interface ScannerStateUnchangedByExport {
 
 interface CentralScannerOptions {
   scannerType: 'central';
+  /**
+   * A minimal export includes only the images that are absolutely necessary for tabulation, i.e.
+   * images for accepted ballots with write-ins.
+   */
   isMinimalExport?: boolean;
 }
 
 interface PrecinctScannerOptions {
   scannerType: 'precinct';
   arePollsClosing?: boolean;
+  /**
+   * Precinct scanners export continuously as ballots are cast, but also still support full exports
+   * of all cast ballots. (Central scanners, on the other hand, don't export continuously and only
+   * support full exports.)
+   */
   isFullExport?: boolean;
 }
 
