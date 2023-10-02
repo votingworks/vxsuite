@@ -20,109 +20,20 @@ import { Readable } from 'stream';
 import { ScannerBatch } from '../types';
 import { Store } from '../store';
 import { tabulateElectionResults } from '../tabulation/full_results';
-
-/**
- * Possible metadata attributes that can be included in the CSV, in the order
- * the columns will appear in the CSV.
- */
-const METADATA_ATTRIBUTES = [
-  'precinct',
-  'party',
-  'ballotStyle',
-  'votingMethod',
-  'scanner',
-  'batch',
-] as const;
-
-type MetadataAttribute = (typeof METADATA_ATTRIBUTES)[number];
-
-const METADATA_ATTRIBUTE_MULTI_LABEL: Record<MetadataAttribute, string> = {
-  precinct: 'Precincts',
-  party: 'Parties',
-  ballotStyle: 'Ballot Styles',
-  votingMethod: 'Voting Methods',
-  scanner: 'Scanners',
-  batch: 'Batches',
-};
-
-const MULTI_VALUE_SEPARATOR = ', ';
-
-// `all` is equivalent to having no filter for an attribute
-type Multiplicity = 'single' | 'multi' | 'all';
-
-/**
- * Describes the metadata structure of the CSV. We distinguish between single
- * multi attributes because "single" is the common and intuitive use case,
- * alongside which we want to add additional related metadata. The "multi"
- * attributes are only to ensure the CSV is self-documenting when there are
- * filters selecting for multiple values.
- */
-type MetadataStructure = {
-  [K in MetadataAttribute]: Multiplicity;
-};
-
-function determineMetadataStructure({
-  filter,
-  groupBy,
-}: {
-  filter: Tabulation.Filter;
-  groupBy: Tabulation.GroupBy;
-}): MetadataStructure {
-  const filterStructure: MetadataStructure = {
-    precinct: filter.precinctIds
-      ? filter.precinctIds.length > 1
-        ? 'multi'
-        : 'single'
-      : 'all',
-    ballotStyle: filter.ballotStyleIds
-      ? filter.ballotStyleIds.length > 1
-        ? 'multi'
-        : 'single'
-      : 'all',
-    party: filter.partyIds
-      ? filter.partyIds.length > 1
-        ? 'multi'
-        : 'single'
-      : 'all',
-    votingMethod: filter.votingMethods
-      ? filter.votingMethods.length > 1
-        ? 'multi'
-        : 'single'
-      : 'all',
-    scanner: filter.scannerIds
-      ? filter.scannerIds.length > 1
-        ? 'multi'
-        : 'single'
-      : 'all',
-    batch: filter.batchIds
-      ? filter.batchIds.length > 1
-        ? 'multi'
-        : 'single'
-      : 'all',
-  };
-
-  // If we're grouping by an attribute, it's always going to be a single.
-  // Otherwise, the multiplicity is the same as the filter.
-  return {
-    ballotStyle: groupBy.groupByBallotStyle
-      ? 'single'
-      : filterStructure.ballotStyle,
-    party: groupBy.groupByParty ? 'single' : filterStructure.party,
-    precinct: groupBy.groupByPrecinct ? 'single' : filterStructure.precinct,
-    scanner: groupBy.groupByScanner ? 'single' : filterStructure.scanner,
-    batch: groupBy.groupByBatch ? 'single' : filterStructure.batch,
-    votingMethod: groupBy.groupByVotingMethod
-      ? 'single'
-      : filterStructure.votingMethod,
-  };
-}
+import {
+  CSV_METADATA_ATTRIBUTES,
+  CSV_METADATA_ATTRIBUTE_MULTI_LABEL,
+  CSV_MULTI_VALUE_SEPARATOR,
+  CsvMetadataStructure,
+  determineCsvMetadataStructure,
+} from './csv_shared';
 
 function generateHeaders({
   election,
   metadataStructure,
 }: {
   election: Election;
-  metadataStructure: MetadataStructure;
+  metadataStructure: CsvMetadataStructure;
 }): string[] {
   const headers = [];
 
@@ -165,9 +76,9 @@ function generateHeaders({
   // Compound Attributes
   // -----------------
 
-  for (const attribute of METADATA_ATTRIBUTES) {
+  for (const attribute of CSV_METADATA_ATTRIBUTES) {
     if (metadataStructure[attribute] === 'multi') {
-      headers.push(`Included ${METADATA_ATTRIBUTE_MULTI_LABEL[attribute]}`);
+      headers.push(`Included ${CSV_METADATA_ATTRIBUTE_MULTI_LABEL[attribute]}`);
     }
   }
 
@@ -198,7 +109,7 @@ function buildCsvRow({
   votes,
 }: {
   filter: Tabulation.Filter;
-  metadataStructure: MetadataStructure;
+  metadataStructure: CsvMetadataStructure;
   electionDefinition: ElectionDefinition;
   batchLookup: BatchLookup;
   contest: Contest;
@@ -274,7 +185,7 @@ function buildCsvRow({
     values.push(
       assertDefined(filter.precinctIds)
         .map((id) => getPrecinctById(electionDefinition, id).name)
-        .join(MULTI_VALUE_SEPARATOR)
+        .join(CSV_MULTI_VALUE_SEPARATOR)
     );
   }
 
@@ -282,13 +193,13 @@ function buildCsvRow({
     values.push(
       assertDefined(filter.partyIds)
         .map((id) => getPartyById(electionDefinition, id).name)
-        .join(MULTI_VALUE_SEPARATOR)
+        .join(CSV_MULTI_VALUE_SEPARATOR)
     );
   }
 
   if (metadataStructure.ballotStyle === 'multi') {
     values.push(
-      assertDefined(filter.ballotStyleIds).join(MULTI_VALUE_SEPARATOR)
+      assertDefined(filter.ballotStyleIds).join(CSV_MULTI_VALUE_SEPARATOR)
     );
   }
 
@@ -296,16 +207,18 @@ function buildCsvRow({
     values.push(
       assertDefined(filter.votingMethods)
         .map((method) => Tabulation.VOTING_METHOD_LABELS[method])
-        .join(MULTI_VALUE_SEPARATOR)
+        .join(CSV_MULTI_VALUE_SEPARATOR)
     );
   }
 
   if (metadataStructure.scanner === 'multi') {
-    values.push(assertDefined(filter.scannerIds).join(MULTI_VALUE_SEPARATOR));
+    values.push(
+      assertDefined(filter.scannerIds).join(CSV_MULTI_VALUE_SEPARATOR)
+    );
   }
 
   if (metadataStructure.batch === 'multi') {
-    values.push(assertDefined(filter.batchIds).join(MULTI_VALUE_SEPARATOR));
+    values.push(assertDefined(filter.batchIds).join(CSV_MULTI_VALUE_SEPARATOR));
   }
 
   // Contest, Selection, and Tally
@@ -343,7 +256,7 @@ function* generateRows({
   electionDefinition: ElectionDefinition;
   overallExportFilter: Tabulation.Filter;
   resultGroups: Tabulation.ElectionResultsGroupList;
-  metadataStructure: MetadataStructure;
+  metadataStructure: CsvMetadataStructure;
   store: Store;
 }): Generator<string> {
   const { election } = electionDefinition;
@@ -501,7 +414,7 @@ export async function generateResultsCsv({
   const { electionDefinition } = assertDefined(store.getElection(electionId));
   const { election } = electionDefinition;
 
-  const metadataStructure = determineMetadataStructure({
+  const metadataStructure = determineCsvMetadataStructure({
     filter,
     groupBy,
   });
