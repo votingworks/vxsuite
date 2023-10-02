@@ -573,7 +573,7 @@ async function randomlyUpdateCreationTimestamps(
 function getCastVoteRecordExportInProgressMarkerFilePath(
   usbMountPoint: string
 ): string {
-  return path.join(usbMountPoint, '.export-in-progress');
+  return path.join(usbMountPoint, '.vx-export-in-progress');
 }
 
 async function markCastVoteRecordExportAsInProgress(
