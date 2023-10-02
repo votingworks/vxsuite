@@ -56,7 +56,7 @@ async function getParsedExport({
   filter?: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
   const path = tmpNameSync();
-  const exportResult = await apiClient.exportResultsCsv({
+  const exportResult = await apiClient.exportTallyReportCsv({
     path,
     groupBy,
     filter,
@@ -79,7 +79,7 @@ it('exports expected results for full election', async () => {
   loadFileResult.assertOk('load file failed');
 
   const path = tmpNameSync();
-  const exportResult = await apiClient.exportResultsCsv({ path });
+  const exportResult = await apiClient.exportTallyReportCsv({ path });
   expect(exportResult.isOk()).toEqual(true);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
@@ -145,7 +145,7 @@ it('logs failure if export fails for some reason', async () => {
   loadFileResult.assertOk('load file failed');
 
   const offLimitsPath = '/root/hidden';
-  const failedExportResult = await apiClient.exportResultsCsv({
+  const failedExportResult = await apiClient.exportTallyReportCsv({
     path: offLimitsPath,
   });
   expect(failedExportResult.isErr()).toEqual(true);
