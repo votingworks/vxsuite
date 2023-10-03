@@ -155,7 +155,7 @@ test('can render all attribute columns', () => {
     {
       'ballot-style': '1M',
       batch: 'batch-10',
-      party: 'Ma',
+      party: 'Mammal',
       precinct: 'Precinct 1',
       scanner: 'scanner-1',
       total: '5',
@@ -164,7 +164,7 @@ test('can render all attribute columns', () => {
     {
       'ballot-style': '2F',
       batch: 'batch-20',
-      party: 'F',
+      party: 'Fish',
       precinct: 'Precinct 2',
       scanner: 'scanner-2',
       total: '5',

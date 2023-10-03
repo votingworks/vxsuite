@@ -319,7 +319,7 @@ function BallotCountTable({
                   content = getPartyById(
                     electionDefinition,
                     assertDefined(partyId)
-                  ).abbrev;
+                  ).name;
                   break;
                 case 'voting-method':
                   content =
