@@ -51,7 +51,7 @@ describe('Ballot Counts by Precinct', () => {
     ];
 
   it('renders as expected when there is no tally data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByPrecinct: true }),
       []
     );
@@ -86,7 +86,7 @@ describe('Ballot Counts by Precinct', () => {
   });
 
   it('renders as expected when there is tally data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByPrecinct: true }),
       cardCountsByPrecinct
     );
@@ -144,7 +144,7 @@ describe('Ballot Counts by Scanner', () => {
   const scannerIds = ['scanner-1', 'scanner-2'];
 
   it('renders as expected when there is no tally data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByScanner: true }),
       []
     );
@@ -165,7 +165,7 @@ describe('Ballot Counts by Scanner', () => {
   });
 
   it('renders as expected when there is tally data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByScanner: true }),
       cardCountsByScanner
     );
@@ -206,7 +206,7 @@ describe('Ballot Counts by Scanner', () => {
   });
 
   it('renders as expected when there is tally data and manual data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByScanner: true }),
       cardCountsByScanner
     );
@@ -263,7 +263,7 @@ describe('Ballots Counts by Party', () => {
   ];
 
   it('renders as expected when there is no data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByParty: true }),
       []
     );
@@ -303,7 +303,7 @@ describe('Ballots Counts by Party', () => {
   });
 
   it('renders as expected when there is tally data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByParty: true }),
       cardCountsByParty
     );
@@ -369,7 +369,7 @@ describe('Ballots Counts by VotingMethod', () => {
   ];
 
   it('renders as expected when there is no data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByVotingMethod: true }),
       []
     );
@@ -402,7 +402,7 @@ describe('Ballots Counts by VotingMethod', () => {
   });
 
   it('renders as expected when there is tally data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByVotingMethod: true }),
       cardCountsByVotingMethod
     );
@@ -483,7 +483,7 @@ describe('Ballots Counts by Batch', () => {
   ];
 
   it('renders as expected when there is no data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByBatch: true }),
       []
     );
@@ -521,7 +521,7 @@ describe('Ballots Counts by Batch', () => {
   ];
 
   it('renders as expected when there is tally data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByBatch: true }),
       cardCountsByBatch
     );
@@ -561,7 +561,7 @@ describe('Ballots Counts by Batch', () => {
   });
 
   it('renders as expected where there is tally data and manual data', async () => {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByBatch: true }),
       cardCountsByBatch
     );

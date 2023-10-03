@@ -380,7 +380,7 @@ export function createApiMock(
         .resolves(ok([]));
     },
 
-    expectGetCardCounts(
+    deprecatedExpectGetCardCounts(
       groupBy: Tabulation.GroupBy,
       result: Array<Tabulation.GroupOf<Tabulation.CardCounts>>
     ) {
