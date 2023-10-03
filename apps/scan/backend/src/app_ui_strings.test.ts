@@ -3,6 +3,7 @@ import tmp from 'tmp';
 import {
   runUiStringApiTests,
   runUiStringMachineConfigurationTests,
+  runUiStringMachineDeconfigurationTests,
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { fakeLogger } from '@votingworks/logging';
@@ -96,6 +97,27 @@ describe('configureFromBallotPackageOnUsbDrive', () => {
     electionPackage,
     getMockUsbDrive: () => mockUsbDrive,
     runConfigureMachine: () => api.configureFromBallotPackageOnUsbDrive(),
+    store: store.getUiStringsStore(),
+  });
+});
+
+describe('unconfigureElection', () => {
+  const api = buildApi(
+    mockAuth,
+    {
+      accept: jest.fn(),
+      return: jest.fn(),
+      scan: jest.fn(),
+      status: jest.fn(),
+      supportsUltrasonic: jest.fn(),
+    },
+    workspace,
+    mockUsbDrive.usbDrive,
+    fakeLogger()
+  );
+
+  runUiStringMachineDeconfigurationTests({
+    runUnconfigureMachine: () => api.unconfigureElection({}),
     store: store.getUiStringsStore(),
   });
 });

@@ -6,6 +6,7 @@ import {
   createMockUsb,
   runUiStringApiTests,
   runUiStringMachineConfigurationTests,
+  runUiStringMachineDeconfigurationTests,
 } from '@votingworks/backend';
 import { fakeLogger } from '@votingworks/logging';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
@@ -84,6 +85,22 @@ describe('configureBallotPackageFromUsb', () => {
     electionPackage,
     getMockUsbDrive: () => mockUsbDrive,
     runConfigureMachine: () => api.configureBallotPackageFromUsb(),
+    store: store.getUiStringsStore(),
+  });
+});
+
+describe('unconfigureMachine', () => {
+  const api = buildApi(
+    mockAuth,
+    createMockUsb().mock,
+    fakeLogger(),
+    workspace,
+    undefined,
+    os.tmpdir()
+  );
+
+  runUiStringMachineDeconfigurationTests({
+    runUnconfigureMachine: () => api.unconfigureMachine(),
     store: store.getUiStringsStore(),
   });
 });

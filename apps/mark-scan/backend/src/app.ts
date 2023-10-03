@@ -111,8 +111,7 @@ export function buildApi(
     },
 
     unconfigureMachine() {
-      workspace.store.setElectionAndJurisdiction(undefined);
-      workspace.store.deleteSystemSettings();
+      workspace.store.reset();
     },
 
     configureWithSampleBallotPackageForIntegrationTest(): Result<
