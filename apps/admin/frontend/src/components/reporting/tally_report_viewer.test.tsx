@@ -388,5 +388,7 @@ test('exporting report PDF', async () => {
     expect(pdfResult.getByTestId('total-ballot-count')).toHaveTextContent('10');
   });
 
+  userEvent.click(screen.getButton('Close'));
+
   jest.useRealTimers();
 });
