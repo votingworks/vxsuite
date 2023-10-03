@@ -12,7 +12,7 @@ import {
   generateTallyReportCsvFilename,
 } from '../../utils/reporting';
 
-export function ExportCsvResultsButton({
+export function ExportTallyReportCsvButton({
   filter,
   groupBy,
   disabled,

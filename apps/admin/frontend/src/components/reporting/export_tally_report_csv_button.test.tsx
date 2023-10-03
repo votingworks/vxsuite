@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { Tabulation } from '@votingworks/types';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
-import { ExportCsvResultsButton } from './export_csv_button';
+import { ExportTallyReportCsvButton } from './export_tally_report_csv_button';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
 
@@ -29,7 +29,7 @@ test('calls mutation in happy path', async () => {
   };
 
   renderInAppContext(
-    <ExportCsvResultsButton filter={filter} groupBy={groupBy} />,
+    <ExportTallyReportCsvButton filter={filter} groupBy={groupBy} />,
     {
       apiMock,
       usbDriveStatus: mockUsbDriveStatus('mounted'),
@@ -59,7 +59,7 @@ test('calls mutation in happy path', async () => {
 
 test('disabled by disabled prop', () => {
   renderInAppContext(
-    <ExportCsvResultsButton disabled filter={{}} groupBy={{}} />,
+    <ExportTallyReportCsvButton disabled filter={{}} groupBy={{}} />,
     { apiMock }
   );
 
