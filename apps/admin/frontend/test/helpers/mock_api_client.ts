@@ -387,6 +387,30 @@ export function createApiMock(
       apiClient.getCardCounts.expectCallWith({ groupBy }).resolves(result);
     },
 
+    expectGetCardCounts(
+      input: {
+        filter?: Tabulation.Filter;
+        groupBy?: Tabulation.GroupBy;
+      },
+      results: Array<Tabulation.GroupOf<Tabulation.CardCounts>>,
+      deferResult = false
+    ) {
+      const { promise, resolve } =
+        deferred<Tabulation.GroupList<Tabulation.CardCounts>>();
+
+      apiClient.getCardCounts.expectCallWith(input).returns(promise);
+
+      if (!deferResult) {
+        resolve(results);
+      }
+
+      return {
+        resolve: () => {
+          resolve(results);
+        },
+      };
+    },
+
     expectGetScannerBatches(result: ScannerBatch[]) {
       apiClient.getScannerBatches.expectCallWith().resolves(result);
     },
