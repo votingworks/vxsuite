@@ -1,6 +1,10 @@
 import { Election, ElectionDefinition, Tabulation } from '@votingworks/types';
 import { Optional, Result, err, find, ok } from '@votingworks/basics';
-import { getPrecinctById, sanitizeStringForFilename } from '@votingworks/utils';
+import {
+  getPartyById,
+  getPrecinctById,
+  sanitizeStringForFilename,
+} from '@votingworks/utils';
 import moment from 'moment';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 
@@ -63,6 +67,7 @@ export function generateTitleForReport({
   const votingMethod = filter.votingMethods?.[0];
   const batchId = filter.batchIds?.[0];
   const scannerId = filter.scannerIds?.[0];
+  const partyId = filter.partyIds?.[0];
 
   const reportRank = getFilterRank(filter);
 
@@ -103,38 +108,78 @@ export function generateTitleForReport({
     if (scannerId) {
       return ok(`Scanner ${scannerId} ${reportType} Report`);
     }
-  }
 
-  if (reportRank === 2) {
-    if (precinctId && votingMethod) {
+    if (partyId) {
       return ok(
-        `${getPrecinctById(electionDefinition, precinctId).name} ${
-          VOTING_METHOD_LABELS[votingMethod]
-        } Ballot ${reportType} Report`
-      );
-    }
-
-    if (ballotStyleId && votingMethod) {
-      return ok(
-        `Ballot Style ${ballotStyleId} ${VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
-      );
-    }
-
-    if (precinctId && ballotStyleId) {
-      return ok(
-        `Ballot Style ${ballotStyleId} ${
-          getPrecinctById(electionDefinition, precinctId).name
+        `${
+          getPartyById(electionDefinition, partyId).fullName
         } ${reportType} Report`
       );
     }
+  }
 
-    if (precinctId && scannerId) {
-      return ok(
-        `${
-          getPrecinctById(electionDefinition, precinctId).name
-        } Scanner ${scannerId} ${reportType} Report`
-      );
+  if (reportRank === 2) {
+    // Party + Other
+    if (partyId) {
+      const partyFullName = getPartyById(electionDefinition, partyId).fullName;
+      if (precinctId) {
+        return ok(
+          `${partyFullName} ${
+            getPrecinctById(electionDefinition, precinctId).name
+          } ${reportType} Report`
+        );
+      }
+
+      if (votingMethod) {
+        return ok(
+          `${partyFullName} ${VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
+        );
+      }
+
+      if (ballotStyleId) {
+        return ok(
+          `${partyFullName} Ballot Style ${ballotStyleId} ${reportType} Report`
+        );
+      }
     }
+
+    // Ballot Style + Other
+    if (ballotStyleId) {
+      if (precinctId) {
+        return ok(
+          `Ballot Style ${ballotStyleId} ${
+            getPrecinctById(electionDefinition, precinctId).name
+          } ${reportType} Report`
+        );
+      }
+
+      if (votingMethod) {
+        return ok(
+          `Ballot Style ${ballotStyleId} ${VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
+        );
+      }
+    }
+
+    // Precinct + Other
+    if (precinctId) {
+      if (votingMethod) {
+        return ok(
+          `${getPrecinctById(electionDefinition, precinctId).name} ${
+            VOTING_METHOD_LABELS[votingMethod]
+          } Ballot ${reportType} Report`
+        );
+      }
+
+      if (scannerId) {
+        return ok(
+          `${
+            getPrecinctById(electionDefinition, precinctId).name
+          } Scanner ${scannerId} ${reportType} Report`
+        );
+      }
+    }
+
+    // Other Combinations
 
     if (scannerId && batchId) {
       return ok(

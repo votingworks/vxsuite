@@ -90,6 +90,12 @@ test('generateTitleForReport', () => {
     ],
     [
       {
+        partyIds: ['0'],
+      },
+      'Mammal Party Tally Report',
+    ],
+    [
+      {
         batchIds: ['12345678-0000-0000-0000-000000000000'],
       },
       'Scanner VX-00-001 Batch 12345678 Tally Report',
@@ -123,6 +129,27 @@ test('generateTitleForReport', () => {
     ],
     [
       {
+        ballotStyleIds: ['1M'],
+        partyIds: ['0'],
+      },
+      'Mammal Party Ballot Style 1M Tally Report',
+    ],
+    [
+      {
+        partyIds: ['0'],
+        votingMethods: ['absentee'],
+      },
+      'Mammal Party Absentee Ballot Tally Report',
+    ],
+    [
+      {
+        partyIds: ['0'],
+        precinctIds: ['precinct-1'],
+      },
+      'Mammal Party Precinct 1 Tally Report',
+    ],
+    [
+      {
         scannerIds: ['VX-00-001'],
         batchIds: ['12345678-0000-0000-0000-000000000000'],
       },
@@ -142,6 +169,16 @@ test('generateTitleForReport', () => {
       generateTitleForReport({ filter, electionDefinition, scannerBatches })
     ).toEqual(ok(title));
   }
+
+  // Ballot Count Report
+  expect(
+    generateTitleForReport({
+      filter: { precinctIds: ['precinct-1'] },
+      electionDefinition,
+      scannerBatches,
+      reportType: 'Ballot Count',
+    })
+  ).toEqual(ok('Precinct 1 Ballot Count Report'));
 });
 
 test('canonicalizeFilter', () => {
