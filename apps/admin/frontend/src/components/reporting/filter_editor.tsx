@@ -10,11 +10,7 @@ import styled from 'styled-components';
 import { SearchSelect, SelectOption, Icons, Button } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 import { getScannerBatches } from '../../api';
-
-export interface FilterEditorProps {
-  onChange: (filter: Tabulation.Filter) => void;
-  election: Election;
-}
+import { getPartiesWithPrimaryElections } from '../../utils/election';
 
 const FilterEditorContainer = styled.div`
   width: 100%;
@@ -74,12 +70,9 @@ const FILTER_TYPES = [
   'ballot-style',
   'scanner',
   'batch',
+  'party',
 ] as const;
-type FilterType = (typeof FILTER_TYPES)[number];
-
-function getAllowedFilterTypes(): FilterType[] {
-  return ['precinct', 'voting-method', 'ballot-style', 'scanner', 'batch'];
-}
+export type FilterType = (typeof FILTER_TYPES)[number];
 
 interface FilterRow {
   rowId: number;
@@ -94,6 +87,7 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   'ballot-style': 'Ballot Style',
   scanner: 'Scanner',
   batch: 'Batch',
+  party: 'Party',
 };
 
 function getFilterTypeOption(filterType: FilterType): SelectOption<FilterType> {
@@ -122,6 +116,11 @@ function generateOptionsForFilter({
       return election.ballotStyles.map((bs) => ({
         value: bs.id,
         label: bs.id,
+      }));
+    case 'party':
+      return getPartiesWithPrimaryElections(election).map((party) => ({
+        value: party.id,
+        label: party.name,
       }));
     case 'voting-method':
       return typedAs<Array<SelectOption<Tabulation.VotingMethod>>>([
@@ -172,6 +171,9 @@ function convertFilterRowsToTabulationFilter(
       case 'ballot-style':
         tabulationFilter.ballotStyleIds = filterValues;
         break;
+      case 'party':
+        tabulationFilter.partyIds = filterValues;
+        break;
       case 'scanner':
         tabulationFilter.scannerIds = filterValues;
         break;
@@ -187,9 +189,16 @@ function convertFilterRowsToTabulationFilter(
   return tabulationFilter;
 }
 
+export interface FilterEditorProps {
+  onChange: (filter: Tabulation.Filter) => void;
+  election: Election;
+  allowedFilters: FilterType[];
+}
+
 export function FilterEditor({
   onChange,
   election,
+  allowedFilters,
 }: FilterEditorProps): JSX.Element {
   const [rows, setRows] = useState<FilterRows>([]);
   const [nextRowId, setNextRowId] = useState(0);
@@ -236,7 +245,7 @@ export function FilterEditor({
   }
 
   const activeFilters: FilterType[] = rows.map((row) => row.filterType);
-  const unusedFilters: FilterType[] = getAllowedFilterTypes().filter(
+  const unusedFilters: FilterType[] = allowedFilters.filter(
     (filterType) => !activeFilters.includes(filterType)
   );
 

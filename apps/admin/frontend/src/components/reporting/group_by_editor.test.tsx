@@ -8,10 +8,22 @@ test('GroupByEditor', () => {
   const setGroupBy = jest.fn();
   const groupBy: Tabulation.GroupBy = {
     groupByPrecinct: true,
+    groupByParty: true,
   };
 
   renderInAppContext(
-    <GroupByEditor groupBy={groupBy} setGroupBy={setGroupBy} />
+    <GroupByEditor
+      groupBy={groupBy}
+      setGroupBy={setGroupBy}
+      allowedGroupings={[
+        'groupByBallotStyle',
+        'groupByBatch',
+        'groupByParty',
+        'groupByPrecinct',
+        'groupByScanner',
+        'groupByVotingMethod',
+      ]}
+    />
   );
 
   const items: Array<[label: string, checked: boolean]> = [
@@ -20,6 +32,7 @@ test('GroupByEditor', () => {
     ['Ballot Style', false],
     ['Scanner', false],
     ['Batch', false],
+    ['Party', true],
   ];
 
   for (const [label, checked] of items) {

@@ -69,11 +69,31 @@ export function TallyReportBuilder(): JSX.Element {
       </ul>
       <H3>Filters</H3>
       <FilterEditorContainer>
-        <FilterEditor election={election} onChange={updateFilter} />
+        <FilterEditor
+          election={election}
+          onChange={updateFilter}
+          allowedFilters={[
+            'ballot-style',
+            'batch',
+            'precinct',
+            'scanner',
+            'voting-method',
+          ]} // omits party
+        />
       </FilterEditorContainer>
       <H3>Report By</H3>
       <GroupByEditorContainer>
-        <GroupByEditor groupBy={groupBy} setGroupBy={updateGroupBy} />
+        <GroupByEditor
+          groupBy={groupBy}
+          setGroupBy={updateGroupBy}
+          allowedGroupings={[
+            'groupByBallotStyle',
+            'groupByBatch',
+            'groupByPrecinct',
+            'groupByScanner',
+            'groupByVotingMethod',
+          ]} // omits party
+        />
       </GroupByEditorContainer>
       <TallyReportViewer
         filter={filter}
