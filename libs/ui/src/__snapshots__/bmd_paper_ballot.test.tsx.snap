@@ -107,7 +107,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
 .c0 {
   background: #fff;
   line-height: 1;
-  font-family: 'Vx Helvetica Neue','Noto Emoji','Helvetica Neue',sans-serif;
+  font-family: 'Vx Roboto','Noto Emoji',sans-serif;
   font-size: 16px;
   page-break-after: always;
 }
