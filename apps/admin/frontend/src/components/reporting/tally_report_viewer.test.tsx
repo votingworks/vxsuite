@@ -41,7 +41,7 @@ test('disabled shows disabled buttons and no preview', () => {
 
   expect(screen.getButton('Print Report')).toBeDisabled();
   expect(screen.getButton('Export Report PDF')).toBeDisabled();
-  expect(screen.getButton('Export CSV Results')).toBeDisabled();
+  expect(screen.getButton('Export Report CSV')).toBeDisabled();
 });
 
 test('autoPreview loads preview automatically', async () => {

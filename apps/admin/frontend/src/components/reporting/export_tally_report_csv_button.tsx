@@ -61,7 +61,7 @@ export function ExportTallyReportCsvButton({
   return (
     <React.Fragment>
       <Button disabled={disabled} onPress={openModal}>
-        Export CSV Results
+        Export Report CSV
       </Button>
       {isSaveModalOpen && (
         <SaveBackendFileModal

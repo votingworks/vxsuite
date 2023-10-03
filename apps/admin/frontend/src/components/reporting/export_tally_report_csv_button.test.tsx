@@ -36,7 +36,7 @@ test('calls mutation in happy path', async () => {
     }
   );
 
-  userEvent.click(screen.getButton('Export CSV Results'));
+  userEvent.click(screen.getButton('Export Report CSV'));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Save Results');
   within(modal).getByText(
@@ -63,5 +63,5 @@ test('disabled by disabled prop', () => {
     { apiMock }
   );
 
-  expect(screen.getButton('Export CSV Results')).toBeDisabled();
+  expect(screen.getButton('Export Report CSV')).toBeDisabled();
 });
