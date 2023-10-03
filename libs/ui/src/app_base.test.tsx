@@ -3,14 +3,18 @@ import parseCssColor from 'parse-css-color';
 import { assert } from '@votingworks/basics';
 import { ThemeConsumer } from 'styled-components';
 import { UiTheme } from '@votingworks/types';
-import { act, render } from '../test/react_testing_library';
+import { act, render } from '@testing-library/react';
 
-import { AppBase } from './app_base';
+import { AppBaseProps, AppBase as OriginalAppBase } from './app_base';
 import { makeTheme } from './themes/make_theme';
 import {
   ThemeManagerContext,
   ThemeManagerContextInterface,
 } from './theme_manager_context';
+
+function AppBase(props: AppBaseProps) {
+  return <OriginalAppBase {...props} disableFontsForTests />;
+}
 
 test('renders with defaults', () => {
   const { container } = render(

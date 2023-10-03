@@ -29,7 +29,7 @@ const VVSG_CAPITAL_LETTER_HEIGHTS_MM: Record<
  * need to convert between the two.
  *
  * This ratio is font-dependent, so we're setting it here based on the
- * Helvetica Neue font we've adopted across our apps. Assuming cap height is
+ * font we've adopted across our apps. Assuming cap height is
  * 72.5% of body height.
  *
  * TODO: Need to verify this value - pulled from this article:

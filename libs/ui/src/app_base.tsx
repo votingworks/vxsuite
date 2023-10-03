@@ -5,6 +5,7 @@ import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
 import { GlobalStyles } from './global_styles';
 import { ThemeManagerContext } from './theme_manager_context';
 import { VxThemeProvider } from './themes/vx_theme_provider';
+import { loadFonts } from './fonts/load_fonts';
 
 declare module 'styled-components' {
   /**
@@ -25,6 +26,7 @@ export interface AppBaseProps {
   children: React.ReactNode;
   defaultColorMode?: ColorMode;
   defaultSizeMode?: SizeMode;
+  disableFontsForTests?: boolean;
   enableScroll?: boolean;
   isTouchscreen?: boolean;
   legacyBaseFontSizePx?: number;
@@ -40,6 +42,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     children,
     defaultColorMode = 'legacy',
     defaultSizeMode = 'legacy',
+    disableFontsForTests,
     enableScroll = false,
     isTouchscreen = false,
     legacyBaseFontSizePx,
@@ -49,11 +52,28 @@ export function AppBase(props: AppBaseProps): JSX.Element {
 
   const [colorMode, setColorMode] = React.useState<ColorMode>(defaultColorMode);
   const [sizeMode, setSizeMode] = React.useState<SizeMode>(defaultSizeMode);
+  const [fontsLoaded, setFontsLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    /* istanbul ignore next - tested via integration tests. */
+    if (!disableFontsForTests) {
+      loadFonts();
+    }
+
+    setFontsLoaded(true);
+  }, [disableFontsForTests]);
 
   const resetThemes = useCallback(() => {
     setColorMode(defaultColorMode);
     setSizeMode(defaultSizeMode);
   }, [defaultColorMode, defaultSizeMode]);
+
+  if (!fontsLoaded) {
+    // To avoid the possibility of font flicker before the fonts are loaded,
+    // we render a blank page in the initial render. This only lasts a
+    // split-second, so a flicker of loading animation would be jarring.
+    return <div />;
+  }
 
   return (
     <ThemeManagerContext.Provider
