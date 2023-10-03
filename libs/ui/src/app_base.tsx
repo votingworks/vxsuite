@@ -52,18 +52,28 @@ export function AppBase(props: AppBaseProps): JSX.Element {
 
   const [colorMode, setColorMode] = React.useState<ColorMode>(defaultColorMode);
   const [sizeMode, setSizeMode] = React.useState<SizeMode>(defaultSizeMode);
+  const [fontsLoaded, setFontsLoaded] = React.useState(false);
 
   React.useEffect(() => {
     /* istanbul ignore next - tested via integration tests. */
     if (!disableFontsForTests) {
       loadFonts();
     }
+
+    setFontsLoaded(true);
   }, [disableFontsForTests]);
 
   const resetThemes = useCallback(() => {
     setColorMode(defaultColorMode);
     setSizeMode(defaultSizeMode);
   }, [defaultColorMode, defaultSizeMode]);
+
+  if (!fontsLoaded) {
+    // To avoid the possibility of font flicker before the fonts are loaded,
+    // we render a blank page in the initial render. This only lasts a
+    // split-second, so a flicker of loading animation would be jarring.
+    return <div />;
+  }
 
   return (
     <ThemeManagerContext.Provider
