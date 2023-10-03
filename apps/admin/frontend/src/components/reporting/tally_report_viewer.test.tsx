@@ -184,7 +184,9 @@ test('print after preview loaded + test success logging', async () => {
     'election_manager',
     {
       disposition: 'success',
-      message: 'User printed a custom tally report from the report builder.',
+      message: 'User printed a tally report.',
+      filter: '{}',
+      groupBy: '{}',
     }
   );
 });
@@ -277,7 +279,9 @@ test('print failure logging', async () => {
       {
         disposition: 'failure',
         message:
-          'User attempted to print a custom tally report from the report builder, but an error occurred: printer broken',
+          'User attempted to print a tally report, but an error occurred: printer broken',
+        filter: '{}',
+        groupBy: '{}',
       }
     );
   });

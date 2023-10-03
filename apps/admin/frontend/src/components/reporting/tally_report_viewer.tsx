@@ -252,17 +252,23 @@ export function TallyReportViewer({
     );
 
     setProgressModalText('Printing Report');
+    const reportProperties = {
+      filter: JSON.stringify(filter),
+      groupBy: JSON.stringify(groupBy),
+    } as const;
     try {
       await printElement(reportToPrint, { sides: 'one-sided' });
       await logger.log(LogEventId.TallyReportPrinted, userRole, {
-        message: `User printed a custom tally report from the report builder.`,
+        message: `User printed a tally report.`,
         disposition: 'success',
+        ...reportProperties,
       });
     } catch (error) {
       assert(error instanceof Error);
       await logger.log(LogEventId.TallyReportPrinted, userRole, {
-        message: `User attempted to print a custom tally report from the report builder, but an error occurred: ${error.message}`,
+        message: `User attempted to print a tally report, but an error occurred: ${error.message}`,
         disposition: 'failure',
+        ...reportProperties,
       });
     } finally {
       setProgressModalText(undefined);
