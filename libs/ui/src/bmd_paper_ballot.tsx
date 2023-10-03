@@ -33,11 +33,12 @@ import { NoWrap } from './text';
 import { QrCode } from './qrcode';
 import { Font, H4, H5, H6, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
+import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 
 const Ballot = styled.div`
   background: #fff;
   line-height: 1;
-  font-family: 'Vx Helvetica Neue', 'Noto Emoji', 'Helvetica Neue', sans-serif;
+  font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
   font-size: 16px;
   page-break-after: always;
 

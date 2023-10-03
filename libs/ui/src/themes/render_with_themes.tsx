@@ -52,6 +52,7 @@ export function renderWithThemes(
       <AppBase
         defaultColorMode={vxTheme.colorMode}
         defaultSizeMode={vxTheme.sizeMode}
+        disableFontsForTests
         {...props}
       />
     );

@@ -1,7 +1,7 @@
+import React from 'react';
 import { render, screen } from '../test/react_testing_library';
 
 import { Caption, Font, H1, H2, H3, H4, H5, H6, P, Pre } from './typography';
-import { AppBase } from './app_base';
 import { makeTheme } from './themes/make_theme';
 
 for (const Component of [Caption, Font, P, Pre]) {
@@ -11,7 +11,7 @@ for (const Component of [Caption, Font, P, Pre]) {
       sizeMode: 'm',
     });
     render(
-      <AppBase defaultColorMode="contrastHighDark" defaultSizeMode="m">
+      <React.Fragment>
         <Component>regular text</Component>
         <Component weight="bold">bold text</Component>
         <Component italic weight="light">
@@ -19,7 +19,8 @@ for (const Component of [Caption, Font, P, Pre]) {
         </Component>
         <Component align="center">center-aligned text</Component>
         <Component noWrap>no-wrap text</Component>
-      </AppBase>
+      </React.Fragment>,
+      { vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'm' } }
     );
 
     expect(screen.getByText('regular text')).toHaveStyle({
@@ -54,13 +55,14 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
       sizeMode: 'xl',
     });
     render(
-      <AppBase defaultColorMode="contrastHighLight" defaultSizeMode="xl">
+      <React.Fragment>
         <Heading>regular heading</Heading>
         <Heading as="h1">heading with modified semantics</Heading>
         <Heading italic>italic heading</Heading>
         <Heading align="center">center-aligned heading</Heading>
         <Heading noWrap>no-wrap heading</Heading>
-      </AppBase>
+      </React.Fragment>,
+      { vxTheme: { colorMode: 'contrastHighLight', sizeMode: 'xl' } }
     );
 
     const { headingsRem } = theme.sizes;
@@ -113,12 +115,13 @@ for (const Component of [Caption, Font, P, Pre, H1, H2, H3, H4, H5, H6]) {
       sizeMode: 'l',
     });
     render(
-      <AppBase defaultColorMode="contrastMedium" defaultSizeMode="l">
+      <React.Fragment>
         <Component color="danger">danger color text</Component>
         <Component color="default">default color text</Component>
         <Component color="success">success color text</Component>
         <Component color="warning">warning color text</Component>
-      </AppBase>
+      </React.Fragment>,
+      { vxTheme: { colorMode: 'contrastMedium', sizeMode: 'l' } }
     );
 
     expect(screen.getByText('danger color text')).toHaveStyle({

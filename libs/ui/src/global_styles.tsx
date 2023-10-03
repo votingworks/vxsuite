@@ -1,5 +1,6 @@
 import 'normalize.css';
 import { createGlobalStyle } from 'styled-components';
+import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 
 export interface GlobalStylesProps {
   enableScroll: boolean;
@@ -30,9 +31,8 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     box-sizing: border-box;
     background: ${(p) => p.theme.colors.background};
     line-height: 1;
-    letter-spacing: ${(p) => p.theme.sizes.letterSpacingEm}em;
     color: ${(p) => p.theme.colors.foreground};
-    font-family: 'Vx Helvetica Neue', 'Noto Emoji', 'Helvetica Neue', sans-serif;
+    font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
     font-size: ${(p) => p.legacyBaseFontSizePx || p.theme.sizes.fontDefault}px;
     font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
     -moz-osx-font-smoothing: grayscale;
