@@ -74,7 +74,7 @@ import { exportFile } from './util/export_file';
 import { generateBatchResultsFile } from './exports/batch_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
-import { generateResultsCsv } from './exports/csv_results';
+import { generateTallyReportCsv } from './exports/csv_tally_report';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
 import { rootDebug } from './util/debug';
@@ -84,6 +84,7 @@ import {
   importCastVoteRecords,
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
+import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
 
 const debug = rootDebug.extend('app');
 
@@ -713,15 +714,15 @@ function buildApi({
       );
     },
 
-    async exportResultsCsv(input: {
+    async exportTallyReportCsv(input: {
       path: string;
       filter?: Tabulation.Filter;
       groupBy?: Tabulation.GroupBy;
     }): Promise<ExportDataResult> {
-      debug('exporting results CSV file: %o', input);
+      debug('exporting tally report CSV file: %o', input);
       const exportFileResult = await exportFile({
         path: input.path,
-        data: await generateResultsCsv({
+        data: await generateTallyReportCsv({
           store,
           filter: input.filter,
           groupBy: input.groupBy,
@@ -735,7 +736,39 @@ function buildApi({
           disposition: exportFileResult.isOk() ? 'success' : 'failure',
           message: `${
             exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-          } csv results to ${input.path} on the USB drive.`,
+          } tally report CSV file to ${input.path} on the USB drive.`,
+          filename: input.path,
+        }
+      );
+
+      return exportFileResult;
+    },
+
+    async exportBallotCountReportCsv(input: {
+      path: string;
+      filter?: Tabulation.Filter;
+      groupBy?: Tabulation.GroupBy;
+      ballotCountBreakdown: Tabulation.BallotCountBreakdown;
+    }): Promise<ExportDataResult> {
+      debug('exporting ballot count report CSV file: %o', input);
+      const exportFileResult = await exportFile({
+        path: input.path,
+        data: generateBallotCountReportCsv({
+          store,
+          filter: input.filter,
+          groupBy: input.groupBy,
+          ballotCountBreakdown: input.ballotCountBreakdown,
+        }),
+      });
+
+      await logger.log(
+        LogEventId.FileSaved,
+        assertDefined(await getUserRole()),
+        {
+          disposition: exportFileResult.isOk() ? 'success' : 'failure',
+          message: `${
+            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
+          } ballot count report CSV file to ${input.path} on the USB drive.`,
           filename: input.path,
         }
       );

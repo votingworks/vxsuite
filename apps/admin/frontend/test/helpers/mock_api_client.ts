@@ -350,7 +350,7 @@ export function createApiMock(
       apiClient.getSemsExportableTallies.expectCallWith().resolves(result);
     },
 
-    expectExportResultsCsv({
+    expectExportTallyReportCsv({
       path,
       filter,
       groupBy,
@@ -359,7 +359,7 @@ export function createApiMock(
       filter?: Tabulation.Filter;
       groupBy?: Tabulation.GroupBy;
     }) {
-      apiClient.exportResultsCsv
+      apiClient.exportTallyReportCsv
         .expectCallWith({ path, groupBy, filter })
         .resolves(ok([]));
     },

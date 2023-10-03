@@ -5,7 +5,7 @@ import { Tabulation } from '@votingworks/types';
 import path from 'path';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import { AppContext } from '../../contexts/app_context';
-import { exportResultsCsv, getCastVoteRecordFileMode } from '../../api';
+import { exportTallyReportCsv, getCastVoteRecordFileMode } from '../../api';
 import { SaveBackendFileModal } from '../save_backend_file_modal';
 import {
   REPORT_SUBFOLDER,
@@ -38,7 +38,7 @@ export function ExportCsvResultsButton({
     setExportDate(undefined);
   }
 
-  const exportResultsCsvMutation = exportResultsCsv.useMutation();
+  const exportResultsCsvMutation = exportTallyReportCsv.useMutation();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
 

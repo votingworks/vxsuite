@@ -209,8 +209,6 @@ function getCellClass(column: Column): Optional<string> {
   }
 }
 
-export type BallotCountBreakdown = 'none' | 'manual' | 'all';
-
 function BallotCountTable({
   electionDefinition,
   scannerBatches,
@@ -222,7 +220,7 @@ function BallotCountTable({
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
-  ballotCountBreakdown: BallotCountBreakdown;
+  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
 }): JSX.Element {
   const { election } = electionDefinition;
   const batchLookup: Record<string, Tabulation.ScannerBatch> = {};
@@ -418,7 +416,7 @@ export interface BallotCountReportProps {
   groupBy: Tabulation.GroupBy;
   customFilter?: Tabulation.Filter;
   generatedAtTime?: Date;
-  ballotCountBreakdown: BallotCountBreakdown;
+  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
 }
 
 export function BallotCountReport({

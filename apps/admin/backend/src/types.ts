@@ -59,6 +59,11 @@ export interface ScannerBatch extends Tabulation.ScannerBatch {
 }
 
 /**
+ * Lookup dictionary for batches, necessary to make many operations efficient.
+ */
+export type ScannerBatchLookup = Record<string, ScannerBatch>;
+
+/**
  * An election definition and associated DB metadata.
  */
 export interface ElectionRecord {
