@@ -36,6 +36,7 @@ import {
 } from '../../utils/reporting';
 import { ExportReportPdfButton } from './export_report_pdf_button';
 import { ExportCsvResultsButton } from './export_csv_button';
+import { FileType } from '../save_frontend_file_modal';
 
 const ExportActions = styled.div`
   margin-top: 1rem;
@@ -318,6 +319,7 @@ export function TallyReportViewer({
           generateReportPdf={generateReportPdf}
           defaultFilename={reportPdfFilename}
           disabled={disabled}
+          fileType={FileType.TallyReport}
         />
         <ExportCsvResultsButton
           filter={filter}

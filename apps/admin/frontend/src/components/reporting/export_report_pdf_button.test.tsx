@@ -3,6 +3,7 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ExportReportPdfButton } from './export_report_pdf_button';
 import { screen } from '../../../test/react_testing_library';
+import { FileType } from '../save_frontend_file_modal';
 
 afterEach(() => {
   delete window.kiosk;
@@ -17,6 +18,7 @@ test('disabled by disabled prop', () => {
       electionDefinition={electionTwoPartyPrimaryDefinition}
       generateReportPdf={() => Promise.resolve(new Uint8Array())}
       defaultFilename="some-file"
+      fileType={FileType.TallyReport}
       disabled
     />
   );
@@ -30,6 +32,7 @@ test('disabled when window.kiosk is undefined', () => {
       electionDefinition={electionTwoPartyPrimaryDefinition}
       generateReportPdf={() => Promise.resolve(new Uint8Array())}
       defaultFilename="some-file"
+      fileType={FileType.TallyReport}
       disabled={false}
     />
   );

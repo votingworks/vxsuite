@@ -11,11 +11,13 @@ export function ExportReportPdfButton({
   generateReportPdf,
   defaultFilename,
   disabled,
+  fileType,
 }: {
   electionDefinition: ElectionDefinition;
   generateReportPdf: () => Promise<Uint8Array>;
   defaultFilename: string;
   disabled?: boolean;
+  fileType: FileType;
 }): JSX.Element {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   return (
@@ -38,7 +40,7 @@ export function ExportReportPdfButton({
             ),
             REPORT_SUBFOLDER
           )}
-          fileType={FileType.TallyReport}
+          fileType={fileType}
         />
       )}
     </React.Fragment>

@@ -31,6 +31,7 @@ export const UsbImage = styled.img`
 
 export enum FileType {
   TallyReport = 'TallyReport',
+  BallotCountReport = 'BallotCountReport',
   WriteInAdjudicationReport = 'WriteInAdjudicationReport',
   LogicAndAccuracyPackage = 'LogicAndAccuracyPackage',
   TestDeckTallyReport = 'TestDeckTallyReport',
@@ -80,6 +81,12 @@ export function SaveFrontendFileModal({
     case FileType.TallyReport:
       title = `${isOfficialResults ? 'Official' : 'Unofficial'} Tally Report`;
       fileName = 'tally report';
+      break;
+    case FileType.BallotCountReport:
+      title = `${
+        isOfficialResults ? 'Official' : 'Unofficial'
+      } Ballot Count Report`;
+      fileName = 'ballot count report';
       break;
     case FileType.LogicAndAccuracyPackage:
       title = 'Logic & Accuracy Package';
