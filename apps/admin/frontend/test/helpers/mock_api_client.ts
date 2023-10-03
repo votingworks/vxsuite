@@ -364,6 +364,22 @@ export function createApiMock(
         .resolves(ok([]));
     },
 
+    expectExportBallotCountReportCsv({
+      path,
+      filter,
+      groupBy,
+      ballotCountBreakdown,
+    }: {
+      path: string;
+      filter?: Tabulation.Filter;
+      groupBy?: Tabulation.GroupBy;
+      ballotCountBreakdown: Tabulation.BallotCountBreakdown;
+    }) {
+      apiClient.exportBallotCountReportCsv
+        .expectCallWith({ path, groupBy, filter, ballotCountBreakdown })
+        .resolves(ok([]));
+    },
+
     expectGetCardCounts(
       groupBy: Tabulation.GroupBy,
       result: Array<Tabulation.GroupOf<Tabulation.CardCounts>>

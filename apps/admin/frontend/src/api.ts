@@ -674,6 +674,13 @@ export const exportTallyReportCsv = {
   },
 } as const;
 
+export const exportBallotCountReportCsv = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportBallotCountReportCsv);
+  },
+} as const;
+
 export const saveBallotPackageToUsb = {
   useMutation() {
     const apiClient = useApiClient();
