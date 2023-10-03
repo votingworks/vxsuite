@@ -1,7 +1,8 @@
 # vxsuite Contributing Guide
 
-Instructions for contributing to VxSuite. See the [Setup Guide](./setup.md) for
-instructions on setting up a development environment.
+Instructions for contributing to VxSuite. See the
+[Setup Guide](../development.md) for instructions on setting up a development
+environment.
 
 > Note: If you only want to make minor changes such as fixing typos, you can
 > [edit the file directly in GitHub](https://docs.github.com/en/github/managing-files-in-a-repository/editing-files-in-your-repository)
@@ -11,7 +12,7 @@ We’re stoked that you’d like to contribute. Please let us know how we can he
 you.
 
 1. Fork this repo: <https://github.com/votingworks/vxsuite>
-1. Clone the repo locally:
+2. Clone the repo locally:
 
    ```sh
    git clone git@github.com:YOUR_GITHUB_USERNAME/vxsuite.git
@@ -26,16 +27,16 @@ you.
    git remote add origin git@github.com:YOUR_GITHUB_USERNAME/vxsuite.git
    ```
 
-1. Ensure you're set up for development by following the instructions in the
-   [Setup Guide](./setup.md).
+3. Ensure you're set up for development by following the instructions in
+   [Development](./development.md).
 
-1. Create a branch for the feature/bug/etc:
+4. Create a branch for the feature/bug/etc:
 
    ```sh
    git checkout -b name-of-your-branch
    ```
 
-1. For an app, run the app:
+5. For an app, run the app:
 
    ```sh
    pnpm start
@@ -47,7 +48,7 @@ you.
    pnpm build:watch
    ```
 
-1. In a second console window, run the tests:
+6. In a second console window, run the tests:
 
    ```sh
    pnpm test
@@ -56,7 +57,7 @@ you.
    Tests default to watch-mode: only tests related to changed code will run. Use
    the available commands in watch-mode to run the tests you want.
 
-1. Add features, fix bugs, etc. Follow the best practices described below. Then
+7. Add features, fix bugs, etc. Follow the best practices described below. Then
    use `git` to commit your changes in logical commits.
 
    You may wish to run this before committing to fix code styling:
@@ -69,7 +70,7 @@ you.
    root of the project. This will open all the projects in the workspace. There
    are suggested extensions that will help you with linting and formatting.
 
-1. Check for test coverage. When you push your branch to github, CircleCI will
+8. Check for test coverage. When you push your branch to GitHub, CircleCI will
    run all the tests and check for test coverage. To check this yourself, run:
 
    ```sh
@@ -80,10 +81,10 @@ you.
    `coverage/lcov-report/index.html` in a browser to navigate the files to view
    test coverage.
 
-   > **NOTE:** You can probably run `python -m SimpleHTTPServer` to serve the
-   > files, then view them at http://localhost:8080/.
+   > **NOTE:** You can probably run `python3 -m http.server` to serve the files,
+   > then view them at http://localhost:8080/.
 
-1. Run integration tests. You will need to make sure to have Playwright
+9. Run integration tests. You will need to make sure to have Playwright
    dependencies installed (see: https://playwright.dev/docs/intro). You will
    also need to have chrome installed. While the server is running in another
    terminal window run:
@@ -93,12 +94,12 @@ you.
    pnpm test:watch
    ```
 
-1. Push your branch to your fork on GitHub.
-1. Create a pull request to merge your branch into `votingworks/vxsuite/main`.
-   Once the pull request is created CircleCI will automatically run all the
-   tests to ensure the app is working correctly.
-1. @votingworks/eng will review the pull request and ask questions, request
-   changes, or just merge right away.
+10. Push your branch to your fork on GitHub.
+11. Create a pull request to merge your branch into `votingworks/vxsuite/main`.
+    Once the pull request is created CircleCI will automatically run all the
+    tests to ensure the app is working correctly.
+12. @votingworks/eng will review the pull request and ask questions, request
+    changes, or just merge right away.
 
 ## Setting up Commit Signing
 
