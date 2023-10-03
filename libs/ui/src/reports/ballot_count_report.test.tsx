@@ -386,6 +386,7 @@ test('title, metadata, and custom filters', () => {
   );
 
   screen.getByText('Custom Filter Ballot Count Report');
+  screen.getByText('Example Primary Election');
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
     'Precinct: Precinct 1'
   );
