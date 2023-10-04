@@ -12,7 +12,7 @@ export const SCREEN_TITLE = 'Voting Method Ballot Count Report';
 export function VotingMethodBallotCountReport(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing reports.
+  assert(isElectionManagerAuth(auth));
 
   return (
     <NavigationScreen title={SCREEN_TITLE}>

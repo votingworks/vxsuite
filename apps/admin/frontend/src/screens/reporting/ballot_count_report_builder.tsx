@@ -57,7 +57,7 @@ const BreakdownSelectContainer = styled.div`
 export function BallotCountReportBuilder(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing reports.
+  assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
 
   const getManualResultsMetadataQuery = getManualResultsMetadata.useQuery();

@@ -26,7 +26,7 @@ export function SinglePrecinctTallyReportScreen(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
+  assert(isElectionManagerAuth(auth));
 
   const [precinctId, setPrecinctId] = useState<string>();
 

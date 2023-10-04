@@ -32,7 +32,7 @@ const GroupByEditorContainer = styled.div`
 export function TallyReportBuilder(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
+  assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
 
   const [filter, setFilter] = useState<Tabulation.Filter>({});

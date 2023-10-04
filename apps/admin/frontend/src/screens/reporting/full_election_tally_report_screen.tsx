@@ -25,7 +25,7 @@ export function FullElectionTallyReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, auth } =
     useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
+  assert(isElectionManagerAuth(auth));
 
   const [isMarkOfficialModalOpen, setIsMarkOfficialModalOpen] = useState(false);
 

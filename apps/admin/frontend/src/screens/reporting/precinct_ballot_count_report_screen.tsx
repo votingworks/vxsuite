@@ -12,7 +12,7 @@ export const SCREEN_TITLE = 'Precinct Ballot Count Report';
 export function PrecinctBallotCountReport(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing reports.
+  assert(isElectionManagerAuth(auth));
 
   return (
     <NavigationScreen title={SCREEN_TITLE}>

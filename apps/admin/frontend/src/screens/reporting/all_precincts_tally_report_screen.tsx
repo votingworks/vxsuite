@@ -12,7 +12,7 @@ export const SCREEN_TITLE = 'All Precincts Tally Report';
 export function AllPrecinctsTallyReportScreen(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
+  assert(isElectionManagerAuth(auth));
 
   return (
     <NavigationScreen title={SCREEN_TITLE}>
