@@ -1,17 +1,26 @@
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import fetchMock from 'fetch-mock';
 
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/ui';
-import { typedAs } from '@votingworks/basics';
-import { Scan } from '@votingworks/api';
+import { err, ok } from '@votingworks/basics';
 import { fireEvent, waitFor } from '../../test/react_testing_library';
 import { ExportResultsModal } from './export_results_modal';
 import {
   renderInAppContext,
   wrapInAppContext,
 } from '../../test/render_in_app_context';
+import { MockApiClient, createMockApiClient } from '../../test/api';
+
+let mockApiClient: MockApiClient;
+
+beforeEach(() => {
+  mockApiClient = createMockApiClient();
+});
+
+afterEach(() => {
+  mockApiClient.assertComplete();
+});
 
 test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
   const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
@@ -20,9 +29,9 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
     const closeFn = jest.fn();
     const { getByText, unmount } = renderInAppContext(
       <Router history={createMemoryHistory()}>
-        <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
+        <ExportResultsModal onClose={closeFn} />
       </Router>,
-      { usbDriveStatus: status }
+      { usbDriveStatus: status, apiClient: mockApiClient }
     );
     getByText('Loading');
     unmount();
@@ -36,9 +45,9 @@ test('render no usb found screen when there is not a valid, mounted usb drive', 
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderInAppContext(
       <Router history={createMemoryHistory()}>
-        <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
+        <ExportResultsModal onClose={closeFn} />
       </Router>,
-      { usbDriveStatus: status }
+      { usbDriveStatus: status, apiClient: mockApiClient }
     );
     getByText('No USB Drive Detected');
     getByText('Please insert a USB drive in order to save CVRs.');
@@ -56,38 +65,30 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
-  fetchMock.postOnce('/central-scanner/scan/export-to-usb-drive', {
-    body: typedAs<Scan.ExportToUsbDriveResponse>({
-      status: 'ok',
-    }),
-  });
-
   const closeFn = jest.fn();
   const history = createMemoryHistory();
   const { getByText, rerender } = renderInAppContext(
-    <ExportResultsModal onClose={closeFn} numberOfBallots={5} />,
-    { usbDriveStatus: 'mounted', history }
+    <ExportResultsModal onClose={closeFn} />,
+    { usbDriveStatus: 'mounted', history, apiClient: mockApiClient }
   );
   getByText('Save CVRs');
 
+  mockApiClient.exportCastVoteRecordsToUsbDrive
+    .expectCallWith({ isMinimalExport: true })
+    .resolves(ok());
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('CVRs Saved'));
-  expect(fetchMock.called('/central-scanner/scan/export-to-usb-drive')).toEqual(
-    true
-  );
 
   getByText('Eject USB');
   fireEvent.click(getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
 
   rerender(
-    wrapInAppContext(
-      <ExportResultsModal onClose={closeFn} numberOfBallots={5} />,
-      {
-        history,
-        usbDriveStatus: 'ejected',
-      }
-    )
+    wrapInAppContext(<ExportResultsModal onClose={closeFn} />, {
+      history,
+      usbDriveStatus: 'ejected',
+      apiClient: mockApiClient,
+    })
   );
   getByText(
     'USB drive successfully ejected, you may now take it to VxAdmin for tabulation.'
@@ -98,26 +99,22 @@ test('render export modal with errors when appropriate', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 
-  fetchMock.postOnce('/central-scanner/scan/export-to-usb-drive', {
-    body: typedAs<Scan.ExportToUsbDriveResponse>({
-      status: 'error',
-      errors: [{ type: 'some-error', message: 'something bad happened' }],
-    }),
-  });
-
   const closeFn = jest.fn();
   const { getByText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
-      <ExportResultsModal onClose={closeFn} numberOfBallots={5} />
+      <ExportResultsModal onClose={closeFn} />
     </Router>,
-    { usbDriveStatus: 'mounted' }
+    { usbDriveStatus: 'mounted', apiClient: mockApiClient }
   );
   getByText('Save CVRs');
 
+  mockApiClient.exportCastVoteRecordsToUsbDrive
+    .expectCallWith({ isMinimalExport: true })
+    .resolves(err({ type: 'file-system-error', message: 'Uh oh' }));
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('Failed to Save CVRs'));
   getByText(/Failed to save CVRs./);
-  getByText(/something bad happened/);
+  getByText(/Uh oh/);
 
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();

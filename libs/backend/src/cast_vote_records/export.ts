@@ -38,6 +38,7 @@ import {
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
   getCastVoteRecordExportSubDirectoryNames,
+  hasWriteIns,
   isFeatureFlagEnabled,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -89,11 +90,21 @@ interface ScannerStateUnchangedByExport {
 
 interface CentralScannerOptions {
   scannerType: 'central';
+  /**
+   * A minimal export includes only the images that are absolutely necessary for tabulation, i.e.
+   * images for accepted ballots with write-ins.
+   */
+  isMinimalExport?: boolean;
 }
 
 interface PrecinctScannerOptions {
   scannerType: 'precinct';
   arePollsClosing?: boolean;
+  /**
+   * Precinct scanners export continuously as ballots are cast, but also still support full exports
+   * of all cast ballots. (Central scanners, on the other hand, don't export continuously and only
+   * support full exports.)
+   */
   isFullExport?: boolean;
 }
 
@@ -172,6 +183,12 @@ let doesUsbDriveRequireCastVoteRecordSyncCachedResult:
  */
 function clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult(): void {
   doesUsbDriveRequireCastVoteRecordSyncCachedResult = undefined;
+}
+
+function isMinimalExport(exportOptions: ExportOptions): boolean {
+  return Boolean(
+    exportOptions.scannerType === 'central' && exportOptions.isMinimalExport
+  );
 }
 
 /**
@@ -254,7 +271,8 @@ function buildCastVoteRecordReportMetadata(
 function buildCastVoteRecord(
   exportContext: ExportContext,
   sheet: AcceptedSheet,
-  canonicalizedSheet: CanonicalizedSheet
+  canonicalizedSheet: CanonicalizedSheet,
+  options: { shouldIncludeImageReferences?: boolean } = {}
 ): CVR.CVR {
   const { scannerState } = exportContext;
   const { electionDefinition, markThresholds } = scannerState;
@@ -268,10 +286,13 @@ function buildCastVoteRecord(
       canonicalizedSheet.interpretation.ballotId) ||
     unsafeParse(BallotIdSchema, id);
   const [frontImageFilePath, backImageFilePath] = canonicalizedSheet.filenames;
-  const imageFileUris: SheetOf<string> = [
-    `file:${path.basename(frontImageFilePath)}`,
-    `file:${path.basename(backImageFilePath)}`,
-  ];
+  const imageFileUris: SheetOf<string> | undefined =
+    options.shouldIncludeImageReferences
+      ? [
+          `file:${path.basename(frontImageFilePath)}`,
+          `file:${path.basename(backImageFilePath)}`,
+        ]
+      : undefined;
 
   // BMD ballot
   if (canonicalizedSheet.type === 'bmd') {
@@ -329,7 +350,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
     ExportCastVoteRecordsToUsbDriveError
   >
 > {
-  const { exporter } = exportContext;
+  const { exporter, exportOptions } = exportContext;
 
   const canonicalizeSheetResult = canonicalizeSheet(sheet.interpretation, [
     sheet.frontImagePath,
@@ -343,6 +364,11 @@ async function exportCastVoteRecordFilesToUsbDrive(
   }
   const canonicalizedSheet = canonicalizeSheetResult.ok();
 
+  const shouldIncludeImages = isMinimalExport(exportOptions)
+    ? canonicalizedSheet.type === 'hmpb' &&
+      canonicalizedSheet.interpretation.some(({ votes }) => hasWriteIns(votes))
+    : true;
+
   const castVoteRecordReportMetadata = buildCastVoteRecordReportMetadata(
     exportContext,
     // Hide the time in the metadata for individual cast vote records so that we don't reveal the
@@ -352,7 +378,8 @@ async function exportCastVoteRecordFilesToUsbDrive(
   const castVoteRecord = buildCastVoteRecord(
     exportContext,
     sheet,
-    canonicalizedSheet
+    canonicalizedSheet,
+    { shouldIncludeImageReferences: shouldIncludeImages }
   );
   const castVoteRecordId = castVoteRecord.UniqueId;
   const castVoteRecordReport: CVR.CastVoteRecordReport = {
@@ -367,25 +394,28 @@ async function exportCastVoteRecordFilesToUsbDrive(
     ),
   ];
 
-  const [frontImageFilePath, backImageFilePath] = canonicalizedSheet.filenames;
-  castVoteRecordFilesToExport.push(readableFileFromDisk(frontImageFilePath));
-  castVoteRecordFilesToExport.push(readableFileFromDisk(backImageFilePath));
+  if (shouldIncludeImages) {
+    const [frontImageFilePath, backImageFilePath] =
+      canonicalizedSheet.filenames;
+    castVoteRecordFilesToExport.push(readableFileFromDisk(frontImageFilePath));
+    castVoteRecordFilesToExport.push(readableFileFromDisk(backImageFilePath));
 
-  if (canonicalizedSheet.type === 'hmpb') {
-    const [frontInterpretation, backInterpretation] =
-      canonicalizedSheet.interpretation;
-    castVoteRecordFilesToExport.push(
-      readableFileFromData(
-        `${path.parse(frontImageFilePath).name}.layout.json`,
-        JSON.stringify(frontInterpretation.layout)
-      )
-    );
-    castVoteRecordFilesToExport.push(
-      readableFileFromData(
-        `${path.parse(backImageFilePath).name}.layout.json`,
-        JSON.stringify(backInterpretation.layout)
-      )
-    );
+    if (canonicalizedSheet.type === 'hmpb') {
+      const [frontInterpretation, backInterpretation] =
+        canonicalizedSheet.interpretation;
+      castVoteRecordFilesToExport.push(
+        readableFileFromData(
+          `${path.parse(frontImageFilePath).name}.layout.json`,
+          JSON.stringify(frontInterpretation.layout)
+        )
+      );
+      castVoteRecordFilesToExport.push(
+        readableFileFromData(
+          `${path.parse(backImageFilePath).name}.layout.json`,
+          JSON.stringify(backInterpretation.layout)
+        )
+      );
+    }
   }
 
   for (const file of castVoteRecordFilesToExport) {
@@ -689,6 +719,12 @@ export async function exportCastVoteRecordsToUsbDrive(
 
   const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
   for (const sheet of sheets) {
+    assert(
+      !(isMinimalExport(exportOptions) && sheet.type === 'rejected'),
+      'Encountered an unexpected rejected sheet while performing a minimal export. ' +
+        'Minimal exports should only include accepted sheets.'
+    );
+
     // Randomly decide whether to shuffle creation timestamps before or after cast vote record
     // creation. If we always did one or the other, the last voter's cast vote record would be
     // identifiable, as either the first or the last cast vote record among the cluster of cast

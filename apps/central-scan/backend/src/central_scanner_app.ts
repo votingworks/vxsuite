@@ -5,10 +5,10 @@ import {
 } from '@votingworks/auth';
 import { Result, assert, ok } from '@votingworks/basics';
 import {
-  Exporter,
   Usb,
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
+  ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/backend';
 import {
   BallotPackageConfigurationError,
@@ -27,10 +27,8 @@ import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { backupToUsbDrive } from './backup';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
-import { SCAN_ALLOWED_EXPORT_PATTERNS } from './globals';
 
 type NoParams = never;
 
@@ -238,6 +236,23 @@ function buildApi({
         message: 'Successfully cleared all ballot data.',
       });
     },
+
+    async exportCastVoteRecordsToUsbDrive(input: {
+      isMinimalExport?: boolean;
+    }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+      const exportResult = await exportCastVoteRecordsToUsbDrive(
+        store,
+        usb,
+        input.isMinimalExport
+          ? store.forEachAcceptedSheet()
+          : store.forEachSheet(),
+        { scannerType: 'central', isMinimalExport: input.isMinimalExport }
+      );
+      if (!input.isMinimalExport) {
+        store.setScannerBackedUp();
+      }
+      return exportResult;
+    },
   });
 }
 
@@ -252,7 +267,6 @@ export type Api = ReturnType<typeof buildApi>;
  */
 export function buildCentralScannerApp({
   auth,
-  allowedExportPatterns = SCAN_ALLOWED_EXPORT_PATTERNS,
   importer,
   workspace,
   logger,
@@ -330,51 +344,6 @@ export function buildCentralScannerApp({
         errors: [{ type: 'scan-error', message: error.message }],
       });
     }
-  });
-
-  deprecatedApiRouter.post<
-    NoParams,
-    Scan.ExportToUsbDriveResponse,
-    Scan.ExportToUsbDriveRequest
-  >('/central-scanner/scan/export-to-usb-drive', async (_request, response) => {
-    const electionDefinition = store.getElectionDefinition();
-    if (!electionDefinition) {
-      response.status(400).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'no-election',
-            message: 'cannot export cvrs if no election is configured',
-          },
-        ],
-      });
-      return;
-    }
-
-    const exportResult = await exportCastVoteRecordsToUsbDrive(
-      store,
-      usb,
-      store.forEachAcceptedSheet(),
-      { scannerType: 'central' }
-    );
-
-    if (exportResult.isErr()) {
-      response.status(500).json({
-        status: 'error',
-        errors: [
-          {
-            type: 'export-failed',
-            message: exportResult.err().message,
-          },
-        ],
-      });
-
-      return;
-    }
-
-    store.setCvrsBackedUp();
-
-    response.json({ status: 'ok' });
   });
 
   deprecatedApiRouter.get<NoParams, Scan.GetScanStatusResponse>(
@@ -459,30 +428,6 @@ export function buildCentralScannerApp({
       }
     }
   );
-
-  deprecatedApiRouter.post<
-    NoParams,
-    Scan.BackupToUsbResponse,
-    Scan.BackupToUsbRequest
-  >('/central-scanner/scan/backup-to-usb-drive', async (_request, response) => {
-    const result = await backupToUsbDrive(
-      new Exporter({
-        allowedExportPatterns,
-        getUsbDrives: usb.getUsbDrives,
-      }),
-      store
-    );
-
-    if (result.isErr()) {
-      response.status(500).json({
-        status: 'error',
-        errors: [result.err()],
-      });
-      return;
-    }
-
-    response.json({ status: 'ok', paths: result.ok() });
-  });
 
   app.use(deprecatedApiRouter);
 

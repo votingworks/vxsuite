@@ -17,6 +17,7 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
+import { Usb as LegacyUsb } from '../mock_usb';
 import { readCastVoteRecordExportMetadata } from './import';
 
 function identifyFunction<T>(input: T): T {
@@ -107,15 +108,23 @@ export async function modifyCastVoteRecordExport(
 }
 
 /**
- * Gets the paths of the cast vote record export directories on the inserted USB drive. Assumes
- * that there's only one election directory.
+ * Gets the paths of the cast vote record export directories on the inserted USB drive, in
+ * alphabetical order. Assumes that there's only one election directory.
  */
 export async function getCastVoteRecordExportDirectoryPaths(
-  usbDrive: UsbDrive
+  usbDrive: UsbDrive | LegacyUsb
 ): Promise<string[]> {
-  const usbDriveStatus = await usbDrive.status();
-  assert(usbDriveStatus.status === 'mounted');
-  const usbMountPoint = usbDriveStatus.mountPoint;
+  let usbMountPoint: string | undefined;
+  if ('getUsbDrives' in usbDrive) {
+    usbMountPoint = (await usbDrive.getUsbDrives())[0]?.mountPoint;
+  } else {
+    const usbDriveStatus = await usbDrive.status();
+    usbMountPoint =
+      usbDriveStatus.status === 'mounted'
+        ? usbDriveStatus.mountPoint
+        : undefined;
+  }
+  assert(usbMountPoint !== undefined);
 
   const resultsDirectoryPath = path.join(usbMountPoint, SCANNER_RESULTS_FOLDER);
   const electionDirectoryNames = fs.readdirSync(resultsDirectoryPath);
@@ -129,5 +138,5 @@ export async function getCastVoteRecordExportDirectoryPaths(
     // Filter out signature files
     .filter((entryName) => !entryName.endsWith(SIGNATURE_FILE_EXTENSION))
     .map((entryName) => path.join(electionDirectoryPath, entryName));
-  return castVoteRecordExportDirectoryPaths;
+  return [...castVoteRecordExportDirectoryPaths].sort();
 }

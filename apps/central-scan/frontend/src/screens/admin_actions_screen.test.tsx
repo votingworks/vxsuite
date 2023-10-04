@@ -5,8 +5,8 @@ import {
   fakeKiosk,
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { err, ok, deferred } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
+import { err, ok } from '@votingworks/basics';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
@@ -36,16 +36,12 @@ afterEach(() => {
   mockApiClient.assertComplete();
 });
 
-type BackupFn = AdminActionScreenProps['backup'];
-type BackupResult = BackupFn extends () => Promise<infer R> ? R : never;
-
 function renderScreen(
   props: Partial<AdminActionScreenProps> = {},
   history = createMemoryHistory()
 ) {
   return renderInAppContext(
     <AdminActionsScreen
-      backup={jest.fn()}
       canUnconfigure={false}
       isTestMode={false}
       electionDefinition={testElectionDefinition}
@@ -56,26 +52,19 @@ function renderScreen(
 }
 
 test('clicking "Save Backup" shows progress', async () => {
-  const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
-  renderScreen({ backup });
+  renderScreen();
 
-  const { resolve, promise } = deferred<BackupResult>();
-  backup.mockReturnValueOnce(promise);
-
-  // Click to backup, verify we got called.
-  const backupButton = screen.getByText('Save Backup');
-  expect(backup).not.toHaveBeenCalled();
-  userEvent.click(backupButton);
-  expect(backup).toHaveBeenCalledTimes(1);
+  mockApiClient.exportCastVoteRecordsToUsbDrive
+    .expectCallWith({ isMinimalExport: false })
+    .resolves(ok());
+  userEvent.click(await screen.findByText('Save Backup'));
 
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Saving Backup');
-  screen.getByText('Saving…'); // text on the button itself
-
-  // Trigger backup finished, verify back to normal.
-  resolve(ok(['/media/usb-drive-sdb1/backup.zip']));
-  await waitFor(() => screen.getByText('Save Backup'));
-  expect(screen.queryAllByRole('alertdialog').length).toEqual(0);
+  within(modal).getByText('Saving backup');
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  screen.getByText('Save Backup');
 });
 
 test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled when canUnconfigure is falsy', () => {
@@ -137,25 +126,20 @@ test('clicking "Delete Ballot Data" calls backend', async () => {
 });
 
 test('backup error shows message', async () => {
-  const backup = jest.fn<ReturnType<BackupFn>, Parameters<BackupFn>>();
-  renderScreen({ backup });
+  renderScreen();
 
-  const { resolve, promise } = deferred<BackupResult>();
-  backup.mockReturnValueOnce(promise);
+  mockApiClient.exportCastVoteRecordsToUsbDrive
+    .expectCallWith({ isMinimalExport: false })
+    .resolves(err({ type: 'permission-denied', message: 'Uh oh' }));
+  userEvent.click(await screen.findByText('Save Backup'));
 
-  // Click to backup, verify we got called.
-  const backupButton = screen.getByText('Save Backup');
-  expect(backup).not.toHaveBeenCalled();
-  userEvent.click(backupButton);
-  expect(backup).toHaveBeenCalledTimes(1);
-
-  // Verify progress message is shown.
-  await screen.findByText('Saving…');
-
-  // Trigger backup error, verify back to normal with error.
-  resolve(err({ type: 'permission-denied', message: 'Permission Denied' }));
-  await screen.findByText('Save Backup');
-  screen.getByText('Permission Denied');
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Saving backup');
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  screen.getByText('Save Backup');
+  screen.getByText('Uh oh');
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {

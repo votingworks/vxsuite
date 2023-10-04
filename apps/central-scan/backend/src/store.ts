@@ -27,14 +27,14 @@ import {
   safeParseSystemSettings,
   AdjudicationReason,
 } from '@votingworks/types';
-import { assertDefined, Optional } from '@votingworks/basics';
+import { assert, assertDefined, Optional } from '@votingworks/basics';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { AcceptedSheet } from '@votingworks/backend';
+import { AcceptedSheet, RejectedSheet, Sheet } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
   getCastVoteRecordRootHash,
@@ -46,6 +46,79 @@ import { normalizeAndJoin } from './util/path';
 const debug = makeDebug('scan:store');
 
 const SchemaPath = join(__dirname, '../schema.sql');
+
+const getSheetsBaseQuery = `
+  select
+    sheets.id as id,
+    batches.id as batchId,
+    batches.label as batchLabel,
+    front_interpretation_json as frontInterpretationJson,
+    back_interpretation_json as backInterpretationJson,
+    front_image_path as frontImagePath,
+    back_image_path as backImagePath,
+    requires_adjudication as requiresAdjudication,
+    finished_adjudication_at as finishedAdjudicationAt,
+    sheets.deleted_at as deletedAt,
+    row_number() over (partition by batches.id order by sheets.created_at) indexInBatch
+  from sheets left join batches on
+    sheets.batch_id = batches.id
+`;
+
+interface SheetRow {
+  id: string;
+  batchId: string;
+  batchLabel: string | null;
+  frontInterpretationJson: string;
+  backInterpretationJson: string;
+  frontImagePath: string;
+  backImagePath: string;
+  requiresAdjudication: 0 | 1;
+  finishedAdjudicationAt: Iso8601Timestamp | null;
+  deletedAt: Iso8601Timestamp | null;
+  indexInBatch: number;
+}
+
+function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
+  assert(row.deletedAt === null);
+  return {
+    type: 'accepted',
+    id: row.id,
+    batchId: row.batchId,
+    batchLabel: row.batchLabel ?? undefined,
+    interpretation: mapSheet(
+      [row.frontInterpretationJson, row.backInterpretationJson],
+      (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
+    ),
+    frontImagePath: row.frontImagePath,
+    backImagePath: row.backImagePath,
+    indexInBatch: row.indexInBatch,
+  };
+}
+
+function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
+  assert(row.deletedAt !== null);
+  return {
+    type: 'rejected',
+    id: row.id,
+    frontImagePath: row.frontImagePath,
+    backImagePath: row.backImagePath,
+  };
+}
+
+function sheetRowToSheet(row: SheetRow): Sheet {
+  // The central scanner UX guarantees this condition. Sheets requiring review have to be accepted
+  // or rejected before a batch is considered complete. And if someone shuts the machine down
+  // mid-adjudication, on boot, incomplete batches are cleaned up.
+  assert(
+    row.requiresAdjudication === 0 ||
+      row.finishedAdjudicationAt !== null ||
+      row.deletedAt !== null,
+    'Every sheet requiring review should have been either accepted or rejected'
+  );
+  return row.deletedAt === null
+    ? sheetRowToAcceptedSheet(row)
+    : sheetRowToRejectedSheet(row);
+}
 
 function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
   return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
@@ -422,23 +495,6 @@ export class Store {
   }
 
   /**
-   * Records that CVRs have been backed up.
-   */
-  setCvrsBackedUp(backedUp = true): void {
-    if (!this.hasElection()) {
-      throw new Error('Unconfigured scanner cannot export CVRs.');
-    }
-
-    if (backedUp) {
-      this.client.run(
-        'update election set cvrs_backed_up_at = current_timestamp'
-      );
-    } else {
-      this.client.run('update election set cvrs_backed_up_at = null');
-    }
-  }
-
-  /**
    * Gets the timestamp for the last scanner backup
    */
   getScannerBackupTimestamp(): DateTime | undefined {
@@ -450,20 +506,6 @@ export class Store {
     }
 
     return dateTimeFromNoOffsetSqliteDate(row.scannerBackedUpAt);
-  }
-
-  /**
-   * Gets the timestamp for the last cvr export
-   */
-  getCvrsBackupTimestamp(): DateTime | undefined {
-    const row = this.client.one(
-      'select cvrs_backed_up_at as cvrsBackedUpAt from election'
-    ) as { cvrsBackedUpAt: string } | undefined;
-    if (!row?.cvrsBackedUpAt) {
-      return undefined;
-    }
-
-    return dateTimeFromNoOffsetSqliteDate(row.cvrsBackedUpAt);
   }
 
   getBallotsCounted(): number {
@@ -629,7 +671,6 @@ export class Store {
       this.client.transaction(() => {
         this.setPollsState('polls_closed_initial');
         this.setBallotCountWhenBallotBagLastReplaced(0);
-        this.setCvrsBackedUp(false);
         this.setScannerBackedUp(false);
       });
     }
@@ -707,35 +748,6 @@ export class Store {
       };
     }
     debug('no review sheets requiring adjudication');
-  }
-
-  *getSheets(): Generator<{
-    id: string;
-    frontImagePath: string;
-    backImagePath: string;
-    exportedAsCvrAt: Iso8601Timestamp;
-  }> {
-    for (const { id, frontImagePath, backImagePath, exportedAsCvrAt } of this
-      .client.each(`
-      select
-        id,
-        front_image_path as frontImagePath,
-        back_image_path as backImagePath
-      from sheets
-      order by created_at asc
-    `) as Iterable<{
-      id: string;
-      frontImagePath: string;
-      backImagePath: string;
-      exportedAsCvrAt: Iso8601Timestamp;
-    }>) {
-      yield {
-        id,
-        frontImagePath,
-        backImagePath,
-        exportedAsCvrAt,
-      };
-    }
   }
 
   adjudicateSheet(sheetId: string): boolean {
@@ -859,46 +871,29 @@ export class Store {
    * Yields all scanned sheets that were accepted and should be tabulated
    */
   *forEachAcceptedSheet(): Generator<AcceptedSheet> {
-    const sql = `
-      select
-        sheets.id as id,
-        batches.id as batchId,
-        batches.label as batchLabel,
-        front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson,
-        front_image_path as frontImagePath,
-        back_image_path as backImagePath,
-        row_number() over (partition by batches.id order by sheets.created_at) indexInBatch
-      from sheets left join batches
-      on sheets.batch_id = batches.id
+    const sql = `${getSheetsBaseQuery}
       where
+        batches.deleted_at is null and
+        sheets.deleted_at is null and
         (requires_adjudication = 0 or finished_adjudication_at is not null)
-        and sheets.deleted_at is null
-        and batches.deleted_at is null
+      order by sheets.created_at
     `;
-    for (const row of this.client.each(sql) as Iterable<{
-      id: string;
-      batchId: string;
-      batchLabel: string | null;
-      frontInterpretationJson: string;
-      backInterpretationJson: string;
-      frontImagePath: string;
-      backImagePath: string;
-      indexInBatch: number;
-    }>) {
-      yield {
-        type: 'accepted',
-        id: row.id,
-        batchId: row.batchId,
-        indexInBatch: row.indexInBatch,
-        batchLabel: row.batchLabel ?? undefined,
-        interpretation: mapSheet(
-          [row.frontInterpretationJson, row.backInterpretationJson],
-          (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
-        ),
-        frontImagePath: row.frontImagePath,
-        backImagePath: row.backImagePath,
-      };
+    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+      yield sheetRowToAcceptedSheet(row);
+    }
+  }
+
+  /**
+   * Yields all scanned sheets
+   */
+  *forEachSheet(): Generator<Sheet> {
+    const sql = `${getSheetsBaseQuery}
+      where
+        batches.deleted_at is null
+      order by sheets.created_at
+    `;
+    for (const row of this.client.each(sql) as Iterable<SheetRow>) {
+      yield sheetRowToSheet(row);
     }
   }
 

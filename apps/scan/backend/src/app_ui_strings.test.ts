@@ -117,7 +117,7 @@ describe('unconfigureElection', () => {
   );
 
   runUiStringMachineDeconfigurationTests({
-    runUnconfigureMachine: () => api.unconfigureElection({}),
+    runUnconfigureMachine: () => api.unconfigureElection(),
     store: store.getUiStringsStore(),
   });
 });

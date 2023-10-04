@@ -233,15 +233,11 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
     ],
     adjudication: { adjudicated: 0, remaining: 0 },
   };
-  fetchMock
-    .get(
-      '/central-scanner/scan/status',
-      { body: scanStatusResponseBody },
-      { overwriteRoutes: true }
-    )
-    .postOnce('/central-scanner/scan/export-to-usb-drive', {
-      body: { status: 'ok' },
-    });
+  fetchMock.get(
+    '/central-scanner/scan/status',
+    { body: scanStatusResponseBody },
+    { overwriteRoutes: true }
+  );
 
   const hardware = MemoryHardware.buildStandard();
 
@@ -254,6 +250,9 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   await waitFor(() => expect(saveButton).toBeEnabled());
   userEvent.click(saveButton);
   const modal = await screen.findByRole('alertdialog');
+  mockApiClient.exportCastVoteRecordsToUsbDrive
+    .expectCallWith({ isMinimalExport: true })
+    .resolves(ok());
   userEvent.click(await within(modal).findByText('Save'));
   await within(modal).findByText('CVRs Saved');
   userEvent.click(within(modal).getByText('Cancel'));

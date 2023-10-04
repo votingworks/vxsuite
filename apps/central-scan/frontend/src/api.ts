@@ -168,3 +168,10 @@ export const clearBallotData = {
     return useMutation(apiClient.clearBallotData);
   },
 } as const;
+
+export const exportCastVoteRecordsToUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportCastVoteRecordsToUsbDrive);
+  },
+} as const;
