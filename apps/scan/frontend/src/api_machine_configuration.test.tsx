@@ -64,7 +64,7 @@ test('unconfigureElection', async () => {
 
   expect(mockOnConfigurationChange).not.toHaveBeenCalled();
 
-  result.current.mutate({});
+  result.current.mutate();
   await waitFor(() => expect(result.current.isSuccess).toEqual(true));
 
   expect(mockOnConfigurationChange).toHaveBeenCalled();
