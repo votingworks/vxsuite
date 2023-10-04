@@ -16,20 +16,20 @@ import {
 } from '@votingworks/utils';
 import { Tabulation } from '@votingworks/types';
 import styled from 'styled-components';
-import { AppContext } from '../contexts/app_context';
-import { NavigationScreen } from '../components/navigation_screen';
-import { routerPaths } from '../router_paths';
+import { AppContext } from '../../contexts/app_context';
+import { NavigationScreen } from '../../components/navigation_screen';
+import { routerPaths } from '../../router_paths';
 import {
   FilterEditor,
   FilterType,
-} from '../components/reporting/filter_editor';
+} from '../../components/reporting/filter_editor';
 import {
   GroupByEditor,
   GroupByType,
-} from '../components/reporting/group_by_editor';
-import { canonicalizeFilter, canonicalizeGroupBy } from '../utils/reporting';
-import { BallotCountReportViewer } from '../components/reporting/ballot_count_report_viewer';
-import { getManualResultsMetadata } from '../api';
+} from '../../components/reporting/group_by_editor';
+import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
+import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
+import { getManualResultsMetadata } from '../../api';
 
 const SCREEN_TITLE = 'Ballot Count Report Builder';
 

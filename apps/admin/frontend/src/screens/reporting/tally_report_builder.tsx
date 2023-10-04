@@ -8,13 +8,13 @@ import {
 } from '@votingworks/utils';
 import { Tabulation } from '@votingworks/types';
 import styled from 'styled-components';
-import { AppContext } from '../contexts/app_context';
-import { NavigationScreen } from '../components/navigation_screen';
-import { routerPaths } from '../router_paths';
-import { FilterEditor } from '../components/reporting/filter_editor';
-import { GroupByEditor } from '../components/reporting/group_by_editor';
-import { TallyReportViewer } from '../components/reporting/tally_report_viewer';
-import { canonicalizeFilter, canonicalizeGroupBy } from '../utils/reporting';
+import { AppContext } from '../../contexts/app_context';
+import { NavigationScreen } from '../../components/navigation_screen';
+import { routerPaths } from '../../router_paths';
+import { FilterEditor } from '../../components/reporting/filter_editor';
+import { GroupByEditor } from '../../components/reporting/group_by_editor';
+import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
+import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 
 const SCREEN_TITLE = 'Tally Report Builder';
 

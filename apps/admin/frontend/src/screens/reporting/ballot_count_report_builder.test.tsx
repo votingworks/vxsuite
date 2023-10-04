@@ -6,11 +6,11 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expectPrint } from '@votingworks/test-utils';
 import { Tabulation } from '@votingworks/types';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { screen, within } from '../../test/react_testing_library';
-import { getMockCardCounts } from '../../test/helpers/mock_results';
-import { canonicalizeFilter, canonicalizeGroupBy } from '../utils/reporting';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { screen, within } from '../../../test/react_testing_library';
+import { getMockCardCounts } from '../../../test/helpers/mock_results';
+import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 import { BallotCountReportBuilder } from './ballot_count_report_builder';
 
 let apiMock: ApiMock;
