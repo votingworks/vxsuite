@@ -1,4 +1,7 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
   deferNextPrint,
@@ -85,6 +88,39 @@ test('autoPreview = false does not load preview automatically', async () => {
   );
 
   await screen.findButton('Load Preview');
+});
+
+test('shows no results warning when no results', async () => {
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  apiMock.expectGetResultsForTallyReports(
+    {
+      filter: {},
+      groupBy: { groupByBatch: true },
+    },
+    []
+  );
+
+  renderInAppContext(
+    <TallyReportViewer
+      disabled={false}
+      filter={{}}
+      groupBy={{ groupByBatch: true }}
+      autoPreview
+    />,
+    { apiMock, electionDefinition }
+  );
+
+  await screen.findByText(
+    'No results found given the current report parameters.'
+  );
+
+  for (const buttonLabel of [
+    'Print Report',
+    'Export Report PDF',
+    'Export Report CSV',
+  ]) {
+    expect(screen.getButton(buttonLabel)).toBeDisabled();
+  }
 });
 
 test('print before loading preview', async () => {

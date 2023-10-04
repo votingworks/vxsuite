@@ -107,6 +107,40 @@ test('autoPreview = false does not load preview automatically', async () => {
   await screen.findButton('Load Preview');
 });
 
+test('shows no results warning when no results', async () => {
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  apiMock.expectGetCardCounts(
+    {
+      filter: {},
+      groupBy: { groupByBatch: true },
+    },
+    []
+  );
+
+  renderInAppContext(
+    <BallotCountReportViewer
+      disabled={false}
+      filter={{}}
+      groupBy={{ groupByBatch: true }}
+      ballotCountBreakdown="none"
+      autoPreview
+    />,
+    { apiMock, electionDefinition }
+  );
+
+  await screen.findByText(
+    'No results found given the current report parameters.'
+  );
+
+  for (const buttonLabel of [
+    'Print Report',
+    'Export Report PDF',
+    'Export Report CSV',
+  ]) {
+    expect(screen.getButton(buttonLabel)).toBeDisabled();
+  }
+});
+
 test('print before loading preview', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { resolve: resolveData } = apiMock.expectGetCardCounts(

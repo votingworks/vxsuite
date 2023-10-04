@@ -4,6 +4,7 @@ import {
   Button,
   Caption,
   Font,
+  H5,
   H6,
   Icons,
   Loading,
@@ -89,6 +90,10 @@ const LoadingTextContainer = styled.div`
   background: white;
   width: 35rem;
   border-radius: 0.5rem;
+`;
+
+const NoResultsNotice = styled(H5)`
+  margin-top: 2rem;
 `;
 
 function Report({
@@ -192,6 +197,11 @@ export function BallotCountReportViewer({
       return previewReportRef.current;
     }
 
+    // If there's no data, don't render anything
+    if (cardCountsQuery.data.length === 0) {
+      return undefined;
+    }
+
     return (
       <Report
         electionDefinition={assertDefined(electionDefinition)}
@@ -218,6 +228,8 @@ export function BallotCountReportViewer({
   ]);
   previewReportRef.current = previewReport;
   const previewIsFresh = cardCountsQuery.isSuccess && !cardCountsQuery.isStale;
+  const areQueryResultsEmpty =
+    cardCountsQuery.isSuccess && cardCountsQuery.data.length === 0;
 
   async function refreshPreview() {
     setIsFetchingForPreview(true);
@@ -309,7 +321,7 @@ export function BallotCountReportViewer({
         <PrintButton
           print={printReport}
           variant="primary"
-          disabled={disabled}
+          disabled={disabled || areQueryResultsEmpty}
           useDefaultProgressModal={false}
         >
           Print Report
@@ -318,14 +330,14 @@ export function BallotCountReportViewer({
           electionDefinition={electionDefinition}
           generateReportPdf={generateReportPdf}
           defaultFilename={reportPdfFilename}
-          disabled={disabled}
+          disabled={disabled || areQueryResultsEmpty}
           fileType={FileType.BallotCountReport}
         />
         <ExportBallotCountReportCsvButton
           filter={filter}
           groupBy={groupBy}
           ballotCountBreakdown={ballotCountBreakdown}
-          disabled={disabled}
+          disabled={disabled || areQueryResultsEmpty}
         />
       </ExportActions>
 
@@ -338,6 +350,11 @@ export function BallotCountReportViewer({
           <React.Fragment>
             {previewReport && (
               <PreviewReportPages>{previewReport}</PreviewReportPages>
+            )}
+            {areQueryResultsEmpty && (
+              <NoResultsNotice>
+                No results found given the current report parameters.
+              </NoResultsNotice>
             )}
             {!previewIsFresh && <PreviewOverlay />}
             {isFetchingForPreview && (
