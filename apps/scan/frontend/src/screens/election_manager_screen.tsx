@@ -4,7 +4,6 @@ import {
   CurrentDateAndTime,
   Loading,
   Modal,
-  Prose,
   SegmentedButton,
   SetClockButton,
   ChangePrecinctButton,
@@ -25,6 +24,7 @@ import { Screen } from '../components/layout';
 import {
   ejectUsbDrive,
   getConfig,
+  getUsbDriveStatus,
   logOut,
   setIsSoundMuted,
   setIsUltrasonicDisabled,
@@ -35,6 +35,7 @@ import {
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { LiveCheckButton } from '../components/live_check_button';
+import { CastVoteRecordSyncReminderModal } from '../components/cast_vote_record_sync_modal';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -55,6 +56,7 @@ export function ElectionManagerScreen({
 }: ElectionManagerScreenProps): JSX.Element | null {
   const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
@@ -63,17 +65,17 @@ export function ElectionManagerScreen({
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const logOutMutation = logOut.useMutation();
 
-  const [
-    isShowingToggleTestModeWarningModal,
-    setIsShowingToggleTestModeWarningModal,
-  ] = useState(false);
+  const [isConfirmingSwitchToTestMode, setIsConfirmingSwitchToTestMode] =
+    useState(false);
 
   const [isExportingResults, setIsExportingResults] = useState(false);
 
-  const [confirmUnconfigure, setConfirmUnconfigure] = useState(false);
+  const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
   const [isUnconfiguring, setIsUnconfiguring] = useState(false);
 
-  if (!configQuery.isSuccess) return null;
+  if (!configQuery.isSuccess || !usbDriveStatusQuery.isSuccess) {
+    return null;
+  }
 
   const { election } = electionDefinition;
   const {
@@ -83,16 +85,22 @@ export function ElectionManagerScreen({
     isUltrasonicDisabled,
     pollsState,
   } = configQuery.data;
+  const doesUsbDriveRequireCastVoteRecordSync = Boolean(
+    usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync
+  );
 
-  function handleTogglingTestMode() {
-    if (!isTestMode) {
-      setIsShowingToggleTestModeWarningModal(true);
-    } else {
-      setTestModeMutation.mutate({ isTestMode: !isTestMode });
-    }
+  function switchMode() {
+    setTestModeMutation.mutate(
+      { isTestMode: !isTestMode },
+      {
+        onSuccess() {
+          setIsConfirmingSwitchToTestMode(false);
+        },
+      }
+    );
   }
 
-  function handleUnconfigure() {
+  function unconfigure() {
     setIsUnconfiguring(true);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
     // TODO move this to the backend?
@@ -140,7 +148,13 @@ export function ElectionManagerScreen({
         disabled={setTestModeMutation.isLoading}
         label="Ballot Mode:"
         hideLabel
-        onChange={handleTogglingTestMode}
+        onChange={() => {
+          if (!isTestMode && scannerStatus.ballotsCounted > 0) {
+            setIsConfirmingSwitchToTestMode(true);
+            return;
+          }
+          switchMode();
+        }}
         options={[
           { id: 'test', label: 'Test Ballot Mode' },
           { id: 'official', label: 'Official Ballot Mode' },
@@ -201,7 +215,7 @@ export function ElectionManagerScreen({
 
   const unconfigureElectionButton = (
     <P>
-      <Button onPress={() => setConfirmUnconfigure(true)}>
+      <Button onPress={() => setIsConfirmingUnconfigure(true)}>
         Delete All Election Data from VxScan
       </Button>
     </P>
@@ -254,67 +268,79 @@ export function ElectionManagerScreen({
           },
         ]}
       />
-      {isShowingToggleTestModeWarningModal && (
-        <Modal
-          title="Save Backup to switch to Test Ballot Mode"
-          content={
-            <Prose>
-              <P>
-                You must &quot;Save Backup&quot; before you may switch to Test
-                Ballot Mode.
-              </P>
-            </Prose>
+
+      {isConfirmingSwitchToTestMode &&
+        (() => {
+          if (doesUsbDriveRequireCastVoteRecordSync) {
+            return (
+              <CastVoteRecordSyncReminderModal
+                blockedAction="switch_to_test_mode"
+                closeModal={() => setIsConfirmingSwitchToTestMode(false)}
+              />
+            );
           }
-          actions={
-            <React.Fragment>
-              <Button
-                variant="primary"
-                onPress={() => {
-                  setIsShowingToggleTestModeWarningModal(false);
-                }}
-              >
-                Save Backup
-              </Button>
-              <Button
-                onPress={() => setIsShowingToggleTestModeWarningModal(false)}
-              >
-                Cancel
-              </Button>
-            </React.Fragment>
+          return (
+            <Modal
+              title="Switch to Test Mode?"
+              content={
+                <P>
+                  Do you want to switch to test mode and clear the ballots
+                  scanned at this scanner?
+                </P>
+              }
+              actions={
+                <React.Fragment>
+                  <Button onPress={switchMode} variant="danger">
+                    Yes, Switch
+                  </Button>
+                  <Button
+                    onPress={() => setIsConfirmingSwitchToTestMode(false)}
+                  >
+                    Cancel
+                  </Button>
+                </React.Fragment>
+              }
+              onOverlayClick={() => setIsConfirmingSwitchToTestMode(false)}
+            />
+          );
+        })()}
+
+      {isConfirmingUnconfigure &&
+        (() => {
+          if (isUnconfiguring) {
+            return <Modal content={<Loading />} />;
           }
-          onOverlayClick={() => setIsShowingToggleTestModeWarningModal(false)}
-        />
-      )}
-      {confirmUnconfigure && (
-        <Modal
-          title={isUnconfiguring ? undefined : 'Delete All Election Data?'}
-          content={
-            isUnconfiguring ? (
-              <Loading />
-            ) : (
-              <Prose>
+          if (doesUsbDriveRequireCastVoteRecordSync && !isTestMode) {
+            return (
+              <CastVoteRecordSyncReminderModal
+                blockedAction="delete_election_data"
+                closeModal={() => setIsConfirmingUnconfigure(false)}
+              />
+            );
+          }
+          return (
+            <Modal
+              title="Delete All Election Data?"
+              content={
                 <P>
                   Do you want to remove all election information and data from
                   this machine?
                 </P>
-              </Prose>
-            )
-          }
-          actions={
-            !isUnconfiguring && (
-              <React.Fragment>
-                <Button variant="danger" onPress={handleUnconfigure}>
-                  Yes, Delete All
-                </Button>
-                <Button onPress={() => setConfirmUnconfigure(false)}>
-                  Cancel
-                </Button>
-              </React.Fragment>
-            )
-          }
-          onOverlayClick={() => setConfirmUnconfigure(false)}
-        />
-      )}
+              }
+              actions={
+                <React.Fragment>
+                  <Button onPress={unconfigure} variant="danger">
+                    Yes, Delete All
+                  </Button>
+                  <Button onPress={() => setIsConfirmingUnconfigure(false)}>
+                    Cancel
+                  </Button>
+                </React.Fragment>
+              }
+              onOverlayClick={() => setIsConfirmingUnconfigure(false)}
+            />
+          );
+        })()}
 
       {isExportingResults && (
         <ExportResultsModal
