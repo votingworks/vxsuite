@@ -25,6 +25,8 @@ import {
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   randomBallotId,
+  isFeatureFlagEnabled,
+  BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 
 import { LogEventId, Logger } from '@votingworks/logging';
@@ -597,9 +599,16 @@ export function AppRoot({
   if (!cardReader) {
     return <SetupCardReaderPage />;
   }
-  if (stateMachineState === 'no_hardware') {
+
+  if (
+    stateMachineState === 'no_hardware' &&
+    !isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+    )
+  ) {
     return <NoPaperHandlerPage />;
   }
+
   if (
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'card_error'
