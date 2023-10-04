@@ -41,6 +41,8 @@ import {
   getPollsStateName,
   getPollsTransitionAction,
   getPollTransitionsFromState,
+  isFeatureFlagEnabled,
+  BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
@@ -52,6 +54,7 @@ import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
 import { LoadPaperPage } from './load_paper_page';
 import { getStateMachineState, setAcceptingPaperState } from '../api';
+import { PaperHandlerHardwareCheckDisabledScreen } from './paper_handler_hardware_check_disabled_screen';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -263,6 +266,16 @@ export function PollWorkerScreen({
 
   if (pollWorkerAuth.cardlessVoterUser) {
     if (
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+      )
+    ) {
+      return (
+        <PaperHandlerHardwareCheckDisabledScreen message="Remove the poll worker card to continue." />
+      );
+    }
+
+    if (
       stateMachineState === 'accepting_paper' ||
       stateMachineState === 'loading_paper'
     ) {
@@ -313,7 +326,6 @@ export function PollWorkerScreen({
       );
     }
 
-    // Unexpected state machine state.
     return null;
   }
 
