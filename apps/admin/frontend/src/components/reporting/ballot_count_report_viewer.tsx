@@ -1,5 +1,6 @@
 import { ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
+  BallotCountReport,
   Button,
   Caption,
   Font,
@@ -13,30 +14,23 @@ import {
 import React, { useContext, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
-import {
-  combineGroupSpecifierAndFilter,
-  isElectionManagerAuth,
-} from '@votingworks/utils';
-import type {
-  ScannerBatch,
-  TallyReportResults,
-} from '@votingworks/admin-backend';
+import { isElectionManagerAuth } from '@votingworks/utils';
+import type { ScannerBatch } from '@votingworks/admin-backend';
 import { LogEventId } from '@votingworks/logging';
 import {
+  getCardCounts,
   getCastVoteRecordFileMode,
-  getResultsForTallyReports,
   getScannerBatches,
 } from '../../api';
 import { AppContext } from '../../contexts/app_context';
-import { AdminTallyReportByParty } from '../admin_tally_report_by_party';
 import { PrintButton } from '../print_button';
 import {
-  generateTallyReportPdfFilename,
+  generateBallotCountReportPdfFilename,
   generateTitleForReport,
 } from '../../utils/reporting';
 import { ExportReportPdfButton } from './export_report_pdf_button';
-import { ExportTallyReportCsvButton } from './export_tally_report_csv_button';
 import { FileType } from '../save_frontend_file_modal';
+import { ExportBallotCountReportCsvButton } from './export_ballot_count_report_csv_button';
 
 const ExportActions = styled.div`
   margin-top: 1rem;
@@ -97,68 +91,67 @@ const LoadingTextContainer = styled.div`
   border-radius: 0.5rem;
 `;
 
-function Reports({
+function Report({
   electionDefinition,
-  isOfficialResults,
-  allTallyReportResults,
-  filterUsed,
-  generatedAtTime,
   scannerBatches,
+  isOfficialResults,
+  cardCountsList,
+  filter,
+  groupBy,
+  ballotCountBreakdown,
+  generatedAtTime,
 }: {
   electionDefinition: ElectionDefinition;
-  isOfficialResults: boolean;
-  allTallyReportResults: Tabulation.GroupList<TallyReportResults>;
-  filterUsed: Tabulation.Filter;
-  generatedAtTime: Date;
   scannerBatches: ScannerBatch[];
-}): JSX.Element {
-  const allReports: JSX.Element[] = [];
-
-  for (const [index, tallyReportResults] of allTallyReportResults.entries()) {
-    const sectionFilter = combineGroupSpecifierAndFilter(
-      tallyReportResults,
-      filterUsed
-    );
-    const titleGeneration = generateTitleForReport({
-      filter: sectionFilter,
-      electionDefinition,
-      scannerBatches,
-    });
-    const title = titleGeneration.isOk()
-      ? titleGeneration.ok()
-      : 'Custom Filter Tally Report';
-    const displayedFilter = !titleGeneration.isOk() ? sectionFilter : undefined;
-
-    allReports.push(
-      <AdminTallyReportByParty
-        electionDefinition={electionDefinition}
-        testId="tally-report"
-        key={`tally-report-${index}`}
-        title={title}
-        tallyReportResults={tallyReportResults}
-        tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
-        generatedAtTime={generatedAtTime}
-        customFilter={displayedFilter}
-      />
-    );
-  }
-
-  return <React.Fragment>{allReports}</React.Fragment>;
-}
-
-export interface TallyReportViewerProps {
+  isOfficialResults: boolean;
+  cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
+  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
+  generatedAtTime: Date;
+}): JSX.Element {
+  const titleGeneration = generateTitleForReport({
+    filter,
+    electionDefinition,
+    scannerBatches,
+    reportType: 'Ballot Count',
+  });
+  const titleWithoutOfficiality = titleGeneration.isOk()
+    ? titleGeneration.ok() ?? `Full Election Ballot Count Report`
+    : 'Custom Filter Ballot Count Report';
+  const title = `${
+    isOfficialResults ? 'Official ' : 'Unofficial '
+  }${titleWithoutOfficiality}`;
+  const customFilter = !titleGeneration.isOk() ? filter : undefined;
+
+  return BallotCountReport({
+    title,
+    testId: 'ballot-count-report',
+    electionDefinition,
+    customFilter,
+    scannerBatches,
+    generatedAtTime,
+    groupBy,
+    ballotCountBreakdown,
+    cardCountsList,
+  });
+}
+
+export interface BallotCountReportViewerProps {
+  filter: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
   disabled: boolean;
   autoPreview: boolean;
 }
 
-export function TallyReportViewer({
+export function BallotCountReportViewer({
   filter,
   groupBy,
+  ballotCountBreakdown,
   disabled: disabledFromProps,
   autoPreview,
-}: TallyReportViewerProps): JSX.Element {
+}: BallotCountReportViewerProps): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
     useContext(AppContext);
   assert(electionDefinition);
@@ -177,7 +170,7 @@ export function TallyReportViewer({
     !castVoteRecordFileModeQuery.isSuccess ||
     !scannerBatchesQuery.isSuccess;
 
-  const reportResultsQuery = getResultsForTallyReports.useQuery(
+  const cardCountsQuery = getCardCounts.useQuery(
     {
       filter,
       groupBy,
@@ -185,7 +178,7 @@ export function TallyReportViewer({
     { enabled: !disabled && autoPreview }
   );
   const reportResultsAreFresh =
-    reportResultsQuery.isSuccess && !reportResultsQuery.isStale;
+    cardCountsQuery.isSuccess && !cardCountsQuery.isStale;
 
   const previewReportRef = useRef<Optional<JSX.Element>>();
   const previewReport: Optional<JSX.Element> = useMemo(() => {
@@ -200,11 +193,13 @@ export function TallyReportViewer({
     }
 
     return (
-      <Reports
+      <Report
         electionDefinition={assertDefined(electionDefinition)}
-        filterUsed={filter}
-        allTallyReportResults={reportResultsQuery.data}
-        generatedAtTime={new Date(reportResultsQuery.dataUpdatedAt)}
+        filter={filter}
+        groupBy={groupBy}
+        ballotCountBreakdown={ballotCountBreakdown}
+        cardCountsList={cardCountsQuery.data}
+        generatedAtTime={new Date(cardCountsQuery.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
         scannerBatches={scannerBatchesQuery.data ?? []}
       />
@@ -214,27 +209,28 @@ export function TallyReportViewer({
     reportResultsAreFresh,
     electionDefinition,
     filter,
-    reportResultsQuery.data,
-    reportResultsQuery.dataUpdatedAt,
+    groupBy,
+    ballotCountBreakdown,
+    cardCountsQuery.data,
+    cardCountsQuery.dataUpdatedAt,
     isOfficialResults,
     scannerBatchesQuery.data,
   ]);
   previewReportRef.current = previewReport;
-  const previewIsFresh =
-    reportResultsQuery.isSuccess && !reportResultsQuery.isStale;
+  const previewIsFresh = cardCountsQuery.isSuccess && !cardCountsQuery.isStale;
 
   async function refreshPreview() {
     setIsFetchingForPreview(true);
-    await reportResultsQuery.refetch();
+    await cardCountsQuery.refetch();
     setIsFetchingForPreview(false);
   }
 
-  async function getFreshQueryResult(): Promise<typeof reportResultsQuery> {
+  async function getFreshQueryResult(): Promise<typeof cardCountsQuery> {
     if (reportResultsAreFresh) {
-      return reportResultsQuery;
+      return cardCountsQuery;
     }
 
-    return reportResultsQuery.refetch({ cancelRefetch: false });
+    return cardCountsQuery.refetch({ cancelRefetch: false });
   }
 
   async function printReport() {
@@ -242,10 +238,12 @@ export function TallyReportViewer({
     const queryResults = await getFreshQueryResult();
     assert(queryResults.isSuccess);
     const reportToPrint = (
-      <Reports
+      <Report
         electionDefinition={assertDefined(electionDefinition)}
-        filterUsed={filter}
-        allTallyReportResults={queryResults.data}
+        filter={filter}
+        groupBy={groupBy}
+        ballotCountBreakdown={ballotCountBreakdown}
+        cardCountsList={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
         scannerBatches={scannerBatchesQuery.data ?? []}
@@ -260,14 +258,14 @@ export function TallyReportViewer({
     try {
       await printElement(reportToPrint, { sides: 'one-sided' });
       await logger.log(LogEventId.TallyReportPrinted, userRole, {
-        message: `User printed a tally report.`,
+        message: `User printed a ballot count report.`,
         disposition: 'success',
         ...reportProperties,
       });
     } catch (error) {
       assert(error instanceof Error);
       await logger.log(LogEventId.TallyReportPrinted, userRole, {
-        message: `User attempted to print a tally report, but an error occurred: ${error.message}`,
+        message: `User attempted to print a ballot count report, but an error occurred: ${error.message}`,
         disposition: 'failure',
         ...reportProperties,
       });
@@ -280,10 +278,12 @@ export function TallyReportViewer({
     const queryResults = await getFreshQueryResult();
     assert(queryResults.isSuccess);
     const reportToSave = (
-      <Reports
+      <Report
         electionDefinition={assertDefined(electionDefinition)}
-        filterUsed={filter}
-        allTallyReportResults={queryResults.data}
+        filter={filter}
+        groupBy={groupBy}
+        ballotCountBreakdown={ballotCountBreakdown}
+        cardCountsList={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
         scannerBatches={scannerBatchesQuery.data ?? []}
@@ -293,13 +293,13 @@ export function TallyReportViewer({
     return printElementToPdf(reportToSave);
   }
 
-  const reportPdfFilename = generateTallyReportPdfFilename({
+  const reportPdfFilename = generateBallotCountReportPdfFilename({
     election,
     filter,
     groupBy,
     isTestMode: castVoteRecordFileModeQuery.data === 'test',
-    time: reportResultsQuery.dataUpdatedAt
-      ? new Date(reportResultsQuery.dataUpdatedAt)
+    time: cardCountsQuery.dataUpdatedAt
+      ? new Date(cardCountsQuery.dataUpdatedAt)
       : undefined,
   });
 
@@ -319,11 +319,12 @@ export function TallyReportViewer({
           generateReportPdf={generateReportPdf}
           defaultFilename={reportPdfFilename}
           disabled={disabled}
-          fileType={FileType.TallyReport}
+          fileType={FileType.BallotCountReport}
         />
-        <ExportTallyReportCsvButton
+        <ExportBallotCountReportCsvButton
           filter={filter}
           groupBy={groupBy}
+          ballotCountBreakdown={ballotCountBreakdown}
           disabled={disabled}
         />
       </ExportActions>

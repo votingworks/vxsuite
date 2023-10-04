@@ -5,20 +5,25 @@ import { Tabulation } from '@votingworks/types';
 import path from 'path';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import { AppContext } from '../../contexts/app_context';
-import { exportTallyReportCsv, getCastVoteRecordFileMode } from '../../api';
+import {
+  exportBallotCountReportCsv,
+  getCastVoteRecordFileMode,
+} from '../../api';
 import { SaveBackendFileModal } from '../save_backend_file_modal';
 import {
   REPORT_SUBFOLDER,
-  generateTallyReportCsvFilename,
+  generateBallotCountReportCsvFilename,
 } from '../../utils/reporting';
 
-export function ExportCsvResultsButton({
+export function ExportBallotCountReportCsvButton({
   filter,
   groupBy,
+  ballotCountBreakdown,
   disabled,
 }: {
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
+  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
   disabled?: boolean;
 }): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
@@ -38,11 +43,12 @@ export function ExportCsvResultsButton({
     setExportDate(undefined);
   }
 
-  const exportResultsCsvMutation = exportTallyReportCsv.useMutation();
+  const exportBallotCountReportCsvMutation =
+    exportBallotCountReportCsv.useMutation();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
 
-  const defaultFilename = generateTallyReportCsvFilename({
+  const defaultFilename = generateBallotCountReportCsvFilename({
     election,
     filter,
     groupBy,
@@ -61,23 +67,24 @@ export function ExportCsvResultsButton({
   return (
     <React.Fragment>
       <Button disabled={disabled} onPress={openModal}>
-        Export CSV Results
+        Export Report CSV
       </Button>
       {isSaveModalOpen && (
         <SaveBackendFileModal
-          saveFileStatus={exportResultsCsvMutation.status}
+          saveFileStatus={exportBallotCountReportCsvMutation.status}
           saveFile={({ path: savePath }) =>
-            exportResultsCsvMutation.mutate({
+            exportBallotCountReportCsvMutation.mutate({
               path: savePath,
               filter,
               groupBy,
+              ballotCountBreakdown,
             })
           }
-          saveFileResult={exportResultsCsvMutation.data}
-          resetSaveFileResult={exportResultsCsvMutation.reset}
+          saveFileResult={exportBallotCountReportCsvMutation.data}
+          resetSaveFileResult={exportBallotCountReportCsvMutation.reset}
           onClose={closeModal}
-          fileType="results"
-          fileTypeTitle="Results"
+          fileType="ballot count report"
+          fileTypeTitle="Ballot Count Report"
           defaultRelativePath={defaultFilePath}
         />
       )}

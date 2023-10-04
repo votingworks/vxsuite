@@ -424,9 +424,16 @@ export const getCardCounts = {
   queryKey(input?: GetCardCountsInput): QueryKey {
     return input ? ['getCardCounts', input] : ['getCardCounts'];
   },
-  useQuery(input: GetCardCountsInput = { groupBy: {} }) {
+  useQuery(
+    input: GetCardCountsInput = { groupBy: {} },
+    options: { enabled: boolean } = { enabled: true }
+  ) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () => apiClient.getCardCounts(input));
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getCardCounts(input),
+      options
+    );
   },
 } as const;
 
@@ -671,6 +678,13 @@ export const exportTallyReportCsv = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.exportTallyReportCsv);
+  },
+} as const;
+
+export const exportBallotCountReportCsv = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportBallotCountReportCsv);
   },
 } as const;
 

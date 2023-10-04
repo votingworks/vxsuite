@@ -1,4 +1,7 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
   deferNextPrint,
@@ -15,11 +18,23 @@ import { act } from 'react-dom/test-utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
-import { TallyReportViewer } from './tally_report_viewer';
-import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
+import { getMockCardCounts } from '../../../test/helpers/mock_results';
 import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
+import { BallotCountReportViewer } from './ballot_count_report_viewer';
 
 let apiMock: ApiMock;
+
+const MOCK_VOTING_METHOD_CARD_COUNTS: Tabulation.GroupList<Tabulation.CardCounts> =
+  [
+    {
+      votingMethod: 'absentee',
+      ...getMockCardCounts(1, undefined, 3),
+    },
+    {
+      votingMethod: 'precinct',
+      ...getMockCardCounts(0, undefined, 1),
+    },
+  ];
 
 beforeEach(() => {
   apiMock = createApiMock();
@@ -35,7 +50,13 @@ afterEach(() => {
 test('disabled shows disabled buttons and no preview', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   renderInAppContext(
-    <TallyReportViewer disabled filter={{}} groupBy={{}} autoPreview={false} />,
+    <BallotCountReportViewer
+      disabled
+      filter={{}}
+      groupBy={{}}
+      ballotCountBreakdown="none"
+      autoPreview={false}
+    />,
     { apiMock, electionDefinition }
   );
 
@@ -45,40 +66,39 @@ test('disabled shows disabled buttons and no preview', () => {
 });
 
 test('autoPreview loads preview automatically', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  apiMock.expectGetResultsForTallyReports(
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  apiMock.expectGetCardCounts(
     {
       filter: {},
-      groupBy: {},
+      groupBy: { groupByVotingMethod: true },
     },
-    [
-      getSimpleMockTallyResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
+    MOCK_VOTING_METHOD_CARD_COUNTS
   );
 
   renderInAppContext(
-    <TallyReportViewer disabled={false} filter={{}} groupBy={{}} autoPreview />,
+    <BallotCountReportViewer
+      disabled={false}
+      filter={{}}
+      groupBy={{ groupByVotingMethod: true }}
+      ballotCountBreakdown="none"
+      autoPreview
+    />,
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
-  );
-  expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('10');
+  await screen.findByText('Unofficial Full Election Ballot Count Report');
+  expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
 });
 
 test('autoPreview = false does not load preview automatically', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
   renderInAppContext(
-    <TallyReportViewer
+    <BallotCountReportViewer
       disabled={false}
       filter={{}}
       groupBy={{}}
+      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     { apiMock, electionDefinition }
@@ -89,26 +109,21 @@ test('autoPreview = false does not load preview automatically', async () => {
 
 test('print before loading preview', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  const { resolve: resolveData } = apiMock.expectGetResultsForTallyReports(
+  const { resolve: resolveData } = apiMock.expectGetCardCounts(
     {
       filter: {},
-      groupBy: {},
+      groupBy: { groupByVotingMethod: true },
     },
-    [
-      getSimpleMockTallyResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ],
+    MOCK_VOTING_METHOD_CARD_COUNTS,
     true
   );
 
   renderInAppContext(
-    <TallyReportViewer
+    <BallotCountReportViewer
       disabled={false}
       filter={{}}
-      groupBy={{}}
+      groupBy={{ groupByVotingMethod: true }}
+      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     { apiMock, electionDefinition }
@@ -124,46 +139,38 @@ test('print before loading preview', async () => {
   resolvePrint();
   await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
   await expectPrint((printResult) => {
-    printResult.getByText(
-      'Unofficial Lincoln Municipal General Election Tally Report'
-    );
-    expect(printResult.getByTestId('total-ballot-count')).toHaveTextContent(
-      '10'
-    );
+    printResult.getByText('Unofficial Full Election Ballot Count Report');
+    expect(printResult.getByTestId('footer-total')).toHaveTextContent('5');
   });
 
   // the preview will now show the report, because its available
-  screen.getByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
-  );
-  expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('10');
+  screen.getByText('Unofficial Full Election Ballot Count Report');
+  expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
 });
 
 test('print after preview loaded + test success logging', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  apiMock.expectGetResultsForTallyReports(
+  apiMock.expectGetCardCounts(
     {
       filter: {},
-      groupBy: {},
+      groupBy: { groupByVotingMethod: true },
     },
-    [
-      getSimpleMockTallyResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
+    MOCK_VOTING_METHOD_CARD_COUNTS
   );
 
   const logger = fakeLogger();
   renderInAppContext(
-    <TallyReportViewer disabled={false} filter={{}} groupBy={{}} autoPreview />,
+    <BallotCountReportViewer
+      disabled={false}
+      filter={{}}
+      groupBy={{ groupByVotingMethod: true }}
+      ballotCountBreakdown="none"
+      autoPreview
+    />,
     { apiMock, electionDefinition, logger }
   );
 
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
-  );
+  await screen.findByText('Unofficial Full Election Ballot Count Report');
 
   const { resolve: resolvePrint } = deferNextPrint();
   userEvent.click(screen.getButton('Print Report'));
@@ -172,47 +179,38 @@ test('print after preview loaded + test success logging', async () => {
   resolvePrint();
   await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
   await expectPrint((printResult) => {
-    printResult.getByText(
-      'Unofficial Lincoln Municipal General Election Tally Report'
-    );
-    expect(printResult.getByTestId('total-ballot-count')).toHaveTextContent(
-      '10'
-    );
+    printResult.getByText('Unofficial Full Election Ballot Count Report');
+    expect(printResult.getByTestId('footer-total')).toHaveTextContent('5');
   });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.TallyReportPrinted,
     'election_manager',
     {
       disposition: 'success',
-      message: 'User printed a tally report.',
+      message: 'User printed a ballot count report.',
       filter: '{}',
-      groupBy: '{}',
+      groupBy: '{"groupByVotingMethod":true}',
     }
   );
 });
 
 test('print while preview is loading', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  const { resolve: resolveData } = apiMock.expectGetResultsForTallyReports(
+  const { resolve: resolveData } = apiMock.expectGetCardCounts(
     {
       filter: {},
-      groupBy: {},
+      groupBy: { groupByVotingMethod: true },
     },
-    [
-      getSimpleMockTallyResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ],
+    MOCK_VOTING_METHOD_CARD_COUNTS,
     true
   );
 
   renderInAppContext(
-    <TallyReportViewer
+    <BallotCountReportViewer
       disabled={false}
       filter={{}}
-      groupBy={{}}
+      groupBy={{ groupByVotingMethod: true }}
+      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     { apiMock, electionDefinition }
@@ -230,45 +228,37 @@ test('print while preview is loading', async () => {
   await within(modal).findByText('Printing Report');
   resolvePrint();
   await expectPrint((printResult) => {
-    printResult.getByText(
-      'Unofficial Lincoln Municipal General Election Tally Report'
-    );
-    expect(printResult.getByTestId('total-ballot-count')).toHaveTextContent(
-      '10'
-    );
+    printResult.getByText('Unofficial Full Election Ballot Count Report');
+    expect(printResult.getByTestId('footer-total')).toHaveTextContent('5');
   });
 
-  screen.getByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
-  );
-  expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('10');
+  screen.getByText('Unofficial Full Election Ballot Count Report');
+  expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
 });
 
 test('print failure logging', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  apiMock.expectGetResultsForTallyReports(
+  apiMock.expectGetCardCounts(
     {
       filter: {},
-      groupBy: {},
+      groupBy: { groupByVotingMethod: true },
     },
-    [
-      getSimpleMockTallyResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
+    MOCK_VOTING_METHOD_CARD_COUNTS
   );
 
   const logger = fakeLogger();
   renderInAppContext(
-    <TallyReportViewer disabled={false} filter={{}} groupBy={{}} autoPreview />,
+    <BallotCountReportViewer
+      disabled={false}
+      filter={{}}
+      groupBy={{ groupByVotingMethod: true }}
+      ballotCountBreakdown="none"
+      autoPreview
+    />,
     { apiMock, electionDefinition, logger }
   );
 
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
-  );
+  await screen.findByText('Unofficial Full Election Ballot Count Report');
 
   simulateErrorOnNextPrint(new Error('printer broken'));
   userEvent.click(screen.getButton('Print Report'));
@@ -279,9 +269,9 @@ test('print failure logging', async () => {
       {
         disposition: 'failure',
         message:
-          'User attempted to print a tally report, but an error occurred: printer broken',
+          'User attempted to print a ballot count report, but an error occurred: printer broken',
         filter: '{}',
-        groupBy: '{}',
+        groupBy: '{"groupByVotingMethod":true}',
       }
     );
   });
@@ -289,37 +279,32 @@ test('print failure logging', async () => {
 
 test('displays custom filter rather than specific title when necessary', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
   const filter: Tabulation.Filter = {
     ballotStyleIds: ['1'],
     precinctIds: ['23'],
     votingMethods: ['absentee'],
   };
 
-  apiMock.expectGetResultsForTallyReports(
+  apiMock.expectGetCardCounts(
     {
       filter,
       groupBy: {},
     },
-    [
-      getSimpleMockTallyResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
+    [getMockCardCounts(5, undefined, 10)]
   );
 
   renderInAppContext(
-    <TallyReportViewer
+    <BallotCountReportViewer
       disabled={false}
       filter={filter}
       groupBy={{}}
+      ballotCountBreakdown="none"
       autoPreview
     />,
     { apiMock, electionDefinition }
   );
 
-  await screen.findByText('Unofficial Custom Filter Tally Report');
+  await screen.findByText('Unofficial Custom Filter Ballot Count Report');
   screen.getByText(hasTextAcrossElements('Voting Method: Absentee'));
   screen.getByText(hasTextAcrossElements('Ballot Style: 1'));
   screen.getByText(hasTextAcrossElements('Precinct: North Lincoln'));
@@ -332,31 +317,24 @@ test('exporting report PDF', async () => {
   window.kiosk = mockKiosk;
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  apiMock.expectGetResultsForTallyReports(
+  apiMock.expectGetCardCounts(
     {
       filter: {},
       groupBy: {
         groupByVotingMethod: true,
-        groupByPrecinct: true,
       },
     },
-    [
-      getSimpleMockTallyResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
+    MOCK_VOTING_METHOD_CARD_COUNTS
   );
 
   renderInAppContext(
-    <TallyReportViewer
+    <BallotCountReportViewer
       disabled={false}
       filter={{}}
       groupBy={{
         groupByVotingMethod: true,
-        groupByPrecinct: true,
       }}
+      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     {
@@ -369,26 +347,22 @@ test('exporting report PDF', async () => {
   await screen.findButton('Load Preview');
   userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Save Unofficial Tally Report');
+  within(modal).getByText('Save Unofficial Ballot Count Report');
   within(modal).getByText(
-    /tally-reports-by-precinct-and-voting-method__2023-09-06_21-45-08\.pdf/
+    /ballot-count-report-by-voting-method__2023-09-06_21-45-08\.pdf/
   );
   userEvent.click(within(modal).getButton('Save'));
-  await screen.findByText('Saving Unofficial Tally Report');
+  await screen.findByText('Saving Unofficial Ballot Count Report');
   act(() => {
     jest.advanceTimersByTime(2000);
   });
-  await screen.findByText('Unofficial Tally Report Saved');
+  await screen.findByText('Unofficial Ballot Count Report Saved');
 
   expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
   await expectPrintToPdf((pdfResult) => {
-    pdfResult.getByText(
-      'Unofficial Lincoln Municipal General Election Tally Report'
-    );
-    expect(pdfResult.getByTestId('total-ballot-count')).toHaveTextContent('10');
+    pdfResult.getByText('Unofficial Full Election Ballot Count Report');
+    expect(pdfResult.getByTestId('footer-total')).toHaveTextContent('5');
   });
-
-  userEvent.click(screen.getButton('Close'));
 
   jest.useRealTimers();
 });

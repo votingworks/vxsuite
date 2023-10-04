@@ -48,6 +48,7 @@ import { checkPin } from '../api';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
 import { TallyReportBuilder } from '../screens/tally_report_builder';
+import { BallotCountReportBuilder } from '../screens/ballot_count_report_builder';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
@@ -205,6 +206,9 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route exact path={routerPaths.tallyAllPrecinctsReport}>
         <AllPrecinctsTallyReportScreen />
+      </Route>
+      <Route exact path={routerPaths.ballotCountReportBuilder}>
+        <BallotCountReportBuilder />
       </Route>
       <Route
         exact

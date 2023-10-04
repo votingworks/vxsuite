@@ -96,3 +96,15 @@ export function getSimpleMockTallyResults({
     cardCounts: scannedResults.cardCounts,
   };
 }
+
+export function getMockCardCounts(
+  bmd: number,
+  manual?: number,
+  ...hmpb: number[]
+): Tabulation.CardCounts {
+  return {
+    bmd,
+    manual,
+    hmpb,
+  };
+}

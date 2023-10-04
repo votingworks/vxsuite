@@ -319,7 +319,7 @@ function BallotCountTable({
                   content = getPartyById(
                     electionDefinition,
                     assertDefined(partyId)
-                  ).abbrev;
+                  ).name;
                   break;
                 case 'voting-method':
                   content =
@@ -438,6 +438,7 @@ export function BallotCountReport({
         <ReportSection>
           <LogoMark />
           <h1>{title}</h1>
+          <h2>{electionDefinition.election.title}</h2>
           {customFilter && (
             <CustomFilterSummary
               electionDefinition={electionDefinition}

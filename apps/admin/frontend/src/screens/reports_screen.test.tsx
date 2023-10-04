@@ -128,7 +128,7 @@ test('exporting batch results', async () => {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  apiMock.expectGetCardCounts(
+  apiMock.deprecatedExpectGetCardCounts(
     mockBallotCountsTableGroupBy({ groupByBatch: true }),
     []
   );

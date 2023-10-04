@@ -1,6 +1,10 @@
 import { Election, ElectionDefinition, Tabulation } from '@votingworks/types';
 import { Optional, Result, err, find, ok } from '@votingworks/basics';
-import { getPrecinctById, sanitizeStringForFilename } from '@votingworks/utils';
+import {
+  getPartyById,
+  getPrecinctById,
+  sanitizeStringForFilename,
+} from '@votingworks/utils';
 import moment from 'moment';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 
@@ -41,16 +45,18 @@ function getFilterRank(filter: Tabulation.Filter): number {
 export const BATCH_ID_TRUNCATE_LENGTH = 8;
 
 /**
- * Attempts to generate a title for an individual tally report based on its filter.
+ * Attempts to generate a title for an individual report based on its filter.
  */
 export function generateTitleForReport({
   filter,
   electionDefinition,
   scannerBatches,
+  reportType = 'Tally',
 }: {
   filter: Tabulation.Filter;
   electionDefinition: ElectionDefinition;
   scannerBatches: ScannerBatch[];
+  reportType?: 'Tally' | 'Ballot Count';
 }): Result<Optional<string>, 'title-not-supported'> {
   if (isCompoundFilter(filter)) {
     return err('title-not-supported');
@@ -61,6 +67,7 @@ export function generateTitleForReport({
   const votingMethod = filter.votingMethods?.[0];
   const batchId = filter.batchIds?.[0];
   const scannerId = filter.scannerIds?.[0];
+  const partyId = filter.partyIds?.[0];
 
   const reportRank = getFilterRank(filter);
 
@@ -72,16 +79,20 @@ export function generateTitleForReport({
   if (reportRank === 1) {
     if (precinctId) {
       return ok(
-        `${getPrecinctById(electionDefinition, precinctId).name} Tally Report`
+        `${
+          getPrecinctById(electionDefinition, precinctId).name
+        } ${reportType} Report`
       );
     }
 
     if (ballotStyleId) {
-      return ok(`Ballot Style ${ballotStyleId} Tally Report`);
+      return ok(`Ballot Style ${ballotStyleId} ${reportType} Report`);
     }
 
     if (votingMethod) {
-      return ok(`${VOTING_METHOD_LABELS[votingMethod]} Ballot Tally Report`);
+      return ok(
+        `${VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
+      );
     }
 
     if (batchId) {
@@ -90,52 +101,92 @@ export function generateTitleForReport({
         `Scanner ${batch.scannerId} Batch ${batch.batchId.slice(
           0,
           BATCH_ID_TRUNCATE_LENGTH
-        )} Tally Report`
+        )} ${reportType} Report`
       );
     }
 
     if (scannerId) {
-      return ok(`Scanner ${scannerId} Tally Report`);
+      return ok(`Scanner ${scannerId} ${reportType} Report`);
+    }
+
+    if (partyId) {
+      return ok(
+        `${
+          getPartyById(electionDefinition, partyId).fullName
+        } ${reportType} Report`
+      );
     }
   }
 
   if (reportRank === 2) {
-    if (precinctId && votingMethod) {
-      return ok(
-        `${getPrecinctById(electionDefinition, precinctId).name} ${
-          VOTING_METHOD_LABELS[votingMethod]
-        } Ballot Tally Report`
-      );
+    // Party + Other
+    if (partyId) {
+      const partyFullName = getPartyById(electionDefinition, partyId).fullName;
+      if (precinctId) {
+        return ok(
+          `${partyFullName} ${
+            getPrecinctById(electionDefinition, precinctId).name
+          } ${reportType} Report`
+        );
+      }
+
+      if (votingMethod) {
+        return ok(
+          `${partyFullName} ${VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
+        );
+      }
+
+      if (ballotStyleId) {
+        return ok(
+          `${partyFullName} Ballot Style ${ballotStyleId} ${reportType} Report`
+        );
+      }
     }
 
-    if (ballotStyleId && votingMethod) {
-      return ok(
-        `Ballot Style ${ballotStyleId} ${VOTING_METHOD_LABELS[votingMethod]} Ballot Tally Report`
-      );
+    // Ballot Style + Other
+    if (ballotStyleId) {
+      if (precinctId) {
+        return ok(
+          `Ballot Style ${ballotStyleId} ${
+            getPrecinctById(electionDefinition, precinctId).name
+          } ${reportType} Report`
+        );
+      }
+
+      if (votingMethod) {
+        return ok(
+          `Ballot Style ${ballotStyleId} ${VOTING_METHOD_LABELS[votingMethod]} Ballot ${reportType} Report`
+        );
+      }
     }
 
-    if (precinctId && ballotStyleId) {
-      return ok(
-        `Ballot Style ${ballotStyleId} ${
-          getPrecinctById(electionDefinition, precinctId).name
-        } Tally Report`
-      );
+    // Precinct + Other
+    if (precinctId) {
+      if (votingMethod) {
+        return ok(
+          `${getPrecinctById(electionDefinition, precinctId).name} ${
+            VOTING_METHOD_LABELS[votingMethod]
+          } Ballot ${reportType} Report`
+        );
+      }
+
+      if (scannerId) {
+        return ok(
+          `${
+            getPrecinctById(electionDefinition, precinctId).name
+          } Scanner ${scannerId} ${reportType} Report`
+        );
+      }
     }
 
-    if (precinctId && scannerId) {
-      return ok(
-        `${
-          getPrecinctById(electionDefinition, precinctId).name
-        } Scanner ${scannerId} Tally Report`
-      );
-    }
+    // Other Combinations
 
     if (scannerId && batchId) {
       return ok(
         `Scanner ${scannerId} Batch ${batchId.slice(
           0,
           BATCH_ID_TRUNCATE_LENGTH
-        )} Tally Report`
+        )} ${reportType} Report`
       );
     }
   }
@@ -412,6 +463,54 @@ export function generateTallyReportCsvFilename({
     isTestMode,
     extension: 'csv',
     type: 'tally-report',
+    time,
+  });
+}
+
+export function generateBallotCountReportPdfFilename({
+  election,
+  filter,
+  groupBy,
+  isTestMode,
+  time = new Date(),
+}: {
+  election: Election;
+  filter: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  isTestMode: boolean;
+  time?: Date;
+}): string {
+  return generateReportFilename({
+    election,
+    filter,
+    groupBy,
+    isTestMode,
+    extension: 'pdf',
+    type: 'ballot-count-report',
+    time,
+  });
+}
+
+export function generateBallotCountReportCsvFilename({
+  election,
+  filter,
+  groupBy,
+  isTestMode,
+  time = new Date(),
+}: {
+  election: Election;
+  filter: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  isTestMode: boolean;
+  time?: Date;
+}): string {
+  return generateReportFilename({
+    election,
+    filter,
+    groupBy,
+    isTestMode,
+    extension: 'csv',
+    type: 'ballot-count-report',
     time,
   });
 }

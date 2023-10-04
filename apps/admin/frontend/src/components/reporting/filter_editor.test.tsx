@@ -15,14 +15,21 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('general flow + precinct, voting method, ballot style selection', () => {
+test('precinct, voting method, ballot style selection (general flow)', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = jest.fn();
 
   apiMock.expectGetScannerBatches([]);
-  renderInAppContext(<FilterEditor election={election} onChange={onChange} />, {
-    apiMock,
-  });
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['ballot-style', 'precinct', 'voting-method']}
+    />,
+    {
+      apiMock,
+    }
+  );
 
   // Add filter row, precinct
   userEvent.click(screen.getButton('Add Filter'));
@@ -94,7 +101,7 @@ test('general flow + precinct, voting method, ballot style selection', () => {
   });
 });
 
-test('scanner + batch selection', async () => {
+test('scanner, batch selection', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = jest.fn();
 
@@ -118,9 +125,16 @@ test('scanner + batch selection', async () => {
       electionId: 'id',
     },
   ]);
-  renderInAppContext(<FilterEditor election={election} onChange={onChange} />, {
-    apiMock,
-  });
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['scanner', 'batch']}
+    />,
+    {
+      apiMock,
+    }
+  );
 
   // add scanner filter
   userEvent.click(screen.getButton('Add Filter'));
@@ -147,14 +161,49 @@ test('scanner + batch selection', async () => {
   });
 });
 
+test('party selection', () => {
+  const { election } = electionTwoPartyPrimaryDefinition;
+  const onChange = jest.fn();
+
+  apiMock.expectGetScannerBatches([]);
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['party']}
+    />,
+    {
+      apiMock,
+    }
+  );
+
+  // add scanner filter
+  userEvent.click(screen.getButton('Add Filter'));
+  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  userEvent.click(screen.getByText('Party'));
+  expect(onChange).toHaveBeenNthCalledWith(1, { partyIds: [] });
+  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  screen.getByText('Mammal');
+  screen.getByText('Fish');
+  userEvent.click(screen.getByText('Mammal'));
+  expect(onChange).toHaveBeenNthCalledWith(2, { partyIds: ['0'] });
+});
+
 test('can cancel adding a filter', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = jest.fn();
 
   apiMock.expectGetScannerBatches([]);
-  renderInAppContext(<FilterEditor election={election} onChange={onChange} />, {
-    apiMock,
-  });
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['precinct']}
+    />,
+    {
+      apiMock,
+    }
+  );
 
   userEvent.click(screen.getButton('Add Filter'));
   userEvent.click(screen.getByLabelText('Cancel Add Filter'));

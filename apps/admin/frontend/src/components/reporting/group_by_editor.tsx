@@ -2,19 +2,9 @@ import { Tabulation } from '@votingworks/types';
 import styled from 'styled-components';
 import { Checkbox, Font } from '@votingworks/ui';
 
-type Grouping = keyof Tabulation.GroupBy;
+export type GroupByType = keyof Tabulation.GroupBy;
 
-function getAllowedGroupings(): Grouping[] {
-  return [
-    'groupByPrecinct',
-    'groupByVotingMethod',
-    'groupByBallotStyle',
-    'groupByScanner',
-    'groupByBatch',
-  ];
-}
-
-const GROUPING_LABEL: Record<Grouping, string> = {
+const GROUPING_LABEL: Record<GroupByType, string> = {
   groupByParty: 'Party',
   groupByPrecinct: 'Precinct',
   groupByBallotStyle: 'Ballot Style',
@@ -26,11 +16,12 @@ const GROUPING_LABEL: Record<Grouping, string> = {
 export interface GroupByEditorProps {
   groupBy: Tabulation.GroupBy;
   setGroupBy: (groupBy: Tabulation.GroupBy) => void;
+  allowedGroupings: GroupByType[];
 }
 
 const Container = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, min-content);
+  grid-template-columns: repeat(6, min-content);
   gap: 0.75rem;
 `;
 
@@ -66,15 +57,15 @@ const CheckboxContainer = styled.div`
 export function GroupByEditor({
   groupBy,
   setGroupBy,
+  allowedGroupings,
 }: GroupByEditorProps): JSX.Element {
-  function toggleGrouping(grouping: Grouping): void {
+  function toggleGrouping(grouping: GroupByType): void {
     setGroupBy({
       ...groupBy,
       [grouping]: !groupBy[grouping],
     });
   }
 
-  const allowedGroupings = getAllowedGroupings();
   return (
     <Container data-testid="group-by-editor">
       {allowedGroupings.map((grouping) => {

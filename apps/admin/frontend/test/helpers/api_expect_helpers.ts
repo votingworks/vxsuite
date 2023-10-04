@@ -35,23 +35,23 @@ export function expectReportsScreenCardCountQueries({
   isPrimary: boolean;
   overallCardCount?: Tabulation.CardCounts;
 }): void {
-  apiMock.expectGetCardCounts(
+  apiMock.deprecatedExpectGetCardCounts(
     mockBallotCountsTableGroupBy({ groupByPrecinct: true }),
     []
   );
-  apiMock.expectGetCardCounts(
+  apiMock.deprecatedExpectGetCardCounts(
     mockBallotCountsTableGroupBy({ groupByVotingMethod: true }),
     []
   );
   if (isPrimary) {
-    apiMock.expectGetCardCounts(
+    apiMock.deprecatedExpectGetCardCounts(
       mockBallotCountsTableGroupBy({ groupByParty: true }),
       []
     );
   }
-  apiMock.expectGetCardCounts(
+  apiMock.deprecatedExpectGetCardCounts(
     mockBallotCountsTableGroupBy({ groupByScanner: true }),
     []
   );
-  apiMock.expectGetCardCounts({}, [overallCardCount]);
+  apiMock.deprecatedExpectGetCardCounts({}, [overallCardCount]);
 }

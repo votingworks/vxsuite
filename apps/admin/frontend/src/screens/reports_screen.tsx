@@ -207,6 +207,9 @@ export function ReportsScreen(): JSX.Element {
         <P>
           <LinkButton to={routerPaths.tallyReportBuilder}>
             Tally Report Builder
+          </LinkButton>{' '}
+          <LinkButton to={routerPaths.ballotCountReportBuilder}>
+            Ballot Count Report Builder
           </LinkButton>
         </P>
         {tallyResultsInfo}
