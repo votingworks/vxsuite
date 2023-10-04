@@ -84,6 +84,7 @@ import { ValidateBallotPage } from './pages/validate_ballot_page';
 import { BallotInvalidatedPage } from './pages/ballot_invalidated_page';
 import { BlankPageInterpretationPage } from './pages/blank_page_interpretation_page';
 import { PaperReloadedPage } from './pages/paper_reloaded_page';
+import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
 
 interface UserState {
   votes?: VotesDict;
@@ -711,14 +712,17 @@ export function AppRoot({
       return <WrongElectionScreen />;
     }
 
-    // Blank page interpretation handling must take priority over PollWorkerScreen.
-    // PollWorkerScreen will warn that votes exist in ballot state, but preserving
-    // ballot state is the desired behavior when handling blank page interpretations.
-    if (
-      (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) &&
-      stateMachineState === 'blank_page_interpretation'
-    ) {
-      return <BlankPageInterpretationPage authStatus={authStatus} />;
+    if (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) {
+      if (stateMachineState === 'blank_page_interpretation') {
+        // Blank page interpretation handling must take priority over PollWorkerScreen.
+        // PollWorkerScreen will warn that votes exist in ballot state, but preserving
+        // ballot state is the desired behavior when handling blank page interpretations.
+        return <BlankPageInterpretationPage authStatus={authStatus} />;
+      }
+
+      if (stateMachineState === 'pat_device_connected') {
+        return <PatDeviceCalibrationPage />;
+      }
     }
 
     if (
@@ -768,7 +772,6 @@ export function AppRoot({
           stateMachineState === 'waiting_for_invalidated_ballot_confirmation')
       ) {
         let ballotContextProviderChild = <Ballot />;
-
         // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
         // frontend browser routing for flow control and is completely independent of the state machine.
         // We still want to nest pages that condition on the state machine under BallotContext so we render them here.

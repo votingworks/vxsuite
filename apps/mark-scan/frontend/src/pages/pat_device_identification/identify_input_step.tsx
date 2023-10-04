@@ -1,0 +1,107 @@
+import { useCallback, useState, useEffect } from 'react';
+import { H1, Icons, P, Text } from '@votingworks/ui';
+import { StepInnerContainer } from '../diagnostic_screen_components';
+import { behaviorToKeypressMap, validKeypressValues } from './constants';
+
+type InputBehavior = 'Navigate' | 'Activate';
+
+// Each input identification step is broken into these sub-steps, named Phases for disambiguation
+type InputIdentificationPhase =
+  | 'unidentified'
+  | 'identified'
+  // The "wrong" input has been triggered. Devices vary so it's not possible to give detailed
+  // information on which input maps to which behavior. Messaging for this state
+  // should be friendly and forgiving because instructions to the voter will be limited.
+  | 'other_input';
+
+function getOtherInputName(inputName: InputBehavior) {
+  return inputName === 'Navigate' ? 'Activate' : 'Navigate';
+}
+
+export function IdentifyInputStep({
+  inputName,
+  onStepCompleted,
+}: {
+  inputName: InputBehavior;
+  onStepCompleted: () => void;
+}): JSX.Element {
+  const [inputIdentificationPhase, setInputIdentificationPhase] =
+    useState<InputIdentificationPhase>('unidentified');
+
+  const handleInput = useCallback(
+    (event: KeyboardEvent) => {
+      if (!validKeypressValues.includes(event.key)) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (event.key === behaviorToKeypressMap[inputName]) {
+        switch (inputIdentificationPhase) {
+          case 'unidentified':
+            setInputIdentificationPhase('identified');
+            break;
+          case 'identified':
+            onStepCompleted();
+            break;
+          case 'other_input':
+            setInputIdentificationPhase('identified');
+            break;
+          default:
+          // Unreachable
+        }
+      } else {
+        setInputIdentificationPhase('other_input');
+      }
+    },
+    [
+      inputName,
+      inputIdentificationPhase,
+      setInputIdentificationPhase,
+      onStepCompleted,
+    ]
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleInput);
+
+    return () => {
+      document.removeEventListener('keydown', handleInput);
+    };
+  });
+
+  let headerContent = '';
+  let bodyContent = '';
+  let icon = null;
+  switch (inputIdentificationPhase) {
+    case 'unidentified':
+      headerContent = `Identify the "${inputName}" Input`;
+      bodyContent = 'Try an input to continue.';
+      icon = <Icons.Question />;
+      break;
+    case 'identified':
+      headerContent = `"${inputName}" Input Identified`;
+      bodyContent = 'Trigger again to continue.';
+      icon = <Icons.Done />;
+      break;
+    case 'other_input':
+      headerContent = `"${getOtherInputName(inputName)}" Input Triggered`;
+      bodyContent = 'Try the other input.';
+      icon = <Icons.Danger />;
+      break;
+    default:
+    // Unreachable
+  }
+
+  return (
+    <StepInnerContainer svgSize="medium" padding="0 40px 0 0">
+      <div>
+        <Text>
+          <H1>{headerContent}</H1>
+          {bodyContent && <P>{bodyContent}</P>}
+        </Text>
+      </div>
+      {icon}
+    </StepInnerContainer>
+  );
+}

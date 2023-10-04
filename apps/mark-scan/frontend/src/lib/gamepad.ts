@@ -104,6 +104,12 @@ export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
     case ']':
       handleClick();
       break;
+    case '1':
+      handleArrowDown();
+      break;
+    case '2':
+      handleClick();
+      break;
     case 'Enter':
       // Enter already acts like a click
       // handleClick()
