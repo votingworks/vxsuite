@@ -810,6 +810,7 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
   scannerStore: ScannerStore & {
     getBallotsCounted: () => number;
     getExportDirectoryName: NonNullable<ScannerStore['getExportDirectoryName']>;
+    getPollsState: NonNullable<ScannerStore['getPollsState']>;
   },
   usbDriveStatus: UsbDriveStatus
 ): Promise<boolean> {
@@ -833,6 +834,13 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     }
     const exportDirectoryName = scannerStore.getExportDirectoryName();
     if (!exportDirectoryName) {
+      return false;
+    }
+    const pollsState = scannerStore.getPollsState();
+    if (
+      pollsState === 'polls_closed_initial' ||
+      pollsState === 'polls_closed_final'
+    ) {
       return false;
     }
     const ballotsCounted = scannerStore.getBallotsCounted();
