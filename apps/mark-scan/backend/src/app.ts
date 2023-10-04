@@ -192,7 +192,14 @@ export function buildApi(
       }
 
       assert(stateMachine);
+
       stateMachine.setAcceptingPaper();
+    },
+
+    setPatDeviceIsCalibrated(): void {
+      assert(stateMachine, 'No state machine');
+
+      stateMachine.setPatDeviceIsCalibrated();
     },
 
     printBallot(input: { pdfData: Buffer }): void {
