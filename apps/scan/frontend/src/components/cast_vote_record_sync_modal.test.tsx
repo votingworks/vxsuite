@@ -27,7 +27,6 @@ afterEach(() => {
 
 test('CVR sync modal success case', async () => {
   renderComponent();
-
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   apiMock.expectGetUsbDriveStatus('mounted', {
@@ -55,7 +54,6 @@ test('CVR sync modal success case', async () => {
 
 test('CVR sync modal error case', async () => {
   renderComponent();
-
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   apiMock.expectGetUsbDriveStatus('mounted', {

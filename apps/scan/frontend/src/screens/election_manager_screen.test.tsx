@@ -367,12 +367,14 @@ test('switching to test mode when ballots have been counted', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   // For some reason, getting by role doesn't work here
-  expect(
-    screen
-      .getByText('Test Ballot Mode')
-      .closest('button')
-      ?.getAttribute('aria-selected')
-  ).toEqual('true');
+  await waitFor(() => {
+    expect(
+      screen
+        .getByText('Test Ballot Mode')
+        .closest('button')
+        ?.getAttribute('aria-selected')
+    ).toEqual('true');
+  });
   expect(
     screen
       .getByText('Official Ballot Mode')
@@ -413,6 +415,39 @@ test('machine cannot be switched to test mode if CVR sync is required and ballot
   );
 });
 
+test('machine *can* be switched to test mode if CVR sync is required but no ballots have been counted', async () => {
+  apiMock.mockApiClient.getUsbDriveStatus.reset();
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+  apiMock.expectGetConfig({ isTestMode: false });
+  renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+
+  const testBallotModeButton = await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
+
+  apiMock.expectSetTestMode(true);
+  apiMock.expectGetConfig({ isTestMode: true });
+  userEvent.click(testBallotModeButton);
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: true,
+  });
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: false,
+  });
+});
+
 test('machine cannot be unconfigured if CVR sync is required and not in test mode', async () => {
   apiMock.mockApiClient.getUsbDriveStatus.reset();
   apiMock.expectGetUsbDriveStatus('mounted', {
@@ -437,5 +472,27 @@ test('machine cannot be unconfigured if CVR sync is required and not in test mod
   userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
+
+test('machine *can* be unconfigured if CVR sync is required but in test mode', async () => {
+  apiMock.mockApiClient.getUsbDriveStatus.reset();
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+  apiMock.expectGetConfig({ isTestMode: true });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Election Data' }));
+
+  userEvent.click(
+    await screen.findByRole('button', {
+      name: 'Delete All Election Data from VxScan',
+    })
+  );
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Do you want to remove all election information and data from this machine?'
   );
 });
