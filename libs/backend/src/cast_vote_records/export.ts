@@ -317,12 +317,12 @@ function buildCastVoteRecord(
     batchId,
     castVoteRecordId,
     definiteMarkThreshold: markThresholds.definite,
-    disableOriginalSnapshots: isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
-    ),
     election,
     electionId,
     electionOptionPositionMap,
+    excludeOriginalSnapshots: isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS
+    ),
     imageFileUris,
     indexInBatch,
     interpretations: [frontInterpretation, backInterpretation],
