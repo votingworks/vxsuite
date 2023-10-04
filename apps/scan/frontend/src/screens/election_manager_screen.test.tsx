@@ -34,8 +34,10 @@ beforeEach(() => {
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
+  apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetMachineConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetUsbDriveStatus('mounted');
 });
 
 afterEach(() => {
@@ -62,7 +64,6 @@ function renderScreen(
 
 test('renders date and time settings modal', async () => {
   jest.setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -100,7 +101,6 @@ test('renders date and time settings modal', async () => {
 });
 
 test('option to set precinct if more than one', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   const precinct = electionGeneralDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
@@ -114,7 +114,6 @@ test('option to set precinct if more than one', async () => {
 });
 
 test('no option to change precinct if there is only one precinct', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
   apiMock.expectGetConfig({
@@ -127,30 +126,17 @@ test('no option to change precinct if there is only one precinct', async () => {
   expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
 });
 
-test('export from admin screen', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
-  apiMock.expectGetConfig();
-  renderScreen();
-
-  userEvent.click(await screen.findByRole('tab', { name: /data/i }));
-
-  userEvent.click(await screen.findByText('Save Backup'));
-  await screen.findByRole('heading', { name: 'No USB Drive Detected' });
-  // Tested in export_backup_modal.test.tsx
-});
-
 test('unconfigure does not eject a usb drive that is not mounted', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen({
-    scannerStatus: { ...statusNoPaper, canUnconfigure: true },
+    scannerStatus: statusNoPaper,
     usbDrive: mockUsbDriveStatus('no_drive'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   userEvent.click(screen.getByRole('tab', { name: /data/i }));
 
-  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
+  apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   userEvent.click(screen.getByText('Yes, Delete All'));
@@ -162,17 +148,16 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
 });
 
 test('unconfigure ejects a usb drive when it is mounted', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen({
-    scannerStatus: { ...statusNoPaper, canUnconfigure: true },
+    scannerStatus: statusNoPaper,
     usbDrive: mockUsbDriveStatus('mounted'),
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   userEvent.click(screen.getByRole('tab', { name: /data/i }));
 
-  apiMock.mockApiClient.unconfigureElection.expectCallWith({}).resolves();
+  apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
@@ -182,31 +167,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   });
 });
 
-test('unconfigure button is disabled when the machine cannot be unconfigured', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
-  apiMock.expectGetConfig();
-  renderScreen();
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  userEvent.click(screen.getByRole('tab', { name: /data/i }));
-
-  userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
-  expect(screen.queryByText('Unconfigure Machine?')).toBeNull();
-});
-
-test('cannot toggle to Test Ballot Mode when the machine cannot be unconfigured', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
-  apiMock.expectGetConfig({ isTestMode: false });
-  renderScreen();
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  userEvent.click(screen.getByText('Test Ballot Mode'));
-  screen.getByText('Save Backup to switch to Test Ballot Mode');
-  userEvent.click(screen.getByText('Cancel'));
-});
-
 test('when sounds are not muted, shows a button to mute sounds', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({ isSoundMuted: false });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -223,7 +184,6 @@ test('when sounds are not muted, shows a button to mute sounds', async () => {
 });
 
 test('when sounds are muted, shows a button to unmute sounds', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({ isSoundMuted: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -240,6 +200,7 @@ test('when sounds are muted, shows a button to unmute sounds', async () => {
 });
 
 test('does not show ultrasonic button if not supported', async () => {
+  apiMock.mockApiClient.supportsUltrasonic.reset();
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   renderScreen();
@@ -251,7 +212,6 @@ test('does not show ultrasonic button if not supported', async () => {
 });
 
 test('shows ultrasonic toggle when supported', async () => {
-  apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -262,7 +222,6 @@ test('shows ultrasonic toggle when supported', async () => {
 });
 
 test('prompts to enable ultrasonic when disabled ', async () => {
-  apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetConfig({ isUltrasonicDisabled: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -273,7 +232,6 @@ test('prompts to enable ultrasonic when disabled ', async () => {
 });
 
 test('disables ultrasonic properly', async () => {
-  apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -287,4 +245,254 @@ test('disables ultrasonic properly', async () => {
   userEvent.click(await screen.findButton('Disable Double Sheet Detection'));
   await screen.findButton('Enable Double Sheet Detection');
   await screen.findByText('Enable Double Sheet Detection');
+});
+
+test('switching mode when no ballots have been counted', async () => {
+  apiMock.expectGetConfig({ isTestMode: true });
+  renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: true,
+  });
+  const officialBallotModeButton = screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: false,
+  });
+
+  // Switch from test mode to official mode
+  apiMock.expectSetTestMode(false);
+  apiMock.expectGetConfig({ isTestMode: false });
+  userEvent.click(officialBallotModeButton);
+  const testBallotModeButton = await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
+
+  // Switch from official mode to test mode
+  apiMock.expectSetTestMode(true);
+  apiMock.expectGetConfig({ isTestMode: true });
+  userEvent.click(testBallotModeButton);
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: true,
+  });
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: false,
+  });
+});
+
+test('switching to official mode when ballots have been counted', async () => {
+  apiMock.expectGetConfig({ isTestMode: true });
+  renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 1 } });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: true,
+  });
+  const officialBallotModeButton = screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: false,
+  });
+
+  apiMock.expectSetTestMode(false);
+  apiMock.expectGetConfig({ isTestMode: false });
+  userEvent.click(officialBallotModeButton);
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
+});
+
+test('switching to test mode when ballots have been counted', async () => {
+  apiMock.expectGetConfig({ isTestMode: false });
+  renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 1 } });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  let officialBallotModeButton = screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
+
+  // Cancel the first time
+  userEvent.click(officialBallotModeButton);
+  let modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Do you want to switch to test mode and clear the ballots scanned at this scanner?'
+  );
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  officialBallotModeButton = screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
+
+  // Proceed the second time
+  userEvent.click(officialBallotModeButton);
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Do you want to switch to test mode and clear the ballots scanned at this scanner?'
+  );
+  apiMock.expectSetTestMode(true);
+  apiMock.expectGetConfig({ isTestMode: true });
+  userEvent.click(within(modal).getByRole('button', { name: 'Yes, Switch' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  // For some reason, getting by role doesn't work here
+  await waitFor(() => {
+    expect(
+      screen
+        .getByText('Test Ballot Mode')
+        .closest('button')
+        ?.getAttribute('aria-selected')
+    ).toEqual('true');
+  });
+  expect(
+    screen
+      .getByText('Official Ballot Mode')
+      .closest('button')
+      ?.getAttribute('aria-selected')
+  ).toEqual('false');
+});
+
+test('machine cannot be switched to test mode if CVR sync is required and ballots have been counted', async () => {
+  apiMock.mockApiClient.getUsbDriveStatus.reset();
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+  apiMock.expectGetConfig({ isTestMode: false });
+  renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 1 } });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  const officialBallotModeButton = screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
+
+  userEvent.click(officialBallotModeButton);
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can switch to test mode. ' +
+      'Remove your election manager card to sync.'
+  );
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
+
+test('machine *can* be switched to test mode if CVR sync is required but no ballots have been counted', async () => {
+  apiMock.mockApiClient.getUsbDriveStatus.reset();
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+  apiMock.expectGetConfig({ isTestMode: false });
+  renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+
+  const testBallotModeButton = await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
+
+  apiMock.expectSetTestMode(true);
+  apiMock.expectGetConfig({ isTestMode: true });
+  userEvent.click(testBallotModeButton);
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: true,
+  });
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: false,
+  });
+});
+
+test('machine cannot be unconfigured if CVR sync is required and not in test mode', async () => {
+  apiMock.mockApiClient.getUsbDriveStatus.reset();
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+  apiMock.expectGetConfig({ isTestMode: false });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Election Data' }));
+
+  userEvent.click(
+    await screen.findByRole('button', {
+      name: 'Delete All Election Data from VxScan',
+    })
+  );
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can delete election data. ' +
+      'Remove your election manager card to sync.'
+  );
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
+
+test('machine *can* be unconfigured if CVR sync is required but in test mode', async () => {
+  apiMock.mockApiClient.getUsbDriveStatus.reset();
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+  apiMock.expectGetConfig({ isTestMode: true });
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: 'Election Data' }));
+
+  userEvent.click(
+    await screen.findByRole('button', {
+      name: 'Delete All Election Data from VxScan',
+    })
+  );
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Do you want to remove all election information and data from this machine?'
+  );
 });

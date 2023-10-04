@@ -34,7 +34,7 @@ import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { ResultSheet } from '@votingworks/backend';
+import { AcceptedSheet } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
   getCastVoteRecordRootHash,
@@ -856,9 +856,9 @@ export class Store {
   }
 
   /**
-   * Yields all sheets in the database that would be included in a CVR export.
+   * Yields all scanned sheets that were accepted and should be tabulated
    */
-  *forEachResultSheet(): Generator<ResultSheet> {
+  *forEachAcceptedSheet(): Generator<AcceptedSheet> {
     const sql = `
       select
         sheets.id as id,
@@ -887,6 +887,7 @@ export class Store {
       indexInBatch: number;
     }>) {
       yield {
+        type: 'accepted',
         id: row.id,
         batchId: row.batchId,
         indexInBatch: row.indexInBatch,

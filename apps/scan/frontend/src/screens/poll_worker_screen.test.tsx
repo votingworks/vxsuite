@@ -12,6 +12,7 @@ import { mocked } from 'jest-mock';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { waitFor, within } from '@testing-library/react';
 import {
   screen,
   RenderResult,
@@ -46,6 +47,7 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetUsbDriveStatus('mounted');
 });
 
 afterEach(() => {
@@ -308,7 +310,7 @@ test('no transitions from polls closed final', async () => {
 });
 
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
-test('there is a warning if we attempt to polls with ballots scanned', async () => {
+test('there is a warning if we attempt to open polls with ballots scanned', async () => {
   const logger = fakeLogger();
   renderScreen({
     scannedBallotCount: 1,
@@ -325,5 +327,67 @@ test('there is a warning if we attempt to polls with ballots scanned', async () 
       disposition: 'failure',
       scannedBallotCount: 1,
     })
+  );
+});
+
+test('polls cannot be closed if CVR sync is required', async () => {
+  apiMock.mockApiClient.getUsbDriveStatus.reset();
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+  renderScreen({
+    pollsState: 'polls_open',
+    scannedBallotCount: 1,
+  });
+
+  // Try closing polls
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Yes, Close the Polls' })
+  );
+  let modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can close polls. ' +
+      'Remove your poll worker card to sync.'
+  );
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+
+  // Try closing polls from the secondary menu
+  userEvent.click(screen.getByRole('button', { name: 'No' }));
+  userEvent.click(await screen.findByRole('button', { name: 'Close Polls' }));
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can close polls. ' +
+      'Remove your poll worker card to sync.'
+  );
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
+
+test('polls cannot be closed if CVR sync is required, even from polls paused state', async () => {
+  apiMock.mockApiClient.getUsbDriveStatus.reset();
+  apiMock.expectGetUsbDriveStatus('mounted', {
+    doesUsbDriveRequireCastVoteRecordSync: true,
+  });
+  renderScreen({
+    pollsState: 'polls_paused',
+    scannedBallotCount: 1,
+  });
+
+  // Try closing polls from the secondary menu
+  userEvent.click(await screen.findByText('No'));
+  userEvent.click(await screen.findByRole('button', { name: 'Close Polls' }));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can close polls. ' +
+      'Remove your poll worker card to sync.'
+  );
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });

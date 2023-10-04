@@ -424,14 +424,13 @@ type BuildCastVoteRecordParams = {
   | {
       ballotMarkingMode: 'machine';
       interpretation: InterpretedBmdPage;
+      imageFileUris?: SheetOf<string>;
     }
   | {
       ballotMarkingMode: 'hand';
+      interpretations: SheetOf<InterpretedHmpbPage>;
+      imageFileUris?: SheetOf<string>;
       definiteMarkThreshold: number;
-      pages: SheetOf<{
-        interpretation: InterpretedHmpbPage;
-        imageFileUri?: string;
-      }>;
       disableOriginalSnapshots?: boolean;
     }
 );
@@ -452,7 +451,7 @@ export function buildCastVoteRecord({
   const ballotMetadata =
     rest.ballotMarkingMode === 'machine'
       ? rest.interpretation.metadata
-      : rest.pages[0].interpretation.metadata;
+      : rest.interpretations[0].metadata;
 
   const ballotParty = getBallotStyle({
     ballotStyleId: ballotMetadata.ballotStyleId,
@@ -475,7 +474,7 @@ export function buildCastVoteRecord({
   // CVR for machine-marked ballot, only has "original" snapshot because the
   // restrictions of the ballot marking device already applied basic contest rules.
   if (rest.ballotMarkingMode === 'machine') {
-    const { interpretation } = rest;
+    const { interpretation, imageFileUris } = rest;
 
     const ballotStyle = getBallotStyle({
       ballotStyleId: ballotMetadata.ballotStyleId,
@@ -504,24 +503,34 @@ export function buildCastVoteRecord({
           vxWriteIns: writeInCount,
         },
       ],
+      BallotImage: imageFileUris
+        ? imageFileUris.map((imageFileUri) => ({
+            '@type': 'CVR.ImageData',
+            Location: imageFileUri,
+          }))
+        : undefined,
     };
   }
 
-  const { pages, definiteMarkThreshold, disableOriginalSnapshots } = rest;
+  const {
+    interpretations,
+    imageFileUris,
+    definiteMarkThreshold,
+    disableOriginalSnapshots,
+  } = rest;
 
   // The larger page number should be an even number which, divided by two,
   // yields the sheet number
   const sheetNumber = (
     Math.max(
-      pages[0].interpretation.metadata.pageNumber,
-      pages[1].interpretation.metadata.pageNumber
+      interpretations[0].metadata.pageNumber,
+      interpretations[1].metadata.pageNumber
     ) / 2
   ).toString();
 
-  const hasImageFileUris = pages[0].imageFileUri || pages[1].imageFileUri;
   const writeInCount =
-    getWriteInCount(pages[0].interpretation.votes) +
-    getWriteInCount(pages[1].interpretation.votes);
+    getWriteInCount(interpretations[0].votes) +
+    getWriteInCount(interpretations[1].votes);
 
   const modifiedSnapshot: CVR.CVRSnapshot = {
     '@type': 'CVR.CVRSnapshot',
@@ -530,25 +539,25 @@ export function buildCastVoteRecord({
     CVRContest: [
       ...buildCVRContestsFromVotes({
         contests: getContestsForBallotPage({
-          ballotPageMetadata: pages[0].interpretation.metadata,
+          ballotPageMetadata: interpretations[0].metadata,
           election,
         }),
-        votes: pages[0].interpretation.votes,
+        votes: interpretations[0].votes,
         options: {
           ballotMarkingMode: 'hand',
-          imageFileUri: pages[0].imageFileUri,
+          imageFileUri: imageFileUris?.[0],
         },
         electionOptionPositionMap,
       }),
       ...buildCVRContestsFromVotes({
         contests: getContestsForBallotPage({
-          ballotPageMetadata: pages[1].interpretation.metadata,
+          ballotPageMetadata: interpretations[1].metadata,
           election,
         }),
-        votes: pages[1].interpretation.votes,
+        votes: interpretations[1].votes,
         options: {
           ballotMarkingMode: 'hand',
-          imageFileUri: pages[1].imageFileUri,
+          imageFileUri: imageFileUris?.[1],
         },
         electionOptionPositionMap,
       }),
@@ -569,26 +578,19 @@ export function buildCastVoteRecord({
           buildOriginalSnapshot({
             castVoteRecordId,
             marks: [
-              ...pages[0].interpretation.markInfo.marks,
-              ...pages[1].interpretation.markInfo.marks,
+              ...interpretations[0].markInfo.marks,
+              ...interpretations[1].markInfo.marks,
             ],
             definiteMarkThreshold,
             election,
             electionOptionPositionMap,
           }),
         ],
-    BallotImage: hasImageFileUris
-      ? pages.map((page) =>
-          page.imageFileUri
-            ? {
-                '@type': 'CVR.ImageData',
-                Location: page.imageFileUri,
-              }
-            : {
-                // empty object to represent a page with no included image
-                '@type': 'CVR.ImageData',
-              }
-        )
+    BallotImage: imageFileUris
+      ? imageFileUris.map((imageFileUri) => ({
+          '@type': 'CVR.ImageData',
+          Location: imageFileUri,
+        }))
       : undefined,
   };
 }

@@ -224,8 +224,6 @@ export async function scanBallot(
   await waitForStatus(apiClient, {
     state: 'ready_to_scan',
     ballotsCounted: initialBallotsCounted,
-    canUnconfigure:
-      initialBallotsCounted === 0 || (await apiClient.getConfig()).isTestMode,
   });
 
   mockScanner.scan.mockResolvedValueOnce(ok(await ballotImages.completeBmd()));
@@ -234,7 +232,6 @@ export async function scanBallot(
   await waitForStatus(apiClient, {
     state: 'ready_to_accept',
     ballotsCounted: initialBallotsCounted,
-    canUnconfigure: true,
     interpretation: { type: 'ValidSheet' },
   });
 
@@ -243,7 +240,6 @@ export async function scanBallot(
   await waitForStatus(apiClient, {
     state: 'no_paper',
     ballotsCounted: initialBallotsCounted + 1,
-    canUnconfigure: true,
   });
 
   await waitForContinuousExportToUsbDrive(mockUsbDrive);

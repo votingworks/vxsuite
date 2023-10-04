@@ -52,12 +52,14 @@ import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
   getScannerResultsByParty,
+  getUsbDriveStatus,
   setPollsState,
 } from '../api';
 import { MachineConfig } from '../config/types';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import { getPageCount } from '../utils/get_page_count';
+import { CastVoteRecordSyncReminderModal } from '../components/cast_vote_record_sync_modal';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -122,6 +124,7 @@ export function PollWorkerScreen({
 }: PollWorkerScreenProps): JSX.Element {
   const { election } = electionDefinition;
   const scannerResultsByPartyQuery = getScannerResultsByParty.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const setPollsStateMutation = setPollsState.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
@@ -129,6 +132,10 @@ export function PollWorkerScreen({
   const [
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
+  ] = useState(false);
+  const [
+    isCastVoteRecordSyncReminderModalOpen,
+    setIsCastVoteRecordSyncReminderModalOpen,
   ] = useState(false);
   const needsToAttachPrinterToTransitionPolls = !printerInfo && !!window.kiosk;
 
@@ -287,6 +294,10 @@ export function PollWorkerScreen({
   }
 
   function closePolls() {
+    if (usbDriveStatusQuery.data?.doesUsbDriveRequireCastVoteRecordSync) {
+      setIsCastVoteRecordSyncReminderModalOpen(true);
+      return;
+    }
     return transitionPolls('close_polls');
   }
 
@@ -375,6 +386,12 @@ export function PollWorkerScreen({
             <P>Attach printer to continue.</P>
           )}
         </CenteredLargeProse>
+        {isCastVoteRecordSyncReminderModalOpen && (
+          <CastVoteRecordSyncReminderModal
+            blockedAction="close_polls"
+            closeModal={() => setIsCastVoteRecordSyncReminderModalOpen(false)}
+          />
+        )}
       </ScreenMainCenterChild>
     );
   }
@@ -544,6 +561,12 @@ export function PollWorkerScreen({
         <H1>Poll Worker Actions</H1>
         {content}
       </Prose>
+      {isCastVoteRecordSyncReminderModalOpen && (
+        <CastVoteRecordSyncReminderModal
+          blockedAction="close_polls"
+          closeModal={() => setIsCastVoteRecordSyncReminderModalOpen(false)}
+        />
+      )}
     </ScreenMainCenterChild>
   );
 }

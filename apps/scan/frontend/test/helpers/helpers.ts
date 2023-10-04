@@ -6,7 +6,6 @@ export function scannerStatus(
   return {
     state: 'no_paper',
     ballotsCounted: 0,
-    canUnconfigure: false,
     ...props,
   };
 }

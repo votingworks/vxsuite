@@ -73,7 +73,7 @@ export async function getScannerResults({
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  const cvrs = iter(store.forEachResultSheet()).map((resultSheet) => {
+  const cvrs = iter(store.forEachAcceptedSheet()).map((resultSheet) => {
     const [frontInterpretation, backInterpretation] =
       resultSheet.interpretation;
 

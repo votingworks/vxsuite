@@ -430,36 +430,49 @@ async function recordAcceptedSheet(
   usbDrive: UsbDrive,
   { interpretation }: Context
 ) {
-  assert(store);
   assert(interpretation);
   const { sheetId } = interpretation;
-  storeInterpretedSheet(store, sheetId, interpretation);
-  // If we're storing an accepted sheet that needed review that means it was
-  // "adjudicated" (i.e. the voter said to count it without changing anything)
-  if (interpretation.type === 'NeedsReviewSheet') {
-    store.adjudicateSheet(sheetId);
-  }
+  store.withTransaction(() => {
+    storeInterpretedSheet(store, sheetId, interpretation);
+    // If we're storing an accepted sheet that needed review, that means that it was "adjudicated"
+    // (i.e. the voter said to count it without changing anything).
+    if (interpretation.type === 'NeedsReviewSheet') {
+      store.adjudicateSheet(sheetId);
+    }
+  });
   (
     await exportCastVoteRecordsToUsbDrive(
       store,
       usbDrive,
-      [assertDefined(store.getResultSheet(sheetId))],
+      [assertDefined(store.getSheet(sheetId))],
       { scannerType: 'precinct' }
     )
   ).unsafeUnwrap();
   debug('Stored accepted sheet: %s', sheetId);
 }
 
-function recordRejectedSheet(store: Store, { interpretation }: Context) {
-  assert(store);
+async function recordRejectedSheet(
+  store: Store,
+  usbDrive: UsbDrive,
+  { interpretation }: Context
+) {
   if (!interpretation) return;
   const { sheetId } = interpretation;
-  storeInterpretedSheet(store, sheetId, interpretation);
-  // We want to keep rejected ballots in the store so we know what happened, but
-  // not count them. The way to do that is to "delete" them, which just marks
-  // them as deleted and currently is the way to indicate an interpreted ballot
-  // was not counted.
-  store.deleteSheet(sheetId);
+  store.withTransaction(() => {
+    storeInterpretedSheet(store, sheetId, interpretation);
+    // We want to keep rejected ballots in the store, but not count them. We accomplish this by
+    // "deleting" them, which just marks them as deleted and is how we indicate that an interpreted
+    // ballot wasn't counted.
+    store.deleteSheet(sheetId);
+  });
+  (
+    await exportCastVoteRecordsToUsbDrive(
+      store,
+      usbDrive,
+      [assertDefined(store.getSheet(sheetId))],
+      { scannerType: 'precinct' }
+    )
+  ).unsafeUnwrap();
   debug('Stored rejected sheet: %s', sheetId);
 }
 
@@ -620,7 +633,8 @@ function buildMachine({
       initial: 'starting',
       states: {
         starting: {
-          entry: (context) => recordRejectedSheet(workspace.store, context),
+          entry: (context) =>
+            recordRejectedSheet(workspace.store, usbDrive, context),
           invoke: {
             src: reject,
             // Calling `reject` tells the Custom scanner to eject the ballot

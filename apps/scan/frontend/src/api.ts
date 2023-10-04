@@ -265,13 +265,6 @@ export const recordBallotBagReplaced = {
   },
 } as const;
 
-export const backupToUsbDrive = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.backupToUsbDrive);
-  },
-} as const;
-
 export const exportCastVoteRecordsToUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();

@@ -9,8 +9,6 @@ create table election (
   ballot_count_when_ballot_bag_last_replaced integer not null default 0,
   is_sound_muted boolean not null default false,
   is_ultrasonic_disabled boolean not null default false,
-  cvrs_backed_up_at datetime,
-  scanner_backed_up_at datetime,
   created_at timestamp not null default current_timestamp
 );
 

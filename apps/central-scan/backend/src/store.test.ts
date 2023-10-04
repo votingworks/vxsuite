@@ -18,7 +18,7 @@ import {
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { sleep, typedAs } from '@votingworks/basics';
-import { ResultSheet } from '@votingworks/backend';
+import { AcceptedSheet } from '@votingworks/backend';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
 import { zeroRect } from '../test/fixtures/zero_rect';
@@ -534,12 +534,12 @@ const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
   },
 ];
 
-test('iterating over all result sheets', () => {
+test('iterating over all accepted sheets', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
   // starts empty
-  expect(Array.from(store.forEachResultSheet())).toEqual([]);
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
 
   // add a batch with a sheet
   const batchId = store.addBatch();
@@ -547,9 +547,10 @@ test('iterating over all result sheets', () => {
   store.finishBatch({ batchId });
 
   // has one sheet
-  expect(Array.from(store.forEachResultSheet())).toEqual(
-    typedAs<ResultSheet[]>([
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual(
+    typedAs<AcceptedSheet[]>([
       {
+        type: 'accepted',
         id: expect.any(String),
         batchId,
         indexInBatch: 1,
@@ -563,7 +564,7 @@ test('iterating over all result sheets', () => {
 
   // delete the batch and the results are empty again
   store.deleteBatch(batchId);
-  expect(Array.from(store.forEachResultSheet())).toEqual([]);
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
 
   // add a sheet requiring adjudication and check that it is not included
   const batchId2 = store.addBatch();
@@ -590,10 +591,10 @@ test('iterating over all result sheets', () => {
     },
     sheetWithFiles[1],
   ]);
-  expect(Array.from(store.forEachResultSheet())).toEqual([]);
+  expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
 });
 
-test('iterating over each result sheet includes correct batch sequence id', () => {
+test('iterating over each accepted sheet includes correct batch sequence id', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
 
@@ -627,9 +628,9 @@ test('iterating over each result sheet includes correct batch sequence id', () =
   const batch3Sheet2Id = store.addSheet(uuid(), batch3Id, generateSheet());
   store.finishBatch({ batchId: batch3Id });
 
-  const resultSheets = Array.from(store.forEachResultSheet());
-  expect(resultSheets).toHaveLength(6);
-  const expectedResultSheets: Array<
+  const acceptedSheets = Array.from(store.forEachAcceptedSheet());
+  expect(acceptedSheets).toHaveLength(6);
+  const expectedAcceptedSheets: Array<
     [id: string, batchId: string, indexInBatch: number]
   > = [
     [batch1Sheet1Id, batch1Id, 1],
@@ -639,13 +640,13 @@ test('iterating over each result sheet includes correct batch sequence id', () =
     [batch3Sheet1Id, batch3Id, 1],
     [batch3Sheet2Id, batch3Id, 2],
   ];
-  for (const expectedResultSheet of expectedResultSheets) {
-    expect(resultSheets).toMatchObject(
+  for (const expectedAcceptedSheet of expectedAcceptedSheets) {
+    expect(acceptedSheets).toMatchObject(
       expect.arrayContaining([
         expect.objectContaining({
-          id: expectedResultSheet[0],
-          batchId: expectedResultSheet[1],
-          indexInBatch: expectedResultSheet[2],
+          id: expectedAcceptedSheet[0],
+          batchId: expectedAcceptedSheet[1],
+          indexInBatch: expectedAcceptedSheet[2],
         }),
       ])
     );

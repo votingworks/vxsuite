@@ -64,10 +64,10 @@ test('when backend does not respond shows error screen', async () => {
 test('backend fails to unconfigure', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus({ ...statusNoPaper, canUnconfigure: true });
+  apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.mockApiClient.unconfigureElection
-    .expectCallWith({})
+    .expectCallWith()
     .throws(new ServerError('failed'));
 
   renderApp();

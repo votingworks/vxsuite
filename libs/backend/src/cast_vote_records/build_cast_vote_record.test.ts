@@ -523,6 +523,41 @@ test('buildCastVoteRecord - BMD ballot', () => {
   );
 });
 
+test('buildCastVoteRecord - BMD ballot images', () => {
+  const buildCastVoteRecordInput = {
+    ballotMarkingMode: 'machine',
+    batchId,
+    castVoteRecordId,
+    election,
+    electionId,
+    interpretation: interpretedBmdPage,
+    scannerId,
+  } as const;
+
+  const castVoteRecordWithoutImageReferences = buildCastVoteRecord(
+    buildCastVoteRecordInput
+  );
+  expect(castVoteRecordWithoutImageReferences.BallotImage).toEqual(undefined);
+
+  const castVoteRecordWithImageReferences = buildCastVoteRecord({
+    ...buildCastVoteRecordInput,
+    imageFileUris: [
+      'file:ballot-images/front.jpg',
+      'file:ballot-images/back.jpg',
+    ],
+  });
+  expect(castVoteRecordWithImageReferences.BallotImage).toEqual([
+    {
+      '@type': 'CVR.ImageData',
+      Location: 'file:ballot-images/front.jpg',
+    },
+    {
+      '@type': 'CVR.ImageData',
+      Location: 'file:ballot-images/back.jpg',
+    },
+  ]);
+});
+
 describe('buildCastVoteRecord - HMPB Ballot', () => {
   const castVoteRecord = buildCastVoteRecord({
     election,
@@ -532,14 +567,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     batchId,
     indexInBatch,
     ballotMarkingMode: 'hand',
-    pages: [
-      {
-        interpretation: interpretedHmpbPage1,
-      },
-      {
-        interpretation: interpretedHmpbPage2,
-      },
-    ],
+    interpretations: [interpretedHmpbPage1, interpretedHmpbPage2],
     definiteMarkThreshold,
   });
 
@@ -644,14 +672,10 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
     scannerId,
     batchId,
     ballotMarkingMode: 'hand',
-    pages: [
-      {
-        interpretation: interpretedHmpbPage1WithWriteIn,
-        imageFileUri: 'file:ballot-images/front.jpg',
-      },
-      {
-        interpretation: interpretedHmpbPage2,
-      },
+    interpretations: [interpretedHmpbPage1WithWriteIn, interpretedHmpbPage2],
+    imageFileUris: [
+      'file:ballot-images/front.jpg',
+      'file:ballot-images/back.jpg',
     ],
     definiteMarkThreshold,
   });
@@ -665,6 +689,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
       },
       {
         "@type": "CVR.ImageData",
+        "Location": "file:ballot-images/back.jpg",
       },
     ]
   `);

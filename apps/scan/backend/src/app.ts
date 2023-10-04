@@ -16,7 +16,6 @@ import {
 import express, { Application } from 'express';
 import {
   createUiStringsApi,
-  ExportDataError,
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
@@ -30,7 +29,6 @@ import {
   LiveCheck,
 } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { backupToUsbDrive } from './backup';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -184,11 +182,7 @@ export function buildApi(
       };
     },
 
-    unconfigureElection(input: { ignoreBackupRequirement?: boolean }): void {
-      assert(
-        input.ignoreBackupRequirement || store.getCanUnconfigure(),
-        'Attempt to unconfigure without backup'
-      );
+    unconfigureElection(): void {
       workspace.reset();
     },
 
@@ -274,10 +268,6 @@ export function buildApi(
       store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
     },
 
-    async backupToUsbDrive(): Promise<Result<void, ExportDataError>> {
-      return await backupToUsbDrive(store, usbDrive);
-    },
-
     async exportCastVoteRecordsToUsbDrive(input: {
       mode: 'full_export' | 'polls_closing';
     }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
@@ -286,7 +276,7 @@ export function buildApi(
           return exportCastVoteRecordsToUsbDrive(
             store,
             usbDrive,
-            store.forEachResultSheet(),
+            store.forEachSheet(),
             { scannerType: 'precinct', isFullExport: true }
           );
         }
@@ -314,11 +304,9 @@ export function buildApi(
     getScannerStatus(): PrecinctScannerStatus {
       const machineStatus = machine.status();
       const ballotsCounted = store.getBallotsCounted();
-      const canUnconfigure = store.getCanUnconfigure();
       return {
         ...machineStatus,
         ballotsCounted,
-        canUnconfigure,
       };
     },
 
