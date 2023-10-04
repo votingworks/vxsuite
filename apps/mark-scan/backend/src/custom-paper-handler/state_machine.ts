@@ -4,6 +4,7 @@ import {
   PaperHandlerDriver,
   PaperHandlerStatus,
   PaperHandlerDriverInterface,
+  MockPaperHandlerDriver,
 } from '@votingworks/custom-paper-handler';
 import {
   assign as xassign,
@@ -35,8 +36,8 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   AUTH_STATUS_POLLING_TIMEOUT_MS,
   DELAY_BEFORE_DECLARING_REAR_JAM_MS,
-  PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
-  PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
+  DEVICE_STATUS_POLLING_INTERVAL_MS,
+  DEVICE_STATUS_POLLING_TIMEOUT_MS,
   RESET_AFTER_JAM_DELAY_MS,
 } from './constants';
 import {
@@ -178,7 +179,7 @@ function buildPaperStatusObservable() {
             }
           }),
           timeout({
-            each: PAPER_HANDLER_STATUS_POLLING_TIMEOUT_MS,
+            each: DEVICE_STATUS_POLLING_TIMEOUT_MS,
             with: () => throwError(() => new Error('paper_status_timed_out')),
           })
         )
@@ -620,14 +621,27 @@ function setUpLogging(
     });
 }
 
+function resolveDriver(
+  driver?: PaperHandlerDriverInterface
+): PaperHandlerDriverInterface {
+  if (driver) {
+    debug('Using real driver');
+    return driver;
+  }
+
+  debug('No driver found. Starting state machine with mock driver');
+  return new MockPaperHandlerDriver();
+}
+
 export async function getPaperHandlerStateMachine(
-  driver: PaperHandlerDriverInterface,
   workspace: Workspace,
   auth: InsertedSmartCardAuthApi,
   logger: Logger,
-  devicePollingIntervalMs: number = PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
+  realDriver?: PaperHandlerDriverInterface,
+  devicePollingIntervalMs: number = DEVICE_STATUS_POLLING_INTERVAL_MS,
   authPollingIntervalMs: number = AUTH_STATUS_POLLING_INTERVAL_MS
 ): Promise<Optional<PaperHandlerStateMachine>> {
+  const driver = resolveDriver(realDriver);
   const initialContext: Context = {
     auth,
     workspace,

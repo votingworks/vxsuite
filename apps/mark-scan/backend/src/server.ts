@@ -14,7 +14,7 @@ import {
 import { getDefaultAuth } from './util/auth';
 import {
   DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
-  DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
+  DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
 } from './custom-paper-handler/constants';
 
 export interface StartOptions {
@@ -39,16 +39,14 @@ export async function start({
   const resolvedAuth = auth ?? getDefaultAuth(logger);
 
   const paperHandlerDriver = await getPaperHandlerDriver();
-  const stateMachine = paperHandlerDriver
-    ? await getPaperHandlerStateMachine(
-        paperHandlerDriver,
-        workspace,
-        resolvedAuth,
-        logger,
-        DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
-        DEV_AUTH_STATUS_POLLING_INTERVAL_MS
-      )
-    : undefined;
+  const stateMachine = await getPaperHandlerStateMachine(
+    workspace,
+    resolvedAuth,
+    logger,
+    paperHandlerDriver,
+    DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+    DEV_AUTH_STATUS_POLLING_INTERVAL_MS
+  );
 
   const usbDrive = isIntegrationTest()
     ? new MockFileUsbDrive()

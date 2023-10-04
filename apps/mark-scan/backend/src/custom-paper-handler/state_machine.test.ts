@@ -45,10 +45,11 @@ beforeEach(async () => {
     .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
 
   machine = (await getPaperHandlerStateMachine(
-    driver,
     workspace,
     auth,
     logger,
+    driver,
+    TEST_POLLING_INTERVAL_MS,
     TEST_POLLING_INTERVAL_MS
   )) as PaperHandlerStateMachine;
 });

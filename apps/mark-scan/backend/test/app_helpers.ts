@@ -33,7 +33,10 @@ import {
   getPaperHandlerStateMachine,
   PaperHandlerStateMachine,
 } from '../src/custom-paper-handler';
-import { DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS } from '../src/custom-paper-handler/constants';
+import {
+  DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
+  DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+} from '../src/custom-paper-handler/constants';
 
 jest.mock('@votingworks/custom-paper-handler');
 
@@ -100,11 +103,12 @@ export async function getMockStateMachine(
     .spyOn(driver, 'getPaperHandlerStatus')
     .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
   const stateMachine = await getPaperHandlerStateMachine(
-    driver,
     workspace,
     auth,
     logger,
-    DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
+    driver,
+    DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+    DEV_AUTH_STATUS_POLLING_INTERVAL_MS
   );
   assert(stateMachine);
 

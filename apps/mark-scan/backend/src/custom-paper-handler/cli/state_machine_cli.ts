@@ -8,7 +8,10 @@ import { join } from 'path';
 import { LogSource, Logger } from '@votingworks/logging';
 import { createWorkspace } from '../../util/workspace';
 import { MARK_SCAN_WORKSPACE } from '../../globals';
-import { DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS } from '../constants';
+import {
+  AUTH_STATUS_POLLING_INTERVAL_MS,
+  DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+} from '../constants';
 import {
   PaperHandlerStateMachine,
   getPaperHandlerStateMachine,
@@ -80,11 +83,12 @@ export async function main(): Promise<number> {
   );
 
   const stateMachine = await getPaperHandlerStateMachine(
-    driver,
     workspace,
     auth,
     logger,
-    DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS
+    driver,
+    DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+    AUTH_STATUS_POLLING_INTERVAL_MS
   );
   assert(stateMachine !== undefined, 'Unexpected undefined state machine');
 
