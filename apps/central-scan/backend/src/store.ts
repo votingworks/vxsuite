@@ -106,6 +106,9 @@ function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
 }
 
 function sheetRowToSheet(row: SheetRow): Sheet {
+  // The central scanner UX guarantees this condition. Sheets requiring review have to be accepted
+  // or rejected before a batch is considered complete. And if someone shuts the machine down
+  // mid-adjudication, on boot, incomplete batches are cleaned up.
   assert(
     row.requiresAdjudication === 0 ||
       row.finishedAdjudicationAt !== null ||

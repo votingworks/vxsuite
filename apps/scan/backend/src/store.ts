@@ -107,6 +107,7 @@ function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
 }
 
 function sheetRowToSheet(row: SheetRow): Sheet {
+  // Transactions in the scanner state machine guarantee this condition.
   assert(
     row.requiresAdjudication === 0 ||
       row.finishedAdjudicationAt !== null ||
