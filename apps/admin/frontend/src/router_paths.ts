@@ -1,11 +1,6 @@
 import { ContestId } from '@votingworks/types';
 import {
-  PartyReportScreenProps,
-  PrecinctReportScreenProps,
-  ScannerReportScreenProps,
-  VotingMethodReportScreenProps,
   ManualDataEntryScreenProps,
-  BatchReportScreenProps,
   SmartcardsScreenProps,
   WriteInsAdjudicationScreenProps,
 } from './config/types';
@@ -30,22 +25,13 @@ export const routerPaths = {
     `/tally/manual-data-entry/${ballotStyleId}/${votingMethod}/${precinctId}`,
   reports: '/reports',
   tally: '/tally',
-  tallyFullReport: '/reports/tally-reports/full',
-  tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps): string =>
-    `/reports/tally-reports/precincts/${precinctId}`,
-  tallyAllPrecinctsReport: `/reports/tally-reports/all-precincts`,
-  tallyVotingMethodReport: ({
-    votingMethod,
-  }: VotingMethodReportScreenProps): string =>
-    `/reports/tally-reports/votingmethods/${votingMethod}`,
-  tallyPartyReport: ({ partyId }: PartyReportScreenProps): string =>
-    `/reports/tally-reports/parties/${partyId}`,
-  tallyScannerReport: ({ scannerId }: ScannerReportScreenProps): string =>
-    `/reports/tally-reports/scanners/${scannerId}`,
-  tallyBatchReport: ({ batchId }: BatchReportScreenProps): string =>
-    `/reports/tally-reports/batches/${batchId}`,
-  tallyReportBuilder: `/reports/tally-reports/builder`,
-  ballotCountReportBuilder: `/reports/ballot-count-reports/builder`,
+  tallyFullReport: '/reports/tally/full',
+  tallySinglePrecinctReport: `/reports/tally/precinct`,
+  tallyAllPrecinctsReport: `/reports/tally/all-precincts`,
+  tallyReportBuilder: `/reports/tally/builder`,
+  ballotCountReportBuilder: `/reports/ballot-count/builder`,
+  ballotCountReportPrecinct: '/reports/ballot-count/precinct',
+  ballotCountReportVotingMethod: '/reports/ballot-count/voting-method',
   tallyWriteInReport: '/reports/tally-reports/writein',
   logicAndAccuracy: '/logic-and-accuracy',
   testDecks: '/logic-and-accuracy/test-decks',

@@ -12,7 +12,6 @@ import {
   isFeatureFlagEnabled,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { PartyId } from '@votingworks/types';
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
@@ -21,15 +20,6 @@ import { BallotListScreen } from '../screens/ballot_list_screen';
 import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
-import {
-  BatchTallyReportScreen,
-  PartyTallyReportScreen,
-  PrecinctTallyReportScreen,
-  ScannerTallyReportScreen,
-  VotingMethodTallyReportScreen,
-  FullElectionTallyReportScreen,
-  AllPrecinctsTallyReportScreen,
-} from '../screens/tally_report_screen';
 import { TallyWriteInReportScreen } from '../screens/write_in_adjudication_report_screen';
 import { DefinitionViewerScreen } from '../screens/definition_viewer_screen';
 import { ManualDataSummaryScreen } from '../screens/manual_data_summary_screen';
@@ -40,15 +30,20 @@ import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { LogsScreen } from '../screens/logs_screen';
-import { ReportsScreen } from '../screens/reports_screen';
+import { ReportsScreen } from '../screens/reporting/reports_screen';
 import { ElectionManagerSystemScreen } from '../screens/election_manager_system_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
 import { checkPin } from '../api';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
-import { TallyReportBuilder } from '../screens/tally_report_builder';
-import { BallotCountReportBuilder } from '../screens/ballot_count_report_builder';
+import { TallyReportBuilder } from '../screens/reporting/tally_report_builder';
+import { BallotCountReportBuilder } from '../screens/reporting/ballot_count_report_builder';
+import { AllPrecinctsTallyReportScreen } from '../screens/reporting/all_precincts_tally_report_screen';
+import { SinglePrecinctTallyReportScreen } from '../screens/reporting/single_precinct_tally_report_screen';
+import { PrecinctBallotCountReport } from '../screens/reporting/precinct_ballot_count_report_screen';
+import { VotingMethodBallotCountReport } from '../screens/reporting/voting_method_ballot_count_report_screen';
+import { FullElectionTallyReportScreen } from '../screens/reporting/full_election_tally_report_screen';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
@@ -198,11 +193,8 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.tallyFullReport}>
         <FullElectionTallyReportScreen />
       </Route>
-      <Route
-        exact
-        path={routerPaths.tallyPrecinctReport({ precinctId: ':precinctId' })}
-      >
-        <PrecinctTallyReportScreen />
+      <Route exact path={routerPaths.tallySinglePrecinctReport}>
+        <SinglePrecinctTallyReportScreen />
       </Route>
       <Route exact path={routerPaths.tallyAllPrecinctsReport}>
         <AllPrecinctsTallyReportScreen />
@@ -210,28 +202,11 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.ballotCountReportBuilder}>
         <BallotCountReportBuilder />
       </Route>
-      <Route
-        exact
-        path={routerPaths.tallyVotingMethodReport({
-          votingMethod: ':votingMethod',
-        })}
-      >
-        <VotingMethodTallyReportScreen />
+      <Route exact path={routerPaths.ballotCountReportPrecinct}>
+        <PrecinctBallotCountReport />
       </Route>
-      <Route
-        exact
-        path={routerPaths.tallyPartyReport({ partyId: ':partyId' as PartyId })}
-      >
-        <PartyTallyReportScreen />
-      </Route>
-      <Route
-        exact
-        path={routerPaths.tallyScannerReport({ scannerId: ':scannerId' })}
-      >
-        <ScannerTallyReportScreen />
-      </Route>
-      <Route exact path={routerPaths.tallyBatchReport({ batchId: ':batchId' })}>
-        <BatchTallyReportScreen />
+      <Route exact path={routerPaths.ballotCountReportVotingMethod}>
+        <VotingMethodBallotCountReport />
       </Route>
       <Route exact path={[routerPaths.tallyWriteInReport]}>
         <TallyWriteInReportScreen />

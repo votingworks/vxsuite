@@ -28,7 +28,7 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
         onPress={() => setIsSaveModalOpen(true)}
         disabled={!castVoteRecordFileModeQuery.isSuccess}
       >
-        Save Batch Results as CSV
+        Save Batch Results CSV
       </Button>
       {isSaveModalOpen && (
         <SaveBackendFileModal

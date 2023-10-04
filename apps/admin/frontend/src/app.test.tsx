@@ -30,10 +30,12 @@ import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { expectReportsScreenCardCountQueries } from '../test/helpers/api_expect_helpers';
 
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
-import { getSimpleMockTallyResults } from '../test/helpers/mock_results';
+import {
+  getMockCardCounts,
+  getSimpleMockTallyResults,
+} from '../test/helpers/mock_results';
 
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
@@ -333,7 +335,7 @@ test('marking results as official', async () => {
     electionDefinition,
   });
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetResultsForTallyReports({ filter: {} }, [
+  apiMock.expectGetResultsForTallyReports({ filter: {}, groupBy: {} }, [
     getSimpleMockTallyResults({
       election,
       scannedBallotCount: 100,
@@ -341,15 +343,16 @@ test('marking results as official', async () => {
     }),
   ]);
   apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetManualResultsMetadata([]);
-  expectReportsScreenCardCountQueries({ apiMock, isPrimary: true });
+  apiMock.expectGetCardCounts({}, [getMockCardCounts(0)]);
   renderApp();
 
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
   userEvent.click(screen.getButton('Reports'));
-  userEvent.click(screen.getButton('Unofficial Full Election Tally Report'));
-  await screen.findByText('Unofficial Example Primary Election Tally Report');
+  userEvent.click(screen.getButton('Full Election Tally Report'));
+  await screen.findByText(
+    'Unofficial Mammal Party Example Primary Election Tally Report'
+  );
 
   apiMock.expectMarkResultsOfficial();
   apiMock.expectGetCurrentElectionMetadata({
@@ -365,7 +368,9 @@ test('marking results as official', async () => {
       'Mark Tally Results as Official'
     )
   );
-  await screen.findByText('Official Example Primary Election Tally Report');
+  await screen.findByText(
+    'Official Mammal Party Example Primary Election Tally Report'
+  );
 });
 
 test('removing election resets cvr and manual data files', async () => {
@@ -486,11 +491,7 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([]);
-  expectReportsScreenCardCountQueries({
-    apiMock,
-    isPrimary: false,
-  });
-  apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetCardCounts({}, [getMockCardCounts(100)]);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
