@@ -45,7 +45,7 @@ export enum BooleanEnvironmentVariableName {
   // Disables the ballot box check on VxMarkScan. If false, the app will block until the ballot
   // box is attached
   DISABLE_BALLOT_BOX_CHECK = 'REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK',
-  // Disables VxMarkScan state machine polling. Useful for developing frontend flows in a VM.
+  // Allows VxMarkScan to run without a connection to the Custom paper handler
   SKIP_PAPER_HANDLER_HARDWARE_CHECK = 'REACT_APP_VX_SKIP_PAPER_HANDLER_HARDWARE_CHECK',
 }
 
