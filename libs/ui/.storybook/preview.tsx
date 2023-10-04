@@ -137,16 +137,18 @@ export const decorators: DecoratorFunction[] = [
     context
   ) => {
     return (
-      <AppBase
-        defaultColorMode={context.globals.colorMode}
-        defaultSizeMode={context.globals.sizeMode}
-        enableScroll
-        screenType={context.globals.screenType}
-      >
-        <StoryWrapper context={context}>
-          <Story />
-        </StoryWrapper>
-      </AppBase>
+      <React.StrictMode>
+        <AppBase
+          defaultColorMode={context.globals.colorMode}
+          defaultSizeMode={context.globals.sizeMode}
+          enableScroll
+          screenType={context.globals.screenType}
+        >
+          <StoryWrapper context={context}>
+            <Story />
+          </StoryWrapper>
+        </AppBase>
+      </React.StrictMode>
     );
   },
 ];
