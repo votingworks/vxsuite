@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
 
@@ -41,12 +41,16 @@ test('CVR sync modal success case', async () => {
 
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
   userEvent.click(within(modal).getByRole('button', { name: 'Sync CVRs' }));
-  within(modal).getByText('Syncing CVRs');
-  apiMock.expectGetUsbDriveStatus('mounted');
+  await within(modal).findByText('Syncing CVRs');
   await within(modal).findByText('Voters may continue casting ballots.');
+  apiMock.expectGetUsbDriveStatus('mounted');
 
   userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
-  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+
+  await waitFor(() => apiMock.mockApiClient.assertComplete());
 });
 
 test('CVR sync modal error case', async () => {
@@ -67,6 +71,6 @@ test('CVR sync modal error case', async () => {
     .expectCallWith({ mode: 'full_export' })
     .resolves(err({ type: 'file-system-error', message: '' }));
   userEvent.click(within(modal).getByRole('button', { name: 'Sync CVRs' }));
-  within(modal).getByText('Syncing CVRs');
+  await within(modal).findByText('Syncing CVRs');
   await within(modal).findByText('Try inserting a different USB drive.');
 });
