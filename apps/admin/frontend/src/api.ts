@@ -425,7 +425,7 @@ export const getCardCounts = {
     return input ? ['getCardCounts', input] : ['getCardCounts'];
   },
   useQuery(
-    input: GetCardCountsInput = { groupBy: {} },
+    input: GetCardCountsInput = {},
     options: { enabled: boolean } = { enabled: true }
   ) {
     const apiClient = useApiClient();

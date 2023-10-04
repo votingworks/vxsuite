@@ -1,7 +1,6 @@
 import {
   BallotStyleId,
   ContestId,
-  PartyId,
   PrecinctId,
   PromiseOr,
 } from '@votingworks/types';
@@ -16,21 +15,6 @@ export type TextareaEventFunction = (
 ) => PromiseOr<void>;
 
 // Router Props
-export interface PrecinctReportScreenProps {
-  precinctId: PrecinctId;
-}
-export interface ScannerReportScreenProps {
-  scannerId: string;
-}
-export interface BatchReportScreenProps {
-  batchId: string;
-}
-export interface PartyReportScreenProps {
-  partyId: PartyId;
-}
-export interface VotingMethodReportScreenProps {
-  votingMethod: string;
-}
 export interface ManualDataEntryScreenProps {
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;

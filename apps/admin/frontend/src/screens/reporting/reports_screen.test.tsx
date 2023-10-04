@@ -1,9 +1,7 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
-import { waitFor } from '@testing-library/react';
 import {
-  advanceTimersAndPromises,
   fakeKiosk,
   fakeUsbDrive,
   hasTextAcrossElements,
@@ -11,15 +9,12 @@ import {
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { typedAs } from '@votingworks/basics';
 import { ReportsScreen } from './reports_screen';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { screen } from '../../test/react_testing_library';
-import { VxFiles } from '../lib/converters';
-import {
-  expectReportsScreenCardCountQueries,
-  mockBallotCountsTableGroupBy,
-} from '../../test/helpers/api_expect_helpers';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
+import { screen, waitFor } from '../../../test/react_testing_library';
+import { VxFiles } from '../../lib/converters';
+import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
+import { getMockCardCounts } from '../../../test/helpers/mock_results';
 
 let apiMock: ApiMock;
 
@@ -51,17 +46,11 @@ test('exporting SEMS results', async () => {
       outputFiles: [{ name: 'name' }],
     })
   );
-
+  apiMock.expectGetCardCounts({}, [getMockCardCounts(100)]);
   apiMock.expectGetSemsExportableTallies({
     talliesByPrecinct: {},
   });
   apiMock.expectGetCastVoteRecordFileMode('test');
-  expectReportsScreenCardCountQueries({
-    apiMock,
-    isPrimary: true,
-  });
-  apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetManualResultsMetadata([]);
 
   renderInAppContext(<ReportsScreen />, {
     electionDefinition,
@@ -110,17 +99,8 @@ test('exporting SEMS results', async () => {
 });
 
 test('exporting batch results', async () => {
-  const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-  window.kiosk = mockKiosk;
-
   apiMock.expectGetCastVoteRecordFileMode('test');
-  expectReportsScreenCardCountQueries({
-    apiMock,
-    isPrimary: true,
-  });
-  apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetManualResultsMetadata([]);
+  apiMock.expectGetCardCounts({}, [getMockCardCounts(100)]);
 
   renderInAppContext(<ReportsScreen />, {
     electionDefinition,
@@ -128,15 +108,10 @@ test('exporting batch results', async () => {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  apiMock.deprecatedExpectGetCardCounts(
-    mockBallotCountsTableGroupBy({ groupByBatch: true }),
-    []
-  );
-  userEvent.click(screen.getButton('Show Results by Batch and Scanner'));
   await waitFor(() => {
-    expect(screen.getButton('Save Batch Results as CSV')).toBeEnabled();
+    expect(screen.getButton('Save Batch Results CSV')).toBeEnabled();
   });
-  userEvent.click(screen.getButton('Save Batch Results as CSV'));
+  userEvent.click(screen.getButton('Save Batch Results CSV'));
   await screen.findByRole('alertdialog');
 
   await screen.findByText('Save Batch Results');
@@ -147,7 +122,6 @@ test('exporting batch results', async () => {
   apiMock.expectExportBatchResults(
     'test-mount-point/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
   );
-  await advanceTimersAndPromises(1); // wait for modal to resolve USB path
   userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Batch Results Saved/);
 });
@@ -155,12 +129,7 @@ test('exporting batch results', async () => {
 describe('ballot count summary text', () => {
   test('unlocked mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
-    expectReportsScreenCardCountQueries({
-      apiMock,
-      isPrimary: true,
-    });
-    apiMock.expectGetScannerBatches([]);
-    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetCardCounts({}, [getMockCardCounts(0)]);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -176,17 +145,7 @@ describe('ballot count summary text', () => {
 
   test('official mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
-    expectReportsScreenCardCountQueries({
-      apiMock,
-      isPrimary: true,
-      overallCardCount: {
-        bmd: 1000,
-        hmpb: [1000],
-        manual: 1000,
-      },
-    });
-    apiMock.expectGetScannerBatches([]);
-    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetCardCounts({}, [getMockCardCounts(3000)]);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -202,17 +161,7 @@ describe('ballot count summary text', () => {
 
   test('test mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
-    expectReportsScreenCardCountQueries({
-      apiMock,
-      isPrimary: true,
-      overallCardCount: {
-        bmd: 1000,
-        hmpb: [1000],
-        manual: 1000,
-      },
-    });
-    apiMock.expectGetScannerBatches([]);
-    apiMock.expectGetManualResultsMetadata([]);
+    apiMock.expectGetCardCounts({}, [getMockCardCounts(3000)]);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
