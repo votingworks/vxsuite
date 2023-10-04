@@ -3,7 +3,11 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-import { isIntegrationTest } from '@votingworks/utils';
+import {
+  isIntegrationTest,
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { detectUsbDrive, MockFileUsbDrive } from '@votingworks/usb-drive';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
@@ -39,14 +43,22 @@ export async function start({
   const resolvedAuth = auth ?? getDefaultAuth(logger);
 
   const paperHandlerDriver = await getPaperHandlerDriver();
-  const stateMachine = await getPaperHandlerStateMachine(
-    workspace,
-    resolvedAuth,
-    logger,
-    paperHandlerDriver,
-    DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-    DEV_AUTH_STATUS_POLLING_INTERVAL_MS
-  );
+  let stateMachine;
+  if (
+    paperHandlerDriver ||
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+    )
+  ) {
+    stateMachine = await getPaperHandlerStateMachine(
+      workspace,
+      resolvedAuth,
+      logger,
+      paperHandlerDriver,
+      DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+      DEV_AUTH_STATUS_POLLING_INTERVAL_MS
+    );
+  }
 
   const usbDrive = isIntegrationTest()
     ? new MockFileUsbDrive()

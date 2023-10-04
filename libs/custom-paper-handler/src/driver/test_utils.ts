@@ -5,6 +5,7 @@ import {
   REAL_TIME_ENDPOINT_OUT,
   PACKET_SIZE,
 } from './driver';
+import { PaperHandlerStatus } from './coders';
 
 type MockWebUsbDevice = mocks.MockWebUsbDevice;
 
@@ -75,4 +76,48 @@ export function setUpMockWebUsbDevice(
   mockWebUsbDevice.mockSetConfiguration(TEST_CONFIGURATION);
 
   return { legacyDevice, mockWebUsbDevice };
+}
+
+export function defaultPaperHandlerStatus(): PaperHandlerStatus {
+  return {
+    // Scanner status
+    requestId: 1,
+    returnCode: 1,
+    parkSensor: false,
+    paperOutSensor: false,
+    paperPostCisSensor: false,
+    paperPreCisSensor: false,
+    paperInputLeftInnerSensor: false,
+    paperInputRightInnerSensor: false,
+    paperInputLeftOuterSensor: false,
+    paperInputRightOuterSensor: false,
+    printHeadInPosition: false,
+    scanTimeout: false,
+    motorMove: false,
+    scanInProgress: false,
+    jamEncoder: false,
+    paperJam: false,
+    coverOpen: false,
+    optoSensor: false,
+    ballotBoxDoorSensor: false,
+    ballotBoxAttachSensor: false,
+    preHeadSensor: false,
+
+    // Printer status
+    ticketPresentInOutput: false,
+    paperNotPresent: true,
+    dragPaperMotorOn: false,
+    spooling: false,
+    printingHeadUpError: false,
+    notAcknowledgeCommandError: false,
+    powerSupplyVoltageError: false,
+    headNotConnected: false,
+    comError: false,
+    headTemperatureError: false,
+    diverterError: false,
+    headErrorLocked: false,
+    printingHeadReadyToPrint: true,
+    eepromError: false,
+    ramError: false,
+  };
 }

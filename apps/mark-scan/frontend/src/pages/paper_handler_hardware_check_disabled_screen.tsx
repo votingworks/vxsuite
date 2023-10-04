@@ -8,9 +8,11 @@ export function PaperHandlerHardwareCheckDisabledScreen({
 }: Props): JSX.Element {
   return (
     <Screen>
-      <Main centerChild>
+      <Main padded centerChild>
         <Text center>
-          <H1>Hardware Check Has Been Disabled</H1>
+          <H1>Hardware Check Disabled</H1>
+        </Text>
+        <Text>
           <P>
             The paper handler hardware check is disabled for development.
             Functionality that relies on hardware, like the paper load and print

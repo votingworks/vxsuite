@@ -21,9 +21,9 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
+  defaultPaperHandlerStatus,
   MinimalWebUsbDevice,
   PaperHandlerDriver,
-  PaperHandlerStatus,
 } from '@votingworks/custom-paper-handler';
 import { assert } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
@@ -39,50 +39,6 @@ import {
 } from '../src/custom-paper-handler/constants';
 
 jest.mock('@votingworks/custom-paper-handler');
-
-export function defaultPaperHandlerStatus(): PaperHandlerStatus {
-  return {
-    // Scanner status
-    requestId: 1,
-    returnCode: 1,
-    parkSensor: false,
-    paperOutSensor: false,
-    paperPostCisSensor: false,
-    paperPreCisSensor: false,
-    paperInputLeftInnerSensor: false,
-    paperInputRightInnerSensor: false,
-    paperInputLeftOuterSensor: false,
-    paperInputRightOuterSensor: false,
-    printHeadInPosition: false,
-    scanTimeout: false,
-    motorMove: false,
-    scanInProgress: false,
-    jamEncoder: false,
-    paperJam: false,
-    coverOpen: false,
-    optoSensor: false,
-    ballotBoxDoorSensor: false,
-    ballotBoxAttachSensor: false,
-    preHeadSensor: false,
-
-    // Printer status
-    ticketPresentInOutput: false,
-    paperNotPresent: true,
-    dragPaperMotorOn: false,
-    spooling: false,
-    printingHeadUpError: false,
-    notAcknowledgeCommandError: false,
-    powerSupplyVoltageError: false,
-    headNotConnected: false,
-    comError: false,
-    headTemperatureError: false,
-    diverterError: false,
-    headErrorLocked: false,
-    printingHeadReadyToPrint: true,
-    eepromError: false,
-    ramError: false,
-  };
-}
 
 export async function getMockStateMachine(
   workspace: Workspace,
