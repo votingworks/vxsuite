@@ -5,7 +5,7 @@ import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
 import { GlobalStyles } from './global_styles';
 import { ThemeManagerContext } from './theme_manager_context';
 import { VxThemeProvider } from './themes/vx_theme_provider';
-import { loadFonts } from './fonts/load_fonts';
+import { loadFonts, unloadFonts } from './fonts/load_fonts';
 
 declare module 'styled-components' {
   /**
@@ -61,6 +61,13 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     }
 
     setFontsLoaded(true);
+
+    // In practice, AppBase is rendered once at the root of each app and never
+    // unloaded throughout the lifetime of the app, but in development, React
+    // runs an extra render/cleanup cycle, causing `loadFonts` to run twice.
+    // This cleanup ensures that we only install one instance of the fonts.
+    // https://react.dev/reference/react/useEffect#caveats
+    return () => unloadFonts();
   }, [disableFontsForTests]);
 
   const resetThemes = useCallback(() => {
