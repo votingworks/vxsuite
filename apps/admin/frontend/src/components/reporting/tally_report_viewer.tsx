@@ -3,6 +3,7 @@ import {
   Button,
   Caption,
   Font,
+  H5,
   H6,
   Icons,
   Loading,
@@ -95,6 +96,10 @@ const LoadingTextContainer = styled.div`
   background: white;
   width: 35rem;
   border-radius: 0.5rem;
+`;
+
+const NoResultsNotice = styled(H5)`
+  margin-top: 2rem;
 `;
 
 function Reports({
@@ -199,6 +204,11 @@ export function TallyReportViewer({
       return previewReportRef.current;
     }
 
+    // If there's no data, don't render anything
+    if (reportResultsQuery.data.length === 0) {
+      return undefined;
+    }
+
     return (
       <Reports
         electionDefinition={assertDefined(electionDefinition)}
@@ -222,6 +232,8 @@ export function TallyReportViewer({
   previewReportRef.current = previewReport;
   const previewIsFresh =
     reportResultsQuery.isSuccess && !reportResultsQuery.isStale;
+  const areQueryResultsEmpty =
+    reportResultsQuery.isSuccess && reportResultsQuery.data.length === 0;
 
   async function refreshPreview() {
     setIsFetchingForPreview(true);
@@ -309,7 +321,7 @@ export function TallyReportViewer({
         <PrintButton
           print={printReport}
           variant="primary"
-          disabled={disabled}
+          disabled={disabled || areQueryResultsEmpty}
           useDefaultProgressModal={false}
         >
           Print Report
@@ -318,13 +330,13 @@ export function TallyReportViewer({
           electionDefinition={electionDefinition}
           generateReportPdf={generateReportPdf}
           defaultFilename={reportPdfFilename}
-          disabled={disabled}
+          disabled={disabled || areQueryResultsEmpty}
           fileType={FileType.TallyReport}
         />
         <ExportTallyReportCsvButton
           filter={filter}
           groupBy={groupBy}
-          disabled={disabled}
+          disabled={disabled || areQueryResultsEmpty}
         />
       </ExportActions>
 
@@ -337,6 +349,11 @@ export function TallyReportViewer({
           <React.Fragment>
             {previewReport && (
               <PreviewReportPages>{previewReport}</PreviewReportPages>
+            )}
+            {areQueryResultsEmpty && (
+              <NoResultsNotice>
+                No results found given the current report parameters.
+              </NoResultsNotice>
             )}
             {!previewIsFresh && <PreviewOverlay />}
             {isFetchingForPreview && (
