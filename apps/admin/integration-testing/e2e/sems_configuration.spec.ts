@@ -2,13 +2,13 @@ import { test } from '@playwright/test';
 import path from 'path';
 import {
   enterPin,
-  logOutAndResetElectionDefinition,
+  forceLogOutAndResetElectionDefinition,
   mockCardRemoval,
   mockSystemAdministratorCardInsertion,
 } from './support/auth';
 
 test.beforeEach(async ({ page }) => {
-  await logOutAndResetElectionDefinition(page);
+  await forceLogOutAndResetElectionDefinition(page);
 });
 
 test('configuration from MS SEMS files', async ({ page }) => {

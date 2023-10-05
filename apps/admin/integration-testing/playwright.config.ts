@@ -1,8 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
-import { join } from 'path';
+import dotenv from 'dotenv';
+import { join, resolve } from 'path';
 
 const baseURL = 'http://127.0.0.1:3000';
 const outputDir = './test-results';
+
+dotenv.config({ path: resolve(__dirname, '.env') });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -22,6 +25,7 @@ export default defineConfig({
     ['html', { open: 'never' }],
     ['junit', { outputFile: join(outputDir, 'results.xml') }],
   ],
+  workers: 1,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */

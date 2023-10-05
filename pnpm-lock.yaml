@@ -662,6 +662,9 @@ importers:
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../../../libs/basics
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -674,13 +677,28 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../../../libs/utils
       concurrently:
         specifier: ^7.6.0
         version: 7.6.0
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
+      '@types/tmp':
+        specifier: ^0.2.4
+        version: 0.2.4
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -14545,6 +14563,11 @@ packages:
   /dotenv@16.0.2:
     resolution: {integrity: sha512-JvpYKUmzQhYoIFgK2MOnF3bciIZoItIIoryihy0rIA+H4Jy0FmgyKYAHCTN98P5ybGSJcIFbh6QKeJdtZd1qhA==}
     engines: {node: '>=12'}
+    dev: false
+
+  /dotenv@16.3.1:
+    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
+    engines: {node: '>=12'}
 
   /dotenv@8.2.0:
     resolution: {integrity: sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==}
@@ -19571,7 +19594,7 @@ packages:
     engines: {node: '>=14.0.0'}
     dependencies:
       app-root-dir: 1.0.2
-      dotenv: 16.0.2
+      dotenv: 16.3.1
       dotenv-expand: 10.0.0
     dev: true
 

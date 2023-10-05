@@ -27,14 +27,20 @@
   "dependencies": {
     "@playwright/test": "^1.37.1",
     "@votingworks/auth": "workspace:*",
+    "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "concurrently": "^7.6.0"
+    "@votingworks/usb-drive": "workspace:*",
+    "@votingworks/utils": "workspace:*",
+    "concurrently": "^7.6.0",
+    "dotenv": "^16.3.1",
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@types/node": "16.18.23",
+    "@types/tmp": "^0.2.4",
     "eslint-plugin-vx": "workspace:*",
     "lint-staged": "^11.0.0",
     "sort-package-json": "^1.50.0"
