@@ -1,33 +1,8 @@
-/* istanbul ignore file */
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
-import { execSync } from 'child_process';
-import { join } from 'path';
-import { mkdirSync, readdirSync, rmSync, writeFileSync, cpSync } from 'fs';
+import { readdirSync, rmSync } from 'fs';
 import tmp from 'tmp';
-import { Buffer } from 'buffer';
-import { UsbDrive } from './usb_drive';
-
-type ActualDirectory = string;
-type MockFile = Buffer;
-interface MockDirectory {
-  [name: string]: MockFileTree;
-}
-type MockFileTree = MockFile | MockDirectory | ActualDirectory;
-
-function writeMockFileTree(destinationPath: string, tree: MockFileTree): void {
-  if (Buffer.isBuffer(tree)) {
-    writeFileSync(destinationPath, tree);
-  } else if (typeof tree === 'string') {
-    cpSync(tree, destinationPath, { recursive: true });
-  } else {
-    mkdirSync(destinationPath, { recursive: true });
-    for (const [name, child] of Object.entries(tree)) {
-      // Sleep 1ms to ensure that each file is created with a distinct timestamp
-      execSync('sleep 0.01');
-      writeMockFileTree(join(destinationPath, name), child);
-    }
-  }
-}
+import { UsbDrive } from '../usb_drive';
+import { MockFileTree, TMP_DIR_PREFIX, writeMockFileTree } from './helpers';
 
 type MockedUsbDrive = {
   [Method in keyof UsbDrive]: MockFunction<UsbDrive[Method]>;
@@ -42,8 +17,6 @@ export interface MockUsbDrive {
   insertUsbDrive(contents: MockFileTree): void;
   removeUsbDrive(): void;
 }
-
-const TMP_DIR_PREFIX = 'mock-usb-drive-';
 
 // Clean up any mock USB drives directories that were created during tests
 if (typeof jest !== 'undefined') {
@@ -61,7 +34,7 @@ if (typeof jest !== 'undefined') {
  * Creates a mock of the UsbDrive interface. Each method is mocked with a
  * mockFunction (see @votingworks/test-utils).
  *
- * Also has a insert()/remove() interface to create a fake USB drive backed by a
+ * Also has a insert()/remove() interface to create a mock USB drive backed by a
  * filesystem directory. If using this interface, the mock functions will
  * automatically be updated to return the correct status.
  *
