@@ -55,6 +55,19 @@ describe('features', () => {
     ).toEqual(true);
   });
 
+  it('isFeatureFlagEnabled returns true when enabled in integration tests', () => {
+    process.env.NODE_ENV = 'production';
+    process.env.REACT_APP_VX_DISABLE_CARD_READER_CHECK = 'TRUE';
+    process.env.IS_INTEGRATION_TEST = 'TRUE';
+    expect(
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK
+      )
+    ).toEqual(true);
+
+    process.env.IS_INTEGRATION_TEST = 'FALSE';
+  });
+
   it('isFeatureFlagEnabled returns false when disabled', () => {
     process.env.NODE_ENV = 'development';
     process.env.REACT_APP_VX_DISABLE_CARD_READER_CHECK = 'FALSE';
