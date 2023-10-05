@@ -1,8 +1,6 @@
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import {
-  createMockUsb,
   getCastVoteRecordExportDirectoryPaths,
-  MockUsb,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
@@ -26,6 +24,7 @@ import { fakeLogger, Logger } from '@votingworks/logging';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import getPort from 'get-port';
 import { ok, sleep } from '@votingworks/basics';
+import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './app';
 import { Importer } from './importer';
@@ -48,7 +47,7 @@ jest.mock('@votingworks/utils', () => {
 let app: Application;
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
 let importer: Importer;
-let mockUsb: MockUsb;
+let mockUsbDrive: MockUsbDrive;
 let workspace: Workspace;
 let scanner: MockScanner;
 let logger: Logger;
@@ -65,10 +64,10 @@ beforeEach(async () => {
     scanner,
   });
   logger = fakeLogger();
-  mockUsb = createMockUsb();
+  mockUsbDrive = createMockUsbDrive();
   app = buildCentralScannerApp({
     auth,
-    usb: mockUsb.mock,
+    usbDrive: mockUsbDrive.usbDrive,
     allowedExportPatterns: ['/tmp/**'],
     importer,
     workspace,
@@ -146,7 +145,7 @@ test('going through the whole process works', async () => {
   }
 
   {
-    mockUsb.insertUsbDrive({});
+    mockUsbDrive.insertUsbDrive({});
 
     expect(
       await apiClient.exportCastVoteRecordsToUsbDrive({
@@ -164,7 +163,7 @@ test('going through the whole process works', async () => {
     ).toEqual(ok());
 
     const cvrReportDirectoryPath = (
-      await getCastVoteRecordExportDirectoryPaths(mockUsb.mock)
+      await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)
     )[0];
     expect(cvrReportDirectoryPath).toContain('TEST__machine_000__');
 
@@ -221,7 +220,7 @@ test('going through the whole process works', async () => {
   ).toEqual(ok());
 
   const cvrReportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
-    mockUsb.mock
+    mockUsbDrive.usbDrive
   );
   expect(cvrReportDirectoryPaths).toHaveLength(3);
   const cvrReportDirectoryPath = cvrReportDirectoryPaths[2];

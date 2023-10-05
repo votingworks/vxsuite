@@ -1,4 +1,3 @@
-import { getUsbDrives, Usb } from '@votingworks/backend';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
@@ -8,6 +7,7 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
+import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
@@ -17,7 +17,7 @@ import { buildCentralScannerApp } from './app';
 export interface StartOptions {
   port: number | string;
   batchScanner: BatchScanner;
-  usb: Usb;
+  usbDrive: UsbDrive;
   importer: Importer;
   app: Application;
   logger: Logger;
@@ -30,7 +30,7 @@ export interface StartOptions {
 export async function start({
   port = PORT,
   batchScanner,
-  usb,
+  usbDrive,
   importer,
   app,
   logger = new Logger(LogSource.VxScanService),
@@ -83,13 +83,13 @@ export async function start({
         workspace: resolvedWorkspace,
       });
 
-    const resolvedUsb = usb ?? { getUsbDrives };
+    const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
 
     resolvedApp = buildCentralScannerApp({
       auth,
       importer: resolvedImporter,
       logger,
-      usb: resolvedUsb,
+      usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
     });
   }

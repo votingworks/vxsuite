@@ -2,6 +2,7 @@ import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
+import { detectUsbDrive } from '@votingworks/usb-drive';
 import { MOCK_SCANNER_FILES, NODE_ENV } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
 import { BatchScanner } from './fujitsu_scanner';
@@ -49,7 +50,8 @@ function getScanner(): BatchScanner | undefined {
 }
 
 async function main(): Promise<number> {
-  await server.start({ batchScanner: getScanner() });
+  const usbDrive = detectUsbDrive(logger);
+  await server.start({ batchScanner: getScanner(), usbDrive });
   return 0;
 }
 

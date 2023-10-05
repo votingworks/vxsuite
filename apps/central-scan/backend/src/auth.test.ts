@@ -6,7 +6,6 @@ import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { createMockUsb } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import {
@@ -16,6 +15,7 @@ import {
 } from '@votingworks/types';
 
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './app';
 import { Importer } from './importer';
@@ -40,7 +40,7 @@ beforeEach(async () => {
   server = await start({
     app: buildCentralScannerApp({
       auth,
-      usb: createMockUsb().mock,
+      usbDrive: createMockUsbDrive().usbDrive,
       importer: new Importer({ workspace, scanner: makeMockScanner() }),
       workspace,
       logger,

@@ -1,8 +1,6 @@
 import getPort from 'get-port';
 import {
-  MockUsb,
   createBallotPackageZipArchive,
-  createMockUsb,
   getCastVoteRecordExportDirectoryPaths,
   isTestReport,
   readCastVoteRecordExport,
@@ -33,6 +31,7 @@ import { fakeLogger, Logger } from '@votingworks/logging';
 import { Server } from 'http';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import { ok } from '@votingworks/basics';
+import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -73,7 +72,7 @@ jest.mock('./exec', () => ({
 let auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
 let workspace: Workspace;
 let scanner: MockScanner;
-let mockUsb: MockUsb;
+let mockUsbDrive: MockUsbDrive;
 let importer: Importer;
 let app: Application;
 let logger: Logger;
@@ -86,11 +85,11 @@ beforeEach(async () => {
   workspace = createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
-  mockUsb = createMockUsb();
+  mockUsbDrive = createMockUsbDrive();
   logger = fakeLogger();
   app = buildCentralScannerApp({
     auth,
-    usb: mockUsb.mock,
+    usbDrive: mockUsbDrive.usbDrive,
     allowedExportPatterns: ['/tmp/**'],
     importer,
     workspace,
@@ -144,7 +143,7 @@ test('going through the whole process works', async () => {
     BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
   );
 
-  mockUsb.insertUsbDrive({
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'ballot-package.zip': await createBallotPackageZipArchive(
         electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
@@ -168,7 +167,9 @@ test('going through the whole process works', async () => {
   // need to turn off test mode after election is loaded
   await apiClient.setTestMode({ testMode: false });
 
-  mockUsb.removeUsbDrive();
+  mockUsbDrive.removeUsbDrive();
+  // TODO: remove this assertion after #4045 is addressed
+  expect((await mockUsbDrive.usbDrive.status()).status).toEqual('no_drive');
 
   {
     // define the next scanner session
@@ -206,7 +207,7 @@ test('going through the whole process works', async () => {
   {
     const mockUsbMountPoint = join(workspace.path, 'mock-usb');
     await fs.mkdir(mockUsbMountPoint, { recursive: true });
-    mockUsb.insertUsbDrive({});
+    mockUsbDrive.insertUsbDrive({});
 
     expect(
       await apiClient.exportCastVoteRecordsToUsbDrive({
@@ -215,7 +216,7 @@ test('going through the whole process works', async () => {
     ).toEqual(ok());
 
     const cvrReportDirectoryPath = (
-      await getCastVoteRecordExportDirectoryPaths(mockUsb.mock)
+      await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)
     )[0];
     expect(cvrReportDirectoryPath).toContain('machine_000__');
 
