@@ -1,6 +1,6 @@
 export const behaviorToKeypressMap = {
-  Navigate: '1',
-  Activate: '2',
+  Move: '1',
+  Select: '2',
 } as const;
 
 export const validKeypressValues: string[] = Object.values(

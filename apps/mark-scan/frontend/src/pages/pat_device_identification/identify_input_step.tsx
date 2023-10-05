@@ -3,7 +3,7 @@ import { H1, Icons, P } from '@votingworks/ui';
 import { behaviorToKeypressMap, validKeypressValues } from './constants';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
-type InputBehavior = 'Navigate' | 'Activate';
+type InputBehavior = 'Move' | 'Select';
 
 // Each input identification step is broken into these sub-steps, named Phases for disambiguation
 type InputIdentificationPhase =
@@ -15,7 +15,7 @@ type InputIdentificationPhase =
   | 'other_input';
 
 function getOtherInputName(inputName: InputBehavior) {
-  return inputName === 'Navigate' ? 'Activate' : 'Navigate';
+  return inputName === 'Move' ? 'Select' : 'Move';
 }
 
 export function IdentifyInputStep({
@@ -95,11 +95,9 @@ export function IdentifyInputStep({
 
   return (
     <PortraitStepInnerContainer>
-      <div>
-        {icon}
-        <H1>{headerContent}</H1>
-        {bodyContent && <P>{bodyContent}</P>}
-      </div>
+      {icon}
+      <H1>{headerContent}</H1>
+      {bodyContent && <P>{bodyContent}</P>}
     </PortraitStepInnerContainer>
   );
 }

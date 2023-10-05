@@ -9,13 +9,4 @@ export const PortraitStepInnerContainer = styled.div`
     display: block;
     margin: 0 auto;
   }
-
-  ol {
-    margin-top: 0;
-    padding-left: 1em;
-
-    li {
-      margin-bottom: 1em;
-    }
-  }
 `;

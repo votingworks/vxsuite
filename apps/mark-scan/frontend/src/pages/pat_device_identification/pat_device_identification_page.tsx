@@ -25,13 +25,9 @@ export function PatDeviceIdentificationPage({
 
   const steps = [
     <PatIntroductionStep onStepCompleted={nextStep} key={0} />,
+    <IdentifyInputStep inputName="Move" onStepCompleted={nextStep} key={1} />,
     <IdentifyInputStep
-      inputName="Navigate"
-      onStepCompleted={nextStep}
-      key={1}
-    />,
-    <IdentifyInputStep
-      inputName="Activate"
+      inputName="Select"
       onStepCompleted={onAllInputsIdentified}
       key={2}
     />,
@@ -46,7 +42,7 @@ export function PatDeviceIdentificationPage({
             {step + 1} of {steps.length}
           </P>
         </DiagnosticScreenHeader>
-        <StepContainer>{steps[step]}</StepContainer>
+        <StepContainer fullWidth>{steps[step]}</StepContainer>
       </Main>
       <ButtonFooter>
         <Button onPress={onExitCalibration}>Skip Identification</Button>

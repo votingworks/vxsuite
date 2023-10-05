@@ -11,9 +11,13 @@ export const DiagnosticScreenHeader = styled(Prose).attrs({
   padding: 40px;
 `;
 
-export const StepContainer = styled.div`
+interface StepContainerProps {
+  fullWidth?: boolean;
+}
+export const StepContainer = styled.div<StepContainerProps>`
   display: flex;
   flex: 1;
   align-items: center;
   min-width: 1080px;
+  width: ${(p) => (p.fullWidth ? '100%' : undefined)};
 `;

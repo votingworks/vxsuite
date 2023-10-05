@@ -9,7 +9,7 @@ export function PatDeviceCalibrationPage(): JSX.Element {
   function onExitCalibration() {
     setPatDeviceIsCalibratedMutation.mutate();
   }
-  const [areInputsIdentified, setAreInputsIdentified] = useState(false);
+  const [areInputsIdentified, setAreInputsIdentified] = useState(true);
 
   const onPressBack = useCallback(() => {
     setAreInputsIdentified(false);
