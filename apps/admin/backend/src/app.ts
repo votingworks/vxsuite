@@ -390,6 +390,7 @@ function buildApi({
     },
 
     async listCastVoteRecordFilesOnUsb() {
+      const userRole = assertDefined(await getUserRole());
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
@@ -398,18 +399,26 @@ function buildApi({
         electionDefinition
       );
       if (listResult.isErr()) {
-        await logger.log(LogEventId.CvrFilesReadFromUsb, 'system', {
-          disposition: 'failure',
-          message: 'Error listing cast vote record exports on USB drive.',
-          reason: listResult.err(),
-        });
+        await logger.log(
+          LogEventId.ListCastVoteRecordExportsOnUsbDrive,
+          userRole,
+          {
+            disposition: 'failure',
+            message: 'Error listing cast vote record exports on USB drive.',
+            reason: listResult.err(),
+          }
+        );
         return [];
       }
       const castVoteRecordExportSummaries = listResult.ok();
-      await logger.log(LogEventId.CvrFilesReadFromUsb, 'system', {
-        disposition: 'success',
-        message: `Found ${castVoteRecordExportSummaries.length} cast vote record export(s) on USB drive.`,
-      });
+      await logger.log(
+        LogEventId.ListCastVoteRecordExportsOnUsbDrive,
+        userRole,
+        {
+          disposition: 'success',
+          message: `Found ${castVoteRecordExportSummaries.length} cast vote record export(s) on USB drive.`,
+        }
+      );
       return castVoteRecordExportSummaries;
     },
 
@@ -421,37 +430,47 @@ function buildApi({
       path: string;
     }): Promise<Result<CvrFileImportInfo, ImportCastVoteRecordsError>> {
       const userRole = assertDefined(await getUserRole());
+      await logger.log(LogEventId.ImportCastVoteRecordsInit, userRole, {
+        message: 'Importing cast vote records...',
+      });
       const importResult = await importCastVoteRecords(store, input.path);
       if (importResult.isErr()) {
-        await logger.log(LogEventId.CvrLoaded, userRole, {
+        await logger.log(LogEventId.ImportCastVoteRecordsComplete, userRole, {
           disposition: 'failure',
-          errorDetails: JSON.stringify(importResult.err()),
-          errorType: importResult.err().type,
+          message: 'Error importing cast vote records.',
           exportDirectoryPath: input.path,
-          result: 'Cast vote records not imported, error shown to user.',
+          errorDetails: JSON.stringify(importResult.err()),
         });
       } else {
-        await logger.log(LogEventId.CvrLoaded, userRole, {
+        const { alreadyPresent: numAlreadyPresent, newlyAdded: numNewlyAdded } =
+          importResult.ok();
+        let message = `Successfully imported ${numNewlyAdded} cast vote record(s).`;
+        if (numAlreadyPresent > 0) {
+          message += ` Ignored ${numAlreadyPresent} duplicate(s).`;
+        }
+        await logger.log(LogEventId.ImportCastVoteRecordsComplete, userRole, {
           disposition: 'success',
+          message,
           exportDirectoryPath: input.path,
-          numberOfBallotsImported: importResult.ok().newlyAdded,
-          numberOfDuplicateBallotsIgnored: importResult.ok().alreadyPresent,
-          result: 'Cast vote records imported.',
         });
       }
       return importResult;
     },
 
     async clearCastVoteRecordFiles(): Promise<void> {
+      const userRole = assertDefined(await getUserRole());
+      await logger.log(LogEventId.ClearImportedCastVoteRecordsInit, userRole, {
+        message: 'Clearing imported cast vote records...',
+      });
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       store.deleteCastVoteRecordFiles(electionId);
       store.setElectionResultsOfficial(electionId, false);
       await logger.log(
-        LogEventId.CaseVoteRecordFileRemoved,
-        assertDefined(await getUserRole()),
+        LogEventId.ClearImportedCastVoteRecordsComplete,
+        userRole,
         {
-          message: 'User removed all cast vote record files.',
           disposition: 'success',
+          message: 'Successfully cleared all imported cast vote records.',
         }
       );
     },
