@@ -2,7 +2,12 @@ import { Server } from 'http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
+import makeDebug from 'debug';
+import {
+  getPaperHandlerDriver,
+  MockPaperHandlerDriver,
+  PaperHandlerDriverInterface,
+} from '@votingworks/custom-paper-handler';
 import {
   isIntegrationTest,
   BooleanEnvironmentVariableName,
@@ -21,6 +26,8 @@ import {
   DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
 } from './custom-paper-handler/constants';
 
+const debug = makeDebug('mark-scan:server');
+
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
   logger: Logger;
@@ -28,6 +35,24 @@ export interface StartOptions {
   workspace: Workspace;
   // Allow undefined state machine to fail gracefully if no connection to paper handler
   stateMachine?: PaperHandlerStateMachine;
+}
+
+async function resolveDriver(): Promise<
+  PaperHandlerDriverInterface | undefined
+> {
+  const driver = await getPaperHandlerDriver();
+
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+    ) &&
+    !driver
+  ) {
+    debug('No paper handler found. Starting server with mock driver');
+    return new MockPaperHandlerDriver();
+  }
+
+  return driver;
 }
 
 /**
@@ -41,23 +66,19 @@ export async function start({
 }: StartOptions): Promise<Server> {
   /* istanbul ignore next */
   const resolvedAuth = auth ?? getDefaultAuth(logger);
+  const driver = await resolveDriver();
 
   const paperHandlerDriver = await getPaperHandlerDriver();
   let stateMachine;
-  if (
-    paperHandlerDriver ||
-    isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
-    )
-  ) {
-    stateMachine = await getPaperHandlerStateMachine(
+  if (driver) {
+    stateMachine = await getPaperHandlerStateMachine({
       workspace,
-      resolvedAuth,
+      auth: resolvedAuth,
       logger,
-      paperHandlerDriver,
-      DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-      DEV_AUTH_STATUS_POLLING_INTERVAL_MS
-    );
+      driver,
+      devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+      authPollingIntervalMs: DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
+    });
   }
 
   const usbDrive = isIntegrationTest()

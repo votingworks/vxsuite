@@ -104,6 +104,8 @@ export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
     case ']':
       handleClick();
       break;
+    // Current PAT device support uses a USB switch that emulates keypresses 1 and 2.
+    // These signals are used to navigate DOM focus and select the focused element.
     case '1':
       handleArrowDown();
       break;

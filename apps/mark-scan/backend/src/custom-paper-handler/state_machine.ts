@@ -5,7 +5,6 @@ import {
   PaperHandlerDriver,
   PaperHandlerStatus,
   PaperHandlerDriverInterface,
-  MockPaperHandlerDriver,
 } from '@votingworks/custom-paper-handler';
 import {
   assign as xassign,
@@ -629,6 +628,7 @@ export function buildMachine(
               assign({
                 interpretation: undefined,
                 scannedImagePaths: undefined,
+                patDevice: undefined,
               });
             },
             after: {
@@ -645,6 +645,7 @@ export function buildMachine(
               assign({
                 interpretation: undefined,
                 scannedImagePaths: undefined,
+                patDevice: undefined,
               });
             },
             always: 'not_accepting_paper',
@@ -735,27 +736,21 @@ function setUpLogging(
     });
 }
 
-function resolveDriver(
-  driver?: PaperHandlerDriverInterface
-): PaperHandlerDriverInterface {
-  if (driver) {
-    debug('Using real driver');
-    return driver;
-  }
-
-  debug('No driver found. Starting state machine with mock driver');
-  return new MockPaperHandlerDriver();
-}
-
-export async function getPaperHandlerStateMachine(
-  workspace: Workspace,
-  auth: InsertedSmartCardAuthApi,
-  logger: Logger,
-  realDriver?: PaperHandlerDriverInterface,
-  devicePollingIntervalMs: number = DEVICE_STATUS_POLLING_INTERVAL_MS,
-  authPollingIntervalMs: number = AUTH_STATUS_POLLING_INTERVAL_MS
-): Promise<Optional<PaperHandlerStateMachine>> {
-  const driver = resolveDriver(realDriver);
+export async function getPaperHandlerStateMachine({
+  workspace,
+  auth,
+  logger,
+  driver,
+  devicePollingIntervalMs = DEVICE_STATUS_POLLING_INTERVAL_MS,
+  authPollingIntervalMs = AUTH_STATUS_POLLING_INTERVAL_MS,
+}: {
+  workspace: Workspace;
+  auth: InsertedSmartCardAuthApi;
+  logger: Logger;
+  driver: PaperHandlerDriverInterface;
+  devicePollingIntervalMs: number;
+  authPollingIntervalMs: number;
+}): Promise<Optional<PaperHandlerStateMachine>> {
   const initialContext: Context = {
     auth,
     workspace,

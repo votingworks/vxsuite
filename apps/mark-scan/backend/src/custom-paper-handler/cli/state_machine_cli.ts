@@ -82,14 +82,14 @@ export async function main(): Promise<number> {
     'Could not get paper handler driver. Is a paper handler device connected?'
   );
 
-  const stateMachine = await getPaperHandlerStateMachine(
+  const stateMachine = await getPaperHandlerStateMachine({
     workspace,
     auth,
     logger,
     driver,
-    DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-    AUTH_STATUS_POLLING_INTERVAL_MS
-  );
+    devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+    authPollingIntervalMs: AUTH_STATUS_POLLING_INTERVAL_MS,
+  });
   assert(stateMachine !== undefined, 'Unexpected undefined state machine');
 
   stateMachine.setAcceptingPaper();
