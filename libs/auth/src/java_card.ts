@@ -516,7 +516,7 @@ export class JavaCard implements Card {
         constructTlv(PUT_DATA.CERT_TAG, certInDerFormat),
         constructTlv(
           PUT_DATA.CERT_INFO_TAG,
-          Buffer.from([PUT_DATA.CERT_INFO_UNCOMPRESSED])
+          Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
         ),
         constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.from([])),
       ])
@@ -594,7 +594,7 @@ export class JavaCard implements Card {
           GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG,
           constructTlv(
             GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TAG,
-            Buffer.from([CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256])
+            Buffer.of(CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256)
           )
         ),
       })

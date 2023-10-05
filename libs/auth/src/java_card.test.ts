@@ -15,7 +15,6 @@ import { Byte, TEST_JURISDICTION } from '@votingworks/types';
 import {
   getTestFilePath,
   MockCardReader,
-  numericArray,
   TestFileSetId,
   TestJavaCard,
 } from '../test/utils';
@@ -78,7 +77,7 @@ beforeEach(() => {
       return mockCardReader as unknown as CardReader;
     }
   );
-  mockOf(createCert).mockImplementation(() => Promise.resolve(Buffer.from([])));
+  mockOf(createCert).mockImplementation(() => Promise.resolve(Buffer.of()));
 });
 
 afterEach(() => {
@@ -124,7 +123,7 @@ function mockCardAppletSelectionRequest(): void {
     p2: SELECT.P2,
     data: Buffer.from(OPEN_FIPS_201_AID, 'hex'),
   });
-  const responseData = Buffer.from([]);
+  const responseData = Buffer.of();
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);
 }
 
@@ -144,9 +143,9 @@ function mockCardCertRetrievalRequest(
       constructTlv(PUT_DATA.CERT_TAG, fs.readFileSync(certPath)),
       constructTlv(
         PUT_DATA.CERT_INFO_TAG,
-        Buffer.from([PUT_DATA.CERT_INFO_UNCOMPRESSED])
+        Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
       ),
-      constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.from([])),
+      constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.of()),
     ])
   );
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);
@@ -157,7 +156,7 @@ async function mockCardSignatureRequest(
   privateKeyPath: string,
   error?: Error
 ): Promise<void> {
-  const challengeHash = Buffer.from(sha256(mockChallenge), 'hex');
+  const challengeHash = Buffer.from(sha256.arrayBuffer(mockChallenge));
   const command = new CardCommand({
     ins: GENERAL_AUTHENTICATE.INS,
     p1: CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256,
@@ -166,7 +165,7 @@ async function mockCardSignatureRequest(
       GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
       Buffer.concat([
         constructTlv(GENERAL_AUTHENTICATE.CHALLENGE_TAG, challengeHash),
-        constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.from([])),
+        constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.of()),
       ])
     ),
   });
@@ -201,7 +200,7 @@ function mockCardPinVerificationRequest(pin: string, error?: Error): void {
     mockCardReader.transmit.expectCallWith(command).throws(error);
     return;
   }
-  const responseData = Buffer.from([]);
+  const responseData = Buffer.of();
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);
 }
 
@@ -236,7 +235,7 @@ function mockCardPinResetRequest(newPin: string): void {
     p2: RESET_RETRY_COUNTER.P2,
     data: Buffer.concat([PUK, construct8BytePinBuffer(newPin)]),
   });
-  const responseData = Buffer.from([]);
+  const responseData = Buffer.of();
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);
 }
 
@@ -252,7 +251,7 @@ function mockCardKeyPairGenerationRequest(
       GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG,
       constructTlv(
         GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TAG,
-        Buffer.from([CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256])
+        Buffer.of(CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256)
       )
     ),
   });
@@ -285,14 +284,14 @@ function mockCardCertStorageRequest(
           constructTlv(PUT_DATA.CERT_TAG, fs.readFileSync(certPath)),
           constructTlv(
             PUT_DATA.CERT_INFO_TAG,
-            Buffer.from([PUT_DATA.CERT_INFO_UNCOMPRESSED])
+            Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
           ),
-          constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.from([])),
+          constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.of()),
         ])
       ),
     ]),
   });
-  const responseData = Buffer.from([]);
+  const responseData = Buffer.of();
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);
 }
 
@@ -324,7 +323,7 @@ function mockCardPutDataRequest(dataObjectId: Buffer, data: Buffer): void {
       constructTlv(PUT_DATA.DATA_TAG, data),
     ]),
   });
-  const responseData = Buffer.from([]);
+  const responseData = Buffer.of();
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);
 }
 
@@ -886,14 +885,11 @@ test('Unprogramming', async () => {
 
   mockCardAppletSelectionRequest();
   mockCardPinResetRequest(DEFAULT_PIN);
-  mockCardPutDataRequest(CARD_VX_ADMIN_CERT.OBJECT_ID, Buffer.from([]));
-  mockCardPutDataRequest(
-    VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
-    Buffer.from([])
-  );
+  mockCardPutDataRequest(CARD_VX_ADMIN_CERT.OBJECT_ID, Buffer.of());
+  mockCardPutDataRequest(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID, Buffer.of());
   mockCardAppletSelectionRequest();
   for (const objectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
-    mockCardPutDataRequest(objectId, Buffer.from([]));
+    mockCardPutDataRequest(objectId, Buffer.of());
   }
 
   await javaCard.unprogram();
@@ -921,14 +917,11 @@ test('Data reading', async () => {
   mockCardAppletSelectionRequest();
   mockCardGetDataRequest(
     GENERIC_STORAGE_SPACE.OBJECT_IDS[0],
-    Buffer.from([
-      ...numericArray({ length: 25000, value: 1 }),
-      ...numericArray({ length: 7763, value: 2 }),
-    ])
+    Buffer.concat([Buffer.alloc(25000).fill(1), Buffer.alloc(7763, 2)])
   );
   mockCardGetDataRequest(
     GENERIC_STORAGE_SPACE.OBJECT_IDS[1],
-    Buffer.from(numericArray({ length: 17237, value: 2 }))
+    Buffer.alloc(17237, 2)
   );
   mockCardGetDataRequest(
     GENERIC_STORAGE_SPACE.OBJECT_IDS[2],
@@ -939,10 +932,7 @@ test('Data reading', async () => {
   );
 
   expect(await javaCard.readData()).toEqual(
-    Buffer.from([
-      ...numericArray({ length: 25000, value: 1 }),
-      ...numericArray({ length: 25000, value: 2 }),
-    ])
+    Buffer.concat([Buffer.alloc(25000).fill(1), Buffer.alloc(25000, 2)])
   );
 });
 
@@ -951,46 +941,40 @@ test.each<{
   expectedPutDataRequests: Array<{ dataObjectId: Buffer; data: Buffer }>;
 }>([
   {
-    data: Buffer.from([
-      ...numericArray({ length: 25000, value: 1 }),
-      ...numericArray({ length: 25000, value: 2 }),
-      ...numericArray({ length: 25000, value: 3 }),
+    data: Buffer.concat([
+      Buffer.alloc(25000, 1),
+      Buffer.alloc(25000, 2),
+      Buffer.alloc(25000, 3),
     ]),
     expectedPutDataRequests: [
       {
         dataObjectId: GENERIC_STORAGE_SPACE.OBJECT_IDS[0],
-        data: Buffer.from([
-          ...numericArray({ length: 25000, value: 1 }),
-          ...numericArray({ length: 7763, value: 2 }),
-        ]),
+        data: Buffer.concat([Buffer.alloc(25000, 1), Buffer.alloc(7763, 2)]),
       },
       {
         dataObjectId: GENERIC_STORAGE_SPACE.OBJECT_IDS[1],
-        data: Buffer.from([
-          ...numericArray({ length: 17237, value: 2 }),
-          ...numericArray({ length: 15526, value: 3 }),
-        ]),
+        data: Buffer.concat([Buffer.alloc(17237, 2), Buffer.alloc(15526, 3)]),
       },
       {
         dataObjectId: GENERIC_STORAGE_SPACE.OBJECT_IDS[2],
-        data: Buffer.from(numericArray({ length: 9474, value: 3 })),
+        data: Buffer.alloc(9474, 3),
       },
     ],
   },
   {
-    data: Buffer.from(numericArray({ length: 25000, value: 1 })),
+    data: Buffer.alloc(25000, 1),
     expectedPutDataRequests: [
       {
         dataObjectId: GENERIC_STORAGE_SPACE.OBJECT_IDS[0],
-        data: Buffer.from(numericArray({ length: 25000, value: 1 })),
+        data: Buffer.alloc(25000, 1),
       },
       {
         dataObjectId: GENERIC_STORAGE_SPACE.OBJECT_IDS[1],
-        data: Buffer.from([]),
+        data: Buffer.of(),
       },
       {
         dataObjectId: GENERIC_STORAGE_SPACE.OBJECT_IDS[2],
-        data: Buffer.from([]),
+        data: Buffer.of(),
       },
     ],
   },
@@ -1010,7 +994,7 @@ test('Data clearing', async () => {
 
   mockCardAppletSelectionRequest();
   for (const dataObjectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
-    mockCardPutDataRequest(dataObjectId, Buffer.from([]));
+    mockCardPutDataRequest(dataObjectId, Buffer.of());
   }
 
   await javaCard.clearData();
@@ -1022,7 +1006,7 @@ test('Data reading error handling', async () => {
   mockCardAppletSelectionRequest();
   mockCardGetDataRequest(
     GENERIC_STORAGE_SPACE.OBJECT_IDS[0],
-    Buffer.from(numericArray({ length: 25000, value: 1 }))
+    Buffer.alloc(25000, 1)
   );
   mockCardGetDataRequest(
     GENERIC_STORAGE_SPACE.OBJECT_IDS[1],
@@ -1035,9 +1019,7 @@ test('Data reading error handling', async () => {
 test('Attempting to write too much data', async () => {
   const javaCard = new JavaCard(config);
 
-  const data = Buffer.from(
-    numericArray({ length: GENERIC_STORAGE_SPACE_CAPACITY_BYTES + 1 })
-  );
+  const data = Buffer.alloc(GENERIC_STORAGE_SPACE_CAPACITY_BYTES + 1);
   await expect(javaCard.writeData(data)).rejects.toThrow(
     'Not enough space on card'
   );

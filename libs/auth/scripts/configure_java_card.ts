@@ -116,26 +116,26 @@ function configureKeySlotCommandApdu(
     data: constructTlv(
       PUT_DATA_ADMIN.CREATE_KEY_TAG,
       Buffer.concat([
-        constructTlv(PUT_DATA_ADMIN.ID_TAG, Buffer.from([keyId])),
+        constructTlv(PUT_DATA_ADMIN.ID_TAG, Buffer.of(keyId)),
         constructTlv(
           PUT_DATA_ADMIN.ACCESS_MODE_OVER_CONTACT_INTERFACE_TAG,
-          Buffer.from([accessMode])
+          Buffer.of(accessMode)
         ),
         constructTlv(
           PUT_DATA_ADMIN.ACCESS_MODE_OVER_CONTACTLESS_INTERFACE_TAG,
-          Buffer.from([PUT_DATA_ADMIN.ACCESS_MODE_NEVER])
+          Buffer.of(PUT_DATA_ADMIN.ACCESS_MODE_NEVER)
         ),
         constructTlv(
           PUT_DATA_ADMIN.KEY_MECHANISM_TAG,
-          Buffer.from([CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256])
+          Buffer.of(CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256)
         ),
         constructTlv(
           PUT_DATA_ADMIN.KEY_ROLE_TAG,
-          Buffer.from([PUT_DATA_ADMIN.KEY_ROLE_SIGN])
+          Buffer.of(PUT_DATA_ADMIN.KEY_ROLE_SIGN)
         ),
         constructTlv(
           PUT_DATA_ADMIN.KEY_ATTRIBUTE_TAG,
-          Buffer.from([PUT_DATA_ADMIN.KEY_ATTRIBUTE_NONE])
+          Buffer.of(PUT_DATA_ADMIN.KEY_ATTRIBUTE_NONE)
         ),
       ])
     ),
@@ -154,11 +154,11 @@ function configureDataObjectSlotCommandApdu(objectId: Buffer): CommandApdu {
         constructTlv(PUT_DATA_ADMIN.ID_TAG, objectId),
         constructTlv(
           PUT_DATA_ADMIN.ACCESS_MODE_OVER_CONTACT_INTERFACE_TAG,
-          Buffer.from([PUT_DATA_ADMIN.ACCESS_MODE_ALWAYS])
+          Buffer.of(PUT_DATA_ADMIN.ACCESS_MODE_ALWAYS)
         ),
         constructTlv(
           PUT_DATA_ADMIN.ACCESS_MODE_OVER_CONTACTLESS_INTERFACE_TAG,
-          Buffer.from([PUT_DATA_ADMIN.ACCESS_MODE_NEVER])
+          Buffer.of(PUT_DATA_ADMIN.ACCESS_MODE_NEVER)
         ),
       ])
     ),
@@ -199,7 +199,7 @@ async function runAppletConfigurationCommands(): Promise<void> {
           PUT_DATA_ADMIN.PIN_POLICY_TAG,
           constructTlv(
             PUT_DATA_ADMIN.MAX_INCORRECT_PIN_ATTEMPTS_OVER_CONTACT_INTERFACE_TAG,
-            Buffer.from([MAX_NUM_INCORRECT_PIN_ATTEMPTS])
+            Buffer.of(MAX_NUM_INCORRECT_PIN_ATTEMPTS)
           )
         )
       ),

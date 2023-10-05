@@ -9,7 +9,7 @@ import {
 } from './piv';
 
 test('pivDataObjectId', () => {
-  expect(pivDataObjectId(0x00)).toEqual(Buffer.from([0x5f, 0xc1, 0x00]));
+  expect(pivDataObjectId(0x00)).toEqual(Buffer.of(0x5f, 0xc1, 0x00));
 });
 
 test.each<{ pin: string; expectedBuffer: Buffer }>([

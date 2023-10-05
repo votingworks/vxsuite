@@ -135,7 +135,7 @@ function serializeArtifactSignatureBundle(
   const { signature, signingMachineCert } = artifactSignatureBundle;
   return Buffer.concat([
     // ECC signature length can vary ever so slightly, hence the need to persist length metadata
-    Buffer.from([signature.length]),
+    Buffer.of(signature.length),
     signature,
     signingMachineCert,
   ]);
