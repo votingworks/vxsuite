@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
-import { H1, Icons, P, Text } from '@votingworks/ui';
-import { StepInnerContainer } from '../diagnostic_screen_components';
+import { H1, Icons, P } from '@votingworks/ui';
 import { behaviorToKeypressMap, validKeypressValues } from './constants';
+import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
 type InputBehavior = 'Navigate' | 'Activate';
 
@@ -81,7 +81,7 @@ export function IdentifyInputStep({
       break;
     case 'identified':
       headerContent = `"${inputName}" Input Identified`;
-      bodyContent = 'Trigger again to continue.';
+      bodyContent = 'Trigger the input again to continue.';
       icon = <Icons.Done />;
       break;
     case 'other_input':
@@ -94,14 +94,12 @@ export function IdentifyInputStep({
   }
 
   return (
-    <StepInnerContainer svgSize="medium" padding="0 40px 0 0">
+    <PortraitStepInnerContainer>
       <div>
-        <Text>
-          <H1>{headerContent}</H1>
-          {bodyContent && <P>{bodyContent}</P>}
-        </Text>
+        {icon}
+        <H1>{headerContent}</H1>
+        {bodyContent && <P>{bodyContent}</P>}
       </div>
-      {icon}
-    </StepInnerContainer>
+    </PortraitStepInnerContainer>
   );
 }

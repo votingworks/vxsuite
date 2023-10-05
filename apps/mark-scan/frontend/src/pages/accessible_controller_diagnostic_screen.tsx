@@ -1,14 +1,41 @@
 import { useEffect, useState } from 'react';
 import { Button, Font, H1, Main, P, Screen } from '@votingworks/ui';
 import { DateTime } from 'luxon';
+import styled from 'styled-components';
 import { ScreenReader } from '../config/types';
 import {
   DiagnosticScreenHeader,
   StepContainer,
-  StepInnerContainer,
 } from './diagnostic_screen_components';
 
 type ButtonName = 'Up' | 'Down' | 'Left' | 'Right' | 'Select';
+
+const StepInnerContainer = styled.div`
+  display: flex;
+  width: 100%;
+
+  & > div {
+    flex: 1;
+    padding: 0 20px 0 40px;
+  }
+
+  svg {
+    height: 25em;
+  }
+
+  button {
+    margin-top: 4em;
+  }
+
+  ol {
+    margin-top: 0;
+    padding-left: 1em;
+
+    li {
+      margin-bottom: 1em;
+    }
+  }
+`;
 
 interface AccessibleControllerIllustrationProps {
   highlight?: ButtonName | 'Headphones';
