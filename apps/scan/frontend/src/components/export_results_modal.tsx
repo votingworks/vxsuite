@@ -8,6 +8,7 @@ import {
   Modal,
   UsbControllerButton,
   P,
+  userReadableMessageFromExportError,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 
@@ -52,7 +53,10 @@ export function ExportResultsModal({
       {
         onSuccess: (result) => {
           if (result.isErr()) {
-            setErrorMessage(`Failed to save CVRs. ${result.err().message}`);
+            const errorDetails = userReadableMessageFromExportError(
+              result.err()
+            );
+            setErrorMessage(`Failed to save CVRs. ${errorDetails}`);
             setCurrentState(ModalState.ERROR);
           } else {
             setCurrentState(ModalState.DONE);

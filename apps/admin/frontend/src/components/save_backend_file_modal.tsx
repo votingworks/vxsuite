@@ -206,13 +206,12 @@ export function SaveBackendFileModal({
         return 'Permission denied.';
       case 'file-system-error':
         return 'There may be an issue with the USB drive.';
-        break;
       case 'missing-usb-drive':
       case 'relative-file-path':
         return 'Application error.';
       // istanbul ignore next
       default:
-        throwIllegalValue(error);
+        throwIllegalValue(error.type);
     }
   })();
 

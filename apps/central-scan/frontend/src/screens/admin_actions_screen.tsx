@@ -14,6 +14,7 @@ import {
   P,
   Screen,
   SetClockButton,
+  userReadableMessageFromExportError,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { useHistory } from 'react-router-dom';
@@ -100,7 +101,7 @@ export function AdminActionsScreen({
       {
         onSuccess(result) {
           if (result.isErr()) {
-            setBackupError(result.err().message);
+            setBackupError(userReadableMessageFromExportError(result.err()));
           }
           setIsBackingUp(false);
         },

@@ -1,7 +1,13 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Modal, P, UsbControllerButton } from '@votingworks/ui';
+import {
+  Button,
+  Modal,
+  P,
+  UsbControllerButton,
+  userReadableMessageFromExportError,
+} from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
@@ -47,7 +53,10 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
       {
         onSuccess: (result) => {
           if (result.isErr()) {
-            setErrorMessage(`Failed to save CVRs. ${result.err().message}`);
+            const errorDetails = userReadableMessageFromExportError(
+              result.err()
+            );
+            setErrorMessage(`Failed to save CVRs. ${errorDetails}`);
             setCurrentState(ModalState.ERROR);
           } else {
             setCurrentState(ModalState.DONE);
