@@ -1,14 +1,7 @@
 /* istanbul ignore file - tested via VxSuite apps. */
 
-import { Optional } from '@votingworks/basics';
 import { Logger } from '@votingworks/logging';
-import {
-  Dictionary,
-  LanguageCode,
-  UiStringAudioIds,
-  UiStringTranslations,
-  UiStringsApi,
-} from '@votingworks/types';
+import { UiStringsApi } from '@votingworks/types';
 
 import { UiStringsStore } from './ui_strings_store';
 
@@ -23,30 +16,21 @@ export function createUiStringsApi(context: UiStringsApiContext): UiStringsApi {
   const { store } = context;
 
   return {
-    getAvailableLanguages(): LanguageCode[] {
+    getAvailableLanguages() {
       return store.getLanguages();
     },
 
-    getUiStrings(input: {
-      languageCode: LanguageCode;
-    }): Optional<UiStringTranslations> {
+    getUiStrings(input) {
+      return store.getUiStrings(input.languageCode);
+    },
+
+    getUiStringAudioIds(input) {
       throw new Error(
         `Not yet implemented. Requested language code: ${input.languageCode}`
       );
     },
 
-    getUiStringAudioIds(input: {
-      languageCode: LanguageCode;
-    }): Optional<UiStringAudioIds> {
-      throw new Error(
-        `Not yet implemented. Requested language code: ${input.languageCode}`
-      );
-    },
-
-    getAudioClipsBase64(input: {
-      languageCode: LanguageCode;
-      audioIds: string[];
-    }): Dictionary<string> {
+    getAudioClipsBase64(input) {
       throw new Error(
         `Not yet implemented. Requested language code: ${input.languageCode} | audioIds: ${input.audioIds}`
       );

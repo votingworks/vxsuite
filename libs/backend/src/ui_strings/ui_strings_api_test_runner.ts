@@ -27,10 +27,27 @@ export function runUiStringApiTests(params: {
     );
   });
 
-  test('getUiStrings throws not-yet-implemented error', () => {
-    expect(() =>
-      api.getUiStrings({ languageCode: LanguageCode.SPANISH })
-    ).toThrow(/not yet implemented/i);
+  test('getUiStrings', () => {
+    expect(api.getUiStrings({ languageCode: LanguageCode.ENGLISH })).toBeNull();
+    expect(api.getUiStrings({ languageCode: LanguageCode.CHINESE })).toBeNull();
+    expect(api.getUiStrings({ languageCode: LanguageCode.SPANISH })).toBeNull();
+
+    store.setUiStrings({
+      languageCode: LanguageCode.ENGLISH,
+      data: { foo: 'bar' },
+    });
+    store.setUiStrings({
+      languageCode: LanguageCode.CHINESE,
+      data: { foo: 'bar_zh' },
+    });
+
+    expect(api.getUiStrings({ languageCode: LanguageCode.ENGLISH })).toEqual({
+      foo: 'bar',
+    });
+    expect(api.getUiStrings({ languageCode: LanguageCode.CHINESE })).toEqual({
+      foo: 'bar_zh',
+    });
+    expect(api.getUiStrings({ languageCode: LanguageCode.SPANISH })).toBeNull();
   });
 
   test('getUiStringAudioIds throws not-yet-implemented error', () => {

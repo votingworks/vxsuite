@@ -1,5 +1,3 @@
-import { Optional } from '@votingworks/basics';
-
 import { Dictionary } from './generic';
 import { LanguageCode } from './language_code';
 import { UiStringAudioIds } from './ui_string_audio_ids';
@@ -10,11 +8,11 @@ export interface UiStringsApi {
 
   getUiStrings(input: {
     languageCode: LanguageCode;
-  }): Optional<UiStringTranslations>;
+  }): UiStringTranslations | null;
 
   getUiStringAudioIds(input: {
     languageCode: LanguageCode;
-  }): Optional<UiStringAudioIds>;
+  }): UiStringAudioIds | null;
 
   /**
    * Returns a map of the given audio IDs to corresponding audio data in
