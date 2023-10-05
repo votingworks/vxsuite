@@ -110,11 +110,11 @@ test('render export modal with errors when appropriate', async () => {
 
   mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ isMinimalExport: true })
-    .resolves(err({ type: 'file-system-error', message: 'Uh oh' }));
+    .resolves(err({ type: 'file-system-error' }));
   fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText('Failed to Save CVRs'));
-  getByText(/Failed to save CVRs./);
-  getByText(/Uh oh/);
+  await waitFor(() =>
+    getByText('Failed to save CVRs. Unable to write to USB drive.')
+  );
 
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
