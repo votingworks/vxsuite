@@ -15,16 +15,19 @@ export enum LogEventId {
   // Election configuration logs
   ElectionConfigured = 'election-configured',
   ElectionUnconfigured = 'election-unconfigured',
+
   // System level logs
   MachineBootInit = 'machine-boot-init',
   MachineBootComplete = 'machine-boot-complete',
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
+
   // Auth logs
   AuthPinEntry = 'auth-pin-entry',
   AuthLogin = 'auth-login',
   AuthLogout = 'auth-logout',
+
   // USB related logs
   UsbDriveDetected = 'usb-drive-detected',
   UsbDriveRemoved = 'usb-drive-removed',
@@ -34,18 +37,22 @@ export enum LogEventId {
   UsbDriveMounted = 'usb-drive-mount-complete',
   UsbDriveFormatInit = 'usb-drive-format-init',
   UsbDriveFormatted = 'usb-drive-format-complete',
+
   // App Startup
   ApplicationStartup = 'application-startup',
+
   // External Device Related Logs
   PrinterConfigurationAdded = 'printer-config-added',
   PrinterConfigurationRemoved = 'printer-config-removed',
   PrinterConnectionUpdate = 'printer-connection-update',
   DeviceAttached = 'device-attached',
   DeviceUnattached = 'device-unattached',
+
   // Storage logs
   LoadFromStorage = 'load-from-storage',
   SaveToStorage = 'save-to-storage',
   FileSaved = 'file-saved',
+
   // VxAdmin specific user action logs
   SaveBallotPackageInit = 'save-ballot-package-init',
   SaveBallotPackageComplete = 'save-ballot-package-complete',
@@ -53,14 +60,16 @@ export enum LogEventId {
   SmartCardProgramComplete = 'smart-card-program-complete',
   SmartCardUnprogramInit = 'smart-card-unprogram-init',
   SmartCardUnprogramComplete = 'smart-card-unprogram-complete',
-  CvrLoaded = 'cvr-loaded',
-  CvrFilesReadFromUsb = 'cvr-files-read-from-usb',
+  ListCastVoteRecordExportsOnUsbDrive = 'list-cast-vote-record-exports-on-usb-drive',
+  ImportCastVoteRecordsInit = 'import-cast-vote-records-init',
+  ImportCastVoteRecordsComplete = 'import-cast-vote-records-complete',
+  ClearImportedCastVoteRecordsInit = 'clear-imported-cast-vote-records-init',
+  ClearImportedCastVoteRecordsComplete = 'clear-imported-cast-vote-records-complete',
   RecomputingTally = 'recompute-tally-init',
   RecomputedTally = 'recompute-tally-complete',
   ManualTallyDataEdited = 'manual-tally-data-edited',
   ManualTallyDataRemoved = 'manual-tally-data-removed',
   MarkedTallyResultsOfficial = 'marked-tally-results-official',
-  CaseVoteRecordFileRemoved = 'cast-vote-record-file-removed',
   TallyReportPreviewed = 'tally-report-previewed',
   TallyReportPrinted = 'tally-report-printed',
   ConvertingResultsToSemsFormat = 'converting-to-sems',
@@ -71,6 +80,7 @@ export enum LogEventId {
   SystemSettingsSaveInitiated = 'system-settings-save-initiated',
   SystemSettingsSaved = 'system-settings-saved',
   SystemSettingsRetrieved = 'system-settings-retrieved',
+
   // VxCentralScan specific user action logs
   TogglingTestMode = 'toggle-test-mode-init',
   ToggledTestMode = 'toggled-test-mode',
@@ -83,8 +93,6 @@ export enum LogEventId {
   BallotPackageFilesReadFromUsb = 'ballot-package-files-read-from-usb',
   BallotConfiguredOnMachine = 'ballot-configure-machine-complete',
   ScannerConfigured = 'scanner-configure-complete',
-  SaveCvrInit = 'save-cvr-init',
-  SaveCvrComplete = 'save-cvr-complete',
   DeleteScanBatchInit = 'delete-cvr-batch-init',
   DeleteScanBatchComplete = 'delete-cvr-batch-complete',
   ScanBatchInit = 'scan-batch-init',
@@ -107,6 +115,10 @@ export enum LogEventId {
   RebootMachine = 'reboot-machine',
   PowerDown = 'power-down-machine',
   BallotPackageLoadedFromUsb = 'ballot-package-load-from-usb-complete',
+
+  // Scanners, central and precinct
+  ExportCastVoteRecordsInit = 'export-cast-vote-records-init',
+  ExportCastVoteRecordsComplete = 'export-cast-vote-records-complete',
 
   // Precinct Machine (VxMark, VxScan, VxMarkScan) State
   PollsOpened = 'polls-opened',
@@ -350,6 +362,7 @@ const SmartCardProgramComplete: LogDetails = {
     'A smart card has been programmed (or failed to be programmed). The new smart card user role is indicated by the programmedUserRole key.',
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
+
 const SmartCardUnprogramInit: LogDetails = {
   eventId: LogEventId.SmartCardUnprogramInit,
   eventType: LogEventType.UserAction,
@@ -365,20 +378,43 @@ const SmartCardUnprogramComplete: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 
-const CvrLoaded: LogDetails = {
-  eventId: LogEventId.CvrLoaded,
+const ListCastVoteRecordExportsOnUsbDrive: LogDetails = {
+  eventId: LogEventId.ListCastVoteRecordExportsOnUsbDrive,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User loaded CVR to the machine. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+    'Cast vote record exports on the inserted USB drive were listed.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
-const CvrFilesReadFromUsb: LogDetails = {
-  eventId: LogEventId.CvrFilesReadFromUsb,
+
+const ImportCastVoteRecordsInit: LogDetails = {
+  eventId: LogEventId.ImportCastVoteRecordsInit,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User opened load CVR modal and usb is searched for possible CVR files to load.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+    'Cast vote records are being imported from a USB drive.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
+const ImportCastVoteRecordsComplete: LogDetails = {
+  eventId: LogEventId.ImportCastVoteRecordsComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Cast vote records have been imported from a USB drive (or failed to be imported).',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+
+const ClearImportedCastVoteRecordsInit: LogDetails = {
+  eventId: LogEventId.ClearImportedCastVoteRecordsInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Imported cast vote records are being cleared.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+const ClearImportedCastVoteRecordsComplete: LogDetails = {
+  eventId: LogEventId.ClearImportedCastVoteRecordsComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Imported cast vote records have been cleared (or failed to be cleared).',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+
 const RecomputingTally: LogDetails = {
   eventId: LogEventId.RecomputingTally,
   eventType: LogEventType.UserAction,
@@ -413,12 +449,6 @@ const MarkedTallyResultsOfficial: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'User marked the tally results as official. This disables loading more CVR files or editing manual tally data.',
-  restrictInDocumentationToApps: [LogSource.VxAdminService],
-};
-const CastVoteRecordFileRemoved: LogDetails = {
-  eventId: LogEventId.CaseVoteRecordFileRemoved,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'The user removed one or more CVR files.',
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 const TallyReportPrinted: LogDetails = {
@@ -585,26 +615,27 @@ const BallotPackageFilesReadFromUsb: LogDetails = {
     LogSource.VxScanFrontend,
   ],
 };
-const SaveCvrInit: LogDetails = {
-  eventId: LogEventId.SaveCvrInit,
+
+const ExportCastVoteRecordsInit: LogDetails = {
+  eventId: LogEventId.ExportCastVoteRecordsInit,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'User has initiated saving CVR file to the USB drive.',
-  defaultMessage: 'Saving CVR file to USB...',
+  documentationMessage: 'Cast vote records are being exported to a USB drive.',
   restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
+    LogSource.VxCentralScanService,
+    LogSource.VxScanBackend,
   ],
 };
-const SaveCvrComplete: LogDetails = {
-  eventId: LogEventId.SaveCvrComplete,
+const ExportCastVoteRecordsComplete: LogDetails = {
+  eventId: LogEventId.ExportCastVoteRecordsComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User has finished saving a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.',
+    'Cast vote records have been exported to a USB drive (or failed to be exported).',
   restrictInDocumentationToApps: [
-    LogSource.VxCentralScanFrontend,
-    LogSource.VxScanFrontend,
+    LogSource.VxCentralScanService,
+    LogSource.VxScanBackend,
   ],
 };
+
 const DeleteScanBatchInit: LogDetails = {
   eventId: LogEventId.DeleteScanBatchInit,
   eventType: LogEventType.UserAction,
@@ -964,10 +995,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SmartCardUnprogramInit;
     case LogEventId.SmartCardUnprogramComplete:
       return SmartCardUnprogramComplete;
-    case LogEventId.CvrFilesReadFromUsb:
-      return CvrFilesReadFromUsb;
-    case LogEventId.CvrLoaded:
-      return CvrLoaded;
+    case LogEventId.ListCastVoteRecordExportsOnUsbDrive:
+      return ListCastVoteRecordExportsOnUsbDrive;
+    case LogEventId.ImportCastVoteRecordsInit:
+      return ImportCastVoteRecordsInit;
+    case LogEventId.ImportCastVoteRecordsComplete:
+      return ImportCastVoteRecordsComplete;
+    case LogEventId.ClearImportedCastVoteRecordsInit:
+      return ClearImportedCastVoteRecordsInit;
+    case LogEventId.ClearImportedCastVoteRecordsComplete:
+      return ClearImportedCastVoteRecordsComplete;
     case LogEventId.RecomputingTally:
       return RecomputingTally;
     case LogEventId.RecomputedTally:
@@ -978,8 +1015,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ManualTallyDataRemoved;
     case LogEventId.MarkedTallyResultsOfficial:
       return MarkedTallyResultsOfficial;
-    case LogEventId.CaseVoteRecordFileRemoved:
-      return CastVoteRecordFileRemoved;
     case LogEventId.TallyReportPrinted:
       return TallyReportPrinted;
     case LogEventId.TallyReportPreviewed:
@@ -1016,10 +1051,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerConfigured;
     case LogEventId.BallotPackageFilesReadFromUsb:
       return BallotPackageFilesReadFromUsb;
-    case LogEventId.SaveCvrInit:
-      return SaveCvrInit;
-    case LogEventId.SaveCvrComplete:
-      return SaveCvrComplete;
+    case LogEventId.ExportCastVoteRecordsInit:
+      return ExportCastVoteRecordsInit;
+    case LogEventId.ExportCastVoteRecordsComplete:
+      return ExportCastVoteRecordsComplete;
     case LogEventId.DeleteScanBatchInit:
       return DeleteScanBatchInit;
     case LogEventId.DeleteScanBatchComplete:
