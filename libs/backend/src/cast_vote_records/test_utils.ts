@@ -16,8 +16,6 @@ import {
   getExportedCastVoteRecordIds,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-
-import { Usb as LegacyUsb } from '../mock_usb';
 import { readCastVoteRecordExportMetadata } from './import';
 
 function identifyFunction<T>(input: T): T {
@@ -112,18 +110,12 @@ export async function modifyCastVoteRecordExport(
  * alphabetical order. Assumes that there's only one election directory.
  */
 export async function getCastVoteRecordExportDirectoryPaths(
-  usbDrive: UsbDrive | LegacyUsb
+  usbDrive: UsbDrive
 ): Promise<string[]> {
-  let usbMountPoint: string | undefined;
-  if ('getUsbDrives' in usbDrive) {
-    usbMountPoint = (await usbDrive.getUsbDrives())[0]?.mountPoint;
-  } else {
-    const usbDriveStatus = await usbDrive.status();
-    usbMountPoint =
-      usbDriveStatus.status === 'mounted'
-        ? usbDriveStatus.mountPoint
-        : undefined;
-  }
+  const usbDriveStatus = await usbDrive.status();
+  const usbMountPoint =
+    usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
+
   assert(usbMountPoint !== undefined);
 
   const resultsDirectoryPath = path.join(usbMountPoint, SCANNER_RESULTS_FOLDER);
