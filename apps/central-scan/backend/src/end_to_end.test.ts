@@ -27,7 +27,7 @@ import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import getPort from 'get-port';
 import { ok, sleep } from '@votingworks/basics';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
-import { Api, buildCentralScannerApp } from './central_scanner_app';
+import { Api, buildCentralScannerApp } from './app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { start } from './server';

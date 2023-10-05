@@ -12,7 +12,7 @@ import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './central_scanner_app';
+import { buildCentralScannerApp } from './app';
 
 export interface StartOptions {
   port: number | string;

@@ -17,7 +17,7 @@ import {
 
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { makeMockScanner } from '../test/util/mocks';
-import { Api, buildCentralScannerApp } from './central_scanner_app';
+import { Api, buildCentralScannerApp } from './app';
 import { Importer } from './importer';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';

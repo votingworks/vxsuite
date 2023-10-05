@@ -10,7 +10,7 @@ import { Workspace, createWorkspace } from '../../src/util/workspace';
 import { MockScanner, makeMockScanner } from '../util/mocks';
 import { Importer } from '../../src/importer';
 import { Api } from '../../src';
-import { buildCentralScannerApp } from '../../src/central_scanner_app';
+import { buildCentralScannerApp } from '../../src/app';
 import { start } from '../../src/server';
 import { Store } from '../../src/store';
 

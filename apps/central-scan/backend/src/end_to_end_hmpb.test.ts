@@ -36,7 +36,7 @@ import { ok } from '@votingworks/basics';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { Api, buildCentralScannerApp } from './central_scanner_app';
+import { Api, buildCentralScannerApp } from './app';
 import { start } from './server';
 
 // mock SKIP_SCAN_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures

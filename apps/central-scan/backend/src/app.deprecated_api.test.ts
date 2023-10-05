@@ -26,7 +26,7 @@ import { Logger, fakeLogger } from '@votingworks/logging';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './central_scanner_app';
+import { buildCentralScannerApp } from './app';
 
 jest.mock('./importer');
 
