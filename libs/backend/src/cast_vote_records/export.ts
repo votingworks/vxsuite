@@ -53,7 +53,10 @@ import {
   canonicalizeSheet,
   describeSheetValidationError,
 } from './canonicalize';
-import { readCastVoteRecordExportMetadata } from './import';
+import {
+  CastVoteRecordReportWithoutMetadata,
+  readCastVoteRecordExportMetadata,
+} from './import';
 import { buildElectionOptionPositionMap } from './option_map';
 
 /**
@@ -317,12 +320,12 @@ function buildCastVoteRecord(
     batchId,
     castVoteRecordId,
     definiteMarkThreshold: markThresholds.definite,
-    disableOriginalSnapshots: isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS
-    ),
     election,
     electionId,
     electionOptionPositionMap,
+    excludeOriginalSnapshots: isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS
+    ),
     imageFileUris,
     indexInBatch,
     interpretations: [frontInterpretation, backInterpretation],
@@ -369,12 +372,16 @@ async function exportCastVoteRecordFilesToUsbDrive(
       canonicalizedSheet.interpretation.some(({ votes }) => hasWriteIns(votes))
     : true;
 
-  const castVoteRecordReportMetadata = buildCastVoteRecordReportMetadata(
-    exportContext,
-    // Hide the time in the metadata for individual cast vote records so that we don't reveal the
-    // order in which ballots were cast
-    { hideTime: true }
-  );
+  const castVoteRecordReportMetadata = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA
+  )
+    ? undefined
+    : buildCastVoteRecordReportMetadata(
+        exportContext,
+        // Hide the time in the metadata for individual cast vote records so that we don't reveal the
+        // order in which ballots were cast
+        { hideTime: true }
+      );
   const castVoteRecord = buildCastVoteRecord(
     exportContext,
     sheet,
@@ -382,8 +389,10 @@ async function exportCastVoteRecordFilesToUsbDrive(
     { shouldIncludeImageReferences: shouldIncludeImages }
   );
   const castVoteRecordId = castVoteRecord.UniqueId;
-  const castVoteRecordReport: CVR.CastVoteRecordReport = {
-    ...castVoteRecordReportMetadata,
+  const castVoteRecordReport:
+    | CVR.CastVoteRecordReport
+    | CastVoteRecordReportWithoutMetadata = {
+    ...(castVoteRecordReportMetadata ?? {}),
     CVR: [castVoteRecord],
   };
 

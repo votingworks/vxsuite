@@ -36,8 +36,12 @@ export enum BooleanEnvironmentVariableName {
   SKIP_BALLOT_PACKAGE_AUTHENTICATION = 'REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION',
   // Skips authentication (i.e. signature verification) of cast vote records on import
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
-  // Disables exporting original snapshots with CVRs
-  DISABLE_CVR_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS',
+  // Excludes original snapshots in cast vote record reports, decreasing export size and
+  // import/export time
+  CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS',
+  // Excludes redundant metadata in cast vote record reports, decreasing export size and
+  // import/export time
+  CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA = 'REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA',
   // Disables the ballot box check on VxMarkScan. If false, the app will block until the ballot
   // box is attached
   DISABLE_BALLOT_BOX_CHECK = 'REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK',
@@ -95,14 +99,18 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION;
     case BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION:
       return process.env.REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
-    case BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS:
-      return process.env.REACT_APP_VX_DISABLE_CVR_ORIGINAL_SNAPSHOTS;
+    case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS:
+      return process.env
+        .REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS;
+    case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA:
+      return process.env
+        .REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA;
+    case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
+      return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
       return process.env.REACT_APP_VX_PRECINCT_REPORT_DESTINATION;
-    case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
-      return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -191,11 +199,17 @@ export function getBooleanEnvVarConfig(
         allowInProduction: false,
         autoEnableInDevelopment: false,
       };
-    case BooleanEnvironmentVariableName.DISABLE_CVR_ORIGINAL_SNAPSHOTS:
+    case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS:
       return {
         name,
         allowInProduction: true,
-        autoEnableInDevelopment: false,
+        autoEnableInDevelopment: true,
+      };
+    case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: true,
       };
     case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
       return {

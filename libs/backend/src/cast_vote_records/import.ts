@@ -2,6 +2,7 @@
 import { existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
+import { z } from 'zod';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   assertDefined,
@@ -30,6 +31,19 @@ import {
 } from '@votingworks/utils';
 
 import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
+
+/**
+ * A cast vote record report without metadata
+ */
+export type CastVoteRecordReportWithoutMetadata = Pick<
+  CVR.CastVoteRecordReport,
+  'CVR'
+>;
+
+const CastVoteRecordReportWithoutMetadataSchema: z.ZodSchema<CastVoteRecordReportWithoutMetadata> =
+  z.object({
+    CVR: z.array(CVR.CVRSchema),
+  });
 
 type ReadCastVoteRecordExportMetadataError =
   | { type: 'metadata-file-not-found' }
@@ -133,7 +147,7 @@ async function* castVoteRecordGenerator(
     );
     const parseResult = safeParseJson(
       castVoteRecordReportContents,
-      CVR.CastVoteRecordReportSchema
+      CastVoteRecordReportWithoutMetadataSchema
     );
     if (parseResult.isErr()) {
       yield wrapError({ subType: 'parse-error' });

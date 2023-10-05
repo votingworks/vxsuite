@@ -431,7 +431,7 @@ type BuildCastVoteRecordParams = {
       interpretations: SheetOf<InterpretedHmpbPage>;
       imageFileUris?: SheetOf<string>;
       definiteMarkThreshold: number;
-      disableOriginalSnapshots?: boolean;
+      excludeOriginalSnapshots?: boolean;
     }
 );
 
@@ -516,7 +516,7 @@ export function buildCastVoteRecord({
     interpretations,
     imageFileUris,
     definiteMarkThreshold,
-    disableOriginalSnapshots,
+    excludeOriginalSnapshots,
   } = rest;
 
   // The larger page number should be an even number which, divided by two,
@@ -571,7 +571,7 @@ export function buildCastVoteRecord({
     ...cvrMetadata,
     BallotSheetId: sheetNumber, // VVSG 2.0 1.1.5-G.5
     CurrentSnapshotId: `${castVoteRecordId}-modified`,
-    CVRSnapshot: disableOriginalSnapshots
+    CVRSnapshot: excludeOriginalSnapshots
       ? [modifiedSnapshot]
       : [
           modifiedSnapshot,
