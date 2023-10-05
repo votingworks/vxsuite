@@ -4,9 +4,11 @@ Instructions for setting up a development environment and building VxSuite.
 
 ## Development
 
-Building VxSuite for development requires git, [NodeJS](https://nodejs.org/) v16
-and [pnpm](https://pnpm.js.org) v8. Don't worry, we have a script that will
-install all of these for you.
+Building VxSuite for development has several dependencies.
+Due to increasingly complex requirements related to how voting software
+is built, we now provide [vxsuite-build-system](https://github.com/votingworks/vxsuite-build-system). 
+
+That process is detailed later in this guide.
 
 Most of the code is written in TypeScript and Rust. For TypeScript, we follow
 the
@@ -21,10 +23,7 @@ with most of it enforced by ESLint rules. For Rust, we follow the
 We strongly recommend development in this repo on a VM running Debian. Our
 production machines are configured with Debian so this will allow for you to
 develop in the environment most similar to production. Additionally VM features
-such as snapshots make development much more straightforward. See the
-[Virtual Machine Setup Guide](./VirtualMachineSetup.md) for more details on how
-to best configure this VM. Then come back and follow the steps in the Debian
-quickstart below to get developing.
+such as snapshots make development much more straightforward.
 
 For macOS, we recommend using [Parallels](https://www.parallels.com/) to run a
 Debian VM. For Linux, we recommend using
@@ -109,13 +108,19 @@ git clone git@github.com:votingworks/vxsuite-complete-system.git
 Once you finish setting up your VM, and before you start developing, you should
 also set up [GPG Keys](#setting-up-gpg-keys) for your github account.
 
-Install Node, npm, yarn, and pnpm by running the following script:
+To install the base set of tools you'll need, you can use our build system:
 
 ```sh
+mkdir -p ~/code
+cd ~/code
+git clone git@github.com:votingworks/vxsuite-build-system
+cd ~/code/vxsuite-build-system
+./scripts/setup-localdev.sh
+```
+
+Once that completes, return to the vxsuite directory:
+```sh
 cd ~/code/vxsuite
-./script/setup-dev
-node -v # this should return 16.x.x
-pnpm -v # this should return 8.x.x
 ```
 
 Automatically install and build all dependencies in the vxsuite repo with the
