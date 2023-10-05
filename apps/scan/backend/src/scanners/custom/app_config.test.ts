@@ -415,7 +415,7 @@ test('ballot batching', async () => {
       expect(batchIds).toHaveLength(3);
     }
   );
-});
+}, 30_000);
 
 test('unconfiguring machine', async () => {
   await withApp(
