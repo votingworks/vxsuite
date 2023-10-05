@@ -6,3 +6,9 @@ export type BallotPackageConfigurationError =
   | 'auth_required_before_ballot_package_load'
   | 'ballot_package_authentication_error'
   | 'election_hash_mismatch';
+
+export type ExportDataError =
+  | 'file-system-error'
+  | 'missing-usb-drive'
+  | 'permission-denied'
+  | 'relative-file-path';

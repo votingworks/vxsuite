@@ -4,8 +4,20 @@ import {
   CastVoteRecordReport,
   CastVoteRecordReportSchema,
 } from './cdf/cast-vote-records';
-import { BallotId, BallotStyleId, PrecinctId } from './election';
+import {
+  BallotId,
+  BallotStyle,
+  BallotStyleId,
+  BallotType,
+  ElectionDefinition,
+  HmpbBallotPageMetadata,
+  Precinct,
+  PrecinctId,
+} from './election';
+import { ExportDataError } from './errors';
 import { Dictionary } from './generic';
+import { SheetOf } from './hmpb';
+import { PageInterpretation } from './interpretation';
 
 /**
  * Legacy type, slightly different than the CDF ballot type.
@@ -50,3 +62,42 @@ export enum CastVoteRecordExportFileName {
   METADATA = 'metadata.json',
   REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
 }
+
+/**
+ * An error encountered while validating a sheet
+ */
+export type SheetValidationError = {
+  type: 'invalid-sheet';
+} & (
+  | {
+      subType: 'incompatible-interpretation-types';
+      interpretationTypes: SheetOf<PageInterpretation['type']>;
+    }
+  | {
+      subType: 'mismatched-ballot-style-ids';
+      ballotStyleIds: SheetOf<BallotStyle['id']>;
+    }
+  | {
+      subType: 'mismatched-ballot-types';
+      ballotTypes: SheetOf<BallotType>;
+    }
+  | {
+      subType: 'mismatched-election-hashes';
+      electionHashes: SheetOf<ElectionDefinition['electionHash']>;
+    }
+  | {
+      subType: 'mismatched-precinct-ids';
+      precinctIds: SheetOf<Precinct['id']>;
+    }
+  | {
+      subType: 'non-consecutive-page-numbers';
+      pageNumbers: SheetOf<HmpbBallotPageMetadata['pageNumber']>;
+    }
+);
+
+/**
+ * An error encountered while exporting cast vote records to a USB drive
+ */
+export type ExportCastVoteRecordsToUsbDriveError =
+  | { type: ExportDataError }
+  | SheetValidationError;
