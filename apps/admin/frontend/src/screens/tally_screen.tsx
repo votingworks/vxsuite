@@ -122,7 +122,7 @@ export function TallyScreen(): JSX.Element | null {
   const fileMode = castVoteRecordFileModeQuery.data;
   const fileModeText =
     fileMode === 'test'
-      ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying official ballots remove all of the loaded CVR files before loading official ballot results.'
+      ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to tally official ballots, remove the test ballot mode CVRs.'
       : fileMode === 'official'
       ? 'Currently tallying official ballots.'
       : '';
@@ -133,13 +133,15 @@ export function TallyScreen(): JSX.Element | null {
         <H2>Cast Vote Record (CVR) Management</H2>
         {fileModeText && <P>{fileModeText}</P>}
         {isOfficialResults && (
-          <Button
-            variant="danger"
-            disabled={!hasAnyFiles}
-            onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
-          >
-            Clear All Tallies and Results
-          </Button>
+          <P>
+            <Button
+              disabled={!hasAnyFiles}
+              onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
+              variant="danger"
+            >
+              Clear All Tallies and Results
+            </Button>
+          </P>
         )}
 
         <P>
@@ -148,7 +150,7 @@ export function TallyScreen(): JSX.Element | null {
             disabled={isOfficialResults}
             onPress={() => setIsImportCvrModalOpen(true)}
           >
-            Load CVR Files
+            Load CVRs
           </Button>{' '}
           <Button
             disabled={fileMode === 'unlocked' || isOfficialResults}
@@ -156,7 +158,7 @@ export function TallyScreen(): JSX.Element | null {
               beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
             }
           >
-            Remove CVR Files
+            Remove CVRs
           </Button>
         </P>
         {hasAnyFiles ? (
@@ -221,7 +223,7 @@ export function TallyScreen(): JSX.Element | null {
               <tr>
                 <TD />
                 <TD as="th" narrow nowrap>
-                  Total CVRs Count
+                  Total CVR Count
                 </TD>
                 <TD as="th" narrow data-testid="total-cvr-count">
                   {format.count(
@@ -238,7 +240,7 @@ export function TallyScreen(): JSX.Element | null {
           </Table>
         ) : (
           <Caption>
-            <Icons.Info /> No CVR files loaded.
+            <Icons.Info /> No CVRs loaded.
           </Caption>
         )}
         <H2>Manually Entered Results</H2>

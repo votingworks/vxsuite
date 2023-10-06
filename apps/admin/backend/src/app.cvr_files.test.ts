@@ -5,8 +5,12 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
-import { CVR, CVR as CVRType } from '@votingworks/types';
-import { basename } from 'path';
+import {
+  CVR,
+  CVR as CVRType,
+  CastVoteRecordExportFileName,
+} from '@votingworks/types';
+import path, { basename } from 'path';
 import { vxBallotType } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
   BooleanEnvironmentVariableName,
@@ -604,4 +608,18 @@ test('error if cast vote records from different files share same ballot id but h
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   await expectCastVoteRecordCount(apiClient, 184);
+});
+
+test('specifying path to metadata file instead of path to export directory (for manual file selection)', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  const importResult = await apiClient.addCastVoteRecordFile({
+    path: path.join(
+      castVoteRecordExport.asDirectoryPath(),
+      CastVoteRecordExportFileName.METADATA
+    ),
+  });
+  expect(importResult.isOk()).toEqual(true);
 });

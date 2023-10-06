@@ -96,6 +96,7 @@ export function AdminActionsScreen({
 
   function saveBackup() {
     setIsBackingUp(true);
+    setBackupError('');
     exportCastVoteRecordsToUsbDriveMutation.mutate(
       { isMinimalExport: false },
       {

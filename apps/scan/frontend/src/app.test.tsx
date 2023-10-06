@@ -508,7 +508,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
 
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
   userEvent.click(await screen.findByText('Save'));
-  await screen.findByText('CVRs Saved to USB Drive');
+  await screen.findByText('CVRs Saved');
 
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.expectGetUsbDriveStatus('ejected');
