@@ -58,14 +58,14 @@ export async function getMockStateMachine(
   jest
     .spyOn(driver, 'getPaperHandlerStatus')
     .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
-  const stateMachine = await getPaperHandlerStateMachine(
+  const stateMachine = await getPaperHandlerStateMachine({
     workspace,
     auth,
     logger,
     driver,
-    DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-    DEV_AUTH_STATUS_POLLING_INTERVAL_MS
-  );
+    devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+    authPollingIntervalMs: DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
+  });
   assert(stateMachine);
 
   return stateMachine;
