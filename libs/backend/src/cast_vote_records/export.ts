@@ -13,6 +13,7 @@ import {
 import {
   assert,
   assertDefined,
+  err,
   ok,
   Result,
   throwIllegalValue,
@@ -673,7 +674,9 @@ export async function exportCastVoteRecordsToUsbDrive(
         ? usbDriveStatus.mountPoint
         : undefined;
   }
-  assert(usbMountPoint !== undefined);
+  if (usbMountPoint === undefined) {
+    return err({ type: 'missing-usb-drive' });
+  }
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
