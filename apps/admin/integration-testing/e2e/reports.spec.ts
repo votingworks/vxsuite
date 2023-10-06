@@ -67,11 +67,11 @@ test('viewing and exporting reports', async ({ page }) => {
   });
   await page.getByText('Eject USB').waitFor();
 
-  await page.getByRole('button', { name: 'Load CVR Files' }).click();
+  await page.getByRole('button', { name: 'Load CVRs' }).click();
   await expect(page.getByText('112')).toBeVisible();
   await expect(page.getByText('VX-00-000')).toBeVisible();
   await page.getByRole('button', { name: 'Load' }).click();
-  await page.getByText('112 new CVRs Loaded').waitFor();
+  await page.getByText('112 New CVRs Loaded').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
   await expect(page.getByTestId('total-cvr-count')).toHaveText('112');
 
@@ -127,7 +127,5 @@ test('viewing and exporting reports', async ({ page }) => {
     .waitFor();
 
   await page.getByText('Tally', { exact: true }).click();
-  await expect(
-    page.getByRole('button', { name: 'Load CVR Files' })
-  ).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Load CVRs' })).toBeDisabled();
 });
