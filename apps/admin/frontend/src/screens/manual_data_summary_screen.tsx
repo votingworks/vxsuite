@@ -33,7 +33,10 @@ import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tal
 import { deleteManualResults, getManualResultsMetadata } from '../api';
 import { Loading } from '../components/loading';
 
-const allManualTallyBallotTypes: ManualResultsVotingMethod[] = ['precinct'];
+const allManualTallyBallotTypes: ManualResultsVotingMethod[] = [
+  'precinct',
+  'absentee',
+];
 
 function getAllPossibleManualTallyIdentifiers(
   election: Election
