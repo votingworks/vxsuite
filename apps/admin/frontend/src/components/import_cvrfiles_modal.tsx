@@ -376,7 +376,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         <tr key={name} data-testid="table-row">
           <td>{moment(exportTimestamp).format(TIME_FORMAT)}</td>
           <td>{scannerIds.join(', ')}</td>
-          <td data-testid="cvr-count">{cvrCount}</td>
+          <td data-testid="cvr-count">{format.count(cvrCount)}</td>
           {!fileModeLocked && (
             <td>
               <LabelText>
