@@ -13,7 +13,6 @@ import {
 import {
   assert,
   assertDefined,
-  err,
   ok,
   Result,
   throwIllegalValue,
@@ -25,6 +24,7 @@ import {
   CastVoteRecordExportMetadata,
   CVR,
   ElectionDefinition,
+  ExportCastVoteRecordsToUsbDriveError,
   Id,
   MarkThresholds,
   PageInterpretation,
@@ -43,16 +43,12 @@ import {
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
-import { ExportDataError, Exporter } from '../exporter';
+import { Exporter } from '../exporter';
 import { Usb as LegacyUsb } from '../mock_usb';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan_globals';
 import { buildCastVoteRecord as baseBuildCastVoteRecord } from './build_cast_vote_record';
 import { buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata } from './build_report_metadata';
-import {
-  CanonicalizedSheet,
-  canonicalizeSheet,
-  describeSheetValidationError,
-} from './canonicalize';
+import { CanonicalizedSheet, canonicalizeSheet } from './canonicalize';
 import {
   CastVoteRecordReportWithoutMetadata,
   readCastVoteRecordExportMetadata,
@@ -161,13 +157,6 @@ export interface RejectedSheet {
  * A scanned sheet, accepted or rejected
  */
 export type Sheet = AcceptedSheet | RejectedSheet;
-
-/**
- * An error encountered while exporting cast vote records to a USB drive
- */
-export type ExportCastVoteRecordsToUsbDriveError =
-  | { type: 'invalid-sheet-found'; message: string }
-  | ExportDataError;
 
 //
 // Helpers
@@ -360,10 +349,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
     sheet.backImagePath,
   ]);
   if (canonicalizeSheetResult.isErr()) {
-    return err({
-      type: 'invalid-sheet-found',
-      message: describeSheetValidationError(canonicalizeSheetResult.err()),
-    });
+    return canonicalizeSheetResult;
   }
   const canonicalizedSheet = canonicalizeSheetResult.ok();
 

@@ -3,12 +3,11 @@ import {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { Result, assert, ok } from '@votingworks/basics';
+import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
   Usb,
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
-  ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/backend';
 import {
   BallotPackageConfigurationError,
@@ -18,6 +17,7 @@ import {
   SystemSettings,
   safeParse,
   TEST_JURISDICTION,
+  ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/types';
 import {
   getContestsForBallotPage,
@@ -240,6 +240,11 @@ function buildApi({
     async exportCastVoteRecordsToUsbDrive(input: {
       isMinimalExport?: boolean;
     }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+      const userRole = assertDefined(await getUserRole());
+      const logItem = input.isMinimalExport ? 'cast vote records' : 'backup';
+      await logger.log(LogEventId.ExportCastVoteRecordsInit, userRole, {
+        message: `Exporting ${logItem}...`,
+      });
       const exportResult = await exportCastVoteRecordsToUsbDrive(
         store,
         usb,
@@ -250,6 +255,18 @@ function buildApi({
       );
       if (!input.isMinimalExport) {
         store.setScannerBackedUp();
+      }
+      if (exportResult.isErr()) {
+        await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
+          disposition: 'failure',
+          message: `Error exporting ${logItem}.`,
+          errorDetails: JSON.stringify(exportResult.err()),
+        });
+      } else {
+        await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
+          disposition: 'success',
+          message: `Successfully exported ${logItem}.`,
+        });
       }
       return exportResult;
     },

@@ -146,14 +146,26 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** A smart card has been unprogrammed (or failed to be unprogrammed). The previous (or current in the case of failure) smart card user role is indicated by the previousProgrammedUserRole key (or programmedUserRole key in the case of failure).  
 **Machines:** vx-admin-service
-### cvr-loaded
+### list-cast-vote-record-exports-on-usb-drive
 **Type:** [user-action](#user-action)  
-**Description:** User loaded CVR to the machine. Success or failure indicated by disposition.  
-**Machines:** vx-admin-frontend
-### cvr-files-read-from-usb
+**Description:** Cast vote record exports on the inserted USB drive were listed.  
+**Machines:** vx-admin-service
+### import-cast-vote-records-init
 **Type:** [user-action](#user-action)  
-**Description:** User opened load CVR modal and usb is searched for possible CVR files to load.  
-**Machines:** vx-admin-frontend
+**Description:** Cast vote records are being imported from a USB drive.  
+**Machines:** vx-admin-service
+### import-cast-vote-records-complete
+**Type:** [user-action](#user-action)  
+**Description:** Cast vote records have been imported from a USB drive (or failed to be imported).  
+**Machines:** vx-admin-service
+### clear-imported-cast-vote-records-init
+**Type:** [user-action](#user-action)  
+**Description:** Imported cast vote records are being cleared.  
+**Machines:** vx-admin-service
+### clear-imported-cast-vote-records-complete
+**Type:** [user-action](#user-action)  
+**Description:** Imported cast vote records have been cleared (or failed to be cleared).  
+**Machines:** vx-admin-service
 ### recompute-tally-init
 **Type:** [user-action](#user-action)  
 **Description:** New cast vote record files seen, initiating recomputation of tally data.  
@@ -173,10 +185,6 @@ IDs are logged with each log to identify the log being written.
 ### marked-tally-results-official
 **Type:** [user-action](#user-action)  
 **Description:** User marked the tally results as official. This disables loading more CVR files or editing manual tally data.  
-**Machines:** vx-admin-service
-### cast-vote-record-file-removed
-**Type:** [user-action](#user-action)  
-**Description:** The user removed one or more CVR files.  
 **Machines:** vx-admin-service
 ### tally-report-previewed
 **Type:** [user-action](#user-action)  
@@ -261,14 +269,6 @@ IDs are logged with each log to identify the log being written.
 ### scanner-configure-complete
 **Type:** [user-action](#user-action)  
 **Description:** The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.  
-**Machines:** vx-central-scan-frontend, vx-scan-frontend
-### save-cvr-init
-**Type:** [user-action](#user-action)  
-**Description:** User has initiated saving CVR file to the USB drive.  
-**Machines:** vx-central-scan-frontend, vx-scan-frontend
-### save-cvr-complete
-**Type:** [user-action](#user-action)  
-**Description:** User has finished saving a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.  
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### delete-cvr-batch-init
 **Type:** [user-action](#user-action)  
@@ -358,6 +358,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** The ballot package has been read from the USB drive. Success or failure indicated by disposition.  
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
+### export-cast-vote-records-init
+**Type:** [user-action](#user-action)  
+**Description:** Cast vote records are being exported to a USB drive.  
+**Machines:** vx-central-scan-service, vx-scan-backend
+### export-cast-vote-records-complete
+**Type:** [user-action](#user-action)  
+**Description:** Cast vote records have been exported to a USB drive (or failed to be exported).  
+**Machines:** vx-central-scan-service, vx-scan-backend
 ### polls-opened
 **Type:** [user-action](#user-action)  
 **Description:** User has opened the polls.  

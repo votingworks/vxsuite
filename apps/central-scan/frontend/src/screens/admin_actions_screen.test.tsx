@@ -130,7 +130,7 @@ test('backup error shows message', async () => {
 
   mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ isMinimalExport: false })
-    .resolves(err({ type: 'permission-denied', message: 'Uh oh' }));
+    .resolves(err({ type: 'permission-denied' }));
   userEvent.click(await screen.findByText('Save Backup'));
 
   const modal = await screen.findByRole('alertdialog');
@@ -139,7 +139,7 @@ test('backup error shows message', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   screen.getByText('Save Backup');
-  screen.getByText('Uh oh');
+  screen.getByText('Unable to write to USB drive.');
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {

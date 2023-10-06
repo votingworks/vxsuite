@@ -90,8 +90,8 @@ test('happy path - mock election flow', async () => {
   usbDrive.status.expectRepeatedCallsWith().resolves({ status: 'no_drive' });
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
   expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.CvrFilesReadFromUsb,
-    'system',
+    LogEventId.ListCastVoteRecordExportsOnUsbDrive,
+    'election_manager',
     {
       disposition: 'failure',
       message: 'Error listing cast vote record exports on USB drive.',
@@ -119,8 +119,8 @@ test('happy path - mock election flow', async () => {
     }),
   ]);
   expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.CvrFilesReadFromUsb,
-    'system',
+    LogEventId.ListCastVoteRecordExportsOnUsbDrive,
+    'election_manager',
     {
       disposition: 'success',
       message: 'Found 1 cast vote record export(s) on USB drive.',
@@ -128,8 +128,9 @@ test('happy path - mock election flow', async () => {
   );
 
   // add a file
+  let exportDirectoryPath = availableCastVoteRecordFiles[0]!.path;
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
-    path: availableCastVoteRecordFiles[0]!.path,
+    path: exportDirectoryPath,
   });
   assert(addTestFileResult.isOk());
   expect(addTestFileResult.ok()).toMatchObject({
@@ -141,14 +142,12 @@ test('happy path - mock election flow', async () => {
     fileName: testExportDirectoryName,
   });
   expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.CvrLoaded,
+    LogEventId.ImportCastVoteRecordsComplete,
     'election_manager',
     {
       disposition: 'success',
-      exportDirectoryPath: expect.stringMatching(testExportDirectoryName),
-      numberOfBallotsImported: 184,
-      numberOfDuplicateBallotsIgnored: 0,
-      result: 'Cast vote records imported.',
+      message: 'Successfully imported 184 cast vote record(s).',
+      exportDirectoryPath,
     }
   );
 
@@ -220,27 +219,26 @@ test('happy path - mock election flow', async () => {
     }),
   ]);
   expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.CvrFilesReadFromUsb,
-    'system',
+    LogEventId.ListCastVoteRecordExportsOnUsbDrive,
+    'election_manager',
     {
       disposition: 'success',
       message: 'Found 1 cast vote record export(s) on USB drive.',
     }
   );
 
+  exportDirectoryPath = availableCastVoteRecordFiles2[0]!.path;
   const addLiveFileResult = await apiClient.addCastVoteRecordFile({
-    path: availableCastVoteRecordFiles2[0]!.path,
+    path: exportDirectoryPath,
   });
   assert(addLiveFileResult.isOk());
   expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.CvrLoaded,
+    LogEventId.ImportCastVoteRecordsComplete,
     'election_manager',
     {
       disposition: 'success',
-      exportDirectoryPath: expect.any(String),
-      numberOfBallotsImported: 184,
-      numberOfDuplicateBallotsIgnored: 0,
-      result: 'Cast vote records imported.',
+      message: 'Successfully imported 184 cast vote record(s).',
+      exportDirectoryPath,
     }
   );
   removeUsbDrive();
@@ -289,18 +287,18 @@ test('adding a duplicate file returns OK to client but logs an error', async () 
   // initially, no files
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([]);
 
-  const reportDirectoryPath = castVoteRecordExport.asDirectoryPath();
+  const exportDirectoryPath = castVoteRecordExport.asDirectoryPath();
 
   // add file once
   (
     await apiClient.addCastVoteRecordFile({
-      path: reportDirectoryPath,
+      path: exportDirectoryPath,
     })
   ).assertOk('expected to load cast vote record report successfully');
 
   // try adding duplicate file
   const addDuplicateFileResult = await apiClient.addCastVoteRecordFile({
-    path: reportDirectoryPath,
+    path: exportDirectoryPath,
   });
   assert(addDuplicateFileResult.isOk());
   expect(addDuplicateFileResult.ok()).toMatchObject({
@@ -308,20 +306,19 @@ test('adding a duplicate file returns OK to client but logs an error', async () 
     alreadyPresent: 184,
     newlyAdded: 0,
     fileMode: 'test',
-    fileName: basename(reportDirectoryPath),
+    fileName: basename(exportDirectoryPath),
   });
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
   await expectCastVoteRecordCount(apiClient, 184);
   expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.CvrLoaded,
+    LogEventId.ImportCastVoteRecordsComplete,
     'election_manager',
-    expect.objectContaining({
+    {
       disposition: 'success',
-      exportDirectoryPath: expect.any(String),
-      numberOfBallotsImported: 0,
-      numberOfDuplicateBallotsIgnored: 184,
-      result: 'Cast vote records imported.',
-    })
+      message:
+        'Successfully imported 0 cast vote record(s). Ignored 184 duplicate(s).',
+      exportDirectoryPath,
+    }
   );
 });
 
@@ -376,12 +373,14 @@ test('error if path to report is not valid', async () => {
     type: 'metadata-file-not-found',
   });
   expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.CvrLoaded,
+    LogEventId.ImportCastVoteRecordsComplete,
     'election_manager',
-    expect.objectContaining({
+    {
       disposition: 'failure',
-      errorType: 'metadata-file-not-found',
-    })
+      message: 'Error importing cast vote records.',
+      exportDirectoryPath: '/tmp/does-not-exist',
+      errorDetails: expect.stringContaining('metadata-file-not-found'),
+    }
   );
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -397,8 +396,9 @@ test('cast vote records authentication error', async () => {
     err(new Error('Whoa!'))
   );
 
+  const exportDirectoryPath = castVoteRecordExport.asDirectoryPath();
   const result = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordExport.asDirectoryPath(),
+    path: exportDirectoryPath,
   });
   expect(result).toEqual(
     err({
@@ -406,12 +406,14 @@ test('cast vote records authentication error', async () => {
     })
   );
   expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.CvrLoaded,
+    LogEventId.ImportCastVoteRecordsComplete,
     'election_manager',
-    expect.objectContaining({
+    {
       disposition: 'failure',
-      errorType: 'authentication-error',
-    })
+      message: 'Error importing cast vote records.',
+      exportDirectoryPath,
+      errorDetails: expect.stringContaining('authentication-error'),
+    }
   );
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   await expectCastVoteRecordCount(apiClient, 0);

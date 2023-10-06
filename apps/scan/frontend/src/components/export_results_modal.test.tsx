@@ -97,11 +97,11 @@ test('render export modal with errors when appropriate', async () => {
 
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ mode: 'full_export' })
-    .resolves(
-      err({ type: 'file-system-error', message: 'Something went wrong.' })
-    );
+    .resolves(err({ type: 'file-system-error' }));
   userEvent.click(getByText('Save'));
-  await waitFor(() => getByText('Failed to save CVRs. Something went wrong.'));
+  await waitFor(() =>
+    getByText('Failed to save CVRs. Unable to write to USB drive.')
+  );
 
   userEvent.click(getByText('Close'));
   expect(onClose).toHaveBeenCalled();

@@ -160,7 +160,6 @@ type CVRContestRequiredBallotPageOptions =
     }
   | {
       ballotMarkingMode: 'hand';
-      // TODO: make this required when we separate image files from the CVR
       imageFileUri?: string;
     };
 

@@ -5,6 +5,7 @@ import { isAbsolute, join, normalize, parse } from 'path';
 import { Readable } from 'stream';
 import { createReadStream, lstatSync } from 'fs';
 import { Buffer } from 'buffer';
+import { ExportDataError as BaseExportDataError } from '@votingworks/types';
 import { splitToFiles } from './split';
 import { execFile } from './exec';
 import { UsbDrive } from './get_usb_drives';
@@ -19,11 +20,10 @@ const MAXIMUM_FAT32_FILE_SIZE = 2 ** 32 - 1;
 /**
  * Possible export errors.
  */
-export type ExportDataError =
-  | { type: 'relative-file-path'; message: string }
-  | { type: 'permission-denied'; message: string }
-  | { type: 'file-system-error'; message: string }
-  | { type: 'missing-usb-drive'; message: string };
+export interface ExportDataError {
+  type: BaseExportDataError;
+  message: string;
+}
 
 /**
  * Result of exporting data to the file system.

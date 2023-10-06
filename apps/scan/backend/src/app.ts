@@ -4,6 +4,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackageConfigurationError,
   DEFAULT_SYSTEM_SETTINGS,
+  ExportCastVoteRecordsToUsbDriveError,
   PollsState,
   PrecinctSelection,
   SinglePrecinctSelection,
@@ -19,10 +20,15 @@ import {
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
-  ExportCastVoteRecordsToUsbDriveError,
   configureUiStrings,
 } from '@votingworks/backend';
-import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
@@ -61,6 +67,16 @@ export function buildApi(
   logger: Logger
 ) {
   const { store } = workspace;
+
+  async function getUserRole() {
+    const authStatus = await auth.getAuthStatus(
+      constructAuthMachineState(workspace)
+    );
+    if (authStatus.status === 'logged_in') {
+      return authStatus.user.role;
+    }
+    return undefined;
+  }
 
   return grout.createApi({
     getMachineConfig,
@@ -271,20 +287,32 @@ export function buildApi(
     async exportCastVoteRecordsToUsbDrive(input: {
       mode: 'full_export' | 'polls_closing';
     }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+      const userRole = assertDefined(await getUserRole());
+      await logger.log(LogEventId.ExportCastVoteRecordsInit, userRole, {
+        message:
+          input.mode === 'polls_closing'
+            ? 'Marking cast vote record export as complete on polls close...'
+            : 'Exporting cast vote records...',
+      });
+      let exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError>;
       switch (input.mode) {
         case 'full_export': {
-          return exportCastVoteRecordsToUsbDrive(
+          exportResult = await exportCastVoteRecordsToUsbDrive(
             store,
             usbDrive,
             store.forEachSheet(),
             { scannerType: 'precinct', isFullExport: true }
           );
+          break;
         }
         case 'polls_closing': {
-          return exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
-            scannerType: 'precinct',
-            arePollsClosing: true,
-          });
+          exportResult = await exportCastVoteRecordsToUsbDrive(
+            store,
+            usbDrive,
+            [],
+            { scannerType: 'precinct', arePollsClosing: true }
+          );
+          break;
         }
         /* c8 ignore start: Compile-time check for completeness */
         default: {
@@ -292,6 +320,25 @@ export function buildApi(
         }
         /* c8 ignore stop */
       }
+      if (exportResult.isErr()) {
+        await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
+          disposition: 'failure',
+          message:
+            input.mode === 'polls_closing'
+              ? 'Error marking cast vote record export as complete on polls close.'
+              : 'Error exporting cast vote records.',
+          errorDetails: JSON.stringify(exportResult.err()),
+        });
+      } else {
+        await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
+          disposition: 'success',
+          message:
+            input.mode === 'polls_closing'
+              ? 'Successfully marked cast vote record export as complete on polls close.'
+              : 'Successfully exported cast vote records.',
+        });
+      }
+      return exportResult;
     },
 
     async getScannerResultsByParty(): Promise<

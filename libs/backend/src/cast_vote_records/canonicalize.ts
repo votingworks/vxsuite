@@ -1,15 +1,11 @@
 import {
-  BallotStyle,
-  BallotType,
-  ElectionDefinition,
-  HmpbBallotPageMetadata,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
-  Precinct,
   SheetOf,
+  SheetValidationError,
 } from '@votingworks/types';
-import { throwIllegalValue, Result, ok, err } from '@votingworks/basics';
+import { Result, ok, err } from '@votingworks/basics';
 
 /**
  * The back of a BMD ballot should be empty, which could be interpreted as
@@ -19,47 +15,6 @@ const EMPTY_PAGE_TYPES: ReadonlyArray<PageInterpretation['type']> = [
   'BlankPage',
   'UnreadablePage',
 ];
-
-/**
- * Enumeration representing possible sheet validation errors
- */
-export enum SheetValidationErrorType {
-  InvalidFrontBackPageTypes = 'InvalidFrontBackPageTypes',
-  MismatchedBallotStyle = 'MismatchedBallotStyle',
-  MismatchedBallotType = 'MismatchedBallotType',
-  MismatchedElectionHash = 'MismatchedElectionHash',
-  MismatchedPrecinct = 'MismatchedPrecinct',
-  NonConsecutivePages = 'NonConsecutivePages',
-}
-
-/**
- * Type containing a validation error and information relevant to that error
- */
-export type SheetValidationError =
-  | {
-      type: SheetValidationErrorType.NonConsecutivePages;
-      pageNumbers: SheetOf<HmpbBallotPageMetadata['pageNumber']>;
-    }
-  | {
-      type: SheetValidationErrorType.InvalidFrontBackPageTypes;
-      types: SheetOf<PageInterpretation['type']>;
-    }
-  | {
-      type: SheetValidationErrorType.MismatchedBallotStyle;
-      ballotStyleIds: SheetOf<BallotStyle['id']>;
-    }
-  | {
-      type: SheetValidationErrorType.MismatchedBallotType;
-      ballotTypes: SheetOf<BallotType>;
-    }
-  | {
-      type: SheetValidationErrorType.MismatchedElectionHash;
-      electionHashes: SheetOf<ElectionDefinition['electionHash']>;
-    }
-  | {
-      type: SheetValidationErrorType.MismatchedPrecinct;
-      precinctIds: SheetOf<Precinct['id']>;
-    };
 
 /**
  * Validated sheet from the database in a standard format:
@@ -119,15 +74,17 @@ export function canonicalizeSheet(
     back.type !== 'InterpretedHmpbPage'
   ) {
     return err({
-      type: SheetValidationErrorType.InvalidFrontBackPageTypes,
-      types: [front.type, back.type],
+      type: 'invalid-sheet',
+      subType: 'incompatible-interpretation-types',
+      interpretationTypes: [front.type, back.type],
     });
   }
 
   // Check that the various pieces of metadata of the two pages match
   if (front.metadata.ballotStyleId !== back.metadata.ballotStyleId) {
     return err({
-      type: SheetValidationErrorType.MismatchedBallotStyle,
+      type: 'invalid-sheet',
+      subType: 'mismatched-ballot-style-ids',
       ballotStyleIds: [
         front.metadata.ballotStyleId,
         back.metadata.ballotStyleId,
@@ -137,21 +94,24 @@ export function canonicalizeSheet(
 
   if (front.metadata.precinctId !== back.metadata.precinctId) {
     return err({
-      type: SheetValidationErrorType.MismatchedPrecinct,
+      type: 'invalid-sheet',
+      subType: 'mismatched-precinct-ids',
       precinctIds: [front.metadata.precinctId, back.metadata.precinctId],
     });
   }
 
   if (front.metadata.ballotType !== back.metadata.ballotType) {
     return err({
-      type: SheetValidationErrorType.MismatchedBallotType,
+      type: 'invalid-sheet',
+      subType: 'mismatched-ballot-types',
       ballotTypes: [front.metadata.ballotType, back.metadata.ballotType],
     });
   }
 
   if (front.metadata.electionHash !== back.metadata.electionHash) {
     return err({
-      type: SheetValidationErrorType.MismatchedElectionHash,
+      type: 'invalid-sheet',
+      subType: 'mismatched-election-hashes',
       electionHashes: [front.metadata.electionHash, back.metadata.electionHash],
     });
   }
@@ -175,58 +135,8 @@ export function canonicalizeSheet(
   }
 
   return err({
-    type: SheetValidationErrorType.NonConsecutivePages,
+    type: 'invalid-sheet',
+    subType: 'non-consecutive-page-numbers',
     pageNumbers: [front.metadata.pageNumber, back.metadata.pageNumber],
   });
-}
-
-/**
- * Provides a description of each sheet validation error.
- */
-export function describeSheetValidationError(
-  validationError: SheetValidationError
-): string {
-  switch (validationError.type) {
-    case SheetValidationErrorType.InvalidFrontBackPageTypes: {
-      const [front, back] = validationError.types;
-
-      switch (front) {
-        case 'InterpretedBmdPage':
-          return `expected the back of a BMD page to be blank, but got '${back}'`;
-        case 'InterpretedHmpbPage':
-          return `expected the a HMPB page to be another HMPB page, but got '${back}'`;
-        default:
-          return `expected sheet to have a valid page type combination, but got front=${front} back=${back}`;
-      }
-    }
-
-    case SheetValidationErrorType.MismatchedBallotStyle: {
-      const [front, back] = validationError.ballotStyleIds;
-      return `expected a sheet to have the same ballot style, but got front=${front} back=${back}`;
-    }
-
-    case SheetValidationErrorType.MismatchedBallotType: {
-      const [front, back] = validationError.ballotTypes;
-      return `expected a sheet to have the same ballot type, but got front=${front} back=${back}`;
-    }
-
-    case SheetValidationErrorType.MismatchedElectionHash: {
-      const [front, back] = validationError.electionHashes;
-      return `expected a sheet to have the same election hash, but got front=${front} back=${back}`;
-    }
-
-    case SheetValidationErrorType.MismatchedPrecinct: {
-      const [front, back] = validationError.precinctIds;
-      return `expected a sheet to have the same precinct, but got front=${front} back=${back}`;
-    }
-
-    case SheetValidationErrorType.NonConsecutivePages: {
-      const [front, back] = validationError.pageNumbers;
-      return `expected a sheet to have consecutive page numbers, but got front=${front} back=${back}`;
-    }
-
-    // istanbul ignore next
-    default:
-      throwIllegalValue(validationError);
-  }
 }
