@@ -4,11 +4,14 @@ import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 
+import { isIntegrationTest } from '@votingworks/utils';
 import { NODE_ENV } from './globals';
 import * as server from './server';
 
 export type { Api } from './app';
 export * from './types';
+
+const isTestEnvironment = NODE_ENV === 'test' || isIntegrationTest();
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvPath = '.env';
@@ -17,10 +20,10 @@ const dotenvFiles: string[] = [
   // Don't include `.env.local` for `test` environment
   // since normally you expect tests to produce the same
   // results for everyone
-  NODE_ENV !== 'test' ? `${dotenvPath}.local` : '',
+  !isTestEnvironment ? `${dotenvPath}.local` : '',
   `${dotenvPath}.${NODE_ENV}`,
   dotenvPath,
-  NODE_ENV !== 'test' ? `../../../${dotenvPath}.local` : '',
+  !isTestEnvironment ? `../../../${dotenvPath}.local` : '',
   `../../../${dotenvPath}`,
 ].filter(Boolean);
 

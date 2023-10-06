@@ -8,6 +8,7 @@ import {
   BooleanEnvironmentVariableName,
   getEnvironmentVariable,
   getBooleanEnvVarConfig,
+  isIntegrationTest,
 } from './environment_variable';
 
 export function isVxDev(): boolean {
@@ -21,7 +22,8 @@ export function isFeatureFlagEnabled(
   return (
     (flagInfo.allowInProduction ||
       process.env.NODE_ENV === 'development' ||
-      isVxDev()) &&
+      isVxDev() ||
+      isIntegrationTest()) &&
     asBoolean(getEnvironmentVariable(flag))
   );
 }

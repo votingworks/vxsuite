@@ -5,5 +5,5 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  coveragePathIgnorePatterns: ['src/cli.ts'],
+  coveragePathIgnorePatterns: ['src/cli.ts', 'src/mocks'],
 };
