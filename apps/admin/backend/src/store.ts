@@ -1137,7 +1137,7 @@ export class Store {
         sha256_hash as sha256Hash,
         datetime(cvr_files.created_at, 'localtime') as createdAt
       from cvr_files
-      join (
+      left join (
         select
           cvr_file_entries.cvr_id,
           min(cvr_files.created_at) as min_import_date,
