@@ -423,9 +423,9 @@ test('clearing results', async () => {
 
   fireEvent.click(getByText('Tally'));
   expect(
-    (await screen.findByText('Load CVR Files')).closest('button')
+    (await screen.findByText('Load CVRs')).closest('button')
   ).toBeDisabled();
-  expect(getByText('Remove CVR Files').closest('button')).toBeDisabled();
+  expect(getByText('Remove CVRs').closest('button')).toBeDisabled();
   expect(
     getByText('Edit Manually Entered Results').closest('button')
   ).toBeDisabled();
@@ -442,12 +442,12 @@ test('clearing results', async () => {
   apiMock.expectGetManualResultsMetadata([]);
   fireEvent.click(getByText('Clear All Tallies and Results'));
   getByText(
-    'Do you want to remove the 1 loaded CVR file and the manually entered data?'
+    'Do you want to remove the 1 loaded CVR export and the manually entered data?'
   );
   fireEvent.click(getByText('Remove All Data'));
 
   await waitFor(() => {
-    expect(getByText('Load CVR Files').closest('button')).toBeEnabled();
+    expect(getByText('Load CVRs').closest('button')).toBeEnabled();
   });
   await waitFor(() => {
     expect(
@@ -455,14 +455,14 @@ test('clearing results', async () => {
     ).toBeEnabled();
   });
 
-  expect(getByText('Remove CVR Files').closest('button')).toBeDisabled();
+  expect(getByText('Remove CVRs').closest('button')).toBeDisabled();
   expect(
     getByText('Remove Manually Entered Results').closest('button')
   ).toBeDisabled();
 
   expect(queryByText('Clear All Tallies and Results')).not.toBeInTheDocument();
 
-  getByText('No CVR files loaded.');
+  getByText('No CVRs loaded.');
 });
 
 test('can not view or print ballots', async () => {

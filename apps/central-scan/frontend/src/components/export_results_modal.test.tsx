@@ -90,9 +90,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
       apiClient: mockApiClient,
     })
   );
-  getByText(
-    'USB drive successfully ejected, you may now take it to VxAdmin for tabulation.'
-  );
+  getByText('You may now take the USB drive to VxAdmin for tabulation.');
 });
 
 test('render export modal with errors when appropriate', async () => {

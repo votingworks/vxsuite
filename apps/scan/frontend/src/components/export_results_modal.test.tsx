@@ -71,7 +71,7 @@ test('render export modal when a usb drive is mounted as expected and allows exp
 
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
   userEvent.click(getByText('Save'));
-  await waitFor(() => getByText('CVRs Saved to USB Drive'));
+  await waitFor(() => getByText('CVRs Saved'));
 
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   userEvent.click(getByText('Eject USB'));

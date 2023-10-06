@@ -132,9 +132,9 @@ test('with no data loaded', async () => {
   await screen.findByRole('heading', {
     name: 'Cast Vote Record (CVR) Management',
   });
-  await screen.findByText('No CVR files loaded.');
-  expect(screen.getButton('Load CVR Files')).toBeEnabled();
-  expect(screen.getButton('Remove CVR Files')).toBeDisabled();
+  await screen.findByText('No CVRs loaded.');
+  expect(screen.getButton('Load CVRs')).toBeEnabled();
+  expect(screen.getButton('Remove CVRs')).toBeDisabled();
   expect(screen.getButton('Add Manually Entered Results')).toBeEnabled();
   expect(screen.getButton('Remove Manually Entered Results')).toBeDisabled();
 });

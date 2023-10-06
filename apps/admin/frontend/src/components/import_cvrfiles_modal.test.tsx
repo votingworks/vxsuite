@@ -113,7 +113,7 @@ describe('when USB is properly mounted', () => {
     });
     await waitFor(() =>
       screen.getByText(
-        /There were no new CVR files automatically found on this USB drive/
+        /No new CVR exports were automatically found on this USB drive./
       )
     );
 
@@ -137,7 +137,7 @@ describe('when USB is properly mounted', () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
     apiMock.expectGetCastVoteRecordFiles([]);
 
-    await screen.findByText('1,000 new CVRs Loaded');
+    await screen.findByText('1,000 New CVRs Loaded');
 
     delete window.kiosk;
   });
@@ -152,9 +152,9 @@ describe('when USB is properly mounted', () => {
       usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });
-    await screen.findByText('Load CVR Files');
+    await screen.findByText('Load CVRs');
     screen.getByText(
-      /The following CVR files were automatically found on this USB drive./
+      /The following CVR exports were automatically found on this USB drive./
     );
 
     const tableRows = screen.getAllByTestId('table-row');
@@ -187,8 +187,8 @@ describe('when USB is properly mounted', () => {
     apiMock.expectGetCastVoteRecordFiles([]);
 
     userEvent.click(domGetByText(tableRows[0], 'Load'));
-    await screen.findByText('Loading');
-    await screen.findByText('1,000 new CVRs Loaded');
+    await screen.findByText('Loading CVRs');
+    await screen.findByText('1,000 New CVRs Loaded');
   });
 
   test('locks to test mode when in test mode & shows previously loaded files as loaded', async () => {
@@ -203,7 +203,7 @@ describe('when USB is properly mounted', () => {
       apiMock,
     });
     await screen.findByRole('heading', {
-      name: 'Load Test Ballot Mode CVR Files',
+      name: 'Load Test Ballot Mode CVRs',
     });
 
     const tableRows = screen.getAllByTestId('table-row');
@@ -235,7 +235,7 @@ describe('when USB is properly mounted', () => {
       usbDriveStatus: mockUsbDriveStatus('mounted'),
       apiMock,
     });
-    await screen.findByText('Load Official Ballot Mode CVR Files');
+    await screen.findByText('Load Official Ballot Mode CVRs');
 
     const tableRows = screen.getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);
