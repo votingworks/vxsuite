@@ -1,6 +1,7 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackageFileName,
+  CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   Id,
@@ -30,7 +31,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { createReadStream, createWriteStream, promises as fs } from 'fs';
-import { join } from 'path';
+import path, { join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
   generateFilenameForBallotExportPackage,
@@ -433,12 +434,21 @@ function buildApi({
       await logger.log(LogEventId.ImportCastVoteRecordsInit, userRole, {
         message: 'Importing cast vote records...',
       });
-      const importResult = await importCastVoteRecords(store, input.path);
+      const exportDirectoryPath =
+        // For manual export selection, users must select the contained metadata file as a proxy
+        // for the export directory since the UI doesn't support directory selection
+        path.basename(input.path) === CastVoteRecordExportFileName.METADATA
+          ? path.dirname(input.path)
+          : input.path;
+      const importResult = await importCastVoteRecords(
+        store,
+        exportDirectoryPath
+      );
       if (importResult.isErr()) {
         await logger.log(LogEventId.ImportCastVoteRecordsComplete, userRole, {
           disposition: 'failure',
           message: 'Error importing cast vote records.',
-          exportDirectoryPath: input.path,
+          exportDirectoryPath,
           errorDetails: JSON.stringify(importResult.err()),
         });
       } else {
@@ -451,7 +461,7 @@ function buildApi({
         await logger.log(LogEventId.ImportCastVoteRecordsComplete, userRole, {
           disposition: 'success',
           message,
-          exportDirectoryPath: input.path,
+          exportDirectoryPath,
         });
       }
       return importResult;
