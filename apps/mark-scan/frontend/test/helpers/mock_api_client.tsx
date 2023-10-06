@@ -295,6 +295,10 @@ export function createApiMock() {
     expectEjectUsbDrive() {
       mockApiClient.ejectUsbDrive.expectCallWith().resolves();
     },
+
+    expectSetPatDeviceIsCalibrated() {
+      mockApiClient.setPatDeviceIsCalibrated.expectCallWith().resolves();
+    },
   };
 }
 

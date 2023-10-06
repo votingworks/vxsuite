@@ -186,6 +186,23 @@ test('`blank_page_interpretation` state renders BlankPageInterpretationPage for 
   await screen.findByText('Load New Ballot Sheet');
 });
 
+test('`pat_device_connected` state renders PAT device calibration page', async () => {
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+
+  render(
+    <App
+      hardware={hardware}
+      storage={storage}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  apiMock.setPaperHandlerState('pat_device_connected');
+  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
+  await screen.findByText('Test Your Device');
+});
+
 test('`paper_reloaded` state renders PaperReloadedPage', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 

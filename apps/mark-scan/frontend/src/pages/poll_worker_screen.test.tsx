@@ -228,7 +228,7 @@ test('returns null if status is unhandled', () => {
   expect(screen.queryByText('Poll Worker Actions')).toBeNull();
 });
 
-test('renders a warning screen when state machine polling is off', async () => {
+test('renders a warning screen when hardware check is off', async () => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
   );
@@ -244,5 +244,5 @@ test('renders a warning screen when state machine polling is off', async () => {
     electionDefinition,
   });
 
-  await screen.findByText('Hardware Has Been Disabled');
+  await screen.findByText('Hardware Check Disabled');
 });

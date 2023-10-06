@@ -3,7 +3,7 @@ import { H1, Icons, P } from '@votingworks/ui';
 import { behaviorToKeypressMap, validKeypressValues } from './constants';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
-type InputBehavior = 'Move' | 'Select';
+export type InputBehavior = 'Move' | 'Select';
 
 // Each input identification step is broken into these sub-steps, named Phases for disambiguation
 type InputIdentificationPhase =
@@ -37,6 +37,8 @@ export function IdentifyInputStep({
       event.preventDefault();
 
       if (event.key === behaviorToKeypressMap[inputName]) {
+        // Exhaustive switch statement so we don't need a default case
+        // eslint-disable-next-line default-case
         switch (inputIdentificationPhase) {
           case 'unidentified':
             setInputIdentificationPhase('identified');
@@ -47,10 +49,10 @@ export function IdentifyInputStep({
           case 'other_input':
             setInputIdentificationPhase('identified');
             break;
-          default:
-          // Unreachable
         }
-      } else {
+      } else if (
+        event.key === behaviorToKeypressMap[getOtherInputName(inputName)]
+      ) {
         setInputIdentificationPhase('other_input');
       }
     },
@@ -73,6 +75,9 @@ export function IdentifyInputStep({
   let headerContent = '';
   let bodyContent = '';
   let icon = null;
+
+  // Exhaustive switch statement so we don't need a default case
+  // eslint-disable-next-line default-case
   switch (inputIdentificationPhase) {
     case 'unidentified':
       headerContent = `Identify the "${inputName}" Input`;
@@ -89,8 +94,6 @@ export function IdentifyInputStep({
       bodyContent = 'Try the other input.';
       icon = <Icons.Danger />;
       break;
-    default:
-    // Unreachable
   }
 
   return (
