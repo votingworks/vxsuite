@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import {
   Button,
+  Loading,
   Modal,
   P,
   UsbControllerButton,
@@ -12,7 +13,6 @@ import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
-import { Loading } from './loading';
 import { exportCastVoteRecordsToUsbDrive } from '../api';
 
 function throwBadStatus(s: never): never {
@@ -81,12 +81,9 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
     if (usbDriveStatus === 'ejected') {
       return (
         <Modal
-          title="CVRs Saved"
+          title="USB Drive Ejected"
           content={
-            <P>
-              USB drive successfully ejected, you may now take it to VxAdmin for
-              tabulation.
-            </P>
+            <P>You may now take the USB drive to VxAdmin for tabulation.</P>
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
@@ -98,8 +95,8 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
         title="CVRs Saved"
         content={
           <P>
-            CVR file saved successfully! You may now eject the USB drive and
-            take it to VxAdmin for tabulation.
+            You may now eject the USB drive and take it to VxAdmin for
+            tabulation.
           </P>
         }
         onOverlayClick={onClose}
@@ -119,7 +116,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading />} onOverlayClick={onClose} />;
+    return <Modal content={<Loading>Saving CVRs</Loading>} />;
   }
 
   if (currentState !== ModalState.INIT) {
@@ -136,10 +133,10 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
         <Modal
           title="No USB Drive Detected"
           content={
-            <P>
+            <React.Fragment>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              Please insert a USB drive in order to save CVRs.
-            </P>
+              <P>Please insert a USB drive in order to save CVRs.</P>
+            </React.Fragment>
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Cancel</Button>}
@@ -161,7 +158,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
           content={
             <React.Fragment>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <P>A CVR file will be saved to the mounted USB drive.</P>
+              <P>CVRs will be saved to the mounted USB drive.</P>
             </React.Fragment>
           }
           onOverlayClick={onClose}

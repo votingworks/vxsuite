@@ -34,14 +34,14 @@ export function ConfirmRemovingFileModal({
   let singleFileRemoval = true;
   switch (fileType) {
     case ResultsFileType.CastVoteRecord: {
+      fileTypeName = 'CVRs';
       const fileList = castVoteRecordFilesQuery.data;
       singleFileRemoval = fileList.length <= 1;
-      fileTypeName = 'CVR Files';
       mainContent = (
         <React.Fragment>
           <P>
             Do you want to remove the {fileList.length} loaded CVR{' '}
-            {pluralize('files', fileList.length)}?
+            {pluralize('export', fileList.length)}?
           </P>
           <P>All reports will be unavailable without CVR data.</P>
         </React.Fragment>
@@ -56,7 +56,7 @@ export function ConfirmRemovingFileModal({
         <React.Fragment>
           <P>
             Do you want to remove the {fileList.length} loaded CVR{' '}
-            {pluralize('files', fileList.length)}
+            {pluralize('export', fileList.length)}
             {hasManualData && ' and the manually entered data'}?
           </P>
           <P>All reports will be unavailable without CVR data.</P>
@@ -70,7 +70,7 @@ export function ConfirmRemovingFileModal({
 
   return (
     <Modal
-      centerContent
+      title={`Remove ${fileTypeName}`}
       content={mainContent}
       actions={
         <React.Fragment>

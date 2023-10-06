@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import {
   Button,
-  Prose,
   Loading,
   Modal,
   UsbControllerButton,
@@ -70,11 +69,7 @@ export function ExportResultsModal({
     return (
       <Modal
         title="Failed to Save CVRs"
-        content={
-          <Prose>
-            <P>{errorMessage}</P>
-          </Prose>
-        }
+        content={<P>{errorMessage}</P>}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
@@ -87,9 +82,7 @@ export function ExportResultsModal({
         <Modal
           title="USB Drive Ejected"
           content={
-            <Prose>
-              <P>You may now take the USB drive to VxAdmin for tabulation.</P>
-            </Prose>
+            <P>You may now take the USB drive to VxAdmin for tabulation.</P>
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Close</Button>}
@@ -98,14 +91,12 @@ export function ExportResultsModal({
     }
     return (
       <Modal
-        title="CVRs Saved to USB Drive"
+        title="CVRs Saved"
         content={
-          <Prose>
-            <P>
-              You may now eject the USB drive and take it to VxAdmin for
-              tabulation.
-            </P>
-          </Prose>
+          <P>
+            You may now eject the USB drive and take it to VxAdmin for
+            tabulation.
+          </P>
         }
         onOverlayClick={onClose}
         actions={
@@ -125,12 +116,7 @@ export function ExportResultsModal({
   }
 
   if (currentState === ModalState.SAVING) {
-    return (
-      <Modal
-        content={<Loading>Saving CVRs</Loading>}
-        onOverlayClick={onClose}
-      />
-    );
+    return <Modal content={<Loading>Saving CVRs</Loading>} />;
   }
 
   /* istanbul ignore next - compile time check */
@@ -144,15 +130,12 @@ export function ExportResultsModal({
     case 'error':
       return (
         <Modal
-          centerContent
           title="No USB Drive Detected"
           content={
-            <Prose textCenter>
-              <P>
-                Please insert a USB drive in order to save CVRs.
-                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              </P>
-            </Prose>
+            <React.Fragment>
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+              <P>Please insert a USB drive in order to save CVRs.</P>
+            </React.Fragment>
           }
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Cancel</Button>}
@@ -163,13 +146,10 @@ export function ExportResultsModal({
         <Modal
           title="Save CVRs"
           content={
-            <Prose>
+            <React.Fragment>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <P>
-                A CVR file will automatically be saved to the default location
-                on the mounted USB drive.
-              </P>
-            </Prose>
+              <P>CVRs will be saved to the mounted USB drive.</P>
+            </React.Fragment>
           }
           onOverlayClick={onClose}
           actions={

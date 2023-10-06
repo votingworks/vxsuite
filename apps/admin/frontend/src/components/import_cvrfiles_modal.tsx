@@ -252,11 +252,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   if (currentState.state === 'duplicate') {
     return (
       <Modal
-        title="Duplicate File"
+        title="Duplicate Export"
         content={
           <P>
-            The selected file was ignored as a duplicate of a previously loaded
-            file.
+            The selected export was ignored as a duplicate of a previously
+            loaded export.
           </P>
         }
         onOverlayClick={onClose}
@@ -266,25 +266,31 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   }
 
   if (currentState.state === 'success') {
+    const { alreadyPresent, newlyAdded } = currentState.result;
+    const total = alreadyPresent + newlyAdded;
+    const content = (() => {
+      if (alreadyPresent > 0) {
+        if (total === 1) {
+          return <P>The 1 CVR in the selected export was previously loaded.</P>;
+        }
+        return (
+          <P>
+            Of the {format.count(total)} total CVRs in the selected export,{' '}
+            {format.count(alreadyPresent)}{' '}
+            {alreadyPresent === 1 ? 'was' : 'were'} previously loaded.
+          </P>
+        );
+      }
+      return <P>The CVRs in the selected export were successfully loaded.</P>;
+    })();
     return (
       <Modal
-        title={`${format.count(
-          currentState.result.newlyAdded
-        )} new CVRs Loaded`}
-        content={
-          currentState.result.alreadyPresent > 0 && (
-            <P>
-              Of the{' '}
-              {format.count(
-                currentState.result.newlyAdded +
-                  currentState.result.alreadyPresent
-              )}{' '}
-              total CVRs in this file,{' '}
-              {format.count(currentState.result.alreadyPresent)} were previously
-              loaded.
-            </P>
-          )
+        title={
+          newlyAdded === 1
+            ? '1 New CVR Loaded'
+            : `${format.count(newlyAdded)} New CVRs Loaded`
         }
+        content={content}
         onOverlayClick={onClose}
         actions={<Button onPress={onClose}>Close</Button>}
       />
@@ -294,8 +300,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
   if (
     !castVoteRecordFilesQuery.isSuccess ||
     !castVoteRecordFileModeQuery.isSuccess ||
-    !cvrFilesOnUsbQuery.isSuccess ||
-    currentState.state === 'loading'
+    !cvrFilesOnUsbQuery.isSuccess
   ) {
     return (
       <Modal
@@ -310,6 +315,10 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     );
   }
 
+  if (currentState.state === 'loading') {
+    return <Modal content={<Loading>Loading CVRs</Loading>} />;
+  }
+
   if (
     usbDriveStatus.status === 'no_drive' ||
     usbDriveStatus.status === 'ejected' ||
@@ -321,8 +330,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
         content={
           <P>
             <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-            Please insert a USB drive in order to load CVR files from the
-            scanner.
+            Please insert a USB drive in order to load CVRs from a scanner.
           </P>
         }
         onOverlayClick={onClose}
@@ -332,8 +340,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
               <FileInputButton
                 data-testid="manual-input"
                 onChange={processCastVoteRecordFileFromFilePicker}
+                accept=".json"
               >
-                Select Files…
+                Select Export Manually…
               </FileInputButton>
             )}
             <Button onPress={onClose}>Cancel</Button>
@@ -410,29 +419,33 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
     if (numberOfNewFiles === 0) {
       instructionalText = fileModeLocked ? (
         <React.Fragment>
-          There were no new {headerModeText} CVR files automatically found on
-          this USB drive. Save CVR files to this USB drive from the scanner.
-          Optionally, you may manually select files to load.
+          No new {headerModeText.toLowerCase()} CVR exports were automatically
+          found on this USB drive.
         </React.Fragment>
       ) : (
-        'There were no new CVR files automatically found on this USB drive. Save CVR files to this USB drive from the scanner. Optionally, you may manually select files to load.'
+        <React.Fragment>
+          No new CVR exports were automatically found on this USB drive.
+        </React.Fragment>
       );
     } else if (fileModeLocked) {
       instructionalText = (
         <React.Fragment>
-          The following {headerModeText} CVR files were automatically found on
-          this USB drive. Previously loaded CVR entries will be ignored.
+          The following {headerModeText.toLowerCase()} CVR exports were
+          automatically found on this USB drive.
         </React.Fragment>
       );
     } else {
-      instructionalText =
-        'The following CVR files were automatically found on this USB drive. Previously loaded CVR entries will be ignored.';
+      instructionalText = (
+        <React.Fragment>
+          The following CVR exports were automatically found on this USB drive.
+        </React.Fragment>
+      );
     }
 
     return (
       <Modal
         modalWidth={ModalWidth.Wide}
-        title={`Load ${headerModeText} CVR Files`}
+        title={`Load ${headerModeText} CVRs`}
         content={
           <Content>
             <P>{instructionalText}</P>
@@ -462,7 +475,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
               onChange={processCastVoteRecordFileFromFilePicker}
               accept=".json"
             >
-              Select File Manually…
+              Select Export Manually…
             </FileInputButton>
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
