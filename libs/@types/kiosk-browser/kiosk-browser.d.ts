@@ -91,20 +91,6 @@ declare namespace KioskBrowser {
     deviceAddress: number;
   }
 
-  export interface UsbDriveInfo {
-    deviceName: string;
-    mountPoint?: string;
-    fsType?: string;
-    fsVersion?: string;
-    label?: string;
-  }
-
-  export type UsbFormat = 'fat32' | 'exfat';
-  export interface FormatUsbOptions {
-    format: UsbFormat;
-    name: string;
-  }
-
   export interface SaveAsOptions {
     title?: string;
     defaultPath?: string;
@@ -251,12 +237,6 @@ declare namespace KioskBrowser {
      * Creates a directory at the specified path.
      */
     makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>;
-
-    // USB sticks
-    getUsbDriveInfo(): Promise<UsbDriveInfo[]>;
-    mountUsbDrive(device: string): Promise<void>;
-    unmountUsbDrive(): Promise<void>;
-    syncUsbDrive(mountPoint: string): Promise<void>;
 
     /**
      * Creates a directory at the specified path.

@@ -28,4 +28,3 @@ export * from './Storage';
 export * from './tabulation';
 export * from './types';
 export * from './votes';
-export * as usbstick from './usbstick';
