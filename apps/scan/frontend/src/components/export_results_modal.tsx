@@ -12,11 +12,7 @@ import {
 import { throwIllegalValue } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import {
-  ejectUsbDrive,
-  exportCastVoteRecordsToUsbDrive,
-  legacyUsbDriveStatus,
-} from '../api';
+import { ejectUsbDrive, exportCastVoteRecordsToUsbDrive } from '../api';
 
 const UsbImage = styled.img`
   margin: 0 auto;
@@ -104,7 +100,7 @@ export function ExportResultsModal({
             <UsbControllerButton
               small={false}
               primary
-              usbDriveStatus={legacyUsbDriveStatus(usbDrive)}
+              usbDriveStatus={usbDrive}
               usbDriveEject={() => ejectUsbDriveMutation.mutate()}
               disabled={ejectUsbDriveMutation.isLoading}
             />

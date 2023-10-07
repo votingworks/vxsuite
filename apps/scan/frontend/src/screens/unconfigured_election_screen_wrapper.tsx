@@ -6,7 +6,6 @@ import { ScreenMainCenterChild } from '../components/layout';
 import {
   configureFromBallotPackageOnUsbDrive,
   getUsbDriveStatus,
-  legacyUsbDriveStatus,
 } from '../api';
 
 interface Props {
@@ -37,7 +36,7 @@ export function UnconfiguredElectionScreenWrapper(
   return (
     <ScreenMainCenterChild>
       <UnconfiguredElectionScreen
-        usbDriveStatus={legacyUsbDriveStatus(usbDriveStatusQuery.data)}
+        usbDriveStatus={usbDriveStatusQuery.data}
         isElectionManagerAuth={isElectionManagerAuth}
         backendConfigError={error}
         machineName="VxScan"
