@@ -3,26 +3,34 @@ import {
   Main,
   Screen,
   UnconfiguredElectionScreen,
-  UsbDriveStatus,
-  useExternalStateChangeListener,
+  useQueryChangeListener,
 } from '@votingworks/ui';
+import { assert } from '@votingworks/basics';
 import { MainNav } from '../components/main_nav';
-import { configureFromBallotPackageOnUsbDrive, logOut } from '../api';
+import {
+  configureFromBallotPackageOnUsbDrive,
+  getUsbDriveStatus,
+  legacyUsbDriveStatus,
+  logOut,
+} from '../api';
 
 interface Props {
   isElectionManagerAuth: boolean;
-  usbDriveStatus: UsbDriveStatus;
 }
 
 export function UnconfiguredElectionScreenWrapper({
   isElectionManagerAuth,
-  usbDriveStatus,
 }: Props): JSX.Element {
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  // USB drive status is guaranteed to exist because app root will not render
+  // this component until the USB drive query succeeds.
+  assert(usbDriveStatusQuery.isSuccess);
+
   const logOutMutation = logOut.useMutation();
   const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
 
-  useExternalStateChangeListener(usbDriveStatus, (newUsbDriveStatus) => {
-    if (newUsbDriveStatus === 'mounted') {
+  useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
+    if (newUsbDriveStatus.status === 'mounted') {
       configureMutation.mutate();
     }
   });
@@ -38,7 +46,7 @@ export function UnconfiguredElectionScreenWrapper({
       </MainNav>
       <Main centerChild>
         <UnconfiguredElectionScreen
-          usbDriveStatus={usbDriveStatus}
+          usbDriveStatus={legacyUsbDriveStatus(usbDriveStatusQuery.data)}
           isElectionManagerAuth={isElectionManagerAuth}
           backendConfigError={error}
           machineName="VxCentralScan"
