@@ -26,7 +26,7 @@ import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
 
@@ -82,6 +82,14 @@ function buildApi({
 
     logOut() {
       return auth.logOut(constructAuthMachineState(workspace));
+    },
+
+    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDrive.status();
+    },
+
+    async ejectUsbDrive(): Promise<void> {
+      return usbDrive.eject(assertDefined(await getUserRole()));
     },
 
     getTestMode() {
