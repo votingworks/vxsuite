@@ -5,7 +5,6 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-  UsbDriveStatus as LegacyUsbDriveStatus,
 } from '@votingworks/ui';
 import {
   QueryClient,
@@ -15,8 +14,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { typedAs } from '@votingworks/basics';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -167,18 +164,6 @@ export const getUsbDriveStatus = {
     });
   },
 } as const;
-
-// TODO remove this once libs/ui is converted to using libs/usb-drive's UsbDriveStatus
-export function legacyUsbDriveStatus(
-  usbDrive: UsbDriveStatus
-): LegacyUsbDriveStatus {
-  return typedAs<Record<UsbDriveStatus['status'], LegacyUsbDriveStatus>>({
-    no_drive: 'absent',
-    mounted: 'mounted',
-    ejected: 'ejected',
-    error: 'bad_format',
-  })[usbDrive.status];
-}
 
 export const ejectUsbDrive = {
   useMutation() {

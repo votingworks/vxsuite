@@ -1,6 +1,6 @@
 import { fakeKiosk } from '@votingworks/test-utils';
 
-import { ElectronFile } from '@votingworks/ui';
+import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import type {
@@ -19,7 +19,6 @@ import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';

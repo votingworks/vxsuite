@@ -1,9 +1,9 @@
 import userEvent from '@testing-library/user-event';
 import { Tabulation } from '@votingworks/types';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
 import { ExportBallotCountReportCsvButton } from './export_ballot_count_report_csv_button';
 
 let apiMock: ApiMock;

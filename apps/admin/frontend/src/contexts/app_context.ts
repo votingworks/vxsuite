@@ -9,8 +9,8 @@ import { NullPrinter } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/admin-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { Iso8601Timestamp } from '../config/types';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;

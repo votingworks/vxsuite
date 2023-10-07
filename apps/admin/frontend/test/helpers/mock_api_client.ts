@@ -33,8 +33,8 @@ import {
   SystemSettings,
   Tabulation,
 } from '@votingworks/types';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { mockUsbDriveStatus } from './mock_usb_drive';
 
 const mockRect: Rect = {
   width: 1000,
