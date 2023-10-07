@@ -1,6 +1,5 @@
 import { Page } from '@playwright/test';
 import { mockCard } from '@votingworks/auth';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { methodUrl } from '@votingworks/grout';
 import { TEST_JURISDICTION } from '@votingworks/types';
 
@@ -51,10 +50,11 @@ export function mockElectionManagerCardInsertion({
  * Enters the PIN into the PIN pad.
  */
 export async function enterPin(page: Page): Promise<void> {
-  await page.waitForSelector('text=Enter the card PIN to unlock.');
+  await page.getByText('Enter the card PIN to unlock.').waitFor();
   for (const digit of PIN) {
     await page.getByRole('button', { name: digit }).click();
   }
+  await page.getByText('VxCentralScan Unlocked').waitFor(); // avoid flaky auth from premature card removal
 }
 
 /**
@@ -69,9 +69,34 @@ export function mockCardRemoval(): void {
 }
 
 /**
- * Logs out of the application.
+ * Logs in as system administrator.
  */
-export async function logOut(page: Page): Promise<void> {
+export async function logInAsSystemAdministrator(page: Page): Promise<void> {
+  mockSystemAdministratorCardInsertion();
+  await enterPin(page);
+  mockCardRemoval();
+  await page.getByText('Lock Machine').waitFor();
+}
+
+/**
+ * Logs in as election manager.
+ */
+export async function logInAsElectionManager(
+  page: Page,
+  electionHash: string
+): Promise<void> {
+  mockElectionManagerCardInsertion({
+    electionHash,
+  });
+  await enterPin(page);
+  mockCardRemoval();
+  await page.getByText('Lock Machine').waitFor();
+}
+
+/**
+ * Logs out of the application, bypassing the UI.
+ */
+export async function forceLogOut(page: Page): Promise<void> {
   await page.request.post(methodUrl('logOut', '/api'), {
     data: '{}',
     headers: { 'Content-Type': 'application/json' },
@@ -81,38 +106,13 @@ export async function logOut(page: Page): Promise<void> {
 /**
  * Logs out and resets the application by removing the election definition.
  */
-export async function logOutAndResetElectionDefinition(
-  page: Page
-): Promise<void> {
-  await logOut(page);
+export async function forceReset(page: Page): Promise<void> {
   await page.request.post(methodUrl('unconfigure', '/api'), {
     data: JSON.stringify({
       ignoreBackupRequirement: true,
     }),
     headers: { 'Content-Type': 'application/json' },
   });
-
-  mockElectionManagerCardInsertion({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
-  });
-
+  await forceLogOut(page);
   await page.goto('/');
-  await enterPin(page);
-  mockCardRemoval();
-
-  // TODO replace with UI interaction when mock USB is supported
-  await page.request.post(
-    methodUrl(
-      'configureWithSampleBallotPackageForIntegrationTest',
-      'http://localhost:3000/api'
-    ),
-    {
-      data: '{}',
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
-
-  await page.reload();
 }

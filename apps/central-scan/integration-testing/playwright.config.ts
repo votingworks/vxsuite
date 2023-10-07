@@ -1,8 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
-import { join } from 'path';
+import dotenv from 'dotenv';
+import { join, resolve } from 'path';
 
 const baseURL = 'http://127.0.0.1:3000';
 const outputDir = './test-results';
+
+dotenv.config({ path: resolve(__dirname, '.env') });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -10,6 +13,8 @@ const outputDir = './test-results';
 export default defineConfig({
   testDir: './e2e',
   outputDir,
+  /* All test suites use shared server, so they cannot run in parallel */
+  workers: 1,
   /* Opt out of parallel tests due to shared global state like Java card mocking. */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -30,7 +35,6 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
-
   /* Configure projects for major browsers */
   projects: [
     {
@@ -51,5 +55,7 @@ export default defineConfig({
     command: 'make run',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 });

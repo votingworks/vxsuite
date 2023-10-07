@@ -13,6 +13,8 @@ dotenv.config({ path: resolve(__dirname, '.env') });
 export default defineConfig({
   testDir: './e2e',
   outputDir,
+  /* All test suites use shared server, so they cannot run in parallel */
+  workers: 1,
   /* Opt out of parallel tests due to shared global state like Java card mocking. */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -25,7 +27,6 @@ export default defineConfig({
     ['html', { open: 'never' }],
     ['junit', { outputFile: join(outputDir, 'results.xml') }],
   ],
-  workers: 1,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */

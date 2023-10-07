@@ -15,7 +15,6 @@ import {
   ElectionDefinition,
   SystemSettings,
   safeParse,
-  TEST_JURISDICTION,
   ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/types';
 import {
@@ -149,22 +148,6 @@ function buildApi({
         throw error;
       }
     },
-
-    /* c8 ignore start */
-    // This is only used in Playwright tests.
-    async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
-      const { electionGridLayoutNewHampshireAmherstFixtures } = await import(
-        '@votingworks/fixtures'
-      );
-      const ballotPackage =
-        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage();
-      const { electionDefinition } = ballotPackage;
-      const systemSettings = DEFAULT_SYSTEM_SETTINGS;
-
-      importer.configure(electionDefinition, TEST_JURISDICTION);
-      store.setSystemSettings(systemSettings);
-    },
-    /* c8 ignore stop */
 
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<ElectionDefinition, BallotPackageConfigurationError>
