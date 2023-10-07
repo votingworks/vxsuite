@@ -6,9 +6,9 @@ import { Readable } from 'stream';
 import { createReadStream, lstatSync } from 'fs';
 import { Buffer } from 'buffer';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { splitToFiles } from './split';
 import { execFile } from './exec';
-import { UsbDrive } from './get_usb_drives';
 
 /**
  * The largest file size that can be exported to a USB drive formatted as FAT32.
@@ -33,7 +33,7 @@ export type ExportDataResult = Result<string[], ExportDataError>;
 /** Settings for the {@link Exporter}. */
 export interface ExporterSettings {
   allowedExportPatterns: Iterable<string>;
-  getUsbDrives: () => Promise<UsbDrive[]>;
+  usbDrive: UsbDrive;
 }
 
 /**
@@ -41,16 +41,16 @@ export interface ExporterSettings {
  */
 export class Exporter {
   private readonly allowedExportPatterns: readonly string[];
-  private readonly getUsbDrives: () => Promise<UsbDrive[]>;
+  private readonly usbDrive: UsbDrive;
 
   /**
    * Builds an exporter with the given allowed export patterns. To allow all
    * paths, use `['**']`. Ideally you should be as specific as possible to avoid
    * writing to unexpected locations.
    */
-  constructor({ allowedExportPatterns, getUsbDrives }: ExporterSettings) {
+  constructor({ allowedExportPatterns, usbDrive }: ExporterSettings) {
     this.allowedExportPatterns = Array.from(allowedExportPatterns);
-    this.getUsbDrives = getUsbDrives;
+    this.usbDrive = usbDrive;
   }
 
   /**
@@ -136,9 +136,9 @@ export class Exporter {
       dataToWrite = createReadStream(machineFilePath);
     }
 
-    const [usbDrive] = await this.getUsbDrives();
+    const usbDriveStatus = await this.usbDrive.status();
 
-    if (!usbDrive?.mountPoint) {
+    if (usbDriveStatus.status !== 'mounted') {
       return err({
         type: 'missing-usb-drive',
         message: 'No USB drive found',
@@ -146,14 +146,14 @@ export class Exporter {
     }
 
     const result = await this.exportData(
-      join(usbDrive.mountPoint, bucket, name),
+      join(usbDriveStatus.mountPoint, bucket, name),
       dataToWrite,
       { maximumFileSize }
     );
 
     // Exporting a file might take a while. Ensure the data is flushed to the USB
     // drive before we consider it safe to remove.
-    await execFile('sync', ['-f', usbDrive.mountPoint]);
+    await execFile('sync', ['-f', usbDriveStatus.mountPoint]);
 
     return result;
   }

@@ -672,10 +672,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
-      getUsbDrives: async () => {
-        const drive = await usbDrive.status();
-        return drive.status === 'mounted' ? [drive] : [];
-      },
+      usbDrive,
     }),
     exportOptions,
     scannerState: {
