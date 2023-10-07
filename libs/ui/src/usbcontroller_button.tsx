@@ -1,16 +1,17 @@
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button, ButtonVariant } from './button';
-import { UsbDriveStatus } from './hooks/use_usb_drive';
 
 /* istanbul ignore next */
 function doNothing() {
   // do nothing
 }
 
-const disabledText: Record<Exclude<UsbDriveStatus, 'mounted'>, string> = {
-  absent: 'No USB',
-  bad_format: 'No USB',
-  mounting: 'Connecting…',
-  ejecting: 'Ejecting…',
+const disabledText: Record<
+  Exclude<UsbDriveStatus['status'], 'mounted'>,
+  string
+> = {
+  no_drive: 'No USB',
+  error: 'No USB',
   ejected: 'Ejected',
 };
 
@@ -31,7 +32,8 @@ export function UsbControllerButton({
 }: Props): JSX.Element | null {
   const variant: ButtonVariant = primary ? 'primary' : 'regular';
 
-  if (usbDriveStatus === 'mounted') {
+  const { status } = usbDriveStatus;
+  if (status === 'mounted') {
     return (
       <Button
         small={small}
@@ -46,7 +48,7 @@ export function UsbControllerButton({
 
   return (
     <Button small={small} disabled onPress={doNothing}>
-      {disabledText[usbDriveStatus]}
+      {disabledText[status]}
     </Button>
   );
 }

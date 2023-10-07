@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { join } from 'path';
 import {
-  usbstick,
   generateLogFilename,
   LogFileType,
   isElectionManagerAuth,
@@ -18,11 +17,11 @@ import {
 
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
 import { Modal } from './modal';
 
 import { Loading } from './loading';
-import { UsbDriveStatus } from './hooks/use_usb_drive';
 import { UsbImage } from './graphics';
 import { Font, P } from './typography';
 
@@ -121,7 +120,6 @@ export function ExportLogsModal({
           throwIllegalValue(logFileType);
       }
       let filenameLocation = '';
-      const usbPath = await usbstick.getPath();
       if (openFileDialog) {
         const fileWriter = await window.kiosk.saveAs({
           defaultPath: defaultFilename,
@@ -135,8 +133,8 @@ export function ExportLogsModal({
         filenameLocation = fileWriter.filename;
         await fileWriter.end();
       } else {
-        assert(typeof usbPath !== 'undefined');
-        const pathToFile = join(usbPath, defaultFilename);
+        assert(usbDriveStatus.status === 'mounted');
+        const pathToFile = join(usbDriveStatus.mountPoint, defaultFilename);
         await window.kiosk.writeFile(pathToFile, results);
         filenameLocation = defaultFilename;
       }
@@ -225,10 +223,10 @@ export function ExportLogsModal({
     );
   }
 
-  switch (usbDriveStatus) {
-    case 'absent':
+  switch (usbDriveStatus.status) {
+    case 'no_drive':
     case 'ejected':
-    case 'bad_format':
+    case 'error':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -253,15 +251,6 @@ export function ExportLogsModal({
               <Button onPress={onClose}>Cancel</Button>
             </React.Fragment>
           }
-        />
-      );
-    case 'ejecting':
-    case 'mounting':
-      return (
-        <Modal
-          content={<Loading />}
-          onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case 'mounted': {

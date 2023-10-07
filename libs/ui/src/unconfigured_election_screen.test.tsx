@@ -2,11 +2,12 @@ import { BallotPackageConfigurationError } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library';
 
 import { UnconfiguredElectionScreen } from './unconfigured_election_screen';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
 test('UnconfiguredElectionScreen shows an error message when no USB drive is inserted', async () => {
   render(
     <UnconfiguredElectionScreen
-      usbDriveStatus="absent"
+      usbDriveStatus={mockUsbDriveStatus('no_drive')}
       machineName="VxScan"
       isElectionManagerAuth
     />
@@ -19,7 +20,7 @@ test('UnconfiguredElectionScreen shows an error message when no USB drive is ins
 test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounted and no error message exists', async () => {
   render(
     <UnconfiguredElectionScreen
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       isElectionManagerAuth
       machineName="VxScan"
     />
@@ -58,7 +59,7 @@ test.each([
   async ({ errorString, expectedErrorMessage }) => {
     render(
       <UnconfiguredElectionScreen
-        usbDriveStatus="mounted"
+        usbDriveStatus={mockUsbDriveStatus('mounted')}
         backendConfigError={errorString as BallotPackageConfigurationError}
         isElectionManagerAuth
         machineName="VxScan"
@@ -72,7 +73,7 @@ test.each([
 test('UnconfiguredElectionScreen shows an error when not authed as election manager', async () => {
   render(
     <UnconfiguredElectionScreen
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       isElectionManagerAuth={false}
       machineName="VxScan"
     />

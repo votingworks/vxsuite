@@ -5,6 +5,7 @@ import { isVxDev } from '@votingworks/utils';
 import { render, screen } from '../test/react_testing_library';
 
 import { SystemAdministratorScreenContents } from './system_administrator_screen_contents';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -72,7 +73,7 @@ test.each(renderTestCases)(
         primaryText="To adjust settings for the current election, please insert an Election Manager card."
         unconfigureMachine={unconfigureMachine}
         isMachineConfigured
-        usbDriveStatus="mounted"
+        usbDriveStatus={mockUsbDriveStatus('mounted')}
       />
     );
 
@@ -117,7 +118,7 @@ test('Quit button makes expected call', () => {
       primaryText="To adjust settings for the current election, please insert an Election Manager card."
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 
@@ -136,7 +137,7 @@ test('Quit button does nothing when kiosk is undefined', () => {
       primaryText="To adjust settings for the current election, please insert an Election Manager card."
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 
@@ -150,7 +151,7 @@ test('Reset Polls to Paused button not rendered if not specified', () => {
       primaryText="Primary Text"
       unconfigureMachine={jest.fn()}
       isMachineConfigured
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 
@@ -168,7 +169,7 @@ test('Reset Polls to Paused rendered if callback and flag specified', () => {
       isMachineConfigured
       resetPollsToPausedText="Reset Polls to Paused Text"
       resetPollsToPaused={jest.fn()}
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 

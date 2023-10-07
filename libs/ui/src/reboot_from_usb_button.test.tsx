@@ -3,6 +3,7 @@ import { Logger, LogSource } from '@votingworks/logging';
 import { deferred } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 import { RebootFromUsbButton } from './reboot_from_usb_button';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
 beforeEach(() => {
   window.kiosk = fakeKiosk();
@@ -11,7 +12,7 @@ beforeEach(() => {
 test('renders without a USB drive as expected.', async () => {
   render(
     <RebootFromUsbButton
-      usbDriveStatus="absent"
+      usbDriveStatus={mockUsbDriveStatus('no_drive')}
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -24,7 +25,7 @@ test('renders with a non-bootable USB as expected', async () => {
   window.kiosk!.prepareToBootFromUsb = jest.fn().mockResolvedValue(false);
   render(
     <RebootFromUsbButton
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -53,7 +54,7 @@ test('reboots automatically when clicked with a bootable USB', async () => {
   window.kiosk!.prepareToBootFromUsb = jest.fn().mockResolvedValue(true);
   render(
     <RebootFromUsbButton
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -67,7 +68,7 @@ test('modal state updates when USB drive is inserted.', async () => {
   window.kiosk!.prepareToBootFromUsb = jest.fn().mockResolvedValue(false);
   const { rerender } = render(
     <RebootFromUsbButton
-      usbDriveStatus="absent"
+      usbDriveStatus={mockUsbDriveStatus('no_drive')}
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -75,7 +76,7 @@ test('modal state updates when USB drive is inserted.', async () => {
   await screen.findByText('No USB Drive Detected');
   rerender(
     <RebootFromUsbButton
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
@@ -91,7 +92,7 @@ test('shows message when preparing usb', async () => {
     .mockReturnValueOnce(preparePromise);
   render(
     <RebootFromUsbButton
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );

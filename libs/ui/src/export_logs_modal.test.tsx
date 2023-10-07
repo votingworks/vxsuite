@@ -1,6 +1,5 @@
 import {
   fakeKiosk,
-  fakeUsbDrive,
   fakeFileWriter,
   fakeSystemAdministratorUser,
   fakeElectionManagerUser,
@@ -12,9 +11,10 @@ import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DippedSmartCardAuth } from '@votingworks/types';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { ExportLogsButton, ExportLogsButtonRow } from './export_logs_modal';
-import { UsbDriveStatus } from './hooks/use_usb_drive';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
 const machineConfig = {
   codeVersion: 'TEST',
@@ -47,32 +47,6 @@ const electionManagerAuthStatus: DippedSmartCardAuth.ElectionManagerLoggedIn = {
 
 jest.useFakeTimers();
 
-test('renders loading screen when usb drive is mounting or ejecting in export modal', async () => {
-  const mockKiosk = fakeKiosk();
-  mockKiosk.getFileSystemEntries.mockResolvedValue([
-    { ...fileSystemEntry, name: 'vx-logs.log' },
-  ]);
-  window.kiosk = mockKiosk;
-
-  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
-  for (const status of usbStatuses) {
-    const { unmount } = render(
-      <ExportLogsButton
-        logFileType={LogFileType.Raw}
-        usbDriveStatus={status}
-        machineConfig={machineConfig}
-        logger={fakeLogger()}
-        auth={systemAdministratorAuthStatus}
-      />
-    );
-    userEvent.click(screen.getByText('Save Log File'));
-    await screen.findByText('Loading');
-    userEvent.click(await screen.findByText('Cancel'));
-    expect(screen.queryByRole('alertdialog')).toBeFalsy();
-    unmount();
-  }
-});
-
 test('renders no log file found when usb is mounted but no log file on machine', async () => {
   const mockKiosk = fakeKiosk();
   mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
@@ -85,7 +59,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
   render(
     <ExportLogsButton
       logFileType={LogFileType.Raw}
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={logger}
       auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
@@ -108,7 +82,10 @@ test('render no usb found screen when there is not a mounted usb drive', async (
   ]);
   window.kiosk = mockKiosk;
 
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected'];
+  const usbStatuses: UsbDriveStatus[] = [
+    { status: 'no_drive' },
+    { status: 'ejected' },
+  ];
   for (const status of usbStatuses) {
     const { unmount } = render(
       <ExportLogsButton
@@ -140,7 +117,6 @@ test('successful save raw log flow', async () => {
     { ...fileSystemEntry, name: 'vx-logs.log' },
   ]);
   mockKiosk.readFile.mockResolvedValue('this-is-my-file-content');
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = mockKiosk;
 
   const logger = fakeLogger();
@@ -151,7 +127,7 @@ test('successful save raw log flow', async () => {
   render(
     <ExportLogsButton
       logFileType={LogFileType.Raw}
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={logger}
       auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
@@ -177,7 +153,7 @@ test('successful save raw log flow', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      expect.stringContaining('/media/vx/mock-usb-drive/vx-log'),
+      expect.stringContaining('test-mount-point/vx-log'),
       'this-is-my-file-content'
     );
   });
@@ -203,7 +179,6 @@ test('successful save cdf log file flow', async () => {
     { ...fileSystemEntry, name: 'vx-logs.log' },
   ]);
   mockKiosk.readFile.mockResolvedValue('this-is-my-raw-file-content');
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = mockKiosk;
 
   const logger = fakeLogger();
@@ -212,7 +187,7 @@ test('successful save cdf log file flow', async () => {
   render(
     <ExportLogsButton
       logFileType={LogFileType.Cdf}
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={logger}
       auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
@@ -239,7 +214,7 @@ test('successful save cdf log file flow', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      expect.stringContaining('/media/vx/mock-usb-drive/vx-log'),
+      expect.stringContaining('test-mount-point/vx-log'),
       'this-is-the-cdf-content'
     );
   });
@@ -272,7 +247,7 @@ test('failed export flow', async () => {
   render(
     <ExportLogsButton
       logFileType={LogFileType.Raw}
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={logger}
       auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
@@ -309,7 +284,6 @@ test('successful save to custom location', async () => {
   mockKiosk.readFile.mockResolvedValue('this-is-my-file-content');
   const fileWriter = fakeFileWriter();
   mockKiosk.saveAs.mockResolvedValueOnce(fileWriter);
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = mockKiosk;
 
   const logger = fakeLogger();
@@ -317,7 +291,7 @@ test('successful save to custom location', async () => {
   render(
     <ExportLogsButton
       logFileType={LogFileType.Raw}
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={logger}
       auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
@@ -353,7 +327,6 @@ test('failed save to custom location', async () => {
   ]);
   mockKiosk.readFile.mockResolvedValue('this-is-my-file-content');
   mockKiosk.saveAs.mockResolvedValueOnce(undefined);
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = mockKiosk;
 
   const logger = fakeLogger();
@@ -361,7 +334,7 @@ test('failed save to custom location', async () => {
   render(
     <ExportLogsButton
       logFileType={LogFileType.Raw}
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={logger}
       auth={electionManagerAuthStatus}
       machineConfig={machineConfig}
@@ -388,7 +361,7 @@ test('failed save to custom location', async () => {
 test('button row renders both buttons', () => {
   render(
     <ExportLogsButtonRow
-      usbDriveStatus="mounted"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={fakeLogger()}
       auth={electionManagerAuthStatus}
       machineConfig={machineConfig}

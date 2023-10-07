@@ -4,11 +4,12 @@ import {
   UnconfiguredElectionScreen,
   UnconfiguredElectionScreenProps,
 } from './unconfigured_election_screen';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
 const initialProps: UnconfiguredElectionScreenProps = {
   isElectionManagerAuth: true,
   machineName: 'VxScan',
-  usbDriveStatus: 'mounted',
+  usbDriveStatus: mockUsbDriveStatus('mounted'),
 };
 
 const meta: Meta<typeof UnconfiguredElectionScreen> = {
