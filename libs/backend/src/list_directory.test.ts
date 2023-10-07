@@ -1,17 +1,12 @@
 import { iter } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import tmp from 'tmp';
-import { getUsbDrives } from './get_usb_drives';
+import { UsbDriveStatus, createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   FileSystemEntryType,
   listDirectory,
   listDirectoryOnUsbDrive,
   listDirectoryRecursive,
 } from './list_directory';
-
-jest.mock('./get_usb_drives');
-
-const getUsbDrivesMock = mockOf(getUsbDrives);
 
 describe('listDirectory', () => {
   test('happy path', async () => {
@@ -104,9 +99,12 @@ describe(listDirectoryRecursive, () => {
 describe('listDirectoryOnUsbDrive', () => {
   test('happy path', async () => {
     const mockMountPoint = tmp.dirSync();
-    getUsbDrivesMock.mockResolvedValueOnce([
-      { deviceName: 'mock', mountPoint: mockMountPoint.name },
-    ]);
+    const { usbDrive } = createMockUsbDrive();
+    usbDrive.status.expectCallWith().resolves({
+      status: 'mounted',
+      mountPoint: mockMountPoint.name,
+      deviceName: 'something',
+    });
 
     const directory = tmp.dirSync({
       name: 'directory',
@@ -119,7 +117,10 @@ describe('listDirectoryOnUsbDrive', () => {
       dir: directory.name,
     });
 
-    const listDirectoryResult = await listDirectoryOnUsbDrive('./directory');
+    const listDirectoryResult = await listDirectoryOnUsbDrive(
+      usbDrive,
+      './directory'
+    );
     expect(listDirectoryResult.isOk()).toBeTruthy();
 
     expect(listDirectoryResult.ok()).toMatchObject([
@@ -139,43 +140,34 @@ describe('listDirectoryOnUsbDrive', () => {
   });
 
   test('error on no usb drive', async () => {
-    getUsbDrivesMock.mockResolvedValueOnce([]);
-    const listDirectoryResult = await listDirectoryOnUsbDrive('./directory');
+    const { usbDrive } = createMockUsbDrive();
+    usbDrive.status.expectCallWith().resolves({
+      status: 'no_drive',
+    });
+    const listDirectoryResult = await listDirectoryOnUsbDrive(
+      usbDrive,
+      './directory'
+    );
     expect(listDirectoryResult.isErr()).toBeTruthy();
     expect(listDirectoryResult.err()).toMatchObject({ type: 'no-usb-drive' });
   });
 
   test('error on unmounted usb drive', async () => {
-    getUsbDrivesMock.mockResolvedValueOnce([{ deviceName: 'mock' }]);
-    const listDirectoryResult = await listDirectoryOnUsbDrive('./directory');
-    expect(listDirectoryResult.isErr()).toBeTruthy();
-    expect(listDirectoryResult.err()).toMatchObject({
-      type: 'usb-drive-not-mounted',
-    });
-  });
-
-  test('can inject a different getUsbDrive for testing', async () => {
-    const mockMountPoint = tmp.dirSync();
-    const directory = tmp.dirSync({
-      name: 'directory',
-      dir: mockMountPoint.name,
-    });
-    tmp.fileSync({ name: 'mock-file-1', dir: directory.name });
-
-    const injectedGetUsbDrive = jest
-      .fn()
-      .mockResolvedValueOnce([
-        { deviceName: 'mock', mountPoint: mockMountPoint.name },
-      ]);
-
-    const result = await listDirectoryOnUsbDrive(
-      './directory',
-      injectedGetUsbDrive
-    );
-    expect(result.ok()).toMatchObject([
-      expect.objectContaining({
-        name: 'mock-file-1',
-      }),
-    ]);
+    const unmountedStatuses: UsbDriveStatus[] = [
+      { status: 'ejected' },
+      { status: 'error', reason: 'bad_format' },
+    ];
+    for (const status of unmountedStatuses) {
+      const { usbDrive } = createMockUsbDrive();
+      usbDrive.status.expectCallWith().resolves(status);
+      const listDirectoryResult = await listDirectoryOnUsbDrive(
+        usbDrive,
+        './directory'
+      );
+      expect(listDirectoryResult.isErr()).toBeTruthy();
+      expect(listDirectoryResult.err()).toMatchObject({
+        type: 'usb-drive-not-mounted',
+      });
+    }
   });
 });

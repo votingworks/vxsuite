@@ -1,10 +1,13 @@
-import { err, ok, Result, assert } from '@votingworks/basics';
+import {
+  err,
+  ok,
+  Result,
+  assert,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { Dirent, promises as fs } from 'fs';
 import { isAbsolute, join } from 'path';
-import {
-  getUsbDrives as defaultGetUsbDrives,
-  UsbDrive,
-} from './get_usb_drives';
 
 /**
  * Types of file system entities defined in `libuv`. We omit only `Unknown`,
@@ -142,20 +145,22 @@ export type ListDirectoryOnUsbDriveError =
  * drive's filesystem. Looks at only the first found USB drive.
  */
 export async function listDirectoryOnUsbDrive(
-  relativePath: string,
-  getUsbDrives: () => Promise<UsbDrive[]> = defaultGetUsbDrives
+  usbDrive: UsbDrive,
+  relativePath: string
 ): Promise<Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>> {
   // We currently do not support multiple USB drives
-  const [usbDrive] = await getUsbDrives();
+  const usbDriveStatus = await usbDrive.status();
 
-  if (!usbDrive) {
-    return err({ type: 'no-usb-drive' });
+  switch (usbDriveStatus.status) {
+    case 'no_drive':
+      return err({ type: 'no-usb-drive' });
+    case 'ejected':
+    case 'error':
+      return err({ type: 'usb-drive-not-mounted' });
+    case 'mounted':
+      return await listDirectory(join(usbDriveStatus.mountPoint, relativePath));
+    // istanbul ignore next
+    default:
+      throwIllegalValue(usbDriveStatus);
   }
-
-  if (!usbDrive.mountPoint) {
-    return err({ type: 'usb-drive-not-mounted' });
-  }
-
-  const absolutePath = join(usbDrive.mountPoint, relativePath);
-  return await listDirectory(absolutePath);
 }
