@@ -13,11 +13,7 @@ import { isElectionManagerAuth } from '@votingworks/utils';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
-import {
-  ejectUsbDrive,
-  exportCastVoteRecordsToUsbDrive,
-  legacyUsbDriveStatus,
-} from '../api';
+import { ejectUsbDrive, exportCastVoteRecordsToUsbDrive } from '../api';
 
 export const UsbImage = styled.img`
   margin-right: auto;
@@ -105,7 +101,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
             <UsbControllerButton
               small={false}
               primary
-              usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+              usbDriveStatus={usbDriveStatus}
               usbDriveEject={() => ejectUsbDriveMutation.mutate()}
             />
             <Button onPress={onClose}>Cancel</Button>

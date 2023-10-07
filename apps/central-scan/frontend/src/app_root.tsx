@@ -47,7 +47,6 @@ import {
   getElectionDefinition,
   getTestMode,
   getUsbDriveStatus,
-  legacyUsbDriveStatus,
   logOut,
   unconfigure,
 } from './api';
@@ -316,10 +315,11 @@ export function AppRoot({
     );
   }
   const authStatus = authStatusQuery.data;
+  const usbDriveStatus = usbDriveStatusQuery.data;
   const electionDefinition = electionDefinitionQuery.data ?? undefined;
 
   const currentContext: AppContextInterface = {
-    usbDriveStatus: usbDriveStatusQuery.data,
+    usbDriveStatus,
     electionDefinition,
     machineConfig,
     logger,
@@ -384,7 +384,7 @@ export function AppRoot({
               Promise.resolve(systemAdministratorUnconfigure())
             }
             isMachineConfigured={Boolean(electionDefinition)}
-            usbDriveStatus={legacyUsbDriveStatus(usbDriveStatusQuery.data)}
+            usbDriveStatus={usbDriveStatus}
           />
           {electionDefinition && (
             <ElectionInfoBar
@@ -449,7 +449,7 @@ export function AppRoot({
             </Main>
             <MainNav isTestMode={isTestMode}>
               <UsbControllerButton
-                usbDriveStatus={legacyUsbDriveStatus(usbDriveStatusQuery.data)}
+                usbDriveStatus={usbDriveStatus}
                 usbDriveEject={() => ejectUsbDriveMutation.mutate()}
               />
               <Button small onPress={() => logOutMutation.mutate()}>
