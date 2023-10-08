@@ -28,7 +28,7 @@ jest.mock('@votingworks/types', (): typeof import('@votingworks/types') => ({
  * The root hash for the mock cast vote records created in the beforeEach block
  */
 const expectedCastVoteRecordRootHash =
-  '2b0e230f18ffbb4f40c00930b456fcc3a3b3c279c099a67d404a1bb03020cb3b';
+  '234cfef0955757cb9d06bd48c5dea8885ad96174225012ae311fe548e53b8fcf';
 
 const cvrId1 = 'a1234567-0000-0000-0000-000000000000';
 const cvrId2 = 'a2345678-0000-0000-0000-000000000000';
@@ -57,17 +57,18 @@ beforeEach(() => {
     'cast-vote-record-export'
   );
   fs.mkdirSync(castVoteRecordExportDirectoryPath);
-  fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId1));
-  fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId2));
-  for (const { directoryName, fileName, fileContents } of [
-    { directoryName: cvrId1, fileName: '1', fileContents: '1a' },
-    { directoryName: cvrId1, fileName: '2', fileContents: '2a' },
-    { directoryName: cvrId2, fileName: '1', fileContents: '1b' },
-    { directoryName: cvrId2, fileName: '2', fileContents: '2b' },
+  for (const { cvrId, cvrReportContents } of [
+    { cvrId: cvrId1, cvrReportContents: 'a' },
+    { cvrId: cvrId2, cvrReportContents: 'b' },
   ]) {
+    fs.mkdirSync(path.join(castVoteRecordExportDirectoryPath, cvrId));
     fs.writeFileSync(
-      path.join(castVoteRecordExportDirectoryPath, directoryName, fileName),
-      fileContents
+      path.join(
+        castVoteRecordExportDirectoryPath,
+        cvrId,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
+      cvrReportContents
     );
   }
   const castVoteRecordExportMetadata: CastVoteRecordExportMetadata = {
@@ -248,18 +249,14 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.appendFileSync(path.join(directoryPath, cvrId1, '1'), '!');
-    },
-  },
-  {
-    description: 'cast vote records, added cast vote record file',
-    artifactGenerator: () => castVoteRecords,
-    exportingMachineConfig: vxScanTestConfig,
-    importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
-      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
-      const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.writeFileSync(path.join(directoryPath, cvrId1, '3'), '');
+      fs.appendFileSync(
+        path.join(
+          directoryPath,
+          cvrId1,
+          CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+        ),
+        '!'
+      );
     },
   },
   {
@@ -270,21 +267,12 @@ test.each<{
     tamperFn: () => {
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.rmSync(path.join(directoryPath, cvrId1, '1'));
-    },
-  },
-  {
-    description:
-      'cast vote records, renamed cast vote record file (renamed such that the alphabetical order is unchanged)',
-    artifactGenerator: () => castVoteRecords,
-    exportingMachineConfig: vxScanTestConfig,
-    importingMachineConfig: vxAdminTestConfig,
-    tamperFn: () => {
-      assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
-      const { directoryPath } = castVoteRecords.artifactToImport;
-      fs.renameSync(
-        path.join(directoryPath, cvrId1, '1'),
-        path.join(directoryPath, cvrId1, '1-renamed')
+      fs.rmSync(
+        path.join(
+          directoryPath,
+          cvrId1,
+          CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+        )
       );
     },
   },
@@ -297,6 +285,14 @@ test.each<{
       assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
       const { directoryPath } = castVoteRecords.artifactToImport;
       fs.mkdirSync(path.join(directoryPath, cvrId3));
+      fs.writeFileSync(
+        path.join(
+          directoryPath,
+          cvrId3,
+          CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+        ),
+        'c'
+      );
     },
   },
   {
