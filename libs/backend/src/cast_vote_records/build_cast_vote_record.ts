@@ -55,6 +55,35 @@ export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
   }
 }
 
+/**
+ * The input to {@link buildCvrImageData}
+ */
+export interface CvrImageDataInput {
+  imageHash: string;
+  imageRelativePath: string;
+  layoutFileHash?: string;
+}
+
+/**
+ * Builds a cast vote record image data object
+ */
+export function buildCvrImageData({
+  imageHash,
+  imageRelativePath,
+  layoutFileHash,
+}: CvrImageDataInput): CVR.ImageData {
+  return {
+    '@type': 'CVR.ImageData',
+    Hash: {
+      '@type': 'CVR.Hash',
+      Type: CVR.HashType.Sha256,
+      Value: imageHash,
+    },
+    Location: `file:${imageRelativePath}`,
+    vxLayoutFileHash: layoutFileHash,
+  };
+}
+
 function buildCVRBallotMeasureContest({
   contest,
   vote,
@@ -160,7 +189,7 @@ type CVRContestRequiredBallotPageOptions =
     }
   | {
       ballotMarkingMode: 'hand';
-      imageFileUri?: string;
+      image?: CvrImageDataInput;
     };
 
 function buildCVRCandidateContest({
@@ -266,11 +295,8 @@ function buildCVRCandidateContest({
                       : undefined,
                   // include image of write-in for hand-marked ballots per VVSG 2.0 1.1.5-D.3
                   WriteInImage:
-                    options.ballotMarkingMode === 'hand' && options.imageFileUri
-                      ? {
-                          '@type': 'CVR.ImageData',
-                          Location: options.imageFileUri,
-                        }
+                    options.ballotMarkingMode === 'hand' && options.image
+                      ? buildCvrImageData(options.image)
                       : undefined,
                 }
               : undefined,
@@ -423,12 +449,12 @@ type BuildCastVoteRecordParams = {
   | {
       ballotMarkingMode: 'machine';
       interpretation: InterpretedBmdPage;
-      imageFileUris?: SheetOf<string>;
+      images?: SheetOf<CvrImageDataInput>;
     }
   | {
       ballotMarkingMode: 'hand';
       interpretations: SheetOf<InterpretedHmpbPage>;
-      imageFileUris?: SheetOf<string>;
+      images?: SheetOf<CvrImageDataInput>;
       definiteMarkThreshold: number;
       excludeOriginalSnapshots?: boolean;
     }
@@ -473,7 +499,7 @@ export function buildCastVoteRecord({
   // CVR for machine-marked ballot, only has "original" snapshot because the
   // restrictions of the ballot marking device already applied basic contest rules.
   if (rest.ballotMarkingMode === 'machine') {
-    const { interpretation, imageFileUris } = rest;
+    const { interpretation, images } = rest;
 
     const ballotStyle = getBallotStyle({
       ballotStyleId: ballotMetadata.ballotStyleId,
@@ -502,18 +528,13 @@ export function buildCastVoteRecord({
           vxWriteIns: writeInCount,
         },
       ],
-      BallotImage: imageFileUris
-        ? imageFileUris.map((imageFileUri) => ({
-            '@type': 'CVR.ImageData',
-            Location: imageFileUri,
-          }))
-        : undefined,
+      BallotImage: images ? images.map(buildCvrImageData) : undefined,
     };
   }
 
   const {
     interpretations,
-    imageFileUris,
+    images,
     definiteMarkThreshold,
     excludeOriginalSnapshots,
   } = rest;
@@ -544,7 +565,7 @@ export function buildCastVoteRecord({
         votes: interpretations[0].votes,
         options: {
           ballotMarkingMode: 'hand',
-          imageFileUri: imageFileUris?.[0],
+          image: images?.[0],
         },
         electionOptionPositionMap,
       }),
@@ -556,7 +577,7 @@ export function buildCastVoteRecord({
         votes: interpretations[1].votes,
         options: {
           ballotMarkingMode: 'hand',
-          imageFileUri: imageFileUris?.[1],
+          image: images?.[1],
         },
         electionOptionPositionMap,
       }),
@@ -585,11 +606,6 @@ export function buildCastVoteRecord({
             electionOptionPositionMap,
           }),
         ],
-    BallotImage: imageFileUris
-      ? imageFileUris.map((imageFileUri) => ({
-          '@type': 'CVR.ImageData',
-          Location: imageFileUri,
-        }))
-      : undefined,
+    BallotImage: images ? images.map(buildCvrImageData) : undefined,
   };
 }
