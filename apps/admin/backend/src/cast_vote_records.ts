@@ -1,5 +1,4 @@
 /* c8 ignore start */
-import * as fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
@@ -20,11 +19,9 @@ import {
 } from '@votingworks/basics';
 import {
   BallotId,
-  BallotPageLayoutSchema,
   CVR,
   ElectionDefinition,
   getContests,
-  safeParseJson,
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import {
@@ -312,29 +309,31 @@ export async function importCastVoteRecords(
           (castVoteRecordWriteIn) => castVoteRecordWriteIn.side
         );
         if (hmpbCastVoteRecordWriteIns.length > 0) {
-          // Guaranteed to exist given validation in readCastVoteRecordExport
+          // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
-          assert(referencedFiles.layoutFilePaths !== undefined);
+          assert(referencedFiles.layoutFiles !== undefined);
 
           for (const i of [0, 1] as const) {
-            const imageData = await fs.readFile(
-              referencedFiles.imageFilePaths[i]
-            );
-            const parseLayoutResult = safeParseJson(
-              await fs.readFile(referencedFiles.layoutFilePaths[i], 'utf8'),
-              BallotPageLayoutSchema
-            );
-            if (parseLayoutResult.isErr()) {
+            const imageFileReadResult =
+              await referencedFiles.imageFiles[i].read();
+            if (imageFileReadResult.isErr()) {
               return err({
-                type: 'invalid-cast-vote-record',
-                subType: 'layout-parse-error',
+                ...imageFileReadResult.err(),
+                index: castVoteRecordIndex,
+              });
+            }
+            const layoutFileReadResult =
+              await referencedFiles.layoutFiles[i].read();
+            if (layoutFileReadResult.isErr()) {
+              return err({
+                ...layoutFileReadResult.err(),
                 index: castVoteRecordIndex,
               });
             }
             store.addBallotImage({
               cvrId: castVoteRecordId,
-              imageData,
-              pageLayout: parseLayoutResult.ok(),
+              imageData: imageFileReadResult.ok(),
+              pageLayout: layoutFileReadResult.ok(),
               side: (['front', 'back'] as const)[i],
             });
           }
