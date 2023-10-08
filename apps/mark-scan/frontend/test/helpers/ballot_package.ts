@@ -2,9 +2,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
 } from '@votingworks/types';
-import { VxScreen } from '@votingworks/ui';
+import { VxScreen, mockUsbDriveStatus } from '@votingworks/ui';
 import { ApiMock } from './mock_api_client';
-import { mockUsbDriveStatus } from './mock_usb_drive';
 
 /**
  * Simulates inserting a USB drive, configuring the backend with an election definition,
