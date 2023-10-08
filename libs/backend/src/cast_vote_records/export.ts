@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import {
   computeSingleCastVoteRecordHash,
+  HashableFile,
   prepareSignatureFile,
   ReadableFile,
   readableFileFromData,
@@ -23,6 +24,7 @@ import {
   BatchInfo,
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
+  CastVoteRecordReportWithoutMetadata,
   CVR,
   ElectionDefinition,
   ExportCastVoteRecordsToUsbDriveError,
@@ -46,13 +48,13 @@ import {
 
 import { Exporter } from '../exporter';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan_globals';
-import { buildCastVoteRecord as baseBuildCastVoteRecord } from './build_cast_vote_record';
+import {
+  buildCastVoteRecord as baseBuildCastVoteRecord,
+  CvrImageDataInput,
+} from './build_cast_vote_record';
 import { buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata } from './build_report_metadata';
 import { CanonicalizedSheet, canonicalizeSheet } from './canonicalize';
-import {
-  CastVoteRecordReportWithoutMetadata,
-  readCastVoteRecordExportMetadata,
-} from './import';
+import { readCastVoteRecordExportMetadata } from './import';
 import { buildElectionOptionPositionMap } from './option_map';
 
 /**
@@ -260,12 +262,15 @@ function buildCastVoteRecordReportMetadata(
   });
 }
 
-function buildCastVoteRecord(
+async function buildCastVoteRecord(
   exportContext: ExportContext,
   sheet: AcceptedSheet,
   canonicalizedSheet: CanonicalizedSheet,
-  options: { shouldIncludeImageReferences?: boolean } = {}
-): CVR.CVR {
+  referencedFiles?: {
+    imageFiles: SheetOf<HashableFile>;
+    layoutFiles?: SheetOf<HashableFile>;
+  }
+): Promise<CVR.CVR> {
   const { scannerState } = exportContext;
   const { electionDefinition, markThresholds } = scannerState;
   const { election, electionHash: electionId } = electionDefinition;
@@ -277,14 +282,22 @@ function buildCastVoteRecord(
     (canonicalizedSheet.type === 'bmd' &&
       canonicalizedSheet.interpretation.ballotId) ||
     unsafeParse(BallotIdSchema, id);
-  const [frontImageFilePath, backImageFilePath] = canonicalizedSheet.filenames;
-  const imageFileUris: SheetOf<string> | undefined =
-    options.shouldIncludeImageReferences
-      ? [
-          `file:${path.basename(frontImageFilePath)}`,
-          `file:${path.basename(backImageFilePath)}`,
-        ]
-      : undefined;
+  const images: SheetOf<CvrImageDataInput> | undefined = referencedFiles
+    ? [
+        {
+          imageHash: await referencedFiles.imageFiles[0].computeSha256Hash(),
+          imageRelativePath: referencedFiles.imageFiles[0].fileName,
+          layoutFileHash:
+            await referencedFiles.layoutFiles?.[0].computeSha256Hash(),
+        },
+        {
+          imageHash: await referencedFiles.imageFiles[1].computeSha256Hash(),
+          imageRelativePath: referencedFiles.imageFiles[1].fileName,
+          layoutFileHash:
+            await referencedFiles.layoutFiles?.[1].computeSha256Hash(),
+        },
+      ]
+    : undefined;
 
   // BMD ballot
   if (canonicalizedSheet.type === 'bmd') {
@@ -295,7 +308,7 @@ function buildCastVoteRecord(
       election,
       electionId,
       electionOptionPositionMap,
-      imageFileUris,
+      images,
       interpretation: canonicalizedSheet.interpretation,
       scannerId,
     });
@@ -315,7 +328,7 @@ function buildCastVoteRecord(
     excludeOriginalSnapshots: isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS
     ),
-    imageFileUris,
+    images,
     indexInBatch,
     interpretations: [frontInterpretation, backInterpretation],
     scannerId,
@@ -358,6 +371,33 @@ async function exportCastVoteRecordFilesToUsbDrive(
       canonicalizedSheet.interpretation.some(({ votes }) => hasWriteIns(votes))
     : true;
 
+  const castVoteRecordFilesToExport: ReadableFile[] = [];
+  let imageFiles: SheetOf<ReadableFile> | undefined;
+  let layoutFiles: SheetOf<ReadableFile> | undefined;
+  if (shouldIncludeImages) {
+    const [frontImagePath, backImagePath] = canonicalizedSheet.filenames;
+    imageFiles = [
+      readableFileFromDisk(frontImagePath),
+      readableFileFromDisk(backImagePath),
+    ];
+    castVoteRecordFilesToExport.push(...imageFiles);
+    if (canonicalizedSheet.type === 'hmpb') {
+      const [frontInterpretation, backInterpretation] =
+        canonicalizedSheet.interpretation;
+      layoutFiles = [
+        readableFileFromData(
+          `${path.parse(frontImagePath).name}.layout.json`,
+          JSON.stringify(frontInterpretation.layout)
+        ),
+        readableFileFromData(
+          `${path.parse(backImagePath).name}.layout.json`,
+          JSON.stringify(backInterpretation.layout)
+        ),
+      ];
+      castVoteRecordFilesToExport.push(...layoutFiles);
+    }
+  }
+
   const castVoteRecordReportMetadata = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA
   )
@@ -368,11 +408,11 @@ async function exportCastVoteRecordFilesToUsbDrive(
         // order in which ballots were cast
         { hideTime: true }
       );
-  const castVoteRecord = buildCastVoteRecord(
+  const castVoteRecord = await buildCastVoteRecord(
     exportContext,
     sheet,
     canonicalizedSheet,
-    { shouldIncludeImageReferences: shouldIncludeImages }
+    imageFiles ? { imageFiles, layoutFiles } : undefined
   );
   const castVoteRecordId = castVoteRecord.UniqueId;
   const castVoteRecordReport:
@@ -382,36 +422,11 @@ async function exportCastVoteRecordFilesToUsbDrive(
     CVR: [castVoteRecord],
   };
 
-  const castVoteRecordFilesToExport: ReadableFile[] = [
-    readableFileFromData(
-      CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT,
-      JSON.stringify(castVoteRecordReport)
-    ),
-  ];
-
-  if (shouldIncludeImages) {
-    const [frontImageFilePath, backImageFilePath] =
-      canonicalizedSheet.filenames;
-    castVoteRecordFilesToExport.push(readableFileFromDisk(frontImageFilePath));
-    castVoteRecordFilesToExport.push(readableFileFromDisk(backImageFilePath));
-
-    if (canonicalizedSheet.type === 'hmpb') {
-      const [frontInterpretation, backInterpretation] =
-        canonicalizedSheet.interpretation;
-      castVoteRecordFilesToExport.push(
-        readableFileFromData(
-          `${path.parse(frontImageFilePath).name}.layout.json`,
-          JSON.stringify(frontInterpretation.layout)
-        )
-      );
-      castVoteRecordFilesToExport.push(
-        readableFileFromData(
-          `${path.parse(backImageFilePath).name}.layout.json`,
-          JSON.stringify(backInterpretation.layout)
-        )
-      );
-    }
-  }
+  const castVoteRecordReportFile = readableFileFromData(
+    CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT,
+    JSON.stringify(castVoteRecordReport)
+  );
+  castVoteRecordFilesToExport.push(castVoteRecordReportFile);
 
   for (const file of castVoteRecordFilesToExport) {
     const exportResult = await exporter.exportDataToUsbDrive(
@@ -424,10 +439,10 @@ async function exportCastVoteRecordFilesToUsbDrive(
     }
   }
 
-  const castVoteRecordHash = await computeSingleCastVoteRecordHash({
-    directoryName: castVoteRecordId,
-    files: castVoteRecordFilesToExport,
-  });
+  const castVoteRecordHash = await computeSingleCastVoteRecordHash(
+    castVoteRecordId,
+    castVoteRecordReportFile
+  );
 
   return ok({ castVoteRecordId, castVoteRecordHash });
 }
