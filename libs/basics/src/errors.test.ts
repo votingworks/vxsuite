@@ -1,6 +1,10 @@
 import { Buffer } from 'buffer';
+import fs from 'fs';
 
-import { extractErrorMessage } from './errors';
+import {
+  extractErrorMessage,
+  isNonExistentFileOrDirectoryError,
+} from './errors';
 
 test.each<{ error: unknown; expectedErrorMessage: string }>([
   { error: new Error('Whoa!'), expectedErrorMessage: 'Whoa!' },
@@ -10,4 +14,15 @@ test.each<{ error: unknown; expectedErrorMessage: string }>([
   { error: { error: 'Whoa!' }, expectedErrorMessage: '[object Object]' },
 ])('extractErrorMessage', ({ error, expectedErrorMessage }) => {
   expect(extractErrorMessage(error)).toEqual(expectedErrorMessage);
+});
+
+test('isNonExistentFileOrDirectoryError', () => {
+  const nonExistentFilePath = 'non-existent-file-path';
+  expect(fs.existsSync(nonExistentFilePath)).toEqual(false);
+  try {
+    fs.readFileSync(nonExistentFilePath);
+  } catch (error) {
+    expect(isNonExistentFileOrDirectoryError(error)).toEqual(true);
+  }
+  expect(isNonExistentFileOrDirectoryError(new Error('Whoa!'))).toEqual(false);
 });
