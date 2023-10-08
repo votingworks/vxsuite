@@ -1,10 +1,10 @@
 import { fakeLogger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
-import { mockUsbDriveStatus } from '../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 

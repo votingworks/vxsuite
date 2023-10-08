@@ -29,7 +29,7 @@ import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ScreenReader } from '../config/types';
-import { ejectUsbDrive, legacyUsbDriveStatus, logOut } from '../api';
+import { ejectUsbDrive, logOut } from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -165,7 +165,7 @@ export function AdminScreen({
           <UsbControllerButton
             small={false}
             primary
-            usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+            usbDriveStatus={usbDriveStatus}
             usbDriveEject={() => ejectUsbDriveMutation.mutate()}
           />
         </Prose>

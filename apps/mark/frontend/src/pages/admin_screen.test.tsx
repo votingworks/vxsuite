@@ -10,6 +10,7 @@ import {
 import { fakeLogger } from '@votingworks/logging';
 import { QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
   act,
   fireEvent,
@@ -29,7 +30,6 @@ import {
 } from '../utils/ScreenReader';
 import { ApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
