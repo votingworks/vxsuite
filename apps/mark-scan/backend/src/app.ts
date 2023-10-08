@@ -1,6 +1,12 @@
 import express, { Application } from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { assert, ok, Optional, Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  ok,
+  Optional,
+  Result,
+} from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
 import {
@@ -25,11 +31,11 @@ import {
   readBallotPackageFromUsb,
   configureUiStrings,
 } from '@votingworks/backend';
-import { Logger } from '@votingworks/logging';
+import { Logger, LoggingUserRole } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import makeDebug from 'debug';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
 import { Workspace, constructAuthMachineState } from './util/workspace';
 import {
@@ -47,6 +53,13 @@ export function buildApi(
   workspace: Workspace,
   stateMachine?: PaperHandlerStateMachine
 ) {
+  async function getUserRole(): Promise<LoggingUserRole> {
+    const authStatus = await auth.getAuthStatus(
+      constructAuthMachineState(workspace)
+    );
+    return authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown';
+  }
+
   return grout.createApi({
     getMachineConfig,
 
@@ -62,6 +75,14 @@ export function buildApi(
 
     logOut() {
       return auth.logOut(constructAuthMachineState(workspace));
+    },
+
+    getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDrive.status();
+    },
+
+    async ejectUsbDrive(): Promise<void> {
+      return usbDrive.eject(assertDefined(await getUserRole()));
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {

@@ -248,3 +248,19 @@ test('configureWithSampleBallotPackageForIntegrationTest configures electionGene
   const electionDefinitionResult = await apiClient.getElectionDefinition();
   expect(electionDefinitionResult).toEqual(electionGeneralDefinition);
 });
+
+test('usbDrive', async () => {
+  const { usbDrive } = mockUsbDrive;
+
+  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  expect(await apiClient.getUsbDriveStatus()).toEqual({
+    status: 'no_drive',
+  });
+
+  usbDrive.eject.expectCallWith('unknown').resolves();
+  await apiClient.ejectUsbDrive();
+
+  mockElectionManagerAuth(electionFamousNames2021Fixtures.electionDefinition);
+  usbDrive.eject.expectCallWith('election_manager').resolves();
+  await apiClient.ejectUsbDrive();
+});
