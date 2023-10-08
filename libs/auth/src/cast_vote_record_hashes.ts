@@ -1,19 +1,19 @@
 import { Buffer } from 'buffer';
 import { createReadStream } from 'fs';
-import fs from 'fs/promises';
 import { Hasher, sha256 } from 'js-sha256';
 import path from 'path';
 import { Readable } from 'stream';
 import { assert, groupBy } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
+import { CastVoteRecordExportFileName } from '@votingworks/types';
 import { getExportedCastVoteRecordIds } from '@votingworks/utils';
 
 /**
  * A representation of a file that only provides its hash
  */
 export interface HashableFile {
-  fileName: string;
   computeSha256Hash(): Promise<string>;
+  fileName: string;
 }
 
 /**
@@ -31,8 +31,8 @@ export function hashableFileFromData(
   fileContents: string | Buffer
 ): HashableFile {
   return {
-    fileName,
     computeSha256Hash: () => Promise.resolve(sha256(fileContents)),
+    fileName,
   };
 }
 
@@ -54,7 +54,6 @@ export function readableFileFromData(
  */
 export function hashableFileFromDisk(filePath: string): HashableFile {
   return {
-    fileName: path.basename(filePath),
     computeSha256Hash: async () => {
       const reader = createReadStream(filePath);
       const hash = sha256.create();
@@ -63,6 +62,7 @@ export function hashableFileFromDisk(filePath: string): HashableFile {
       }
       return hash.hex();
     },
+    fileName: path.basename(filePath),
   };
 }
 
@@ -78,29 +78,25 @@ export function readableFileFromDisk(filePath: string): ReadableFile {
 
 /**
  * Computes a hash for a single cast vote record, incorporating the cast vote record's directory
- * name, file names, and file contents. The directory summary that we hash specifically mirrors the
- * output of:
- * find <directoryName> -type f | sort | xargs sha256sum
+ * name, report file name, and report contents. The summary that we hash specifically mirrors
+ * the output of:
+ * ```
+ * sha256sum <cvrDirectoryName>/<CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT>
+ * ```
  */
-export async function computeSingleCastVoteRecordHash({
-  directoryName,
-  files,
-}: {
-  directoryName: string;
-  files: HashableFile[];
-}): Promise<string> {
-  const filesSorted = [...files].sort((file1, file2) =>
-    file1.fileName.localeCompare(file2.fileName)
+export async function computeSingleCastVoteRecordHash(
+  cvrDirectoryName: string,
+  cvrReportFile: HashableFile
+): Promise<string> {
+  // Ensure that a directory path wasn't accidentally provided instead of a directory name
+  assert(!cvrDirectoryName.includes('/'));
+
+  const cvrReportPath = path.join(
+    cvrDirectoryName,
+    CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
   );
-  const hasher = sha256.create();
-  for (const file of filesSorted) {
-    const filePath = path.join(directoryName, file.fileName);
-    // Be extra cautious and prevent spoofing the directory summary by using directory/file names
-    // with newlines
-    assert(!filePath.includes('\n'));
-    hasher.update(`${await file.computeSha256Hash()}  ${filePath}\n`);
-  }
-  return hasher.hex();
+  const cvrDirectorySummary = `${await cvrReportFile.computeSha256Hash()}  ${cvrReportPath}\n`;
+  return sha256(cvrDirectorySummary);
 }
 
 /**
@@ -369,25 +365,14 @@ export async function computeCastVoteRecordRootHashFromScratch(
 
   const cvrHashes: CombinableHash[] = [];
   for (const cvrId of cvrIds) {
-    const cvrDirectoryPath = path.join(exportDirectoryPath, cvrId);
-    const cvrFileNames = (
-      await fs.readdir(cvrDirectoryPath, { withFileTypes: true })
-    ).map((entry) => {
-      assert(
-        entry.isFile(),
-        `Unexpected sub-directory ${entry.name} in ${cvrDirectoryPath}`
-      );
-      return entry.name;
-    });
-    const cvrFiles: HashableFile[] = [];
-    for (const fileName of cvrFileNames) {
-      const filePath = path.join(cvrDirectoryPath, fileName);
-      cvrFiles.push(hashableFileFromDisk(filePath));
-    }
-    const cvrHash = await computeSingleCastVoteRecordHash({
-      directoryName: cvrId,
-      files: cvrFiles,
-    });
+    const cvrReportFile = hashableFileFromDisk(
+      path.join(
+        exportDirectoryPath,
+        cvrId,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      )
+    );
+    const cvrHash = await computeSingleCastVoteRecordHash(cvrId, cvrReportFile);
     cvrHashes.push({ hash: cvrHash, sortKey: cvrId });
   }
 
