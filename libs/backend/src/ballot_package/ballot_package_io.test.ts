@@ -24,10 +24,9 @@ import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { join } from 'path';
 import * as fs from 'fs';
 import { Buffer } from 'buffer';
+import { UsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { createBallotPackageZipArchive } from './test_utils';
 import { readBallotPackageFromUsb } from './ballot_package_io';
-import { createMockUsb } from '../mock_usb';
-import { UsbDrive } from '../get_usb_drives';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -46,15 +45,16 @@ beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
 });
 
-function assertFilesCreatedInOrder(
+async function assertFilesCreatedInOrder(
   usbDrive: UsbDrive,
   olderFileName: string,
   newerFileName: string
 ) {
-  assert(usbDrive?.mountPoint !== undefined);
+  const usbDriveStatus = await usbDrive.status();
+  assert(usbDriveStatus.status === 'mounted');
   // Ensure our mock actually created the files in the order we expect (the
   // order of the keys in the object above)
-  const dirPath = join(usbDrive.mountPoint, 'ballot-packages');
+  const dirPath = join(usbDriveStatus.mountPoint, 'ballot-packages');
   const files = fs.readdirSync(dirPath);
   const filesWithStats = files.map((file) => ({
     file,
@@ -78,8 +78,8 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
@@ -89,13 +89,10 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
       }),
     },
   });
-  const usbDrives = await mockUsb.mock.getUsbDrives();
-  const usbDrive = usbDrives[0];
-  assert(usbDrive);
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     fakeLogger()
   );
   assert(ballotPackageResult.isOk());
@@ -123,21 +120,18 @@ test("readBallotPackageFromUsb uses default system settings when system settings
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
       }),
     },
   });
-  const usbDrives = await mockUsb.mock.getUsbDrives();
-  const usbDrive = usbDrives[0];
-  assert(usbDrive);
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     fakeLogger()
   );
   assert(ballotPackageResult.isOk());
@@ -153,8 +147,8 @@ test('errors if logged-out auth is passed', async () => {
     reason: 'no_card',
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
@@ -164,15 +158,12 @@ test('errors if logged-out auth is passed', async () => {
       }),
     },
   });
-  const usbDrives = await mockUsb.mock.getUsbDrives();
-  const usbDrive = usbDrives[0];
-  assert(usbDrive);
 
   const logger = fakeLogger();
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     logger
   );
   assert(ballotPackageResult.isErr());
@@ -193,8 +184,8 @@ test('errors if election hash on provided auth is different than ballot package 
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition: otherElectionDefinition,
@@ -204,13 +195,10 @@ test('errors if election hash on provided auth is different than ballot package 
       }),
     },
   });
-  const usbDrives = await mockUsb.mock.getUsbDrives();
-  const usbDrive = usbDrives[0];
-  assert(usbDrive);
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     fakeLogger()
   );
   assert(ballotPackageResult.isErr());
@@ -227,15 +215,12 @@ test('errors if there is no ballot package on usb drive', async () => {
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({});
-  const usbDrives = await mockUsb.mock.getUsbDrives();
-  const usbDrive = usbDrives[0];
-  assert(usbDrive);
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({});
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     fakeLogger()
   );
   assert(ballotPackageResult.isErr());
@@ -252,14 +237,11 @@ test('errors if a user is authenticated but is not an election manager', async (
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({});
-  const usbDrives = await mockUsb.mock.getUsbDrives();
-  const usbDrive = usbDrives[0];
-  assert(usbDrive);
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({});
 
   await expect(
-    readBallotPackageFromUsb(authStatus, usbDrive, fakeLogger())
+    readBallotPackageFromUsb(authStatus, mockUsbDrive.usbDrive, fakeLogger())
   ).rejects.toThrow('Only election managers may configure a ballot package.');
 });
 
@@ -273,8 +255,8 @@ test('configures using the most recently created ballot package on the usb drive
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'older-ballot-package.zip': await createBallotPackageZipArchive(
         electionFamousNames2021Fixtures.electionJson.toBallotPackage()
@@ -287,17 +269,15 @@ test('configures using the most recently created ballot package on the usb drive
       }),
     },
   });
-  const [usbDrive] = await mockUsb.mock.getUsbDrives();
-  assert(usbDrive);
-  assertFilesCreatedInOrder(
-    usbDrive,
+  await assertFilesCreatedInOrder(
+    mockUsbDrive.usbDrive,
     'older-ballot-package.zip',
     'newer-ballot-package.zip'
   );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     fakeLogger()
   );
   assert(ballotPackageResult.isOk());
@@ -318,8 +298,8 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'older-ballot-package.zip': await createBallotPackageZipArchive({
         electionDefinition,
@@ -330,17 +310,15 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
       '._newer-hidden-file-ballot-package.zip': Buffer.from('not a zip file'),
     },
   });
-  const [usbDrive] = await mockUsb.mock.getUsbDrives();
-  assert(usbDrive);
-  assertFilesCreatedInOrder(
-    usbDrive,
+  await assertFilesCreatedInOrder(
+    mockUsbDrive.usbDrive,
     'older-ballot-package.zip',
     '._newer-hidden-file-ballot-package.zip'
   );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     fakeLogger()
   );
   assert(ballotPackageResult.isOk());
@@ -363,20 +341,18 @@ test('readBallotPackageFromUsb returns error result if ballot package authentica
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'ballot-package.zip': await createBallotPackageZipArchive(
         electionFamousNames2021Fixtures.electionJson.toBallotPackage()
       ),
     },
   });
-  const [usbDrive] = await mockUsb.mock.getUsbDrives();
-  assert(usbDrive);
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     fakeLogger()
   );
   expect(ballotPackageResult).toEqual(
@@ -399,20 +375,18 @@ test('readBallotPackageFromUsb ignores ballot package authentication errors if S
     sessionExpiresAt: fakeSessionExpiresAt(),
   };
 
-  const mockUsb = createMockUsb();
-  mockUsb.insertUsbDrive({
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'ballot-package.zip': await createBallotPackageZipArchive(
         electionFamousNames2021Fixtures.electionJson.toBallotPackage()
       ),
     },
   });
-  const [usbDrive] = await mockUsb.mock.getUsbDrives();
-  assert(usbDrive);
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
-    usbDrive,
+    mockUsbDrive.usbDrive,
     fakeLogger()
   );
   expect(ballotPackageResult.isOk()).toEqual(true);

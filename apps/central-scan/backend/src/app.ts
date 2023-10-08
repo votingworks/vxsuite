@@ -83,7 +83,7 @@ function buildApi({
       return auth.logOut(constructAuthMachineState(workspace));
     },
 
-    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+    getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDrive.status();
     },
 
@@ -155,13 +155,10 @@ function buildApi({
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-      const usbDriveStatus = await usbDrive.status();
-      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        // TODO: Update readBallotPackageFromUsb to use UsbDriveStatus
-        { deviceName: 'not used', mountPoint: usbDriveStatus.mountPoint },
+        usbDrive,
         logger
       );
       if (ballotPackageResult.isErr()) {

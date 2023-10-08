@@ -127,6 +127,10 @@ test('fails to configure ballot package if logged out', async () => {
         }),
       },
     });
+    // TODO: Remove assertion once #4045, and it doesn't need to be polled to pass
+    expect(await apiClient.getUsbDriveStatus()).toMatchObject({
+      status: 'mounted',
+    });
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
       err('auth_required_before_ballot_package_load')
     );

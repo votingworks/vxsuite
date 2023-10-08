@@ -16,14 +16,18 @@ import {
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
-import { UsbDrive } from '../get_usb_drives';
+import { UsbDrive } from '@votingworks/usb-drive';
 
 async function getMostRecentBallotPackageFilepath(
   usbDrive: UsbDrive
 ): Promise<Result<string, BallotPackageConfigurationError>> {
-  assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
+  const usbDriveStatus = await usbDrive.status();
+  assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
 
-  const directoryPath = path.join(usbDrive.mountPoint, BALLOT_PACKAGE_FOLDER);
+  const directoryPath = path.join(
+    usbDriveStatus.mountPoint,
+    BALLOT_PACKAGE_FOLDER
+  );
   if (!fsSync.existsSync(directoryPath)) {
     return err('no_ballot_package_on_usb_drive');
   }
