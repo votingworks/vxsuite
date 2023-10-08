@@ -22,7 +22,6 @@ import {
 
 import {
   createUiStringsApi,
-  Usb,
   readBallotPackageFromUsb,
   configureUiStrings,
 } from '@votingworks/backend';
@@ -30,6 +29,7 @@ import { Logger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import makeDebug from 'debug';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
 import { Workspace, constructAuthMachineState } from './util/workspace';
 import {
@@ -39,18 +39,13 @@ import {
 
 const debug = makeDebug('mark-scan:app-backend');
 
-const defaultMediaMountDir = '/media';
-
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
   auth: InsertedSmartCardAuthApi,
-  usb: Usb,
+  usbDrive: UsbDrive,
   logger: Logger,
   workspace: Workspace,
-  stateMachine?: PaperHandlerStateMachine,
-  // mark-scan hardware boots off a USB drive so we need to differentiate between USBs.
-  // Allow overriding for tests
-  dataUsbMountPrefix = defaultMediaMountDir
+  stateMachine?: PaperHandlerStateMachine
 ) {
   return grout.createApi({
     getMachineConfig,
@@ -133,18 +128,6 @@ export function buildApi(
     > {
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
-      );
-      const usbDrives = await usb.getUsbDrives();
-      // mark-scan hardware boots off a USB drive so we need to find the media drive
-      const usbDrive = usbDrives.find(
-        (drive) => drive.mountPoint?.startsWith(dataUsbMountPrefix)
-      );
-      const mountPoints = usbDrives
-        .map((drive) => drive.mountPoint || '<none>')
-        .join(', ');
-      assert(
-        usbDrive !== undefined,
-        `No USB drive mounted to ${dataUsbMountPrefix}. Got mount points: ${mountPoints}`
       );
 
       const ballotPackageResult = await readBallotPackageFromUsb(
@@ -260,19 +243,11 @@ export function buildApp(
   auth: InsertedSmartCardAuthApi,
   logger: Logger,
   workspace: Workspace,
-  usb: Usb,
-  stateMachine?: PaperHandlerStateMachine,
-  dataUsbMountPrefix?: string
+  usbDrive: UsbDrive,
+  stateMachine?: PaperHandlerStateMachine
 ): Application {
   const app: Application = express();
-  const api = buildApi(
-    auth,
-    usb,
-    logger,
-    workspace,
-    stateMachine,
-    dataUsbMountPrefix
-  );
+  const api = buildApi(auth, usbDrive, logger, workspace, stateMachine);
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

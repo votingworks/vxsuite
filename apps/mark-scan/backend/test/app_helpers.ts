@@ -7,12 +7,7 @@ import { Application } from 'express';
 import { AddressInfo } from 'net';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import tmp from 'tmp';
-import os from 'os';
-import {
-  MockUsb,
-  createBallotPackageZipArchive,
-  createMockUsb,
-} from '@votingworks/backend';
+import { createBallotPackageZipArchive } from '@votingworks/backend';
 import { Server } from 'http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -31,6 +26,7 @@ import {
   PaperHandlerStatus,
 } from '@votingworks/custom-paper-handler';
 import { assert } from '@votingworks/basics';
+import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import {
@@ -119,7 +115,7 @@ interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
-  mockUsb: MockUsb;
+  mockUsbDrive: MockUsbDrive;
   server: Server;
   stateMachine: PaperHandlerStateMachine;
 }
@@ -128,9 +124,7 @@ export async function createApp(): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
-  const mockUsb = createMockUsb();
-  // Default mount dir used by `tmp` lib in MockUsb
-  const mountDir = os.tmpdir();
+  const mockUsbDrive = createMockUsbDrive();
 
   const stateMachine = await getMockStateMachine(workspace, logger);
 
@@ -138,9 +132,8 @@ export async function createApp(): Promise<MockAppContents> {
     mockAuth,
     logger,
     workspace,
-    mockUsb.mock,
-    stateMachine,
-    mountDir
+    mockUsbDrive.usbDrive,
+    stateMachine
   );
 
   const server = app.listen();
@@ -153,7 +146,7 @@ export async function createApp(): Promise<MockAppContents> {
     apiClient,
     app,
     mockAuth,
-    mockUsb,
+    mockUsbDrive,
     server,
     stateMachine,
   };
@@ -162,7 +155,7 @@ export async function createApp(): Promise<MockAppContents> {
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockAuth: InsertedSmartCardAuthApi,
-  mockUsb: MockUsb,
+  mockUsbDrive: MockUsbDrive,
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<void> {
   const jurisdiction = TEST_JURISDICTION;
@@ -175,7 +168,7 @@ export async function configureApp(
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
-  mockUsb.insertUsbDrive({
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive(
         electionJson.toBallotPackage(systemSettings)

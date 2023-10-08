@@ -1547,6 +1547,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
@@ -2000,6 +2003,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
