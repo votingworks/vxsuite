@@ -1,10 +1,8 @@
 import { test } from '@playwright/test';
 import path from 'path';
 import {
-  enterPin,
   forceLogOutAndResetElectionDefinition,
-  mockCardRemoval,
-  mockSystemAdministratorCardInsertion,
+  logInAsSystemAdministrator,
 } from './support/auth';
 
 test.beforeEach(async ({ page }) => {
@@ -13,9 +11,7 @@ test.beforeEach(async ({ page }) => {
 
 test('configuration from MS SEMS files', async ({ page }) => {
   await page.goto('/');
-  mockSystemAdministratorCardInsertion();
-  await enterPin(page);
-  mockCardRemoval();
+  await logInAsSystemAdministrator(page);
   await page.click('text=Convert from SEMS files');
   await page
     .getByLabel('SEMS main file')
