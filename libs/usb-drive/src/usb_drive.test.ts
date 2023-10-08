@@ -5,6 +5,7 @@ import { join } from 'path';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import {
   BlockDeviceInfo,
+  UsbDriveStatus,
   VX_USB_LABEL_REGEXP,
   detectUsbDrive,
 } from './usb_drive';
@@ -30,19 +31,17 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-function lsblkOutput(device: Partial<BlockDeviceInfo> = {}) {
+function lsblkOutput(devices: Array<Partial<BlockDeviceInfo>> = []) {
   return {
     stdout: JSON.stringify({
-      blockdevices: [
-        {
-          name: 'sdb1',
-          mountpoint: '/media/usb-drive-sdb1',
-          fstype: 'vfat',
-          fsver: 'FAT32',
-          label: 'VxUSB-00000',
-          ...device,
-        },
-      ],
+      blockdevices: devices.map((device) => ({
+        name: 'sdb1',
+        mountpoint: '/media/usb-drive-sdb1',
+        fstype: 'vfat',
+        fsver: 'FAT32',
+        label: 'VxUSB-00000',
+        ...device,
+      })),
     }),
   };
 }
@@ -68,7 +67,7 @@ describe('status', () => {
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
     readlinkMock.mockResolvedValueOnce('../../sdb1');
     execMock.mockResolvedValueOnce(
-      lsblkOutput({ mountpoint: '/media/usb-drive-sdb1' })
+      lsblkOutput([{ mountpoint: '/media/usb-drive-sdb1' }])
     );
 
     await expect(usbDrive.status()).resolves.toEqual({
@@ -98,7 +97,7 @@ describe('status', () => {
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
     readlinkMock.mockResolvedValue('../../sdb1');
     // Initial status
-    execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
+    execMock.mockResolvedValueOnce(lsblkOutput([{ mountpoint: null }]));
     // Mount
     execMock.mockResolvedValueOnce({ stdout: '' });
 
@@ -107,7 +106,7 @@ describe('status', () => {
 
     // Status after mount
     execMock.mockResolvedValueOnce(
-      lsblkOutput({ mountpoint: '/media/vx/usb-drive' })
+      lsblkOutput([{ mountpoint: '/media/vx/usb-drive' }])
     );
     await expect(usbDrive.status()).resolves.toEqual({
       status: 'mounted',
@@ -151,24 +150,73 @@ describe('status', () => {
     );
   });
 
-  test('multiple usb devices', async () => {
-    const logger = fakeLogger();
-    const usbDrive = detectUsbDrive(logger);
+  test('multiple usb devices - selects first valid', async () => {
+    const testCases: Array<{
+      sdb1: Partial<BlockDeviceInfo>;
+      sdc1: Partial<BlockDeviceInfo>;
+      expectedStatus: UsbDriveStatus;
+      newMountPoint?: string;
+    }> = [
+      {
+        sdb1: { mountpoint: '/media/usb-drive-sdb1' },
+        sdc1: { mountpoint: '/media/usb-drive-sdc1' },
+        expectedStatus: {
+          status: 'mounted',
+          mountPoint: '/media/usb-drive-sdb1',
+          deviceName: 'sdb1',
+        },
+      },
+      {
+        sdb1: { mountpoint: undefined },
+        sdc1: { mountpoint: '/media/usb-drive-sdc1' },
+        expectedStatus: { status: 'no_drive' },
+        newMountPoint: '/dev/sdb1',
+      },
+      {
+        sdb1: { mountpoint: '/' },
+        sdc1: { mountpoint: '/media/usb-drive-sdc1' },
+        expectedStatus: {
+          status: 'mounted',
+          mountPoint: '/media/usb-drive-sdc1',
+          deviceName: 'sdc1',
+        },
+      },
+      {
+        sdb1: { mountpoint: '/' },
+        sdc1: { mountpoint: undefined },
+        expectedStatus: { status: 'no_drive' },
+        newMountPoint: '/dev/sdc1',
+      },
+    ];
 
-    readdirMock.mockResolvedValue([
-      'notausb-bazbar-part21', // Should be ignored
-      'usb-foobar-part23', // Should take the first matching USB drive
-      'usb-babar-part3',
-    ]);
-    readlinkMock.mockResolvedValueOnce('../../sdb1');
-    execMock.mockResolvedValueOnce(
-      lsblkOutput({ mountpoint: '/media/usb-drive-sdb1' })
-    );
-    await expect(usbDrive.status()).resolves.toEqual({
-      status: 'mounted',
-      mountPoint: '/media/usb-drive-sdb1',
-      deviceName: 'sdb1',
-    });
+    for (const testCase of testCases) {
+      const logger = fakeLogger();
+      const usbDrive = detectUsbDrive(logger);
+      readdirMock.mockResolvedValue([
+        'notausb-bazbar-part21', // this device should be ignored
+        'usb-foobar-part23',
+        'usb-babar-part3',
+      ]);
+      readlinkMock.mockResolvedValueOnce('../../sdb1');
+      readlinkMock.mockResolvedValueOnce('../../sdc1');
+      execMock.mockResolvedValueOnce(
+        lsblkOutput([
+          { ...testCase.sdb1, name: 'sdb1' },
+          { ...testCase.sdc1, name: 'sdc1' },
+        ])
+      );
+      await expect(usbDrive.status()).resolves.toEqual(testCase.expectedStatus);
+
+      if (testCase.newMountPoint) {
+        await backendWaitFor(() => {
+          expect(execMock).toHaveBeenLastCalledWith('sudo', [
+            '-n',
+            `${MOUNT_SCRIPT_PATH}/mount.sh`,
+            testCase.newMountPoint,
+          ]);
+        });
+      }
+    }
   });
 
   test('error getting block device info', async () => {
@@ -191,9 +239,11 @@ describe('status', () => {
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
     readlinkMock.mockResolvedValue('../../sdb1');
     execMock.mockResolvedValueOnce(
-      lsblkOutput({
-        fstype: 'exfat',
-      })
+      lsblkOutput([
+        {
+          fstype: 'exfat',
+        },
+      ])
     );
 
     await expect(usbDrive.status()).resolves.toEqual({
@@ -202,9 +252,11 @@ describe('status', () => {
     });
 
     execMock.mockResolvedValueOnce(
-      lsblkOutput({
-        fsver: 'EXFAT',
-      })
+      lsblkOutput([
+        {
+          fsver: 'EXFAT',
+        },
+      ])
     );
 
     await expect(usbDrive.status()).resolves.toEqual({
@@ -220,7 +272,7 @@ describe('status', () => {
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
     readlinkMock.mockResolvedValue('../../sdb1');
     // Initial status
-    execMock.mockResolvedValueOnce(lsblkOutput({ mountpoint: null }));
+    execMock.mockResolvedValueOnce(lsblkOutput([{ mountpoint: null }]));
     // Mount
     execMock.mockRejectedValueOnce(new Error('Failed'));
 
@@ -241,7 +293,7 @@ describe('status', () => {
 function mockBlockDeviceOnce(device: Partial<BlockDeviceInfo> = {}): void {
   readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
   readlinkMock.mockResolvedValueOnce('../../sdb1');
-  execMock.mockResolvedValueOnce(lsblkOutput(device));
+  execMock.mockResolvedValueOnce(lsblkOutput([device]));
 }
 
 describe('eject', () => {

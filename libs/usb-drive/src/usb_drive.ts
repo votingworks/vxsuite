@@ -33,9 +33,13 @@ export interface BlockDeviceInfo {
   label: string | null;
 }
 
+type RawBlockDevice = Omit<BlockDeviceInfo, 'path'>;
+
 async function getBlockDeviceInfo(
-  devicePath: string
-): Promise<BlockDeviceInfo | undefined> {
+  devicePaths: string[]
+): Promise<BlockDeviceInfo[]> {
+  assert(devicePaths.length > 0);
+
   try {
     const { stdout } = await exec('lsblk', [
       '-J',
@@ -43,51 +47,66 @@ async function getBlockDeviceInfo(
       '-l',
       '-o',
       ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL'].join(','),
-      devicePath,
+      ...devicePaths,
     ]);
     const rawData = JSON.parse(stdout) as {
-      blockdevices: BlockDeviceInfo[];
+      blockdevices: RawBlockDevice[];
     };
-    debug(`Got block device info for ${devicePath}: ${stdout}`);
-    return { ...assertDefined(rawData.blockdevices[0]), path: devicePath };
+    debug(`Got block device info for ${devicePaths.length} devices: ${stdout}`);
+    return rawData.blockdevices.map((rawBlockDevice) => ({
+      ...rawBlockDevice,
+      path: join('/dev', rawBlockDevice.name),
+    }));
   } catch (error) {
-    debug(`Error getting block device info for ${devicePath}: ${error}`);
-    return undefined;
+    debug(`Error getting block device info: ${error}`);
+    return [];
   }
 }
 
-async function findUsbDriveDevice(): Promise<string | undefined> {
-  const DEVICE_PATH_PREFIX = '/dev/disk/by-id/';
-  const USB_REGEXP = /^usb(.+)part(.*)$/;
+async function findUsbDriveDevices(): Promise<string[]> {
+  const DEVICE_ID_PATH_PREFIX = '/dev/disk/by-id/';
+  const USB_DEVICE_ID_REGEXP = /^usb(.+)part(.*)$/;
 
   // List devices, filtering to only the USB partitions
-  const devicesById = (await fs.readdir(DEVICE_PATH_PREFIX)).filter((name) =>
-    USB_REGEXP.test(name)
+  const devicesById = (await fs.readdir(DEVICE_ID_PATH_PREFIX)).filter((name) =>
+    USB_DEVICE_ID_REGEXP.test(name)
   );
 
-  // We only support one USB drive at a time
-  const [deviceId] = devicesById;
-  if (!deviceId) {
-    return undefined;
-  }
-
-  // Follow the symlink
-  const devicePath = join(
-    DEVICE_PATH_PREFIX,
-    await fs.readlink(join(DEVICE_PATH_PREFIX, deviceId))
+  return Promise.all(
+    devicesById.map(async (deviceId) =>
+      join(
+        DEVICE_ID_PATH_PREFIX,
+        await fs.readlink(join(DEVICE_ID_PATH_PREFIX, deviceId))
+      )
+    )
   );
+}
 
-  return devicePath;
+const DEFAULT_MEDIA_MOUNT_DIR = '/media';
+
+function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
+  return (
+    !blockDeviceInfo.mountpoint ||
+    blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR)
+  );
 }
 
 async function getUsbDriveDeviceInfo(): Promise<BlockDeviceInfo | undefined> {
-  const devicePath = await findUsbDriveDevice();
-  if (!devicePath) {
-    debug(`No USB drive detected`);
+  const devicePaths = await findUsbDriveDevices();
+  if (devicePaths.length === 0) {
+    debug(`No USB drives detected`);
     return undefined;
   }
-  debug(`Detected USB drive at ${devicePath}`);
-  return await getBlockDeviceInfo(devicePath);
+
+  const blockDeviceInfos = await getBlockDeviceInfo(devicePaths);
+  const dataUsbBlockDeviceInfo = blockDeviceInfos.find(isDataUsbDrive);
+  if (!dataUsbBlockDeviceInfo) {
+    debug(`USB drive detected, but it's not mounted as a removable data drive`);
+    return undefined;
+  }
+
+  debug(`Detected USB drive at ${dataUsbBlockDeviceInfo.path}`);
+  return dataUsbBlockDeviceInfo;
 }
 
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
