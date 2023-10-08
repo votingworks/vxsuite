@@ -11,8 +11,13 @@ import {
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
+  USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   createUiStringsApi,
+  UsbDriveStatus as LegacyUsbDriveStatus,
 } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import isEqual from 'lodash.isequal';
+import { typedAs } from '@votingworks/basics';
 import { STATE_MACHINE_POLLING_INTERVAL_MS } from './constants';
 
 export type ApiClient = grout.Client<Api>;
@@ -36,6 +41,51 @@ export function useApiClient(): ApiClient {
 export function createQueryClient(): QueryClient {
   return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
 }
+
+export const getUsbDriveStatus = {
+  queryKey(): QueryKey {
+    return ['getUsbDriveStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
+      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+
+        // Prevent unnecessary re-renders of dependent components
+        const isUnchanged = isEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
+    });
+  },
+} as const;
+
+// TODO remove this once libs/ui is converted to using libs/usb-drive's UsbDriveStatus
+export function legacyUsbDriveStatus(
+  usbDrive: UsbDriveStatus
+): LegacyUsbDriveStatus {
+  return typedAs<Record<UsbDriveStatus['status'], LegacyUsbDriveStatus>>({
+    no_drive: 'absent',
+    mounted: 'mounted',
+    ejected: 'ejected',
+    error: 'bad_format',
+  })[usbDrive.status];
+}
+
+export const ejectUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.ejectUsbDrive, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+      },
+    });
+  },
+} as const;
 
 export const getMachineConfig = {
   queryKey(): QueryKey {

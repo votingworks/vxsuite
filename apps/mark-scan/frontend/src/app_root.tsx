@@ -32,7 +32,6 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   SetupCardReaderPage,
   useDevices,
-  useUsbDrive,
   UnlockMachineScreen,
   useQueryChangeListener,
   ThemeManagerContext,
@@ -52,6 +51,8 @@ import {
   getMachineConfig,
   getPrecinctSelection,
   getStateMachineState,
+  getUsbDriveStatus,
+  legacyUsbDriveStatus,
   startCardlessVoterSession,
   unconfigureMachine,
 } from './api';
@@ -272,8 +273,8 @@ export function AppRoot({
 
   const devices = useDevices({ hardware, logger });
   const { cardReader, accessibleController, computer } = devices;
-  const usbDrive = useUsbDrive({ logger });
 
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const authStatus = authStatusQuery.isSuccess
     ? authStatusQuery.data
@@ -583,6 +584,7 @@ export function AppRoot({
   if (
     !machineConfigQuery.isSuccess ||
     !authStatusQuery.isSuccess ||
+    !usbDriveStatusQuery.isSuccess ||
     !getStateMachineStateQuery.isSuccess ||
     !getPrecinctSelectionQuery.isSuccess
   ) {
@@ -590,6 +592,7 @@ export function AppRoot({
   }
   const machineConfig = machineConfigQuery.data;
   const precinctSelection = getPrecinctSelectionQuery.data;
+  const usbDriveStatus = usbDriveStatusQuery.data;
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
@@ -632,7 +635,7 @@ export function AppRoot({
             ? makeAsync(resetPollsToPaused)
             : undefined
         }
-        usbDriveStatus={usbDrive.status}
+        usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
       />
     );
   }
@@ -640,7 +643,7 @@ export function AppRoot({
     if (!optionalElectionDefinition) {
       return (
         <UnconfiguredElectionScreenWrapper
-          usbDriveStatus={usbDrive.status}
+          usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
           updateElectionDefinition={updateElectionDefinition}
         />
       );
@@ -676,7 +679,7 @@ export function AppRoot({
         screenReader={screenReader}
         pollsState={pollsState}
         logger={logger}
-        usbDrive={usbDrive}
+        usbDriveStatus={usbDriveStatus}
       />
     );
   }

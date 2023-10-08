@@ -111,7 +111,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
 
   // Configure with USB
-  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
+  await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
   await screen.findByText('Election Definition is loaded.');
 
   // Remove card and expect not configured because precinct not selected
@@ -344,7 +344,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Configure with Election Manager card and USB
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
+  await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
 
   await screen.findByText('Election Definition is loaded.');
   apiMock.setAuthStatusLoggedOut();

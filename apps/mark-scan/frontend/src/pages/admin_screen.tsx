@@ -13,7 +13,6 @@ import {
   SetClockButton,
   TestMode,
   UsbControllerButton,
-  UsbDrive,
   Caption,
   Font,
   Icons,
@@ -28,8 +27,15 @@ import {
 import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ScreenReader } from '../config/types';
-import { getPrecinctSelection, logOut, setPrecinctSelection } from '../api';
+import {
+  ejectUsbDrive,
+  getPrecinctSelection,
+  legacyUsbDriveStatus,
+  logOut,
+  setPrecinctSelection,
+} from '../api';
 
 export interface AdminScreenProps {
   ballotsPrintedCount: number;
@@ -41,7 +47,7 @@ export interface AdminScreenProps {
   screenReader: ScreenReader;
   pollsState: PollsState;
   logger: Logger;
-  usbDrive: UsbDrive;
+  usbDriveStatus: UsbDriveStatus;
 }
 
 export function AdminScreen({
@@ -54,10 +60,11 @@ export function AdminScreen({
   screenReader,
   pollsState,
   logger,
-  usbDrive,
+  usbDriveStatus,
 }: AdminScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
   const logOutMutation = logOut.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   function updatePrecinctSelection(newPrecinctSelection: PrecinctSelection) {
@@ -173,8 +180,8 @@ export function AdminScreen({
           <UsbControllerButton
             small={false}
             primary
-            usbDriveStatus={usbDrive.status}
-            usbDriveEject={() => usbDrive.eject('election_manager')}
+            usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+            usbDriveEject={() => ejectUsbDriveMutation.mutate()}
           />
         </Prose>
       </Main>

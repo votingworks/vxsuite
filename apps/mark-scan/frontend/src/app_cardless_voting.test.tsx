@@ -85,7 +85,7 @@ test('Cardless Voting Flow', async () => {
   // Configure with Election Manager Card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
 
-  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
+  await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
 
   await screen.findByText('Election Definition is loaded.');
   screen.getByLabelText('Precinct');
@@ -302,7 +302,7 @@ test('Voter can submit a blank ballot', async () => {
   // Configure with Election Manager Card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
 
-  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
+  await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
 
   await screen.findByText('Election Definition is loaded.');
   screen.getByLabelText('Precinct');
@@ -449,7 +449,7 @@ test('poll worker must select a precinct first', async () => {
 
   // Configure with Election Manager Card and USB
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
+  await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
   await screen.findByText('Election Definition is loaded.');
   screen.getByLabelText('Precinct');
   screen.queryByText(`Election ID: ${electionHash.slice(0, 10)}`);

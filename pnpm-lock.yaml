@@ -1731,6 +1731,9 @@ importers:
       lodash.camelcase:
         specifier: ^4.3.0
         version: 4.3.0
+      lodash.isequal:
+        specifier: ^4.5.0
+        version: 4.5.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1840,6 +1843,9 @@ importers:
       '@types/lodash.camelcase':
         specifier: ^4.3.6
         version: 4.3.6
+      '@types/lodash.isequal':
+        specifier: ^4.5.6
+        version: 4.5.6
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -1882,6 +1888,9 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -2166,6 +2175,9 @@ importers:
       lodash.camelcase:
         specifier: ^4.3.0
         version: 4.3.0
+      lodash.isequal:
+        specifier: ^4.5.0
+        version: 4.5.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -2275,6 +2287,9 @@ importers:
       '@types/lodash.camelcase':
         specifier: ^4.3.6
         version: 4.3.6
+      '@types/lodash.isequal':
+        specifier: ^4.5.6
+        version: 4.5.6
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -2317,6 +2332,9 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -11465,6 +11483,12 @@ packages:
 
   /@types/lodash.clonedeep@4.5.7:
     resolution: {integrity: sha512-ccNqkPptFIXrpVqUECi60/DFxjNKsfoQxSQsgcBJCX/fuX1wgyQieojkcWH/KpE3xzLoWN/2k+ZeGqIN3paSvw==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
+  /@types/lodash.isequal@4.5.6:
+    resolution: {integrity: sha512-Ww4UGSe3DmtvLLJm2F16hDwEQSv7U0Rr8SujLUA2wHI2D2dm8kPu6Et+/y303LfjTIwSBKXB/YTUcAKpem/XEg==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true
