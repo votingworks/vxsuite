@@ -1,7 +1,6 @@
 import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
-  electionGeneralDefinition,
   systemSettings,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -236,17 +235,6 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
   const result = await apiClient.configureBallotPackageFromUsb();
   assert(result.isErr());
   expect(result.err()).toEqual('auth_required_before_ballot_package_load');
-});
-
-test('configureWithSampleBallotPackageForIntegrationTest configures electionGeneralDefinition and DEFAULT_SYSTEM_SETTINGS', async () => {
-  const writeResult =
-    await apiClient.configureWithSampleBallotPackageForIntegrationTest();
-  assert(writeResult.isOk());
-
-  const readResult = await apiClient.getSystemSettings();
-  expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
-  const electionDefinitionResult = await apiClient.getElectionDefinition();
-  expect(electionDefinitionResult).toEqual(electionGeneralDefinition);
 });
 
 test('usbDrive', async () => {

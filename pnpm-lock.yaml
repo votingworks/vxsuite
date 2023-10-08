@@ -1969,6 +1969,9 @@ importers:
       concurrently:
         specifier: ^7.6.0
         version: 7.6.0
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 16.18.23
@@ -2401,6 +2404,9 @@ importers:
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../../../libs/backend
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -2410,9 +2416,15 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       concurrently:
         specifier: ^7.6.0
         version: 7.6.0
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 16.18.23
