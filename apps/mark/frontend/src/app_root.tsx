@@ -35,7 +35,6 @@ import {
   SetupCardReaderPage,
   useDevices,
   usePrevious,
-  useUsbDrive,
   UnlockMachineScreen,
   useQueryChangeListener,
   ThemeManagerContext,
@@ -53,6 +52,8 @@ import {
   getAuthStatus,
   getElectionDefinition,
   getMachineConfig,
+  getUsbDriveStatus,
+  legacyUsbDriveStatus,
   startCardlessVoterSession,
   unconfigureMachine,
 } from './api';
@@ -288,10 +289,10 @@ export function AppRoot({
     accessibleController,
     computer,
   } = devices;
-  const usbDrive = useUsbDrive({ logger });
   const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const authStatus = authStatusQuery.isSuccess
     ? authStatusQuery.data
@@ -612,9 +613,14 @@ export function AppRoot({
 
   useDisplaySettingsManager({ authStatus, votes });
 
-  if (!machineConfigQuery.isSuccess || !authStatusQuery.isSuccess) {
+  if (
+    !machineConfigQuery.isSuccess ||
+    !authStatusQuery.isSuccess ||
+    !usbDriveStatusQuery.isSuccess
+  ) {
     return null;
   }
+  const usbDriveStatus = usbDriveStatusQuery.data;
   const machineConfig = machineConfigQuery.data;
 
   if (!cardReader) {
@@ -655,7 +661,7 @@ export function AppRoot({
             ? makeAsync(resetPollsToPaused)
             : undefined
         }
-        usbDriveStatus={usbDrive.status}
+        usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
       />
     );
   }
@@ -663,7 +669,7 @@ export function AppRoot({
     if (!optionalElectionDefinition) {
       return (
         <UnconfiguredElectionScreenWrapper
-          usbDriveStatus={usbDrive.status}
+          usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
           updateElectionDefinition={updateElectionDefinition}
         />
       );
@@ -702,7 +708,7 @@ export function AppRoot({
         screenReader={screenReader}
         pollsState={pollsState}
         logger={logger}
-        usbDrive={usbDrive}
+        usbDriveStatus={usbDriveStatus}
       />
     );
   }

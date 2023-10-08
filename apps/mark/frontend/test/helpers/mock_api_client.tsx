@@ -21,6 +21,7 @@ import {
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
 import { TestErrorBoundary } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
@@ -29,18 +30,25 @@ interface CardlessVoterUserParams {
   precinctId: PrecinctId;
 }
 
-type MockApiClient = Omit<MockClient<Api>, 'getAuthStatus'> & {
+type MockApiClient = Omit<
+  MockClient<Api>,
+  'getAuthStatus' | 'getUsbDriveStatus'
+> & {
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: jest.Mock;
+  getUsbDriveStatus: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
   const mockApiClient = createMockClient<Api>();
-  // For some reason, using an object spread to override the getAuthStatus method breaks the rest
+  // For some reason, using an object spread to override the polling methods breaks the rest
   // of the mockApiClient, so we override like this instead
   (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
+  );
+  (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve({ status: 'no_drive' })
   );
   return mockApiClient as unknown as MockApiClient;
 }
@@ -59,8 +67,16 @@ export function createApiMock() {
     );
   }
 
+  function setUsbDriveStatus(usbDriveStatus: UsbDriveStatus): void {
+    mockApiClient.getUsbDriveStatus.mockImplementation(() =>
+      Promise.resolve(usbDriveStatus)
+    );
+  }
+
   return {
     mockApiClient,
+
+    setUsbDriveStatus,
 
     setAuthStatus,
 
@@ -172,6 +188,10 @@ export function createApiMock() {
 
     expectLogOut() {
       mockApiClient.logOut.expectCallWith().resolves();
+    },
+
+    expectEjectUsbDrive() {
+      mockApiClient.ejectUsbDrive.expectCallWith().resolves();
     },
   };
 }

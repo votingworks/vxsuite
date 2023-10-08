@@ -48,7 +48,7 @@ test('loading election with a single precinct automatically sets precinct', asyn
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
 
   // Insert a USB with a ballot package
-  await configureFromUsbThenRemove(apiMock, kiosk, screen, electionDefinition);
+  await configureFromUsbThenRemove(apiMock, screen, electionDefinition);
   await screen.findByText(getDisplayElectionHash(electionDefinition));
   // Should not be able to select a precinct
   expect(screen.getByTestId('selectPrecinct')).toBeDisabled();

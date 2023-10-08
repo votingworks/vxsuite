@@ -13,7 +13,6 @@ import {
   SetClockButton,
   TestMode,
   UsbControllerButton,
-  UsbDrive,
   Caption,
   Font,
   Icons,
@@ -28,8 +27,9 @@ import {
 import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-backend';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ScreenReader } from '../config/types';
-import { logOut } from '../api';
+import { ejectUsbDrive, legacyUsbDriveStatus, logOut } from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -43,7 +43,7 @@ export interface AdminScreenProps {
   screenReader: ScreenReader;
   pollsState: PollsState;
   logger: Logger;
-  usbDrive: UsbDrive;
+  usbDriveStatus: UsbDriveStatus;
 }
 
 export function AdminScreen({
@@ -58,10 +58,11 @@ export function AdminScreen({
   screenReader,
   pollsState,
   logger,
-  usbDrive,
+  usbDriveStatus,
 }: AdminScreenProps): JSX.Element {
   const { election } = electionDefinition;
   const logOutMutation = logOut.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -164,8 +165,8 @@ export function AdminScreen({
           <UsbControllerButton
             small={false}
             primary
-            usbDriveStatus={usbDrive.status}
-            usbDriveEject={() => usbDrive.eject('election_manager')}
+            usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+            usbDriveEject={() => ejectUsbDriveMutation.mutate()}
           />
         </Prose>
       </Main>
