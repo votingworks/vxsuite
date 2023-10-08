@@ -101,22 +101,35 @@ function userReadableMessageFromImportError(
           case 'election-mismatch': {
             return 'The record references the wrong election.';
           }
-          case 'image-file-not-found': {
-            return 'The record references an image file that does not exist.';
+          case 'image-not-found': {
+            return 'The record references an image that does not exist.';
           }
-          // These two go hand-in-hand
-          case 'invalid-ballot-image-field':
-          case 'invalid-write-in-field': {
-            return 'The record contains an incorrectly formatted ballot image and/or write-in field.';
+          case 'image-read-error': {
+            return 'The record references an image that could not be read.';
+          }
+          case 'incorrect-image-hash': {
+            return 'The record references an image with an incorrect hash.';
+          }
+          case 'incorrect-layout-file-hash': {
+            return 'The record references a layout file with an incorrect hash.';
+          }
+          case 'invalid-ballot-image-field': {
+            return 'The record contains an incorrectly formatted ballot image field.';
           }
           case 'invalid-ballot-sheet-id': {
             return 'The record contains an incorrectly formatted ballot sheet ID.';
           }
+          case 'invalid-write-in-field': {
+            return 'The record contains an incorrectly formatted write-in field.';
+          }
           case 'layout-file-not-found': {
             return 'The record references a layout file that does not exist.';
           }
-          case 'layout-parse-error': {
-            return 'The layout file could not be parsed.';
+          case 'layout-file-parse-error': {
+            return 'The record references a layout file that could not be parsed.';
+          }
+          case 'layout-file-read-error': {
+            return 'The record references a layout file that could not be read.';
           }
           case 'no-current-snapshot': {
             return 'The record does not contain a current snapshot of the interpreted results.';
@@ -127,6 +140,7 @@ function userReadableMessageFromImportError(
           case 'precinct-not-found': {
             return 'The record references a precinct that does not exist.';
           }
+          /* istanbul ignore next: Compile-time check for completeness */
           default: {
             throwIllegalValue(error, 'subType');
           }
@@ -140,6 +154,7 @@ function userReadableMessageFromImportError(
     case 'metadata-file-parse-error': {
       return 'Unable to parse metadata file.';
     }
+    /* istanbul ignore next: Compile-time check for completeness */
     default: {
       throwIllegalValue(error, 'type');
     }
