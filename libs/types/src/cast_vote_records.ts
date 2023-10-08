@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   CastVoteRecordReport,
   CastVoteRecordReportSchema,
+  CVRSchema,
 } from './cdf/cast-vote-records';
 import {
   BallotId,
@@ -39,6 +40,12 @@ export interface CastVoteRecord
   readonly _scannerId: string;
 }
 
+export enum CastVoteRecordExportFileName {
+  CAST_VOTE_RECORD_REPORT = 'cast-vote-record-report.json',
+  METADATA = 'metadata.json',
+  REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
+}
+
 /**
  * Metadata stored in the top-level metadata file for a cast vote record export
  */
@@ -57,11 +64,18 @@ export const CastVoteRecordExportMetadataSchema: z.ZodSchema<CastVoteRecordExpor
     castVoteRecordRootHash: z.string(),
   });
 
-export enum CastVoteRecordExportFileName {
-  CAST_VOTE_RECORD_REPORT = 'cast-vote-record-report.json',
-  METADATA = 'metadata.json',
-  REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
-}
+/**
+ * A cast vote record report without metadata
+ */
+export type CastVoteRecordReportWithoutMetadata = Pick<
+  CastVoteRecordReport,
+  'CVR'
+>;
+
+export const CastVoteRecordReportWithoutMetadataSchema: z.ZodSchema<CastVoteRecordReportWithoutMetadata> =
+  z.object({
+    CVR: z.array(CVRSchema),
+  });
 
 /**
  * An error encountered while validating a sheet
@@ -101,3 +115,36 @@ export type SheetValidationError = {
 export type ExportCastVoteRecordsToUsbDriveError =
   | { type: ExportDataError }
   | SheetValidationError;
+
+/**
+ * An error encountered while reading a cast vote record export's metadata file
+ */
+export type ReadCastVoteRecordExportMetadataError =
+  | { type: 'metadata-file-not-found' }
+  | { type: 'metadata-file-parse-error' };
+
+/**
+ * A top-level error encountered while reading a cast vote record export. Does not include errors
+ * encountered while reading individual cast vote records.
+ */
+export type ReadCastVoteRecordExportError =
+  | ReadCastVoteRecordExportMetadataError
+  | { type: 'authentication-error' };
+
+type ReferencedFile = 'image' | 'layout-file';
+
+/**
+ * An error encountered while reading an individual cast vote record
+ */
+export type ReadCastVoteRecordError = { type: 'invalid-cast-vote-record' } & (
+  | { subType: 'batch-id-not-found' }
+  | { subType: 'invalid-ballot-image-field' }
+  | { subType: 'invalid-ballot-sheet-id' }
+  | { subType: 'invalid-write-in-field' }
+  | { subType: 'layout-file-parse-error' }
+  | { subType: 'no-current-snapshot' }
+  | { subType: 'parse-error' }
+  | { subType: `${ReferencedFile}-not-found` }
+  | { subType: `${ReferencedFile}-read-error` }
+  | { subType: `incorrect-${ReferencedFile}-hash` }
+);
