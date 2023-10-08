@@ -12,7 +12,7 @@ import {
   computeCombinedHash,
   computeSingleCastVoteRecordHash,
   getCastVoteRecordRootHash,
-  ReadableFile,
+  hashableFileFromData,
   readableFileFromData,
   readableFileFromDisk,
   updateCastVoteRecordHashes,
@@ -28,41 +28,62 @@ afterEach(() => {
   fs.rmSync(tempDirectoryPath, { recursive: true });
 });
 
-type CastVoteRecordId =
-  | 'a1234567-0000-0000-0000-000000000000'
-  | 'a2345678-0000-0000-0000-000000000000'
-  | 'ab123456-0000-0000-0000-000000000000'
-  | 'ab234567-0000-0000-0000-000000000000'
-  | 'ab345678-0000-0000-0000-000000000000'
-  | 'c1234567-0000-0000-0000-000000000000'
-  | 'e1234567-0000-0000-0000-000000000000';
+const castVoteRecordIds = [
+  'a1234567-0000-0000-0000-000000000000',
+  'a2345678-0000-0000-0000-000000000000',
+  'ab123456-0000-0000-0000-000000000000',
+  'ab234567-0000-0000-0000-000000000000',
+  'ab345678-0000-0000-0000-000000000000',
+  'c1234567-0000-0000-0000-000000000000',
+  'e1234567-0000-0000-0000-000000000000',
+] as const;
 
-type FileWithContents = ReadableFile & { fileContents: string };
-
-function file(fileName: string, fileContents: string): FileWithContents {
-  return {
-    ...readableFileFromData(fileName, fileContents),
-    fileContents,
-  };
-}
+type CastVoteRecordId = (typeof castVoteRecordIds)[number];
 
 // A minimal set of mock cast vote records for testing a branching factor of 3 at every level of
 // the Merkle tree
-const castVoteRecords: Record<CastVoteRecordId, FileWithContents[]> = {
-  'a1234567-0000-0000-0000-000000000000': [file('1', '1a'), file('2', '2a')],
-  'a2345678-0000-0000-0000-000000000000': [file('1', '1b'), file('2', '2b')],
-  'ab123456-0000-0000-0000-000000000000': [file('1', '1c'), file('2', '2c')],
-  'ab234567-0000-0000-0000-000000000000': [file('1', '1d'), file('2', '2d')],
-  'ab345678-0000-0000-0000-000000000000': [file('1', '1e'), file('2', '2e')],
-  'c1234567-0000-0000-0000-000000000000': [file('1', '1f'), file('2', '2f')],
-  'e1234567-0000-0000-0000-000000000000': [file('1', '1g'), file('2', '2g')],
+const castVoteRecords: Record<
+  CastVoteRecordId,
+  string // Cast vote record report contents
+> = {
+  'a1234567-0000-0000-0000-000000000000': 'a',
+  'a2345678-0000-0000-0000-000000000000': 'b',
+  'ab123456-0000-0000-0000-000000000000': 'c',
+  'ab234567-0000-0000-0000-000000000000': 'd',
+  'ab345678-0000-0000-0000-000000000000': 'e',
+  'c1234567-0000-0000-0000-000000000000': 'f',
+  'e1234567-0000-0000-0000-000000000000': 'g',
 };
+
+function prepareCastVoteRecordExport(): string {
+  const exportDirectoryPath = path.join(
+    tempDirectoryPath,
+    'cast-vote-record-export'
+  );
+  fs.mkdirSync(exportDirectoryPath);
+  fs.writeFileSync(
+    path.join(exportDirectoryPath, CastVoteRecordExportFileName.METADATA),
+    ''
+  );
+  for (const [cvrId, cvrReportContents] of Object.entries(castVoteRecords)) {
+    fs.mkdirSync(path.join(exportDirectoryPath, cvrId));
+    fs.writeFileSync(
+      path.join(
+        exportDirectoryPath,
+        cvrId,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
+      cvrReportContents
+    );
+  }
+  return exportDirectoryPath;
+}
 
 /**
  * The root hash for the mock cast vote records represented by {@link castVoteRecords}
  */
 const expectedCastVoteRecordRootHash =
-  '7ba8f3a1ba98c7bbe19c9514e6218a6a9bb31a23c47a20eea2f37556407bc4df';
+  '9ae397df2e7f47e7a4dd004f3a45821a2a5c348e501576032f6d7bf16cebeb63';
 
 test('readableFileFromData', async () => {
   const readableFile = readableFileFromData('1', 'a');
@@ -88,31 +109,20 @@ test('readableFileFromDisk', async () => {
 });
 
 test('computeSingleCastVoteRecordHash', async () => {
-  const hash = await computeSingleCastVoteRecordHash({
-    directoryName: 'directory-name',
-    files: [file('2', 'a'), file('3', 'b'), file('1', 'c')],
-  });
-  const directorySummary = `
-${sha256('c')}  directory-name/1
-${sha256('a')}  directory-name/2
-${sha256('b')}  directory-name/3
-`.trimStart();
+  const cvrId = castVoteRecordIds[0];
+  const cvrReportContents = castVoteRecords[cvrId];
+  const hash = await computeSingleCastVoteRecordHash(
+    cvrId,
+    hashableFileFromData(
+      CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT,
+      cvrReportContents
+    )
+  );
+  const directorySummary =
+    `${sha256(cvrReportContents)}  ` +
+    `${cvrId}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}\n`;
   const expectedHash = sha256(directorySummary);
   expect(hash).toEqual(expectedHash);
-});
-
-test('computeSingleCastVoteRecordHash newline detection', async () => {
-  /**
-   * This input will spoof the following directory summary:
-   * ${sha256('a')}  directory-name/1
-   * ${sha256('b')}  directory-name/2
-   * ${sha256('c')}  directory-name/3
-   */
-  const sneakyInput: Parameters<typeof computeSingleCastVoteRecordHash>[0] = {
-    directoryName: 'directory-name',
-    files: [file(`1\n${sha256('b')}  directory-name/2`, 'a'), file('3', 'c')],
-  };
-  await expect(computeSingleCastVoteRecordHash(sneakyInput)).rejects.toThrow();
 });
 
 test('computeCombinedHash', () => {
@@ -132,10 +142,14 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   async function updateCastVoteRecordHashesHelper(
     cvrId: CastVoteRecordId
   ): Promise<string> {
-    const cvrHash = await computeSingleCastVoteRecordHash({
-      directoryName: cvrId,
-      files: castVoteRecords[cvrId],
-    });
+    const cvrReportContents = castVoteRecords[cvrId];
+    const cvrHash = await computeSingleCastVoteRecordHash(
+      cvrId,
+      hashableFileFromData(
+        CastVoteRecordExportFileName.METADATA,
+        cvrReportContents
+      )
+    );
     updateCastVoteRecordHashes(client, cvrId, cvrHash);
     return cvrHash;
   }
@@ -205,24 +219,7 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
 });
 
 test('computeCastVoteRecordRootHashFromScratch', async () => {
-  const exportDirectoryPath = path.join(
-    tempDirectoryPath,
-    'cast-vote-record-export'
-  );
-  fs.mkdirSync(exportDirectoryPath);
-  fs.writeFileSync(
-    path.join(exportDirectoryPath, CastVoteRecordExportFileName.METADATA),
-    ''
-  );
-  for (const [cvrId, cvrFiles] of Object.entries(castVoteRecords)) {
-    fs.mkdirSync(path.join(exportDirectoryPath, cvrId));
-    for (const { fileName, fileContents } of cvrFiles) {
-      fs.writeFileSync(
-        path.join(exportDirectoryPath, cvrId, fileName),
-        fileContents
-      );
-    }
-  }
+  const exportDirectoryPath = prepareCastVoteRecordExport();
 
   // Verify that the hash computed by computeCastVoteRecordRootHashFromScratch is equivalent to the
   // hash computed by the SQLite-backed functions
