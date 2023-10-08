@@ -29,7 +29,6 @@ test('file-based USB mock', async () => {
     [testFilename]: Buffer.from('test file contents'),
   });
   expect(await usbDrive.status()).toMatchObject({
-    deviceName: 'mock-usb-drive',
     mountPoint: /\/tmp\/mock-usb-drive--*\//,
     status: 'mounted',
   });

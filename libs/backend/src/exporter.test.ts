@@ -131,7 +131,7 @@ test('exportDataToUsbDrive happy path', async () => {
   const path = join(tmpDir, 'bucket/test.txt');
   usbDrive.status
     .expectCallWith()
-    .resolves({ status: 'mounted', mountPoint: tmpDir, deviceName: 'dev/sdb' });
+    .resolves({ status: 'mounted', mountPoint: tmpDir });
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -147,7 +147,7 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
   const path = join(tmpDir, 'bucket/test.txt');
   usbDrive.status
     .expectCallWith()
-    .resolves({ status: 'mounted', mountPoint: tmpDir, deviceName: 'dev/sdb' });
+    .resolves({ status: 'mounted', mountPoint: tmpDir });
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -166,7 +166,7 @@ test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
   const tmpDir = createTmpDir();
   usbDrive.status
     .expectCallWith()
-    .resolves({ status: 'mounted', mountPoint: tmpDir, deviceName: 'dev/sdb' });
+    .resolves({ status: 'mounted', mountPoint: tmpDir });
 
   const result = await exporter.exportDataToUsbDrive(
     'bucket',

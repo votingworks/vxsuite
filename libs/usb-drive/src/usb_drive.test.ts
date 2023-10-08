@@ -73,7 +73,6 @@ describe('status', () => {
     await expect(usbDrive.status()).resolves.toEqual({
       status: 'mounted',
       mountPoint: '/media/usb-drive-sdb1',
-      deviceName: 'sdb1',
     });
 
     expect(readdirMock).toHaveBeenCalledWith('/dev/disk/by-id/');
@@ -111,7 +110,6 @@ describe('status', () => {
     await expect(usbDrive.status()).resolves.toEqual({
       status: 'mounted',
       mountPoint: '/media/vx/usb-drive',
-      deviceName: 'sdb1',
     });
 
     expect(execMock).toHaveBeenNthCalledWith(1, 'lsblk', [
@@ -163,7 +161,6 @@ describe('status', () => {
         expectedStatus: {
           status: 'mounted',
           mountPoint: '/media/usb-drive-sdb1',
-          deviceName: 'sdb1',
         },
       },
       {
@@ -178,7 +175,6 @@ describe('status', () => {
         expectedStatus: {
           status: 'mounted',
           mountPoint: '/media/usb-drive-sdc1',
-          deviceName: 'sdc1',
         },
       },
       {
@@ -346,7 +342,6 @@ describe('eject', () => {
     await expect(usbDrive.status()).resolves.toEqual({
       status: 'mounted',
       mountPoint: '/media/vx/usb-drive',
-      deviceName: 'sdb1',
     });
 
     // check logging

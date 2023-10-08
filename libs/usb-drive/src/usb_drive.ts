@@ -12,8 +12,6 @@ export type UsbDriveStatus =
   | {
       status: 'mounted';
       mountPoint: string;
-      /** @deprecated - Temporary for backwards compatibility */
-      deviceName: string;
     }
   | { status: 'ejected' }
   | { status: 'error'; reason: 'bad_format' };
@@ -308,7 +306,6 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
         return {
           status: 'mounted',
           mountPoint: deviceInfo.mountpoint,
-          deviceName: deviceInfo.name,
         };
       }
       return { status: 'ejected' };
