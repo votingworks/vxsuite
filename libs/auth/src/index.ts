@@ -11,3 +11,4 @@ export * from './jurisdictions';
 export * from './live_check';
 export * from './mock_file_card';
 export * from './test_utils';
+export * from './integration_test_utils';
