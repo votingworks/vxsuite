@@ -11,6 +11,7 @@ test('has various election definitions', () => {
       "electionFamousNames2021Fixtures",
       "electionGeneral",
       "electionGeneralDefinition",
+      "electionGeneralJson",
       "electionGridLayoutNewHampshireAmherstFixtures",
       "electionGridLayoutNewHampshireHudsonFixtures",
       "electionMultiPartyPrimaryFixtures",

@@ -12,7 +12,6 @@ import {
   PrecinctId,
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
-  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
@@ -22,7 +21,6 @@ import {
   configureUiStrings,
 } from '@votingworks/backend';
 import { Logger, LoggingUserRole } from '@votingworks/logging';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
@@ -114,20 +112,6 @@ export function buildApi(
 
     unconfigureMachine() {
       workspace.store.reset();
-    },
-
-    configureWithSampleBallotPackageForIntegrationTest(): Result<
-      ElectionDefinition,
-      BallotPackageConfigurationError
-    > {
-      const electionDefinition = electionGeneralDefinition;
-      const systemSettings = DEFAULT_SYSTEM_SETTINGS;
-      workspace.store.setElectionAndJurisdiction({
-        electionData: electionDefinition.electionData,
-        jurisdiction: TEST_JURISDICTION,
-      });
-      workspace.store.setSystemSettings(systemSettings);
-      return ok(electionDefinition);
     },
 
     async configureBallotPackageFromUsb(): Promise<
