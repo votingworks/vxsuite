@@ -61,6 +61,7 @@ export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
 export interface CvrImageDataInput {
   imageHash: string;
   imageRelativePath: string;
+  /** Optional because we don't export layout files for BMD ballots */
   layoutFileHash?: string;
 }
 
