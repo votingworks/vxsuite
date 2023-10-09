@@ -138,7 +138,7 @@ export class CommandApdu {
 
   asBuffer(): Buffer {
     return Buffer.concat([
-      Buffer.from([this.cla, this.ins, this.p1, this.p2, this.lc]),
+      Buffer.of(this.cla, this.ins, this.p1, this.p2, this.lc),
       this.data,
     ]);
   }
@@ -227,7 +227,7 @@ export function constructTlv(
 ): Buffer {
   const tag: Buffer = Buffer.isBuffer(tagAsByteOrBuffer)
     ? tagAsByteOrBuffer
-    : Buffer.from([tagAsByteOrBuffer]);
+    : Buffer.of(tagAsByteOrBuffer);
 
   /**
    * The convention for TLV length is as follows:
@@ -236,19 +236,19 @@ export function constructTlv(
    * - 0x82 0xXX 0xXX if value length > 256 and < 65536 bytes
    *
    * For example:
-   * - 51 bytes   --> Buffer.from([51])            --> 0x33           (33 is 51 in hex)
-   * - 147 bytes  --> Buffer.from([0x81, 147])     --> 0x81 0x93      (93 is 147 in hex)
-   * - 3017 bytes --> Buffer.from([0x82, 11, 201]) --> 0x82 0x0b 0xc9 (bc9 is 3017 in hex)
+   * - 51 bytes   --> Buffer.of(51)            --> 0x33           (33 is 51 in hex)
+   * - 147 bytes  --> Buffer.of(0x81, 147)     --> 0x81 0x93      (93 is 147 in hex)
+   * - 3017 bytes --> Buffer.of(0x82, 11, 201) --> 0x82 0x0b 0xc9 (bc9 is 3017 in hex)
    */
   let tlvLength: Buffer;
   const valueNumBytes = value.length;
   if (valueNumBytes < 128) {
-    tlvLength = Buffer.from([valueNumBytes]);
+    tlvLength = Buffer.of(valueNumBytes);
   } else if (valueNumBytes < 256) {
-    tlvLength = Buffer.from([0x81, valueNumBytes]);
+    tlvLength = Buffer.of(0x81, valueNumBytes);
   } else if (valueNumBytes < 65536) {
     // eslint-disable-next-line no-bitwise
-    tlvLength = Buffer.from([0x82, valueNumBytes >> 8, valueNumBytes & 255]);
+    tlvLength = Buffer.of(0x82, valueNumBytes >> 8, valueNumBytes & 255);
   } else {
     throw new Error('TLV value is too large');
   }

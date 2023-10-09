@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer';
 import { Byte } from '@votingworks/types';
 
-import { numericArray } from '../test/utils';
 import {
   CardCommand,
   CommandApdu,
@@ -28,7 +27,7 @@ test.each<{
     data: Buffer.of(),
   });
   expect(apdu.asBuffer()).toEqual(
-    Buffer.from([expectedFirstByte, 0x01, 0x02, 0x03, 0x00])
+    Buffer.of(expectedFirstByte, 0x01, 0x02, 0x03, 0x00)
   );
 });
 
@@ -37,10 +36,10 @@ test('CommandApdu with data', () => {
     ins: 0x01,
     p1: 0x02,
     p2: 0x03,
-    data: Buffer.from([0x04, 0x05]),
+    data: Buffer.of(0x04, 0x05),
   });
   expect(apdu.asBuffer()).toEqual(
-    Buffer.from([0x00, 0x01, 0x02, 0x03, 0x02, 0x04, 0x05])
+    Buffer.of(0x00, 0x01, 0x02, 0x03, 0x02, 0x04, 0x05)
   );
 });
 
@@ -51,7 +50,7 @@ test('CommandApdu data length validation', () => {
         ins: 0x01,
         p1: 0x02,
         p2: 0x03,
-        data: Buffer.from(numericArray({ length: 256 })),
+        data: Buffer.alloc(256),
       })
   ).toThrow('APDU data exceeds max command APDU data length');
 });
@@ -61,7 +60,7 @@ test('CommandApdu as hex string', () => {
     ins: 0xa1,
     p1: 0xb2,
     p2: 0xc3,
-    data: Buffer.from([0xd4, 0xe5]),
+    data: Buffer.of(0xd4, 0xe5),
   });
   expect(apdu.asHexString()).toEqual('00a1b2c302d4e5');
   expect(apdu.asHexString(':')).toEqual('00:a1:b2:c3:02:d4:e5');
@@ -74,7 +73,7 @@ test('CardCommand with no data', () => {
     p2: 0x03,
   });
   expect(command.asCommandApdus().map((apdu) => apdu.asBuffer())).toEqual([
-    Buffer.from([0x00, 0x01, 0x02, 0x03, 0x00]),
+    Buffer.of(0x00, 0x01, 0x02, 0x03, 0x00),
   ]);
 });
 
@@ -83,17 +82,10 @@ test('CardCommand with data requiring a single APDU', () => {
     ins: 0x01,
     p1: 0x02,
     p2: 0x03,
-    data: Buffer.from(numericArray({ length: 255 })),
+    data: Buffer.alloc(255),
   });
   expect(command.asCommandApdus().map((apdu) => apdu.asBuffer())).toEqual([
-    Buffer.from([
-      0x00,
-      0x01,
-      0x02,
-      0x03,
-      0xff,
-      ...numericArray({ length: 255 }),
-    ]),
+    Buffer.concat([Buffer.of(0x00, 0x01, 0x02, 0x03, 0xff), Buffer.alloc(255)]),
   ]);
 });
 
@@ -102,53 +94,44 @@ test('CardCommand with data requiring multiple APDUs', () => {
     ins: 0x01,
     p1: 0x02,
     p2: 0x03,
-    data: Buffer.from([
-      ...numericArray({ length: 200, value: 1 }),
-      ...numericArray({ length: 200, value: 2 }),
-      ...numericArray({ length: 200, value: 3 }),
+    data: Buffer.concat([
+      Buffer.alloc(200, 1),
+      Buffer.alloc(200, 2),
+      Buffer.alloc(200, 3),
     ]),
   });
   expect(command.asCommandApdus().map((apdu) => apdu.asBuffer())).toEqual([
-    Buffer.from([
-      0x10,
-      0x01,
-      0x02,
-      0x03,
-      0xff,
-      ...numericArray({ length: 200, value: 1 }),
-      ...numericArray({ length: 55, value: 2 }),
+    Buffer.concat([
+      Buffer.of(0x10, 0x01, 0x02, 0x03, 0xff),
+      Buffer.alloc(200, 1),
+      Buffer.alloc(55, 2),
     ]),
-    Buffer.from([
-      0x10,
-      0x01,
-      0x02,
-      0x03,
-      0xff,
-      ...numericArray({ length: 145, value: 2 }),
-      ...numericArray({ length: 110, value: 3 }),
+    Buffer.concat([
+      Buffer.of(0x10, 0x01, 0x02, 0x03, 0xff),
+      Buffer.alloc(145, 2),
+      Buffer.alloc(110, 3),
     ]),
-    Buffer.from([
-      0x00,
-      0x01,
-      0x02,
-      0x03,
-      0x5a, // 90 (600 - 255 - 255) in hex
-      ...numericArray({ length: 90, value: 3 }),
+    Buffer.concat([
+      Buffer.from([
+        0x00,
+        0x01,
+        0x02,
+        0x03,
+        0x5a, // 90 (600 - 255 - 255) in hex
+      ]),
+      Buffer.alloc(90, 3),
     ]),
   ]);
 });
 
 test('constructTlv with Byte tag', () => {
-  const tlv = constructTlv(0x01, Buffer.from([0x02, 0x03]));
-  expect(tlv).toEqual(Buffer.from([0x01, 0x02, 0x02, 0x03]));
+  const tlv = constructTlv(0x01, Buffer.of(0x02, 0x03));
+  expect(tlv).toEqual(Buffer.of(0x01, 0x02, 0x02, 0x03));
 });
 
 test('constructTlv with Buffer tag', () => {
-  const tlv = constructTlv(
-    Buffer.from([0x01, 0x02]),
-    Buffer.from([0x03, 0x04])
-  );
-  expect(tlv).toEqual(Buffer.from([0x01, 0x02, 0x02, 0x03, 0x04]));
+  const tlv = constructTlv(Buffer.of(0x01, 0x02), Buffer.of(0x03, 0x04));
+  expect(tlv).toEqual(Buffer.of(0x01, 0x02, 0x02, 0x03, 0x04));
 });
 
 test.each<{ valueLength: number; expectedTlvLength: Byte[] }>([
@@ -161,16 +144,16 @@ test.each<{ valueLength: number; expectedTlvLength: Byte[] }>([
 ])(
   'constructTlv value length handling - $valueLength',
   ({ valueLength, expectedTlvLength }) => {
-    const value = numericArray({ length: valueLength });
+    const value = Buffer.alloc(valueLength);
     const tlv = constructTlv(0x01, Buffer.from(value));
     expect(tlv).toEqual(Buffer.from([0x01, ...expectedTlvLength, ...value]));
   }
 );
 
 test('constructTlv value length validation', () => {
-  expect(() =>
-    constructTlv(0x01, Buffer.from(numericArray({ length: 65536 })))
-  ).toThrow('TLV value is too large');
+  expect(() => constructTlv(0x01, Buffer.alloc(65536))).toThrow(
+    'TLV value is too large'
+  );
 });
 
 test.each<{
@@ -180,45 +163,30 @@ test.each<{
 }>([
   {
     tagAsByteOrBuffer: 0x01,
-    tlv: Buffer.from([0x01, 0x7f, ...numericArray({ length: 127 })]),
-    expectedOutput: [
-      Buffer.from([0x01]),
-      Buffer.from([0x7f]),
-      Buffer.from(numericArray({ length: 127 })),
-    ],
+    tlv: Buffer.concat([Buffer.of(0x01, 0x7f), Buffer.alloc(127)]),
+    expectedOutput: [Buffer.of(0x01), Buffer.of(0x7f), Buffer.alloc(127)],
   },
   {
     tagAsByteOrBuffer: 0x01,
-    tlv: Buffer.from([0x01, 0x81, 0xff, ...numericArray({ length: 255 })]),
-    expectedOutput: [
-      Buffer.from([0x01]),
-      Buffer.from([0x81, 0xff]),
-      Buffer.from(numericArray({ length: 255 })),
-    ],
+    tlv: Buffer.concat([Buffer.of(0x01, 0x81, 0xff), Buffer.alloc(255)]),
+    expectedOutput: [Buffer.of(0x01), Buffer.of(0x81, 0xff), Buffer.alloc(255)],
   },
   {
     tagAsByteOrBuffer: 0x01,
-    tlv: Buffer.from([
-      0x01,
-      0x82,
-      0xff,
-      0xff,
-      ...numericArray({ length: 65535 }),
+    tlv: Buffer.concat([
+      Buffer.of(0x01, 0x82, 0xff, 0xff),
+      Buffer.alloc(65535),
     ]),
     expectedOutput: [
-      Buffer.from([0x01]),
-      Buffer.from([0x82, 0xff, 0xff]),
-      Buffer.from(numericArray({ length: 65535 })),
+      Buffer.of(0x01),
+      Buffer.of(0x82, 0xff, 0xff),
+      Buffer.alloc(65535),
     ],
   },
   {
-    tagAsByteOrBuffer: Buffer.from([0x01, 0x02]),
-    tlv: Buffer.from([0x01, 0x02, 0x01, 0x00]),
-    expectedOutput: [
-      Buffer.from([0x01, 0x02]),
-      Buffer.from([0x01]),
-      Buffer.from([0x00]),
-    ],
+    tagAsByteOrBuffer: Buffer.of(0x01, 0x02),
+    tlv: Buffer.of(0x01, 0x02, 0x01, 0x00),
+    expectedOutput: [Buffer.of(0x01, 0x02), Buffer.of(0x01), Buffer.of(0x00)],
   },
 ])('parseTlv', ({ tagAsByteOrBuffer, tlv, expectedOutput }) => {
   expect(parseTlv(tagAsByteOrBuffer, tlv)).toEqual(expectedOutput);

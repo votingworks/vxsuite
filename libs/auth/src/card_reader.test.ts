@@ -3,7 +3,6 @@ import EventEmitter from 'events';
 import pcscLite from 'pcsclite';
 import { mockOf } from '@votingworks/test-utils';
 
-import { numericArray } from '../test/utils';
 import {
   CardCommand,
   GET_RESPONSE,
@@ -63,41 +62,27 @@ beforeEach(() => {
 
 const simpleCommand = {
   command: new CardCommand({ ins: 0x01, p1: 0x02, p2: 0x03 }),
-  buffer: Buffer.from([0x00, 0x01, 0x02, 0x03, 0x00]),
+  buffer: Buffer.of(0x00, 0x01, 0x02, 0x03, 0x00),
 } as const;
 const commandWithLotsOfData = {
   command: new CardCommand({
     ins: 0x01,
     p1: 0x02,
     p2: 0x03,
-    data: Buffer.from(
-      numericArray({ length: MAX_COMMAND_APDU_DATA_LENGTH * 2 + 10 })
-    ),
+    data: Buffer.alloc(MAX_COMMAND_APDU_DATA_LENGTH * 2 + 10),
   }),
   buffers: [
-    Buffer.from([
-      0x10,
-      0x01,
-      0x02,
-      0x03,
-      MAX_COMMAND_APDU_DATA_LENGTH,
-      ...numericArray({ length: MAX_COMMAND_APDU_DATA_LENGTH }),
+    Buffer.concat([
+      Buffer.of(0x10, 0x01, 0x02, 0x03, MAX_COMMAND_APDU_DATA_LENGTH),
+      Buffer.alloc(MAX_COMMAND_APDU_DATA_LENGTH),
     ]),
-    Buffer.from([
-      0x10,
-      0x01,
-      0x02,
-      0x03,
-      MAX_COMMAND_APDU_DATA_LENGTH,
-      ...numericArray({ length: MAX_COMMAND_APDU_DATA_LENGTH }),
+    Buffer.concat([
+      Buffer.of(0x10, 0x01, 0x02, 0x03, MAX_COMMAND_APDU_DATA_LENGTH),
+      Buffer.alloc(MAX_COMMAND_APDU_DATA_LENGTH),
     ]),
-    Buffer.from([
-      0x00,
-      0x01,
-      0x02,
-      0x03,
-      0x0a, // 10 in hex
-      ...numericArray({ length: 10 }),
+    Buffer.concat([
+      Buffer.of(0x00, 0x01, 0x02, 0x03, 0x0a /* 10 in hex */),
+      Buffer.alloc(10),
     ]),
   ],
 } as const;
@@ -208,13 +193,11 @@ test('CardReader command transmission - success', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
-      Buffer.from([STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2])
+      Buffer.of(STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2)
     )
   );
 
-  expect(await cardReader.transmit(simpleCommand.command)).toEqual(
-    Buffer.from([])
-  );
+  expect(await cardReader.transmit(simpleCommand.command)).toEqual(Buffer.of());
 
   expect(mockPcscLiteReader.transmit).toHaveBeenCalledTimes(1);
   expect(mockPcscLiteReader.transmit).toHaveBeenNthCalledWith(
@@ -230,10 +213,7 @@ test('CardReader command transmission - response APDU with error status word', a
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
-      Buffer.from([
-        STATUS_WORD.FILE_NOT_FOUND.SW1,
-        STATUS_WORD.FILE_NOT_FOUND.SW2,
-      ])
+      Buffer.of(STATUS_WORD.FILE_NOT_FOUND.SW1, STATUS_WORD.FILE_NOT_FOUND.SW2)
     )
   );
 
@@ -257,7 +237,7 @@ test('CardReader command transmission - response APDU with error status word', a
 test('CardReader command transmission - response APDU with no status word', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
-    newMockTransmitSuccess(Buffer.from([]))
+    newMockTransmitSuccess(Buffer.of())
   );
 
   await expect(cardReader.transmit(simpleCommand.command)).rejects.toThrow();
@@ -276,22 +256,22 @@ test('CardReader command transmission - chained command', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
-      Buffer.from([STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2])
+      Buffer.of(STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2)
     )
   );
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
-      Buffer.from([STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2])
+      Buffer.of(STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2)
     )
   );
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
-      Buffer.from([0x00, STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2])
+      Buffer.of(0x00, STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2)
     )
   );
 
   expect(await cardReader.transmit(commandWithLotsOfData.command)).toEqual(
-    Buffer.from([0x00])
+    Buffer.of(0x00)
   );
 
   expect(mockPcscLiteReader.transmit).toHaveBeenCalledTimes(3);
@@ -322,27 +302,25 @@ test('CardReader command transmission - chained response', async () => {
   const cardReader = newCardReader('ready');
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
-      Buffer.from([
-        ...numericArray({ length: MAX_RESPONSE_APDU_DATA_LENGTH, value: 1 }),
-        STATUS_WORD.SUCCESS_MORE_DATA_AVAILABLE.SW1,
-        10,
+      Buffer.concat([
+        Buffer.alloc(MAX_RESPONSE_APDU_DATA_LENGTH, 1),
+        Buffer.of(STATUS_WORD.SUCCESS_MORE_DATA_AVAILABLE.SW1, 10),
       ])
     )
   );
   mockOf(mockPcscLiteReader.transmit).mockImplementationOnce(
     newMockTransmitSuccess(
-      Buffer.from([
-        ...numericArray({ length: 10, value: 2 }),
-        STATUS_WORD.SUCCESS.SW1,
-        STATUS_WORD.SUCCESS.SW2,
+      Buffer.concat([
+        Buffer.alloc(10, 2),
+        Buffer.of(STATUS_WORD.SUCCESS.SW1, STATUS_WORD.SUCCESS.SW2),
       ])
     )
   );
 
   expect(await cardReader.transmit(simpleCommand.command)).toEqual(
-    Buffer.from([
-      ...numericArray({ length: MAX_RESPONSE_APDU_DATA_LENGTH, value: 1 }),
-      ...numericArray({ length: 10, value: 2 }),
+    Buffer.concat([
+      Buffer.alloc(MAX_RESPONSE_APDU_DATA_LENGTH, 1),
+      Buffer.alloc(10, 2),
     ])
   );
 
@@ -356,13 +334,7 @@ test('CardReader command transmission - chained response', async () => {
   );
   expect(mockPcscLiteReader.transmit).toHaveBeenNthCalledWith(
     2,
-    Buffer.from([
-      0x00,
-      GET_RESPONSE.INS,
-      GET_RESPONSE.P1,
-      GET_RESPONSE.P2,
-      0x0a,
-    ]),
+    Buffer.of(0x00, GET_RESPONSE.INS, GET_RESPONSE.P1, GET_RESPONSE.P2, 0x0a),
     MAX_APDU_LENGTH,
     mockConnectProtocol,
     expect.anything()

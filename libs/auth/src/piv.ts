@@ -31,7 +31,7 @@ export const GENERATE_ASYMMETRIC_KEY_PAIR = {
   P1: 0x00,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG: 0xac,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TAG: 0x80,
-  RESPONSE_TAG: Buffer.from([0x7f, 0x49]),
+  RESPONSE_TAG: Buffer.of(0x7f, 0x49),
   RESPONSE_ECC_POINT_TAG: 0x86,
 } as const;
 
@@ -83,7 +83,7 @@ export const VERIFY = {
  * Data object IDs of the format 0x5f 0xc1 0xXX are a PIV convention.
  */
 export function pivDataObjectId(uniqueByte: Byte): Buffer {
-  return Buffer.from([0x5f, 0xc1, uniqueByte]);
+  return Buffer.of(0x5f, 0xc1, uniqueByte);
 }
 
 /**
@@ -92,7 +92,7 @@ export function pivDataObjectId(uniqueByte: Byte): Buffer {
 export function construct8BytePinBuffer(pin: string): Buffer {
   return Buffer.concat([
     Buffer.from(pin, 'utf-8'),
-    Buffer.from([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]), // Padding
+    Buffer.of(0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff), // Padding
   ]).subarray(0, 8);
 }
 
