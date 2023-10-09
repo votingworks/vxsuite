@@ -26,8 +26,8 @@ export const NODE_ENV = unsafeParse(
 /**
  * Where should the database and audio files go?
  */
-export const MARK_WORKSPACE =
-  process.env.MARK_WORKSPACE ??
+export const MARK_SCAN_WORKSPACE =
+  process.env.MARK_SCAN_WORKSPACE ??
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);

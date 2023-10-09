@@ -3,7 +3,7 @@ import fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import * as server from './server';
-import { MARK_WORKSPACE, NODE_ENV, PORT } from './globals';
+import { MARK_SCAN_WORKSPACE, NODE_ENV, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 
 export type { Api } from './app';
@@ -38,15 +38,15 @@ for (const dotenvFile of dotenvFiles) {
 const logger = new Logger(LogSource.VxMarkScanBackend);
 
 async function resolveWorkspace(): Promise<Workspace> {
-  const workspacePath = MARK_WORKSPACE;
+  const workspacePath = MARK_SCAN_WORKSPACE;
   if (!workspacePath) {
     await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
       message:
-        'workspace path could not be determined; pass a workspace or run with MARK_WORKSPACE',
+        'workspace path could not be determined; pass a workspace or run with MARK_SCAN_WORKSPACE',
       disposition: 'failure',
     });
     throw new Error(
-      'workspace path could not be determined; pass a workspace or run with MARK_WORKSPACE'
+      'workspace path could not be determined; pass a workspace or run with MARK_SCAN_WORKSPACE'
     );
   }
   return createWorkspace(workspacePath);
