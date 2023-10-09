@@ -183,13 +183,11 @@ async function* castVoteRecordGenerator(
         (imageRelativePath) =>
           path.join(castVoteRecordDirectoryPath, imageRelativePath)
       );
-      const imageFiles: SheetOf<ReferencedImageFile> = mapSheet(
-        [0, 1] as const,
-        (i) =>
-          new ReferencedImageFile({
-            expectedFileHash: imageHashes[i],
-            filePath: imagePaths[i],
-          })
+      const imageFiles = mapSheet(
+        imageHashes,
+        imagePaths,
+        (expectedFileHash, filePath) =>
+          new ReferencedImageFile({ expectedFileHash, filePath })
       );
 
       let layoutFiles: SheetOf<ReferencedLayoutFile> | undefined;
@@ -205,14 +203,18 @@ async function* castVoteRecordGenerator(
           castVoteRecord.BallotImage[0].vxLayoutFileHash,
           castVoteRecord.BallotImage[1].vxLayoutFileHash,
         ];
-        layoutFiles = mapSheet([0, 1] as const, (i) => {
-          const { dir, name } = path.parse(imagePaths[i]);
-          const layoutFilePath = path.join(dir, `${name}.layout.json`);
-          return new ReferencedLayoutFile({
-            expectedFileHash: layoutFileHashes[i],
-            filePath: layoutFilePath,
-          });
-        });
+        layoutFiles = mapSheet(
+          imagePaths,
+          layoutFileHashes,
+          (imagePath, expectedFileHash) => {
+            const { dir, name } = path.parse(imagePath);
+            const layoutFilePath = path.join(dir, `${name}.layout.json`);
+            return new ReferencedLayoutFile({
+              expectedFileHash,
+              filePath: layoutFilePath,
+            });
+          }
+        );
       }
 
       referencedFiles = { imageFiles, layoutFiles };
