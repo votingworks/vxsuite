@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { z } from 'zod';
 import {
   ContestId,
@@ -85,24 +85,110 @@ export type SheetOf<T> = readonly [T, T];
  */
 export function mapSheet<T, U>(
   sheet: SheetOf<T>,
-  fn: (page: T, side: Side) => Promise<U>
+  fn: (page: T, side: Side, index: 0 | 1) => Promise<U>
 ): Promise<SheetOf<U>>;
 export function mapSheet<T, U>(
   sheet: SheetOf<T>,
-  fn: (page: T, side: Side) => U
+  fn: (page: T, side: Side, index: 0 | 1) => U
 ): SheetOf<U>;
-export function mapSheet<T, U>(
-  sheet: SheetOf<T>,
-  fn: (page: T, side: Side) => U
-): SheetOf<U> | Promise<SheetOf<U>> {
-  const front = fn(sheet[0], 'front');
-  const back = fn(sheet[1], 'back');
+export function mapSheet<T, U, V>(
+  sheet1: SheetOf<T>,
+  sheet2: SheetOf<U>,
+  fn: (page1: T, page2: U, side: Side, index: 0 | 1) => Promise<V>
+): Promise<SheetOf<V>>;
+export function mapSheet<T, U, V>(
+  sheet1: SheetOf<T>,
+  sheet2: SheetOf<U>,
+  fn: (page1: T, page2: U, side: Side, index: 0 | 1) => V
+): SheetOf<V>;
+export function mapSheet<T, U, V, W>(
+  sheet1: SheetOf<T>,
+  sheet2: SheetOf<U>,
+  sheet3: SheetOf<W>,
+  fn: (page1: T, page2: U, page3: V, side: Side, index: 0 | 1) => Promise<W>
+): Promise<SheetOf<W>>;
+export function mapSheet<T, U, V, W>(
+  sheet1: SheetOf<T>,
+  sheet2: SheetOf<U>,
+  sheet3: SheetOf<V>,
+  fn: (page1: T, page2: U, page3: V, side: Side, index: 0 | 1) => W
+): SheetOf<W>;
+export function mapSheet<T, U, V, W, X>(
+  sheet1: SheetOf<T>,
+  sheet2: SheetOf<U>,
+  sheet3: SheetOf<V>,
+  sheet4: SheetOf<W>,
+  fn: (
+    page1: T,
+    page2: U,
+    page3: V,
+    page4: W,
+    side: Side,
+    index: 0 | 1
+  ) => Promise<X>
+): Promise<SheetOf<W>>;
+export function mapSheet<T, U, V, W, X>(
+  sheet1: SheetOf<T>,
+  sheet2: SheetOf<U>,
+  sheet3: SheetOf<V>,
+  sheet4: SheetOf<W>,
+  fn: (page1: T, page2: U, page3: V, page4: W, side: Side, index: 0 | 1) => X
+): SheetOf<X>;
+export function mapSheet<T, U, V, W, X, Y>(
+  sheet1: SheetOf<T>,
+  sheet2: SheetOf<U>,
+  sheet3: SheetOf<V>,
+  sheet4: SheetOf<W>,
+  sheet5: SheetOf<X>,
+  fn: (
+    page1: T,
+    page2: U,
+    page3: V,
+    page4: W,
+    page5: X,
+    side: Side,
+    index: 0 | 1
+  ) => Promise<Y>
+): Promise<SheetOf<Y>>;
+export function mapSheet<T, U, V, W, X, Y>(
+  sheet1: SheetOf<T>,
+  sheet2: SheetOf<U>,
+  sheet3: SheetOf<V>,
+  sheet4: SheetOf<W>,
+  sheet5: SheetOf<X>,
+  fn: (
+    page1: T,
+    page2: U,
+    page3: V,
+    page4: W,
+    page5: X,
+    side: Side,
+    index: 0 | 1
+  ) => Y
+): SheetOf<Y>;
+export function mapSheet<F extends (...args: unknown[]) => unknown>(
+  ...args: [...sheets: Array<SheetOf<unknown>>, fn: F]
+): SheetOf<unknown> | Promise<SheetOf<unknown>> {
+  const fn = assertDefined(args.pop()) as unknown as (
+    ...args: [...pages: readonly unknown[], side: Side, index: 0 | 1]
+  ) => unknown | Promise<unknown>;
+  const sheets = args as ReadonlyArray<SheetOf<unknown>>;
+  const front = fn(
+    ...(sheets.map((sheet) => sheet[0]) as readonly unknown[]),
+    'front',
+    0
+  );
+  const back = fn(
+    ...(sheets.map((sheet) => sheet[1]) as readonly unknown[]),
+    'back',
+    1
+  );
 
   if (
     front &&
     back &&
-    typeof (front as unknown as PromiseLike<U>).then === 'function' &&
-    typeof (back as unknown as PromiseLike<U>).then === 'function'
+    typeof (front as unknown as PromiseLike<unknown>).then === 'function' &&
+    typeof (back as unknown as PromiseLike<unknown>).then === 'function'
   ) {
     return Promise.all([front, back]);
   }
