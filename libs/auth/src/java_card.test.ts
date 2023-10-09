@@ -917,7 +917,7 @@ test('Data reading', async () => {
   mockCardAppletSelectionRequest();
   mockCardGetDataRequest(
     GENERIC_STORAGE_SPACE.OBJECT_IDS[0],
-    Buffer.concat([Buffer.alloc(25000).fill(1), Buffer.alloc(7763, 2)])
+    Buffer.concat([Buffer.alloc(25000, 1), Buffer.alloc(7763, 2)])
   );
   mockCardGetDataRequest(
     GENERIC_STORAGE_SPACE.OBJECT_IDS[1],
