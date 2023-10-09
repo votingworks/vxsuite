@@ -283,7 +283,7 @@ test('adding a file with BMD cast vote records', async () => {
   expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(0);
 });
 
-test('adding a duplicate file returns OK to client but logs an error', async () => {
+test('handles duplicate exports', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
@@ -363,6 +363,73 @@ test('handles file with previously added entries by adding only the new entries'
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(2);
   await expectCastVoteRecordCount(apiClient, 20);
 });
+
+test(
+  'handles an export that is not a perfect duplicate of another export ' +
+    'but ultimately does not contain any new cast vote records',
+  async () => {
+    const { apiClient, auth } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionDefinition);
+    mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+    const export1DirectoryPath = await modifyCastVoteRecordExport(
+      castVoteRecordExport.asDirectoryPath(),
+      { numCastVoteRecordsToKeep: 10 }
+    );
+    const export2DirectoryPath = await modifyCastVoteRecordExport(
+      castVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordReportMetadataModifier: (
+          castVoteRecordReportMetadata
+        ) => {
+          const modifiedGeneratedDate = new Date(
+            castVoteRecordReportMetadata.GeneratedDate
+          );
+          modifiedGeneratedDate.setMinutes(
+            modifiedGeneratedDate.getMinutes() + 10
+          );
+          return {
+            ...castVoteRecordReportMetadata,
+            GeneratedDate: modifiedGeneratedDate.toISOString(),
+          };
+        },
+        numCastVoteRecordsToKeep: 10,
+      }
+    );
+
+    expect(
+      await apiClient.addCastVoteRecordFile({ path: export1DirectoryPath })
+    ).toEqual(
+      ok(
+        expect.objectContaining({
+          alreadyPresent: 0,
+          fileMode: 'test',
+          fileName: basename(export1DirectoryPath),
+          newlyAdded: 10,
+          wasExistingFile: false,
+        })
+      )
+    );
+    expect(
+      await apiClient.addCastVoteRecordFile({ path: export2DirectoryPath })
+    ).toEqual(
+      ok(
+        expect.objectContaining({
+          alreadyPresent: 10,
+          fileMode: 'test',
+          fileName: basename(export2DirectoryPath),
+          newlyAdded: 0,
+          wasExistingFile: false,
+        })
+      )
+    );
+
+    // Ensure that the second export is returned when retrieving exports, even though no new cast
+    // vote records were added because of it
+    const castVoteRecordExports = await apiClient.getCastVoteRecordFiles();
+    expect(castVoteRecordExports).toHaveLength(2);
+  }
+);
 
 test('error if path to report is not valid', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
