@@ -91,11 +91,11 @@ export async function computeSingleCastVoteRecordHash(
   // Ensure that a directory path wasn't accidentally provided instead of a directory name
   assert(!cvrDirectoryName.includes('/'));
 
-  const cvrReportPath = path.join(
+  const cvrReportPathRelativeToExportRoot = path.join(
     cvrDirectoryName,
     CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
   );
-  const cvrDirectorySummary = `${await cvrReportFile.computeSha256Hash()}  ${cvrReportPath}\n`;
+  const cvrDirectorySummary = `${await cvrReportFile.computeSha256Hash()}  ${cvrReportPathRelativeToExportRoot}\n`;
   return sha256(cvrDirectorySummary);
 }
 
