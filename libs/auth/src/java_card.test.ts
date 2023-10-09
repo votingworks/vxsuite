@@ -932,7 +932,7 @@ test('Data reading', async () => {
   );
 
   expect(await javaCard.readData()).toEqual(
-    Buffer.concat([Buffer.alloc(25000).fill(1), Buffer.alloc(25000, 2)])
+    Buffer.concat([Buffer.alloc(25000, 1), Buffer.alloc(25000, 2)])
   );
 });
 
