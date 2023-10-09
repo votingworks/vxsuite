@@ -1,4 +1,3 @@
-/* c8 ignore start */
 import { sha256 } from 'js-sha256';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
@@ -21,7 +20,9 @@ import {
   BallotId,
   CVR,
   ElectionDefinition,
+  getBallotStyle,
   getContests,
+  getPrecinctById,
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import {
@@ -29,8 +30,6 @@ import {
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
-  getBallotStyleById,
-  getPrecinctById,
   isFeatureFlagEnabled,
   parseCastVoteRecordReportExportDirectoryName,
   SCANNER_RESULTS_FOLDER,
@@ -69,18 +68,18 @@ function validateCastVoteRecordAgainstElectionDefinition(
     return wrapError({ subType: 'election-mismatch' });
   }
 
-  const precinct = getPrecinctById(
-    electionDefinition,
-    castVoteRecord.BallotStyleUnitId
-  );
+  const precinct = getPrecinctById({
+    election: electionDefinition.election,
+    precinctId: castVoteRecord.BallotStyleUnitId,
+  });
   if (!precinct) {
     return wrapError({ subType: 'precinct-not-found' });
   }
 
-  const ballotStyle = getBallotStyleById(
-    electionDefinition,
-    castVoteRecord.BallotStyleId
-  );
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: castVoteRecord.BallotStyleId,
+    election: electionDefinition.election,
+  });
   if (!ballotStyle) {
     return wrapError({ subType: 'ballot-style-not-found' });
   }
@@ -97,17 +96,20 @@ function validateCastVoteRecordAgainstElectionDefinition(
 }
 
 /**
+ * The return type of {@link listCastVoteRecordExportsOnUsbDrive}
+ */
+export type ListCastVoteRecordExportsOnUsbDriveResult = Result<
+  CastVoteRecordFileMetadata[],
+  'found-file-instead-of-directory' | 'no-usb-drive' | 'permission-denied'
+>;
+
+/**
  * Lists the cast vote record exports on the inserted USB drive
  */
 export async function listCastVoteRecordExportsOnUsbDrive(
   usbDrive: UsbDrive,
   electionDefinition: ElectionDefinition
-): Promise<
-  Result<
-    CastVoteRecordFileMetadata[],
-    'found-file-instead-of-directory' | 'no-usb-drive' | 'permission-denied'
-  >
-> {
+): Promise<ListCastVoteRecordExportsOnUsbDriveResult> {
   const { election, electionHash } = electionDefinition;
 
   const listDirectoryResult = await listDirectoryOnUsbDrive(
@@ -130,12 +132,16 @@ export async function listCastVoteRecordExportsOnUsbDrive(
       case 'not-directory': {
         return err('found-file-instead-of-directory');
       }
+      /* c8 ignore start: Hard to trigger without significant mocking */
       case 'permission-denied': {
         return err('permission-denied');
       }
+      /* c8 ignore stop */
+      /* c8 ignore start: Compile-time check for completeness */
       default: {
         throwIllegalValue(errorType);
       }
+      /* c8 ignore stop */
     }
   }
 
@@ -377,4 +383,3 @@ export async function importCastVoteRecords(
     });
   });
 }
-/* c8 ignore stop */
