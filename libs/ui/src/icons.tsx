@@ -31,6 +31,7 @@ import {
   faCaretDown,
   faCirclePlus,
   faRotateRight,
+  faCircleQuestion,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -167,6 +168,10 @@ export const Icons = {
 
   Previous(): JSX.Element {
     return <FaIcon type={faCircleLeft} />;
+  },
+
+  Question(): JSX.Element {
+    return <FaIcon type={faCircleQuestion} />;
   },
 
   RightChevron(): JSX.Element {

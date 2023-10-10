@@ -21,7 +21,9 @@ import {
   InterpretedBmdPage,
 } from '@votingworks/types';
 import {
+  BooleanEnvironmentVariableName,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
@@ -181,8 +183,23 @@ export function buildApi(
     },
 
     setAcceptingPaperState(): void {
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+        )
+      ) {
+        return;
+      }
+
       assert(stateMachine);
+
       stateMachine.setAcceptingPaper();
+    },
+
+    setPatDeviceIsCalibrated(): void {
+      assert(stateMachine, 'No state machine');
+
+      stateMachine.setPatDeviceIsCalibrated();
     },
 
     printBallot(input: { pdfData: Buffer }): void {

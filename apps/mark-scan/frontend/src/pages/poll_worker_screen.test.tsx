@@ -4,7 +4,12 @@ import {
 } from '@votingworks/fixtures';
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
-import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  MemoryHardware,
+  getFeatureFlagMock,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
@@ -28,6 +33,14 @@ import {
 const { election } = electionGeneralDefinition;
 
 let apiMock: ApiMock;
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -213,4 +226,23 @@ test('returns null if status is unhandled', () => {
 
   expect(screen.queryByText('Paper has been loaded.')).toBeNull();
   expect(screen.queryByText('Poll Worker Actions')).toBeNull();
+});
+
+test('renders a warning screen when hardware check is off', async () => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+  );
+
+  const electionDefinition = electionGeneralDefinition;
+  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  apiMock.setPaperHandlerState('no_hardware');
+
+  renderScreen({
+    pollsState: 'polls_open',
+    pollWorkerAuth,
+    machineConfig: fakeMachineConfig(),
+    electionDefinition,
+  });
+
+  await screen.findByText('Hardware Check Disabled');
 });

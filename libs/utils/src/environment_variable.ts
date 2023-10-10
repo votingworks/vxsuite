@@ -45,6 +45,8 @@ export enum BooleanEnvironmentVariableName {
   // Disables the ballot box check on VxMarkScan. If false, the app will block until the ballot
   // box is attached
   DISABLE_BALLOT_BOX_CHECK = 'REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK',
+  // Allows VxMarkScan to run without a connection to the Custom paper handler
+  SKIP_PAPER_HANDLER_HARDWARE_CHECK = 'REACT_APP_VX_SKIP_PAPER_HANDLER_HARDWARE_CHECK',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -105,12 +107,14 @@ export function getEnvironmentVariable(
     case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA:
       return process.env
         .REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA;
-    case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
-      return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
       return process.env.REACT_APP_VX_PRECINCT_REPORT_DESTINATION;
+    case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
+      return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
+    case BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK:
+      return process.env.REACT_APP_VX_SKIP_PAPER_HANDLER_HARDWARE_CHECK;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -216,6 +220,12 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: false,
         autoEnableInDevelopment: true,
+      };
+    case BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
       };
     /* c8 ignore next 2 */
     default:

@@ -2,8 +2,17 @@ import { Server } from 'http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-import { isIntegrationTest } from '@votingworks/utils';
+import makeDebug from 'debug';
+import {
+  getPaperHandlerDriver,
+  MockPaperHandlerDriver,
+  PaperHandlerDriverInterface,
+} from '@votingworks/custom-paper-handler';
+import {
+  isIntegrationTest,
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { detectUsbDrive, MockFileUsbDrive } from '@votingworks/usb-drive';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
@@ -14,8 +23,10 @@ import {
 import { getDefaultAuth } from './util/auth';
 import {
   DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
-  DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
+  DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
 } from './custom-paper-handler/constants';
+
+const debug = makeDebug('mark-scan:server');
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -24,6 +35,24 @@ export interface StartOptions {
   workspace: Workspace;
   // Allow undefined state machine to fail gracefully if no connection to paper handler
   stateMachine?: PaperHandlerStateMachine;
+}
+
+async function resolveDriver(): Promise<
+  PaperHandlerDriverInterface | undefined
+> {
+  const driver = await getPaperHandlerDriver();
+
+  if (
+    isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+    ) &&
+    !driver
+  ) {
+    debug('No paper handler found. Starting server with mock driver');
+    return new MockPaperHandlerDriver();
+  }
+
+  return driver;
 }
 
 /**
@@ -37,18 +66,19 @@ export async function start({
 }: StartOptions): Promise<Server> {
   /* istanbul ignore next */
   const resolvedAuth = auth ?? getDefaultAuth(logger);
+  const driver = await resolveDriver();
 
-  const paperHandlerDriver = await getPaperHandlerDriver();
-  const stateMachine = paperHandlerDriver
-    ? await getPaperHandlerStateMachine(
-        paperHandlerDriver,
-        workspace,
-        resolvedAuth,
-        logger,
-        DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS,
-        DEV_AUTH_STATUS_POLLING_INTERVAL_MS
-      )
-    : undefined;
+  let stateMachine;
+  if (driver) {
+    stateMachine = await getPaperHandlerStateMachine({
+      workspace,
+      auth: resolvedAuth,
+      logger,
+      driver,
+      devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+      authPollingIntervalMs: DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
+    });
+  }
 
   const usbDrive = isIntegrationTest()
     ? new MockFileUsbDrive()

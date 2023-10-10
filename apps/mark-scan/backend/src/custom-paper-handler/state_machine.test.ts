@@ -3,6 +3,7 @@ import {
   PaperHandlerDriver,
   MinimalWebUsbDevice,
   PaperHandlerStatus,
+  defaultPaperHandlerStatus,
 } from '@votingworks/custom-paper-handler';
 import { dirSync } from 'tmp';
 import { Logger, fakeLogger } from '@votingworks/logging';
@@ -12,7 +13,6 @@ import {
   getPaperHandlerStateMachine,
 } from './state_machine';
 import { Workspace, createWorkspace } from '../util/workspace';
-import { defaultPaperHandlerStatus } from '../../test/app_helpers';
 
 // Use shorter polling interval in tests to reduce run times
 const TEST_POLLING_INTERVAL_MS = 10;
@@ -44,13 +44,14 @@ beforeEach(async () => {
     .spyOn(driver, 'getPaperHandlerStatus')
     .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
 
-  machine = (await getPaperHandlerStateMachine(
-    driver,
+  machine = (await getPaperHandlerStateMachine({
     workspace,
     auth,
     logger,
-    TEST_POLLING_INTERVAL_MS
-  )) as PaperHandlerStateMachine;
+    driver,
+    devicePollingIntervalMs: TEST_POLLING_INTERVAL_MS,
+    authPollingIntervalMs: TEST_POLLING_INTERVAL_MS,
+  })) as PaperHandlerStateMachine;
 });
 
 afterEach(() => {

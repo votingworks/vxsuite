@@ -349,3 +349,15 @@ export const confirmInvalidateBallot = {
     });
   },
 } as const;
+
+export const setPatDeviceIsCalibrated = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPatDeviceIsCalibrated, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
+    });
+  },
+} as const;

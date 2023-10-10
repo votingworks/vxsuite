@@ -11,6 +11,7 @@ export type SimpleStatus =
   | 'loading_paper'
   | 'not_accepting_paper'
   | 'paper_reloaded'
+  | 'pat_device_connected'
   | 'presenting_ballot'
   | 'printing_ballot'
   | 'resetting_state_machine_after_jam'
@@ -31,6 +32,7 @@ export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('loading_paper'),
   z.literal('not_accepting_paper'),
   z.literal('paper_reloaded'),
+  z.literal('pat_device_connected'),
   z.literal('presenting_ballot'),
   z.literal('printing_ballot'),
   z.literal('resetting_state_machine_after_jam'),
