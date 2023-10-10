@@ -11,7 +11,7 @@ import {
   ReadCastVoteRecordError,
 } from '@votingworks/types';
 
-import { ReferencedImageFile, ReferencedLayoutFile } from './referenced_files';
+import { referencedImageFile, referencedLayoutFile } from './referenced_files';
 
 const imageContents = Buffer.of();
 const expectedImageHash = sha256(imageContents);
@@ -102,10 +102,10 @@ test.each<{
     }),
   },
 ])(
-  'ReferencedImageFile',
+  'referencedImageFile',
   async ({ setupFn, inputGenerator, expectedOutput }) => {
     setupFn?.();
-    const imageFile = new ReferencedImageFile(inputGenerator());
+    const imageFile = referencedImageFile(inputGenerator());
     expect(await imageFile.read()).toEqual(expectedOutput);
   }
 );
@@ -164,10 +164,10 @@ test.each<{
     }),
   },
 ])(
-  'ReferencedLayoutFile',
+  'referencedLayoutFile',
   async ({ setupFn, inputGenerator, expectedOutput }) => {
     setupFn?.();
-    const layoutFile = new ReferencedLayoutFile(inputGenerator());
+    const layoutFile = referencedLayoutFile(inputGenerator());
     expect(await layoutFile.read()).toEqual(expectedOutput);
   }
 );

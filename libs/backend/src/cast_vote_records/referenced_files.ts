@@ -1,6 +1,6 @@
-/* eslint-disable max-classes-per-file */
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
+import { sha256 } from 'js-sha256';
 import {
   err,
   isNonExistentFileOrDirectoryError,
@@ -11,10 +11,10 @@ import {
   BallotPageLayout,
   BallotPageLayoutSchema,
   ReadCastVoteRecordError,
+  ReferencedFileType,
   safeParseJson,
   SheetOf,
 } from '@votingworks/types';
-import { sha256 } from 'js-sha256';
 
 /**
  * A file referenced by a cast vote record report
@@ -31,93 +31,88 @@ export interface ReferencedFiles {
   layoutFiles?: SheetOf<ReferencedFile<BallotPageLayout>>;
 }
 
+function referencedFile(input: {
+  expectedFileHash: string;
+  filePath: string;
+  fileType: ReferencedFileType;
+}): ReferencedFile<Buffer> {
+  return {
+    read: async () => {
+      let fileContents: Buffer;
+      try {
+        fileContents = await fs.readFile(input.filePath);
+      } catch (error) {
+        if (isNonExistentFileOrDirectoryError(error)) {
+          return err({
+            type: 'invalid-cast-vote-record',
+            subType: `${input.fileType}-not-found`,
+          });
+        }
+        return err({
+          type: 'invalid-cast-vote-record',
+          subType: `${input.fileType}-read-error`,
+        });
+      }
+
+      if (sha256(fileContents) !== input.expectedFileHash) {
+        return err({
+          type: 'invalid-cast-vote-record',
+          subType: `incorrect-${input.fileType}-hash`,
+        });
+      }
+
+      return ok(fileContents);
+    },
+  };
+}
+
 /**
  * An image referenced by a cast vote record report. When read, the image's hash will be checked
  * against the hash in the cast vote record report.
  */
-export class ReferencedImageFile implements ReferencedFile<Buffer> {
-  private readonly expectedFileHash: string;
-  private readonly filePath: string;
-
-  constructor(input: { expectedFileHash: string; filePath: string }) {
-    this.expectedFileHash = input.expectedFileHash;
-    this.filePath = input.filePath;
-  }
-
-  async read(): Promise<Result<Buffer, ReadCastVoteRecordError>> {
-    let fileContents: Buffer;
-    try {
-      fileContents = await fs.readFile(this.filePath);
-    } catch (error) {
-      if (isNonExistentFileOrDirectoryError(error)) {
-        return err({
-          type: 'invalid-cast-vote-record',
-          subType: 'image-not-found',
-        });
-      }
-      return err({
-        type: 'invalid-cast-vote-record',
-        subType: 'image-read-error',
-      });
-    }
-
-    if (sha256(fileContents) !== this.expectedFileHash) {
-      return err({
-        type: 'invalid-cast-vote-record',
-        subType: 'incorrect-image-hash',
-      });
-    }
-
-    return ok(fileContents);
-  }
+export function referencedImageFile(input: {
+  expectedFileHash: string;
+  filePath: string;
+}): ReferencedFile<Buffer> {
+  return referencedFile({
+    ...input,
+    fileType: 'image',
+  });
 }
 
 /**
- * A layout file referenced by a cast vote record report. When read, the layout file's hash will be
- * checked against the hash in the cast vote record report.
+ * An layout file referenced by a cast vote record report. When read, the layout file's hash will
+ * be checked against the hash in the cast vote record report.
  */
-export class ReferencedLayoutFile implements ReferencedFile<BallotPageLayout> {
-  private readonly expectedFileHash: string;
-  private readonly filePath: string;
+export function referencedLayoutFile(input: {
+  expectedFileHash: string;
+  filePath: string;
+}): ReferencedFile<BallotPageLayout> {
+  const file = referencedFile({
+    ...input,
+    fileType: 'layout-file',
+  });
+  return {
+    read: async () => {
+      const readResult = await file.read();
+      if (readResult.isErr()) {
+        return readResult;
+      }
+      const layoutFileContents = readResult.ok().toString('utf-8');
 
-  constructor(input: { expectedFileHash: string; filePath: string }) {
-    this.expectedFileHash = input.expectedFileHash;
-    this.filePath = input.filePath;
-  }
-
-  async read(): Promise<Result<BallotPageLayout, ReadCastVoteRecordError>> {
-    let fileContents: string;
-    try {
-      fileContents = await fs.readFile(this.filePath, 'utf-8');
-    } catch (error) {
-      if (isNonExistentFileOrDirectoryError(error)) {
+      const parseResult = safeParseJson(
+        layoutFileContents,
+        BallotPageLayoutSchema
+      );
+      if (parseResult.isErr()) {
         return err({
           type: 'invalid-cast-vote-record',
-          subType: 'layout-file-not-found',
+          subType: 'layout-file-parse-error',
         });
       }
-      return err({
-        type: 'invalid-cast-vote-record',
-        subType: 'layout-file-read-error',
-      });
-    }
+      const layout = parseResult.ok();
 
-    if (sha256(fileContents) !== this.expectedFileHash) {
-      return err({
-        type: 'invalid-cast-vote-record',
-        subType: 'incorrect-layout-file-hash',
-      });
-    }
-
-    const parseResult = safeParseJson(fileContents, BallotPageLayoutSchema);
-    if (parseResult.isErr()) {
-      return err({
-        type: 'invalid-cast-vote-record',
-        subType: 'layout-file-parse-error',
-      });
-    }
-    const layout = parseResult.ok();
-
-    return ok(layout);
-  }
+      return ok(layout);
+    },
+  };
 }

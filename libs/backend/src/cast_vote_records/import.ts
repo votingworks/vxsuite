@@ -12,6 +12,7 @@ import {
   Result,
 } from '@votingworks/basics';
 import {
+  BallotPageLayout,
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CastVoteRecordExportMetadataSchema,
@@ -37,9 +38,10 @@ import {
 
 import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
 import {
+  ReferencedFile,
   ReferencedFiles,
-  ReferencedImageFile,
-  ReferencedLayoutFile,
+  referencedImageFile,
+  referencedLayoutFile,
 } from './referenced_files';
 
 interface CastVoteRecordAndReferencedFiles {
@@ -187,10 +189,10 @@ async function* castVoteRecordGenerator(
         imageHashes,
         imagePaths,
         (expectedFileHash, filePath) =>
-          new ReferencedImageFile({ expectedFileHash, filePath })
+          referencedImageFile({ expectedFileHash, filePath })
       );
 
-      let layoutFiles: SheetOf<ReferencedLayoutFile> | undefined;
+      let layoutFiles: SheetOf<ReferencedFile<BallotPageLayout>> | undefined;
       if (isHandMarkedPaperBallot) {
         if (
           !castVoteRecord.BallotImage[0]?.vxLayoutFileHash ||
@@ -214,7 +216,7 @@ async function* castVoteRecordGenerator(
           layoutFileHashes,
           layoutFilePaths,
           (expectedFileHash, filePath) =>
-            new ReferencedLayoutFile({ expectedFileHash, filePath })
+            referencedLayoutFile({ expectedFileHash, filePath })
         );
       }
 

@@ -131,7 +131,7 @@ export type ReadCastVoteRecordExportError =
   | ReadCastVoteRecordExportMetadataError
   | { type: 'authentication-error' };
 
-type ReferencedFile = 'image' | 'layout-file';
+export type ReferencedFileType = 'image' | 'layout-file';
 
 /**
  * An error encountered while reading an individual cast vote record
@@ -144,7 +144,7 @@ export type ReadCastVoteRecordError = { type: 'invalid-cast-vote-record' } & (
   | { subType: 'layout-file-parse-error' }
   | { subType: 'no-current-snapshot' }
   | { subType: 'parse-error' }
-  | { subType: `${ReferencedFile}-not-found` }
-  | { subType: `${ReferencedFile}-read-error` }
-  | { subType: `incorrect-${ReferencedFile}-hash` }
+  | { subType: `${ReferencedFileType}-not-found` }
+  | { subType: `${ReferencedFileType}-read-error` }
+  | { subType: `incorrect-${ReferencedFileType}-hash` }
 );
