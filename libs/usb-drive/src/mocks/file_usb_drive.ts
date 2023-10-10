@@ -133,16 +133,16 @@ export function getMockFileUsbDriveHandler(): MockFileUsbDriveHandler {
       return readFromMockFile().status;
     },
     insert: (contents?: MockFileTree) => {
+      if (contents) {
+        writeMockFileTree(getMockUsbDataDirPath(), contents);
+      }
+
       writeToMockFile({
         status: {
           status: 'mounted',
           mountPoint: getMockUsbDataDirPath(),
         },
       });
-
-      if (contents) {
-        writeMockFileTree(getMockUsbDataDirPath(), contents);
-      }
     },
     remove: () => {
       writeToMockFile({

@@ -13,14 +13,16 @@ import {
 } from '@votingworks/auth';
 import { enterPin, findMoreButtons, forceReset } from './helpers';
 
+const usbHandler = getMockFileUsbDriveHandler();
+
 test.beforeEach(async ({ page }) => {
+  usbHandler.cleanup();
   await forceReset(page);
 });
 
 test('configure, open polls, and test contest scroll buttons', async ({
   page,
 }) => {
-  const usbHandler = getMockFileUsbDriveHandler();
   const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   await page.goto('/');
