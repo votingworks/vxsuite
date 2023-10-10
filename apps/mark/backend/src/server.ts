@@ -11,7 +11,7 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { detectUsbDrive, MockFileUsbDrive } from '@votingworks/usb-drive';
+import { detectUsbDrive } from '@votingworks/usb-drive';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 
@@ -43,9 +43,7 @@ export function start({ auth, logger, port, workspace }: StartOptions): Server {
     });
 
   /* istanbul ignore next */
-  const usbDrive = isIntegrationTest()
-    ? new MockFileUsbDrive()
-    : detectUsbDrive(logger);
+  const usbDrive = detectUsbDrive(logger);
 
   const app = buildApp(resolvedAuth, logger, workspace, usbDrive);
 

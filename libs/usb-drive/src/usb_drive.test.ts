@@ -1,20 +1,28 @@
-import { promises as fs } from 'fs';
+import { promises as fs, existsSync, rmSync } from 'fs';
 import { deferred } from '@votingworks/basics';
 import { backendWaitFor } from '@votingworks/test-utils';
 import { join } from 'path';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import {
   BlockDeviceInfo,
-  UsbDrive,
-  UsbDriveStatus,
   VX_USB_LABEL_REGEXP,
   detectUsbDrive,
 } from './usb_drive';
 import { exec } from './exec';
+import { UsbDriveStatus } from './types';
+import {
+  DEFAULT_MOCK_USB_DIR,
+  MOCK_USB_STATE_FILENAME,
+} from './mocks/file_usb_drive';
 
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
 
 jest.mock('fs', () => ({
+  ...jest.requireActual('fs'),
   promises: {
     readdir: jest.fn().mockRejectedValue(new Error('Not mocked')),
     readlink: jest.fn().mockRejectedValue(new Error('Not mocked')),
@@ -23,6 +31,15 @@ jest.mock('fs', () => ({
 jest.mock('./exec', () => ({
   exec: jest.fn().mockRejectedValue(new Error('Not mocked')),
 }));
+
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
 
 const readdirMock = fs.readdir as unknown as jest.Mock<Promise<string[]>>;
 const readlinkMock = fs.readlink as unknown as jest.Mock<Promise<string>>;
@@ -556,4 +573,21 @@ test('action locking', async () => {
   await ejectPromise;
 
   expect(execMock).toHaveBeenCalledTimes(3); // 1 status, 2 unmount, 3 status, no format
+});
+
+test('uses mock file usb drive if environment variable is set', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_USB
+  );
+  const stateFilePath = join(DEFAULT_MOCK_USB_DIR, MOCK_USB_STATE_FILENAME);
+
+  // Ensure we start with no mock state file
+  if (existsSync(stateFilePath)) {
+    rmSync(stateFilePath);
+  }
+  expect(existsSync(stateFilePath)).toEqual(false);
+
+  const usbDrive = detectUsbDrive(fakeLogger());
+  expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
+  expect(existsSync(stateFilePath)).toEqual(true);
 });

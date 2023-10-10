@@ -3,24 +3,15 @@ import { join } from 'path';
 import { assert, assertDefined } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { exec } from './exec';
+import { UsbDriveStatus, UsbDrive } from './types';
+import { MockFileUsbDrive } from './mocks/file_usb_drive';
 
 const debug = makeDebug('usb-drive');
-
-export type UsbDriveStatus =
-  | { status: 'no_drive' }
-  | {
-      status: 'mounted';
-      mountPoint: string;
-    }
-  | { status: 'ejected' }
-  | { status: 'error'; reason: 'bad_format' };
-
-export interface UsbDrive {
-  status(): Promise<UsbDriveStatus>;
-  eject(loggingUserRole: LoggingUserRole): Promise<void>;
-  format(loggingUserRole: LoggingUserRole): Promise<void>;
-}
 
 export interface BlockDeviceInfo {
   name: string;
@@ -267,6 +258,11 @@ async function mount(
 type Action = 'mounting' | 'ejecting' | 'formatting';
 
 export function detectUsbDrive(logger: Logger): UsbDrive {
+  // Mock USB drives for development and integration tests
+  if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB)) {
+    return new MockFileUsbDrive();
+  }
+
   // Store eject state so we don't immediately remount the drive on
   // the next status call. We don't need to persist this across restarts, so
   // storing in memory is fine.

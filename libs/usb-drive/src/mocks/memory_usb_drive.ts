@@ -1,8 +1,8 @@
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 import { readdirSync, rmSync } from 'fs';
 import tmp from 'tmp';
-import { UsbDrive } from '../usb_drive';
 import { MockFileTree, TMP_DIR_PREFIX, writeMockFileTree } from './helpers';
+import { UsbDrive } from '../types';
 
 type MockedUsbDrive = {
   [Method in keyof UsbDrive]: MockFunction<UsbDrive[Method]>;

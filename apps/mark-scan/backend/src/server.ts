@@ -2,18 +2,17 @@ import { Server } from 'http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import makeDebug from 'debug';
 import {
   getPaperHandlerDriver,
   MockPaperHandlerDriver,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
 import {
-  isIntegrationTest,
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { detectUsbDrive, MockFileUsbDrive } from '@votingworks/usb-drive';
+import { detectUsbDrive } from '@votingworks/usb-drive';
+import makeDebug from 'debug';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import {
@@ -80,9 +79,7 @@ export async function start({
     });
   }
 
-  const usbDrive = isIntegrationTest()
-    ? new MockFileUsbDrive()
-    : detectUsbDrive(logger);
+  const usbDrive = detectUsbDrive(logger);
 
   const app = buildApp(resolvedAuth, logger, workspace, usbDrive, stateMachine);
 

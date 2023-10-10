@@ -7,11 +7,7 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import {
-  detectUsbDrive,
-  MockFileUsbDrive,
-  UsbDrive,
-} from '@votingworks/usb-drive';
+import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
@@ -60,9 +56,7 @@ export async function start({
   /* c8 ignore stop */
 
   /* c8 ignore start */
-  const resolvedUsbDrive =
-    usbDrive ??
-    (isIntegrationTest() ? new MockFileUsbDrive() : detectUsbDrive(logger));
+  const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
   /* c8 ignore stop */
 
   let resolvedApp = app;

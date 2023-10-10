@@ -7,11 +7,7 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import {
-  MockFileUsbDrive,
-  UsbDrive,
-  detectUsbDrive,
-} from '@votingworks/usb-drive';
+import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
@@ -87,9 +83,7 @@ export async function start({
         workspace: resolvedWorkspace,
       });
 
-    const resolvedUsbDrive =
-      usbDrive ??
-      (isIntegrationTest() ? new MockFileUsbDrive() : detectUsbDrive(logger));
+    const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
 
     resolvedApp = buildCentralScannerApp({
       auth,
