@@ -16,7 +16,7 @@ test('includes both language and audio contexts', async () => {
   expect(getAudioContext()).toBeDefined();
 });
 
-test('skips audio context when `noAudio` is true', () => {
+test('skips audio context when `noAudio` is true', async () => {
   const { getAudioContext, getLanguageContext, mockBackendApi, render } =
     newTestContext({ noAudio: true });
   mockBackendApi.getAvailableLanguages.mockResolvedValue([
@@ -26,6 +26,6 @@ test('skips audio context when `noAudio` is true', () => {
 
   render(<div>foo</div>);
 
-  expect(getLanguageContext).toBeDefined();
+  await waitFor(() => expect(getLanguageContext()).toBeDefined());
   expect(getAudioContext()).toBeUndefined();
 });

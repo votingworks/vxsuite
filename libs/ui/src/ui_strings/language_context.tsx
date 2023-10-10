@@ -3,7 +3,7 @@ import i18next, { i18n } from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
 
 import { LanguageCode } from '@votingworks/types';
-import { Optional, assertDefined } from '@votingworks/basics';
+import { Optional } from '@votingworks/basics';
 import { Screen } from '../screen';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 
@@ -83,7 +83,7 @@ export function LanguageContextProvider(
     void i18next.changeLanguage(currentLanguageCode);
   }, [currentLanguageCode, isUiStringsLoading, uiStringsData]);
 
-  if (!isI18nextReady || availableLanguagesQuery.isLoading) {
+  if (!isI18nextReady || !availableLanguagesQuery.isSuccess) {
     // This state is too brief to warrant a loading screen which would only
     // flash for an instant - going with an empty screen, since this only
     // happens once on initial app render, before any content is rendered.
@@ -95,7 +95,7 @@ export function LanguageContextProvider(
   return (
     <LanguageContext.Provider
       value={{
-        availableLanguages: assertDefined(availableLanguagesQuery.data),
+        availableLanguages: availableLanguagesQuery.data,
         currentLanguageCode,
         i18next,
         setLanguage,
