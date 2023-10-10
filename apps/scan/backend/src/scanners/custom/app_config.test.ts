@@ -283,6 +283,28 @@ test('continuous CVR export, including polls closing, followed by a full export'
   );
 });
 
+test('CVR resync', async () => {
+  await withApp(
+    {},
+    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
+
+      // When a CVR resync is required, the CVR resync modal appears on the "insert your ballot"
+      // screen, i.e. the screen displayed when no card is inserted
+      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+        Promise.resolve({ status: 'logged_out', reason: 'no_card' })
+      );
+
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({
+          mode: 'full_export',
+        })
+      ).toEqual(ok());
+    }
+  );
+});
+
 test('setPrecinctSelection will reset polls to closed', async () => {
   await withApp(
     {},
