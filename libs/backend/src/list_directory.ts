@@ -148,7 +148,6 @@ export async function listDirectoryOnUsbDrive(
   usbDrive: UsbDrive,
   relativePath: string
 ): Promise<Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>> {
-  // We currently do not support multiple USB drives
   const usbDriveStatus = await usbDrive.status();
 
   switch (usbDriveStatus.status) {
