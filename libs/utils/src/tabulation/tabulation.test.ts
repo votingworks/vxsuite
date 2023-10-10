@@ -1003,7 +1003,7 @@ describe('tabulateCastVoteRecords', () => {
       Object.values(resultsByMethodAndPrecinct).map((results) =>
         getBallotCount(results.cardCounts)
       )
-    ).toEqual([0, 0, 0, 1]);
+    ).toEqual([0, 0, 1, 0]);
 
     // keys should be ordered as the groups were passed in
     expect(Object.keys(resultsByMethodAndPrecinct)).toEqual([

@@ -1,6 +1,9 @@
 import { v4 as uuid } from 'uuid';
-import { buildCVRContestsFromVotes } from '@votingworks/backend';
-import { iter, throwIllegalValue } from '@votingworks/basics';
+import {
+  buildCVRContestsFromVotes,
+  buildCvrImageData,
+} from '@votingworks/backend';
+import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
 import {
   BallotMetadata,
   BallotPageContestLayout,
@@ -312,16 +315,16 @@ export function* generateCvrs({
                 );
                 const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
 
-                const frontImageFileUri = `file:${generateBallotAssetPath({
+                const frontImageRelativePath = generateBallotAssetPath({
                   castVoteRecordId: castVoteRecordId.toString(),
                   assetType: 'image',
                   frontOrBack: 'front',
-                })}`;
-                const backImageFileUri = `file:${generateBallotAssetPath({
+                });
+                const backImageRelativePath = generateBallotAssetPath({
                   castVoteRecordId: castVoteRecordId.toString(),
                   assetType: 'image',
                   frontOrBack: 'back',
-                })}`;
+                });
 
                 yield {
                   '@type': 'CVR.CVR',
@@ -348,7 +351,13 @@ export function* generateCvrs({
                           votes,
                           options: {
                             ballotMarkingMode: 'hand',
-                            imageFileUri: frontImageFileUri,
+                            image: sheetHasWriteIns
+                              ? {
+                                  imageHash: '',
+                                  imageRelativePath: frontImageRelativePath,
+                                  layoutFileHash: '',
+                                }
+                              : undefined,
                           },
                         }),
                         ...buildCVRContestsFromVotes({
@@ -356,7 +365,13 @@ export function* generateCvrs({
                           votes,
                           options: {
                             ballotMarkingMode: 'hand',
-                            imageFileUri: backImageFileUri,
+                            image: sheetHasWriteIns
+                              ? {
+                                  imageHash: '',
+                                  imageRelativePath: backImageRelativePath,
+                                  layoutFileHash: '',
+                                }
+                              : undefined,
                           },
                         }),
                       ],
@@ -364,14 +379,16 @@ export function* generateCvrs({
                   ],
                   BallotImage: sheetHasWriteIns
                     ? [
-                        {
-                          '@type': 'CVR.ImageData',
-                          Location: frontImageFileUri,
-                        },
-                        {
-                          '@type': 'CVR.ImageData',
-                          Location: backImageFileUri,
-                        },
+                        buildCvrImageData({
+                          imageHash: '',
+                          imageRelativePath: frontImageRelativePath,
+                          layoutFileHash: '',
+                        }),
+                        buildCvrImageData({
+                          imageHash: '',
+                          imageRelativePath: backImageRelativePath,
+                          layoutFileHash: '',
+                        }),
                       ]
                     : undefined,
                 };
@@ -382,4 +399,20 @@ export function* generateCvrs({
       }
     }
   }
+}
+
+/**
+ * Retroactively populates the hashes on a cast vote record image data object
+ */
+export function populateImageAndLayoutFileHashes(
+  ballotImage: CVR.ImageData,
+  hashes: { imageHash: string; layoutFileHash: string }
+): void {
+  const { imageHash, layoutFileHash } = hashes;
+
+  // Cast readonly values as mutable values so that we can override them
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  (assertDefined(ballotImage.Hash).Value as string) = imageHash;
+  // eslint-disable-next-line no-param-reassign
+  (ballotImage.vxLayoutFileHash as string) = layoutFileHash;
 }

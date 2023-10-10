@@ -1,8 +1,4 @@
 import {
-  ReadCastVoteRecordError,
-  ReadCastVoteRecordExportError,
-} from '@votingworks/backend';
-import {
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -17,6 +13,8 @@ import {
   PrecinctId,
   BallotStyleId,
   Tabulation,
+  ReadCastVoteRecordExportError,
+  ReadCastVoteRecordError,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -529,8 +527,4 @@ export type ImportCastVoteRecordsError =
   | WithIndex<ReadCastVoteRecordError>
   | WithIndex<CastVoteRecordElectionDefinitionValidationError>
   | { type: 'invalid-mode'; currentMode: 'official' | 'test' }
-  | WithIndex<{ type: 'ballot-id-already-exists-with-different-data' }>
-  | WithIndex<{
-      type: 'invalid-cast-vote-record';
-      subType: 'layout-parse-error';
-    }>;
+  | WithIndex<{ type: 'ballot-id-already-exists-with-different-data' }>;

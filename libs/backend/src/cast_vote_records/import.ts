@@ -2,7 +2,6 @@
 import { existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
-import { z } from 'zod';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   assertDefined,
@@ -13,12 +12,19 @@ import {
   Result,
 } from '@votingworks/basics';
 import {
+  BallotPageLayout,
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CastVoteRecordExportMetadataSchema,
+  CastVoteRecordReportWithoutMetadataSchema,
   CVR,
+  mapSheet,
+  ReadCastVoteRecordError,
+  ReadCastVoteRecordExportError,
+  ReadCastVoteRecordExportMetadataError,
   safeParseJson,
   safeParseNumber,
+  SheetOf,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -31,50 +37,12 @@ import {
 } from '@votingworks/utils';
 
 import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
-
-/**
- * A cast vote record report without metadata
- */
-export type CastVoteRecordReportWithoutMetadata = Pick<
-  CVR.CastVoteRecordReport,
-  'CVR'
->;
-
-const CastVoteRecordReportWithoutMetadataSchema: z.ZodSchema<CastVoteRecordReportWithoutMetadata> =
-  z.object({
-    CVR: z.array(CVR.CVRSchema),
-  });
-
-type ReadCastVoteRecordExportMetadataError =
-  | { type: 'metadata-file-not-found' }
-  | { type: 'metadata-file-parse-error' };
-
-/**
- * An error encountered while reading an individual cast vote record
- */
-export type ReadCastVoteRecordError = { type: 'invalid-cast-vote-record' } & (
-  | { subType: 'batch-id-not-found' }
-  | { subType: 'image-file-not-found' }
-  | { subType: 'invalid-ballot-image-field' }
-  | { subType: 'invalid-ballot-sheet-id' }
-  | { subType: 'invalid-write-in-field' }
-  | { subType: 'layout-file-not-found' }
-  | { subType: 'no-current-snapshot' }
-  | { subType: 'parse-error' }
-);
-
-/**
- * A top-level error encountered while reading a cast vote record export. Does not include errors
- * encountered while reading individual cast vote records.
- */
-export type ReadCastVoteRecordExportError =
-  | ReadCastVoteRecordExportMetadataError
-  | { type: 'authentication-error' };
-
-interface ReferencedFiles {
-  imageFilePaths: [string, string]; // [front, back]
-  layoutFilePaths?: [string, string]; // [front, back]
-}
+import {
+  ReferencedFile,
+  ReferencedFiles,
+  referencedImageFile,
+  referencedLayoutFile,
+} from './referenced_files';
 
 interface CastVoteRecordAndReferencedFiles {
   castVoteRecord: CVR.CVR;
@@ -196,42 +164,63 @@ async function* castVoteRecordGenerator(
     if (castVoteRecord.BallotImage) {
       if (
         castVoteRecord.BallotImage.length !== 2 ||
+        !castVoteRecord.BallotImage[0]?.Hash?.Value ||
+        !castVoteRecord.BallotImage[1]?.Hash?.Value ||
         !castVoteRecord.BallotImage[0]?.Location?.startsWith('file:') ||
         !castVoteRecord.BallotImage[1]?.Location?.startsWith('file:')
       ) {
         yield wrapError({ subType: 'invalid-ballot-image-field' });
         return;
       }
-      const ballotImageLocations: [string, string] = [
+      const imageHashes: SheetOf<string> = [
+        castVoteRecord.BallotImage[0].Hash.Value,
+        castVoteRecord.BallotImage[1].Hash.Value,
+      ];
+      const imageRelativePaths: SheetOf<string> = [
         castVoteRecord.BallotImage[0].Location.replace('file:', ''),
         castVoteRecord.BallotImage[1].Location.replace('file:', ''),
       ];
+      const imagePaths: SheetOf<string> = mapSheet(
+        imageRelativePaths,
+        (imageRelativePath) =>
+          path.join(castVoteRecordDirectoryPath, imageRelativePath)
+      );
+      const imageFiles = mapSheet(
+        imageHashes,
+        imagePaths,
+        (expectedFileHash, filePath) =>
+          referencedImageFile({ expectedFileHash, filePath })
+      );
 
-      const imageFilePaths = ballotImageLocations.map((location) =>
-        path.join(castVoteRecordDirectoryPath, location)
-      ) as [string, string];
-      const layoutFilePaths = isHandMarkedPaperBallot
-        ? (ballotImageLocations.map((location) =>
-            path.join(
-              castVoteRecordDirectoryPath,
-              `${path.parse(location).name}.layout.json`
-            )
-          ) as [string, string])
-        : undefined;
-
-      if (!imageFilePaths.every((filePath) => existsSync(filePath))) {
-        yield wrapError({ subType: 'image-file-not-found' });
-        return;
+      let layoutFiles: SheetOf<ReferencedFile<BallotPageLayout>> | undefined;
+      if (isHandMarkedPaperBallot) {
+        if (
+          !castVoteRecord.BallotImage[0]?.vxLayoutFileHash ||
+          !castVoteRecord.BallotImage[1]?.vxLayoutFileHash
+        ) {
+          yield wrapError({ subType: 'invalid-ballot-image-field' });
+          return;
+        }
+        const layoutFileHashes: SheetOf<string> = [
+          castVoteRecord.BallotImage[0].vxLayoutFileHash,
+          castVoteRecord.BallotImage[1].vxLayoutFileHash,
+        ];
+        const layoutFilePaths: SheetOf<string> = mapSheet(
+          imagePaths,
+          (imagePath) => {
+            const { dir, name } = path.parse(imagePath);
+            return path.join(dir, `${name}.layout.json`);
+          }
+        );
+        layoutFiles = mapSheet(
+          layoutFileHashes,
+          layoutFilePaths,
+          (expectedFileHash, filePath) =>
+            referencedLayoutFile({ expectedFileHash, filePath })
+        );
       }
-      if (
-        layoutFilePaths &&
-        !layoutFilePaths.every((filePath) => existsSync(filePath))
-      ) {
-        yield wrapError({ subType: 'layout-file-not-found' });
-        return;
-      }
 
-      referencedFiles = { imageFilePaths, layoutFilePaths };
+      referencedFiles = { imageFiles, layoutFiles };
     }
 
     yield ok({

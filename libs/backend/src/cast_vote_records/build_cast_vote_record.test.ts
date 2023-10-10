@@ -354,7 +354,11 @@ describe('buildCVRContestsFromVotes', () => {
       },
       options: {
         ballotMarkingMode: 'hand',
-        imageFileUri: 'file:ballot-images/image',
+        image: {
+          imageHash: 'a',
+          imageRelativePath: 'ballot-images/image',
+          layoutFileHash: 'b',
+        },
       },
     });
 
@@ -377,7 +381,12 @@ describe('buildCVRContestsFromVotes', () => {
               CVRWriteIn: expect.objectContaining({
                 Text: undefined,
                 WriteInImage: expect.objectContaining({
+                  Hash: expect.objectContaining({
+                    Type: CVR.HashType.Sha256,
+                    Value: 'a',
+                  }),
                   Location: 'file:ballot-images/image',
+                  vxLayoutFileHash: 'b',
                 }),
               }),
             }),
@@ -541,19 +550,39 @@ test('buildCastVoteRecord - BMD ballot images', () => {
 
   const castVoteRecordWithImageReferences = buildCastVoteRecord({
     ...buildCastVoteRecordInput,
-    imageFileUris: [
-      'file:ballot-images/front.jpg',
-      'file:ballot-images/back.jpg',
+    images: [
+      {
+        imageHash: 'a',
+        imageRelativePath: 'ballot-images/front.jpg',
+        layoutFileHash: 'b',
+      },
+      {
+        imageHash: 'c',
+        imageRelativePath: 'ballot-images/back.jpg',
+        layoutFileHash: 'd',
+      },
     ],
   });
   expect(castVoteRecordWithImageReferences.BallotImage).toEqual([
     {
       '@type': 'CVR.ImageData',
+      Hash: {
+        '@type': 'CVR.Hash',
+        Type: CVR.HashType.Sha256,
+        Value: 'a',
+      },
       Location: 'file:ballot-images/front.jpg',
+      vxLayoutFileHash: 'b',
     },
     {
       '@type': 'CVR.ImageData',
+      Hash: {
+        '@type': 'CVR.Hash',
+        Type: CVR.HashType.Sha256,
+        Value: 'c',
+      },
       Location: 'file:ballot-images/back.jpg',
+      vxLayoutFileHash: 'd',
     },
   ]);
 });
@@ -673,26 +702,43 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
     batchId,
     ballotMarkingMode: 'hand',
     interpretations: [interpretedHmpbPage1WithWriteIn, interpretedHmpbPage2],
-    imageFileUris: [
-      'file:ballot-images/front.jpg',
-      'file:ballot-images/back.jpg',
+    images: [
+      {
+        imageHash: 'a',
+        imageRelativePath: 'ballot-images/front.jpg',
+        layoutFileHash: 'b',
+      },
+      {
+        imageHash: 'c',
+        imageRelativePath: 'ballot-images/back.jpg',
+        layoutFileHash: 'd',
+      },
     ],
     definiteMarkThreshold,
   });
 
-  // image references are included
-  expect(castVoteRecord.BallotImage).toMatchInlineSnapshot(`
-    [
-      {
-        "@type": "CVR.ImageData",
-        "Location": "file:ballot-images/front.jpg",
+  expect(castVoteRecord.BallotImage).toEqual([
+    {
+      '@type': 'CVR.ImageData',
+      Hash: {
+        '@type': 'CVR.Hash',
+        Type: CVR.HashType.Sha256,
+        Value: 'a',
       },
-      {
-        "@type": "CVR.ImageData",
-        "Location": "file:ballot-images/back.jpg",
+      Location: 'file:ballot-images/front.jpg',
+      vxLayoutFileHash: 'b',
+    },
+    {
+      '@type': 'CVR.ImageData',
+      Hash: {
+        '@type': 'CVR.Hash',
+        Type: CVR.HashType.Sha256,
+        Value: 'c',
       },
-    ]
-  `);
+      Location: 'file:ballot-images/back.jpg',
+      vxLayoutFileHash: 'd',
+    },
+  ]);
 
   // total write-in count is included
   expect(castVoteRecord.CVRSnapshot).toMatchObject(

@@ -16,7 +16,12 @@ import {
   computeCastVoteRecordRootHashFromScratch,
   prepareSignatureFile,
 } from '@votingworks/auth';
-import { generateBallotPageLayouts, generateCvrs } from '../../generate_cvrs';
+import { sha256 } from 'js-sha256';
+import {
+  generateBallotPageLayouts,
+  generateCvrs,
+  populateImageAndLayoutFileHashes,
+} from '../../generate_cvrs';
 import {
   replaceUniqueId,
   getBatchIdForScannerId,
@@ -216,17 +221,7 @@ export async function main(
   for (const castVoteRecord of castVoteRecords) {
     const castVoteRecordDirectory = join(outputPath, castVoteRecord.UniqueId);
     fs.mkdirSync(castVoteRecordDirectory);
-    const castVoteRecordReport: CVR.CastVoteRecordReport = {
-      ...reportMetadata,
-      CVR: [castVoteRecord],
-    };
-    fs.writeFileSync(
-      join(
-        castVoteRecordDirectory,
-        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
-      ),
-      JSON.stringify(castVoteRecordReport)
-    );
+
     if (castVoteRecord.BallotImage) {
       const layouts = generateBallotPageLayouts(election, {
         ballotStyleId: castVoteRecord.BallotStyleId,
@@ -261,9 +256,29 @@ export async function main(
         );
 
         const layout = assertDefined(layouts[i]);
-        fs.writeFileSync(layoutFilePath, JSON.stringify(layout));
+        const layoutFileContents = JSON.stringify(layout);
+        fs.writeFileSync(layoutFilePath, layoutFileContents);
+
+        const imageHash = sha256(fs.readFileSync(imageFilePath));
+        const layoutFileHash = sha256(layoutFileContents);
+        populateImageAndLayoutFileHashes(
+          assertDefined(castVoteRecord.BallotImage[i]),
+          { imageHash, layoutFileHash }
+        );
       }
     }
+
+    const castVoteRecordReport: CVR.CastVoteRecordReport = {
+      ...reportMetadata,
+      CVR: [castVoteRecord],
+    };
+    fs.writeFileSync(
+      join(
+        castVoteRecordDirectory,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
+      JSON.stringify(castVoteRecordReport)
+    );
   }
 
   const castVoteRecordExportMetadata: CastVoteRecordExportMetadata = {

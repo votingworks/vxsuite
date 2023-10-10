@@ -22,13 +22,7 @@ import {
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
 } from '@votingworks/backend';
-import {
-  assert,
-  assertDefined,
-  ok,
-  Result,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
@@ -284,7 +278,7 @@ export function buildApi(
     async exportCastVoteRecordsToUsbDrive(input: {
       mode: 'full_export' | 'polls_closing';
     }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
-      const userRole = assertDefined(await getUserRole());
+      const userRole = (await getUserRole()) ?? 'system';
       await logger.log(LogEventId.ExportCastVoteRecordsInit, userRole, {
         message:
           input.mode === 'polls_closing'
