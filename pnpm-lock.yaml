@@ -229,6 +229,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/lodash.set':
+        specifier: ^4.3.7
+        version: 4.3.7
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -283,6 +286,9 @@ importers:
       lint-staged:
         specifier: ^10.5.3
         version: 10.5.4
+      lodash.set:
+        specifier: ^4.3.2
+        version: 4.3.2
       nodemon:
         specifier: ^2.0.20
         version: 2.0.20
@@ -11501,6 +11507,12 @@ packages:
 
   /@types/lodash.isequal@4.5.6:
     resolution: {integrity: sha512-Ww4UGSe3DmtvLLJm2F16hDwEQSv7U0Rr8SujLUA2wHI2D2dm8kPu6Et+/y303LfjTIwSBKXB/YTUcAKpem/XEg==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
+  /@types/lodash.set@4.3.7:
+    resolution: {integrity: sha512-bS5Wkg/nrT82YUfkNYPSccFrNZRL+irl7Yt4iM6OTSQ0VZJED2oUIVm15NkNtUAQ8SRhCe+axqERUV6MJgkeEg==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true

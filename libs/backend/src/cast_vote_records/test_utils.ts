@@ -23,17 +23,22 @@ function identifyFunction<T>(input: T): T {
 }
 
 /**
+ * The second input to {@link modifyCastVoteRecordExport}
+ */
+export interface CastVoteRecordExportModifications {
+  castVoteRecordModifier?: (castVoteRecord: CVR.CVR) => CVR.CVR;
+  castVoteRecordReportMetadataModifier?: (
+    castVoteRecordReportMetadata: CVR.CastVoteRecordReport
+  ) => CVR.CastVoteRecordReport;
+  numCastVoteRecordsToKeep?: number;
+}
+
+/**
  * Modifies a cast vote record export. Specifically meant for modifying fixtures for tests.
  */
 export async function modifyCastVoteRecordExport(
   exportDirectoryPath: string,
-  modifications: {
-    castVoteRecordModifier?: (castVoteRecord: CVR.CVR) => CVR.CVR;
-    castVoteRecordReportMetadataModifier?: (
-      castVoteRecordReportMetadata: CVR.CastVoteRecordReport
-    ) => CVR.CastVoteRecordReport;
-    numCastVoteRecordsToKeep?: number;
-  }
+  modifications: CastVoteRecordExportModifications
 ): Promise<string> {
   const {
     castVoteRecordModifier = identifyFunction,

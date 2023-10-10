@@ -1,3 +1,5 @@
+import { Buffer } from 'buffer';
+import set from 'lodash.set';
 import { assert, err, ok } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireAmherstFixtures,
@@ -14,13 +16,20 @@ import path, { basename } from 'path';
 import { vxBallotType } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
   BooleanEnvironmentVariableName,
+  SCANNER_RESULTS_FOLDER,
+  generateCastVoteRecordExportDirectoryName,
+  generateElectionBasedSubfolderName,
   getFeatureFlagMock,
   getSheetCount,
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
 import { Client } from '@votingworks/grout';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
-import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import {
+  CastVoteRecordExportModifications,
+  modifyCastVoteRecordExport,
+} from '@votingworks/backend';
+import { MockFileTree } from '@votingworks/usb-drive';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -28,6 +37,10 @@ import {
   mockElectionManagerAuth,
 } from '../test/app';
 import { Api } from './app';
+import {
+  ListCastVoteRecordExportsOnUsbDriveResult,
+  listCastVoteRecordExportsOnUsbDrive,
+} from './cast_vote_records';
 
 jest.setTimeout(60_000);
 
@@ -690,3 +703,184 @@ test('specifying path to metadata file instead of path to export directory (for 
   });
   expect(importResult.isOk()).toEqual(true);
 });
+
+test.each<{
+  description: string;
+  setupFn?: () => void;
+  modifications: CastVoteRecordExportModifications;
+  expectedErrorSubType: string;
+}>([
+  {
+    description: 'mismatched election',
+    setupFn: () => {
+      featureFlagMock.disableFeatureFlag(
+        BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+      );
+    },
+    modifications: {
+      castVoteRecordModifier: (castVoteRecord) => ({
+        ...castVoteRecord,
+        ElectionId: 'mismatched-election-hash',
+      }),
+      numCastVoteRecordsToKeep: 1,
+    },
+    expectedErrorSubType: 'election-mismatch',
+  },
+  {
+    description: 'non-existent precinct',
+    modifications: {
+      castVoteRecordModifier: (castVoteRecord) => ({
+        ...castVoteRecord,
+        BallotStyleUnitId: 'non-existent-precinct-id',
+      }),
+      numCastVoteRecordsToKeep: 1,
+    },
+    expectedErrorSubType: 'precinct-not-found',
+  },
+  {
+    description: 'non-existent ballot style',
+    modifications: {
+      castVoteRecordModifier: (castVoteRecord) => ({
+        ...castVoteRecord,
+        BallotStyleId: 'non-existent-ballot-style-id',
+      }),
+      numCastVoteRecordsToKeep: 1,
+    },
+    expectedErrorSubType: 'ballot-style-not-found',
+  },
+  {
+    description: 'non-existent contest',
+    modifications: {
+      castVoteRecordModifier: (castVoteRecord) =>
+        set(
+          castVoteRecord,
+          'CVRSnapshot[0].CVRContest[0].ContestId',
+          'non-existent-contest-id'
+        ),
+      numCastVoteRecordsToKeep: 1,
+    },
+    expectedErrorSubType: 'contest-not-found',
+  },
+  {
+    description: 'incorrect image hash',
+    modifications: {
+      castVoteRecordModifier: (castVoteRecord) =>
+        castVoteRecord.BallotImage
+          ? set(castVoteRecord, 'BallotImage[0].Hash.Value', 'incorrect-hash')
+          : castVoteRecord,
+      numCastVoteRecordsToKeep: 10,
+    },
+    expectedErrorSubType: 'incorrect-image-hash',
+  },
+  {
+    description: 'incorrect layout file hash',
+    modifications: {
+      castVoteRecordModifier: (castVoteRecord) =>
+        castVoteRecord.BallotImage
+          ? set(
+              castVoteRecord,
+              'BallotImage[0].vxLayoutFileHash',
+              'incorrect-hash'
+            )
+          : castVoteRecord,
+      numCastVoteRecordsToKeep: 10,
+    },
+    expectedErrorSubType: 'incorrect-layout-file-hash',
+  },
+])(
+  'invalid cast vote record - $description',
+  async ({ setupFn, modifications, expectedErrorSubType }) => {
+    const { apiClient, auth } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionDefinition);
+    mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+    setupFn?.();
+    const exportDirectoryPath = await modifyCastVoteRecordExport(
+      castVoteRecordExport.asDirectoryPath(),
+      modifications
+    );
+
+    expect(
+      await apiClient.addCastVoteRecordFile({ path: exportDirectoryPath })
+    ).toEqual(
+      err({
+        type: 'invalid-cast-vote-record',
+        subType: expectedErrorSubType,
+        index: expect.any(Number),
+      })
+    );
+  }
+);
+
+test.each<{
+  description: string;
+  usbDriveContentGenerator: () => MockFileTree;
+  expectedResult: ListCastVoteRecordExportsOnUsbDriveResult;
+}>([
+  {
+    description: 'empty USB drive',
+    usbDriveContentGenerator: () => ({}),
+    expectedResult: ok([]),
+  },
+  {
+    description: 'file where there should be a directory',
+    usbDriveContentGenerator: () => {
+      const electionSubDirectoryName = generateElectionBasedSubfolderName(
+        electionDefinition.election,
+        electionDefinition.electionHash
+      );
+      return {
+        [SCANNER_RESULTS_FOLDER]: {
+          [electionSubDirectoryName]: Buffer.of(),
+        },
+      };
+    },
+    expectedResult: err('found-file-instead-of-directory'),
+  },
+  {
+    description:
+      "directories that aren't export directories and empty export directories",
+    usbDriveContentGenerator: () => {
+      const electionSubDirectoryName = generateElectionBasedSubfolderName(
+        electionDefinition.election,
+        electionDefinition.electionHash
+      );
+      const emptyExportDirectoryName =
+        generateCastVoteRecordExportDirectoryName({
+          inTestMode: true,
+          machineId: '0000',
+        });
+      const exportDirectoryName = generateCastVoteRecordExportDirectoryName({
+        inTestMode: true,
+        machineId: '0001',
+      });
+      return {
+        [SCANNER_RESULTS_FOLDER]: {
+          [electionSubDirectoryName]: {
+            'not-an-export-directory-name': {}, // Should be ignored
+            [emptyExportDirectoryName]: {}, // Should be ignored
+            [exportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
+          },
+        },
+      };
+    },
+    expectedResult: ok([
+      expect.objectContaining({ name: expect.stringContaining('0001') }),
+    ]),
+  },
+])(
+  'listCastVoteRecordExportsOnUsbDrive - $description',
+  async ({ usbDriveContentGenerator, expectedResult }) => {
+    const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
+    await configureMachine(apiClient, auth, electionDefinition);
+    mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+    mockUsbDrive.insertUsbDrive(usbDriveContentGenerator());
+    expect(
+      await listCastVoteRecordExportsOnUsbDrive(
+        mockUsbDrive.usbDrive,
+        electionDefinition
+      )
+    ).toEqual(expectedResult);
+  }
+);
