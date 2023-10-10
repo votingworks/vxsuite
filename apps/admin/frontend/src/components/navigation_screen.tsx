@@ -143,6 +143,7 @@ export function NavigationScreen({
                 <UsbControllerButton
                   usbDriveEject={() => ejectUsbDriveMutation.mutate()}
                   usbDriveStatus={usbDriveStatus}
+                  usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
                 />
               </React.Fragment>
             )}

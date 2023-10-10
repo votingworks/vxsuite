@@ -451,6 +451,7 @@ export function AppRoot({
               <UsbControllerButton
                 usbDriveStatus={usbDriveStatus}
                 usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+                usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
               />
               <Button small onPress={() => logOutMutation.mutate()}>
                 Lock Machine

@@ -124,6 +124,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
               small={false}
               usbDriveEject={() => ejectUsbDriveMutation.mutate()}
               usbDriveStatus={usbDriveStatus}
+              usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
             />
             <Button onPress={closeModal}>Close</Button>
           </React.Fragment>

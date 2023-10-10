@@ -1,54 +1,43 @@
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Button, ButtonVariant } from './button';
+import { Button } from './button';
 
-/* istanbul ignore next */
-function doNothing() {
-  // do nothing
-}
+type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
 
-const disabledText: Record<
-  Exclude<UsbDriveStatus['status'], 'mounted'>,
-  string
-> = {
+const buttonText: Record<ExtendedUsbDriveStatus, string> = {
   no_drive: 'No USB',
   error: 'No USB',
+  mounted: 'Eject USB',
+  ejecting: 'Ejecting...',
   ejected: 'Ejected',
 };
 
 interface Props {
   usbDriveStatus: UsbDriveStatus;
   usbDriveEject: () => void;
+  usbDriveIsEjecting: boolean;
   primary?: boolean;
   small?: boolean;
-  disabled?: boolean;
 }
 
 export function UsbControllerButton({
   usbDriveStatus,
   usbDriveEject,
+  usbDriveIsEjecting,
   primary = false,
   small = true,
-  disabled = false,
 }: Props): JSX.Element | null {
-  const variant: ButtonVariant = primary ? 'primary' : 'regular';
-
-  const { status } = usbDriveStatus;
-  if (status === 'mounted') {
-    return (
-      <Button
-        small={small}
-        variant={variant}
-        onPress={usbDriveEject}
-        disabled={disabled}
-      >
-        Eject USB
-      </Button>
-    );
-  }
+  const extendedUsbDriveStatus: ExtendedUsbDriveStatus = usbDriveIsEjecting
+    ? 'ejecting'
+    : usbDriveStatus.status;
 
   return (
-    <Button small={small} disabled onPress={doNothing}>
-      {disabledText[status]}
+    <Button
+      small={small}
+      variant={primary ? 'primary' : 'regular'}
+      disabled={extendedUsbDriveStatus !== 'mounted'}
+      onPress={usbDriveEject}
+    >
+      {buttonText[extendedUsbDriveStatus]}
     </Button>
   );
 }

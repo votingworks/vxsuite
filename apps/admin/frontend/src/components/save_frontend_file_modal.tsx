@@ -199,6 +199,7 @@ export function SaveFrontendFileModal({
             primary
             usbDriveStatus={usbDriveStatus}
             usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+            usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
           />
           <Button onPress={onClose}>Close</Button>
         </React.Fragment>

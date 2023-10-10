@@ -1,3 +1,4 @@
+import userEvent from '@testing-library/user-event';
 import {
   cleanup,
   fireEvent,
@@ -23,6 +24,7 @@ test('shows No USB if usb absent', () => {
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('no_drive')}
       usbDriveEject={eject}
+      usbDriveIsEjecting={false}
     />
   );
 
@@ -40,6 +42,7 @@ test('renders as primary button variant', () => {
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('mounted')}
       usbDriveEject={jest.fn()}
+      usbDriveIsEjecting={false}
     />,
     renderOptions
   );
@@ -52,6 +55,7 @@ test('renders as primary button variant', () => {
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('mounted')}
       usbDriveEject={jest.fn()}
+      usbDriveIsEjecting={false}
       primary
     />,
     renderOptions
@@ -67,6 +71,7 @@ test('shows eject if mounted', () => {
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('mounted')}
       usbDriveEject={eject}
+      usbDriveIsEjecting={false}
     />
   );
 
@@ -81,10 +86,26 @@ test('shows ejected if recently ejected', () => {
     <UsbControllerButton
       usbDriveStatus={mockUsbDriveStatus('ejected')}
       usbDriveEject={eject}
+      usbDriveIsEjecting={false}
     />
   );
 
   expect(container.firstChild).toHaveTextContent('Ejected');
   fireEvent.click(getByText('Ejected'));
+  expect(eject).not.toHaveBeenCalled();
+});
+
+test('shows ejecting if ejecting', () => {
+  const eject = jest.fn();
+  const { container, getByText } = render(
+    <UsbControllerButton
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
+      usbDriveEject={eject}
+      usbDriveIsEjecting
+    />
+  );
+
+  expect(container.firstChild).toHaveTextContent('Ejecting...');
+  userEvent.click(getByText('Ejecting...'));
   expect(eject).not.toHaveBeenCalled();
 });

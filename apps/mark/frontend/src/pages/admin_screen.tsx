@@ -167,6 +167,7 @@ export function AdminScreen({
             primary
             usbDriveStatus={usbDriveStatus}
             usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+            usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
           />
         </Prose>
       </Main>
