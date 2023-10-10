@@ -168,7 +168,8 @@ test('going through the whole process works', async () => {
   await apiClient.setTestMode({ testMode: false });
 
   mockUsbDrive.removeUsbDrive();
-  // TODO: remove this assertion after #4045 is addressed
+  // Confirm USB drive removed. Must poll the mock USB drive in order to
+  // advance the state of the underlying mock function for rest of test.
   expect((await mockUsbDrive.usbDrive.status()).status).toEqual('no_drive');
 
   {
