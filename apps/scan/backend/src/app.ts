@@ -136,16 +136,13 @@ export function buildApi(
       Result<void, BallotPackageConfigurationError>
     > {
       assert(!store.getElectionDefinition(), 'Already configured');
-      const usbDriveStatus = await usbDrive.status();
-      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
 
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        // TODO: Update readBallotPackageFromUsb to use UsbDriveStatus
-        { deviceName: 'not used', mountPoint: usbDriveStatus.mountPoint },
+        usbDrive,
         logger
       );
       if (ballotPackageResult.isErr()) {

@@ -118,15 +118,8 @@ test("fails to configure if there's no ballot package on the usb drive", async (
 });
 
 test('fails to configure ballot package if logged out', async () => {
-  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
+  await withApp({}, async ({ apiClient, mockAuth }) => {
     mockLoggedOut(mockAuth);
-    mockUsbDrive.insertUsbDrive({
-      'ballot-packages': {
-        'test-ballot-package.zip': await createBallotPackageZipArchive({
-          electionDefinition: electionGeneralDefinition,
-        }),
-      },
-    });
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
       err('auth_required_before_ballot_package_load')
     );

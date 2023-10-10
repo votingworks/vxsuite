@@ -1,8 +1,6 @@
 import tmp from 'tmp';
 
 import {
-  MockUsb,
-  createMockUsb,
   runUiStringApiTests,
   runUiStringMachineConfigurationTests,
   runUiStringMachineDeconfigurationTests,
@@ -22,6 +20,7 @@ import {
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
+import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { Store } from './store';
 import { createWorkspace } from './util/workspace';
 import { Api, buildApi } from './app';
@@ -47,12 +46,17 @@ afterEach(() => {
 });
 
 runUiStringApiTests({
-  api: buildApi(mockAuth, createMockUsb().mock, fakeLogger(), workspace),
+  api: buildApi(
+    mockAuth,
+    createMockUsbDrive().usbDrive,
+    fakeLogger(),
+    workspace
+  ),
   store: store.getUiStringsStore(),
 });
 
 describe('configureBallotPackageFromUsb', () => {
-  let mockUsbDrive: MockUsb;
+  let mockUsbDrive: MockUsbDrive;
   let api: Api;
 
   beforeEach(() => {
@@ -61,8 +65,8 @@ describe('configureBallotPackageFromUsb', () => {
       BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
     );
 
-    mockUsbDrive = createMockUsb();
-    api = buildApi(mockAuth, mockUsbDrive.mock, fakeLogger(), workspace);
+    mockUsbDrive = createMockUsbDrive();
+    api = buildApi(mockAuth, mockUsbDrive.usbDrive, fakeLogger(), workspace);
 
     mockAuth.getAuthStatus.mockImplementation(() =>
       Promise.resolve({
@@ -82,7 +86,12 @@ describe('configureBallotPackageFromUsb', () => {
 });
 
 describe('unconfigureMachine', () => {
-  const api = buildApi(mockAuth, createMockUsb().mock, fakeLogger(), workspace);
+  const api = buildApi(
+    mockAuth,
+    createMockUsbDrive().usbDrive,
+    fakeLogger(),
+    workspace
+  );
 
   runUiStringMachineDeconfigurationTests({
     runUnconfigureMachine: () => api.unconfigureMachine(),

@@ -7,11 +7,7 @@ import { Application } from 'express';
 import { AddressInfo } from 'net';
 import { fakeLogger } from '@votingworks/logging';
 import tmp from 'tmp';
-import {
-  MockUsb,
-  createBallotPackageZipArchive,
-  createMockUsb,
-} from '@votingworks/backend';
+import { createBallotPackageZipArchive } from '@votingworks/backend';
 import { Server } from 'http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -24,6 +20,7 @@ import {
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
+import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace } from '../src/util/workspace';
 
@@ -31,7 +28,7 @@ interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
   mockAuth: InsertedSmartCardAuthApi;
-  mockUsb: MockUsb;
+  mockUsbDrive: MockUsbDrive;
   server: Server;
 }
 
@@ -39,9 +36,9 @@ export function createApp(): MockAppContents {
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
-  const mockUsb = createMockUsb();
+  const mockUsbDrive = createMockUsbDrive();
 
-  const app = buildApp(mockAuth, logger, workspace, mockUsb.mock);
+  const app = buildApp(mockAuth, logger, workspace, mockUsbDrive.usbDrive);
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -53,7 +50,7 @@ export function createApp(): MockAppContents {
     apiClient,
     app,
     mockAuth,
-    mockUsb,
+    mockUsbDrive,
     server,
   };
 }
@@ -61,7 +58,7 @@ export function createApp(): MockAppContents {
 export async function configureApp(
   apiClient: grout.Client<Api>,
   mockAuth: InsertedSmartCardAuthApi,
-  mockUsb: MockUsb,
+  mockUsbDrive: MockUsbDrive,
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<void> {
   const jurisdiction = TEST_JURISDICTION;
@@ -74,7 +71,7 @@ export async function configureApp(
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
-  mockUsb.insertUsbDrive({
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': await createBallotPackageZipArchive(
         electionJson.toBallotPackage(systemSettings)

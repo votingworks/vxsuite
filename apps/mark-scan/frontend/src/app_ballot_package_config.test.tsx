@@ -1,20 +1,17 @@
-import { FakeKiosk, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { fakeLogger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
+import { mockUsbDriveStatus } from '../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
-let kiosk: FakeKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = fakeKiosk();
-  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -43,7 +40,7 @@ test('renders an error if ballot package config endpoint returns an error', asyn
   apiMock.expectConfigureBallotPackageFromUsbError('election_hash_mismatch');
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   await screen.findByText('Configuring VxMarkScan from USB drive…');
   await screen.findByText(
     'The most recent ballot package found is for a different election.'

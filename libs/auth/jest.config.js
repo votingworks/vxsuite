@@ -10,5 +10,6 @@ module.exports = {
     'src/intermediate-scripts',
     'src/jurisdictions.ts',
     'src/test_utils.ts',
+    'src/integration_test_utils.ts',
   ],
 };

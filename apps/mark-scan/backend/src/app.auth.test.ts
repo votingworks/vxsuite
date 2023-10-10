@@ -8,7 +8,6 @@ import {
 import * as grout from '@votingworks/grout';
 
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { MockUsb } from '@votingworks/backend';
 import { Server } from 'http';
 import { mockOf } from '@votingworks/test-utils';
 import {
@@ -16,6 +15,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
+import { MockUsbDrive } from '@votingworks/usb-drive';
 import { configureApp, createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
@@ -45,7 +45,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
-let mockUsb: MockUsb;
+let mockUsbDrive: MockUsbDrive;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
 
@@ -61,7 +61,7 @@ beforeEach(async () => {
   const result = await createApp();
   apiClient = result.apiClient;
   mockAuth = result.mockAuth;
-  mockUsb = result.mockUsb;
+  mockUsbDrive = result.mockUsbDrive;
   server = result.server;
   stateMachine = result.stateMachine;
 });
@@ -72,7 +72,7 @@ afterEach(() => {
 });
 
 test('getAuthStatus', async () => {
-  await configureApp(apiClient, mockAuth, mockUsb, systemSettings);
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
   mockOf(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from configureApp
 
   await apiClient.getAuthStatus();
@@ -85,7 +85,7 @@ test('getAuthStatus', async () => {
 });
 
 test('checkPin', async () => {
-  await configureApp(apiClient, mockAuth, mockUsb, systemSettings);
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.checkPin({ pin: '123456' });
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
@@ -97,7 +97,7 @@ test('checkPin', async () => {
 });
 
 test('logOut', async () => {
-  await configureApp(apiClient, mockAuth, mockUsb, systemSettings);
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.logOut();
   expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
@@ -109,7 +109,7 @@ test('logOut', async () => {
 });
 
 test('updateSessionExpiry', async () => {
-  await configureApp(apiClient, mockAuth, mockUsb, systemSettings);
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
@@ -123,7 +123,7 @@ test('updateSessionExpiry', async () => {
 });
 
 test('startCardlessVoterSession', async () => {
-  await configureApp(apiClient, mockAuth, mockUsb, systemSettings);
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.startCardlessVoterSession({
     ballotStyleId: 'b1',
@@ -138,7 +138,7 @@ test('startCardlessVoterSession', async () => {
 });
 
 test('endCardlessVoterSession', async () => {
-  await configureApp(apiClient, mockAuth, mockUsb, systemSettings);
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.endCardlessVoterSession();
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);

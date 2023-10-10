@@ -27,6 +27,7 @@ import { assert, err, ok, Result } from '@votingworks/basics';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { TestErrorBoundary } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 
@@ -40,6 +41,7 @@ type MockApiClient = Omit<MockClient<Api>, 'getAuthStatus'> & {
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: jest.Mock;
   getPaperHandlerState: jest.Mock;
+  getUsbDriveStatus: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -51,6 +53,9 @@ function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.getPaperHandlerState as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve('not_accepting_paper')
+  );
+  (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve({ status: 'no_drive' })
   );
 
   return mockApiClient as unknown as MockApiClient;
@@ -76,8 +81,16 @@ export function createApiMock() {
     );
   }
 
+  function setUsbDriveStatus(usbDriveStatus: UsbDriveStatus): void {
+    mockApiClient.getUsbDriveStatus.mockImplementation(() =>
+      Promise.resolve(usbDriveStatus)
+    );
+  }
+
   return {
     mockApiClient,
+
+    setUsbDriveStatus,
 
     setAuthStatus,
 
@@ -277,6 +290,10 @@ export function createApiMock() {
 
     expectLogOut() {
       mockApiClient.logOut.expectCallWith().resolves();
+    },
+
+    expectEjectUsbDrive() {
+      mockApiClient.ejectUsbDrive.expectCallWith().resolves();
     },
   };
 }

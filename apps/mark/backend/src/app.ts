@@ -3,7 +3,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert, ok, Result } from '@votingworks/basics';
+import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   BallotPackageConfigurationError,
@@ -12,19 +12,17 @@ import {
   PrecinctId,
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
-  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
 import {
   createUiStringsApi,
-  Usb,
   readBallotPackageFromUsb,
   configureUiStrings,
 } from '@votingworks/backend';
-import { Logger } from '@votingworks/logging';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 
@@ -45,10 +43,17 @@ function constructAuthMachineState(
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
   auth: InsertedSmartCardAuthApi,
-  usb: Usb,
+  usbDrive: UsbDrive,
   logger: Logger,
   workspace: Workspace
 ) {
+  async function getUserRole(): Promise<LoggingUserRole> {
+    const authStatus = await auth.getAuthStatus(
+      constructAuthMachineState(workspace)
+    );
+    return authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown';
+  }
+
   return grout.createApi({
     getMachineConfig,
 
@@ -64,6 +69,14 @@ export function buildApi(
 
     logOut() {
       return auth.logOut(constructAuthMachineState(workspace));
+    },
+
+    getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDrive.status();
+    },
+
+    async ejectUsbDrive(): Promise<void> {
+      return usbDrive.eject(assertDefined(await getUserRole()));
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
@@ -101,28 +114,12 @@ export function buildApi(
       workspace.store.reset();
     },
 
-    configureWithSampleBallotPackageForIntegrationTest(): Result<
-      ElectionDefinition,
-      BallotPackageConfigurationError
-    > {
-      const electionDefinition = electionGeneralDefinition;
-      const systemSettings = DEFAULT_SYSTEM_SETTINGS;
-      workspace.store.setElectionAndJurisdiction({
-        electionData: electionDefinition.electionData,
-        jurisdiction: TEST_JURISDICTION,
-      });
-      workspace.store.setSystemSettings(systemSettings);
-      return ok(electionDefinition);
-    },
-
     async configureBallotPackageFromUsb(): Promise<
       Result<ElectionDefinition, BallotPackageConfigurationError>
     > {
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-      const [usbDrive] = await usb.getUsbDrives();
-      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
@@ -167,10 +164,10 @@ export function buildApp(
   auth: InsertedSmartCardAuthApi,
   logger: Logger,
   workspace: Workspace,
-  usb: Usb
+  usbDrive: UsbDrive
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, usb, logger, workspace);
+  const api = buildApi(auth, usbDrive, logger, workspace);
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

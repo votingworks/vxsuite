@@ -27,10 +27,13 @@
   "dependencies": {
     "@playwright/test": "^1.37.1",
     "@votingworks/auth": "workspace:*",
+    "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "concurrently": "^7.6.0"
+    "@votingworks/usb-drive": "workspace:*",
+    "concurrently": "^7.6.0",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "@types/node": "16.18.23",

@@ -47,6 +47,7 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "canvas": "2.9.1",
     "debug": "^4.3.4",

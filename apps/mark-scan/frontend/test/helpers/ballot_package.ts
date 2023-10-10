@@ -1,10 +1,10 @@
-import { FakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
 } from '@votingworks/types';
 import { VxScreen } from '@votingworks/ui';
 import { ApiMock } from './mock_api_client';
+import { mockUsbDriveStatus } from './mock_usb_drive';
 
 /**
  * Simulates inserting a USB drive, configuring the backend with an election definition,
@@ -16,7 +16,6 @@ import { ApiMock } from './mock_api_client';
  */
 export async function configureFromUsbThenRemove(
   apiMock: ApiMock,
-  kiosk: FakeKiosk,
   screen: VxScreen,
   electionDefinition: ElectionDefinition
 ): Promise<void> {
@@ -24,9 +23,9 @@ export async function configureFromUsbThenRemove(
   apiMock.expectConfigureBallotPackageFromUsb(electionDefinition);
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.expectGetElectionDefinition(electionDefinition);
-  kiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
   // Remove USB after configuration is done
   await screen.findByText('Election Definition is loaded.');
-  kiosk.getUsbDriveInfo.mockResolvedValue([]);
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('no_drive'));
 }

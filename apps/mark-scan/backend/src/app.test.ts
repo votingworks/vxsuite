@@ -1,7 +1,6 @@
 import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
-  electionGeneralDefinition,
   systemSettings,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -18,7 +17,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import { createBallotPackageZipArchive, MockUsb } from '@votingworks/backend';
+import { createBallotPackageZipArchive } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import {
@@ -27,6 +26,7 @@ import {
   SinglePrecinctSelection,
   safeParseSystemSettings,
 } from '@votingworks/types';
+import { MockUsbDrive } from '@votingworks/usb-drive';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
@@ -42,7 +42,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 let apiClient: grout.Client<Api>;
 let mockAuth: InsertedSmartCardAuthApi;
-let mockUsb: MockUsb;
+let mockUsbDrive: MockUsbDrive;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
 
@@ -54,7 +54,7 @@ beforeEach(async () => {
   const result = await createApp();
   apiClient = result.apiClient;
   mockAuth = result.mockAuth;
-  mockUsb = result.mockUsb;
+  mockUsbDrive = result.mockUsbDrive;
   server = result.server;
   stateMachine = result.stateMachine;
 });
@@ -74,7 +74,7 @@ async function setUpUsbAndConfigureElection(
       systemSettings.asText()
     ).unsafeUnwrap(),
   });
-  mockUsb.insertUsbDrive({
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': zipBuffer,
     },
@@ -204,6 +204,12 @@ test('unconfigureMachine deletes system settings and election definition', async
 });
 
 test('configureBallotPackageFromUsb throws when no USB drive mounted', async () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  mockElectionManagerAuth(electionDefinition);
+
+  mockUsbDrive.usbDrive.status
+    .expectCallWith()
+    .resolves({ status: 'no_drive' });
   await suppressingConsoleOutput(async () => {
     await expect(apiClient.configureBallotPackageFromUsb()).rejects.toThrow(
       'No USB drive mounted'
@@ -220,7 +226,7 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
     })
   );
 
-  mockUsb.insertUsbDrive({
+  mockUsbDrive.insertUsbDrive({
     'ballot-packages': {
       'test-ballot-package.zip': Buffer.from("doesn't matter"),
     },
@@ -231,13 +237,18 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
   expect(result.err()).toEqual('auth_required_before_ballot_package_load');
 });
 
-test('configureWithSampleBallotPackageForIntegrationTest configures electionGeneralDefinition and DEFAULT_SYSTEM_SETTINGS', async () => {
-  const writeResult =
-    await apiClient.configureWithSampleBallotPackageForIntegrationTest();
-  assert(writeResult.isOk());
+test('usbDrive', async () => {
+  const { usbDrive } = mockUsbDrive;
 
-  const readResult = await apiClient.getSystemSettings();
-  expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
-  const electionDefinitionResult = await apiClient.getElectionDefinition();
-  expect(electionDefinitionResult).toEqual(electionGeneralDefinition);
+  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  expect(await apiClient.getUsbDriveStatus()).toEqual({
+    status: 'no_drive',
+  });
+
+  usbDrive.eject.expectCallWith('unknown').resolves();
+  await apiClient.ejectUsbDrive();
+
+  mockElectionManagerAuth(electionFamousNames2021Fixtures.electionDefinition);
+  usbDrive.eject.expectCallWith('election_manager').resolves();
+  await apiClient.ejectUsbDrive();
 });
