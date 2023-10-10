@@ -5171,6 +5171,12 @@ importers:
       dompurify:
         specifier: ^2.0.12
         version: 2.3.8
+      i18next:
+        specifier: ^23.5.1
+        version: 23.5.1
+      lodash:
+        specifier: ^4.17.20
+        version: 4.17.21
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -5186,6 +5192,9 @@ importers:
       qrcode.react:
         specifier: ^3.1.0
         version: 3.1.0(react@18.2.0)
+      react-i18next:
+        specifier: ^13.2.2
+        version: 13.2.2(i18next@23.5.1)(react-dom@18.2.0)(react@18.2.0)
       react-idle-timer:
         specifier: ^5.7.2
         version: 5.7.2(react-dom@18.2.0)(react@18.2.0)
@@ -5235,15 +5244,18 @@ importers:
       '@types/history':
         specifier: '4'
         version: 4.7.11
+      '@types/i18next':
+        specifier: ^13.0.0
+        version: 13.0.0
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../@types/kiosk-browser
-      '@types/lodash.clonedeep':
-        specifier: ^4.5.7
-        version: 4.5.7
+      '@types/lodash':
+        specifier: ^4.14.168
+        version: 4.14.191
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -5259,6 +5271,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.7
         version: 18.2.7
+      '@types/react-i18next':
+        specifier: ^8.1.0
+        version: 8.1.0(i18next@23.5.1)(react-dom@18.2.0)(react@18.2.0)
       '@types/react-modal':
         specifier: ^3.13.1
         version: 3.13.1
@@ -5325,9 +5340,6 @@ importers:
       lint-staged:
         specifier: ^11.0.0
         version: 11.0.0
-      lodash.clonedeep:
-        specifier: ^4.5.0
-        version: 4.5.0
       lorem-ipsum:
         specifier: ^2.0.8
         version: 2.0.8
@@ -11428,6 +11440,13 @@ packages:
       '@types/node': 16.18.23
     dev: false
 
+  /@types/i18next@13.0.0:
+    resolution: {integrity: sha512-gp/SIShAuf4WOqi8ey0nuI7qfWaVpMNCcs/xLygrh/QTQIXmlDC1E0TtVejweNW+7SGDY7g0lyxyKZIJuCKIJw==}
+    deprecated: This is a stub types definition. i18next provides its own type definitions, so you do not need this installed.
+    dependencies:
+      i18next: 23.5.1
+    dev: true
+
   /@types/istanbul-lib-coverage@2.0.4:
     resolution: {integrity: sha512-z/QT1XN4K4KYuslS23k62yDIDLwLFkzxOuMplDtObz0+y7VqJCaO2o+SPwHCvLFZh7xazvvoor2tA/hPz9ee7g==}
 
@@ -11641,6 +11660,18 @@ packages:
     resolution: {integrity: sha512-3nwhsEa0anwl7XlT/L8y6yXdUb/qXO/frDcFeFKGt5ydTi5ECXv14RbJdCe3/yokowszftM+CAAjVTvldJJRVg==}
     dependencies:
       '@types/react': 18.2.18
+    dev: true
+
+  /@types/react-i18next@8.1.0(i18next@23.5.1)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-d4xhcjX5b3roNMObRNMfb1HinHQlQLPo8xlDj60dnHeeAw2bBymR2cy/l1giJpHzo/ZFgSvgVUvIWr4kCrenCg==}
+    deprecated: This is a stub types definition. react-i18next provides its own type definitions, so you do not need this installed.
+    dependencies:
+      react-i18next: 13.2.2(i18next@23.5.1)(react-dom@18.2.0)(react@18.2.0)
+    transitivePeerDependencies:
+      - i18next
+      - react
+      - react-dom
+      - react-native
     dev: true
 
   /@types/react-modal@3.13.1:
@@ -18199,6 +18230,11 @@ packages:
   /html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
+  /html-parse-stringify@3.0.1:
+    resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
+    dependencies:
+      void-elements: 3.1.0
+
   /html-tags@3.3.1:
     resolution: {integrity: sha512-ztqyC3kLto0e9WbNp0aeP+M3kTt+nbaIveGmUxAtZa+8iFgKLUOD4YKM5j+f3QD89bra7UeumolZHKuOXnTmeQ==}
     engines: {node: '>=8'}
@@ -18299,6 +18335,11 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
     dev: true
+
+  /i18next@23.5.1:
+    resolution: {integrity: sha512-JelYzcaCoFDaa+Ysbfz2JsGAKkrHiMG6S61+HLBUEIPaF40WMwW9hCPymlQGrP+wWawKxKPuSuD71WZscCsWHg==}
+    dependencies:
+      '@babel/runtime': 7.22.6
 
   /iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -22264,6 +22305,25 @@ packages:
       react: 18.2.0
     dev: false
 
+  /react-i18next@13.2.2(i18next@23.5.1)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-+nFUkbRByFwnrfDcYqvzBuaeZb+nACHx+fAWN/pZMddWOCJH5hoc21+Sa/N/Lqi6ne6/9wC/qRGOoQhJa6IkEQ==}
+    peerDependencies:
+      i18next: '>= 23.2.3'
+      react: '>= 16.8.0'
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.22.6
+      html-parse-stringify: 3.0.1
+      i18next: 23.5.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+
   /react-idle-timer@5.7.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-+BaPfc7XEUU5JFkwZCx6fO1bLVK+RBlFH+iY4X34urvIzZiZINP6v2orePx3E6pAztJGE7t4DzvL7if2SL/0GQ==}
     peerDependencies:
@@ -25054,6 +25114,10 @@ packages:
 
   /vm-browserify@1.1.2:
     resolution: {integrity: sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==}
+
+  /void-elements@3.1.0:
+    resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
+    engines: {node: '>=0.10.0'}
 
   /w3c-hr-time@1.0.2:
     resolution: {integrity: sha512-z8P5DvDNjKDoFIHK7q8r8lackT6l+jo/Ye3HOle7l9nICP9lf1Ci25fy9vHd0JOWewkIFzXIEig3TdKT7JQ5fQ==}
