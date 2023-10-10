@@ -29,6 +29,7 @@ import {
   ElectionDefinition,
   ExportCastVoteRecordsToUsbDriveError,
   Id,
+  mapSheet,
   MarkThresholds,
   PageInterpretation,
   PollsState,
@@ -283,20 +284,15 @@ async function buildCastVoteRecord(
       canonicalizedSheet.interpretation.ballotId) ||
     unsafeParse(BallotIdSchema, id);
   const images: SheetOf<CvrImageDataInput> | undefined = referencedFiles
-    ? [
-        {
-          imageHash: await referencedFiles.imageFiles[0].computeSha256Hash(),
-          imageRelativePath: referencedFiles.imageFiles[0].fileName,
-          layoutFileHash:
-            await referencedFiles.layoutFiles?.[0].computeSha256Hash(),
-        },
-        {
-          imageHash: await referencedFiles.imageFiles[1].computeSha256Hash(),
-          imageRelativePath: referencedFiles.imageFiles[1].fileName,
-          layoutFileHash:
-            await referencedFiles.layoutFiles?.[1].computeSha256Hash(),
-        },
-      ]
+    ? await mapSheet(
+        referencedFiles.imageFiles,
+        referencedFiles.layoutFiles ?? [undefined, undefined],
+        async (imageFile, layoutFile) => ({
+          imageHash: await imageFile.computeSha256Hash(),
+          imageRelativePath: imageFile.fileName,
+          layoutFileHash: await layoutFile?.computeSha256Hash(),
+        })
+      )
     : undefined;
 
   // BMD ballot
