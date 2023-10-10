@@ -68,7 +68,6 @@ export async function start({
   const resolvedAuth = auth ?? getDefaultAuth(logger);
   const driver = await resolveDriver();
 
-  const paperHandlerDriver = await getPaperHandlerDriver();
   let stateMachine;
   if (driver) {
     stateMachine = await getPaperHandlerStateMachine({
