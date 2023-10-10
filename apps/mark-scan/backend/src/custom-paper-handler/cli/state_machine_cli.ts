@@ -7,7 +7,7 @@ import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { join } from 'path';
 import { LogSource, Logger } from '@votingworks/logging';
 import { createWorkspace } from '../../util/workspace';
-import { MARK_WORKSPACE } from '../../globals';
+import { MARK_SCAN_WORKSPACE } from '../../globals';
 import { DEV_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS } from '../constants';
 import {
   PaperHandlerStateMachine,
@@ -67,7 +67,7 @@ async function logStatus(
 
 export async function main(): Promise<number> {
   printUsage();
-  const workspacePath = MARK_WORKSPACE;
+  const workspacePath = MARK_SCAN_WORKSPACE;
   assert(workspacePath !== undefined, 'expected workspace path');
   const workspace = createWorkspace(workspacePath);
 
