@@ -106,8 +106,7 @@ pub fn interpret(mut cx: FunctionContext) -> JsResult<JsObject> {
             }
 
             return cx.throw_error(format!(
-                "failed to interpret ballot card; further, the error could not be serialized: {:?}",
-                err
+                "failed to interpret ballot card; further, the error could not be serialized: {err:?}"
             ));
         }
     };
