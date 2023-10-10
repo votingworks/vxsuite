@@ -1,4 +1,5 @@
 import { unsafeParse } from '@votingworks/types';
+import { DEV_MOCK_USB_GLOB_PATTERN } from '@votingworks/usb-drive';
 import { join } from 'path';
 import { z } from 'zod';
 
@@ -41,3 +42,7 @@ export const SCAN_WORKSPACE =
  */
 export const SCAN_ALLOWED_EXPORT_PATTERNS =
   process.env.SCAN_ALLOWED_EXPORT_PATTERNS?.split(',') ?? ['/media/**/*'];
+
+if (NODE_ENV === 'development') {
+  SCAN_ALLOWED_EXPORT_PATTERNS.push(DEV_MOCK_USB_GLOB_PATTERN);
+}

@@ -1,39 +1,61 @@
 import { Buffer } from 'buffer';
-import tmp from 'tmp';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { Optional, assert } from '@votingworks/basics';
-import { UsbDrive, UsbDriveStatus } from '../usb_drive';
-import { MockFileTree, TMP_DIR_PREFIX, writeMockFileTree } from './helpers';
+import { join } from 'path';
+import { MockFileTree, writeMockFileTree } from './helpers';
+import { UsbDrive, UsbDriveStatus } from '../types';
 
-/**
- * The path of the file underlying a MockFileCard
- */
-export const MOCK_USB_FILE_PATH = '/tmp/mock-file-usb-drive.json';
+export const MOCK_USB_STATE_FILENAME = 'mock-usb-state.json';
+export const MOCK_USB_DATA_DIRNAME = 'mock-usb-data';
+export const DEFAULT_MOCK_USB_DIR = '/tmp/mock-usb';
+export const DEV_MOCK_USB_DIR = join(__dirname, '../../dev-workspace');
+export const DEV_MOCK_USB_GLOB_PATTERN = join(DEV_MOCK_USB_DIR, '**/*');
 
-interface MockFileContents {
+function getMockUsbDirPath(): string {
+  if (process.env.NODE_ENV === 'development') {
+    return join(__dirname, '../../dev-workspace');
+  }
+
+  return DEFAULT_MOCK_USB_DIR;
+}
+
+interface MockStateFileContents {
   status: UsbDriveStatus;
-  tmpDir?: string;
+}
+
+function getMockUsbStateFilePath(): string {
+  return join(getMockUsbDirPath(), MOCK_USB_STATE_FILENAME);
+}
+
+function getMockUsbDataDirPath(): string {
+  return join(getMockUsbDirPath(), MOCK_USB_DATA_DIRNAME);
 }
 
 /**
  * Converts a MockFileContents object into a Buffer
  */
-function serializeMockFileContents(mockFileContents: MockFileContents): Buffer {
-  return Buffer.from(JSON.stringify(mockFileContents), 'utf-8');
+function serializeMockFileContents(
+  mockStateFileContents: MockStateFileContents
+): Buffer {
+  return Buffer.from(JSON.stringify(mockStateFileContents), 'utf-8');
 }
 
 /**
  * Converts a Buffer created by serializeMockFileContents back into a MockFileContents object
  */
-function deserializeMockFileContents(file: Buffer): MockFileContents {
+function deserializeMockFileContents(file: Buffer): MockStateFileContents {
   return JSON.parse(file.toString('utf-8'));
 }
 
-function writeToMockFile(mockFileContents: MockFileContents): void {
+function writeToMockFile(mockStateFileContents: MockStateFileContents): void {
+  mkdirSync(getMockUsbDirPath(), { recursive: true });
   writeFileSync(
-    MOCK_USB_FILE_PATH,
-    serializeMockFileContents(mockFileContents)
+    getMockUsbStateFilePath(),
+    serializeMockFileContents(mockStateFileContents)
   );
+  // Create the data dir whenever we write to the state file, so that it's
+  // there before mock mounting
+  mkdirSync(getMockUsbDataDirPath(), { recursive: true });
 }
 
 export function initializeMockFile(): void {
@@ -48,11 +70,12 @@ export function initializeMockFile(): void {
  * A helper for readFromMockFile. Returns undefined if the mock file doesn't exist or can't be
  * parsed.
  */
-function readFromMockFileHelper(): Optional<MockFileContents> {
-  if (!existsSync(MOCK_USB_FILE_PATH)) {
+function readFromMockFileHelper(): Optional<MockStateFileContents> {
+  const mockFilePath = getMockUsbStateFilePath();
+  if (!existsSync(mockFilePath)) {
     return undefined;
   }
-  const file = readFileSync(MOCK_USB_FILE_PATH);
+  const file = readFileSync(mockFilePath);
   try {
     return deserializeMockFileContents(file);
   } catch {
@@ -61,9 +84,9 @@ function readFromMockFileHelper(): Optional<MockFileContents> {
 }
 
 /**
- * Reads and parses the contents of the file underlying a MockFileCard
+ * Reads and parses the contents of the file underlying a MockFileUsbDrive
  */
-function readFromMockFile(): MockFileContents {
+function readFromMockFile(): MockStateFileContents {
   let mockFileContents = readFromMockFileHelper();
   if (!mockFileContents) {
     initializeMockFile();
@@ -82,66 +105,58 @@ export class MockFileUsbDrive implements UsbDrive {
   }
 
   eject(): Promise<void> {
-    const { status, tmpDir } = readFromMockFile();
+    const { status } = readFromMockFile();
     if (status.status === 'mounted') {
-      writeToMockFile({ status: { status: 'ejected' }, tmpDir });
+      writeToMockFile({ status: { status: 'ejected' } });
     }
     return Promise.resolve();
   }
 
+  // mock not fully implemented
   format(): Promise<void> {
     return this.eject();
   }
 }
 
 interface MockFileUsbDriveHandler {
-  insert: (mockFileTree: MockFileTree) => void;
-  getMountPoint: () => Optional<string>;
+  status: () => UsbDriveStatus;
+  insert: (contents?: MockFileTree) => void;
   remove: () => void;
+  clearData: () => void;
+  getDataPath: () => Optional<string>;
   cleanup: () => void;
-}
-
-function insertMockFileUsbDrive(contents: MockFileTree): void {
-  const mockUsbTmpDir = tmp.dirSync({
-    unsafeCleanup: true,
-    prefix: TMP_DIR_PREFIX,
-  });
-  writeMockFileTree(mockUsbTmpDir.name, contents);
-  writeToMockFile({
-    status: {
-      status: 'mounted',
-      mountPoint: mockUsbTmpDir.name,
-    },
-    tmpDir: mockUsbTmpDir.name,
-  });
-}
-
-function removeTmpDir(): void {
-  const { tmpDir } = readFromMockFile();
-  if (tmpDir) {
-    rmSync(tmpDir, { recursive: true, force: true });
-  }
-}
-
-function removeMockFileUsbDrive(): void {
-  removeTmpDir();
-  writeToMockFile({
-    status: {
-      status: 'no_drive',
-    },
-  });
-}
-
-function cleanupMockFileUsbDrive(): void {
-  removeTmpDir();
-  rmSync(MOCK_USB_FILE_PATH);
 }
 
 export function getMockFileUsbDriveHandler(): MockFileUsbDriveHandler {
   return {
-    insert: insertMockFileUsbDrive,
-    getMountPoint: () => readFromMockFile().tmpDir,
-    remove: removeMockFileUsbDrive,
-    cleanup: cleanupMockFileUsbDrive,
+    status: () => {
+      return readFromMockFile().status;
+    },
+    insert: (contents?: MockFileTree) => {
+      writeToMockFile({
+        status: {
+          status: 'mounted',
+          mountPoint: getMockUsbDataDirPath(),
+        },
+      });
+
+      if (contents) {
+        writeMockFileTree(getMockUsbDataDirPath(), contents);
+      }
+    },
+    remove: () => {
+      writeToMockFile({
+        status: {
+          status: 'no_drive',
+        },
+      });
+    },
+    clearData: () => {
+      rmSync(getMockUsbDataDirPath(), { recursive: true, force: true });
+    },
+    getDataPath: getMockUsbDataDirPath,
+    cleanup: () => {
+      rmSync(getMockUsbDirPath(), { recursive: true, force: true });
+    },
   };
 }

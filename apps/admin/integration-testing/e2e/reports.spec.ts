@@ -99,7 +99,7 @@ test('viewing and exporting reports', async ({ page }) => {
   await page.getByRole('button', { name: 'Close' }).click();
 
   const exportedReportDirectory = join(
-    assertDefined(usbHandler.getMountPoint()),
+    assertDefined(usbHandler.getDataPath()),
     electionDirectory,
     'reports'
   );

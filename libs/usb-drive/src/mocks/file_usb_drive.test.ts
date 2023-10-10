@@ -2,18 +2,13 @@ import { Buffer } from 'buffer';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import {
-  MOCK_USB_FILE_PATH,
+  DEFAULT_MOCK_USB_DIR,
+  MOCK_USB_DATA_DIRNAME,
   MockFileUsbDrive,
   getMockFileUsbDriveHandler,
-  initializeMockFile,
 } from './file_usb_drive';
 
-beforeEach(() => {
-  // clear mock file from other tests or development
-  initializeMockFile();
-});
-
-test('file-based USB mock', async () => {
+test('mock flow', async () => {
   const usbDrive = new MockFileUsbDrive();
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
   await expect(usbDrive.eject()).resolves.toBeUndefined();
@@ -21,35 +16,35 @@ test('file-based USB mock', async () => {
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
 
   const handler = getMockFileUsbDriveHandler();
-  expect(handler.getMountPoint()).toBeUndefined();
 
   // Insert USB drive
   const testFilename = 'test-file.txt';
   handler.insert({
     [testFilename]: Buffer.from('test file contents'),
   });
+  const expectedMountPoint = join(DEFAULT_MOCK_USB_DIR, MOCK_USB_DATA_DIRNAME);
   expect(await usbDrive.status()).toMatchObject({
-    mountPoint: /\/tmp\/mock-usb-drive--*\//,
+    mountPoint: expectedMountPoint,
     status: 'mounted',
   });
 
   // USB drive contents are accessible
-  const mountPoint = handler.getMountPoint();
-  expect(mountPoint).toBeDefined();
-  expect(existsSync(join(mountPoint!, testFilename))).toEqual(true);
+  expect(handler.getDataPath()).toEqual(expectedMountPoint);
+  const expectedTestFilePath = join(expectedMountPoint, testFilename);
+  expect(existsSync(expectedTestFilePath)).toEqual(true);
 
   // Eject USB drive
   await usbDrive.eject();
   expect(await usbDrive.status()).toEqual({ status: 'ejected' });
-  expect(existsSync(join(mountPoint!, testFilename))).toEqual(true); // contents still exist
 
   // Remove USB drive
   handler.remove();
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
-  expect(existsSync(join(mountPoint!, testFilename))).toEqual(false);
+
+  // USB drive contents should still exist
+  expect(existsSync(expectedTestFilePath)).toEqual(true);
 
   // Cleanup
-  expect(existsSync(MOCK_USB_FILE_PATH)).toEqual(true);
   handler.cleanup();
-  expect(existsSync(MOCK_USB_FILE_PATH)).toEqual(false);
+  expect(existsSync(expectedTestFilePath)).toEqual(false);
 });
