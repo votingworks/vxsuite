@@ -52,6 +52,7 @@
     "@votingworks/logging": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "better-sqlite3": "^7.5.0",
     "buffer": "^6.0.3",

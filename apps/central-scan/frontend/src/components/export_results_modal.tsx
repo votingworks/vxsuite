@@ -11,13 +11,13 @@ import {
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
-import { exportCastVoteRecordsToUsbDrive } from '../api';
-
-function throwBadStatus(s: never): never {
-  throw new Error(`Bad status: ${s}`);
-}
+import {
+  ejectUsbDrive,
+  exportCastVoteRecordsToUsbDrive,
+  legacyUsbDriveStatus,
+} from '../api';
 
 export const UsbImage = styled.img`
   margin-right: auto;
@@ -40,9 +40,9 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { usbDriveEject, usbDriveStatus, auth } = useContext(AppContext);
+  const { usbDriveStatus, auth } = useContext(AppContext);
   assert(isElectionManagerAuth(auth));
-  const userRole = auth.user.role;
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
 
@@ -78,7 +78,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
   }
 
   if (currentState === ModalState.DONE) {
-    if (usbDriveStatus === 'ejected') {
+    if (usbDriveStatus.status === 'ejected') {
       return (
         <Modal
           title="USB Drive Ejected"
@@ -105,8 +105,8 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
             <UsbControllerButton
               small={false}
               primary
-              usbDriveStatus={usbDriveStatus}
-              usbDriveEject={() => usbDriveEject(userRole)}
+              usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+              usbDriveEject={() => ejectUsbDriveMutation.mutate()}
             />
             <Button onPress={onClose}>Cancel</Button>
           </React.Fragment>
@@ -119,14 +119,15 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
     return <Modal content={<Loading>Saving CVRs</Loading>} />;
   }
 
+  // istanbul ignore next -- compile-time check
   if (currentState !== ModalState.INIT) {
-    throwBadStatus(currentState); // Creates a compile time check that all states are being handled.
+    throwIllegalValue(currentState);
   }
 
-  switch (usbDriveStatus) {
-    case 'absent':
+  switch (usbDriveStatus.status) {
+    case 'no_drive':
     case 'ejected':
-    case 'bad_format':
+    case 'error':
       // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
@@ -138,15 +139,6 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
               <P>Please insert a USB drive in order to save CVRs.</P>
             </React.Fragment>
           }
-          onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Cancel</Button>}
-        />
-      );
-    case 'ejecting':
-    case 'mounting':
-      return (
-        <Modal
-          content={<Loading />}
           onOverlayClick={onClose}
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
@@ -172,8 +164,8 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
           }
         />
       );
+    // istanbul ignore next -- compile-time check
     default:
-      // Creates a compile time check to make sure this switch statement includes all enum values for UsbDriveStatus
-      throwBadStatus(usbDriveStatus);
+      throwIllegalValue(usbDriveStatus);
   }
 }

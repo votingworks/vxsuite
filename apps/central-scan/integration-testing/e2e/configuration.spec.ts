@@ -1,20 +1,42 @@
 import test from '@playwright/test';
-import { logOutAndResetElectionDefinition } from './helpers';
+import { createBallotPackageZipArchive } from '@votingworks/backend';
+import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { logInAsElectionManager, forceReset } from './helpers';
 
 test.beforeEach(async ({ page }) => {
-  await logOutAndResetElectionDefinition(page);
+  await forceReset(page);
 });
 
-test('configured basics', async ({ page }) => {
-  await page.click('text=Admin');
-  await page.click('text=Toggle to Official Ballot Mode');
+test('configure + scan', async ({ page }) => {
+  const usbHandler = getMockFileUsbDriveHandler();
+  await page.getByText('VxCentralScan is Not Configured').waitFor();
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+
+  await logInAsElectionManager(page, electionDefinition.electionHash);
+
+  usbHandler.insert({
+    'ballot-packages': {
+      'ballot-package.zip': await createBallotPackageZipArchive(
+        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage()
+      ),
+    },
+  });
+  await page.getByText('No ballots have been scanned').waitFor();
+  usbHandler.remove();
+
+  await page.getByText('Admin').click();
+  await page.getByText('Toggle to Official Ballot Mode').click();
   await page
     .getByRole('alertdialog')
     .getByRole('button', { name: 'Toggle to Official Ballot Mode' })
     .click();
-  await page.waitForSelector('text=No ballots have been scanned');
-  await page.click('text=Scan New Batch');
-  await page.waitForSelector(
-    'text=A total of 1 ballot has been scanned in 1 batch.'
-  );
+
+  await page.getByText('No ballots have been scanned').waitFor();
+  await page.getByText('Scan New Batch').click();
+  await page
+    .getByText('A total of 1 ballot has been scanned in 1 batch.')
+    .waitFor();
+
+  usbHandler.cleanup();
 });

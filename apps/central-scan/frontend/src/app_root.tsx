@@ -19,7 +19,6 @@ import {
   SystemAdministratorScreenContents,
   UsbControllerButton,
   useDevices,
-  useUsbDrive,
   LinkButton,
   Button,
   H1,
@@ -43,9 +42,12 @@ import { machineConfigProvider } from './util/machine_config';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
 import {
   checkPin,
+  ejectUsbDrive,
   getAuthStatus,
   getElectionDefinition,
   getTestMode,
+  getUsbDriveStatus,
+  legacyUsbDriveStatus,
   logOut,
   unconfigure,
 } from './api';
@@ -71,13 +73,12 @@ export function AppRoot({
     codeVersion: '',
   });
 
-  const usbDrive = useUsbDrive({ logger });
-
   const { cardReader, batchScanner } = useDevices({
     hardware,
     logger,
   });
 
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const userRole =
     authStatusQuery.data?.status === 'logged_in'
@@ -85,6 +86,7 @@ export function AppRoot({
       : 'unknown';
   const checkPinMutation = checkPin.useMutation();
   const logOutMutation = logOut.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   const getTestModeQuery = getTestMode.useQuery();
   const isTestMode = getTestModeQuery.data ?? false;
@@ -301,6 +303,7 @@ export function AppRoot({
 
   if (
     !authStatusQuery.isSuccess ||
+    !usbDriveStatusQuery.isSuccess ||
     !electionDefinitionQuery.isSuccess ||
     !getTestModeQuery.isSuccess
   ) {
@@ -316,8 +319,7 @@ export function AppRoot({
   const electionDefinition = electionDefinitionQuery.data ?? undefined;
 
   const currentContext: AppContextInterface = {
-    usbDriveStatus: usbDrive.status,
-    usbDriveEject: usbDrive.eject,
+    usbDriveStatus: usbDriveStatusQuery.data,
     electionDefinition,
     machineConfig,
     logger,
@@ -382,7 +384,7 @@ export function AppRoot({
               Promise.resolve(systemAdministratorUnconfigure())
             }
             isMachineConfigured={Boolean(electionDefinition)}
-            usbDriveStatus={usbDrive.status}
+            usbDriveStatus={legacyUsbDriveStatus(usbDriveStatusQuery.data)}
           />
           {electionDefinition && (
             <ElectionInfoBar
@@ -405,7 +407,6 @@ export function AppRoot({
   if (!electionDefinition) {
     return (
       <UnconfiguredElectionScreenWrapper
-        usbDriveStatus={usbDrive.status}
         isElectionManagerAuth={isElectionManagerAuth(authStatus)}
       />
     );
@@ -448,8 +449,8 @@ export function AppRoot({
             </Main>
             <MainNav isTestMode={isTestMode}>
               <UsbControllerButton
-                usbDriveStatus={usbDrive.status}
-                usbDriveEject={() => usbDrive.eject(userRole)}
+                usbDriveStatus={legacyUsbDriveStatus(usbDriveStatusQuery.data)}
+                usbDriveEject={() => ejectUsbDriveMutation.mutate()}
               />
               <Button small onPress={() => logOutMutation.mutate()}>
                 Lock Machine

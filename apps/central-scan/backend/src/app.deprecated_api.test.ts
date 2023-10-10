@@ -1,4 +1,3 @@
-import { MockUsb, createMockUsb } from '@votingworks/backend';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -23,10 +22,11 @@ import {
 } from '@votingworks/auth';
 import { Server } from 'http';
 import { Logger, fakeLogger } from '@votingworks/logging';
+import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
-import { buildCentralScannerApp } from './central_scanner_app';
+import { buildCentralScannerApp } from './app';
 
 jest.mock('./importer');
 
@@ -38,12 +38,12 @@ let importer: jest.Mocked<Importer>;
 let server: Server;
 let workspace: Workspace;
 let logger: Logger;
-let mockUsb: MockUsb;
+let mockUsbDrive: MockUsbDrive;
 
 beforeEach(() => {
   auth = buildMockDippedSmartCardAuth();
   importer = makeMock(Importer);
-  mockUsb = createMockUsb();
+  mockUsbDrive = createMockUsbDrive();
   logger = fakeLogger();
   workspace = createWorkspace(dirSync().name);
   workspace.store.setElectionAndJurisdiction({
@@ -56,7 +56,7 @@ beforeEach(() => {
   workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   app = buildCentralScannerApp({
     auth,
-    usb: mockUsb.mock,
+    usbDrive: mockUsbDrive.usbDrive,
     allowedExportPatterns: ['/tmp/**'],
     importer,
     workspace,

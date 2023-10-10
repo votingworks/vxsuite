@@ -756,6 +756,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
@@ -940,6 +943,9 @@ importers:
       js-file-download:
         specifier: ^0.4.6
         version: 0.4.12
+      lodash:
+        specifier: ^4.17.20
+        version: 4.17.21
       moment:
         specifier: ^2.29.1
         version: 2.29.1
@@ -1004,6 +1010,9 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
+      '@types/lodash':
+        specifier: ^4.14.168
+        version: 4.14.191
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -1055,6 +1064,9 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       esbuild:
         specifier: ^0.15.10
         version: 0.15.10
@@ -1139,6 +1151,9 @@ importers:
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../../libs/auth
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../../../libs/backend
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1148,9 +1163,15 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       concurrently:
         specifier: ^7.6.0
         version: 7.6.0
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 16.18.23

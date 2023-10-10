@@ -5,7 +5,6 @@ import {
 } from '@votingworks/auth';
 import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
-  Usb,
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
@@ -16,7 +15,6 @@ import {
   ElectionDefinition,
   SystemSettings,
   safeParse,
-  TEST_JURISDICTION,
   ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/types';
 import {
@@ -27,6 +25,7 @@ import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
 
@@ -38,7 +37,7 @@ export interface AppOptions {
   importer: Importer;
   workspace: Workspace;
   logger: Logger;
-  usb: Usb;
+  usbDrive: UsbDrive;
 }
 
 function constructAuthMachineState(
@@ -59,7 +58,7 @@ function buildApi({
   auth,
   workspace,
   logger,
-  usb,
+  usbDrive,
   importer,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
@@ -82,6 +81,14 @@ function buildApi({
 
     logOut() {
       return auth.logOut(constructAuthMachineState(workspace));
+    },
+
+    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+      return usbDrive.status();
+    },
+
+    async ejectUsbDrive(): Promise<void> {
+      return usbDrive.eject(assertDefined(await getUserRole()));
     },
 
     getTestMode() {
@@ -142,34 +149,19 @@ function buildApi({
       }
     },
 
-    /* c8 ignore start */
-    // This is only used in Playwright tests.
-    async configureWithSampleBallotPackageForIntegrationTest(): Promise<void> {
-      const { electionGridLayoutNewHampshireAmherstFixtures } = await import(
-        '@votingworks/fixtures'
-      );
-      const ballotPackage =
-        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage();
-      const { electionDefinition } = ballotPackage;
-      const systemSettings = DEFAULT_SYSTEM_SETTINGS;
-
-      importer.configure(electionDefinition, TEST_JURISDICTION);
-      store.setSystemSettings(systemSettings);
-    },
-    /* c8 ignore stop */
-
     async configureFromBallotPackageOnUsbDrive(): Promise<
       Result<ElectionDefinition, BallotPackageConfigurationError>
     > {
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-      const [usbDrive] = await usb.getUsbDrives();
-      assert(usbDrive?.mountPoint !== undefined, 'No USB drive mounted');
+      const usbDriveStatus = await usbDrive.status();
+      assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
 
       const ballotPackageResult = await readBallotPackageFromUsb(
         authStatus,
-        usbDrive,
+        // TODO: Update readBallotPackageFromUsb to use UsbDriveStatus
+        { deviceName: 'not used', mountPoint: usbDriveStatus.mountPoint },
         logger
       );
       if (ballotPackageResult.isErr()) {
@@ -247,7 +239,7 @@ function buildApi({
       });
       const exportResult = await exportCastVoteRecordsToUsbDrive(
         store,
-        usb,
+        usbDrive,
         input.isMinimalExport
           ? store.forEachAcceptedSheet()
           : store.forEachSheet(),
@@ -287,7 +279,7 @@ export function buildCentralScannerApp({
   importer,
   workspace,
   logger,
-  usb,
+  usbDrive,
 }: AppOptions): Application {
   const { store } = workspace;
 
@@ -296,7 +288,7 @@ export function buildCentralScannerApp({
     auth,
     workspace,
     logger,
-    usb,
+    usbDrive,
     importer,
   });
   app.use('/api', grout.buildRouter(api, express));

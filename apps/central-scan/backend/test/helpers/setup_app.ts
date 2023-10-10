@@ -1,4 +1,3 @@
-import { MockUsb, createMockUsb } from '@votingworks/backend';
 import { Application } from 'express';
 import { Logger, fakeLogger } from '@votingworks/logging';
 import { Server } from 'http';
@@ -6,11 +5,12 @@ import * as grout from '@votingworks/grout';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import getPort from 'get-port';
+import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import { MockScanner, makeMockScanner } from '../util/mocks';
 import { Importer } from '../../src/importer';
 import { Api } from '../../src';
-import { buildCentralScannerApp } from '../../src/central_scanner_app';
+import { buildCentralScannerApp } from '../../src/app';
 import { start } from '../../src/server';
 import { Store } from '../../src/store';
 
@@ -19,7 +19,7 @@ export async function withApp(
     auth: ReturnType<typeof buildMockDippedSmartCardAuth>;
     workspace: Workspace;
     scanner: MockScanner;
-    mockUsb: MockUsb;
+    mockUsbDrive: MockUsbDrive;
     importer: Importer;
     app: Application;
     logger: Logger;
@@ -33,11 +33,12 @@ export async function withApp(
   const workspace = createWorkspace(dirSync().name);
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, scanner });
-  const mockUsb = createMockUsb();
+  const mockUsbDrive = createMockUsbDrive();
+
   const logger = fakeLogger();
   const app = buildCentralScannerApp({
     auth,
-    usb: mockUsb.mock,
+    usbDrive: mockUsbDrive.usbDrive,
     allowedExportPatterns: ['/tmp/**'],
     importer,
     workspace,
@@ -60,7 +61,7 @@ export async function withApp(
       workspace,
       store: workspace.store,
       scanner,
-      mockUsb,
+      mockUsbDrive,
       importer,
       app,
       logger,

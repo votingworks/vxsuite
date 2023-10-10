@@ -16,9 +16,17 @@ export function exportFile({
 }): Promise<ExportDataResult> {
   const exporter = new Exporter({
     allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
-    /* we're not using `exportDataToUsbDrive`, so a placeholder `getUsbDrives` is fine */
-    /* c8 ignore next */
-    getUsbDrives: () => Promise.resolve([]),
+    /* We're not using `exportDataToUsbDrive` here, so a mock `usbDrive` is OK */
+    /* c8 ignore start */
+    usbDrive: {
+      status: () =>
+        Promise.resolve({
+          status: 'no_drive',
+        }),
+      eject: () => Promise.resolve(),
+      format: () => Promise.resolve(),
+    },
+    /* c8 ignore stop */
   });
 
   debug('exporting data to file %s', path);

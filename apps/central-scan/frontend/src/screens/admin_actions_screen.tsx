@@ -27,6 +27,8 @@ import {
   unconfigure,
   clearBallotData,
   exportCastVoteRecordsToUsbDrive,
+  ejectUsbDrive,
+  legacyUsbDriveStatus,
 } from '../api';
 
 const ButtonRow = styled.div`
@@ -47,12 +49,12 @@ export function AdminActionsScreen({
   electionDefinition,
 }: AdminActionScreenProps): JSX.Element {
   const history = useHistory();
-  const { logger, auth, usbDriveStatus, usbDriveEject, machineConfig } =
+  const { logger, auth, usbDriveStatus, machineConfig } =
     useContext(AppContext);
   assert(isElectionManagerAuth(auth));
-  const userRole = auth.user.role;
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const clearBallotDataMutation = clearBallotData.useMutation();
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
@@ -69,7 +71,7 @@ export function AdminActionsScreen({
   }
   function doUnconfigure() {
     setUnconfigureFlowState('unconfiguring');
-    usbDriveEject(userRole);
+    ejectUsbDriveMutation.mutate();
     unconfigureMutation.mutate(
       { ignoreBackupRequirement: false },
       {
@@ -131,7 +133,7 @@ export function AdminActionsScreen({
             <ButtonRow>
               <ExportLogsButtonRow
                 electionDefinition={electionDefinition}
-                usbDriveStatus={usbDriveStatus}
+                usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
                 auth={auth}
                 logger={logger}
                 machineConfig={machineConfig}
@@ -205,7 +207,7 @@ export function AdminActionsScreen({
                 This will delete the election configuration and all the scanned
                 ballot data from VxCentralScan.
               </P>
-              {usbDriveStatus === 'mounted' && (
+              {usbDriveStatus.status === 'mounted' && (
                 <P>It will also eject the USB drive.</P>
               )}
             </React.Fragment>

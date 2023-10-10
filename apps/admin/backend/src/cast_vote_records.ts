@@ -47,7 +47,6 @@ import {
   CvrFileMode,
   ImportCastVoteRecordsError,
 } from './types';
-import { buildGetUsbDrivesFn } from './util/exporter';
 
 /**
  * Validates that the fields in a cast vote record and the election definition correspond
@@ -115,11 +114,11 @@ export async function listCastVoteRecordExportsOnUsbDrive(
   const { election, electionHash } = electionDefinition;
 
   const listDirectoryResult = await listDirectoryOnUsbDrive(
+    usbDrive,
     path.join(
       SCANNER_RESULTS_FOLDER,
       generateElectionBasedSubfolderName(election, electionHash)
-    ),
-    buildGetUsbDrivesFn(usbDrive)
+    )
   );
   if (listDirectoryResult.isErr()) {
     const errorType = listDirectoryResult.err().type;

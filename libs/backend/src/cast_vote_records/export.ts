@@ -45,7 +45,6 @@ import {
 } from '@votingworks/utils';
 
 import { Exporter } from '../exporter';
-import { Usb as LegacyUsb } from '../mock_usb';
 import { SCAN_ALLOWED_EXPORT_PATTERNS, VX_MACHINE_ID } from '../scan_globals';
 import { buildCastVoteRecord as baseBuildCastVoteRecord } from './build_cast_vote_record';
 import { buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata } from './build_report_metadata';
@@ -660,33 +659,20 @@ async function markCastVoteRecordExportAsComplete(
  */
 export async function exportCastVoteRecordsToUsbDrive(
   scannerStore: ScannerStore,
-  usbDrive: UsbDrive | LegacyUsb,
+  usbDrive: UsbDrive,
   sheets: Iterable<Sheet>,
   exportOptions: ExportOptions
 ): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
-  let usbMountPoint: string | undefined;
-  if ('getUsbDrives' in usbDrive) {
-    usbMountPoint = (await usbDrive.getUsbDrives())[0]?.mountPoint;
-  } else {
-    const usbDriveStatus = await usbDrive.status();
-    usbMountPoint =
-      usbDriveStatus.status === 'mounted'
-        ? usbDriveStatus.mountPoint
-        : undefined;
-  }
+  const usbDriveStatus = await usbDrive.status();
+  const usbMountPoint =
+    usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
   if (usbMountPoint === undefined) {
     return err({ type: 'missing-usb-drive' });
   }
   const exportContext: ExportContext = {
     exporter: new Exporter({
       allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,
-      getUsbDrives:
-        'getUsbDrives' in usbDrive
-          ? usbDrive.getUsbDrives
-          : async () => {
-              const drive = await usbDrive.status();
-              return drive.status === 'mounted' ? [drive] : [];
-            },
+      usbDrive,
     }),
     exportOptions,
     scannerState: {

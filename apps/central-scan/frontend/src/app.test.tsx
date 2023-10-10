@@ -2,10 +2,8 @@ import fetchMock from 'fetch-mock';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
-  fakeKiosk,
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
-  fakeUsbDrive,
   hasTextAcrossElements,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
@@ -27,19 +25,26 @@ import {
 } from '../test/react_testing_library';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
-import { createMockApiClient, MockApiClient, setAuthStatus } from '../test/api';
+import {
+  createMockApiClient,
+  MockApiClient,
+  setAuthStatus,
+  setUsbDriveStatus,
+} from '../test/api';
+import { mockUsbDriveStatus } from '../test/helpers/mock_usb_drive';
 
 let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   jest.restoreAllMocks();
 
-  window.kiosk = undefined;
-
   mockApiClient = createMockApiClient();
   setAuthStatus(mockApiClient, {
     status: 'logged_out',
     reason: 'machine_locked',
+  });
+  setUsbDriveStatus(mockApiClient, {
+    status: 'no_drive',
   });
   mockApiClient.getSystemSettings
     .expectCallWith()
@@ -213,9 +218,6 @@ test('clicking Scan Batch will scan a batch', async () => {
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
-  const mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
-
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition
     .expectCallWith()
@@ -243,7 +245,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
+  setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('mounted'));
 
   // wait for the config to load
   const saveButton = screen.getButton('Save CVRs');
@@ -264,13 +266,8 @@ test('configuring election from usb ballot package works end to end', async () =
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition.expectCallWith().resolves(null);
 
-  const mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
-
   const hardware = MemoryHardware.buildStandard();
-  const { getByText } = render(
-    <App apiClient={mockApiClient} hardware={hardware} />
-  );
+  render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(
     electionGeneralDefinition,
     'VxCentralScan is Not Configured',
@@ -278,28 +275,28 @@ test('configuring election from usb ballot package works end to end', async () =
   );
 
   // Insert USB drive
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   expectConfigureFromBallotPackageOnUsbDrive();
+  setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('mounted'));
 
   await screen.findByText('No ballots have been scanned.');
 
-  getByText('General Election');
-  getByText(/Franklin County,/);
-  getByText(/State of Hamilton/);
+  screen.getByText('General Election');
+  screen.getByText(/Franklin County,/);
+  screen.getByText(/State of Hamilton/);
   screen.getByText(hasTextAcrossElements('Machine ID0001'));
 
   // Remove USB drive
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([]);
+  setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('no_drive'));
 
-  fireEvent.click(getByText('Admin'));
-  getByText('Admin Actions');
+  userEvent.click(screen.getByText('Admin'));
+  screen.getByText('Admin Actions');
   expect(
     screen.getButton('Delete Election Data from VxCentralScan')
   ).toBeEnabled();
-  fireEvent.click(getByText('Delete Election Data from VxCentralScan'));
+  userEvent.click(screen.getByText('Delete Election Data from VxCentralScan'));
   await screen.findByText('Delete all election data?');
-  fireEvent.click(getByText('Yes, Delete Election Data'));
-  getByText('Are you sure?');
+  userEvent.click(screen.getByText('Yes, Delete Election Data'));
+  screen.getByText('Are you sure?');
 
   mockApiClient.unconfigure
     .expectCallWith({ ignoreBackupRequirement: false })
@@ -309,8 +306,9 @@ test('configuring election from usb ballot package works end to end', async () =
     .expectCallWith()
     .resolves(DEFAULT_SYSTEM_SETTINGS);
   mockApiClient.getTestMode.expectCallWith().resolves(true);
-  fireEvent.click(getByText('I am sure. Delete all election data.'));
-  getByText('Deleting election data');
+  mockApiClient.ejectUsbDrive.expectCallWith().resolves();
+  userEvent.click(screen.getByText('I am sure. Delete all election data.'));
+  screen.getByText('Deleting election data');
   await screen.findByText('Insert a USB drive containing a ballot package.');
 });
 

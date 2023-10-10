@@ -1,12 +1,12 @@
 import { mockOf } from '@votingworks/test-utils';
-import { assert, err, ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { readFile, symlink, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { Readable } from 'stream';
 import { DirResult, dirSync } from 'tmp';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { Exporter, ExportDataResult } from './exporter';
-import { UsbDrive } from './get_usb_drives';
 import { execFile } from './exec';
 
 jest.mock('./exec', (): typeof import('./exec') => ({
@@ -14,7 +14,6 @@ jest.mock('./exec', (): typeof import('./exec') => ({
   execFile: jest.fn(),
 }));
 
-const getUsbDrivesMock = jest.fn();
 const execFileMock = mockOf(execFile);
 const tmpDirs: DirResult[] = [];
 
@@ -24,9 +23,12 @@ function createTmpDir() {
   return tmpDir.name;
 }
 
+const mockUsbDrive = createMockUsbDrive();
+const { usbDrive } = mockUsbDrive;
+
 const exporter = new Exporter({
   allowedExportPatterns: ['/tmp/**'],
-  getUsbDrives: getUsbDrivesMock,
+  usbDrive,
 });
 
 afterEach(() => {
@@ -114,7 +116,7 @@ test('exportData with a symbolic link', async () => {
 });
 
 test('exportDataToUsbDrive with no drives', async () => {
-  getUsbDrivesMock.mockResolvedValueOnce([]);
+  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -127,11 +129,9 @@ test('exportDataToUsbDrive with no drives', async () => {
 test('exportDataToUsbDrive happy path', async () => {
   const tmpDir = createTmpDir();
   const path = join(tmpDir, 'bucket/test.txt');
-  const drive: UsbDrive = {
-    deviceName: '/dev/sdb',
-    mountPoint: tmpDir,
-  };
-  getUsbDrivesMock.mockResolvedValueOnce([drive]);
+  usbDrive.status
+    .expectCallWith()
+    .resolves({ status: 'mounted', mountPoint: tmpDir, deviceName: 'dev/sdb' });
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -139,17 +139,15 @@ test('exportDataToUsbDrive happy path', async () => {
   );
   expect(result).toEqual(ok([path]));
   expect(await readFile(path, 'utf-8')).toEqual('bar');
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', drive.mountPoint]);
+  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', tmpDir]);
 });
 
 test('exportDataToUsbDrive with maximumFileSize', async () => {
   const tmpDir = createTmpDir();
   const path = join(tmpDir, 'bucket/test.txt');
-  const drive: UsbDrive = {
-    deviceName: '/dev/sdb',
-    mountPoint: tmpDir,
-  };
-  getUsbDrivesMock.mockResolvedValueOnce([drive]);
+  usbDrive.status
+    .expectCallWith()
+    .resolves({ status: 'mounted', mountPoint: tmpDir, deviceName: 'dev/sdb' });
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
@@ -161,17 +159,14 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
   expect(result).toEqual(ok([`${path}-part-1`, `${path}-part-2`]));
   expect(await readFile(`${path}-part-1`, 'utf-8')).toEqual('ba');
   expect(await readFile(`${path}-part-2`, 'utf-8')).toEqual('r');
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', drive.mountPoint]);
+  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', tmpDir]);
 });
 
 test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
   const tmpDir = createTmpDir();
-  const drive: UsbDrive = {
-    deviceName: '/dev/sdb',
-    mountPoint: tmpDir,
-  };
-  assert(drive.mountPoint !== undefined);
-  getUsbDrivesMock.mockResolvedValueOnce([drive]);
+  usbDrive.status
+    .expectCallWith()
+    .resolves({ status: 'mounted', mountPoint: tmpDir, deviceName: 'dev/sdb' });
 
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
@@ -179,10 +174,10 @@ test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
     Readable.from('1234'),
     { machineDirectoryToWriteToFirst: '/tmp/abcd' }
   );
-  const usbFilePath = join(drive.mountPoint, 'bucket/test.txt');
+  const usbFilePath = join(tmpDir, 'bucket/test.txt');
   const machineFilePath = '/tmp/abcd/test.txt';
   expect(result).toEqual(ok([usbFilePath]));
   expect(await readFile(usbFilePath, 'utf-8')).toEqual('1234');
   expect(await readFile(machineFilePath, 'utf-8')).toEqual('1234');
-  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', drive.mountPoint]);
+  expect(execFileMock).toHaveBeenCalledWith('sync', ['-f', tmpDir]);
 });

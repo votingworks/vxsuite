@@ -1,9 +1,7 @@
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { UsbDriveStatus } from '@votingworks/ui';
 import { err, ok } from '@votingworks/basics';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { fireEvent, waitFor } from '../../test/react_testing_library';
 import { ExportResultsModal } from './export_results_modal';
 import {
@@ -22,32 +20,26 @@ afterEach(() => {
   mockApiClient.assertComplete();
 });
 
-test('renders loading screen when usb drive is mounting or ejecting in export modal', () => {
-  const usbStatuses: UsbDriveStatus[] = ['mounting', 'ejecting'];
-
-  for (const status of usbStatuses) {
-    const closeFn = jest.fn();
-    const { getByText, unmount } = renderInAppContext(
-      <Router history={createMemoryHistory()}>
-        <ExportResultsModal onClose={closeFn} />
-      </Router>,
-      { usbDriveStatus: status, apiClient: mockApiClient }
-    );
-    getByText('Loading');
-    unmount();
-  }
-});
+const mockMountedUsbDrive: UsbDriveStatus = {
+  status: 'mounted',
+  mountPoint: 'mock',
+  deviceName: 'mock',
+};
 
 test('render no usb found screen when there is not a valid, mounted usb drive', () => {
-  const usbStatuses: UsbDriveStatus[] = ['absent', 'ejected', 'bad_format'];
+  const usbDriveStatuses: UsbDriveStatus[] = [
+    { status: 'no_drive' },
+    { status: 'ejected' },
+    { status: 'error', reason: 'bad_format' },
+  ];
 
-  for (const status of usbStatuses) {
+  for (const usbDriveStatus of usbDriveStatuses) {
     const closeFn = jest.fn();
     const { getByText, unmount, getByAltText } = renderInAppContext(
       <Router history={createMemoryHistory()}>
         <ExportResultsModal onClose={closeFn} />
       </Router>,
-      { usbDriveStatus: status, apiClient: mockApiClient }
+      { usbDriveStatus, apiClient: mockApiClient }
     );
     getByText('No USB Drive Detected');
     getByText('Please insert a USB drive in order to save CVRs.');
@@ -61,15 +53,15 @@ test('render no usb found screen when there is not a valid, mounted usb drive', 
 });
 
 test('render export modal when a usb drive is mounted as expected and allows automatic export', async () => {
-  const mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
-
   const closeFn = jest.fn();
   const history = createMemoryHistory();
   const { getByText, rerender } = renderInAppContext(
     <ExportResultsModal onClose={closeFn} />,
-    { usbDriveStatus: 'mounted', history, apiClient: mockApiClient }
+    {
+      usbDriveStatus: mockMountedUsbDrive,
+      history,
+      apiClient: mockApiClient,
+    }
   );
   getByText('Save CVRs');
 
@@ -86,7 +78,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   rerender(
     wrapInAppContext(<ExportResultsModal onClose={closeFn} />, {
       history,
-      usbDriveStatus: 'ejected',
+      usbDriveStatus: { status: 'ejected' },
       apiClient: mockApiClient,
     })
   );
@@ -94,15 +86,12 @@ test('render export modal when a usb drive is mounted as expected and allows aut
 });
 
 test('render export modal with errors when appropriate', async () => {
-  const mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
-
   const closeFn = jest.fn();
   const { getByText } = renderInAppContext(
     <Router history={createMemoryHistory()}>
       <ExportResultsModal onClose={closeFn} />
     </Router>,
-    { usbDriveStatus: 'mounted', apiClient: mockApiClient }
+    { usbDriveStatus: mockMountedUsbDrive, apiClient: mockApiClient }
   );
   getByText('Save CVRs');
 

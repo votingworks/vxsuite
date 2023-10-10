@@ -2,12 +2,15 @@ import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
+import { isIntegrationTest } from '@votingworks/utils';
 import { MOCK_SCANNER_FILES, NODE_ENV } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
 import { BatchScanner } from './fujitsu_scanner';
 import * as server from './server';
 
-export type { Api } from './central_scanner_app';
+export type { Api } from './app';
+
+const isTestEnvironment = NODE_ENV === 'test' || isIntegrationTest();
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvPath = '.env';
@@ -16,10 +19,10 @@ const dotenvFiles: string[] = [
   // Don't include `.env.local` for `test` environment
   // since normally you expect tests to produce the same
   // results for everyone
-  NODE_ENV !== 'test' ? `${dotenvPath}.local` : '',
+  !isTestEnvironment ? `${dotenvPath}.local` : '',
   `${dotenvPath}.${NODE_ENV}`,
   dotenvPath,
-  NODE_ENV !== 'test' ? `../../../${dotenvPath}.local` : '',
+  !isTestEnvironment ? `../../../${dotenvPath}.local` : '',
   `../../../${dotenvPath}`,
 ].filter(Boolean);
 
@@ -34,7 +37,7 @@ for (const dotenvFile of dotenvFiles) {
   }
 }
 
-const logger = new Logger(LogSource.VxScanService);
+const logger = new Logger(LogSource.VxCentralScanService);
 
 function getScanner(): BatchScanner | undefined {
   const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
@@ -49,7 +52,7 @@ function getScanner(): BatchScanner | undefined {
 }
 
 async function main(): Promise<number> {
-  await server.start({ batchScanner: getScanner() });
+  await server.start({ batchScanner: getScanner(), logger });
   return 0;
 }
 

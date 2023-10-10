@@ -221,3 +221,17 @@ test('getting / setting test mode', async () => {
     expect(store.getBallotsCounted()).toEqual(0);
   });
 });
+
+test('usbDrive', async () => {
+  await withApp(async ({ apiClient, mockUsbDrive }) => {
+    const { usbDrive } = mockUsbDrive;
+
+    usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+    expect(await apiClient.getUsbDriveStatus()).toEqual({
+      status: 'no_drive',
+    });
+
+    usbDrive.eject.expectCallWith('unknown').resolves();
+    await apiClient.ejectUsbDrive();
+  });
+});

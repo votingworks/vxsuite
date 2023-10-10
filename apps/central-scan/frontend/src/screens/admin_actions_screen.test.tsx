@@ -94,6 +94,7 @@ test('clicking "Delete Election Data from VxCentralScan" calls backend', async (
   mockApiClient.unconfigure
     .expectCallWith({ ignoreBackupRequirement: false })
     .resolves();
+  mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   screen.getByText('Are you sure?');
   userEvent.click(
     await screen.findButton('I am sure. Delete all election data.')
