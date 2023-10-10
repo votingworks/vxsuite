@@ -40,12 +40,12 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb-layout": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@xmldom/xmldom": "^0.8.1",
     "js-sha256": "^0.9.0",
     "pdfkit": "^0.13.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "svg-to-pdfkit": "^0.1.8",
-    "xmldom": "^0.6.0"
+    "svg-to-pdfkit": "^0.1.8"
   },
   "devDependencies": {
     "@jest/types": "^29.6.1",
@@ -56,7 +56,6 @@
     "@types/react-dom": "^18.2.7",
     "@types/svg-to-pdfkit": "^0.1.0",
     "@types/tmp": "^0.2.3",
-    "@types/xmldom": "^0.1.31",
     "esbuild": "^0.14.29",
     "esbuild-runner": "^2.2.1",
     "eslint-plugin-vx": "workspace:*",
