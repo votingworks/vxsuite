@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect } from 'react';
 import { H1, Icons, P } from '@votingworks/ui';
+import { throwIllegalValue } from '@votingworks/basics';
 import { behaviorToKeypressMap, validKeypressValues } from './constants';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
@@ -37,8 +38,6 @@ export function IdentifyInputStep({
       event.preventDefault();
 
       if (event.key === behaviorToKeypressMap[inputName]) {
-        // Exhaustive switch statement so we don't need a default case
-        // eslint-disable-next-line default-case
         switch (inputIdentificationPhase) {
           case 'unidentified':
             setInputIdentificationPhase('identified');
@@ -49,6 +48,9 @@ export function IdentifyInputStep({
           case 'other_input':
             setInputIdentificationPhase('identified');
             break;
+          /* istanbul ignore next - compile time check for completeness */
+          default:
+            throwIllegalValue(inputIdentificationPhase);
         }
       } else if (
         event.key === behaviorToKeypressMap[getOtherInputName(inputName)]
@@ -76,8 +78,6 @@ export function IdentifyInputStep({
   let bodyContent = '';
   let icon = null;
 
-  // Exhaustive switch statement so we don't need a default case
-  // eslint-disable-next-line default-case
   switch (inputIdentificationPhase) {
     case 'unidentified':
       headerContent = `Identify the "${inputName}" Input`;
@@ -94,6 +94,9 @@ export function IdentifyInputStep({
       bodyContent = 'Try the other input.';
       icon = <Icons.Danger />;
       break;
+    /* istanbul ignore next - compile time check for completeness */
+    default:
+      throwIllegalValue(inputIdentificationPhase);
   }
 
   return (
