@@ -203,17 +203,18 @@ async function* castVoteRecordGenerator(
           castVoteRecord.BallotImage[0].vxLayoutFileHash,
           castVoteRecord.BallotImage[1].vxLayoutFileHash,
         ];
-        layoutFiles = mapSheet(
+        const layoutFilePaths: SheetOf<string> = mapSheet(
           imagePaths,
-          layoutFileHashes,
-          (imagePath, expectedFileHash) => {
+          (imagePath) => {
             const { dir, name } = path.parse(imagePath);
-            const layoutFilePath = path.join(dir, `${name}.layout.json`);
-            return new ReferencedLayoutFile({
-              expectedFileHash,
-              filePath: layoutFilePath,
-            });
+            return path.join(dir, `${name}.layout.json`);
           }
+        );
+        layoutFiles = mapSheet(
+          layoutFileHashes,
+          layoutFilePaths,
+          (expectedFileHash, filePath) =>
+            new ReferencedLayoutFile({ expectedFileHash, filePath })
         );
       }
 

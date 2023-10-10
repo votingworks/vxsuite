@@ -529,7 +529,7 @@ export function buildCastVoteRecord({
           vxWriteIns: writeInCount,
         },
       ],
-      BallotImage: images ? images.map(buildCvrImageData) : undefined,
+      BallotImage: images?.map(buildCvrImageData),
     };
   }
 
@@ -607,6 +607,6 @@ export function buildCastVoteRecord({
             electionOptionPositionMap,
           }),
         ],
-    BallotImage: images ? images.map(buildCvrImageData) : undefined,
+    BallotImage: images?.map(buildCvrImageData),
   };
 }
