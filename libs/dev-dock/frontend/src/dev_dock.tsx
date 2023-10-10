@@ -275,6 +275,7 @@ function SmartCardMockControls() {
 }
 
 const UsbDriveControl = styled.button<{ isInserted: boolean }>`
+  position: relative;
   background-color: white;
   width: 80px;
   height: 120px;
@@ -288,6 +289,10 @@ const UsbDriveControl = styled.button<{ isInserted: boolean }>`
     props.isInserted
       ? `4px solid ${Colors.ACTIVE}`
       : `1px solid ${Colors.BORDER}`};
+  &:disabled {
+    color: ${Colors.DISABLED};
+    border-color: ${Colors.DISABLED};
+  }
 `;
 
 const UsbDriveClearButton = styled.button`
@@ -300,6 +305,29 @@ const UsbDriveClearButton = styled.button`
   &:active {
     color: ${Colors.ACTIVE};
     border-color: ${Colors.ACTIVE};
+  }
+  &:disabled {
+    color: ${Colors.DISABLED};
+    border-color: ${Colors.DISABLED};
+  }
+`;
+
+const UsbMocksDisabledMessage = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  > p {
+    padding: 5px;
+    background: #cccccc;
+    text-align: center;
+    color: black;
+    font-size: 13px;
   }
 `;
 
@@ -336,17 +364,29 @@ function UsbDriveMockControls() {
     clearUsbDriveMutation.mutate();
   }
 
+  const isFeatureEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_USB
+  );
+
+  const disabled = !isFeatureEnabled || !getUsbDriveStatusQuery.isSuccess;
+
   const isInserted = status === 'inserted';
   return (
     <Column>
       <UsbDriveControl
         onClick={onUsbDriveClick}
         isInserted={isInserted}
+        disabled={disabled}
         aria-label="USB Drive"
       >
-        {status && <UsbDriveIcon isInserted={isInserted} />}
+        <UsbDriveIcon isInserted={isInserted} disabled={disabled} />
+        {!isFeatureEnabled && (
+          <UsbMocksDisabledMessage>
+            <p>USB mock disabled</p>
+          </UsbMocksDisabledMessage>
+        )}
       </UsbDriveControl>
-      <UsbDriveClearButton onClick={onClearUsbDriveClick}>
+      <UsbDriveClearButton onClick={onClearUsbDriveClick} disabled={disabled}>
         Clear
       </UsbDriveClearButton>
     </Column>

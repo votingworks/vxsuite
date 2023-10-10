@@ -12,6 +12,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
+import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import { execFile } from './utils';
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
@@ -33,25 +34,6 @@ const MOCK_CARD_SCRIPT_PATH = join(
   __dirname,
   '../../../auth/scripts/mock-card'
 );
-const MOCK_USB_SCRIPT_DIRECTORY = join(__dirname, '../../../usb-mocking');
-function getUsbDriveStatus(): DevDockUsbDriveStatus {
-  return fs.existsSync('/dev/disk/by-id/usb-mock-part1')
-    ? 'inserted'
-    : 'removed';
-}
-async function removeUsbDrive(): Promise<void> {
-  await execFile('sudo', [join(MOCK_USB_SCRIPT_DIRECTORY, 'remove.sh')]);
-}
-async function insertUsbDrive(): Promise<void> {
-  await execFile('sudo', [join(MOCK_USB_SCRIPT_DIRECTORY, 'insert.sh')]);
-}
-async function clearUsbDrive(): Promise<void> {
-  await execFile('sudo', [
-    join(MOCK_USB_SCRIPT_DIRECTORY, 'initialize.sh'),
-    '-s',
-    '1000', // 1GB
-  ]);
-}
 
 export const DEV_DOCK_FILE_PATH = '/tmp/dev-dock.json';
 interface DevDockFileContents {
@@ -72,6 +54,8 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
 }
 
 function buildApi(devDockFilePath: string) {
+  const usbHandler = getMockFileUsbDriveHandler();
+
   return grout.createApi({
     setElection(input: { path: string }): void {
       const electionData = fs.readFileSync(
@@ -115,29 +99,19 @@ function buildApi(devDockFilePath: string) {
     },
 
     getUsbDriveStatus(): DevDockUsbDriveStatus {
-      return getUsbDriveStatus();
+      return usbHandler.status().status === 'mounted' ? 'inserted' : 'removed';
     },
 
-    async insertUsbDrive(): Promise<void> {
-      if (getUsbDriveStatus() === 'removed') {
-        await insertUsbDrive();
-      }
+    insertUsbDrive(): void {
+      usbHandler.insert();
     },
 
-    async removeUsbDrive(): Promise<void> {
-      if (getUsbDriveStatus() === 'inserted') {
-        await removeUsbDrive();
-      }
+    removeUsbDrive(): void {
+      usbHandler.remove();
     },
 
-    async clearUsbDrive(): Promise<void> {
-      if (getUsbDriveStatus() === 'inserted') {
-        await removeUsbDrive();
-        await clearUsbDrive();
-        await insertUsbDrive();
-      } else {
-        await clearUsbDrive();
-      }
+    clearUsbDrive(): void {
+      usbHandler.clearData();
     },
   });
 }
