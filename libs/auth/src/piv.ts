@@ -80,6 +80,13 @@ export const VERIFY = {
 } as const;
 
 /**
+ * SEQUENCE is a PIV encoding for a sequence of TLV-encoded data objects.
+ */
+export const SEQUENCE = {
+  TAG: 0x30,
+} as const;
+
+/**
  * Data object IDs of the format 0x5f 0xc1 0xXX are a PIV convention.
  */
 export function pivDataObjectId(uniqueByte: Byte): Buffer {
@@ -104,6 +111,21 @@ export function isIncorrectPinStatusWord(statusWord: [Byte, Byte]): boolean {
   const [sw1, sw2] = statusWord;
   // eslint-disable-next-line no-bitwise
   return sw1 === STATUS_WORD.VERIFY_FAIL.SW1 && sw2 >> 4 === 0x0c;
+}
+
+/**
+ * Some cards respond to the VERIFY command with a status word of 0x6982 when the
+ * PIN is incorrect.
+ */
+export function isSecurityConditionNotSatisfiedStatusWord(
+  statusWord: [Byte, Byte]
+): boolean {
+  const [sw1, sw2] = statusWord;
+
+  return (
+    sw1 === STATUS_WORD.SECURITY_CONDITION_NOT_SATISFIED.SW1 &&
+    sw2 === STATUS_WORD.SECURITY_CONDITION_NOT_SATISFIED.SW2
+  );
 }
 
 /**

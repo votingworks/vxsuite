@@ -1,8 +1,8 @@
 import {
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
-  JavaCard,
-  MockFileCard,
+  MockFileVxSuiteCard,
+  VxSuiteJavaCard,
 } from '@votingworks/auth';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
@@ -42,8 +42,8 @@ export function start({
       card:
         isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
         isIntegrationTest()
-          ? new MockFileCard()
-          : new JavaCard(),
+          ? new MockFileVxSuiteCard()
+          : new VxSuiteJavaCard(),
       config: {},
       logger,
     });

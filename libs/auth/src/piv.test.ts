@@ -4,6 +4,7 @@ import { Byte } from '@votingworks/types';
 import {
   construct8BytePinBuffer,
   isIncorrectPinStatusWord,
+  isSecurityConditionNotSatisfiedStatusWord,
   numRemainingPinAttemptsFromIncorrectPinStatusWord,
   pivDataObjectId,
 } from './piv';
@@ -79,4 +80,17 @@ test('numRemainingPinAttemptsFromIncorrectPinStatusWord validation', () => {
   expect(() =>
     numRemainingPinAttemptsFromIncorrectPinStatusWord([0x90, 0x00])
   ).toThrow();
+});
+
+test('isSecurityConditionNotSatisfiedStatusWord', () => {
+  expect(isSecurityConditionNotSatisfiedStatusWord([0x69, 0x82])).toEqual(true);
+  expect(isSecurityConditionNotSatisfiedStatusWord([0x69, 0x83])).toEqual(
+    false
+  );
+  expect(isSecurityConditionNotSatisfiedStatusWord([0x68, 0x82])).toEqual(
+    false
+  );
+  expect(isSecurityConditionNotSatisfiedStatusWord([0x69, 0x81])).toEqual(
+    false
+  );
 });

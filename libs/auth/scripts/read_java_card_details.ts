@@ -6,7 +6,7 @@ import {
 } from '../src';
 import { CardDetails } from '../src/card';
 import { verifyFirstCertWasSignedBySecondCert } from '../src/cryptography';
-import { JavaCard } from '../src/java_card';
+import { VxSuiteJavaCard } from '../src/vxsuite_java_card';
 import { waitForReadyCardStatus } from './utils';
 
 const ENVS = ['development', 'production'] as const;
@@ -26,7 +26,7 @@ const VX_CERT_AUTHORITY_CERT_PATHS: Record<Env, string> = {
 async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
   for (const env of ENVS) {
     const vxCertAuthorityCertPath = VX_CERT_AUTHORITY_CERT_PATHS[env];
-    const card = new JavaCard({ vxCertAuthorityCertPath });
+    const card = new VxSuiteJavaCard({ vxCertAuthorityCertPath });
     const { cardDetails } = await waitForReadyCardStatus(card);
     if (cardDetails) {
       // Card has been run through initial Java Card configuration script and programmed for a user
@@ -44,7 +44,7 @@ async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
       return { env };
     } catch {} /* eslint-disable-line no-empty */
 
-    // Disconnect the card so that it can be reconnected to, through a new JavaCard instance
+    // Disconnect the card so that it can be reconnected to, through a new VxSuiteJavaCard instance
     await card.disconnect();
   }
 

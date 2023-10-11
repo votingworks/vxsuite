@@ -2,8 +2,8 @@ import { Server } from 'http';
 import {
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
-  JavaCard,
-  MockFileCard,
+  MockFileVxSuiteCard,
+  VxSuiteJavaCard,
 } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -33,8 +33,8 @@ export function start({ auth, logger, port, workspace }: StartOptions): Server {
       card:
         isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
         isIntegrationTest()
-          ? new MockFileCard()
-          : new JavaCard(),
+          ? new MockFileVxSuiteCard()
+          : new VxSuiteJavaCard(),
       config: {
         allowCardlessVoterSessions: true,
         allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,

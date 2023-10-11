@@ -29,8 +29,12 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
-import { Card, CardDetails, CardStatus } from './card';
+import {
+  buildMockVxSuiteCard,
+  MockVxSuiteCard,
+  mockVxSuiteCardAssertComplete,
+} from '../test/utils';
+import { CardDetails, CardStatus, ProgrammableCard } from './card';
 import { DippedSmartCardAuth } from './dipped_smart_card_auth';
 import {
   DippedSmartCardAuthConfig,
@@ -48,7 +52,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
 const pin = '123456';
 const wrongPin = '654321';
 
-let mockCard: MockCard;
+let mockCard: MockVxSuiteCard;
 let mockLogger: Logger;
 let mockTime: DateTime;
 
@@ -60,12 +64,12 @@ beforeEach(() => {
   mockOf(generatePin).mockImplementation(() => pin);
   mockFeatureFlagger.resetFeatureFlags();
 
-  mockCard = buildMockCard();
+  mockCard = buildMockVxSuiteCard();
   mockLogger = fakeLogger();
 });
 
 afterEach(() => {
-  mockCardAssertComplete(mockCard);
+  mockVxSuiteCardAssertComplete(mockCard);
 });
 
 const jurisdiction = TEST_JURISDICTION;
@@ -675,7 +679,7 @@ test.each<{
   description: string;
   machineState: DippedSmartCardAuthMachineState;
   input: Parameters<DippedSmartCardAuth['programCard']>[1];
-  expectedCardProgramInput: Parameters<Card['program']>[0];
+  expectedCardProgramInput: Parameters<ProgrammableCard['program']>[0];
   expectedProgramResult: Awaited<
     ReturnType<DippedSmartCardAuth['programCard']>
   >;

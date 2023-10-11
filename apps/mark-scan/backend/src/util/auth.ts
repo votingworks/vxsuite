@@ -1,7 +1,7 @@
 import {
   InsertedSmartCardAuth,
-  JavaCard,
-  MockFileCard,
+  MockFileVxSuiteCard,
+  VxSuiteJavaCard,
 } from '@votingworks/auth';
 import { Logger } from '@votingworks/logging';
 import {
@@ -15,8 +15,8 @@ export function getDefaultAuth(logger: Logger): InsertedSmartCardAuth {
     card:
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
       isIntegrationTest()
-        ? new MockFileCard()
-        : new JavaCard(),
+        ? new MockFileVxSuiteCard()
+        : new VxSuiteJavaCard(),
     config: {
       allowCardlessVoterSessions: true,
       allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,

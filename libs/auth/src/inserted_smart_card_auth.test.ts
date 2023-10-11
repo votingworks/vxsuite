@@ -33,7 +33,11 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { buildMockCard, MockCard, mockCardAssertComplete } from '../test/utils';
+import {
+  buildMockVxSuiteCard,
+  MockVxSuiteCard,
+  mockVxSuiteCardAssertComplete,
+} from '../test/utils';
 import { CardDetails, CardStatus } from './card';
 import { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api';
 import { InsertedSmartCardAuth } from './inserted_smart_card_auth';
@@ -53,7 +57,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
 const pin = '123456';
 const wrongPin = '654321';
 
-let mockCard: MockCard;
+let mockCard: MockVxSuiteCard;
 let mockLogger: Logger;
 let mockTime: DateTime;
 
@@ -65,12 +69,12 @@ beforeEach(() => {
   mockOf(generatePin).mockImplementation(() => pin);
   mockFeatureFlagger.resetFeatureFlags();
 
-  mockCard = buildMockCard();
+  mockCard = buildMockVxSuiteCard();
   mockLogger = fakeLogger();
 });
 
 afterEach(() => {
-  mockCardAssertComplete(mockCard);
+  mockVxSuiteCardAssertComplete(mockCard);
 });
 
 const jurisdiction = TEST_JURISDICTION;

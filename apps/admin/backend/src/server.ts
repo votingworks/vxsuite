@@ -1,6 +1,10 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
+import {
+  DippedSmartCardAuth,
+  VxSuiteJavaCard,
+  MockFileVxSuiteCard,
+} from '@votingworks/auth';
 import { Server } from 'http';
 import {
   BooleanEnvironmentVariableName,
@@ -73,8 +77,8 @@ export async function start({
       card:
         isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
         isIntegrationTest()
-          ? new MockFileCard()
-          : new JavaCard(),
+          ? new MockFileVxSuiteCard()
+          : new VxSuiteJavaCard(),
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: false,
       },

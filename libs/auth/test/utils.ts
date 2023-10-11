@@ -1,14 +1,14 @@
 /* eslint-disable max-classes-per-file */
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 
-import { Card, CardStatus } from '../src/card';
+import { VxSuiteCard, CardStatus } from '../src/card';
 import {
   CardReader,
   OnReaderStatusChange,
   ReaderStatus,
 } from '../src/card_reader';
 import { CardType } from '../src/certs';
-import { JavaCard } from '../src/java_card';
+import { VxSuiteJavaCard } from '../src/vxsuite_java_card';
 
 /**
  * A mock card reader
@@ -36,37 +36,37 @@ export class MockCardReader implements Pick<CardReader, 'transmit'> {
 /**
  * The card API with all methods mocked using our custom libs/test-utils mocks
  */
-export interface MockCard {
-  getCardStatus: MockFunction<Card['getCardStatus']>;
-  checkPin: MockFunction<Card['checkPin']>;
-  program: MockFunction<Card['program']>;
-  readData: MockFunction<Card['readData']>;
-  writeData: MockFunction<Card['writeData']>;
-  clearData: MockFunction<Card['clearData']>;
-  unprogram: MockFunction<Card['unprogram']>;
+export interface MockVxSuiteCard {
+  getCardStatus: MockFunction<VxSuiteCard['getCardStatus']>;
+  checkPin: MockFunction<VxSuiteCard['checkPin']>;
+  program: MockFunction<VxSuiteCard['program']>;
+  readData: MockFunction<VxSuiteCard['readData']>;
+  writeData: MockFunction<VxSuiteCard['writeData']>;
+  clearData: MockFunction<VxSuiteCard['clearData']>;
+  unprogram: MockFunction<VxSuiteCard['unprogram']>;
 }
 
 /**
  * Builds a mock card instance
  */
-export function buildMockCard(): MockCard {
+export function buildMockVxSuiteCard(): MockVxSuiteCard {
   return {
-    getCardStatus: mockFunction<Card['getCardStatus']>('getCardStatus'),
-    checkPin: mockFunction<Card['checkPin']>('checkPin'),
-    program: mockFunction<Card['program']>('program'),
-    readData: mockFunction<Card['readData']>('readData'),
-    writeData: mockFunction<Card['writeData']>('writeData'),
-    clearData: mockFunction<Card['clearData']>('clearData'),
-    unprogram: mockFunction<Card['unprogram']>('unprogram'),
+    getCardStatus: mockFunction<VxSuiteCard['getCardStatus']>('getCardStatus'),
+    checkPin: mockFunction<VxSuiteCard['checkPin']>('checkPin'),
+    program: mockFunction<VxSuiteCard['program']>('program'),
+    readData: mockFunction<VxSuiteCard['readData']>('readData'),
+    writeData: mockFunction<VxSuiteCard['writeData']>('writeData'),
+    clearData: mockFunction<VxSuiteCard['clearData']>('clearData'),
+    unprogram: mockFunction<VxSuiteCard['unprogram']>('unprogram'),
   };
 }
 
 /**
  * Asserts that all the expected calls to all the methods of a mock card were made
  */
-export function mockCardAssertComplete(mockCard: MockCard): void {
+export function mockVxSuiteCardAssertComplete(mockCard: MockVxSuiteCard): void {
   for (const mockMethod of Object.values(mockCard) as Array<
-    MockCard[keyof MockCard]
+    MockVxSuiteCard[keyof MockVxSuiteCard]
   >) {
     mockMethod.assertComplete();
   }
@@ -76,7 +76,7 @@ export function mockCardAssertComplete(mockCard: MockCard): void {
  * An extension of the Java Card class with a method for manually setting the card status to
  * simplify setup for Java Card tests that require the card to be in a specific starting state
  */
-export class TestJavaCard extends JavaCard {
+export class TestVxSuiteJavaCard extends VxSuiteJavaCard {
   setCardStatus(cardStatus: CardStatus): void {
     this.cardStatus = cardStatus;
   }

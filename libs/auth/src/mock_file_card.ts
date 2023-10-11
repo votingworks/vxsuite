@@ -7,7 +7,7 @@ import {
   SystemAdministratorUser,
 } from '@votingworks/types';
 
-import { Card, CardStatus, CheckPinResponse } from './card';
+import { VxSuiteCard, CardStatus, CheckPinResponse } from './card';
 
 /**
  * The path of the file underlying a MockFileCard
@@ -122,7 +122,7 @@ function updateNumIncorrectPinAttempts(
  *
  * Use ./scripts/mock-card in libs/auth/ to mock cards during local development.
  */
-export class MockFileCard implements Card {
+export class MockFileVxSuiteCard implements VxSuiteCard {
   constructor() {
     initializeMockFile();
   }

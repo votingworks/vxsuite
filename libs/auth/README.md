@@ -105,6 +105,18 @@ role, and election hash.
 ./scripts/read-java-card-details
 ```
 
+### Check PIN Script
+
+This script prompts you for a PIN and asks the Java Card to verify it.
+
+```
+# check a VxSuite card's PIN
+VX_MACHINE_TYPE=admin ./scripts/check-pin --vxsuite
+
+# check a Common Access Card (CAC) PIN
+./scripts/check-pin --cac
+```
+
 ### Production Machine Cert Signing Request Creation Script
 
 This script creates a production machine cert signing request, using the
@@ -154,3 +166,16 @@ The following command generates keys and certs for tests:
 ```
 ./scripts/generate-test-keys-and-certs
 ```
+
+### Get Common Access Card (CAC) Certificate Script
+
+This script gets a CAC certificate from a CAC card. It's meant to be used for
+development and testing.
+
+```
+./scripts/get-cac-cert
+```
+
+Prints the certificate in PEM format to stdout by default. Use the `--output`
+option to write the certificate to a file, or the `--json` option to print the
+certificate metadata in JSON format.

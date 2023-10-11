@@ -1,12 +1,13 @@
 export * from './artifact_authentication';
 export type { CardStatus } from './card';
 export * from './cast_vote_record_hashes';
+export * from './common_access_card';
 export * from './config';
 export * from './dipped_smart_card_auth_api';
 export * from './dipped_smart_card_auth';
 export * from './inserted_smart_card_auth_api';
 export * from './inserted_smart_card_auth';
-export * from './java_card';
+export * from './vxsuite_java_card';
 export * from './jurisdictions';
 export * from './live_check';
 export * from './mock_file_card';
