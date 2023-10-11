@@ -284,9 +284,9 @@ export function parseTlv(
   let valueBytesLength: number;
   const lengthBytesFirst = assertDefined(tlv.at(expectedTagLength));
   if (lengthBytesFirst === 0x81) {
-    const tlvLengthSecondByte = tlv.at(expectedTagLength + 1);
+    const lengthBytesSecond = tlv.at(expectedTagLength + 1);
     lengthBytesLength = 2;
-    valueBytesLength = assertDefined(tlvLengthSecondByte);
+    valueBytesLength = assertDefined(lengthBytesSecond);
   } else if (lengthBytesFirst === 0x82) {
     const lengthBytesSecond = tlv.at(expectedTagLength + 1);
     const lengthBytesThird = tlv.at(expectedTagLength + 2);
