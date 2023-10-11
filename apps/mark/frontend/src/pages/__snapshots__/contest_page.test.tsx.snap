@@ -406,20 +406,30 @@ exports[`Renders ContestPage 1`] = `
             <h1
               class="c7"
             >
-              President and Vice-President
+              <span
+                class=""
+              >
+                President and Vice-President
+              </span>
             </h1>
           </div>
           <span
             class="c8"
           >
-            Vote for 
-            1
-            .
+            <span
+              class=""
+            >
+              Vote for 1.
+            </span>
              
             <span
               class="screen-reader-only"
             >
-              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              <span
+                class=""
+              >
+                To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              </span>
             </span>
           </span>
         </div>
@@ -479,7 +489,11 @@ exports[`Renders ContestPage 1`] = `
                     <span
                       class="c22"
                     >
-                      Federalist
+                      <span
+                        class=""
+                      >
+                        Federalist
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -529,7 +543,11 @@ exports[`Renders ContestPage 1`] = `
                     <span
                       class="c22"
                     >
-                      People’s
+                      <span
+                        class=""
+                      >
+                        People’s
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -579,7 +597,11 @@ exports[`Renders ContestPage 1`] = `
                     <span
                       class="c22"
                     >
-                      Liberty
+                      <span
+                        class=""
+                      >
+                        Liberty
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -629,7 +651,11 @@ exports[`Renders ContestPage 1`] = `
                     <span
                       class="c22"
                     >
-                      Constitution
+                      <span
+                        class=""
+                      >
+                        Constitution
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -679,7 +705,11 @@ exports[`Renders ContestPage 1`] = `
                     <span
                       class="c22"
                     >
-                      Whig
+                      <span
+                        class=""
+                      >
+                        Whig
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -729,7 +759,11 @@ exports[`Renders ContestPage 1`] = `
                     <span
                       class="c22"
                     >
-                      Labor
+                      <span
+                        class=""
+                      >
+                        Labor
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -770,7 +804,11 @@ exports[`Renders ContestPage 1`] = `
         <span
           class="c14"
         >
-          Back
+          <span
+            class=""
+          >
+            Back
+          </span>
         </span>
       </button>
       <button
@@ -798,7 +836,9 @@ exports[`Renders ContestPage 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span>
+            <span
+              class=""
+            >
               Color/Size
             </span>
           </span>
@@ -832,7 +872,11 @@ exports[`Renders ContestPage 1`] = `
         <span
           class="c14"
         >
-          Next
+          <span
+            class=""
+          >
+            Next
+          </span>
         </span>
       </button>
     </nav>
@@ -1246,20 +1290,30 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             <h1
               class="c7"
             >
-              President and Vice-President
+              <span
+                class=""
+              >
+                President and Vice-President
+              </span>
             </h1>
           </div>
           <span
             class="c8"
           >
-            Vote for 
-            1
-            .
+            <span
+              class=""
+            >
+              Vote for 1.
+            </span>
              
             <span
               class="screen-reader-only"
             >
-              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              <span
+                class=""
+              >
+                To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              </span>
             </span>
           </span>
         </div>
@@ -1319,7 +1373,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     <span
                       class="c22"
                     >
-                      Federalist
+                      <span
+                        class=""
+                      >
+                        Federalist
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -1369,7 +1427,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     <span
                       class="c22"
                     >
-                      People’s
+                      <span
+                        class=""
+                      >
+                        People’s
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -1419,7 +1481,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     <span
                       class="c22"
                     >
-                      Liberty
+                      <span
+                        class=""
+                      >
+                        Liberty
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -1469,7 +1535,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     <span
                       class="c22"
                     >
-                      Constitution
+                      <span
+                        class=""
+                      >
+                        Constitution
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -1519,7 +1589,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     <span
                       class="c22"
                     >
-                      Whig
+                      <span
+                        class=""
+                      >
+                        Whig
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -1569,7 +1643,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                     <span
                       class="c22"
                     >
-                      Labor
+                      <span
+                        class=""
+                      >
+                        Labor
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -1610,7 +1688,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         <span
           class="c14"
         >
-          Back
+          <span
+            class=""
+          >
+            Back
+          </span>
         </span>
       </button>
       <button
@@ -1638,7 +1720,9 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span>
+            <span
+              class=""
+            >
               Color/Size
             </span>
           </span>
@@ -1672,7 +1756,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         <span
           class="c14"
         >
-          Next
+          <span
+            class=""
+          >
+            Next
+          </span>
         </span>
       </button>
     </nav>

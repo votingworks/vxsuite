@@ -353,7 +353,11 @@ exports[`changing votes 1`] = `
           <h1
             class="c4"
           >
-            Ballot Measure 3
+            <span
+              class=""
+            >
+              Ballot Measure 3
+            </span>
           </h1>
         </div>
         <span
@@ -788,7 +792,11 @@ exports[`voting for both yes and no 1`] = `
           <h1
             class="c4"
           >
-            Ballot Measure 3
+            <span
+              class=""
+            >
+              Ballot Measure 3
+            </span>
           </h1>
         </div>
         <span

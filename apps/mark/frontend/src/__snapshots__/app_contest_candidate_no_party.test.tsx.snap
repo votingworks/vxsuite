@@ -31,6 +31,14 @@ exports[`Single Seat Contest 1`] = `
   font-size: 0.75rem;
 }
 
+.c23 {
+  font-size: 1em;
+  font-weight: 300;
+  line-height: 1.15;
+  margin: 0;
+  font-size: 0.75rem;
+}
+
 .c21 {
   font-size: 1em;
   line-height: 1.15;
@@ -141,7 +149,7 @@ exports[`Single Seat Contest 1`] = `
   cursor: not-allowed;
 }
 
-.c24 {
+.c25 {
   display: inline-block;
 }
 
@@ -320,14 +328,14 @@ exports[`Single Seat Contest 1`] = `
   justify-content: space-between;
 }
 
-.c23 {
+.c24 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
 }
 
-.c25 {
+.c26 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -378,7 +386,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 @media (orientation:portrait) {
-  .c23 {
+  .c24 {
     -webkit-align-items: stretch;
     -webkit-box-align: stretch;
     -ms-flex-align: stretch;
@@ -393,7 +401,7 @@ exports[`Single Seat Contest 1`] = `
     padding: 0.5rem;
   }
 
-  .c23 > *:not(:first-child,:last-child) {
+  .c24 > *:not(:first-child,:last-child) {
     -webkit-box-flex: 1;
     -webkit-flex-grow: 1;
     -ms-flex-positive: 1;
@@ -402,7 +410,7 @@ exports[`Single Seat Contest 1`] = `
 }
 
 @media (orientation:landscape) {
-  .c23 {
+  .c24 {
     border-left: 0.25rem solid #222222;
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
@@ -415,7 +423,7 @@ exports[`Single Seat Contest 1`] = `
     padding: 0.5rem;
   }
 
-  .c23 > * {
+  .c24 > * {
     min-height: 3rem;
   }
 }
@@ -487,20 +495,30 @@ exports[`Single Seat Contest 1`] = `
             <h1
               class="c8"
             >
-              President and Vice-President
+              <span
+                class=""
+              >
+                President and Vice-President
+              </span>
             </h1>
           </div>
           <span
             class="c9"
           >
-            Vote for 
-            1
-            .
+            <span
+              class=""
+            >
+              Vote for 1.
+            </span>
              
             <span
               class="screen-reader-only"
             >
-              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              <span
+                class=""
+              >
+                To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              </span>
             </span>
           </span>
         </div>
@@ -557,6 +575,9 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Joseph Barchi and Joseph Hallaren
                     </p>
+                    <span
+                      class="c23"
+                    />
                   </span>
                 </span>
               </span>
@@ -602,6 +623,9 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Adam Cramer and Greg Vuocolo
                     </p>
+                    <span
+                      class="c23"
+                    />
                   </span>
                 </span>
               </span>
@@ -647,6 +671,9 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Daniel Court and Amy Blumhardt
                     </p>
+                    <span
+                      class="c23"
+                    />
                   </span>
                 </span>
               </span>
@@ -692,6 +719,9 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Alvin Boone and James Lian
                     </p>
+                    <span
+                      class="c23"
+                    />
                   </span>
                 </span>
               </span>
@@ -737,6 +767,9 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Ashley Hildebrand-McDougall and James Garritty
                     </p>
+                    <span
+                      class="c23"
+                    />
                   </span>
                 </span>
               </span>
@@ -782,6 +815,9 @@ exports[`Single Seat Contest 1`] = `
                     >
                       Martin Patterson and Clay Lariviere
                     </p>
+                    <span
+                      class="c23"
+                    />
                   </span>
                 </span>
               </span>
@@ -791,7 +827,7 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </main>
     <nav
-      class="c23"
+      class="c24"
     >
       <button
         aria-label="previous contest"
@@ -800,7 +836,7 @@ exports[`Single Seat Contest 1`] = `
         type="button"
       >
         <span
-          class="c24"
+          class="c25"
         >
           <svg
             aria-hidden="true"
@@ -821,7 +857,11 @@ exports[`Single Seat Contest 1`] = `
         <span
           class="c15"
         >
-          Back
+          <span
+            class=""
+          >
+            Back
+          </span>
         </span>
       </button>
       <button
@@ -832,7 +872,7 @@ exports[`Single Seat Contest 1`] = `
           class="c15"
         >
           <span
-            class="c25"
+            class="c26"
           >
             <svg
               aria-hidden="true"
@@ -849,7 +889,9 @@ exports[`Single Seat Contest 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span>
+            <span
+              class=""
+            >
               Color/Size
             </span>
           </span>
@@ -862,7 +904,7 @@ exports[`Single Seat Contest 1`] = `
         type="button"
       >
         <span
-          class="c24"
+          class="c25"
         >
           <svg
             aria-hidden="true"
@@ -883,7 +925,11 @@ exports[`Single Seat Contest 1`] = `
         <span
           class="c15"
         >
-          Next
+          <span
+            class=""
+          >
+            Next
+          </span>
         </span>
       </button>
     </nav>

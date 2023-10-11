@@ -652,7 +652,9 @@ exports[`renders StartPage with inline SVG seal 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span>
+            <span
+              class=""
+            >
               Color/Size
             </span>
           </span>
