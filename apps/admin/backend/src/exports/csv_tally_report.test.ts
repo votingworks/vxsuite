@@ -39,7 +39,7 @@ test('uses appropriate headers', async () => {
     'Contest ID',
     'Selection',
     'Selection ID',
-    'Votes',
+    'Total Votes',
   ];
 
   const SHARED_ROW_VALUES: Record<string, string> = {
@@ -55,7 +55,7 @@ test('uses appropriate headers', async () => {
     'Contest ID': 'fishing',
     Selection: 'YES',
     'Selection ID': 'ban-fishing',
-    Votes: '1',
+    'Total Votes': '1',
   };
 
   const testCases: Array<{
@@ -211,7 +211,7 @@ test('uses appropriate headers', async () => {
 
     const row = find(
       rows,
-      (r) => r['Votes'] === '1' && r['Selection ID'] === 'ban-fishing'
+      (r) => r['Total Votes'] === '1' && r['Selection ID'] === 'ban-fishing'
     );
     const expectedAttributes: Record<string, string> = {
       ...SHARED_ROW_VALUES,

@@ -98,7 +98,7 @@ it('exports expected results for full election', async () => {
     'Contest ID',
     'Selection',
     'Selection ID',
-    'Votes',
+    'Total Votes',
   ]);
 
   const bestAnimalMammalExpectedValues: Record<string, string> = {
@@ -191,7 +191,7 @@ it('incorporates wia and manual data', async () => {
       (row) =>
         row['Selection ID'] === selectionId &&
         row['Voting Method'] === votingMethod &&
-        row['Votes'] === votes.toString()
+        row['Total Votes'] === votes.toString()
     );
   }
 

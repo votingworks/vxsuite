@@ -7,10 +7,12 @@ import {
   AnyContest,
   Election,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
+  getTallyReportCandidateRows,
   groupMapToGroupList,
+  mergeTabulationGroupMaps,
 } from '@votingworks/utils';
 import { Readable } from 'stream';
 import { Store } from '../store';
@@ -22,16 +24,28 @@ import {
   generateCsvMetadataHeaders,
   getCsvMetadataRowValues,
 } from './csv_shared';
+import { tabulateManualResults } from '../tabulation/manual_results';
+
+// eslint-disable-next-line vx/gts-no-return-type-only-generics
+function assertIsOptional<T>(_value?: unknown): asserts _value is Optional<T> {
+  // noop
+}
 
 function generateHeaders({
   election,
   metadataStructure,
+  hasManualResults,
 }: {
   election: Election;
   metadataStructure: CsvMetadataStructure;
+  hasManualResults: boolean;
 }): string[] {
   const headers = generateCsvMetadataHeaders({ election, metadataStructure });
-  headers.push('Contest', 'Contest ID', 'Selection', 'Selection ID', 'Votes');
+  headers.push('Contest', 'Contest ID', 'Selection', 'Selection ID');
+  if (hasManualResults) {
+    headers.push('Manual Votes', 'Scanned Votes');
+  }
+  headers.push('Total Votes');
   return headers;
 }
 
@@ -40,28 +54,36 @@ function buildRow({
   contest,
   selection,
   selectionId,
-  votes,
+  scannedVotes,
+  hasManualResults,
+  manualVotes,
 }: {
   metadataValues: string[];
   contest: Contest;
   selection: string;
   selectionId: string;
-  votes: number;
+  scannedVotes: number;
+  hasManualResults: boolean;
+  manualVotes: number;
 }): string {
   const values: string[] = [...metadataValues];
 
   // Contest, Selection, and Tally
   // -----------------------------
 
-  values.push(
-    contest.title,
-    contest.id,
-    selection,
-    selectionId,
-    votes.toString()
-  );
+  values.push(contest.title, contest.id, selection, selectionId);
+
+  if (hasManualResults) {
+    values.push(manualVotes.toString(), scannedVotes.toString());
+  }
+  values.push((manualVotes + scannedVotes).toString());
 
   return stringify([values]);
+}
+
+interface ScannedAndManualResults {
+  scannedResults: Tabulation.ElectionResults;
+  manualResults?: Tabulation.ManualElectionResults;
 }
 
 function* generateDataRows({
@@ -71,16 +93,17 @@ function* generateDataRows({
   resultGroups,
   metadataStructure,
   store,
+  hasManualResults,
 }: {
   electionId: Id;
   electionDefinition: ElectionDefinition;
   overallExportFilter: Tabulation.Filter;
-  resultGroups: Tabulation.ElectionResultsGroupList;
+  resultGroups: Tabulation.GroupList<ScannedAndManualResults>;
   metadataStructure: CsvMetadataStructure;
   store: Store;
+  hasManualResults: boolean;
 }): Generator<string> {
   const { election } = electionDefinition;
-  const writeInCandidates = store.getWriteInCandidates({ electionId });
   const batchLookup = generateBatchLookup(store, assertDefined(electionId));
 
   for (const resultsGroup of resultGroups) {
@@ -106,76 +129,59 @@ function* generateDataRows({
         includedContests.push(contest);
       }
     }
+    const { scannedResults, manualResults } = resultsGroup;
 
     for (const contest of includedContests) {
-      const contestWriteInCandidates = writeInCandidates.filter(
-        (c) => c.contestId === contest.id
-      );
-      const contestResults = resultsGroup.contestResults[contest.id];
-      assert(contestResults !== undefined);
+      const scannedContestResults = scannedResults.contestResults[contest.id];
+      assert(scannedContestResults !== undefined);
+      const manualContestResults = manualResults?.contestResults[contest.id];
 
       if (contest.type === 'candidate') {
-        assert(contestResults.contestType === 'candidate');
+        assert(scannedContestResults.contestType === 'candidate');
+        assertIsOptional<Tabulation.CandidateContestResults>(
+          manualContestResults
+        );
 
-        // official candidate rows
-        for (const candidate of contest.candidates) {
-          /* c8 ignore next -- trivial fallthrough zero branch */
-          const votes = contestResults.tallies[candidate.id]?.tally ?? 0;
+        for (const {
+          id,
+          name,
+          scannedTally,
+          manualTally,
+        } of getTallyReportCandidateRows({
+          contest,
+          scannedContestResults,
+          manualContestResults,
+        })) {
           yield buildRow({
             metadataValues,
             contest,
-            selection: candidate.name,
-            selectionId: candidate.id,
-            votes,
+            selection: name,
+            selectionId: id,
+            scannedVotes: scannedTally,
+            hasManualResults,
+            manualVotes: manualTally,
           });
         }
-
-        // generic write-in row
-        if (contest.allowWriteIns) {
-          const votes =
-            contestResults.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally ?? 0;
-          if (votes) {
-            yield buildRow({
-              metadataValues,
-              contest,
-              selection: Tabulation.GENERIC_WRITE_IN_NAME,
-              selectionId: Tabulation.GENERIC_WRITE_IN_ID,
-              votes,
-            });
-          }
-        }
-
-        // adjudicated write-in rows
-        for (const contestWriteInCandidate of contestWriteInCandidates) {
-          /* c8 ignore next 2 -- trivial fallthrough zero branch */
-          const votes =
-            contestResults.tallies[contestWriteInCandidate.id]?.tally ?? 0;
-
-          if (votes) {
-            yield buildRow({
-              metadataValues,
-              contest,
-              selection: contestWriteInCandidate.name,
-              selectionId: contestWriteInCandidate.id,
-              votes,
-            });
-          }
-        }
       } else if (contest.type === 'yesno') {
-        assert(contestResults.contestType === 'yesno');
+        assert(scannedContestResults.contestType === 'yesno');
+        assertIsOptional<Tabulation.YesNoContestResults>(manualContestResults);
         yield buildRow({
           metadataValues,
           contest,
           selection: contest.yesOption.label,
           selectionId: contest.yesOption.id,
-          votes: contestResults.yesTally,
+          scannedVotes: scannedContestResults.yesTally,
+          hasManualResults,
+          manualVotes: manualContestResults?.yesTally ?? 0,
         });
         yield buildRow({
           metadataValues,
           contest,
           selection: contest.noOption.label,
           selectionId: contest.noOption.id,
-          votes: contestResults.noTally,
+          scannedVotes: scannedContestResults.noTally,
+          hasManualResults,
+          manualVotes: manualContestResults?.noTally ?? 0,
         });
       }
 
@@ -184,7 +190,9 @@ function* generateDataRows({
         contest,
         selection: 'Overvotes',
         selectionId: 'overvotes',
-        votes: contestResults.overvotes,
+        scannedVotes: scannedContestResults.overvotes,
+        hasManualResults,
+        manualVotes: manualContestResults?.overvotes ?? 0,
       });
 
       yield buildRow({
@@ -192,7 +200,9 @@ function* generateDataRows({
         contest,
         selection: 'Undervotes',
         selectionId: 'undervotes',
-        votes: contestResults.undervotes,
+        scannedVotes: scannedContestResults.undervotes,
+        hasManualResults,
+        manualVotes: manualContestResults?.undervotes ?? 0,
       });
     }
   }
@@ -225,23 +235,47 @@ export async function generateTallyReportCsv({
     groupBy,
   });
 
+  // calculate scanned and manual results separately
+  const allScannedResults = await tabulateElectionResults({
+    electionId,
+    store,
+    filter,
+    groupBy,
+    includeManualResults: false,
+    includeWriteInAdjudicationResults: true,
+  });
+  const manualTabulationResult = tabulateManualResults({
+    electionId,
+    store,
+    filter,
+    groupBy,
+  });
+  const allManualResults = manualTabulationResult.isOk()
+    ? manualTabulationResult.ok()
+    : {};
+  const hasManualResults = Object.keys(allManualResults).length > 0;
+  const resultGroups: Tabulation.GroupList<ScannedAndManualResults> =
+    groupMapToGroupList(
+      mergeTabulationGroupMaps(
+        allScannedResults,
+        allManualResults,
+        (scannedResults, manualResults) => {
+          assert(scannedResults);
+          return {
+            scannedResults,
+            manualResults,
+          };
+        }
+      )
+    );
+
   const headerRow = stringify([
     generateHeaders({
       election,
       metadataStructure,
+      hasManualResults,
     }),
   ]);
-
-  const resultGroups = groupMapToGroupList(
-    await tabulateElectionResults({
-      electionId,
-      store,
-      filter,
-      groupBy,
-      includeManualResults: true,
-      includeWriteInAdjudicationResults: true,
-    })
-  );
 
   function* generateAllRows() {
     yield headerRow;
@@ -253,6 +287,7 @@ export async function generateTallyReportCsv({
       resultGroups,
       metadataStructure,
       store,
+      hasManualResults,
     })) {
       yield dataRow;
     }
