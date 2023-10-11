@@ -7,12 +7,15 @@ import { Screen } from './screen';
 import { Main } from './main';
 import { Prose } from './prose';
 import { fontSizeTheme } from './themes';
+import { Button } from './button';
 import { NumberPad } from './number_pad';
 import { SECURITY_PIN_LENGTH } from './globals';
 import { useNow } from './hooks/use_now';
+import { usePinEntry } from './hooks/use_pin_entry';
 import { Timer } from './timer';
 import { P } from './typography';
 import { Icons } from './icons';
+import { PinLength } from './utils/pin_length';
 
 const NumberPadWrapper = styled.div`
   display: flex;
@@ -41,48 +44,46 @@ type CheckingPinAuth =
   | DippedSmartCardAuth.CheckingPin
   | InsertedSmartCardAuth.CheckingPin;
 
-interface Props {
+export interface UnlockMachineScreenProps {
   auth: CheckingPinAuth;
   checkPin: (pin: string) => Promise<void>;
   grayBackground?: boolean;
+  pinLength?: PinLength;
 }
 
 export function UnlockMachineScreen({
   auth,
   checkPin,
   grayBackground,
-}: Props): JSX.Element {
-  const [currentPin, setCurrentPin] = useState('');
+  pinLength = SECURITY_PIN_LENGTH,
+}: UnlockMachineScreenProps): JSX.Element {
+  const pinEntry = usePinEntry({ pinLength });
   const [isCheckingPin, setIsCheckingPin] = useState(false);
   const now = useNow().toJSDate();
 
-  const handleNumberEntry = useCallback(
-    async (digit: number) => {
-      const pin = `${currentPin}${digit}`.slice(0, SECURITY_PIN_LENGTH);
-      setCurrentPin(pin);
-      if (pin.length === SECURITY_PIN_LENGTH) {
-        setIsCheckingPin(true);
-        await checkPin(pin);
-        setCurrentPin('');
-        setIsCheckingPin(false);
-      }
+  const doCheckPin = useCallback(
+    async (pin: string) => {
+      setIsCheckingPin(true);
+      await checkPin(pin);
+      pinEntry.setCurrent('');
+      setIsCheckingPin(false);
     },
-    [checkPin, currentPin]
+    [checkPin, pinEntry]
   );
 
-  const handleBackspace = useCallback(() => {
-    setCurrentPin((prev) => prev.slice(0, -1));
-  }, []);
+  const handleNumberEntry = useCallback(
+    async (number: number) => {
+      const pin = pinEntry.handleDigit(number);
+      if (pin.length === pinLength.max) {
+        await doCheckPin(pin);
+      }
+    },
+    [doCheckPin, pinEntry, pinLength.max]
+  );
 
-  const handleClear = useCallback(() => {
-    setCurrentPin('');
-  }, []);
-
-  const currentPinDisplayString = '•'
-    .repeat(currentPin.length)
-    .padEnd(SECURITY_PIN_LENGTH, '-')
-    .split('')
-    .join(' ');
+  const handleEnter = useCallback(async () => {
+    await doCheckPin(pinEntry.current);
+  }, [doCheckPin, pinEntry]);
 
   const isLockedOut = Boolean(
     auth.lockedOutUntil && now < new Date(auth.lockedOutUntil)
@@ -120,14 +121,15 @@ export function UnlockMachineScreen({
           maxWidth={false}
         >
           {primarySentence}
-          <EnteredCode>{currentPinDisplayString}</EnteredCode>
+          <EnteredCode>{pinEntry.display}</EnteredCode>
           <NumberPadWrapper>
             <NumberPad
               disabled={isCheckingPin || isLockedOut}
               onButtonPress={handleNumberEntry}
-              onBackspace={handleBackspace}
-              onClear={handleClear}
+              onBackspace={pinEntry.handleBackspace}
+              onClear={pinEntry.reset}
             />
+            {!pinLength.isFixed && <Button onPress={handleEnter}>Enter</Button>}
           </NumberPadWrapper>
         </Prose>
       </Main>
