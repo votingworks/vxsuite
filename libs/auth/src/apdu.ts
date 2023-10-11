@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { Buffer } from 'buffer';
-import { assert } from '@votingworks/basics';
+import { inspect } from 'util';
+import { assert, assertDefined } from '@votingworks/basics';
 import { asHexString, Byte, isByte } from '@votingworks/types';
 
 /**
@@ -179,7 +180,7 @@ export class CardCommand {
     this.ins = input.ins;
     this.p1 = input.p1;
     this.p2 = input.p2;
-    this.data = input.data ?? Buffer.from([]);
+    this.data = input.data ?? Buffer.of();
   }
 
   /**
@@ -225,35 +226,39 @@ export function constructTlv(
   tagAsByteOrBuffer: Byte | Buffer,
   value: Buffer
 ): Buffer {
-  const tag: Buffer = Buffer.isBuffer(tagAsByteOrBuffer)
+  const tag = Buffer.isBuffer(tagAsByteOrBuffer)
     ? tagAsByteOrBuffer
     : Buffer.of(tagAsByteOrBuffer);
 
   /**
    * The convention for TLV length is as follows:
-   * - 0xXX           if value length < 128 bytes
-   * - 0x81 0xXX      if value length > 128 and < 256 bytes
-   * - 0x82 0xXX 0xXX if value length > 256 and < 65536 bytes
+   * - 0xXX           if value length ≤ 0x80 bytes
+   * - 0x81 0xXX      if value length > 0x80 and ≤ 0xff bytes
+   * - 0x82 0xXX 0xXX if value length > 0xff and ≤ 0xffff bytes
    *
    * For example:
    * - 51 bytes   --> Buffer.of(51)            --> 0x33           (33 is 51 in hex)
    * - 147 bytes  --> Buffer.of(0x81, 147)     --> 0x81 0x93      (93 is 147 in hex)
    * - 3017 bytes --> Buffer.of(0x82, 11, 201) --> 0x82 0x0b 0xc9 (bc9 is 3017 in hex)
    */
-  let tlvLength: Buffer;
+  let lengthBytes: Buffer;
   const valueNumBytes = value.length;
-  if (valueNumBytes < 128) {
-    tlvLength = Buffer.of(valueNumBytes);
-  } else if (valueNumBytes < 256) {
-    tlvLength = Buffer.of(0x81, valueNumBytes);
-  } else if (valueNumBytes < 65536) {
+  if (valueNumBytes <= 0x80) {
+    lengthBytes = Buffer.of(valueNumBytes);
+  } else if (valueNumBytes <= 0xff) {
+    lengthBytes = Buffer.of(0x81, valueNumBytes);
+  } else if (valueNumBytes <= 0xffff) {
     // eslint-disable-next-line no-bitwise
-    tlvLength = Buffer.of(0x82, valueNumBytes >> 8, valueNumBytes & 255);
+    lengthBytes = Buffer.of(0x82, valueNumBytes >> 8, valueNumBytes & 0xff);
   } else {
-    throw new Error('TLV value is too large');
+    throw new Error(
+      `value length is too large for TLV encoding: 0x${valueNumBytes.toString(
+        16
+      )} > 0xffff`
+    );
   }
 
-  return Buffer.concat([tag, tlvLength, value]);
+  return Buffer.concat([tag, lengthBytes, value]);
 }
 
 /**
@@ -262,24 +267,54 @@ export function constructTlv(
 export function parseTlv(
   tagAsByteOrBuffer: Byte | Buffer,
   tlv: Buffer
-): [Buffer, Buffer, Buffer] {
-  const tagLength = Buffer.isBuffer(tagAsByteOrBuffer)
-    ? tagAsByteOrBuffer.length
-    : 1;
+): [tag: Buffer, length: Buffer, value: Buffer] {
+  const expectedTagBytes = Buffer.isBuffer(tagAsByteOrBuffer)
+    ? tagAsByteOrBuffer
+    : Buffer.of(tagAsByteOrBuffer);
+  const expectedTagLength = expectedTagBytes.length;
+  const tagBytes = tlv.subarray(0, expectedTagLength);
+  assert(
+    tagBytes.equals(expectedTagBytes),
+    `TLV tag (${inspect(tagBytes)}) does not match expected tag (${inspect(
+      expectedTagBytes
+    )})`
+  );
 
-  let tlvLengthLength = 1; // Derpiest variable name, I know
-  const tlvLengthFirstByte = tlv.at(tagLength);
-  if (tlvLengthFirstByte === 0x81) {
-    tlvLengthLength = 2;
-  } else if (tlvLengthFirstByte === 0x82) {
-    tlvLengthLength = 3;
+  let lengthBytesLength: number;
+  let valueBytesLength: number;
+  const lengthBytesFirst = assertDefined(tlv.at(expectedTagLength));
+  if (lengthBytesFirst === 0x81) {
+    const lengthBytesSecond = tlv.at(expectedTagLength + 1);
+    lengthBytesLength = 2;
+    valueBytesLength = assertDefined(lengthBytesSecond);
+  } else if (lengthBytesFirst === 0x82) {
+    const lengthBytesSecond = tlv.at(expectedTagLength + 1);
+    const lengthBytesThird = tlv.at(expectedTagLength + 2);
+    lengthBytesLength = 3;
+    valueBytesLength =
+      // eslint-disable-next-line no-bitwise
+      (assertDefined(lengthBytesSecond) << 8) + assertDefined(lengthBytesThird);
+  } else if (lengthBytesFirst <= 0x80) {
+    lengthBytesLength = 1;
+    valueBytesLength = assertDefined(lengthBytesFirst);
+  } else {
+    throw new Error(
+      `TLV length is invalid: received 0x${lengthBytesFirst.toString(
+        16
+      )}, but expected a value <= 0x82 for the first length byte`
+    );
   }
 
-  return [
-    tlv.subarray(0, tagLength), // Tag
-    tlv.subarray(tagLength, tagLength + tlvLengthLength), // Length
-    tlv.subarray(tagLength + tlvLengthLength), // Value
-  ];
+  const lengthBytes = tlv.subarray(
+    expectedTagLength,
+    expectedTagLength + lengthBytesLength
+  );
+  const valueBytes = tlv.subarray(
+    expectedTagLength + lengthBytesLength,
+    expectedTagLength + lengthBytesLength + valueBytesLength
+  );
+
+  return [tagBytes, lengthBytes, valueBytes];
 }
 
 /**

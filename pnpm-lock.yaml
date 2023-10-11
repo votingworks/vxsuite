@@ -2886,6 +2886,9 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
+      fast-check:
+        specifier: 2.23.2
+        version: 2.23.2
       is-ci-cli:
         specifier: ^2.2.0
         version: 2.2.0
