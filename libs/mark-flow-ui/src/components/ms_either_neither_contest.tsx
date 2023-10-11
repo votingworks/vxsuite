@@ -117,8 +117,8 @@ export function MsEitherNeitherContest({
     <Main flexColumn>
       <ContestHeader
         breadcrumbs={breadcrumbs}
+        contest={contest}
         districtName={districtName}
-        title={contest.title}
       >
         <Caption>
           {eitherNeitherVote && pickOneVote ? (

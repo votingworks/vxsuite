@@ -1,5 +1,12 @@
 import { CandidateVote } from '@votingworks/types';
-import { Screen, Prose, P, Font, LinkButton } from '@votingworks/ui';
+import {
+  Screen,
+  Prose,
+  P,
+  Font,
+  LinkButton,
+  appStrings,
+} from '@votingworks/ui';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import React, { useContext } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -81,30 +88,29 @@ export function ContestPage(): JSX.Element {
       aria-label="next contest"
       to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
     >
-      Next
+      {appStrings.buttonNext()}
     </LinkButton>
   );
 
   const previousContestButton = (
     <LinkButton
       variant="previous"
-      large={isPortrait}
       id="previous"
       aria-label="previous contest"
       to={prevContest ? `/contests/${prevContestIndex}` : '/'}
     >
-      Back
+      {/* TODO(kofi): Maybe something like "Previous" would translate better in this context? */}
+      {appStrings.buttonBack()}
     </LinkButton>
   );
 
   const reviewScreenButton = (
     <LinkButton
-      large
       variant={isVoteComplete ? 'next' : 'nextSecondary'}
       to={`/review#contest-${contest.id}`}
       id="next"
     >
-      Review
+      {appStrings.buttonReview()}
     </LinkButton>
   );
 

@@ -1,4 +1,4 @@
-import { Button, Icons } from '@votingworks/ui';
+import { Button, Icons, appStrings } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Paths } from '../config/globals';
@@ -19,7 +19,7 @@ export function DisplaySettingsButton(): JSX.Element | null {
     <Button onPress={history.push} value={Paths.DISPLAY_SETTINGS}>
       <LabelContainer>
         <Icons.Display />
-        <span>Color/Size</span>
+        {appStrings.buttonDisplaySettings()}
       </LabelContainer>
     </Button>
   );

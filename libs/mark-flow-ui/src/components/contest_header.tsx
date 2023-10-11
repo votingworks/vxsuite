@@ -1,13 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Caption, Font, H2 } from '@votingworks/ui';
+import { Caption, Font, H2, electionStrings } from '@votingworks/ui';
+import { Contest } from '@votingworks/types';
+import { MsEitherNeitherContest } from '../utils/ms_either_neither_contests';
 
 export interface ContestHeaderProps {
   breadcrumbs?: BreadcrumbMetadata;
   children?: React.ReactNode;
+  contest: Contest | MsEitherNeitherContest;
   districtName: string;
-  title: string;
 }
 
 export interface BreadcrumbMetadata {
@@ -26,7 +28,7 @@ const ContestInfo = styled.div`
 `;
 
 export function ContestHeader(props: ContestHeaderProps): JSX.Element {
-  const { breadcrumbs, children, districtName, title } = props;
+  const { breadcrumbs, children, contest, districtName } = props;
 
   return (
     <Container id="contest-header">
@@ -41,7 +43,7 @@ export function ContestHeader(props: ContestHeaderProps): JSX.Element {
           )}
         </ContestInfo>
         <div>
-          <H2 as="h1">{title}</H2>
+          <H2 as="h1">{electionStrings.contestTitle(contest)}</H2>
         </div>
         {children}
       </div>
