@@ -25,6 +25,8 @@ import {
   WithScrollButtons,
   ModalWidth,
   useScreenInfo,
+  appStrings,
+  renderCandidatePartyList,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -228,22 +230,23 @@ export function CandidateContest({
       <Main flexColumn>
         <ContestHeader
           breadcrumbs={breadcrumbs}
+          contest={contest}
           districtName={districtName}
-          title={contest.title}
         >
           <Caption>
-            Vote for {contest.seats}.{' '}
+            {appStrings.numSeatsInstructions(contest.seats)}{' '}
             {vote.length === contest.seats && (
-              <Font weight="bold">You have selected {contest.seats}.</Font>
+              <Font weight="bold">
+                {appStrings.numVotesSelected(contest.seats)}
+              </Font>
             )}
             {vote.length < contest.seats && vote.length !== 0 && (
               <Font weight="bold">
-                You may select {contest.seats - vote.length} more.
+                {appStrings.numVotesRemaining(contest.seats - vote.length)}
               </Font>
             )}
             <span className="screen-reader-only">
-              To navigate through the contest choices, use the down button. To
-              move to the next contest, use the right button.
+              {appStrings.contestNavigationInstructions()}
             </span>
           </Caption>
         </ContestHeader>
@@ -277,7 +280,10 @@ export function CandidateContest({
                     candidate.name
                   )}${partiesDescription ? `, ${partiesDescription}` : ''}.`}
                   label={candidate.name}
-                  caption={partiesDescription}
+                  caption={renderCandidatePartyList(
+                    candidate,
+                    election.parties
+                  )}
                 />
               );
             })}
@@ -308,7 +314,7 @@ export function CandidateContest({
                 }
                 label={
                   <span>
-                    <Icons.Edit /> add write-in candidate
+                    <Icons.Edit /> {appStrings.buttonAddWriteIn()}
                   </span>
                 }
               />

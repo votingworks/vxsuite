@@ -75,8 +75,8 @@ export function YesNoContest({
       <Main flexColumn>
         <ContestHeader
           breadcrumbs={breadcrumbs}
+          contest={contest}
           districtName={districtName}
-          title={contest.title}
         >
           <Caption>
             Vote <strong>Yes</strong> or <strong>No</strong>.

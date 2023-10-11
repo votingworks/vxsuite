@@ -280,20 +280,30 @@ exports[`renders 1`] = `
           <h1
             class="c4"
           >
-            President and Vice-President
+            <span
+              class=""
+            >
+              President and Vice-President
+            </span>
           </h1>
         </div>
         <span
           class="c5"
         >
-          Vote for 
-          1
-          .
+          <span
+            class=""
+          >
+            Vote for 1.
+          </span>
            
           <span
             class="screen-reader-only"
           >
-            To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+            <span
+              class=""
+            >
+              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+            </span>
           </span>
         </span>
       </div>
@@ -353,7 +363,11 @@ exports[`renders 1`] = `
                   <span
                     class="c19"
                   >
-                    Federalist
+                    <span
+                      class=""
+                    >
+                      Federalist
+                    </span>
                   </span>
                 </span>
               </span>
@@ -403,7 +417,11 @@ exports[`renders 1`] = `
                   <span
                     class="c19"
                   >
-                    People’s
+                    <span
+                      class=""
+                    >
+                      People’s
+                    </span>
                   </span>
                 </span>
               </span>
@@ -453,7 +471,11 @@ exports[`renders 1`] = `
                   <span
                     class="c19"
                   >
-                    Liberty
+                    <span
+                      class=""
+                    >
+                      Liberty
+                    </span>
                   </span>
                 </span>
               </span>
@@ -503,7 +525,11 @@ exports[`renders 1`] = `
                   <span
                     class="c19"
                   >
-                    Constitution
+                    <span
+                      class=""
+                    >
+                      Constitution
+                    </span>
                   </span>
                 </span>
               </span>
@@ -553,7 +579,11 @@ exports[`renders 1`] = `
                   <span
                     class="c19"
                   >
-                    Whig
+                    <span
+                      class=""
+                    >
+                      Whig
+                    </span>
                   </span>
                 </span>
               </span>
@@ -603,7 +633,11 @@ exports[`renders 1`] = `
                   <span
                     class="c19"
                   >
-                    Labor
+                    <span
+                      class=""
+                    >
+                      Labor
+                    </span>
                   </span>
                 </span>
               </span>

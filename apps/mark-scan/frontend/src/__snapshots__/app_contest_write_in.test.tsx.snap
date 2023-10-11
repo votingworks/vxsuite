@@ -151,79 +151,6 @@ exports[`Single Seat Contest with Write In 1`] = `
 
 .c25 {
   display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #fafafa;
-  padding: 1em 1.75em;
-  text-align: center;
-  line-height: 1.25;
-  color: #222222;
-  font-size: 1.25em;
-  touch-action: manipulation;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  gap: 0.5rem;
-  -webkit-letter-spacing: 0.01em;
-  -moz-letter-spacing: 0.01em;
-  -ms-letter-spacing: 0.01em;
-  letter-spacing: 0.01em;
-  line-height: 1.15;
-  padding: 0.5em 0.6em;
-  width: auto;
-  min-height: 70.86614173228345px;
-  vertical-align: middle;
-  background: #fafafa;
-  border: 0.15rem solid #222222;
-  border-radius: 0.25rem;
-  box-shadow: none;
-  color: #222222;
-  cursor: pointer;
-  text-shadow: none;
-  -webkit-transition: 100ms ease-in;
-  transition: 100ms ease-in;
-  -webkit-transition-property: background,border,box-shadow,color;
-  transition-property: background,border,box-shadow,color;
-}
-
-.c25:hover,
-.c25:active {
-  outline: none;
-}
-
-.c25:hover,
-.c25:active {
-  outline: none;
-}
-
-.c25:active {
-  box-shadow: inset 0 0 0 0.15rem #222222;
-}
-
-.c25[disabled] {
-  border: 0.15rem dashed #222222;
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-.c26 {
-  display: inline-block;
 }
 
 .c15 {
@@ -427,7 +354,7 @@ exports[`Single Seat Contest with Write In 1`] = `
   flex-grow: 1;
 }
 
-.c27 {
+.c26 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -548,20 +475,30 @@ exports[`Single Seat Contest with Write In 1`] = `
             <h1
               class="c8"
             >
-              Registrar of Wills
+              <span
+                class=""
+              >
+                Registrar of Wills
+              </span>
             </h1>
           </div>
           <span
             class="c9"
           >
-            Vote for 
-            1
-            .
+            <span
+              class=""
+            >
+              Vote for 1.
+            </span>
              
             <span
               class="screen-reader-only"
             >
-              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              <span
+                class=""
+              >
+                To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              </span>
             </span>
           </span>
         </div>
@@ -621,7 +558,11 @@ exports[`Single Seat Contest with Write In 1`] = `
                     <span
                       class="c23"
                     >
-                      Independent
+                      <span
+                        class=""
+                      >
+                        Independent
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -681,7 +622,12 @@ exports[`Single Seat Contest with Write In 1`] = `
                             fill="currentColor"
                           />
                         </svg>
-                         add write-in candidate
+                         
+                        <span
+                          class=""
+                        >
+                          add write-in candidate
+                        </span>
                       </span>
                     </p>
                   </span>
@@ -697,12 +643,12 @@ exports[`Single Seat Contest with Write In 1`] = `
     >
       <button
         aria-label="previous contest"
-        class="c25"
+        class="c13"
         id="previous"
         type="button"
       >
         <span
-          class="c26"
+          class="c25"
         >
           <svg
             aria-hidden="true"
@@ -723,7 +669,11 @@ exports[`Single Seat Contest with Write In 1`] = `
         <span
           class="c15"
         >
-          Back
+          <span
+            class=""
+          >
+            Back
+          </span>
         </span>
       </button>
       <button
@@ -734,7 +684,7 @@ exports[`Single Seat Contest with Write In 1`] = `
           class="c15"
         >
           <span
-            class="c27"
+            class="c26"
           >
             <svg
               aria-hidden="true"
@@ -751,7 +701,9 @@ exports[`Single Seat Contest with Write In 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span>
+            <span
+              class=""
+            >
               Color/Size
             </span>
           </span>
@@ -764,7 +716,7 @@ exports[`Single Seat Contest with Write In 1`] = `
         type="button"
       >
         <span
-          class="c26"
+          class="c25"
         >
           <svg
             aria-hidden="true"
@@ -785,7 +737,11 @@ exports[`Single Seat Contest with Write In 1`] = `
         <span
           class="c15"
         >
-          Next
+          <span
+            class=""
+          >
+            Next
+          </span>
         </span>
       </button>
     </nav>

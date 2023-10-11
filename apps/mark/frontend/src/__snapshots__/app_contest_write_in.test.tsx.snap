@@ -511,20 +511,30 @@ exports[`Single Seat Contest with Write In 1`] = `
             <h1
               class="c8"
             >
-              Registrar of Wills
+              <span
+                class=""
+              >
+                Registrar of Wills
+              </span>
             </h1>
           </div>
           <span
             class="c9"
           >
-            Vote for 
-            1
-            .
+            <span
+              class=""
+            >
+              Vote for 1.
+            </span>
              
             <span
               class="screen-reader-only"
             >
-              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              <span
+                class=""
+              >
+                To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+              </span>
             </span>
           </span>
         </div>
@@ -584,7 +594,11 @@ exports[`Single Seat Contest with Write In 1`] = `
                     <span
                       class="c23"
                     >
-                      Independent
+                      <span
+                        class=""
+                      >
+                        Independent
+                      </span>
                     </span>
                   </span>
                 </span>
@@ -644,7 +658,12 @@ exports[`Single Seat Contest with Write In 1`] = `
                             fill="currentColor"
                           />
                         </svg>
-                         add write-in candidate
+                         
+                        <span
+                          class=""
+                        >
+                          add write-in candidate
+                        </span>
                       </span>
                     </p>
                   </span>
@@ -686,7 +705,11 @@ exports[`Single Seat Contest with Write In 1`] = `
         <span
           class="c15"
         >
-          Back
+          <span
+            class=""
+          >
+            Back
+          </span>
         </span>
       </button>
       <button
@@ -714,7 +737,9 @@ exports[`Single Seat Contest with Write In 1`] = `
                 fill="currentColor"
               />
             </svg>
-            <span>
+            <span
+              class=""
+            >
               Color/Size
             </span>
           </span>
@@ -748,7 +773,11 @@ exports[`Single Seat Contest with Write In 1`] = `
         <span
           class="c15"
         >
-          Next
+          <span
+            class=""
+          >
+            Next
+          </span>
         </span>
       </button>
     </nav>

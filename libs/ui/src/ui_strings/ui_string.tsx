@@ -27,9 +27,11 @@ export function UiString(props: UiStringProps): JSX.Element {
   if (!languageContext) {
     // Enable tests to run without the need for a UiStringContext:
     return (
-      <Trans i18nKey={i18nKey} count={pluralCount}>
-        {children}
-      </Trans>
+      <Container>
+        <Trans i18nKey={i18nKey} count={pluralCount}>
+          {children}
+        </Trans>
+      </Container>
     );
   }
 
