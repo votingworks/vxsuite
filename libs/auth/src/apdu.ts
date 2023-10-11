@@ -232,9 +232,9 @@ export function constructTlv(
 
   /**
    * The convention for TLV length is as follows:
-   * - 0xXX           if value length < 128 bytes
-   * - 0x81 0xXX      if value length ≥ 128 and < 256 bytes
-   * - 0x82 0xXX 0xXX if value length ≥ 256 and < 65536 bytes
+   * - 0xXX           if value length ≤ 0x80 bytes
+   * - 0x81 0xXX      if value length > 0x80 and ≤ 0xff bytes
+   * - 0x82 0xXX 0xXX if value length > 0xff and ≤ 0xffff bytes
    *
    * For example:
    * - 51 bytes   --> Buffer.of(51)            --> 0x33           (33 is 51 in hex)
@@ -280,38 +280,38 @@ export function parseTlv(
     )})`
   );
 
-  let tlvLengthLength: number;
-  let tlvLength: number;
-  const tlvLengthFirstByte = assertDefined(tlv.at(expectedTagLength));
-  const tlvLengthSecondByte = tlv.at(expectedTagLength + 1);
-  const tlvLengthThirdByte = tlv.at(expectedTagLength + 2);
-  if (tlvLengthFirstByte === 0x81) {
-    tlvLengthLength = 2;
-    tlvLength = assertDefined(tlvLengthSecondByte);
-  } else if (tlvLengthFirstByte === 0x82) {
-    tlvLengthLength = 3;
-    tlvLength =
+  let lengthBytesLength: number;
+  let valueBytesLength: number;
+  const lengthBytesFirst = assertDefined(tlv.at(expectedTagLength));
+  if (lengthBytesFirst === 0x81) {
+    const tlvLengthSecondByte = tlv.at(expectedTagLength + 1);
+    lengthBytesLength = 2;
+    valueBytesLength = assertDefined(tlvLengthSecondByte);
+  } else if (lengthBytesFirst === 0x82) {
+    const lengthBytesSecond = tlv.at(expectedTagLength + 1);
+    const lengthBytesThird = tlv.at(expectedTagLength + 2);
+    lengthBytesLength = 3;
+    valueBytesLength =
       // eslint-disable-next-line no-bitwise
-      (assertDefined(tlvLengthSecondByte) << 8) +
-      assertDefined(tlvLengthThirdByte);
-  } else if (tlvLengthFirstByte <= 0x80) {
-    tlvLengthLength = 1;
-    tlvLength = assertDefined(tlvLengthFirstByte);
+      (assertDefined(lengthBytesSecond) << 8) + assertDefined(lengthBytesThird);
+  } else if (lengthBytesFirst <= 0x80) {
+    lengthBytesLength = 1;
+    valueBytesLength = assertDefined(lengthBytesFirst);
   } else {
     throw new Error(
-      `TLV length is invalid: received 0x${tlvLengthFirstByte.toString(
+      `TLV length is invalid: received 0x${lengthBytesFirst.toString(
         16
-      )}, but expected a value <= 0x80`
+      )}, but expected a value <= 0x82 for the first length byte`
     );
   }
 
   const lengthBytes = tlv.subarray(
     expectedTagLength,
-    expectedTagLength + tlvLengthLength
+    expectedTagLength + lengthBytesLength
   );
   const valueBytes = tlv.subarray(
-    expectedTagLength + tlvLengthLength,
-    expectedTagLength + tlvLengthLength + tlvLength
+    expectedTagLength + lengthBytesLength,
+    expectedTagLength + lengthBytesLength + valueBytesLength
   );
 
   return [tagBytes, lengthBytes, valueBytes];

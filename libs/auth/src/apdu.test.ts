@@ -161,7 +161,7 @@ test('parseTlv invalid length', () => {
   expect(() =>
     parseTlv(0x01, Buffer.concat([Buffer.of(0x01, 0xff), Buffer.alloc(0xff)]))
   ).toThrow(
-    'TLV length is invalid: received 0xff, but expected a value <= 0x80'
+    'TLV length is invalid: received 0xff, but expected a value <= 0x82 for the first length byte'
   );
 });
 
