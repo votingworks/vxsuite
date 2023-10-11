@@ -2,7 +2,6 @@ import React from 'react';
 
 import {
   Candidate,
-  Contest,
   Parties,
   Party,
   getCandidateParties,
@@ -14,9 +13,9 @@ import { UiString } from './ui_string';
 export const electionStrings = {
   // TODO(kofi): Fill out.
 
-  // NOTE: Omitting 'type' to support both the `Contest` and the
+  // NOTE: Using more lenient typing to support both the `Contest` and the
   // `MsEitherNeitherContest` types.
-  contestTitle: (contest: Omit<Contest, 'type'>) => (
+  contestTitle: (contest: { id: string; title: string }) => (
     <UiString uiStringKey="contestTitle" uiStringSubKey={contest.id}>
       {contest.title}
     </UiString>
@@ -44,7 +43,7 @@ export function renderCandidatePartyList(
           {/*
            * TODO(kofi): This comma-delimiting isn't properly
            * internationalized (comma character is rendered differently in
-           * different languages/character sets -- need to figure out a clean
+           * different languages/character sets) -- need to figure out a clean
            * way to do this.
            */}
           {i > 0 && <React.Fragment>, </React.Fragment>}
