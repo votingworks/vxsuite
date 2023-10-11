@@ -10,9 +10,9 @@ import {
   MarkThresholds,
   safeParse,
   safeParseInt,
+  Tabulation,
   Vote,
   VotesDict,
-  writeInCandidate,
   WriteInIdSchema,
   YesNoContest,
   YesNoContestOptionId,
@@ -30,7 +30,7 @@ export function getSingleYesNoVote(
 
 export function normalizeWriteInId(candidateId: CandidateId): string {
   if (candidateId.startsWith('write-in')) {
-    return writeInCandidate.id;
+    return Tabulation.GENERIC_WRITE_IN_ID;
   }
 
   return candidateId;
@@ -55,7 +55,7 @@ export function getContestVoteOptionsForCandidateContest(
 ): readonly Candidate[] {
   const options = contest.candidates;
   if (contest.allowWriteIns) {
-    return options.concat(writeInCandidate);
+    return options.concat(Tabulation.GENERIC_WRITE_IN_CANDIDATE);
   }
   return options;
 }
@@ -103,7 +103,7 @@ function markToCandidateVotes(
     const indexedWriteInMatch = mark.optionId.match(/^write-in-(\d+)$/);
 
     if (!indexedWriteInMatch) {
-      return [writeInCandidate];
+      return [Tabulation.GENERIC_WRITE_IN_CANDIDATE];
     }
 
     const writeInIndex = safeParseInt(indexedWriteInMatch[1]).assertOk(

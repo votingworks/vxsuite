@@ -1,4 +1,4 @@
-import { Election, Tabulation, writeInCandidate } from '@votingworks/types';
+import { Election, Tabulation } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { Readable } from 'stream';
 import { getBallotCount, groupMapToGroupList } from '@votingworks/utils';
@@ -66,7 +66,9 @@ function generateResultsRow(
       if (contest.allowWriteIns) {
         contestVoteTotals.push(
           /* c8 ignore next - trivial fallback case */
-          contestResults.tallies[writeInCandidate.id]?.tally.toString() ?? '0'
+          contestResults.tallies[
+            Tabulation.GENERIC_WRITE_IN_ID
+          ]?.tally.toString() ?? '0'
         );
       }
     } else if (contest.type === 'yesno') {

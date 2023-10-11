@@ -262,10 +262,10 @@ export function modifyElectionResultsWithWriteInSummary(
             (contestWriteInSummary.candidateTallies[candidateId]?.tally ?? 0),
         };
       } else {
-        // the generic write-in candidate now only represents pending write-ins
+        // include the pending write-in count as a "pending write-in candidate"
         if (contestWriteInSummary.pendingTally > 0) {
           modifiedCandidateTallies[candidateId] = {
-            ...candidateTally,
+            ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
             tally: contestWriteInSummary.pendingTally,
           };
         }

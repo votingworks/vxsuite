@@ -1,8 +1,4 @@
-import {
-  CandidateContest,
-  Tabulation,
-  writeInCandidate,
-} from '@votingworks/types';
+import { CandidateContest, Tabulation } from '@votingworks/types';
 import {
   electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
@@ -50,7 +46,7 @@ describe('compressTally', () => {
     for (const [idx, candidate] of presidentContest.candidates.entries()) {
       officialOptionTallies[candidate.id] = idx * 2;
     }
-    officialOptionTallies[writeInCandidate.id] = 5;
+    officialOptionTallies[Tabulation.GENERIC_WRITE_IN_ID] = 5;
 
     const resultsWithPresidentTallies = buildElectionResultsFixture({
       election: electionEitherNeither,
@@ -181,8 +177,8 @@ describe('readCompressTally', () => {
       ...presidentContest.candidates.find((c) => c.id === '775031989')!,
       tally: 4,
     });
-    expect(presidentTally.tallies[writeInCandidate.id]).toEqual({
-      ...writeInCandidate,
+    expect(presidentTally.tallies[Tabulation.GENERIC_WRITE_IN_ID]).toEqual({
+      ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
       tally: 5,
     });
   });
@@ -239,7 +235,7 @@ describe('readCompressTally', () => {
       tally: 2,
     });
     expect(Object.keys(presidentTally.tallies)).not.toContain(
-      writeInCandidate.id
+      Tabulation.GENERIC_WRITE_IN_ID
     );
   });
 

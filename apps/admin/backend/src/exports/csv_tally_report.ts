@@ -1,6 +1,5 @@
 import { stringify } from 'csv-stringify/sync';
 import {
-  writeInCandidate,
   Contest,
   Tabulation,
   ElectionDefinition,
@@ -133,13 +132,14 @@ function* generateDataRows({
 
         // generic write-in row
         if (contest.allowWriteIns) {
-          const votes = contestResults.tallies[writeInCandidate.id]?.tally ?? 0;
+          const votes =
+            contestResults.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally ?? 0;
           if (votes) {
             yield buildRow({
               metadataValues,
               contest,
-              selection: writeInCandidate.name,
-              selectionId: writeInCandidate.id,
+              selection: Tabulation.GENERIC_WRITE_IN_NAME,
+              selectionId: Tabulation.GENERIC_WRITE_IN_ID,
               votes,
             });
           }

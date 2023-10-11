@@ -437,7 +437,6 @@ test('tabulateElectionResults - write-in handling', async () => {
           'Obadiah-Carrigan-5c95145a': 61,
           'Samuel-Bell-17973275': 56,
           'Samuel-Livermore-f927fef1': 56,
-          'write-in': 50,
         },
         writeInOptionTallies: {
           [writeInCandidate1.id]: {
@@ -448,10 +447,14 @@ test('tabulateElectionResults - write-in handling', async () => {
             name: 'Ms. Tomato',
             tally: 1,
           },
+          [Tabulation.PENDING_WRITE_IN_ID]: {
+            name: Tabulation.PENDING_WRITE_IN_NAME,
+            tally: 50,
+          },
         },
       },
     },
-    includeGenericWriteIn: true,
+    includeGenericWriteIn: false,
   });
 
   expect(overallResultsScreenWiaData.cardCounts).toEqual(
@@ -535,7 +538,6 @@ test('tabulateElectionResults - write-in handling', async () => {
             'Obadiah-Carrigan-5c95145a': 61,
             'Samuel-Bell-17973275': 56,
             'Samuel-Livermore-f927fef1': 56,
-            'write-in': 50,
           },
           writeInOptionTallies: {
             [writeInCandidate1.id]: {
@@ -550,10 +552,14 @@ test('tabulateElectionResults - write-in handling', async () => {
               name: 'New Kid',
               tally: 2,
             },
+            [Tabulation.PENDING_WRITE_IN_ID]: {
+              name: Tabulation.PENDING_WRITE_IN_NAME,
+              tally: 50,
+            },
           },
         },
       },
-      includeGenericWriteIn: true,
+      includeGenericWriteIn: false,
     });
 
   expect(overallResultsScreenAndManualWiaData.cardCounts).toEqual(

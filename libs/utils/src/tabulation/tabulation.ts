@@ -11,7 +11,6 @@ import {
   PartyId,
   Tabulation,
   YesNoContest,
-  writeInCandidate,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments';
 
@@ -51,8 +50,8 @@ export function getEmptyCandidateContestResults(
   }
 
   if (contest.allowWriteIns && includeGenericWriteInIfAllowed) {
-    tallies[writeInCandidate.id] = {
-      ...writeInCandidate,
+    tallies[Tabulation.GENERIC_WRITE_IN_ID] = {
+      ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
       tally: 0,
     };
   }
@@ -171,7 +170,7 @@ function addCastVoteRecordToElectionResult(
       for (const optionId of optionIds) {
         if (optionId.startsWith('write-in-')) {
           const genericWriteInTally = assertDefined(
-            contestResult.tallies[writeInCandidate.id]
+            contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
           );
           genericWriteInTally.tally += 1;
         } else {
@@ -885,8 +884,8 @@ export function mergeWriteInTallies<
     }
 
     if (writeInTally > 0) {
-      newTallies[writeInCandidate.id] = {
-        ...writeInCandidate,
+      newTallies[Tabulation.GENERIC_WRITE_IN_ID] = {
+        ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
         tally: writeInTally,
       };
     }

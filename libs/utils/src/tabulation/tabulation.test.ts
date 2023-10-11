@@ -8,7 +8,6 @@ import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import {
   CVR,
   Tabulation,
-  writeInCandidate,
   YesNoContest,
   safeParseJson,
   CastVoteRecordExportFileName,
@@ -440,7 +439,7 @@ test('buildElectionResultsFixture', () => {
       'zoo-council-mammal'
     ] as Tabulation.CandidateContestResults;
   expect(
-    zooCouncilMammalWithGenericWriteIn.tallies[writeInCandidate.id]
+    zooCouncilMammalWithGenericWriteIn.tallies[Tabulation.GENERIC_WRITE_IN_ID]
   ).toBeDefined();
 
   // check that manual results fixture matches the regular election fixture
@@ -1259,8 +1258,8 @@ test('mergeManualWriteInTallies', () => {
             elephant: 4,
           },
           writeInOptionTallies: {
-            [writeInCandidate.id]: {
-              name: writeInCandidate.name,
+            [Tabulation.GENERIC_WRITE_IN_ID]: {
+              name: Tabulation.GENERIC_WRITE_IN_NAME,
               tally: 5,
             },
           },

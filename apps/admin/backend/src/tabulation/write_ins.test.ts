@@ -3,11 +3,7 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import {
-  DEFAULT_SYSTEM_SETTINGS,
-  Tabulation,
-  writeInCandidate,
-} from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import { getEmptyElectionResults } from '@votingworks/utils';
 import {
   convertContestWriteInSummaryToWriteInTallies,
@@ -368,8 +364,8 @@ test('modifyElectionResultsWithWriteInSummary', () => {
         name: 'Lion',
         tally: 56,
       },
-      [writeInCandidate.id]: {
-        ...writeInCandidate,
+      [Tabulation.GENERIC_WRITE_IN_ID]: {
+        ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
         tally: 56,
       },
     },
@@ -405,7 +401,7 @@ test('modifyElectionResultsWithWriteInSummary', () => {
       'write-in': {
         id: 'write-in',
         isWriteIn: true,
-        name: 'Write-In',
+        name: 'Pending Write-In',
         tally: 11,
       },
     },
