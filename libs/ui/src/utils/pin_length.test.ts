@@ -19,4 +19,7 @@ test('invalid', () => {
   expect(() => PinLength.exactly(-1)).toThrowError('min must be > 0');
   expect(() => PinLength.range(0, 1)).toThrowError('min must be > 0');
   expect(() => PinLength.range(3, 1)).toThrowError('min must be <= max');
+  expect(() => PinLength.exactly(1.5)).toThrowError('min must be an integer');
+  expect(() => PinLength.range(1.5, 2)).toThrowError('min must be an integer');
+  expect(() => PinLength.range(1, 2.5)).toThrowError('max must be an integer');
 });
