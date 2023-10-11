@@ -65,10 +65,11 @@ function generateResultsRow(
       }
       if (contest.allowWriteIns) {
         contestVoteTotals.push(
-          /* c8 ignore next - trivial fallback case */
+          /* c8 ignore start - trivial fallback case */
           contestResults.tallies[
             Tabulation.GENERIC_WRITE_IN_ID
           ]?.tally.toString() ?? '0'
+          /* c8 ignore end */
         );
       }
     } else if (contest.type === 'yesno') {

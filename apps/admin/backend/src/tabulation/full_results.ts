@@ -152,6 +152,7 @@ export async function tabulateElectionResults({
           });
         }
       );
+      /* c8 ignore next 3 - debug only */
     } else {
       debug('filter or group by is not compatible with manual results');
     }
