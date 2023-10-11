@@ -1,4 +1,3 @@
-import { Color } from '@votingworks/types';
 import { Icons } from '@votingworks/ui';
 import styled from 'styled-components';
 
@@ -25,10 +24,10 @@ const Option = styled.label<{ isSelected: boolean; disabled: boolean }>`
   background: ${(p) =>
     p.isSelected
       ? p.disabled
-        ? Color.LEGACY_BUTTON_BACKGROUND
+        ? p.theme.colors.foregroundDisabled
         : p.theme.colors.accentPrimary
       : 'none'};
-  color: ${(p) => (p.isSelected && !p.disabled ? 'white' : 'currentColor')};
+  color: ${(p) => (p.isSelected ? 'white' : 'currentColor')};
   border-radius: 0.25rem;
   cursor: ${(p) => (p.disabled ? 'default' : 'pointer')};
 

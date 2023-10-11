@@ -208,6 +208,7 @@ const Controls = styled.div`
   padding: 1rem;
   gap: 1rem;
   justify-items: stretch;
+  overflow-y: auto;
 
   /* Override link color for inverted background */
   section a {
