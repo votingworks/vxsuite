@@ -250,7 +250,8 @@ async function logFormatFailure(
 
 async function mount(
   deviceInfo: BlockDeviceInfo,
-  logger: Logger
+  logger: Logger,
+  onFail: () => void
 ): Promise<void> {
   await logMountInit(logger);
   try {
@@ -258,10 +259,13 @@ async function mount(
     await logMountSuccess(logger);
     debug('USB drive mounted successfully');
   } catch (error) {
+    onFail();
     await logMountFailure(logger, error as Error);
     debug(`USB drive mounting failed: ${error}`);
   }
 }
+
+type Action = 'mounting' | 'ejecting' | 'formatting';
 
 export function detectUsbDrive(logger: Logger): UsbDrive {
   // Store eject state so we don't immediately remount the drive on
@@ -269,16 +273,28 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
   // storing in memory is fine.
   let didEject = false;
 
-  // Store mounting state so we don't try to mount the drive multiple times.
-  let isMounting = false;
+  const actionLock: {
+    current?: Action;
+  } = { current: undefined };
 
-  // The block device info blips during formatting, so we need to track the
-  // state and ignore the OS-provided device info during formatting.
-  let isFormatting = false;
+  function getActionLock(action: Action): boolean {
+    if (actionLock.current) {
+      debug(
+        `Cannot start ${action} while ${actionLock.current} is in progress.`
+      );
+      return false;
+    }
+    actionLock.current = action;
+    return true;
+  }
+
+  function releaseActionLock(): void {
+    actionLock.current = undefined;
+  }
 
   return {
     async status(): Promise<UsbDriveStatus> {
-      if (isFormatting) {
+      if (actionLock.current === 'formatting') {
         return { status: 'ejected' };
       }
 
@@ -294,15 +310,17 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
 
       // Automatically mount the drive if it's not already mounted
       if (!deviceInfo.mountpoint && !didEject) {
-        if (!isMounting) {
-          isMounting = true;
-          void mount(deviceInfo, logger);
+        if (getActionLock('mounting')) {
+          void mount(deviceInfo, logger, releaseActionLock);
         }
         return { status: 'no_drive' };
       }
 
       if (deviceInfo.mountpoint) {
-        isMounting = false;
+        if (actionLock.current === 'mounting') {
+          releaseActionLock();
+        }
+
         return {
           status: 'mounted',
           mountPoint: deviceInfo.mountpoint,
@@ -317,16 +335,21 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
         debug('No USB drive mounted, skipping eject');
         return;
       }
-      await logEjectInit(logger, loggingUserRole);
-      try {
-        await unmountUsbDrive(deviceInfo.mountpoint);
-        didEject = true;
-        await logEjectSuccess(logger, loggingUserRole);
-        debug('USB drive ejected successfully');
-      } catch (error) {
-        await logEjectFailure(logger, loggingUserRole, error as Error);
-        debug(`USB drive ejection failed: ${error}`);
-        throw error;
+
+      if (getActionLock('ejecting')) {
+        await logEjectInit(logger, loggingUserRole);
+        try {
+          await unmountUsbDrive(deviceInfo.mountpoint);
+          didEject = true;
+          await logEjectSuccess(logger, loggingUserRole);
+          debug('USB drive ejected successfully');
+        } catch (error) {
+          await logEjectFailure(logger, loggingUserRole, error as Error);
+          debug(`USB drive ejection failed: ${error}`);
+          throw error;
+        } finally {
+          releaseActionLock();
+        }
       }
     },
 
@@ -337,25 +360,26 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
         return;
       }
 
-      isFormatting = true;
-      await logFormatInit(logger, loggingUserRole);
-      try {
-        if (deviceInfo.mountpoint) {
-          debug('USB drive is mounted, unmounting before formatting');
-          await unmountUsbDrive(deviceInfo.mountpoint);
-        }
+      if (getActionLock('formatting')) {
+        await logFormatInit(logger, loggingUserRole);
+        try {
+          if (deviceInfo.mountpoint) {
+            debug('USB drive is mounted, unmounting before formatting');
+            await unmountUsbDrive(deviceInfo.mountpoint);
+          }
 
-        const label = generateVxUsbLabel(deviceInfo.label ?? undefined);
-        await formatUsbDrive(getRootDeviceName(deviceInfo.path), label);
-        await logFormatSuccess(logger, loggingUserRole, label);
-        debug('USB drive formatted successfully');
-      } catch (error) {
-        await logFormatFailure(logger, loggingUserRole, error as Error);
-        debug(`USB drive formatting failed: ${error}`);
-        throw error;
-      } finally {
-        isFormatting = false;
-        didEject = true; // prevent remount
+          const label = generateVxUsbLabel(deviceInfo.label ?? undefined);
+          await formatUsbDrive(getRootDeviceName(deviceInfo.path), label);
+          await logFormatSuccess(logger, loggingUserRole, label);
+          debug('USB drive formatted successfully');
+        } catch (error) {
+          await logFormatFailure(logger, loggingUserRole, error as Error);
+          debug(`USB drive formatting failed: ${error}`);
+          throw error;
+        } finally {
+          releaseActionLock();
+          didEject = true; // prevent remount
+        }
       }
     },
   };
