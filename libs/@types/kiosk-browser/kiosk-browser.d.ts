@@ -29,6 +29,7 @@ declare namespace KioskBrowser {
     paperSource?: string;
     copies?: number;
     sides?: PrintSides;
+    raw?: { [key: string]: string };
   }
 
   /**
