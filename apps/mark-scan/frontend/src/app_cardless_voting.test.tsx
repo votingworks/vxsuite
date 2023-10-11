@@ -258,7 +258,7 @@ test('Cardless Voting Flow', async () => {
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
   apiMock.setPaperHandlerState('ejecting_to_rear');
-  await screen.findByText('Casting Ballot');
+  await screen.findByText('Casting Ballot...');
 
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -405,7 +405,7 @@ test('Voter can submit a blank ballot', async () => {
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
   apiMock.setPaperHandlerState('ejecting_to_rear');
-  await screen.findByText('Casting Ballot');
+  await screen.findByText('Casting Ballot...');
 
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -624,7 +624,7 @@ test('poll worker must select a precinct first', async () => {
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
   apiMock.setPaperHandlerState('ejecting_to_rear');
-  await screen.findByText('Casting Ballot');
+  await screen.findByText('Casting Ballot...');
 
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
