@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
-import { err, isResult, ok, Result } from '@votingworks/basics';
+import { assert, err, isResult, ok, Result } from '@votingworks/basics';
+import { DateTime } from 'luxon';
 import {
   isArray,
   isBoolean,
@@ -75,6 +76,20 @@ const dateTagger: Tagger<Date, string> = {
   deserialize: (value) => new Date(value),
 };
 
+const luxonDateTimeTagger: Tagger<DateTime, string> = {
+  tag: 'DateTime',
+  shouldTag: (value): value is DateTime => value instanceof DateTime,
+  serialize: (value) => {
+    assert(value.zoneName === 'UTC', 'Only UTC DateTimes are serializable');
+    return value.toISO();
+  },
+  deserialize: (value) => {
+    const result = DateTime.fromISO(value, { setZone: true });
+    assert(result.zoneName === 'UTC', 'Only UTC DateTimes are deserializable');
+    return result;
+  },
+};
+
 const errorTagger: Tagger<Error, { message: string }> = {
   tag: 'Error',
   shouldTag: (value): value is Error => value instanceof Error,
@@ -110,6 +125,7 @@ const bufferTagger: Tagger<Buffer, string> = {
 const taggers: Array<Tagger<any, any>> = [
   undefinedTagger,
   dateTagger,
+  luxonDateTimeTagger,
   errorTagger,
   resultTagger,
   bufferTagger,

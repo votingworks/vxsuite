@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Buffer } from 'buffer';
 import { err, ok } from '@votingworks/basics';
+import { DateTime } from 'luxon';
 import { deserialize, serialize } from './serialization';
 
 // Note that instead of using a table of test cases, we're using a series of
@@ -49,6 +50,12 @@ test('JSON serialization/deserialization', () => {
   expectToBePreservedExactly(new Date('2020-01-01T00:00:00.000Z'));
   expectToBePreservedExactly(new Date());
   expectToBePreservedExactly({ a: new Date() });
+  // luxon DateTimes
+  expectToBePreservedExactly(
+    DateTime.fromISO('2020-01-01T00:00:00.000Z', { setZone: true })
+  );
+  expectToBePreservedExactly(DateTime.utc());
+  expectToBePreservedExactly({ a: DateTime.utc() });
   // Buffer
   expectToBePreservedExactly(Buffer.from('some string'));
   expectToBePreservedExactly({ a: Buffer.from('some string') });
