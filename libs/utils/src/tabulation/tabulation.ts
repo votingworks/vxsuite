@@ -541,7 +541,9 @@ export function combineCandidateContestResults({
         combinedContestResults.tallies[candidateTally.id];
 
       if (!combinedCandidateTally) {
-        combinedContestResults.tallies[candidateTally.id] = candidateTally;
+        combinedContestResults.tallies[candidateTally.id] = {
+          ...candidateTally,
+        };
       } else {
         combinedCandidateTally.tally += candidateTally.tally;
       }
