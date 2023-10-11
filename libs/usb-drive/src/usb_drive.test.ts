@@ -5,6 +5,7 @@ import { join } from 'path';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import {
   BlockDeviceInfo,
+  DetectUsbDriveOptions,
   UsbDriveStatus,
   VX_USB_LABEL_REGEXP,
   detectUsbDrive,
@@ -156,6 +157,7 @@ describe('status', () => {
       sdc1: Partial<BlockDeviceInfo>;
       expectedStatus: UsbDriveStatus;
       newMountPoint?: string;
+      options?: DetectUsbDriveOptions;
     }> = [
       {
         sdb1: { mountpoint: '/media/usb-drive-sdb1' },
@@ -187,11 +189,23 @@ describe('status', () => {
         expectedStatus: { status: 'no_drive' },
         newMountPoint: '/dev/sdc1',
       },
+      {
+        sdb1: { mountpoint: undefined },
+        sdc1: { mountpoint: '/media/usb-drive-sdc1' },
+        expectedStatus: {
+          status: 'mounted',
+          mountPoint: '/media/usb-drive-sdc1',
+          deviceName: 'sdc1',
+        },
+        options: {
+          allowUnmountedDataDrive: false,
+        },
+      },
     ];
 
     for (const testCase of testCases) {
       const logger = fakeLogger();
-      const usbDrive = detectUsbDrive(logger);
+      const usbDrive = detectUsbDrive(logger, testCase.options);
       readdirMock.mockResolvedValue([
         'notausb-bazbar-part21', // this device should be ignored
         'usb-foobar-part23',

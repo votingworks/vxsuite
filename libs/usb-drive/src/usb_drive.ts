@@ -279,9 +279,13 @@ async function mount(
   }
 }
 
+export interface DetectUsbDriveOptions {
+  allowUnmountedDataDrive: boolean;
+}
+
 export function detectUsbDrive(
   logger: Logger,
-  options: { allowUnmountedDataDrive: boolean } = {
+  options: DetectUsbDriveOptions = {
     allowUnmountedDataDrive: true,
   }
 ): UsbDrive {
