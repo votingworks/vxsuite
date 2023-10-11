@@ -31,6 +31,7 @@ export interface BlockDeviceInfo {
   fstype: string | null;
   fsver: string | null;
   label: string | null;
+  type: string;
 }
 
 type RawBlockDevice = Omit<BlockDeviceInfo, 'path'>;
@@ -46,7 +47,7 @@ async function getBlockDeviceInfo(
       '-n',
       '-l',
       '-o',
-      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL'].join(','),
+      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL', 'TYPE'].join(','),
       ...devicePaths,
     ]);
     const rawData = JSON.parse(stdout) as {
@@ -86,8 +87,10 @@ const DEFAULT_MEDIA_MOUNT_DIR = '/media';
 
 function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
   return (
-    !blockDeviceInfo.mountpoint ||
-    blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR)
+    blockDeviceInfo.type === 'part' && // disk partitions only, no disks or logical volumes
+    !blockDeviceInfo.fstype?.includes('LVM') && // no partitions acting as LVMs
+    (!blockDeviceInfo.mountpoint ||
+      blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR))
   );
 }
 
