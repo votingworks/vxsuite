@@ -16,7 +16,7 @@ import {
   PPI,
 } from '@votingworks/hmpb-layout';
 import { join } from 'path';
-import { DOMParser, XMLSerializer } from 'xmldom';
+import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
 
 const ASSETS_DIR = join(__dirname, '../assets');
 // These font names need to be exactly of the pattern FontName[-Bold] in order
