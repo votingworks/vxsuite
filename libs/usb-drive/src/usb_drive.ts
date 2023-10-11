@@ -89,10 +89,16 @@ function isDataUsbDrive(
   allowUnmounted: boolean
 ): boolean {
   if (allowUnmounted) {
-    return !blockDeviceInfo.mountpoint;
+    return (
+      !blockDeviceInfo.mountpoint ||
+      blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR)
+    );
   }
 
-  return !!blockDeviceInfo.mountpoint?.startsWith(DEFAULT_MEDIA_MOUNT_DIR);
+  return (
+    !!blockDeviceInfo.mountpoint &&
+    blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR)
+  );
 }
 
 async function getUsbDriveDeviceInfo(
