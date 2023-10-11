@@ -1,5 +1,5 @@
 import { Candidate, LanguageCode, Parties, PartyId } from '@votingworks/types';
-import { renderCandidatePartyList } from './election_strings';
+import { renderCandidatePartyList } from './utils';
 import { newTestContext } from '../../test/ui_strings/test_utils';
 import { H1 } from '..';
 import { screen } from '../../test/react_testing_library';
