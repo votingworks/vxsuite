@@ -84,14 +84,20 @@ async function findUsbDriveDevices(): Promise<string[]> {
 
 const DEFAULT_MEDIA_MOUNT_DIR = '/media';
 
-function isDataUsbDrive(blockDeviceInfo: BlockDeviceInfo): boolean {
-  return (
-    !blockDeviceInfo.mountpoint ||
-    blockDeviceInfo.mountpoint.startsWith(DEFAULT_MEDIA_MOUNT_DIR)
-  );
+function isDataUsbDrive(
+  blockDeviceInfo: BlockDeviceInfo,
+  allowUnmounted: boolean
+): boolean {
+  if (allowUnmounted) {
+    return !blockDeviceInfo.mountpoint;
+  }
+
+  return !!blockDeviceInfo.mountpoint?.startsWith(DEFAULT_MEDIA_MOUNT_DIR);
 }
 
-async function getUsbDriveDeviceInfo(): Promise<BlockDeviceInfo | undefined> {
+async function getUsbDriveDeviceInfo(
+  allowUnmountedDataDrive: boolean
+): Promise<BlockDeviceInfo | undefined> {
   const devicePaths = await findUsbDriveDevices();
   if (devicePaths.length === 0) {
     debug(`No USB drives detected`);
@@ -99,7 +105,9 @@ async function getUsbDriveDeviceInfo(): Promise<BlockDeviceInfo | undefined> {
   }
 
   const blockDeviceInfos = await getBlockDeviceInfo(devicePaths);
-  const dataUsbBlockDeviceInfo = blockDeviceInfos.find(isDataUsbDrive);
+  const dataUsbBlockDeviceInfo = blockDeviceInfos.find((info) =>
+    isDataUsbDrive(info, allowUnmountedDataDrive)
+  );
   if (!dataUsbBlockDeviceInfo) {
     debug(`USB drive detected, but it's not mounted as a removable data drive`);
     return undefined;
@@ -265,7 +273,12 @@ async function mount(
   }
 }
 
-export function detectUsbDrive(logger: Logger): UsbDrive {
+export function detectUsbDrive(
+  logger: Logger,
+  options: { allowUnmountedDataDrive: boolean } = {
+    allowUnmountedDataDrive: true,
+  }
+): UsbDrive {
   // Store eject state so we don't immediately remount the drive on
   // the next status call. We don't need to persist this across restarts, so
   // storing in memory is fine.
@@ -278,13 +291,15 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
   // state and ignore the OS-provided device info during formatting.
   let isFormatting = false;
 
+  const { allowUnmountedDataDrive } = options;
+
   return {
     async status(): Promise<UsbDriveStatus> {
       if (isFormatting) {
         return { status: 'ejected' };
       }
 
-      const deviceInfo = await getUsbDriveDeviceInfo();
+      const deviceInfo = await getUsbDriveDeviceInfo(allowUnmountedDataDrive);
       if (!deviceInfo) {
         // Reset eject state in case the drive was removed
         didEject = false;
@@ -315,7 +330,7 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
     },
 
     async eject(loggingUserRole: LoggingUserRole): Promise<void> {
-      const deviceInfo = await getUsbDriveDeviceInfo();
+      const deviceInfo = await getUsbDriveDeviceInfo(allowUnmountedDataDrive);
       if (!deviceInfo?.mountpoint) {
         debug('No USB drive mounted, skipping eject');
         return;
@@ -334,7 +349,7 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
     },
 
     async format(loggingUserRole: LoggingUserRole): Promise<void> {
-      const deviceInfo = await getUsbDriveDeviceInfo();
+      const deviceInfo = await getUsbDriveDeviceInfo(allowUnmountedDataDrive);
       if (!deviceInfo) {
         debug('No USB drive detected, skipping format');
         return;

@@ -82,7 +82,7 @@ export async function start({
 
   const usbDrive = isIntegrationTest()
     ? new MockFileUsbDrive()
-    : detectUsbDrive(logger);
+    : detectUsbDrive(logger, { allowUnmountedDataDrive: false });
 
   const app = buildApp(resolvedAuth, logger, workspace, usbDrive, stateMachine);
 
