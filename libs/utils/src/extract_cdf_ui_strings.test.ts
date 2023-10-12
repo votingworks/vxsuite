@@ -162,6 +162,10 @@ const tests: Record<ElectionStringKey, () => void> = {
     });
   },
 
+  [ElectionStringKey.PARTY_FULL_NAME]() {
+    // TODO(kofi): Implement
+  },
+
   [ElectionStringKey.PARTY_NAME]() {
     // TODO(kofi): Implement
   },

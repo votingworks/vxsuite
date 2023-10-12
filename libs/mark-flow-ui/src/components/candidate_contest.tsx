@@ -26,7 +26,7 @@ import {
   ModalWidth,
   useScreenInfo,
   appStrings,
-  renderCandidatePartyList,
+  CandidatePartyList,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -280,10 +280,12 @@ export function CandidateContest({
                     candidate.name
                   )}${partiesDescription ? `, ${partiesDescription}` : ''}.`}
                   label={candidate.name}
-                  caption={renderCandidatePartyList(
-                    candidate,
-                    election.parties
-                  )}
+                  caption={
+                    <CandidatePartyList
+                      candidate={candidate}
+                      electionParties={election.parties}
+                    />
+                  }
                 />
               );
             })}

@@ -4,13 +4,22 @@ import styled from 'styled-components';
 import {
   BallotStyleId,
   ElectionDefinition,
-  getPartyPrimaryAdjectiveFromBallotStyle,
   PrecinctSelection,
 } from '@votingworks/types';
-import { getPrecinctSelectionName, format } from '@votingworks/utils';
+import { format, getPrecinctSelectionName } from '@votingworks/utils';
 
-import { NoWrap, H1, P, Caption, Font, Seal } from '@votingworks/ui';
-import pluralize from 'pluralize';
+import {
+  NoWrap,
+  H1,
+  P,
+  Caption,
+  Font,
+  Seal,
+  electionStrings,
+  appStrings,
+  PrecinctSelectionName,
+  PrimaryElectionTitlePrefix,
+} from '@votingworks/ui';
 
 const Container = styled.div`
   align-items: center;
@@ -36,18 +45,32 @@ export function ElectionInfo({
   contestCount,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
-  const { title: t, state, county, date, seal } = election;
+  const { state, county, date, seal } = election;
+
   const precinctName =
     precinctSelection &&
     getPrecinctSelectionName(election.precincts, precinctSelection);
-  const partyPrimaryAdjective = ballotStyleId
-    ? getPartyPrimaryAdjectiveFromBallotStyle({
-        election,
-        ballotStyleId,
-      })
-    : '';
-  const title = `${partyPrimaryAdjective} ${t}`;
+
+  const partyPrimaryAdjective = (
+    <React.Fragment>
+      {ballotStyleId && (
+        <PrimaryElectionTitlePrefix
+          ballotStyleId={ballotStyleId}
+          election={election}
+        />
+      )}{' '}
+    </React.Fragment>
+  );
+
+  const title = (
+    <React.Fragment>
+      {partyPrimaryAdjective}
+      {electionStrings.electionTitle(election)}
+    </React.Fragment>
+  );
+
   const electionDate = format.localeLongDate(new Date(date));
+
   return (
     <Container>
       <Seal seal={seal} />
@@ -56,27 +79,37 @@ export function ElectionInfo({
         <P
           aria-label={`${electionDate}. ${county.name}, ${state}. ${precinctName}.`}
         >
-          <Font weight="bold">{electionDate}</Font>
+          <Font weight="bold">{appStrings.date(new Date(date))}</Font>
           <br />
           <Caption>
-            {precinctName && <NoWrap>{precinctName}, </NoWrap>}
-            {county.name}, {state}
+            {/* TODO(kofi): Use more language-agnostic delimiter (e.g. '|') or find way to translate commas. */}
+            {precinctSelection && (
+              <NoWrap>
+                <PrecinctSelectionName
+                  electionPrecincts={election.precincts}
+                  precinctSelection={precinctSelection}
+                />
+                ,{' '}
+              </NoWrap>
+            )}
+            {electionStrings.countyName(county)},{' '}
+            {electionStrings.stateName(election)}
           </Caption>
           {ballotStyleId && (
             <React.Fragment>
               <br />
-              <Caption>Ballot style: {ballotStyleId}</Caption>
+              <Caption>
+                {appStrings.labelBallotStyle()}{' '}
+                {electionStrings.ballotStyleId(ballotStyleId)}
+              </Caption>
             </React.Fragment>
           )}
           {contestCount && (
             <React.Fragment>
               <br />
               <Caption>
-                Your ballot has{' '}
-                <Font weight="bold">
-                  {pluralize('contest', contestCount, true)}
-                </Font>
-                .
+                {appStrings.labelNumBallotContests()}{' '}
+                <Font weight="bold">{appStrings.number(contestCount)}</Font>
               </Caption>
             </React.Fragment>
           )}

@@ -121,6 +121,10 @@ const extractorFns: Record<
     });
   },
 
+  [ElectionStringKey.PARTY_FULL_NAME](_cdfElection, _uiStrings) {
+    // TODO(kofi): Implement
+  },
+
   [ElectionStringKey.PARTY_NAME](_cdfElection, _uiStrings) {
     // TODO(kofi): Implement
   },

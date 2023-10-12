@@ -514,7 +514,12 @@ exports[`renders StartPage with inline SVG 1`] = `
           <h1
             class="c5"
           >
-             General Election
+             
+            <span
+              class=""
+            >
+              General Election
+            </span>
           </h1>
           <p
             aria-label="November 3, 2020. Franklin County, State of Hamilton. Center Springfield."
@@ -523,7 +528,9 @@ exports[`renders StartPage with inline SVG 1`] = `
             <span
               class="c7"
             >
-              November 3, 2020
+              <span>
+                November 3, 2020
+              </span>
             </span>
             <br />
             <span
@@ -532,32 +539,60 @@ exports[`renders StartPage with inline SVG 1`] = `
               <span
                 class="c9"
               >
-                Center Springfield
-                , 
+                <span
+                  class=""
+                >
+                  Center Springfield
+                </span>
+                ,
+                 
               </span>
-              Franklin County
-              , 
-              State of Hamilton
+              <span
+                class=""
+              >
+                Franklin County
+              </span>
+              ,
+               
+              <span
+                class=""
+              >
+                State of Hamilton
+              </span>
             </span>
             <br />
             <span
               class="c8"
             >
-              Ballot style: 
-              12
+              <span
+                class=""
+              >
+                Ballot style:
+              </span>
+               
+              <span
+                class=""
+              >
+                12
+              </span>
             </span>
             <br />
             <span
               class="c8"
             >
-              Your ballot has
+              <span
+                class=""
+              >
+                Number of contests on your ballot:
+              </span>
                
               <span
                 class="c7"
               >
-                20 contests
+                <span>
+                  20
+                </span>
               </span>
-              .
             </span>
           </p>
         </div>
@@ -596,7 +631,12 @@ exports[`renders StartPage with inline SVG 1`] = `
                   fill="currentColor"
                 />
               </svg>
-               Start Voting
+               
+              <span
+                class=""
+              >
+                Start Voting
+              </span>
             </span>
           </span>
         </button>
