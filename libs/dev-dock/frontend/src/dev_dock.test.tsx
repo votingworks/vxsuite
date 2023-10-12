@@ -67,7 +67,7 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.USE_MOCK_CARDS
   );
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB
+    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
@@ -253,7 +253,7 @@ test('USB drive controls', async () => {
 
 test('disabled USB drive controls if USB drive mocks are disabled', async () => {
   featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB
+    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
   render(<DevDock apiClient={mockApiClient} />);
 

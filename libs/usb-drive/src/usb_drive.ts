@@ -259,7 +259,7 @@ type Action = 'mounting' | 'ejecting' | 'formatting';
 
 export function detectUsbDrive(logger: Logger): UsbDrive {
   // Mock USB drives for development and integration tests
-  if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB)) {
+  if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)) {
     return new MockFileUsbDrive();
   }
 

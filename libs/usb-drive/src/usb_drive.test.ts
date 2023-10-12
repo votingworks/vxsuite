@@ -577,7 +577,7 @@ test('action locking', async () => {
 
 test('uses mock file usb drive if environment variable is set', async () => {
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_USB
+    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
   const stateFilePath = join(DEFAULT_MOCK_USB_DIR, MOCK_USB_STATE_FILENAME);
 

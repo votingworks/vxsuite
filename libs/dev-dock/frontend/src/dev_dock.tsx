@@ -365,7 +365,7 @@ function UsbDriveMockControls() {
   }
 
   const isFeatureEnabled = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.USE_MOCK_USB
+    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
 
   const disabled = !isFeatureEnabled || !getUsbDriveStatusQuery.isSuccess;
