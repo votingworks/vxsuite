@@ -3,7 +3,7 @@ import path from 'path';
 import { dirSync } from 'tmp';
 import { sleep } from '@votingworks/basics';
 
-import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './export';
+import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './file_system_utils';
 
 let tempDirectoryPath: string;
 
