@@ -22,6 +22,13 @@ export const ALL_PRECINCTS_SELECTION: AllPrecinctsSelection = {
 
 export const ALL_PRECINCTS_NAME = 'All Precincts';
 
+export function getPrecinctSelection(
+  precincts: readonly Precinct[],
+  precinctSelection: SinglePrecinctSelection
+): Precinct {
+  return find(precincts, (p) => p.id === precinctSelection.precinctId);
+}
+
 export function getPrecinctSelectionName(
   precincts: readonly Precinct[],
   precinctSelection: PrecinctSelection
@@ -30,7 +37,7 @@ export function getPrecinctSelectionName(
     return ALL_PRECINCTS_NAME;
   }
 
-  return find(precincts, (p) => p.id === precinctSelection.precinctId).name;
+  return getPrecinctSelection(precincts, precinctSelection).name;
 }
 
 export function areEqualPrecinctSelections(

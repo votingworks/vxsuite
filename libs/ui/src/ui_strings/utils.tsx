@@ -1,7 +1,18 @@
 import React from 'react';
 
-import { Candidate, Parties, getCandidateParties } from '@votingworks/types';
+import {
+  BallotStyleId,
+  Candidate,
+  Election,
+  Parties,
+  Precinct,
+  PrecinctSelection,
+  getCandidateParties,
+  getPartyForBallotStyle,
+} from '@votingworks/types';
+import { getPrecinctSelection } from '@votingworks/utils';
 
+import { appStrings } from './app_strings';
 import { electionStrings } from './election_strings';
 
 /**
@@ -28,4 +39,33 @@ export function renderCandidatePartyList(
       ))}
     </React.Fragment>
   );
+}
+
+export function renderPrecinctSelectionName(
+  electionPrecincts: readonly Precinct[],
+  precinctSelection?: PrecinctSelection
+): React.ReactNode {
+  if (!precinctSelection) {
+    return null;
+  }
+
+  if (precinctSelection.kind === 'AllPrecincts') {
+    return appStrings.labelAllPrecinctsSelection();
+  }
+
+  const precinct = getPrecinctSelection(electionPrecincts, precinctSelection);
+
+  return electionStrings.precinctName(precinct);
+}
+
+export function renderPrimaryElectionTitlePrefix(
+  ballotStyleId: BallotStyleId,
+  election: Election
+): React.ReactNode {
+  const party = getPartyForBallotStyle({ ballotStyleId, election });
+  if (!party) {
+    return null;
+  }
+
+  return electionStrings.partyFullName(party);
 }

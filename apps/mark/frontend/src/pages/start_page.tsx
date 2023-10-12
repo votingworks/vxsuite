@@ -2,7 +2,7 @@ import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { Screen, Button, P, Icons } from '@votingworks/ui';
+import { Screen, Button, P, Icons, appStrings } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 import { BallotContext } from '../contexts/ballot_context';
@@ -89,7 +89,7 @@ export function StartPage(): JSX.Element {
         aria-label="Press the right button to advance to the first contest."
       >
         <LargeButtonText>
-          <Icons.Next /> Start Voting
+          <Icons.Next /> {appStrings.buttonStartVoting()}
         </LargeButtonText>
       </Button>
     </Wobble>
