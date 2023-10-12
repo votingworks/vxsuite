@@ -8,7 +8,7 @@ import {
   ReaderStatus,
 } from '../src/card_reader';
 import { CardType } from '../src/certs';
-import { VxSuiteJavaCard } from '../src/vxsuite_java_card';
+import { JavaCard } from '../src/java_card';
 
 /**
  * A mock card reader
@@ -76,7 +76,7 @@ export function mockVxSuiteCardAssertComplete(mockCard: MockVxSuiteCard): void {
  * An extension of the Java Card class with a method for manually setting the card status to
  * simplify setup for Java Card tests that require the card to be in a specific starting state
  */
-export class TestVxSuiteJavaCard extends VxSuiteJavaCard {
+export class TestJavaCard extends JavaCard {
   setCardStatus(cardStatus: CardStatus): void {
     this.cardStatus = cardStatus;
   }

@@ -122,7 +122,7 @@ function updateNumIncorrectPinAttempts(
  *
  * Use ./scripts/mock-card in libs/auth/ to mock cards during local development.
  */
-export class MockFileVxSuiteCard implements VxSuiteCard {
+export class MockFileCard implements VxSuiteCard {
   constructor() {
     initializeMockFile();
   }

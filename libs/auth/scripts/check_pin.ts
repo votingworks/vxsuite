@@ -1,12 +1,7 @@
 import { createInterface } from 'readline';
-import { CommonAccessCard } from '../src/common_access_card';
-import {
-  CardDetails,
-  CommonAccessCardDetails,
-  PinProtectedCard,
-  StatefulCard,
-} from '../src/card';
-import { VxSuiteJavaCard } from '../src';
+import { JavaCard } from '../src';
+import { CommonAccessCardDetails, CommonAccessCard } from '../src/cac';
+import { CardDetails, PinProtectedCard, StatefulCard } from '../src/card';
 import { waitForReadyCardStatus } from './utils';
 
 /**
@@ -49,7 +44,7 @@ export async function main(args: readonly string[]): Promise<void> {
     );
   });
 
-  card ??= new VxSuiteJavaCard();
+  card ??= new JavaCard();
   console.time('waitForReadyCardStatus');
   await waitForReadyCardStatus(card);
   console.timeEnd('waitForReadyCardStatus');

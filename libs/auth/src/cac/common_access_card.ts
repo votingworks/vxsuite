@@ -10,30 +10,36 @@ import {
   parseTlv,
   ResponseApduError,
   SELECT,
-} from './apdu';
-import {
-  CardStatus,
-  CheckPinResponse,
-  CommonAccessCardCompatibleCard,
-  CommonAccessCardDetails,
-} from './card';
-import { CardReader } from './card_reader';
+} from '../apdu';
+import { CardStatus, CheckPinResponse } from '../card';
+import { CardReader } from '../card_reader';
 import { parseCardDetailsFromCert } from './common_access_card_certs';
 import {
   certDerToPem,
   extractPublicKeyFromCert,
   verifySignature,
-} from './cryptography';
+} from '../cryptography';
 import {
   construct8BytePinBuffer,
+  CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
   GENERAL_AUTHENTICATE,
   GET_DATA,
   isSecurityConditionNotSatisfiedStatusWord,
   pivDataObjectId,
   PUT_DATA,
   VERIFY,
-} from './piv';
-import { OPEN_FIPS_201_AID } from './applet';
+} from '../piv';
+import {
+  CommonAccessCardCompatibleCard,
+  CommonAccessCardDetails,
+} from './common_access_card_api';
+
+/**
+ * The standard CAC applet ID.
+ *
+ * @see https://www.eftlab.com/knowledge-base/complete-list-of-application-identifiers-aid
+ */
+export const COMMON_ACCESS_CARD_AID = 'a000000308000010000100';
 
 /**
  * The card's DoD-issued cert.
@@ -71,7 +77,6 @@ export function buildGenerateSignatureCardCommand(
     0xff
   );
 
-  // now we pad
   const paddedMessage = Buffer.concat([
     x0001,
     allFsPadding,
@@ -83,7 +88,7 @@ export function buildGenerateSignatureCardCommand(
 
   return new CardCommand({
     ins: GENERAL_AUTHENTICATE.INS,
-    p1: 0x07, // TODO: what does this value mean?
+    p1: CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.RSA2048,
     p2: privateKeyId,
     data: constructTlv(
       GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
@@ -154,15 +159,13 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
   async checkPin(pin: string): Promise<CheckPinResponse> {
     await this.selectApplet();
 
-    const cardVxAdminCert = await this.getCertificate({
+    const cardDodCert = await this.getCertificate({
       objectId: CARD_DOD_CERT.OBJECT_ID,
     });
     try {
-      // Verify that the card has a private key that corresponds to the public key in the card
-      // VxAdmin cert
       await this.verifyCardPrivateKey(
         CARD_DOD_CERT.PRIVATE_KEY_ID,
-        cardVxAdminCert,
+        cardDodCert,
         pin
       );
     } catch (error) {
@@ -191,7 +194,7 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
   }
 
   /**
-   * Selects the OpenFIPS201 applet
+   * Selects the standard CAC applet on the card.
    */
   private async selectApplet(): Promise<void> {
     await this.cardReader.transmit(
@@ -199,7 +202,7 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
         ins: SELECT.INS,
         p1: SELECT.P1,
         p2: SELECT.P2,
-        data: Buffer.from(OPEN_FIPS_201_AID, 'hex'),
+        data: Buffer.from(COMMON_ACCESS_CARD_AID, 'hex'),
       })
     );
   }
@@ -249,8 +252,18 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
       buildGenerateSignatureCardCommand(message, { privateKeyId })
     );
 
-    // why are we trimming 8 here instead of 4, and why were we trimming 4 before? Is this an ECC vs. RSA formatting?
-    return generalAuthenticateResponse.subarray(8); // Trim metadata
+    // see Table 7. Data Objects in the Dynamic Authentication Template (Tag '7C')
+    const [, , dynamicAuthenticationTemplate] = parseTlv(
+      GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
+      generalAuthenticateResponse
+    );
+
+    const [, , signatureResponse] = parseTlv(
+      GENERAL_AUTHENTICATE.RESPONSE_TAG,
+      dynamicAuthenticationTemplate
+    );
+
+    return signatureResponse;
   }
 
   /**

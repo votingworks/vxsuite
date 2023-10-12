@@ -6,10 +6,13 @@ import { STATUS_WORD } from './apdu';
 
 /**
  * PIV-specific IDs for different cryptographic algorithms, e.g. ECC, RSA, etc.
+ *
+ * @see https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-73-4.pdf
  */
 export const CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER = {
   /** Elliptic curve cryptography, curve P-256 */
   ECC256: 0x11,
+  RSA2048: 0x07,
 } as const;
 
 /**

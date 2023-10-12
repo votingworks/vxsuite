@@ -2,7 +2,6 @@ import { Buffer } from 'buffer';
 import {
   Byte,
   ElectionManagerUser,
-  Id,
   PollWorkerUser,
   SystemAdministratorUser,
 } from '@votingworks/types';
@@ -26,16 +25,6 @@ interface PollWorkerCardDetails {
    * cards by default don't have PINs but can if the relevant system setting is enabled.
    */
   hasPin: boolean;
-}
-
-/**
- * Details about a Common Access Card.
- */
-export interface CommonAccessCardDetails {
-  commonAccessCardId: Id;
-  givenName: string;
-  middleName?: string;
-  familyName: string;
 }
 
 /**
@@ -171,9 +160,3 @@ export type VxSuiteCard = StatefulCard<CardDetails> &
   PinProtectedCard &
   ProgrammableCard &
   DataCard;
-
-/**
- * The API for a Common Access Card-compatible smart card.
- */
-export type CommonAccessCardCompatibleCard =
-  StatefulCard<CommonAccessCardDetails> & SigningCard & CertificateProviderCard;

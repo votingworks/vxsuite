@@ -16,7 +16,7 @@ import {
   getTestFilePath,
   MockCardReader,
   TestFileSetId,
-  TestVxSuiteJavaCard,
+  TestJavaCard,
 } from '../test/utils';
 import {
   CardCommand,
@@ -42,11 +42,11 @@ import {
   DEFAULT_PIN,
   GENERIC_STORAGE_SPACE,
   GENERIC_STORAGE_SPACE_CAPACITY_BYTES,
-  VxSuiteJavaCard,
+  JavaCard,
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   PUK,
   VX_ADMIN_CERT_AUTHORITY_CERT,
-} from './vxsuite_java_card';
+} from './java_card';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -328,7 +328,7 @@ function mockCardPutDataRequest(dataObjectId: Buffer, data: Buffer): void {
 }
 
 test('Non-ready card statuses', async () => {
-  const javaCard = new VxSuiteJavaCard({
+  const javaCard = new JavaCard({
     generateChallengeOverride,
     vxCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-cert-authority-cert.pem',
@@ -570,7 +570,7 @@ test.each<{
     isCardGetNumRemainingPinAttemptsRequestExpected,
     expectedCardDetails,
   }) => {
-    const javaCard = new VxSuiteJavaCard({
+    const javaCard = new JavaCard({
       generateChallengeOverride,
       vxCertAuthorityCertPath: getTestFilePath({
         setId: vxCertAuthorityCert,
@@ -683,7 +683,7 @@ test.each<{
     cardSignatureRequestError,
     expectedResponse,
   }) => {
-    const javaCard = new TestVxSuiteJavaCard(config);
+    const javaCard = new TestJavaCard(config);
     javaCard.setCardStatus({
       status: 'ready',
       cardDetails: {
@@ -810,7 +810,7 @@ test.each<{
     expectedExpiryInDays,
     expectedCardDetailsAfterProgramming,
   }) => {
-    const javaCard = new VxSuiteJavaCard(configWithCardProgrammingConfig);
+    const javaCard = new JavaCard(configWithCardProgrammingConfig);
 
     const pin = ('pin' in programInput && programInput.pin) || DEFAULT_PIN;
     mockCardAppletSelectionRequest();
@@ -881,7 +881,7 @@ test.each<{
 );
 
 test('Unprogramming', async () => {
-  const javaCard = new VxSuiteJavaCard(configWithCardProgrammingConfig);
+  const javaCard = new JavaCard(configWithCardProgrammingConfig);
 
   mockCardAppletSelectionRequest();
   mockCardPinResetRequest(DEFAULT_PIN);
@@ -901,7 +901,7 @@ test('Unprogramming', async () => {
 });
 
 test('Attempting programming and unprogramming when cardProgrammingConfig is undefined', async () => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   await expect(
     javaCard.program({ user: systemAdministratorUser, pin: '123456' })
@@ -912,7 +912,7 @@ test('Attempting programming and unprogramming when cardProgrammingConfig is und
 });
 
 test('Data reading', async () => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   mockCardAppletSelectionRequest();
   mockCardGetDataRequest(
@@ -979,7 +979,7 @@ test.each<{
     ],
   },
 ])('Data writing', async ({ data, expectedPutDataRequests }) => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   mockCardAppletSelectionRequest();
   for (const request of expectedPutDataRequests) {
@@ -990,7 +990,7 @@ test.each<{
 });
 
 test('Data clearing', async () => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   mockCardAppletSelectionRequest();
   for (const dataObjectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
@@ -1001,7 +1001,7 @@ test('Data clearing', async () => {
 });
 
 test('Data reading error handling', async () => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   mockCardAppletSelectionRequest();
   mockCardGetDataRequest(
@@ -1017,7 +1017,7 @@ test('Data reading error handling', async () => {
 });
 
 test('Attempting to write too much data', async () => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   const data = Buffer.alloc(GENERIC_STORAGE_SPACE_CAPACITY_BYTES + 1);
   await expect(javaCard.writeData(data)).rejects.toThrow(
@@ -1030,7 +1030,7 @@ test('Attempting to write too much data', async () => {
 //
 
 test('disconnect', async () => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   mockCardReader.disconnectCard.expectCallWith().resolves();
 
@@ -1038,7 +1038,7 @@ test('disconnect', async () => {
 });
 
 test('retrieveCertByIdentifier', async () => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   mockCardAppletSelectionRequest();
   mockCardCertRetrievalRequest(
@@ -1053,7 +1053,7 @@ test('retrieveCertByIdentifier', async () => {
 });
 
 test('createAndStoreCardVxCert', async () => {
-  const javaCard = new VxSuiteJavaCard(config);
+  const javaCard = new JavaCard(config);
 
   mockCardAppletSelectionRequest();
   mockCardKeyPairGenerationRequest(

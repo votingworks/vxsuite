@@ -11,7 +11,7 @@ import {
   deserializeMockFileContents,
   MOCK_FILE_PATH,
   mockCard,
-  MockFileVxSuiteCard,
+  MockFileCard,
   MockFileContents,
   serializeMockFileContents,
 } from './mock_file_card';
@@ -79,7 +79,7 @@ test.each<MockFileContents>([
 });
 
 test('MockFileCard basic mocking', async () => {
-  const card = new MockFileVxSuiteCard();
+  const card = new MockFileCard();
 
   expect(await card.getCardStatus()).toEqual({
     status: 'no_card',
@@ -163,7 +163,7 @@ test('MockFileCard basic mocking', async () => {
 });
 
 test('MockFileCard PIN checking', async () => {
-  const card = new MockFileVxSuiteCard();
+  const card = new MockFileCard();
   mockCard({
     cardStatus: {
       status: 'ready',
@@ -188,7 +188,7 @@ test('MockFileCard PIN checking', async () => {
 });
 
 test('MockFileCard programming', async () => {
-  const card = new MockFileVxSuiteCard();
+  const card = new MockFileCard();
   mockCard({
     cardStatus: {
       status: 'ready',
@@ -246,7 +246,7 @@ test('MockFileCard programming', async () => {
 });
 
 test('MockFileCard data reading and writing', async () => {
-  const card = new MockFileVxSuiteCard();
+  const card = new MockFileCard();
   mockCard({
     cardStatus: {
       status: 'ready',
@@ -267,7 +267,7 @@ test('MockFileCard data reading and writing', async () => {
 });
 
 test('MockFileCard resiliency to deletion of underlying file', async () => {
-  const card = new MockFileVxSuiteCard();
+  const card = new MockFileCard();
   fs.rmSync(MOCK_FILE_PATH);
   expect(await card.getCardStatus()).toEqual({
     status: 'no_card',
@@ -275,7 +275,7 @@ test('MockFileCard resiliency to deletion of underlying file', async () => {
 });
 
 test('MockFileCard resiliency to underlying file that cannot be parsed', async () => {
-  const card = new MockFileVxSuiteCard();
+  const card = new MockFileCard();
   fs.writeFileSync(MOCK_FILE_PATH, 'Not valid JSON');
   expect(await card.getCardStatus()).toEqual({
     status: 'no_card',

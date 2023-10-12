@@ -58,7 +58,11 @@ import {
   RESET_RETRY_COUNTER,
   VERIFY,
 } from './piv';
-import { OPEN_FIPS_201_AID } from './applet';
+
+/**
+ * The OpenFIPS201 applet ID
+ */
+export const OPEN_FIPS_201_AID = 'a000000308000010000100';
 
 /**
  * Java Cards always have a PIN. To allow for "PIN-less" cards and "blank" cards, we use a default
@@ -141,7 +145,7 @@ export const GENERIC_STORAGE_SPACE = {
  * applet (https://github.com/votingworks/openfips201) and X.509 certs. The implementation takes
  * inspiration from the NIST PIV standard but diverges where PIV doesn't suit our needs.
  */
-export class VxSuiteJavaCard implements VxSuiteCard {
+export class JavaCard implements VxSuiteCard {
   private readonly cardProgrammingConfig?: JavaCardConfig['cardProgrammingConfig'];
   private readonly cardReader: CardReader;
   // See TestJavaCard in test/utils.ts to understand why this is protected instead of private
@@ -702,7 +706,7 @@ export class VxSuiteJavaCard implements VxSuiteCard {
   //
 
   /**
-   * Disconnects the card so that it can be reconnected to, through a new VxSuiteJavaCard instance
+   * Disconnects the card so that it can be reconnected to, through a new JavaCard instance
    */
   async disconnect(): Promise<void> {
     await this.cardReader.disconnectCard();

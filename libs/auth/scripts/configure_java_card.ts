@@ -10,11 +10,11 @@ import {
   CARD_VX_CERT,
   DEFAULT_PIN,
   GENERIC_STORAGE_SPACE,
-  VxSuiteJavaCard,
+  JavaCard,
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   PUK,
   VX_ADMIN_CERT_AUTHORITY_CERT,
-} from '../src/vxsuite_java_card';
+} from '../src/java_card';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -264,7 +264,7 @@ async function runAppletConfigurationCommands(): Promise<void> {
 
 async function createAndStoreCardVxCert(): Promise<void> {
   sectionLog('🔏', 'Creating and storing card VotingWorks cert...');
-  const card = new VxSuiteJavaCard({ vxCertAuthorityCertPath });
+  const card = new JavaCard({ vxCertAuthorityCertPath });
   await waitForReadyCardStatus(card);
   await card.createAndStoreCardVxCert({
     source: 'file',

@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { openssl } from './cryptography';
-import { CommonAccessCardDetails } from './card';
+import { openssl } from '../cryptography';
+import { CommonAccessCardDetails } from './common_access_card_api';
 
 /**
  * Parts of a Common Access Card's CN field.
@@ -68,8 +68,8 @@ export function parseCommonAccessCardFields(certFields: {
 }
 
 /**
- * Parses the provided cert and returns the custom cert fields. Throws an error if the cert doesn't
- * follow VotingWorks's cert format.
+ * Parses the provided cert and returns the custom cert fields. Throws an error
+ * if the cert doesn't follow DoD's cert format.
  */
 export async function parseCert(
   cert: Buffer
