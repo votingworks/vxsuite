@@ -65,6 +65,7 @@ export function createMockUsbDrive(): MockUsbDrive {
         prefix: TMP_DIR_PREFIX,
       });
       writeMockFileTree(mockUsbTmpDir.name, contents);
+      usbDrive.status.reset();
       usbDrive.status.expectRepeatedCallsWith().resolves({
         status: 'mounted',
         mountPoint: mockUsbTmpDir.name,
@@ -74,6 +75,7 @@ export function createMockUsbDrive(): MockUsbDrive {
     removeUsbDrive() {
       mockUsbTmpDir?.removeCallback();
       mockUsbTmpDir = undefined;
+      usbDrive.status.reset();
       usbDrive.status
         .expectRepeatedCallsWith()
         .resolves({ status: 'no_drive' });
