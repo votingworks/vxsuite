@@ -2916,6 +2916,9 @@ importers:
 
   libs/backend:
     dependencies:
+      '@types/uuid':
+        specifier: ^9.0.5
+        version: 9.0.5
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../auth
@@ -2973,6 +2976,9 @@ importers:
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
       zod:
         specifier: 3.14.4
         version: 3.14.4
@@ -11726,6 +11732,10 @@ packages:
   /@types/uuid@9.0.4:
     resolution: {integrity: sha512-zAuJWQflfx6dYJM62vna+Sn5aeSWhh3OB+wfUEACNcqUSc0AGc5JKl+ycL1vrH7frGTXhJchYjE1Hak8L819dA==}
     dev: true
+
+  /@types/uuid@9.0.5:
+    resolution: {integrity: sha512-xfHdwa1FMJ082prjSJpoEI57GZITiQz10r3vEJCHa2khEFQjKy91aWKz6+zybzssCvXUwE1LQWgWVwZ4nYUvHQ==}
+    dev: false
 
   /@types/w3c-web-usb@1.0.6:
     resolution: {integrity: sha512-cSjhgrr8g4KbPnnijAr/KJDNKa/bBa+ixYkywFRvrhvi9n1WEl7yYbtRyzE6jqNQiSxxJxoAW3STaOQwJHndaw==}
