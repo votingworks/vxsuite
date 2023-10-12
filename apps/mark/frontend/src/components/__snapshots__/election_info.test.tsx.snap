@@ -268,7 +268,12 @@ exports[`renders ElectionInfo with hash when specified 1`] = `
       <h1
         class="c2"
       >
-         General Election
+         
+        <span
+          class=""
+        >
+          General Election
+        </span>
       </h1>
       <p
         aria-label="November 3, 2020. Franklin County, State of Hamilton. Center Springfield."
@@ -277,7 +282,9 @@ exports[`renders ElectionInfo with hash when specified 1`] = `
         <span
           class="c4"
         >
-          November 3, 2020
+          <span>
+            November 3, 2020
+          </span>
         </span>
         <br />
         <span
@@ -286,12 +293,26 @@ exports[`renders ElectionInfo with hash when specified 1`] = `
           <span
             class="c6"
           >
-            Center Springfield
-            , 
+            <span
+              class=""
+            >
+              Center Springfield
+            </span>
+            ,
+             
           </span>
-          Franklin County
-          , 
-          State of Hamilton
+          <span
+            class=""
+          >
+            Franklin County
+          </span>
+          ,
+           
+          <span
+            class=""
+          >
+            State of Hamilton
+          </span>
         </span>
       </p>
     </div>
@@ -567,7 +588,12 @@ exports[`renders ElectionInfo without hash by default 1`] = `
       <h1
         class="c2"
       >
-         General Election
+         
+        <span
+          class=""
+        >
+          General Election
+        </span>
       </h1>
       <p
         aria-label="November 3, 2020. Franklin County, State of Hamilton. Center Springfield."
@@ -576,7 +602,9 @@ exports[`renders ElectionInfo without hash by default 1`] = `
         <span
           class="c4"
         >
-          November 3, 2020
+          <span>
+            November 3, 2020
+          </span>
         </span>
         <br />
         <span
@@ -585,12 +613,26 @@ exports[`renders ElectionInfo without hash by default 1`] = `
           <span
             class="c6"
           >
-            Center Springfield
-            , 
+            <span
+              class=""
+            >
+              Center Springfield
+            </span>
+            ,
+             
           </span>
-          Franklin County
-          , 
-          State of Hamilton
+          <span
+            class=""
+          >
+            Franklin County
+          </span>
+          ,
+           
+          <span
+            class=""
+          >
+            State of Hamilton
+          </span>
         </span>
       </p>
     </div>
