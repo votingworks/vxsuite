@@ -103,7 +103,6 @@ describe('listDirectoryOnUsbDrive', () => {
     usbDrive.status.expectCallWith().resolves({
       status: 'mounted',
       mountPoint: mockMountPoint.name,
-      deviceName: 'something',
     });
 
     const directory = tmp.dirSync({

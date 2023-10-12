@@ -16,19 +16,6 @@ export function fakeDevice(
   };
 }
 
-export function fakeUsbDrive(
-  props: Partial<KioskBrowser.UsbDriveInfo> = {}
-): KioskBrowser.UsbDriveInfo {
-  return {
-    deviceName: 'fake device',
-    mountPoint: '/media/vx/mock-usb-drive',
-    fsType: 'vfat',
-    fsVersion: 'FAT32',
-    label: 'VxUSB-XXXXX',
-    ...props,
-  };
-}
-
 export function fakeMarkerInfo(
   props: Partial<KioskBrowser.IppMarkerInfo> = {}
 ): KioskBrowser.IppMarkerInfo {
@@ -84,10 +71,6 @@ export function fakeKiosk({
     printers: new BehaviorSubject(new Set<KioskBrowser.PrinterInfo>()),
     quit: jest.fn(),
     saveAs: jest.fn().mockResolvedValue(undefined),
-    getUsbDriveInfo: jest.fn().mockResolvedValue([]),
-    mountUsbDrive: jest.fn().mockResolvedValue(undefined),
-    unmountUsbDrive: jest.fn().mockResolvedValue(undefined),
-    syncUsbDrive: jest.fn().mockResolvedValue(undefined),
     writeFile: jest.fn().mockResolvedValue(undefined),
     readFile: jest.fn().mockResolvedValue(''),
     getFileSystemEntries: jest.fn().mockResolvedValue([]),

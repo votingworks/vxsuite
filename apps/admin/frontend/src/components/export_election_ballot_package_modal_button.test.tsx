@@ -2,6 +2,7 @@ import { fakeLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
   fireEvent,
   screen,
@@ -11,7 +12,6 @@ import {
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 

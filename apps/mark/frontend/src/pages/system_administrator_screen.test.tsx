@@ -1,4 +1,5 @@
 import { fakeLogger } from '@votingworks/logging';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
@@ -12,7 +13,7 @@ test('SystemAdministratorScreen renders expected contents', () => {
       logger={logger}
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
-      usbDriveStatus="absent"
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 

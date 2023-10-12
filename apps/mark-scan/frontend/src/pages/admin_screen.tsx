@@ -32,7 +32,6 @@ import { ScreenReader } from '../config/types';
 import {
   ejectUsbDrive,
   getPrecinctSelection,
-  legacyUsbDriveStatus,
   logOut,
   setPrecinctSelection,
 } from '../api';
@@ -180,8 +179,9 @@ export function AdminScreen({
           <UsbControllerButton
             small={false}
             primary
-            usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+            usbDriveStatus={usbDriveStatus}
             usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+            usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
           />
         </Prose>
       </Main>

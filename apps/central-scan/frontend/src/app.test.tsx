@@ -15,6 +15,7 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
   act,
   render,
@@ -31,7 +32,6 @@ import {
   setAuthStatus,
   setUsbDriveStatus,
 } from '../test/api';
-import { mockUsbDriveStatus } from '../test/helpers/mock_usb_drive';
 
 let mockApiClient: MockApiClient;
 

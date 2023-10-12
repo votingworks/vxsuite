@@ -1,6 +1,6 @@
 import { BallotPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
-import { UsbDriveStatus } from './hooks/use_usb_drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { CenteredLargeProse } from './centered_large_prose';
 import { LoadingAnimation } from './loading_animation';
 import { H1, P } from './typography';
@@ -23,7 +23,7 @@ export function UnconfiguredElectionScreen({
       return `Only election managers can configure ${machineName}.`;
     }
 
-    if (usbDriveStatus !== 'mounted') {
+    if (usbDriveStatus.status !== 'mounted') {
       return 'Insert a USB drive containing a ballot package.';
     }
 

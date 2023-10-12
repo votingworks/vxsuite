@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { throwIllegalValue } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -10,7 +11,6 @@ export function mockUsbDriveStatus(
       return {
         status,
         mountPoint: 'test-mount-point',
-        deviceName: 'test-device-name',
       };
     case 'no_drive':
     case 'ejected':

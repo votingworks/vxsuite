@@ -15,7 +15,7 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { FormatUsbButton } from '../components/format_usb_modal';
-import { legacyUsbDriveStatus, logOut } from '../api';
+import { logOut } from '../api';
 import { LiveCheckButton } from '../components/live_check_button';
 
 export function SettingsScreen(): JSX.Element {
@@ -34,10 +34,7 @@ export function SettingsScreen(): JSX.Element {
       <FormatUsbButton />
       <H2>Software Update</H2>
       <P>
-        <RebootFromUsbButton
-          logger={logger}
-          usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
-        />{' '}
+        <RebootFromUsbButton logger={logger} usbDriveStatus={usbDriveStatus} />{' '}
         or <RebootToBiosButton logger={logger} />
       </P>
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (

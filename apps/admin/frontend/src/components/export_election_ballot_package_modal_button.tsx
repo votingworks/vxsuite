@@ -10,7 +10,6 @@ import type { ExportDataError } from '@votingworks/admin-backend';
 
 import {
   ejectUsbDrive,
-  legacyUsbDriveStatus,
   saveBallotPackageToUsb as saveBallotPackageToUsbBase,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
@@ -124,7 +123,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
               primary
               small={false}
               usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-              usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+              usbDriveStatus={usbDriveStatus}
+              usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
             />
             <Button onPress={closeModal}>Close</Button>
           </React.Fragment>

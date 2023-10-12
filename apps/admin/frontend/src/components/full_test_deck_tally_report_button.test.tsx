@@ -8,10 +8,10 @@ import {
   fakeFileWriter,
   fakeKiosk,
 } from '@votingworks/test-utils';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { FullTestDeckTallyReportButton } from './full_test_deck_tally_report_button';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;

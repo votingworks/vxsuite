@@ -1,12 +1,12 @@
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
+import { fakeKiosk } from '@votingworks/test-utils';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { act, fireEvent, waitFor } from '../../test/react_testing_library';
 import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 jest.useFakeTimers();
@@ -62,7 +62,6 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
     .mockResolvedValueOnce('this-is-my-file-content');
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const logger = fakeLogger();
 
   const { getByText, queryAllByText } = renderInAppContext(
@@ -122,7 +121,6 @@ test('renders save screen when usb is mounted with results filetype and prompts 
     .mockResolvedValueOnce('this-is-my-file-content');
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   const logger = fakeLogger();
 
   const { getByText } = renderInAppContext(
@@ -224,7 +222,6 @@ test('creates new directory and saves to it, if specified', async () => {
   const fileContentFn = jest.fn().mockResolvedValueOnce('file-content');
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
 
   const { getByText } = renderInAppContext(
     <SaveFrontendFileModal

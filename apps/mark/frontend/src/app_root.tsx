@@ -53,7 +53,6 @@ import {
   getElectionDefinition,
   getMachineConfig,
   getUsbDriveStatus,
-  legacyUsbDriveStatus,
   startCardlessVoterSession,
   unconfigureMachine,
 } from './api';
@@ -661,7 +660,7 @@ export function AppRoot({
             ? makeAsync(resetPollsToPaused)
             : undefined
         }
-        usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+        usbDriveStatus={usbDriveStatus}
       />
     );
   }
@@ -669,7 +668,6 @@ export function AppRoot({
     if (!optionalElectionDefinition) {
       return (
         <UnconfiguredElectionScreenWrapper
-          usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
           updateElectionDefinition={updateElectionDefinition}
         />
       );

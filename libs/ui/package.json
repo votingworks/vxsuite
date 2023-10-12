@@ -96,6 +96,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*",
     "assert": "^2.0.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",

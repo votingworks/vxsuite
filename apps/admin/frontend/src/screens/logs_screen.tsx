@@ -3,7 +3,6 @@ import { ExportLogsButtonRow } from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { legacyUsbDriveStatus } from '../api';
 
 export function LogsScreen(): JSX.Element {
   const { electionDefinition, usbDriveStatus, auth, logger, machineConfig } =
@@ -13,7 +12,7 @@ export function LogsScreen(): JSX.Element {
     <NavigationScreen title="Logs">
       <ExportLogsButtonRow
         electionDefinition={electionDefinition}
-        usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+        usbDriveStatus={usbDriveStatus}
         auth={auth}
         logger={logger}
         machineConfig={machineConfig}

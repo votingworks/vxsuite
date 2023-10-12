@@ -28,7 +28,6 @@ import {
   clearBallotData,
   exportCastVoteRecordsToUsbDrive,
   ejectUsbDrive,
-  legacyUsbDriveStatus,
 } from '../api';
 
 const ButtonRow = styled.div`
@@ -133,7 +132,7 @@ export function AdminActionsScreen({
             <ButtonRow>
               <ExportLogsButtonRow
                 electionDefinition={electionDefinition}
-                usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+                usbDriveStatus={usbDriveStatus}
                 auth={auth}
                 logger={logger}
                 machineConfig={machineConfig}

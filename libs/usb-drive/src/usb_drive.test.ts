@@ -5,6 +5,7 @@ import { join } from 'path';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import {
   BlockDeviceInfo,
+  UsbDrive,
   UsbDriveStatus,
   VX_USB_LABEL_REGEXP,
   detectUsbDrive,
@@ -46,6 +47,42 @@ function lsblkOutput(devices: Array<Partial<BlockDeviceInfo>> = []) {
   };
 }
 
+function mockBlockDeviceOnce(device: Partial<BlockDeviceInfo> = {}): void {
+  readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
+  readlinkMock.mockResolvedValueOnce('../../sdb1');
+  execMock.mockResolvedValueOnce(lsblkOutput([device]));
+}
+
+/**
+ * Used to confirm that the `usbDrive` is not left with an unreleased lock.
+ * Triggers a mount and, by confirming that mount is called, confirms the lock
+ * was released.
+ */
+async function confirmLockReleased(usbDrive: UsbDrive) {
+  // reset to no drive
+  readdirMock.mockResolvedValueOnce([]);
+  await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
+
+  // insert a drive that should be mounted
+  mockBlockDeviceOnce({ mountpoint: null, name: 'confirm-mount' });
+  execMock.mockResolvedValueOnce({ stdout: '' });
+  await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
+  await backendWaitFor(() => {
+    expect(execMock).toHaveBeenLastCalledWith('sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/mount.sh`,
+      '/dev/confirm-mount',
+    ]);
+  }); // mount script was called, so action state was not locked
+
+  // reset action state by completing mount via status check
+  mockBlockDeviceOnce({ mountpoint: '/media/vx/usb-drive' });
+  await expect(usbDrive.status()).resolves.toEqual({
+    status: 'mounted',
+    mountPoint: '/media/vx/usb-drive',
+  });
+}
+
 describe('status', () => {
   test('no drive', async () => {
     const logger = fakeLogger();
@@ -73,7 +110,6 @@ describe('status', () => {
     await expect(usbDrive.status()).resolves.toEqual({
       status: 'mounted',
       mountPoint: '/media/usb-drive-sdb1',
-      deviceName: 'sdb1',
     });
 
     expect(readdirMock).toHaveBeenCalledWith('/dev/disk/by-id/');
@@ -111,7 +147,6 @@ describe('status', () => {
     await expect(usbDrive.status()).resolves.toEqual({
       status: 'mounted',
       mountPoint: '/media/vx/usb-drive',
-      deviceName: 'sdb1',
     });
 
     expect(execMock).toHaveBeenNthCalledWith(1, 'lsblk', [
@@ -148,6 +183,8 @@ describe('status', () => {
       'system',
       expect.objectContaining({ disposition: 'success' })
     );
+
+    await confirmLockReleased(usbDrive);
   });
 
   test('multiple usb devices - selects first valid', async () => {
@@ -163,7 +200,6 @@ describe('status', () => {
         expectedStatus: {
           status: 'mounted',
           mountPoint: '/media/usb-drive-sdb1',
-          deviceName: 'sdb1',
         },
       },
       {
@@ -178,7 +214,6 @@ describe('status', () => {
         expectedStatus: {
           status: 'mounted',
           mountPoint: '/media/usb-drive-sdc1',
-          deviceName: 'sdc1',
         },
       },
       {
@@ -287,14 +322,10 @@ describe('status', () => {
         expect.objectContaining({ disposition: 'failure' })
       );
     });
+
+    await confirmLockReleased(usbDrive);
   });
 });
-
-function mockBlockDeviceOnce(device: Partial<BlockDeviceInfo> = {}): void {
-  readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
-  readlinkMock.mockResolvedValueOnce('../../sdb1');
-  execMock.mockResolvedValueOnce(lsblkOutput([device]));
-}
 
 describe('eject', () => {
   test('no drive - no op', async () => {
@@ -336,19 +367,6 @@ describe('eject', () => {
 
     await expect(usbDrive.status()).resolves.toEqual({ status: 'ejected' });
 
-    // Remove USB and reinsert, should be detected and mounted again
-    readdirMock.mockResolvedValueOnce([]);
-    await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
-    mockBlockDeviceOnce({ mountpoint: null });
-    execMock.mockResolvedValueOnce({ stdout: '' });
-    await expect(usbDrive.status()).resolves.toEqual({ status: 'no_drive' });
-    mockBlockDeviceOnce({ mountpoint: '/media/vx/usb-drive' });
-    await expect(usbDrive.status()).resolves.toEqual({
-      status: 'mounted',
-      mountPoint: '/media/vx/usb-drive',
-      deviceName: 'sdb1',
-    });
-
     // check logging
     expect(logger.log).toHaveBeenNthCalledWith(
       1,
@@ -361,6 +379,8 @@ describe('eject', () => {
       'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
+
+    await confirmLockReleased(usbDrive);
   });
 
   test('fails to eject', async () => {
@@ -381,6 +401,8 @@ describe('eject', () => {
       'election_manager',
       expect.objectContaining({ disposition: 'failure' })
     );
+
+    await confirmLockReleased(usbDrive);
   });
 });
 
@@ -433,6 +455,8 @@ describe('format', () => {
       'system_administrator',
       expect.objectContaining({ disposition: 'success' })
     );
+
+    await confirmLockReleased(usbDrive);
   });
 
   test('on bad format drive', async () => {
@@ -476,6 +500,8 @@ describe('format', () => {
       'system_administrator',
       expect.objectContaining({ disposition: 'failure' })
     );
+
+    await confirmLockReleased(usbDrive);
   });
 
   test('status polling while formatting', async () => {
@@ -501,4 +527,33 @@ describe('format', () => {
     mockBlockDeviceOnce({ mountpoint: null });
     expect(await usbDrive.status()).toEqual({ status: 'ejected' });
   });
+});
+
+test('action locking', async () => {
+  const logger = fakeLogger();
+  const usbDrive = detectUsbDrive(logger);
+
+  mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
+  const { promise: unmountPromise, resolve: unmountResolve } = deferred<{
+    stdout: string;
+  }>();
+  execMock.mockReturnValueOnce(unmountPromise);
+
+  const ejectPromise = usbDrive.eject('election_manager');
+
+  await backendWaitFor(() => {
+    expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
+      '-n',
+      `${MOUNT_SCRIPT_PATH}/unmount.sh`,
+      '/media/usb-drive-sdb1',
+    ]);
+  });
+
+  mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
+  await usbDrive.format('election_manager');
+
+  unmountResolve({ stdout: '' });
+  await ejectPromise;
+
+  expect(execMock).toHaveBeenCalledTimes(3); // 1 status, 2 unmount, 3 status, no format
 });

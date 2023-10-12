@@ -23,7 +23,6 @@ afterEach(() => {
 const mockMountedUsbDrive: UsbDriveStatus = {
   status: 'mounted',
   mountPoint: 'mock',
-  deviceName: 'mock',
 };
 
 test('render no usb found screen when there is not a valid, mounted usb drive', () => {

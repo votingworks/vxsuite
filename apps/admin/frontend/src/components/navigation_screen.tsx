@@ -18,7 +18,7 @@ import {
 import { DippedSmartCardAuth, Election } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { ejectUsbDrive, legacyUsbDriveStatus, logOut } from '../api';
+import { ejectUsbDrive, logOut } from '../api';
 import { ScreenHeader } from './layout/screen_header';
 import { NavItem, Sidebar } from './layout/sidebar';
 import { MainContent } from './layout/main_content';
@@ -142,7 +142,8 @@ export function NavigationScreen({
                 </Button>
                 <UsbControllerButton
                   usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-                  usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+                  usbDriveStatus={usbDriveStatus}
+                  usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
                 />
               </React.Fragment>
             )}

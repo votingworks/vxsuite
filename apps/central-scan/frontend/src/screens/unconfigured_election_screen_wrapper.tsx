@@ -10,7 +10,6 @@ import { MainNav } from '../components/main_nav';
 import {
   configureFromBallotPackageOnUsbDrive,
   getUsbDriveStatus,
-  legacyUsbDriveStatus,
   logOut,
 } from '../api';
 
@@ -46,7 +45,7 @@ export function UnconfiguredElectionScreenWrapper({
       </MainNav>
       <Main centerChild>
         <UnconfiguredElectionScreen
-          usbDriveStatus={legacyUsbDriveStatus(usbDriveStatusQuery.data)}
+          usbDriveStatus={usbDriveStatusQuery.data}
           isElectionManagerAuth={isElectionManagerAuth}
           backendConfigError={error}
           machineName="VxCentralScan"

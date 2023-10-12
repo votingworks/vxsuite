@@ -1,11 +1,8 @@
 import React from 'react';
 
 import { Logger } from '@votingworks/logging';
-import {
-  Screen,
-  SystemAdministratorScreenContents,
-  UsbDriveStatus,
-} from '@votingworks/ui';
+import { Screen, SystemAdministratorScreenContents } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
 const resetPollsToPausedText =
   'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';

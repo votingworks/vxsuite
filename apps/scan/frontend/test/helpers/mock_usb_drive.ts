@@ -11,7 +11,6 @@ export function mockUsbDriveStatus(
       return {
         status,
         mountPoint: 'test-mount-point',
-        deviceName: 'test-device-name',
         doesUsbDriveRequireCastVoteRecordSync:
           options.doesUsbDriveRequireCastVoteRecordSync,
       };

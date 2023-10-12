@@ -41,7 +41,6 @@ import {
   getMachineConfig,
   getScannerStatus,
   getUsbDriveStatus,
-  legacyUsbDriveStatus,
   setPollsState,
   unconfigureElection,
 } from './api';
@@ -173,7 +172,7 @@ export function AppRoot({
               : undefined
           }
           isMachineConfigured={Boolean(electionDefinition)}
-          usbDriveStatus={legacyUsbDriveStatus(usbDrive)}
+          usbDriveStatus={usbDrive}
           additionalButtons={
             isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
               <LiveCheckButton />

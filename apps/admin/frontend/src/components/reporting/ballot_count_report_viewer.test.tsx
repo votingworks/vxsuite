@@ -15,11 +15,11 @@ import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { act } from 'react-dom/test-utils';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { getMockCardCounts } from '../../../test/helpers/mock_results';
-import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
 import { BallotCountReportViewer } from './ballot_count_report_viewer';
 
 let apiMock: ApiMock;

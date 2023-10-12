@@ -10,6 +10,7 @@ import {
   fakePrinterInfo,
 } from '@votingworks/test-utils';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen, waitFor } from '../../test/react_testing_library';
 
 import {
@@ -18,7 +19,6 @@ import {
 } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let mockLogger: Logger;

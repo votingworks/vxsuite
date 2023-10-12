@@ -111,7 +111,6 @@ function insertMockFileUsbDrive(contents: MockFileTree): void {
     status: {
       status: 'mounted',
       mountPoint: mockUsbTmpDir.name,
-      deviceName: 'mock-usb-drive',
     },
     tmpDir: mockUsbTmpDir.name,
   });

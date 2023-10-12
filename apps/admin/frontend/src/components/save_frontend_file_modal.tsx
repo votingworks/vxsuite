@@ -21,7 +21,7 @@ import { LogEventId } from '@votingworks/logging';
 import { PromiseOr } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from './loading';
-import { ejectUsbDrive, legacyUsbDriveStatus } from '../api';
+import { ejectUsbDrive } from '../api';
 
 export const UsbImage = styled.img`
   margin-right: auto;
@@ -197,8 +197,9 @@ export function SaveFrontendFileModal({
           <UsbControllerButton
             small={false}
             primary
-            usbDriveStatus={legacyUsbDriveStatus(usbDriveStatus)}
+            usbDriveStatus={usbDriveStatus}
             usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+            usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
           />
           <Button onPress={onClose}>Close</Button>
         </React.Fragment>

@@ -1,15 +1,11 @@
-import {
-  advancePromises,
-  fakeKiosk,
-  fakeUsbDrive,
-} from '@votingworks/test-utils';
+import { advancePromises, fakeKiosk } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { SaveBackendFileModal } from './save_backend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let mockKiosk = fakeKiosk();
@@ -18,7 +14,6 @@ let apiMock: ApiMock;
 beforeEach(() => {
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   apiMock = createApiMock();
 });
 

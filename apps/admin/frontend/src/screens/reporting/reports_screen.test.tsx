@@ -1,19 +1,15 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
-import {
-  fakeKiosk,
-  fakeUsbDrive,
-  hasTextAcrossElements,
-} from '@votingworks/test-utils';
+import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { typedAs } from '@votingworks/basics';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, waitFor } from '../../../test/react_testing_library';
 import { VxFiles } from '../../lib/converters';
-import { mockUsbDriveStatus } from '../../../test/helpers/mock_usb_drive';
 import { getMockCardCounts } from '../../../test/helpers/mock_results';
 
 let apiMock: ApiMock;
@@ -34,7 +30,6 @@ const electionDefinition = electionTwoPartyPrimaryDefinition;
 
 test('exporting SEMS results', async () => {
   const mockKiosk = fakeKiosk();
-  mockKiosk.getUsbDriveInfo.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = mockKiosk;
 
   const logger = fakeLogger();
