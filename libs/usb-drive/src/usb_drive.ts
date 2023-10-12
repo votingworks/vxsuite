@@ -250,8 +250,7 @@ async function logFormatFailure(
 
 async function mount(
   deviceInfo: BlockDeviceInfo,
-  logger: Logger,
-  onFail: () => void
+  logger: Logger
 ): Promise<void> {
   await logMountInit(logger);
   try {
@@ -259,9 +258,9 @@ async function mount(
     await logMountSuccess(logger);
     debug('USB drive mounted successfully');
   } catch (error) {
-    onFail();
     await logMountFailure(logger, error as Error);
     debug(`USB drive mounting failed: ${error}`);
+    throw error;
   }
 }
 
@@ -311,7 +310,7 @@ export function detectUsbDrive(logger: Logger): UsbDrive {
       // Automatically mount the drive if it's not already mounted
       if (!deviceInfo.mountpoint && !didEject) {
         if (getActionLock('mounting')) {
-          void mount(deviceInfo, logger, releaseActionLock);
+          void mount(deviceInfo, logger).catch(releaseActionLock);
         }
         return { status: 'no_drive' };
       }
