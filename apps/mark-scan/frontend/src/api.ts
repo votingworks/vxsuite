@@ -9,7 +9,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   createUiStringsApi,
@@ -18,7 +17,10 @@ import {
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import isEqual from 'lodash.isequal';
 import { typedAs } from '@votingworks/basics';
-import { STATE_MACHINE_POLLING_INTERVAL_MS } from './constants';
+import {
+  AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
+  STATE_MACHINE_POLLING_INTERVAL_MS,
+} from './constants';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -151,7 +153,7 @@ export const getAuthStatus = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
     });
   },
 } as const;

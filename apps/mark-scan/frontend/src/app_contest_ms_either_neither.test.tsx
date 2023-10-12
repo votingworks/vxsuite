@@ -42,6 +42,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 
 afterEach(() => {

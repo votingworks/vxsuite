@@ -22,6 +22,7 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 
 afterEach(() => {
