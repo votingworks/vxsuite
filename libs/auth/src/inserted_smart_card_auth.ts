@@ -29,7 +29,7 @@ import {
 
 import {
   arePollWorkerCardDetails,
-  VxSuiteCard,
+  Card,
   CardDetails,
   CardStatus,
   CheckPinResponse,
@@ -147,13 +147,13 @@ async function logAuthEvent(
  */
 export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   private authStatus: InsertedSmartCardAuthTypes.AuthStatus;
-  private readonly card: VxSuiteCard;
+  private readonly card: Card;
   private cardlessVoterUser?: CardlessVoterUser;
   private readonly config: InsertedSmartCardAuthConfig;
   private readonly logger: Logger;
 
   constructor(input: {
-    card: VxSuiteCard;
+    card: Card;
     config: InsertedSmartCardAuthConfig;
     logger: Logger;
   }) {

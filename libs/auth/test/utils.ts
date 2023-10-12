@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { MockFunction, mockFunction } from '@votingworks/test-utils';
 
-import { VxSuiteCard, CardStatus } from '../src/card';
+import { Card, CardStatus } from '../src/card';
 import {
   CardReader,
   OnReaderStatusChange,
@@ -36,37 +36,37 @@ export class MockCardReader implements Pick<CardReader, 'transmit'> {
 /**
  * The card API with all methods mocked using our custom libs/test-utils mocks
  */
-export interface MockVxSuiteCard {
-  getCardStatus: MockFunction<VxSuiteCard['getCardStatus']>;
-  checkPin: MockFunction<VxSuiteCard['checkPin']>;
-  program: MockFunction<VxSuiteCard['program']>;
-  readData: MockFunction<VxSuiteCard['readData']>;
-  writeData: MockFunction<VxSuiteCard['writeData']>;
-  clearData: MockFunction<VxSuiteCard['clearData']>;
-  unprogram: MockFunction<VxSuiteCard['unprogram']>;
+export interface MockCard {
+  getCardStatus: MockFunction<Card['getCardStatus']>;
+  checkPin: MockFunction<Card['checkPin']>;
+  program: MockFunction<Card['program']>;
+  readData: MockFunction<Card['readData']>;
+  writeData: MockFunction<Card['writeData']>;
+  clearData: MockFunction<Card['clearData']>;
+  unprogram: MockFunction<Card['unprogram']>;
 }
 
 /**
  * Builds a mock card instance
  */
-export function buildMockVxSuiteCard(): MockVxSuiteCard {
+export function buildMockCard(): MockCard {
   return {
-    getCardStatus: mockFunction<VxSuiteCard['getCardStatus']>('getCardStatus'),
-    checkPin: mockFunction<VxSuiteCard['checkPin']>('checkPin'),
-    program: mockFunction<VxSuiteCard['program']>('program'),
-    readData: mockFunction<VxSuiteCard['readData']>('readData'),
-    writeData: mockFunction<VxSuiteCard['writeData']>('writeData'),
-    clearData: mockFunction<VxSuiteCard['clearData']>('clearData'),
-    unprogram: mockFunction<VxSuiteCard['unprogram']>('unprogram'),
+    getCardStatus: mockFunction<Card['getCardStatus']>('getCardStatus'),
+    checkPin: mockFunction<Card['checkPin']>('checkPin'),
+    program: mockFunction<Card['program']>('program'),
+    readData: mockFunction<Card['readData']>('readData'),
+    writeData: mockFunction<Card['writeData']>('writeData'),
+    clearData: mockFunction<Card['clearData']>('clearData'),
+    unprogram: mockFunction<Card['unprogram']>('unprogram'),
   };
 }
 
 /**
  * Asserts that all the expected calls to all the methods of a mock card were made
  */
-export function mockVxSuiteCardAssertComplete(mockCard: MockVxSuiteCard): void {
+export function mockCardAssertComplete(mockCard: MockCard): void {
   for (const mockMethod of Object.values(mockCard) as Array<
-    MockVxSuiteCard[keyof MockVxSuiteCard]
+    MockCard[keyof MockCard]
   >) {
     mockMethod.assertComplete();
   }

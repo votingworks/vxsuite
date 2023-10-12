@@ -156,7 +156,7 @@ export interface CertificateProviderCard {
 /**
  * The API for a VxSuite-compatible smart card.
  */
-export type VxSuiteCard = StatefulCard<CardDetails> &
+export type Card = StatefulCard<CardDetails> &
   PinProtectedCard &
   ProgrammableCard &
   DataCard;

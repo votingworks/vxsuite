@@ -20,7 +20,7 @@ import {
 } from './apdu';
 import {
   arePollWorkerCardDetails,
-  VxSuiteCard,
+  Card,
   CardDetails,
   CardStatus,
   CheckPinResponse,
@@ -145,7 +145,7 @@ export const GENERIC_STORAGE_SPACE = {
  * applet (https://github.com/votingworks/openfips201) and X.509 certs. The implementation takes
  * inspiration from the NIST PIV standard but diverges where PIV doesn't suit our needs.
  */
-export class JavaCard implements VxSuiteCard {
+export class JavaCard implements Card {
   private readonly cardProgrammingConfig?: JavaCardConfig['cardProgrammingConfig'];
   private readonly cardReader: CardReader;
   // See TestJavaCard in test/utils.ts to understand why this is protected instead of private

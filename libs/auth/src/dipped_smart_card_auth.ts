@@ -20,7 +20,7 @@ import {
 
 import {
   arePollWorkerCardDetails,
-  VxSuiteCard,
+  Card,
   CardDetails,
   CardStatus,
   CheckPinResponse,
@@ -176,12 +176,12 @@ async function logAuthEventIfNecessary(
  */
 export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
   private authStatus: DippedSmartCardAuthTypes.AuthStatus;
-  private readonly card: VxSuiteCard;
+  private readonly card: Card;
   private readonly config: DippedSmartCardAuthConfig;
   private readonly logger: Logger;
 
   constructor(input: {
-    card: VxSuiteCard;
+    card: Card;
     config: DippedSmartCardAuthConfig;
     logger: Logger;
   }) {
