@@ -13,7 +13,7 @@ export const DEV_MOCK_USB_GLOB_PATTERN = join(DEV_MOCK_USB_DIR, '**/*');
 
 function getMockUsbDirPath(): string {
   if (process.env.NODE_ENV === 'development') {
-    return join(__dirname, '../../dev-workspace');
+    return DEV_MOCK_USB_DIR;
   }
 
   return DEFAULT_MOCK_USB_DIR;
