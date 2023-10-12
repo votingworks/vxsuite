@@ -1,3 +1,5 @@
+import { DateString } from './date_string';
+import { NumberString } from './number_string';
 import { UiString } from './ui_string';
 
 // TODO(kofi): Add lint rule to ensure object keys match uiStringKey props.
@@ -18,6 +20,10 @@ export const appStrings = {
 
   buttonNext: () => <UiString uiStringKey="buttonNext">Next</UiString>,
 
+  buttonStartVoting: () => (
+    <UiString uiStringKey="buttonStartVoting">Start Voting</UiString>
+  ),
+
   buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
 
   contestNavigationInstructions: () => (
@@ -26,6 +32,24 @@ export const appStrings = {
       the next contest, use the right button.
     </UiString>
   ),
+
+  date: (value: Date) => <DateString value={value} />,
+
+  labelAllPrecinctsSelection: () => (
+    <UiString uiStringKey="labelAllPrecinctsSelection">All Precincts</UiString>
+  ),
+
+  labelBallotStyle: () => (
+    <UiString uiStringKey="labelBallotStyle">Ballot style:</UiString>
+  ),
+
+  labelNumBallotContests: () => (
+    <UiString uiStringKey="labelNumBallotContests">
+      Number of contests on your ballot:
+    </UiString>
+  ),
+
+  number: (value: number) => <NumberString value={value} />,
 
   numSeatsInstructions: (numSeats: number) =>
     // These are split out into individual strings instead of an interpolated
