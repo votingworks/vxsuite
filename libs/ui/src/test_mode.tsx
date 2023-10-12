@@ -42,7 +42,7 @@ export function TestMode(): JSX.Element {
         makeTheme({
           colorMode: theme.colorMode,
           screenType: theme.screenType,
-          sizeMode: 's',
+          sizeMode: 'touchSmall',
         })
       }
     >

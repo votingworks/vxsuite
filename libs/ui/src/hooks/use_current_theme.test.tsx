@@ -12,10 +12,13 @@ test('useCurrentTheme', () => {
   }
 
   render(<TestComponent />, {
-    vxTheme: { colorMode: 'contrastLow', sizeMode: 'xl' },
+    vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchExtraLarge' },
   });
 
   expect(currentTheme).toEqual(
-    expect.objectContaining({ colorMode: 'contrastLow', sizeMode: 'xl' })
+    expect.objectContaining({
+      colorMode: 'contrastLow',
+      sizeMode: 'touchExtraLarge',
+    })
   );
 });

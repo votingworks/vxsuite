@@ -44,7 +44,7 @@ export const TallyReportPreview = styled.div`
 export function tallyReportThemeFn(theme?: DefaultTheme): DefaultTheme {
   return makeTheme({
     screenType: theme?.screenType,
-    sizeMode: 's',
+    sizeMode: 'touchSmall',
     colorMode: 'contrastHighLight',
   });
 }

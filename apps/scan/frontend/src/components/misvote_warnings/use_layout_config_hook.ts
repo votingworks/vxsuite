@@ -1,12 +1,15 @@
 import React from 'react';
 import { useTheme } from 'styled-components';
 
+import { isTouchSizeMode } from '@votingworks/types';
+import { assert } from '@votingworks/basics';
 import { CONFIG } from './constants';
 import { Layout, MisvoteWarningsProps } from './types';
 
 export function useLayoutConfig(props: MisvoteWarningsProps): Layout {
   const { blankContests, overvoteContests, partiallyVotedContests } = props;
   const { sizeMode } = useTheme();
+  assert(isTouchSizeMode(sizeMode));
   const config = CONFIG[sizeMode];
 
   return React.useMemo(() => {

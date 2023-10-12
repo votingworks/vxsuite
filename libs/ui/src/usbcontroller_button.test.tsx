@@ -35,7 +35,7 @@ test('shows No USB if usb absent', () => {
 
 test('renders as primary button variant', () => {
   const renderOptions: RenderOptions = {
-    vxTheme: { colorMode: 'contrastLow', sizeMode: 'm' },
+    vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchMedium' },
   };
 
   const nonPrimaryResult = render(

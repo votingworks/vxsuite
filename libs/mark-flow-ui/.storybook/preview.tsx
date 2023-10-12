@@ -6,7 +6,7 @@ import {
   StoryContext,
 } from '@storybook/types';
 
-import { ColorMode, SizeMode } from '@votingworks/types';
+import { ColorMode, TouchSizeMode } from '@votingworks/types';
 import { AppBase, ThemeManagerContext } from '@votingworks/ui';
 
 // TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
@@ -19,14 +19,17 @@ interface ToolbarItem<T> {
 
 type ColorModeToolBarItem = ToolbarItem<ColorMode>;
 
-type SizeModeToolBarItem = ToolbarItem<SizeMode>;
+type SizeModeToolBarItem = ToolbarItem<TouchSizeMode>;
 
-const DEFAULT_SIZE_MODE: SizeMode = 'm';
-const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
-  s: { title: 'Size Theme - S', value: 's' },
-  m: { title: 'Size Theme - M', value: 'm' },
-  l: { title: 'Size Theme - L', value: 'l' },
-  xl: { title: 'Size Theme - XL', value: 'xl' },
+const DEFAULT_SIZE_MODE: TouchSizeMode = 'touchMedium';
+const sizeThemeToolBarItems: Record<TouchSizeMode, SizeModeToolBarItem> = {
+  touchSmall: { title: 'Small (Touch)', value: 'touchSmall' },
+  touchMedium: { title: 'Medium (Touch)', value: 'touchMedium' },
+  touchLarge: { title: 'Large (Touch)', value: 'touchLarge' },
+  touchExtraLarge: {
+    title: 'Extra Large (Touch)',
+    value: 'touchExtraLarge',
+  },
 };
 
 const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';
@@ -101,7 +104,7 @@ function StoryWrapper(props: {
   const { children, context } = props;
   const globals = context.globals as {
     colorMode: ColorMode;
-    sizeMode: SizeMode;
+    sizeMode: TouchSizeMode;
   };
 
   const { setColorMode, setSizeMode } = React.useContext(ThemeManagerContext);
@@ -127,7 +130,7 @@ export const decorators: DecoratorFunction[] = [
   ) => {
     const globals = context.globals as {
       colorMode: ColorMode;
-      sizeMode: SizeMode;
+      sizeMode: TouchSizeMode;
     };
     return (
       <AppBase

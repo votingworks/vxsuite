@@ -484,7 +484,7 @@ function ContestForm({
                             })
                           }
                         >
-                          <Icons.DangerX /> Remove Candidate
+                          Remove Candidate
                         </Button>
                       </TD>
                     </tr>
@@ -522,7 +522,7 @@ function ContestForm({
         {contestId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button variant="danger" onPress={onDeletePress}>
-              <Icons.DangerX /> Delete Contest
+              Delete Contest
             </Button>
           </FormActionsRow>
         )}

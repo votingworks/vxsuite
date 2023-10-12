@@ -3,7 +3,8 @@ import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 import { rgba } from 'polished';
-import { SizeMode } from '@votingworks/types';
+import { TouchSizeMode, isTouchSizeMode } from '@votingworks/types';
+import { assert } from '@votingworks/basics';
 import { Button } from './button';
 import { Icons } from './icons';
 import { makeTheme } from './themes/make_theme';
@@ -15,13 +16,14 @@ export interface WithScrollButtonsProps {
 
 const SCROLL_DISTANCE_TO_CONTENT_HEIGHT_RATIO = 0.75;
 
-const SCROLL_BUTTON_SIZE_MODE_OVERRIDES: Readonly<Record<SizeMode, SizeMode>> =
-  {
-    s: 's',
-    m: 'm',
-    l: 'm',
-    xl: 'm',
-  };
+const SCROLL_BUTTON_SIZE_MODE_OVERRIDES: Readonly<
+  Record<TouchSizeMode, TouchSizeMode>
+> = {
+  touchSmall: 'touchSmall',
+  touchMedium: 'touchMedium',
+  touchLarge: 'touchMedium',
+  touchExtraLarge: 'touchMedium',
+};
 
 const Container = styled.div`
   display: flex;
@@ -166,13 +168,14 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
       </Content>
       {scrollEnabled && (
         <ThemeProvider
-          theme={(theme) =>
-            makeTheme({
+          theme={(theme) => {
+            assert(isTouchSizeMode(theme.sizeMode));
+            return makeTheme({
               colorMode: theme.colorMode,
               screenType: theme.screenType,
               sizeMode: SCROLL_BUTTON_SIZE_MODE_OVERRIDES[theme.sizeMode],
-            })
-          }
+            });
+          }}
         >
           <Controls aria-hidden>
             {canScrollUp && (

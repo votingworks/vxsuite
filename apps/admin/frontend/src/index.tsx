@@ -27,7 +27,7 @@ root.render(
   <React.StrictMode>
     <AppBase
       defaultColorMode="contrastMedium"
-      defaultSizeMode="s"
+      defaultSizeMode="touchSmall"
       screenType="lenovoThinkpad15"
       legacyPrintFontSizePx={PRINT_FONT_SIZE_PX}
     >

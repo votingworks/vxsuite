@@ -49,7 +49,7 @@ beforeEach(() => {
     {
       vxTheme: {
         colorMode: 'contrastMedium',
-        sizeMode: 'm',
+        sizeMode: 'touchMedium',
       },
     }
   );
@@ -57,7 +57,7 @@ beforeEach(() => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastMedium',
-      sizeMode: 'm',
+      sizeMode: 'touchMedium',
     })
   );
 });
@@ -70,13 +70,13 @@ test('Resets theme when election official logs in', async () => {
   // Simulate changing display settings as voter:
   act(() => {
     themeManager.setColorMode('contrastLow');
-    themeManager.setSizeMode('xl');
+    themeManager.setSizeMode('touchExtraLarge');
   });
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
-      sizeMode: 'xl',
+      sizeMode: 'touchExtraLarge',
     })
   );
 
@@ -86,7 +86,7 @@ test('Resets theme when election official logs in', async () => {
     expect(currentTheme).toEqual(
       expect.objectContaining<Partial<DefaultTheme>>({
         colorMode: 'contrastMedium',
-        sizeMode: 'm',
+        sizeMode: 'touchMedium',
       })
     )
   );
@@ -94,13 +94,13 @@ test('Resets theme when election official logs in', async () => {
   // Simulate changing display settings as Election Manager:
   act(() => {
     themeManager.setColorMode('contrastHighDark');
-    themeManager.setSizeMode('s');
+    themeManager.setSizeMode('touchSmall');
   });
   await waitFor(() =>
     expect(currentTheme).toEqual(
       expect.objectContaining<Partial<DefaultTheme>>({
         colorMode: 'contrastHighDark',
-        sizeMode: 's',
+        sizeMode: 'touchSmall',
       })
     )
   );
@@ -111,7 +111,7 @@ test('Resets theme when election official logs in', async () => {
     expect(currentTheme).toEqual(
       expect.objectContaining<Partial<DefaultTheme>>({
         colorMode: 'contrastLow',
-        sizeMode: 'xl',
+        sizeMode: 'touchExtraLarge',
       })
     )
   );
@@ -128,12 +128,12 @@ test('Resets theme after successful scan', async () => {
       // Simulate initial voter display settings:
       act(() => {
         themeManager.setColorMode('contrastHighDark');
-        themeManager.setSizeMode('xl');
+        themeManager.setSizeMode('touchExtraLarge');
       });
       expect(currentTheme).toEqual(
         expect.objectContaining<Partial<DefaultTheme>>({
           colorMode: 'contrastHighDark',
-          sizeMode: 'xl',
+          sizeMode: 'touchExtraLarge',
         })
       );
 
@@ -148,7 +148,7 @@ test('Resets theme after successful scan', async () => {
           expect(currentTheme).toEqual(
             expect.objectContaining<Partial<DefaultTheme>>({
               colorMode: 'contrastMedium',
-              sizeMode: 'm',
+              sizeMode: 'touchMedium',
             })
           )
         );
@@ -158,7 +158,7 @@ test('Resets theme after successful scan', async () => {
           expect(currentTheme).toEqual(
             expect.objectContaining<Partial<DefaultTheme>>({
               colorMode: 'contrastHighDark',
-              sizeMode: 'xl',
+              sizeMode: 'touchExtraLarge',
             })
           )
         );

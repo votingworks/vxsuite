@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import {
   Color,
   ColorMode,
@@ -5,7 +6,9 @@ import {
   ScreenType,
   SizeMode,
   SizeTheme,
+  TouchSizeMode,
   UiTheme,
+  isTouchSizeMode,
 } from '@votingworks/types';
 
 /**
@@ -13,13 +16,13 @@ import {
  * capital letter height in millimeters.
  */
 const VVSG_CAPITAL_LETTER_HEIGHTS_MM: Record<
-  SizeMode,
+  TouchSizeMode,
   { max: number; min: number }
 > = {
-  s: { max: 4.2, min: 3.5 },
-  m: { max: 5.6, min: 4.8 },
-  l: { max: 7.1, min: 6.4 },
-  xl: { max: 9.0, min: 8.5 },
+  touchSmall: { max: 4.2, min: 3.5 },
+  touchMedium: { max: 5.6, min: 4.8 },
+  touchLarge: { max: 7.1, min: 6.4 },
+  touchExtraLarge: { max: 9.0, min: 8.5 },
 };
 
 /**
@@ -118,6 +121,7 @@ function mmToPx(mm: number, screenType: ScreenType): number {
 }
 
 function getFontSize({ screenType, sizeMode }: SizeThemeParams): number {
+  assert(isTouchSizeMode(sizeMode));
   // Use the average midpoint value of the relevant VVSG size range.
   const capitalLetterHeightMm =
     (VVSG_CAPITAL_LETTER_HEIGHTS_MM[sizeMode].min +
@@ -135,7 +139,34 @@ const VVSG_MIN_TOUCH_AREA_SIZE_MM = 12.7;
 const VVSG_MIN_TOUCH_AREA_SEPARATION_MM = 2.54;
 
 const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
-  s: (p) => ({
+  desktop: () => ({
+    bordersRem: {
+      hairline: 0.06,
+      thin: 0.1,
+      medium: 0.15,
+      thick: 0.25,
+    },
+    fontDefault: 16,
+    fontWeight: {
+      light: 200,
+      regular: 400,
+      semiBold: 500,
+      bold: 600,
+    },
+    headingsRem: {
+      h1: 2.25,
+      h2: 1.75,
+      h3: 1.5,
+      h4: 1.25,
+      h5: 1.125,
+      h6: 1,
+    },
+    letterSpacingEm: 0.01,
+    lineHeight: 1.3,
+    minTouchAreaSeparationPx: 0, // Not used on desktop
+    minTouchAreaSizePx: 0, // Not used on desktop
+  }),
+  touchSmall: (p) => ({
     bordersRem: {
       hairline: 0.06,
       thin: 0.1,
@@ -165,7 +196,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     ),
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
-  m: (p) => ({
+  touchMedium: (p) => ({
     bordersRem: {
       hairline: 0.055,
       thin: 0.1,
@@ -195,7 +226,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     ),
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
-  l: (p) => ({
+  touchLarge: (p) => ({
     bordersRem: {
       hairline: 0.05,
       thin: 0.1,
@@ -225,7 +256,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     ),
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
-  xl: (p) => ({
+  touchExtraLarge: (p) => ({
     bordersRem: {
       hairline: 0.05,
       thin: 0.075,
@@ -263,7 +294,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
 export function makeTheme({
   colorMode = 'contrastMedium',
   screenType = 'builtIn',
-  sizeMode = 's',
+  sizeMode = 'touchSmall',
 }: {
   colorMode?: ColorMode;
   screenType?: ScreenType;

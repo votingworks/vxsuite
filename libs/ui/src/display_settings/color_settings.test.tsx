@@ -7,7 +7,7 @@ import { H1 } from '../typography';
 
 test('renders with default color options', () => {
   render(<ColorSettings />, {
-    vxTheme: { colorMode: 'contrastLow', sizeMode: 'l' },
+    vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchLarge' },
   });
 
   // contractHighDark:
@@ -37,7 +37,7 @@ test('renders with default color options', () => {
 
 test('renders with specified color options', () => {
   render(<ColorSettings colorModes={['contrastLow', 'contrastMedium']} />, {
-    vxTheme: { colorMode: 'contrastLow', sizeMode: 'l' },
+    vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchLarge' },
   });
 
   expect(screen.queryAllByRole('radio')).toHaveLength(2);
@@ -75,13 +75,13 @@ test('option selections trigger theme updates', () => {
   }
 
   render(<TestComponent />, {
-    vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'l' },
+    vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'touchLarge' },
   });
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     })
   );
 
@@ -92,7 +92,7 @@ test('option selections trigger theme updates', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastLow',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     })
   );
 });

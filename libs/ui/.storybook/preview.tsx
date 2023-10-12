@@ -29,12 +29,13 @@ const screenTypeToolBarItems: Record<ScreenType, ScreenTypeToolBarItem> = {
   lenovoThinkpad15: { title: 'Lenovo Thinkpad 15"', value: 'lenovoThinkpad15' },
 };
 
-const DEFAULT_SIZE_MODE: SizeMode = "m";
+const DEFAULT_SIZE_MODE: SizeMode = "touchMedium";
 const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
-  s: { title: 'Size Theme - S', value: 's'},
-  m: { title: 'Size Theme - M', value: 'm'},
-  l: { title: 'Size Theme - L', value: 'l'},
-  xl: { title: 'Size Theme - XL', value: 'xl'},
+  desktop: { title: 'Desktop', value: 'desktop'},
+  touchSmall: { title: 'Small (Touch)', value: 'touchSmall'},
+  touchMedium: { title: 'Medium (Touch)', value: 'touchMedium'},
+  touchLarge: { title: 'Large (Touch)', value: 'touchLarge'},
+  touchExtraLarge: { title: 'Extra Large (Touch)', value: 'touchExtraLarge'},
 }
 
 const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';

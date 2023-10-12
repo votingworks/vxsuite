@@ -190,7 +190,7 @@ function ElectionInfoForm({
               onPress={onDeletePress}
               disabled={deleteElectionMutation.isLoading}
             >
-              <Icons.DangerX /> Delete Election
+              Delete Election
             </Button>
           </FormActionsRow>
         </div>

@@ -18,7 +18,7 @@ import {
 
 const DEFAULT_THEME: Partial<DefaultTheme> = {
   colorMode: 'contrastMedium',
-  sizeMode: 'm',
+  sizeMode: 'touchMedium',
 };
 const ACTIVE_VOTING_SESSION_VOTES: VotesDict = {};
 const NEW_VOTING_SESSION_VOTES = undefined;
@@ -51,19 +51,19 @@ test('Resets theme when election official logs in', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastMedium',
-      sizeMode: 'm',
+      sizeMode: 'touchMedium',
     })
   );
 
   // Simulate changing display settings as voter:
   act(() => {
     themeManager.setColorMode('contrastLow');
-    themeManager.setSizeMode('xl');
+    themeManager.setSizeMode('touchExtraLarge');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
-      sizeMode: 'xl',
+      sizeMode: 'touchExtraLarge',
     })
   );
 
@@ -85,12 +85,12 @@ test('Resets theme when election official logs in', () => {
   // Simulate changing display settings as Election Manager:
   act(() => {
     themeManager.setColorMode('contrastHighDark');
-    themeManager.setSizeMode('s');
+    themeManager.setSizeMode('touchSmall');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 's',
+      sizeMode: 'touchSmall',
     })
   );
 
@@ -108,7 +108,7 @@ test('Resets theme when election official logs in', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
-      sizeMode: 'xl',
+      sizeMode: 'touchExtraLarge',
     })
   );
 });
@@ -129,13 +129,13 @@ test('Resets theme to default if returning to a new voter session', () => {
   // Simulate changing display settings as voter:
   act(() => {
     themeManager.setColorMode('contrastLow');
-    themeManager.setSizeMode('xl');
+    themeManager.setSizeMode('touchExtraLarge');
   });
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
-      sizeMode: 'xl',
+      sizeMode: 'touchExtraLarge',
     })
   );
 
@@ -152,12 +152,12 @@ test('Resets theme to default if returning to a new voter session', () => {
   );
   act(() => {
     themeManager.setColorMode('contrastHighDark');
-    themeManager.setSizeMode('s');
+    themeManager.setSizeMode('touchSmall');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 's',
+      sizeMode: 'touchSmall',
     })
   );
 

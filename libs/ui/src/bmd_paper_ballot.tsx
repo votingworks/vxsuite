@@ -231,7 +231,7 @@ interface Props {
  */
 function withPrintTheme(ballot: JSX.Element): JSX.Element {
   return (
-    <VxThemeProvider colorMode="contrastHighLight" sizeMode="s">
+    <VxThemeProvider colorMode="contrastHighLight" sizeMode="touchSmall">
       {ballot}
     </VxThemeProvider>
   );

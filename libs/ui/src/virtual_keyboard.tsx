@@ -5,7 +5,7 @@ import { Icons } from './icons';
 /* istanbul ignore next */
 function getBorderWidthRem(p: { theme: DefaultTheme }): number {
   switch (p.theme.sizeMode) {
-    case 'xl':
+    case 'touchExtraLarge':
       return p.theme.sizes.bordersRem.hairline;
     default:
       return p.theme.sizes.bordersRem.thin;

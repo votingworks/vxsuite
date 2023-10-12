@@ -9,7 +9,7 @@ export interface AppBaseProps {
 
 const DEFAULT_COLOR_MODE: ColorMode = 'contrastMedium';
 const DEFAULT_SCREEN_TYPE: ScreenType = 'elo13';
-const DEFAULT_SIZE_MODE: SizeMode = 'm';
+const DEFAULT_SIZE_MODE: SizeMode = 'touchMedium';
 
 /**
  * Installs global styles and UI themes - should be rendered at the root of the

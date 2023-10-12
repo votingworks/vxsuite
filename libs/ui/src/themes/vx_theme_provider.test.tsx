@@ -35,8 +35,16 @@ test('uses defaults when no params specified', () => {
 
 test('sets theme according to specified params', () => {
   render(
-    <VxThemeProvider colorMode="contrastMedium" sizeMode="m" screenType="elo15">
-      <VxThemeProvider colorMode="contrastLow" sizeMode="s" screenType="elo13">
+    <VxThemeProvider
+      colorMode="contrastMedium"
+      sizeMode="touchMedium"
+      screenType="elo15"
+    >
+      <VxThemeProvider
+        colorMode="contrastLow"
+        sizeMode="touchSmall"
+        screenType="elo13"
+      >
         <TestThemeConsumer />
       </VxThemeProvider>
     </VxThemeProvider>
@@ -45,7 +53,7 @@ test('sets theme according to specified params', () => {
   expect(currentTheme).toEqual(
     makeTheme({
       colorMode: 'contrastLow',
-      sizeMode: 's',
+      sizeMode: 'touchSmall',
       screenType: 'elo13',
     })
   );
@@ -53,7 +61,11 @@ test('sets theme according to specified params', () => {
 
 test('inherits unspecified params from parent', () => {
   const { rerender } = render(
-    <VxThemeProvider colorMode="contrastMedium" sizeMode="m" screenType="elo15">
+    <VxThemeProvider
+      colorMode="contrastMedium"
+      sizeMode="touchMedium"
+      screenType="elo15"
+    >
       <VxThemeProvider>
         <TestThemeConsumer />
       </VxThemeProvider>
@@ -63,14 +75,18 @@ test('inherits unspecified params from parent', () => {
   expect(currentTheme).toEqual(
     makeTheme({
       colorMode: 'contrastMedium',
-      sizeMode: 'm',
+      sizeMode: 'touchMedium',
       screenType: 'elo15',
     })
   );
 
   rerender(
-    <VxThemeProvider colorMode="contrastMedium" sizeMode="m" screenType="elo15">
-      <VxThemeProvider sizeMode="xl">
+    <VxThemeProvider
+      colorMode="contrastMedium"
+      sizeMode="touchMedium"
+      screenType="elo15"
+    >
+      <VxThemeProvider sizeMode="touchExtraLarge">
         <TestThemeConsumer />
       </VxThemeProvider>
     </VxThemeProvider>
@@ -79,7 +95,7 @@ test('inherits unspecified params from parent', () => {
   expect(currentTheme).toEqual(
     makeTheme({
       colorMode: 'contrastMedium',
-      sizeMode: 'xl',
+      sizeMode: 'touchExtraLarge',
       screenType: 'elo15',
     })
   );

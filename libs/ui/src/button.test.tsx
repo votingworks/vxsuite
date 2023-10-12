@@ -58,10 +58,10 @@ describe('renders Button', () => {
       return remToPx(window.getComputedStyle(button).fontSize);
     }
 
-    const smallButtonFontSizePx = getButtonFontSizePx('s');
-    const mediumButtonFontSizePx = getButtonFontSizePx('m');
-    const largeButtonFontSizePx = getButtonFontSizePx('l');
-    const xLargeButtonFontSizePx = getButtonFontSizePx('xl');
+    const smallButtonFontSizePx = getButtonFontSizePx('touchSmall');
+    const mediumButtonFontSizePx = getButtonFontSizePx('touchMedium');
+    const largeButtonFontSizePx = getButtonFontSizePx('touchLarge');
+    const xLargeButtonFontSizePx = getButtonFontSizePx('touchExtraLarge');
 
     expect(mediumButtonFontSizePx).toBeGreaterThan(smallButtonFontSizePx);
     expect(largeButtonFontSizePx).toBeGreaterThan(mediumButtonFontSizePx);
@@ -72,14 +72,14 @@ describe('renders Button', () => {
     const onPress = jest.fn();
 
     function verifyPrimaryButtonColor(colorMode: ColorMode) {
-      const expectedTheme = makeTheme({ colorMode, sizeMode: 's' });
+      const expectedTheme = makeTheme({ colorMode, sizeMode: 'touchSmall' });
 
       render(
         <Button onPress={onPress} variant="primary">
           {colorMode} button
         </Button>,
         {
-          vxTheme: { colorMode, sizeMode: 's' },
+          vxTheme: { colorMode, sizeMode: 'touchSmall' },
         }
       );
 
@@ -134,7 +134,7 @@ describe('renders Button', () => {
           Disabled Button
         </Button>
       </div>,
-      { vxTheme: { colorMode: 'contrastLow', sizeMode: 'm' } }
+      { vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchMedium' } }
     );
 
     const enabledButton = screen.getButton('Enabled Button');

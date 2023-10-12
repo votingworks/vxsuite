@@ -8,7 +8,7 @@ for (const Component of [Caption, Font, P, Pre]) {
   test(`renders <${Component.name}>`, () => {
     const theme = makeTheme({
       colorMode: 'contrastHighDark',
-      sizeMode: 'm',
+      sizeMode: 'touchMedium',
     });
     render(
       <React.Fragment>
@@ -20,7 +20,7 @@ for (const Component of [Caption, Font, P, Pre]) {
         <Component align="center">center-aligned text</Component>
         <Component noWrap>no-wrap text</Component>
       </React.Fragment>,
-      { vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'm' } }
+      { vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'touchMedium' } }
     );
 
     expect(screen.getByText('regular text')).toHaveStyle({
@@ -52,7 +52,7 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
   test(`renders <${Heading.name}>`, () => {
     const theme = makeTheme({
       colorMode: 'contrastHighLight',
-      sizeMode: 'xl',
+      sizeMode: 'touchExtraLarge',
     });
     render(
       <React.Fragment>
@@ -62,7 +62,12 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
         <Heading align="center">center-aligned heading</Heading>
         <Heading noWrap>no-wrap heading</Heading>
       </React.Fragment>,
-      { vxTheme: { colorMode: 'contrastHighLight', sizeMode: 'xl' } }
+      {
+        vxTheme: {
+          colorMode: 'contrastHighLight',
+          sizeMode: 'touchExtraLarge',
+        },
+      }
     );
 
     const { headingsRem } = theme.sizes;
@@ -112,7 +117,7 @@ for (const Component of [Caption, Font, P, Pre, H1, H2, H3, H4, H5, H6]) {
   test(`renders colored <${Component.name}>`, () => {
     const theme = makeTheme({
       colorMode: 'contrastMedium',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     });
     render(
       <React.Fragment>
@@ -121,7 +126,7 @@ for (const Component of [Caption, Font, P, Pre, H1, H2, H3, H4, H5, H6]) {
         <Component color="success">success color text</Component>
         <Component color="warning">warning color text</Component>
       </React.Fragment>,
-      { vxTheme: { colorMode: 'contrastMedium', sizeMode: 'l' } }
+      { vxTheme: { colorMode: 'contrastMedium', sizeMode: 'touchLarge' } }
     );
 
     expect(screen.getByText('danger color text')).toHaveStyle({
