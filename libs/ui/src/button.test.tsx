@@ -111,27 +111,15 @@ describe('renders Button', () => {
     expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
   });
 
-  test('legacy fullWidth button', () => {
+  test('variant danger', () => {
     render(
-      <Button onPress={jest.fn()} fullWidth>
-        Full Width Button
+      <Button onPress={jest.fn()} variant="danger">
+        I’m a dangerous button!
       </Button>
     );
-    const button = screen.getButton('Full Width Button');
-    expect(button).toHaveStyleRule('width', '100%');
-  });
-
-  test('with options: big danger', () => {
-    render(
-      <Button onPress={jest.fn()} large variant="danger">
-        I’m a big button!
-      </Button>
-    );
-    const button = screen.getButton('I’m a big button!');
-    expect(button).toHaveStyleRule('padding', '1em 1.75em');
-    expect(button).toHaveStyleRule('font-size', '1.25em');
+    const button = screen.getButton('I’m a dangerous button!');
     expect(button).toHaveStyleRule('background', Color.DANGER_MEDIUM_CONTRAST);
-    expect(button).toHaveStyleRule('color', Color.WHITE);
+    expect(button).toHaveStyleRule('color', Color.OFF_WHITE);
   });
 
   test('disabled button', () => {
@@ -205,15 +193,10 @@ describe('renders Button', () => {
     expect(screen.getButton('Confirm')).toHaveFocus();
   });
 
-  test('as DecoyButton with options: small warning', () => {
-    render(
-      <DecoyButton small variant="warning">
-        DecoyButton
-      </DecoyButton>
-    );
+  test('as DecoyButton with variant warning', () => {
+    render(<DecoyButton variant="warning">DecoyButton</DecoyButton>);
     const button = screen.getByText('DecoyButton');
-    expect(button).toHaveStyleRule('background', Color.WARNING_MEDIUM_CONTRAST);
-    expect(button).toHaveStyleRule('padding', '0.35em 0.5em');
+    expect(button).toHaveStyleRule('background', Color.GRAY_DARK);
   });
 
   test('and tests clicks and touches', () => {

@@ -8,7 +8,7 @@ test('defaults', () => {
   expect<ColorMode>(theme.colorMode).toEqual('contrastMedium');
   expect<SizeMode>(theme.sizeMode).toEqual('s');
   expect<Color>(theme.colors.background).toEqual(Color.OFF_WHITE);
-  expect<Color>(theme.colors.foreground).toEqual(Color.OFF_BLACK);
+  expect<Color>(theme.colors.foreground).toEqual(Color.GRAY_DARK);
 });
 
 test('varies theme based on selected modes', () => {
