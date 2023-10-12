@@ -1,4 +1,5 @@
 import * as path from 'path';
+// @ts-expect-error - TS thinks there's an error with the module type but it works ok
 import { Alias, mergeConfig, InlineConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';
 
@@ -22,6 +23,7 @@ const config: StorybookConfig = {
     autodocs:'tag'
   },
   staticDirs: ['../.storybook-static'],
+  // @ts-expect-error - vite and @storybook/react-vite are using different InlineConfig types
   async viteFinal(config: InlineConfig): Promise<InlineConfig> {
     const workspacePackages = getWorkspacePackageInfo(
       path.join(__dirname, '../..')

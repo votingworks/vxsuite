@@ -1,4 +1,5 @@
 import * as path from 'path';
+// @ts-expect-error - TS thinks there's an error with the module type but it works ok
 import { Alias, mergeConfig, InlineConfig } from 'vite';
 import { StorybookConfig } from '@storybook/react-vite';
 
@@ -14,14 +15,13 @@ const config: StorybookConfig = {
   ],
   framework: {
     name: '@storybook/react-vite',
-    options: {
-
-    },
+    options: {},
   },
   docs: {
-    autodocs:'tag'
+    autodocs: 'tag',
   },
   staticDirs: ['../.storybook-static'],
+  // @ts-expect-error - vite and @storybook/react-vite are using different InlineConfig types
   async viteFinal(config: InlineConfig): Promise<InlineConfig> {
     const workspacePackages = getWorkspacePackageInfo(
       path.join(__dirname, '../..')
@@ -42,12 +42,21 @@ const config: StorybookConfig = {
           // The trailing slash is important, otherwise it will be resolved as a
           // built-in NodeJS module.
           { find: 'assert', replacement: require.resolve('assert/') },
-          { find: 'buffer', replacement: require.resolve('buffer/'), },
+          { find: 'buffer', replacement: require.resolve('buffer/') },
           { find: 'events', replacement: require.resolve('events/') },
-          { find: 'fs', replacement: path.join(__dirname, '../src/stubs/fs.ts') },
-          { find: 'jsdom', replacement: path.join(__dirname, '../src/stubs/jsdom.ts') },
-          { find: 'os', replacement: path.join(__dirname, '../src/stubs/os.ts') },
-          { find: 'path', replacement: require.resolve('path/'), },
+          {
+            find: 'fs',
+            replacement: path.join(__dirname, '../src/stubs/fs.ts'),
+          },
+          {
+            find: 'jsdom',
+            replacement: path.join(__dirname, '../src/stubs/jsdom.ts'),
+          },
+          {
+            find: 'os',
+            replacement: path.join(__dirname, '../src/stubs/os.ts'),
+          },
+          { find: 'path', replacement: require.resolve('path/') },
           { find: 'stream', replacement: require.resolve('stream-browserify') },
           { find: 'util', replacement: require.resolve('util/') },
           { find: 'zlib', replacement: require.resolve('browserify-zlib') },
