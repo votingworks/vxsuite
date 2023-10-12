@@ -58,6 +58,7 @@ function lsblkOutput(devices: Array<Partial<BlockDeviceInfo>> = []) {
         fstype: 'vfat',
         fsver: 'FAT32',
         label: 'VxUSB-00000',
+        type: 'part',
         ...device,
       })),
     }),
@@ -114,6 +115,51 @@ describe('status', () => {
     expect(readdirMock).toHaveBeenCalledWith('/dev/disk/by-id/');
   });
 
+  test('completely ignores invalid devices', async () => {
+    const logger = fakeLogger();
+    const usbDrive = detectUsbDrive(logger);
+
+    readdirMock.mockResolvedValue(['usb-foobar-part23']);
+    readlinkMock.mockResolvedValue('../../sdb1');
+    execMock.mockResolvedValueOnce(
+      lsblkOutput([
+        {
+          fstype: 'LVM2',
+        },
+      ])
+    );
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'no_drive',
+    });
+
+    readdirMock.mockResolvedValue(['usb-foobar-part23']);
+    readlinkMock.mockResolvedValue('../../sdb1');
+    execMock.mockResolvedValueOnce(
+      lsblkOutput([
+        {
+          type: 'lvm',
+        },
+      ])
+    );
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'no_drive',
+    });
+
+    readdirMock.mockResolvedValue(['usb-foobar-part23']);
+    readlinkMock.mockResolvedValue('../../sdb1');
+    execMock.mockResolvedValueOnce(
+      lsblkOutput([
+        {
+          fstype: null,
+          mountpoint: '/',
+        },
+      ])
+    );
+    await expect(usbDrive.status()).resolves.toEqual({
+      status: 'no_drive',
+    });
+  });
+
   test('one drive, mounted', async () => {
     const logger = fakeLogger();
     const usbDrive = detectUsbDrive(logger);
@@ -138,7 +184,7 @@ describe('status', () => {
       '-n',
       '-l',
       '-o',
-      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL'].join(','),
+      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL', 'TYPE'].join(','),
       '/dev/sdb1',
     ]);
   });
@@ -171,7 +217,7 @@ describe('status', () => {
       '-n',
       '-l',
       '-o',
-      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL'].join(','),
+      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL', 'TYPE'].join(','),
       '/dev/sdb1',
     ]);
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
@@ -184,7 +230,7 @@ describe('status', () => {
       '-n',
       '-l',
       '-o',
-      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL'].join(','),
+      ['NAME', 'MOUNTPOINT', 'FSTYPE', 'FSVER', 'LABEL', 'TYPE'].join(','),
       '/dev/sdb1',
     ]);
 
