@@ -1,6 +1,7 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
 import { electionGeneralDefinition as electionDefinition } from '@votingworks/fixtures';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import { ElectionInfo } from './election_info';
 
@@ -33,5 +34,5 @@ test('renders with ballot style id', () => {
     />
   );
   screen.getByText(/Center Springfield/);
-  screen.getByText(/ballot style: 12/i);
+  screen.getByText(hasTextAcrossElements(/ballot style: 12/i));
 });

@@ -153,7 +153,7 @@ test('Cardless Voting Flow', async () => {
   });
 
   // Voter Ballot Style is active
-  await findByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/(12)/);
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -198,7 +198,7 @@ test('Cardless Voting Flow', async () => {
   });
 
   // Voter Ballot Style is active
-  await findByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/(12)/);
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -289,7 +289,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   });
 
   // Voter Ballot Style is active
-  await findByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/(12)/);
   fireEvent.click(screen.getByText('Start Voting'));
 
@@ -444,7 +444,7 @@ test('poll worker must select a precinct first', async () => {
   });
 
   // Voter Ballot Style is active
-  await findByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/(12)/);
   userEvent.click(screen.getByText('Start Voting'));
 
@@ -493,7 +493,7 @@ test('poll worker must select a precinct first', async () => {
   });
 
   // Voter Ballot Style is active
-  await findByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/(12)/);
   fireEvent.click(screen.getByText('Start Voting'));
 
