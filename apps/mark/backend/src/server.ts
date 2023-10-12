@@ -2,8 +2,8 @@ import { Server } from 'http';
 import {
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
-  MockFileCard,
   JavaCard,
+  MockFileCard,
 } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {

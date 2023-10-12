@@ -1,7 +1,7 @@
 import {
   InsertedSmartCardAuth,
-  MockFileCard,
   JavaCard,
+  MockFileCard,
 } from '@votingworks/auth';
 import { Logger } from '@votingworks/logging';
 import {

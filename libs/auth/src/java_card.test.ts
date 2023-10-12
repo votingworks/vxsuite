@@ -44,6 +44,7 @@ import {
   GENERIC_STORAGE_SPACE_CAPACITY_BYTES,
   JavaCard,
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
+  OPEN_FIPS_201_AID,
   PUK,
   VX_ADMIN_CERT_AUTHORITY_CERT,
 } from './java_card';
@@ -57,7 +58,6 @@ import {
   RESET_RETRY_COUNTER,
   VERIFY,
 } from './piv';
-import { OPEN_FIPS_201_AID } from './applet';
 
 jest.mock('./card_reader');
 jest.mock('./cryptography', (): typeof import('./cryptography') => ({

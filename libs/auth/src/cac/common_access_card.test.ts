@@ -5,29 +5,29 @@ import { mockOf } from '@votingworks/test-utils';
 import { Byte } from '@votingworks/types';
 import { assertDefined, typedAs } from '@votingworks/basics';
 import waitForExpect from 'wait-for-expect';
-import { certPemToDer, createCert } from './cryptography';
-import { MockCardReader } from '../test/utils';
-import { CardReader } from './card_reader';
+import { certPemToDer, createCert } from '../cryptography';
+import { MockCardReader } from '../../test/utils';
+import { CardReader } from '../card_reader';
 import {
   CARD_DOD_CERT,
+  COMMON_ACCESS_CARD_AID,
   CommonAccessCard,
   buildGenerateSignatureCardCommand,
-} from '.';
-import { CardCommand, ResponseApduError, SELECT, constructTlv } from './apdu';
-import { OPEN_FIPS_201_AID } from './applet';
-import { GET_DATA, PUT_DATA, VERIFY, construct8BytePinBuffer } from './piv';
-import { CheckPinResponse } from './card';
+} from './common_access_card';
+import { CardCommand, ResponseApduError, SELECT, constructTlv } from '../apdu';
+import { GET_DATA, PUT_DATA, VERIFY, construct8BytePinBuffer } from '../piv';
+import { CheckPinResponse } from '../card';
 
-jest.mock('./card_reader');
-jest.mock('./cryptography', (): typeof import('./cryptography') => ({
+jest.mock('../card_reader');
+jest.mock('../cryptography', (): typeof import('../cryptography') => ({
   // We use real cryptographic commands in these tests to ensure end-to-end correctness, the one
   // exception being commands for cert creation since two cert creation commands with the exact
   // same inputs won't necessarily generate the same outputs, making assertions difficult
-  ...jest.requireActual('./cryptography'),
+  ...jest.requireActual('../cryptography'),
   createCert: jest.fn(),
 }));
 
-const DEV_CERT_PEM = readFileSync(join(__dirname, '../test/cac-dev-cert.pem'));
+const DEV_CERT_PEM = readFileSync(join(__dirname, './cac-dev-cert.pem'));
 
 let mockCardReader: MockCardReader;
 
@@ -50,7 +50,7 @@ function mockCardAppletSelectionRequest(): void {
     ins: SELECT.INS,
     p1: SELECT.P1,
     p2: SELECT.P2,
-    data: Buffer.from(OPEN_FIPS_201_AID, 'hex'),
+    data: Buffer.from(COMMON_ACCESS_CARD_AID, 'hex'),
   });
   const responseData = Buffer.of();
   mockCardReader.transmit.expectCallWith(command).resolves(responseData);

@@ -1,8 +1,8 @@
 import {
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
-  MockFileCard,
   JavaCard,
+  MockFileCard,
 } from '@votingworks/auth';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';

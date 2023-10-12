@@ -1,6 +1,6 @@
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import { Application } from 'express';
-import { DippedSmartCardAuth, MockFileCard, JavaCard } from '@votingworks/auth';
+import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { Server } from 'http';
 import {
   BooleanEnvironmentVariableName,
