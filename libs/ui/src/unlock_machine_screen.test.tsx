@@ -8,6 +8,7 @@ import { DippedSmartCardAuth } from '@votingworks/types';
 
 import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { UnlockMachineScreen } from './unlock_machine_screen';
+import { PinLength } from './utils/pin_length';
 
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2000-01-01T00:00:00Z'));
@@ -140,4 +141,29 @@ test('Error checking PIN', () => {
   );
 
   screen.getByText('Error checking PIN. Please try again.');
+});
+
+test('variable-length PIN', async () => {
+  const checkPin = jest.fn();
+  render(
+    <UnlockMachineScreen
+      auth={{
+        ...checkingPinAuthStatus,
+        wrongPinEnteredAt: new Date(),
+      }}
+      checkPin={checkPin}
+      pinLength={PinLength.range(4, 6)}
+    />
+  );
+
+  // enter 4 digits
+  userEvent.click(screen.getButton('0'));
+  userEvent.click(screen.getButton('1'));
+  userEvent.click(screen.getButton('2'));
+  userEvent.click(screen.getButton('3'));
+  expect(checkPin).not.toHaveBeenCalled();
+
+  // press Enter
+  userEvent.click(screen.getButton('Enter'));
+  await waitFor(() => expect(checkPin).toHaveBeenCalledTimes(1));
 });
