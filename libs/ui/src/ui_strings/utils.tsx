@@ -16,13 +16,15 @@ import { appStrings } from './app_strings';
 import { electionStrings } from './election_strings';
 
 /**
- * Convenience function for rendering a translated list of parties associated
+ * Convenience component for rendering a translated list of parties associated
  * with a given candidate, along with the relevant audio.
  */
-export function renderCandidatePartyList(
-  candidate: Candidate,
-  electionParties: Parties
-): JSX.Element {
+export function CandidatePartyList(props: {
+  candidate: Candidate;
+  electionParties: Parties;
+}): JSX.Element {
+  const { candidate, electionParties } = props;
+
   return (
     <React.Fragment>
       {getCandidateParties(electionParties, candidate).map((party, i) => (
@@ -41,10 +43,12 @@ export function renderCandidatePartyList(
   );
 }
 
-export function renderPrecinctSelectionName(
-  electionPrecincts: readonly Precinct[],
-  precinctSelection?: PrecinctSelection
-): React.ReactNode {
+export function PrecinctSelectionName(props: {
+  electionPrecincts: readonly Precinct[];
+  precinctSelection?: PrecinctSelection;
+}): React.ReactNode {
+  const { electionPrecincts, precinctSelection } = props;
+
   if (!precinctSelection) {
     return null;
   }
@@ -58,10 +62,11 @@ export function renderPrecinctSelectionName(
   return electionStrings.precinctName(precinct);
 }
 
-export function renderPrimaryElectionTitlePrefix(
-  ballotStyleId: BallotStyleId,
-  election: Election
-): React.ReactNode {
+export function PrimaryElectionTitlePrefix(props: {
+  ballotStyleId: BallotStyleId;
+  election: Election;
+}): React.ReactNode {
+  const { ballotStyleId, election } = props;
   const party = getPartyForBallotStyle({ ballotStyleId, election });
   if (!party) {
     return null;

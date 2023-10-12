@@ -15,10 +15,10 @@ import {
   Caption,
   Font,
   Seal,
-  renderPrecinctSelectionName,
   electionStrings,
   appStrings,
-  renderPrimaryElectionTitlePrefix,
+  PrecinctSelectionName,
+  PrimaryElectionTitlePrefix,
 } from '@votingworks/ui';
 
 const Container = styled.div`
@@ -53,8 +53,12 @@ export function ElectionInfo({
 
   const partyPrimaryAdjective = (
     <React.Fragment>
-      {ballotStyleId &&
-        renderPrimaryElectionTitlePrefix(ballotStyleId, election)}{' '}
+      {ballotStyleId && (
+        <PrimaryElectionTitlePrefix
+          ballotStyleId={ballotStyleId}
+          election={election}
+        />
+      )}{' '}
     </React.Fragment>
   );
 
@@ -81,10 +85,10 @@ export function ElectionInfo({
             {/* TODO(kofi): Use more language-agnostic delimiter (e.g. '|') or find way to translate commas. */}
             {precinctSelection && (
               <NoWrap>
-                {renderPrecinctSelectionName(
-                  election.precincts,
-                  precinctSelection
-                )}
+                <PrecinctSelectionName
+                  electionPrecincts={election.precincts}
+                  precinctSelection={precinctSelection}
+                />
                 ,{' '}
               </NoWrap>
             )}

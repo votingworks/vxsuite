@@ -10,9 +10,13 @@ import {
 import { electionGeneral } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import {
-  renderCandidatePartyList,
-  renderPrecinctSelectionName,
-  renderPrimaryElectionTitlePrefix,
+  ALL_PRECINCTS_SELECTION,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
+import {
+  CandidatePartyList,
+  PrecinctSelectionName,
+  PrimaryElectionTitlePrefix,
 } from './utils';
 import { newTestContext } from '../../test/ui_strings/test_utils';
 import { H1 } from '..';
@@ -38,7 +42,7 @@ const CANDIDATE: Readonly<Candidate> = {
   name: 'Professor Xavier',
 };
 
-test('renderCandidatePartyList - single-party association', async () => {
+test('CandidatePartyList - single-party association', async () => {
   const { mockBackendApi, render } = newTestContext();
   mockBackendApi.getAvailableLanguages.mockResolvedValue([
     LanguageCode.SPANISH,
@@ -53,20 +57,20 @@ test('renderCandidatePartyList - single-party association', async () => {
   render(
     <H1>
       Parties:{' '}
-      {renderCandidatePartyList(
-        {
+      <CandidatePartyList
+        candidate={{
           ...CANDIDATE,
           partyIds: [ELECTION_PARTIES[1].id],
-        },
-        ELECTION_PARTIES
-      )}
+        }}
+        electionParties={ELECTION_PARTIES}
+      />
     </H1>
   );
 
   await screen.findByRole('heading', { name: 'Parties: Federalista' });
 });
 
-test('renderCandidatePartyList - multi-party association', async () => {
+test('CandidatePartyList - multi-party association', async () => {
   const { mockBackendApi, render } = newTestContext();
   mockBackendApi.getAvailableLanguages.mockResolvedValue([
     LanguageCode.SPANISH,
@@ -81,13 +85,13 @@ test('renderCandidatePartyList - multi-party association', async () => {
   render(
     <H1>
       Parties:{' '}
-      {renderCandidatePartyList(
-        {
+      <CandidatePartyList
+        candidate={{
           ...CANDIDATE,
           partyIds: [ELECTION_PARTIES[1].id, ELECTION_PARTIES[0].id],
-        },
-        ELECTION_PARTIES
-      )}
+        }}
+        electionParties={ELECTION_PARTIES}
+      />
     </H1>
   );
 
@@ -99,21 +103,25 @@ test('renderCandidatePartyList - multi-party association', async () => {
   });
 });
 
-test('renderPrecinctSelectionName - all-precinct selection', async () => {
+test('PrecinctSelectionName - all-precinct selection', async () => {
   const { mockBackendApi, render } = newTestContext();
   mockBackendApi.getAvailableLanguages.mockResolvedValue([]);
   mockBackendApi.getUiStrings.mockResolvedValue(null);
 
   render(
     <H1>
-      Precincts: {renderPrecinctSelectionName([], { kind: 'AllPrecincts' })}
+      Precincts:{' '}
+      <PrecinctSelectionName
+        electionPrecincts={[]}
+        precinctSelection={ALL_PRECINCTS_SELECTION}
+      />
     </H1>
   );
 
   await screen.findByRole('heading', { name: 'Precincts: All Precincts' });
 });
 
-test('renderPrecinctSelectionName - single-precinct selection', async () => {
+test('PrecinctSelectionName - single-precinct selection', async () => {
   const selectedPrecinct: Precinct = {
     id: 'precinctIdOldTown',
     name: 'Old Town',
@@ -136,17 +144,17 @@ test('renderPrecinctSelectionName - single-precinct selection', async () => {
   render(
     <H1>
       Precincts:{' '}
-      {renderPrecinctSelectionName(precincts, {
-        kind: 'SinglePrecinct',
-        precinctId: 'precinctIdOldTown',
-      })}
+      <PrecinctSelectionName
+        electionPrecincts={precincts}
+        precinctSelection={singlePrecinctSelectionFor('precinctIdOldTown')}
+      />
     </H1>
   );
 
   await screen.findByRole('heading', { name: 'Precincts: Ciutat Vella' });
 });
 
-test('renderPrecinctSelectionName - no selection', async () => {
+test('PrecinctSelectionName - no selection', async () => {
   const precincts: readonly Precinct[] = [
     { id: 'precinctA', name: 'New Town' },
   ];
@@ -162,13 +170,15 @@ test('renderPrecinctSelectionName - no selection', async () => {
   });
 
   render(
-    <H1>Precincts: {renderPrecinctSelectionName(precincts, undefined)}</H1>
+    <H1>
+      Precincts: <PrecinctSelectionName electionPrecincts={precincts} />
+    </H1>
   );
 
   await screen.findByRole('heading', { name: 'Precincts:' });
 });
 
-test('renderPrimaryElectionTitlePrefix - party-specific ballot', async () => {
+test('PrimaryElectionTitlePrefix - party-specific ballot', async () => {
   const myParty: Party = {
     id: 'itsMyParty' as PartyId,
     fullName: "And I'll Cry If I Want To",
@@ -201,13 +211,19 @@ test('renderPrimaryElectionTitlePrefix - party-specific ballot', async () => {
   });
 
   render(
-    <H1>Prefix: {renderPrimaryElectionTitlePrefix('imp-ballot', election)}</H1>
+    <H1>
+      Prefix:{' '}
+      <PrimaryElectionTitlePrefix
+        ballotStyleId="imp-ballot"
+        election={election}
+      />
+    </H1>
   );
 
   await screen.findByRole('heading', { name: 'Prefix: Lloro Si Quiero' });
 });
 
-test('renderPrecinctSelectionName - non-party-specific ballot', async () => {
+test('PrecinctSelectionName - non-party-specific ballot', async () => {
   const election = electionGeneral;
   const ballotStyle = assertDefined(election.ballotStyles[0]);
 
@@ -217,7 +233,11 @@ test('renderPrecinctSelectionName - non-party-specific ballot', async () => {
 
   render(
     <H1>
-      Prefix: {renderPrimaryElectionTitlePrefix(ballotStyle.id, election)}
+      Prefix:{' '}
+      <PrimaryElectionTitlePrefix
+        ballotStyleId={ballotStyle.id}
+        election={election}
+      />
     </H1>
   );
 
