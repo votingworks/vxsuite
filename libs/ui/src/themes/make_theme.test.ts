@@ -35,6 +35,16 @@ test('varies theme based on selected modes', () => {
   );
 });
 
+test('desktop theme', () => {
+  const desktopTheme = makeTheme({
+    colorMode: 'contrastMedium',
+    screenType: 'builtIn',
+    sizeMode: 'desktop',
+  });
+
+  expect<number>(desktopTheme.sizes.fontDefault).toEqual(16);
+});
+
 test('varies sizes based on screen type', () => {
   const elo13ScreenTheme = makeTheme({
     colorMode: 'contrastMedium',

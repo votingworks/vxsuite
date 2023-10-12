@@ -8,12 +8,26 @@ export type ColorMode =
   | 'contrastMedium'
   | 'contrastLow';
 
+export const TOUCH_SIZE_MODES = [
+  'touchSmall',
+  'touchMedium',
+  'touchLarge',
+  'touchExtraLarge',
+] as const;
+
+/**  VVSG 2.0 compliant touchscreen size modes, used for voter-facing apps. */
+export type TouchSizeMode = (typeof TOUCH_SIZE_MODES)[number];
+
+/** Standard size mode for non-voter-facing desktop apps. */
+export type DesktopSizeMode = 'desktop';
+
 /** Options for supported UI sizing themes. */
-export type SizeMode =
-  | 'touchSmall'
-  | 'touchMedium'
-  | 'touchLarge'
-  | 'touchExtraLarge';
+export type SizeMode = DesktopSizeMode | TouchSizeMode;
+
+export function isTouchSizeMode(sizeMode: SizeMode): sizeMode is TouchSizeMode {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return TOUCH_SIZE_MODES.includes(sizeMode as any);
+}
 
 /** VX CSS color definitions. */
 export enum Color {

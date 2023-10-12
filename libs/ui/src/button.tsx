@@ -145,6 +145,7 @@ function getBorderColor(p: ThemedStyledButtonProps): Color | undefined {
 }
 
 const paddingStyles: Record<SizeMode, string | undefined> = {
+  desktop: '0.5em 0.6em',
   touchSmall: '0.5em 0.6em',
   touchMedium: '0.5em 0.6em',
   touchLarge: '0.4em 0.5em',

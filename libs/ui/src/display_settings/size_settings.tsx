@@ -1,5 +1,5 @@
 import React from 'react';
-import { SizeMode } from '@votingworks/types';
+import { SizeMode, TouchSizeMode } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { SettingsPane } from './settings_pane';
 import { RadioGroup } from '../radio_group';
@@ -9,7 +9,7 @@ import { useScreenInfo } from '../hooks/use_screen_info';
 
 export interface SizeSettingsProps {
   /** @default ['touchSmall', 'touchMedium', 'touchLarge', 'touchExtraLarge'] */
-  sizeModes?: SizeMode[];
+  sizeModes?: TouchSizeMode[];
 }
 
 const DEFAULT_SIZE_MODES: SizeMode[] = [
@@ -19,7 +19,7 @@ const DEFAULT_SIZE_MODES: SizeMode[] = [
   'touchExtraLarge',
 ];
 
-const ORDERED_SIZE_MODE_LABELS: Record<SizeMode, string> = {
+const ORDERED_SIZE_MODE_LABELS: Record<TouchSizeMode, string> = {
   touchSmall: 'Small',
   touchMedium: 'Medium',
   touchLarge: 'Large',
@@ -35,7 +35,7 @@ export function SizeSettings(props: SizeSettingsProps): JSX.Element {
   const { setSizeMode } = React.useContext(ThemeManagerContext);
 
   const orderedSizeModes = (
-    Object.keys(ORDERED_SIZE_MODE_LABELS) as SizeMode[]
+    Object.keys(ORDERED_SIZE_MODE_LABELS) as TouchSizeMode[]
   ).filter((m) => enabledSizeModes.has(m));
 
   /* istanbul ignore next */

@@ -31,10 +31,11 @@ const screenTypeToolBarItems: Record<ScreenType, ScreenTypeToolBarItem> = {
 
 const DEFAULT_SIZE_MODE: SizeMode = "touchMedium";
 const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
-  touchSmall: { title: 'Size Theme - S', value: 'touchSmall'},
-  touchMedium: { title: 'Size Theme - M', value: 'touchMedium'},
-  touchLarge: { title: 'Size Theme - L', value: 'touchLarge'},
-  touchExtraLarge: { title: 'Size Theme - XL', value: 'touchExtraLarge'},
+  desktop: { title: 'Desktop', value: 'desktop'},
+  touchSmall: { title: 'Small (Touch)', value: 'touchSmall'},
+  touchMedium: { title: 'Medium (Touch)', value: 'touchMedium'},
+  touchLarge: { title: 'Large (Touch)', value: 'touchLarge'},
+  touchExtraLarge: { title: 'Extra Large (Touch)', value: 'touchExtraLarge'},
 }
 
 const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';

@@ -1,15 +1,15 @@
-import { SizeMode } from '@votingworks/types';
+import { TouchSizeMode } from '@votingworks/types';
 import { MisvoteWarningsConfig } from './types';
 
 /**
- * Layout configuration params for each {@link SizeMode} - these were manually
+ * Layout configuration params for each {@link TouchSizeMode} - these were manually
  * tuned to make sure we display the full warning details whenever we can fit
  * them all on the main ScanWarningScreen without needing to scroll and display
  * a summary with a details modal button otherwise.
  *
  * Can be tweaked as needed, as the product evolves.
  */
-export const CONFIG: Readonly<Record<SizeMode, MisvoteWarningsConfig>> = {
+export const CONFIG: Readonly<Record<TouchSizeMode, MisvoteWarningsConfig>> = {
   touchSmall: {
     maxCardsPerRow: 3,
     maxColumnsPerCard: 3,
