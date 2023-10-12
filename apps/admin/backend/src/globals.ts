@@ -32,17 +32,21 @@ export const ADMIN_WORKSPACE =
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.PORT || 3004);
 
-const DEFAULT_ALLOWED_EXPORT_PATTERNS =
-  NODE_ENV === 'test'
-    ? ['/tmp/**/*'] // Mock USB drive location
-    : [
-        '/media/**/*', // Real USB drive location
-        '/tmp/**/*', // Where data is first written for signature file creation
-      ];
+const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
 
-if (NODE_ENV === 'development') {
-  DEFAULT_ALLOWED_EXPORT_PATTERNS.push(DEV_MOCK_USB_GLOB_PATTERN);
-}
+const DEFAULT_ALLOWED_EXPORT_PATTERNS =
+  NODE_ENV === 'production'
+    ? [
+        REAL_USB_DRIVE_GLOB_PATTERN,
+        '/tmp/**/*', // Where data is first written for signature file creation
+      ]
+    : NODE_ENV === 'development'
+    ? [
+        REAL_USB_DRIVE_GLOB_PATTERN,
+        DEV_MOCK_USB_GLOB_PATTERN,
+        '/tmp/**/*', // Where data is first written for signature file creation
+      ]
+    : ['/tmp/**/*']; // Where mock USB drives are created within tests
 
 /**
  * Where are exported files allowed to be written to?

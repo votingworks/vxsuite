@@ -1,5 +1,4 @@
 import { unsafeParse } from '@votingworks/types';
-import { DEV_MOCK_USB_GLOB_PATTERN } from '@votingworks/usb-drive';
 import { join } from 'path';
 import { z } from 'zod';
 
@@ -31,19 +30,3 @@ export const SCAN_WORKSPACE =
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
-
-/**
- * Where are exported files allowed to be written to?
- */
-const DEFAULT_ALLOWED_EXPORT_PATTERNS =
-  NODE_ENV === 'test'
-    ? ['/tmp/**/*'] // Mock USB drive location
-    : ['/media/**/*']; // Real USB drive location
-
-if (NODE_ENV === 'development') {
-  DEFAULT_ALLOWED_EXPORT_PATTERNS.push(DEV_MOCK_USB_GLOB_PATTERN);
-}
-
-export const SCAN_ALLOWED_EXPORT_PATTERNS =
-  process.env.SCAN_ALLOWED_EXPORT_PATTERNS?.split(',') ??
-  DEFAULT_ALLOWED_EXPORT_PATTERNS;
