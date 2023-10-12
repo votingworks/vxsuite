@@ -14,14 +14,16 @@ interface TabBarProps {
 
 const TabRow = styled(Row)`
   gap: 0.5rem;
-  border-bottom: 2px solid ${({ theme }) => theme.colors.foreground};
+  border-bottom: 2px solid ${(p) => p.theme.colors.foreground};
 `;
 
 const TabButton = styled(Button)<{ isActive: boolean }>`
   min-width: 8rem;
   border-radius: 0.25rem 0.25rem 0 0;
   border-bottom-width: 0;
-  background: ${({ isActive }) => (isActive ? '' : 'none')};
+  color: ${(p) =>
+    p.isActive ? p.theme.colors.background : p.theme.colors.foreground};
+  background: ${(p) => (p.isActive ? p.theme.colors.foreground : 'none')};
 `;
 
 export function TabBar({ tabs }: TabBarProps): JSX.Element {

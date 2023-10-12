@@ -230,7 +230,7 @@ function DistrictForm({
               onPress={onDeletePress}
               disabled={updateElectionMutation.isLoading}
             >
-              <Icons.DangerX /> Delete District
+              Delete District
             </Button>
           </FormActionsRow>
         )}
@@ -572,7 +572,7 @@ function PrecinctForm({
                     />
                   </FormField>
                   <Button onPress={() => onRemoveSplitPress(split.id)}>
-                    <Icons.DangerX /> Remove Split
+                    Remove Split
                   </Button>
                 </Card>
               ))}
