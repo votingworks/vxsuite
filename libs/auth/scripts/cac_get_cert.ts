@@ -1,6 +1,6 @@
 import { createWriteStream } from 'fs';
 import { throwIllegalValue } from '@votingworks/basics';
-import { CARD_DOD_CERT, CommonAccessCard } from '../src';
+import { CARD_DOD_CERT, CommonAccessCard } from '../src/cac';
 import { waitForReadyCardStatus } from './utils';
 
 /**

@@ -12,6 +12,7 @@ import {
   GENERIC_STORAGE_SPACE,
   JavaCard,
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
+  OPEN_FIPS_201_AID,
   PUK,
   VX_ADMIN_CERT_AUTHORITY_CERT,
 } from '../src/java_card';
@@ -21,7 +22,6 @@ import {
 } from '../src/piv';
 import { runCommand } from '../src/shell';
 import { waitForReadyCardStatus } from './utils';
-import { OPEN_FIPS_201_AID } from '../src/applet';
 
 const APPLET_PATH = 'applets/OpenFIPS201-v1.10.2-with-vx-mods.cap';
 const GLOBAL_PLATFORM_JAR_FILE_PATH = 'scripts/gp.jar';
