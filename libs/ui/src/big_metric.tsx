@@ -24,7 +24,6 @@ const StyledContainer = styled.span`
 
 const StyledValue = styled(H1)`
   display: inline-block;
-  font-size: 72px;
   line-height: 1;
   margin: 0;
 `;
