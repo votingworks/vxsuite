@@ -7,6 +7,7 @@ module.exports = {
   ...shared,
   coveragePathIgnorePatterns: [
     'src/index.ts',
+    'src/cac/index.ts',
     'src/intermediate-scripts',
     'src/jurisdictions.ts',
     'src/test_utils.ts',
