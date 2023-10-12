@@ -13,7 +13,7 @@ import {
   detectUsbDrive,
 } from './usb_drive';
 import { exec } from './exec';
-import { UsbDriveStatus } from './types';
+import { UsbDrive, UsbDriveStatus } from './types';
 import {
   DEFAULT_MOCK_USB_DIR,
   MOCK_USB_STATE_FILENAME,
