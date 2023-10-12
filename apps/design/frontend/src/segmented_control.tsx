@@ -1,4 +1,3 @@
-import { Color } from '@votingworks/types';
 import { Button } from '@votingworks/ui';
 import styled from 'styled-components';
 
@@ -11,7 +10,7 @@ const ControlContainer = styled.div<{ vertical?: boolean }>`
   display: inline-flex;
   flex-direction: ${(p) => (p.vertical ? 'column' : 'row')};
   border-radius: 0.25rem;
-  background: ${Color.LEGACY_BUTTON_BACKGROUND};
+  background: ${(p) => p.theme.colors.background};
 `;
 
 const ControlOption = styled(Button)<{
@@ -21,7 +20,7 @@ const ControlOption = styled(Button)<{
   background: ${(p) =>
     p.isSelected
       ? p.disabled
-        ? Color.LEGACY_FOREGROUND_DISABLED
+        ? p.theme.colors.foregroundDisabled
         : p.theme.colors.accentPrimary
       : 'none'};
   color: ${(p) => (p.isSelected ? 'white' : 'currentColor')};

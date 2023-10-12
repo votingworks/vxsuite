@@ -77,133 +77,49 @@ exports[`Single Seat Contest 1`] = `
   width: 1em;
 }
 
-.c24 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #fafafa;
-  padding: 0.75em 1em;
-  text-align: center;
-  line-height: 1.25;
-  color: #222222;
-  touch-action: manipulation;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  gap: 0.5rem;
-  -webkit-letter-spacing: 0.01em;
-  -moz-letter-spacing: 0.01em;
-  -ms-letter-spacing: 0.01em;
-  letter-spacing: 0.01em;
-  line-height: 1.15;
-  padding: 0.5em 0.6em;
-  width: auto;
-  min-height: 70.86614173228345px;
-  vertical-align: middle;
-  background: #fafafa;
-  border: 0.15rem solid #222222;
-  border-radius: 0.25rem;
-  box-shadow: none;
-  color: #222222;
-  cursor: pointer;
-  text-shadow: none;
-  -webkit-transition: 100ms ease-in;
-  transition: 100ms ease-in;
-  -webkit-transition-property: background,border,box-shadow,color;
-  transition-property: background,border,box-shadow,color;
-}
-
-.c24:hover,
-.c24:active {
-  outline: none;
-}
-
-.c24:hover,
-.c24:active {
-  outline: none;
-}
-
-.c24:active {
-  box-shadow: inset 0 0 0 0.15rem #222222;
-}
-
-.c24[disabled] {
-  border: 0.15rem dashed #222222;
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
 .c13 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #00437d;
-  padding: 0.75em 1em;
-  text-align: center;
-  line-height: 1.25;
-  color: #fafafa;
-  touch-action: manipulation;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  gap: 0.5rem;
-  -webkit-letter-spacing: 0.01em;
-  -moz-letter-spacing: 0.01em;
-  -ms-letter-spacing: 0.01em;
-  letter-spacing: 0.01em;
-  line-height: 1.15;
-  padding: 0.5em 0.6em;
-  width: auto;
-  min-height: 70.86614173228345px;
-  vertical-align: middle;
   background: #00437d;
   border: 0.15rem solid #00437d;
   border-radius: 0.25rem;
   box-shadow: none;
+  box-sizing: border-box;
   color: #fafafa;
   cursor: pointer;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  -webkit-letter-spacing: 0.01em;
+  -moz-letter-spacing: 0.01em;
+  -ms-letter-spacing: 0.01em;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  padding: 0.5em 0.6em;
+  text-align: center;
   text-shadow: none;
+  touch-action: manipulation;
   -webkit-transition: 100ms ease-in;
   transition: 100ms ease-in;
   -webkit-transition-property: background,border,box-shadow,color;
   transition-property: background,border,box-shadow,color;
-}
-
-.c13:hover,
-.c13:active {
-  outline: none;
+  width: auto;
+  min-height: 70.86614173228345px;
+  vertical-align: middle;
 }
 
 .c13:hover,
@@ -216,6 +132,66 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c13[disabled] {
+  border: 0.15rem dashed #222222;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.c24 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  background: #fafafa;
+  border: 0.15rem solid #222222;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: #222222;
+  cursor: pointer;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  -webkit-letter-spacing: 0.01em;
+  -moz-letter-spacing: 0.01em;
+  -ms-letter-spacing: 0.01em;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  padding: 0.5em 0.6em;
+  text-align: center;
+  text-shadow: none;
+  touch-action: manipulation;
+  -webkit-transition: 100ms ease-in;
+  transition: 100ms ease-in;
+  -webkit-transition-property: background,border,box-shadow,color;
+  transition-property: background,border,box-shadow,color;
+  width: auto;
+  min-height: 70.86614173228345px;
+  vertical-align: middle;
+}
+
+.c24:hover,
+.c24:active {
+  outline: none;
+}
+
+.c24:active {
+  box-shadow: inset 0 0 0 0.15rem #222222;
+}
+
+.c24[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;

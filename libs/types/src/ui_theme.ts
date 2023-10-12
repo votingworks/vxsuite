@@ -6,11 +6,10 @@ export type ColorMode =
   | 'contrastHighDark'
   | 'contrastHighLight'
   | 'contrastMedium'
-  | 'contrastLow'
-  | 'legacy';
+  | 'contrastLow';
 
 /** Options for supported UI sizing themes. */
-export type SizeMode = 's' | 'm' | 'l' | 'xl' | 'legacy';
+export type SizeMode = 's' | 'm' | 'l' | 'xl';
 
 /** VX CSS color definitions. */
 export enum Color {
@@ -31,15 +30,6 @@ export enum Color {
   WARNING_LOW_CONTRAST = '#bc7c10',
   WARNING_MEDIUM_CONTRAST = '#5c3600',
   WHITE = '#ffffff',
-
-  LEGACY_ACCENT_DANGER = '#ff0000',
-  LEGACY_ACCENT_WARNING = '#ff8c00',
-  LEGACY_BACKGROUND = '#edeff0',
-  LEGACY_BUTTON_BACKGROUND = '#d3d3d3',
-  LEGACY_FOREGROUND = '#263238',
-  LEGACY_FOREGROUND_DISABLED = '#999999',
-  LEGACY_PRIMARY_BLUE = '#2298de',
-  LEGACY_PRIMARY_GREEN = '#47a74b',
 }
 
 /** CSS color values for various UI features. */

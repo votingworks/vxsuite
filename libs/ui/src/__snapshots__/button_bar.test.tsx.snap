@@ -17,7 +17,7 @@ exports[`renders ButtonBar 1`] = `
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
-  border-top: 0.05rem solid #263238;
+  border-top: 0.06rem solid #222222;
   padding: 7.2px;
   gap: 7.2px;
 }

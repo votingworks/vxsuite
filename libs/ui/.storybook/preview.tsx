@@ -35,7 +35,6 @@ const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
   m: { title: 'Size Theme - M', value: 'm'},
   l: { title: 'Size Theme - L', value: 'l'},
   xl: { title: 'Size Theme - XL', value: 'xl'},
-  legacy: { title: 'Size Theme - Legacy', value: 'legacy'},
 }
 
 const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';
@@ -44,7 +43,6 @@ const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
   contrastHighDark: { title: 'High Contrast - Dark', value: 'contrastHighDark'},
   contrastMedium: { title: 'Medium Contrast', value: 'contrastMedium'},
   contrastLow: { title: 'Low Contrast', value: 'contrastLow'},
-  legacy: { title: 'Legacy Colors', value: 'legacy'},
 }
 
 /**
@@ -112,18 +110,22 @@ function StoryWrapper(props: {
   context: StoryContext;
 }): JSX.Element {
   const { children, context } = props;
+  const globals = context.globals as {
+    colorMode: ColorMode;
+    sizeMode: SizeMode;
+  };
 
   const { setColorMode, setSizeMode } = React.useContext(
     ThemeManagerContext
   );
 
   React.useEffect(() => {
-    setColorMode(context.globals.colorMode);
-  }, [context.globals.colorMode]);
+    setColorMode(globals.colorMode);
+  }, [globals.colorMode]);
 
   React.useEffect(() => {
-    setSizeMode(context.globals.sizeMode);
-  }, [context.globals.sizeMode]);
+    setSizeMode(globals.sizeMode);
+  }, [globals.sizeMode]);
 
   return <React.Fragment>{children}</React.Fragment>;
 }
@@ -136,13 +138,18 @@ export const decorators: DecoratorFunction[] = [
     Story: any, // Original type here isn't inferred as a React render function
     context
   ) => {
+    const globals = context.globals as {
+      colorMode: ColorMode;
+      sizeMode: SizeMode;
+      screenType: ScreenType;
+    };
     return (
       <React.StrictMode>
         <AppBase
-          defaultColorMode={context.globals.colorMode}
-          defaultSizeMode={context.globals.sizeMode}
+          defaultColorMode={globals.colorMode}
+          defaultSizeMode={globals.sizeMode}
           enableScroll
-          screenType={context.globals.screenType}
+          screenType={globals.screenType}
         >
           <StoryWrapper context={context}>
             <Story />

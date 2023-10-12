@@ -20,7 +20,6 @@ const VVSG_CAPITAL_LETTER_HEIGHTS_MM: Record<
   m: { max: 5.6, min: 4.8 },
   l: { max: 7.1, min: 6.4 },
   xl: { max: 9.0, min: 8.5 },
-  legacy: { max: 0, min: 0 }, // unused
 };
 
 /**
@@ -81,18 +80,6 @@ const colorThemes: Record<ColorMode, ColorTheme> = {
     background: Color.GRAY_DARK,
     foreground: Color.GRAY_LIGHT,
     foregroundDisabled: Color.GRAY_LIGHT,
-  },
-
-  legacy: {
-    background: Color.LEGACY_BACKGROUND,
-    foreground: Color.LEGACY_FOREGROUND,
-    foregroundDisabled: Color.LEGACY_FOREGROUND_DISABLED,
-    accentPrimary: Color.LEGACY_PRIMARY_GREEN,
-    accentSecondary: Color.LEGACY_PRIMARY_BLUE,
-    accentSuccess: Color.LEGACY_PRIMARY_GREEN,
-    accentDanger: Color.LEGACY_ACCENT_DANGER,
-    accentVxPurple: Color.VX_PURPLE_LOW_CONTRAST,
-    accentWarning: Color.LEGACY_ACCENT_WARNING,
   },
 };
 
@@ -268,46 +255,15 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     ),
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
-
-  legacy: (p) => ({
-    bordersRem: {
-      hairline: 0.05,
-      thin: 0.1,
-      medium: 0.15,
-      thick: 0.25,
-    },
-    fontDefault: 16,
-    fontWeight: {
-      bold: 600,
-      light: 300,
-      regular: 400,
-      semiBold: 500,
-    },
-    headingsRem: {
-      h1: 1.5,
-      h2: 1.25,
-      h3: 1.17,
-      h4: 1,
-      h5: 0.9,
-      h6: 0.9,
-    },
-    letterSpacingEm: 0, // Browser default.
-    lineHeight: 1.2,
-    minTouchAreaSeparationPx: mmToPx(
-      VVSG_MIN_TOUCH_AREA_SEPARATION_MM,
-      p.screenType
-    ),
-    minTouchAreaSizePx: 0,
-  }),
 };
 
 /**
  * Returns a UI theme configuration for the given theme options.
  */
 export function makeTheme({
-  colorMode = 'legacy',
+  colorMode = 'contrastMedium',
   screenType = 'builtIn',
-  sizeMode = 'legacy',
+  sizeMode = 's',
 }: {
   colorMode?: ColorMode;
   screenType?: ScreenType;

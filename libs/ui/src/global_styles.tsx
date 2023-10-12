@@ -107,23 +107,14 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
 
   :link,
   :visited {
-    color: ${(p) =>
-      p.theme.colorMode !== 'legacy'
-        ? p.theme.colors.accentPrimary
-        : 'rgb(0, 0, 238)'};
-    font-weight: ${(p) =>
-      p.theme.sizeMode !== 'legacy' && p.theme.sizes.fontWeight.semiBold};
+    color: ${(p) => p.theme.colors.accentPrimary};
+    font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   }
 
   :focus {
     outline: ${(p) =>
       p.isTouchscreen
-        ? `${
-            /* istanbul ignore next: no easy way to test focus styles in jest tests - ignoring for now  */
-            p.theme.colorMode === 'legacy'
-              ? p.theme.colors.accentSecondary
-              : p.theme.colors.accentPrimary
-          } dashed ${p.theme.sizes.bordersRem.medium}rem`
+        ? `${p.theme.colors.accentPrimary} dashed ${p.theme.sizes.bordersRem.medium}rem`
         : 'none'};
   }
 

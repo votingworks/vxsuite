@@ -112,19 +112,11 @@ function getVariantColor(p: ThemedStyledButtonProps): Color | undefined {
 
 function getBackgroundColor(p: ThemedStyledButtonProps): Color | undefined {
   if (p.disabled) {
-    if (p.theme.colorMode === 'legacy') {
-      return Color.LEGACY_BUTTON_BACKGROUND;
-    }
-
     return p.theme.colors.background;
   }
 
   if (getVariantConfig(p).isSolidColor) {
     return getVariantColor(p);
-  }
-
-  if (p.theme.colorMode === 'legacy') {
-    return Color.LEGACY_BUTTON_BACKGROUND;
   }
 
   return p.theme.colors.background;
@@ -137,15 +129,7 @@ function getForegroundColor(p: ThemedStyledButtonProps): Color | undefined {
 
   const variantConfig = variantConfigs[p.variant || 'regular'];
   if (variantConfig.isSolidColor) {
-    if (p.theme.colorMode === 'legacy') {
-      return Color.WHITE;
-    }
-
     return p.theme.colors.background;
-  }
-
-  if (p.theme.colorMode === 'legacy') {
-    return Color.BLACK;
   }
 
   return getVariantColor(p);
@@ -165,15 +149,21 @@ const paddingStyles: Record<SizeMode, string | undefined> = {
   m: '0.5em 0.6em',
   l: '0.4em 0.5em',
   xl: '0.3em 0.4em',
-  legacy: undefined, // Already defined in base styles.
 };
 
 function getPadding(p: StyledButtonProps & { theme: DefaultTheme }) {
   return paddingStyles[p.theme.sizeMode];
 }
 
-const sizeThemeStyles = css<StyledButtonProps>`
+export const buttonStyles = css<StyledButtonProps>`
   align-items: center;
+  background: ${getBackgroundColor};
+  border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid ${getBorderColor};
+  border-radius: 0.25rem;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: ${getForegroundColor};
+  cursor: pointer;
   display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -184,21 +174,14 @@ const sizeThemeStyles = css<StyledButtonProps>`
   letter-spacing: ${(p) => p.theme.sizes.letterSpacingEm}em;
   line-height: ${(p) => p.theme.sizes.lineHeight};
   padding: ${getPadding};
+  text-align: center;
+  text-shadow: none;
+  touch-action: manipulation;
+  transition: 100ms ease-in;
+  transition-property: background, border, box-shadow, color;
   width: auto;
   min-height: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
   vertical-align: middle;
-`;
-
-const colorThemeStyles = css<StyledButtonProps>`
-  background: ${getBackgroundColor};
-  border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid ${getBorderColor};
-  border-radius: 0.25rem;
-  box-shadow: none;
-  color: ${getForegroundColor};
-  cursor: pointer;
-  text-shadow: none;
-  transition: 100ms ease-in;
-  transition-property: background, border, box-shadow, color;
 
   &:hover,
   &:active {
@@ -217,33 +200,6 @@ const colorThemeStyles = css<StyledButtonProps>`
   }
 `;
 
-// TODO: Remove legacy styles and consolidate once all clients have been moved
-// over to VVSG themes.
-export const buttonStyles = css<StyledButtonProps>`
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: ${getBackgroundColor};
-  width: ${({ fullWidth = false }) => (fullWidth ? '100%' : undefined)};
-  padding: ${({ large = false, small = false }) =>
-    small ? '0.35em 0.5em' : large ? '1em 1.75em' : '0.75em 1em'};
-  text-align: center;
-  line-height: 1.25;
-  color: ${getForegroundColor};
-  font-size: ${({ large = false }) => (large ? '1.25em' : undefined)};
-  touch-action: manipulation;
-
-  &:hover,
-  &:active {
-    outline: none;
-  }
-
-  /* Conditional themed styles: */
-  ${(p) => p.theme.sizeMode !== 'legacy' && sizeThemeStyles}
-  ${(p) => p.theme.colorMode !== 'legacy' && colorThemeStyles}
-`;
-
 export const DecoyButton = styled.div`
   ${buttonStyles}
 `;
@@ -255,10 +211,7 @@ const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
 `;
 
 const IconContainer = styled.span`
-  display: ${(p) =>
-    p.theme.colorMode === 'legacy' || p.theme.sizeMode === 'legacy'
-      ? 'none'
-      : 'inline-block'};
+  display: inline-block;
 `;
 
 const TextContainer = styled.span`

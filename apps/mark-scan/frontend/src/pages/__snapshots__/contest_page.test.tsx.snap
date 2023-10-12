@@ -4,44 +4,44 @@ exports[`Renders ContestPage 1`] = `
 .c6 {
   font-size: 1em;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
 }
 
 .c4 {
   font-size: 1em;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 .c5 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   white-space: nowrap;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 .c8 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 .c22 {
   font-size: 1em;
-  font-weight: 400;
-  line-height: 1.2;
+  font-weight: 300;
+  line-height: 1.3;
   margin: 0;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 .c20 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   font-size: 1rem;
   margin-bottom: 0.5em;
@@ -49,12 +49,12 @@ exports[`Renders ContestPage 1`] = `
 
 .c7 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   font-weight: 500;
-  line-height: 1.08;
+  line-height: 1.1700000000000002;
   margin-bottom: 0.3em;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   font-weight: 600;
 }
 
@@ -78,16 +78,48 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c12 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  background: #fafafa;
+  border: 0.15rem solid #222222;
+  border-radius: 0.25rem;
+  box-shadow: none;
   box-sizing: border-box;
-  background: #d3d3d3;
-  padding: 0.75em 1em;
+  color: #222222;
+  cursor: pointer;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  -webkit-letter-spacing: 0.01em;
+  -moz-letter-spacing: 0.01em;
+  -ms-letter-spacing: 0.01em;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  padding: 0.5em 0.6em;
   text-align: center;
-  line-height: 1.25;
-  color: #000000;
+  text-shadow: none;
   touch-action: manipulation;
+  -webkit-transition: 100ms ease-in;
+  transition: 100ms ease-in;
+  -webkit-transition-property: background,border,box-shadow,color;
+  transition-property: background,border,box-shadow,color;
+  width: auto;
+  min-height: 35.99999999999999px;
+  vertical-align: middle;
 }
 
 .c12:hover,
@@ -95,8 +127,18 @@ exports[`Renders ContestPage 1`] = `
   outline: none;
 }
 
+.c12:active {
+  box-shadow: inset 0 0 0 0.15rem #222222;
+}
+
+.c12[disabled] {
+  border: 0.15rem dashed #222222;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 .c24 {
-  display: none;
+  display: inline-block;
 }
 
 .c14 {
@@ -115,7 +157,7 @@ exports[`Renders ContestPage 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  border: 0.05rem solid currentColor;
+  border: 0.06rem solid currentColor;
   border-radius: 0.15em;
   box-sizing: border-box;
   display: -webkit-inline-box;
@@ -137,7 +179,7 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c13 {
-  border: 0.05rem solid currentColor;
+  border: 0.06rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
   -ms-flex-pack: start;
@@ -151,7 +193,7 @@ exports[`Renders ContestPage 1`] = `
 }
 
 .c13:active {
-  border: 0.05rem solid #47a74b;
+  border: 0.06rem solid #00437d;
 }
 
 .c15 {
@@ -279,7 +321,7 @@ exports[`Renders ContestPage 1`] = `
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
   align-items: stretch;
-  border-top: 0.25rem solid #263238;
+  border-top: 0.25rem solid #222222;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -864,44 +906,44 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 .c6 {
   font-size: 1em;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
 }
 
 .c4 {
   font-size: 1em;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 .c5 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   white-space: nowrap;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 .c8 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 .c22 {
   font-size: 1em;
-  font-weight: 400;
-  line-height: 1.2;
+  font-weight: 300;
+  line-height: 1.3;
   margin: 0;
-  font-size: 0.75em;
+  font-size: 0.75rem;
 }
 
 .c20 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   font-size: 1rem;
   margin-bottom: 0.5em;
@@ -909,7 +951,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 .c26 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   text-align: center;
   font-size: 1rem;
@@ -918,12 +960,12 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 .c7 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   font-weight: 500;
-  line-height: 1.08;
+  line-height: 1.1700000000000002;
   margin-bottom: 0.3em;
-  font-size: 1.25rem;
+  font-size: 1.75rem;
   font-weight: 600;
 }
 
@@ -940,30 +982,30 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   margin-top: 0 !important;
 }
 
-.c35 {
+.c34 {
   font-size: 1em;
-  line-height: 1.2;
+  line-height: 1.3;
   margin: 0;
   font-weight: 500;
-  line-height: 1.08;
+  line-height: 1.1700000000000002;
   margin-bottom: 0.3em;
-  font-size: 0.9rem;
+  font-size: 1.125rem;
 }
 
-.c35:not(:first-child) {
+.c34:not(:first-child) {
   margin-top: 1.25em;
 }
 
-.c35 + h1,
-.c35 + h2,
-.c35 + h3,
-.c35 + h4,
-.c35 + h5,
-.c35 + h6 {
+.c34 + h1,
+.c34 + h2,
+.c34 + h3,
+.c34 + h4,
+.c34 + h5,
+.c34 + h6 {
   margin-top: 0 !important;
 }
 
-.c36 {
+.c35 {
   white-space: nowrap;
 }
 
@@ -974,16 +1016,48 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 }
 
 .c12 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  background: #fafafa;
+  border: 0.15rem solid #222222;
+  border-radius: 0.25rem;
+  box-shadow: none;
   box-sizing: border-box;
-  background: #d3d3d3;
-  padding: 0.75em 1em;
+  color: #222222;
+  cursor: pointer;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  -webkit-letter-spacing: 0.01em;
+  -moz-letter-spacing: 0.01em;
+  -ms-letter-spacing: 0.01em;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  padding: 0.5em 0.6em;
   text-align: center;
-  line-height: 1.25;
-  color: #000000;
+  text-shadow: none;
   touch-action: manipulation;
+  -webkit-transition: 100ms ease-in;
+  transition: 100ms ease-in;
+  -webkit-transition-property: background,border,box-shadow,color;
+  transition-property: background,border,box-shadow,color;
+  width: auto;
+  min-height: 35.99999999999999px;
+  vertical-align: middle;
 }
 
 .c12:hover,
@@ -991,8 +1065,18 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   outline: none;
 }
 
+.c12:active {
+  box-shadow: inset 0 0 0 0.15rem #222222;
+}
+
+.c12[disabled] {
+  border: 0.15rem dashed #222222;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 .c27 {
-  display: none;
+  display: inline-block;
 }
 
 .c14 {
@@ -1008,172 +1092,6 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 
 .c25 {
   max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c25 p {
-  font-size: 1em;
-}
-
-.c25 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c25 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c25 h3 {
-  font-size: 1.17em;
-}
-
-.c25 h4 {
-  font-size: 1em;
-}
-
-.c25 h5 {
-  font-size: 0.9em;
-}
-
-.c25 h3,
-.c25 h4,
-.c25 h5,
-.c25 p,
-.c25 ol,
-.c25 ul,
-.c25 hr {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-
-.c25 h1 + p,
-.c25 h2 + p,
-.c25 h1 + ol,
-.c25 h2 + ol,
-.c25 h1 + ul,
-.c25 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c25 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c25 h3 + p,
-.c25 h4 + p,
-.c25 h5 + p,
-.c25 h3 + ol,
-.c25 h4 + ol,
-.c25 h5 + ol,
-.c25 h3 + ul,
-.c25 h4 + ul,
-.c25 h5 + ul {
-  margin-top: -1em;
-}
-
-.c25 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c25 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c25 dl {
-  margin: 1em 0;
-}
-
-.c25 hr {
-  border: 0;
-  border-top: 0.1em solid #666;
-}
-
-.c34 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c34 p {
-  font-size: 1em;
-}
-
-.c34 h1 {
-  margin: 2em 0 1em;
-  line-height: 1.1;
-  font-size: 1.5em;
-}
-
-.c34 h2 {
-  margin: 1.5em 0 0.75em;
-  font-size: 1.25em;
-}
-
-.c34 h3 {
-  font-size: 1.17em;
-}
-
-.c34 h4 {
-  font-size: 1em;
-}
-
-.c34 h5 {
-  font-size: 0.9em;
-}
-
-.c34 h3,
-.c34 h4,
-.c34 h5,
-.c34 p,
-.c34 ol,
-.c34 ul,
-.c34 hr {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.c34 h1 + p,
-.c34 h2 + p,
-.c34 h1 + ol,
-.c34 h2 + ol,
-.c34 h1 + ul,
-.c34 h2 + ul {
-  margin-top: -0.75em;
-}
-
-.c34 h1 + h2 {
-  margin-top: -0.75em;
-}
-
-.c34 h3 + p,
-.c34 h4 + p,
-.c34 h5 + p,
-.c34 h3 + ol,
-.c34 h4 + ol,
-.c34 h5 + ol,
-.c34 h3 + ul,
-.c34 h4 + ul,
-.c34 h5 + ul {
-  margin-top: 0;
-}
-
-.c34 > :not(.ignore-prose):first-child {
-  margin-top: 0;
-}
-
-.c34 > :not(.ignore-prose):last-child {
-  margin-bottom: 0;
-}
-
-.c34 dl {
-  margin: 1em 0;
-}
-
-.c34 hr {
-  border: 0;
-  border-top: 0.1em solid #666;
 }
 
 .c17 {
@@ -1181,7 +1099,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  border: 0.05rem solid currentColor;
+  border: 0.06rem solid currentColor;
   border-radius: 0.15em;
   box-sizing: border-box;
   display: -webkit-inline-box;
@@ -1203,7 +1121,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 }
 
 .c13 {
-  border: 0.05rem solid currentColor;
+  border: 0.06rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
   -ms-flex-pack: start;
@@ -1217,7 +1135,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
 }
 
 .c13:active {
-  border: 0.05rem solid #47a74b;
+  border: 0.06rem solid #00437d;
 }
 
 .c15 {
@@ -1418,7 +1336,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
   align-items: stretch;
-  border-top: 0.25rem solid #263238;
+  border-top: 0.25rem solid #222222;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -2212,11 +2130,11 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
               </svg>
             </div>
             <div
-              class="c34"
+              class="c25"
             >
               <h5
                 aria-label=" General Election."
-                class="c35"
+                class="c34"
               >
                  General Election
               </h5>
@@ -2229,14 +2147,14 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                   November 3, 2020
                   <br />
                   <span
-                    class="c36"
+                    class="c35"
                   >
                     Franklin County
                     ,
                   </span>
                    
                   <span
-                    class="c36"
+                    class="c35"
                   >
                     State of Hamilton
                   </span>
@@ -2246,13 +2164,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
                 class="c8"
               >
                 <span
-                  class="c36"
+                  class="c35"
                 >
                   Center Springfield
                   , 
                 </span>
                 <span
-                  class="c36"
+                  class="c35"
                 >
                   ballot style 
                   12

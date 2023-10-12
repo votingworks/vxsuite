@@ -7,10 +7,6 @@ const SvgContainer = styled.svg`
 `;
 
 function getForegroundColor(p: { theme: DefaultTheme }): string {
-  if (p.theme.colorMode === 'legacy') {
-    return '#456caa';
-  }
-
   return p.theme.colors.accentPrimary;
 }
 

@@ -78,20 +78,17 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c13 {
-  display: inline-block;
-  border: none;
-  border-radius: 0.25em;
-  box-sizing: border-box;
-  background: #fafafa;
-  padding: 0.75em 1em;
-  text-align: center;
-  line-height: 1.25;
-  color: #222222;
-  touch-action: manipulation;
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  background: #fafafa;
+  border: 0.15rem solid #222222;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  box-sizing: border-box;
+  color: #222222;
+  cursor: pointer;
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -113,25 +110,16 @@ exports[`Single Seat Contest 1`] = `
   letter-spacing: 0.01em;
   line-height: 1.15;
   padding: 0.5em 0.6em;
-  width: auto;
-  min-height: 70.86614173228345px;
-  vertical-align: middle;
-  background: #fafafa;
-  border: 0.15rem solid #222222;
-  border-radius: 0.25rem;
-  box-shadow: none;
-  color: #222222;
-  cursor: pointer;
+  text-align: center;
   text-shadow: none;
+  touch-action: manipulation;
   -webkit-transition: 100ms ease-in;
   transition: 100ms ease-in;
   -webkit-transition-property: background,border,box-shadow,color;
   transition-property: background,border,box-shadow,color;
-}
-
-.c13:hover,
-.c13:active {
-  outline: none;
+  width: auto;
+  min-height: 70.86614173228345px;
+  vertical-align: middle;
 }
 
 .c13:hover,

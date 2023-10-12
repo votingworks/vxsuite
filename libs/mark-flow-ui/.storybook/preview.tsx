@@ -12,30 +12,36 @@ import { AppBase, ThemeManagerContext } from '@votingworks/ui';
 // TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
 // the @storybook/types repo.
 interface ToolbarItem<T> {
-  value: T, title: string, left?: string
+  value: T;
+  title: string;
+  left?: string;
 }
 
 type ColorModeToolBarItem = ToolbarItem<ColorMode>;
 
 type SizeModeToolBarItem = ToolbarItem<SizeMode>;
 
-const DEFAULT_SIZE_MODE: SizeMode = "m";
+const DEFAULT_SIZE_MODE: SizeMode = 'm';
 const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
-  s: { title: 'Size Theme - S', value: 's'},
-  m: { title: 'Size Theme - M', value: 'm'},
-  l: { title: 'Size Theme - L', value: 'l'},
-  xl: { title: 'Size Theme - XL', value: 'xl'},
-  legacy: { title: 'Size Theme - Legacy', value: 'legacy'},
-}
+  s: { title: 'Size Theme - S', value: 's' },
+  m: { title: 'Size Theme - M', value: 'm' },
+  l: { title: 'Size Theme - L', value: 'l' },
+  xl: { title: 'Size Theme - XL', value: 'xl' },
+};
 
 const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';
 const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
-  contrastHighLight: { title: 'High Contrast - Light', value: 'contrastHighLight'},
-  contrastHighDark: { title: 'High Contrast - Dark', value: 'contrastHighDark'},
-  contrastMedium: { title: 'Medium Contrast', value: 'contrastMedium'},
-  contrastLow: { title: 'Low Contrast', value: 'contrastLow'},
-  legacy: { title: 'Legacy Colors', value: 'legacy'},
-}
+  contrastHighLight: {
+    title: 'High Contrast - Light',
+    value: 'contrastHighLight',
+  },
+  contrastHighDark: {
+    title: 'High Contrast - Dark',
+    value: 'contrastHighDark',
+  },
+  contrastMedium: { title: 'Medium Contrast', value: 'contrastMedium' },
+  contrastLow: { title: 'Low Contrast', value: 'contrastLow' },
+};
 
 /**
  * Defines global types that are passed through the story context to all stories
@@ -93,18 +99,20 @@ function StoryWrapper(props: {
   context: StoryContext;
 }): JSX.Element {
   const { children, context } = props;
+  const globals = context.globals as {
+    colorMode: ColorMode;
+    sizeMode: SizeMode;
+  };
 
-  const { setColorMode, setSizeMode } = React.useContext(
-    ThemeManagerContext
-  );
-
-  React.useEffect(() => {
-    setColorMode(context.globals.colorMode);
-  }, [context.globals.colorMode]);
+  const { setColorMode, setSizeMode } = React.useContext(ThemeManagerContext);
 
   React.useEffect(() => {
-    setSizeMode(context.globals.sizeMode);
-  }, [context.globals.sizeMode]);
+    setColorMode(globals.colorMode);
+  }, [globals.colorMode]);
+
+  React.useEffect(() => {
+    setSizeMode(globals.sizeMode);
+  }, [globals.sizeMode]);
 
   return <React.Fragment>{children}</React.Fragment>;
 }
@@ -117,10 +125,14 @@ export const decorators: DecoratorFunction[] = [
     Story: any, // Original type here isn't inferred as a React render function
     context
   ) => {
+    const globals = context.globals as {
+      colorMode: ColorMode;
+      sizeMode: SizeMode;
+    };
     return (
       <AppBase
-        defaultColorMode={context.globals.colorMode}
-        defaultSizeMode={context.globals.sizeMode}
+        defaultColorMode={globals.colorMode}
+        defaultSizeMode={globals.sizeMode}
         enableScroll
       >
         <StoryWrapper context={context}>

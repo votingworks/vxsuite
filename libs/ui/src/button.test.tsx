@@ -95,7 +95,6 @@ describe('renders Button', () => {
     verifyPrimaryButtonColor('contrastMedium');
     verifyPrimaryButtonColor('contrastHighDark');
     verifyPrimaryButtonColor('contrastHighLight');
-    verifyPrimaryButtonColor('legacy');
   });
 
   test('propagates click/tap events with specified event value', () => {
@@ -112,33 +111,15 @@ describe('renders Button', () => {
     expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
   });
 
-  test('legacy fullWidth button', () => {
+  test('variant danger', () => {
     render(
-      <Button onPress={jest.fn()} fullWidth>
-        Full Width Button
-      </Button>,
-      {
-        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
-      }
+      <Button onPress={jest.fn()} variant="danger">
+        I’m a dangerous button!
+      </Button>
     );
-    const button = screen.getButton('Full Width Button');
-    expect(button).toHaveStyleRule('width', '100%');
-  });
-
-  test('with options: big danger', () => {
-    render(
-      <Button onPress={jest.fn()} large variant="danger">
-        I’m a big button!
-      </Button>,
-      {
-        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
-      }
-    );
-    const button = screen.getButton('I’m a big button!');
-    expect(button).toHaveStyleRule('padding', '1em 1.75em');
-    expect(button).toHaveStyleRule('font-size', '1.25em');
-    expect(button).toHaveStyleRule('background', Color.LEGACY_ACCENT_DANGER);
-    expect(button).toHaveStyleRule('color', Color.WHITE);
+    const button = screen.getButton('I’m a dangerous button!');
+    expect(button).toHaveStyleRule('background', Color.DANGER_MEDIUM_CONTRAST);
+    expect(button).toHaveStyleRule('color', Color.OFF_WHITE);
   });
 
   test('disabled button', () => {
@@ -212,18 +193,10 @@ describe('renders Button', () => {
     expect(screen.getButton('Confirm')).toHaveFocus();
   });
 
-  test('as DecoyButton with options: small warning', () => {
-    render(
-      <DecoyButton small variant="warning">
-        DecoyButton
-      </DecoyButton>,
-      {
-        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
-      }
-    );
+  test('as DecoyButton with variant warning', () => {
+    render(<DecoyButton variant="warning">DecoyButton</DecoyButton>);
     const button = screen.getByText('DecoyButton');
-    expect(button).toHaveStyleRule('background', Color.LEGACY_ACCENT_WARNING);
-    expect(button).toHaveStyleRule('padding', '0.35em 0.5em');
+    expect(button).toHaveStyleRule('background', Color.GRAY_DARK);
   });
 
   test('and tests clicks and touches', () => {

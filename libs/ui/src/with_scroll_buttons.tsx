@@ -21,7 +21,6 @@ const SCROLL_BUTTON_SIZE_MODE_OVERRIDES: Readonly<Record<SizeMode, SizeMode>> =
     m: 'm',
     l: 'm',
     xl: 'm',
-    legacy: 'legacy',
   };
 
 const Container = styled.div`
