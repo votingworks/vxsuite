@@ -145,10 +145,10 @@ function getBorderColor(p: ThemedStyledButtonProps): Color | undefined {
 }
 
 const paddingStyles: Record<SizeMode, string | undefined> = {
-  s: '0.5em 0.6em',
-  m: '0.5em 0.6em',
-  l: '0.4em 0.5em',
-  xl: '0.3em 0.4em',
+  touchSmall: '0.5em 0.6em',
+  touchMedium: '0.5em 0.6em',
+  touchLarge: '0.4em 0.5em',
+  touchExtraLarge: '0.3em 0.4em',
 };
 
 function getPadding(p: StyledButtonProps & { theme: DefaultTheme }) {

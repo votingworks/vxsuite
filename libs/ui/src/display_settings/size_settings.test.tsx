@@ -7,7 +7,7 @@ import { H1 } from '../typography';
 
 test('renders with default size options', () => {
   render(<SizeSettings />, {
-    vxTheme: { colorMode: 'contrastLow', sizeMode: 'l' },
+    vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchLarge' },
   });
 
   screen.getByRole('radio', {
@@ -32,8 +32,8 @@ test('renders with default size options', () => {
 });
 
 test('renders with specified size options', () => {
-  render(<SizeSettings sizeModes={['m', 'l']} />, {
-    vxTheme: { colorMode: 'contrastLow', sizeMode: 'l' },
+  render(<SizeSettings sizeModes={['touchMedium', 'touchLarge']} />, {
+    vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchLarge' },
   });
 
   expect(screen.queryAllByRole('radio')).toHaveLength(2);
@@ -69,13 +69,13 @@ test('option selections trigger theme updates', () => {
   }
 
   render(<TestComponent />, {
-    vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'l' },
+    vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'touchLarge' },
   });
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     })
   );
 
@@ -84,7 +84,7 @@ test('option selections trigger theme updates', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 's',
+      sizeMode: 'touchSmall',
     })
   );
 });

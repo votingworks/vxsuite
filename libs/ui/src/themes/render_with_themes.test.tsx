@@ -35,13 +35,13 @@ test('renders theme-dependent component successfully', () => {
 test('renders with specified theme settings', () => {
   const lowContrastTheme = makeTheme({
     colorMode: 'contrastLow',
-    sizeMode: 'xl',
+    sizeMode: 'touchExtraLarge',
   });
 
   const { getByText } = renderWithThemes(<P color="warning">Warning text</P>, {
     vxTheme: {
       colorMode: 'contrastLow',
-      sizeMode: 'xl',
+      sizeMode: 'touchExtraLarge',
     },
   });
 

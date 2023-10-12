@@ -30,7 +30,7 @@ export function App({
     <BrowserRouter>
       <AppBase
         defaultColorMode="contrastMedium"
-        defaultSizeMode="s"
+        defaultSizeMode="touchSmall"
         screenType="lenovoThinkpad15"
       >
         <ErrorBoundary

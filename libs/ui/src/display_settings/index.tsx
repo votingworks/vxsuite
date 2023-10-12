@@ -14,7 +14,7 @@ export interface DisplaySettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
   colorModes?: ColorSettingsProps['colorModes'];
   onClose: () => void;
-  /** @default ['s', 'm', 'l', 'xl'] */
+  /** @default ['touchSmall', 'touchMedium', 'touchLarge', 'touchExtraLarge'] */
   sizeModes?: SizeSettingsProps['sizeModes'];
 }
 

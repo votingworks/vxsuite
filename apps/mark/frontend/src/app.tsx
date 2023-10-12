@@ -36,7 +36,7 @@ window.oncontextmenu = (e: MouseEvent): void => {
 
 const DEFAULT_COLOR_MODE: ColorMode = 'contrastMedium';
 const DEFAULT_SCREEN_TYPE: ScreenType = 'elo15';
-const DEFAULT_SIZE_MODE: SizeMode = 'm';
+const DEFAULT_SIZE_MODE: SizeMode = 'touchMedium';
 
 export interface Props {
   hardware?: AppRootProps['hardware'];

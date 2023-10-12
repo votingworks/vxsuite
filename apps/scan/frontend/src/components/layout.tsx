@@ -16,8 +16,8 @@ import { ScreenHeader } from './screen_header';
  * space, so we're hiding it in cases where a voter increases text size.
  */
 const ELECTION_BAR_HIDDEN_SIZE_MODES: ReadonlySet<SizeMode> = new Set([
-  'l',
-  'xl',
+  'touchLarge',
+  'touchExtraLarge',
 ]);
 
 export interface ScreenProps {

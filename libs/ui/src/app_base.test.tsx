@@ -25,7 +25,7 @@ test('renders with touchscreen-specific styles', () => {
     <AppBase
       isTouchscreen
       defaultColorMode="contrastMedium"
-      defaultSizeMode="s"
+      defaultSizeMode="touchSmall"
     >
       <div>foo</div>
     </AppBase>
@@ -40,7 +40,7 @@ test('renders with legacy font sizes', () => {
       legacyBaseFontSizePx={48}
       legacyPrintFontSizePx={18}
       defaultColorMode="contrastMedium"
-      defaultSizeMode="s"
+      defaultSizeMode="touchSmall"
     >
       <div>foo</div>
     </AppBase>
@@ -58,7 +58,10 @@ test('renders with legacy font sizes', () => {
 
 test('renders with selected themes', () => {
   const { container } = render(
-    <AppBase defaultColorMode="contrastHighDark" defaultSizeMode="xl">
+    <AppBase
+      defaultColorMode="contrastHighDark"
+      defaultSizeMode="touchExtraLarge"
+    >
       <div>foo</div>
     </AppBase>
   );
@@ -67,7 +70,7 @@ test('renders with selected themes', () => {
 
   const expectedTheme = makeTheme({
     colorMode: 'contrastHighDark',
-    sizeMode: 'xl',
+    sizeMode: 'touchExtraLarge',
   });
 
   const htmlNode = document.body.parentElement;
@@ -89,7 +92,11 @@ test('renders with selected themes', () => {
 
 test('renders with enableScroll', () => {
   const { container } = render(
-    <AppBase enableScroll defaultColorMode="contrastMedium" defaultSizeMode="s">
+    <AppBase
+      enableScroll
+      defaultColorMode="contrastMedium"
+      defaultSizeMode="touchSmall"
+    >
       <div>foo</div>
     </AppBase>
   );
@@ -121,7 +128,7 @@ test('implements ThemeManagerContext interface', () => {
   }
 
   render(
-    <AppBase defaultColorMode="contrastLow" defaultSizeMode="l">
+    <AppBase defaultColorMode="contrastLow" defaultSizeMode="touchLarge">
       <TestComponent />
     </AppBase>
   );
@@ -129,7 +136,7 @@ test('implements ThemeManagerContext interface', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastLow',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     })
   );
 
@@ -138,16 +145,16 @@ test('implements ThemeManagerContext interface', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     })
   );
 
-  act(() => manager?.setSizeMode('s'));
+  act(() => manager?.setSizeMode('touchSmall'));
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 's',
+      sizeMode: 'touchSmall',
     })
   );
 
@@ -156,7 +163,7 @@ test('implements ThemeManagerContext interface', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastLow',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     })
   );
 });

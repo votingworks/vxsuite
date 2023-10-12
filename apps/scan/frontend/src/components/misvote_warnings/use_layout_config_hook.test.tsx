@@ -24,17 +24,21 @@ test('varies according to size mode', () => {
     partiallyVotedContests: generateContests(3),
   };
 
-  render(<TestComponent {...props} />, { vxTheme: { sizeMode: 'xl' } });
+  render(<TestComponent {...props} />, {
+    vxTheme: { sizeMode: 'touchExtraLarge' },
+  });
   const layoutXl = hookResult;
 
-  render(<TestComponent {...props} />, { vxTheme: { sizeMode: 'm' } });
+  render(<TestComponent {...props} />, {
+    vxTheme: { sizeMode: 'touchMedium' },
+  });
   const layoutM = hookResult;
 
   expect(layoutXl).not.toEqual(layoutM);
 });
 
 test('sets numCardsPerRow appropriately', () => {
-  const sizeMode: SizeMode = 'm';
+  const sizeMode: SizeMode = 'touchMedium';
   const config = CONFIG[sizeMode];
 
   const { rerender } = render(
@@ -66,7 +70,7 @@ test('sets numCardsPerRow appropriately', () => {
 });
 
 test('sets maxColumnsPerCard appropriately', () => {
-  const sizeMode: SizeMode = 's';
+  const sizeMode: SizeMode = 'touchSmall';
   const config = CONFIG[sizeMode];
 
   // Should be `1` if there are multiple warning cards:
@@ -100,7 +104,7 @@ test('sets maxColumnsPerCard appropriately', () => {
 });
 
 test('sets showSummaryInPreview appropriately', () => {
-  const sizeMode: SizeMode = 'm';
+  const sizeMode: SizeMode = 'touchMedium';
   const config = CONFIG[sizeMode];
 
   // Make sure if the config gets changed, we know to update these test

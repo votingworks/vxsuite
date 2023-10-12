@@ -9,7 +9,11 @@ export type ColorMode =
   | 'contrastLow';
 
 /** Options for supported UI sizing themes. */
-export type SizeMode = 's' | 'm' | 'l' | 'xl';
+export type SizeMode =
+  | 'touchSmall'
+  | 'touchMedium'
+  | 'touchLarge'
+  | 'touchExtraLarge';
 
 /** VX CSS color definitions. */
 export enum Color {

@@ -10,22 +10,22 @@ import { MisvoteWarningsConfig } from './types';
  * Can be tweaked as needed, as the product evolves.
  */
 export const CONFIG: Readonly<Record<SizeMode, MisvoteWarningsConfig>> = {
-  s: {
+  touchSmall: {
     maxCardsPerRow: 3,
     maxColumnsPerCard: 3,
     maxPreviewContestRows: 8,
   },
-  m: {
+  touchMedium: {
     maxCardsPerRow: 2,
     maxColumnsPerCard: 2,
     maxPreviewContestRows: 4,
   },
-  l: {
+  touchLarge: {
     maxCardsPerRow: 1,
     maxColumnsPerCard: 2,
     maxPreviewContestRows: 3,
   },
-  xl: {
+  touchExtraLarge: {
     maxCardsPerRow: 1,
     maxColumnsPerCard: 1,
     maxPreviewContestRows: 2,

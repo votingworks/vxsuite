@@ -8,17 +8,22 @@ import { ThemeLabel } from './theme_label';
 import { useScreenInfo } from '../hooks/use_screen_info';
 
 export interface SizeSettingsProps {
-  /** @default ['s', 'm', 'l', 'xl'] */
+  /** @default ['touchSmall', 'touchMedium', 'touchLarge', 'touchExtraLarge'] */
   sizeModes?: SizeMode[];
 }
 
-const DEFAULT_SIZE_MODES: SizeMode[] = ['s', 'm', 'l', 'xl'];
+const DEFAULT_SIZE_MODES: SizeMode[] = [
+  'touchSmall',
+  'touchMedium',
+  'touchLarge',
+  'touchExtraLarge',
+];
 
 const ORDERED_SIZE_MODE_LABELS: Record<SizeMode, string> = {
-  s: 'Small',
-  m: 'Medium',
-  l: 'Large',
-  xl: 'Extra-Large',
+  touchSmall: 'Small',
+  touchMedium: 'Medium',
+  touchLarge: 'Large',
+  touchExtraLarge: 'Extra-Large',
 };
 
 export function SizeSettings(props: SizeSettingsProps): JSX.Element {

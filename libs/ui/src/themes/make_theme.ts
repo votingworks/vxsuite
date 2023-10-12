@@ -16,10 +16,10 @@ const VVSG_CAPITAL_LETTER_HEIGHTS_MM: Record<
   SizeMode,
   { max: number; min: number }
 > = {
-  s: { max: 4.2, min: 3.5 },
-  m: { max: 5.6, min: 4.8 },
-  l: { max: 7.1, min: 6.4 },
-  xl: { max: 9.0, min: 8.5 },
+  touchSmall: { max: 4.2, min: 3.5 },
+  touchMedium: { max: 5.6, min: 4.8 },
+  touchLarge: { max: 7.1, min: 6.4 },
+  touchExtraLarge: { max: 9.0, min: 8.5 },
 };
 
 /**
@@ -135,7 +135,7 @@ const VVSG_MIN_TOUCH_AREA_SIZE_MM = 12.7;
 const VVSG_MIN_TOUCH_AREA_SEPARATION_MM = 2.54;
 
 const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
-  s: (p) => ({
+  touchSmall: (p) => ({
     bordersRem: {
       hairline: 0.06,
       thin: 0.1,
@@ -165,7 +165,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     ),
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
-  m: (p) => ({
+  touchMedium: (p) => ({
     bordersRem: {
       hairline: 0.055,
       thin: 0.1,
@@ -195,7 +195,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     ),
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
-  l: (p) => ({
+  touchLarge: (p) => ({
     bordersRem: {
       hairline: 0.05,
       thin: 0.1,
@@ -225,7 +225,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     ),
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
-  xl: (p) => ({
+  touchExtraLarge: (p) => ({
     bordersRem: {
       hairline: 0.05,
       thin: 0.075,
@@ -263,7 +263,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
 export function makeTheme({
   colorMode = 'contrastMedium',
   screenType = 'builtIn',
-  sizeMode = 's',
+  sizeMode = 'touchSmall',
 }: {
   colorMode?: ColorMode;
   screenType?: ScreenType;

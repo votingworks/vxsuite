@@ -49,7 +49,7 @@ describe('renders Prose', () => {
         {proseContent}
       </Prose>,
       {
-        vxTheme: { colorMode: 'contrastLow', sizeMode: 'm' },
+        vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchMedium' },
       }
     );
     expect(container.firstChild).toMatchSnapshot();

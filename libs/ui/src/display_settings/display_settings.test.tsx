@@ -38,13 +38,13 @@ test('resets button resets global theme', () => {
   }
 
   render(<TestComponent />, {
-    vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'l' },
+    vxTheme: { colorMode: 'contrastHighDark', sizeMode: 'touchLarge' },
   });
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     })
   );
 
@@ -57,7 +57,7 @@ test('resets button resets global theme', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastLow',
-      sizeMode: 's',
+      sizeMode: 'touchSmall',
     })
   );
 
@@ -66,7 +66,7 @@ test('resets button resets global theme', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
       colorMode: 'contrastHighDark',
-      sizeMode: 'l',
+      sizeMode: 'touchLarge',
     })
   );
 });

@@ -17,10 +17,10 @@ const SCROLL_DISTANCE_TO_CONTENT_HEIGHT_RATIO = 0.75;
 
 const SCROLL_BUTTON_SIZE_MODE_OVERRIDES: Readonly<Record<SizeMode, SizeMode>> =
   {
-    s: 's',
-    m: 'm',
-    l: 'm',
-    xl: 'm',
+    touchSmall: 'touchSmall',
+    touchMedium: 'touchMedium',
+    touchLarge: 'touchMedium',
+    touchExtraLarge: 'touchMedium',
   };
 
 const Container = styled.div`
