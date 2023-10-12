@@ -8,7 +8,6 @@ import {
   CVR,
   getBallotStyle,
   getContests,
-  InterpretedHmpbPage,
   unsafeParse,
 } from '@votingworks/types';
 import {
@@ -17,6 +16,7 @@ import {
   fishingContest,
   interpretedBmdPage,
   interpretedHmpbPage1,
+  interpretedHmpbPage1WithWriteIn,
   interpretedHmpbPage2,
 } from '../../test/fixtures/interpretations';
 import {
@@ -685,15 +685,6 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
 });
 
 test('buildCastVoteRecord - HMPB ballot with write-in', () => {
-  const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
-    ...interpretedHmpbPage1,
-    votes: {
-      [fishCouncilContest.id]: [
-        { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
-      ],
-    },
-  };
-
   const castVoteRecord = buildCastVoteRecord({
     election,
     electionId,

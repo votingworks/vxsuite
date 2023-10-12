@@ -120,7 +120,6 @@ export async function getCastVoteRecordExportDirectoryPaths(
   const usbDriveStatus = await usbDrive.status();
   const usbMountPoint =
     usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
-
   assert(usbMountPoint !== undefined);
 
   const resultsDirectoryPath = path.join(usbMountPoint, SCANNER_RESULTS_FOLDER);
