@@ -6,11 +6,10 @@ export type ColorMode =
   | 'contrastHighDark'
   | 'contrastHighLight'
   | 'contrastMedium'
-  | 'contrastLow'
-  | 'legacy';
+  | 'contrastLow';
 
 /** Options for supported UI sizing themes. */
-export type SizeMode = 's' | 'm' | 'l' | 'xl' | 'legacy';
+export type SizeMode = 's' | 'm' | 'l' | 'xl';
 
 /** VX CSS color definitions. */
 export enum Color {

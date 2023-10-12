@@ -24,9 +24,7 @@ const StyledContainer = styled.span`
 
 const StyledValue = styled(H1)`
   display: inline-block;
-
-  /* TODO: Remove once VxScan is updated to default to the new VVSG size theme: */
-  font-size: ${(p) => (p.theme.sizeMode === 'legacy' ? '72px' : undefined)};
+  font-size: 72px;
   line-height: 1;
   margin: 0;
 `;

@@ -72,12 +72,7 @@ const StyledFont = styled.span<FontProps>`
 const StyledCaption = styled.span<FontProps>`
   ${fontStyles}
 
-  /*
-   * Legacy styling wraps text elements with a <Prose> component on which a base
-   * font size is set, so we preserve that behaviour by using em instead of rem
-   * when using the "legacy" size theme.
-   */
-  font-size: ${(p) => (p.theme.sizeMode === 'legacy' ? '0.75em' : '0.75rem')};
+  font-size: 0.75rem;
 `;
 
 const StyledP = styled.p<FontProps>`

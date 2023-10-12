@@ -15,14 +15,3 @@ test('renders label and formatted value', () => {
     'Ballots Scanned: 4,096'
   );
 });
-
-// To satisfy coverage requirements:
-test('renders in both "legacy" and VVSG size modes', () => {
-  render(<BigMetric label="Number of Machines" value={2} />, {
-    vxTheme: { sizeMode: 'legacy' },
-  });
-
-  render(<BigMetric label="Number of Machines" value={2} />, {
-    vxTheme: { sizeMode: 'm' },
-  });
-});

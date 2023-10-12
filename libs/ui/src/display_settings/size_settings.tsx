@@ -19,7 +19,6 @@ const ORDERED_SIZE_MODE_LABELS: Record<SizeMode, string> = {
   m: 'Medium',
   l: 'Large',
   xl: 'Extra-Large',
-  legacy: 'DEV ONLY: Pre-VVSG Styling',
 };
 
 export function SizeSettings(props: SizeSettingsProps): JSX.Element {

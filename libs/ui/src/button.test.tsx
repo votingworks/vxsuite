@@ -95,7 +95,6 @@ describe('renders Button', () => {
     verifyPrimaryButtonColor('contrastMedium');
     verifyPrimaryButtonColor('contrastHighDark');
     verifyPrimaryButtonColor('contrastHighLight');
-    verifyPrimaryButtonColor('legacy');
   });
 
   test('propagates click/tap events with specified event value', () => {
@@ -116,10 +115,7 @@ describe('renders Button', () => {
     render(
       <Button onPress={jest.fn()} fullWidth>
         Full Width Button
-      </Button>,
-      {
-        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
-      }
+      </Button>
     );
     const button = screen.getButton('Full Width Button');
     expect(button).toHaveStyleRule('width', '100%');
@@ -129,10 +125,7 @@ describe('renders Button', () => {
     render(
       <Button onPress={jest.fn()} large variant="danger">
         I’m a big button!
-      </Button>,
-      {
-        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
-      }
+      </Button>
     );
     const button = screen.getButton('I’m a big button!');
     expect(button).toHaveStyleRule('padding', '1em 1.75em');
@@ -216,10 +209,7 @@ describe('renders Button', () => {
     render(
       <DecoyButton small variant="warning">
         DecoyButton
-      </DecoyButton>,
-      {
-        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
-      }
+      </DecoyButton>
     );
     const button = screen.getByText('DecoyButton');
     expect(button).toHaveStyleRule('background', Color.LEGACY_ACCENT_WARNING);

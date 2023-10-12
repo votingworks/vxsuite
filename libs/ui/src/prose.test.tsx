@@ -39,9 +39,7 @@ const proseContent = (
 );
 describe('renders Prose', () => {
   test('with defaults', () => {
-    const { container } = render(<Prose>{proseContent}</Prose>, {
-      vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
-    });
+    const { container } = render(<Prose>{proseContent}</Prose>);
     expect(container.firstChild).toMatchSnapshot();
   });
 
@@ -59,23 +57,6 @@ describe('renders Prose', () => {
 
   test('with right-aligned text', () => {
     const { container } = render(<Prose textRight>{proseContent}</Prose>);
-    expect(container.firstChild).toMatchSnapshot();
-  });
-
-  test('with theme', () => {
-    const { container } = render(
-      <Prose
-        themeDeprecated={{
-          fontSize: '10px',
-          color: '#666666',
-        }}
-      >
-        {proseContent}
-      </Prose>,
-      {
-        vxTheme: { colorMode: 'legacy', sizeMode: 'legacy' },
-      }
-    );
     expect(container.firstChild).toMatchSnapshot();
   });
 });

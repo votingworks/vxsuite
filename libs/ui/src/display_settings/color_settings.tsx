@@ -24,7 +24,6 @@ const ORDERED_COLOR_MODE_LABELS: Record<ColorMode, string> = {
   contrastLow: 'Gray text, dark background',
   contrastMedium: 'Dark text, light background',
   contrastHighLight: 'Black text, white background',
-  legacy: 'DEV ONLY: Pre-VVSG styling',
 };
 
 export function ColorSettings(props: ColorSettingsProps): JSX.Element {

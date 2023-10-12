@@ -19,13 +19,11 @@ declare module 'styled-components' {
 
 /**
  * Props for {@link AppBase}.
- *
- * TODO: Make colorMode and sizeMode required once themes are ready.
  */
 export interface AppBaseProps {
   children: React.ReactNode;
-  defaultColorMode?: ColorMode;
-  defaultSizeMode?: SizeMode;
+  defaultColorMode: ColorMode;
+  defaultSizeMode: SizeMode;
   disableFontsForTests?: boolean;
   enableScroll?: boolean;
   isTouchscreen?: boolean;
@@ -40,8 +38,8 @@ export interface AppBaseProps {
 export function AppBase(props: AppBaseProps): JSX.Element {
   const {
     children,
-    defaultColorMode = 'legacy',
-    defaultSizeMode = 'legacy',
+    defaultColorMode,
+    defaultSizeMode,
     disableFontsForTests,
     enableScroll = false,
     isTouchscreen = false,

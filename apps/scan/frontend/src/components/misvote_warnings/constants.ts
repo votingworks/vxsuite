@@ -30,9 +30,4 @@ export const CONFIG: Readonly<Record<SizeMode, MisvoteWarningsConfig>> = {
     maxColumnsPerCard: 1,
     maxPreviewContestRows: 2,
   },
-  legacy: {
-    maxCardsPerRow: 3,
-    maxColumnsPerCard: 3,
-    maxPreviewContestRows: 8,
-  },
 };
