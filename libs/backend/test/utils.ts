@@ -15,6 +15,10 @@ import {
 } from '@votingworks/types';
 
 import { ScannerStore } from '../src/cast_vote_records/export';
+import {
+  FileSystemEntryType,
+  listDirectoryRecursive,
+} from '../src/list_directory';
 
 class MockScannerStore implements ScannerStore {
   private ballotsCounted: number;
@@ -140,4 +144,30 @@ export class MockPrecinctScannerStore extends MockScannerStore {
   setPollsState(pollsState: PollsState): void {
     this.pollsState = pollsState;
   }
+}
+
+/**
+ * Summarizes the contents of a directory, e.g.
+ * ```
+ * summarizeDirectoryContents('/path/to/directory') => [
+ *   'file-1.txt'
+ *   'sub-directory-1/file-2.txt',
+ *   'sub-directory-1/file-3.txt',
+ *   'sub-directory-1/sub-directory-2/file-4.txt,
+ * ]
+ * ```
+ */
+export async function summarizeDirectoryContents(
+  directoryPath: string
+): Promise<string[]> {
+  const filePathsRelativeToDirectoryPath: string[] = [];
+  for await (const entryResult of listDirectoryRecursive(directoryPath)) {
+    const entry = entryResult.unsafeUnwrap();
+    if (entry.type === FileSystemEntryType.File) {
+      filePathsRelativeToDirectoryPath.push(
+        entry.path.replace(`${directoryPath}/`, '')
+      );
+    }
+  }
+  return [...filePathsRelativeToDirectoryPath].sort();
 }
