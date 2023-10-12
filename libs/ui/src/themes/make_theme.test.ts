@@ -2,13 +2,13 @@ import { Color, ColorMode, SizeMode } from '@votingworks/types';
 
 import { makeTheme } from './make_theme';
 
-test('defaults to "legacy" modes', () => {
+test('defaults', () => {
   const theme = makeTheme({});
 
-  expect<ColorMode>(theme.colorMode).toEqual('legacy');
-  expect<SizeMode>(theme.sizeMode).toEqual('legacy');
-  expect<Color>(theme.colors.background).toEqual(Color.LEGACY_BACKGROUND);
-  expect<Color>(theme.colors.foreground).toEqual(Color.LEGACY_FOREGROUND);
+  expect<ColorMode>(theme.colorMode).toEqual('contrastMedium');
+  expect<SizeMode>(theme.sizeMode).toEqual('s');
+  expect<Color>(theme.colors.background).toEqual(Color.OFF_WHITE);
+  expect<Color>(theme.colors.foreground).toEqual(Color.OFF_BLACK);
 });
 
 test('varies theme based on selected modes', () => {

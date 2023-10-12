@@ -130,7 +130,7 @@ describe('renders Button', () => {
     const button = screen.getButton('I’m a big button!');
     expect(button).toHaveStyleRule('padding', '1em 1.75em');
     expect(button).toHaveStyleRule('font-size', '1.25em');
-    expect(button).toHaveStyleRule('background', Color.LEGACY_ACCENT_DANGER);
+    expect(button).toHaveStyleRule('background', Color.DANGER_MEDIUM_CONTRAST);
     expect(button).toHaveStyleRule('color', Color.WHITE);
   });
 
@@ -212,7 +212,7 @@ describe('renders Button', () => {
       </DecoyButton>
     );
     const button = screen.getByText('DecoyButton');
-    expect(button).toHaveStyleRule('background', Color.LEGACY_ACCENT_WARNING);
+    expect(button).toHaveStyleRule('background', Color.WARNING_MEDIUM_CONTRAST);
     expect(button).toHaveStyleRule('padding', '0.35em 0.5em');
   });
 
