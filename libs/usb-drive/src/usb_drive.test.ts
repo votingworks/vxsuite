@@ -15,8 +15,8 @@ import {
 import { exec } from './exec';
 import { UsbDrive, UsbDriveStatus } from './types';
 import {
-  DEFAULT_MOCK_USB_DIR,
-  MOCK_USB_STATE_FILENAME,
+  DEFAULT_MOCK_USB_DRIVE_DIR,
+  MOCK_USB_DRIVE_STATE_FILENAME,
 } from './mocks/file_usb_drive';
 
 const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
@@ -579,7 +579,10 @@ test('uses mock file usb drive if environment variable is set', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
-  const stateFilePath = join(DEFAULT_MOCK_USB_DIR, MOCK_USB_STATE_FILENAME);
+  const stateFilePath = join(
+    DEFAULT_MOCK_USB_DRIVE_DIR,
+    MOCK_USB_DRIVE_STATE_FILENAME
+  );
 
   // Ensure we start with no mock state file
   if (existsSync(stateFilePath)) {

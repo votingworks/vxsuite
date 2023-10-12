@@ -1,5 +1,5 @@
 import { unsafeParse } from '@votingworks/types';
-import { DEV_MOCK_USB_GLOB_PATTERN } from '@votingworks/usb-drive';
+import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
 import { z } from 'zod';
 
 const NodeEnvSchema = z.union([
@@ -27,7 +27,7 @@ const DEFAULT_ALLOWED_EXPORT_PATTERNS =
   NODE_ENV === 'production'
     ? [REAL_USB_DRIVE_GLOB_PATTERN]
     : NODE_ENV === 'development'
-    ? [REAL_USB_DRIVE_GLOB_PATTERN, DEV_MOCK_USB_GLOB_PATTERN]
+    ? [REAL_USB_DRIVE_GLOB_PATTERN, DEV_MOCK_USB_DRIVE_GLOB_PATTERN]
     : ['/tmp/**/*']; // Where mock USB drives are created within tests
 
 /**

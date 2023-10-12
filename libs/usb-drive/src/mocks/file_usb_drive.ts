@@ -5,18 +5,21 @@ import { join } from 'path';
 import { MockFileTree, writeMockFileTree } from './helpers';
 import { UsbDrive, UsbDriveStatus } from '../types';
 
-export const MOCK_USB_STATE_FILENAME = 'mock-usb-state.json';
-export const MOCK_USB_DATA_DIRNAME = 'mock-usb-data';
-export const DEFAULT_MOCK_USB_DIR = '/tmp/mock-usb';
-export const DEV_MOCK_USB_DIR = join(__dirname, '../../dev-workspace');
-export const DEV_MOCK_USB_GLOB_PATTERN = join(DEV_MOCK_USB_DIR, '**/*');
+export const MOCK_USB_DRIVE_STATE_FILENAME = 'mock-usb-state.json';
+export const MOCK_USB_DRIVE_DATA_DIRNAME = 'mock-usb-data';
+export const DEFAULT_MOCK_USB_DRIVE_DIR = '/tmp/mock-usb';
+export const DEV_MOCK_USB_DRIVE_DIR = join(__dirname, '../../dev-workspace');
+export const DEV_MOCK_USB_DRIVE_GLOB_PATTERN = join(
+  DEV_MOCK_USB_DRIVE_DIR,
+  '**/*'
+);
 
 function getMockUsbDirPath(): string {
   if (process.env.NODE_ENV === 'development') {
-    return DEV_MOCK_USB_DIR;
+    return DEV_MOCK_USB_DRIVE_DIR;
   }
 
-  return DEFAULT_MOCK_USB_DIR;
+  return DEFAULT_MOCK_USB_DRIVE_DIR;
 }
 
 interface MockStateFileContents {
@@ -24,11 +27,11 @@ interface MockStateFileContents {
 }
 
 function getMockUsbStateFilePath(): string {
-  return join(getMockUsbDirPath(), MOCK_USB_STATE_FILENAME);
+  return join(getMockUsbDirPath(), MOCK_USB_DRIVE_STATE_FILENAME);
 }
 
 function getMockUsbDataDirPath(): string {
-  return join(getMockUsbDirPath(), MOCK_USB_DATA_DIRNAME);
+  return join(getMockUsbDirPath(), MOCK_USB_DRIVE_DATA_DIRNAME);
 }
 
 /**

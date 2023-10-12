@@ -1,5 +1,5 @@
 import { unsafeParse } from '@votingworks/types';
-import { DEV_MOCK_USB_GLOB_PATTERN } from '@votingworks/usb-drive';
+import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
 import { join } from 'path';
 import { z } from 'zod';
 
@@ -43,7 +43,7 @@ const DEFAULT_ALLOWED_EXPORT_PATTERNS =
     : NODE_ENV === 'development'
     ? [
         REAL_USB_DRIVE_GLOB_PATTERN,
-        DEV_MOCK_USB_GLOB_PATTERN,
+        DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
         '/tmp/**/*', // Where data is first written for signature file creation
       ]
     : ['/tmp/**/*']; // Where mock USB drives are created within tests
