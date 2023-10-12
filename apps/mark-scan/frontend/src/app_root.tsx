@@ -617,11 +617,7 @@ export function AppRoot({
   }
   if (isElectionManagerAuth(authStatus)) {
     if (!optionalElectionDefinition) {
-      return (
-        <UnconfiguredElectionScreenWrapper
-          updateElectionDefinition={updateElectionDefinition}
-        />
-      );
+      return <UnconfiguredElectionScreenWrapper />;
     }
 
     // We prevent mismatch in {ballot package, auth} election hash at configuration time,

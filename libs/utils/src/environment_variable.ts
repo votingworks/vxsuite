@@ -26,6 +26,9 @@ export enum BooleanEnvironmentVariableName {
   // Use mock cards instead of a real card reader. Meant for development and integration tests.
   // Real smart cards will not work when this flag is enabled.
   USE_MOCK_CARDS = 'REACT_APP_VX_USE_MOCK_CARDS',
+  // Use a mock USB drive instead of real USB drives. Meant for development and integration tests.
+  // Real USBs will not work when this flag is enabled.
+  USE_MOCK_USB_DRIVE = 'REACT_APP_VX_USE_MOCK_USB_DRIVE',
   // Skips election hash checks when importing CVRs to allow using old fixtures
   // in development even as their respective election definitions change.
   SKIP_CVR_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_CVR_ELECTION_HASH_CHECK',
@@ -93,6 +96,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_PIN_ENTRY;
     case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
       return process.env.REACT_APP_VX_USE_MOCK_CARDS;
+    case BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE:
+      return process.env.REACT_APP_VX_USE_MOCK_USB_DRIVE;
     case BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK:
       return process.env.REACT_APP_VX_SKIP_CVR_ELECTION_HASH_CHECK;
     case BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK:
@@ -174,6 +179,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.USE_MOCK_CARDS:
+      return {
+        name,
+        allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE:
       return {
         name,
         allowInProduction: false,

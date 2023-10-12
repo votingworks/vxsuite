@@ -181,10 +181,6 @@
       "path": "libs/usb-drive"
     },
     {
-      "name": "libs/usb-mocking",
-      "path": "libs/usb-mocking"
-    },
-    {
       "name": "libs/utils",
       "path": "libs/utils"
     },

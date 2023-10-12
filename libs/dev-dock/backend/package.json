@@ -35,6 +35,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*"
   },
   "devDependencies": {

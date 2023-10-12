@@ -2,10 +2,16 @@ import { Colors } from './colors';
 
 export function UsbDriveIcon({
   isInserted,
+  disabled,
 }: {
   isInserted: boolean;
+  disabled: boolean;
 }): JSX.Element {
-  const stroke = isInserted ? Colors.ACTIVE : Colors.TEXT;
+  const stroke = disabled
+    ? Colors.DISABLED
+    : isInserted
+    ? Colors.ACTIVE
+    : Colors.TEXT;
   const fill = 'none'; // Not using fill currently
   return (
     <svg

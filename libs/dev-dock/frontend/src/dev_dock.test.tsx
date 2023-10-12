@@ -66,6 +66,9 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_CARDS
   );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
+  );
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 });
@@ -225,6 +228,7 @@ test('USB drive controls', async () => {
   const usbDriveControl = screen.getByRole('button', {
     name: 'USB Drive',
   });
+  await waitFor(() => expect(usbDriveControl).toBeEnabled());
 
   mockApiClient.insertUsbDrive.expectCallWith().resolves();
   mockApiClient.getUsbDriveStatus.expectCallWith().resolves('inserted');
@@ -245,6 +249,27 @@ test('USB drive controls', async () => {
   mockApiClient.getUsbDriveStatus.expectCallWith().resolves('removed');
   userEvent.click(clearUsbDriveButton);
   await waitFor(() => mockApiClient.assertComplete());
+});
+
+test('disabled USB drive controls if USB drive mocks are disabled', async () => {
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
+  );
+  render(<DevDock apiClient={mockApiClient} />);
+
+  screen.getByText('USB mock disabled');
+  const usbDriveControl = screen.getByRole('button', {
+    name: 'USB Drive',
+  });
+  const clearUsbDriveButton = screen.getByRole('button', {
+    name: 'Clear',
+  });
+  // Since the controls are disabled until the USB drive status loads, we need to
+  // wait for the API call to complete before checking that the controls are
+  // still disabled.
+  await waitFor(() => mockApiClient.assertComplete());
+  expect(usbDriveControl).toBeDisabled();
+  expect(clearUsbDriveButton).toBeDisabled();
 });
 
 test('screenshot button', async () => {

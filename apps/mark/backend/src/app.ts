@@ -20,7 +20,7 @@ import {
   readBallotPackageFromUsb,
   configureUiStrings,
 } from '@votingworks/backend';
-import { Logger, LoggingUserRole } from '@votingworks/logging';
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
@@ -146,6 +146,10 @@ export function buildApi(
           logger,
           store: workspace.store.getUiStringsStore(),
         });
+      });
+
+      await logger.log(LogEventId.BallotPackageLoadedFromUsb, 'system', {
+        disposition: 'success',
       });
 
       return ok(electionDefinition);

@@ -145,9 +145,7 @@ test('election setting', async () => {
   });
 });
 
-// Note: This test overwrites the global mock USB state.
-// The USB mocks don't seem to work on CI, so we skip this test there.
-(process.env['CI'] ? test.skip : test)('usb drive mock endpoints', async () => {
+test('usb drive mock endpoints', async () => {
   const { apiClient } = setup();
   await apiClient.removeUsbDrive(); // Reset USB state to removed to start in case it's not already
 

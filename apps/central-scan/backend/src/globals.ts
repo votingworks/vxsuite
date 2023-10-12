@@ -35,9 +35,3 @@ export const SCAN_WORKSPACE =
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
-
-/**
- * Where are exported files allowed to be written to?
- */
-export const SCAN_ALLOWED_EXPORT_PATTERNS =
-  process.env.SCAN_ALLOWED_EXPORT_PATTERNS?.split(',') ?? ['/media/**/*'];

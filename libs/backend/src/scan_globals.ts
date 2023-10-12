@@ -1,4 +1,5 @@
 import { unsafeParse } from '@votingworks/types';
+import { DEV_MOCK_USB_DRIVE_GLOB_PATTERN } from '@votingworks/usb-drive';
 import { z } from 'zod';
 
 const NodeEnvSchema = z.union([
@@ -20,22 +21,18 @@ export const NODE_ENV = unsafeParse(
   process.env.NODE_ENV ?? 'development'
 );
 
-/**
- * Where are exported files allowed to be written to by default?
- */
-const defaultAllowedExportPatterns =
-  NODE_ENV === 'test'
-    ? [
-        '/tmp/**/*', // Mock USB drive location
-      ]
-    : [
-        '/media/**/*', // Real USB drive location
-        '/tmp/**/*', // Where data is sometimes first written for signature file creation
-      ];
+const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
+
+const DEFAULT_ALLOWED_EXPORT_PATTERNS =
+  NODE_ENV === 'production'
+    ? [REAL_USB_DRIVE_GLOB_PATTERN]
+    : NODE_ENV === 'development'
+    ? [REAL_USB_DRIVE_GLOB_PATTERN, DEV_MOCK_USB_DRIVE_GLOB_PATTERN]
+    : ['/tmp/**/*']; // Where mock USB drives are created within tests
 
 /**
  * Where are exported files allowed to be written to?
  */
 export const SCAN_ALLOWED_EXPORT_PATTERNS =
   process.env.SCAN_ALLOWED_EXPORT_PATTERNS?.split(',') ??
-  defaultAllowedExportPatterns;
+  DEFAULT_ALLOWED_EXPORT_PATTERNS;

@@ -4,38 +4,27 @@ import {
   Screen,
   useQueryChangeListener,
 } from '@votingworks/ui';
-import { ElectionDefinition } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { configureBallotPackageFromUsb, getUsbDriveStatus } from '../api';
-
-interface Props {
-  updateElectionDefinition: (electionDefinition: ElectionDefinition) => void;
-}
 
 /**
  * UnconfiguredElectionScreenWrapper wraps the shared UnconfiguredElectionScreen component
  * with VxMark-specific logic (primarily calls to the VxMark backend)
  */
-export function UnconfiguredElectionScreenWrapper(props: Props): JSX.Element {
-  const { updateElectionDefinition } = props;
+export function UnconfiguredElectionScreenWrapper(): JSX.Element {
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   // USB drive status is guaranteed to exist because app root will not render
   // this component until the USB drive query succeeds.
   assert(usbDriveStatusQuery.isSuccess);
-  const configureMutation = configureBallotPackageFromUsb.useMutation();
+  const configure = configureBallotPackageFromUsb.useMutation();
 
   useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
     if (newUsbDriveStatus.status === 'mounted') {
-      // Errors are passed to and handled by UnconfiguredElectionScreen
-      void configureMutation.mutateAsync().then((result) => {
-        if (result.isOk()) {
-          updateElectionDefinition(result.ok());
-        }
-      });
+      configure.mutate();
     }
   });
 
-  const backendError = configureMutation.data?.err();
+  const backendError = configure.data?.err();
   return (
     <Screen>
       <Main centerChild>
