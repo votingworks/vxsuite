@@ -71,7 +71,6 @@ const precinctCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
   );
 
 const precinctReportArgs: BallotCountReportProps = {
-  ballotCountBreakdown: 'none',
   title: 'Official Full Election Ballot Count Report',
   testId: 'tally-report',
   electionDefinition: electionWithMsEitherNeitherDefinition,
@@ -103,7 +102,6 @@ const primaryPrecinctCardCountsList: Tabulation.GroupList<Tabulation.CardCounts>
   );
 
 const primaryPrecinctReportArgs: BallotCountReportProps = {
-  ballotCountBreakdown: 'none',
   title: 'Official Full Election Ballot Count Report',
   testId: 'tally-report',
   electionDefinition: {
@@ -138,7 +136,6 @@ const votingMethodCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
   ];
 
 const votingMethodReportArgs: BallotCountReportProps = {
-  ballotCountBreakdown: 'none',
   title: 'Full Election Ballot Count Report',
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -158,7 +155,6 @@ const noGroupsCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
 ];
 
 const noGroupsReportArgs: BallotCountReportProps = {
-  ballotCountBreakdown: 'none',
   title: 'Full Election Ballot Count Report',
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -176,7 +172,6 @@ const singleGroupCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
 ];
 
 const singleGroupReportArgs: BallotCountReportProps = {
-  ballotCountBreakdown: 'none',
   title: 'Full Election Ballot Count Report',
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -253,7 +248,6 @@ const maxCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = (() => {
 })();
 
 const maxReportArgs: BallotCountReportProps = {
-  ballotCountBreakdown: 'none',
   title: 'Official Full Election Ballot Count Report',
   testId: 'tally-report',
   electionDefinition: {

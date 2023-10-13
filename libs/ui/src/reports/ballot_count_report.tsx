@@ -15,7 +15,6 @@ import {
   getHmpbBallotCount,
   getPartyById,
   getPrecinctById,
-  getScannedBallotCount,
   isGroupByEmpty,
 } from '@votingworks/utils';
 import React from 'react';
@@ -36,7 +35,6 @@ const COLUMNS = [
   'batch',
   'center-fill', // spacing between the attributes and the counts
   'manual',
-  'scanned',
   'bmd',
   'hmpb',
   'total',
@@ -54,7 +52,6 @@ const COLUMN_LABELS: Record<Column, string> = {
   batch: 'Batch ID',
   'center-fill': '',
   manual: 'Manual',
-  scanned: 'Scanned',
   bmd: 'BMD',
   hmpb: 'HMPB',
   total: 'Total',
@@ -73,7 +70,6 @@ const COLUMN_WIDTHS: Record<Column, string> = {
   batch: 'minmax(0, max-content)',
   'center-fill': '5fr',
   manual: 'max-content',
-  scanned: 'max-content',
   bmd: 'max-content',
   hmpb: 'max-content',
   total: 'max-content',
@@ -167,8 +163,6 @@ function getFormattedCount(
     switch (column) {
       case 'manual':
         return cardCounts.manual ?? 0;
-      case 'scanned':
-        return getScannedBallotCount(cardCounts);
       case 'bmd':
         return cardCounts.bmd;
       case 'hmpb':
@@ -198,7 +192,6 @@ function getCellClass(column: Column): Optional<string> {
     case 'right-fill':
       return undefined;
     case 'manual':
-    case 'scanned':
     case 'bmd':
     case 'hmpb':
     case 'total':
@@ -214,13 +207,11 @@ function BallotCountTable({
   scannerBatches,
   cardCountsList,
   groupBy,
-  ballotCountBreakdown,
 }: {
   electionDefinition: ElectionDefinition;
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
 }): JSX.Element {
   const { election } = electionDefinition;
   const batchLookup: Record<string, Tabulation.ScannerBatch> = {};
@@ -257,21 +248,15 @@ function BallotCountTable({
     columns.push('center-fill');
   }
 
+  // always show manual counts if they exist
   const hasNonZeroManualData = cardCountsList.some((cc) => !!cc.manual);
-  if (
-    ballotCountBreakdown === 'manual' ||
-    (ballotCountBreakdown === 'all' && hasNonZeroManualData)
-  ) {
+  if (hasNonZeroManualData) {
     columns.push('manual');
   }
-  if (ballotCountBreakdown === 'manual') {
-    columns.push('scanned');
-  }
-  if (ballotCountBreakdown === 'all') {
-    columns.push('bmd');
-    columns.push('hmpb');
-  }
+  columns.push('bmd');
+  columns.push('hmpb');
   columns.push('total');
+
   columns.push('right-fill');
 
   const totalCardCounts = combineCardCounts(cardCountsList);
@@ -340,7 +325,6 @@ function BallotCountTable({
                 case 'right-fill':
                   break;
                 case 'manual':
-                case 'scanned':
                 case 'bmd':
                 case 'hmpb':
                 case 'total':
@@ -366,9 +350,7 @@ function BallotCountTable({
       {/* Footer */}
       {hasGroups && (
         <React.Fragment>
-          <span className="sum-total">
-            {ballotCountBreakdown === 'none' ? 'Sum Total' : 'Sum Totals'}
-          </span>
+          <span className="sum-total">Sum Totals</span>
           {/* eslint-disable-next-line array-callback-return */}
           {columns.slice(1).map((column) => {
             assert(column !== COLUMNS[0]);
@@ -381,7 +363,6 @@ function BallotCountTable({
               case 'center-fill':
                 return <span key={column} className="filler" />;
               case 'manual':
-              case 'scanned':
               case 'bmd':
               case 'hmpb':
               case 'total':
@@ -416,7 +397,6 @@ export interface BallotCountReportProps {
   groupBy: Tabulation.GroupBy;
   customFilter?: Tabulation.Filter;
   generatedAtTime?: Date;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
 }
 
 export function BallotCountReport({
@@ -428,7 +408,6 @@ export function BallotCountReport({
   groupBy,
   customFilter,
   generatedAtTime = new Date(),
-  ballotCountBreakdown,
 }: BallotCountReportProps): JSX.Element {
   const { election } = electionDefinition;
 
@@ -454,7 +433,6 @@ export function BallotCountReport({
             scannerBatches={scannerBatches}
             cardCountsList={cardCountsList}
             groupBy={groupBy}
-            ballotCountBreakdown={ballotCountBreakdown}
           />
         </ReportSection>
       </TallyReport>

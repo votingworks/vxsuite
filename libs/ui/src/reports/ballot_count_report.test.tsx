@@ -69,13 +69,7 @@ function parseGrid({ expectFooter }: { expectFooter: boolean }) {
     rows.push(row);
   }
 
-  const FOOTER_COLUMNS: Column[] = [
-    'scanned',
-    'manual',
-    'hmpb',
-    'bmd',
-    'total',
-  ];
+  const FOOTER_COLUMNS: Column[] = ['manual', 'hmpb', 'bmd', 'total'];
   let footer: Optional<RowData>;
   if (expectFooter) {
     screen.getByText(/Sum Total/);
@@ -102,7 +96,7 @@ test('can render all attribute columns', () => {
   const maximalAttributeCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
     [
       {
-        ...cc(5),
+        ...cc(3, undefined, 4),
         ballotStyleId: '1M',
         precinctId: 'precinct-1',
         partyId: '0',
@@ -111,7 +105,7 @@ test('can render all attribute columns', () => {
         scannerId: 'scanner-1',
       },
       {
-        ...cc(5),
+        ...cc(9, undefined, 11),
         ballotStyleId: '2F',
         precinctId: 'precinct-2',
         partyId: '1',
@@ -136,7 +130,6 @@ test('can render all attribute columns', () => {
         groupByBatch: true,
       }}
       cardCountsList={maximalAttributeCardCountsList}
-      ballotCountBreakdown="none"
     />
   );
 
@@ -148,6 +141,8 @@ test('can render all attribute columns', () => {
     'scanner',
     'batch',
     'center-fill',
+    'bmd',
+    'hmpb',
     'total',
     'right-fill',
   ];
@@ -158,7 +153,9 @@ test('can render all attribute columns', () => {
       party: 'Mammal',
       precinct: 'Precinct 1',
       scanner: 'scanner-1',
-      total: '5',
+      bmd: '3',
+      hmpb: '4',
+      total: '7',
       'voting-method': 'Precinct',
     },
     {
@@ -167,12 +164,16 @@ test('can render all attribute columns', () => {
       party: 'Fish',
       precinct: 'Precinct 2',
       scanner: 'scanner-2',
-      total: '5',
+      bmd: '9',
+      hmpb: '11',
+      total: '20',
       'voting-method': 'Absentee',
     },
   ];
   const expectedFooter: RowData = {
-    total: '10',
+    bmd: '12',
+    hmpb: '15',
+    total: '27',
   };
 
   {
@@ -201,7 +202,6 @@ test('can render all attribute columns', () => {
         const { scannerId, partyId, ...rest } = cardCounts;
         return rest;
       })}
-      ballotCountBreakdown="none"
     />
   );
 
@@ -213,130 +213,75 @@ test('can render all attribute columns', () => {
   }
 });
 
-test('ballot count breakdowns', () => {
+test('shows manual counts', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
 
-  const cardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
+  const primaryPrecinctCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
+    [
+      {
+        ...cc(3, 3, 4),
+        precinctId: 'precinct-1',
+        partyId: '0',
+      },
+      {
+        ...cc(9, undefined, 11),
+        precinctId: 'precinct-2',
+        partyId: '1',
+      },
+    ];
+
+  render(
+    <BallotCountReport
+      title="Full Election Ballot Count Report"
+      electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
+      groupBy={{
+        groupByPrecinct: true,
+        groupByParty: true,
+      }}
+      cardCountsList={primaryPrecinctCardCountsList}
+    />
+  );
+
+  const expectedColumns: Column[] = [
+    'precinct',
+    'party',
+    'center-fill',
+    'manual',
+    'bmd',
+    'hmpb',
+    'total',
+    'right-fill',
+  ];
+  const expectedRows: RowData[] = [
     {
-      ...cc(5, undefined, 10),
-      precinctId: 'precinct-1',
+      party: 'Mammal',
+      precinct: 'Precinct 1',
+      manual: '3',
+      bmd: '3',
+      hmpb: '4',
+      total: '10',
     },
     {
-      ...cc(1, 4, 5),
-      precinctId: 'precinct-2',
+      party: 'Fish',
+      precinct: 'Precinct 2',
+      manual: '0',
+      bmd: '9',
+      hmpb: '11',
+      total: '20',
     },
   ];
+  const expectedFooter: RowData = {
+    manual: '3',
+    bmd: '12',
+    hmpb: '15',
+    total: '30',
+  };
 
-  const testCases: Array<{
-    breakdown: Tabulation.BallotCountBreakdown;
-    expectedColumns: Column[];
-    expectedRows: RowData[];
-    expectedFooter: RowData;
-  }> = [
-    {
-      breakdown: 'none',
-      expectedColumns: ['precinct', 'center-fill', 'total', 'right-fill'],
-      expectedRows: [
-        {
-          precinct: 'Precinct 1',
-          total: '15',
-        },
-        {
-          precinct: 'Precinct 2',
-          total: '10',
-        },
-      ],
-      expectedFooter: {
-        total: '25',
-      },
-    },
-    {
-      breakdown: 'manual',
-      expectedColumns: [
-        'precinct',
-        'center-fill',
-        'manual',
-        'scanned',
-        'total',
-        'right-fill',
-      ],
-      expectedRows: [
-        {
-          precinct: 'Precinct 1',
-          manual: '0',
-          scanned: '15',
-          total: '15',
-        },
-        {
-          precinct: 'Precinct 2',
-          manual: '4',
-          scanned: '6',
-          total: '10',
-        },
-      ],
-      expectedFooter: {
-        manual: '4',
-        scanned: '21',
-        total: '25',
-      },
-    },
-    {
-      breakdown: 'all',
-      expectedColumns: [
-        'precinct',
-        'center-fill',
-        'manual',
-        'bmd',
-        'hmpb',
-        'total',
-        'right-fill',
-      ],
-      expectedRows: [
-        {
-          precinct: 'Precinct 1',
-          manual: '0',
-          bmd: '5',
-          hmpb: '10',
-          total: '15',
-        },
-        {
-          precinct: 'Precinct 2',
-          manual: '4',
-          bmd: '1',
-          hmpb: '5',
-          total: '10',
-        },
-      ],
-      expectedFooter: {
-        manual: '4',
-        bmd: '6',
-        hmpb: '15',
-        total: '25',
-      },
-    },
-  ];
-
-  for (const testCase of testCases) {
-    const { breakdown, expectedColumns, expectedRows, expectedFooter } =
-      testCase;
-    const { unmount } = render(
-      <BallotCountReport
-        title="Full Election Ballot Count Report"
-        electionDefinition={electionDefinition}
-        scannerBatches={mockScannerBatches}
-        groupBy={{
-          groupByPrecinct: true,
-        }}
-        cardCountsList={cardCountsList}
-        ballotCountBreakdown={breakdown}
-      />
-    );
-    const { columns, rows, footer } = parseGrid({ expectFooter: true });
-    expect(columns).toEqual(expectedColumns);
-    expect(rows).toEqual(expectedRows);
-    expect(footer).toEqual(expectedFooter);
-    unmount();
-  }
+  const { columns, rows, footer } = parseGrid({ expectFooter: true });
+  expect(columns).toEqual(expectedColumns);
+  expect(rows).toEqual(expectedRows);
+  expect(footer).toEqual(expectedFooter);
 });
 
 test('ungrouped case', () => {
@@ -352,7 +297,6 @@ test('ungrouped case', () => {
       scannerBatches={mockScannerBatches}
       groupBy={{}}
       cardCountsList={[cardCounts]}
-      ballotCountBreakdown="all"
     />
   );
 
@@ -378,7 +322,6 @@ test('title, metadata, and custom filters', () => {
       scannerBatches={mockScannerBatches}
       groupBy={{}}
       cardCountsList={[]}
-      ballotCountBreakdown="none"
       customFilter={{
         precinctIds: ['precinct-1'],
       }}
