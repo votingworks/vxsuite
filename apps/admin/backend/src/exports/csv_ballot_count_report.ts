@@ -5,12 +5,11 @@ import {
   Id,
   Election,
 } from '@votingworks/types';
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
   getBallotCount,
   getHmpbBallotCount,
-  getScannedBallotCount,
   groupMapToGroupList,
 } from '@votingworks/utils';
 import { Readable } from 'stream';
@@ -27,45 +26,29 @@ import { tabulateFullCardCounts } from '../tabulation/card_counts';
 function generateHeaders({
   election,
   metadataStructure,
-  ballotCountBreakdown,
   hasManualTallies,
 }: {
   election: Election;
   metadataStructure: CsvMetadataStructure;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
   hasManualTallies: boolean;
 }): string[] {
   const headers = generateCsvMetadataHeaders({ election, metadataStructure });
 
-  switch (ballotCountBreakdown) {
-    case 'none':
-      headers.push('Total');
-      break;
-    case 'manual':
-      headers.push('Manual', 'Scanned', 'Total');
-      break;
-    case 'all':
-      if (hasManualTallies) {
-        headers.push('Manual');
-      }
-      headers.push('BMD', 'HMPB', 'Total');
-      break;
-    /* c8 ignore next 2 -- compile-time check */
-    default:
-      throwIllegalValue(ballotCountBreakdown);
+  if (hasManualTallies) {
+    headers.push('Manual');
   }
+  headers.push('BMD', 'HMPB', 'Total');
+
   return headers;
 }
 
 function buildRow({
   metadataValues,
   cardCounts,
-  ballotCountBreakdown,
   hasManualTallies,
 }: {
   metadataValues: string[];
   cardCounts: Tabulation.CardCounts;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
   hasManualTallies: boolean;
 }): string {
   const values: string[] = [...metadataValues];
@@ -73,28 +56,14 @@ function buildRow({
   const counts: number[] = [];
   /* c8 ignore next - trivial fallback case */
   const manual = cardCounts.manual ?? 0;
-  const scanned = getScannedBallotCount(cardCounts);
   const { bmd } = cardCounts;
   const hmpb = getHmpbBallotCount(cardCounts);
   const total = getBallotCount(cardCounts);
 
-  switch (ballotCountBreakdown) {
-    case 'none':
-      counts.push(total);
-      break;
-    case 'manual':
-      counts.push(manual, scanned, total);
-      break;
-    case 'all':
-      if (hasManualTallies) {
-        counts.push(manual);
-      }
-      counts.push(bmd, hmpb, total);
-      break;
-    /* c8 ignore next 2 -- compile-time check */
-    default:
-      throwIllegalValue(ballotCountBreakdown);
+  if (hasManualTallies) {
+    counts.push(manual);
   }
+  counts.push(bmd, hmpb, total);
 
   return stringify([[...values, ...counts.map((num) => num.toString())]]);
 }
@@ -105,7 +74,6 @@ function* generateDataRows({
   overallExportFilter,
   allCardCounts,
   metadataStructure,
-  ballotCountBreakdown,
   hasManualTallies,
   store,
 }: {
@@ -114,7 +82,6 @@ function* generateDataRows({
   overallExportFilter: Tabulation.Filter;
   allCardCounts: Tabulation.GroupList<Tabulation.CardCounts>;
   metadataStructure: CsvMetadataStructure;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
   hasManualTallies: boolean;
   store: Store;
 }): Generator<string> {
@@ -135,7 +102,6 @@ function* generateDataRows({
     yield buildRow({
       metadataValues,
       cardCounts,
-      ballotCountBreakdown,
       hasManualTallies,
     });
   }
@@ -153,12 +119,10 @@ export function generateBallotCountReportCsv({
   store,
   filter = {},
   groupBy = {},
-  ballotCountBreakdown,
 }: {
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
 }): NodeJS.ReadableStream {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
@@ -184,7 +148,6 @@ export function generateBallotCountReportCsv({
     generateHeaders({
       election,
       metadataStructure,
-      ballotCountBreakdown,
       hasManualTallies,
     }),
   ]);
@@ -198,7 +161,6 @@ export function generateBallotCountReportCsv({
       overallExportFilter: filter,
       allCardCounts,
       metadataStructure,
-      ballotCountBreakdown,
       hasManualTallies,
       store,
     })) {
