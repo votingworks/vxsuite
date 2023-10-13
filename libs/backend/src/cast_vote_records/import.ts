@@ -167,10 +167,8 @@ async function* castVoteRecordGenerator(
         !castVoteRecord.BallotImage[1] ||
         !castVoteRecord.BallotImage[0].Hash?.Value ||
         !castVoteRecord.BallotImage[1].Hash?.Value ||
-        // These next two conditions are hard to trigger without first triggering the invalid
-        // write-in case above.
-        /* istanbul ignore next */ !castVoteRecord.BallotImage[0].Location ||
-        /* istanbul ignore next */ !castVoteRecord.BallotImage[1].Location ||
+        !castVoteRecord.BallotImage[0].Location ||
+        !castVoteRecord.BallotImage[1].Location ||
         !castVoteRecord.BallotImage[0].Location.startsWith('file:') ||
         !castVoteRecord.BallotImage[1].Location.startsWith('file:')
       ) {
