@@ -81,6 +81,9 @@ let mockUsbDrive: MockUsbDrive;
 let tempDirectoryPath: string;
 
 beforeEach(() => {
+  // While this should technically be set to "central-scan" for tests emulating VxCentralScan
+  // behavior, always using "scan" is fine for the purposes of these tests.
+  process.env['VX_MACHINE_TYPE'] = 'scan';
   mockFeatureFlagger.resetFeatureFlags();
 
   mockUsbDrive = createMockUsbDrive();

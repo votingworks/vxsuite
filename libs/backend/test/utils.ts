@@ -108,12 +108,7 @@ class MockScannerStore implements ScannerStore {
 /**
  * A mock central scanner store
  */
-export class MockCentralScannerStore extends MockScannerStore {
-  constructor() {
-    super();
-    process.env['VX_MACHINE_TYPE'] = 'central-scan';
-  }
-}
+export class MockCentralScannerStore extends MockScannerStore {}
 
 /**
  * A mock precinct scanner store
@@ -126,7 +121,6 @@ export class MockPrecinctScannerStore extends MockScannerStore {
     super();
     this.exportDirectoryName = undefined;
     this.pollsState = 'polls_closed_initial';
-    process.env['VX_MACHINE_TYPE'] = 'scan';
   }
 
   getExportDirectoryName(): string | undefined {
