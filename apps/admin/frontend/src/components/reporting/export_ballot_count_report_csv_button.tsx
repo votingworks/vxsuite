@@ -18,12 +18,10 @@ import {
 export function ExportBallotCountReportCsvButton({
   filter,
   groupBy,
-  ballotCountBreakdown,
   disabled,
 }: {
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
   disabled?: boolean;
 }): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
@@ -77,7 +75,6 @@ export function ExportBallotCountReportCsvButton({
               path: savePath,
               filter,
               groupBy,
-              ballotCountBreakdown,
             })
           }
           saveFileResult={exportBallotCountReportCsvMutation.data}

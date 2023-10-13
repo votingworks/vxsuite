@@ -27,7 +27,6 @@ export function PrecinctBallotCountReport(): JSX.Element {
           groupByPrecinct: true,
           groupByParty: electionDefinition.election.type === 'primary',
         }}
-        ballotCountBreakdown="all"
         disabled={false}
         autoPreview
       />

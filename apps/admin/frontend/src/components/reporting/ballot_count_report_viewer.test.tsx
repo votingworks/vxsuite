@@ -54,7 +54,6 @@ test('disabled shows disabled buttons and no preview', () => {
       disabled
       filter={{}}
       groupBy={{}}
-      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     { apiMock, electionDefinition }
@@ -80,7 +79,6 @@ test('autoPreview loads preview automatically', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
-      ballotCountBreakdown="none"
       autoPreview
     />,
     { apiMock, electionDefinition }
@@ -98,7 +96,6 @@ test('autoPreview = false does not load preview automatically', async () => {
       disabled={false}
       filter={{}}
       groupBy={{}}
-      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     { apiMock, electionDefinition }
@@ -122,7 +119,6 @@ test('shows no results warning when no results', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByBatch: true }}
-      ballotCountBreakdown="none"
       autoPreview
     />,
     { apiMock, electionDefinition }
@@ -157,7 +153,6 @@ test('print before loading preview', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
-      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     { apiMock, electionDefinition }
@@ -198,7 +193,6 @@ test('print after preview loaded + test success logging', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
-      ballotCountBreakdown="none"
       autoPreview
     />,
     { apiMock, electionDefinition, logger }
@@ -244,7 +238,6 @@ test('print while preview is loading', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
-      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     { apiMock, electionDefinition }
@@ -286,7 +279,6 @@ test('print failure logging', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
-      ballotCountBreakdown="none"
       autoPreview
     />,
     { apiMock, electionDefinition, logger }
@@ -332,7 +324,6 @@ test('displays custom filter rather than specific title when necessary', async (
       disabled={false}
       filter={filter}
       groupBy={{}}
-      ballotCountBreakdown="none"
       autoPreview
     />,
     { apiMock, electionDefinition }
@@ -368,7 +359,6 @@ test('exporting report PDF', async () => {
       groupBy={{
         groupByVotingMethod: true,
       }}
-      ballotCountBreakdown="none"
       autoPreview={false}
     />,
     {

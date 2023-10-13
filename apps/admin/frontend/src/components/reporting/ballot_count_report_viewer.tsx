@@ -103,7 +103,6 @@ function Report({
   cardCountsList,
   filter,
   groupBy,
-  ballotCountBreakdown,
   generatedAtTime,
 }: {
   electionDefinition: ElectionDefinition;
@@ -112,7 +111,6 @@ function Report({
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
   generatedAtTime: Date;
 }): JSX.Element {
   const titleGeneration = generateTitleForReport({
@@ -137,7 +135,6 @@ function Report({
     scannerBatches,
     generatedAtTime,
     groupBy,
-    ballotCountBreakdown,
     cardCountsList,
   });
 }
@@ -145,7 +142,6 @@ function Report({
 export interface BallotCountReportViewerProps {
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
   disabled: boolean;
   autoPreview: boolean;
 }
@@ -153,7 +149,6 @@ export interface BallotCountReportViewerProps {
 export function BallotCountReportViewer({
   filter,
   groupBy,
-  ballotCountBreakdown,
   disabled: disabledFromProps,
   autoPreview,
 }: BallotCountReportViewerProps): JSX.Element {
@@ -207,7 +202,6 @@ export function BallotCountReportViewer({
         electionDefinition={assertDefined(electionDefinition)}
         filter={filter}
         groupBy={groupBy}
-        ballotCountBreakdown={ballotCountBreakdown}
         cardCountsList={cardCountsQuery.data}
         generatedAtTime={new Date(cardCountsQuery.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
@@ -220,7 +214,6 @@ export function BallotCountReportViewer({
     electionDefinition,
     filter,
     groupBy,
-    ballotCountBreakdown,
     cardCountsQuery.data,
     cardCountsQuery.dataUpdatedAt,
     isOfficialResults,
@@ -254,7 +247,6 @@ export function BallotCountReportViewer({
         electionDefinition={assertDefined(electionDefinition)}
         filter={filter}
         groupBy={groupBy}
-        ballotCountBreakdown={ballotCountBreakdown}
         cardCountsList={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
@@ -294,7 +286,6 @@ export function BallotCountReportViewer({
         electionDefinition={assertDefined(electionDefinition)}
         filter={filter}
         groupBy={groupBy}
-        ballotCountBreakdown={ballotCountBreakdown}
         cardCountsList={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
@@ -336,7 +327,6 @@ export function BallotCountReportViewer({
         <ExportBallotCountReportCsvButton
           filter={filter}
           groupBy={groupBy}
-          ballotCountBreakdown={ballotCountBreakdown}
           disabled={disabled || areQueryResultsEmpty}
         />
       </ExportActions>
