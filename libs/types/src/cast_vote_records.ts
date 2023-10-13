@@ -74,7 +74,7 @@ export type CastVoteRecordReportWithoutMetadata = Pick<
 
 export const CastVoteRecordReportWithoutMetadataSchema: z.ZodSchema<CastVoteRecordReportWithoutMetadata> =
   z.object({
-    CVR: z.array(CVRSchema),
+    CVR: z.array(CVRSchema).optional(),
   });
 
 /**
