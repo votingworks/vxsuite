@@ -1,14 +1,14 @@
 import { sleep } from '@votingworks/basics';
 
-import { Card, CardStatusReady } from '../src/card';
+import { CardStatusReady, StatefulCard } from '../src/card';
 
 /**
  * Waits for a card to have a ready status
  */
-export async function waitForReadyCardStatus(
-  card: Card,
+export async function waitForReadyCardStatus<T>(
+  card: StatefulCard<T>,
   waitTimeSeconds = 3
-): Promise<CardStatusReady> {
+): Promise<CardStatusReady<T>> {
   let cardStatus = await card.getCardStatus();
   let remainingWaitTimeSeconds = waitTimeSeconds;
   while (cardStatus.status !== 'ready' && remainingWaitTimeSeconds > 0) {

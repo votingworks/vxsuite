@@ -25,7 +25,7 @@ import {
   SELECT,
   STATUS_WORD,
 } from './apdu';
-import { Card, CardDetails, CheckPinResponse } from './card';
+import { CardDetails, CheckPinResponse, ProgrammableCard } from './card';
 import { CardReader } from './card_reader';
 import { CardType } from './certs';
 import { JavaCardConfig } from './config';
@@ -723,7 +723,7 @@ test.each<{
 
 test.each<{
   description: string;
-  programInput: Parameters<Card['program']>[0];
+  programInput: Parameters<ProgrammableCard['program']>[0];
   expectedCardType: CardType;
   expectedCertSubject: string;
   expectedExpiryInDays: number;

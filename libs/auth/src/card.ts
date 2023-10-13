@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import {
+  Byte,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -64,9 +65,9 @@ export function arePollWorkerCardDetails(
 /**
  * A sub-type of CardStatus
  */
-export interface CardStatusReady {
+export interface CardStatusReady<T = CardDetails> {
   status: 'ready';
-  cardDetails?: CardDetails;
+  cardDetails?: T;
 }
 
 /**
@@ -79,7 +80,9 @@ export interface CardStatusNotReady {
 /**
  * The status of a card in a card reader
  */
-export type CardStatus = CardStatusReady | CardStatusNotReady;
+export type CardStatus<T = CardDetails> =
+  | CardStatusReady<T>
+  | CardStatusNotReady;
 
 interface CheckPinResponseCorrect {
   response: 'correct';
@@ -98,13 +101,23 @@ export type CheckPinResponse =
   | CheckPinResponseIncorrect;
 
 /**
- * The API for a smart card
+ * The API for a card that can provide its status.
  */
-export interface Card {
-  getCardStatus(): Promise<CardStatus>;
+export interface StatefulCard<T = CardDetails> {
+  getCardStatus(): Promise<CardStatus<T>>;
+}
 
+/**
+ * The API for a smart card that has a PIN.
+ */
+export interface PinProtectedCard {
   checkPin(pin: string): Promise<CheckPinResponse>;
+}
 
+/**
+ * The API for a programmable smart card.
+ */
+export interface ProgrammableCard extends PinProtectedCard {
   program(
     input:
       | { user: SystemAdministratorUser; pin: string }
@@ -112,8 +125,38 @@ export interface Card {
       | { user: PollWorkerUser; pin?: string }
   ): Promise<void>;
   unprogram(): Promise<void>;
+}
 
+/**
+ * The API for a smart card that can store data.
+ */
+export interface DataCard {
   readData(): Promise<Buffer>;
   writeData(data: Buffer): Promise<void>;
   clearData(): Promise<void>;
 }
+
+/**
+ * The API for a smart card that can sign a payload.
+ */
+export interface SigningCard {
+  generateSignature(
+    message: Buffer,
+    options: { privateKeyId: Byte; pin?: string }
+  ): Promise<Buffer>;
+}
+
+/**
+ * The API for a smart card that has stored certificates.
+ */
+export interface CertificateProviderCard {
+  getCertificate(options: { objectId: Buffer }): Promise<Buffer>;
+}
+
+/**
+ * The API for a VxSuite-compatible smart card.
+ */
+export type Card = StatefulCard<CardDetails> &
+  PinProtectedCard &
+  ProgrammableCard &
+  DataCard;

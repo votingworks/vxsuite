@@ -1,6 +1,7 @@
 export * from './artifact_authentication';
 export type { CardStatus } from './card';
 export * from './cast_vote_record_hashes';
+export * as cac from './cac';
 export * from './config';
 export * from './dipped_smart_card_auth_api';
 export * from './dipped_smart_card_auth';
