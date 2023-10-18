@@ -8,6 +8,7 @@ mod image_utils;
 mod interpret;
 mod js;
 mod layout;
+mod qr_code;
 mod qr_code_metadata;
 mod scoring;
 mod template;

@@ -23,7 +23,8 @@ use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
 use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
-use crate::qr_code_metadata::detect_qr_code_metadata;
+use crate::qr_code;
+use crate::qr_code_metadata::decode_metadata_bits;
 use crate::qr_code_metadata::BallotPageQrCodeMetadataError;
 use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
@@ -224,22 +225,11 @@ pub fn prepare_ballot_card_images(
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
 ) -> Result<BallotCard, Error> {
-    let (side_a_result, side_b_result) = rayon::join(
-        || {
-            prepare_ballot_page_image(
-                SIDE_A_LABEL,
-                side_a_image,
-                possible_paper_infos,
-                resize_strategy,
-            )
-        },
-        || {
-            prepare_ballot_page_image(
-                SIDE_B_LABEL,
-                side_b_image,
-                possible_paper_infos,
-                resize_strategy,
-            )
+    let (side_a_result, side_b_result) = par_map_pair(
+        (SIDE_A_LABEL, side_a_image),
+        (SIDE_B_LABEL, side_b_image),
+        |(label, image)| {
+            prepare_ballot_page_image(label, image, possible_paper_infos, resize_strategy)
         },
     );
 
@@ -308,13 +298,18 @@ fn prepare_ballot_page_image(
         image,
         threshold,
         border_inset,
-    }) = crop_ballot_page_image_borders(image) else {
+    }) = crop_ballot_page_image_borders(image)
+    else {
         return Err(Error::BorderInsetNotFound {
             label: label.to_string(),
         });
     };
 
-    let Some(paper_info) = get_matching_paper_info_for_image_size(image.dimensions(), possible_paper_infos, resize_strategy) else {
+    let Some(paper_info) = get_matching_paper_info_for_image_size(
+        image.dimensions(),
+        possible_paper_infos,
+        resize_strategy,
+    ) else {
         let (width, height) = image.dimensions();
         return Err(Error::UnexpectedDimensions {
             label: label.to_string(),
@@ -360,9 +355,10 @@ pub fn interpret_ballot_card(
         None => ImageDebugWriter::disabled(),
     };
 
-    let (side_a_grid_result, side_b_grid_result) = rayon::join(
-        || find_timing_mark_grid(&geometry, &side_a.image, &mut side_a_debug),
-        || find_timing_mark_grid(&geometry, &side_b.image, &mut side_b_debug),
+    let (side_a_grid_result, side_b_grid_result) = par_map_pair(
+        (&side_a.image, &mut side_a_debug),
+        (&side_b.image, &mut side_b_debug),
+        |(image, debug)| find_timing_mark_grid(&geometry, image, debug),
     );
 
     let side_a_grid = side_a_grid_result?;
@@ -379,30 +375,24 @@ pub fn interpret_ballot_card(
         ballot_style_id,
     ) = match options.election.ballot_layout.metadata_encoding {
         MetadataEncoding::QrCode => {
-            let (side_a_qr_code_result, side_b_qr_code_result) = rayon::join(
-                || {
-                    detect_qr_code_metadata(
-                        &options.election,
-                        &side_a.image,
-                        &geometry,
-                        &mut side_a_debug,
-                    )
-                    .map_err(|error| Error::InvalidQrCodeMetadata {
-                        label: SIDE_A_LABEL.to_string(),
-                        error,
-                    })
-                },
-                || {
-                    detect_qr_code_metadata(
-                        &options.election,
-                        &side_b.image,
-                        &geometry,
-                        &mut side_b_debug,
-                    )
-                    .map_err(|error| Error::InvalidQrCodeMetadata {
-                        label: SIDE_B_LABEL.to_string(),
-                        error,
-                    })
+            let (side_a_qr_code_result, side_b_qr_code_result) = par_map_pair(
+                (&side_a.image, &side_a_debug, SIDE_A_LABEL),
+                (&side_b.image, &side_b_debug, SIDE_B_LABEL),
+                |(image, debug, label)| {
+                    let qr_code = qr_code::detect(image, debug).map_err(|e| {
+                        Error::InvalidQrCodeMetadata {
+                            label: label.to_string(),
+                            error: BallotPageQrCodeMetadataError::QrCodeError(e),
+                        }
+                    })?;
+                    let metadata = decode_metadata_bits(&options.election, &qr_code.bytes())
+                        .ok_or_else(|| Error::InvalidQrCodeMetadata {
+                            label: label.to_string(),
+                            error: BallotPageQrCodeMetadataError::InvalidMetadata {
+                                bytes: qr_code.bytes().to_vec(),
+                            },
+                        })?;
+                    Ok((metadata, qr_code.orientation()))
                 },
             );
 
@@ -416,24 +406,21 @@ pub fn interpret_ballot_card(
             let (
                 (side_a_normalized_grid, side_a_normalized_image),
                 (side_b_normalized_grid, side_b_normalized_image),
-            ) = rayon::join(
-                || {
-                    normalize_orientation(
-                        &geometry,
-                        side_a_grid,
-                        &side_a.image,
-                        side_a_orientation,
-                        &mut side_a_debug,
-                    )
-                },
-                || {
-                    normalize_orientation(
-                        &geometry,
-                        side_b_grid,
-                        &side_b.image,
-                        side_b_orientation,
-                        &mut side_b_debug,
-                    )
+            ) = par_map_pair(
+                (
+                    side_a_grid,
+                    &side_a.image,
+                    side_a_orientation,
+                    &mut side_a_debug,
+                ),
+                (
+                    side_b_grid,
+                    &side_b.image,
+                    side_b_orientation,
+                    &mut side_b_debug,
+                ),
+                |(grid, image, orientation, debug)| {
+                    normalize_orientation(&geometry, grid, image, orientation, debug)
                 },
             );
 
@@ -462,23 +449,12 @@ pub fn interpret_ballot_card(
         }
 
         MetadataEncoding::TimingMarks => {
-            let (side_a_result, side_b_result) = rayon::join(
-                || {
+            let (side_a_result, side_b_result) = par_map_pair(
+                (SIDE_A_LABEL, side_a_grid, &side_a.image, &mut side_a_debug),
+                (SIDE_B_LABEL, side_b_grid, &side_b.image, &mut side_b_debug),
+                |(label, grid, image, debug)| {
                     detect_metadata_and_normalize_orientation_from_timing_marks(
-                        SIDE_A_LABEL,
-                        &geometry,
-                        side_a_grid,
-                        &side_a.image,
-                        &mut side_a_debug,
-                    )
-                },
-                || {
-                    detect_metadata_and_normalize_orientation_from_timing_marks(
-                        SIDE_B_LABEL,
-                        &geometry,
-                        side_b_grid,
-                        &side_b.image,
-                        &mut side_b_debug,
+                        label, &geometry, grid, image, debug,
                     )
                 },
             );
@@ -532,11 +508,12 @@ pub fn interpret_ballot_card(
         .election
         .grid_layouts
         .iter()
-        .find(|layout| layout.ballot_style_id == ballot_style_id) else {
-            return Err(Error::MissingGridLayout {
-                front: front_metadata,
-                back: back_metadata,
-            })
+        .find(|layout| layout.ballot_style_id == ballot_style_id)
+    else {
+        return Err(Error::MissingGridLayout {
+            front: front_metadata,
+            back: back_metadata,
+        });
     };
 
     let sheet_number = match &front_metadata {
@@ -544,62 +521,56 @@ pub fn interpret_ballot_card(
         BallotPageMetadata::TimingMarks(_) => 1,
     };
 
-    let (front_scored_bubble_marks, back_scored_bubble_marks) = rayon::join(
-        || {
+    let (front_scored_bubble_marks, back_scored_bubble_marks) = par_map_pair(
+        (&front_image, &front_grid, BallotSide::Front, &front_debug),
+        (&back_image, &back_grid, BallotSide::Back, &back_debug),
+        |(image, grid, side, debug)| {
             score_bubble_marks_from_grid_layout(
-                &front_image,
+                image,
                 &options.bubble_template,
-                &front_grid,
+                grid,
                 grid_layout,
                 sheet_number,
-                BallotSide::Front,
-                &front_debug,
-            )
-        },
-        || {
-            score_bubble_marks_from_grid_layout(
-                &back_image,
-                &options.bubble_template,
-                &back_grid,
-                grid_layout,
-                sheet_number,
-                BallotSide::Back,
-                &back_debug,
+                side,
+                debug,
             )
         },
     );
 
-    let front_contest_layouts =
-        build_interpreted_page_layout(&front_grid, grid_layout, sheet_number, BallotSide::Front)
-            .ok_or(Error::CouldNotComputeLayout {
-                side: BallotSide::Front,
-            })?;
-    let back_contest_layouts =
-        build_interpreted_page_layout(&back_grid, grid_layout, sheet_number, BallotSide::Back)
-            .ok_or(Error::CouldNotComputeLayout {
-                side: BallotSide::Back,
-            })?;
+    let (front_contest_layouts, back_contest_layouts) = map_pair(
+        (&front_grid, BallotSide::Front),
+        (&back_grid, BallotSide::Back),
+        |(grid, side)| {
+            build_interpreted_page_layout(grid, grid_layout, sheet_number, side)
+                .ok_or(Error::CouldNotComputeLayout { side })
+        },
+    );
+    let front_contest_layouts = front_contest_layouts?;
+    let back_contest_layouts = back_contest_layouts?;
 
     let (front_write_in_area_scores, back_write_in_area_scores) = if !options.score_write_ins {
         (vec![], vec![])
     } else {
-        rayon::join(
-            || {
+        par_map_pair(
+            (
+                &front_image,
+                &front_contest_layouts,
+                &front_scored_bubble_marks,
+                &front_debug,
+            ),
+            (
+                &back_image,
+                &back_contest_layouts,
+                &back_scored_bubble_marks,
+                &back_debug,
+            ),
+            |(image, contest_layouts, scored_bubble_marks, debug)| {
                 score_write_in_areas(
-                    &front_image,
+                    image,
                     grid_layout,
-                    &front_contest_layouts,
-                    &front_scored_bubble_marks,
-                    &front_debug,
-                )
-            },
-            || {
-                score_write_in_areas(
-                    &back_image,
-                    grid_layout,
-                    &back_contest_layouts,
-                    &back_scored_bubble_marks,
-                    &back_debug,
+                    contest_layouts,
+                    scored_bubble_marks,
+                    debug,
                 )
             },
         )
@@ -625,6 +596,22 @@ pub fn interpret_ballot_card(
     })
 }
 
+pub fn par_map_pair<T, F, R>(left: T, right: T, mapper: F) -> (R, R)
+where
+    F: Fn(T) -> R + Send + Sync,
+    R: Send,
+    T: Send,
+{
+    rayon::join(|| mapper(left), || mapper(right))
+}
+
+pub fn map_pair<T, F, R>(left: T, right: T, mapper: F) -> (R, R)
+where
+    F: Fn(T) -> R,
+{
+    (mapper(left), mapper(right))
+}
+
 #[cfg(test)]
 mod test {
     use std::{
@@ -648,10 +635,12 @@ mod test {
         side_a_path: &Path,
         side_b_path: &Path,
     ) -> (GrayImage, GrayImage) {
-        rayon::join(
-            || load_ballot_page_image(side_a_path),
-            || load_ballot_page_image(side_b_path),
-        )
+        par_map_pair(side_a_path, side_b_path, load_ballot_page_image)
+    }
+
+    #[test]
+    fn test_par_map_pair() {
+        assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
     }
 
     #[test]

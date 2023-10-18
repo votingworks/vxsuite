@@ -1,13 +1,10 @@
 use bitter::{BigEndianReader, BitReader};
-use image::{EncodableLayout, GrayImage};
-use rqrr::PreparedImage;
+use image::EncodableLayout;
 use serde::Serialize;
 
 use crate::{
-    ballot_card::{Geometry, Orientation},
-    debug::{self, ImageDebugWriter},
     election::{BallotStyleId, Election, PrecinctId},
-    geometry::Rect,
+    qr_code,
 };
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
@@ -35,9 +32,14 @@ pub struct BallotPageQrCodeMetadata {
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum BallotPageQrCodeMetadataError {
-    NoQrCodeDetected,
-    UnreadableQrCode { error: String },
+    QrCodeError(qr_code::DetectError),
     InvalidMetadata { bytes: Vec<u8> },
+}
+
+impl From<qr_code::DetectError> for BallotPageQrCodeMetadataError {
+    fn from(value: qr_code::DetectError) -> Self {
+        BallotPageQrCodeMetadataError::QrCodeError(value)
+    }
 }
 
 const ELECTION_HASH_LENGTH: u32 = 20;
@@ -45,7 +47,7 @@ const HEX_BYTES_PER_CHAR: u32 = 2;
 const MAXIMUM_PAGE_NUMBERS: u32 = 30;
 const BALLOT_TYPE_MAXIMUM_VALUE: u32 = 2_u32.pow(4) - 1;
 
-fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotPageQrCodeMetadata> {
+pub fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotPageQrCodeMetadata> {
     let mut bits = BigEndianReader::new(bytes);
 
     let mut prelude = [0; 3];
@@ -61,8 +63,8 @@ fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotPageQ
     let precinct_count = bits.read_u8()?;
     let ballot_style_count = bits.read_u8()?;
     let _contest_count = bits.read_u8()?;
-    let precinct_index = bits.read_bits(bit_size(precinct_count as u32 - 1))?;
-    let ballot_style_index = bits.read_bits(bit_size(ballot_style_count as u32 - 1))?;
+    let precinct_index = bits.read_bits(bit_size(u32::from(precinct_count) - 1))?;
+    let ballot_style_index = bits.read_bits(bit_size(u32::from(ballot_style_count) - 1))?;
     let page_number = bits.read_bits(bit_size(MAXIMUM_PAGE_NUMBERS))? as u8;
     let is_test_mode = bits.read_bit()?;
     let ballot_type: BallotType = match bits.read_bits(bit_size(BALLOT_TYPE_MAXIMUM_VALUE))? {
@@ -91,51 +93,6 @@ const fn bit_size(n: u32) -> u32 {
     } else {
         n.ilog2() + 1
     }
-}
-
-pub fn detect_qr_code_metadata(
-    election: &Election,
-    img: &GrayImage,
-    geometry: &Geometry,
-    debug: &mut ImageDebugWriter,
-) -> Result<(BallotPageQrCodeMetadata, Orientation), BallotPageQrCodeMetadataError> {
-    let mut prepared_img = PreparedImage::prepare(img.clone());
-    let grids = prepared_img.detect_grids();
-    let qr_code = grids.first();
-
-    debug.write("qr_code", |canvas| {
-        debug::draw_qr_code_debug_image_mut(
-            canvas,
-            qr_code.map(|qr_code| {
-                let [top_left, top_right, _bottom_right, bottom_left] = qr_code.bounds;
-                Rect::new(
-                    top_left.x,
-                    top_left.y,
-                    (top_right.x - top_left.x) as u32,
-                    (bottom_left.y - top_left.y) as u32,
-                )
-            }),
-        );
-    });
-
-    let qr_code = qr_code.ok_or(BallotPageQrCodeMetadataError::NoQrCodeDetected)?;
-    let mut bytes = Vec::new();
-    qr_code.decode_to(&mut bytes).map_err(|error| {
-        BallotPageQrCodeMetadataError::UnreadableQrCode {
-            error: error.to_string(),
-        }
-    })?;
-    let metadata = decode_metadata_bits(election, &bytes)
-        .ok_or(BallotPageQrCodeMetadataError::InvalidMetadata { bytes })?;
-
-    let [top_left, _top_right, _bottom_right, _bottom_left] = qr_code.bounds;
-    let orientation = if top_left.y > geometry.canvas_size.height as i32 / 2 {
-        Orientation::Portrait
-    } else {
-        Orientation::PortraitReversed
-    };
-
-    Ok((metadata, orientation))
 }
 
 #[cfg(test)]
