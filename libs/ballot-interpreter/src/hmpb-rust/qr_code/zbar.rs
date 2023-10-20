@@ -9,9 +9,7 @@ use super::detect::{get_detection_areas, DetectError, DetectResult, DetectedQrCo
 /// image. Crops the image to improve performance.
 pub fn detect(img: &GrayImage) -> DetectResult {
     for area in get_detection_areas(img) {
-        let image = area.image();
-        let mut scanner = ZBarImageScanner::new();
-        match scanner.scan_y800(image.as_bytes(), image.width(), image.height()) {
+        match scan_image_for_qr_codes(area.image()) {
             Ok(qr_codes) => {
                 for qr_code in qr_codes {
                     if qr_code.symbol_type == ZBarSymbolType::ZBarQRCode {
@@ -29,6 +27,23 @@ pub fn detect(img: &GrayImage) -> DetectResult {
     }
 
     Err(DetectError::NoQrCodeDetected)
+}
+
+/// Configures a `zbar` scanner to only look for QR codes and returns the
+/// results of the scan.
+fn scan_image_for_qr_codes(image: &GrayImage) -> Result<Vec<ZBarImageScanResult>, &'static str> {
+    let mut scanner = ZBarImageScanner::new();
+    scanner.set_config(
+        ZBarSymbolType::ZBarNone,
+        zbar_rust::ZBarConfig::ZBarCfgEnable,
+        0,
+    )?;
+    scanner.set_config(
+        ZBarSymbolType::ZBarQRCode,
+        zbar_rust::ZBarConfig::ZBarCfgEnable,
+        1,
+    )?;
+    scanner.scan_y800(image.as_bytes(), image.width(), image.height())
 }
 
 fn get_original_bounds(origin: Point<PixelUnit>, qr_code: &ZBarImageScanResult) -> Rect {
