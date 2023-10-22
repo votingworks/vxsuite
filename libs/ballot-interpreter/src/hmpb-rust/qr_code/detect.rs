@@ -107,27 +107,15 @@ impl DetectedQrCode {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, thiserror::Error)]
 pub enum Error {
-    /// A QR code was found, but its data could not be decoded.
+    #[error("failed to decode QR code: {0}")]
     DecodeFailed(String),
-    /// An error of some kind occurred.
+    #[error("failed to detect QR code: {0}")]
     DetectFailed(String),
-    /// No QR codes were found.
+    #[error("no QR code detected")]
     NoQrCodeDetected,
 }
-
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::DecodeFailed(msg) => write!(f, "Failed to decode QR code: {msg}"),
-            Self::DetectFailed(msg) => write!(f, "Failed to detect QR code: {msg}"),
-            Self::NoQrCodeDetected => write!(f, "No QR code detected"),
-        }
-    }
-}
-
-impl std::error::Error for Error {}
 
 pub type Result = std::result::Result<DetectedQrCode, Error>;
 

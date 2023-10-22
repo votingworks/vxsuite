@@ -29,17 +29,13 @@ pub struct BallotPageQrCodeMetadata {
     pub ballot_type: BallotType,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, thiserror::Error)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum BallotPageQrCodeMetadataError {
-    QrCodeError(qr_code::Error),
+    #[error("QR code error: {0}")]
+    QrCodeError(#[from] qr_code::Error),
+    #[error("invalid metadata: {bytes:?}")]
     InvalidMetadata { bytes: Vec<u8> },
-}
-
-impl From<qr_code::Error> for BallotPageQrCodeMetadataError {
-    fn from(value: qr_code::Error) -> Self {
-        Self::QrCodeError(value)
-    }
 }
 
 const ELECTION_HASH_LENGTH: u32 = 20;

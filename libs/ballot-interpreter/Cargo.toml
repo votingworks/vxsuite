@@ -28,6 +28,7 @@ bitter = "0.6.1"
 hex = "0.4.3"
 zbar-rust = "0.0.21"
 base64 = "0.21.4"
+thiserror = "1.0.50"
 
 [dev-dependencies]
 proptest = "1.0.0"

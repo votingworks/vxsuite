@@ -1,4 +1,3 @@
-use std::fmt::Display;
 use std::path::PathBuf;
 
 use image::GenericImage;
@@ -98,91 +97,53 @@ pub struct BallotPageAndGeometry {
     pub geometry: Geometry,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, thiserror::Error)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum Error {
-    BorderInsetNotFound {
-        label: String,
-    },
+    #[error("could not find border inset for {label}")]
+    BorderInsetNotFound { label: String },
+    #[error("invalid card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
     #[serde(rename_all = "camelCase")]
     InvalidCardMetadata {
         side_a: BallotPageMetadata,
         side_b: BallotPageMetadata,
     },
+    #[error("invalid timing mark metadata for {label}: {error:?}")]
     InvalidTimingMarkMetadata {
         label: String,
         error: BallotPageTimingMarkMetadataError,
     },
+    #[error("invalid QR code metadata for {label}: {error:?}")]
     InvalidQrCodeMetadata {
         label: String,
         error: BallotPageQrCodeMetadataError,
     },
+    #[error(
+        "mismatched ballot card geometries: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
+    )]
     #[serde(rename_all = "camelCase")]
     MismatchedBallotCardGeometries {
         side_a: BallotPageAndGeometry,
         side_b: BallotPageAndGeometry,
     },
+    #[error("missing grid layout: front: {front:?}, back: {back:?}")]
     MissingGridLayout {
         front: BallotPageMetadata,
         back: BallotPageMetadata,
     },
-    MissingTimingMarks {
-        rects: Vec<Rect>,
-    },
+    #[error("missing timing marks: {rects:?}")]
+    MissingTimingMarks { rects: Vec<Rect> },
+    #[error("unexpected dimensions for {label}: {dimensions:?}")]
     UnexpectedDimensions {
         label: String,
         dimensions: Size<PixelUnit>,
     },
-    CouldNotComputeLayout {
-        side: BallotSide,
-    },
+    #[error("could not compute layout for {side:?}")]
+    CouldNotComputeLayout { side: BallotSide },
 }
 
 pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
-
-impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::BorderInsetNotFound { label } => {
-                write!(f, "Could not find border inset for {label}")
-            }
-            Self::InvalidCardMetadata { side_a, side_b } => write!(
-                f,
-                "Invalid card metadata: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
-            ),
-            Self::InvalidTimingMarkMetadata { label, error } => {
-                write!(f, "Invalid timing mark metadata for {label}: {error:?}")
-            }
-            Self::InvalidQrCodeMetadata { label, error } => {
-                write!(f, "Invalid QR code metadata for {label}: {error:?}")
-            }
-            Self::MismatchedBallotCardGeometries { side_a, side_b } => write!(
-                f,
-                "Mismatched ballot card geometries: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
-            ),
-            Self::MissingGridLayout { front, back } => write!(
-                f,
-                "Missing grid layout: front: {front:?}, back: {back:?}"
-            ),
-            Self::MissingTimingMarks { rects } => write!(
-                f,
-                "Missing timing marks: {}",
-                rects
-                    .iter()
-                    .map(|rect| format!("({:?}, {:?})", rect.left(), rect.top()))
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ),
-            Self::UnexpectedDimensions { label, dimensions } => {
-                write!(f, "Unexpected dimensions for {label}: {dimensions:?}")
-            }
-            Self::CouldNotComputeLayout { side } => {
-                write!(f, "Could not compute layout for {side:?}")
-            }
-        }
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum ResizeStrategy {
