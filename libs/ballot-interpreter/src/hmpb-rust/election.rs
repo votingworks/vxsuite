@@ -61,11 +61,10 @@ pub struct GridLayout {
 }
 
 impl GridLayout {
-    pub fn write_in_positions(&self) -> Vec<&GridPosition> {
+    pub fn write_in_positions(&self) -> impl Iterator<Item = &GridPosition> {
         self.grid_positions
             .iter()
             .filter(|grid_position| matches!(grid_position, GridPosition::WriteIn { .. }))
-            .collect()
     }
 }
 
@@ -135,7 +134,7 @@ impl GridPosition {
         }
     }
 
-    pub fn sheet_number(&self) -> u32 {
+    pub const fn sheet_number(&self) -> u32 {
         match self {
             Self::Option { sheet_number, .. } | Self::WriteIn { sheet_number, .. } => *sheet_number,
         }

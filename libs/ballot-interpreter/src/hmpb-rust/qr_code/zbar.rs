@@ -3,11 +3,11 @@ use zbar_rust::{ZBarImageScanResult, ZBarImageScanner, ZBarSymbolType};
 
 use crate::geometry::{PixelUnit, Point, Rect};
 
-use super::detect::{get_detection_areas, DetectError, DetectResult, DetectedQrCode};
+use super::detect::{get_detection_areas, DetectedQrCode, Error, Result};
 
 /// Uses the `zbar` QR code library to detect a QR code in the given ballot
 /// image. Crops the image to improve performance.
-pub fn detect(img: &GrayImage) -> DetectResult {
+pub fn detect(img: &GrayImage) -> Result {
     for area in get_detection_areas(img) {
         match scan_image_for_qr_codes(area.image()) {
             Ok(qr_codes) => {
@@ -22,16 +22,18 @@ pub fn detect(img: &GrayImage) -> DetectResult {
                     }
                 }
             }
-            Err(e) => return Err(DetectError::DetectFailed(e.to_string())),
+            Err(e) => return Err(Error::DetectFailed(e.to_string())),
         }
     }
 
-    Err(DetectError::NoQrCodeDetected)
+    Err(Error::NoQrCodeDetected)
 }
 
 /// Configures a `zbar` scanner to only look for QR codes and returns the
 /// results of the scan.
-fn scan_image_for_qr_codes(image: &GrayImage) -> Result<Vec<ZBarImageScanResult>, &'static str> {
+fn scan_image_for_qr_codes(
+    image: &GrayImage,
+) -> std::result::Result<Vec<ZBarImageScanResult>, &'static str> {
     let mut scanner = ZBarImageScanner::new();
     scanner.set_config(
         ZBarSymbolType::ZBarNone,

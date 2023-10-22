@@ -2,4 +2,4 @@ mod detect;
 mod rqrr;
 mod zbar;
 
-pub use detect::{detect, DetectError, DetectResult};
+pub use detect::{detect, Error, Result};

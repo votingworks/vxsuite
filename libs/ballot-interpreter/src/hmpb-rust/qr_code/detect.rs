@@ -20,6 +20,7 @@ pub struct DetectionArea {
 impl DetectionArea {
     /// Crops the given image at the specified point and size. Records that this
     /// detection area represents a particular orientation.
+    #[must_use]
     pub fn with_crop(
         img: &GrayImage,
         origin: Point<PixelUnit>,
@@ -38,15 +39,15 @@ impl DetectionArea {
         }
     }
 
-    pub fn origin(&self) -> Point<PixelUnit> {
+    pub const fn origin(&self) -> Point<PixelUnit> {
         self.origin
     }
 
-    pub fn orientation(&self) -> Orientation {
+    pub const fn orientation(&self) -> Orientation {
         self.orientation
     }
 
-    pub fn image(&self) -> &GrayImage {
+    pub const fn image(&self) -> &GrayImage {
         &self.image
     }
 }
@@ -96,18 +97,18 @@ impl DetectedQrCode {
     }
 
     /// Gets the bounding box of the detected QR code.
-    pub fn bounds(&self) -> Rect {
+    pub const fn bounds(&self) -> Rect {
         self.bounds
     }
 
     /// The orientation of the ballot as determined by the QR code position.
-    pub fn orientation(&self) -> Orientation {
+    pub const fn orientation(&self) -> Orientation {
         self.orientation
     }
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub enum DetectError {
+pub enum Error {
     /// A QR code was found, but its data could not be decoded.
     DecodeFailed(String),
     /// An error of some kind occurred.
@@ -116,7 +117,19 @@ pub enum DetectError {
     NoQrCodeDetected,
 }
 
-pub type DetectResult = Result<DetectedQrCode, DetectError>;
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DecodeFailed(msg) => write!(f, "Failed to decode QR code: {msg}"),
+            Self::DetectFailed(msg) => write!(f, "Failed to detect QR code: {msg}"),
+            Self::NoQrCodeDetected => write!(f, "No QR code detected"),
+        }
+    }
+}
+
+impl std::error::Error for Error {}
+
+pub type Result = std::result::Result<DetectedQrCode, Error>;
 
 /// Detect a QR code in the given ballot image. The QR code is assumed to be in either
 /// the top-right or bottom-left corner and will be cropped to limit the amount of the
@@ -124,22 +137,22 @@ pub type DetectResult = Result<DetectedQrCode, DetectError>;
 ///
 /// If the data read from the QR code can be read as base64, then the decoded data will
 /// be returned instead of the original base64 data.
-pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> DetectResult {
+pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
     let rqrr_result = rqrr::detect(img);
     let detect_result = rqrr_result.or_else(|_| zbar::detect(img));
 
     debug.write("qr_code", |canvas| {
         debug::draw_qr_code_debug_image_mut(
             canvas,
-            detect_result.as_ref().ok().map(|result| result.bounds()),
+            detect_result.as_ref().ok().map(DetectedQrCode::bounds),
         );
     });
 
     detect_result.map(|qr_code| {
         // attempt to base64 decode the data
         let bytes = STANDARD
-            .decode(&qr_code.bytes())
-            .unwrap_or_else(|_| qr_code.bytes().to_vec());
+            .decode(qr_code.bytes())
+            .unwrap_or_else(|_| qr_code.bytes().clone());
         DetectedQrCode::new(bytes, qr_code.bounds(), qr_code.orientation())
     })
 }

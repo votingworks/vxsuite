@@ -32,13 +32,13 @@ pub struct BallotPageQrCodeMetadata {
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum BallotPageQrCodeMetadataError {
-    QrCodeError(qr_code::DetectError),
+    QrCodeError(qr_code::Error),
     InvalidMetadata { bytes: Vec<u8> },
 }
 
-impl From<qr_code::DetectError> for BallotPageQrCodeMetadataError {
-    fn from(value: qr_code::DetectError) -> Self {
-        BallotPageQrCodeMetadataError::QrCodeError(value)
+impl From<qr_code::Error> for BallotPageQrCodeMetadataError {
+    fn from(value: qr_code::Error) -> Self {
+        Self::QrCodeError(value)
     }
 }
 
@@ -46,13 +46,14 @@ const ELECTION_HASH_LENGTH: u32 = 20;
 const HEX_BYTES_PER_CHAR: u32 = 2;
 const MAXIMUM_PAGE_NUMBERS: u32 = 30;
 const BALLOT_TYPE_MAXIMUM_VALUE: u32 = 2_u32.pow(4) - 1;
+const HMPB_PRELUDE: &[u8] = b"VP\x02";
 
 pub fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotPageQrCodeMetadata> {
     let mut bits = BigEndianReader::new(bytes);
 
     let mut prelude = [0; 3];
     bits.read_bytes(&mut prelude);
-    if prelude != b"VP\x02".as_bytes() {
+    if prelude != HMPB_PRELUDE.as_bytes() {
         return None;
     }
 

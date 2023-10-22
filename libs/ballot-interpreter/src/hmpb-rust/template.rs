@@ -90,8 +90,7 @@ pub fn find_template_grid_and_bubbles(
         (Ok(a), Ok(b)) => (a, b),
         (Err(err), _) | (_, Err(err)) => {
             return Err(Error::TimingMarkGridError(format!(
-                "failed to find timing mark grid for ballot card: {:?}",
-                err
+                "failed to find timing mark grid for ballot card: {err:?}"
             )));
         }
     };

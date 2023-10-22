@@ -385,11 +385,11 @@ pub fn interpret_ballot_card(
                             error: BallotPageQrCodeMetadataError::QrCodeError(e),
                         }
                     })?;
-                    let metadata = decode_metadata_bits(&options.election, &qr_code.bytes())
+                    let metadata = decode_metadata_bits(&options.election, qr_code.bytes())
                         .ok_or_else(|| Error::InvalidQrCodeMetadata {
                             label: label.to_string(),
                             error: BallotPageQrCodeMetadataError::InvalidMetadata {
-                                bytes: qr_code.bytes().to_vec(),
+                                bytes: qr_code.bytes().clone(),
                             },
                         })?;
                     Ok((metadata, qr_code.orientation()))
@@ -517,7 +517,9 @@ pub fn interpret_ballot_card(
     };
 
     let sheet_number = match &front_metadata {
-        BallotPageMetadata::QrCode(metadata) => (metadata.page_number as f32 / 2.0).ceil() as u32,
+        BallotPageMetadata::QrCode(metadata) => {
+            (f32::from(metadata.page_number) / 2.0).ceil() as u32
+        }
         BallotPageMetadata::TimingMarks(_) => 1,
     };
 
@@ -548,33 +550,34 @@ pub fn interpret_ballot_card(
     let front_contest_layouts = front_contest_layouts?;
     let back_contest_layouts = back_contest_layouts?;
 
-    let (front_write_in_area_scores, back_write_in_area_scores) = if !options.score_write_ins {
-        (vec![], vec![])
-    } else {
-        par_map_pair(
-            (
-                &front_image,
-                &front_contest_layouts,
-                &front_scored_bubble_marks,
-                &front_debug,
-            ),
-            (
-                &back_image,
-                &back_contest_layouts,
-                &back_scored_bubble_marks,
-                &back_debug,
-            ),
-            |(image, contest_layouts, scored_bubble_marks, debug)| {
-                score_write_in_areas(
-                    image,
-                    grid_layout,
-                    contest_layouts,
-                    scored_bubble_marks,
-                    debug,
-                )
-            },
-        )
-    };
+    let (front_write_in_area_scores, back_write_in_area_scores) = options
+        .score_write_ins
+        .then(|| {
+            par_map_pair(
+                (
+                    &front_image,
+                    &front_contest_layouts,
+                    &front_scored_bubble_marks,
+                    &front_debug,
+                ),
+                (
+                    &back_image,
+                    &back_contest_layouts,
+                    &back_scored_bubble_marks,
+                    &back_debug,
+                ),
+                |(image, contest_layouts, scored_bubble_marks, debug)| {
+                    score_write_in_areas(
+                        image,
+                        grid_layout,
+                        contest_layouts,
+                        scored_bubble_marks,
+                        debug,
+                    )
+                },
+            )
+        })
+        .unwrap_or_default();
 
     Ok(InterpretedBallotCard {
         front: InterpretedBallotPage {
@@ -650,7 +653,7 @@ mod test {
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
         let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        for (side_a_name, side_b_name) in vec![
+        for (side_a_name, side_b_name) in [
             ("scan-side-a.jpeg", "scan-side-b.jpeg"),
             ("scan-rotated-side-b.jpeg", "scan-rotated-side-a.jpeg"),
         ] {

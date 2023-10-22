@@ -245,8 +245,8 @@ pub fn match_template<
 
     let mut diff = 0.0;
     for (image_pixel, template_pixel) in image.pixels().zip(template.pixels()) {
-        let image_luma = (image_pixel.2[0]) as f32;
-        let template_luma = (template_pixel.2[0]) as f32;
+        let image_luma = f32::from(image_pixel.2[0]);
+        let template_luma = f32::from(template_pixel.2[0]);
         diff += (image_luma - template_luma).abs();
     }
     1.0 - (diff / (image.width() * image.height()) as f32 / f32::from(u8::MAX))

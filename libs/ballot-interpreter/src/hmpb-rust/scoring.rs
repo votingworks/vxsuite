@@ -265,7 +265,6 @@ pub fn score_write_in_areas(
 
     let scored_write_in_areas = grid_layout
         .write_in_positions()
-        .iter()
         .filter_map(|grid_position| {
             let (_, scored_bubble_mark) =
                 scored_bubble_marks

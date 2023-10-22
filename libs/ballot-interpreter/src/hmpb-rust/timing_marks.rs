@@ -934,10 +934,8 @@ pub fn normalize_orientation(
             draw_timing_mark_debug_image_mut(
                 canvas,
                 geometry,
-                &Partial {
-                    ..complete_timing_marks.clone().into()
-                },
-            )
+                &complete_timing_marks.clone().into(),
+            );
         },
     );
 
