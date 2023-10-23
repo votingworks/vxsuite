@@ -1,4 +1,9 @@
-import { Candidate, CandidateContest, Tabulation } from '@votingworks/types';
+import {
+  Candidate,
+  CandidateContest,
+  CandidateId,
+  Tabulation,
+} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { combineCandidateContestResults } from './tabulation';
 
@@ -64,14 +69,157 @@ function getAllWriteInRows({
   return rows;
 }
 
-export function getTallyReportCandidateRows({
+function getInsignificantWriteInCount({
+  contestResults,
+  significantWriteInCandidateIds,
+}: {
+  contestResults: Tabulation.CandidateContestResults;
+  significantWriteInCandidateIds: CandidateId[];
+}): number {
+  return Object.values(contestResults.tallies).reduce(
+    (aggregateCount: number, candidateTally: Tabulation.CandidateTally) => {
+      if (
+        candidateTally.isWriteIn &&
+        !isNonCandidateWriteInTally(candidateTally) &&
+        !significantWriteInCandidateIds.includes(candidateTally.id)
+      ) {
+        return aggregateCount + candidateTally.tally;
+      }
+      return aggregateCount;
+    },
+    0
+  );
+}
+
+function getAggregatedWriteInRows({
   contest,
+  combinedContestResults,
   scannedContestResults,
   manualContestResults,
 }: {
   contest: CandidateContest;
+  combinedContestResults: Tabulation.CandidateContestResults;
   scannedContestResults: Tabulation.CandidateContestResults;
   manualContestResults?: Tabulation.CandidateContestResults;
+}): TallyReportCandidateRow[] {
+  const candidateTalliesDescending = Object.values(
+    combinedContestResults.tallies
+  )
+    .sort((a: Tabulation.CandidateTally, b: Tabulation.CandidateTally) => {
+      return -(a.tally - b.tally); // sort by descending vote tally
+    })
+    .filter((candidateTally) => !isNonCandidateWriteInTally(candidateTally));
+
+  // The least number of votes for someone is winning the race. Notes:
+  // - winner may change as more results are imported or adjudicated
+  // - winner may not be the overall election winner if the report is filtered
+  // - with multiple seats, multiple candidates will be winners
+  const leastNumberVotesForWinner: number =
+    candidateTalliesDescending.at(contest.seats - 1)?.tally ?? 0;
+
+  const writeInCandidateTalliesDescending = candidateTalliesDescending.filter(
+    (candidateTally) => candidateTally.isWriteIn
+  );
+  const significantWriteInCandidates: Tabulation.CandidateTally[] = [];
+
+  while (
+    significantWriteInCandidates.length <
+      writeInCandidateTalliesDescending.length &&
+    getInsignificantWriteInCount({
+      contestResults: combinedContestResults,
+      significantWriteInCandidateIds: significantWriteInCandidates.map(
+        (c) => c.id
+      ),
+    }) >= leastNumberVotesForWinner
+  ) {
+    significantWriteInCandidates.push(
+      assertDefined(
+        writeInCandidateTalliesDescending[significantWriteInCandidates.length]
+      )
+    );
+  }
+
+  const rows: TallyReportCandidateRow[] = [];
+  let hasSomeWriteInRow = false;
+
+  // each significant write-in candidate gets its own row
+  for (const candidate of significantWriteInCandidates) {
+    hasSomeWriteInRow = true;
+    rows.push({
+      ...addWriteInLabelToName(candidate),
+      scannedTally: scannedContestResults.tallies[candidate.id]?.tally ?? 0,
+      manualTally: manualContestResults?.tallies[candidate.id]?.tally ?? 0,
+    });
+  }
+
+  // bucket insignificant write-ins together
+  const significantWriteInCandidateIds = significantWriteInCandidates.map(
+    (c) => c.id
+  );
+  const scannedInsignificantWriteInCount = getInsignificantWriteInCount({
+    contestResults: scannedContestResults,
+    significantWriteInCandidateIds,
+  });
+  const manualInsignificantWriteInCount = manualContestResults
+    ? getInsignificantWriteInCount({
+        contestResults: manualContestResults,
+        significantWriteInCandidateIds,
+      })
+    : 0;
+  if (
+    scannedInsignificantWriteInCount > 0 ||
+    manualInsignificantWriteInCount > 0
+  ) {
+    hasSomeWriteInRow = true;
+    rows.push({
+      id: 'write-in-other',
+      name:
+        significantWriteInCandidateIds.length > 0
+          ? 'Other Write-In'
+          : Tabulation.GENERIC_WRITE_IN_NAME,
+      scannedTally: scannedInsignificantWriteInCount,
+      manualTally: manualInsignificantWriteInCount,
+    });
+  }
+
+  // separately include pending or generic write-ins
+  const nonCandidateWriteInTallies = Object.values(
+    scannedContestResults.tallies
+  )
+    .filter(isNonCandidateWriteInTally)
+    .filter((ct) => ct.tally > 0);
+  for (const nonCandidateWriteInTally of nonCandidateWriteInTallies) {
+    hasSomeWriteInRow = true;
+    rows.push({
+      ...nonCandidateWriteInTally,
+      scannedTally: nonCandidateWriteInTally.tally,
+      manualTally: 0,
+    });
+  }
+
+  // if the contest allows write-ins but there are not any rows showing
+  // write-in data, add a placeholder row
+  if (!hasSomeWriteInRow && contest.allowWriteIns) {
+    rows.push({
+      ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
+      scannedTally: 0,
+      manualTally: 0,
+    });
+  }
+
+  return rows;
+}
+
+export function getTallyReportCandidateRows({
+  contest,
+  scannedContestResults,
+  manualContestResults,
+  aggregateInsignificantWriteIns,
+}: {
+  contest: CandidateContest;
+  scannedContestResults: Tabulation.CandidateContestResults;
+  manualContestResults?: Tabulation.CandidateContestResults;
+  aggregateInsignificantWriteIns: boolean;
 }): TallyReportCandidateRow[] {
   const combinedContestResults = manualContestResults
     ? combineCandidateContestResults({
@@ -92,13 +240,24 @@ export function getTallyReportCandidateRows({
     });
   }
 
-  rows.push(
-    ...getAllWriteInRows({
-      combinedContestResults,
-      scannedContestResults,
-      manualContestResults,
-    })
-  );
+  if (aggregateInsignificantWriteIns) {
+    rows.push(
+      ...getAggregatedWriteInRows({
+        contest,
+        combinedContestResults,
+        scannedContestResults,
+        manualContestResults,
+      })
+    );
+  } else {
+    rows.push(
+      ...getAllWriteInRows({
+        combinedContestResults,
+        scannedContestResults,
+        manualContestResults,
+      })
+    );
+  }
 
   return rows;
 }
