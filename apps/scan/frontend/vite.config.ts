@@ -86,6 +86,10 @@ export default defineConfig(async (env) => {
       },
     ],
 
+    server: {
+      port: 3000,
+    },
+
     // Pass some environment variables to the client in `import.meta.env`.
     envPrefix,
   };
