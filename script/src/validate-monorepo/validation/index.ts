@@ -32,6 +32,7 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
       'react',
       'react-dom',
       'typescript',
+      'vite'
     ],
     workspacePackages,
   });

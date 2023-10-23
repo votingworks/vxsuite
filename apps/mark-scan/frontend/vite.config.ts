@@ -81,6 +81,7 @@ export default defineConfig((env) => {
     server: {
       hmr:
         process.env.DISABLE_MARKSCAN_HOT_RELOAD === 'true' ? false : undefined,
+      port: 3000,
     },
 
     plugins: [
