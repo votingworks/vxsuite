@@ -401,7 +401,7 @@ test('modifyElectionResultsWithWriteInSummary', () => {
       'write-in': {
         id: 'write-in',
         isWriteIn: true,
-        name: 'Pending Write-In',
+        name: 'Unadjudicated Write-In',
         tally: 11,
       },
     },
