@@ -1,5 +1,5 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { Tabulation, writeInCandidate } from '@votingworks/types';
+import { Tabulation } from '@votingworks/types';
 import { buildElectionResultsFixture } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { generateBatchResultsFile } from './batch_results';
@@ -22,7 +22,7 @@ test('generateBatchResultsFile', async () => {
           overvotes: 3,
           officialOptionTallies: {
             lion: 25,
-            [writeInCandidate.id]: 5,
+            [Tabulation.GENERIC_WRITE_IN_ID]: 5,
           },
         },
         fishing: {
@@ -50,7 +50,7 @@ test('generateBatchResultsFile', async () => {
           overvotes: 3,
           officialOptionTallies: {
             lion: 20,
-            [writeInCandidate.id]: 6,
+            [Tabulation.GENERIC_WRITE_IN_ID]: 6,
           },
         },
         fishing: {

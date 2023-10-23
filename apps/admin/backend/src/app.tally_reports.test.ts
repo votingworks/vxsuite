@@ -8,7 +8,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
-import { writeInCandidate } from '@votingworks/types';
+import { Tabulation } from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -261,9 +261,9 @@ test('general, reports by voting method, manual data', async () => {
           type: 'candidate',
           ballots: 10,
           writeInOptionTallies: {
-            [writeInCandidate.id]: {
+            [Tabulation.GENERIC_WRITE_IN_ID]: {
               tally: 10,
-              name: writeInCandidate.name,
+              name: Tabulation.GENERIC_WRITE_IN_NAME,
             },
           },
         },

@@ -7,7 +7,6 @@ import {
   Election,
   Tabulation,
   unsafeParse,
-  writeInCandidate,
   YesNoContestCompressedTally,
   YesNoContestCompressedTallySchema,
 } from '@votingworks/types';
@@ -45,7 +44,7 @@ export function compressTally(
           ...contest.candidates.map(
             (candidate) => contestResults?.tallies[candidate.id]?.tally ?? 0
           ),
-          contestResults?.tallies[writeInCandidate.id]?.tally ?? 0, // writeIns
+          contestResults?.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally ?? 0, // writeIns
         ]);
       }
 
@@ -104,8 +103,8 @@ function getContestTalliesForCompressedContest(
         // write ins will be the last thing in the array after the metadata (3 items) and all candidates
         const writeInTally = tallyByCandidate.pop();
         assert(writeInTally !== undefined);
-        candidateTallies[writeInCandidate.id] = {
-          ...writeInCandidate,
+        candidateTallies[Tabulation.GENERIC_WRITE_IN_ID] = {
+          ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
           tally: writeInTally,
         };
       }

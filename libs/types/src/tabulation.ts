@@ -198,6 +198,32 @@ export interface ElectionWriteInSummary {
   contestWriteInSummaries: Record<ContestId, ContestWriteInSummary>;
 }
 
+/** ID for an unadjudicated write-in */
+export const GENERIC_WRITE_IN_ID = 'write-in';
+/** Placeholder name for an unadjudicated write-in */
+export const GENERIC_WRITE_IN_NAME = 'Write-In';
+/**
+ * Represents an unadjudicated write-in, which ultimately may not be a vote
+ * for a candidate.
+ */
+export const GENERIC_WRITE_IN_CANDIDATE: Candidate = {
+  id: GENERIC_WRITE_IN_ID,
+  name: GENERIC_WRITE_IN_NAME,
+  isWriteIn: true,
+};
+
+export const PENDING_WRITE_IN_ID = GENERIC_WRITE_IN_ID;
+export const PENDING_WRITE_IN_NAME = 'Unadjudicated Write-In';
+/**
+ * Represents a pending write-in, which ultimately may not be a vote for a
+ * candidate. Distinguished
+ */
+export const PENDING_WRITE_IN_CANDIDATE: Candidate = {
+  id: PENDING_WRITE_IN_ID,
+  name: PENDING_WRITE_IN_NAME,
+  isWriteIn: true,
+};
+
 /**
  * Minimal information about a scanner batch.
  */

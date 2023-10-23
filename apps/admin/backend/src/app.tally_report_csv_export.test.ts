@@ -98,7 +98,7 @@ it('exports expected results for full election', async () => {
     'Contest ID',
     'Selection',
     'Selection ID',
-    'Votes',
+    'Total Votes',
   ]);
 
   const bestAnimalMammalExpectedValues: Record<string, string> = {
@@ -160,7 +160,7 @@ it('logs failure if export fails for some reason', async () => {
   );
 });
 
-it('incorporates wia and manual data', async () => {
+it('incorporates wia and manual data (grouping by voting method)', async () => {
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election } = electionDefinition;
@@ -180,60 +180,86 @@ it('incorporates wia and manual data', async () => {
   const candidateContestId =
     'State-Representatives-Hillsborough-District-34-b1012d38';
   const officialCandidateId = 'Obadiah-Carrigan-5c95145a';
+  const officialCandidateName = 'Obadiah Carrigan';
 
   function rowExists(
     rows: ReturnType<typeof parseCsv>['rows'],
-    selectionId: string,
-    votingMethod: string,
-    votes: number
+    {
+      selection,
+      selectionId,
+      votingMethod,
+      totalVotes,
+      scannedVotes,
+      manualVotes,
+    }: {
+      selection: string;
+      selectionId: string;
+      votingMethod: string;
+      totalVotes: number;
+      scannedVotes?: number;
+      manualVotes?: number;
+    }
   ): boolean {
     return rows.some(
       (row) =>
+        row['Selection'] === selection &&
         row['Selection ID'] === selectionId &&
         row['Voting Method'] === votingMethod &&
-        row['Votes'] === votes.toString()
+        row['Total Votes'] === totalVotes.toString() &&
+        (!scannedVotes || row['Scanned Votes'] === scannedVotes.toString()) &&
+        (!manualVotes || row['Manual Votes'] === manualVotes.toString())
     );
   }
 
   // check initial export, without wia and manual data
-  const { rows: rowsInitial } = await getParsedExport({
+  const { headers: headersInitial, rows: rowsInitial } = await getParsedExport({
     apiClient,
     groupBy,
   });
+  expect(headersInitial).toEqual([
+    'Voting Method',
+    'Contest',
+    'Contest ID',
+    'Selection',
+    'Selection ID',
+    'Total Votes',
+  ]);
 
   // initial official candidate counts
   expect(
-    rowExists(rowsInitial, officialCandidateId, 'Precinct', 30)
+    rowExists(rowsInitial, {
+      selection: officialCandidateName,
+      selectionId: officialCandidateId,
+      votingMethod: 'Precinct',
+      totalVotes: 30,
+    })
   ).toBeTruthy();
   expect(
-    rowExists(rowsInitial, officialCandidateId, 'Absentee', 30)
+    rowExists(rowsInitial, {
+      selection: officialCandidateName,
+      selectionId: officialCandidateId,
+      votingMethod: 'Precinct',
+      totalVotes: 30,
+    })
   ).toBeTruthy();
 
   // initial generic write-in counts
-  expect(rowExists(rowsInitial, 'write-in', 'Absentee', 28)).toBeTruthy();
-  expect(rowExists(rowsInitial, 'write-in', 'Precinct', 28)).toBeTruthy();
-
-  // add manual data
-  await apiClient.setManualResults({
-    precinctId: election.precincts[0]!.id,
-    votingMethod: 'absentee',
-    ballotStyleId: election.ballotStyles[0]!.id,
-    manualResults: buildManualResultsFixture({
-      election,
-      ballotCount: 10,
-      contestResultsSummaries: {
-        [candidateContestId]: {
-          type: 'candidate',
-          ballots: 10,
-          overvotes: 0,
-          undervotes: 0,
-          officialOptionTallies: {
-            [officialCandidateId]: 10,
-          },
-        },
-      },
-    }),
-  });
+  expect(
+    rowExists(rowsInitial, {
+      selection: Tabulation.PENDING_WRITE_IN_NAME,
+      selectionId: Tabulation.PENDING_WRITE_IN_ID,
+      votingMethod: 'Precinct',
+      totalVotes: 28,
+    })
+  ).toBeTruthy();
+  expect(
+    rowExists(rowsInitial, {
+      selection: Tabulation.PENDING_WRITE_IN_NAME,
+      selectionId: Tabulation.PENDING_WRITE_IN_ID,
+      votingMethod: 'Absentee',
+      totalVotes: 28,
+    })
+  ).toBeTruthy();
 
   // adjudicate write-ins for unofficial candidate
   const writeInCandidate = await apiClient.addWriteInCandidate({
@@ -251,34 +277,120 @@ it('incorporates wia and manual data', async () => {
     });
   }
 
+  // add manual data
+  const manualOnlyWriteInCandidate = await apiClient.addWriteInCandidate({
+    contestId: candidateContestId,
+    name: 'Ms. Bean',
+  });
+  await apiClient.setManualResults({
+    precinctId: election.precincts[0]!.id,
+    votingMethod: 'absentee',
+    ballotStyleId: election.ballotStyles[0]!.id,
+    manualResults: buildManualResultsFixture({
+      election,
+      ballotCount: 20,
+      contestResultsSummaries: {
+        [candidateContestId]: {
+          type: 'candidate',
+          ballots: 20,
+          overvotes: 0,
+          undervotes: 0,
+          officialOptionTallies: {
+            [officialCandidateId]: 10,
+          },
+          writeInOptionTallies: {
+            [writeInCandidate.id]: {
+              name: writeInCandidate.name,
+              tally: 5,
+            },
+            [manualOnlyWriteInCandidate.id]: {
+              name: manualOnlyWriteInCandidate.name,
+              tally: 5,
+            },
+          },
+        },
+      },
+    }),
+  });
+
   // check final export, with wia and manual data
-  const { rows: rowsFinal } = await getParsedExport({
+  const { headers: headersFinal, rows: rowsFinal } = await getParsedExport({
     apiClient,
     groupBy,
   });
+  expect(headersFinal).toEqual([
+    'Voting Method',
+    'Contest',
+    'Contest ID',
+    'Selection',
+    'Selection ID',
+    'Manual Votes',
+    'Scanned Votes',
+    'Total Votes',
+  ]);
 
   // final official candidate counts
   expect(
-    rowExists(rowsFinal, officialCandidateId, 'Precinct', 30)
+    rowExists(rowsFinal, {
+      selection: officialCandidateName,
+      selectionId: officialCandidateId,
+      votingMethod: 'Precinct',
+      manualVotes: 0,
+      scannedVotes: 30,
+      totalVotes: 30,
+    })
   ).toBeTruthy();
   expect(
-    rowExists(rowsFinal, officialCandidateId, 'Absentee', 40)
+    rowExists(rowsFinal, {
+      selection: officialCandidateName,
+      selectionId: officialCandidateId,
+      votingMethod: 'Absentee',
+      manualVotes: 10,
+      scannedVotes: 30,
+      totalVotes: 40,
+    })
   ).toBeTruthy(); // manual data reflected
 
-  // added write-in candidate counts
+  // adjudicated write-in candidate counts
   expect(
-    rowExists(rowsFinal, writeInCandidate.id, 'Absentee', 28)
+    rowExists(rowsFinal, {
+      selection: `${writeInCandidate.name} (Write-In)`,
+      selectionId: writeInCandidate.id,
+      votingMethod: 'Precinct',
+      manualVotes: 0,
+      scannedVotes: 28,
+      totalVotes: 28,
+    })
   ).toBeTruthy();
   expect(
-    rowExists(rowsFinal, writeInCandidate.id, 'Precinct', 28)
+    rowExists(rowsFinal, {
+      selection: `${writeInCandidate.name} (Write-In)`,
+      selectionId: writeInCandidate.id,
+      votingMethod: 'Absentee',
+      manualVotes: 5,
+      scannedVotes: 28,
+      totalVotes: 33,
+    })
   ).toBeTruthy();
 
-  // generic write-in counts should be gone
+  // manual-only write-in candidate counts
+  expect(
+    rowExists(rowsFinal, {
+      selection: `${manualOnlyWriteInCandidate.name} (Write-In)`,
+      selectionId: manualOnlyWriteInCandidate.id,
+      votingMethod: 'Absentee',
+      manualVotes: 5,
+      scannedVotes: 0,
+      totalVotes: 5,
+    })
+  ).toBeTruthy();
+
+  // pending write-in counts should be gone
   expect(
     rowsFinal.some(
       (r) =>
         r['Contest ID'] === candidateContestId &&
-        r['Selection ID'] === 'write-in'
+        r['Selection ID'] === Tabulation.PENDING_WRITE_IN_ID
     )
   ).toBeFalsy();
 });

@@ -142,11 +142,6 @@ export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
   partyIds: z.array(PartyIdSchema).optional(),
 });
 
-export const writeInCandidate: Candidate = {
-  id: 'write-in',
-  name: 'Write-In',
-  isWriteIn: true,
-};
 export type OptionalCandidate = Optional<Candidate>;
 export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
   CandidateSchema.optional();

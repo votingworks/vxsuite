@@ -7,8 +7,8 @@ import {
 import {
   BallotTargetMark,
   CandidateContest,
+  Tabulation,
   WriteInCandidate,
-  writeInCandidate,
   YesNoContest,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
@@ -62,7 +62,9 @@ test('normalizeWriteInId', () => {
   expect(normalizeWriteInId('arandomword')).toEqual('arandomword');
   expect(normalizeWriteInId('writeIn-123')).toEqual('writeIn-123');
   expect(normalizeWriteInId('__write-in-123')).toEqual('__write-in-123');
-  expect(normalizeWriteInId('write-in-123456')).toEqual(writeInCandidate.id);
+  expect(normalizeWriteInId('write-in-123456')).toEqual(
+    Tabulation.GENERIC_WRITE_IN_ID
+  );
 });
 
 const ballotTargetMarkBase: Pick<
@@ -147,7 +149,7 @@ test('markInfoToVotesDict candidate', () => {
       [writeInCandidateForMayorMark]
     )
   ).toEqual({
-    [mayorContest.id]: [writeInCandidate],
+    [mayorContest.id]: [Tabulation.GENERIC_WRITE_IN_CANDIDATE],
   });
   expect(
     convertMarksToVotesDict(

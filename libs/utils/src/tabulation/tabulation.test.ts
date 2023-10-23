@@ -1,5 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
+  electionTwoPartyPrimary,
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -7,10 +8,10 @@ import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import {
   CVR,
   Tabulation,
-  writeInCandidate,
   YesNoContest,
   safeParseJson,
   CastVoteRecordExportFileName,
+  CandidateContest,
 } from '@votingworks/types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -37,6 +38,8 @@ import {
   getSheetCount,
   getScannedBallotCount,
   getHmpbBallotCount,
+  combineCandidateContestResults,
+  buildContestResultsFixture,
 } from './tabulation';
 import {
   convertCastVoteRecordVotesToTabulationVotes,
@@ -436,7 +439,7 @@ test('buildElectionResultsFixture', () => {
       'zoo-council-mammal'
     ] as Tabulation.CandidateContestResults;
   expect(
-    zooCouncilMammalWithGenericWriteIn.tallies[writeInCandidate.id]
+    zooCouncilMammalWithGenericWriteIn.tallies[Tabulation.GENERIC_WRITE_IN_ID]
   ).toBeDefined();
 
   // check that manual results fixture matches the regular election fixture
@@ -1255,8 +1258,8 @@ test('mergeManualWriteInTallies', () => {
             elephant: 4,
           },
           writeInOptionTallies: {
-            [writeInCandidate.id]: {
-              name: writeInCandidate.name,
+            [Tabulation.GENERIC_WRITE_IN_ID]: {
+              name: Tabulation.GENERIC_WRITE_IN_NAME,
               tally: 5,
             },
           },
@@ -1264,4 +1267,57 @@ test('mergeManualWriteInTallies', () => {
       },
     })
   );
+});
+
+test('combinedCandidateContestResults - does not alter original tallies', () => {
+  const contest = find(
+    electionTwoPartyPrimary.contests,
+    (c) => c.id === 'zoo-council-mammal'
+  ) as CandidateContest;
+  const contestResultsA = buildContestResultsFixture({
+    contest,
+    contestResultsSummary: {
+      type: 'candidate',
+      ballots: 50,
+      writeInOptionTallies: {
+        'write-in-1': {
+          name: 'Write-In 1',
+          tally: 10,
+        },
+        'write-in-2': {
+          name: 'Write-In 2',
+          tally: 40,
+        },
+      },
+    },
+  }) as Tabulation.CandidateContestResults;
+
+  const contestResultsB = buildContestResultsFixture({
+    contest,
+    contestResultsSummary: {
+      type: 'candidate',
+      ballots: 50,
+      writeInOptionTallies: {
+        'write-in-1': {
+          name: 'Write-In 1',
+          tally: 20,
+        },
+        'write-in-3': {
+          name: 'Write-In 3',
+          tally: 30,
+        },
+      },
+    },
+  }) as Tabulation.CandidateContestResults;
+
+  const aString = JSON.stringify(contestResultsA);
+  const bString = JSON.stringify(contestResultsB);
+
+  combineCandidateContestResults({
+    contest,
+    allContestResults: [contestResultsA, contestResultsB],
+  });
+
+  expect(JSON.stringify(contestResultsA)).toEqual(aString);
+  expect(JSON.stringify(contestResultsB)).toEqual(bString);
 });

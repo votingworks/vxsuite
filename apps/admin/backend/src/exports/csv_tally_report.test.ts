@@ -1,6 +1,7 @@
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import { find } from '@votingworks/basics';
+import { buildManualResultsFixture } from '@votingworks/utils';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
@@ -39,7 +40,7 @@ test('uses appropriate headers', async () => {
     'Contest ID',
     'Selection',
     'Selection ID',
-    'Votes',
+    'Total Votes',
   ];
 
   const SHARED_ROW_VALUES: Record<string, string> = {
@@ -55,7 +56,7 @@ test('uses appropriate headers', async () => {
     'Contest ID': 'fishing',
     Selection: 'YES',
     'Selection ID': 'ban-fishing',
-    Votes: '1',
+    'Total Votes': '1',
   };
 
   const testCases: Array<{
@@ -211,7 +212,7 @@ test('uses appropriate headers', async () => {
 
     const row = find(
       rows,
-      (r) => r['Votes'] === '1' && r['Selection ID'] === 'ban-fishing'
+      (r) => r['Total Votes'] === '1' && r['Selection ID'] === 'ban-fishing'
     );
     const expectedAttributes: Record<string, string> = {
       ...SHARED_ROW_VALUES,
@@ -347,4 +348,103 @@ test('does not include results groups when they are excluded by the filter', asy
   expect(
     precinctRows.some((r) => r['Voting Method'] === 'Precinct')
   ).toBeTruthy();
+});
+
+test('incorporates manual data', async () => {
+  const store = Store.memoryStore();
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { election, electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  store.setCurrentElectionId(electionId);
+
+  // add some mock cast vote records with one vote each
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: {
+        'zoo-council-mammal': ['lion', 'kangaroo', 'elephant'],
+        fishing: ['ban-fishing'],
+      },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  store.setManualResults({
+    electionId,
+    precinctId: 'precinct-1',
+    ballotStyleId: '1M',
+    votingMethod: 'absentee',
+    manualResults: buildManualResultsFixture({
+      election,
+      ballotCount: 20,
+      contestResultsSummaries: {
+        'zoo-council-mammal': {
+          type: 'candidate',
+          ballots: 20,
+          overvotes: 3,
+          undervotes: 2,
+          officialOptionTallies: {
+            lion: 10,
+            kangaroo: 5,
+          },
+        },
+        fishing: {
+          type: 'yesno',
+          ballots: 20,
+          undervotes: 6,
+          overvotes: 4,
+          yesTally: 1,
+          noTally: 9,
+        },
+      },
+    }),
+  });
+
+  const stream = await generateTallyReportCsv({
+    store,
+  });
+  const fileContents = await streamToString(stream);
+  const { rows } = parseCsv(fileContents);
+  expect(
+    rows
+      .filter((r) => r['Contest ID'] === 'zoo-council-mammal')
+      .map((row) => [
+        row['Selection ID'],
+        row['Manual Votes'],
+        row['Scanned Votes'],
+        row['Total Votes'],
+      ])
+  ).toEqual([
+    ['zebra', '0', '0', '0'],
+    ['lion', '10', '1', '11'],
+    ['kangaroo', '5', '1', '6'],
+    ['elephant', '0', '1', '1'],
+    ['overvotes', '3', '0', '3'],
+    ['undervotes', '2', '0', '2'],
+  ]);
+
+  expect(
+    rows
+      .filter((r) => r['Contest ID'] === 'fishing')
+      .map((row) => [
+        row['Selection ID'],
+        row['Manual Votes'],
+        row['Scanned Votes'],
+        row['Total Votes'],
+      ])
+  ).toEqual([
+    ['ban-fishing', '1', '1', '2'],
+    ['allow-fishing', '9', '0', '9'],
+    ['overvotes', '4', '0', '4'],
+    ['undervotes', '6', '0', '6'],
+  ]);
 });
