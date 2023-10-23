@@ -16,6 +16,15 @@ function isNonCandidateWriteInTally(
   );
 }
 
+function addWriteInLabelToName(
+  candidateTally: Tabulation.CandidateTally
+): Tabulation.CandidateTally {
+  return {
+    ...candidateTally,
+    name: `${candidateTally.name} (Write-In)`,
+  };
+}
+
 function getAllWriteInRows({
   combinedContestResults,
   scannedContestResults,
@@ -41,7 +50,7 @@ function getAllWriteInRows({
 
   // list write-in candidates first, then other write-in counts
   for (const candidateTally of [
-    ...writeInCandidateTallies,
+    ...writeInCandidateTallies.map(addWriteInLabelToName),
     ...otherWriteInTallies,
   ]) {
     rows.push({

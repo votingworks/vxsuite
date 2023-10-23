@@ -75,8 +75,8 @@ test('getTallyReportRows', () => {
     ['lion', 'Lion', 0, 0],
     ['kangaroo', 'Kangaroo', 0, 0],
     ['elephant', 'Elephant', 0, 0],
-    ['write-in-1', 'Write-In 1', 5, 0],
-    ['write-in-2', 'Write-In 2', 5, 0],
+    ['write-in-1', 'Write-In 1 (Write-In)', 5, 0],
+    ['write-in-2', 'Write-In 2 (Write-In)', 5, 0],
     ['write-in', 'Unadjudicated Write-In', 1, 0],
   ]);
 
@@ -91,9 +91,9 @@ test('getTallyReportRows', () => {
     ['lion', 'Lion', 0, 20],
     ['kangaroo', 'Kangaroo', 0, 0],
     ['elephant', 'Elephant', 0, 0],
-    ['write-in-1', 'Write-In 1', 5, 5],
-    ['write-in-2', 'Write-In 2', 5, 0],
-    ['write-in-3', 'Write-In 3', 0, 5],
+    ['write-in-1', 'Write-In 1 (Write-In)', 5, 5],
+    ['write-in-2', 'Write-In 2 (Write-In)', 5, 0],
+    ['write-in-3', 'Write-In 3 (Write-In)', 0, 5],
     ['write-in', 'Unadjudicated Write-In', 1, 0],
   ]);
 });

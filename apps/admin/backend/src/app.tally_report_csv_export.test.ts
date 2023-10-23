@@ -354,7 +354,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
   // adjudicated write-in candidate counts
   expect(
     rowExists(rowsFinal, {
-      selection: writeInCandidate.name,
+      selection: `${writeInCandidate.name} (Write-In)`,
       selectionId: writeInCandidate.id,
       votingMethod: 'Precinct',
       manualVotes: 0,
@@ -364,7 +364,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
   ).toBeTruthy();
   expect(
     rowExists(rowsFinal, {
-      selection: writeInCandidate.name,
+      selection: `${writeInCandidate.name} (Write-In)`,
       selectionId: writeInCandidate.id,
       votingMethod: 'Absentee',
       manualVotes: 5,
@@ -376,7 +376,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
   // manual-only write-in candidate counts
   expect(
     rowExists(rowsFinal, {
-      selection: manualOnlyWriteInCandidate.name,
+      selection: `${manualOnlyWriteInCandidate.name} (Write-In)`,
       selectionId: manualOnlyWriteInCandidate.id,
       votingMethod: 'Absentee',
       manualVotes: 5,
