@@ -79,56 +79,49 @@ test('uses appropriate headers', async () => {
   const testCases: Array<{
     filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
-    ballotCountBreakdown: Tabulation.BallotCountBreakdown;
     expectedHeaders: string[];
     additionalRowAttributes?: Record<string, string>;
   }> = [
     // single groupings
     {
       groupBy: { groupByPrecinct: true },
-      ballotCountBreakdown: 'none',
-      expectedHeaders: ['Precinct', 'Precinct ID', 'Total'],
-    },
-    {
-      groupBy: { groupByParty: true },
-      ballotCountBreakdown: 'none',
-      expectedHeaders: ['Party', 'Party ID', 'Total'],
-    },
-    {
-      groupBy: { groupByVotingMethod: true },
-      ballotCountBreakdown: 'none',
-      expectedHeaders: ['Voting Method', 'Total'],
-    },
-    // multiple groupings
-    {
-      groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
-      ballotCountBreakdown: 'none',
-      expectedHeaders: ['Precinct', 'Precinct ID', 'Voting Method', 'Total'],
-    },
-    // single filters
-    {
-      filter: { ballotStyleIds: ['1M'] },
-      ballotCountBreakdown: 'none',
-      expectedHeaders: ['Party', 'Party ID', 'Ballot Style ID', 'Total'],
-    },
-    // alternate breakdowns
-    {
-      groupBy: { groupByPrecinct: true },
-      ballotCountBreakdown: 'manual',
       expectedHeaders: [
         'Precinct',
         'Precinct ID',
         'Manual',
-        'Scanned',
+        'BMD',
+        'HMPB',
         'Total',
       ],
     },
     {
-      groupBy: { groupByPrecinct: true },
-      ballotCountBreakdown: 'all',
+      groupBy: { groupByParty: true },
+      expectedHeaders: ['Party', 'Party ID', 'Manual', 'BMD', 'HMPB', 'Total'],
+    },
+    {
+      groupBy: { groupByVotingMethod: true },
+      expectedHeaders: ['Voting Method', 'Manual', 'BMD', 'HMPB', 'Total'],
+    },
+    // multiple groupings
+    {
+      groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
       expectedHeaders: [
         'Precinct',
         'Precinct ID',
+        'Voting Method',
+        'Manual',
+        'BMD',
+        'HMPB',
+        'Total',
+      ],
+    },
+    // single filters
+    {
+      filter: { ballotStyleIds: ['1M'] },
+      expectedHeaders: [
+        'Party',
+        'Party ID',
+        'Ballot Style ID',
         'Manual',
         'BMD',
         'HMPB',
@@ -142,7 +135,6 @@ test('uses appropriate headers', async () => {
       store,
       filter: testCase.filter,
       groupBy: testCase.groupBy,
-      ballotCountBreakdown: testCase.ballotCountBreakdown,
     });
     const fileContents = await streamToString(stream);
     const { headers, rows } = parseCsv(fileContents);
@@ -174,7 +166,6 @@ test('includes rows for empty but known result groups', async () => {
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
-    ballotCountBreakdown: 'none',
   });
   const fileContents = await streamToString(stream);
   const { rows } = parseCsv(fileContents);
@@ -197,7 +188,6 @@ test('does not include results groups when they are excluded by the filter', asy
   const byVotingMethodStream = generateBallotCountReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
-    ballotCountBreakdown: 'none',
   });
   const byVotingMethodFileContents = await streamToString(byVotingMethodStream);
   const { rows: byVotingMethodRows } = parseCsv(byVotingMethodFileContents);
@@ -213,7 +203,6 @@ test('does not include results groups when they are excluded by the filter', asy
     store,
     groupBy: { groupByVotingMethod: true },
     filter: { votingMethods: ['precinct'] },
-    ballotCountBreakdown: 'none',
   });
   const precinctFileContests = await streamToString(precinctStream);
   const { rows: precinctRows } = parseCsv(precinctFileContests);
@@ -225,7 +214,7 @@ test('does not include results groups when they are excluded by the filter', asy
   ).toBeTruthy();
 });
 
-test('excludes Manual column for "all" reports if no manual data exists', async () => {
+test('excludes Manual column if no manual data exists', async () => {
   const store = Store.memoryStore();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
@@ -240,7 +229,6 @@ test('excludes Manual column for "all" reports if no manual data exists', async 
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
-    ballotCountBreakdown: 'all',
   });
   const fileContents = await streamToString(stream);
   const { headers } = parseCsv(fileContents);

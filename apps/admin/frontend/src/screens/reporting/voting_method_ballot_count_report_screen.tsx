@@ -27,7 +27,6 @@ export function VotingMethodBallotCountReport(): JSX.Element {
           groupByVotingMethod: true,
           groupByParty: electionDefinition.election.type === 'primary',
         }}
-        ballotCountBreakdown="all"
         disabled={false}
         autoPreview
       />

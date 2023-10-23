@@ -368,15 +368,13 @@ export function createApiMock(
       path,
       filter,
       groupBy,
-      ballotCountBreakdown,
     }: {
       path: string;
       filter?: Tabulation.Filter;
       groupBy?: Tabulation.GroupBy;
-      ballotCountBreakdown: Tabulation.BallotCountBreakdown;
     }) {
       apiClient.exportBallotCountReportCsv
-        .expectCallWith({ path, groupBy, filter, ballotCountBreakdown })
+        .expectCallWith({ path, groupBy, filter })
         .resolves(ok([]));
     },
 

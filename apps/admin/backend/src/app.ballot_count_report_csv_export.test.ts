@@ -62,7 +62,6 @@ it('logs success if export succeeds', async () => {
   const offLimitsPath = '/root/hidden';
   const failedExportResult = await apiClient.exportBallotCountReportCsv({
     path: offLimitsPath,
-    ballotCountBreakdown: 'none',
   });
   expect(failedExportResult.isErr()).toEqual(true);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -92,7 +91,6 @@ it('logs failure if export fails', async () => {
   const path = tmpNameSync();
   const exportResult = await apiClient.exportBallotCountReportCsv({
     path,
-    ballotCountBreakdown: 'none',
   });
   expect(exportResult.isOk()).toEqual(true);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -110,19 +108,16 @@ async function getParsedExport({
   apiClient,
   groupBy,
   filter,
-  ballotCountBreakdown,
 }: {
   apiClient: Client<Api>;
   groupBy?: Tabulation.GroupBy;
   filter?: Tabulation.Filter;
-  ballotCountBreakdown: Tabulation.BallotCountBreakdown;
 }): Promise<ReturnType<typeof parseCsv>> {
   const path = tmpNameSync();
   const exportResult = await apiClient.exportBallotCountReportCsv({
     path,
     groupBy,
     filter,
-    ballotCountBreakdown,
   });
   expect(exportResult.isOk()).toEqual(true);
   return parseCsv(readFileSync(path, 'utf-8').toString());
@@ -159,16 +154,21 @@ it('creates accurate ballot count reports', async () => {
     await getParsedExport({
       apiClient,
       groupBy: { groupByVotingMethod: true },
-      ballotCountBreakdown: 'none',
     })
   ).toEqual({
-    headers: ['Voting Method', 'Total'],
+    headers: ['Voting Method', 'Manual', 'BMD', 'HMPB', 'Total'],
     rows: [
       {
+        Manual: '0',
+        BMD: '0',
+        HMPB: '92',
         Total: '92',
         'Voting Method': 'Precinct',
       },
       {
+        Manual: '10',
+        BMD: '0',
+        HMPB: '92',
         Total: '102',
         'Voting Method': 'Absentee',
       },
@@ -178,27 +178,7 @@ it('creates accurate ballot count reports', async () => {
   expect(
     await getParsedExport({
       apiClient,
-      groupBy: { groupByPrecinct: true },
-      ballotCountBreakdown: 'manual',
-    })
-  ).toEqual({
-    headers: ['Precinct', 'Precinct ID', 'Manual', 'Scanned', 'Total'],
-    rows: [
-      {
-        Manual: '10',
-        Precinct: 'Test Ballot',
-        'Precinct ID': 'town-id-00701-precinct-id-',
-        Scanned: '184',
-        Total: '194',
-      },
-    ],
-  });
-
-  expect(
-    await getParsedExport({
-      apiClient,
       groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
-      ballotCountBreakdown: 'all',
     })
   ).toEqual({
     headers: [

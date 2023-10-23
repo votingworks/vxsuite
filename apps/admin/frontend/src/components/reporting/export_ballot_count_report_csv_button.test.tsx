@@ -29,11 +29,7 @@ test('calls mutation in happy path', async () => {
   };
 
   renderInAppContext(
-    <ExportBallotCountReportCsvButton
-      filter={filter}
-      groupBy={groupBy}
-      ballotCountBreakdown="none"
-    />,
+    <ExportBallotCountReportCsvButton filter={filter} groupBy={groupBy} />,
     {
       apiMock,
       usbDriveStatus: mockUsbDriveStatus('mounted'),
@@ -50,7 +46,6 @@ test('calls mutation in happy path', async () => {
   apiMock.expectExportBallotCountReportCsv({
     filter,
     groupBy,
-    ballotCountBreakdown: 'none',
     path: 'test-mount-point/choctaw-county_mock-general-election-choctaw-2020_d6806afc49/reports/absentee-ballots-ballot-count-report-by-precinct__2021-01-01_00-00-00.csv',
   });
   userEvent.click(within(modal).getButton('Save'));
@@ -64,12 +59,7 @@ test('calls mutation in happy path', async () => {
 
 test('disabled by disabled prop', () => {
   renderInAppContext(
-    <ExportBallotCountReportCsvButton
-      disabled
-      filter={{}}
-      groupBy={{}}
-      ballotCountBreakdown="none"
-    />,
+    <ExportBallotCountReportCsvButton disabled filter={{}} groupBy={{}} />,
     { apiMock }
   );
 
