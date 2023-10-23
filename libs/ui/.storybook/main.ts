@@ -23,7 +23,6 @@ const config: StorybookConfig = {
     autodocs:'tag'
   },
   staticDirs: ['../.storybook-static'],
-  // @ts-expect-error - vite and @storybook/react-vite are using different InlineConfig types
   async viteFinal(config: InlineConfig): Promise<InlineConfig> {
     const workspacePackages = getWorkspacePackageInfo(
       path.join(__dirname, '../..')
