@@ -127,7 +127,7 @@
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1",
     "type-fest": "^0.18.0",
-    "vite": "^2.9.12",
+    "vite": "4.5.0",
     "zip-stream": "^3.0.1"
   },
   "packageManager": "pnpm@8.1.0",
