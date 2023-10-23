@@ -1,6 +1,7 @@
-import { Election, HmpbBallotPageMetadata } from '@votingworks/types';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import { range } from '@votingworks/basics';
+import { Election, HmpbBallotPageMetadata } from '@votingworks/types';
+import { Buffer } from 'buffer';
 import { qrcodegen } from './qrcodegen';
 
 const { QrCode } = qrcodegen;
@@ -20,5 +21,7 @@ export function encodeMetadataInQrCode(
   metadata: HmpbBallotPageMetadata
 ): QrCodeData {
   const encodedMetadata = encodeHmpbBallotPageMetadata(election, metadata);
-  return encodeInQrCode(encodedMetadata);
+  return encodeInQrCode(
+    Buffer.from(Buffer.from(encodedMetadata).toString('base64'))
+  );
 }

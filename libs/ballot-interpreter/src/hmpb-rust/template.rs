@@ -18,18 +18,12 @@ pub struct TemplateGridAndBubbles {
     pub metadata: BallotPageTimingMarkMetadata,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, thiserror::Error)]
 pub enum Error {
+    #[error("image error: {0}")]
     ImageError(String),
+    #[error("timing mark grid error: {0}")]
     TimingMarkGridError(String),
-}
-
-impl ToString for Error {
-    fn to_string(&self) -> String {
-        match self {
-            Self::ImageError(msg) | Self::TimingMarkGridError(msg) => msg.clone(),
-        }
-    }
 }
 
 /// How similar should a bubble be to the template to be considered a match? (1 = identical)
@@ -90,8 +84,7 @@ pub fn find_template_grid_and_bubbles(
         (Ok(a), Ok(b)) => (a, b),
         (Err(err), _) | (_, Err(err)) => {
             return Err(Error::TimingMarkGridError(format!(
-                "failed to find timing mark grid for ballot card: {:?}",
-                err
+                "failed to find timing mark grid for ballot card: {err:?}"
             )));
         }
     };

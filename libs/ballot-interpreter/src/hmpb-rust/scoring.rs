@@ -265,7 +265,6 @@ pub fn score_write_in_areas(
 
     let scored_write_in_areas = grid_layout
         .write_in_positions()
-        .iter()
         .filter_map(|grid_position| {
             let (_, scored_bubble_mark) =
                 scored_bubble_marks
@@ -299,7 +298,10 @@ fn score_write_in_area(
     contest_layouts: &[InterpretedContestLayout],
     threshold: u8,
 ) -> Option<ScoredPositionArea> {
-    let GridPosition::WriteIn { side, column, row, .. } = *grid_position else {
+    let GridPosition::WriteIn {
+        side, column, row, ..
+    } = *grid_position
+    else {
         return None;
     };
     let contest_layout = contest_layouts

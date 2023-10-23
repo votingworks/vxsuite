@@ -52,8 +52,8 @@ impl ImageData {
 
     pub fn to_js_object<'a>(&self, cx: &mut FunctionContext<'a>) -> JsResult<'a, JsObject> {
         let js_object = cx.empty_object();
-        let width = cx.number(self.width as f64);
-        let height = cx.number(self.height as f64);
+        let width = cx.number(f64::from(self.width));
+        let height = cx.number(f64::from(self.height));
         js_object.set(cx, "width", width)?;
         js_object.set(cx, "height", height)?;
         let mut data = cx.buffer(self.data.len())?;

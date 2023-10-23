@@ -186,14 +186,12 @@ pub fn find_timing_mark_grid(
     // Find timing marks along the border of the image from the candidate
     // shapes. This step may not find all the timing marks, but it should find
     // enough to determine the borders and orientation of the ballot card.
-    let Some(partial_timing_marks) = find_partial_timing_marks_from_candidate_rects(
-        geometry,
-        &candidate_timing_marks,
-        debug,
-    ) else {
+    let Some(partial_timing_marks) =
+        find_partial_timing_marks_from_candidate_rects(geometry, &candidate_timing_marks, debug)
+    else {
         return Err(Error::MissingTimingMarks {
             rects: candidate_timing_marks,
-        })
+        });
     };
 
     let Some(complete_timing_marks) = find_complete_timing_marks_from_partial_timing_marks(
@@ -203,7 +201,7 @@ pub fn find_timing_mark_grid(
     ) else {
         return Err(Error::MissingTimingMarks {
             rects: candidate_timing_marks,
-        })
+        });
     };
 
     let timing_mark_grid = TimingMarkGrid::new(
@@ -229,12 +227,9 @@ pub fn find_actual_bottom_timing_marks(
         .bottom_rects
         .par_iter()
         .map(|rect| {
-            let Some(rect_within_image) = rect.intersect(&Rect::new(
-                0,
-                0,
-                image.width(),
-                image.height(),
-            )) else {
+            let Some(rect_within_image) =
+                rect.intersect(&Rect::new(0, 0, image.width(), image.height()))
+            else {
                 return None;
             };
 
@@ -308,7 +303,7 @@ pub fn find_timing_mark_shapes(
     // `find_contours_with_threshold` does not consider timing marks on the edge
     // of the image to be contours, so we expand the image and add whitespace
     // around the edges to ensure no timing marks are on the edge of the image
-    let Ok(img) =  expand_image(img, BORDER_SIZE.into(), WHITE) else {
+    let Ok(img) = expand_image(img, BORDER_SIZE.into(), WHITE) else {
         return vec![];
     };
 
@@ -689,12 +684,18 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         return None;
     }
 
-    let (Some(top_left_rect), Some(top_right_rect), Some(bottom_left_rect), Some(bottom_right_rect)) = (
+    let (
+        Some(top_left_rect),
+        Some(top_right_rect),
+        Some(bottom_left_rect),
+        Some(bottom_right_rect),
+    ) = (
         top_line.first().copied(),
         top_line.last().copied(),
         bottom_line.first().copied(),
         bottom_line.last().copied(),
-    ) else {
+    )
+    else {
         return None;
     };
 
@@ -933,10 +934,8 @@ pub fn normalize_orientation(
             draw_timing_mark_debug_image_mut(
                 canvas,
                 geometry,
-                &Partial {
-                    ..complete_timing_marks.clone().into()
-                },
-            )
+                &complete_timing_marks.clone().into(),
+            );
         },
     );
 
