@@ -33,7 +33,7 @@ import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tal
 import { deleteManualResults, getManualResultsMetadata } from '../api';
 import { Loading } from '../components/loading';
 
-const allManualTallyBallotTypes: ManualResultsVotingMethod[] = [
+export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
   'precinct',
   'absentee',
 ];
@@ -42,13 +42,15 @@ function getAllPossibleManualTallyIdentifiers(
   election: Election
 ): ManualResultsIdentifier[] {
   return election.ballotStyles.flatMap((bs) =>
-    bs.precincts.flatMap((precinctId) => [
-      {
-        ballotStyleId: bs.id,
-        precinctId,
-        votingMethod: 'precinct',
-      },
-    ])
+    bs.precincts.flatMap((precinctId) =>
+      ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
+        {
+          ballotStyleId: bs.id,
+          precinctId,
+          votingMethod,
+        },
+      ])
+    )
   );
 }
 
@@ -186,7 +188,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
     : [];
   const selectableBallotTypes: ManualResultsVotingMethod[] =
     selectedBallotStyle && selectedPrecinct
-      ? allManualTallyBallotTypes.filter((votingMethod) => {
+      ? ALL_MANUAL_TALLY_BALLOT_TYPES.filter((votingMethod) => {
           return uncreatedManualTallyMetadata.some(
             (metadata) =>
               metadata.ballotStyleId === selectedBallotStyle.id &&
