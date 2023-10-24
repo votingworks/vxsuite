@@ -1,9 +1,8 @@
-import React, { useContext, useState, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
-  Button,
   printElement,
   printElementToPdf,
   P,
@@ -12,10 +11,7 @@ import {
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import {
-  SaveFrontendFileModal,
-  FileType,
-} from '../components/save_frontend_file_modal';
+import { FileType } from '../components/save_frontend_file_modal';
 import { PrintButton } from '../components/print_button';
 import { getElectionWriteInSummary } from '../api';
 import {
@@ -26,6 +22,7 @@ import {
   PreviewReportPages,
   ReportBackButton,
 } from '../components/reporting/shared';
+import { ExportReportPdfButton } from '../components/reporting/export_report_pdf_button';
 
 export function TallyWriteInReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
@@ -36,8 +33,6 @@ export function TallyWriteInReportScreen(): JSX.Element {
   const userRole = auth.user.role;
 
   const writeInSummaryQuery = getElectionWriteInSummary.useQuery();
-
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const report = useMemo(() => {
     if (!writeInSummaryQuery.isSuccess) return undefined;
@@ -79,50 +74,42 @@ export function TallyWriteInReportScreen(): JSX.Element {
     }
   }
 
-  const defaultReportFilename = generateDefaultReportFilename(
+  const reportPdfFilename = generateDefaultReportFilename(
     'write-in-adjudication-report',
     election,
     'full'
   );
 
   return (
-    <React.Fragment>
-      <NavigationScreen
-        title={
-          `${isOfficialResults ? 'Official' : 'Unofficial'} ` +
-          `Write-In Adjudication Report`
-        }
-      >
-        <P>
-          <ReportBackButton />
-        </P>
-        <ExportActions>
-          <PrintButton disabled={!report} print={printReport} variant="primary">
-            Print Report
-          </PrintButton>{' '}
-          {window.kiosk && (
-            <Button disabled={!report} onPress={() => setIsSaveModalOpen(true)}>
-              Save Report as PDF
-            </Button>
-          )}
-        </ExportActions>
-        <PaginationNote />
-        <PreviewContainer>
-          {report ? (
-            <PreviewReportPages>{report}</PreviewReportPages>
-          ) : (
-            <PreviewLoading />
-          )}
-        </PreviewContainer>
-      </NavigationScreen>
-      {isSaveModalOpen && (
-        <SaveFrontendFileModal
-          onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={() => printElementToPdf(assertDefined(report))}
-          defaultFilename={defaultReportFilename}
+    <NavigationScreen
+      title={
+        `${isOfficialResults ? 'Official' : 'Unofficial'} ` +
+        `Write-In Adjudication Report`
+      }
+    >
+      <P>
+        <ReportBackButton />
+      </P>
+      <ExportActions>
+        <PrintButton disabled={!report} print={printReport} variant="primary">
+          Print Report
+        </PrintButton>{' '}
+        <ExportReportPdfButton
+          electionDefinition={electionDefinition}
+          generateReportPdf={() => printElementToPdf(assertDefined(report))}
+          defaultFilename={reportPdfFilename}
+          disabled={!report}
           fileType={FileType.WriteInAdjudicationReport}
         />
-      )}
-    </React.Fragment>
+      </ExportActions>
+      <PaginationNote />
+      <PreviewContainer>
+        {report ? (
+          <PreviewReportPages>{report}</PreviewReportPages>
+        ) : (
+          <PreviewLoading />
+        )}
+      </PreviewContainer>
+    </NavigationScreen>
   );
 }
