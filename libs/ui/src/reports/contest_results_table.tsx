@@ -8,10 +8,7 @@ import {
   Tabulation,
   AnyContest,
 } from '@votingworks/types';
-import {
-  getContestVoteOptionsForCandidateContest,
-  format,
-} from '@votingworks/utils';
+import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
 import { Text, NoWrap } from '../text';
@@ -73,6 +70,11 @@ const ContestTable = styled.table`
     text-align: right;
     font-weight: 400;
 
+    &.option-label {
+      padding: 0.25em 0.5em;
+      line-height: 1;
+    }
+
     &:first-child {
       padding-left: 0.25em;
       text-align: left;
@@ -104,7 +106,7 @@ function ContestOptionRow({
   if (showManualTally) {
     return (
       <tr data-testid={testId}>
-        <th>{optionLabel}</th>
+        <th className="option-label">{optionLabel.replace('-', '‑')}</th>
         <td>{format.count(scannedTally)}</td>
         <td>
           {manualTally === 0 ? (
@@ -219,21 +221,21 @@ export function ContestResultsTable({
       assertIsOptional<Tabulation.CandidateContestResults>(
         manualContestResults
       );
-      for (const candidate of getContestVoteOptionsForCandidateContest(
-        contest
-      )) {
-        const key = `${contest.id}-${candidate.id}`;
+      const candidateReportTallies = getTallyReportCandidateRows({
+        contest,
+        scannedContestResults,
+        manualContestResults,
+        aggregateInsignificantWriteIns: true,
+      });
+      for (const candidateReportTally of candidateReportTallies) {
+        const key = `${contest.id}-${candidateReportTally.id}`;
         contestTableRows.push(
           <ContestOptionRow
             key={key}
             testId={key}
-            optionLabel={candidate.name}
-            scannedTally={
-              scannedContestResults.tallies[candidate.id]?.tally ?? 0
-            }
-            manualTally={
-              manualContestResults?.tallies[candidate.id]?.tally ?? 0
-            }
+            optionLabel={candidateReportTally.name}
+            scannedTally={candidateReportTally.scannedTally}
+            manualTally={candidateReportTally.manualTally}
             showManualTally={hasManualResults}
           />
         );

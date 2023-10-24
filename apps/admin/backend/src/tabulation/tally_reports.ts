@@ -1,5 +1,5 @@
 import { Id, Tabulation } from '@votingworks/types';
-import { assert, assertDefined, mapObject } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
   combineElectionResults,
@@ -7,7 +7,6 @@ import {
   combineManualElectionResults,
   groupMapToGroupList,
   mergeTabulationGroupMaps,
-  mergeWriteInTallies,
 } from '@votingworks/utils';
 import { Store } from '../store';
 import {
@@ -76,20 +75,14 @@ export async function tabulateTallyReportResults({
       : groupBy;
 
   debug('tabulating scanned election results for tally report');
-  const allScannedResults = mapObject(
-    await tabulateElectionResults({
-      electionId,
-      store,
-      filter,
-      groupBy: primarySensitiveGroupBy,
-      includeWriteInAdjudicationResults: true,
-      includeManualResults: false,
-    }),
-    // We need to incorporate adjudication results to adjust official candidate and
-    // undervote counts, but we want the unofficial candidates bucketed, so we
-    // merge after the fact.
-    mergeWriteInTallies
-  );
+  const allScannedResults = await tabulateElectionResults({
+    electionId,
+    store,
+    filter,
+    groupBy: primarySensitiveGroupBy,
+    includeWriteInAdjudicationResults: true,
+    includeManualResults: false,
+  });
 
   debug('tabulating manual election results for tally report');
   let allManualResults: Tabulation.ManualResultsGroupMap = {};
@@ -102,10 +95,7 @@ export async function tabulateTallyReportResults({
   if (manualTabulationResult.isErr()) {
     debug('filter or group by is not compatible with manual results');
   } else {
-    allManualResults = mapObject(
-      manualTabulationResult.ok(),
-      mergeWriteInTallies
-    );
+    allManualResults = manualTabulationResult.ok();
   }
 
   debug('organizing scanned and manual results together');

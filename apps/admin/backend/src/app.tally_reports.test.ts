@@ -85,10 +85,8 @@ test('general, full election, write in adjudication', async () => {
         name: 'Obadiah Carrigan',
         tally: 60,
       },
-      'write-in': {
-        id: 'write-in',
-        isWriteIn: true,
-        name: 'Write-In',
+      [Tabulation.PENDING_WRITE_IN_ID]: {
+        ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
         tally: 56,
       },
     },
@@ -150,10 +148,10 @@ test('general, full election, write in adjudication', async () => {
         name: 'Obadiah Carrigan',
         tally: 60 + NUM_OFFICIAL,
       },
-      'write-in': {
-        id: 'write-in',
+      [unofficialCandidate.id]: {
+        id: unofficialCandidate.id,
         isWriteIn: true,
-        name: 'Write-In',
+        name: unofficialCandidate.name,
         tally: NUM_UNOFFICIAL,
       },
     },
@@ -249,27 +247,7 @@ test('general, reports by voting method, manual data', async () => {
   expect(precinctTallyReport.manualResults).toBeUndefined();
   const receivedAbsenteeManualResults = absenteeTallyReport.manualResults;
   expect(receivedAbsenteeManualResults).toBeDefined();
-
-  // the received manual results should be the same as the ones we sent but
-  // with specific unofficial write-in candidates bucketed together
-  expect(receivedAbsenteeManualResults).toMatchObject(
-    buildManualResultsFixture({
-      election,
-      ballotCount: 10,
-      contestResultsSummaries: {
-        [writeInContestId]: {
-          type: 'candidate',
-          ballots: 10,
-          writeInOptionTallies: {
-            [Tabulation.GENERIC_WRITE_IN_ID]: {
-              tally: 10,
-              name: Tabulation.GENERIC_WRITE_IN_NAME,
-            },
-          },
-        },
-      },
-    })
-  );
+  expect(receivedAbsenteeManualResults).toMatchObject(absenteeManualResults);
 
   // with a filter incompatible with manual results, manual results should be undefined
   const batchVotingMethodTallyReportResult =

@@ -134,6 +134,11 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   font-weight: 400;
 }
 
+.c11 th.option-label {
+  padding: 0.25em 0.5em;
+  line-height: 1;
+}
+
 .c11 th:first-child {
   padding-left: 0.25em;
   text-align: left;

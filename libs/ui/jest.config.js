@@ -26,6 +26,7 @@ module.exports = {
     'src/voter_contest_summary.tsx',
     'src/reports/tally_report.tsx'
   ],
+  prettierPath: null,
   transform: {
     '^.+\\.css$': '<rootDir>/config/jest/cssTransform.js',
   },

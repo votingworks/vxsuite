@@ -151,6 +151,7 @@ function* generateDataRows({
           contest,
           scannedContestResults,
           manualContestResults,
+          aggregateInsignificantWriteIns: false,
         })) {
           yield buildRow({
             metadataValues,
