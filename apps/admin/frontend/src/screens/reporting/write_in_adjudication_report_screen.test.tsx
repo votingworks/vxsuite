@@ -7,14 +7,14 @@ import {
 import { fakeLogger, Logger } from '@votingworks/logging';
 
 import userEvent from '@testing-library/user-event';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { TallyWriteInReportScreen } from './write_in_adjudication_report_screen';
 import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '../../test/react_testing_library';
+} from '../../../test/react_testing_library';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;

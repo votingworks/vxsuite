@@ -8,12 +8,12 @@ import {
   P,
   WriteInAdjudicationReport,
 } from '@votingworks/ui';
-import { generateDefaultReportFilename } from '../utils/save_as_pdf';
-import { AppContext } from '../contexts/app_context';
-import { NavigationScreen } from '../components/navigation_screen';
-import { FileType } from '../components/save_frontend_file_modal';
-import { PrintButton } from '../components/print_button';
-import { getElectionWriteInSummary } from '../api';
+import { generateDefaultReportFilename } from '../../utils/save_as_pdf';
+import { AppContext } from '../../contexts/app_context';
+import { NavigationScreen } from '../../components/navigation_screen';
+import { FileType } from '../../components/save_frontend_file_modal';
+import { PrintButton } from '../../components/print_button';
+import { getElectionWriteInSummary } from '../../api';
 import {
   ExportActions,
   PaginationNote,
@@ -21,8 +21,8 @@ import {
   PreviewLoading,
   PreviewReportPages,
   ReportBackButton,
-} from '../components/reporting/shared';
-import { ExportReportPdfButton } from '../components/reporting/export_report_pdf_button';
+} from '../../components/reporting/shared';
+import { ExportReportPdfButton } from '../../components/reporting/export_report_pdf_button';
 
 export function TallyWriteInReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
