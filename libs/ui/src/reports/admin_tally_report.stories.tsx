@@ -4,7 +4,7 @@ import {
   buildElectionResultsFixture,
   buildManualResultsFixture,
 } from '@votingworks/utils';
-import { getBallotStyle, getContests } from '@votingworks/types';
+import { Tabulation, getBallotStyle, getContests } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { AdminTallyReportProps, AdminTallyReport } from './admin_tally_report';
 import { TallyReportPreview } from './tally_report';
@@ -122,6 +122,78 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
 
 export const BallotStyleManualReport: Story = {
   args: ballotStyleManualReportArgs,
+};
+
+const fullElectionWriteInReportArgs: AdminTallyReportProps = {
+  title: 'TEST Full Election Tally Report',
+  subtitle: election.title,
+  testId: 'tally-report',
+  electionDefinition,
+  contests: election.contests,
+  scannedElectionResults: buildElectionResultsFixture({
+    election,
+    cardCounts: {
+      bmd: 0,
+      hmpb: [100],
+    },
+    includeGenericWriteIn: false,
+    contestResultsSummaries: {
+      'zoo-council-mammal': {
+        type: 'candidate',
+        ballots: 100,
+        officialOptionTallies: {
+          zebra: 50,
+          lion: 15,
+          kangaroo: 10,
+          elephant: 5,
+        },
+        writeInOptionTallies: {
+          'write-in-1': {
+            name: 'Salty Sally',
+            tally: 15,
+          },
+          'write-in-2': {
+            name: 'Joe Handsome',
+            tally: 3,
+          },
+          'write-in-3': {
+            name: 'Faux Francis',
+            tally: 2,
+          },
+          [Tabulation.PENDING_WRITE_IN_ID]: {
+            ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
+            tally: 10,
+          },
+        },
+      },
+    },
+  }),
+  manualElectionResults: buildManualResultsFixture({
+    election,
+    ballotCount: 50,
+    contestResultsSummaries: {
+      'zoo-council-mammal': {
+        type: 'candidate',
+        ballots: 50,
+        officialOptionTallies: {
+          zebra: 10,
+          lion: 5,
+          kangaroo: 5,
+          elephant: 0,
+        },
+        writeInOptionTallies: {
+          'write-in-4': {
+            name: 'Billy Bob',
+            tally: 30,
+          },
+        },
+      },
+    },
+  }),
+};
+
+export const FullElectionWriteInReport: Story = {
+  args: fullElectionWriteInReportArgs,
 };
 
 export default meta;

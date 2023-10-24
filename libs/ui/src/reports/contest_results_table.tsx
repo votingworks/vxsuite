@@ -70,6 +70,11 @@ const ContestTable = styled.table`
     text-align: right;
     font-weight: 400;
 
+    &.option-label {
+      padding: 0.25em 0.5em;
+      line-height: 1;
+    }
+
     &:first-child {
       padding-left: 0.25em;
       text-align: left;
@@ -101,7 +106,7 @@ function ContestOptionRow({
   if (showManualTally) {
     return (
       <tr data-testid={testId}>
-        <th>{optionLabel}</th>
+        <th className="option-label">{optionLabel.replace('-', '‑')}</th>
         <td>{format.count(scannedTally)}</td>
         <td>
           {manualTally === 0 ? (
