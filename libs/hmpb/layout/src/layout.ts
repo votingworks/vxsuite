@@ -188,6 +188,9 @@ export function dimensionsForPaper(paperSize: BallotPaperSize): {
 }
 
 export function gridForPaper(paperSize: BallotPaperSize): GridDimensions {
+  // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
+  // interpreter can support both Accuvote-style ballots and our ballots.
+  // This formula is replicated in libs/ballot-interpreter/src/ballot_card.rs.
   const columnsPerInch = 4;
   const rowsPerInch = 4;
   const dimensions = dimensionsForPaper(paperSize);

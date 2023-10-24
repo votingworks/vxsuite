@@ -1,6 +1,7 @@
 import { join } from 'path';
 import * as fs from 'fs';
 import { Document } from '@votingworks/hmpb-layout';
+import { finished } from 'stream/promises';
 import { renderDocumentToPdf } from './render_ballot';
 import {
   allBubbleBallotDir,
@@ -32,9 +33,7 @@ async function generateBallotFixture(
   const fileStream = fs.createWriteStream(join(fixtureDir, `${label}.pdf`));
   pdf.pipe(fileStream);
   pdf.end();
-  await new Promise((resolve) => {
-    fileStream.on('finish', resolve);
-  });
+  await finished(fileStream);
 }
 
 async function generateAllBubbleBallotFixtures() {

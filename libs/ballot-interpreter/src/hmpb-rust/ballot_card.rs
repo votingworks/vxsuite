@@ -226,6 +226,8 @@ impl PaperInfo {
             width: (3.0 / 16.0) * pixels_per_inch as SubPixelUnit,
             height: (1.0 / 16.0) * pixels_per_inch as SubPixelUnit,
         };
+        // Corresponds to the NH Accuvote ballot grid, which we also use in VX
+        // ballots. This formula is also defined in libs/hmpb/layout/src/layout.ts.
         let columns_per_inch = 4.0;
         let rows_per_inch = 4.0;
         let grid_size = Size {
