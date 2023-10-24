@@ -201,3 +201,42 @@ test('numbers are formatted with commas when necessary', () => {
   within(fishing).getByText(hasTextAcrossElements('Yes3,000'));
   within(fishing).getByText(hasTextAcrossElements('No500'));
 });
+
+test('uses write-in adjudication aggregation', () => {
+  render(
+    <ContestResultsTable
+      election={election}
+      contest={candidateWriteInContest}
+      scannedContestResults={buildContestResultsFixture({
+        contest: candidateWriteInContest,
+        contestResultsSummary: {
+          type: 'candidate',
+          ballots: 6000,
+          overvotes: 1000,
+          undervotes: 1500,
+          officialOptionTallies: {
+            zebra: 50,
+            lion: 50,
+            elephant: 50,
+          },
+          writeInOptionTallies: {
+            'write-in-1': {
+              name: 'Giraffe',
+              tally: 40,
+            },
+            'write-in-2': {
+              name: 'Gazelle',
+              tally: 20,
+            },
+          },
+        },
+      })}
+    />
+  );
+  const fishing = screen.getByTestId('results-table-zoo-council-mammal');
+  within(fishing).getByText(hasTextAcrossElements('Zebra50'));
+  within(fishing).getByText(hasTextAcrossElements('Lion50'));
+  within(fishing).getByText(hasTextAcrossElements('Elephant50'));
+  within(fishing).getByText(hasTextAcrossElements('Giraffe (Write-In)40'));
+  within(fishing).getByText(hasTextAcrossElements('Other Write-In20'));
+});

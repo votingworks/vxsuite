@@ -8,10 +8,7 @@ import {
   Tabulation,
   AnyContest,
 } from '@votingworks/types';
-import {
-  getContestVoteOptionsForCandidateContest,
-  format,
-} from '@votingworks/utils';
+import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
 import { Text, NoWrap } from '../text';
@@ -219,21 +216,21 @@ export function ContestResultsTable({
       assertIsOptional<Tabulation.CandidateContestResults>(
         manualContestResults
       );
-      for (const candidate of getContestVoteOptionsForCandidateContest(
-        contest
-      )) {
-        const key = `${contest.id}-${candidate.id}`;
+      const candidateReportTallies = getTallyReportCandidateRows({
+        contest,
+        scannedContestResults,
+        manualContestResults,
+        aggregateInsignificantWriteIns: true,
+      });
+      for (const candidateReportTally of candidateReportTallies) {
+        const key = `${contest.id}-${candidateReportTally.id}`;
         contestTableRows.push(
           <ContestOptionRow
             key={key}
             testId={key}
-            optionLabel={candidate.name}
-            scannedTally={
-              scannedContestResults.tallies[candidate.id]?.tally ?? 0
-            }
-            manualTally={
-              manualContestResults?.tallies[candidate.id]?.tally ?? 0
-            }
+            optionLabel={candidateReportTally.name}
+            scannedTally={candidateReportTally.scannedTally}
+            manualTally={candidateReportTally.manualTally}
             showManualTally={hasManualResults}
           />
         );
