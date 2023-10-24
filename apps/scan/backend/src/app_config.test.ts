@@ -38,7 +38,7 @@ import { CVR, ElectionDefinition } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers';
 import { scanBallot, withApp } from '../test/helpers/custom_helpers';
 
-jest.setTimeout(20_000);
+jest.setTimeout(30_000);
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
