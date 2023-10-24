@@ -52,7 +52,7 @@ pub enum BallotSide {
 const SCAN_PIXELS_PER_INCH: PixelUnit = 200;
 
 /// Expected PPI for ballot card templates.
-const TEMPLATE_PIXELS_PER_INCH: PixelUnit = 72;
+const TEMPLATE_PIXELS_PER_INCH: PixelUnit = 200;
 
 /// Template margins for the front and back of the ballot card in inches.
 const BALLOT_CARD_TEMPLATE_MARGINS: Size<Inch> = Size {
@@ -92,11 +92,32 @@ impl PaperInfo {
         }
     }
 
+    /// Returns info for a letter-sized ballot card template with margins.
+    pub const fn template_letter_with_margins() -> Self {
+        Self {
+            size: BallotPaperSize::Letter,
+            margins: BALLOT_CARD_TEMPLATE_MARGINS,
+            pixels_per_inch: TEMPLATE_PIXELS_PER_INCH,
+        }
+    }
+
+    /// Returns info for a legal-sized ballot card template with margins.
+    pub const fn template_legal_with_margins() -> Self {
+        Self {
+            size: BallotPaperSize::Legal,
+            margins: BALLOT_CARD_TEMPLATE_MARGINS,
+            pixels_per_inch: TEMPLATE_PIXELS_PER_INCH,
+        }
+    }
+
     /// Returns info for a letter-sized ballot card template.
     pub const fn template_letter() -> Self {
         Self {
             size: BallotPaperSize::Letter,
-            margins: BALLOT_CARD_TEMPLATE_MARGINS,
+            margins: Size {
+                width: 0.0,
+                height: 0.0,
+            },
             pixels_per_inch: TEMPLATE_PIXELS_PER_INCH,
         }
     }
@@ -105,7 +126,10 @@ impl PaperInfo {
     pub const fn template_legal() -> Self {
         Self {
             size: BallotPaperSize::Legal,
-            margins: BALLOT_CARD_TEMPLATE_MARGINS,
+            margins: Size {
+                width: 0.0,
+                height: 0.0,
+            },
             pixels_per_inch: TEMPLATE_PIXELS_PER_INCH,
         }
     }
@@ -116,8 +140,13 @@ impl PaperInfo {
     }
 
     /// Returns info for all supported template paper sizes.
-    pub const fn template() -> [Self; 2] {
-        [Self::template_letter(), Self::template_legal()]
+    pub const fn template() -> [Self; 4] {
+        [
+            Self::template_letter(),
+            Self::template_legal(),
+            Self::template_letter_with_margins(),
+            Self::template_legal_with_margins(),
+        ]
     }
 
     pub fn compute_geometry(&self) -> Geometry {
