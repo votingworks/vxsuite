@@ -6,11 +6,11 @@ const shared = require('../../jest.config.shared');
 module.exports = {
   ...shared,
   coveragePathIgnorePatterns: [
-    'src/index.ts',
     'src/cac/index.ts',
+    'src/index.ts',
+    'src/integration_test_utils.ts',
     'src/intermediate-scripts',
     'src/jurisdictions.ts',
     'src/test_utils.ts',
-    'src/integration_test_utils.ts',
   ],
 };

@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import fc from 'fast-check';
-import { Byte } from '@votingworks/types';
+import { asHexString, Byte } from '@votingworks/types';
 
 import {
   CardCommand,
@@ -153,16 +153,14 @@ test.each<{ valueLength: number; expectedTlvLength: Byte[] }>([
 
 test('constructTlv value length validation', () => {
   expect(() => constructTlv(0x01, Buffer.alloc(65536))).toThrow(
-    'value length is too large for TLV encoding: 0x10000 > 0xffff'
+    'TLV value length is too large for TLV encoding: 0x10000 > 0xffff'
   );
 });
 
 test('parseTlv invalid length', () => {
   expect(() =>
     parseTlv(0x01, Buffer.concat([Buffer.of(0x01, 0xff), Buffer.alloc(0xff)]))
-  ).toThrow(
-    'TLV length is invalid: received 0xff, but expected a value <= 0x82 for the first length byte'
-  );
+  ).toThrow('TLV length first byte is too large: 0xff > 0x82');
 });
 
 test.each<{
@@ -205,6 +203,33 @@ test.each<{
   expect(parseTlv(tagAsByteOrBuffer, tlv)).toEqual(expectedOutput);
 });
 
+test('constructTlv/parseTlv round trip', () => {
+  fc.assert(
+    fc.property(
+      fc.integer({ min: 0, max: 0xff }),
+      fc.integer({ min: 0, max: 0xffff }),
+      (tag, valueLength) => {
+        const value = Buffer.alloc(valueLength);
+        const tlv = constructTlv(tag as Byte, value);
+
+        const [parsedTag, parsedLength, parsedValue] = parseTlv(
+          tag as Byte,
+          tlv
+        );
+        expect(parsedTag).toEqual(Buffer.of(tag));
+        expect(parsedLength).toBeInstanceOf(Buffer);
+        expect(parsedValue.equals(value)).toEqual(true);
+
+        const wrongTag = ((tag + 1) % 0x100) as Byte;
+        expect(() => parseTlv(wrongTag, tlv)).toThrow(
+          `TLV tag (<Buffer ${asHexString(tag as Byte)}>) ` +
+            `does not match expected tag (<Buffer ${asHexString(wrongTag)}>)`
+        );
+      }
+    )
+  );
+});
+
 test('ResponseApduError', () => {
   const error = new ResponseApduError([0x6a, 0x82]);
   expect(error.message).toEqual(
@@ -214,35 +239,4 @@ test('ResponseApduError', () => {
   expect(error.hasStatusWord([0x6a, 0x82])).toEqual(true);
   expect(error.hasStatusWord([0x6b, 0x82])).toEqual(false);
   expect(error.hasStatusWord([0x6a, 0x83])).toEqual(false);
-});
-
-test('constructTlv/parseTlv round trip', () => {
-  function asHex(b: Byte): string {
-    return b.toString(16).padStart(2, '0');
-  }
-
-  fc.assert(
-    fc.property(
-      fc.integer({ min: 0, max: 0xff }),
-      fc.integer({ min: 0, max: 0xffff }),
-      (tag, valueLength) => {
-        const value = Buffer.alloc(valueLength);
-        const tlv = constructTlv(tag as Byte, value);
-        const [parsedTag, parsedLength, parsedValue] = parseTlv(
-          tag as Byte,
-          tlv
-        );
-        expect(parsedTag).toEqual(Buffer.of(tag));
-        expect(parsedLength).toBeInstanceOf(Buffer);
-        expect(parsedValue.equals(value)).toBeTruthy();
-
-        const wrongTag = ((tag + 1) % 0x100) as Byte;
-        expect(() => parseTlv(wrongTag, tlv)).toThrow(
-          `TLV tag (<Buffer ${asHex(
-            tag as Byte
-          )}>) does not match expected tag (<Buffer ${asHex(wrongTag)}>)`
-        );
-      }
-    )
-  );
 });

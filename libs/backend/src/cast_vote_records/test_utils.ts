@@ -8,6 +8,7 @@ import {
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   CastVoteRecordExportFileName,
+  CastVoteRecordReportWithoutMetadataSchema,
   CVR,
   safeParseJson,
 } from '@votingworks/types';
@@ -16,10 +17,36 @@ import {
   getExportedCastVoteRecordIds,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
+
 import { readCastVoteRecordExportMetadata } from './import';
 
 function identifyFunction<T>(input: T): T {
   return input;
+}
+
+/**
+ * Reads and parses a cast vote record given the path to an individual cast vote record directory.
+ * Also returns the raw contents of the cast vote record report.
+ */
+export function readCastVoteRecord(castVoteRecordDirectoryPath: string): {
+  castVoteRecord: CVR.CVR;
+  castVoteRecordReportContents: string;
+} {
+  const castVoteRecordReportContents = fs.readFileSync(
+    path.join(
+      castVoteRecordDirectoryPath,
+      CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+    ),
+    'utf-8'
+  );
+  const castVoteRecordReportWithoutMetadata = safeParseJson(
+    castVoteRecordReportContents,
+    CastVoteRecordReportWithoutMetadataSchema
+  ).unsafeUnwrap();
+  const castVoteRecord = assertDefined(
+    castVoteRecordReportWithoutMetadata.CVR?.[0]
+  );
+  return { castVoteRecord, castVoteRecordReportContents };
 }
 
 /**
@@ -67,22 +94,16 @@ export async function modifyCastVoteRecordExport(
       continue;
     }
 
-    const castVoteRecordReportPath = path.join(
-      castVoteRecordDirectoryPath,
-      CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+    const { castVoteRecord, castVoteRecordReportContents } = readCastVoteRecord(
+      castVoteRecordDirectoryPath
     );
-    const castVoteRecordReport = safeParseJson(
-      fs.readFileSync(castVoteRecordReportPath, 'utf-8'),
-      CVR.CastVoteRecordReportSchema
-    ).unsafeUnwrap();
-    const castVoteRecord = assertDefined(castVoteRecordReport.CVR?.[0]);
     fs.writeFileSync(
       path.join(
         castVoteRecordDirectoryPath,
         CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
       ),
       JSON.stringify({
-        ...castVoteRecordReport,
+        ...JSON.parse(castVoteRecordReportContents),
         CVR: [castVoteRecordModifier(castVoteRecord)],
       })
     );
@@ -120,7 +141,6 @@ export async function getCastVoteRecordExportDirectoryPaths(
   const usbDriveStatus = await usbDrive.status();
   const usbMountPoint =
     usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
-
   assert(usbMountPoint !== undefined);
 
   const resultsDirectoryPath = path.join(usbMountPoint, SCANNER_RESULTS_FOLDER);

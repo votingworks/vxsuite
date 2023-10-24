@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import crypto from 'crypto';
 import { existsSync } from 'fs';
 import fs from 'fs/promises';
@@ -55,6 +54,7 @@ import {
 } from './build_cast_vote_record';
 import { buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata } from './build_report_metadata';
 import { CanonicalizedSheet, canonicalizeSheet } from './canonicalize';
+import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './file_system_utils';
 import { readCastVoteRecordExportMetadata } from './import';
 import { buildElectionOptionPositionMap } from './option_map';
 
@@ -110,7 +110,10 @@ interface PrecinctScannerOptions {
   isFullExport?: boolean;
 }
 
-type ExportOptions = CentralScannerOptions | PrecinctScannerOptions;
+/**
+ * Options for {@link exportCastVoteRecordsToUsbDrive}
+ */
+export type ExportOptions = CentralScannerOptions | PrecinctScannerOptions;
 
 /**
  * A grouping of inputs needed by helpers throughout this file
@@ -176,7 +179,7 @@ let doesUsbDriveRequireCastVoteRecordSyncCachedResult:
 /**
  * Clears {@link doesUsbDriveRequireCastVoteRecordSyncCachedResult}
  */
-function clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult(): void {
+export function clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult(): void {
   doesUsbDriveRequireCastVoteRecordSyncCachedResult = undefined;
 }
 
@@ -430,6 +433,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
       path.join(castVoteRecordId, file.fileName),
       file.open()
     );
+    /* istanbul ignore next: Hard to trigger without significant mocking */
     if (exportResult.isErr()) {
       return exportResult;
     }
@@ -463,6 +467,7 @@ async function exportRejectedSheetToUsbDrive(
       path.join(subDirectoryName, file.fileName),
       file.open()
     );
+    /* istanbul ignore next: Hard to trigger without significant mocking */
     if (exportResult.isErr()) {
       return exportResult;
     }
@@ -516,6 +521,7 @@ async function exportMetadataFileToUsbDrive(
     CastVoteRecordExportFileName.METADATA,
     metadataFileContents
   );
+  /* istanbul ignore next: Hard to trigger without significant mocking */
   if (exportResult.isErr()) {
     return exportResult;
   }
@@ -546,51 +552,12 @@ async function exportSignatureFileToUsbDrive(
     signatureFile.fileName,
     signatureFile.fileContents
   );
+  /* istanbul ignore next: Hard to trigger without significant mocking */
   if (exportResult.isErr()) {
     return exportResult;
   }
 
   return ok();
-}
-
-/**
- * Updates the creation timestamp of a directory and its children files (assuming no
- * sub-directories) using the one method guaranteed to work:
- * ```
- * cp -r <directory-path> <directory-path>-temp
- * rm -r <directory-path>
- * mv <directory-path>-temp <directory-path>
- * ```
- *
- * Doesn't use fs.cp(src, dest, { recursive: true }) under the hood because fs.cp is still
- * experimental.
- */
-export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
-  directoryPath: string
-): Promise<void> {
-  await fs.mkdir(`${directoryPath}-temp`);
-  const fileNames = (
-    await fs.readdir(directoryPath, { withFileTypes: true })
-  ).map((entry) => {
-    assert(
-      entry.isFile(),
-      `Unexpected sub-directory ${entry.name} in ${directoryPath}`
-    );
-    return entry.name;
-  });
-  for (const fileName of fileNames) {
-    await fs.copyFile(
-      path.join(directoryPath, fileName),
-      path.join(`${directoryPath}-temp`, fileName)
-    );
-  }
-  // In case the system loses power while deleting the original directory, mark the copied
-  // directory as complete to facilitate recovery on reboot. On reboot, if we see a *-temp
-  // directory, we can safely delete it, and if we see a *-temp-complete directory, we can safely
-  // delete the original directory and move the *-temp-complete directory to the original path.
-  await fs.rename(`${directoryPath}-temp`, `${directoryPath}-temp-complete`);
-  await fs.rm(directoryPath, { recursive: true });
-  await fs.rename(`${directoryPath}-temp-complete`, directoryPath);
 }
 
 /**
@@ -643,7 +610,10 @@ function getCastVoteRecordExportInProgressMarkerFilePath(
   return path.join(usbMountPoint, '.vx-export-in-progress');
 }
 
-async function markCastVoteRecordExportAsInProgress(
+/**
+ * Marks a cast vote record export as in progress, by writing a hidden file to the USB drive
+ */
+export async function markCastVoteRecordExportAsInProgress(
   usbMountPoint: string
 ): Promise<void> {
   await fs.writeFile(
@@ -652,6 +622,9 @@ async function markCastVoteRecordExportAsInProgress(
   );
 }
 
+/**
+ * The counterpart to {@link markCastVoteRecordExportAsInProgress}
+ */
 async function markCastVoteRecordExportAsComplete(
   usbMountPoint: string
 ): Promise<void> {
@@ -744,6 +717,7 @@ export async function exportCastVoteRecordsToUsbDrive(
         sheet,
         exportDirectoryPathRelativeToUsbMountPoint
       );
+      /* istanbul ignore next: Hard to trigger without significant mocking */
       if (exportResult.isErr()) {
         return exportResult;
       }
@@ -791,6 +765,7 @@ export async function exportCastVoteRecordsToUsbDrive(
     updatedCastVoteRecordRootHash,
     exportDirectoryPathRelativeToUsbMountPoint
   );
+  /* istanbul ignore next: Hard to trigger without significant mocking */
   if (exportMetadataFileResult.isErr()) {
     return exportMetadataFileResult;
   }
@@ -801,6 +776,7 @@ export async function exportCastVoteRecordsToUsbDrive(
     metadataFileContents,
     exportDirectoryPathRelativeToUsbMountPoint
   );
+  /* istanbul ignore next: Hard to trigger without significant mocking */
   if (exportSignatureFileResult.isErr()) {
     return exportSignatureFileResult;
   }
@@ -863,10 +839,6 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     if (!electionDefinition) {
       return false;
     }
-    const exportDirectoryName = scannerStore.getExportDirectoryName();
-    if (!exportDirectoryName) {
-      return false;
-    }
     const pollsState = scannerStore.getPollsState();
     if (
       pollsState === 'polls_closed_initial' ||
@@ -878,7 +850,6 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     if (ballotsCounted === 0) {
       return false;
     }
-    const castVoteRecordRootHash = scannerStore.getCastVoteRecordRootHash();
 
     // A previous export operation may have failed midway
     if (areOrWereCastVoteRecordsBeingExportedToUsbDrive(usbDriveStatus)) {
@@ -886,6 +857,10 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     }
 
     const { election, electionHash } = electionDefinition;
+    const exportDirectoryName = scannerStore.getExportDirectoryName();
+    if (!exportDirectoryName) {
+      return true;
+    }
     const exportDirectoryPath = path.join(
       usbMountPoint,
       SCANNER_RESULTS_FOLDER,
@@ -900,7 +875,7 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     const castVoteRecordExportMetadata = metadataResult.ok();
     if (
       castVoteRecordExportMetadata.castVoteRecordRootHash !==
-      castVoteRecordRootHash
+      scannerStore.getCastVoteRecordRootHash()
     ) {
       return true;
     }

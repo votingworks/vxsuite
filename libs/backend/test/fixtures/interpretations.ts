@@ -4,9 +4,12 @@ import {
   AdjudicationInfo,
   BallotMetadata,
   BallotType,
+  BlankPage,
   CandidateContest,
   InterpretedBmdPage,
   InterpretedHmpbPage,
+  PageInterpretation,
+  SheetOf,
   TargetShape,
   YesNoContest,
 } from '@votingworks/types';
@@ -180,3 +183,31 @@ export const interpretedBmdPage: InterpretedBmdPage = {
     [fishCouncilContest.id]: fishCouncilContest.candidates.slice(0, 1),
   },
 };
+
+export const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
+  ...interpretedHmpbPage1,
+  votes: {
+    [fishCouncilContest.id]: [
+      { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
+    ],
+  },
+};
+
+export const blankPage: BlankPage = {
+  type: 'BlankPage',
+};
+
+export const interpretedHmpb: SheetOf<PageInterpretation> = [
+  interpretedHmpbPage1,
+  interpretedHmpbPage2,
+];
+
+export const interpretedBmdBallot: SheetOf<PageInterpretation> = [
+  interpretedBmdPage,
+  blankPage,
+];
+
+export const interpretedHmpbWithWriteIn: SheetOf<PageInterpretation> = [
+  interpretedHmpbPage1WithWriteIn,
+  interpretedHmpbPage2,
+];
