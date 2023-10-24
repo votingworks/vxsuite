@@ -62,8 +62,8 @@ test('mismatched ballot image size', async () => {
           'Template images do not match expected sizes.'
         ),
         paperSize: BallotPaperSize.Letter,
-        frontTemplateSize: { width: 684, height: 1080 },
-        backTemplateSize: { width: 684, height: 1080 },
+        frontTemplateSize: { width: 1900, height: 3000 },
+        backTemplateSize: { width: 1900, height: 3000 },
       }),
     ])
   );

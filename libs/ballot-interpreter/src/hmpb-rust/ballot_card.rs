@@ -52,7 +52,7 @@ pub enum BallotSide {
 const SCAN_PIXELS_PER_INCH: PixelUnit = 200;
 
 /// Expected PPI for ballot card templates.
-const TEMPLATE_PIXELS_PER_INCH: PixelUnit = 72;
+const TEMPLATE_PIXELS_PER_INCH: PixelUnit = 200;
 
 /// Template margins for the front and back of the ballot card in inches.
 const BALLOT_CARD_TEMPLATE_MARGINS: Size<Inch> = Size {
