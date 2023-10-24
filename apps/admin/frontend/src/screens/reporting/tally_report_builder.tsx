@@ -1,4 +1,4 @@
-import { Font, H3, Icons, LinkButton, P } from '@votingworks/ui';
+import { Font, H3, P } from '@votingworks/ui';
 import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
 import {
@@ -10,11 +10,11 @@ import { Tabulation } from '@votingworks/types';
 import styled from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
-import { routerPaths } from '../../router_paths';
 import { FilterEditor } from '../../components/reporting/filter_editor';
 import { GroupByEditor } from '../../components/reporting/group_by_editor';
 import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
+import { ReportBackButton } from '../../components/reporting/shared';
 
 const SCREEN_TITLE = 'Tally Report Builder';
 
@@ -50,9 +50,7 @@ export function TallyReportBuilder(): JSX.Element {
   return (
     <NavigationScreen title={SCREEN_TITLE}>
       <P>
-        <LinkButton small to={routerPaths.reports}>
-          <Icons.Previous /> Back
-        </LinkButton>
+        <ReportBackButton />
       </P>
       <P>
         Use the report builder to create custom reports for print or export.

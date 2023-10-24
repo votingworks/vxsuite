@@ -1,9 +1,6 @@
 import { ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
   Button,
-  Caption,
-  Font,
-  H5,
   H6,
   Icons,
   Loading,
@@ -12,7 +9,6 @@ import {
   printElementToPdf,
 } from '@votingworks/ui';
 import React, { useContext, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
@@ -38,69 +34,16 @@ import {
 import { ExportReportPdfButton } from './export_report_pdf_button';
 import { ExportTallyReportCsvButton } from './export_tally_report_csv_button';
 import { FileType } from '../save_frontend_file_modal';
-
-const ExportActions = styled.div`
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  display: flex;
-  justify-content: start;
-  gap: 1rem;
-`;
-
-const PreviewContainer = styled.div`
-  position: relative;
-  min-height: 11in;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(0, 0, 0, 10%);
-  border-radius: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const PreviewOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: black;
-  opacity: 0.3;
-`;
-
-const PreviewReportPages = styled.div`
-  section {
-    background: white;
-    position: relative;
-    box-shadow: 0 3px 10px rgb(0, 0, 0, 20%);
-    margin-top: 1rem;
-    margin-bottom: 2rem;
-    width: 8.5in;
-    min-height: 11in;
-    padding: 0.5in;
-  }
-`;
-
-const PreviewActionContainer = styled.div`
-  position: absolute;
-  inset: 0;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 4rem;
-  display: flex;
-  justify-content: center;
-  align-items: start;
-  z-index: 2;
-`;
-
-const LoadingTextContainer = styled.div`
-  background: white;
-  width: 35rem;
-  border-radius: 0.5rem;
-`;
-
-const NoResultsNotice = styled(H5)`
-  margin-top: 2rem;
-`;
+import {
+  ExportActions,
+  NoResultsNotice,
+  PaginationNote,
+  PreviewActionContainer,
+  PreviewContainer,
+  PreviewLoading,
+  PreviewOverlay,
+  PreviewReportPages,
+} from './shared';
 
 function Reports({
   electionDefinition,
@@ -339,11 +282,7 @@ export function TallyReportViewer({
           disabled={disabled || areQueryResultsEmpty}
         />
       </ExportActions>
-
-      <Caption>
-        <Icons.Info /> <Font weight="bold">Note:</Font> Printed reports may be
-        paginated to more than one piece of paper.
-      </Caption>
+      <PaginationNote />
       <PreviewContainer>
         {!disabled && (
           <React.Fragment>
@@ -356,13 +295,7 @@ export function TallyReportViewer({
               </NoResultsNotice>
             )}
             {!previewIsFresh && <PreviewOverlay />}
-            {isFetchingForPreview && (
-              <PreviewActionContainer>
-                <LoadingTextContainer>
-                  <Loading>Generating Report</Loading>
-                </LoadingTextContainer>
-              </PreviewActionContainer>
-            )}
+            {isFetchingForPreview && <PreviewLoading />}
             {!isFetchingForPreview && !previewIsFresh && (
               <PreviewActionContainer>
                 {previewReport ? (

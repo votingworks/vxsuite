@@ -7,12 +7,14 @@ import {
 import { fakeLogger, Logger } from '@votingworks/logging';
 
 import userEvent from '@testing-library/user-event';
-import { createMemoryHistory } from 'history';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { renderInAppContext } from '../../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { TallyWriteInReportScreen } from './write_in_adjudication_report_screen';
-import { screen, within } from '../../test/react_testing_library';
-import { routerPaths } from '../router_paths';
+import {
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from '../../../test/react_testing_library';
 
 let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
@@ -59,15 +61,12 @@ test('renders provided data', async () => {
       },
     },
   });
-  const history = createMemoryHistory();
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
     logger,
     apiMock,
-    history,
   });
 
-  screen.getByText('Report Preview');
   const report = await screen.findByTestId('write-in-tally-report');
   within(report).getByText(
     'Unofficial General Election Write-In Adjudication Report'
@@ -85,9 +84,8 @@ test('renders provided data', async () => {
       printed.getByText('Random Write-In').closest('tr')!
     ).toHaveTextContent('15');
   });
+  await waitForElementToBeRemoved(screen.getByRole('alertdialog'));
 
-  screen.getByText('Save Report as PDF');
-
-  userEvent.click(screen.getByText('Back to Reports'));
-  expect(history.location.pathname).toEqual(routerPaths.reports);
+  expect(screen.getButton('Back')).toBeEnabled();
+  expect(screen.getButton('Export Report PDF')).toBeEnabled();
 });
