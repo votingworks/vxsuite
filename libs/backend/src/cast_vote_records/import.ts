@@ -121,7 +121,7 @@ async function* castVoteRecordGenerator(
       return;
     }
     const castVoteRecordReport = parseResult.ok();
-    if (castVoteRecordReport.CVR?.length !== 1) {
+    if (!castVoteRecordReport.CVR || castVoteRecordReport.CVR.length !== 1) {
       yield wrapError({ subType: 'parse-error' });
       return;
     }
