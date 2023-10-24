@@ -1,18 +1,17 @@
 import React, { useContext, useState } from 'react';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { Button, Icons, LinkButton, Modal, P } from '@votingworks/ui';
+import { Button, Modal, P } from '@votingworks/ui';
 
 import styled from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
 
 import { NavigationScreen } from '../../components/navigation_screen';
 
-import { routerPaths } from '../../router_paths';
-
 import { getCastVoteRecordFileMode, markResultsOfficial } from '../../api';
 import { Loading } from '../../components/loading';
 import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
+import { ReportBackButton } from '../../components/reporting/shared';
 
 const SCREEN_TITLE = 'Full Election Tally Report';
 
@@ -58,9 +57,7 @@ export function FullElectionTallyReportScreen(): JSX.Element {
     <React.Fragment>
       <NavigationScreen title={SCREEN_TITLE}>
         <TopButtonBar>
-          <LinkButton small to={routerPaths.reports}>
-            <Icons.Previous /> Back
-          </LinkButton>{' '}
+          <ReportBackButton />{' '}
           <Button
             disabled={!canMarkResultsOfficial}
             onPress={openMarkOfficialModal}

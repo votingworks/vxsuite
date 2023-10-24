@@ -1,12 +1,12 @@
-import { Icons, LinkButton, P, SearchSelect } from '@votingworks/ui';
+import { P, SearchSelect } from '@votingworks/ui';
 import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import styled from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
-import { routerPaths } from '../../router_paths';
 import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
+import { ReportBackButton } from '../../components/reporting/shared';
 
 export const SCREEN_TITLE = 'Single Precinct Tally Report';
 
@@ -33,9 +33,7 @@ export function SinglePrecinctTallyReportScreen(): JSX.Element {
   return (
     <NavigationScreen title={SCREEN_TITLE}>
       <P>
-        <LinkButton small to={routerPaths.reports}>
-          <Icons.Previous /> Back
-        </LinkButton>
+        <ReportBackButton />
       </P>
       <SelectPrecinctContainer>
         <P>Select Precinct:</P>

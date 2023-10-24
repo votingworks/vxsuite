@@ -1,11 +1,11 @@
-import { Icons, LinkButton, P } from '@votingworks/ui';
+import { P } from '@votingworks/ui';
 import { useContext } from 'react';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
-import { routerPaths } from '../../router_paths';
 import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
+import { ReportBackButton } from '../../components/reporting/shared';
 
 export const SCREEN_TITLE = 'Precinct Ballot Count Report';
 
@@ -17,9 +17,7 @@ export function PrecinctBallotCountReport(): JSX.Element {
   return (
     <NavigationScreen title={SCREEN_TITLE}>
       <P>
-        <LinkButton small to={routerPaths.reports}>
-          <Icons.Previous /> Back
-        </LinkButton>
+        <ReportBackButton />
       </P>
       <BallotCountReportViewer
         filter={{}}
