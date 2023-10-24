@@ -81,12 +81,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
   );
 
   return (
-    <NavigationScreen
-      title={
-        `${isOfficialResults ? 'Official' : 'Unofficial'} ` +
-        `Write-In Adjudication Report`
-      }
-    >
+    <NavigationScreen title="Write-In Adjudication Report">
       <P>
         <ReportBackButton />
       </P>
