@@ -1,9 +1,9 @@
-/* istanbul ignore file */
 import { existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
+  assert,
   assertDefined,
   AsyncIteratorPlus,
   err,
@@ -122,7 +122,7 @@ async function* castVoteRecordGenerator(
       return;
     }
     const castVoteRecordReport = parseResult.ok();
-    if (castVoteRecordReport.CVR?.length !== 1) {
+    if (!castVoteRecordReport.CVR || castVoteRecordReport.CVR.length !== 1) {
       yield wrapError({ subType: 'parse-error' });
       return;
     }
@@ -162,12 +162,19 @@ async function* castVoteRecordGenerator(
 
     let referencedFiles: ReferencedFiles | undefined;
     if (castVoteRecord.BallotImage) {
+      if (castVoteRecord.BallotImage.length !== 2) {
+        yield wrapError({ subType: 'invalid-ballot-image-field' });
+        return;
+      }
+      assert(castVoteRecord.BallotImage[0]);
+      assert(castVoteRecord.BallotImage[1]);
       if (
-        castVoteRecord.BallotImage.length !== 2 ||
-        !castVoteRecord.BallotImage[0]?.Hash?.Value ||
-        !castVoteRecord.BallotImage[1]?.Hash?.Value ||
-        !castVoteRecord.BallotImage[0]?.Location?.startsWith('file:') ||
-        !castVoteRecord.BallotImage[1]?.Location?.startsWith('file:')
+        !castVoteRecord.BallotImage[0].Hash?.Value ||
+        !castVoteRecord.BallotImage[1].Hash?.Value ||
+        !castVoteRecord.BallotImage[0].Location ||
+        !castVoteRecord.BallotImage[1].Location ||
+        !castVoteRecord.BallotImage[0].Location.startsWith('file:') ||
+        !castVoteRecord.BallotImage[1].Location.startsWith('file:')
       ) {
         yield wrapError({ subType: 'invalid-ballot-image-field' });
         return;
@@ -195,8 +202,8 @@ async function* castVoteRecordGenerator(
       let layoutFiles: SheetOf<ReferencedFile<BallotPageLayout>> | undefined;
       if (isHandMarkedPaperBallot) {
         if (
-          !castVoteRecord.BallotImage[0]?.vxLayoutFileHash ||
-          !castVoteRecord.BallotImage[1]?.vxLayoutFileHash
+          !castVoteRecord.BallotImage[0].vxLayoutFileHash ||
+          !castVoteRecord.BallotImage[1].vxLayoutFileHash
         ) {
           yield wrapError({ subType: 'invalid-ballot-image-field' });
           return;

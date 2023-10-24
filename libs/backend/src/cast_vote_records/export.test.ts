@@ -43,7 +43,10 @@ import {
   RejectedSheet,
   Sheet,
 } from './export';
-import { readCastVoteRecordExportMetadata } from './import';
+import {
+  readCastVoteRecordExport,
+  readCastVoteRecordExportMetadata,
+} from './import';
 import {
   getCastVoteRecordExportDirectoryPaths,
   readCastVoteRecord,
@@ -1027,4 +1030,51 @@ test('areOrWereCastVoteRecordsBeingExportedToUsbDrive returns false when no USB 
   expect(
     areOrWereCastVoteRecordsBeingExportedToUsbDrive({ status: 'no_drive' })
   ).toEqual(false);
+});
+
+test('export and subsequent import of that export', async () => {
+  // Export
+  process.env['VX_MACHINE_TYPE'] = 'scan';
+  for (const sheet of [
+    newAcceptedSheet(interpretedHmpb, sheet1Id),
+    newAcceptedSheet(interpretedHmpbWithWriteIn, sheet2Id),
+    newAcceptedSheet(interpretedBmdBallot, sheet3Id),
+    newRejectedSheet(sheet4Id),
+  ]) {
+    expect(
+      await exportCastVoteRecordsToUsbDrive(
+        mockPrecinctScannerStore,
+        mockUsbDrive.usbDrive,
+        [sheet],
+        { scannerType: 'precinct' }
+      )
+    ).toEqual(ok());
+  }
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [],
+      { scannerType: 'precinct', arePollsClosing: true }
+    )
+  ).toEqual(ok());
+
+  // Import
+  process.env['VX_MACHINE_TYPE'] = 'admin';
+  const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+    mockUsbDrive.usbDrive
+  );
+  expect(exportDirectoryPaths).toHaveLength(1);
+  const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
+  const readResult = await readCastVoteRecordExport(exportDirectoryPath);
+  expect(readResult.isOk()).toEqual(true);
+  assert(readResult.isOk());
+  const { castVoteRecordIterator } = readResult.ok();
+  const castVoteRecordResults = await castVoteRecordIterator.toArray();
+  expect(castVoteRecordResults).toHaveLength(3);
+  expect(
+    castVoteRecordResults.every((castVoteRecordResult) =>
+      castVoteRecordResult.isOk()
+    )
+  ).toEqual(true);
 });
