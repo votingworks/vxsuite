@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import fs from 'fs';
 import set from 'lodash.set';
 import path from 'path';
-import { assert, assertDefined, err } from '@votingworks/basics';
+import { assertDefined, err } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { CastVoteRecordExportFileName, CVR } from '@votingworks/types';
 import {
@@ -37,11 +37,9 @@ const { castVoteRecordExport } = electionGridLayoutNewHampshireAmherstFixtures;
 test('successful import', async () => {
   const exportDirectoryPath = castVoteRecordExport.asDirectoryPath();
 
-  const readResult = await readCastVoteRecordExport(exportDirectoryPath);
-  expect(readResult.isOk()).toEqual(true);
-  assert(readResult.isOk());
-  const { castVoteRecordExportMetadata, castVoteRecordIterator } =
-    readResult.ok();
+  const { castVoteRecordExportMetadata, castVoteRecordIterator } = (
+    await readCastVoteRecordExport(exportDirectoryPath)
+  ).unsafeUnwrap();
   expect(castVoteRecordExportMetadata).toEqual({
     arePollsClosed: true,
     castVoteRecordReportMetadata: expect.any(Object),
@@ -51,27 +49,23 @@ test('successful import', async () => {
   let encounteredReferencedImageFiles = false;
   let encounteredReferencedLayoutFiles = false;
   for await (const castVoteRecordResult of castVoteRecordIterator) {
-    expect(castVoteRecordResult.isOk()).toEqual(true);
-    assert(castVoteRecordResult.isOk());
-    const { castVoteRecord, referencedFiles } = castVoteRecordResult.ok();
+    const { castVoteRecord, referencedFiles } =
+      castVoteRecordResult.unsafeUnwrap();
     expect(castVoteRecord).toEqual(expect.any(Object));
 
     if (referencedFiles) {
       encounteredReferencedImageFiles = true;
       for (const i of [0, 1] as const) {
-        const imageFileReadResult = await referencedFiles.imageFiles[i].read();
-        expect(imageFileReadResult.isOk()).toEqual(true);
-        assert(imageFileReadResult.isOk());
-        const image = imageFileReadResult.ok();
+        const image = (
+          await referencedFiles.imageFiles[i].read()
+        ).unsafeUnwrap();
         expect(image).toEqual(expect.any(Buffer));
 
         if (referencedFiles.layoutFiles) {
           encounteredReferencedLayoutFiles = true;
-          const layoutFileReadResult =
-            await referencedFiles.layoutFiles[i].read();
-          expect(layoutFileReadResult.isOk()).toEqual(true);
-          assert(layoutFileReadResult.isOk());
-          const layout = layoutFileReadResult.ok();
+          const layout = (
+            await referencedFiles.layoutFiles[i].read()
+          ).unsafeUnwrap();
           expect(layout).toEqual(expect.any(Object));
         }
       }
