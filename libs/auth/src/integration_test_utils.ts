@@ -1,14 +1,14 @@
 import { TEST_JURISDICTION } from '@votingworks/types';
+
 import { mockCard } from './mock_file_card';
 
 /**
- * The default PIN used to log in as election manager or system administrator
- * in integration tests.
+ * The default PIN used in integration tests
  */
 export const INTEGRATION_TEST_DEFAULT_PIN = '000000';
 
 /**
- * Insert a mock System Administrator card.
+ * Mocks system administrator card insertion
  */
 export function mockSystemAdministratorCardInsertion(): void {
   mockCard({
@@ -26,7 +26,7 @@ export function mockSystemAdministratorCardInsertion(): void {
 }
 
 /**
- * Insert a mock Election Manager card.
+ * Mocks election manager card insertion
  */
 export function mockElectionManagerCardInsertion({
   electionHash,
@@ -49,7 +49,7 @@ export function mockElectionManagerCardInsertion({
 }
 
 /**
- * Insert a mock Poll Worker card.
+ * Mocks poll worker card insertion
  */
 export function mockPollWorkerCardInsertion({
   electionHash,
@@ -72,7 +72,7 @@ export function mockPollWorkerCardInsertion({
 }
 
 /**
- * Mocks the card being removed.
+ * Mocks card removal
  */
 export function mockCardRemoval(): void {
   mockCard({

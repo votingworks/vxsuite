@@ -50,9 +50,9 @@ const CLA = {
 export const STATUS_WORD = {
   SUCCESS: { SW1: 0x90, SW2: 0x00 },
   SUCCESS_MORE_DATA_AVAILABLE: { SW1: 0x61 },
-  FILE_NOT_FOUND: { SW1: 0x6a, SW2: 0x82 },
   VERIFY_FAIL: { SW1: 0x63 },
   SECURITY_CONDITION_NOT_SATISFIED: { SW1: 0x69, SW2: 0x82 },
+  FILE_NOT_FOUND: { SW1: 0x6a, SW2: 0x82 },
 } as const;
 
 /**
@@ -243,19 +243,17 @@ export function constructTlv(
    * - 3017 bytes --> Buffer.of(0x82, 11, 201) --> 0x82 0x0b 0xc9 (bc9 is 3017 in hex)
    */
   let lengthBytes: Buffer;
-  const valueNumBytes = value.length;
-  if (valueNumBytes <= 0x80) {
-    lengthBytes = Buffer.of(valueNumBytes);
-  } else if (valueNumBytes <= 0xff) {
-    lengthBytes = Buffer.of(0x81, valueNumBytes);
-  } else if (valueNumBytes <= 0xffff) {
+  if (value.length <= 0x80) {
+    lengthBytes = Buffer.of(value.length);
+  } else if (value.length <= 0xff) {
+    lengthBytes = Buffer.of(0x81, value.length);
+  } else if (value.length <= 0xffff) {
     // eslint-disable-next-line no-bitwise
-    lengthBytes = Buffer.of(0x82, valueNumBytes >> 8, valueNumBytes & 0xff);
+    lengthBytes = Buffer.of(0x82, value.length >> 8, value.length & 0xff);
   } else {
     throw new Error(
-      `value length is too large for TLV encoding: 0x${valueNumBytes.toString(
-        16
-      )} > 0xffff`
+      `TLV value length is too large for TLV encoding: ` +
+        `0x${value.length.toString(16)} > 0xffff`
     );
   }
 
@@ -276,33 +274,42 @@ export function parseTlv(
   const tagBytes = tlv.subarray(0, expectedTagLength);
   assert(
     tagBytes.equals(expectedTagBytes),
-    `TLV tag (${inspect(tagBytes)}) does not match expected tag (${inspect(
-      expectedTagBytes
-    )})`
+    `TLV tag (${inspect(tagBytes)}) ` +
+      `does not match expected tag (${inspect(expectedTagBytes)})`
   );
 
   let lengthBytesLength: number;
   let valueBytesLength: number;
-  const lengthBytesFirst = assertDefined(tlv.at(expectedTagLength));
-  if (lengthBytesFirst === 0x81) {
-    const lengthBytesSecond = tlv.at(expectedTagLength + 1);
-    lengthBytesLength = 2;
-    valueBytesLength = assertDefined(lengthBytesSecond);
-  } else if (lengthBytesFirst === 0x82) {
-    const lengthBytesSecond = tlv.at(expectedTagLength + 1);
-    const lengthBytesThird = tlv.at(expectedTagLength + 2);
-    lengthBytesLength = 3;
-    valueBytesLength =
-      // eslint-disable-next-line no-bitwise
-      (assertDefined(lengthBytesSecond) << 8) + assertDefined(lengthBytesThird);
-  } else if (lengthBytesFirst <= 0x80) {
+  const firstLengthByte = assertDefined(
+    tlv.at(expectedTagLength),
+    'TLV length is missing'
+  );
+  if (firstLengthByte <= 0x80) {
     lengthBytesLength = 1;
-    valueBytesLength = assertDefined(lengthBytesFirst);
+    valueBytesLength = firstLengthByte;
+  } else if (firstLengthByte === 0x81) {
+    const secondLengthByte = assertDefined(
+      tlv.at(expectedTagLength + 1),
+      'TLV length is missing expected second byte'
+    );
+    lengthBytesLength = 2;
+    valueBytesLength = secondLengthByte;
+  } else if (firstLengthByte === 0x82) {
+    const secondLengthByte = assertDefined(
+      tlv.at(expectedTagLength + 1),
+      'TLV length is missing expected second byte'
+    );
+    const thirdLengthByte = assertDefined(
+      tlv.at(expectedTagLength + 2),
+      'TLV length is missing expected third byte'
+    );
+    lengthBytesLength = 3;
+    // eslint-disable-next-line no-bitwise
+    valueBytesLength = (secondLengthByte << 8) + thirdLengthByte;
   } else {
     throw new Error(
-      `TLV length is invalid: received 0x${lengthBytesFirst.toString(
-        16
-      )}, but expected a value <= 0x82 for the first length byte`
+      'TLV length first byte is too large: ' +
+        `0x${firstLengthByte.toString(16)} > 0x82`
     );
   }
 

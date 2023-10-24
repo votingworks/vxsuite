@@ -1,6 +1,5 @@
 import { Buffer } from 'buffer';
 import {
-  Byte,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -101,21 +100,21 @@ export type CheckPinResponse =
   | CheckPinResponseIncorrect;
 
 /**
- * The API for a card that can provide its status.
+ * The API for a card that can provide its status
  */
 export interface StatefulCard<T = CardDetails> {
   getCardStatus(): Promise<CardStatus<T>>;
 }
 
 /**
- * The API for a smart card that has a PIN.
+ * The API for a card that has a PIN
  */
 export interface PinProtectedCard {
   checkPin(pin: string): Promise<CheckPinResponse>;
 }
 
 /**
- * The API for a programmable smart card.
+ * The API for a card that can be programmed
  */
 export interface ProgrammableCard extends PinProtectedCard {
   program(
@@ -128,7 +127,7 @@ export interface ProgrammableCard extends PinProtectedCard {
 }
 
 /**
- * The API for a smart card that can store data.
+ * The API for a card that can store data
  */
 export interface DataCard {
   readData(): Promise<Buffer>;
@@ -137,26 +136,9 @@ export interface DataCard {
 }
 
 /**
- * The API for a smart card that can sign a payload.
+ * The API for a VxSuite-compatible card
  */
-export interface SigningCard {
-  generateSignature(
-    message: Buffer,
-    options: { privateKeyId: Byte; pin?: string }
-  ): Promise<Buffer>;
-}
-
-/**
- * The API for a smart card that has stored certificates.
- */
-export interface CertificateProviderCard {
-  getCertificate(options: { objectId: Buffer }): Promise<Buffer>;
-}
-
-/**
- * The API for a VxSuite-compatible smart card.
- */
-export type Card = StatefulCard<CardDetails> &
+export type Card = StatefulCard &
   PinProtectedCard &
   ProgrammableCard &
   DataCard;

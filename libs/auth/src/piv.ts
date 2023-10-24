@@ -5,12 +5,14 @@ import { Byte } from '@votingworks/types';
 import { STATUS_WORD } from './apdu';
 
 /**
- * PIV-specific IDs for different cryptographic algorithms, e.g. ECC, RSA, etc.
- *
- * @see https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-73-4.pdf
+ * See https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-73-4.pdf for the full NIST
+ * PIV spec.
+ */
+
+/**
+ * PIV IDs for different cryptographic algorithms, e.g. elliptic curve cryptography, RSA, etc.
  */
 export const CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER = {
-  /** Elliptic curve cryptography, curve P-256 */
   ECC256: 0x11,
   RSA2048: 0x07,
 } as const;
@@ -83,13 +85,6 @@ export const VERIFY = {
 } as const;
 
 /**
- * SEQUENCE is a PIV encoding for a sequence of TLV-encoded data objects.
- */
-export const SEQUENCE = {
-  TAG: 0x30,
-} as const;
-
-/**
  * Data object IDs of the format 0x5f 0xc1 0xXX are a PIV convention.
  */
 export function pivDataObjectId(uniqueByte: Byte): Buffer {
@@ -117,14 +112,13 @@ export function isIncorrectPinStatusWord(statusWord: [Byte, Byte]): boolean {
 }
 
 /**
- * Some cards respond to the VERIFY command with a status word of 0x6982 when the
- * PIN is incorrect.
+ * The security-condition-not-satisfied status word is returned when an operation requiring PIN
+ * verification is attempted without PIN verification.
  */
 export function isSecurityConditionNotSatisfiedStatusWord(
   statusWord: [Byte, Byte]
 ): boolean {
   const [sw1, sw2] = statusWord;
-
   return (
     sw1 === STATUS_WORD.SECURITY_CONDITION_NOT_SATISFIED.SW1 &&
     sw2 === STATUS_WORD.SECURITY_CONDITION_NOT_SATISFIED.SW2

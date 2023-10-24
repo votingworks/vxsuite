@@ -277,5 +277,5 @@ export function isByte(n: number): n is Byte {
  * - asHexString(0x3f) --> '3f'
  */
 export function asHexString(byte: Byte): string {
-  return `0${byte.toString(16)}`.slice(-2);
+  return byte.toString(16).padStart(2, '0');
 }
