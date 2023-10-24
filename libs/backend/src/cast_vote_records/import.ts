@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
+  assert,
   assertDefined,
   AsyncIteratorPlus,
   err,
@@ -161,10 +162,13 @@ async function* castVoteRecordGenerator(
 
     let referencedFiles: ReferencedFiles | undefined;
     if (castVoteRecord.BallotImage) {
+      if (castVoteRecord.BallotImage.length !== 2) {
+        yield wrapError({ subType: 'invalid-ballot-image-field' });
+        return;
+      }
+      assert(castVoteRecord.BallotImage[0]);
+      assert(castVoteRecord.BallotImage[1]);
       if (
-        castVoteRecord.BallotImage.length !== 2 ||
-        !castVoteRecord.BallotImage[0] ||
-        !castVoteRecord.BallotImage[1] ||
         !castVoteRecord.BallotImage[0].Hash?.Value ||
         !castVoteRecord.BallotImage[1].Hash?.Value ||
         !castVoteRecord.BallotImage[0].Location ||
