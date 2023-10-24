@@ -15,21 +15,29 @@ import {
   generalElectionFixtures,
 } from './ballot_fixtures';
 
-function generateBallotFixture(
+async function generateBallotFixture(
   fixtureDir: string,
   label: string,
   document: Document
-): void {
+) {
+  // eslint-disable-next-line no-console
+  console.log(
+    `Generating: ${join(fixtureDir.replace(fixturesDir, ''), label)}`
+  );
   fs.writeFileSync(
     join(fixtureDir, `${label}-document.json`),
     JSON.stringify(document, null, 2)
   );
   const pdf = renderDocumentToPdf(document);
-  pdf.pipe(fs.createWriteStream(join(fixtureDir, `${label}.pdf`)));
+  const fileStream = fs.createWriteStream(join(fixtureDir, `${label}.pdf`));
+  pdf.pipe(fileStream);
   pdf.end();
+  await new Promise((resolve) => {
+    fileStream.on('finish', resolve);
+  });
 }
 
-function generateAllBubbleBallotFixtures(): void {
+async function generateAllBubbleBallotFixtures() {
   fs.mkdirSync(allBubbleBallotDir, { recursive: true });
 
   const { electionDefinition, blankBallot, filledBallot, cyclingTestDeck } =
@@ -46,11 +54,11 @@ function generateAllBubbleBallotFixtures(): void {
     'cycling-test-deck': cyclingTestDeck,
   } as const;
   for (const [label, document] of Object.entries(ballots)) {
-    generateBallotFixture(allBubbleBallotDir, label, document);
+    await generateBallotFixture(allBubbleBallotDir, label, document);
   }
 }
 
-function generateFamousNamesFixtures(): void {
+async function generateFamousNamesFixtures() {
   fs.mkdirSync(famousNamesDir, { recursive: true });
   const { electionDefinition, blankBallot, markedBallot } = famousNamesFixtures;
 
@@ -64,11 +72,11 @@ function generateFamousNamesFixtures(): void {
     'marked-ballot': markedBallot,
   } as const;
   for (const [label, document] of Object.entries(ballots)) {
-    generateBallotFixture(famousNamesDir, label, document);
+    await generateBallotFixture(famousNamesDir, label, document);
   }
 }
 
-function generateGeneralElectionFixtures(): void {
+async function generateGeneralElectionFixtures() {
   for (const {
     electionDefinition,
     electionDir,
@@ -86,12 +94,12 @@ function generateGeneralElectionFixtures(): void {
       'marked-ballot': markedBallot,
     } as const;
     for (const [label, document] of Object.entries(ballots)) {
-      generateBallotFixture(electionDir, label, document);
+      await generateBallotFixture(electionDir, label, document);
     }
   }
 }
 
-function generatePrimaryElectionFixtures(): void {
+async function generatePrimaryElectionFixtures() {
   fs.mkdirSync(primaryElectionDir, { recursive: true });
   const { electionDefinition, mammalParty, fishParty } =
     primaryElectionFixtures;
@@ -108,16 +116,16 @@ function generatePrimaryElectionFixtures(): void {
       [`${partyLabel}-marked-ballot`]: markedBallot,
     } as const;
     for (const [label, document] of Object.entries(ballots)) {
-      generateBallotFixture(primaryElectionDir, label, document);
+      await generateBallotFixture(primaryElectionDir, label, document);
     }
   }
 }
 
-export function main(): void {
+export async function main(): Promise<void> {
   fs.rmSync(fixturesDir, { recursive: true });
 
-  generateAllBubbleBallotFixtures();
-  generateFamousNamesFixtures();
-  generateGeneralElectionFixtures();
-  generatePrimaryElectionFixtures();
+  await generateAllBubbleBallotFixtures();
+  await generateFamousNamesFixtures();
+  await generateGeneralElectionFixtures();
+  await generatePrimaryElectionFixtures();
 }
