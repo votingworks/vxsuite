@@ -3,29 +3,29 @@ import { isElectionManagerAuth } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
-  TallyReportPreview,
-  TallyReportMetadata,
   Button,
   printElement,
   printElementToPdf,
-  LinkButton,
   P,
-  Caption,
-  Font,
-  H2,
   WriteInAdjudicationReport,
-  ReportPreviewLoading,
 } from '@votingworks/ui';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { routerPaths } from '../router_paths';
 import {
   SaveFrontendFileModal,
   FileType,
 } from '../components/save_frontend_file_modal';
 import { PrintButton } from '../components/print_button';
 import { getElectionWriteInSummary } from '../api';
+import {
+  ExportActions,
+  PaginationNote,
+  PreviewContainer,
+  PreviewLoading,
+  PreviewReportPages,
+  ReportBackButton,
+} from '../components/reporting/shared';
 
 export function TallyWriteInReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
@@ -93,13 +93,10 @@ export function TallyWriteInReportScreen(): JSX.Element {
           `Write-In Adjudication Report`
         }
       >
-        <TallyReportMetadata
-          generatedAtTime={
-            report ? new Date(writeInSummaryQuery.dataUpdatedAt) : undefined
-          }
-          election={election}
-        />
         <P>
+          <ReportBackButton />
+        </P>
+        <ExportActions>
           <PrintButton disabled={!report} print={printReport} variant="primary">
             Print Report
           </PrintButton>{' '}
@@ -108,27 +105,15 @@ export function TallyWriteInReportScreen(): JSX.Element {
               Save Report as PDF
             </Button>
           )}
-        </P>
-        <P>
-          <LinkButton small to={routerPaths.reports}>
-            Back to Reports
-          </LinkButton>
-        </P>
-
-        <React.Fragment>
-          <H2>Report Preview</H2>
-          <Caption>
-            <Font weight="bold">Note:</Font> Printed reports may be paginated to
-            more than one piece of paper.
-          </Caption>
+        </ExportActions>
+        <PaginationNote />
+        <PreviewContainer>
           {report ? (
-            <TallyReportPreview data-testid="report-preview">
-              {report}
-            </TallyReportPreview>
+            <PreviewReportPages>{report}</PreviewReportPages>
           ) : (
-            <ReportPreviewLoading />
+            <PreviewLoading />
           )}
-        </React.Fragment>
+        </PreviewContainer>
       </NavigationScreen>
       {isSaveModalOpen && (
         <SaveFrontendFileModal
