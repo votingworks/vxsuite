@@ -5,8 +5,7 @@ export const NH_SEAL = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    version="1.0"
-   width="258.258"
-   height="257.345"
+   viewbox="0 0 258.258 257.345"
    id="svg2">
   <defs
      id="defs4">
