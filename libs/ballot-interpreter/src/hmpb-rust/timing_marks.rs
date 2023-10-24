@@ -370,6 +370,7 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     debug: &ImageDebugWriter,
 ) -> Option<Partial> {
     let half_height = (geometry.canvas_size.height / 2) as PixelPosition;
+    let half_width = (geometry.canvas_size.width / 2) as PixelPosition;
     let top_half_rects = rects
         .iter()
         .filter(|r| r.top() < half_height)
@@ -382,12 +383,12 @@ pub fn find_partial_timing_marks_from_candidate_rects(
         .collect::<Vec<Rect>>();
     let left_half_rects = rects
         .iter()
-        .filter(|r| r.left() < half_height)
+        .filter(|r| r.left() < half_width)
         .copied()
         .collect::<Vec<Rect>>();
     let right_half_rects = rects
         .iter()
-        .filter(|r| r.left() >= half_height)
+        .filter(|r| r.left() >= half_width)
         .copied()
         .collect::<Vec<Rect>>();
     let mut top_line = find_largest_subset_intersecting_line(
