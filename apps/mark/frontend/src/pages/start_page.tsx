@@ -1,8 +1,8 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { Screen, Button, P, Icons, appStrings } from '@votingworks/ui';
+import { Screen, Button, Icons, appStrings, AudioOnly } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 import { BallotContext } from '../contexts/ballot_context';
@@ -69,25 +69,15 @@ export function StartPage(): JSX.Element {
     typeof ballotStyleId !== 'undefined',
     'ballotStyleId is required to render StartPage'
   );
-  const audioFocus = useRef<HTMLDivElement>(null);
+
   function onStart() {
     forceSaveVote();
     history.push('/contests/0');
   }
 
-  useEffect(() => {
-    /* istanbul ignore next */
-    audioFocus.current?.click();
-  }, []);
-
   const startVotingButton = (
     <Wobble>
-      <Button
-        variant="primary"
-        onPress={onStart}
-        id="next"
-        aria-label="Press the right button to advance to the first contest."
-      >
+      <Button variant="primary" onPress={onStart} id="next">
         <LargeButtonText>
           <Icons.Next /> {appStrings.buttonStartVoting()}
         </LargeButtonText>
@@ -96,26 +86,23 @@ export function StartPage(): JSX.Element {
   );
 
   return (
-    <Screen ref={audioFocus}>
+    <Screen>
       <Body>
-        <ElectionInfoContainer>
-          <ElectionInfo
-            electionDefinition={electionDefinition}
-            ballotStyleId={ballotStyleId}
-            precinctSelection={singlePrecinctSelectionFor(precinctId)}
-            contestCount={contests.length}
-          />
-        </ElectionInfoContainer>
+        {/* TODO(kofi): Create a component for this 'audiofocus' functionality */}
+        <div id="audiofocus">
+          <ElectionInfoContainer>
+            <ElectionInfo
+              electionDefinition={electionDefinition}
+              ballotStyleId={ballotStyleId}
+              precinctSelection={singlePrecinctSelectionFor(precinctId)}
+              contestCount={contests.length}
+            />
+          </ElectionInfoContainer>
+          <AudioOnly>{appStrings.instructionsBmdBallotNavigation()}</AudioOnly>
+        </div>
         <StartVotingButtonContainer>
           {startVotingButton}
         </StartVotingButtonContainer>
-        <P className="screen-reader-only">
-          When voting with the text-to-speech audio, use the accessible
-          controller to navigate your ballot. To navigate through the contests,
-          use the left and right buttons. To navigate through contest choices,
-          use the up and down buttons. To select or unselect a contest choice as
-          your vote, use the select button.
-        </P>
       </Body>
       <Footer>
         <DisplaySettingsButton />

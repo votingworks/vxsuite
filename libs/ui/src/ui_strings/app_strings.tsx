@@ -35,6 +35,16 @@ export const appStrings = {
 
   date: (value: Date) => <DateString value={value} />,
 
+  instructionsBmdBallotNavigation: () => (
+    <UiString uiStringKey="instructionsBmdBallotNavigation">
+      When voting with the text-to-speech audio, use the accessible controller
+      to navigate your ballot. To navigate through the contests, use the left
+      and right buttons. To navigate through contest choices, use the up and
+      down buttons. To select or unselect a contest choice as your vote, use the
+      select button. Press the right button now to advance to the first contest.
+    </UiString>
+  ),
+
   labelAllPrecinctsSelection: () => (
     <UiString uiStringKey="labelAllPrecinctsSelection">All Precincts</UiString>
   ),
