@@ -15,6 +15,14 @@ pub enum BallotPaperSize {
     Letter,
     #[serde(rename = "legal")]
     Legal,
+    #[serde(rename = "custom-8.5x17")]
+    Custom17,
+    #[serde(rename = "custom-8.5x18")]
+    Custom18,
+    #[serde(rename = "custom-8.5x21")]
+    Custom21,
+    #[serde(rename = "custom-8.5x22")]
+    Custom22,
 }
 
 /// Ballot card orientation.
@@ -92,6 +100,38 @@ impl PaperInfo {
         }
     }
 
+    pub const fn scanned_custom17() -> Self {
+        Self {
+            size: BallotPaperSize::Custom17,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
+    pub const fn scanned_custom18() -> Self {
+        Self {
+            size: BallotPaperSize::Custom18,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
+    pub const fn scanned_custom21() -> Self {
+        Self {
+            size: BallotPaperSize::Custom21,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
+    pub const fn scanned_custom22() -> Self {
+        Self {
+            size: BallotPaperSize::Custom22,
+            margins: BALLOT_CARD_SCAN_MARGINS,
+            pixels_per_inch: SCAN_PIXELS_PER_INCH,
+        }
+    }
+
     /// Returns info for a letter-sized ballot card template with margins.
     pub const fn template_letter_with_margins() -> Self {
         Self {
@@ -135,8 +175,15 @@ impl PaperInfo {
     }
 
     /// Returns info for all supported scanned paper sizes.
-    pub const fn scanned() -> [Self; 2] {
-        [Self::scanned_letter(), Self::scanned_legal()]
+    pub const fn scanned() -> [Self; 6] {
+        [
+            Self::scanned_letter(),
+            Self::scanned_legal(),
+            Self::scanned_custom17(),
+            Self::scanned_custom18(),
+            Self::scanned_custom21(),
+            Self::scanned_custom22(),
+        ]
     }
 
     /// Returns info for all supported template paper sizes.
@@ -156,6 +203,10 @@ impl PaperInfo {
         let (width, height) = match ballot_paper_size {
             BallotPaperSize::Letter => (8.5 as Inch, 11.0 as Inch),
             BallotPaperSize::Legal => (8.5 as Inch, 14.0 as Inch),
+            BallotPaperSize::Custom17 => (8.5 as Inch, 17.0 as Inch),
+            BallotPaperSize::Custom18 => (8.5 as Inch, 18.0 as Inch),
+            BallotPaperSize::Custom21 => (8.5 as Inch, 21.0 as Inch),
+            BallotPaperSize::Custom22 => (8.5 as Inch, 22.0 as Inch),
         };
         let canvas_size = Size {
             width: (pixels_per_inch as SubPixelUnit * (margins.width.mul_add(2.0, width))).round()
@@ -175,15 +226,11 @@ impl PaperInfo {
             width: (3.0 / 16.0) * pixels_per_inch as SubPixelUnit,
             height: (1.0 / 16.0) * pixels_per_inch as SubPixelUnit,
         };
-        let grid_size = match ballot_paper_size {
-            BallotPaperSize::Letter => Size {
-                width: 34,
-                height: 41,
-            },
-            BallotPaperSize::Legal => Size {
-                width: 34,
-                height: 53,
-            },
+        let columns_per_inch = 4.0;
+        let rows_per_inch = 4.0;
+        let grid_size = Size {
+            width: (columns_per_inch * width) as GridUnit,
+            height: (rows_per_inch * height) as GridUnit - 3,
         };
 
         Geometry {
