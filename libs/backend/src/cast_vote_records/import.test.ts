@@ -116,50 +116,59 @@ test('metadata file parse error during import', async () => {
   );
 });
 
-test.each<{ modifier: (castVoteRecordReportPath: string) => void }>([
+test.each<{
+  description: string;
+  modifier: (castVoteRecordReportPath: string) => void;
+}>([
   {
+    description: 'unparsable JSON',
     modifier: (castVoteRecordReportPath) =>
       fs.appendFileSync(castVoteRecordReportPath, '}'),
   },
   {
+    description: 'no CVR field',
     modifier: (castVoteRecordReportPath) =>
       fs.writeFileSync(castVoteRecordReportPath, JSON.stringify({})),
   },
   {
+    description: 'empty CVR array',
     modifier: (castVoteRecordReportPath) =>
       fs.writeFileSync(castVoteRecordReportPath, JSON.stringify({ CVR: [] })),
   },
-])('cast vote record parse error during import', async ({ modifier }) => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
-  );
-  const exportDirectoryPath = await modifyCastVoteRecordExport(
-    castVoteRecordExport.asDirectoryPath(),
-    { numCastVoteRecordsToKeep: 1 }
-  );
-  const castVoteRecordExportSubDirectoryNames =
-    await getCastVoteRecordExportSubDirectoryNames(exportDirectoryPath);
-  expect(castVoteRecordExportSubDirectoryNames).toHaveLength(1);
-  const castVoteRecordId = assertDefined(
-    castVoteRecordExportSubDirectoryNames[0]
-  );
-  const castVoteRecordReportPath = path.join(
-    exportDirectoryPath,
-    castVoteRecordId,
-    CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
-  );
-  modifier(castVoteRecordReportPath);
+])(
+  'cast vote record parse error during import - $description',
+  async ({ modifier }) => {
+    mockFeatureFlagger.enableFeatureFlag(
+      BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+    );
+    const exportDirectoryPath = await modifyCastVoteRecordExport(
+      castVoteRecordExport.asDirectoryPath(),
+      { numCastVoteRecordsToKeep: 1 }
+    );
+    const castVoteRecordExportSubDirectoryNames =
+      await getCastVoteRecordExportSubDirectoryNames(exportDirectoryPath);
+    expect(castVoteRecordExportSubDirectoryNames).toHaveLength(1);
+    const castVoteRecordId = assertDefined(
+      castVoteRecordExportSubDirectoryNames[0]
+    );
+    const castVoteRecordReportPath = path.join(
+      exportDirectoryPath,
+      castVoteRecordId,
+      CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+    );
+    modifier(castVoteRecordReportPath);
 
-  const { castVoteRecordIterator } = (
-    await readCastVoteRecordExport(exportDirectoryPath)
-  ).unsafeUnwrap();
-  const castVoteRecordResults = await castVoteRecordIterator.toArray();
-  expect(castVoteRecordResults).toHaveLength(1);
-  const castVoteRecordResult = assertDefined(castVoteRecordResults[0]);
-  expect(castVoteRecordResult).toEqual(
-    err({ type: 'invalid-cast-vote-record', subType: 'parse-error' })
-  );
-});
+    const { castVoteRecordIterator } = (
+      await readCastVoteRecordExport(exportDirectoryPath)
+    ).unsafeUnwrap();
+    const castVoteRecordResults = await castVoteRecordIterator.toArray();
+    expect(castVoteRecordResults).toHaveLength(1);
+    const castVoteRecordResult = assertDefined(castVoteRecordResults[0]);
+    expect(castVoteRecordResult).toEqual(
+      err({ type: 'invalid-cast-vote-record', subType: 'parse-error' })
+    );
+  }
+);
 
 test.each<{
   description: string;
@@ -215,7 +224,7 @@ test.each<{
     expectedErrorSubType: 'invalid-write-in-field',
   },
   {
-    description: 'invalid ballot image field',
+    description: 'invalid ballot image field, extra ballot image',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
@@ -226,7 +235,7 @@ test.each<{
     expectedErrorSubType: 'invalid-ballot-image-field',
   },
   {
-    description: 'invalid ballot image field',
+    description: 'invalid ballot image field, undefined first hash',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
@@ -237,7 +246,7 @@ test.each<{
     expectedErrorSubType: 'invalid-ballot-image-field',
   },
   {
-    description: 'invalid ballot image field',
+    description: 'invalid ballot image field, undefined second hash',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
@@ -248,7 +257,7 @@ test.each<{
     expectedErrorSubType: 'invalid-ballot-image-field',
   },
   {
-    description: 'invalid ballot image field',
+    description: 'invalid ballot image field, undefined first hash value',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
@@ -259,7 +268,7 @@ test.each<{
     expectedErrorSubType: 'invalid-ballot-image-field',
   },
   {
-    description: 'invalid ballot image field',
+    description: 'invalid ballot image field, undefined second hash value',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
@@ -270,7 +279,7 @@ test.each<{
     expectedErrorSubType: 'invalid-ballot-image-field',
   },
   {
-    description: 'invalid ballot image field',
+    description: 'invalid ballot image field, undefined first layout file hash',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
@@ -281,7 +290,8 @@ test.each<{
     expectedErrorSubType: 'invalid-ballot-image-field',
   },
   {
-    description: 'invalid ballot image field',
+    description:
+      'invalid ballot image field, undefined second layout file hash',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
@@ -315,8 +325,13 @@ test.each<{
   }
 );
 
-test.each<{ report: CVR.CastVoteRecordReport; expectedResult: boolean }>([
+test.each<{
+  description: string;
+  report: CVR.CastVoteRecordReport;
+  expectedResult: boolean;
+}>([
   {
+    description: 'ReportType includes "other" and OtherReportType is "test"',
     report: {
       '@type': 'CVR.CastVoteRecordReport',
       Election: [],
@@ -335,6 +350,7 @@ test.each<{ report: CVR.CastVoteRecordReport; expectedResult: boolean }>([
     expectedResult: true,
   },
   {
+    description: 'ReportType does not include "other"',
     report: {
       '@type': 'CVR.CastVoteRecordReport',
       Election: [],
@@ -349,6 +365,7 @@ test.each<{ report: CVR.CastVoteRecordReport; expectedResult: boolean }>([
     expectedResult: false,
   },
   {
+    description: 'ReportType is not specified at all',
     report: {
       '@type': 'CVR.CastVoteRecordReport',
       Election: [],
@@ -361,6 +378,6 @@ test.each<{ report: CVR.CastVoteRecordReport; expectedResult: boolean }>([
     },
     expectedResult: false,
   },
-])('isTestReport', ({ report, expectedResult }) => {
+])('isTestReport - $description', ({ report, expectedResult }) => {
   expect(isTestReport(report)).toEqual(expectedResult);
 });
