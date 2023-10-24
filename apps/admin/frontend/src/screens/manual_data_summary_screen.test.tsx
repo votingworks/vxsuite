@@ -5,7 +5,10 @@ import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
 import { screen, within } from '../../test/react_testing_library';
-import { ManualDataSummaryScreen } from './manual_data_summary_screen';
+import {
+  ALL_MANUAL_TALLY_BALLOT_TYPES,
+  ManualDataSummaryScreen,
+} from './manual_data_summary_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
@@ -22,6 +25,7 @@ afterEach(() => {
 });
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
+const { election } = electionDefinition;
 
 test('navigating back to tally page', async () => {
   const history = createMemoryHistory();
@@ -78,6 +82,7 @@ test('initial table without manual tallies & adding a manual tally', async () =>
   expect(screen.getButton('Add Results')).toBeDisabled();
 
   const ballotTypePicker = await screen.findByTestId('selectBallotType');
+  screen.getByText('Absentee');
   userEvent.selectOptions(ballotTypePicker, 'Precinct');
   screen.getByRole('option', { name: 'Precinct', selected: true });
 
@@ -157,42 +162,27 @@ test('delete an existing tally', async () => {
 });
 
 test('full table & clearing all data', async () => {
-  apiMock.expectGetManualResultsMetadata([
-    {
-      ballotStyleId: '2F',
-      precinctId: 'precinct-2',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      ballotStyleId: '2F',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-2',
-      votingMethod: 'precinct',
-      ballotCount: 10,
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  apiMock.expectGetManualResultsMetadata(
+    election.ballotStyles.flatMap((bs) =>
+      bs.precincts.flatMap((precinctId) =>
+        ALL_MANUAL_TALLY_BALLOT_TYPES.flatMap((votingMethod) => [
+          {
+            ballotStyleId: bs.id,
+            precinctId,
+            votingMethod,
+            ballotCount: 10,
+            createdAt: new Date().toISOString(),
+          },
+        ])
+      )
+    )
+  );
   renderInAppContext(<ManualDataSummaryScreen />, {
     electionDefinition,
     apiMock,
   });
 
-  await screen.findByText('Total Manual Ballot Count: 40');
+  await screen.findByText('Total Manual Ballot Count: 80');
   expect(
     screen.getButton('Remove All Manually Entered Results')
   ).not.toBeDisabled();
@@ -204,8 +194,8 @@ test('full table & clearing all data', async () => {
   expect(screen.queryByText('Add Results')).not.toBeInTheDocument();
 
   // existing entries
-  expect(screen.getAllButtons('Edit Results')).toHaveLength(4);
-  expect(screen.getAllButtons('Remove Results')).toHaveLength(4);
+  expect(screen.getAllButtons('Edit Results')).toHaveLength(8);
+  expect(screen.getAllButtons('Remove Results')).toHaveLength(8);
 
   // clearing all results
   userEvent.click(screen.getButton('Remove All Manually Entered Results'));
