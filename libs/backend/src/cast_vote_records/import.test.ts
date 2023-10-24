@@ -162,11 +162,9 @@ test.each<{
       await readCastVoteRecordExport(exportDirectoryPath)
     ).unsafeUnwrap();
     const castVoteRecordResults = await castVoteRecordIterator.toArray();
-    expect(castVoteRecordResults).toHaveLength(1);
-    const castVoteRecordResult = assertDefined(castVoteRecordResults[0]);
-    expect(castVoteRecordResult).toEqual(
-      err({ type: 'invalid-cast-vote-record', subType: 'parse-error' })
-    );
+    expect(castVoteRecordResults).toEqual([
+      err({ type: 'invalid-cast-vote-record', subType: 'parse-error' }),
+    ]);
   }
 );
 
@@ -316,10 +314,7 @@ test.each<{
       await readCastVoteRecordExport(exportDirectoryPath)
     ).unsafeUnwrap();
     const castVoteRecordResults = await castVoteRecordIterator.toArray();
-    const castVoteRecordErrorResult = castVoteRecordResults.find(
-      (castVoteRecordResult) => castVoteRecordResult.isErr()
-    );
-    expect(castVoteRecordErrorResult).toEqual(
+    expect(castVoteRecordResults).toContainEqual(
       err({ type: 'invalid-cast-vote-record', subType: expectedErrorSubType })
     );
   }
