@@ -1083,6 +1083,13 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/ui/reports/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Export App Strings Catalog
+                command: echo 0 # TODO(kofi): export to versioned folder accessible from VxDesign
 
   # @votingworks/usb-drive
   test-libs-usb-drive:

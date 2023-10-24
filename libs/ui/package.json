@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "tsc --build tsconfig.build.json",
+    "build": "tsc --build tsconfig.build.json && pnpm build:app-strings-catalog",
+    "build:app-strings-catalog": "i18next",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && stylelint:run:fix",
@@ -32,6 +33,9 @@
     "*.+(js|jsx|ts|tsx)": [
       "stylelint --quiet --fix",
       "eslint --quiet --fix"
+    ],
+    "app_strings.tsx": [
+      "pnpm build:app-strings-catalog"
     ],
     "package.json": [
       "sort-package-json"
@@ -54,6 +58,7 @@
     "deep-eql": "^4.0.0",
     "dompurify": "^2.0.12",
     "i18next": "^23.5.1",
+    "i18next-parser": "^7.9.0",
     "lodash": "^4.17.20",
     "luxon": "^3.0.0",
     "normalize.css": "^8.0.1",
