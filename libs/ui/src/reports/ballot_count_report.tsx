@@ -22,6 +22,7 @@ import { ReportSection, tallyReportThemeFn, TallyReport } from './tally_report';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { CustomFilterSummary } from './custom_filter_summary';
+import { getBatchLabel, getScannerLabel } from './utils';
 
 /**
  * Columns that may appear in a the ballot count report table.
@@ -200,16 +201,6 @@ function getCellClass(column: Column): Optional<string> {
     default:
       throwIllegalValue(column);
   }
-}
-
-function getBatchLabel(batchId: string): string {
-  return batchId === Tabulation.MANUAL_BATCH_ID
-    ? 'Manual'
-    : batchId.slice(0, Tabulation.BATCH_ID_DISPLAY_LENGTH);
-}
-
-function getScannerLabel(scannerId: string): string {
-  return scannerId === Tabulation.MANUAL_SCANNER_ID ? 'Manual' : scannerId;
 }
 
 function BallotCountTable({
