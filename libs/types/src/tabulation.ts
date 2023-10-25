@@ -90,6 +90,9 @@ export interface CastVoteRecordAttributes {
  */
 export type Card = { type: 'bmd' } | { type: 'hmpb'; sheetNumber: number };
 
+export const MANUAL_BATCH_ID = 'NO_BATCH__MANUAL';
+export const MANUAL_SCANNER_ID = 'NO_SCANNER__MANUAL';
+
 /**
  * In situations where we're generating grouped results, specifiers can be
  * included in {@link ElectionResults} to indicate what it is a grouping of.
