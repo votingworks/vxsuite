@@ -73,7 +73,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
 
   await page
     .getByRole('button', {
-      name: 'Press the right button to advance to the first contest.',
+      name: /start voting/i,
     })
     .click();
 

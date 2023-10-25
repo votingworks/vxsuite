@@ -1,6 +1,17 @@
 import 'normalize.css';
-import { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle, css } from 'styled-components';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
+
+// TODO(kofi): Move to ./ui_strings/audio_only.tsx once all relevant code is
+// updated to use that component.
+export const AUDIO_ONLY_STYLES = css`
+  clip-path: polygon(0 0, 0 0, 0 0);
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  overflow: hidden;
+  position: absolute !important;
+  width: 1px;
+`;
 
 export interface GlobalStylesProps {
   enableScroll: boolean;
@@ -127,14 +138,9 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     display: none;
   }
 
-  /* TODO: Create a component for this instead. */
+  /* TODO(kofi): Update consumers to use the newer <AudioOnly> component. */
   .screen-reader-only {
-    position: absolute !important;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(1px, 1px, 1px, 1px);
-    clip-path: polygon(0 0, 0 0, 0 0);
+    ${AUDIO_ONLY_STYLES}
   }
 
   /* TODO: Create components for these: */
