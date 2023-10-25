@@ -280,25 +280,7 @@ test('tabulateFullCardCounts - manual results', () => {
     }),
   });
 
-  // manual ballot counts should be ignored if incompatible with parameters
-  const batchCardCounts = groupMapToGroupList(
-    tabulateFullCardCounts({
-      electionId,
-      store,
-      groupBy: {
-        groupByBatch: true,
-      },
-    })
-  );
-  expect(batchCardCounts).toEqual([
-    {
-      batchId: 'batch-1',
-      bmd: 30,
-      hmpb: [],
-    },
-  ]);
-
-  // manual ballot counts should be merged into results if compatible with parameters
+  // Case 1: manual ballot counts should be merged into results if compatible with parameters
   const precinctCardCounts = groupMapToGroupList(
     tabulateFullCardCounts({
       electionId,
@@ -344,6 +326,46 @@ test('tabulateFullCardCounts - manual results', () => {
       hmpb: [],
       manual: 20,
       votingMethod: 'absentee',
+    },
+  ]);
+
+  // Case 2: manual ballot counts should excluded separately if incompatible with filter
+  const scannerCardCounts = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      store,
+      filter: { scannerIds: ['scanner-1'] },
+    })
+  );
+  expect(scannerCardCounts).toEqual([
+    {
+      bmd: 30,
+      hmpb: [],
+    },
+  ]);
+
+  // Case 3: manual ballot counts should included separately if incompatible with grouping
+  const byBatchCardCounts = groupMapToGroupList(
+    tabulateFullCardCounts({
+      electionId,
+      store,
+      groupBy: {
+        groupByBatch: true,
+      },
+    })
+  );
+  expect(byBatchCardCounts).toEqual([
+    {
+      batchId: 'batch-1',
+      bmd: 30,
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      batchId: Tabulation.MANUAL_BATCH_ID,
+      bmd: 0,
+      hmpb: [],
+      manual: 20,
     },
   ]);
 });
