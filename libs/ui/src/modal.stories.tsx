@@ -29,7 +29,12 @@ export function Modal(props: ModalProps): JSX.Element {
         <Component
           actions={
             <React.Fragment>
-              <Button onPress={setIsOpen} value={false} variant="done">
+              <Button
+                onPress={setIsOpen}
+                value={false}
+                variant="primary"
+                icon="Done"
+              >
                 Save
               </Button>
               <Button onPress={setIsOpen} value={false}>
