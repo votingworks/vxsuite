@@ -205,7 +205,7 @@ test('general, reports by voting method, manual data', async () => {
     manualResults: absenteeManualResults,
   });
 
-  // fetch tally report data by voting method
+  // Case 1: incorporating manual results alongside scanned results
   const votingMethodTallyReportList = await apiClient.getResultsForTallyReports(
     {
       groupBy: { groupByVotingMethod: true },
@@ -249,23 +249,44 @@ test('general, reports by voting method, manual data', async () => {
   expect(receivedAbsenteeManualResults).toBeDefined();
   expect(receivedAbsenteeManualResults).toMatchObject(absenteeManualResults);
 
-  // with a filter incompatible with manual results, manual results should be undefined
-  const batchVotingMethodTallyReportResult =
+  // Case 2: ignoring manual results due to filter
+  const scannerFilteredTallyReportResult =
+    await apiClient.getResultsForTallyReports({
+      filter: { scannerIds: ['VX-00-000'] },
+      groupBy: { groupByVotingMethod: true },
+    });
+  expect(scannerFilteredTallyReportResult).toHaveLength(2);
+  const scannerAbsenteeTallyReport = find(
+    scannerFilteredTallyReportResult,
+    (report) => report.votingMethod === 'absentee'
+  );
+
+  expect(scannerAbsenteeTallyReport.scannedResults).toEqual(
+    absenteeTallyReport.scannedResults
+  );
+  expect(scannerAbsenteeTallyReport.manualResults).toBeUndefined();
+
+  // Case 3: incorporating manual results as separate reports due to grouping
+  const batchGroupedTallyReportResult =
     await apiClient.getResultsForTallyReports({
       groupBy: { groupByBatch: true, groupByVotingMethod: true },
     });
-  expect(batchVotingMethodTallyReportResult).toHaveLength(2);
-  const batchPrecinctTallyReport = find(
-    batchVotingMethodTallyReportResult,
-    (report) => report.votingMethod === 'precinct'
-  );
-
-  // manual results not included
-  expect(batchPrecinctTallyReport.manualResults).toBeUndefined();
-
-  // scanned results still correct, correctly handling write-ins
-  expect(batchPrecinctTallyReport.scannedResults).toEqual(
-    precinctTallyReport.scannedResults
+  expect(batchGroupedTallyReportResult).toMatchObject(
+    expect.arrayContaining([
+      expect.objectContaining({
+        batchId: expect.anything(),
+        votingMethod: 'precinct',
+      }),
+      expect.objectContaining({
+        batchId: expect.anything(),
+        votingMethod: 'absentee',
+      }),
+      expect.objectContaining({
+        batchId: Tabulation.MANUAL_BATCH_ID,
+        votingMethod: 'absentee',
+        manualResults: expect.anything(),
+      }),
+    ])
   );
 });
 

@@ -5,6 +5,8 @@ import {
   combineElectionResults,
   combineGroupSpecifierAndFilter,
   combineManualElectionResults,
+  getEmptyCardCounts,
+  getEmptyElectionResults,
   groupMapToGroupList,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
@@ -93,7 +95,7 @@ export async function tabulateTallyReportResults({
     groupBy: primarySensitiveGroupBy,
   });
   if (manualTabulationResult.isErr()) {
-    debug('filter or group by is not compatible with manual results');
+    debug('filter is not compatible with manual results');
   } else {
     allManualResults = manualTabulationResult.ok();
   }
@@ -106,13 +108,12 @@ export async function tabulateTallyReportResults({
       allScannedResults,
       allManualResults,
       (scannedResults, manualResults) => {
-        assert(scannedResults);
         return {
-          scannedResults,
+          scannedResults: scannedResults || getEmptyElectionResults(election),
           manualResults,
           hasPartySplits: false,
           cardCounts: {
-            ...scannedResults.cardCounts,
+            ...(scannedResults?.cardCounts ?? getEmptyCardCounts()),
             manual: manualResults?.ballotCount,
           },
         };
