@@ -1,15 +1,25 @@
+/* istanbul ignore file - tested via Mark/Mark-Scan */
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { useContext } from 'react';
 import styled from 'styled-components';
-import { useHistory } from 'react-router-dom';
-import { Screen, Button, Icons, appStrings, AudioOnly } from '@votingworks/ui';
+import {
+  Screen,
+  Button,
+  Icons,
+  appStrings,
+  AudioOnly,
+  Wobble,
+} from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
-import { BallotContext } from '../contexts/ballot_context';
 
-import { Wobble } from '../components/animations';
+import {
+  BallotStyleId,
+  ElectionDefinition,
+  PrecinctId,
+} from '@votingworks/types';
 import { ElectionInfo } from '../components/election_info';
 import { DisplaySettingsButton } from '../components/display_settings_button';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 
 const Body = styled.div`
   align-items: center;
@@ -48,15 +58,18 @@ const LargeButtonText = styled.span`
   padding: 0 1rem;
 `;
 
-export function StartPage(): JSX.Element {
-  const history = useHistory();
-  const {
-    ballotStyleId,
-    contests,
-    electionDefinition,
-    precinctId,
-    forceSaveVote,
-  } = useContext(BallotContext);
+export interface StartPageProps {
+  ballotStyleId?: BallotStyleId;
+  contests: ContestsWithMsEitherNeither;
+  electionDefinition?: ElectionDefinition;
+  onStart: () => void;
+  precinctId?: PrecinctId;
+}
+
+export function StartPage(props: StartPageProps): JSX.Element {
+  const { ballotStyleId, contests, electionDefinition, precinctId, onStart } =
+    props;
+
   assert(
     electionDefinition,
     'electionDefinition is required to render StartPage'
@@ -69,11 +82,6 @@ export function StartPage(): JSX.Element {
     typeof ballotStyleId !== 'undefined',
     'ballotStyleId is required to render StartPage'
   );
-
-  function onStart() {
-    forceSaveVote();
-    history.push('/contests/0');
-  }
 
   const startVotingButton = (
     <Wobble>

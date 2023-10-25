@@ -93,6 +93,7 @@ export * from './verify_ballot_image';
 export * from './virtual_keyboard';
 export * from './voter_contest_summary';
 export * from './with_scroll_buttons';
+export * from './wobble';
 export * from './search_select';
 export * from './checkbox';
 export * from './utils/pin_length';

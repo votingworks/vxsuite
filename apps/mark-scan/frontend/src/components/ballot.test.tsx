@@ -1,8 +1,8 @@
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 
+import { Paths } from '@votingworks/mark-flow-ui';
 import { render } from '../../test/test_utils';
-import { Paths } from '../config/globals';
 import { act, screen } from '../../test/react_testing_library';
 import { Ballot } from './ballot';
 
