@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import styled, { css, DefaultTheme, StyledComponent } from 'styled-components';
 import { Color, SizeMode, UiTheme } from '@votingworks/types';
 
-import { Icons } from './icons';
+import { Icons, IconName } from './icons';
 
 const FONT_SIZE_REM = 1;
 
@@ -26,6 +26,8 @@ export interface StyledButtonProps {
   id?: string;
   role?: string;
   variant?: ButtonVariant;
+  icon?: IconName | JSX.Element;
+  rightIcon?: IconName | JSX.Element;
 
   /** @deprecated Place the button within a flex or grid container instead. */
   readonly fullWidth?: boolean;
@@ -66,9 +68,16 @@ export type ButtonInterface = Pick<
   'fullWidth' | 'large' | 'small' | 'variant'
 >;
 
+function resolveIcon(icon: IconName | JSX.Element): JSX.Element {
+  if (typeof icon === 'string') {
+    const Component = Icons[icon];
+    return <Component />;
+  }
+  return icon;
+}
+
 interface VariantConfig {
   color: keyof UiTheme['colors'];
-  icon?: React.ComponentType;
   isSolidColor?: boolean;
 }
 
@@ -76,7 +85,7 @@ const variantConfigs: Record<ButtonVariant, VariantConfig> = {
   regular: { color: 'foreground' },
   primary: { color: 'accentPrimary', isSolidColor: true },
   secondary: { color: 'accentSecondary', isSolidColor: true },
-  danger: { color: 'accentDanger', icon: Icons.Danger, isSolidColor: true },
+  danger: { color: 'accentDanger', isSolidColor: true },
 };
 
 function getVariantConfig(p: StyledButtonProps): VariantConfig {
@@ -191,10 +200,6 @@ const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
   ${buttonStyles}
 `;
 
-const IconContainer = styled.span`
-  display: inline-block;
-`;
-
 const TextContainer = styled.span`
   display: inline-block;
   flex-grow: 1;
@@ -270,10 +275,10 @@ export class Button<T = undefined> extends PureComponent<
       nonAccessibleTitle,
       value, // eslint-disable-line @typescript-eslint/no-unused-vars
       variant,
+      icon,
+      rightIcon,
       ...rest
     } = this.props;
-
-    const Icon = variantConfigs[variant || 'neutral'].icon;
 
     return (
       <Component
@@ -286,12 +291,9 @@ export class Button<T = undefined> extends PureComponent<
         title={nonAccessibleTitle}
         variant={variant}
       >
-        {Icon && (
-          <IconContainer>
-            <Icon />
-          </IconContainer>
-        )}
+        {icon && resolveIcon(icon)}
         {children && <TextContainer>{children}</TextContainer>}
+        {rightIcon && resolveIcon(rightIcon)}
       </Component>
     );
   }
