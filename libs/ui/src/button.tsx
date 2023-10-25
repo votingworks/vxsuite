@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 
 import styled, { css, DefaultTheme, StyledComponent } from 'styled-components';
-import { Color, SizeMode, UiTheme } from '@votingworks/types';
+import { ColorString, SizeMode, UiTheme } from '@votingworks/types';
 
 import { Icons, IconName } from './icons';
 
@@ -94,12 +94,14 @@ function getVariantConfig(p: StyledButtonProps): VariantConfig {
 
 type ThemedStyledButtonProps = StyledButtonProps & { theme: UiTheme };
 
-function getVariantColor(p: ThemedStyledButtonProps): Color | undefined {
+function getVariantColor(p: ThemedStyledButtonProps): ColorString | undefined {
   const colorKey = getVariantConfig(p).color;
   return p.theme.colors[colorKey];
 }
 
-function getBackgroundColor(p: ThemedStyledButtonProps): Color | undefined {
+function getBackgroundColor(
+  p: ThemedStyledButtonProps
+): ColorString | undefined {
   if (p.disabled) {
     return p.theme.colors.background;
   }
@@ -111,7 +113,9 @@ function getBackgroundColor(p: ThemedStyledButtonProps): Color | undefined {
   return p.theme.colors.background;
 }
 
-function getForegroundColor(p: ThemedStyledButtonProps): Color | undefined {
+function getForegroundColor(
+  p: ThemedStyledButtonProps
+): ColorString | undefined {
   if (p.disabled) {
     return p.theme.colors.foregroundDisabled;
   }
@@ -124,7 +128,7 @@ function getForegroundColor(p: ThemedStyledButtonProps): Color | undefined {
   return getVariantColor(p);
 }
 
-function getBorderColor(p: ThemedStyledButtonProps): Color | undefined {
+function getBorderColor(p: ThemedStyledButtonProps): ColorString | undefined {
   const variantConfig = variantConfigs[p.variant || 'neutral'];
   if (variantConfig.isSolidColor) {
     return getBackgroundColor(p);
