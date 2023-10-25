@@ -4,7 +4,7 @@ import fileDownload from 'js-file-download';
 
 import dashify from 'dashify';
 
-import { Button, Icons, Pre, WithScrollButtons } from '@votingworks/ui';
+import { Button, Pre, WithScrollButtons } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { ButtonBar } from '../components/button_bar';
@@ -42,11 +42,11 @@ export function DefinitionViewerScreen(): JSX.Element {
           <div />
           <div />
           <div />
-          <Button onPress={downloadElectionDefinition}>
-            <Icons.Save /> Save
+          <Button icon="Save" onPress={downloadElectionDefinition}>
+            Save
           </Button>
-          <Button onPress={initConfirmingUnconfig}>
-            <Icons.Delete /> Remove
+          <Button icon="Delete" onPress={initConfirmingUnconfig}>
+            Remove
           </Button>
         </ButtonBar>
         <WithScrollButtons>

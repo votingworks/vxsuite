@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { H1, H2, Button, Icons } from '@votingworks/ui';
+import { H1, H2, Button } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 import { AdjudicationReason, Id, SystemSettings } from '@votingworks/types';
 import {
@@ -148,14 +148,18 @@ export function TabulationForm({
           >
             Cancel
           </Button>
-          <Button onPress={onSaveButtonPress} variant="primary">
-            <Icons.Checkmark /> Save
+          <Button onPress={onSaveButtonPress} variant="primary" icon="Done">
+            Save
           </Button>
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button variant="primary" onPress={() => setIsEditing(true)}>
-            <Icons.Edit /> Edit
+          <Button
+            variant="primary"
+            icon="Edit"
+            onPress={() => setIsEditing(true)}
+          >
+            Edit
           </Button>
         </FormActionsRow>
       )}

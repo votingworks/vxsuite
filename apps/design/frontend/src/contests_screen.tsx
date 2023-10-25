@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Select,
   Button,
-  Icons,
   Table,
   TH,
   TD,
@@ -166,8 +165,11 @@ function ContestsTab(): JSX.Element | null {
                     </TD>
                   )}
                   <TD nowrap>
-                    <LinkButton to={contestRoutes.editContest(contest.id).path}>
-                      <Icons.Edit /> Edit
+                    <LinkButton
+                      icon="Edit"
+                      to={contestRoutes.editContest(contest.id).path}
+                    >
+                      Edit
                     </LinkButton>
                   </TD>
                 </tr>
@@ -386,6 +388,7 @@ function ContestForm({
             )}
             <TableActionsRow>
               <Button
+                icon="Add"
                 onPress={() =>
                   setContest({
                     ...contest,
@@ -398,7 +401,7 @@ function ContestForm({
                   })
                 }
               >
-                <Icons.Add /> Add Candidate
+                Add Candidate
               </Button>
             </TableActionsRow>
             {contest.candidates.length > 0 && (
@@ -518,7 +521,7 @@ function ContestForm({
           <Button
             onPress={onSavePress}
             variant="primary"
-            icon="Checkmark"
+            icon="Done"
             disabled={updateElectionMutation.isLoading}
           >
             Save
@@ -611,8 +614,8 @@ function PartiesTab(): JSX.Element | null {
         <P>You haven&apos;t added any parties to this election yet.</P>
       )}
       <TableActionsRow>
-        <LinkButton variant="primary" to={partyRoutes.addParty.path}>
-          <Icons.Add /> Add Party
+        <LinkButton icon="Add" variant="primary" to={partyRoutes.addParty.path}>
+          Add Party
         </LinkButton>
       </TableActionsRow>
       {parties.length > 0 && (
@@ -632,8 +635,11 @@ function PartiesTab(): JSX.Element | null {
                 <TD>{party.id}</TD>
                 <TD>{party.abbrev}</TD>
                 <TD>
-                  <LinkButton to={partyRoutes.editParty(party.id).path}>
-                    <Icons.Edit /> Edit
+                  <LinkButton
+                    icon="Edit"
+                    to={partyRoutes.editParty(party.id).path}
+                  >
+                    Edit
                   </LinkButton>
                 </TD>
               </tr>
@@ -771,7 +777,7 @@ function PartyForm({
           <Button
             onPress={onSavePress}
             variant="primary"
-            icon="Checkmark"
+            icon="Done"
             disabled={updateElectionMutation.isLoading}
           >
             Save

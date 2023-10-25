@@ -145,19 +145,21 @@ export function AdminActionsScreen({
             </ButtonRow>
             <ButtonRow>
               <Button
+                icon="Delete"
                 disabled={!canUnconfigure}
                 onPress={() => setDeleteBallotDataFlowState('confirmation')}
               >
-                <Icons.Delete /> Delete Ballot Data
+                Delete Ballot Data
               </Button>
             </ButtonRow>
 
             <ButtonRow>
               <Button
+                icon="Delete"
                 disabled={!canUnconfigure}
                 onPress={() => setUnconfigureFlowState('initial-confirmation')}
               >
-                <Icons.Delete /> Delete Election Data from VxCentralScan
+                Delete Election Data from VxCentralScan
               </Button>{' '}
             </ButtonRow>
             {!canUnconfigure && !isTestMode && (

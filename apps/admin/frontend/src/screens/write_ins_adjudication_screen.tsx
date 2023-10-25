@@ -13,7 +13,6 @@ import {
   Button,
   Main,
   Screen,
-  Icons,
   P,
   Font,
   Caption,
@@ -567,8 +566,11 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     </Button>
                   </InlineForm>
                 ) : (
-                  <Button onPress={() => setShowNewWriteInCandidateForm(true)}>
-                    <Icons.Add /> Add new write-in candidate
+                  <Button
+                    icon="Add"
+                    onPress={() => setShowNewWriteInCandidateForm(true)}
+                  >
+                    Add new write-in candidate
                   </Button>
                 )}
               </P>
@@ -582,8 +584,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   }
                 }}
                 variant={currentWriteInMarkedInvalid ? 'secondary' : 'neutral'}
+                icon="Delete"
               >
-                <Icons.Delete /> Mark write-in invalid
+                Mark write-in invalid
               </Button>
             </div>
           </AdjudicationForm>
