@@ -115,8 +115,12 @@ function ContestsTab(): JSX.Element | null {
             )}
           </React.Fragment>
         )}
-        <LinkButton variant="primary" to={contestRoutes.addContest.path}>
-          <Icons.Add /> Add Contest
+        <LinkButton
+          variant="primary"
+          icon="Add"
+          to={contestRoutes.addContest.path}
+        >
+          Add Contest
         </LinkButton>
       </TableActionsRow>
       {contests.length > 0 &&

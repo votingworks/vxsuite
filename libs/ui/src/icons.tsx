@@ -25,7 +25,6 @@ import {
   faChevronCircleDown,
   faChevronRight,
   faChevronLeft,
-  faSquarePlus,
   faSpinner,
   faCaretDown,
   faCirclePlus,
@@ -68,10 +67,6 @@ function FaIcon(props: InnerProps): JSX.Element {
  */
 export const Icons = {
   Add(): JSX.Element {
-    return <FaIcon type={faSquarePlus} />;
-  },
-
-  AddCircle(): JSX.Element {
     return <FaIcon type={faCirclePlus} />;
   },
 
@@ -242,7 +237,7 @@ const FullScreenIconContainer = styled(Font)<FullScreenIconContainerProps>`
  * Sample Usage:
  * ```
  * <FullScreenIconWrapper color="success">
- *   <Icons.Checkmark />
+ *   <Icons.Done />
  * </FullScreenIconWrapper>
  * ```
  */
