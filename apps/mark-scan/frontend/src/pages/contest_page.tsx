@@ -1,23 +1,16 @@
+// TODO(kofi): Consolidate with VxMark/ContestPage
 import { CandidateVote } from '@votingworks/types';
-import {
-  Screen,
-  Prose,
-  P,
-  Font,
-  LinkButton,
-  appStrings,
-} from '@votingworks/ui';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { Screen, LinkButton, appStrings } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useHistory, useParams } from 'react-router-dom';
-import { Contest as MarkFlowContest } from '@votingworks/mark-flow-ui';
+import {
+  DisplaySettingsButton,
+  Contest as MarkFlowContest,
+} from '@votingworks/mark-flow-ui';
 import { BallotContext } from '../contexts/ballot_context';
-import { ElectionInfo } from '../components/election_info';
-import { Sidebar } from '../components/sidebar';
 import { screenOrientation } from '../lib/screen_orientation';
 import { ButtonFooter } from '../components/button_footer';
-import { DisplaySettingsButton } from '../components/display_settings_button';
 
 interface ContestParams {
   contestNumber: string;
@@ -29,7 +22,6 @@ export function ContestPage(): JSX.Element {
   const isReviewMode = history.location.hash === '#review';
 
   const {
-    ballotStyleId,
     contests,
     electionDefinition,
     machineConfig,
@@ -56,7 +48,7 @@ export function ContestPage(): JSX.Element {
     typeof precinctId === 'string',
     'precinctId is required to render ContestPage'
   );
-  const { isLandscape, isPortrait } = screenOrientation(machineConfig);
+  const { isLandscape } = screenOrientation(machineConfig);
 
   const vote = votes[contest.id];
 
@@ -128,51 +120,20 @@ export function ContestPage(): JSX.Element {
         votes={votes}
         updateVote={updateVote}
       />
-      {isPortrait ? (
-        <ButtonFooter>
-          {isReviewMode ? (
-            <React.Fragment>
-              {settingsButton}
-              {reviewScreenButton}
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              {previousContestButton}
-              {settingsButton}
-              {nextContestButton}
-            </React.Fragment>
-          )}
-        </ButtonFooter>
-      ) : (
-        <Sidebar
-          footer={
-            <React.Fragment>
-              <ButtonFooter>{settingsButton}</ButtonFooter>
-              <ElectionInfo
-                electionDefinition={electionDefinition}
-                ballotStyleId={ballotStyleId}
-                precinctSelection={singlePrecinctSelectionFor(precinctId)}
-                horizontal
-              />
-            </React.Fragment>
-          }
-        >
-          <Prose>
-            <P align="center">
-              Contest <Font weight="bold">{ballotContestNumber}</Font> of{' '}
-              <Font weight="bold">{ballotContestsLength}</Font>
-            </P>
-            {isReviewMode ? (
-              <P>{reviewScreenButton}</P>
-            ) : (
-              <React.Fragment>
-                <P>{nextContestButton}</P>
-                <P>{previousContestButton}</P>
-              </React.Fragment>
-            )}
-          </Prose>
-        </Sidebar>
-      )}
+      <ButtonFooter>
+        {isReviewMode ? (
+          <React.Fragment>
+            {settingsButton}
+            {reviewScreenButton}
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            {previousContestButton}
+            {settingsButton}
+            {nextContestButton}
+          </React.Fragment>
+        )}
+      </ButtonFooter>
     </Screen>
   );
 }

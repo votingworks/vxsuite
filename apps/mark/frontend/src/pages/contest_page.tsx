@@ -3,10 +3,12 @@ import { Screen, LinkButton, useScreenInfo, appStrings } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useHistory, useParams } from 'react-router-dom';
-import { Contest as MarkFlowContest } from '@votingworks/mark-flow-ui';
+import {
+  DisplaySettingsButton,
+  Contest as MarkFlowContest,
+} from '@votingworks/mark-flow-ui';
 import { BallotContext } from '../contexts/ballot_context';
 import { ButtonFooter } from '../components/button_footer';
-import { DisplaySettingsButton } from '../components/display_settings_button';
 
 interface ContestParams {
   contestNumber: string;
