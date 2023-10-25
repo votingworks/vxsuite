@@ -8,18 +8,10 @@ import { Icons } from './icons';
 const FONT_SIZE_REM = 1;
 
 export const ALL_BUTTON_VARIANTS = [
-  'danger',
-  'done',
-  'edit',
-  'next',
-  'nextSecondary',
-  'previous',
-  'previousPrimary',
-  'primary',
   'regular',
+  'primary',
   'secondary',
-  'settings',
-  'warning',
+  'danger',
 ] as const;
 
 export type ButtonVariant = (typeof ALL_BUTTON_VARIANTS)[number];
@@ -81,22 +73,10 @@ interface VariantConfig {
 }
 
 const variantConfigs: Record<ButtonVariant, VariantConfig> = {
-  danger: { color: 'accentDanger', icon: Icons.Danger, isSolidColor: true },
-  done: { color: 'accentPrimary', icon: Icons.Done, isSolidColor: true },
-  edit: { color: 'foreground', icon: Icons.Edit },
-  next: { color: 'accentPrimary', icon: Icons.Next, isSolidColor: true },
-  nextSecondary: { color: 'foreground', icon: Icons.Next, isSolidColor: false },
-  previous: { color: 'foreground', icon: Icons.Previous },
-  previousPrimary: {
-    color: 'accentPrimary',
-    icon: Icons.Previous,
-    isSolidColor: true,
-  },
-  primary: { color: 'accentPrimary', isSolidColor: true },
   regular: { color: 'foreground' },
+  primary: { color: 'accentPrimary', isSolidColor: true },
   secondary: { color: 'accentSecondary', isSolidColor: true },
-  settings: { color: 'foreground', icon: Icons.Settings },
-  warning: { color: 'accentWarning', icon: Icons.Warning, isSolidColor: true },
+  danger: { color: 'accentDanger', icon: Icons.Danger, isSolidColor: true },
 };
 
 function getVariantConfig(p: StyledButtonProps): VariantConfig {
