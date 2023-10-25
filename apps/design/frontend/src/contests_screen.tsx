@@ -514,14 +514,15 @@ function ContestForm({
           <Button
             onPress={onSavePress}
             variant="primary"
+            icon="Checkmark"
             disabled={updateElectionMutation.isLoading}
           >
-            <Icons.Checkmark /> Save
+            Save
           </Button>
         </FormActionsRow>
         {contestId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" onPress={onDeletePress}>
+            <Button variant="danger" icon="DangerX" onPress={onDeletePress}>
               Delete Contest
             </Button>
           </FormActionsRow>
@@ -766,15 +767,16 @@ function PartyForm({
           <Button
             onPress={onSavePress}
             variant="primary"
+            icon="Checkmark"
             disabled={updateElectionMutation.isLoading}
           >
-            <Icons.Checkmark /> Save
+            Save
           </Button>
         </FormActionsRow>
         {partyId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" onPress={onDeletePress}>
-              <Icons.DangerX /> Delete Party
+            <Button variant="danger" icon="DangerX" onPress={onDeletePress}>
+              Delete Party
             </Button>
           </FormActionsRow>
         )}

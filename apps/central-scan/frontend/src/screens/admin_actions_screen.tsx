@@ -189,7 +189,11 @@ export function AdminActionsScreen({
           actions={
             <React.Fragment>
               <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
-              <Button variant="danger" onPress={deleteBallotData}>
+              <Button
+                variant="danger"
+                icon="DangerX"
+                onPress={deleteBallotData}
+              >
                 Yes, Delete Ballot Data
               </Button>
             </React.Fragment>
@@ -215,6 +219,7 @@ export function AdminActionsScreen({
             <React.Fragment>
               <Button
                 variant="danger"
+                icon="DangerX"
                 onPress={() => setUnconfigureFlowState('double-confirmation')}
               >
                 Yes, Delete Election Data
@@ -231,7 +236,7 @@ export function AdminActionsScreen({
           content={<P>This cannot be undone.</P>}
           actions={
             <React.Fragment>
-              <Button variant="danger" onPress={doUnconfigure}>
+              <Button variant="danger" icon="DangerX" onPress={doUnconfigure}>
                 I am sure. Delete all election data.
               </Button>
               <Button onPress={resetUnconfigureFlow}>Cancel</Button>

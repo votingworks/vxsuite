@@ -721,6 +721,7 @@ export function ManualDataEntryScreen(): JSX.Element {
         );
       })}
       <P weight="semiBold">
+        <Icons.Warning />{' '}
         {someContestHasInvalidResults
           ? 'At least one contest above has invalid results entered'
           : someContestHasNoResults
@@ -729,14 +730,7 @@ export function ManualDataEntryScreen(): JSX.Element {
       </P>
       <P>
         <LinkButton to={routerPaths.manualDataSummary}>Cancel</LinkButton>{' '}
-        <Button
-          variant={
-            someContestHasInvalidResults || someContestHasNoResults
-              ? 'warning'
-              : 'primary'
-          }
-          onPress={saveResults}
-        >
+        <Button variant="primary" onPress={saveResults}>
           Save Results
         </Button>{' '}
       </P>

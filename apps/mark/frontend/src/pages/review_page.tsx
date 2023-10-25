@@ -38,7 +38,7 @@ export function ReviewPage(): JSX.Element {
   );
 
   const printMyBallotButton = (
-    <LinkButton to="/print" id="next" variant="done">
+    <LinkButton to="/print" id="next" variant="primary" icon="Done">
       Print My Ballot
     </LinkButton>
   );

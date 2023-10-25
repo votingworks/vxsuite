@@ -88,7 +88,7 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
       </ActivePaneContainer>
       <Footer>
         <Button onPress={resetThemes}>Reset</Button>
-        <Button onPress={onClose} variant="done">
+        <Button onPress={onClose} variant="primary" icon="Done">
           Done
         </Button>
       </Footer>

@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  Icons,
-  Table,
-  TH,
-  TD,
-  H1,
-  LinkButton,
-  P,
-} from '@votingworks/ui';
+import { Button, Table, TH, TD, H1, LinkButton, P } from '@votingworks/ui';
 import {
   Switch,
   Route,
@@ -227,6 +218,7 @@ function DistrictForm({
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
+              icon="DangerX"
               onPress={onDeletePress}
               disabled={updateElectionMutation.isLoading}
             >
@@ -615,6 +607,7 @@ function PrecinctForm({
           </LinkButton>
           <Button
             variant="primary"
+            icon="Checkmark"
             onPress={onSavePress}
             disabled={updatePrecinctsMutation.isLoading}
           >
@@ -625,6 +618,7 @@ function PrecinctForm({
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
+              icon="DangerX"
               onPress={onDeletePress}
               disabled={updatePrecinctsMutation.isLoading}
             >

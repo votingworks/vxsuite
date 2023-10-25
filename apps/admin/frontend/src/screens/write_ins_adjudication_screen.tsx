@@ -451,11 +451,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           <Font weight="bold">{currentWriteInId.substring(0, 4)}</Font>
         </LabelledText>
         <AdjudicationNav>
-          <Button
-            disabled={offset === 0}
-            onPress={goPrevious}
-            variant="previous"
-          >
+          <Button disabled={offset === 0} onPress={goPrevious} icon="Previous">
             Previous
           </Button>
           <Caption weight="semiBold">
@@ -464,10 +460,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           <Button
             ref={nextButton}
             variant={
-              currentWriteIn?.status === 'adjudicated'
-                ? 'next'
-                : 'nextSecondary'
+              currentWriteIn?.status === 'adjudicated' ? 'primary' : 'neutral'
             }
+            rightIcon="Next"
             disabled={isLastAdjudication}
             onPress={goNext}
           >

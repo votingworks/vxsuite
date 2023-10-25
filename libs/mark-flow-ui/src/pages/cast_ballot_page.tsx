@@ -92,7 +92,11 @@ export function CastBallotPage({
           </P>
         </div>
         <Done>
-          <Button onPress={hidePostVotingInstructions} variant="done">
+          <Button
+            onPress={hidePostVotingInstructions}
+            variant="primary"
+            icon="Done"
+          >
             Done
           </Button>
         </Done>

@@ -111,7 +111,7 @@ function RemoveManualTallyModal({
       }
       actions={
         <React.Fragment>
-          <Button variant="danger" onPress={onConfirm}>
+          <Button icon="DangerX" variant="danger" onPress={onConfirm}>
             Remove Manually Entered Results
           </Button>
           <Button onPress={onClose}>Cancel</Button>
@@ -391,6 +391,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
         <br />
         <P>
           <Button
+            icon="DangerX"
             variant="danger"
             disabled={!hasManualTally}
             onPress={() => setIsClearingAll(true)}

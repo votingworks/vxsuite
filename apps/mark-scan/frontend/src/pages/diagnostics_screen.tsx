@@ -302,7 +302,11 @@ export function DiagnosticsScreen({
             <Prose compact maxWidth={false}>
               <H1>System Diagnostics</H1>
               <P>
-                <Button variant="previousPrimary" onPress={onBackButtonPress}>
+                <Button
+                  icon="Previous"
+                  variant="primary"
+                  onPress={onBackButtonPress}
+                >
                   Back to Poll Worker Actions
                 </Button>
               </P>

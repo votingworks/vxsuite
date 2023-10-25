@@ -235,7 +235,11 @@ export function PollWorkerScreen({
               Remove card to allow voter to continue voting, or reset ballot.
             </P>
             <P>
-              <Button variant="danger" onPress={resetCardlessVoterSession}>
+              <Button
+                variant="danger"
+                icon="DangerX"
+                onPress={resetCardlessVoterSession}
+              >
                 Reset Ballot
               </Button>
             </P>
@@ -388,7 +392,8 @@ export function PollWorkerScreen({
                 <React.Fragment>
                   <P>
                     <Button
-                      variant="previousPrimary"
+                      icon="Previous"
+                      variant="primary"
                       onPress={() => setIsHidingSelectBallotStyle(false)}
                     >
                       Back to Ballot Style Selection
@@ -444,7 +449,11 @@ export function PollWorkerScreen({
           }
           actions={
             <React.Fragment>
-              <Button variant="danger" onPress={confirmEnableLiveMode}>
+              <Button
+                variant="danger"
+                icon="Danger"
+                onPress={confirmEnableLiveMode}
+              >
                 Switch to Official Ballot Mode
               </Button>
               <Button onPress={cancelEnableLiveMode}>Cancel</Button>

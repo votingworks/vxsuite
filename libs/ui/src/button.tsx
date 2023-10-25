@@ -82,7 +82,7 @@ interface VariantConfig {
 }
 
 const variantConfigs: Record<ButtonVariant, VariantConfig> = {
-  regular: { color: 'foreground' },
+  neutral: { color: 'foreground' },
   primary: { color: 'accentPrimary', isSolidColor: true },
   secondary: { color: 'accentSecondary', isSolidColor: true },
   danger: { color: 'accentDanger', isSolidColor: true },

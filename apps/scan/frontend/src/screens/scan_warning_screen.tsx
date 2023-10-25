@@ -52,7 +52,8 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
       actions={
         <React.Fragment>
           <Button
-            variant="done"
+            variant="primary"
+            icon="Done"
             onPress={() => {
               setConfirmed(true);
               onConfirm();

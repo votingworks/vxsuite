@@ -215,7 +215,8 @@ export function CandidateContest({
   const modalActions = (
     <React.Fragment>
       <Button
-        variant="done"
+        variant="primary"
+        icon="Done"
         onPress={addWriteInCandidate}
         disabled={normalizeCandidateName(writeInCandidateName).length === 0}
       >
@@ -367,6 +368,7 @@ export function CandidateContest({
             <React.Fragment>
               <Button
                 variant="danger"
+                icon="DangerX"
                 onPress={confirmRemovePendingWriteInCandidate}
               >
                 Yes, Remove.
