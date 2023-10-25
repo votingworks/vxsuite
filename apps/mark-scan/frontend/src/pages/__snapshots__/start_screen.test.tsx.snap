@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders StartPage with inline SVG 1`] = `
+exports[`renders StartScreen with inline SVG seal 1`] = `
 .c7 {
   font-size: 1em;
   font-weight: 600;
@@ -217,18 +217,6 @@ exports[`renders StartPage with inline SVG 1`] = `
   animation: eohFnY 10s ease-in-out infinite;
 }
 
-.c3 {
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  gap: 0.5rem;
-}
-
 .c18 {
   -webkit-align-items: center;
   -webkit-box-align: center;
@@ -247,6 +235,18 @@ exports[`renders StartPage with inline SVG 1`] = `
   justify-content: center;
   gap: 0.5rem;
   text-align: left;
+}
+
+.c3 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 0.5rem;
 }
 
 .c1 {
