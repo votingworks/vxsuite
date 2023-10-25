@@ -6,11 +6,10 @@ import { Store } from '../store';
 import {
   extractWriteInSummary,
   isFilterCompatibleWithManualResults,
-  isGroupByCompatibleWithManualResults,
   tabulateManualBallotCounts,
   tabulateManualResults,
 } from './manual_results';
-import { ManualResultsFilter, ManualResultsGroupBy } from '../types';
+import { ManualResultsFilter } from '../types';
 
 test('isFilterCompatibleWithManualResults', () => {
   expect(
@@ -29,23 +28,6 @@ test('isFilterCompatibleWithManualResults', () => {
       ballotStyleIds: ['1M'],
       precinctIds: ['precinct-1'],
       partyIds: ['0'],
-    })
-  ).toEqual(true);
-});
-
-test('isGroupByCompatibleWithManualResults', () => {
-  expect(isGroupByCompatibleWithManualResults({ groupByBatch: true })).toEqual(
-    false
-  );
-  expect(
-    isGroupByCompatibleWithManualResults({ groupByScanner: true })
-  ).toEqual(false);
-  expect(
-    isGroupByCompatibleWithManualResults({
-      groupByBallotStyle: true,
-      groupByPrecinct: true,
-      groupByParty: true,
-      groupByVotingMethod: true,
     })
   ).toEqual(true);
 });
@@ -76,33 +58,6 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       }).err()
     ).toEqual({ type: 'incompatible-filter' });
   });
-
-  test('on incompatible group by', () => {
-    const store = Store.memoryStore();
-    const { electionData } = electionTwoPartyPrimaryFixtures.electionDefinition;
-    const electionId = store.addElection({
-      electionData,
-      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    });
-    store.setCurrentElectionId(electionId);
-
-    expect(
-      tabulateManualResults({
-        electionId,
-        store,
-        groupBy: { groupByBatch: true },
-      }).err()
-    ).toEqual({ type: 'incompatible-group-by' });
-
-    expect(
-      tabulateManualBallotCounts({
-        electionId,
-        store,
-        groupBy: { groupByBatch: true },
-      }).err()
-    ).toEqual({ type: 'incompatible-group-by' });
-  });
-
   test('grouping and filtering', () => {
     const store = Store.memoryStore();
     const { electionDefinition } = electionTwoPartyPrimaryFixtures;
@@ -192,7 +147,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
 
     const testCases: Array<{
       filter?: ManualResultsFilter;
-      groupBy?: ManualResultsGroupBy;
+      groupBy?: Tabulation.GroupBy;
       expected: Array<[groupKey: Tabulation.GroupKey, tally: number]>;
     }> = [
       // no filter or group case
@@ -273,6 +228,32 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
           ['root&precinctId=precinct-1&votingMethod=absentee', 11],
           ['root&precinctId=precinct-2&votingMethod=precinct', 18],
           ['root&precinctId=precinct-2&votingMethod=absentee', 15],
+        ],
+      },
+      {
+        groupBy: { groupByPrecinct: true, groupByBatch: true },
+        expected: [
+          [
+            `root&batchId=${Tabulation.MANUAL_BATCH_ID}&precinctId=precinct-1`,
+            36,
+          ],
+          [
+            `root&batchId=${Tabulation.MANUAL_BATCH_ID}&precinctId=precinct-2`,
+            78,
+          ],
+        ],
+      },
+      {
+        groupBy: { groupByPrecinct: true, groupByScanner: true },
+        expected: [
+          [
+            `root&precinctId=precinct-1&scannerId=${Tabulation.MANUAL_SCANNER_ID}`,
+            36,
+          ],
+          [
+            `root&precinctId=precinct-2&scannerId=${Tabulation.MANUAL_SCANNER_ID}`,
+            78,
+          ],
         ],
       },
     ];

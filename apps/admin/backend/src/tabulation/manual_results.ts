@@ -8,7 +8,6 @@ import {
 import { Result, assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   ManualResultsFilter,
-  ManualResultsGroupBy,
   ManualResultsIdentifier,
   ManualResultsRecord,
 } from '../types';
@@ -16,7 +15,7 @@ import { Store } from '../store';
 
 function getManualResultsGroupSpecifier(
   manualResultsIdentifier: ManualResultsIdentifier,
-  groupBy: ManualResultsGroupBy,
+  groupBy: Tabulation.GroupBy,
   partyIdLookup: BallotStyleIdPartyIdLookup
 ): Tabulation.GroupSpecifier {
   return {
@@ -32,6 +31,10 @@ function getManualResultsGroupSpecifier(
     votingMethod: groupBy.groupByVotingMethod
       ? manualResultsIdentifier.votingMethod
       : undefined,
+    batchId: groupBy.groupByBatch ? Tabulation.MANUAL_BATCH_ID : undefined,
+    scannerId: groupBy.groupByScanner
+      ? Tabulation.MANUAL_SCANNER_ID
+      : undefined,
   };
 }
 
@@ -46,7 +49,7 @@ export function aggregateManualResults({
 }: {
   election: Election;
   manualResultsRecords: Iterable<ManualResultsRecord>;
-  groupBy?: ManualResultsGroupBy;
+  groupBy?: Tabulation.GroupBy;
 }): Tabulation.ManualResultsGroupMap {
   const manualResultsGroupMap: Tabulation.ManualResultsGroupMap = {};
 
@@ -82,18 +85,9 @@ export function isFilterCompatibleWithManualResults(
   return !filter.batchIds && !filter.scannerIds;
 }
 
-/**
- * Type guard for group by to check if it is compatible with manual results.
- */
-export function isGroupByCompatibleWithManualResults(
-  groupBy: Tabulation.GroupBy
-): groupBy is ManualResultsGroupBy {
-  return !groupBy.groupByBatch && !groupBy.groupByScanner;
+interface GetManualResultsError {
+  type: 'incompatible-filter';
 }
-
-type GetManualResultsError =
-  | { type: 'incompatible-filter' }
-  | { type: 'incompatible-group-by' };
 
 /**
  * Filters, groups, and aggregates manual results.
@@ -111,10 +105,6 @@ export function tabulateManualResults({
 }): Result<Tabulation.ManualResultsGroupMap, GetManualResultsError> {
   if (!isFilterCompatibleWithManualResults(filter)) {
     return err({ type: 'incompatible-filter' });
-  }
-
-  if (!isGroupByCompatibleWithManualResults(groupBy)) {
-    return err({ type: 'incompatible-group-by' });
   }
 
   const {
@@ -152,10 +142,6 @@ export function tabulateManualBallotCounts({
 }): Result<Tabulation.ManualBallotCountsGroupMap, GetManualResultsError> {
   if (!isFilterCompatibleWithManualResults(filter)) {
     return err({ type: 'incompatible-filter' });
-  }
-
-  if (!isGroupByCompatibleWithManualResults(groupBy)) {
-    return err({ type: 'incompatible-group-by' });
   }
 
   const {
