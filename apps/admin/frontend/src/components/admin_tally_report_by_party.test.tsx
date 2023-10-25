@@ -11,7 +11,8 @@ test('general election, full election report', () => {
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
-      tallyReportType="Official"
+      isOfficial
+      isTest={false}
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
       tallyReportResults={getSimpleMockTallyResults({
@@ -41,7 +42,8 @@ test('general election, precinct report with manual results', () => {
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
-      tallyReportType="Unofficial"
+      isOfficial={false}
+      isTest
       title="Precinct Tally Report"
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
@@ -54,7 +56,7 @@ test('general election, precinct report with manual results', () => {
   );
 
   screen.getByTestId('tally-report');
-  screen.getByText('Unofficial Precinct Tally Report');
+  screen.getByText('Test Unofficial Precinct Tally Report');
   screen.getByText('Lincoln Municipal General Election');
   screen.getByText(
     'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM UTC.'
@@ -77,7 +79,8 @@ test('primary election, full election report with manual results', () => {
   render(
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
-      tallyReportType="Official"
+      isOfficial
+      isTest={false}
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
       tallyReportResults={getSimpleMockTallyResults({
@@ -145,7 +148,9 @@ test('primary election, party report', () => {
     <AdminTallyReportByParty
       electionDefinition={electionDefinition}
       title="Mammal Party Tally Report"
-      tallyReportType="Official"
+      isOfficial={false}
+      isTest
+      isForLogicAndAccuracyTesting
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
       tallyReportResults={getSimpleMockTallyResults({
@@ -162,7 +167,7 @@ test('primary election, party report', () => {
   );
 
   const mammalReport = screen.getByTestId('tally-report-0');
-  within(mammalReport).getByText('Official Mammal Party Tally Report');
+  within(mammalReport).getByText('Test Deck Mammal Party Tally Report');
   within(mammalReport).getByText('Mammal Party Example Primary Election');
   expect(
     within(mammalReport).getByTestId('total-ballot-count')
@@ -174,7 +179,7 @@ test('primary election, party report', () => {
   ).toHaveLength(0);
 
   const nonpartisanReport = screen.getByTestId('tally-report-nonpartisan');
-  within(mammalReport).getByText('Official Mammal Party Tally Report');
+  within(mammalReport).getByText('Test Deck Mammal Party Tally Report');
   within(nonpartisanReport).getByText(
     'Example Primary Election Nonpartisan Contests'
   );

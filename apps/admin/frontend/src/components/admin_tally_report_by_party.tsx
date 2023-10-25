@@ -6,8 +6,6 @@ import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AdminTallyReport } from '@votingworks/ui';
 import { getContestById, getEmptyCardCounts } from '@votingworks/utils';
 
-export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
-
 /**
  * The `AdminTallyReport` in `libs/ui` displays only a single set of election results,
  * but for primary elections all of our printed reports are separated by party. This
@@ -23,7 +21,9 @@ export function AdminTallyReportByParty({
   electionDefinition,
   tallyReportResults,
   title,
-  tallyReportType,
+  isTest,
+  isOfficial,
+  isForLogicAndAccuracyTesting,
   testId,
   generatedAtTime,
   customFilter,
@@ -31,7 +31,9 @@ export function AdminTallyReportByParty({
   electionDefinition: ElectionDefinition;
   tallyReportResults: TallyReportResults;
   title?: string;
-  tallyReportType: TallyReportType;
+  isTest: boolean;
+  isOfficial: boolean;
+  isForLogicAndAccuracyTesting?: boolean;
   testId: string;
   generatedAtTime: Date;
   customFilter?: Tabulation.Filter;
@@ -50,11 +52,10 @@ export function AdminTallyReportByParty({
         contests={contests}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults?.manualResults}
-        title={
-          title
-            ? `${tallyReportType} ${title}`
-            : `${tallyReportType} ${election.title} Tally Report`
-        }
+        title={title ?? `${election.title} Tally Report`}
+        isTest={isTest}
+        isOfficial={isOfficial}
+        isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         subtitle={title ? election.title : undefined}
         generatedAtTime={generatedAtTime}
         customFilter={customFilter}
@@ -90,11 +91,10 @@ export function AdminTallyReportByParty({
         manualElectionResults={
           partyCardCounts.manual ? tallyReportResults.manualResults : undefined
         }
-        title={
-          title
-            ? `${tallyReportType} ${title}`
-            : `${tallyReportType} ${partyElectionTitle} Tally Report`
-        }
+        title={title ?? `${partyElectionTitle} Tally Report`}
+        isTest={isTest}
+        isOfficial={isOfficial}
+        isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         subtitle={title ? partyElectionTitle : undefined}
         cardCountsOverride={partyCardCounts}
         customFilter={customFilter}
@@ -115,11 +115,10 @@ export function AdminTallyReportByParty({
         contests={contests.filter((c) => c.type === 'yesno' || !c.partyId)}
         scannedElectionResults={tallyReportResults.scannedResults}
         manualElectionResults={tallyReportResults.manualResults}
-        title={
-          title
-            ? `${tallyReportType} ${title}`
-            : `${tallyReportType} ${nonpartisanElectionTitle} Tally Report`
-        }
+        title={title ?? `${nonpartisanElectionTitle} Tally Report`}
+        isTest={isTest}
+        isOfficial={isOfficial}
+        isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         subtitle={title ? nonpartisanElectionTitle : undefined}
         customFilter={customFilter}
       />
