@@ -1,30 +1,45 @@
-import { useContext } from 'react';
+/* istanbul ignore file - tested via Mark/Mark-Scan */
 import styled from 'styled-components';
 import {
   LinkButton,
   Main,
-  Prose,
   Screen,
   H1,
   WithScrollButtons,
   useScreenInfo,
+  Prose,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
-import { DisplaySettingsButton, Review } from '@votingworks/mark-flow-ui';
-import { useHistory } from 'react-router-dom';
 
-import { BallotContext } from '../contexts/ballot_context';
+import { ElectionDefinition, PrecinctId, VotesDict } from '@votingworks/types';
 import { ButtonFooter } from '../components/button_footer';
+import { Review, ReviewProps } from '../components/review';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
+import { DisplaySettingsButton } from '../components/display_settings_button';
 
 const ContentHeader = styled.div`
   padding: 0.5rem 0.75rem 0;
 `;
 
-export function ReviewPage(): JSX.Element {
-  const history = useHistory();
-  const { contests, electionDefinition, precinctId, votes } =
-    useContext(BallotContext);
+export interface ReviewPageProps {
+  contests: ContestsWithMsEitherNeither;
+  electionDefinition?: ElectionDefinition;
+  precinctId?: PrecinctId;
+  printScreenUrl: string;
+  returnToContest?: ReviewProps['returnToContest'];
+  votes: VotesDict;
+}
+
+export function ReviewPage(props: ReviewPageProps): JSX.Element {
+  const {
+    contests,
+    electionDefinition,
+    precinctId,
+    printScreenUrl,
+    returnToContest,
+    votes,
+  } = props;
 
   const screenInfo = useScreenInfo();
 
@@ -38,7 +53,7 @@ export function ReviewPage(): JSX.Element {
   );
 
   const printMyBallotButton = (
-    <LinkButton to="/print" id="next" variant="primary" icon="Done">
+    <LinkButton to={printScreenUrl} id="next" variant="primary" icon="Done">
       Print My Ballot
     </LinkButton>
   );
@@ -68,13 +83,7 @@ export function ReviewPage(): JSX.Element {
             contests={contests}
             precinctId={precinctId}
             votes={votes}
-            returnToContest={(contestId) => {
-              history.push(
-                `/contests/${contests.findIndex(
-                  ({ id }) => id === contestId
-                )}#review`
-              );
-            }}
+            returnToContest={returnToContest}
           />
         </WithScrollButtons>
       </Main>

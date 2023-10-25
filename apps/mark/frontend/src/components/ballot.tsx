@@ -9,7 +9,7 @@ import { DisplaySettingsPage } from '../pages/display_settings_page';
 import { IdlePage } from '../pages/idle_page';
 import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
-import { ReviewPage } from '../pages/review_page';
+import { ReviewScreen } from '../pages/review_screen';
 import { StartScreen } from '../pages/start_screen';
 
 export function Ballot(): JSX.Element {
@@ -48,7 +48,7 @@ export function Ballot(): JSX.Element {
             <ContestPage />
           </Route>
           <Route path="/review">
-            <ReviewPage />
+            <ReviewScreen />
           </Route>
           <Route path="/print">
             <PrintPage />

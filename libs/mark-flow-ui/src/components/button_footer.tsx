@@ -1,3 +1,4 @@
+/* istanbul ignore file - purely presentational component. */
 import styled, { css } from 'styled-components';
 
 const portraitStyles = css`
