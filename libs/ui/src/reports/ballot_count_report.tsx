@@ -202,6 +202,16 @@ function getCellClass(column: Column): Optional<string> {
   }
 }
 
+function getBatchLabel(batchId: string): string {
+  return batchId === Tabulation.MANUAL_BATCH_ID
+    ? 'Manual'
+    : batchId.slice(0, Tabulation.BATCH_ID_DISPLAY_LENGTH);
+}
+
+function getScannerLabel(scannerId: string): string {
+  return scannerId === Tabulation.MANUAL_SCANNER_ID ? 'Manual' : scannerId;
+}
+
 function BallotCountTable({
   electionDefinition,
   scannerBatches,
@@ -282,7 +292,9 @@ function BallotCountTable({
         const partyId = determinePartyId(electionDefinition, cardCounts);
         const scannerId =
           cardCounts.scannerId ??
-          (cardCounts.batchId
+          (cardCounts.batchId === Tabulation.MANUAL_BATCH_ID
+            ? Tabulation.MANUAL_SCANNER_ID
+            : cardCounts.batchId
             ? batchLookup[cardCounts.batchId].scannerId
             : undefined);
         const rowKey = getGroupKey(cardCounts, groupBy);
@@ -313,13 +325,10 @@ function BallotCountTable({
                     ];
                   break;
                 case 'scanner':
-                  content = assertDefined(scannerId);
+                  content = getScannerLabel(assertDefined(scannerId));
                   break;
                 case 'batch':
-                  content = assertDefined(cardCounts.batchId).slice(
-                    0,
-                    Tabulation.BATCH_ID_DISPLAY_LENGTH
-                  );
+                  content = getBatchLabel(assertDefined(cardCounts.batchId));
                   break;
                 case 'center-fill':
                 case 'right-fill':
