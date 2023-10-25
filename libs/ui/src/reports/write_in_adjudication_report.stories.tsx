@@ -39,7 +39,8 @@ const meta: Meta<typeof WriteInTallyReportPreview> = {
 
 const generalReportArgs: WriteInAdjudicationReportProps = {
   election: electionFamousNames2021Fixtures.election,
-  isOfficialResults: false,
+  isOfficial: false,
+  isTest: false,
   generatedAtTime: new Date('2020-11-03T12:00:00.000Z'),
   electionWriteInSummary: {
     contestWriteInSummaries: {
@@ -167,7 +168,8 @@ export const GeneralReport: Story = {
 
 const primaryReportArgs: WriteInAdjudicationReportProps = {
   election,
-  isOfficialResults: true,
+  isOfficial: true,
+  isTest: false,
   generatedAtTime: new Date('2020-11-03T12:00:00.000Z'),
   electionWriteInSummary: {
     contestWriteInSummaries: {

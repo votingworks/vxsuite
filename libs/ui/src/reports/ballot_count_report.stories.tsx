@@ -71,7 +71,9 @@ const precinctCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
   );
 
 const precinctReportArgs: BallotCountReportProps = {
-  title: 'Official Full Election Ballot Count Report',
+  title: 'Full Election Ballot Count Report',
+  isOfficial: true,
+  isTest: false,
   testId: 'tally-report',
   electionDefinition: electionWithMsEitherNeitherDefinition,
   scannerBatches: [],
@@ -102,7 +104,9 @@ const primaryPrecinctCardCountsList: Tabulation.GroupList<Tabulation.CardCounts>
   );
 
 const primaryPrecinctReportArgs: BallotCountReportProps = {
-  title: 'Official Full Election Ballot Count Report',
+  title: 'Full Election Ballot Count Report',
+  isOfficial: true,
+  isTest: false,
   testId: 'tally-report',
   electionDefinition: {
     ...electionWithMsEitherNeitherDefinition,
@@ -137,6 +141,8 @@ const votingMethodCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
 
 const votingMethodReportArgs: BallotCountReportProps = {
   title: 'Full Election Ballot Count Report',
+  isOfficial: true,
+  isTest: false,
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
   scannerBatches: [],
@@ -156,6 +162,8 @@ const noGroupsCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
 
 const noGroupsReportArgs: BallotCountReportProps = {
   title: 'Full Election Ballot Count Report',
+  isOfficial: true,
+  isTest: false,
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
   scannerBatches: [],
@@ -173,6 +181,8 @@ const singleGroupCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
 
 const singleGroupReportArgs: BallotCountReportProps = {
   title: 'Full Election Ballot Count Report',
+  isOfficial: true,
+  isTest: false,
   testId: 'tally-report',
   electionDefinition: electionTwoPartyPrimaryDefinition,
   scannerBatches: [
@@ -248,7 +258,9 @@ const maxCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = (() => {
 })();
 
 const maxReportArgs: BallotCountReportProps = {
-  title: 'Official Full Election Ballot Count Report',
+  title: 'Full Election Ballot Count Report',
+  isOfficial: true,
+  isTest: false,
   testId: 'tally-report',
   electionDefinition: {
     ...electionTwoPartyPrimaryDefinition,

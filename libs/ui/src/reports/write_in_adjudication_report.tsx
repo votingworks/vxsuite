@@ -15,6 +15,7 @@ import {
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
+import { prefixedTitle } from './utils';
 
 function getEmptyContestWriteInSummary(
   contest: AnyContest
@@ -32,17 +33,17 @@ export interface WriteInAdjudicationReportProps {
   election: Election;
   electionWriteInSummary: Tabulation.ElectionWriteInSummary;
   generatedAtTime: Date;
-  isOfficialResults: boolean;
+  isOfficial: boolean;
+  isTest: boolean;
 }
 
 export function WriteInAdjudicationReport({
   election,
   electionWriteInSummary,
   generatedAtTime,
-  isOfficialResults,
+  isOfficial,
+  isTest,
 }: WriteInAdjudicationReportProps): JSX.Element {
-  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-
   const allWriteInContests = election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
   );
@@ -71,7 +72,11 @@ export function WriteInAdjudicationReport({
             >
               <LogoMark />
               <h1>
-                {statusPrefix} {electionTitle} Write-In Adjudication Report
+                {prefixedTitle({
+                  isOfficial,
+                  isTest,
+                  title: `${electionTitle} Write‑In Adjudication Report`,
+                })}
               </h1>
               <TallyReportMetadata
                 generatedAtTime={generatedAtTime}

@@ -22,7 +22,7 @@ import { ReportSection, tallyReportThemeFn, TallyReport } from './tally_report';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { CustomFilterSummary } from './custom_filter_summary';
-import { getBatchLabel, getScannerLabel } from './utils';
+import { getBatchLabel, getScannerLabel, prefixedTitle } from './utils';
 
 /**
  * Columns that may appear in a the ballot count report table.
@@ -390,6 +390,8 @@ function BallotCountTable({
 
 export interface BallotCountReportProps {
   title: string;
+  isTest: boolean;
+  isOfficial: boolean;
   testId?: string;
   electionDefinition: ElectionDefinition;
   scannerBatches: Tabulation.ScannerBatch[];
@@ -401,6 +403,8 @@ export interface BallotCountReportProps {
 
 export function BallotCountReport({
   title,
+  isTest,
+  isOfficial,
   testId,
   electionDefinition,
   scannerBatches,
@@ -416,7 +420,7 @@ export function BallotCountReport({
       <TallyReport data-testid={testId}>
         <ReportSection>
           <LogoMark />
-          <h1>{title}</h1>
+          <h1>{prefixedTitle({ isOfficial, isTest, title })}</h1>
           <h2>{electionDefinition.election.title}</h2>
           {customFilter && (
             <CustomFilterSummary
