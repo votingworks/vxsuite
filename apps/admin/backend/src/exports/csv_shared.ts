@@ -255,8 +255,11 @@ export function getCsvMetadataRowValues({
         return assertOnlyElement(filter.scannerIds);
       }
 
-      return assertDefined(batchLookup[assertOnlyElement(filter.batchIds)])
-        .scannerId;
+      const batchId = assertOnlyElement(filter.batchIds);
+      if (batchId === Tabulation.MANUAL_BATCH_ID) {
+        return Tabulation.MANUAL_SCANNER_ID;
+      }
+      return assertDefined(batchLookup[batchId]).scannerId;
     })();
     values.push(scannerId);
   }
