@@ -85,7 +85,7 @@ const tests: Record<ElectionStringKey, () => void> = {
               '@id': 'candidate1',
               BallotName: buildInternationalizedText({
                 [LanguageCode.ENGLISH]: 'Pinky and The Brain',
-                [LanguageCode.SPANISH]: 'Pinky y The Brain',
+                [LanguageCode.SPANISH]: 'Pinky y Cerebro',
                 unsupported_lang: '🌸🧠',
               }),
             },
@@ -112,7 +112,7 @@ const tests: Record<ElectionStringKey, () => void> = {
       }),
       [LanguageCode.SPANISH]: expect.objectContaining({
         [ElectionStringKey.CANDIDATE_NAME]: {
-          candidate1: 'Pinky y The Brain',
+          candidate1: 'Pinky y Cerebro',
           candidate2: 'Tom y Jerry',
         },
       }),
