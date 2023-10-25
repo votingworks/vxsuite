@@ -47,6 +47,7 @@ import {
 function Reports({
   electionDefinition,
   isOfficialResults,
+  isTestMode,
   allTallyReportResults,
   filterUsed,
   generatedAtTime,
@@ -54,6 +55,7 @@ function Reports({
 }: {
   electionDefinition: ElectionDefinition;
   isOfficialResults: boolean;
+  isTestMode: boolean;
   allTallyReportResults: Tabulation.GroupList<TallyReportResults>;
   filterUsed: Tabulation.Filter;
   generatedAtTime: Date;
@@ -83,7 +85,8 @@ function Reports({
         key={`tally-report-${index}`}
         title={title}
         tallyReportResults={tallyReportResults}
-        tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
+        isOfficial={isOfficialResults}
+        isTest={isTestMode}
         generatedAtTime={generatedAtTime}
         customFilter={displayedFilter}
       />
@@ -124,6 +127,8 @@ export function TallyReportViewer({
     !castVoteRecordFileModeQuery.isSuccess ||
     !scannerBatchesQuery.isSuccess;
 
+  const isTestMode = castVoteRecordFileModeQuery.data === 'test';
+
   const reportResultsQuery = getResultsForTallyReports.useQuery(
     {
       filter,
@@ -158,17 +163,19 @@ export function TallyReportViewer({
         allTallyReportResults={reportResultsQuery.data}
         generatedAtTime={new Date(reportResultsQuery.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        isTestMode={isTestMode}
         scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );
   }, [
     disabled,
     reportResultsAreFresh,
-    electionDefinition,
-    filter,
     reportResultsQuery.data,
     reportResultsQuery.dataUpdatedAt,
+    electionDefinition,
+    filter,
     isOfficialResults,
+    isTestMode,
     scannerBatchesQuery.data,
   ]);
   previewReportRef.current = previewReport;
@@ -202,6 +209,7 @@ export function TallyReportViewer({
         allTallyReportResults={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        isTestMode={isTestMode}
         scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );
@@ -240,6 +248,7 @@ export function TallyReportViewer({
         allTallyReportResults={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        isTestMode={isTestMode}
         scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );

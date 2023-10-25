@@ -22,7 +22,7 @@ test('happy path', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
 
-  apiMock.expectGetCastVoteRecordFileMode('test');
+  apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetScannerBatches([]);
   renderInAppContext(<TallyReportBuilder />, {
     electionDefinition,

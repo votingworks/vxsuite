@@ -42,6 +42,7 @@ function Report({
   electionDefinition,
   scannerBatches,
   isOfficialResults,
+  isTestMode,
   cardCountsList,
   filter,
   groupBy,
@@ -50,6 +51,7 @@ function Report({
   electionDefinition: ElectionDefinition;
   scannerBatches: ScannerBatch[];
   isOfficialResults: boolean;
+  isTestMode: boolean;
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
@@ -61,24 +63,25 @@ function Report({
     scannerBatches,
     reportType: 'Ballot Count',
   });
-  const titleWithoutOfficiality = titleGeneration.isOk()
+  const title = titleGeneration.isOk()
     ? titleGeneration.ok() ?? `Full Election Ballot Count Report`
     : 'Custom Filter Ballot Count Report';
-  const title = `${
-    isOfficialResults ? 'Official ' : 'Unofficial '
-  }${titleWithoutOfficiality}`;
   const customFilter = !titleGeneration.isOk() ? filter : undefined;
 
-  return BallotCountReport({
-    title,
-    testId: 'ballot-count-report',
-    electionDefinition,
-    customFilter,
-    scannerBatches,
-    generatedAtTime,
-    groupBy,
-    cardCountsList,
-  });
+  return (
+    <BallotCountReport
+      title={title}
+      isOfficial={isOfficialResults}
+      isTest={isTestMode}
+      testId="ballot-count-report"
+      electionDefinition={electionDefinition}
+      customFilter={customFilter}
+      scannerBatches={scannerBatches}
+      generatedAtTime={generatedAtTime}
+      groupBy={groupBy}
+      cardCountsList={cardCountsList}
+    />
+  );
 }
 
 export interface BallotCountReportViewerProps {
@@ -111,6 +114,8 @@ export function BallotCountReportViewer({
     disabledFromProps ||
     !castVoteRecordFileModeQuery.isSuccess ||
     !scannerBatchesQuery.isSuccess;
+
+  const isTestMode = castVoteRecordFileModeQuery.data === 'test';
 
   const cardCountsQuery = getCardCounts.useQuery(
     {
@@ -147,18 +152,20 @@ export function BallotCountReportViewer({
         cardCountsList={cardCountsQuery.data}
         generatedAtTime={new Date(cardCountsQuery.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        isTestMode={isTestMode}
         scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );
   }, [
     disabled,
     reportResultsAreFresh,
+    cardCountsQuery.data,
+    cardCountsQuery.dataUpdatedAt,
     electionDefinition,
     filter,
     groupBy,
-    cardCountsQuery.data,
-    cardCountsQuery.dataUpdatedAt,
     isOfficialResults,
+    isTestMode,
     scannerBatchesQuery.data,
   ]);
   previewReportRef.current = previewReport;
@@ -192,6 +199,7 @@ export function BallotCountReportViewer({
         cardCountsList={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        isTestMode={isTestMode}
         scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );
@@ -231,6 +239,7 @@ export function BallotCountReportViewer({
         cardCountsList={queryResults.data}
         generatedAtTime={new Date(queryResults.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
+        isTestMode={isTestMode}
         scannerBatches={scannerBatchesQuery.data ?? []}
       />
     );
