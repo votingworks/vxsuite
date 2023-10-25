@@ -216,7 +216,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     precinctId: '23',
   });
 
-  await findByTextWithMarkup('Your ballot has 20 contests.');
+  await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/Center Springfield/);
   screen.getByText(/(12)/);
 
