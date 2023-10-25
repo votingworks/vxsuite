@@ -12,10 +12,14 @@ import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestResultsTable } from './contest_results_table';
 import { TallyReportCardCounts } from './tally_report_card_counts';
 import { CustomFilterSummary } from './custom_filter_summary';
+import { prefixedTitle } from './utils';
 
 export interface AdminTallyReportProps {
   title: string;
   subtitle?: string;
+  isOfficial: boolean;
+  isTest: boolean;
+  isForLogicAndAccuracyTesting?: boolean;
   testId?: string;
   electionDefinition: ElectionDefinition;
   contests: Contests;
@@ -29,6 +33,9 @@ export interface AdminTallyReportProps {
 export function AdminTallyReport({
   title,
   subtitle,
+  isOfficial,
+  isTest,
+  isForLogicAndAccuracyTesting,
   testId,
   electionDefinition,
   contests,
@@ -49,8 +56,14 @@ export function AdminTallyReport({
       <TallyReport data-testid={testId}>
         <ReportSection>
           <LogoMark />
-          <h1>{title}</h1>
-
+          <h1>
+            {prefixedTitle({
+              isOfficial,
+              isTest,
+              isForLogicAndAccuracyTesting,
+              title,
+            })}
+          </h1>
           {subtitle && <h2>{subtitle}</h2>}
           {customFilter && (
             <CustomFilterSummary

@@ -67,7 +67,9 @@ const scannedElectionResults = buildElectionResultsFixture({
 });
 
 const batchReportArgs: AdminTallyReportProps = {
-  title: 'Official Batch Tally Report for Batch 1',
+  title: 'Batch Tally Report for Batch 1',
+  isOfficial: true,
+  isTest: false,
   subtitle: election.title,
   testId: 'tally-report',
   electionDefinition,
@@ -106,7 +108,9 @@ const manualElectionResults = buildManualResultsFixture({
 });
 
 const ballotStyleManualReportArgs: AdminTallyReportProps = {
-  title: 'TEST Ballot Style Tally Report for Ballot Style 2F',
+  title: 'Ballot Style Tally Report for Ballot Style 2F',
+  isTest: true,
+  isOfficial: true,
   subtitle: election.title,
   testId: 'tally-report',
   electionDefinition,
@@ -125,7 +129,9 @@ export const BallotStyleManualReport: Story = {
 };
 
 const fullElectionWriteInReportArgs: AdminTallyReportProps = {
-  title: 'TEST Full Election Tally Report',
+  title: 'Full Election Tally Report',
+  isTest: true,
+  isOfficial: false,
   subtitle: election.title,
   testId: 'tally-report',
   electionDefinition,
