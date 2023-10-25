@@ -218,7 +218,7 @@ function DistrictForm({
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
-              icon="DangerX"
+              icon="Delete"
               onPress={onDeletePress}
               disabled={updateElectionMutation.isLoading}
             >
@@ -618,11 +618,11 @@ function PrecinctForm({
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
-              icon="DangerX"
+              icon="Delete"
               onPress={onDeletePress}
               disabled={updatePrecinctsMutation.isLoading}
             >
-              <Icons.DangerX /> Delete Precinct
+              <Icons.Delete /> Delete Precinct
             </Button>
           </FormActionsRow>
         )}

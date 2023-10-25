@@ -137,7 +137,7 @@ export function TallyScreen(): JSX.Element | null {
             <Button
               disabled={!hasAnyFiles}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
-              icon="DangerX"
+              icon="Delete"
               variant="danger"
             >
               Clear All Tallies and Results

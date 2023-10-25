@@ -522,7 +522,7 @@ function ContestForm({
         </FormActionsRow>
         {contestId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" icon="DangerX" onPress={onDeletePress}>
+            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
               Delete Contest
             </Button>
           </FormActionsRow>
@@ -775,7 +775,7 @@ function PartyForm({
         </FormActionsRow>
         {partyId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" icon="DangerX" onPress={onDeletePress}>
+            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
               Delete Party
             </Button>
           </FormActionsRow>

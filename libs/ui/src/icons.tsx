@@ -15,7 +15,6 @@ import {
   faInfoCircle,
   faMinusCircle,
   faPencil,
-  faTrashCan,
   faXmark,
   faMagnifyingGlassPlus,
   faMagnifyingGlassMinus,
@@ -122,12 +121,8 @@ export const Icons = {
     return <FaIcon type={faExclamationCircle} />;
   },
 
-  DangerX(): JSX.Element {
-    return <FaIcon type={faXmarkCircle} />;
-  },
-
   Delete(): JSX.Element {
-    return <FaIcon type={faTrashCan} />;
+    return <FaIcon type={faXmarkCircle} />;
   },
 
   Disabled(): JSX.Element {

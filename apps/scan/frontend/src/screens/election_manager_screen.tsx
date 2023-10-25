@@ -329,7 +329,7 @@ export function ElectionManagerScreen({
               }
               actions={
                 <React.Fragment>
-                  <Button onPress={unconfigure} variant="danger" icon="DangerX">
+                  <Button onPress={unconfigure} variant="danger" icon="Delete">
                     Yes, Delete All
                   </Button>
                   <Button onPress={() => setIsConfirmingUnconfigure(false)}>

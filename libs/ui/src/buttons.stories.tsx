@@ -44,7 +44,7 @@ export function UsageExamples(props: ButtonProps<unknown>): JSX.Element {
             <Button {...props} icon="Previous">
               Previous
             </Button>
-            <Button {...props} icon="Checkmark" variant="primary">
+            <Button {...props} icon="Done" variant="primary">
               Save and exit
             </Button>
           </React.Fragment>
@@ -59,7 +59,7 @@ export function UsageExamples(props: ButtonProps<unknown>): JSX.Element {
         footer={
           <React.Fragment>
             <Button {...props}>Cancel</Button>
-            <Button {...props} variant="danger" icon="DangerX">
+            <Button {...props} variant="danger" icon="Delete">
               Delete everything
             </Button>
           </React.Fragment>

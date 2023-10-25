@@ -583,7 +583,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                 }}
                 variant={currentWriteInMarkedInvalid ? 'secondary' : 'neutral'}
               >
-                <Icons.DangerX /> Mark write-in invalid
+                <Icons.Delete /> Mark write-in invalid
               </Button>
             </div>
           </AdjudicationForm>

@@ -27,7 +27,7 @@ export function RemoveAllManualTalliesModal({
       }
       actions={
         <React.Fragment>
-          <Button icon="DangerX" variant="danger" onPress={onConfirm}>
+          <Button icon="Delete" variant="danger" onPress={onConfirm}>
             Remove All Manually Entered Results
           </Button>
           <Button onPress={onClose}>Cancel</Button>

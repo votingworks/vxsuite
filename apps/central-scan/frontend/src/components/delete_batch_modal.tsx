@@ -37,7 +37,7 @@ export function DeleteBatchModal({
       actions={
         <React.Fragment>
           <Button
-            icon="DangerX"
+            icon="Delete"
             variant="danger"
             onPress={doDeleteBatch}
             disabled={!deleteBatchMutation.isIdle}
