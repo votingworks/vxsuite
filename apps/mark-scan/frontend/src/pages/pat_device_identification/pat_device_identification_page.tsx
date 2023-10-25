@@ -1,12 +1,12 @@
 import { Main, Screen, P, Font, Button } from '@votingworks/ui';
 import { useCallback, useState } from 'react';
+import { ButtonFooter } from '@votingworks/mark-flow-ui';
 import {
   DiagnosticScreenHeader,
   StepContainer,
 } from '../diagnostic_screen_components';
 import { PatIntroductionStep } from './pat_introduction_step';
 import { IdentifyInputStep } from './identify_input_step';
-import { ButtonFooter } from '../../components/button_footer';
 
 interface Props {
   onAllInputsIdentified: () => void;

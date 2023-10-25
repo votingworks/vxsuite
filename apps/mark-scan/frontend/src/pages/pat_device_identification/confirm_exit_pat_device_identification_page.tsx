@@ -1,5 +1,5 @@
 import { Main, Screen, H1, P, Button, Icons } from '@votingworks/ui';
-import { ButtonFooter } from '../../components/button_footer';
+import { ButtonFooter } from '@votingworks/mark-flow-ui';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
 interface Props {
