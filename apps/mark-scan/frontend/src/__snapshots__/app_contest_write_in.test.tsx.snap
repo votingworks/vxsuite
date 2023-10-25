@@ -316,6 +316,26 @@ exports[`Single Seat Contest with Write In 1`] = `
   justify-content: space-between;
 }
 
+.c26 {
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: nowrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: left;
+}
+
 .c24 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
@@ -340,26 +360,6 @@ exports[`Single Seat Contest with Write In 1`] = `
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
   flex-grow: 1;
-}
-
-.c26 {
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: nowrap;
-  -ms-flex-wrap: nowrap;
-  flex-wrap: nowrap;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  gap: 0.5rem;
-  text-align: left;
 }
 
 .c0 {
@@ -401,6 +401,14 @@ exports[`Single Seat Contest with Write In 1`] = `
 }
 
 @media print {
+
+}
+
+@media (orientation:portrait) {
+
+}
+
+@media (orientation:portrait) {
 
 }
 

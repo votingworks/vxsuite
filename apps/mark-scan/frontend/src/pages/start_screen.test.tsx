@@ -6,35 +6,46 @@ import {
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { Paths } from '@votingworks/mark-flow-ui';
 import { screen } from '../../test/react_testing_library';
+import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
-import { StartPage } from './start_page';
-import { Paths } from '../config/globals';
+import { StartScreen } from './start_screen';
 
-test('renders StartPage', () => {
+test('renders StartScreen', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  render(<Route path="/" component={StartPage} />, {
+  render(<Route path="/" component={StartScreen} />, {
     ballotStyleId: '1M',
     electionDefinition,
     precinctId: 'precinct-1',
     route: '/',
   });
-  screen.getByRole('heading', {
-    name: 'Mammal Party Example Primary Election',
-  });
+  screen.getByRole('heading', { name: /Example Primary Election/ });
   screen.getByText('September 8, 2021');
-  screen.getByText(
-    hasTextAcrossElements('Precinct 1, Sample County, State of Sample')
-  );
-  screen.getByText(hasTextAcrossElements('Ballot style: 1M'));
   screen.getByText(
     hasTextAcrossElements('Number of contests on your ballot: 7')
   );
 });
 
-test('renders StartPage with inline SVG', () => {
+test('renders StartScreen in Landscape Orientation', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  render(<Route path="/" component={StartScreen} />, {
+    ballotStyleId: '1M',
+    electionDefinition,
+    precinctId: 'precinct-1',
+    route: '/',
+    machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
+  });
+  screen.getByRole('heading', { name: /Example Primary Election/ });
+  screen.getByText('September 8, 2021');
+  screen.getByText(
+    hasTextAcrossElements('Number of contests on your ballot: 7')
+  );
+});
+
+test('renders StartScreen with inline SVG seal', () => {
   const electionDefinition = electionGeneralDefinition;
-  const { container } = render(<Route path="/" component={StartPage} />, {
+  const { container } = render(<Route path="/" component={StartScreen} />, {
     electionDefinition,
     ballotStyleId: '12',
     precinctId: '23',
@@ -47,7 +58,7 @@ it('renders display settings button', () => {
   const electionDefinition = electionGeneralDefinition;
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
-  render(<Route path="/" component={StartPage} />, {
+  render(<Route path="/" component={StartScreen} />, {
     ballotStyleId: '12',
     electionDefinition,
     history,

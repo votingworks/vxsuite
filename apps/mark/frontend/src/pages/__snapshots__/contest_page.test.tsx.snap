@@ -316,13 +316,6 @@ exports[`Renders ContestPage 1`] = `
   justify-content: space-between;
 }
 
-.c23 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-}
-
 .c25 {
   -webkit-align-items: center;
   -webkit-box-align: center;
@@ -341,6 +334,13 @@ exports[`Renders ContestPage 1`] = `
   justify-content: center;
   gap: 0.5rem;
   text-align: left;
+}
+
+.c23 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 @media print {
@@ -1242,13 +1242,6 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   justify-content: space-between;
 }
 
-.c23 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-}
-
 .c25 {
   -webkit-align-items: center;
   -webkit-box-align: center;
@@ -1267,6 +1260,13 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   justify-content: center;
   gap: 0.5rem;
   text-align: left;
+}
+
+.c23 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 @media print {

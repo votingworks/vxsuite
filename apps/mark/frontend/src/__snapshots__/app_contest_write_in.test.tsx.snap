@@ -316,13 +316,6 @@ exports[`Single Seat Contest with Write In 1`] = `
   justify-content: space-between;
 }
 
-.c24 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-}
-
 .c26 {
   -webkit-align-items: center;
   -webkit-box-align: center;
@@ -341,6 +334,13 @@ exports[`Single Seat Contest with Write In 1`] = `
   justify-content: center;
   gap: 0.5rem;
   text-align: left;
+}
+
+.c24 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 .c0 {
@@ -390,6 +390,14 @@ exports[`Single Seat Contest with Write In 1`] = `
 }
 
 @media (orientation:portrait) {
+
+}
+
+@media (orientation:portrait) {
+
+}
+
+@media (orientation:portrait) {
   .c24 {
     -webkit-align-items: stretch;
     -webkit-box-align: stretch;
@@ -430,14 +438,6 @@ exports[`Single Seat Contest with Write In 1`] = `
   .c24 > * {
     min-height: 3rem;
   }
-}
-
-@media (orientation:portrait) {
-
-}
-
-@media (orientation:portrait) {
-
 }
 
 @media print {
