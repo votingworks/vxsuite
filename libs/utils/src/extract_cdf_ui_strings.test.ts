@@ -20,6 +20,10 @@ function buildInternationalizedText(
   };
 }
 
+const ORIGINAL_ELECTION: Readonly<BallotDefinition.Election> = assertDefined(
+  testCdfBallotDefinition.Election[0]
+);
+
 /**
  * Test-per-ElectionStringKey mapping to make sure tests stay in  sync with
  * key changes.
@@ -30,12 +34,10 @@ const tests: Record<ElectionStringKey, () => void> = {
       ...testCdfBallotDefinition,
       Election: [
         {
-          ...assertDefined(testCdfBallotDefinition.Election[0]),
+          ...ORIGINAL_ELECTION,
           BallotStyle: [
             {
-              ...assertDefined(
-                testCdfBallotDefinition.Election[0]?.BallotStyle[0]
-              ),
+              ...assertDefined(ORIGINAL_ELECTION.BallotStyle[0]),
               ExternalIdentifier: [
                 {
                   '@type': 'BallotDefinition.ExternalIdentifier',
@@ -45,9 +47,7 @@ const tests: Record<ElectionStringKey, () => void> = {
               ],
             },
             {
-              ...assertDefined(
-                testCdfBallotDefinition.Election[0]?.BallotStyle[1]
-              ),
+              ...assertDefined(ORIGINAL_ELECTION.BallotStyle[1]),
               ExternalIdentifier: [
                 {
                   '@type': 'BallotDefinition.ExternalIdentifier',
@@ -72,15 +72,187 @@ const tests: Record<ElectionStringKey, () => void> = {
   },
 
   [ElectionStringKey.CANDIDATE_NAME]() {
-    // TODO(kofi): Implement
+    const originalCandidates = assertDefined(ORIGINAL_ELECTION.Candidate);
+
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      Election: [
+        {
+          ...ORIGINAL_ELECTION,
+          Candidate: [
+            {
+              ...assertDefined(originalCandidates[0]),
+              '@id': 'candidate1',
+              BallotName: buildInternationalizedText({
+                [LanguageCode.ENGLISH]: 'Pinky and The Brain',
+                [LanguageCode.SPANISH]: 'Pinky y The Brain',
+                unsupported_lang: '🌸🧠',
+              }),
+            },
+            {
+              ...assertDefined(originalCandidates[1]),
+              '@id': 'candidate2',
+              BallotName: buildInternationalizedText({
+                [LanguageCode.ENGLISH]: 'Tom and Jerry',
+                [LanguageCode.SPANISH]: 'Tom y Jerry',
+                unsupported_lang: '🐈🐁',
+              }),
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.CANDIDATE_NAME]: {
+          candidate1: 'Pinky and The Brain',
+          candidate2: 'Tom and Jerry',
+        },
+      }),
+      [LanguageCode.SPANISH]: expect.objectContaining({
+        [ElectionStringKey.CANDIDATE_NAME]: {
+          candidate1: 'Pinky y The Brain',
+          candidate2: 'Tom y Jerry',
+        },
+      }),
+    });
   },
 
   [ElectionStringKey.CONTEST_DESCRIPTION]() {
-    // TODO(kofi): Implement
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      Election: [
+        {
+          ...ORIGINAL_ELECTION,
+          Contest: [
+            {
+              ...assertDefined(ORIGINAL_ELECTION.Contest[0]),
+              '@id': 'contest1',
+              '@type': 'BallotDefinition.BallotMeasureContest',
+              FullText: buildInternationalizedText({
+                [LanguageCode.ENGLISH]: 'Would you like apples or oranges?',
+                [LanguageCode.CHINESE]: '你想要蘋果還是橘子？',
+                unsupported_lang: '🍎🍊',
+              }),
+              ContestOption: [],
+            },
+            {
+              ...assertDefined(ORIGINAL_ELECTION.Contest[1]),
+              '@id': 'contest2',
+              '@type': 'BallotDefinition.BallotMeasureContest',
+              FullText: buildInternationalizedText({
+                [LanguageCode.ENGLISH]: 'Would you like olives or pickles?',
+                [LanguageCode.CHINESE]: '您想要橄欖還是泡菜？',
+                unsupported_lang: '🫒🥒',
+              }),
+              ContestOption: [],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.CONTEST_DESCRIPTION]: {
+          contest1: 'Would you like apples or oranges?',
+          contest2: 'Would you like olives or pickles?',
+        },
+      }),
+      [LanguageCode.CHINESE]: expect.objectContaining({
+        [ElectionStringKey.CONTEST_DESCRIPTION]: {
+          contest1: '你想要蘋果還是橘子？',
+          contest2: '您想要橄欖還是泡菜？',
+        },
+      }),
+    });
   },
 
   [ElectionStringKey.CONTEST_OPTION_LABEL]() {
-    // TODO(kofi): Implement
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      Election: [
+        {
+          ...ORIGINAL_ELECTION,
+          Contest: [
+            {
+              ...assertDefined(ORIGINAL_ELECTION.Contest[0]),
+              '@type': 'BallotDefinition.BallotMeasureContest',
+              FullText: buildInternationalizedText({
+                [LanguageCode.ENGLISH]: 'Apples or Oranges?',
+              }),
+              ContestOption: [
+                {
+                  '@id': 'appleOrOrangeOptionApple',
+                  '@type': 'BallotDefinition.BallotMeasureOption',
+                  Selection: buildInternationalizedText({
+                    [LanguageCode.ENGLISH]: 'Apples',
+                    [LanguageCode.SPANISH]: 'Manzanas',
+                    unsupported_lang: '🍎',
+                  }),
+                },
+                {
+                  '@id': 'appleOrOrangeOptionOrange',
+                  '@type': 'BallotDefinition.BallotMeasureOption',
+                  Selection: buildInternationalizedText({
+                    [LanguageCode.ENGLISH]: 'Oranges',
+                    [LanguageCode.SPANISH]: 'Naranjas',
+                    unsupported_lang: '🍊',
+                  }),
+                },
+              ],
+            },
+            {
+              ...assertDefined(ORIGINAL_ELECTION.Contest[1]),
+              '@type': 'BallotDefinition.BallotMeasureContest',
+              FullText: buildInternationalizedText({
+                [LanguageCode.ENGLISH]: 'Apples or Bananas?',
+              }),
+              ContestOption: [
+                {
+                  '@id': 'appleOrBananaOptionApple',
+                  '@type': 'BallotDefinition.BallotMeasureOption',
+                  Selection: buildInternationalizedText({
+                    [LanguageCode.ENGLISH]: 'Apples',
+                    [LanguageCode.SPANISH]: 'Manzanas',
+                    unsupported_lang: '🍎',
+                  }),
+                },
+                {
+                  '@id': 'appleOrBananaOptionBanana',
+                  '@type': 'BallotDefinition.BallotMeasureOption',
+                  Selection: buildInternationalizedText({
+                    [LanguageCode.ENGLISH]: 'Bananas',
+                    [LanguageCode.SPANISH]: 'Plátanos',
+                    unsupported_lang: '🍌',
+                  }),
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.CONTEST_OPTION_LABEL]: {
+          appleOrOrangeOptionApple: 'Apples',
+          appleOrBananaOptionApple: 'Apples',
+          appleOrOrangeOptionOrange: 'Oranges',
+          appleOrBananaOptionBanana: 'Bananas',
+        },
+      }),
+      [LanguageCode.SPANISH]: expect.objectContaining({
+        [ElectionStringKey.CONTEST_OPTION_LABEL]: {
+          appleOrOrangeOptionApple: 'Manzanas',
+          appleOrBananaOptionApple: 'Manzanas',
+          appleOrOrangeOptionOrange: 'Naranjas',
+          appleOrBananaOptionBanana: 'Plátanos',
+        },
+      }),
+    });
   },
 
   [ElectionStringKey.CONTEST_TITLE]() {
@@ -88,10 +260,10 @@ const tests: Record<ElectionStringKey, () => void> = {
       ...testCdfBallotDefinition,
       Election: [
         {
-          ...assertDefined(testCdfBallotDefinition.Election[0]),
+          ...ORIGINAL_ELECTION,
           Contest: [
             {
-              ...assertDefined(testCdfBallotDefinition.Election[0]?.Contest[0]),
+              ...assertDefined(ORIGINAL_ELECTION.Contest[0]),
               '@id': 'contest1',
               BallotTitle: buildInternationalizedText({
                 [LanguageCode.ENGLISH]: 'President',
@@ -100,7 +272,7 @@ const tests: Record<ElectionStringKey, () => void> = {
               }),
             },
             {
-              ...assertDefined(testCdfBallotDefinition.Election[0]?.Contest[1]),
+              ...assertDefined(ORIGINAL_ELECTION.Contest[1]),
               '@id': 'contest2',
               BallotTitle: buildInternationalizedText({
                 [LanguageCode.ENGLISH]: 'Mayor',
@@ -130,7 +302,30 @@ const tests: Record<ElectionStringKey, () => void> = {
   },
 
   [ElectionStringKey.COUNTY_NAME]() {
-    // TODO(kofi): Implement
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      GpUnit: [
+        {
+          '@id': 'kingsCounty',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'Kings County',
+            [LanguageCode.SPANISH]: 'Condado de Kings',
+            unsupported_lang: '🗽',
+          }),
+          Type: BallotDefinition.ReportingUnitType.County,
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.COUNTY_NAME]: 'Kings County',
+      }),
+      [LanguageCode.SPANISH]: expect.objectContaining({
+        [ElectionStringKey.COUNTY_NAME]: 'Condado de Kings',
+      }),
+    });
   },
 
   [ElectionStringKey.DISTRICT_NAME]() {
@@ -142,7 +337,7 @@ const tests: Record<ElectionStringKey, () => void> = {
       ...testCdfBallotDefinition,
       Election: [
         {
-          ...assertDefined(testCdfBallotDefinition.Election[0]),
+          ...ORIGINAL_ELECTION,
           Name: buildInternationalizedText({
             [LanguageCode.ENGLISH]: 'General Election',
             [LanguageCode.SPANISH]: 'Elección General',
@@ -163,11 +358,85 @@ const tests: Record<ElectionStringKey, () => void> = {
   },
 
   [ElectionStringKey.PARTY_FULL_NAME]() {
-    // TODO(kofi): Implement
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      Party: [
+        {
+          ...assertDefined(testCdfBallotDefinition.Party[0]),
+          '@id': 'party1',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'Block Party',
+            [LanguageCode.SPANISH]: 'Fiesta En La Calle',
+            unsupported_lang: '🥳',
+          }),
+        },
+        {
+          ...assertDefined(testCdfBallotDefinition.Party[1]),
+          '@id': 'party2',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'Pool Party',
+            [LanguageCode.SPANISH]: 'Fiesta De Piscina',
+            unsupported_lang: '🏖',
+          }),
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.PARTY_FULL_NAME]: {
+          party1: 'Block Party',
+          party2: 'Pool Party',
+        },
+      }),
+      [LanguageCode.SPANISH]: expect.objectContaining({
+        [ElectionStringKey.PARTY_FULL_NAME]: {
+          party1: 'Fiesta En La Calle',
+          party2: 'Fiesta De Piscina',
+        },
+      }),
+    });
   },
 
   [ElectionStringKey.PARTY_NAME]() {
-    // TODO(kofi): Implement
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      Party: [
+        {
+          ...assertDefined(testCdfBallotDefinition.Party[0]),
+          '@id': 'party1',
+          vxBallotLabel: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'Block Party',
+            [LanguageCode.SPANISH]: 'Fiesta En La Calle',
+            unsupported_lang: '🥳',
+          }),
+        },
+        {
+          ...assertDefined(testCdfBallotDefinition.Party[1]),
+          '@id': 'party2',
+          vxBallotLabel: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'Pool Party',
+            [LanguageCode.SPANISH]: 'Fiesta De Piscina',
+            unsupported_lang: '🏖',
+          }),
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.PARTY_NAME]: {
+          party1: 'Block Party',
+          party2: 'Pool Party',
+        },
+      }),
+      [LanguageCode.SPANISH]: expect.objectContaining({
+        [ElectionStringKey.PARTY_NAME]: {
+          party1: 'Fiesta En La Calle',
+          party2: 'Fiesta De Piscina',
+        },
+      }),
+    });
   },
 
   [ElectionStringKey.PRECINCT_NAME]() {
@@ -175,7 +444,30 @@ const tests: Record<ElectionStringKey, () => void> = {
   },
 
   [ElectionStringKey.STATE_NAME]() {
-    // TODO(kofi): Implement
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      GpUnit: [
+        {
+          '@id': 'newYork',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'New York',
+            [LanguageCode.SPANISH]: 'Nueva York',
+            unsupported_lang: '🗽',
+          }),
+          Type: BallotDefinition.ReportingUnitType.State,
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.STATE_NAME]: 'New York',
+      }),
+      [LanguageCode.SPANISH]: expect.objectContaining({
+        [ElectionStringKey.STATE_NAME]: 'Nueva York',
+      }),
+    });
   },
 };
 

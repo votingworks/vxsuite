@@ -83,16 +83,45 @@ const extractorFns: Record<
     }
   },
 
-  [ElectionStringKey.CANDIDATE_NAME](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.CANDIDATE_NAME](cdfElection, uiStrings) {
+    const candidates = assertDefined(cdfElection.Election[0]).Candidate || [];
+    for (const candidate of candidates) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.CANDIDATE_NAME, candidate['@id']],
+        uiStrings,
+        values: candidate.BallotName.Text,
+      });
+    }
   },
 
-  [ElectionStringKey.CONTEST_DESCRIPTION](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.CONTEST_DESCRIPTION](cdfElection, uiStrings) {
+    for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
+      if (contest['@type'] !== 'BallotDefinition.BallotMeasureContest') {
+        continue;
+      }
+
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.CONTEST_DESCRIPTION, contest['@id']],
+        uiStrings,
+        values: contest.FullText.Text,
+      });
+    }
   },
 
-  [ElectionStringKey.CONTEST_OPTION_LABEL](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.CONTEST_OPTION_LABEL](cdfElection, uiStrings) {
+    for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
+      if (contest['@type'] !== 'BallotDefinition.BallotMeasureContest') {
+        continue;
+      }
+
+      for (const option of contest.ContestOption) {
+        setInternationalizedUiStrings({
+          stringKey: [ElectionStringKey.CONTEST_OPTION_LABEL, option['@id']],
+          uiStrings,
+          values: option.Selection.Text,
+        });
+      }
+    }
   },
 
   [ElectionStringKey.CONTEST_TITLE](cdfElection, uiStrings) {
@@ -105,8 +134,21 @@ const extractorFns: Record<
     }
   },
 
-  [ElectionStringKey.COUNTY_NAME](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.COUNTY_NAME](cdfElection, uiStrings) {
+    const county = _.find(
+      cdfElection.GpUnit,
+      (gpUnit) => gpUnit.Type === BallotDefinition.ReportingUnitType.County
+    );
+
+    if (!county) {
+      return;
+    }
+
+    setInternationalizedUiStrings({
+      stringKey: ElectionStringKey.COUNTY_NAME,
+      uiStrings,
+      values: county.Name.Text,
+    });
   },
 
   [ElectionStringKey.DISTRICT_NAME](_cdfElection, _uiStrings) {
@@ -121,20 +163,45 @@ const extractorFns: Record<
     });
   },
 
-  [ElectionStringKey.PARTY_FULL_NAME](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.PARTY_FULL_NAME](cdfElection, uiStrings) {
+    for (const party of cdfElection.Party) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.PARTY_FULL_NAME, party['@id']],
+        uiStrings,
+        values: party.Name.Text,
+      });
+    }
   },
 
-  [ElectionStringKey.PARTY_NAME](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.PARTY_NAME](cdfElection, uiStrings) {
+    for (const party of cdfElection.Party) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.PARTY_NAME, party['@id']],
+        uiStrings,
+        values: party.vxBallotLabel.Text,
+      });
+    }
   },
 
   [ElectionStringKey.PRECINCT_NAME](_cdfElection, _uiStrings) {
     // TODO(kofi): Implement
   },
 
-  [ElectionStringKey.STATE_NAME](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.STATE_NAME](cdfElection, uiStrings) {
+    const state = _.find(
+      cdfElection.GpUnit,
+      (gpUnit) => gpUnit.Type === BallotDefinition.ReportingUnitType.State
+    );
+
+    if (!state) {
+      return;
+    }
+
+    setInternationalizedUiStrings({
+      stringKey: ElectionStringKey.STATE_NAME,
+      uiStrings,
+      values: state.Name.Text,
+    });
   },
 };
 
