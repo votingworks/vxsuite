@@ -99,7 +99,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
             <NavListItem key={routerPath}>
               <NavButton
                 to={routerPath}
-                variant={isActivePath(routerPath) ? 'primary' : 'regular'}
+                variant={isActivePath(routerPath) ? 'primary' : 'neutral'}
               >
                 <NavButtonLabel>
                   <span>{label}</span>

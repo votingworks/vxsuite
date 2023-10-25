@@ -105,7 +105,7 @@ function UpdatePollsButton({
   return (
     <React.Fragment>
       <Button
-        variant={isPrimaryButton ? 'primary' : 'regular'}
+        variant={isPrimaryButton ? 'primary' : 'neutral'}
         onPress={() => setIsConfirmationModalOpen(true)}
       >
         {action}
@@ -339,7 +339,7 @@ export function PollWorkerScreen({
                           variant={
                             selectedCardlessVoterPrecinctId === precinct.id
                               ? 'primary'
-                              : 'regular'
+                              : 'neutral'
                           }
                         >
                           {precinct.name}

@@ -59,7 +59,7 @@ export function DoubleVoteAlertModal({
       title="Possible Double Vote Detected"
       content={text}
       actions={
-        <Button variant="regular" onPress={onClose}>
+        <Button variant="neutral" onPress={onClose}>
           Cancel
         </Button>
       }

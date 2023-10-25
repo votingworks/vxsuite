@@ -8,7 +8,7 @@ import { Icons } from './icons';
 const FONT_SIZE_REM = 1;
 
 export const ALL_BUTTON_VARIANTS = [
-  'regular',
+  'neutral',
   'primary',
   'secondary',
   'danger',
@@ -80,7 +80,7 @@ const variantConfigs: Record<ButtonVariant, VariantConfig> = {
 };
 
 function getVariantConfig(p: StyledButtonProps): VariantConfig {
-  return variantConfigs[p.variant || 'regular'];
+  return variantConfigs[p.variant || 'neutral'];
 }
 
 type ThemedStyledButtonProps = StyledButtonProps & { theme: UiTheme };
@@ -107,7 +107,7 @@ function getForegroundColor(p: ThemedStyledButtonProps): Color | undefined {
     return p.theme.colors.foregroundDisabled;
   }
 
-  const variantConfig = variantConfigs[p.variant || 'regular'];
+  const variantConfig = variantConfigs[p.variant || 'neutral'];
   if (variantConfig.isSolidColor) {
     return p.theme.colors.background;
   }
@@ -116,7 +116,7 @@ function getForegroundColor(p: ThemedStyledButtonProps): Color | undefined {
 }
 
 function getBorderColor(p: ThemedStyledButtonProps): Color | undefined {
-  const variantConfig = variantConfigs[p.variant || 'regular'];
+  const variantConfig = variantConfigs[p.variant || 'neutral'];
   if (variantConfig.isSolidColor) {
     return getBackgroundColor(p);
   }
@@ -273,7 +273,7 @@ export class Button<T = undefined> extends PureComponent<
       ...rest
     } = this.props;
 
-    const Icon = variantConfigs[variant || 'regular'].icon;
+    const Icon = variantConfigs[variant || 'neutral'].icon;
 
     return (
       <Component

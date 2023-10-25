@@ -243,7 +243,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
         <ScreenHeader
           title="Write-In Adjudication"
           actions={
-            <LinkButton small variant="regular" to={routerPaths.writeIns}>
+            <LinkButton small variant="neutral" to={routerPaths.writeIns}>
               Back to All Write-Ins
             </LinkButton>
           }
@@ -420,7 +420,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             </span>
             <LinkButton
               small
-              variant={areAllWriteInsAdjudicated ? 'primary' : 'regular'}
+              variant={areAllWriteInsAdjudicated ? 'primary' : 'neutral'}
               to={routerPaths.writeIns}
             >
               Back to All Write-Ins
@@ -501,7 +501,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     <Button
                       key={candidate.id}
                       ref={i === 0 ? firstAdjudicationButton : undefined}
-                      variant={isCurrentAdjudication ? 'secondary' : 'regular'}
+                      variant={isCurrentAdjudication ? 'secondary' : 'neutral'}
                       onPress={() => {
                         if (
                           isWriteInAdjudicationContextFresh &&
@@ -527,7 +527,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   return (
                     <Button
                       key={candidate.id}
-                      variant={isCurrentAdjudication ? 'secondary' : 'regular'}
+                      variant={isCurrentAdjudication ? 'secondary' : 'neutral'}
                       onPress={() => {
                         if (
                           isWriteInAdjudicationContextFresh &&
@@ -586,7 +586,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     adjudicateAsInvalid();
                   }
                 }}
-                variant={currentWriteInMarkedInvalid ? 'secondary' : 'regular'}
+                variant={currentWriteInMarkedInvalid ? 'secondary' : 'neutral'}
               >
                 <Icons.DangerX /> Mark write-in invalid
               </Button>
