@@ -5,6 +5,7 @@ import { assert } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 import { ALL_BUTTON_VARIANTS, Button, DecoyButton } from './button';
 import { makeTheme } from './themes/make_theme';
+import { Icons } from './icons';
 
 function createTouchStartEventProperties(x: number, y: number) {
   return { touches: [{ clientX: x, clientY: y }] };
@@ -158,6 +159,46 @@ describe('renders Button', () => {
     );
   });
 
+  test('with icon component', () => {
+    render(
+      <Button icon={<Icons.Add />} onPress={jest.fn()}>
+        Add
+      </Button>
+    );
+    const button = screen.getButton('Add');
+    expect(button.getElementsByTagName('svg')).toHaveLength(1);
+  });
+
+  test('with icon name', () => {
+    render(
+      <Button icon="Add" onPress={jest.fn()}>
+        Add
+      </Button>
+    );
+    const button = screen.getButton('Add');
+    expect(button.getElementsByTagName('svg')).toHaveLength(1);
+  });
+
+  test('with rightIcon component', () => {
+    render(
+      <Button rightIcon={<Icons.Add />} onPress={jest.fn()}>
+        Add
+      </Button>
+    );
+    const button = screen.getButton('Add');
+    expect(button.getElementsByTagName('svg')).toHaveLength(1);
+  });
+
+  test('with rightIcon name', () => {
+    render(
+      <Button rightIcon="Add" onPress={jest.fn()}>
+        Add
+      </Button>
+    );
+    const button = screen.getButton('Add');
+    expect(button.getElementsByTagName('svg')).toHaveLength(1);
+  });
+
   test('focus()/blur() API', () => {
     const buttonRef = React.createRef<Button>();
 
@@ -193,10 +234,9 @@ describe('renders Button', () => {
     expect(screen.getButton('Confirm')).toHaveFocus();
   });
 
-  test('as DecoyButton with variant warning', () => {
-    render(<DecoyButton variant="warning">DecoyButton</DecoyButton>);
-    const button = screen.getByText('DecoyButton');
-    expect(button).toHaveStyleRule('background', Color.GRAY_DARK);
+  test('as DecoyButton ', () => {
+    render(<DecoyButton>DecoyButton</DecoyButton>);
+    screen.getByText('DecoyButton');
   });
 
   test('and tests clicks and touches', () => {
