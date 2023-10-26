@@ -1,5 +1,4 @@
 // TODO(kofi): Remove once extractors are implemented.
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import _ from 'lodash';
 
@@ -8,6 +7,7 @@ import {
   ElectionStringKey,
   LanguageCode,
   UiStringsPackage,
+  getElectionDistricts,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 
@@ -151,8 +151,16 @@ const extractorFns: Record<
     });
   },
 
-  [ElectionStringKey.DISTRICT_NAME](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.DISTRICT_NAME](cdfElection, uiStrings) {
+    const districts = getElectionDistricts(cdfElection);
+
+    for (const district of districts) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.DISTRICT_NAME, district['@id']],
+        uiStrings,
+        values: district.Name.Text,
+      });
+    }
   },
 
   [ElectionStringKey.ELECTION_TITLE](cdfElection, uiStrings) {
@@ -183,8 +191,18 @@ const extractorFns: Record<
     }
   },
 
-  [ElectionStringKey.PRECINCT_NAME](_cdfElection, _uiStrings) {
-    // TODO(kofi): Implement
+  [ElectionStringKey.PRECINCT_NAME](cdfElection, uiStrings) {
+    for (const gpUnit of cdfElection.GpUnit) {
+      if (gpUnit.Type !== BallotDefinition.ReportingUnitType.Precinct) {
+        continue;
+      }
+
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.PRECINCT_NAME, gpUnit['@id']],
+        uiStrings,
+        values: gpUnit.Name.Text,
+      });
+    }
   },
 
   [ElectionStringKey.STATE_NAME](cdfElection, uiStrings) {

@@ -444,6 +444,17 @@ export function convertVxfElectionToCdfBallotDefinition(
   };
 }
 
+export function getElectionDistricts(
+  cdfBallotDefinition: Cdf.BallotDefinition
+): Cdf.ReportingUnit[] {
+  // Any GpUnit that is associated with contests is a "district" in VXF
+  return cdfBallotDefinition.GpUnit.filter((gpUnit) =>
+    cdfBallotDefinition.Election[0].Contest.some(
+      (contest) => contest.ElectionDistrictId === gpUnit['@id']
+    )
+  );
+}
+
 export function convertCdfBallotDefinitionToVxfElection(
   cdfBallotDefinition: Cdf.BallotDefinition
 ): Vxf.Election {
@@ -461,11 +472,7 @@ export function convertCdfBallotDefinitionToVxfElection(
   );
 
   // Any GpUnit that is associated with contests is a "district" in VXF
-  const districts = gpUnits.filter((gpUnit) =>
-    election.Contest.some(
-      (contest) => contest.ElectionDistrictId === gpUnit['@id']
-    )
-  );
+  const districts = getElectionDistricts(cdfBallotDefinition);
 
   const precincts = gpUnits.filter(
     (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.Precinct
