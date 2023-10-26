@@ -1240,7 +1240,9 @@
                       "y": 0,
                       "width": 524.5714285714286,
                       "height": 21.25,
-                      "textLines": ["Test Ballot • Mammal Party"],
+                      "textLines": [
+                        "Test Ballot • Mammal Party"
+                      ],
                       "fontSize": 20,
                       "fontWeight": 700,
                       "lineHeight": 17
@@ -1314,7 +1316,9 @@
                       "y": 0,
                       "width": 122.39999999999999,
                       "height": 16.25,
-                      "textLines": ["Instructions"],
+                      "textLines": [
+                        "Instructions"
+                      ],
                       "fontSize": 13,
                       "fontWeight": 700,
                       "lineHeight": 13
@@ -1325,7 +1329,9 @@
                       "y": 16.25,
                       "width": 122.39999999999999,
                       "height": 11.25,
-                      "textLines": ["To Vote:"],
+                      "textLines": [
+                        "To Vote:"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 700,
                       "lineHeight": 9
@@ -1368,7 +1374,9 @@
                       "y": 0,
                       "width": 209.82857142857142,
                       "height": 11.25,
-                      "textLines": ["To Vote for a Write-In:"],
+                      "textLines": [
+                        "To Vote for a Write-In:"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 700,
                       "lineHeight": 9
@@ -1447,7 +1455,9 @@
                           "y": 0,
                           "width": 148.6285714285714,
                           "height": 16.25,
-                          "textLines": ["County Leader Mammal"],
+                          "textLines": [
+                            "County Leader Mammal"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -1458,7 +1468,9 @@
                           "y": 16.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -1496,7 +1508,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Horse"],
+                              "textLines": [
+                                "Horse"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1537,7 +1551,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Otter"],
+                              "textLines": [
+                                "Otter"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1578,7 +1594,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Fox"],
+                              "textLines": [
+                                "Fox"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1644,7 +1662,9 @@
                           "y": 42.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -1682,7 +1702,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Zebra"],
+                              "textLines": [
+                                "Zebra"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1723,7 +1745,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Lion"],
+                              "textLines": [
+                                "Lion"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1764,7 +1788,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Kangaroo"],
+                              "textLines": [
+                                "Kangaroo"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1805,7 +1831,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Elephant"],
+                              "textLines": [
+                                "Elephant"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1847,7 +1875,9 @@
                           "y": 24.514285714285716,
                           "width": 122.39999999999999,
                           "height": 18.857142857142858,
-                          "textLines": ["write-in"],
+                          "textLines": [
+                            "write-in"
+                          ],
                           "fontSize": 9,
                           "fontWeight": 400,
                           "lineHeight": 9,
@@ -1913,7 +1943,9 @@
                           "y": 0,
                           "width": 524.5714285714286,
                           "height": 16.25,
-                          "textLines": ["Water District 1 Fishing"],
+                          "textLines": [
+                            "Water District 1 Fishing"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -1957,7 +1989,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["YES"],
+                          "textLines": [
+                            "YES"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -1989,7 +2023,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["NO"],
+                          "textLines": [
+                            "NO"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -7050,7 +7086,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -7061,7 +7099,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["1/2"],
+                      "textLines": [
+                        "1/2"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -7074,7 +7114,9 @@
                   "y": 11.314285714285715,
                   "width": 248.11999999999992,
                   "height": 37.714285714285715,
-                  "textLines": ["Turn ballot over and continue voting"],
+                  "textLines": [
+                    "Turn ballot over and continue voting"
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13,
@@ -8335,7 +8377,9 @@
           "y": 367.7142857142857,
           "width": 286.7599999999999,
           "height": 37.714285714285715,
-          "textLines": ["This page intentionally left blank."],
+          "textLines": [
+            "This page intentionally left blank."
+          ],
           "fontSize": 16,
           "fontWeight": 700,
           "lineHeight": 16
@@ -13387,7 +13431,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -13398,7 +13444,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["2/2"],
+                      "textLines": [
+                        "2/2"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -13411,7 +13459,9 @@
                   "y": 11.314285714285715,
                   "width": 187.83999999999995,
                   "height": 37.714285714285715,
-                  "textLines": ["You have completed voting."],
+                  "textLines": [
+                    "You have completed voting."
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13
