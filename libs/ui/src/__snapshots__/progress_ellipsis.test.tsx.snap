@@ -2,7 +2,7 @@
 
 exports[`renders ProgressEllipsis 1`] = `
 .c0 {
-  margin-left: -1.4em;
+  margin-left: -1em;
   text-align: center;
   white-space: nowrap;
 }
