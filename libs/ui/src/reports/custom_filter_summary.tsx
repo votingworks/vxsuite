@@ -5,6 +5,7 @@ import { getPrecinctById } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { Font } from '../typography';
+import { getBatchLabel, getScannerLabel } from './utils';
 
 interface Props {
   electionDefinition: ElectionDefinition;
@@ -59,7 +60,7 @@ export function CustomFilterSummary({
           <Font weight="semiBold">
             {pluralize('Scanner', filter.scannerIds.length)}:
           </Font>{' '}
-          {filter.scannerIds.join(', ')}
+          {filter.scannerIds.map(getScannerLabel).join(', ')}
         </FilterDisplayRow>
       )}
       {filter.batchIds && (
@@ -67,7 +68,7 @@ export function CustomFilterSummary({
           <Font weight="semiBold">
             {pluralize('Batch', filter.batchIds.length)}:
           </Font>{' '}
-          {filter.batchIds.map((id) => id.slice(0, 8)).join(', ')}
+          {filter.batchIds.map(getBatchLabel).join(', ')}
         </FilterDisplayRow>
       )}
     </div>

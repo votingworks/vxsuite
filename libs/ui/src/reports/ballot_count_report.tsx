@@ -22,6 +22,7 @@ import { ReportSection, tallyReportThemeFn, TallyReport } from './tally_report';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { CustomFilterSummary } from './custom_filter_summary';
+import { getBatchLabel, getScannerLabel } from './utils';
 
 /**
  * Columns that may appear in a the ballot count report table.
@@ -282,7 +283,9 @@ function BallotCountTable({
         const partyId = determinePartyId(electionDefinition, cardCounts);
         const scannerId =
           cardCounts.scannerId ??
-          (cardCounts.batchId
+          (cardCounts.batchId === Tabulation.MANUAL_BATCH_ID
+            ? Tabulation.MANUAL_SCANNER_ID
+            : cardCounts.batchId
             ? batchLookup[cardCounts.batchId].scannerId
             : undefined);
         const rowKey = getGroupKey(cardCounts, groupBy);
@@ -313,13 +316,10 @@ function BallotCountTable({
                     ];
                   break;
                 case 'scanner':
-                  content = assertDefined(scannerId);
+                  content = getScannerLabel(assertDefined(scannerId));
                   break;
                 case 'batch':
-                  content = assertDefined(cardCounts.batchId).slice(
-                    0,
-                    Tabulation.BATCH_ID_DISPLAY_LENGTH
-                  );
+                  content = getBatchLabel(assertDefined(cardCounts.batchId));
                   break;
                 case 'center-fill':
                 case 'right-fill':

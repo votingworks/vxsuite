@@ -419,17 +419,6 @@ export type ManualResultsFilter = Omit<
 >;
 
 /**
- * Subset of cast vote record groupings that we can group manual results on.
- */
-export type ManualResultsGroupBy = Pick<
-  Tabulation.GroupBy,
-  | 'groupByBallotStyle'
-  | 'groupByParty'
-  | 'groupByPrecinct'
-  | 'groupByVotingMethod'
->;
-
-/**
  * Subset of tabulation filters that we can use to directly filter cast
  * vote records.
  */

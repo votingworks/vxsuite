@@ -284,6 +284,73 @@ test('shows manual counts', () => {
   expect(footer).toEqual(expectedFooter);
 });
 
+test('shows separate manual rows when group by is not compatible with manual results', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  const batchCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
+    {
+      ...cc(3),
+      batchId: 'batch-10',
+    },
+    {
+      ...cc(0, 2),
+      batchId: Tabulation.MANUAL_BATCH_ID,
+    },
+  ];
+
+  render(
+    <BallotCountReport
+      title="Full Election Ballot Count Report"
+      electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
+      groupBy={{
+        groupByBatch: true,
+      }}
+      cardCountsList={batchCardCountsList}
+    />
+  );
+
+  const expectedColumns: Column[] = [
+    'scanner',
+    'batch',
+    'center-fill',
+    'manual',
+    'bmd',
+    'hmpb',
+    'total',
+    'right-fill',
+  ];
+  const expectedRows: RowData[] = [
+    {
+      scanner: 'scanner-1',
+      batch: 'batch-10',
+      manual: '0',
+      bmd: '3',
+      hmpb: '0',
+      total: '3',
+    },
+    {
+      scanner: 'Manual',
+      batch: 'Manual',
+      manual: '2',
+      bmd: '0',
+      hmpb: '0',
+      total: '2',
+    },
+  ];
+  const expectedFooter: RowData = {
+    manual: '2',
+    bmd: '3',
+    hmpb: '0',
+    total: '5',
+  };
+
+  const { columns, rows, footer } = parseGrid({ expectFooter: true });
+  expect(columns).toEqual(expectedColumns);
+  expect(rows).toEqual(expectedRows);
+  expect(footer).toEqual(expectedFooter);
+});
+
 test('ungrouped case', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
 

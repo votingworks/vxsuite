@@ -7,7 +7,6 @@ import {
   isGroupByEmpty,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { assertDefined } from '@votingworks/basics';
 import { CardTally } from '../types';
 import { Store } from '../store';
 import { tabulateManualBallotCounts } from './manual_results';
@@ -160,7 +159,7 @@ export function tabulateFullCardCounts({
     groupedManualBallotCounts,
     (scannedCardCounts, manualBallotCount) => {
       return {
-        ...assertDefined(scannedCardCounts),
+        ...(scannedCardCounts ?? getEmptyCardCounts()),
         manual: manualBallotCount ?? 0,
       };
     }

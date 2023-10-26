@@ -448,3 +448,122 @@ test('incorporates manual data', async () => {
     ['undervotes', '6', '0', '6'],
   ]);
 });
+
+test('separate rows for manual data when grouping by an incompatible dimension', async () => {
+  const store = Store.memoryStore();
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { election, electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  store.setCurrentElectionId(electionId);
+
+  // add some mock cast vote records with one vote each
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleId: '1M',
+      batchId: 'batch-1',
+      scannerId: 'scanner-1',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: {
+        fishing: ['ban-fishing'],
+      },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  store.setManualResults({
+    electionId,
+    precinctId: 'precinct-1',
+    ballotStyleId: '1M',
+    votingMethod: 'absentee',
+    manualResults: buildManualResultsFixture({
+      election,
+      ballotCount: 20,
+      contestResultsSummaries: {
+        fishing: {
+          type: 'yesno',
+          ballots: 1,
+          undervotes: 0,
+          overvotes: 0,
+          yesTally: 1,
+          noTally: 0,
+        },
+      },
+    }),
+  });
+
+  // results should be same for these two groupings
+  for (const groupBy of [
+    { groupByBatch: true },
+    { groupByBatch: true, groupByScanner: true },
+  ]) {
+    const stream = await generateTallyReportCsv({
+      store,
+      groupBy,
+    });
+
+    const fileContents = await streamToString(stream);
+    const { rows } = parseCsv(fileContents);
+    expect(
+      rows
+        .filter((r) => r['Contest ID'] === 'fishing')
+        .map((row) => [
+          row['Batch ID'],
+          row['Scanner ID'],
+          row['Selection ID'],
+          row['Manual Votes'],
+          row['Scanned Votes'],
+          row['Total Votes'],
+        ])
+    ).toEqual([
+      ['batch-1', 'scanner-1', 'ban-fishing', '0', '1', '1'],
+      ['batch-1', 'scanner-1', 'allow-fishing', '0', '0', '0'],
+      ['batch-1', 'scanner-1', 'overvotes', '0', '0', '0'],
+      ['batch-1', 'scanner-1', 'undervotes', '0', '0', '0'],
+      ['NO_BATCH__MANUAL', 'NO_SCANNER__MANUAL', 'ban-fishing', '1', '0', '1'],
+      [
+        'NO_BATCH__MANUAL',
+        'NO_SCANNER__MANUAL',
+        'allow-fishing',
+        '0',
+        '0',
+        '0',
+      ],
+      ['NO_BATCH__MANUAL', 'NO_SCANNER__MANUAL', 'overvotes', '0', '0', '0'],
+      ['NO_BATCH__MANUAL', 'NO_SCANNER__MANUAL', 'undervotes', '0', '0', '0'],
+    ]);
+  }
+
+  const stream = await generateTallyReportCsv({
+    store,
+    groupBy: { groupByScanner: true },
+  });
+
+  const fileContents = await streamToString(stream);
+  const { rows } = parseCsv(fileContents);
+  expect(
+    rows
+      .filter((r) => r['Contest ID'] === 'fishing')
+      .map((row) => [
+        row['Scanner ID'],
+        row['Selection ID'],
+        row['Manual Votes'],
+        row['Scanned Votes'],
+        row['Total Votes'],
+      ])
+  ).toEqual([
+    ['scanner-1', 'ban-fishing', '0', '1', '1'],
+    ['scanner-1', 'allow-fishing', '0', '0', '0'],
+    ['scanner-1', 'overvotes', '0', '0', '0'],
+    ['scanner-1', 'undervotes', '0', '0', '0'],
+    ['NO_SCANNER__MANUAL', 'ban-fishing', '1', '0', '1'],
+    ['NO_SCANNER__MANUAL', 'allow-fishing', '0', '0', '0'],
+    ['NO_SCANNER__MANUAL', 'overvotes', '0', '0', '0'],
+    ['NO_SCANNER__MANUAL', 'undervotes', '0', '0', '0'],
+  ]);
+});

@@ -162,6 +162,25 @@ test('generateTitleForReport', () => {
       },
       'Precinct 1 Scanner VX-00-001 Tally Report',
     ],
+    [
+      {
+        batchIds: [Tabulation.MANUAL_BATCH_ID],
+      },
+      'Manual Batch Tally Report',
+    ],
+    [
+      {
+        batchIds: [Tabulation.MANUAL_BATCH_ID],
+        scannerIds: [Tabulation.MANUAL_SCANNER_ID],
+      },
+      'Manual Batch Tally Report',
+    ],
+    [
+      {
+        scannerIds: [Tabulation.MANUAL_SCANNER_ID],
+      },
+      'Manual Batch Tally Report',
+    ],
   ];
 
   for (const [filter, title] of supportedFilters) {

@@ -10,6 +10,7 @@ import {
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
+  getEmptyElectionResults,
   getTallyReportCandidateRows,
   groupMapToGroupList,
   mergeTabulationGroupMaps,
@@ -261,9 +262,8 @@ export async function generateTallyReportCsv({
         allScannedResults,
         allManualResults,
         (scannedResults, manualResults) => {
-          assert(scannedResults);
           return {
-            scannedResults,
+            scannedResults: scannedResults ?? getEmptyElectionResults(election),
             manualResults,
           };
         }

@@ -42,7 +42,11 @@ function getFilterRank(filter: Tabulation.Filter): number {
   );
 }
 
-export const BATCH_ID_TRUNCATE_LENGTH = 8;
+function getBatchLabel(batchId: string): string {
+  return `Batch ${batchId.slice(0, Tabulation.BATCH_ID_DISPLAY_LENGTH)}`;
+}
+
+const MANUAL_BATCH_REPORT_LABEL = 'Manual Batch';
 
 /**
  * Attempts to generate a title for an individual report based on its filter.
@@ -96,16 +100,27 @@ export function generateTitleForReport({
     }
 
     if (batchId) {
-      const batch = find(scannerBatches, (b) => b.batchId === batchId);
+      if (batchId === Tabulation.MANUAL_BATCH_ID) {
+        return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
+      }
+
+      const { scannerId: resolvedScannerId } = find(
+        scannerBatches,
+        (b) => b.batchId === batchId
+      );
+
       return ok(
-        `Scanner ${batch.scannerId} Batch ${batch.batchId.slice(
-          0,
-          BATCH_ID_TRUNCATE_LENGTH
+        `Scanner ${resolvedScannerId} ${getBatchLabel(
+          batchId
         )} ${reportType} Report`
       );
     }
 
     if (scannerId) {
+      if (scannerId === Tabulation.MANUAL_SCANNER_ID) {
+        return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
+      }
+
       return ok(`Scanner ${scannerId} ${reportType} Report`);
     }
 
@@ -182,11 +197,12 @@ export function generateTitleForReport({
     // Other Combinations
 
     if (scannerId && batchId) {
+      if (batchId === Tabulation.MANUAL_BATCH_ID) {
+        return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
+      }
+
       return ok(
-        `Scanner ${scannerId} Batch ${batchId.slice(
-          0,
-          BATCH_ID_TRUNCATE_LENGTH
-        )} ${reportType} Report`
+        `Scanner ${scannerId} ${getBatchLabel(batchId)} ${reportType} Report`
       );
     }
   }
@@ -306,7 +322,9 @@ function generateReportFilenameFilterPrefix({
   }
 
   if (batchId) {
-    filterPrefixes.push(`batch-${batchId.slice(0, BATCH_ID_TRUNCATE_LENGTH)}`);
+    filterPrefixes.push(
+      `batch-${batchId.slice(0, Tabulation.BATCH_ID_DISPLAY_LENGTH)}`
+    );
   }
 
   return filterPrefixes.join(WORD_SEPARATOR);
