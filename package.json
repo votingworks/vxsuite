@@ -44,7 +44,7 @@
     "@types/eslint": "8.4.1",
     "eslint": "8.49.0",
     "husky": "^7.0.0",
-    "lint-staged": "^11.0.0",
+    "lint-staged": "11.0.0",
     "ora": "^5.2.0",
     "prettier": "^3.0.3",
     "sort-package-json": "^1.50.0",

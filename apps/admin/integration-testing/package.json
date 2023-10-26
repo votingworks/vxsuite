@@ -34,15 +34,15 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "concurrently": "^7.6.0",
-    "dotenv": "^16.3.1",
+    "concurrently": "7.6.0",
+    "dotenv": "16.3.1",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@types/node": "16.18.23",
-    "@types/tmp": "^0.2.4",
+    "@types/tmp": "0.2.4",
     "eslint-plugin-vx": "workspace:*",
-    "lint-staged": "^11.0.0",
+    "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0"
   },
   "packageManager": "pnpm@8.1.0"
