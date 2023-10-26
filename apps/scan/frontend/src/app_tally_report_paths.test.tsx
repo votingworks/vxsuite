@@ -217,7 +217,7 @@ test('polls open, All Precincts, primary election + check additional report', as
       // correct number of sub-reports
       expect(
         printedElement.getAllByText(
-          'TEST Polls Opened Report for All Precincts'
+          'Test Polls Opened Report for All Precincts'
         )
       ).toHaveLength(election.parties.length + 1);
 
@@ -288,7 +288,7 @@ test('polls closed, primary election, single precinct + quickresults on', async 
   await expectPrint((printedElement) => {
     // correct number of sub-reports
     expect(
-      printedElement.getAllByText('TEST Polls Closed Report for Precinct 1')
+      printedElement.getAllByText('Test Polls Closed Report for Precinct 1')
     ).toHaveLength(election.parties.length + 1);
 
     // check mammal zero report: title, total ballots, number of contests
@@ -351,7 +351,7 @@ test('polls open, general election, single precinct', async () => {
   await screen.findByText('Polls are open.');
 
   await expectPrint((printedElement) => {
-    printedElement.getByText('TEST Polls Opened Report for Center Springfield');
+    printedElement.getByText('Test Polls Opened Report for Center Springfield');
     printedElement.getByText('General Election:');
     within(printedElement.getByTestId('total-ballots')).getByText('0');
     expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(
@@ -381,7 +381,7 @@ test('polls closed, general election, all precincts', async () => {
   });
 
   await expectPrint((printedElement) => {
-    printedElement.getByText('TEST Polls Closed Report for All Precincts');
+    printedElement.getByText('Test Polls Closed Report for All Precincts');
     printedElement.getByText('General Election:');
     within(printedElement.getByTestId('total-ballots')).getByText('100');
     expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(
@@ -425,7 +425,7 @@ test('polls paused', async () => {
   await expectPrint((printedElement) => {
     // Check heading
     printedElement.getByText(
-      'TEST Voting Paused Report for Center Springfield'
+      'Test Voting Paused Report for Center Springfield'
     );
     printedElement.getByText('Voting Paused:');
     // Check contents
@@ -468,7 +468,7 @@ test('polls unpaused', async () => {
   await expectPrint((printedElement) => {
     // Check heading
     printedElement.getByText(
-      'TEST Voting Resumed Report for Center Springfield'
+      'Test Voting Resumed Report for Center Springfield'
     );
     printedElement.getByText('Voting Resumed:');
     // Check contents
@@ -509,7 +509,7 @@ test('polls closed from paused', async () => {
   await screen.findByText('Polls are closed.');
 
   await expectPrint((printedElement) => {
-    printedElement.getByText('TEST Polls Closed Report for All Precincts');
+    printedElement.getByText('Test Polls Closed Report for All Precincts');
     printedElement.getByText('General Election:');
     within(printedElement.getByTestId('total-ballots')).getByText('100');
     expect(printedElement.getAllByTestId(/results-table-/)).toHaveLength(

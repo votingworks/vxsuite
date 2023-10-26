@@ -468,7 +468,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText('Polls are closed.');
   await expectPrint((printResult) => {
     expect(
-      printResult.getAllByText(`TEST Polls Closed Report for All Precincts`)
+      printResult.getAllByText(`Test Polls Closed Report for All Precincts`)
     ).toHaveLength(3); // report for each party and a non-partisan report
 
     // confirm results are in report
@@ -747,7 +747,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   );
   await expectPrint((printResult) => {
     expect(
-      printResult.getAllByText(`TEST Polls Closed Report for All Precincts`)
+      printResult.getAllByText(`Test Polls Closed Report for All Precincts`)
     ).toHaveLength(3); // report for each party and a non-partisan report
 
     // confirm scanned results are in report

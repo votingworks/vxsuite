@@ -114,9 +114,9 @@ export function PrecinctScannerReportHeader({
     election.precincts,
     precinctSelection
   );
-  const reportTitle = `${
-    isLiveMode ? 'Official' : 'TEST'
-  } ${getPollsReportTitle(pollsTransition)} for ${precinctName}`;
+  const reportTitle = `${isLiveMode ? '' : 'Test '}${getPollsReportTitle(
+    pollsTransition
+  )} for ${precinctName}`;
   const electionDate = Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',

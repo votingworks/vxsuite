@@ -29,7 +29,7 @@ test('general election, all precincts, polls open, test mode', () => {
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('TEST Polls Opened Report for All Precincts');
+  screen.getByText('Test Polls Opened Report for All Precincts');
   const electionTitle = screen.getByText('Lincoln Municipal General Election:');
   expect(electionTitle.parentElement).toHaveTextContent(
     'Lincoln Municipal General Election: Jun 6, 2021, Franklin County, State of Hamilton'
@@ -60,7 +60,7 @@ test('primary election, single precinct, polls closed, live mode', () => {
     />
   );
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText('Official Polls Closed Report for Precinct 1');
+  screen.getByText('Polls Closed Report for Precinct 1');
   const electionTitle = screen.getByText(
     'Mammal Party Example Primary Election:'
   );
