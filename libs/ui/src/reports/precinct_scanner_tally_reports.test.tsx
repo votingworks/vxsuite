@@ -103,7 +103,7 @@ test('polls open, primary, single precinct, live mode', () => {
   );
 
   expect(
-    screen.getAllByText('Official Polls Opened Report for Precinct 1')
+    screen.getAllByText('Polls Opened Report for Precinct 1')
   ).toHaveLength(3);
 
   // checking mammal report
@@ -189,7 +189,7 @@ test('polls closed, general, All Precincts, test mode', () => {
   );
 
   expect(screen.getAllByTestId(/tally-report-/)).toHaveLength(1);
-  screen.getByText('TEST Polls Closed Report for All Precincts');
+  screen.getByText('Test Polls Closed Report for All Precincts');
   within(screen.getByTestId('bmd')).getByText('100');
   expect(
     screen.queryByText('Automatic Election Results Reporting')

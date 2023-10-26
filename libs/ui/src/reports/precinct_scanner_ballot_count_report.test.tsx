@@ -22,7 +22,7 @@ test('renders info properly', () => {
   );
 
   // Check header
-  screen.getByText('TEST Voting Paused Report for All Precincts');
+  screen.getByText('Test Voting Paused Report for All Precincts');
   const electionTitle = screen.getByText('General Election:');
   expect(electionTitle.parentElement).toHaveTextContent(
     'General Election: Nov 3, 2020, Franklin County, State of Hamilton'
