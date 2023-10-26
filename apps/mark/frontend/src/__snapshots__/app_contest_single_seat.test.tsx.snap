@@ -396,6 +396,13 @@ exports[`Single Seat Contest 1`] = `
   padding-bottom: 0;
 }
 
+.c27 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
 .c12 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
@@ -436,13 +443,6 @@ exports[`Single Seat Contest 1`] = `
   justify-content: center;
   gap: 0.5rem;
   text-align: left;
-}
-
-.c27 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
 }
 
 .c0 {
@@ -496,14 +496,6 @@ exports[`Single Seat Contest 1`] = `
 }
 
 @media (orientation:portrait) {
-
-}
-
-@media (orientation:portrait) {
-
-}
-
-@media (orientation:portrait) {
   .c27 {
     -webkit-align-items: stretch;
     -webkit-box-align: stretch;
@@ -544,6 +536,14 @@ exports[`Single Seat Contest 1`] = `
   .c27 > * {
     min-height: 3rem;
   }
+}
+
+@media (orientation:portrait) {
+
+}
+
+@media (orientation:portrait) {
+
 }
 
 @media print {

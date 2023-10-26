@@ -5,7 +5,7 @@ import { InsertedSmartCardAuth } from '@votingworks/types';
 import { isCardlessVoterAuth, isPollWorkerAuth } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
-import { ButtonFooter } from '../components/button_footer';
+import { ButtonFooter } from '@votingworks/mark-flow-ui';
 
 interface Props {
   authStatus:

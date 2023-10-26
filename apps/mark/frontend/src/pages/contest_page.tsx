@@ -4,11 +4,11 @@ import React, { useContext } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useHistory, useParams } from 'react-router-dom';
 import {
+  ButtonFooter,
   DisplaySettingsButton,
   Contest as MarkFlowContest,
 } from '@votingworks/mark-flow-ui';
 import { BallotContext } from '../contexts/ballot_context';
-import { ButtonFooter } from '../components/button_footer';
 
 interface ContestParams {
   contestNumber: string;

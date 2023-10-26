@@ -12,7 +12,11 @@ import {
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
-import { DisplaySettingsButton, Review } from '@votingworks/mark-flow-ui';
+import {
+  ButtonFooter,
+  DisplaySettingsButton,
+  Review,
+} from '@votingworks/mark-flow-ui';
 import {
   getElectionDefinition,
   getInterpretation,
@@ -21,7 +25,6 @@ import {
 } from '../api';
 
 import { BallotContext } from '../contexts/ballot_context';
-import { ButtonFooter } from '../components/button_footer';
 
 const ContentHeader = styled.div`
   padding: 0.5rem 0.75rem 0;

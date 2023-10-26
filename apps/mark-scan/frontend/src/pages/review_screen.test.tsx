@@ -8,12 +8,12 @@ import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 
 import { render as renderWithBallotContext } from '../../test/test_utils';
 
-import { ReviewPage } from './review_page';
+import { ReviewScreen } from './review_screen';
 
 const electionGeneral = electionGeneralDefinition.election;
 
-it('Renders ReviewPage', () => {
-  renderWithBallotContext(<Route path="/review" component={ReviewPage} />, {
+it('Renders ReviewScreen', () => {
+  renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     route: '/review',
     precinctId: electionGeneral.precincts[0].id,
     ballotStyleId: electionGeneral.ballotStyles[0].id,
@@ -22,8 +22,8 @@ it('Renders ReviewPage', () => {
   screen.getByText(/color.+size/i);
 });
 
-it('Renders ReviewPage in Landscape orientation', () => {
-  renderWithBallotContext(<Route path="/review" component={ReviewPage} />, {
+it('Renders ReviewScreen in Landscape orientation', () => {
+  renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     route: '/review',
     precinctId: electionGeneral.precincts[0].id,
     ballotStyleId: electionGeneral.ballotStyles[0].id,
@@ -35,7 +35,7 @@ it('Renders ReviewPage in Landscape orientation', () => {
 it('renders display settings button', () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
 
-  renderWithBallotContext(<Route path="/review" component={ReviewPage} />, {
+  renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     ballotStyleId: electionGeneral.ballotStyles[0].id,
     history,
     precinctId: electionGeneral.precincts[0].id,
