@@ -1,4 +1,5 @@
 import { PackageInfo } from '@votingworks/monorepo-utils';
+import matcher from 'matcher';
 
 export enum ValidationIssueKind {
   MismatchedPackageVersion = 'MismatchedPackageVersion',
@@ -61,42 +62,47 @@ export async function* checkPinnedVersions({
   pinnedPackages: readonly string[];
   workspacePackages: ReadonlyMap<string, PackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
-  for (const pinnedPackage of pinnedPackages) {
-    const versions = new Set<string | undefined>();
-    const properties: PackageJsonProperty[] = [];
+  type PackageInfoByVersionSpecifier = Map<string, Set<PackageJsonProperty>>;
+  type VersionInfoByPackageName = Map<string, PackageInfoByVersionSpecifier>;
+  const packageVersions: VersionInfoByPackageName = new Map();
 
-    for (const pkg of workspacePackages.values()) {
-      const { packageJson, packageJsonPath } = pkg;
+  for (const pkg of workspacePackages.values()) {
+    const { packageJson, packageJsonPath } = pkg;
 
-      if (!packageJson || !packageJsonPath) {
-        continue;
-      }
-
-      if (packageJson.dependencies?.[pinnedPackage]) {
-        versions.add(packageJson.dependencies[pinnedPackage]);
-        properties.push({
-          packageJsonPath,
-          propertyName: `dependencies.${pinnedPackage}`,
-          value: packageJson.dependencies[pinnedPackage],
-        });
-      } else if (packageJson.devDependencies?.[pinnedPackage]) {
-        versions.add(packageJson.devDependencies[pinnedPackage]);
-        properties.push({
-          packageJsonPath,
-          propertyName: `devDependencies.${pinnedPackage}`,
-          value: packageJson.devDependencies[pinnedPackage],
-        });
-      } else if (packageJson.peerDependencies?.[pinnedPackage]) {
-        versions.add(packageJson.peerDependencies[pinnedPackage]);
-        properties.push({
-          packageJsonPath,
-          propertyName: `peerDependencies.${pinnedPackage}`,
-          value: packageJson.peerDependencies[pinnedPackage],
-        });
-      }
+    if (!packageJson || !packageJsonPath) {
+      continue;
     }
 
+    for (const key of [
+      'dependencies',
+      'devDependencies',
+      'peerDependencies',
+    ] as const) {
+      const deps = packageJson[key];
+      if (deps) {
+        for (const name of matcher(Object.keys(deps), pinnedPackages)) {
+          const versions: PackageInfoByVersionSpecifier =
+            packageVersions.get(name) ?? new Map();
+          const properties = versions.get(deps[name] as string) ?? new Set();
+          properties.add({
+            packageJsonPath,
+            propertyName: `${key}.${name}`,
+            value: deps[name] as string,
+          });
+          versions.set(deps[name] as string, properties);
+          packageVersions.set(name, versions);
+        }
+      }
+    }
+  }
+
+  for (const versions of packageVersions.values()) {
     if (versions.size > 1) {
+      const properties = [...versions.values()].reduce<PackageJsonProperty[]>(
+        (acc, cur) => [...acc, ...cur],
+        []
+      );
+
       yield {
         kind: ValidationIssueKind.MismatchedPackageVersion,
         properties,

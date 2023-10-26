@@ -11,7 +11,7 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
-    "concurrently": "^7.4.0",
+    "matcher": "4",
     "resolve-from": "^5.0.0",
     "yaml": "^2.1.0"
   },

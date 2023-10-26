@@ -5483,9 +5483,9 @@ importers:
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../libs/monorepo-utils
-      concurrently:
-        specifier: ^7.4.0
-        version: 7.4.0
+      matcher:
+        specifier: '4'
+        version: 4.0.0
       resolve-from:
         specifier: ^5.0.0
         version: 5.0.0
@@ -13787,6 +13787,7 @@ packages:
       supports-color: 8.1.1
       tree-kill: 1.2.2
       yargs: 17.6.0
+    dev: true
 
   /concurrently@7.6.0:
     resolution: {integrity: sha512-BKtRgvcJGeZ4XttiDiNcFiRlxoAeZOseqUvyYRUp/Vtd+9p1ULmeoSqGsDA+2ivdeDFpqrJvGvmI+StKfKl5hw==}
@@ -20143,6 +20144,13 @@ packages:
     dependencies:
       '@types/minimatch': 3.0.5
       minimatch: 3.1.2
+    dev: false
+
+  /matcher@4.0.0:
+    resolution: {integrity: sha512-S6x5wmcDmsDRRU/c2dkccDwQPXoFczc5+HpQ2lON8pnvHlnvHAHj5WlLVvw6n6vNyHuVugYrFohYxbS+pvFpKQ==}
+    engines: {node: '>=10'}
+    dependencies:
+      escape-string-regexp: 4.0.0
     dev: false
 
   /mathml-tag-names@2.1.3:
