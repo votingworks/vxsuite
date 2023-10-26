@@ -13,11 +13,11 @@ export interface UiStringsContextProviderProps {
 
 export function UiStringsContextProvider(
   props: UiStringsContextProviderProps
-): JSX.Element {
+): React.ReactNode {
   const { api, children, disabled, noAudio } = props;
 
   if (disabled) {
-    return <React.Fragment>{children}</React.Fragment>;
+    return children;
   }
 
   return (
