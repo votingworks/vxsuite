@@ -1,13 +1,4 @@
-import {
-  H1,
-  Table,
-  TH,
-  TD,
-  LinkButton,
-  P,
-  Icons,
-  Button,
-} from '@votingworks/ui';
+import { H1, Table, TH, TD, LinkButton, P, Button } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -129,14 +120,18 @@ function BallotDesignForm({
           >
             Cancel
           </Button>
-          <Button onPress={onSavePress} variant="primary">
-            <Icons.Checkmark /> Save
+          <Button onPress={onSavePress} variant="primary" icon="Done">
+            Save
           </Button>
         </FormActionsRow>
       ) : (
         <FormActionsRow>
-          <Button onPress={() => setIsEditing(true)} variant="primary">
-            <Icons.Edit /> Edit
+          <Button
+            onPress={() => setIsEditing(true)}
+            variant="primary"
+            icon="Edit"
+          >
+            Edit
           </Button>
         </FormActionsRow>
       )}

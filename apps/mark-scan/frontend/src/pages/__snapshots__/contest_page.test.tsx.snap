@@ -137,10 +137,6 @@ exports[`Renders ContestPage 1`] = `
   cursor: not-allowed;
 }
 
-.c24 {
-  display: inline-block;
-}
-
 .c14 {
   display: inline-block;
   -webkit-box-flex: 1;
@@ -316,7 +312,7 @@ exports[`Renders ContestPage 1`] = `
   justify-content: space-between;
 }
 
-.c25 {
+.c24 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -800,25 +796,21 @@ exports[`Renders ContestPage 1`] = `
         id="previous"
         type="button"
       >
-        <span
-          class="c24"
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-circle-left "
+          data-icon="circle-left"
+          data-prefix="fas"
+          focusable="false"
+          role="img"
+          viewBox="0 0 512 512"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            aria-hidden="true"
-            class="svg-inline--fa fa-circle-left "
-            data-icon="circle-left"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM217.4 376.9L117.5 269.8c-3.5-3.8-5.5-8.7-5.5-13.8s2-10.1 5.5-13.8l99.9-107.1c4.2-4.5 10.1-7.1 16.3-7.1c12.3 0 22.3 10 22.3 22.3l0 57.7 96 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32l-96 0 0 57.7c0 12.3-10 22.3-22.3 22.3c-6.2 0-12.1-2.6-16.3-7.1z"
-              fill="currentColor"
-            />
-          </svg>
-        </span>
+          <path
+            d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM217.4 376.9L117.5 269.8c-3.5-3.8-5.5-8.7-5.5-13.8s2-10.1 5.5-13.8l99.9-107.1c4.2-4.5 10.1-7.1 16.3-7.1c12.3 0 22.3 10 22.3 22.3l0 57.7 96 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32l-96 0 0 57.7c0 12.3-10 22.3-22.3 22.3c-6.2 0-12.1-2.6-16.3-7.1z"
+            fill="currentColor"
+          />
+        </svg>
         <span
           class="c14"
         >
@@ -837,7 +829,7 @@ exports[`Renders ContestPage 1`] = `
           class="c14"
         >
           <span
-            class="c25"
+            class="c24"
           >
             <svg
               aria-hidden="true"
@@ -869,25 +861,6 @@ exports[`Renders ContestPage 1`] = `
         type="button"
       >
         <span
-          class="c24"
-        >
-          <svg
-            aria-hidden="true"
-            class="svg-inline--fa fa-circle-right "
-            data-icon="circle-right"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
-              fill="currentColor"
-            />
-          </svg>
-        </span>
-        <span
           class="c14"
         >
           <span
@@ -896,6 +869,21 @@ exports[`Renders ContestPage 1`] = `
             Next
           </span>
         </span>
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-circle-right "
+          data-icon="circle-right"
+          data-prefix="fas"
+          focusable="false"
+          role="img"
+          viewBox="0 0 512 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
+            fill="currentColor"
+          />
+        </svg>
       </button>
     </nav>
   </div>
@@ -1037,10 +1025,6 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
-}
-
-.c24 {
-  display: inline-block;
 }
 
 .c14 {
@@ -1218,7 +1202,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
   justify-content: space-between;
 }
 
-.c25 {
+.c24 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -1702,25 +1686,21 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         id="previous"
         type="button"
       >
-        <span
-          class="c24"
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-circle-left "
+          data-icon="circle-left"
+          data-prefix="fas"
+          focusable="false"
+          role="img"
+          viewBox="0 0 512 512"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            aria-hidden="true"
-            class="svg-inline--fa fa-circle-left "
-            data-icon="circle-left"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM217.4 376.9L117.5 269.8c-3.5-3.8-5.5-8.7-5.5-13.8s2-10.1 5.5-13.8l99.9-107.1c4.2-4.5 10.1-7.1 16.3-7.1c12.3 0 22.3 10 22.3 22.3l0 57.7 96 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32l-96 0 0 57.7c0 12.3-10 22.3-22.3 22.3c-6.2 0-12.1-2.6-16.3-7.1z"
-              fill="currentColor"
-            />
-          </svg>
-        </span>
+          <path
+            d="M512 256A256 256 0 1 0 0 256a256 256 0 1 0 512 0zM217.4 376.9L117.5 269.8c-3.5-3.8-5.5-8.7-5.5-13.8s2-10.1 5.5-13.8l99.9-107.1c4.2-4.5 10.1-7.1 16.3-7.1c12.3 0 22.3 10 22.3 22.3l0 57.7 96 0c17.7 0 32 14.3 32 32l0 32c0 17.7-14.3 32-32 32l-96 0 0 57.7c0 12.3-10 22.3-22.3 22.3c-6.2 0-12.1-2.6-16.3-7.1z"
+            fill="currentColor"
+          />
+        </svg>
         <span
           class="c14"
         >
@@ -1739,7 +1719,7 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
           class="c14"
         >
           <span
-            class="c25"
+            class="c24"
           >
             <svg
               aria-hidden="true"
@@ -1771,25 +1751,6 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
         type="button"
       >
         <span
-          class="c24"
-        >
-          <svg
-            aria-hidden="true"
-            class="svg-inline--fa fa-circle-right "
-            data-icon="circle-right"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
-              fill="currentColor"
-            />
-          </svg>
-        </span>
-        <span
           class="c14"
         >
           <span
@@ -1798,6 +1759,21 @@ exports[`Renders ContestPage in Landscape orientation 1`] = `
             Next
           </span>
         </span>
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-circle-right "
+          data-icon="circle-right"
+          data-prefix="fas"
+          focusable="false"
+          role="img"
+          viewBox="0 0 512 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 256a256 256 0 1 0 512 0A256 256 0 1 0 0 256zM294.6 135.1l99.9 107.1c3.5 3.8 5.5 8.7 5.5 13.8s-2 10.1-5.5 13.8L294.6 376.9c-4.2 4.5-10.1 7.1-16.3 7.1C266 384 256 374 256 361.7l0-57.7-96 0c-17.7 0-32-14.3-32-32l0-32c0-17.7 14.3-32 32-32l96 0 0-57.7c0-12.3 10-22.3 22.3-22.3c6.2 0 12.1 2.6 16.3 7.1z"
+            fill="currentColor"
+          />
+        </svg>
       </button>
     </nav>
   </div>

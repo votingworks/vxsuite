@@ -300,7 +300,7 @@ export function UnconfiguredScreen(): JSX.Element {
           </P>
           <HorizontalRule />
           <P>
-            <Button variant="previous" onPress={resetUploadFilesAndGoBack}>
+            <Button icon="Previous" onPress={resetUploadFilesAndGoBack}>
               Back
             </Button>
           </P>

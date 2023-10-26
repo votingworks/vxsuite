@@ -3,7 +3,6 @@ import {
   BallotCountReport,
   Button,
   H6,
-  Icons,
   Loading,
   Modal,
   printElement,
@@ -290,8 +289,8 @@ export function BallotCountReportViewer({
             {!isFetchingForPreview && !previewIsFresh && (
               <PreviewActionContainer>
                 {previewReport ? (
-                  <Button onPress={refreshPreview}>
-                    <Icons.RotateRight /> Refresh Preview
+                  <Button icon="RotateRight" onPress={refreshPreview}>
+                    Refresh Preview
                   </Button>
                 ) : (
                   <Button onPress={refreshPreview}>Load Preview</Button>

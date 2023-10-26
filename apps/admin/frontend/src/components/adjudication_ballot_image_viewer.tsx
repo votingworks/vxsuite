@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Icons } from '@votingworks/ui';
+import { Button } from '@votingworks/ui';
 import styled from 'styled-components';
 import { Rect } from '@votingworks/types';
 
@@ -111,11 +111,19 @@ export function BallotImageViewer({
   return (
     <BallotImageViewerContainer>
       <BallotImageViewerControls isZoomedIn={isZoomedIn}>
-        <Button onPress={() => setIsZoomedIn(false)} disabled={!isZoomedIn}>
-          <Icons.ZoomOut /> Zoom Out
+        <Button
+          icon="ZoomOut"
+          onPress={() => setIsZoomedIn(false)}
+          disabled={!isZoomedIn}
+        >
+          Zoom Out
         </Button>
-        <Button onPress={() => setIsZoomedIn(true)} disabled={isZoomedIn}>
-          <Icons.ZoomIn /> Zoom In
+        <Button
+          icon="ZoomIn"
+          onPress={() => setIsZoomedIn(true)}
+          disabled={isZoomedIn}
+        >
+          Zoom In
         </Button>
       </BallotImageViewerControls>
       {isZoomedIn ? (

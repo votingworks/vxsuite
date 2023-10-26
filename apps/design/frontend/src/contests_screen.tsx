@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Select,
   Button,
-  Icons,
   Table,
   TH,
   TD,
@@ -115,8 +114,12 @@ function ContestsTab(): JSX.Element | null {
             )}
           </React.Fragment>
         )}
-        <LinkButton variant="primary" to={contestRoutes.addContest.path}>
-          <Icons.Add /> Add Contest
+        <LinkButton
+          variant="primary"
+          icon="Add"
+          to={contestRoutes.addContest.path}
+        >
+          Add Contest
         </LinkButton>
       </TableActionsRow>
       {contests.length > 0 &&
@@ -162,8 +165,11 @@ function ContestsTab(): JSX.Element | null {
                     </TD>
                   )}
                   <TD nowrap>
-                    <LinkButton to={contestRoutes.editContest(contest.id).path}>
-                      <Icons.Edit /> Edit
+                    <LinkButton
+                      icon="Edit"
+                      to={contestRoutes.editContest(contest.id).path}
+                    >
+                      Edit
                     </LinkButton>
                   </TD>
                 </tr>
@@ -382,6 +388,7 @@ function ContestForm({
             )}
             <TableActionsRow>
               <Button
+                icon="Add"
                 onPress={() =>
                   setContest({
                     ...contest,
@@ -394,7 +401,7 @@ function ContestForm({
                   })
                 }
               >
-                <Icons.Add /> Add Candidate
+                Add Candidate
               </Button>
             </TableActionsRow>
             {contest.candidates.length > 0 && (
@@ -514,14 +521,15 @@ function ContestForm({
           <Button
             onPress={onSavePress}
             variant="primary"
+            icon="Done"
             disabled={updateElectionMutation.isLoading}
           >
-            <Icons.Checkmark /> Save
+            Save
           </Button>
         </FormActionsRow>
         {contestId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" onPress={onDeletePress}>
+            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
               Delete Contest
             </Button>
           </FormActionsRow>
@@ -606,8 +614,8 @@ function PartiesTab(): JSX.Element | null {
         <P>You haven&apos;t added any parties to this election yet.</P>
       )}
       <TableActionsRow>
-        <LinkButton variant="primary" to={partyRoutes.addParty.path}>
-          <Icons.Add /> Add Party
+        <LinkButton icon="Add" variant="primary" to={partyRoutes.addParty.path}>
+          Add Party
         </LinkButton>
       </TableActionsRow>
       {parties.length > 0 && (
@@ -627,8 +635,11 @@ function PartiesTab(): JSX.Element | null {
                 <TD>{party.id}</TD>
                 <TD>{party.abbrev}</TD>
                 <TD>
-                  <LinkButton to={partyRoutes.editParty(party.id).path}>
-                    <Icons.Edit /> Edit
+                  <LinkButton
+                    icon="Edit"
+                    to={partyRoutes.editParty(party.id).path}
+                  >
+                    Edit
                   </LinkButton>
                 </TD>
               </tr>
@@ -766,15 +777,16 @@ function PartyForm({
           <Button
             onPress={onSavePress}
             variant="primary"
+            icon="Done"
             disabled={updateElectionMutation.isLoading}
           >
-            <Icons.Checkmark /> Save
+            Save
           </Button>
         </FormActionsRow>
         {partyId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" onPress={onDeletePress}>
-              <Icons.DangerX /> Delete Party
+            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
+              Delete Party
             </Button>
           </FormActionsRow>
         )}

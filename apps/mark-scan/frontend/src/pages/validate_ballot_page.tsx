@@ -98,7 +98,11 @@ export function ValidateBallotPage(): JSX.Element | null {
       </Main>
       <ButtonFooter>
         {settingsButton}
-        <Button variant="danger" onPress={invalidateBallotCallback}>
+        <Button
+          variant="danger"
+          icon="Danger"
+          onPress={invalidateBallotCallback}
+        >
           My Ballot is Incorrect
         </Button>
         <Button onPress={validateBallotCallback}>My Ballot is Correct</Button>

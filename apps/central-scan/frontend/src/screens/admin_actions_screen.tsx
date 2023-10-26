@@ -145,19 +145,21 @@ export function AdminActionsScreen({
             </ButtonRow>
             <ButtonRow>
               <Button
+                icon="Delete"
                 disabled={!canUnconfigure}
                 onPress={() => setDeleteBallotDataFlowState('confirmation')}
               >
-                <Icons.Delete /> Delete Ballot Data
+                Delete Ballot Data
               </Button>
             </ButtonRow>
 
             <ButtonRow>
               <Button
+                icon="Delete"
                 disabled={!canUnconfigure}
                 onPress={() => setUnconfigureFlowState('initial-confirmation')}
               >
-                <Icons.Delete /> Delete Election Data from VxCentralScan
+                Delete Election Data from VxCentralScan
               </Button>{' '}
             </ButtonRow>
             {!canUnconfigure && !isTestMode && (
@@ -189,7 +191,7 @@ export function AdminActionsScreen({
           actions={
             <React.Fragment>
               <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
-              <Button variant="danger" onPress={deleteBallotData}>
+              <Button variant="danger" icon="Delete" onPress={deleteBallotData}>
                 Yes, Delete Ballot Data
               </Button>
             </React.Fragment>
@@ -215,6 +217,7 @@ export function AdminActionsScreen({
             <React.Fragment>
               <Button
                 variant="danger"
+                icon="Delete"
                 onPress={() => setUnconfigureFlowState('double-confirmation')}
               >
                 Yes, Delete Election Data
@@ -231,7 +234,7 @@ export function AdminActionsScreen({
           content={<P>This cannot be undone.</P>}
           actions={
             <React.Fragment>
-              <Button variant="danger" onPress={doUnconfigure}>
+              <Button variant="danger" icon="Delete" onPress={doUnconfigure}>
                 I am sure. Delete all election data.
               </Button>
               <Button onPress={resetUnconfigureFlow}>Cancel</Button>

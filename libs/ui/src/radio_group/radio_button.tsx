@@ -40,7 +40,7 @@ export function RadioButton<T extends RadioGroupOptionId>(
     <Container
       aria-label={ariaLabel}
       disabled={disabled}
-      variant={selected ? 'primary' : 'regular'}
+      variant={selected ? 'primary' : 'neutral'}
     >
       <Radio {...props} />
       <Label>{label}</Label>

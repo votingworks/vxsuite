@@ -78,7 +78,7 @@ const BallotsAlreadyScannedScreen = (
       title="Ballots Already Scanned"
       image={
         <FullScreenIconWrapper color="danger">
-          <Icons.DangerX />
+          <Icons.Delete />
         </FullScreenIconWrapper>
       }
     >

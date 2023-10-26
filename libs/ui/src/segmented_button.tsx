@@ -99,7 +99,7 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
             onPress={onChange}
             role="option"
             value={o.id}
-            variant={o.id === selectedOptionId ? 'primary' : 'regular'}
+            variant={o.id === selectedOptionId ? 'primary' : 'neutral'}
           >
             {o.label}
           </Button>

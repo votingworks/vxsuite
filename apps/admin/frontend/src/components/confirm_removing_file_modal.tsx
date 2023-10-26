@@ -74,7 +74,11 @@ export function ConfirmRemovingFileModal({
       content={mainContent}
       actions={
         <React.Fragment>
-          <Button variant="danger" onPress={() => onConfirm(fileType)}>
+          <Button
+            icon="Delete"
+            variant="danger"
+            onPress={() => onConfirm(fileType)}
+          >
             Remove {!singleFileRemoval && 'All'} {fileTypeName}
           </Button>
           <Button onPress={onCancel}>Cancel</Button>

@@ -111,7 +111,7 @@ function UpdatePollsButton({
   return (
     <React.Fragment>
       <Button
-        variant={isPrimaryButton ? 'primary' : 'regular'}
+        variant={isPrimaryButton ? 'primary' : 'neutral'}
         onPress={() => setIsConfirmationModalOpen(true)}
       >
         {action}
@@ -254,7 +254,11 @@ export function PollWorkerScreen({
               Remove card to allow voter to continue voting, or reset ballot.
             </P>
             <P>
-              <Button variant="danger" onPress={resetCardlessVoterSession}>
+              <Button
+                variant="danger"
+                icon="Delete"
+                onPress={resetCardlessVoterSession}
+              >
                 Reset Ballot
               </Button>
             </P>
@@ -384,7 +388,7 @@ export function PollWorkerScreen({
                           variant={
                             selectedCardlessVoterPrecinctId === precinct.id
                               ? 'primary'
-                              : 'regular'
+                              : 'neutral'
                           }
                         >
                           {precinct.name}
@@ -437,7 +441,8 @@ export function PollWorkerScreen({
                 <React.Fragment>
                   <P>
                     <Button
-                      variant="previousPrimary"
+                      variant="primary"
+                      icon="Previous"
                       onPress={() => setIsHidingSelectBallotStyle(false)}
                     >
                       Back to Ballot Style Selection
@@ -493,7 +498,11 @@ export function PollWorkerScreen({
           }
           actions={
             <React.Fragment>
-              <Button variant="danger" onPress={confirmEnableLiveMode}>
+              <Button
+                variant="danger"
+                icon="Danger"
+                onPress={confirmEnableLiveMode}
+              >
                 Switch to Official Ballot Mode
               </Button>
               <Button onPress={cancelEnableLiveMode}>Cancel</Button>

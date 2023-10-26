@@ -15,7 +15,6 @@ import {
   faInfoCircle,
   faMinusCircle,
   faPencil,
-  faTrashCan,
   faXmark,
   faMagnifyingGlassPlus,
   faMagnifyingGlassMinus,
@@ -26,7 +25,6 @@ import {
   faChevronCircleDown,
   faChevronRight,
   faChevronLeft,
-  faSquarePlus,
   faSpinner,
   faCaretDown,
   faCirclePlus,
@@ -69,10 +67,6 @@ function FaIcon(props: InnerProps): JSX.Element {
  */
 export const Icons = {
   Add(): JSX.Element {
-    return <FaIcon type={faSquarePlus} />;
-  },
-
-  AddCircle(): JSX.Element {
     return <FaIcon type={faCirclePlus} />;
   },
 
@@ -122,12 +116,8 @@ export const Icons = {
     return <FaIcon type={faExclamationCircle} />;
   },
 
-  DangerX(): JSX.Element {
-    return <FaIcon type={faXmarkCircle} />;
-  },
-
   Delete(): JSX.Element {
-    return <FaIcon type={faTrashCan} />;
+    return <FaIcon type={faXmarkCircle} />;
   },
 
   Disabled(): JSX.Element {
@@ -223,6 +213,8 @@ export const Icons = {
   },
 } as const;
 
+export type IconName = keyof typeof Icons;
+
 /** Props for {@link FullScreenIconWrapper}. */
 export type FullScreenIconWrapperProps = FontProps;
 
@@ -245,7 +237,7 @@ const FullScreenIconContainer = styled(Font)<FullScreenIconContainerProps>`
  * Sample Usage:
  * ```
  * <FullScreenIconWrapper color="success">
- *   <Icons.Checkmark />
+ *   <Icons.Done />
  * </FullScreenIconWrapper>
  * ```
  */

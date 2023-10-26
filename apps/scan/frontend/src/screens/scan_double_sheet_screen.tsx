@@ -15,7 +15,7 @@ export function ScanDoubleSheetScreen({
         title="Ballot Not Counted"
         image={
           <FullScreenIconWrapper color="danger">
-            <Icons.DangerX />
+            <Icons.Delete />
           </FullScreenIconWrapper>
         }
       >

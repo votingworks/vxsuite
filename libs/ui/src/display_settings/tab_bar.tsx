@@ -60,7 +60,7 @@ export function TabBar(props: TabBarProps): JSX.Element {
           onPress={onChange}
           role="tab"
           value={paneId}
-          variant={activePaneId === paneId ? 'primary' : 'regular'}
+          variant={activePaneId === paneId ? 'primary' : 'neutral'}
         >
           <TabLabel>{TAB_LABELS[paneId]}</TabLabel>
         </Button>

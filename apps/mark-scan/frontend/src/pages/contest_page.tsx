@@ -76,7 +76,8 @@ export function ContestPage(): JSX.Element {
   const nextContestButton = (
     <LinkButton
       id="next"
-      variant={isVoteComplete ? 'next' : 'nextSecondary'}
+      rightIcon="Next"
+      variant={isVoteComplete ? 'primary' : 'neutral'}
       aria-label="next contest"
       to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
     >
@@ -86,7 +87,7 @@ export function ContestPage(): JSX.Element {
 
   const previousContestButton = (
     <LinkButton
-      variant="previous"
+      icon="Previous"
       id="previous"
       aria-label="previous contest"
       to={prevContest ? `/contests/${prevContestIndex}` : '/'}
@@ -98,7 +99,8 @@ export function ContestPage(): JSX.Element {
 
   const reviewScreenButton = (
     <LinkButton
-      variant={isVoteComplete ? 'next' : 'nextSecondary'}
+      rightIcon="Next"
+      variant={isVoteComplete ? 'primary' : 'neutral'}
       to={`/review#contest-${contest.id}`}
       id="next"
     >

@@ -3,23 +3,15 @@ import React, { PureComponent } from 'react';
 import styled, { css, DefaultTheme, StyledComponent } from 'styled-components';
 import { Color, SizeMode, UiTheme } from '@votingworks/types';
 
-import { Icons } from './icons';
+import { Icons, IconName } from './icons';
 
 const FONT_SIZE_REM = 1;
 
 export const ALL_BUTTON_VARIANTS = [
-  'danger',
-  'done',
-  'edit',
-  'next',
-  'nextSecondary',
-  'previous',
-  'previousPrimary',
+  'neutral',
   'primary',
-  'regular',
   'secondary',
-  'settings',
-  'warning',
+  'danger',
 ] as const;
 
 export type ButtonVariant = (typeof ALL_BUTTON_VARIANTS)[number];
@@ -34,6 +26,8 @@ export interface StyledButtonProps {
   id?: string;
   role?: string;
   variant?: ButtonVariant;
+  icon?: IconName | JSX.Element;
+  rightIcon?: IconName | JSX.Element;
 
   /** @deprecated Place the button within a flex or grid container instead. */
   readonly fullWidth?: boolean;
@@ -74,33 +68,28 @@ export type ButtonInterface = Pick<
   'fullWidth' | 'large' | 'small' | 'variant'
 >;
 
+function resolveIcon(icon: IconName | JSX.Element): JSX.Element {
+  if (typeof icon === 'string') {
+    const Component = Icons[icon];
+    return <Component />;
+  }
+  return icon;
+}
+
 interface VariantConfig {
   color: keyof UiTheme['colors'];
-  icon?: React.ComponentType;
   isSolidColor?: boolean;
 }
 
 const variantConfigs: Record<ButtonVariant, VariantConfig> = {
-  danger: { color: 'accentDanger', icon: Icons.Danger, isSolidColor: true },
-  done: { color: 'accentPrimary', icon: Icons.Done, isSolidColor: true },
-  edit: { color: 'foreground', icon: Icons.Edit },
-  next: { color: 'accentPrimary', icon: Icons.Next, isSolidColor: true },
-  nextSecondary: { color: 'foreground', icon: Icons.Next, isSolidColor: false },
-  previous: { color: 'foreground', icon: Icons.Previous },
-  previousPrimary: {
-    color: 'accentPrimary',
-    icon: Icons.Previous,
-    isSolidColor: true,
-  },
+  neutral: { color: 'foreground' },
   primary: { color: 'accentPrimary', isSolidColor: true },
-  regular: { color: 'foreground' },
   secondary: { color: 'accentSecondary', isSolidColor: true },
-  settings: { color: 'foreground', icon: Icons.Settings },
-  warning: { color: 'accentWarning', icon: Icons.Warning, isSolidColor: true },
+  danger: { color: 'accentDanger', isSolidColor: true },
 };
 
 function getVariantConfig(p: StyledButtonProps): VariantConfig {
-  return variantConfigs[p.variant || 'regular'];
+  return variantConfigs[p.variant || 'neutral'];
 }
 
 type ThemedStyledButtonProps = StyledButtonProps & { theme: UiTheme };
@@ -127,7 +116,7 @@ function getForegroundColor(p: ThemedStyledButtonProps): Color | undefined {
     return p.theme.colors.foregroundDisabled;
   }
 
-  const variantConfig = variantConfigs[p.variant || 'regular'];
+  const variantConfig = variantConfigs[p.variant || 'neutral'];
   if (variantConfig.isSolidColor) {
     return p.theme.colors.background;
   }
@@ -136,7 +125,7 @@ function getForegroundColor(p: ThemedStyledButtonProps): Color | undefined {
 }
 
 function getBorderColor(p: ThemedStyledButtonProps): Color | undefined {
-  const variantConfig = variantConfigs[p.variant || 'regular'];
+  const variantConfig = variantConfigs[p.variant || 'neutral'];
   if (variantConfig.isSolidColor) {
     return getBackgroundColor(p);
   }
@@ -209,10 +198,6 @@ const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
   type,
 }))`
   ${buttonStyles}
-`;
-
-const IconContainer = styled.span`
-  display: inline-block;
 `;
 
 const TextContainer = styled.span`
@@ -290,10 +275,10 @@ export class Button<T = undefined> extends PureComponent<
       nonAccessibleTitle,
       value, // eslint-disable-line @typescript-eslint/no-unused-vars
       variant,
+      icon,
+      rightIcon,
       ...rest
     } = this.props;
-
-    const Icon = variantConfigs[variant || 'regular'].icon;
 
     return (
       <Component
@@ -306,12 +291,9 @@ export class Button<T = undefined> extends PureComponent<
         title={nonAccessibleTitle}
         variant={variant}
       >
-        {Icon && (
-          <IconContainer>
-            <Icon />
-          </IconContainer>
-        )}
+        {icon && resolveIcon(icon)}
         {children && <TextContainer>{children}</TextContainer>}
+        {rightIcon && resolveIcon(rightIcon)}
       </Component>
     );
   }

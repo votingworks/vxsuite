@@ -90,10 +90,11 @@ export function ElectionsScreen(): JSX.Element | null {
         <Row style={{ gap: '0.5rem' }}>
           <Button
             variant={elections.length === 0 ? 'primary' : undefined}
+            icon="Add"
             onPress={onCreateElectionPress}
             disabled={createElectionMutation.isLoading}
           >
-            <Icons.Add /> Create Election
+            Create Election
           </Button>
           <FileInputButton
             accept=".json"

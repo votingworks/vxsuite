@@ -33,7 +33,7 @@ export function UsbControllerButton({
   return (
     <Button
       small={small}
-      variant={primary ? 'primary' : 'regular'}
+      variant={primary ? 'primary' : 'neutral'}
       disabled={extendedUsbDriveStatus !== 'mounted'}
       onPress={usbDriveEject}
     >

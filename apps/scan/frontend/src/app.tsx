@@ -60,7 +60,7 @@ export function App({
           errorMessage={
             <React.Fragment>
               <FullScreenIconWrapper color="danger">
-                <Icons.DangerX />
+                <Icons.Delete />
               </FullScreenIconWrapper>
               <CenteredLargeProse>
                 <H1>Something went wrong</H1>

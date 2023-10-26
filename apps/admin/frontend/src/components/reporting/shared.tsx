@@ -77,8 +77,8 @@ export function PreviewLoading(): JSX.Element {
 
 export function ReportBackButton(): JSX.Element {
   return (
-    <LinkButton small to={routerPaths.reports}>
-      <Icons.Previous /> Back
+    <LinkButton icon="Previous" small to={routerPaths.reports}>
+      Back
     </LinkButton>
   );
 }

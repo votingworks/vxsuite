@@ -17,7 +17,7 @@ export function ContinueToReviewPage(): JSX.Element {
         </Text>
       </Main>
       <ButtonFooter>
-        <LinkButton to="/review" id="next" variant="done">
+        <LinkButton to="/review" id="next" variant="primary" icon="Done">
           Return to Ballot Review
         </LinkButton>
       </ButtonFooter>

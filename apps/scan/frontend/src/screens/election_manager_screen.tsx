@@ -290,7 +290,7 @@ export function ElectionManagerScreen({
               }
               actions={
                 <React.Fragment>
-                  <Button onPress={switchMode} variant="danger">
+                  <Button onPress={switchMode} variant="danger" icon="Danger">
                     Yes, Switch
                   </Button>
                   <Button
@@ -329,7 +329,7 @@ export function ElectionManagerScreen({
               }
               actions={
                 <React.Fragment>
-                  <Button onPress={unconfigure} variant="danger">
+                  <Button onPress={unconfigure} variant="danger" icon="Delete">
                     Yes, Delete All
                   </Button>
                   <Button onPress={() => setIsConfirmingUnconfigure(false)}>

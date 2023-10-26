@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  Icons,
-  Table,
-  TH,
-  TD,
-  H1,
-  LinkButton,
-  P,
-} from '@votingworks/ui';
+import { Button, Table, TH, TD, H1, LinkButton, P } from '@votingworks/ui';
 import {
   Switch,
   Route,
@@ -62,8 +53,12 @@ function DistrictsTab(): JSX.Element | null {
         <P>You haven&apos;t added any districts to this election yet.</P>
       )}
       <TableActionsRow>
-        <LinkButton variant="primary" to={districtsRoutes.addDistrict.path}>
-          <Icons.Add /> Add District
+        <LinkButton
+          icon="Add"
+          variant="primary"
+          to={districtsRoutes.addDistrict.path}
+        >
+          Add District
         </LinkButton>
       </TableActionsRow>
       {districts.length > 0 && (
@@ -82,9 +77,10 @@ function DistrictsTab(): JSX.Element | null {
                 <TD>{district.id}</TD>
                 <TD>
                   <LinkButton
+                    icon="Edit"
                     to={districtsRoutes.editDistrict(district.id).path}
                   >
-                    <Icons.Edit /> Edit
+                    Edit
                   </LinkButton>
                 </TD>
               </tr>
@@ -217,16 +213,18 @@ function DistrictForm({
           </LinkButton>
           <Button
             variant="primary"
+            icon="Done"
             onPress={onSavePress}
             disabled={updateElectionMutation.isLoading}
           >
-            <Icons.Checkmark /> Save
+            Save
           </Button>
         </FormActionsRow>
         {districtId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
+              icon="Delete"
               onPress={onDeletePress}
               disabled={updateElectionMutation.isLoading}
             >
@@ -319,9 +317,10 @@ function PrecinctsTab(): JSX.Element | null {
       <TableActionsRow>
         <LinkButton
           variant="primary"
+          icon="Add"
           to={geographyRoutes.precincts.addPrecinct.path}
         >
-          <Icons.Add /> Add Precinct
+          Add Precinct
         </LinkButton>
       </TableActionsRow>
       {precincts.length > 0 && (
@@ -348,11 +347,12 @@ function PrecinctsTab(): JSX.Element | null {
                   </TD>
                   <TD>
                     <LinkButton
+                      icon="Edit"
                       to={
                         geographyRoutes.precincts.editPrecinct(precinct.id).path
                       }
                     >
-                      <Icons.Edit /> Edit
+                      Edit
                     </LinkButton>
                   </TD>
                 </tr>
@@ -577,8 +577,8 @@ function PrecinctForm({
                 </Card>
               ))}
               <div>
-                <Button onPress={onAddSplitPress}>
-                  <Icons.Add /> Add Split
+                <Button icon="Add" onPress={onAddSplitPress}>
+                  Add Split
                 </Button>
               </div>
             </React.Fragment>
@@ -600,8 +600,8 @@ function PrecinctForm({
                 />
               </div>
               <div>
-                <Button onPress={onAddSplitPress}>
-                  <Icons.Add /> Add Split
+                <Button icon="Add" onPress={onAddSplitPress}>
+                  Add Split
                 </Button>
               </div>
             </React.Fragment>
@@ -615,20 +615,22 @@ function PrecinctForm({
           </LinkButton>
           <Button
             variant="primary"
+            icon="Done"
             onPress={onSavePress}
             disabled={updatePrecinctsMutation.isLoading}
           >
-            <Icons.Checkmark /> Save
+            Save
           </Button>
         </FormActionsRow>
         {precinctId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
+              icon="Delete"
               onPress={onDeletePress}
               disabled={updatePrecinctsMutation.isLoading}
             >
-              <Icons.DangerX /> Delete Precinct
+              Delete Precinct
             </Button>
           </FormActionsRow>
         )}

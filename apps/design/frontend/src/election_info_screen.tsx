@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Election, Id } from '@votingworks/types';
-import { Button, H1, Icons } from '@votingworks/ui';
+import { Button, H1 } from '@votingworks/ui';
 import { Buffer } from 'buffer';
 import { useHistory, useParams } from 'react-router-dom';
 import DomPurify from 'dompurify';
@@ -171,22 +171,28 @@ function ElectionInfoForm({
           </Button>
           <Button
             variant="primary"
+            icon="Done"
             onPress={onSaveButtonPress}
             disabled={updateElectionMutation.isLoading}
           >
-            <Icons.Checkmark /> Save
+            Save
           </Button>
         </FormActionsRow>
       ) : (
         <div>
           <FormActionsRow>
-            <Button variant="primary" onPress={() => setIsEditing(true)}>
-              <Icons.Edit /> Edit
+            <Button
+              variant="primary"
+              icon="Edit"
+              onPress={() => setIsEditing(true)}
+            >
+              Edit
             </Button>
           </FormActionsRow>
           <FormActionsRow style={{ marginTop: '1rem' }}>
             <Button
               variant="danger"
+              icon="Delete"
               onPress={onDeletePress}
               disabled={deleteElectionMutation.isLoading}
             >

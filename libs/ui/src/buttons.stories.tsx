@@ -41,10 +41,10 @@ export function UsageExamples(props: ButtonProps<unknown>): JSX.Element {
         footerAlign="right"
         footer={
           <React.Fragment>
-            <Button {...props} variant="previous">
+            <Button {...props} icon="Previous">
               Previous
             </Button>
-            <Button {...props} variant="done">
+            <Button {...props} icon="Done" variant="primary">
               Save and exit
             </Button>
           </React.Fragment>
@@ -59,7 +59,7 @@ export function UsageExamples(props: ButtonProps<unknown>): JSX.Element {
         footer={
           <React.Fragment>
             <Button {...props}>Cancel</Button>
-            <Button {...props} variant="danger">
+            <Button {...props} variant="danger" icon="Delete">
               Delete everything
             </Button>
           </React.Fragment>
@@ -73,26 +73,14 @@ export function UsageExamples(props: ButtonProps<unknown>): JSX.Element {
         footerAlign="right"
         footer={
           <React.Fragment>
-            <Button {...props}>Cancel</Button>
-            <Button {...props} variant="warning">
-              Fix the thing
+            <Button {...props} icon="Previous">
+              Back
             </Button>
-          </React.Fragment>
-        }
-      >
-        <H4 as="h2">Warning! You forgot something.</H4>
-        <P>{testParagraph}</P>
-      </Card>
-
-      <Card
-        footerAlign="right"
-        footer={
-          <React.Fragment>
-            <Button {...props}>Cancel</Button>
             <Button
               {...props}
               disabled={fakeTextInputValue.length < 2}
-              variant="next"
+              variant="primary"
+              rightIcon="Next"
             >
               Continue
             </Button>

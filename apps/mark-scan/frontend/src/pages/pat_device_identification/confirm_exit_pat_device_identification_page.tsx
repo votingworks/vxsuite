@@ -21,10 +21,10 @@ export function ConfirmExitPatDeviceIdentificationPage({
         </PortraitStepInnerContainer>
       </Main>
       <ButtonFooter>
-        <Button variant="previous" onPress={onPressBack}>
+        <Button icon="Previous" onPress={onPressBack}>
           Back
         </Button>
-        <Button variant="next" onPress={onPressContinue}>
+        <Button variant="primary" rightIcon="Next" onPress={onPressContinue}>
           Continue with Voting
         </Button>
       </ButtonFooter>

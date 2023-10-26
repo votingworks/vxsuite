@@ -323,8 +323,8 @@ export function FilterEditor({
                 ariaLabel="Select New Filter Type"
               />
             ) : (
-              <AddButton onPress={() => setIsAddingRow(true)}>
-                <Icons.AddCircle /> Add Filter
+              <AddButton icon="Add" onPress={() => setIsAddingRow(true)}>
+                Add Filter
               </AddButton>
             )}
           </AddSelectFilterContainer>

@@ -13,7 +13,6 @@ import {
   Button,
   Main,
   Screen,
-  Icons,
   P,
   Font,
   Caption,
@@ -243,7 +242,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
         <ScreenHeader
           title="Write-In Adjudication"
           actions={
-            <LinkButton small variant="regular" to={routerPaths.writeIns}>
+            <LinkButton small variant="neutral" to={routerPaths.writeIns}>
               Back to All Write-Ins
             </LinkButton>
           }
@@ -420,7 +419,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             </span>
             <LinkButton
               small
-              variant={areAllWriteInsAdjudicated ? 'primary' : 'regular'}
+              variant={areAllWriteInsAdjudicated ? 'primary' : 'neutral'}
               to={routerPaths.writeIns}
             >
               Back to All Write-Ins
@@ -451,11 +450,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           <Font weight="bold">{currentWriteInId.substring(0, 4)}</Font>
         </LabelledText>
         <AdjudicationNav>
-          <Button
-            disabled={offset === 0}
-            onPress={goPrevious}
-            variant="previous"
-          >
+          <Button disabled={offset === 0} onPress={goPrevious} icon="Previous">
             Previous
           </Button>
           <Caption weight="semiBold">
@@ -464,10 +459,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           <Button
             ref={nextButton}
             variant={
-              currentWriteIn?.status === 'adjudicated'
-                ? 'next'
-                : 'nextSecondary'
+              currentWriteIn?.status === 'adjudicated' ? 'primary' : 'neutral'
             }
+            rightIcon="Next"
             disabled={isLastAdjudication}
             onPress={goNext}
           >
@@ -501,7 +495,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     <Button
                       key={candidate.id}
                       ref={i === 0 ? firstAdjudicationButton : undefined}
-                      variant={isCurrentAdjudication ? 'secondary' : 'regular'}
+                      variant={isCurrentAdjudication ? 'secondary' : 'neutral'}
                       onPress={() => {
                         if (
                           isWriteInAdjudicationContextFresh &&
@@ -527,7 +521,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   return (
                     <Button
                       key={candidate.id}
-                      variant={isCurrentAdjudication ? 'secondary' : 'regular'}
+                      variant={isCurrentAdjudication ? 'secondary' : 'neutral'}
                       onPress={() => {
                         if (
                           isWriteInAdjudicationContextFresh &&
@@ -572,8 +566,11 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     </Button>
                   </InlineForm>
                 ) : (
-                  <Button onPress={() => setShowNewWriteInCandidateForm(true)}>
-                    <Icons.Add /> Add new write-in candidate
+                  <Button
+                    icon="Add"
+                    onPress={() => setShowNewWriteInCandidateForm(true)}
+                  >
+                    Add new write-in candidate
                   </Button>
                 )}
               </P>
@@ -586,9 +583,10 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     adjudicateAsInvalid();
                   }
                 }}
-                variant={currentWriteInMarkedInvalid ? 'secondary' : 'regular'}
+                variant={currentWriteInMarkedInvalid ? 'secondary' : 'neutral'}
+                icon="Delete"
               >
-                <Icons.DangerX /> Mark write-in invalid
+                Mark write-in invalid
               </Button>
             </div>
           </AdjudicationForm>

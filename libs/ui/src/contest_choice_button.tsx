@@ -86,7 +86,7 @@ export function ContestChoiceButton<T extends string>(
       isSelected={!!isSelected}
       onPress={handlePress}
       role="option"
-      variant={isSelected ? 'primary' : 'regular'}
+      variant={isSelected ? 'primary' : 'neutral'}
     >
       <Content>
         <CheckboxContainer>

@@ -172,7 +172,7 @@ export function AdminScreen({
             </Font>{' '}
             Election Definition is loaded.{' '}
           </P>
-          <Button variant="danger" small onPress={unconfigure}>
+          <Button variant="danger" icon="Delete" small onPress={unconfigure}>
             Unconfigure Machine
           </Button>
           <H6 as="h2">USB</H6>

@@ -71,7 +71,7 @@ export function TabBar<Id extends string = string>(
           onPress={onChange}
           role="tab"
           value={paneId}
-          variant={activePaneId === paneId ? 'primary' : 'regular'}
+          variant={activePaneId === paneId ? 'primary' : 'neutral'}
         >
           <TabLabelContainer active={activePaneId === paneId}>
             <TabLabel>{label}</TabLabel>
