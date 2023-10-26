@@ -1240,7 +1240,9 @@
                       "y": 0,
                       "width": 524.5714285714286,
                       "height": 21.25,
-                      "textLines": ["Official Absentee Ballot"],
+                      "textLines": [
+                        "Official Absentee Ballot"
+                      ],
                       "fontSize": 20,
                       "fontWeight": 700,
                       "lineHeight": 17
@@ -1251,7 +1253,9 @@
                       "y": 21.25,
                       "width": 524.5714285714286,
                       "height": 16.25,
-                      "textLines": ["General Election • November 3, 2020"],
+                      "textLines": [
+                        "General Election • November 3, 2020"
+                      ],
                       "fontSize": 13,
                       "fontWeight": 700,
                       "lineHeight": 13
@@ -1312,7 +1316,9 @@
                       "y": 0,
                       "width": 122.39999999999999,
                       "height": 16.25,
-                      "textLines": ["Instructions"],
+                      "textLines": [
+                        "Instructions"
+                      ],
                       "fontSize": 13,
                       "fontWeight": 700,
                       "lineHeight": 13
@@ -1323,7 +1329,9 @@
                       "y": 16.25,
                       "width": 122.39999999999999,
                       "height": 11.25,
-                      "textLines": ["To Vote:"],
+                      "textLines": [
+                        "To Vote:"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 700,
                       "lineHeight": 9
@@ -1366,7 +1374,9 @@
                       "y": 0,
                       "width": 209.82857142857142,
                       "height": 11.25,
-                      "textLines": ["To Vote for a Write-In:"],
+                      "textLines": [
+                        "To Vote for a Write-In:"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 700,
                       "lineHeight": 9
@@ -1445,7 +1455,10 @@
                           "y": 0,
                           "width": 174.85714285714283,
                           "height": 29.25,
-                          "textLines": ["President and", "Vice-President"],
+                          "textLines": [
+                            "President and",
+                            "Vice-President"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -1456,7 +1469,9 @@
                           "y": 29.25,
                           "width": 174.85714285714283,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -1509,7 +1524,9 @@
                               "y": 22.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Federalist"],
+                              "textLines": [
+                                "Federalist"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1550,7 +1567,10 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 22.5,
-                              "textLines": ["Adam Cramer and Greg", "Vuocolo"],
+                              "textLines": [
+                                "Adam Cramer and Greg",
+                                "Vuocolo"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1562,7 +1582,9 @@
                               "y": 22.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["People’s"],
+                              "textLines": [
+                                "People’s"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1618,7 +1640,9 @@
                               "y": 22.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Liberty"],
+                              "textLines": [
+                                "Liberty"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1659,7 +1683,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Alvin Boone and James Lian"],
+                              "textLines": [
+                                "Alvin Boone and James Lian"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1671,7 +1697,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Constitution"],
+                              "textLines": [
+                                "Constitution"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1727,7 +1755,9 @@
                               "y": 22.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Whig"],
+                              "textLines": [
+                                "Whig"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1783,7 +1813,9 @@
                               "y": 22.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Labor"],
+                              "textLines": [
+                                "Labor"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1834,7 +1866,10 @@
                           "y": 0,
                           "width": 148.6285714285714,
                           "height": 29.25,
-                          "textLines": ["Representative,", "District 6"],
+                          "textLines": [
+                            "Representative,",
+                            "District 6"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -1845,7 +1880,9 @@
                           "y": 29.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -1883,7 +1920,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Brad Plunkard"],
+                              "textLines": [
+                                "Brad Plunkard"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1895,7 +1934,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Federalist"],
+                              "textLines": [
+                                "Federalist"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1936,7 +1977,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Bruce Reeder"],
+                              "textLines": [
+                                "Bruce Reeder"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -1948,7 +1991,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["People’s"],
+                              "textLines": [
+                                "People’s"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -1989,7 +2034,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Brad Schott"],
+                              "textLines": [
+                                "Brad Schott"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2001,7 +2048,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Liberty"],
+                              "textLines": [
+                                "Liberty"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2042,7 +2091,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Glen Tawney"],
+                              "textLines": [
+                                "Glen Tawney"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2054,7 +2105,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Constitution"],
+                              "textLines": [
+                                "Constitution"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2095,7 +2148,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Carroll Forrest"],
+                              "textLines": [
+                                "Carroll Forrest"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2107,7 +2162,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Whig"],
+                              "textLines": [
+                                "Whig"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2158,7 +2215,9 @@
                           "y": 0,
                           "width": 148.6285714285714,
                           "height": 16.25,
-                          "textLines": ["Lieutenant Governor"],
+                          "textLines": [
+                            "Lieutenant Governor"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -2169,7 +2228,9 @@
                           "y": 16.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -2207,7 +2268,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Chris Norberg"],
+                              "textLines": [
+                                "Chris Norberg"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2219,7 +2282,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Federalist"],
+                              "textLines": [
+                                "Federalist"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2260,7 +2325,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Anthony Parks"],
+                              "textLines": [
+                                "Anthony Parks"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2272,7 +2339,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["People’s"],
+                              "textLines": [
+                                "People’s"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2313,7 +2382,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Luis Jorges Garcia"],
+                              "textLines": [
+                                "Luis Jorges Garcia"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2325,7 +2396,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Liberty"],
+                              "textLines": [
+                                "Liberty"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2366,7 +2439,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Charles Qualey"],
+                              "textLines": [
+                                "Charles Qualey"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2378,7 +2453,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Constitution"],
+                              "textLines": [
+                                "Constitution"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2419,7 +2496,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["George Hovis"],
+                              "textLines": [
+                                "George Hovis"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2431,7 +2510,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Whig"],
+                              "textLines": [
+                                "Whig"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2472,7 +2553,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Burt Zirkle"],
+                              "textLines": [
+                                "Burt Zirkle"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2484,7 +2567,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Labor"],
+                              "textLines": [
+                                "Labor"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2525,7 +2610,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Brenda Davis"],
+                              "textLines": [
+                                "Brenda Davis"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2537,7 +2624,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Independent"],
+                              "textLines": [
+                                "Independent"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2578,7 +2667,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Edward Freeman"],
+                              "textLines": [
+                                "Edward Freeman"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2590,7 +2681,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Independent"],
+                              "textLines": [
+                                "Independent"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2631,7 +2724,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Paul Swan"],
+                              "textLines": [
+                                "Paul Swan"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2643,7 +2738,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Independent"],
+                              "textLines": [
+                                "Independent"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -2685,7 +2782,9 @@
                           "y": 0,
                           "width": 148.6285714285714,
                           "height": 16.25,
-                          "textLines": ["Senator, District 31"],
+                          "textLines": [
+                            "Senator, District 31"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -2696,7 +2795,9 @@
                           "y": 16.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -2734,7 +2835,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Edward Shiplett"],
+                              "textLines": [
+                                "Edward Shiplett"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -2746,7 +2849,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Constitution"],
+                              "textLines": [
+                                "Constitution"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -7809,7 +7914,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -7820,7 +7927,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["1/4"],
+                      "textLines": [
+                        "1/4"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -7833,7 +7942,9 @@
                   "y": 11.314285714285715,
                   "width": 248.11999999999992,
                   "height": 37.714285714285715,
-                  "textLines": ["Turn ballot over and continue voting"],
+                  "textLines": [
+                    "Turn ballot over and continue voting"
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13,
@@ -9108,7 +9219,10 @@
                           "y": 0,
                           "width": 174.85714285714283,
                           "height": 29.25,
-                          "textLines": ["Assembly Member,", "District 54"],
+                          "textLines": [
+                            "Assembly Member,",
+                            "District 54"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -9119,7 +9233,9 @@
                           "y": 29.25,
                           "width": 174.85714285714283,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -9157,7 +9273,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Andrea Solis"],
+                              "textLines": [
+                                "Andrea Solis"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -9169,7 +9287,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Federalist"],
+                              "textLines": [
+                                "Federalist"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -9210,7 +9330,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Amos Keller"],
+                              "textLines": [
+                                "Amos Keller"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -9222,7 +9344,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["People’s"],
+                              "textLines": [
+                                "People’s"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -9263,7 +9387,9 @@
                               "y": 0,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Davitra Rangel"],
+                              "textLines": [
+                                "Davitra Rangel"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -9275,7 +9401,9 @@
                               "y": 12.5,
                               "width": 152.99999999999997,
                               "height": 12.5,
-                              "textLines": ["Liberty"],
+                              "textLines": [
+                                "Liberty"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -9326,7 +9454,9 @@
                           "y": 0,
                           "width": 148.6285714285714,
                           "height": 16.25,
-                          "textLines": ["Registrar of Wills"],
+                          "textLines": [
+                            "Registrar of Wills"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -9337,7 +9467,9 @@
                           "y": 16.25,
                           "width": 148.6285714285714,
                           "height": 12.5,
-                          "textLines": ["Vote for 1"],
+                          "textLines": [
+                            "Vote for 1"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 400,
                           "lineHeight": 10
@@ -9375,7 +9507,9 @@
                               "y": 0,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Rhadka Ramachandrani"],
+                              "textLines": [
+                                "Rhadka Ramachandrani"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 700,
                               "lineHeight": 10,
@@ -9387,7 +9521,9 @@
                               "y": 12.5,
                               "width": 126.77142857142856,
                               "height": 12.5,
-                              "textLines": ["Independent"],
+                              "textLines": [
+                                "Independent"
+                              ],
                               "fontSize": 10,
                               "fontWeight": 400,
                               "lineHeight": 10,
@@ -9429,7 +9565,9 @@
                           "y": 24.514285714285716,
                           "width": 122.39999999999999,
                           "height": 18.857142857142858,
-                          "textLines": ["write-in"],
+                          "textLines": [
+                            "write-in"
+                          ],
                           "fontSize": 9,
                           "fontWeight": 400,
                           "lineHeight": 9,
@@ -9541,7 +9679,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -9573,7 +9713,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -9662,7 +9804,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -9694,7 +9838,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -9734,7 +9880,9 @@
                           "y": 0,
                           "width": 524.5714285714286,
                           "height": 16.25,
-                          "textLines": ["Question B: Separation of Powers"],
+                          "textLines": [
+                            "Question B: Separation of Powers"
+                          ],
                           "fontSize": 13,
                           "fontWeight": 700,
                           "lineHeight": 13
@@ -9786,7 +9934,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -9818,7 +9968,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -14879,7 +15031,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -14890,7 +15044,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["2/4"],
+                      "textLines": [
+                        "2/4"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -14903,7 +15059,9 @@
                   "y": 11.314285714285715,
                   "width": 207.59999999999994,
                   "height": 37.714285714285715,
-                  "textLines": ["Continue voting on next ballot"],
+                  "textLines": [
+                    "Continue voting on next ballot"
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13,
@@ -16161,7 +16319,9 @@
                       "y": 0,
                       "width": 524.5714285714286,
                       "height": 21.25,
-                      "textLines": ["Official Absentee Ballot"],
+                      "textLines": [
+                        "Official Absentee Ballot"
+                      ],
                       "fontSize": 20,
                       "fontWeight": 700,
                       "lineHeight": 17
@@ -16172,7 +16332,9 @@
                       "y": 21.25,
                       "width": 524.5714285714286,
                       "height": 16.25,
-                      "textLines": ["General Election • November 3, 2020"],
+                      "textLines": [
+                        "General Election • November 3, 2020"
+                      ],
                       "fontSize": 13,
                       "fontWeight": 700,
                       "lineHeight": 13
@@ -16233,7 +16395,9 @@
                       "y": 0,
                       "width": 122.39999999999999,
                       "height": 16.25,
-                      "textLines": ["Instructions"],
+                      "textLines": [
+                        "Instructions"
+                      ],
                       "fontSize": 13,
                       "fontWeight": 700,
                       "lineHeight": 13
@@ -16244,7 +16408,9 @@
                       "y": 16.25,
                       "width": 122.39999999999999,
                       "height": 11.25,
-                      "textLines": ["To Vote:"],
+                      "textLines": [
+                        "To Vote:"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 700,
                       "lineHeight": 9
@@ -16287,7 +16453,9 @@
                       "y": 0,
                       "width": 209.82857142857142,
                       "height": 11.25,
-                      "textLines": ["To Vote for a Write-In:"],
+                      "textLines": [
+                        "To Vote for a Write-In:"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 700,
                       "lineHeight": 9
@@ -16416,7 +16584,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -16448,7 +16618,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -16537,7 +16709,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["Yes"],
+                          "textLines": [
+                            "Yes"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -16569,7 +16743,9 @@
                           "y": 13.2,
                           "width": 39.34285714285714,
                           "height": 18.857142857142858,
-                          "textLines": ["No"],
+                          "textLines": [
+                            "No"
+                          ],
                           "fontSize": 10,
                           "fontWeight": 700,
                           "lineHeight": 10,
@@ -21630,7 +21806,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -21641,7 +21819,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["3/4"],
+                      "textLines": [
+                        "3/4"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -21654,7 +21834,9 @@
                   "y": 11.314285714285715,
                   "width": 248.11999999999992,
                   "height": 37.714285714285715,
-                  "textLines": ["Turn ballot over and continue voting"],
+                  "textLines": [
+                    "Turn ballot over and continue voting"
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13,
@@ -22891,7 +23073,9 @@
           "y": 367.7142857142857,
           "width": 286.7599999999999,
           "height": 37.714285714285715,
-          "textLines": ["This page intentionally left blank."],
+          "textLines": [
+            "This page intentionally left blank."
+          ],
           "fontSize": 16,
           "fontWeight": 700,
           "lineHeight": 16
@@ -27943,7 +28127,9 @@
                       "y": 0,
                       "width": 87.42857142857142,
                       "height": 11.25,
-                      "textLines": ["Page"],
+                      "textLines": [
+                        "Page"
+                      ],
                       "fontSize": 9,
                       "fontWeight": 400,
                       "lineHeight": 9
@@ -27954,7 +28140,9 @@
                       "y": 11.25,
                       "width": 87.42857142857142,
                       "height": 20,
-                      "textLines": ["4/4"],
+                      "textLines": [
+                        "4/4"
+                      ],
                       "fontSize": 16,
                       "fontWeight": 700,
                       "lineHeight": 16
@@ -27967,7 +28155,9 @@
                   "y": 11.314285714285715,
                   "width": 187.83999999999995,
                   "height": 37.714285714285715,
-                  "textLines": ["You have completed voting."],
+                  "textLines": [
+                    "You have completed voting."
+                  ],
                   "fontSize": 13,
                   "fontWeight": 700,
                   "lineHeight": 13

@@ -334,23 +334,37 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "county-leader-mammal-option-horse",
-              "CandidateIds": ["horse"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "horse"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "county-leader-mammal-option-otter",
-              "CandidateIds": ["otter"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "otter"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "county-leader-mammal-option-fox",
-              "CandidateIds": ["fox"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "fox"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             }
           ],
-          "PrimaryPartyIds": ["0"]
+          "PrimaryPartyIds": [
+            "0"
+          ]
         },
         {
           "@type": "BallotDefinition.CandidateContest",
@@ -372,17 +386,27 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "county-leader-fish-option-seahorse",
-              "CandidateIds": ["seahorse"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "seahorse"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "county-leader-fish-option-salmon",
-              "CandidateIds": ["salmon"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "salmon"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             }
           ],
-          "PrimaryPartyIds": ["1"]
+          "PrimaryPartyIds": [
+            "1"
+          ]
         },
         {
           "@type": "BallotDefinition.CandidateContest",
@@ -404,26 +428,42 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-1-mammal-option-zebra-1",
-              "CandidateIds": ["zebra-1"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "zebra-1"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-1-mammal-option-lion-1",
-              "CandidateIds": ["lion-1"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "lion-1"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-1-mammal-option-kangaroo-1",
-              "CandidateIds": ["kangaroo-1"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "kangaroo-1"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-1-mammal-option-elephant-1",
-              "CandidateIds": ["elephant-1"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "elephant-1"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -431,7 +471,9 @@
               "IsWriteIn": true
             }
           ],
-          "PrimaryPartyIds": ["0"]
+          "PrimaryPartyIds": [
+            "0"
+          ]
         },
         {
           "@type": "BallotDefinition.CandidateContest",
@@ -453,26 +495,42 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-1-fish-option-manta-ray-1",
-              "CandidateIds": ["manta-ray-1"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "manta-ray-1"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-1-fish-option-pufferfish-1",
-              "CandidateIds": ["pufferfish-1"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "pufferfish-1"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-1-fish-option-rockfish-1",
-              "CandidateIds": ["rockfish-1"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "rockfish-1"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-1-fish-option-triggerfish-1",
-              "CandidateIds": ["triggerfish-1"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "triggerfish-1"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -480,7 +538,9 @@
               "IsWriteIn": true
             }
           ],
-          "PrimaryPartyIds": ["1"]
+          "PrimaryPartyIds": [
+            "1"
+          ]
         },
         {
           "@type": "BallotDefinition.CandidateContest",
@@ -502,26 +562,42 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-2-mammal-option-zebra-2",
-              "CandidateIds": ["zebra-2"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "zebra-2"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-2-mammal-option-lion-2",
-              "CandidateIds": ["lion-2"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "lion-2"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-2-mammal-option-kangaroo-2",
-              "CandidateIds": ["kangaroo-2"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "kangaroo-2"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-2-mammal-option-elephant-2",
-              "CandidateIds": ["elephant-2"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "elephant-2"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -529,7 +605,9 @@
               "IsWriteIn": true
             }
           ],
-          "PrimaryPartyIds": ["0"]
+          "PrimaryPartyIds": [
+            "0"
+          ]
         },
         {
           "@type": "BallotDefinition.CandidateContest",
@@ -551,26 +629,42 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-2-fish-option-manta-ray-2",
-              "CandidateIds": ["manta-ray-2"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "manta-ray-2"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-2-fish-option-pufferfish-2",
-              "CandidateIds": ["pufferfish-2"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "pufferfish-2"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-2-fish-option-rockfish-2",
-              "CandidateIds": ["rockfish-2"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "rockfish-2"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "congressional-2-fish-option-triggerfish-2",
-              "CandidateIds": ["triggerfish-2"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "triggerfish-2"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -578,7 +672,9 @@
               "IsWriteIn": true
             }
           ],
-          "PrimaryPartyIds": ["1"]
+          "PrimaryPartyIds": [
+            "1"
+          ]
         },
         {
           "@type": "BallotDefinition.BallotMeasureContest",
@@ -696,8 +792,13 @@
       "BallotStyle": [
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-          "PartyIds": ["0"],
+          "GpUnitIds": [
+            "precinct-c1-w1-1",
+            "precinct-c1-w1-2"
+          ],
+          "PartyIds": [
+            "0"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -935,8 +1036,13 @@
         },
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["precinct-c1-w1-1", "precinct-c1-w1-2"],
-          "PartyIds": ["1"],
+          "GpUnitIds": [
+            "precinct-c1-w1-1",
+            "precinct-c1-w1-2"
+          ],
+          "PartyIds": [
+            "1"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -1158,8 +1264,12 @@
         },
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["precinct-c1-w2"],
-          "PartyIds": ["0"],
+          "GpUnitIds": [
+            "precinct-c1-w2"
+          ],
+          "PartyIds": [
+            "0"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -1397,8 +1507,12 @@
         },
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["precinct-c1-w2"],
-          "PartyIds": ["1"],
+          "GpUnitIds": [
+            "precinct-c1-w2"
+          ],
+          "PartyIds": [
+            "1"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -1620,8 +1734,12 @@
         },
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["precinct-c2-split-1"],
-          "PartyIds": ["0"],
+          "GpUnitIds": [
+            "precinct-c2-split-1"
+          ],
+          "PartyIds": [
+            "0"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -1859,8 +1977,12 @@
         },
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["precinct-c2-split-1"],
-          "PartyIds": ["1"],
+          "GpUnitIds": [
+            "precinct-c2-split-1"
+          ],
+          "PartyIds": [
+            "1"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -2082,8 +2204,12 @@
         },
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["precinct-c2-split-2"],
-          "PartyIds": ["0"],
+          "GpUnitIds": [
+            "precinct-c2-split-2"
+          ],
+          "PartyIds": [
+            "0"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -2321,8 +2447,12 @@
         },
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["precinct-c2-split-2"],
-          "PartyIds": ["1"],
+          "GpUnitIds": [
+            "precinct-c2-split-2"
+          ],
+          "PartyIds": [
+            "1"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -2630,7 +2760,9 @@
         ]
       },
       "Type": "state",
-      "ComposingGpUnitIds": ["sample-county"]
+      "ComposingGpUnitIds": [
+        "sample-county"
+      ]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2710,7 +2842,10 @@
         ]
       },
       "Type": "other",
-      "ComposingGpUnitIds": ["precinct-c2-split-1", "precinct-c2-split-2"]
+      "ComposingGpUnitIds": [
+        "precinct-c2-split-1",
+        "precinct-c2-split-2"
+      ]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2746,7 +2881,10 @@
         ]
       },
       "Type": "other",
-      "ComposingGpUnitIds": ["precinct-c1-w2", "precinct-c2-split-2"]
+      "ComposingGpUnitIds": [
+        "precinct-c1-w2",
+        "precinct-c2-split-2"
+      ]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2807,7 +2945,10 @@
         ]
       },
       "Type": "precinct",
-      "ComposingGpUnitIds": ["precinct-c2-split-1", "precinct-c2-split-2"]
+      "ComposingGpUnitIds": [
+        "precinct-c2-split-1",
+        "precinct-c2-split-2"
+      ]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",

@@ -122,7 +122,7 @@ function createElection(): Election {
 }
 
 const election = createElection();
-const electionData = JSON.stringify(election);
+const electionData = JSON.stringify(election, null, 2);
 const electionDefinition: ElectionDefinition =
   safeParseElectionDefinition(electionData).unsafeUnwrap();
 

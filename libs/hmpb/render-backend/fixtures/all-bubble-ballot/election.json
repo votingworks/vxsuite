@@ -1,10 +1,17 @@
 {
-  "ballotLayout": { "paperSize": "letter", "metadataEncoding": "qr-code" },
+  "ballotLayout": {
+    "paperSize": "letter",
+    "metadataEncoding": "qr-code"
+  },
   "ballotStyles": [
     {
       "id": "sheet-1",
-      "districts": ["test-district"],
-      "precincts": ["test-precinct"]
+      "districts": [
+        "test-district"
+      ],
+      "precincts": [
+        "test-precinct"
+      ]
     }
   ],
   "contests": [
@@ -9501,9 +9508,17 @@
       "seats": 1184
     }
   ],
-  "county": { "id": "test-county", "name": "Test County" },
+  "county": {
+    "id": "test-county",
+    "name": "Test County"
+  },
   "date": "2023-05-10T00:00:00Z",
-  "districts": [{ "id": "test-district", "name": "Test District" }],
+  "districts": [
+    {
+      "id": "test-district",
+      "name": "Test District"
+    }
+  ],
   "gridLayouts": [
     {
       "ballotStyleId": "sheet-1",
@@ -30830,7 +30845,12 @@
     }
   ],
   "parties": [],
-  "precincts": [{ "id": "test-precinct", "name": "Test Precinct" }],
+  "precincts": [
+    {
+      "id": "test-precinct",
+      "name": "Test Precinct"
+    }
+  ],
   "state": "Test State",
   "title": "Test Election - All Bubble Ballot",
   "type": "general",

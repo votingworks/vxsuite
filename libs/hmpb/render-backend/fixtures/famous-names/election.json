@@ -502,14 +502,22 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "mayor-option-sherlock-holmes",
-              "CandidateIds": ["sherlock-holmes"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "sherlock-holmes"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "mayor-option-thomas-edison",
-              "CandidateIds": ["thomas-edison"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "thomas-edison"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -538,20 +546,32 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "controller-option-winston-churchill",
-              "CandidateIds": ["winston-churchill"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "winston-churchill"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "controller-option-oprah-winfrey",
-              "CandidateIds": ["oprah-winfrey"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "oprah-winfrey"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "controller-option-louis-armstrong",
-              "CandidateIds": ["louis-armstrong"],
-              "EndorsementPartyIds": ["3"]
+              "CandidateIds": [
+                "louis-armstrong"
+              ],
+              "EndorsementPartyIds": [
+                "3"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -580,14 +600,22 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "attorney-option-john-snow",
-              "CandidateIds": ["john-snow"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "john-snow"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "attorney-option-mark-twain",
-              "CandidateIds": ["mark-twain"],
-              "EndorsementPartyIds": ["3"]
+              "CandidateIds": [
+                "mark-twain"
+              ],
+              "EndorsementPartyIds": [
+                "3"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -616,20 +644,32 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "public-works-director-option-benjamin-franklin",
-              "CandidateIds": ["benjamin-franklin"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "benjamin-franklin"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "public-works-director-option-robert-downey-jr",
-              "CandidateIds": ["robert-downey-jr"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "robert-downey-jr"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "public-works-director-option-bill-nye",
-              "CandidateIds": ["bill-nye"],
-              "EndorsementPartyIds": ["3"]
+              "CandidateIds": [
+                "bill-nye"
+              ],
+              "EndorsementPartyIds": [
+                "3"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -658,26 +698,42 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "chief-of-police-option-natalie-portman",
-              "CandidateIds": ["natalie-portman"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "natalie-portman"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "chief-of-police-option-frank-sinatra",
-              "CandidateIds": ["frank-sinatra"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "frank-sinatra"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "chief-of-police-option-andy-warhol",
-              "CandidateIds": ["andy-warhol"],
-              "EndorsementPartyIds": ["3"]
+              "CandidateIds": [
+                "andy-warhol"
+              ],
+              "EndorsementPartyIds": [
+                "3"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "chief-of-police-option-alfred-hitchcock",
-              "CandidateIds": ["alfred-hitchcock"],
-              "EndorsementPartyIds": ["3"]
+              "CandidateIds": [
+                "alfred-hitchcock"
+              ],
+              "EndorsementPartyIds": [
+                "3"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -706,26 +762,42 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "parks-and-recreation-director-option-charles-darwin",
-              "CandidateIds": ["charles-darwin"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "charles-darwin"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "parks-and-recreation-director-option-stephen-hawking",
-              "CandidateIds": ["stephen-hawking"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "stephen-hawking"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "parks-and-recreation-director-option-johan-sebastian-bach",
-              "CandidateIds": ["johan-sebastian-bach"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "johan-sebastian-bach"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "parks-and-recreation-director-option-alexander-graham-bell",
-              "CandidateIds": ["alexander-graham-bell"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "alexander-graham-bell"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -754,38 +826,62 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "board-of-alderman-option-helen-keller",
-              "CandidateIds": ["helen-keller"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "helen-keller"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "board-of-alderman-option-steve-jobs",
-              "CandidateIds": ["steve-jobs"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "steve-jobs"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "board-of-alderman-option-nikola-tesla",
-              "CandidateIds": ["nikola-tesla"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "nikola-tesla"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "board-of-alderman-option-vincent-van-gogh",
-              "CandidateIds": ["vincent-van-gogh"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "vincent-van-gogh"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "board-of-alderman-option-pablo-picasso",
-              "CandidateIds": ["pablo-picasso"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "pablo-picasso"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "board-of-alderman-option-wolfgang-amadeus-mozart",
-              "CandidateIds": ["wolfgang-amadeus-mozart"],
-              "EndorsementPartyIds": ["2"]
+              "CandidateIds": [
+                "wolfgang-amadeus-mozart"
+              ],
+              "EndorsementPartyIds": [
+                "2"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -829,56 +925,92 @@
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-marie-curie",
-              "CandidateIds": ["marie-curie"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "marie-curie"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-indiana-jones",
-              "CandidateIds": ["indiana-jones"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "indiana-jones"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-mona-lisa",
-              "CandidateIds": ["mona-lisa"],
-              "EndorsementPartyIds": ["3"]
+              "CandidateIds": [
+                "mona-lisa"
+              ],
+              "EndorsementPartyIds": [
+                "3"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-jackie-chan",
-              "CandidateIds": ["jackie-chan"],
-              "EndorsementPartyIds": ["3"]
+              "CandidateIds": [
+                "jackie-chan"
+              ],
+              "EndorsementPartyIds": [
+                "3"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-tim-allen",
-              "CandidateIds": ["tim-allen"],
-              "EndorsementPartyIds": ["2"]
+              "CandidateIds": [
+                "tim-allen"
+              ],
+              "EndorsementPartyIds": [
+                "2"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-mark-antony",
-              "CandidateIds": ["mark-antony"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "mark-antony"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-harriet-tubman",
-              "CandidateIds": ["harriet-tubman"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "harriet-tubman"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-martin-luther-king",
-              "CandidateIds": ["martin-luther-king"],
-              "EndorsementPartyIds": ["0"]
+              "CandidateIds": [
+                "martin-luther-king"
+              ],
+              "EndorsementPartyIds": [
+                "0"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
               "@id": "city-council-option-marilyn-monroe",
-              "CandidateIds": ["marilyn-monroe"],
-              "EndorsementPartyIds": ["1"]
+              "CandidateIds": [
+                "marilyn-monroe"
+              ],
+              "EndorsementPartyIds": [
+                "1"
+              ]
             },
             {
               "@type": "BallotDefinition.CandidateOption",
@@ -906,7 +1038,12 @@
       "BallotStyle": [
         {
           "@type": "BallotDefinition.BallotStyle",
-          "GpUnitIds": ["20", "21", "22", "23"],
+          "GpUnitIds": [
+            "20",
+            "21",
+            "22",
+            "23"
+          ],
           "OrderedContent": [
             {
               "@type": "BallotDefinition.OrderedContest",
@@ -2123,7 +2260,9 @@
         ]
       },
       "Type": "state",
-      "ComposingGpUnitIds": ["franklin"]
+      "ComposingGpUnitIds": [
+        "franklin"
+      ]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2139,7 +2278,9 @@
         ]
       },
       "Type": "county",
-      "ComposingGpUnitIds": ["district-1"]
+      "ComposingGpUnitIds": [
+        "district-1"
+      ]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
@@ -2155,7 +2296,12 @@
         ]
       },
       "Type": "other",
-      "ComposingGpUnitIds": ["20", "21", "22", "23"]
+      "ComposingGpUnitIds": [
+        "20",
+        "21",
+        "22",
+        "23"
+      ]
     },
     {
       "@type": "BallotDefinition.ReportingUnit",
