@@ -9,7 +9,14 @@ import {
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppBase, ErrorBoundary, H1, P, Prose } from '@votingworks/ui';
+import {
+  AppBase,
+  ErrorBoundary,
+  H1,
+  P,
+  Prose,
+  UiStringsContextProvider,
+} from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { memoize } from './utils/memoize';
 import {
@@ -27,6 +34,7 @@ import {
   ApiClientContext,
   createApiClient,
   createQueryClient,
+  uiStringsApi,
 } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
@@ -46,6 +54,7 @@ export interface Props {
   logger?: AppRootProps['logger'];
   apiClient?: ApiClient;
   queryClient?: QueryClient;
+  enableStringTranslation?: boolean;
 }
 
 export function App({
@@ -60,6 +69,7 @@ export function App({
   logger = new Logger(LogSource.VxMarkFrontend, window.kiosk),
   /* istanbul ignore next */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
+  enableStringTranslation,
 }: Props): JSX.Element {
   screenReader.mute();
   /* istanbul ignore next - need to figure out how to test this */
@@ -149,14 +159,19 @@ export function App({
           >
             <ApiClientContext.Provider value={apiClient}>
               <QueryClientProvider client={queryClient}>
-                <AppRoot
-                  hardware={hardware}
-                  storage={storage}
-                  screenReader={screenReader}
-                  reload={reload}
-                  logger={logger}
-                />
-                <SessionTimeLimitTracker />
+                <UiStringsContextProvider
+                  api={uiStringsApi}
+                  disabledForTesting={!enableStringTranslation}
+                >
+                  <AppRoot
+                    hardware={hardware}
+                    storage={storage}
+                    screenReader={screenReader}
+                    reload={reload}
+                    logger={logger}
+                  />
+                  <SessionTimeLimitTracker />
+                </UiStringsContextProvider>
               </QueryClientProvider>
             </ApiClientContext.Provider>
           </FocusManager>

@@ -15,6 +15,7 @@ import {
   H1,
   Icons,
   P,
+  UiStringsContextProvider,
 } from '@votingworks/ui';
 import { PrecinctReportDestination } from '@votingworks/types';
 import { Optional } from '@votingworks/basics';
@@ -24,6 +25,7 @@ import {
   ApiClientContext,
   createApiClient,
   createQueryClient,
+  uiStringsApi,
 } from './api';
 import { ScanAppBase } from './scan_app_base';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
@@ -43,6 +45,7 @@ export interface AppProps {
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   precinctReportDestination?: PrecinctReportDestination;
+  enableStringTranslation?: boolean;
 }
 
 export function App({
@@ -52,6 +55,7 @@ export function App({
   queryClient = createQueryClient(),
   precinctReportDestination = envPrecinctReportDestination ??
     DEFAULT_PRECINCT_REPORT_DESTINATION,
+  enableStringTranslation,
 }: AppProps): JSX.Element {
   return (
     <ScanAppBase>
@@ -71,18 +75,24 @@ export function App({
         >
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>
-              <Route path={Paths.DISPLAY_SETTINGS} exact>
-                <DisplaySettingsScreen />
-              </Route>
-              <Route path={Paths.APP_ROOT} exact>
-                <AppRoot
-                  hardware={hardware}
-                  logger={logger}
-                  precinctReportDestination={precinctReportDestination}
-                />
-              </Route>
-              <SessionTimeLimitTracker />
-              <DisplaySettingsManager />
+              <UiStringsContextProvider
+                api={uiStringsApi}
+                disabledForTesting={!enableStringTranslation}
+                noAudio
+              >
+                <Route path={Paths.DISPLAY_SETTINGS} exact>
+                  <DisplaySettingsScreen />
+                </Route>
+                <Route path={Paths.APP_ROOT} exact>
+                  <AppRoot
+                    hardware={hardware}
+                    logger={logger}
+                    precinctReportDestination={precinctReportDestination}
+                  />
+                </Route>
+                <SessionTimeLimitTracker />
+                <DisplaySettingsManager />
+              </UiStringsContextProvider>
             </QueryClientProvider>
           </ApiClientContext.Provider>
         </ErrorBoundary>

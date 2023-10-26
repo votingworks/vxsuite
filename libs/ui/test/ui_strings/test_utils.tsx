@@ -27,6 +27,7 @@ export interface UiStringsTestContext {
 
 export function newTestContext(
   options: {
+    disableForTesting?: boolean;
     noAudio?: boolean;
   } = {}
 ): UiStringsTestContext {
@@ -61,6 +62,7 @@ export function newTestContext(
       <QueryClientProvider client={queryClient}>
         <UiStringsContextProvider
           api={mockUiStringsApi}
+          disabledForTesting={options.disableForTesting}
           noAudio={options.noAudio}
         >
           <ContextConsumer />
