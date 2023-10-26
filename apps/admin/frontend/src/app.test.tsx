@@ -36,6 +36,7 @@ import {
   getMockCardCounts,
   getSimpleMockTallyResults,
 } from '../test/helpers/mock_results';
+import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
 
 jest.mock('@votingworks/ballot-encoder', () => {
   return {
@@ -334,7 +335,19 @@ test('marking results as official', async () => {
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
   });
+
+  renderApp();
+
+  await apiMock.authenticateAsElectionManager(electionDefinition);
+
+  // unofficial on reports screen
   apiMock.expectGetCastVoteRecordFileMode('official');
+  apiMock.expectGetCardCounts({}, [getMockCardCounts(0)]);
+  userEvent.click(screen.getButton('Reports'));
+  screen.getByRole('heading', { name: 'Unofficial Tally Reports' });
+  screen.getByRole('heading', { name: 'Unofficial Ballot Count Reports' });
+
+  // unofficial on report
   apiMock.expectGetResultsForTallyReports({ filter: {}, groupBy: {} }, [
     getSimpleMockTallyResults({
       election,
@@ -343,31 +356,31 @@ test('marking results as official', async () => {
     }),
   ]);
   apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetCardCounts({}, [getMockCardCounts(0)]);
-  renderApp();
-
-  await apiMock.authenticateAsElectionManager(electionDefinition);
-
-  userEvent.click(screen.getButton('Reports'));
   userEvent.click(screen.getButton('Full Election Tally Report'));
   await screen.findByText(
     'Unofficial Mammal Party Example Primary Election Tally Report'
   );
 
+  // mark results official
+  userEvent.click(screen.getButton('Reports'));
   apiMock.expectMarkResultsOfficial();
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
     isOfficialResults: true,
-  }); // check refetch
-  await waitFor(() => {
-    expect(screen.getButton('Mark Tally Results as Official')).toBeEnabled();
   });
-  userEvent.click(screen.getButton('Mark Tally Results as Official'));
+  userEvent.click(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
   userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton(
-      'Mark Tally Results as Official'
+      MARK_RESULTS_OFFICIAL_BUTTON_TEXT
     )
   );
+
+  // official on reports screen
+  await screen.findByRole('heading', { name: 'Official Tally Reports' });
+  screen.getByRole('heading', { name: 'Official Ballot Count Reports' });
+
+  // official on report
+  userEvent.click(screen.getButton('Full Election Tally Report'));
   await screen.findByText(
     'Official Mammal Party Example Primary Election Tally Report'
   );
