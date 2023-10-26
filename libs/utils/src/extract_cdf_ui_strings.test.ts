@@ -329,7 +329,69 @@ const tests: Record<ElectionStringKey, () => void> = {
   },
 
   [ElectionStringKey.DISTRICT_NAME]() {
-    // TODO(kofi): Implement
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      GpUnit: [
+        {
+          '@id': 'district9',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'District 9',
+            [LanguageCode.SPANISH]: 'Distrito 9',
+            unsupported_lang: '👽',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Other,
+        },
+        {
+          '@id': 'notADistrict',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'Not A District',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Other,
+        },
+        {
+          '@id': 'district10',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'District 10',
+            [LanguageCode.SPANISH]: 'Distrito 10',
+            unsupported_lang: '🛸',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Other,
+        },
+      ],
+      Election: [
+        {
+          ...ORIGINAL_ELECTION,
+          Contest: [
+            {
+              ...assertDefined(ORIGINAL_ELECTION.Contest[0]),
+              ElectionDistrictId: 'district9',
+            },
+            {
+              ...assertDefined(ORIGINAL_ELECTION.Contest[1]),
+              ElectionDistrictId: 'district10',
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.DISTRICT_NAME]: {
+          district9: 'District 9',
+          district10: 'District 10',
+        },
+      }),
+      [LanguageCode.SPANISH]: expect.objectContaining({
+        [ElectionStringKey.DISTRICT_NAME]: {
+          district9: 'Distrito 9',
+          district10: 'Distrito 10',
+        },
+      }),
+    });
   },
 
   [ElectionStringKey.ELECTION_TITLE]() {
@@ -440,7 +502,54 @@ const tests: Record<ElectionStringKey, () => void> = {
   },
 
   [ElectionStringKey.PRECINCT_NAME]() {
-    // TODO(kofi): Implement
+    const uiStrings = extractCdfUiStrings({
+      ...testCdfBallotDefinition,
+      GpUnit: [
+        {
+          '@id': 'brooklyn99',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'Brooklyn Nine-Nine',
+            [LanguageCode.SPANISH]: 'Brooklyn Nueve-Nueve',
+            unsupported_lang: '9️⃣',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Precinct,
+        },
+        {
+          '@id': 'westRiver',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'West River',
+            [LanguageCode.SPANISH]: 'Río Oeste',
+            unsupported_lang: '⬅️',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Precinct,
+        },
+        {
+          '@id': 'district9',
+          '@type': 'BallotDefinition.ReportingUnit',
+          Name: buildInternationalizedText({
+            [LanguageCode.ENGLISH]: 'District9',
+          }),
+          Type: BallotDefinition.ReportingUnitType.Other,
+        },
+      ],
+    });
+
+    expect(uiStrings).toEqual({
+      [LanguageCode.ENGLISH]: expect.objectContaining({
+        [ElectionStringKey.PRECINCT_NAME]: {
+          brooklyn99: 'Brooklyn Nine-Nine',
+          westRiver: 'West River',
+        },
+      }),
+      [LanguageCode.SPANISH]: expect.objectContaining({
+        [ElectionStringKey.PRECINCT_NAME]: {
+          brooklyn99: 'Brooklyn Nueve-Nueve',
+          westRiver: 'Río Oeste',
+        },
+      }),
+    });
   },
 
   [ElectionStringKey.STATE_NAME]() {
