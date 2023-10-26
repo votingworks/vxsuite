@@ -7,13 +7,18 @@ import { AudioContextProvider } from './audio_context';
 export interface UiStringsContextProviderProps {
   api: UiStringsReactQueryApi;
   children: React.ReactNode;
+  disabled?: boolean;
   noAudio?: boolean;
 }
 
 export function UiStringsContextProvider(
   props: UiStringsContextProviderProps
 ): JSX.Element {
-  const { api, children, noAudio } = props;
+  const { api, children, disabled, noAudio } = props;
+
+  if (disabled) {
+    return <React.Fragment>{children}</React.Fragment>;
+  }
 
   return (
     <LanguageContextProvider api={api}>

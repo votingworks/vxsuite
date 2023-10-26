@@ -17,7 +17,7 @@ root.render(
       <PreviewApp />
     ) : (
       <React.Fragment>
-        <App />
+        <App enableStringTranslation />
         <DevDock />
       </React.Fragment>
     )}
