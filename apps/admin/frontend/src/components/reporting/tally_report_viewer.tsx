@@ -2,8 +2,10 @@ import { ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
   Button,
   H6,
+  Icons,
   Loading,
   Modal,
+  P,
   printElement,
   printElementToPdf,
 } from '@votingworks/ui';
@@ -19,6 +21,7 @@ import type {
 } from '@votingworks/admin-backend';
 import { LogEventId } from '@votingworks/logging';
 import {
+  getCardCounts,
   getCastVoteRecordFileMode,
   getResultsForTallyReports,
   getScannerBatches,
@@ -43,6 +46,11 @@ import {
   PreviewOverlay,
   PreviewReportPages,
 } from './shared';
+import {
+  PrivacyWarningStatus,
+  getPrivacyWarningStatus,
+  getPrivacyWarningText,
+} from './tally_report_privacy_warning';
 
 function Reports({
   electionDefinition,
@@ -123,6 +131,17 @@ export function TallyReportViewer({
     disabledFromProps ||
     !castVoteRecordFileModeQuery.isSuccess ||
     !scannerBatchesQuery.isSuccess;
+
+  const cardCountsQuery = getCardCounts.useQuery(
+    {
+      filter,
+      groupBy: {
+        ...groupBy,
+        groupByParty: election.type === 'primary',
+      },
+    },
+    { enabled: !disabled }
+  );
 
   const reportResultsQuery = getResultsForTallyReports.useQuery(
     {
@@ -257,8 +276,17 @@ export function TallyReportViewer({
       : undefined,
   });
 
+  const privacyWarningStatus: PrivacyWarningStatus = cardCountsQuery.isSuccess
+    ? getPrivacyWarningStatus(cardCountsQuery.data)
+    : { type: 'none' };
+
   return (
     <React.Fragment>
+      {!cardCountsQuery.isFetching && privacyWarningStatus.type !== 'none' && (
+        <P>
+          <Icons.Warning /> {getPrivacyWarningText(privacyWarningStatus)}
+        </P>
+      )}
       <ExportActions>
         <PrintButton
           print={printReport}
