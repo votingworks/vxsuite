@@ -21,6 +21,8 @@ test('includes indicated contests', () => {
   render(
     <AdminTallyReport
       title="Title"
+      isOfficial={false}
+      isTest={false}
       electionDefinition={electionDefinition}
       contests={includedContests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
@@ -33,17 +35,74 @@ test('includes indicated contests', () => {
   expect(queryForContest(excludedContest.id)).not.toBeInTheDocument();
 });
 
+test('titles', () => {
+  const testCases: Array<{
+    isTest: boolean;
+    isOfficial: boolean;
+    isForLogicAndAccuracyTesting?: boolean;
+    expectedTitle: string;
+  }> = [
+    {
+      isTest: true,
+      isOfficial: true,
+      expectedTitle: 'Test Official Title',
+    },
+    {
+      isTest: true,
+      isOfficial: false,
+      expectedTitle: 'Test Unofficial Title',
+    },
+    {
+      isTest: false,
+      isOfficial: true,
+      expectedTitle: 'Official Title',
+    },
+    {
+      isTest: false,
+      isOfficial: false,
+      expectedTitle: 'Unofficial Title',
+    },
+    {
+      isTest: true,
+      isOfficial: false,
+      isForLogicAndAccuracyTesting: true,
+      expectedTitle: 'Test Deck Title',
+    },
+  ];
+  for (const {
+    isTest,
+    isOfficial,
+    isForLogicAndAccuracyTesting,
+    expectedTitle,
+  } of testCases) {
+    const { unmount } = render(
+      <AdminTallyReport
+        title="Title"
+        isTest={isTest}
+        isOfficial={isOfficial}
+        isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
+        electionDefinition={electionDefinition}
+        contests={election.contests}
+        scannedElectionResults={getEmptyElectionResults(election, true)}
+      />
+    );
+    screen.getByRole('heading', { name: expectedTitle });
+    unmount();
+  }
+});
+
 test('includes subtitle', () => {
   render(
     <AdminTallyReport
       title="Title"
+      isOfficial={false}
+      isTest={false}
       subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
     />
   );
-  screen.getByRole('heading', { name: 'Title' });
   screen.getByRole('heading', { name: 'Subtitle' });
 });
 
@@ -51,6 +110,8 @@ test('includes specified date', () => {
   render(
     <AdminTallyReport
       title="Title"
+      isOfficial={false}
+      isTest={false}
       subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
@@ -86,6 +147,8 @@ test('with only scanned results', () => {
   render(
     <AdminTallyReport
       title="Title"
+      isOfficial={false}
+      isTest={false}
       subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
@@ -119,6 +182,8 @@ test('with scanned and manual results', () => {
   render(
     <AdminTallyReport
       title="Title"
+      isOfficial={false}
+      isTest={false}
       subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
@@ -134,6 +199,8 @@ test('allows card counts override', () => {
   render(
     <AdminTallyReport
       title="Title"
+      isOfficial={false}
+      isTest={false}
       subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}
@@ -152,6 +219,8 @@ test('displays custom filter', () => {
   render(
     <AdminTallyReport
       title="Title"
+      isOfficial={false}
+      isTest={false}
       subtitle="Subtitle"
       electionDefinition={electionDefinition}
       contests={election.contests}

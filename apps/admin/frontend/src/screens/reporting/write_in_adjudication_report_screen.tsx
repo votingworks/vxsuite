@@ -13,7 +13,10 @@ import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import { FileType } from '../../components/save_frontend_file_modal';
 import { PrintButton } from '../../components/print_button';
-import { getElectionWriteInSummary } from '../../api';
+import {
+  getCastVoteRecordFileMode,
+  getElectionWriteInSummary,
+} from '../../api';
 import {
   ExportActions,
   PaginationNote,
@@ -33,7 +36,8 @@ export function TallyWriteInReportScreen(): JSX.Element {
   const userRole = auth.user.role;
 
   const writeInSummaryQuery = getElectionWriteInSummary.useQuery();
-
+  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const isTestMode = castVoteRecordFileModeQuery.data === 'test';
   const report = useMemo(() => {
     if (!writeInSummaryQuery.isSuccess) return undefined;
 
@@ -41,13 +45,15 @@ export function TallyWriteInReportScreen(): JSX.Element {
       <WriteInAdjudicationReport
         election={election}
         electionWriteInSummary={writeInSummaryQuery.data}
-        isOfficialResults={isOfficialResults}
+        isOfficial={isOfficialResults}
+        isTest={isTestMode}
         generatedAtTime={new Date(writeInSummaryQuery.dataUpdatedAt)}
       />
     );
   }, [
     election,
     isOfficialResults,
+    isTestMode,
     writeInSummaryQuery.data,
     writeInSummaryQuery.dataUpdatedAt,
     writeInSummaryQuery.isSuccess,

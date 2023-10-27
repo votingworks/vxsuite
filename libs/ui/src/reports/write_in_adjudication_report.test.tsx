@@ -35,7 +35,8 @@ test('primary', () => {
           },
         },
       }}
-      isOfficialResults
+      isOfficial
+      isTest={false}
       generatedAtTime={new Date('2020-10-01')}
     />
   );
@@ -43,7 +44,7 @@ test('primary', () => {
   // mammal section
   const mammalSection = screen.getByTestId('write-in-tally-report-0');
   within(mammalSection).getByText(
-    'Official Mammal Party Example Primary Election Write-In Adjudication Report'
+    'Official Mammal Party Example Primary Election Write‑In Adjudication Report'
   );
   within(mammalSection).getByText(
     'Wednesday, September 8, 2021, Sample County, State of Sample'
@@ -64,7 +65,7 @@ test('primary', () => {
   // fish section
   const fishSection = screen.getByTestId('write-in-tally-report-1');
   within(fishSection).getByText(
-    'Official Fish Party Example Primary Election Write-In Adjudication Report'
+    'Official Fish Party Example Primary Election Write‑In Adjudication Report'
   );
 
   // should just one empty contest
@@ -87,13 +88,14 @@ test('general', () => {
     <WriteInAdjudicationReport
       election={election}
       electionWriteInSummary={{ contestWriteInSummaries: {} }}
-      isOfficialResults={false}
+      isOfficial={false}
+      isTest={false}
       generatedAtTime={new Date('2020-10-01')}
     />
   );
 
   screen.getByText(
-    'Unofficial Lincoln Municipal General Election Write-In Adjudication Report'
+    'Unofficial Lincoln Municipal General Election Write‑In Adjudication Report'
   );
 
   // one section, no other sections

@@ -38,6 +38,7 @@ afterAll(() => {
 
 test('renders provided data', async () => {
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetElectionWriteInSummary({
     contestWriteInSummaries: {
       'Sheriff-4243fe0b': {
@@ -69,7 +70,7 @@ test('renders provided data', async () => {
 
   const report = await screen.findByTestId('write-in-tally-report');
   within(report).getByText(
-    'Unofficial General Election Write-In Adjudication Report'
+    'Unofficial General Election Write‑In Adjudication Report'
   );
   expect(
     within(report).getByText('Random Write-In').closest('tr')!
@@ -78,7 +79,7 @@ test('renders provided data', async () => {
   userEvent.click(screen.getByText('Print Report'));
   await expectPrint((printed) => {
     printed.getByText(
-      'Unofficial General Election Write-In Adjudication Report'
+      'Unofficial General Election Write‑In Adjudication Report'
     );
     expect(
       printed.getByText('Random Write-In').closest('tr')!

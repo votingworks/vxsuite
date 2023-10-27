@@ -25,7 +25,9 @@ export function TestDeckTallyReport({
             }`
           : undefined
       }
-      tallyReportType="Test Deck"
+      isOfficial={false}
+      isTest
+      isForLogicAndAccuracyTesting
       tallyReportResults={tallyReportResults}
       testId="test-deck-tally-report"
       generatedAtTime={new Date()}

@@ -119,6 +119,8 @@ test('can render all attribute columns', () => {
   const { unmount } = render(
     <BallotCountReport
       title="Full Election Ballot Count Report"
+      isOfficial={false}
+      isTest={false}
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
       groupBy={{
@@ -189,6 +191,8 @@ test('can render all attribute columns', () => {
   render(
     <BallotCountReport
       title="Full Election Ballot Count Report"
+      isOfficial={false}
+      isTest={false}
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
       groupBy={{
@@ -233,6 +237,8 @@ test('shows manual counts', () => {
   render(
     <BallotCountReport
       title="Full Election Ballot Count Report"
+      isOfficial={false}
+      isTest={false}
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
       groupBy={{
@@ -301,6 +307,8 @@ test('shows separate manual rows when group by is not compatible with manual res
   render(
     <BallotCountReport
       title="Full Election Ballot Count Report"
+      isTest={false}
+      isOfficial={false}
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
       groupBy={{
@@ -360,6 +368,8 @@ test('ungrouped case', () => {
   render(
     <BallotCountReport
       title="Full Election Ballot Count Report"
+      isOfficial={false}
+      isTest={false}
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
       groupBy={{}}
@@ -378,13 +388,14 @@ test('ungrouped case', () => {
   ]);
 });
 
-test('title, metadata, and custom filters', () => {
+test('metadata and custom filters', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
 
-  // render as if all columns were specified
   render(
     <BallotCountReport
       title="Custom Filter Ballot Count Report"
+      isOfficial={false}
+      isTest={false}
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
       groupBy={{}}
@@ -395,9 +406,58 @@ test('title, metadata, and custom filters', () => {
     />
   );
 
-  screen.getByText('Custom Filter Ballot Count Report');
+  screen.getByText('Unofficial Custom Filter Ballot Count Report');
   screen.getByText('Example Primary Election');
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
     'Precinct: Precinct 1'
   );
+});
+
+test('titles', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  const testCases: Array<{
+    isTest: boolean;
+    isOfficial: boolean;
+    expectedTitle: string;
+  }> = [
+    {
+      isTest: true,
+      isOfficial: true,
+      expectedTitle: 'Test Official Title',
+    },
+    {
+      isTest: true,
+      isOfficial: false,
+      expectedTitle: 'Test Unofficial Title',
+    },
+    {
+      isTest: false,
+      isOfficial: true,
+      expectedTitle: 'Official Title',
+    },
+    {
+      isTest: false,
+      isOfficial: false,
+      expectedTitle: 'Unofficial Title',
+    },
+  ];
+  for (const { isTest, isOfficial, expectedTitle } of testCases) {
+    const { unmount } = render(
+      <BallotCountReport
+        title="Title"
+        isTest={isTest}
+        isOfficial={isOfficial}
+        electionDefinition={electionDefinition}
+        scannerBatches={mockScannerBatches}
+        groupBy={{}}
+        cardCountsList={[]}
+        customFilter={{
+          precinctIds: ['precinct-1'],
+        }}
+      />
+    );
+    screen.getByRole('heading', { name: expectedTitle });
+    unmount();
+  }
 });
