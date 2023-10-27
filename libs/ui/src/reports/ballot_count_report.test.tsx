@@ -307,6 +307,8 @@ test('shows separate manual rows when group by is not compatible with manual res
   render(
     <BallotCountReport
       title="Full Election Ballot Count Report"
+      isTest={false}
+      isOfficial={false}
       electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
       groupBy={{
