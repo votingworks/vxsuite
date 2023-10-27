@@ -109,19 +109,24 @@ test('viewing and exporting reports', async ({ page }) => {
   ).toMatchSnapshot();
 
   // Mark Official
+  await page.getByText('Reports', { exact: true }).click();
   await page
-    .getByRole('button', { name: 'Mark Tally Results as Official' })
+    .getByRole('button', { name: 'Mark Election Results as Official' })
     .click();
   await page
     .getByRole('alertdialog')
     .locator(
-      page.getByRole('button', { name: 'Mark Tally Results as Official' })
+      page.getByRole('button', { name: 'Mark Election Results as Official' })
     )
     .click();
 
+  // Check Official
   await expect(
-    page.getByRole('button', { name: 'Mark Tally Results as Official' })
+    page.getByRole('button', { name: 'Mark Election Results as Official' })
   ).toBeDisabled();
+  await expect(page.getByText('Official Tally Reports')).toBeVisible();
+
+  await page.getByText('Full Election Tally Report').click();
   await page
     .getByText('Official Mammal Party Example Primary Election Tally Report')
     .waitFor();

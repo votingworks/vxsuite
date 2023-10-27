@@ -34,6 +34,7 @@ import {
   getSemsExportableTallies,
 } from '../../api';
 import { ExportBatchTallyResultsButton } from '../../components/export_batch_tally_results_button';
+import { MarkResultsOfficialButton } from '../../components/mark_official_button';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -138,6 +139,8 @@ export function ReportsScreen(): JSX.Element {
   return (
     <React.Fragment>
       <NavigationScreen title="Election Reports">
+        {ballotCountSummaryText}
+        <MarkResultsOfficialButton />
         <H2>{statusPrefix} Tally Reports</H2>
         <P>
           <LinkButton variant="primary" to={routerPaths.tallyFullReport}>
@@ -158,7 +161,7 @@ export function ReportsScreen(): JSX.Element {
           </LinkButton>
         </P>
         <H2>{statusPrefix} Ballot Count Reports</H2>
-        {ballotCountSummaryText}
+
         <P>
           <LinkButton to={routerPaths.ballotCountReportPrecinct}>
             Precinct Ballot Count Report
