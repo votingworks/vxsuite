@@ -234,8 +234,8 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
   }
 
   const exportDirectoryPathRelativeToUsbMountPoint = path.join(
-    SCANNER_RESULTS_FOLDER,
     generateElectionBasedSubfolderName(election, electionHash),
+    SCANNER_RESULTS_FOLDER,
     exportDirectoryName
   );
   await fs.mkdir(
@@ -863,8 +863,8 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     }
     const exportDirectoryPath = path.join(
       usbMountPoint,
-      SCANNER_RESULTS_FOLDER,
       generateElectionBasedSubfolderName(election, electionHash),
+      SCANNER_RESULTS_FOLDER,
       exportDirectoryName
     );
     const metadataResult =

@@ -115,8 +115,8 @@ export async function listCastVoteRecordExportsOnUsbDrive(
   const listDirectoryResult = await listDirectoryOnUsbDrive(
     usbDrive,
     path.join(
-      SCANNER_RESULTS_FOLDER,
-      generateElectionBasedSubfolderName(election, electionHash)
+      generateElectionBasedSubfolderName(election, electionHash),
+      SCANNER_RESULTS_FOLDER
     )
   );
   if (listDirectoryResult.isErr()) {

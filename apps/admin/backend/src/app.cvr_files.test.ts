@@ -830,8 +830,8 @@ test.each<{
         electionDefinition.electionHash
       );
       return {
-        [SCANNER_RESULTS_FOLDER]: {
-          [electionSubDirectoryName]: Buffer.of(),
+        [electionSubDirectoryName]: {
+          [SCANNER_RESULTS_FOLDER]: Buffer.of(),
         },
       };
     },
@@ -855,8 +855,8 @@ test.each<{
         machineId: '0001',
       });
       return {
-        [SCANNER_RESULTS_FOLDER]: {
-          [electionSubDirectoryName]: {
+        [electionSubDirectoryName]: {
+          [SCANNER_RESULTS_FOLDER]: {
             'not-an-export-directory-name': {}, // Should be ignored
             [emptyExportDirectoryName]: {}, // Should be ignored
             [exportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
