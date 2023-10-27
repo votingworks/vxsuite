@@ -284,7 +284,8 @@ export function TallyReportViewer({
     <React.Fragment>
       {!cardCountsQuery.isFetching && privacyWarningStatus.type !== 'none' && (
         <P>
-          <Icons.Warning /> {getPrivacyWarningText(privacyWarningStatus)}
+          <Icons.Warning />{' '}
+          {getPrivacyWarningText(privacyWarningStatus, autoPreview)}
         </P>
       )}
       <ExportActions>

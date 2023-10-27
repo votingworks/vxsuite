@@ -38,18 +38,24 @@ export function getPrivacyWarningStatus(
 }
 
 export function getPrivacyWarningText(
-  privacyWarningStatus: PrivacyWarningStatus
+  privacyWarningStatus: PrivacyWarningStatus,
+  isDynamicReport: boolean
 ): Optional<string> {
   if (privacyWarningStatus.type === 'low-ballot-count') {
     const { scannedBallotCount, isSingleReport } = privacyWarningStatus;
+    const reportName = isDynamicReport
+      ? 'the currently specified tally report'
+      : 'this tally report';
+    const reportNameCapitalized =
+      reportName.charAt(0).toUpperCase() + reportName.slice(1);
 
     if (isSingleReport) {
-      return `The currently specified tally report contains only ${pluralize(
+      return `${reportNameCapitalized} contains only ${pluralize(
         'scanned ballot',
         scannedBallotCount,
         true
       )}, which may be a voter privacy risk.`;
     }
-    return `A section of the currently specified tally report contains fewer than ${Tabulation.TALLY_REPORT_PRIVACY_THRESHOLD} scanned ballots, which may be a voter privacy risk.`;
+    return `A section of ${reportName} contains fewer than ${Tabulation.TALLY_REPORT_PRIVACY_THRESHOLD} scanned ballots, which may be a voter privacy risk.`;
   }
 }
