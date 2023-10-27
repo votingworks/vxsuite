@@ -42,10 +42,13 @@ export function MarkResultsOfficialButton(): JSX.Element {
           content={
             <React.Fragment>
               <P>
-                Have all CVR files been loaded? Once results are marked as
-                official, no additional CVR files can be loaded.
+                Have all CVR files been loaded? Have unofficial tally reports
+                been reviewed?
               </P>
-              <P>Have all unofficial tally reports been reviewed?</P>
+              <P>
+                Once results are marked as official, no additional CVR files can
+                be loaded.
+              </P>
             </React.Fragment>
           }
           actions={
