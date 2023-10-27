@@ -365,7 +365,7 @@ function generateReportFilenameGroupByPostfix({
   return postfixes.join(`${WORD_SEPARATOR}and${WORD_SEPARATOR}`);
 }
 
-function generateReportFilename({
+export function generateReportFilename({
   election,
   filter,
   groupBy,
