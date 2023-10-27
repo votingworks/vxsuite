@@ -59,8 +59,8 @@ test('viewing and exporting reports', async ({ page }) => {
   const testReportDirectoryPath =
     electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath();
   usbHandler.insert({
-    [SCANNER_RESULTS_FOLDER]: {
-      [electionDirectory]: {
+    [electionDirectory]: {
+      [SCANNER_RESULTS_FOLDER]: {
         [testReportDirectoryName]: testReportDirectoryPath,
       },
     },
