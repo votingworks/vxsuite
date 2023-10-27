@@ -21,7 +21,7 @@ export function ExportTallyReportCsvButton({
   groupBy: Tabulation.GroupBy;
   disabled?: boolean;
 }): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
+  const { electionDefinition, isOfficialResults } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
@@ -47,6 +47,7 @@ export function ExportTallyReportCsvButton({
     filter,
     groupBy,
     isTestMode,
+    isOfficialResults,
     time: exportDate,
   });
   const defaultFilePath = path.join(

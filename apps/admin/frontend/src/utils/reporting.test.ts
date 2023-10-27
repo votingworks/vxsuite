@@ -259,40 +259,51 @@ test('generateReportPdfFilename', () => {
     groupBy?: Tabulation.GroupBy;
     expectedFilename: string;
     isTestMode?: boolean;
+    isOfficialResults?: boolean;
   }> = [
     {
-      expectedFilename: 'full-election-tally-report__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-full-election-tally-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      isOfficialResults: true,
+      expectedFilename:
+        'official-full-election-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       groupBy: { groupByBallotStyle: true },
       expectedFilename:
-        'tally-reports-by-ballot-style__2023-12-09_15-59-32.pdf',
+        'unofficial-tally-reports-by-ballot-style__2023-12-09_15-59-32.pdf',
     },
     {
       groupBy: { groupByPrecinct: true },
-      expectedFilename: 'tally-reports-by-precinct__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-tally-reports-by-precinct__2023-12-09_15-59-32.pdf',
     },
     {
       groupBy: { groupByVotingMethod: true },
       expectedFilename:
-        'tally-reports-by-voting-method__2023-12-09_15-59-32.pdf',
+        'unofficial-tally-reports-by-voting-method__2023-12-09_15-59-32.pdf',
     },
     {
       groupBy: { groupByBatch: true },
-      expectedFilename: 'tally-reports-by-batch__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-tally-reports-by-batch__2023-12-09_15-59-32.pdf',
     },
     {
       groupBy: { groupByScanner: true },
-      expectedFilename: 'tally-reports-by-scanner__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-tally-reports-by-scanner__2023-12-09_15-59-32.pdf',
     },
     {
       groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
       expectedFilename:
-        'tally-reports-by-precinct-and-voting-method__2023-12-09_15-59-32.pdf',
+        'unofficial-tally-reports-by-precinct-and-voting-method__2023-12-09_15-59-32.pdf',
     },
     {
       filter: { precinctIds: ['precinct-1', 'precinct-2'] },
-      expectedFilename: 'custom-tally-report__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-custom-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
@@ -300,39 +311,43 @@ test('generateReportPdfFilename', () => {
         ballotStyleIds: ['1M'],
         votingMethods: ['absentee'],
       },
-      expectedFilename: 'custom-tally-report__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-custom-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
         precinctIds: ['precinct-1'],
       },
-      expectedFilename: 'precinct-1-tally-report__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-precinct-1-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
         ballotStyleIds: ['1M'],
       },
-      expectedFilename: 'ballot-style-1M-tally-report__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-ballot-style-1M-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
         votingMethods: ['absentee'],
       },
       expectedFilename:
-        'absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
+        'unofficial-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
         scannerIds: ['VX-00-000'],
       },
       expectedFilename:
-        'scanner-VX-00-000-tally-report__2023-12-09_15-59-32.pdf',
+        'unofficial-scanner-VX-00-000-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
         batchIds: ['12345678-0000-0000-0000-000000000000'],
       },
-      expectedFilename: 'batch-12345678-tally-report__2023-12-09_15-59-32.pdf',
+      expectedFilename:
+        'unofficial-batch-12345678-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
@@ -340,7 +355,7 @@ test('generateReportPdfFilename', () => {
         votingMethods: ['absentee'],
       },
       expectedFilename:
-        'ballot-style-1M-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
+        'unofficial-ballot-style-1M-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
@@ -348,7 +363,7 @@ test('generateReportPdfFilename', () => {
       },
       groupBy: { groupByPrecinct: true },
       expectedFilename:
-        'absentee-ballots-tally-reports-by-precinct__2023-12-09_15-59-32.pdf',
+        'unofficial-absentee-ballots-tally-reports-by-precinct__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
@@ -356,7 +371,7 @@ test('generateReportPdfFilename', () => {
       },
       isTestMode: true,
       expectedFilename:
-        'TEST-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
+        'TEST-unofficial-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
     },
   ];
 
@@ -367,6 +382,7 @@ test('generateReportPdfFilename', () => {
         filter: testCase.filter ?? {},
         groupBy: testCase.groupBy ?? {},
         isTestMode: testCase.isTestMode ?? false,
+        isOfficialResults: testCase.isOfficialResults ?? false,
         time: new Date(2023, 11, 9, 15, 59, 32),
       })
     ).toEqual(testCase.expectedFilename);
@@ -394,7 +410,8 @@ test('generateReportPdfFilename when too long', () => {
       filter: { precinctIds: ['precinct-1'] },
       groupBy: {},
       isTestMode: false,
+      isOfficialResults: false,
       time: new Date(2022, 4, 11, 15, 2, 3),
     })
-  ).toEqual('custom-tally-report__2022-05-11_15-02-03.pdf');
+  ).toEqual('unofficial-custom-tally-report__2022-05-11_15-02-03.pdf');
 });

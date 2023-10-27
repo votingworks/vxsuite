@@ -261,6 +261,7 @@ export function TallyReportViewer({
     filter,
     groupBy,
     isTestMode: castVoteRecordFileModeQuery.data === 'test',
+    isOfficialResults,
     time: reportResultsQuery.dataUpdatedAt
       ? new Date(reportResultsQuery.dataUpdatedAt)
       : undefined,

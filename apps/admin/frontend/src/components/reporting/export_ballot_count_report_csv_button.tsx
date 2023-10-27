@@ -24,7 +24,7 @@ export function ExportBallotCountReportCsvButton({
   groupBy: Tabulation.GroupBy;
   disabled?: boolean;
 }): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
+  const { electionDefinition, isOfficialResults } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
@@ -51,6 +51,7 @@ export function ExportBallotCountReportCsvButton({
     filter,
     groupBy,
     isTestMode,
+    isOfficialResults,
     time: exportDate,
   });
   const defaultFilePath = path.join(
