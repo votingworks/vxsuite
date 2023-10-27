@@ -1,6 +1,7 @@
 import { Election, ElectionDefinition, Tabulation } from '@votingworks/types';
 import { Optional, Result, err, find, ok } from '@votingworks/basics';
 import {
+  TEST_FILE_PREFIX,
   getPartyById,
   getPrecinctById,
   sanitizeStringForFilename,
@@ -265,8 +266,6 @@ const WORD_SEPARATOR = '-';
 const SUBSECTION_SEPARATOR = '_';
 const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
 
-const TEST_MODE_PREFIX = 'TEST';
-
 function generateReportFilenameFilterPrefix({
   election,
   filter,
@@ -395,8 +394,8 @@ function generateReportFilename({
   const shortDescriptionParts: string[] = []; // in case description is too long
 
   if (isTestMode) {
-    descriptionParts.push(TEST_MODE_PREFIX);
-    shortDescriptionParts.push(TEST_MODE_PREFIX);
+    descriptionParts.push(TEST_FILE_PREFIX);
+    shortDescriptionParts.push(TEST_FILE_PREFIX);
   }
 
   if (descriptionFilterPrefix) {
