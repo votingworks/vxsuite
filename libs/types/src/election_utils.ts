@@ -5,7 +5,9 @@ import {
   Candidate,
   Contest,
   ContestId,
+  ContestLike,
   Contests,
+  District,
   DistrictId,
   Election,
   ElectionDefinition,
@@ -292,10 +294,10 @@ export function getPartyIdsInBallotStyles(
   return Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
 }
 
-export function getContestDistrictName(
+export function getContestDistrict(
   election: Election,
-  contest: Contest
-): string {
+  contest: ContestLike
+): District {
   const district = election.districts.find((d) => d.id === contest.districtId);
   // istanbul ignore next
   if (!district) {
@@ -303,7 +305,15 @@ export function getContestDistrictName(
       `Contest's associated district ${contest.districtId} not found.`
     );
   }
-  return district.name;
+
+  return district;
+}
+
+export function getContestDistrictName(
+  election: Election,
+  contest: Contest
+): string {
+  return getContestDistrict(election, contest).name;
 }
 
 /**

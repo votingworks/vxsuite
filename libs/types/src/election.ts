@@ -160,6 +160,13 @@ export interface Contest {
   readonly title: string;
   readonly type: ContestTypes;
 }
+
+/**
+ * Generic type-agnostic contest type, enabling common operations on canonical
+ * {@link Contest}s and BMD-specific ms-either-neither contests.
+ */
+export type ContestLike = Pick<Contest, 'id' | 'districtId' | 'title'>;
+
 const ContestInternalSchema = z.object({
   id: ContestIdSchema,
   districtId: DistrictIdSchema,

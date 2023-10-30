@@ -1,14 +1,13 @@
-import pluralize from 'pluralize';
 import React from 'react';
 import styled from 'styled-components';
 import {
   CandidateVote,
   YesNoVote,
   OptionalYesNoVote,
-  getCandidatePartiesDescription,
   Election,
   VotesDict,
   PrecinctId,
+  getContestDistrict,
 } from '@votingworks/types';
 import {
   Caption,
@@ -18,6 +17,10 @@ import {
   Icons,
   VoterContestSummary,
   Button,
+  AudioOnly,
+  appStrings,
+  CandidatePartyList,
+  electionStrings,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -27,10 +30,7 @@ import {
   YesNoContestResultInterface,
 } from '../config/types';
 
-import {
-  ContestsWithMsEitherNeither,
-  getContestDistrictName,
-} from '../utils/ms_either_neither_contests';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 
 const Contest = styled.button`
   display: flex;
@@ -57,34 +57,40 @@ function CandidateContestResult({
   vote = [],
   election,
 }: CandidateContestResultInterface): JSX.Element {
+  const district = getContestDistrict(election, contest);
   const remainingChoices = contest.seats - vote.length;
 
   return (
     <VoterContestSummary
-      districtName={getContestDistrictName(election, contest)}
-      title={contest.title}
+      districtName={electionStrings.districtName(district)}
+      title={electionStrings.contestTitle(contest)}
       titleType="h2"
       undervoteWarning={
-        remainingChoices > 0
-          ? vote.length === 0
-            ? 'You may still vote in this contest.'
-            : `You may still vote for ${remainingChoices} more ${pluralize(
-                'candidate',
-                remainingChoices
-              )}.`
-          : undefined
+        remainingChoices > 0 ? (
+          vote.length === 0 ? (
+            appStrings.undervoteWarningNoVotes()
+          ) : (
+            <React.Fragment>
+              {appStrings.labelNumVotesRemaining()}{' '}
+              {appStrings.number(remainingChoices)}
+            </React.Fragment>
+          )
+        ) : undefined
       }
-      votes={vote.map((candidate): ContestVote => {
-        const partiesDescription = getCandidatePartiesDescription(
-          election,
-          candidate
-        );
-
-        return {
-          caption: candidate.isWriteIn ? '(write-in)' : partiesDescription,
-          label: candidate.name,
-        };
-      })}
+      votes={vote.map(
+        (candidate): ContestVote => ({
+          caption: candidate.isWriteIn ? (
+            appStrings.labelWriteInParenthesized()
+          ) : (
+            <CandidatePartyList
+              candidate={candidate}
+              electionParties={election.parties}
+            />
+          ),
+          id: candidate.id,
+          label: electionStrings.candidateName(candidate),
+        })
+      )}
     />
   );
 }
@@ -94,26 +100,27 @@ function YesNoContestResult({
   contest,
   election,
 }: YesNoContestResultInterface): JSX.Element {
+  const district = getContestDistrict(election, contest);
   const yesNo = getSingleYesNoVote(vote);
+  const selectedOption =
+    yesNo === contest.yesOption.id ? contest.yesOption : contest.noOption;
 
-  const votes: ContestVote[] = yesNo
+  const votes: ContestVote[] = selectedOption
     ? [
         {
-          label:
-            yesNo === contest.yesOption.id
-              ? contest.yesOption.label
-              : contest.noOption.label,
+          id: selectedOption.id,
+          label: electionStrings.contestOptionLabel(selectedOption),
         },
       ]
     : [];
 
   return (
     <VoterContestSummary
-      districtName={getContestDistrictName(election, contest)}
-      title={contest.title}
+      districtName={electionStrings.districtName(district)}
+      title={electionStrings.contestTitle(contest)}
       titleType="h2"
       undervoteWarning={
-        !yesNo ? 'You may still vote in this contest.' : undefined
+        !yesNo ? appStrings.undervoteWarningNoVotes() : undefined
       }
       votes={votes}
     />
@@ -126,6 +133,7 @@ function MsEitherNeitherContestResult({
   eitherNeitherContestVote,
   pickOneContestVote,
 }: MsEitherNeitherContestResultInterface): JSX.Element {
+  const district = getContestDistrict(election, contest);
   /* istanbul ignore next */
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   /* istanbul ignore next */
@@ -134,29 +142,33 @@ function MsEitherNeitherContestResult({
   const votes: ContestVote[] = [];
   if (eitherNeitherVote) {
     votes.push({
-      label:
+      id: eitherNeitherVote,
+      label: electionStrings.contestOptionLabel(
         eitherNeitherVote === contest.eitherOption.id
-          ? contest.eitherOption.label
-          : contest.neitherOption.label,
+          ? contest.eitherOption
+          : contest.neitherOption
+      ),
     });
   }
   if (pickOneVote) {
     votes.push({
-      label:
+      id: pickOneVote,
+      label: electionStrings.contestOptionLabel(
         pickOneVote === contest.firstOption.id
-          ? contest.firstOption.label
-          : contest.secondOption.label,
+          ? contest.firstOption
+          : contest.secondOption
+      ),
     });
   }
 
   return (
     <VoterContestSummary
       data-testid={`contest-${contest.id}`}
-      districtName={getContestDistrictName(election, contest)}
-      title={contest.title}
+      districtName={electionStrings.districtName(district)}
+      title={electionStrings.contestTitle(contest)}
       titleType="h2"
       undervoteWarning={
-        votes.length < 2 ? 'You may still vote in this contest.' : undefined
+        votes.length < 2 ? appStrings.undervoteWarningNoVotes() : undefined
       }
       votes={votes}
     />
@@ -198,10 +210,18 @@ export function Review({
             footerAlign={selectionsAreEditable ? 'right' : undefined}
             footer={
               selectionsAreEditable && (
-                <DecoyButton aria-label="Press the select button to change your votes for this contest.">
+                <DecoyButton>
                   <Caption>
-                    <Icons.Edit /> Change
+                    {/*
+                     * TODO(kofi): Add a <NoAudio> wrapper component for
+                     * display-only strings that shouldn't be read out loud by
+                     * the speech engine.
+                     */}
+                    <Icons.Edit /> {appStrings.buttonChange()}
                   </Caption>
+                  <AudioOnly>
+                    {appStrings.buttonBmdReviewCardAction()}
+                  </AudioOnly>
                 </DecoyButton>
               )
             }

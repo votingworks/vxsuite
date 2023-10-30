@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 
 import { Checkbox } from './checkbox';
@@ -5,17 +6,18 @@ import { Icons } from './icons';
 import { Caption, Font, H5, HeadingProps, P } from './typography';
 
 export interface VoterContestSummaryProps {
-  districtName: string;
-  title: string;
+  districtName: React.ReactNode;
+  title: React.ReactNode;
   titleType: HeadingProps['as'];
-  undervoteWarning?: string;
+  undervoteWarning?: React.ReactNode;
   votes: ContestVote[];
   'data-testid'?: string;
 }
 
 export interface ContestVote {
-  caption?: string;
-  label: string;
+  caption?: React.ReactNode;
+  id: string;
+  label: React.ReactNode;
 }
 
 const ListContainer = styled.ul`
@@ -69,7 +71,7 @@ export function VoterContestSummary(
       )}
       <ListContainer>
         {votes.map((v) => (
-          <VoteInfo key={v.label}>
+          <VoteInfo key={v.id}>
             <CheckboxContainer color="success">
               <Checkbox checked />
             </CheckboxContainer>
