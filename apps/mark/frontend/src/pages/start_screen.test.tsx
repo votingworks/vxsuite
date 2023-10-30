@@ -32,7 +32,7 @@ test('renders StartScreen', () => {
   );
 });
 
-test('renders StartScreen with inline SVG', () => {
+test('renders StartScreen with inline SVG seal', () => {
   const electionDefinition = electionGeneralDefinition;
   const { container } = render(<Route path="/" component={StartScreen} />, {
     electionDefinition,
@@ -40,7 +40,7 @@ test('renders StartScreen with inline SVG', () => {
     precinctId: '23',
     route: '/',
   });
-  expect(container.firstChild).toMatchSnapshot();
+  expect(container.getElementsByTagName('svg')).toMatchSnapshot();
 });
 
 it('renders display settings button', () => {
