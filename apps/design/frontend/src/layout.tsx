@@ -96,10 +96,3 @@ export function Breadcrumbs({ routes }: { routes: Route[] }): JSX.Element {
     </Row>
   );
 }
-
-export const Card = styled.div`
-  padding: 1rem;
-  border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.foregroundDisabled};
-  border-radius: 0.2rem;
-`;

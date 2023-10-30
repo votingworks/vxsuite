@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Button, Table, TH, TD, H1, LinkButton, P } from '@votingworks/ui';
+import {
+  Button,
+  Table,
+  TH,
+  TD,
+  H1,
+  LinkButton,
+  P,
+  Card,
+} from '@votingworks/ui';
 import {
   Switch,
   Route,
@@ -20,7 +29,6 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import {
-  Card,
   Form,
   FormField,
   Input,
