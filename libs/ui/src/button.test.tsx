@@ -2,8 +2,9 @@ import React from 'react';
 import parseCssColor from 'parse-css-color';
 import { Color, ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
+import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library';
-import { ALL_BUTTON_VARIANTS, Button } from './button';
+import { BUTTON_VARIANTS, Button, ButtonColor, ButtonFill } from './button';
 import { makeTheme } from './themes/make_theme';
 import { Icons } from './icons';
 
@@ -28,9 +29,9 @@ function remToPx(rem: string): number {
   );
 }
 
-describe('renders Button', () => {
-  test('for all available variants', () => {
-    for (const variant of ALL_BUTTON_VARIANTS) {
+describe('Button', () => {
+  test('renders all available variants', () => {
+    for (const variant of BUTTON_VARIANTS) {
       const onPress = jest.fn();
 
       render(
@@ -41,7 +42,7 @@ describe('renders Button', () => {
 
       expect(onPress).not.toHaveBeenCalled();
 
-      fireEvent.click(screen.getButton(`${variant} button`));
+      userEvent.click(screen.getButton(`${variant} button`));
 
       expect(onPress).toHaveBeenCalled();
     }
@@ -63,39 +64,79 @@ describe('renders Button', () => {
     const mediumButtonFontSizePx = getButtonFontSizePx('touchMedium');
     const largeButtonFontSizePx = getButtonFontSizePx('touchLarge');
     const xLargeButtonFontSizePx = getButtonFontSizePx('touchExtraLarge');
+    const desktopButtonFontSizePx = getButtonFontSizePx('desktop');
 
     expect(mediumButtonFontSizePx).toBeGreaterThan(smallButtonFontSizePx);
     expect(largeButtonFontSizePx).toBeGreaterThan(mediumButtonFontSizePx);
     expect(xLargeButtonFontSizePx).toBeGreaterThan(largeButtonFontSizePx);
+    expect(desktopButtonFontSizePx).toEqual(16);
   });
 
   test('varies color based on theme', () => {
     const onPress = jest.fn();
 
     function verifyPrimaryButtonColor(colorMode: ColorMode) {
-      const expectedTheme = makeTheme({ colorMode, sizeMode: 'touchSmall' });
+      const theme = makeTheme({ colorMode, sizeMode: 'touchSmall' });
 
       render(
         <Button onPress={onPress} variant="primary">
           {colorMode} button
         </Button>,
-        {
-          vxTheme: { colorMode, sizeMode: 'touchSmall' },
-        }
+        { vxTheme: theme }
       );
 
       const button = screen.getButton(`${colorMode} button`);
-      const buttonColor = window.getComputedStyle(button).backgroundColor;
-
-      expect(parseCssColor(buttonColor)).toEqual(
-        parseCssColor(expectedTheme.colors.accentPrimary)
+      expect(button).toHaveStyleRule(
+        `background-color: ${theme.colors.primary}`
       );
+      expect(button).toHaveStyleRule(`color: ${theme.colors.onPrimary}`);
     }
 
+    verifyPrimaryButtonColor('desktop');
     verifyPrimaryButtonColor('contrastLow');
     verifyPrimaryButtonColor('contrastMedium');
     verifyPrimaryButtonColor('contrastHighDark');
     verifyPrimaryButtonColor('contrastHighLight');
+  });
+
+  test('applies hover styling for desktop theme', () => {
+    const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
+    const expectedHoverStyles: Record<ButtonFill, string> = {
+      filled: `filter: 'saturate(1.2) brightness(1.1)'`,
+      tinted: `filter: 'saturate(1.3) brightness(0.95)'`,
+      outlined: `background-color: ${theme.colors.primaryContainer}`,
+      transparent: `background-color: ${theme.colors.primaryContainer}`,
+    };
+
+    for (const [fill, expectedHoverStyle] of Object.entries(
+      expectedHoverStyles
+    )) {
+      const { unmount } = render(
+        <Button onPress={jest.fn()} color="primary" fill={fill as ButtonFill}>
+          Hover me
+        </Button>,
+        { vxTheme: theme }
+      );
+
+      const button = screen.getButton('Hover me');
+      userEvent.hover(button);
+      expect(button).toHaveStyleRule(expectedHoverStyle);
+      unmount();
+    }
+  });
+
+  test('does not apply hover styling for touch themes', () => {
+    const theme = makeTheme({
+      colorMode: 'contrastHighLight',
+      sizeMode: 'touchSmall',
+    });
+    render(<Button onPress={jest.fn()}>Hover me</Button>, { vxTheme: theme });
+    const button = screen.getButton('Hover me');
+    const buttonStyles = window.getComputedStyle(button);
+    userEvent.hover(button);
+    expect(JSON.stringify(window.getComputedStyle(button))).toEqual(
+      JSON.stringify(buttonStyles)
+    );
   });
 
   test('propagates click/tap events with specified event value', () => {
@@ -107,7 +148,7 @@ describe('renders Button', () => {
       </Button>
     );
 
-    fireEvent.click(screen.getButton('Click me'));
+    userEvent.click(screen.getButton('Click me'));
 
     expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
   });
@@ -119,7 +160,10 @@ describe('renders Button', () => {
       </Button>
     );
     const button = screen.getButton('I’m a dangerous button!');
-    expect(button).toHaveStyleRule('background', Color.DANGER_MEDIUM_CONTRAST);
+    expect(button).toHaveStyleRule(
+      'background-color',
+      Color.DANGER_MEDIUM_CONTRAST
+    );
     expect(button).toHaveStyleRule('color', Color.OFF_WHITE);
   });
 
@@ -142,7 +186,7 @@ describe('renders Button', () => {
     const disabledButton = screen.getButton('Disabled Button');
 
     // Ignores click/tap events:
-    fireEvent.click(disabledButton);
+    userEvent.click(disabledButton);
     fireEvent.touchStart(
       disabledButton,
       createTouchStartEventProperties(100, 100)
@@ -157,6 +201,37 @@ describe('renders Button', () => {
     expect(parseCssColor(disabledButtonColor)).not.toEqual(
       parseCssColor(enabledButtonColor)
     );
+  });
+
+  test('fills in background of outlined disabled buttons in desktop theme', () => {
+    const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
+    const expectedBackgroundColors: Record<ButtonColor, string> = {
+      primary: theme.colors.container,
+      danger: theme.colors.container,
+      neutral: theme.colors.container,
+      inverseNeutral: theme.colors.inverseContainer,
+      inversePrimary: theme.colors.inverseContainer,
+    };
+
+    for (const [color, expectedBackgroundColor] of Object.entries(
+      expectedBackgroundColors
+    )) {
+      const { unmount } = render(
+        <Button
+          onPress={jest.fn()}
+          fill="outlined"
+          color={color as ButtonColor}
+          disabled
+        >
+          Disabled Button
+        </Button>,
+        { vxTheme: theme }
+      );
+      expect(screen.getButton('Disabled Button')).toHaveStyleRule(
+        `background-color: ${expectedBackgroundColor}`
+      );
+      unmount();
+    }
   });
 
   test('with icon component', () => {
@@ -234,12 +309,13 @@ describe('renders Button', () => {
     expect(screen.getButton('Confirm')).toHaveFocus();
   });
 
-  test('and tests clicks and touches', () => {
+  test('handles clicks and touches', () => {
     const onPress = jest.fn();
     render(<Button onPress={onPress}>Test Button</Button>);
     const button = screen.getButton('Test Button');
 
-    fireEvent.click(button);
+    // Keyboard (also Accessible Controller) fire click event which calls onPress.
+    userEvent.click(button);
     expect(onPress).toHaveBeenCalledTimes(1);
 
     // TouchEnd close to TouchStart calls onPress.
@@ -256,9 +332,5 @@ describe('renders Button', () => {
     // TouchEnd too far from TouchStart does not call onPress.
     fireEvent.touchEnd(button, createTouchEndEventProperties(131, 95));
     expect(onPress).toHaveBeenCalledTimes(2);
-
-    // Keyboard (also Accessible Controller) fire click event which calls onPress.
-    fireEvent.click(button);
-    expect(onPress).toHaveBeenCalledTimes(3);
   });
 });

@@ -240,6 +240,7 @@ function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
       case 'outlined':
       case 'transparent':
         return { backgroundColor: hoverColor };
+      /* istanbul ignore next */
       default:
         return throwIllegalValue(fill);
     }
