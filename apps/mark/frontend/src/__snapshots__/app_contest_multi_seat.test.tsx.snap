@@ -82,12 +82,12 @@ exports[`Single Seat Contest 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  background: #00437d;
-  border: 0.15rem solid #00437d;
+  background: none;
   border-radius: 0.25rem;
+  border-style: solid;
+  border-width: 0.15rem;
   box-shadow: none;
   box-sizing: border-box;
-  color: #fafafa;
   cursor: pointer;
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
@@ -96,19 +96,20 @@ exports[`Single Seat Contest 1`] = `
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  gap: 0.5rem;
   -webkit-box-pack: center;
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  gap: 0.5rem;
   -webkit-letter-spacing: 0.01em;
   -moz-letter-spacing: 0.01em;
   -ms-letter-spacing: 0.01em;
   letter-spacing: 0.01em;
   line-height: 1.15;
+  min-height: 70.86614173228345px;
   padding: 0.5em 0.6em;
   text-align: center;
   text-shadow: none;
@@ -117,14 +118,11 @@ exports[`Single Seat Contest 1`] = `
   transition: 100ms ease-in;
   -webkit-transition-property: background,border,box-shadow,color;
   transition-property: background,border,box-shadow,color;
-  width: auto;
-  min-height: 70.86614173228345px;
   vertical-align: middle;
-}
-
-.c13:hover,
-.c13:active {
-  outline: none;
+  width: auto;
+  background-color: #00437d;
+  color: #fafafa;
+  border-color: #00437d;
 }
 
 .c13:active {
@@ -132,7 +130,10 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c13[disabled] {
-  border: 0.15rem dashed #222222;
+  border-style: dashed;
+  color: #222222;
+  background-color: #fafafa;
+  border-color: #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
@@ -142,12 +143,12 @@ exports[`Single Seat Contest 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  background: #fafafa;
-  border: 0.15rem solid #222222;
+  background: none;
   border-radius: 0.25rem;
+  border-style: solid;
+  border-width: 0.15rem;
   box-shadow: none;
   box-sizing: border-box;
-  color: #222222;
   cursor: pointer;
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
@@ -156,19 +157,20 @@ exports[`Single Seat Contest 1`] = `
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  gap: 0.5rem;
   -webkit-box-pack: center;
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  gap: 0.5rem;
   -webkit-letter-spacing: 0.01em;
   -moz-letter-spacing: 0.01em;
   -ms-letter-spacing: 0.01em;
   letter-spacing: 0.01em;
   line-height: 1.15;
+  min-height: 70.86614173228345px;
   padding: 0.5em 0.6em;
   text-align: center;
   text-shadow: none;
@@ -177,14 +179,11 @@ exports[`Single Seat Contest 1`] = `
   transition: 100ms ease-in;
   -webkit-transition-property: background,border,box-shadow,color;
   transition-property: background,border,box-shadow,color;
-  width: auto;
-  min-height: 70.86614173228345px;
   vertical-align: middle;
-}
-
-.c24:hover,
-.c24:active {
-  outline: none;
+  width: auto;
+  border-color: #222222;
+  color: #222222;
+  background-color: transparent;
 }
 
 .c24:active {
@@ -192,7 +191,10 @@ exports[`Single Seat Contest 1`] = `
 }
 
 .c24[disabled] {
-  border: 0.15rem dashed #222222;
+  border-style: dashed;
+  color: #222222;
+  background-color: #fafafa;
+  border-color: #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
