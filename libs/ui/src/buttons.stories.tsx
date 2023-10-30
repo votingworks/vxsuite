@@ -2,8 +2,15 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { LoremIpsum } from 'lorem-ipsum';
 
-import { Button, ButtonProps } from './button';
-import { Caption, H1, H4, P } from './typography';
+import { useTheme } from 'styled-components';
+import {
+  BUTTON_COLORS,
+  BUTTON_FILLS,
+  BUTTON_VARIANTS,
+  Button,
+  ButtonProps,
+} from './button';
+import { H1, H4, P } from './typography';
 import { Card } from './card';
 
 const loremIpsum = new LoremIpsum({
@@ -11,7 +18,6 @@ const loremIpsum = new LoremIpsum({
   wordsPerSentence: { max: 8, min: 3 },
 });
 
-const testSentence = loremIpsum.generateSentences(1);
 const testParagraph = loremIpsum.generateParagraphs(1);
 
 const initialProps: Partial<React.ComponentProps<typeof Button>> = {
@@ -29,79 +35,147 @@ const meta: Meta<typeof Button> = {
 
 export default meta;
 
+// TODO
+// - come up with a way for the touchscreen variants to still work
+
 export function UsageExamples(props: ButtonProps<unknown>): JSX.Element {
-  const [fakeTextInputValue, setFakeTextInputValue] =
-    React.useState<string>('');
+  const theme = useTheme();
 
   return (
     <React.Fragment>
-      <H1>Button Examples</H1>
+      <H1>Button Variants</H1>
+      <P>These variants provide default styling for common use cases.</P>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        {BUTTON_VARIANTS.map((variant) => (
+          <div
+            key={variant}
+            style={{
+              background: variant.match(/inverse/i)
+                ? theme.colors.inverseBackground
+                : undefined,
+              padding: '1rem',
+            }}
+          >
+            <Button key="variant" {...props} variant={variant}>
+              {variant}
+            </Button>
+          </div>
+        ))}
+      </div>
 
-      <Card
-        footerAlign="right"
-        footer={
-          <React.Fragment>
-            <Button {...props} icon="Previous">
-              Previous
+      <H1>Disabled</H1>
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        {BUTTON_VARIANTS.map((variant) => (
+          <div
+            key={variant}
+            style={{
+              background: variant.match(/inverse/i)
+                ? theme.colors.inverseBackground
+                : undefined,
+              padding: '1rem',
+            }}
+          >
+            <Button key="variant" disabled {...props} variant={variant}>
+              {variant}
             </Button>
-            <Button {...props} icon="Done" variant="primary">
-              Save and exit
-            </Button>
-          </React.Fragment>
-        }
-      >
-        <H4 as="h2">All done!</H4>
-        <P>{testParagraph}</P>
-      </Card>
+          </div>
+        ))}
+      </div>
 
-      <Card
-        footerAlign="right"
-        footer={
-          <React.Fragment>
-            <Button {...props}>Cancel</Button>
-            <Button {...props} variant="danger" icon="Delete">
-              Delete everything
-            </Button>
-          </React.Fragment>
-        }
-      >
-        <H4 as="h2">Are you sure?</H4>
-        <P>{testParagraph}</P>
-      </Card>
+      <H1>Button Color/Fill Combinations</H1>
+      <P>
+        For more fine-grained control in exceptional situations, you can specify
+        color and fill. These should be used sparingly in order to keep things
+        consistent.
+      </P>
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        {BUTTON_COLORS.map((color) => (
+          <div
+            key={color}
+            style={{
+              background: color.match(/inverse/i)
+                ? theme.colors.inverseBackground
+                : undefined,
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, 1fr)',
+              gap: '1rem',
+              padding: '1rem',
+            }}
+          >
+            {BUTTON_FILLS.map((fill) => (
+              <div key={fill}>
+                <Button key={fill} {...props} color={color} fill={fill}>
+                  {fill} {color}
+                </Button>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
 
-      <Card
-        footerAlign="right"
-        footer={
-          <React.Fragment>
-            <Button {...props} icon="Previous">
-              Back
-            </Button>
-            <Button
-              {...props}
-              disabled={fakeTextInputValue.length < 2}
-              variant="primary"
-              rightIcon="Next"
-            >
-              Continue
-            </Button>
-          </React.Fragment>
-        }
+      <H1>With Icons</H1>
+      <P>
+        Button icons should be placed on the left by default. Buttons may have
+        an icon on the right if it makes sense in context (e.g. a directional
+        next button).
+      </P>
+      <P>Buttons with icons should always have a text label.</P>
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <Button {...props} variant="primary" icon="Add">
+          Add thing
+        </Button>
+        <Button {...props} icon="Edit">
+          Edit thing
+        </Button>
+        <Button {...props} variant="danger" icon="Delete">
+          Remove thing
+        </Button>
+        <Button {...props} variant="secondary" rightIcon="Next">
+          Next
+        </Button>
+        <Button {...props} variant="primary" icon="Done">
+          Save
+        </Button>
+      </div>
+
+      <H1>Usage In Context</H1>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '1rem',
+        }}
       >
-        <H4 as="h2">Fill out the form to continue:</H4>
-        <P>{testParagraph}</P>
-        <P>
-          <label>
-            Your answer:{' '}
-            <input
-              onChange={(e) => setFakeTextInputValue(e.target.value)}
-              value={fakeTextInputValue}
-            />
-          </label>
-        </P>
-        <P>
-          <Caption>{testSentence}</Caption>
-        </P>
-      </Card>
+        <Card
+          footerAlign="right"
+          footer={
+            <React.Fragment>
+              <Button {...props}>Cancel</Button>
+              <Button {...props} variant="primary" icon="Checkmark">
+                Save and exit
+              </Button>
+            </React.Fragment>
+          }
+        >
+          <H4 as="h2">All done?</H4>
+          <P>{testParagraph}</P>
+        </Card>
+
+        <Card
+          footerAlign="right"
+          footer={
+            <React.Fragment>
+              <Button {...props}>Cancel</Button>
+              <Button {...props} variant="danger" icon="Delete">
+                Delete everything
+              </Button>
+            </React.Fragment>
+          }
+        >
+          <H4 as="h2">Are you sure?</H4>
+          <P>{testParagraph}</P>
+        </Card>
+      </div>
     </React.Fragment>
   );
 }
