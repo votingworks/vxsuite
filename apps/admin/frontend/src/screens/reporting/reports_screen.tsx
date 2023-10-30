@@ -33,7 +33,6 @@ import {
   getCastVoteRecordFileMode,
   getSemsExportableTallies,
 } from '../../api';
-import { ExportBatchTallyResultsButton } from '../../components/export_batch_tally_results_button';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
 
 export function ReportsScreen(): JSX.Element {
@@ -182,7 +181,6 @@ export function ReportsScreen(): JSX.Element {
           </LinkButton>
         </P>
         <P>
-          <ExportBatchTallyResultsButton />{' '}
           {converterName !== '' && (
             <Button
               onPress={() => setIsExportResultsModalOpen(true)}

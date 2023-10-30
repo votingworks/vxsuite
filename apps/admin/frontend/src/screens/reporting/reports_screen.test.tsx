@@ -93,34 +93,6 @@ test('exporting SEMS results', async () => {
   expect(fetchMock.called('/convert/reset')).toEqual(true);
 });
 
-test('exporting batch results', async () => {
-  apiMock.expectGetCastVoteRecordFileMode('test');
-  apiMock.expectGetCardCounts({}, [getMockCardCounts(100)]);
-
-  renderInAppContext(<ReportsScreen />, {
-    electionDefinition,
-    apiMock,
-    usbDriveStatus: mockUsbDriveStatus('mounted'),
-  });
-
-  await waitFor(() => {
-    expect(screen.getButton('Save Batch Results CSV')).toBeEnabled();
-  });
-  userEvent.click(screen.getButton('Save Batch Results CSV'));
-  await screen.findByRole('alertdialog');
-
-  await screen.findByText('Save Batch Results');
-  await screen.findByText(
-    'votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
-  );
-
-  apiMock.expectExportBatchResults(
-    'test-mount-point/votingworks-test-batch-results_sample-county_example-primary-election_2020-11-03_22-22-00.csv'
-  );
-  userEvent.click(screen.getByText('Save'));
-  await screen.findByText(/Batch Results Saved/);
-});
-
 describe('ballot count summary text', () => {
   test('unlocked mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('unlocked');

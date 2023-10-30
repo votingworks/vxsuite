@@ -342,10 +342,6 @@ export function createApiMock(
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
     },
 
-    expectExportBatchResults(path: string) {
-      apiClient.exportBatchResults.expectCallWith({ path }).resolves(ok([]));
-    },
-
     expectGetSemsExportableTallies(result: SemsExportableTallies) {
       apiClient.getSemsExportableTallies.expectCallWith().resolves(result);
     },
