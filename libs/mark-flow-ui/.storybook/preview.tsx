@@ -6,7 +6,7 @@ import {
   StoryContext,
 } from '@storybook/types';
 
-import { ColorMode, TouchSizeMode } from '@votingworks/types';
+import { TouchColorMode, TouchSizeMode } from '@votingworks/types';
 import { AppBase, ThemeManagerContext } from '@votingworks/ui';
 
 // TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
@@ -17,7 +17,7 @@ interface ToolbarItem<T> {
   left?: string;
 }
 
-type ColorModeToolBarItem = ToolbarItem<ColorMode>;
+type ColorModeToolBarItem = ToolbarItem<TouchColorMode>;
 
 type SizeModeToolBarItem = ToolbarItem<TouchSizeMode>;
 
@@ -32,8 +32,8 @@ const sizeThemeToolBarItems: Record<TouchSizeMode, SizeModeToolBarItem> = {
   },
 };
 
-const DEFAULT_COLOR_MODE: ColorMode = 'contrastHighLight';
-const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
+const DEFAULT_COLOR_MODE: TouchColorMode = 'contrastHighLight';
+const colorThemeToolBarItems: Record<TouchColorMode, ColorModeToolBarItem> = {
   contrastHighLight: {
     title: 'High Contrast - Light',
     value: 'contrastHighLight',
@@ -103,7 +103,7 @@ function StoryWrapper(props: {
 }): JSX.Element {
   const { children, context } = props;
   const globals = context.globals as {
-    colorMode: ColorMode;
+    colorMode: TouchColorMode;
     sizeMode: TouchSizeMode;
   };
 
@@ -129,7 +129,7 @@ export const decorators: DecoratorFunction[] = [
     context
   ) => {
     const globals = context.globals as {
-      colorMode: ColorMode;
+      colorMode: TouchColorMode;
       sizeMode: TouchSizeMode;
     };
     return (

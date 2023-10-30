@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import DomPurify from 'dompurify';
 
-import { Color, ColorTheme, SizeTheme } from '@votingworks/types';
+import { ColorString, ColorTheme, SizeTheme } from '@votingworks/types';
 
 type Align = 'left' | 'center' | 'right';
 type AccentColor = 'danger' | 'default' | 'success' | 'warning';
@@ -40,10 +40,10 @@ export type HeadingProps = Omit<FontProps, 'weight'> & {
   as?: HeadingType;
 };
 
-function getColor(color: AccentColor, colorTheme: ColorTheme): Color {
+function getColor(color: AccentColor, colorTheme: ColorTheme): ColorString {
   // Doing this instead of using a switch-case to avoid having to get test
   // coverage over the default switch case:
-  const fontColors: Record<AccentColor, Color> = {
+  const fontColors: Record<AccentColor, ColorString> = {
     danger: colorTheme.accentDanger,
     default: colorTheme.foreground,
     success: colorTheme.accentSuccess,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ColorMode } from '@votingworks/types';
+import { TouchColorMode } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { SettingsPane } from './settings_pane';
 import { RadioGroup } from '../radio_group';
@@ -9,17 +9,17 @@ import { useScreenInfo } from '../hooks/use_screen_info';
 
 export interface ColorSettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
-  colorModes?: ColorMode[];
+  colorModes?: TouchColorMode[];
 }
 
-const DEFAULT_COLOR_MODES: ColorMode[] = [
+const DEFAULT_COLOR_MODES: TouchColorMode[] = [
   'contrastHighDark',
   'contrastLow',
   'contrastMedium',
   'contrastHighLight',
 ];
 
-const ORDERED_COLOR_MODE_LABELS: Record<ColorMode, string> = {
+const ORDERED_COLOR_MODE_LABELS: Record<TouchColorMode, string> = {
   contrastHighDark: 'White text, black background',
   contrastLow: 'Gray text, dark background',
   contrastMedium: 'Dark text, light background',
@@ -35,7 +35,7 @@ export function ColorSettings(props: ColorSettingsProps): JSX.Element {
   const { setColorMode } = React.useContext(ThemeManagerContext);
 
   const orderedColorModes = (
-    Object.keys(ORDERED_COLOR_MODE_LABELS) as ColorMode[]
+    Object.keys(ORDERED_COLOR_MODE_LABELS) as TouchColorMode[]
   ).filter((m) => enabledColorModes.has(m));
 
   /* istanbul ignore next */
