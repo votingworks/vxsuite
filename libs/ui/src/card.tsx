@@ -1,4 +1,3 @@
-import { rgba } from 'polished';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -8,16 +7,13 @@ export interface CardProps {
   children?: React.ReactNode;
   footer?: React.ReactNode;
   footerAlign?: CardFooterAlign;
+  style?: React.CSSProperties;
 }
 
 const StyledContainer = styled.div`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => rgba(p.theme.colors.foregroundDisabled, 0.75)};
+    ${(p) => p.theme.colors.outline};
   border-radius: 0.2rem;
-  box-shadow:
-    0.1rem 0.2rem 0.1rem -0.1rem ${(p) => rgba(p.theme.colors.foreground, 0.25)},
-    0 0.1rem 0.2rem 0 ${(p) => rgba(p.theme.colors.foreground, 0.15)},
-    0 0.1rem 0.3rem 0 ${(p) => rgba(p.theme.colors.foreground, 0.125)};
   overflow: hidden;
 
   &:not(:last-child) {
@@ -51,10 +47,10 @@ const StyledFooter = styled.div<StyledFooterProps>`
  * components.
  */
 export function Card(props: CardProps): JSX.Element {
-  const { children, footer, footerAlign } = props;
+  const { children, footer, footerAlign, style } = props;
 
   return (
-    <StyledContainer>
+    <StyledContainer style={style}>
       <StyledContent>{children}</StyledContent>
       {footer && (
         <StyledFooter footerAlign={footerAlign || 'left'}>
