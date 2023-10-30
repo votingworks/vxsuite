@@ -282,7 +282,7 @@ export function PollWorkerScreen({
             </P>
             <P align="center">Deactivate this voter session to start over.</P>
             <P align="center">
-              <Button small onPress={resetCardlessVoterSession}>
+              <Button onPress={resetCardlessVoterSession}>
                 Deactivate Voting Session
               </Button>
             </P>
@@ -334,7 +334,6 @@ export function PollWorkerScreen({
                     <ButtonList data-testid="precincts">
                       {election.precincts.map((precinct) => (
                         <Button
-                          fullWidth
                           key={precinct.id}
                           aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
                           onPress={() =>
@@ -360,7 +359,6 @@ export function PollWorkerScreen({
                   <ButtonList data-testid="ballot-styles">
                     {precinctBallotStyles.map((ballotStyle) => (
                       <Button
-                        fullWidth
                         key={ballotStyle.id}
                         aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
                         onPress={() =>

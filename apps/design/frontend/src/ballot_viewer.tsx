@@ -381,7 +381,6 @@ export function BallotViewer({
           <H3>Export</H3>
           <P>
             <Button
-              fullWidth
               onPress={onExportPress}
               disabled={exportBallotMutation.isLoading}
             >

@@ -195,7 +195,6 @@ export function SaveFrontendFileModal({
       actions = (
         <React.Fragment>
           <UsbControllerButton
-            small={false}
             primary
             usbDriveStatus={usbDriveStatus}
             usbDriveEject={() => ejectUsbDriveMutation.mutate()}

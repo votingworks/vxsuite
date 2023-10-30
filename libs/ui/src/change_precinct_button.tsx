@@ -153,9 +153,7 @@ export function ChangePrecinctButton({
     precinctSelectDropdown
   ) : (
     <React.Fragment>
-      <Button onPress={openModal} large>
-        Change Precinct
-      </Button>
+      <Button onPress={openModal}>Change Precinct</Button>
       {isConfirmationModalShowing && (
         <Modal
           content={

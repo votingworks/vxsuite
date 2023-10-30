@@ -28,15 +28,6 @@ export interface StyledButtonProps {
   variant?: ButtonVariant;
   icon?: IconName | JSX.Element;
   rightIcon?: IconName | JSX.Element;
-
-  /** @deprecated Place the button within a flex or grid container instead. */
-  readonly fullWidth?: boolean;
-
-  /** @deprecated Incompatible with new VVSG size themes */
-  readonly large?: boolean;
-
-  /** @deprecated Incompatible with new VVSG size themes */
-  readonly small?: boolean;
 }
 
 export type ButtonProps<T = undefined> = StyledButtonProps & {
@@ -61,12 +52,6 @@ export type ButtonProps<T = undefined> = StyledButtonProps & {
         value: T;
       }
   );
-
-/** @deprecated Use {@link ButtonProps} instead. */
-export type ButtonInterface = Pick<
-  ButtonProps,
-  'fullWidth' | 'large' | 'small' | 'variant'
->;
 
 function resolveIcon(icon: IconName | JSX.Element): JSX.Element {
   if (typeof icon === 'string') {

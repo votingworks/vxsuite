@@ -137,7 +137,7 @@ export function NavigationScreen({
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
-                <Button onPress={() => logOutMutation.mutate()} small>
+                <Button onPress={() => logOutMutation.mutate()}>
                   Lock Machine
                 </Button>
                 <UsbControllerButton

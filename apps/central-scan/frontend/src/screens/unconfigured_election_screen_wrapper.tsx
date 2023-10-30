@@ -39,9 +39,7 @@ export function UnconfiguredElectionScreenWrapper({
   return (
     <Screen>
       <MainNav>
-        <Button small onPress={() => logOutMutation.mutate()}>
-          Lock Machine
-        </Button>
+        <Button onPress={() => logOutMutation.mutate()}>Lock Machine</Button>
       </MainNav>
       <Main centerChild>
         <UnconfiguredElectionScreen

@@ -171,12 +171,8 @@ export function AdminActionsScreen({
           </div>
         </Main>
         <MainNav isTestMode={isTestMode}>
-          <Button small onPress={() => logOutMutation.mutate()}>
-            Lock Machine
-          </Button>
-          <LinkButton small to="/">
-            Back to Dashboard
-          </LinkButton>
+          <Button onPress={() => logOutMutation.mutate()}>Lock Machine</Button>
+          <LinkButton to="/">Back to Dashboard</LinkButton>
         </MainNav>
       </Screen>
       {deleteBallotDataFlowState === 'confirmation' && (

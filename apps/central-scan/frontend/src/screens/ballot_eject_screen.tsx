@@ -361,7 +361,6 @@ export function BallotEjectScreen({
                 <React.Fragment>
                   <P>
                     <Button
-                      fullWidth
                       variant="primary"
                       onPress={() => setBallotState('removeBallot')}
                     >
@@ -370,7 +369,6 @@ export function BallotEjectScreen({
                   </P>
                   <P>
                     <Button
-                      fullWidth
                       variant="primary"
                       onPress={() => setBallotState('acceptBallot')}
                     >
@@ -411,7 +409,6 @@ export function BallotEjectScreen({
               {!allowBallotDuplication && (
                 <Button
                   variant="primary"
-                  fullWidth
                   onPress={() => continueScanning({ forceAccept: false })}
                 >
                   The ballot has been removed

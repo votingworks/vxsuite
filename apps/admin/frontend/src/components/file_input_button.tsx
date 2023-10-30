@@ -1,7 +1,7 @@
 import React, { RefObject } from 'react';
 import styled from 'styled-components';
 
-import { LabelButton, ButtonInterface as ButtonProps } from '@votingworks/ui';
+import { LabelButton, ButtonProps } from '@votingworks/ui';
 
 import { InputEventFunction } from '../config/types';
 

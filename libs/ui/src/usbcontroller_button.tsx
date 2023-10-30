@@ -16,7 +16,6 @@ interface Props {
   usbDriveEject: () => void;
   usbDriveIsEjecting: boolean;
   primary?: boolean;
-  small?: boolean;
 }
 
 export function UsbControllerButton({
@@ -24,7 +23,6 @@ export function UsbControllerButton({
   usbDriveEject,
   usbDriveIsEjecting,
   primary = false,
-  small = true,
 }: Props): JSX.Element | null {
   const extendedUsbDriveStatus: ExtendedUsbDriveStatus = usbDriveIsEjecting
     ? 'ejecting'
@@ -32,7 +30,6 @@ export function UsbControllerButton({
 
   return (
     <Button
-      small={small}
       variant={primary ? 'primary' : 'neutral'}
       disabled={extendedUsbDriveStatus !== 'mounted'}
       onPress={usbDriveEject}

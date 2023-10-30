@@ -98,7 +98,6 @@ export function ExportResultsModal({
         actions={
           <React.Fragment>
             <UsbControllerButton
-              small={false}
               primary
               usbDriveStatus={usbDrive}
               usbDriveEject={() => ejectUsbDriveMutation.mutate()}

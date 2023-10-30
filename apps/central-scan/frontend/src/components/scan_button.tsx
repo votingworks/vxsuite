@@ -13,7 +13,6 @@ export function ScanButton({
 }: Props): JSX.Element {
   return (
     <Button
-      small
       disabled={disabled || !isScannerAttached}
       variant="primary"
       onPress={onPress}
