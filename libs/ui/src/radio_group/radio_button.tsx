@@ -4,7 +4,7 @@ import { ButtonProps, buttonStyles } from '../button';
 import { Radio } from './radio';
 import { OptionProps, RadioGroupOptionId } from './types';
 
-type OptionContainerProps = Pick<ButtonProps, 'disabled' | 'variant'>;
+type OptionContainerProps = Pick<ButtonProps, 'disabled' | 'color' | 'fill'>;
 
 const Container = styled.label<OptionContainerProps>`
   ${buttonStyles}
@@ -40,7 +40,8 @@ export function RadioButton<T extends RadioGroupOptionId>(
     <Container
       aria-label={ariaLabel}
       disabled={disabled}
-      variant={selected ? 'primary' : 'neutral'}
+      color={selected ? 'primary' : 'neutral'}
+      fill={selected ? 'filled' : 'outlined'}
     >
       <Radio {...props} />
       <Label>{label}</Label>
