@@ -5,6 +5,7 @@ import {
 import { CandidateContest, YesNoContest } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, within, render } from '../../test/react_testing_library';
 import { mergeMsEitherNeitherContests } from '../utils/ms_either_neither_contests';
 import { Review } from './review';
@@ -46,10 +47,14 @@ test('candidate contest with no votes', () => {
 });
 
 test('candidate contest with votes but still undervoted', () => {
-  const contest = electionGeneral.contests.find(
-    (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
-  );
-  assert(contest);
+  const contest: CandidateContest = {
+    ...find(
+      electionGeneral.contests,
+      (c): c is CandidateContest => c.type === 'candidate'
+    ),
+    seats: 3,
+  };
+
   const contests = [contest];
   render(
     <Review
@@ -62,7 +67,10 @@ test('candidate contest with votes but still undervoted', () => {
       returnToContest={jest.fn()}
     />
   );
-  screen.getByText(/You may still vote for \d+ more candidates?./);
+
+  screen.getByText(
+    hasTextAcrossElements(/votes remaining in this contest: 2/i)
+  );
 });
 
 test('candidate contest fully voted', () => {

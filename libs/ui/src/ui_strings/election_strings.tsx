@@ -3,6 +3,7 @@
 import {
   BallotStyleId,
   Candidate,
+  ContestLike,
   County,
   District,
   Election,
@@ -13,13 +14,6 @@ import {
 } from '@votingworks/types';
 
 import { UiString } from './ui_string';
-
-// Using more lenient typing to support both the `Contest` and the
-// `MsEitherNeitherContest` types.
-interface ContestLike {
-  id: string;
-  title: string;
-}
 
 type ContestWithDescription = ContestLike & {
   description: string;

@@ -7,7 +7,8 @@ import {
   H1,
   WithScrollButtons,
   useScreenInfo,
-  Prose,
+  appStrings,
+  AudioOnly,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -54,7 +55,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
 
   const printMyBallotButton = (
     <LinkButton to={printScreenUrl} id="next" variant="primary" icon="Done">
-      Print My Ballot
+      {appStrings.buttonPrintBallot()}
     </LinkButton>
   );
 
@@ -63,19 +64,12 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
   return (
     <Screen navRight={!screenInfo.isPortrait}>
       <Main flexColumn>
-        <ContentHeader>
-          <Prose id="audiofocus">
-            <H1>
-              <span aria-label="Review Your Votes.">Review Your Votes</span>
-              <span className="screen-reader-only">
-                To review your votes, advance through the ballot contests using
-                the up and down buttons. To change your vote in any contest, use
-                the select button to navigate to that contest. When you are
-                finished making your ballot selections and ready to print your
-                ballot, use the right button to print your ballot.
-              </span>
-            </H1>
-          </Prose>
+        <ContentHeader id="audiofocus">
+          <H1>{appStrings.titleBmdReviewScreen()}</H1>
+          <AudioOnly>
+            {appStrings.instructionsBmdReviewPageNavigation()}{' '}
+            {appStrings.instructionsBmdReviewPageChangingVotes()}
+          </AudioOnly>
         </ContentHeader>
         <WithScrollButtons>
           <Review

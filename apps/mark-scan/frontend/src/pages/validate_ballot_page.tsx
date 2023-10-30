@@ -3,12 +3,13 @@ import { useContext } from 'react';
 
 import styled from 'styled-components';
 import {
-  Prose,
   Screen,
   H1,
   WithScrollButtons,
   Main,
   Button,
+  appStrings,
+  AudioOnly,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -76,18 +77,12 @@ export function ValidateBallotPage(): JSX.Element | null {
   return (
     <Screen>
       <Main flexColumn>
-        <ContentHeader>
-          <Prose id="audiofocus">
-            <H1>
-              <span aria-label="Review Your Votes.">Review Your Votes</span>
-              <span className="screen-reader-only">
-                To review your votes, advance through the ballot contests using
-                the up and down buttons. If your selections are correct, press
-                “My Ballot is Correct”. If there is an error, press “My Ballot
-                is Incorrect” and alert a poll worker.
-              </span>
-            </H1>
-          </Prose>
+        <ContentHeader id="audiofocus">
+          <H1>{appStrings.titleBmdReviewScreen()}</H1>
+          <AudioOnly>
+            {appStrings.instructionsBmdReviewPageNavigation()}{' '}
+            {appStrings.instructionsBmdScanReviewConfirmation()}
+          </AudioOnly>
         </ContentHeader>
         <WithScrollButtons>
           <Review
@@ -106,9 +101,11 @@ export function ValidateBallotPage(): JSX.Element | null {
           icon="Danger"
           onPress={invalidateBallotCallback}
         >
-          My Ballot is Incorrect
+          {appStrings.buttonBallotIsIncorrect()}
         </Button>
-        <Button onPress={validateBallotCallback}>My Ballot is Correct</Button>
+        <Button onPress={validateBallotCallback}>
+          {appStrings.buttonBallotIsCorrect()}
+        </Button>
       </ButtonFooter>
     </Screen>
   );

@@ -8,6 +8,7 @@ import { assert } from '@votingworks/basics';
 import { Button } from './button';
 import { Icons } from './icons';
 import { makeTheme } from './themes/make_theme';
+import { appStrings } from './ui_strings';
 
 export interface WithScrollButtonsProps {
   children: React.ReactNode;
@@ -182,7 +183,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
               <Control onPress={onScrollUp} variant="primary">
                 <ControlLabel>
                   <Icons.UpChevron />
-                  <span>More</span>
+                  {appStrings.buttonMore()}
                 </ControlLabel>
               </Control>
             )}
@@ -190,7 +191,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
             {canScrollDown && (
               <Control onPress={onScrollDown} variant="primary">
                 <ControlLabel>
-                  <span>More</span>
+                  {appStrings.buttonMore()}
                   <Icons.DownChevron />
                 </ControlLabel>
               </Control>

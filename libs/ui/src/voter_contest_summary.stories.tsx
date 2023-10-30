@@ -10,10 +10,10 @@ const initialProps: VoterContestSummaryProps = {
   title: 'City Council',
   titleType: 'h3',
   votes: [
-    { label: 'Martin Scorsese', caption: 'American' },
-    { label: 'Jean-Luc Godard', caption: 'French' },
-    { label: 'Akira Kurosawa', caption: 'Japanese' },
-    { label: 'Barney', caption: '(write-in)' },
+    { id: 'scorsese', label: 'Martin Scorsese', caption: 'American' },
+    { id: 'godard', label: 'Jean-Luc Godard', caption: 'French' },
+    { id: 'kurosawa', label: 'Akira Kurosawa', caption: 'Japanese' },
+    { id: 'barney', label: 'Barney', caption: '(write-in)' },
   ],
 };
 

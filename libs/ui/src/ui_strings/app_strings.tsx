@@ -14,24 +14,43 @@ export const appStrings = {
 
   buttonBack: () => <UiString uiStringKey="buttonBack">Back</UiString>,
 
+  buttonBallotIsCorrect: () => (
+    <UiString uiStringKey="buttonBallotIsCorrect">
+      My Ballot is Correct
+    </UiString>
+  ),
+
+  buttonBallotIsIncorrect: () => (
+    <UiString uiStringKey="buttonBallotIsIncorrect">
+      My Ballot is Incorrect
+    </UiString>
+  ),
+
+  buttonBmdReviewCardAction: () => (
+    <UiString uiStringKey="buttonBmdReviewCardAction">
+      Press the select button to change your votes for this contest.
+    </UiString>
+  ),
+
+  buttonChange: () => <UiString uiStringKey="buttonChange">Change</UiString>,
+
   buttonDisplaySettings: () => (
     <UiString uiStringKey="buttonDisplaySettings">Color/Size</UiString>
   ),
 
+  buttonMore: () => <UiString uiStringKey="buttonMore">More</UiString>,
+
   buttonNext: () => <UiString uiStringKey="buttonNext">Next</UiString>,
+
+  buttonPrintBallot: () => (
+    <UiString uiStringKey="buttonPrintBallot">Print My Ballot</UiString>
+  ),
 
   buttonStartVoting: () => (
     <UiString uiStringKey="buttonStartVoting">Start Voting</UiString>
   ),
 
   buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
-
-  contestNavigationInstructions: () => (
-    <UiString uiStringKey="contestNavigationInstructions">
-      To navigate through the contest choices, use the down button. To move to
-      the next contest, use the right button.
-    </UiString>
-  ),
 
   date: (value: Date) => <DateString value={value} />,
 
@@ -42,6 +61,38 @@ export const appStrings = {
       and right buttons. To navigate through contest choices, use the up and
       down buttons. To select or unselect a contest choice as your vote, use the
       select button. Press the right button now to advance to the first contest.
+    </UiString>
+  ),
+
+  instructionsBmdContestNavigation: () => (
+    <UiString uiStringKey="instructionsBmdContestNavigation">
+      To navigate through the contest choices, use the down button. To move to
+      the next contest, use the right button.
+    </UiString>
+  ),
+
+  instructionsBmdReviewPageNavigation: () => (
+    <UiString uiStringKey="instructionsBmdReviewPageNavigation">
+      To review your votes, advance through the ballot contests using the up and
+      down buttons.
+    </UiString>
+  ),
+
+  instructionsBmdReviewPageChangingVotes: () => (
+    <UiString uiStringKey="instructionsBmdReviewPageChangingVotes">
+      To change your vote in any contest, use the select button to navigate to
+      that contest. When you are finished making your ballot selections and
+      ready to print your ballot, use the right button to print your ballot.
+    </UiString>
+  ),
+
+  // TODO(kofi): I think these instructions could be improved a bit. Not sure
+  // it's obvious to a vision-impaired voter that they have to navigate down to
+  // the confirm/reject buttons at the bottom of the screen.
+  instructionsBmdScanReviewConfirmation: () => (
+    <UiString uiStringKey="instructionsBmdScanReviewConfirmation">
+      If your selections are correct, press “My Ballot is Correct”. If there is
+      an error, press “My Ballot is Incorrect” and alert a poll worker.
     </UiString>
   ),
 
@@ -59,8 +110,19 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelNumVotesRemaining: () => (
+    <UiString uiStringKey="labelNumVotesRemaining">
+      Votes remaining in this contest:
+    </UiString>
+  ),
+
+  labelWriteInParenthesized: () => (
+    <UiString uiStringKey="labelWriteInParenthesized">(write-in)</UiString>
+  ),
+
   number: (value: number) => <NumberString value={value} />,
 
+  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
   numSeatsInstructions: (numSeats: number) =>
     // These are split out into individual strings instead of an interpolated
     // one to support generating non-interpolated audio for each one, for a
@@ -75,6 +137,7 @@ export const appStrings = {
       // possible votes per contest.
     })[numSeats],
 
+  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
   numVotesSelected: (numVotes: number) =>
     ({
       1: (
@@ -100,6 +163,7 @@ export const appStrings = {
       // TODO(kofi): Same as above: find numVotes upper limit.
     })[numVotes],
 
+  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
   numVotesRemaining: (numRemaining: number) =>
     ({
       1: (
@@ -124,4 +188,14 @@ export const appStrings = {
       ),
       // TODO(kofi): Same as above: find numRemaining upper limit.
     })[numRemaining],
+
+  titleBmdReviewScreen: () => (
+    <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
+  ),
+
+  warningNoVotesForContest: () => (
+    <UiString uiStringKey="warningNoVotesForContest">
+      You may still vote in this contest.
+    </UiString>
+  ),
 } as const;
