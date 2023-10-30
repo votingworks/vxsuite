@@ -15,24 +15,18 @@ export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
   const workspacePackages = getWorkspacePackageInfo(root);
 
   yield* pkgs.checkConfig({
-    // It's important that these packages are pinned to a specific version.
-    // Otherwise, we can end up with multiple versions of the same package
-    // in the same monorepo, which can cause issues. For example, if we
-    // have two versions of React, then we can end up with two copies of
-    // the React context, which can cause issues. Or if we have two
-    // versions of TypeScript, we can have code flagged as an error by
-    // one version of TypeScript, but not the other.
     pinnedPackages: [
-      '@types/node',
-      '@typescript-eslint/eslint-plugin',
-      '@typescript-eslint/parser',
-      'eslint',
-      'fast-check',
-      'prettier',
-      'react',
-      'react-dom',
-      'typescript',
-      'vite'
+      // Pin all packages by default:
+      '*',
+
+      // Pin a package:
+      // 'pkg-to-pin',
+
+      // Using a glob to pin many packages:
+      // '@types/*',
+
+      // Exclude a package:
+      // '!pkg-to-exclude',
     ],
     workspacePackages,
   });

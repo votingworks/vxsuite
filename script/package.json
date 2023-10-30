@@ -11,14 +11,15 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
-    "concurrently": "^7.4.0",
+    "concurrently": "7.6.0",
+    "matcher": "4",
     "resolve-from": "^5.0.0",
     "yaml": "^2.1.0"
   },
   "devDependencies": {
     "@types/node": "16.18.23",
-    "esbuild": "^0.13.13",
-    "esbuild-runner": "^2.2.1",
+    "esbuild": "0.17.11",
+    "esbuild-runner": "2.2.2",
     "prettier": "3.0.3",
     "typescript": "5.2.2"
   },
