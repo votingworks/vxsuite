@@ -37,7 +37,6 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const writeInSummaryQuery = getElectionWriteInSummary.useQuery();
-  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
   const report = useMemo(() => {
     if (!writeInSummaryQuery.isSuccess) return undefined;
