@@ -190,8 +190,8 @@ function expandToFullColorTheme(
 
     inverseBackground: theme.onBackground,
     onInverse: theme.background,
-    inversePrimary: theme.primary,
-    inverseContainer: theme.background,
+    inversePrimary: theme.background,
+    inverseContainer: theme.onBackground,
 
     warningAccent: theme.warningAccent,
     successAccent: theme.successAccent,
