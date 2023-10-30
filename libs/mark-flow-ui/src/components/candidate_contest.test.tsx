@@ -3,7 +3,7 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
-import { advanceTimers } from '@votingworks/test-utils';
+import { advanceTimers, hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, within, render } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
 
@@ -13,10 +13,12 @@ const candidateContest = electionDefinition.election.contests.find(
   (c) => c.type === 'candidate'
 )! as CandidateContestInterface;
 
-const candidateContestWithMultipleSeats =
-  electionDefinition.election.contests.find(
-    (c) => c.type === 'candidate' && c.seats > 1
-  )! as CandidateContestInterface;
+const candidateContestWithMultipleSeats: CandidateContestInterface = {
+  ...electionDefinition.election.contests.find(
+    (c): c is CandidateContestInterface => c.type === 'candidate' && c.seats > 1
+  )!,
+  seats: 4,
+};
 
 const candidateContestWithWriteIns = electionDefinition.election.contests.find(
   (c) => c.type === 'candidate' && c.allowWriteIns
@@ -24,6 +26,67 @@ const candidateContestWithWriteIns = electionDefinition.election.contests.find(
 
 beforeEach(() => {
   jest.useFakeTimers();
+});
+
+test('shows up-to-date vote counter - single-seat contest', () => {
+  const updateVote = jest.fn();
+  const { rerender } = render(
+    <CandidateContest
+      election={electionDefinition.election}
+      contest={candidateContest}
+      vote={[]}
+      updateVote={updateVote}
+    />
+  );
+
+  screen.getByText(
+    hasTextAcrossElements(/votes remaining in this contest: 1/i)
+  );
+
+  rerender(
+    <CandidateContest
+      election={electionDefinition.election}
+      contest={candidateContest}
+      vote={[candidateContest.candidates[0]]}
+      updateVote={updateVote}
+    />
+  );
+
+  screen.getByText(
+    hasTextAcrossElements(/votes remaining in this contest: 0/i)
+  );
+});
+
+test('shows up-to-date vote counter - multi-seat contest', () => {
+  const updateVote = jest.fn();
+  const { rerender } = render(
+    <CandidateContest
+      election={electionDefinition.election}
+      contest={candidateContestWithMultipleSeats}
+      vote={[]}
+      updateVote={updateVote}
+    />
+  );
+
+  screen.getByText(
+    hasTextAcrossElements(/votes remaining in this contest: 4/i)
+  );
+
+  rerender(
+    <CandidateContest
+      election={electionDefinition.election}
+      contest={candidateContestWithMultipleSeats}
+      vote={[
+        candidateContestWithMultipleSeats.candidates[0],
+        candidateContestWithMultipleSeats.candidates[1],
+      ]}
+      updateVote={updateVote}
+    />
+  );
+
+  screen.getByText(
+    hasTextAcrossElements(/votes remaining in this contest: 2/i)
+  );
 });
 
 describe('supports single-seat contest', () => {

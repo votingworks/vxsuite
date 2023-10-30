@@ -240,7 +240,9 @@ test('MarkAndPrint end-to-end flow', async () => {
       )}${countyCommissionersContest.title}`
     )
   );
-  await screen.findByText(/Vote for 4/i);
+  await screen.findByText(
+    hasTextAcrossElements(/votes remaining in this contest: 4/i)
+  );
 
   // Select first candidate
   userEvent.click(

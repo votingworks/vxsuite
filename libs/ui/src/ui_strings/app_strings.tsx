@@ -52,6 +52,8 @@ export const appStrings = {
 
   buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
 
+  // TODO(kofi): Remove `date` and `number` and have consumers use the
+  // components directly, since this indirection doesn't provided added value.
   date: (value: Date) => <DateString value={value} />,
 
   instructionsBmdBallotNavigation: () => (
@@ -120,74 +122,9 @@ export const appStrings = {
     <UiString uiStringKey="labelWriteInParenthesized">(write-in)</UiString>
   ),
 
+  // TODO(kofi): Remove `date` and `number` and have consumers use the
+  // components directly, since this indirection doesn't provided added value.
   number: (value: number) => <NumberString value={value} />,
-
-  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
-  numSeatsInstructions: (numSeats: number) =>
-    // These are split out into individual strings instead of an interpolated
-    // one to support generating non-interpolated audio for each one, for a
-    // better voter experience.
-    // This pattern only makes sense when there's a very limited value space.
-    ({
-      1: <UiString uiStringKey="numSeatsInstructions.1">Vote for 1.</UiString>,
-      2: <UiString uiStringKey="numSeatsInstructions.2">Vote for 2.</UiString>,
-      3: <UiString uiStringKey="numSeatsInstructions.3">Vote for 3.</UiString>,
-      4: <UiString uiStringKey="numSeatsInstructions.4">Vote for 4.</UiString>,
-      // TODO(kofi): Find out what a reasonable upper limit is for the number of
-      // possible votes per contest.
-    })[numSeats],
-
-  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
-  numVotesSelected: (numVotes: number) =>
-    ({
-      1: (
-        <UiString uiStringKey="numVotesSelected.1">
-          You have selected 1.
-        </UiString>
-      ),
-      2: (
-        <UiString uiStringKey="numVotesSelected.2">
-          You have selected 2.
-        </UiString>
-      ),
-      3: (
-        <UiString uiStringKey="numVotesSelected.3">
-          You have selected 3.
-        </UiString>
-      ),
-      4: (
-        <UiString uiStringKey="numVotesSelected.4">
-          You have selected 4.
-        </UiString>
-      ),
-      // TODO(kofi): Same as above: find numVotes upper limit.
-    })[numVotes],
-
-  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
-  numVotesRemaining: (numRemaining: number) =>
-    ({
-      1: (
-        <UiString uiStringKey="numVotesRemaining.1">
-          You may select 1 more.
-        </UiString>
-      ),
-      2: (
-        <UiString uiStringKey="numVotesRemaining.2">
-          You may select 2 more.
-        </UiString>
-      ),
-      3: (
-        <UiString uiStringKey="numVotesRemaining.3">
-          You may select 3 more.
-        </UiString>
-      ),
-      4: (
-        <UiString uiStringKey="numVotesRemaining.4">
-          You may select 4 more.
-        </UiString>
-      ),
-      // TODO(kofi): Same as above: find numRemaining upper limit.
-    })[numRemaining],
 
   titleBmdReviewScreen: () => (
     <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
