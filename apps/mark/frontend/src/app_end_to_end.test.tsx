@@ -3,6 +3,7 @@ import {
   expectPrint,
   fakeElectionManagerUser,
   fakeKiosk,
+  hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
@@ -225,9 +226,10 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Check for votes
   screen.getByText(presidentContest.candidates[0].name);
-  within(screen.getByText(measure102Contest.title).parentElement!).getByText(
-    'Yes'
-  );
+  within(
+    screen.getByRole('heading', { name: new RegExp(measure102Contest.title) })
+      .parentElement!
+  ).getByText('Yes');
 
   // Change "County Commissioners" Contest
   userEvent.click(
@@ -253,7 +255,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Review Your Votes');
   screen.getByText(countyCommissionersContest.candidates[0].name);
   screen.getByText(countyCommissionersContest.candidates[1].name);
-  screen.getByText('You may still vote for 2 more candidates.');
+  screen.getByText(
+    hasTextAcrossElements(/Votes remaining in this contest: 2/i)
+  );
 
   // Print Screen
   userEvent.click(screen.getByText(/Print My ballot/i));
