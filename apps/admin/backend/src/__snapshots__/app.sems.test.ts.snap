@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sems export 1`] = `
+{
+  "aquarium-council-fish": {
+    "metadata": {
+      "ballots": 28,
+      "overvotes": 8,
+      "undervotes": 6,
+    },
+    "tallies": {
+      "manta-ray": 10,
+      "pufferfish": 8,
+      "rockfish": 8,
+      "triggerfish": 8,
+      "write-in": 8,
+    },
+  },
+  "best-animal-fish": {
+    "metadata": {
+      "ballots": 28,
+      "overvotes": 2,
+      "undervotes": 2,
+    },
+    "tallies": {
+      "salmon": 22,
+      "seahorse": 2,
+    },
+  },
+  "best-animal-mammal": {
+    "metadata": {
+      "ballots": 28,
+      "overvotes": 4,
+      "undervotes": 2,
+    },
+    "tallies": {
+      "fox": 18,
+      "horse": 2,
+      "otter": 2,
+    },
+  },
+  "fishing": {
+    "metadata": {
+      "ballots": 56,
+      "overvotes": 4,
+      "undervotes": 44,
+    },
+    "tallies": {
+      "no": 4,
+      "yes": 4,
+    },
+  },
+  "new-zoo-either": {
+    "metadata": {
+      "ballots": 56,
+      "overvotes": 4,
+      "undervotes": 44,
+    },
+    "tallies": {
+      "no": 4,
+      "yes": 4,
+    },
+  },
+  "new-zoo-pick": {
+    "metadata": {
+      "ballots": 56,
+      "overvotes": 4,
+      "undervotes": 44,
+    },
+    "tallies": {
+      "no": 4,
+      "yes": 4,
+    },
+  },
+  "zoo-council-mammal": {
+    "metadata": {
+      "ballots": 28,
+      "overvotes": 6,
+      "undervotes": 12,
+    },
+    "tallies": {
+      "elephant": 12,
+      "kangaroo": 12,
+      "lion": 14,
+      "write-in": 12,
+      "zebra": 16,
+    },
+  },
+}
+`;
