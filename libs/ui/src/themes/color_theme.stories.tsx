@@ -118,7 +118,7 @@ function ContrastTag(): JSX.Element {
   const grade = contrastRatio ? contrastGrade(colorMode, contrastRatio) : '';
 
   return (
-    <span ref={containerRef}>
+    <span ref={containerRef} title={`Ratio: ${contrastRatio}`}>
       {grade === 'Inaccessible' ? '❎' : '✅'} {grade}
     </span>
   );
