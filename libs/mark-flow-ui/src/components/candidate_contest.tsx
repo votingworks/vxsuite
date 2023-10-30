@@ -247,7 +247,7 @@ export function CandidateContest({
               </Font>
             )}
             <span className="screen-reader-only">
-              {appStrings.contestNavigationInstructions()}
+              {appStrings.instructionsBmdContestNavigation()}
             </span>
           </Caption>
         </ContestHeader>

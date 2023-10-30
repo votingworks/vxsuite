@@ -52,13 +52,6 @@ export const appStrings = {
 
   buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
 
-  contestNavigationInstructions: () => (
-    <UiString uiStringKey="contestNavigationInstructions">
-      To navigate through the contest choices, use the down button. To move to
-      the next contest, use the right button.
-    </UiString>
-  ),
-
   date: (value: Date) => <DateString value={value} />,
 
   instructionsBmdBallotNavigation: () => (
@@ -68,6 +61,13 @@ export const appStrings = {
       and right buttons. To navigate through contest choices, use the up and
       down buttons. To select or unselect a contest choice as your vote, use the
       select button. Press the right button now to advance to the first contest.
+    </UiString>
+  ),
+
+  instructionsBmdContestNavigation: () => (
+    <UiString uiStringKey="instructionsBmdContestNavigation">
+      To navigate through the contest choices, use the down button. To move to
+      the next contest, use the right button.
     </UiString>
   ),
 
@@ -122,6 +122,7 @@ export const appStrings = {
 
   number: (value: number) => <NumberString value={value} />,
 
+  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
   numSeatsInstructions: (numSeats: number) =>
     // These are split out into individual strings instead of an interpolated
     // one to support generating non-interpolated audio for each one, for a
@@ -136,6 +137,7 @@ export const appStrings = {
       // possible votes per contest.
     })[numSeats],
 
+  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
   numVotesSelected: (numVotes: number) =>
     ({
       1: (
@@ -161,6 +163,7 @@ export const appStrings = {
       // TODO(kofi): Same as above: find numVotes upper limit.
     })[numVotes],
 
+  // TODO(kofi): Remove in favour of `labelNumVotesRemaining`
   numVotesRemaining: (numRemaining: number) =>
     ({
       1: (
@@ -190,8 +193,8 @@ export const appStrings = {
     <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
   ),
 
-  undervoteWarningNoVotes: () => (
-    <UiString uiStringKey="undervoteWarningNoVotes">
+  warningNoVotesForContest: () => (
+    <UiString uiStringKey="warningNoVotesForContest">
       You may still vote in this contest.
     </UiString>
   ),

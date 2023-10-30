@@ -68,7 +68,7 @@ function CandidateContestResult({
       undervoteWarning={
         remainingChoices > 0 ? (
           vote.length === 0 ? (
-            appStrings.undervoteWarningNoVotes()
+            appStrings.warningNoVotesForContest()
           ) : (
             <React.Fragment>
               {appStrings.labelNumVotesRemaining()}{' '}
@@ -120,7 +120,7 @@ function YesNoContestResult({
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
       undervoteWarning={
-        !yesNo ? appStrings.undervoteWarningNoVotes() : undefined
+        !yesNo ? appStrings.warningNoVotesForContest() : undefined
       }
       votes={votes}
     />
@@ -168,7 +168,7 @@ function MsEitherNeitherContestResult({
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
       undervoteWarning={
-        votes.length < 2 ? appStrings.undervoteWarningNoVotes() : undefined
+        votes.length < 2 ? appStrings.warningNoVotesForContest() : undefined
       }
       votes={votes}
     />
