@@ -72,7 +72,6 @@ import {
 import { handleEnteredWriteInCandidateData } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
-import { generateBatchResultsFile } from './exports/batch_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateTallyReportCsv } from './exports/csv_tally_report';
@@ -689,43 +688,6 @@ function buildApi({
 
     getScannerBatches(): ScannerBatch[] {
       return store.getScannerBatches(loadCurrentElectionIdOrThrow(workspace));
-    },
-
-    async exportBatchResults(input: {
-      path: string;
-    }): Promise<ExportDataResult> {
-      debug('exporting batch results CSV file');
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-      const {
-        electionDefinition: { election },
-      } = assertDefined(store.getElection(electionId));
-
-      const exportFileResult = await exportFile({
-        path: input.path,
-        data: generateBatchResultsFile({
-          election,
-          batchGroupedResults: await tabulateElectionResults({
-            electionId,
-            store,
-            groupBy: { groupByBatch: true },
-          }),
-          allBatchMetadata: store.getScannerBatches(electionId),
-        }),
-      });
-
-      await logger.log(
-        LogEventId.FileSaved,
-        assertDefined(await getUserRole()),
-        {
-          disposition: exportFileResult.isOk() ? 'success' : 'failure',
-          message: `${
-            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-          } batch results to ${input.path} on the USB drive.`,
-          filename: input.path,
-        }
-      );
-
-      return exportFileResult;
     },
 
     async getSemsExportableTallies(): Promise<SemsExportableTallies> {
