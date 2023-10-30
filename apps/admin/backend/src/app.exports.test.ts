@@ -1,14 +1,8 @@
-import {
-  electionGridLayoutNewHampshireAmherstFixtures,
-  electionTwoPartyPrimaryFixtures,
-} from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { tmpNameSync } from 'tmp';
-import { readFileSync } from 'fs';
-import { LogEventId } from '@votingworks/logging';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -39,50 +33,6 @@ beforeEach(() => {
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
-});
-
-test('batch export', async () => {
-  const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
-
-  const { apiClient, auth, logger } = buildTestEnvironment();
-  await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
-
-  const loadFileResult = await apiClient.addCastVoteRecordFile({
-    path: castVoteRecordExport.asDirectoryPath(),
-  });
-  loadFileResult.assertOk('load file failed');
-
-  const path = tmpNameSync();
-  const exportResult = await apiClient.exportBatchResults({ path });
-  expect(exportResult.isOk()).toEqual(true);
-  expect(readFileSync(path, 'utf-8').toString()).toMatchSnapshot();
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.FileSaved,
-    'election_manager',
-    {
-      disposition: 'success',
-      filename: path,
-      message: `Saved batch results to ${path} on the USB drive.`,
-    }
-  );
-
-  // mock a failure
-  const offLimitsPath = '/root/hidden';
-  const failedExportResult = await apiClient.exportBatchResults({
-    path: offLimitsPath,
-  });
-  expect(failedExportResult.isErr()).toEqual(true);
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.FileSaved,
-    'election_manager',
-    {
-      disposition: 'failure',
-      filename: offLimitsPath,
-      message: `Failed to save batch results to ${offLimitsPath} on the USB drive.`,
-    }
-  );
 });
 
 test('sems export', async () => {
