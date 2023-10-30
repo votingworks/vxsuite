@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 
-import styled, { css, DefaultTheme, StyledComponent } from 'styled-components';
+import styled, { css, DefaultTheme } from 'styled-components';
 import { ColorString, SizeMode, UiTheme } from '@votingworks/types';
 
 import { Icons, IconName } from './icons';
@@ -25,6 +25,7 @@ export interface StyledButtonProps {
   disabled?: boolean;
   id?: string;
   role?: string;
+  tabIndex?: number;
   variant?: ButtonVariant;
   icon?: IconName | JSX.Element;
   rightIcon?: IconName | JSX.Element;
@@ -39,9 +40,6 @@ export type ButtonProps<T = undefined> = StyledButtonProps & {
    * button.
    */
   nonAccessibleTitle?: string;
-
-  /** @deprecated */
-  component?: StyledComponent<'button', DefaultTheme, StyledButtonProps, never>;
 } & ( // Require a matching `value` if the provided click handler expects a value.
     | {
         onPress: ClickHandler;
@@ -258,10 +256,10 @@ export class Button<T = undefined> extends PureComponent<
   render(): JSX.Element {
     const {
       children,
-      component: Component = StyledButton,
       onPress, // eslint-disable-line @typescript-eslint/no-unused-vars
       disabled,
       nonAccessibleTitle,
+      tabIndex,
       value, // eslint-disable-line @typescript-eslint/no-unused-vars
       variant,
       icon,
@@ -270,20 +268,21 @@ export class Button<T = undefined> extends PureComponent<
     } = this.props;
 
     return (
-      <Component
+      <StyledButton
         {...rest}
         disabled={disabled}
         onTouchStart={this.onTouchStart}
         onTouchEnd={this.onTouchEnd}
         onClick={this.onPress}
         ref={this.buttonRef}
+        tabIndex={tabIndex}
         title={nonAccessibleTitle}
         variant={variant}
       >
         {icon && resolveIcon(icon)}
         {children && <TextContainer>{children}</TextContainer>}
         {rightIcon && resolveIcon(rightIcon)}
-      </Component>
+      </StyledButton>
     );
   }
 }

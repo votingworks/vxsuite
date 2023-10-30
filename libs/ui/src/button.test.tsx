@@ -3,7 +3,7 @@ import parseCssColor from 'parse-css-color';
 import { Color, ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../test/react_testing_library';
-import { ALL_BUTTON_VARIANTS, Button, DecoyButton } from './button';
+import { ALL_BUTTON_VARIANTS, Button } from './button';
 import { makeTheme } from './themes/make_theme';
 import { Icons } from './icons';
 
@@ -232,11 +232,6 @@ describe('renders Button', () => {
     );
 
     expect(screen.getButton('Confirm')).toHaveFocus();
-  });
-
-  test('as DecoyButton ', () => {
-    render(<DecoyButton>DecoyButton</DecoyButton>);
-    screen.getByText('DecoyButton');
   });
 
   test('and tests clicks and touches', () => {
