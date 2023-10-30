@@ -252,6 +252,7 @@ export function BallotCountReportViewer({
     filter,
     groupBy,
     isTestMode: castVoteRecordFileModeQuery.data === 'test',
+    isOfficialResults,
     time: cardCountsQuery.dataUpdatedAt
       ? new Date(cardCountsQuery.dataUpdatedAt)
       : undefined,

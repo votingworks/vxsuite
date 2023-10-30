@@ -40,13 +40,13 @@ test('calls mutation in happy path', async () => {
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Save Ballot Count Report');
   within(modal).getByText(
-    /absentee-ballots-ballot-count-report-by-precinct__2021-01-01_00-00-00\.csv/
+    /unofficial-absentee-ballots-ballot-count-report-by-precinct__2021-01-01_00-00-00\.csv/
   );
 
   apiMock.expectExportBallotCountReportCsv({
     filter,
     groupBy,
-    path: 'test-mount-point/choctaw-county_mock-general-election-choctaw-2020_d6806afc49/reports/absentee-ballots-ballot-count-report-by-precinct__2021-01-01_00-00-00.csv',
+    path: 'test-mount-point/choctaw-county_mock-general-election-choctaw-2020_d6806afc49/reports/unofficial-absentee-ballots-ballot-count-report-by-precinct__2021-01-01_00-00-00.csv',
   });
   userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Ballot Count Report Saved');

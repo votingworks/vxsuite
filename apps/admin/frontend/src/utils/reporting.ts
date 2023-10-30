@@ -1,6 +1,7 @@
 import { Election, ElectionDefinition, Tabulation } from '@votingworks/types';
 import { Optional, Result, err, find, ok } from '@votingworks/basics';
 import {
+  TEST_FILE_PREFIX,
   getPartyById,
   getPrecinctById,
   sanitizeStringForFilename,
@@ -13,6 +14,8 @@ const VOTING_METHOD_LABELS: Record<Tabulation.VotingMethod, string> = {
   precinct: 'Precinct',
   provisional: 'Provisional',
 };
+
+const FAT_FILENAME_CHAR_LIMIT = 255;
 
 /**
  * Checks whether the report has any filters which have multiple values selected.
@@ -265,8 +268,6 @@ const WORD_SEPARATOR = '-';
 const SUBSECTION_SEPARATOR = '_';
 const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
 
-const TEST_MODE_PREFIX = 'TEST';
-
 function generateReportFilenameFilterPrefix({
   election,
   filter,
@@ -364,11 +365,12 @@ function generateReportFilenameGroupByPostfix({
   return postfixes.join(`${WORD_SEPARATOR}and${WORD_SEPARATOR}`);
 }
 
-function generateReportFilename({
+export function generateReportFilename({
   election,
   filter,
   groupBy,
   isTestMode,
+  isOfficialResults,
   extension,
   type: typeSingular,
   typePlural,
@@ -378,6 +380,7 @@ function generateReportFilename({
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
+  isOfficialResults: boolean;
   extension: string;
   type: string;
   typePlural?: string;
@@ -392,12 +395,18 @@ function generateReportFilename({
   });
 
   const descriptionParts: string[] = [];
-  const shortDescriptionParts: string[] = []; // in case description is too long
+  // description could be too long for the FAT filename limit of 255 characters
+  // so we also generate a short description
+  const shortDescriptionParts: string[] = [];
 
   if (isTestMode) {
-    descriptionParts.push(TEST_MODE_PREFIX);
-    shortDescriptionParts.push(TEST_MODE_PREFIX);
+    descriptionParts.push(TEST_FILE_PREFIX);
+    shortDescriptionParts.push(TEST_FILE_PREFIX);
   }
+
+  const officiality = isOfficialResults ? 'official' : 'unofficial';
+  descriptionParts.push(officiality);
+  shortDescriptionParts.push(officiality);
 
   if (descriptionFilterPrefix) {
     descriptionParts.push(descriptionFilterPrefix);
@@ -422,7 +431,7 @@ function generateReportFilename({
     SECTION_SEPARATOR
   )}.${extension}`;
 
-  if (filename.length <= 255) {
+  if (filename.length <= FAT_FILENAME_CHAR_LIMIT) {
     return filename;
   }
 
@@ -441,12 +450,14 @@ export function generateTallyReportPdfFilename({
   filter,
   groupBy,
   isTestMode,
+  isOfficialResults,
   time = new Date(),
 }: {
   election: Election;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
+  isOfficialResults: boolean;
   time?: Date;
 }): string {
   return generateReportFilename({
@@ -454,6 +465,7 @@ export function generateTallyReportPdfFilename({
     filter,
     groupBy,
     isTestMode,
+    isOfficialResults,
     extension: 'pdf',
     type: 'tally-report',
     typePlural: 'tally-reports',
@@ -466,12 +478,14 @@ export function generateTallyReportCsvFilename({
   filter,
   groupBy,
   isTestMode,
+  isOfficialResults,
   time = new Date(),
 }: {
   election: Election;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
+  isOfficialResults: boolean;
   time?: Date;
 }): string {
   return generateReportFilename({
@@ -479,6 +493,7 @@ export function generateTallyReportCsvFilename({
     filter,
     groupBy,
     isTestMode,
+    isOfficialResults,
     extension: 'csv',
     type: 'tally-report',
     time,
@@ -490,12 +505,14 @@ export function generateBallotCountReportPdfFilename({
   filter,
   groupBy,
   isTestMode,
+  isOfficialResults,
   time = new Date(),
 }: {
   election: Election;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
+  isOfficialResults: boolean;
   time?: Date;
 }): string {
   return generateReportFilename({
@@ -503,6 +520,7 @@ export function generateBallotCountReportPdfFilename({
     filter,
     groupBy,
     isTestMode,
+    isOfficialResults,
     extension: 'pdf',
     type: 'ballot-count-report',
     time,
@@ -514,12 +532,14 @@ export function generateBallotCountReportCsvFilename({
   filter,
   groupBy,
   isTestMode,
+  isOfficialResults,
   time = new Date(),
 }: {
   election: Election;
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
+  isOfficialResults: boolean;
   time?: Date;
 }): string {
   return generateReportFilename({
@@ -527,6 +547,7 @@ export function generateBallotCountReportCsvFilename({
     filter,
     groupBy,
     isTestMode,
+    isOfficialResults,
     extension: 'csv',
     type: 'ballot-count-report',
     time,

@@ -17,6 +17,7 @@ const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTI
 export const BALLOT_PACKAGE_FOLDER = 'ballot-packages';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
 export const SCANNER_BACKUPS_FOLDER = 'scanner-backups';
+export const TEST_FILE_PREFIX = 'TEST';
 
 /**
  * @deprecated
@@ -126,7 +127,9 @@ export function generateCastVoteRecordReportDirectoryName(
   }`;
   const timeInformation = moment(time).format(TIME_FORMAT_STRING);
   const filename = `${machineString}${SECTION_SEPARATOR}${ballotString}${SECTION_SEPARATOR}${timeInformation}`;
-  return isTestMode ? `TEST${SECTION_SEPARATOR}${filename}` : filename;
+  return isTestMode
+    ? `${TEST_FILE_PREFIX}${SECTION_SEPARATOR}${filename}`
+    : filename;
 }
 
 /**
@@ -145,7 +148,8 @@ export function parseCastVoteRecordReportDirectoryName(
   // TODO: no need to ignore extension once we don't accept .jsonl
   const fileBasename = basename(filename);
   const segments = fileBasename.split(SECTION_SEPARATOR);
-  const isTestModeResults = segments.length === 4 && segments[0] === 'TEST';
+  const isTestModeResults =
+    segments.length === 4 && segments[0] === TEST_FILE_PREFIX;
 
   const postTestPrefixSegments = isTestModeResults
     ? segments.slice(1)
@@ -331,7 +335,7 @@ export function generateCastVoteRecordExportDirectoryName({
   const timeString = moment(time).format(TIME_FORMAT_STRING);
   const directoryNameComponents = [machineString, timeString];
   if (inTestMode) {
-    directoryNameComponents.unshift('TEST');
+    directoryNameComponents.unshift(TEST_FILE_PREFIX);
   }
   return directoryNameComponents.join(SECTION_SEPARATOR);
 }
@@ -343,7 +347,7 @@ export function parseCastVoteRecordReportExportDirectoryName(
   exportDirectoryName: string
 ): Optional<CastVoteRecordExportDirectoryNameComponents> {
   const sections = exportDirectoryName.split(SECTION_SEPARATOR);
-  const inTestMode = sections.length === 3 && sections[0] === 'TEST';
+  const inTestMode = sections.length === 3 && sections[0] === TEST_FILE_PREFIX;
   const postTestPrefixSections = inTestMode ? sections.slice(1) : sections;
   if (postTestPrefixSections.length !== 2) {
     return;

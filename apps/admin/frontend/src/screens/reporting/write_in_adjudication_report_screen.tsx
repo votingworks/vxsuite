@@ -8,7 +8,6 @@ import {
   P,
   WriteInAdjudicationReport,
 } from '@votingworks/ui';
-import { generateDefaultReportFilename } from '../../utils/save_as_pdf';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import { FileType } from '../../components/save_frontend_file_modal';
@@ -26,17 +25,18 @@ import {
   ReportBackButton,
 } from '../../components/reporting/shared';
 import { ExportReportPdfButton } from '../../components/reporting/export_report_pdf_button';
+import { generateReportFilename } from '../../utils/reporting';
 
 export function TallyWriteInReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
     useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
-  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
-  const writeInSummaryQuery = getElectionWriteInSummary.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
+  const writeInSummaryQuery = getElectionWriteInSummary.useQuery();
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
   const report = useMemo(() => {
     if (!writeInSummaryQuery.isSuccess) return undefined;
@@ -80,11 +80,16 @@ export function TallyWriteInReportScreen(): JSX.Element {
     }
   }
 
-  const reportPdfFilename = generateDefaultReportFilename(
-    'write-in-adjudication-report',
+  const reportPdfFilename = generateReportFilename({
     election,
-    'full'
-  );
+    filter: {},
+    groupBy: {},
+    type: 'write-in-adjudication-report',
+    isTestMode: castVoteRecordFileModeQuery.data === 'test',
+    isOfficialResults,
+    extension: 'pdf',
+    time: new Date(),
+  });
 
   return (
     <NavigationScreen title="Write-In Adjudication Report">
