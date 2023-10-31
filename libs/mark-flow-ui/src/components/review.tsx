@@ -204,7 +204,7 @@ export function Review({
             footerAlign={selectionsAreEditable ? 'right' : undefined}
             footer={
               selectionsAreEditable && (
-                <Button onPress={() => {}}>
+                <Button tabIndex={-1} onPress={() => {}}>
                   <Caption>
                     {/*
                      * TODO(kofi): Add a <NoAudio> wrapper component for
