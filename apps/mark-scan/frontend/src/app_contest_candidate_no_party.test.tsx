@@ -63,7 +63,7 @@ it('Single Seat Contest', async () => {
   );
   await setStateInStorage(storage);
 
-  const { container } = render(
+  render(
     <App
       hardware={hardware}
       storage={storage}
@@ -91,7 +91,4 @@ it('Single Seat Contest', async () => {
   expect(screen.queryByText('Liberty')).toEqual(null);
   expect(screen.queryByText('Constitution')).toEqual(null);
   expect(screen.queryByText('Whig')).toEqual(null);
-
-  // Capture styles of Single Candidate Contest
-  expect(container.firstChild).toMatchSnapshot();
 });

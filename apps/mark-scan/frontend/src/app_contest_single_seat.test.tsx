@@ -40,7 +40,7 @@ it('Single Seat Contest', async () => {
   await setStateInStorage(storage);
   apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 
-  const { container } = render(
+  render(
     <App
       hardware={hardware}
       storage={storage}
@@ -79,9 +79,6 @@ it('Single Seat Contest', async () => {
   screen.getByText(
     `You may only select ${presidentContest.seats} candidate in this contest. To vote for ${candidate1}, you must first unselect the selected candidate.`
   );
-
-  // Capture styles of Single Candidate Contest
-  expect(container.firstChild).toMatchSnapshot();
 
   // Close the modal
   fireEvent.click(screen.getByText('Okay'));

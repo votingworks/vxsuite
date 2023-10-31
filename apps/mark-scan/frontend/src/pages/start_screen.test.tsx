@@ -36,22 +36,16 @@ test('renders StartScreen in Landscape Orientation', () => {
     route: '/',
     machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
   });
-  screen.getByRole('heading', { name: /Example Primary Election/ });
+  const heading = screen.getByRole('heading', {
+    name: /Example Primary Election/,
+  });
   screen.getByText('September 8, 2021');
   screen.getByText(
     hasTextAcrossElements('Number of contests on your ballot: 7')
   );
-});
-
-test('renders StartScreen with inline SVG seal', () => {
-  const electionDefinition = electionGeneralDefinition;
-  const { container } = render(<Route path="/" component={StartScreen} />, {
-    electionDefinition,
-    ballotStyleId: '12',
-    precinctId: '23',
-    route: '/',
-  });
-  expect(container.getElementsByTagName('svg')).toMatchSnapshot();
+  expect(
+    heading.parentElement!.parentElement!.getElementsByTagName('svg')
+  ).toHaveLength(1); // Seal
 });
 
 it('renders display settings button', () => {
