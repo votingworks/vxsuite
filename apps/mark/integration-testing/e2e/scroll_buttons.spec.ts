@@ -4,7 +4,7 @@ import {
   electionGeneralJson,
 } from '@votingworks/fixtures';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
-import { createBallotPackageZipArchive } from '@votingworks/backend';
+import { mockBallotPackageFileTree } from '@votingworks/backend';
 import assert from 'assert';
 import {
   mockCardRemoval,
@@ -37,13 +37,9 @@ test('configure, open polls, and test contest scroll buttons', async ({
   await enterPin(page);
   await page.getByText('VxMark is Not Configured').waitFor();
 
-  usbHandler.insert({
-    'ballot-packages': {
-      'ballot-package.zip': await createBallotPackageZipArchive(
-        electionGeneralJson.toBallotPackage()
-      ),
-    },
-  });
+  usbHandler.insert(
+    await mockBallotPackageFileTree(electionGeneralJson.toBallotPackage())
+  );
 
   // Election Manager: set precinct
   await page.getByText('Precinct', { exact: true }).waitFor();

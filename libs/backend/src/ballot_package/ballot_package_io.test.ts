@@ -2,6 +2,7 @@ import { fakeLogger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   InsertedSmartCardAuth,
+  SystemSettings,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import {
@@ -17,7 +18,9 @@ import {
 } from '@votingworks/fixtures';
 import { assert, err, ok } from '@votingworks/basics';
 import {
+  BALLOT_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
+  generateElectionBasedSubfolderName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
@@ -25,7 +28,10 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { Buffer } from 'buffer';
 import { UsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { createBallotPackageZipArchive } from './test_utils';
+import {
+  createBallotPackageZipArchive,
+  mockBallotPackageFileTree,
+} from './test_utils';
 import { readBallotPackageFromUsb } from './ballot_package_io';
 
 const mockFeatureFlagger = getFeatureFlagMock();
@@ -47,25 +53,20 @@ beforeEach(() => {
 
 async function assertFilesCreatedInOrder(
   usbDrive: UsbDrive,
-  olderFileName: string,
-  newerFileName: string
+  relativeFilePaths: string[]
 ) {
   const usbDriveStatus = await usbDrive.status();
   assert(usbDriveStatus.status === 'mounted');
   // Ensure our mock actually created the files in the order we expect (the
   // order of the keys in the object above)
-  const dirPath = join(usbDriveStatus.mountPoint, 'ballot-packages');
-  const files = fs.readdirSync(dirPath);
-  const filesWithStats = files.map((file) => ({
-    file,
-    ...fs.statSync(join(dirPath, file)),
-  }));
-  assert(filesWithStats[0] !== undefined && filesWithStats[1] !== undefined);
-  expect(filesWithStats[0].file).toContain(newerFileName);
-  expect(filesWithStats[1].file).toContain(olderFileName);
-  expect(filesWithStats[0].ctime.getTime()).toBeGreaterThan(
-    filesWithStats[1].ctime.getTime()
+  const filesWithStats = relativeFilePaths.map((relativeFilePath) =>
+    fs.statSync(join(usbDriveStatus.mountPoint, relativeFilePath))
   );
+  for (let i = 0; i < filesWithStats.length - 1; i += 1) {
+    expect(filesWithStats[i]!.ctime.getTime()).toBeLessThan(
+      filesWithStats[i + 1]!.ctime.getTime()
+    );
+  }
 }
 
 test('readBallotPackageFromUsb can read a ballot package from usb', async () => {
@@ -79,16 +80,14 @@ test('readBallotPackageFromUsb can read a ballot package from usb', async () => 
   };
 
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': await createBallotPackageZipArchive({
-        electionDefinition,
-        systemSettings: safeParseSystemSettings(
-          systemSettings.asText()
-        ).unsafeUnwrap(),
-      }),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({
+      electionDefinition,
+      systemSettings: safeParseSystemSettings(
+        systemSettings.asText()
+      ).unsafeUnwrap(),
+    })
+  );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
@@ -121,13 +120,11 @@ test("readBallotPackageFromUsb uses default system settings when system settings
   };
 
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': await createBallotPackageZipArchive({
-        electionDefinition,
-      }),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({
+      electionDefinition,
+    })
+  );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
@@ -148,16 +145,9 @@ test('errors if logged-out auth is passed', async () => {
   };
 
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': await createBallotPackageZipArchive({
-        electionDefinition,
-        systemSettings: safeParseSystemSettings(
-          systemSettings.asText()
-        ).unsafeUnwrap(),
-      }),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({ electionDefinition })
+  );
 
   const logger = fakeLogger();
 
@@ -185,16 +175,11 @@ test('errors if election hash on provided auth is different than ballot package 
   };
 
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': await createBallotPackageZipArchive({
-        electionDefinition: otherElectionDefinition,
-        systemSettings: safeParseSystemSettings(
-          systemSettings.asText()
-        ).unsafeUnwrap(),
-      }),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({
+      electionDefinition: otherElectionDefinition,
+    })
+  );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
@@ -238,15 +223,18 @@ test('errors if a user is authenticated but is not an election manager', async (
   };
 
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive({});
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({ electionDefinition })
+  );
 
   await expect(
     readBallotPackageFromUsb(authStatus, mockUsbDrive.usbDrive, fakeLogger())
   ).rejects.toThrow('Only election managers may configure a ballot package.');
 });
 
-test('configures using the most recently created ballot package on the usb drive', async () => {
+test('configures using the most recently created ballot package for an election', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { election, electionHash } = electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: fakeElectionManagerUser({
@@ -256,23 +244,37 @@ test('configures using the most recently created ballot package on the usb drive
   };
 
   const mockUsbDrive = createMockUsbDrive();
+  const electionDirectory = generateElectionBasedSubfolderName(
+    election,
+    electionHash
+  );
+  const specificSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    auth: {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      inactiveSessionTimeLimitMinutes: 25,
+      overallSessionTimeLimitHours: 11,
+      numIncorrectPinAttemptsAllowedBeforeCardLockout: 7,
+    },
+  };
   mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'older-ballot-package.zip': await createBallotPackageZipArchive(
-        electionFamousNames2021Fixtures.electionJson.toBallotPackage()
-      ),
-      'newer-ballot-package.zip': await createBallotPackageZipArchive({
-        electionDefinition,
-        systemSettings: safeParseSystemSettings(
-          systemSettings.asText()
-        ).unsafeUnwrap(),
-      }),
+    [electionDirectory]: {
+      [BALLOT_PACKAGE_FOLDER]: {
+        'older-ballot-package.zip': await createBallotPackageZipArchive(
+          electionFamousNames2021Fixtures.electionJson.toBallotPackage()
+        ),
+        'newer-ballot-package.zip': await createBallotPackageZipArchive({
+          electionDefinition,
+          systemSettings: specificSystemSettings,
+        }),
+      },
     },
   });
   await assertFilesCreatedInOrder(
     mockUsbDrive.usbDrive,
-    'older-ballot-package.zip',
-    'newer-ballot-package.zip'
+    ['older-ballot-package.zip', 'newer-ballot-package.zip'].map((filename) =>
+      join(electionDirectory, BALLOT_PACKAGE_FOLDER, filename)
+    )
   );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
@@ -282,14 +284,19 @@ test('configures using the most recently created ballot package on the usb drive
   );
   assert(ballotPackageResult.isOk());
   const ballotPackage = ballotPackageResult.ok();
-  expect(ballotPackage.electionDefinition).toEqual(electionDefinition);
-  expect(ballotPackage.systemSettings).toEqual(
-    safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
-  );
+  // use correct system settings as a proxy for the correct ballot package
+  expect(ballotPackage.systemSettings).toEqual(specificSystemSettings);
 });
 
-test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
+test('configures using the most recently created ballot package across elections', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { election, electionHash } = electionDefinition;
+
+  const { electionDefinition: otherElectionDefinition } =
+    electionFamousNames2021Fixtures;
+  const { election: otherElection, electionHash: otherElectionHash } =
+    otherElectionDefinition;
+
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: fakeElectionManagerUser({
@@ -299,21 +306,83 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   };
 
   const mockUsbDrive = createMockUsbDrive();
+  const electionDirectory = generateElectionBasedSubfolderName(
+    election,
+    electionHash
+  );
+  const otherElectionDirectory = generateElectionBasedSubfolderName(
+    otherElection,
+    otherElectionHash
+  );
   mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'older-ballot-package.zip': await createBallotPackageZipArchive({
-        electionDefinition,
-        systemSettings: safeParseSystemSettings(
-          systemSettings.asText()
-        ).unsafeUnwrap(),
-      }),
-      '._newer-hidden-file-ballot-package.zip': Buffer.from('not a zip file'),
+    [otherElectionDirectory]: {
+      [BALLOT_PACKAGE_FOLDER]: {
+        'older-ballot-package.zip': await createBallotPackageZipArchive({
+          electionDefinition: otherElectionDefinition,
+        }),
+      },
+    },
+    [electionDirectory]: {
+      [BALLOT_PACKAGE_FOLDER]: {
+        'newer-ballot-package.zip': await createBallotPackageZipArchive({
+          electionDefinition,
+        }),
+      },
+    },
+  });
+  await assertFilesCreatedInOrder(mockUsbDrive.usbDrive, [
+    join(
+      otherElectionDirectory,
+      BALLOT_PACKAGE_FOLDER,
+      'older-ballot-package.zip'
+    ),
+    join(electionDirectory, BALLOT_PACKAGE_FOLDER, 'newer-ballot-package.zip'),
+  ]);
+
+  const ballotPackageResult = await readBallotPackageFromUsb(
+    authStatus,
+    mockUsbDrive.usbDrive,
+    fakeLogger()
+  );
+  assert(ballotPackageResult.isOk());
+  const ballotPackage = ballotPackageResult.ok();
+  expect(ballotPackage.electionDefinition).toEqual(electionDefinition);
+});
+
+test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { election, electionHash } = electionDefinition;
+  const authStatus: InsertedSmartCardAuth.AuthStatus = {
+    status: 'logged_in',
+    user: fakeElectionManagerUser({
+      electionHash: electionDefinition.electionHash,
+    }),
+    sessionExpiresAt: fakeSessionExpiresAt(),
+  };
+
+  const mockUsbDrive = createMockUsbDrive();
+  const electionDirectory = generateElectionBasedSubfolderName(
+    election,
+    electionHash
+  );
+  mockUsbDrive.insertUsbDrive({
+    [electionDirectory]: {
+      [BALLOT_PACKAGE_FOLDER]: {
+        'older-ballot-package.zip': await createBallotPackageZipArchive({
+          electionDefinition,
+          systemSettings: safeParseSystemSettings(
+            systemSettings.asText()
+          ).unsafeUnwrap(),
+        }),
+        '._newer-hidden-file-ballot-package.zip': Buffer.from('not a zip file'),
+      },
     },
   });
   await assertFilesCreatedInOrder(
     mockUsbDrive.usbDrive,
-    'older-ballot-package.zip',
-    '._newer-hidden-file-ballot-package.zip'
+    ['older-ballot-package.zip', '._newer-hidden-file-ballot-package.zip'].map(
+      (filename) => join(electionDirectory, BALLOT_PACKAGE_FOLDER, filename)
+    )
   );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
@@ -342,13 +411,11 @@ test('readBallotPackageFromUsb returns error result if ballot package authentica
   };
 
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'ballot-package.zip': await createBallotPackageZipArchive(
-        electionFamousNames2021Fixtures.electionJson.toBallotPackage()
-      ),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree(
+      electionFamousNames2021Fixtures.electionJson.toBallotPackage()
+    )
+  );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,
@@ -376,13 +443,11 @@ test('readBallotPackageFromUsb ignores ballot package authentication errors if S
   };
 
   const mockUsbDrive = createMockUsbDrive();
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'ballot-package.zip': await createBallotPackageZipArchive(
-        electionFamousNames2021Fixtures.electionJson.toBallotPackage()
-      ),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree(
+      electionFamousNames2021Fixtures.electionJson.toBallotPackage()
+    )
+  );
 
   const ballotPackageResult = await readBallotPackageFromUsb(
     authStatus,

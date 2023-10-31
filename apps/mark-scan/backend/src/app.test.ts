@@ -12,12 +12,13 @@ import {
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
+  BALLOT_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import { createBallotPackageZipArchive } from '@votingworks/backend';
+import { mockBallotPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import {
@@ -68,17 +69,14 @@ afterEach(() => {
 async function setUpUsbAndConfigureElection(
   electionDefinition: ElectionDefinition
 ) {
-  const zipBuffer = await createBallotPackageZipArchive({
-    electionDefinition,
-    systemSettings: safeParseSystemSettings(
-      systemSettings.asText()
-    ).unsafeUnwrap(),
-  });
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': zipBuffer,
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({
+      electionDefinition,
+      systemSettings: safeParseSystemSettings(
+        systemSettings.asText()
+      ).unsafeUnwrap(),
+    })
+  );
 
   const writeResult = await apiClient.configureBallotPackageFromUsb();
   assert(writeResult.isOk());
@@ -227,8 +225,10 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
   );
 
   mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': Buffer.from("doesn't matter"),
+    'some-election': {
+      [BALLOT_PACKAGE_FOLDER]: {
+        'test-ballot-package.zip': Buffer.from("doesn't matter"),
+      },
     },
   });
 
