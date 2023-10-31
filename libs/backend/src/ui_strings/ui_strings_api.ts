@@ -25,9 +25,7 @@ export function createUiStringsApi(context: UiStringsApiContext): UiStringsApi {
     },
 
     getUiStringAudioIds(input) {
-      throw new Error(
-        `Not yet implemented. Requested language code: ${input.languageCode}`
-      );
+      return store.getUiStringAudioIds(input.languageCode);
     },
 
     getAudioClipsBase64(input) {
