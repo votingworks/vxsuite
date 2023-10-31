@@ -236,9 +236,9 @@ exports[`Single Seat Contest 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
   height: 100%;
 }
 
@@ -346,6 +346,10 @@ exports[`Single Seat Contest 1`] = `
 
 .c0:focus {
   outline: none;
+}
+
+@media print {
+
 }
 
 @media print {
