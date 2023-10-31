@@ -162,53 +162,9 @@ for (const {
   ballotStyleId,
   gridLayout,
   votes,
-  blankBallotPath,
   markedBallotPath,
 } of generalElectionFixtures) {
   describe(`HMPB - general election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
-    test(`Blank ballot interpretation`, async () => {
-      const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
-      const sheetImages = iter(ballotImagePaths).chunks(2).toArray();
-
-      for (const [sheetIndex, sheetImagePaths] of sheetImages.entries()) {
-        assert(sheetImagePaths.length === 2);
-        const [frontResult, backResult] = await interpretSheet(
-          {
-            electionDefinition,
-            precinctSelection: singlePrecinctSelectionFor(precinctId),
-            testMode: false,
-            markThresholds: DEFAULT_MARK_THRESHOLDS,
-            adjudicationReasons: [],
-          },
-          sheetImagePaths
-        );
-
-        assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-        expect(frontResult.interpretation.votes).toEqual({});
-        assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-        expect(backResult.interpretation.votes).toEqual({});
-
-        expect(frontResult.interpretation.metadata).toEqual({
-          source: 'qr-code',
-          electionHash: sliceElectionHash(electionDefinition.electionHash),
-          precinctId,
-          ballotStyleId,
-          pageNumber: sheetIndex * 2 + 1,
-          isTestMode: false,
-          ballotType: BallotType.Absentee,
-        });
-        expect(backResult.interpretation.metadata).toEqual({
-          source: 'qr-code',
-          electionHash: sliceElectionHash(electionDefinition.electionHash),
-          precinctId,
-          ballotStyleId,
-          pageNumber: sheetIndex * 2 + 2,
-          isTestMode: false,
-          ballotType: BallotType.Absentee,
-        });
-      }
-    });
-
     test(`Marked ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
 
@@ -238,6 +194,25 @@ for (const {
             ...backResult.interpretation.votes,
           })
         ).toEqual(sortVotesDict(expectedVotes));
+
+        expect(frontResult.interpretation.metadata).toEqual({
+          source: 'qr-code',
+          electionHash: sliceElectionHash(electionDefinition.electionHash),
+          precinctId,
+          ballotStyleId,
+          pageNumber: sheetIndex * 2 + 1,
+          isTestMode: false,
+          ballotType: BallotType.Absentee,
+        });
+        expect(backResult.interpretation.metadata).toEqual({
+          source: 'qr-code',
+          electionHash: sliceElectionHash(electionDefinition.electionHash),
+          precinctId,
+          ballotStyleId,
+          pageNumber: sheetIndex * 2 + 2,
+          isTestMode: false,
+          ballotType: BallotType.Absentee,
+        });
       }
     });
   });

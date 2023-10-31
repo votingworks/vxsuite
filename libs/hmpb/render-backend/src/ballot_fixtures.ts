@@ -153,7 +153,7 @@ export const generalElectionFixtures = (() => {
   const fixtures = [];
 
   for (const bubblePosition of BUBBLE_POSITIONS) {
-    for (const paperSize of [BallotPaperSize.Letter, BallotPaperSize.Legal]) {
+    for (const paperSize of Object.values(BallotPaperSize)) {
       for (const layoutDensity of LAYOUT_DENSITIES) {
         const election: Election = {
           ...electionGeneral,
