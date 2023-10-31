@@ -276,18 +276,12 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
                     <TD>{votingMethodTitle}</TD>
                     <TD nowrap>
-                      <LinkButton
-                        small
-                        to={routerPaths.manualDataEntry(metadata)}
-                      >
+                      <LinkButton to={routerPaths.manualDataEntry(metadata)}>
                         Edit Results
                       </LinkButton>
                     </TD>
                     <TD nowrap>
-                      <Button
-                        small
-                        onPress={() => setManualTallyToRemove(metadata)}
-                      >
+                      <Button onPress={() => setManualTallyToRemove(metadata)}>
                         Remove Results
                       </Button>
                     </TD>
@@ -365,7 +359,6 @@ export function ManualDataSummaryScreen(): JSX.Element {
                     selectedPrecinct &&
                     selectedVotingMethod ? (
                       <LinkButton
-                        small
                         variant="primary"
                         to={routerPaths.manualDataEntry({
                           ballotStyleId: selectedBallotStyle.id,
@@ -376,9 +369,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                         Add Results
                       </LinkButton>
                     ) : (
-                      <LinkButton small disabled>
-                        Add Results
-                      </LinkButton>
+                      <LinkButton disabled>Add Results</LinkButton>
                     )}
                   </TD>
                   <TD />

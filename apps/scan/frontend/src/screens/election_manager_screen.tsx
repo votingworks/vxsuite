@@ -166,7 +166,7 @@ export function ElectionManagerScreen({
 
   const dateTimeButton = (
     <P>
-      <SetClockButton large logOut={() => logOutMutation.mutate()}>
+      <SetClockButton logOut={() => logOutMutation.mutate()}>
         <span role="img" aria-label="Clock">
           🕓
         </span>{' '}

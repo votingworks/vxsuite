@@ -43,7 +43,6 @@ export function SmartcardsScreen(): JSX.Element {
       </Body>
       <div>
         <LinkButton
-          small
           to={routerPaths.smartcardsByType({
             smartcardType: getOtherSmartcardType(smartcardType),
           })}

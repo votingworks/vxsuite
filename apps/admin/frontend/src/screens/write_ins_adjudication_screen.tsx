@@ -242,7 +242,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
         <ScreenHeader
           title="Write-In Adjudication"
           actions={
-            <LinkButton small variant="neutral" to={routerPaths.writeIns}>
+            <LinkButton variant="neutral" to={routerPaths.writeIns}>
               Back to All Write-Ins
             </LinkButton>
           }
@@ -418,7 +418,6 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   )} to adjudicate.`}
             </span>
             <LinkButton
-              small
               variant={areAllWriteInsAdjudicated ? 'primary' : 'neutral'}
               to={routerPaths.writeIns}
             >

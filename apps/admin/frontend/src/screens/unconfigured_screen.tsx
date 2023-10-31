@@ -277,9 +277,6 @@ export function UnconfiguredScreen(): JSX.Element {
               <P key={file.name}>
                 <FileInputButton
                   accept={file.accept}
-                  buttonProps={{
-                    fullWidth: true,
-                  }}
                   name={file.name}
                   onChange={handleFileInput}
                 >

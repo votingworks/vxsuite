@@ -1,14 +1,7 @@
 /* istanbul ignore file - tested via Mark/Mark-Scan */
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import styled from 'styled-components';
-import {
-  Screen,
-  Button,
-  Icons,
-  appStrings,
-  AudioOnly,
-  Wobble,
-} from '@votingworks/ui';
+import { Screen, Button, appStrings, AudioOnly, Wobble } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 
@@ -42,6 +35,11 @@ const StartVotingButtonContainer = styled.div`
   justify-content: center;
 `;
 
+const StartVotingButton = styled(Button)`
+  font-size: 1.2rem;
+  line-height: 2rem;
+`;
+
 const Footer = styled.div`
   align-items: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
@@ -50,12 +48,6 @@ const Footer = styled.div`
   gap: 1rem;
   justify-content: center;
   padding: 0.5rem;
-`;
-
-const LargeButtonText = styled.span`
-  font-size: 50px;
-  line-height: 2;
-  padding: 0 1rem;
 `;
 
 export interface StartPageProps {
@@ -85,11 +77,14 @@ export function StartPage(props: StartPageProps): JSX.Element {
 
   const startVotingButton = (
     <Wobble>
-      <Button variant="primary" onPress={onStart} id="next">
-        <LargeButtonText>
-          <Icons.Next /> {appStrings.buttonStartVoting()}
-        </LargeButtonText>
-      </Button>
+      <StartVotingButton
+        variant="primary"
+        onPress={onStart}
+        id="next"
+        rightIcon="Next"
+      >
+        {appStrings.buttonStartVoting()}
+      </StartVotingButton>
     </Wobble>
   );
 

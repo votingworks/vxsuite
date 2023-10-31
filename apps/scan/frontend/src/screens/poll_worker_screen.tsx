@@ -505,7 +505,7 @@ export function PollWorkerScreen({
           <React.Fragment>
             <P>The polls have not been opened.</P>
             <ButtonGrid>
-              <Button variant="primary" large onPress={openPolls}>
+              <Button variant="primary" onPress={openPolls}>
                 Open Polls
               </Button>
               {commonActions}
@@ -517,12 +517,10 @@ export function PollWorkerScreen({
           <React.Fragment>
             <P>The polls are currently open.</P>
             <ButtonGrid>
-              <Button variant="primary" large onPress={closePolls}>
+              <Button variant="primary" onPress={closePolls}>
                 Close Polls
               </Button>
-              <Button large onPress={pauseVoting}>
-                Pause Voting
-              </Button>
+              <Button onPress={pauseVoting}>Pause Voting</Button>
               {commonActions}
             </ButtonGrid>
           </React.Fragment>
@@ -532,12 +530,10 @@ export function PollWorkerScreen({
           <React.Fragment>
             <P>Voting is currently paused.</P>
             <ButtonGrid>
-              <Button variant="primary" large onPress={resumeVoting}>
+              <Button variant="primary" onPress={resumeVoting}>
                 Resume Voting
               </Button>
-              <Button large onPress={closePolls}>
-                Close Polls
-              </Button>
+              <Button onPress={closePolls}>Close Polls</Button>
               {commonActions}
             </ButtonGrid>
           </React.Fragment>

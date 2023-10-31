@@ -1,5 +1,5 @@
 import { PromiseOr } from '@votingworks/types';
-import { ButtonInterface as ButtonProps, LabelButton } from '@votingworks/ui';
+import { ButtonProps, LabelButton } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
 

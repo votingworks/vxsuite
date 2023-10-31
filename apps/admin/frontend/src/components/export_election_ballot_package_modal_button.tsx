@@ -121,7 +121,6 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           <React.Fragment>
             <UsbControllerButton
               primary
-              small={false}
               usbDriveEject={() => ejectUsbDriveMutation.mutate()}
               usbDriveStatus={usbDriveStatus}
               usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
@@ -158,9 +157,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button small onPress={() => setIsModalOpen(true)}>
-        Save Ballot Package
-      </Button>
+      <Button onPress={() => setIsModalOpen(true)}>Save Ballot Package</Button>
       {isModalOpen && (
         <Modal
           title={title}

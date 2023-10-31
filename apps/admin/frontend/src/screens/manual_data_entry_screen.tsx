@@ -88,11 +88,7 @@ function ContestDataRow({
       <TD narrow>{children}</TD>
       <TD>{label}</TD>
       <TD textAlign="right">
-        {onRemove && (
-          <Button onPress={onRemove} small>
-            Remove
-          </Button>
-        )}
+        {onRemove && <Button onPress={onRemove}>Remove</Button>}
       </TD>
     </tr>
   );
@@ -120,7 +116,6 @@ function AddWriteInRow({
       <tr>
         <TD narrow textAlign="center">
           <Button
-            small
             variant="primary"
             onPress={onAdd}
             disabled={
@@ -148,9 +143,7 @@ function AddWriteInRow({
           />
         </TD>
         <TD textAlign="right">
-          <Button small onPress={() => setIsAddingWriteIn(false)}>
-            Cancel
-          </Button>
+          <Button onPress={() => setIsAddingWriteIn(false)}>Cancel</Button>
         </TD>
       </tr>
     );
@@ -159,7 +152,7 @@ function AddWriteInRow({
   return (
     <tr>
       <TD colSpan={3}>
-        <Button small onPress={() => setIsAddingWriteIn(true)}>
+        <Button onPress={() => setIsAddingWriteIn(true)}>
           Add Write-In Candidate
         </Button>
       </TD>

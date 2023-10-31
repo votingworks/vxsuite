@@ -13,7 +13,6 @@ import {
   Caption,
   Card,
   ContestVote,
-  DecoyButton,
   Icons,
   VoterContestSummary,
   Button,
@@ -33,22 +32,18 @@ import {
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 
 const Contest = styled.button`
-  display: flex;
+  display: block;
   margin: 0 0 0.75rem;
   border: none;
   background: none;
-  width: 100%; /* reset Button default here at component rather than pass 'fullWidth' param. */
+  width: 100%;
   padding: 0;
-  white-space: normal; /* reset Button default */
+  white-space: normal;
   color: inherit;
 
   button& {
     cursor: pointer;
     text-align: left;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
   }
 `;
 
@@ -195,11 +190,10 @@ export function Review({
   return (
     <React.Fragment>
       {contests.map((contest) => (
-        <Button
-          component={Contest}
+        <Contest
           id={`contest-${contest.id}`}
           key={contest.id}
-          onPress={() => {
+          onClick={() => {
             if (!returnToContest) {
               return;
             }
@@ -210,7 +204,7 @@ export function Review({
             footerAlign={selectionsAreEditable ? 'right' : undefined}
             footer={
               selectionsAreEditable && (
-                <DecoyButton>
+                <Button tabIndex={-1} onPress={() => {}}>
                   <Caption>
                     {/*
                      * TODO(kofi): Add a <NoAudio> wrapper component for
@@ -222,7 +216,7 @@ export function Review({
                   <AudioOnly>
                     {appStrings.buttonBmdReviewCardAction()}
                   </AudioOnly>
-                </DecoyButton>
+                </Button>
               )
             }
           >
@@ -254,7 +248,7 @@ export function Review({
               />
             )}
           </Card>
-        </Button>
+        </Contest>
       ))}
     </React.Fragment>
   );

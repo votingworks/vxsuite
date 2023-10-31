@@ -158,12 +158,11 @@ export function AdminScreen({
             </Font>{' '}
             Election Definition is loaded.{' '}
           </P>
-          <Button variant="danger" icon="Delete" small onPress={unconfigure}>
+          <Button variant="danger" icon="Delete" onPress={unconfigure}>
             Unconfigure Machine
           </Button>
           <H6 as="h2">USB</H6>
           <UsbControllerButton
-            small={false}
             primary
             usbDriveStatus={usbDriveStatus}
             usbDriveEject={() => ejectUsbDriveMutation.mutate()}

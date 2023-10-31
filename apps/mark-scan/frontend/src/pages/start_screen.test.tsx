@@ -51,7 +51,7 @@ test('renders StartScreen with inline SVG seal', () => {
     precinctId: '23',
     route: '/',
   });
-  expect(container.firstChild).toMatchSnapshot();
+  expect(container.getElementsByTagName('svg')).toMatchSnapshot();
 });
 
 it('renders display settings button', () => {

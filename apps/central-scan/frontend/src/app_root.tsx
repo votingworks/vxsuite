@@ -395,7 +395,7 @@ export function AppRoot({
             />
           )}
           <MainNav>
-            <Button small onPress={() => logOutMutation.mutate()}>
+            <Button onPress={() => logOutMutation.mutate()}>
               Lock Machine
             </Button>
           </MainNav>
@@ -453,14 +453,11 @@ export function AppRoot({
                 usbDriveEject={() => ejectUsbDriveMutation.mutate()}
                 usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
               />
-              <Button small onPress={() => logOutMutation.mutate()}>
+              <Button onPress={() => logOutMutation.mutate()}>
                 Lock Machine
               </Button>
-              <LinkButton small to="/admin">
-                Admin
-              </LinkButton>
+              <LinkButton to="/admin">Admin</LinkButton>
               <Button
-                small
                 onPress={() => setIsExportingCvrs(true)}
                 disabled={
                   adjudication.remaining > 0 || status.batches.length === 0
