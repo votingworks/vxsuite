@@ -7,16 +7,11 @@ module.exports = {
   ...shared,
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  coveragePathIgnorePatterns: [
-    '.*\\.stories\\.ts',
-    '.*\\.stories\\.tsx',
-  ],
+  coveragePathIgnorePatterns: ['.*\\.stories\\.ts', '.*\\.stories\\.tsx'],
   coverageThreshold: {
     global: {
-      statements: 95,
-      branches: 95,
-      lines: 95,
-      functions: 95,
+      branches: -11,
+      lines: -1,
     },
   },
   transform: {
