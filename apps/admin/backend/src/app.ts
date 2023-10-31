@@ -34,6 +34,7 @@ import { createReadStream, createWriteStream, promises as fs } from 'fs';
 import path, { join } from 'path';
 import {
   BALLOT_PACKAGE_FOLDER,
+  generateElectionBasedSubfolderName,
   generateFilenameForBallotExportPackage,
   groupMapToGroupList,
   isIntegrationTest,
@@ -221,12 +222,12 @@ function buildApi({
       const electionRecord = getCurrentElectionRecord(workspace);
       assert(electionRecord);
       const { electionDefinition, id: electionId } = electionRecord;
+      const { election, electionHash } = electionDefinition;
       const systemSettings = store.getSystemSettings(electionId);
 
       const tempDirectory = dirSync().name;
       try {
         const ballotPackageFileName = generateFilenameForBallotExportPackage(
-          electionDefinition,
           new Date()
         );
         const tempDirectoryBallotPackageFilePath = join(
@@ -255,8 +256,12 @@ function buildApi({
         ballotPackageZipStream.finish();
         await ballotPackageZipPromise.promise;
 
+        const usbDriveBallotPackageDirectoryRelativePath = join(
+          generateElectionBasedSubfolderName(election, electionHash),
+          BALLOT_PACKAGE_FOLDER
+        );
         const exportBallotPackageResult = await exporter.exportDataToUsbDrive(
-          BALLOT_PACKAGE_FOLDER,
+          usbDriveBallotPackageDirectoryRelativePath,
           ballotPackageFileName,
           createReadStream(tempDirectoryBallotPackageFilePath)
         );
@@ -272,7 +277,7 @@ function buildApi({
           filePath: tempDirectoryBallotPackageFilePath,
         });
         const exportSignatureFileResult = await exporter.exportDataToUsbDrive(
-          BALLOT_PACKAGE_FOLDER,
+          usbDriveBallotPackageDirectoryRelativePath,
           signatureFile.fileName,
           signatureFile.fileContents
         );
