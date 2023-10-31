@@ -66,31 +66,31 @@ function FaIcon(props: InnerProps): JSX.Element {
  * colors.
  */
 export const Icons = {
-  Add(): JSX.Element {
+  Add() {
     return <FaIcon type={faCirclePlus} />;
   },
 
-  Backspace(): JSX.Element {
+  Backspace() {
     return <FaIcon type={faDeleteLeft} />;
   },
 
-  CaretDown(): JSX.Element {
+  CaretDown() {
     return <FaIcon type={faCaretDown} />;
   },
 
-  Circle(): JSX.Element {
+  Circle() {
     return <FaIcon type={faCircle} />;
   },
 
-  CircleDot(): JSX.Element {
+  CircleDot() {
     return <FaIcon type={faCircleDot} />;
   },
 
-  Checkbox(): JSX.Element {
+  Checkbox() {
     return <FaIcon type={faCheckSquare} />;
   },
 
-  Checkmark(): JSX.Element {
+  Checkmark() {
     return (
       <StyledSvgIcon
         aria-hidden="true"
@@ -104,114 +104,114 @@ export const Icons = {
     );
   },
 
-  Closed(): JSX.Element {
+  Closed() {
     return <FaIcon type={faMinusCircle} />;
   },
 
-  Contrast(): JSX.Element {
+  Contrast() {
     return <FaIcon type={faCircleHalfStroke} />;
   },
 
-  Danger(): JSX.Element {
+  Danger() {
     return <FaIcon type={faExclamationCircle} />;
   },
 
-  Delete(): JSX.Element {
+  Delete() {
     return <FaIcon type={faXmarkCircle} />;
   },
 
-  Disabled(): JSX.Element {
+  Disabled() {
     return <FaIcon type={faBan} />;
   },
 
-  Display(): JSX.Element {
+  Display() {
     return <FaIcon type={faDisplay} />;
   },
 
-  Done(): JSX.Element {
+  Done() {
     return <FaIcon type={faCheckCircle} />;
   },
 
-  DownChevron(): JSX.Element {
+  DownChevron() {
     return <FaIcon type={faChevronCircleDown} />;
   },
 
-  Edit(): JSX.Element {
+  Edit() {
     return <FaIcon type={faPencil} />;
   },
 
-  Info(): JSX.Element {
+  Info() {
     return <FaIcon type={faInfoCircle} />;
   },
 
-  Loading(): JSX.Element {
+  Loading() {
     return <FaIcon type={faSpinner} pulse spin />;
   },
 
-  Next(): JSX.Element {
+  Next() {
     return <FaIcon type={faCircleRight} />;
   },
 
-  Paused(): JSX.Element {
+  Paused() {
     return <FaIcon type={faPauseCircle} />;
   },
 
-  Previous(): JSX.Element {
+  Previous() {
     return <FaIcon type={faCircleLeft} />;
   },
 
-  Question(): JSX.Element {
+  Question() {
     return <FaIcon type={faCircleQuestion} />;
   },
 
-  RightChevron(): JSX.Element {
+  RightChevron() {
     return <FaIcon type={faChevronRight} />;
   },
 
-  LeftChevron(): JSX.Element {
+  LeftChevron() {
     return <FaIcon type={faChevronLeft} />;
   },
 
-  RotateRight(): JSX.Element {
+  RotateRight() {
     return <FaIcon type={faRotateRight} />;
   },
 
-  Save(): JSX.Element {
+  Save() {
     return <FaIcon type={faFloppyDisk} />;
   },
 
-  Square(): JSX.Element {
+  Square() {
     return <FaIcon type={faSquare} />;
   },
 
-  Settings(): JSX.Element {
+  Settings() {
     return <FaIcon type={faGear} />;
   },
 
-  TextSize(): JSX.Element {
+  TextSize() {
     return <FaIcon type={faTextHeight} />;
   },
 
-  UpChevron(): JSX.Element {
+  UpChevron() {
     return <FaIcon type={faChevronCircleUp} />;
   },
 
-  Warning(): JSX.Element {
+  Warning() {
     return <FaIcon type={faExclamationTriangle} />;
   },
 
-  X(): JSX.Element {
+  X() {
     return <FaIcon type={faXmark} />;
   },
 
-  ZoomIn(): JSX.Element {
+  ZoomIn() {
     return <FaIcon type={faMagnifyingGlassPlus} />;
   },
 
-  ZoomOut(): JSX.Element {
+  ZoomOut() {
     return <FaIcon type={faMagnifyingGlassMinus} />;
   },
-} as const;
+} satisfies Record<string, () => JSX.Element>;
 
 export type IconName = keyof typeof Icons;
 

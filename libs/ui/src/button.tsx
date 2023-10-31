@@ -1,20 +1,46 @@
 import React, { PureComponent } from 'react';
 
-import styled, { css, DefaultTheme } from 'styled-components';
-import { ColorString, SizeMode, UiTheme } from '@votingworks/types';
+import styled, { css, CSSObject } from 'styled-components';
+import { SizeMode, UiTheme } from '@votingworks/types';
 
-import { Icons, IconName } from './icons';
+import { throwIllegalValue } from '@votingworks/basics';
+import { IconName, Icons } from './icons';
 
 const FONT_SIZE_REM = 1;
 
-export const ALL_BUTTON_VARIANTS = [
-  'neutral',
+export const BUTTON_COLORS = [
   'primary',
-  'secondary',
+  'neutral',
   'danger',
+  'inversePrimary',
+  'inverseNeutral',
+] as const;
+export const BUTTON_FILLS = [
+  'filled',
+  'tinted',
+  'outlined',
+  'transparent',
 ] as const;
 
-export type ButtonVariant = (typeof ALL_BUTTON_VARIANTS)[number];
+export type ButtonColor = (typeof BUTTON_COLORS)[number];
+export type ButtonFill = (typeof BUTTON_FILLS)[number];
+
+interface VariantConfig {
+  color: ButtonColor;
+  fill: ButtonFill;
+}
+
+const buttonVariants = {
+  neutral: { color: 'neutral', fill: 'outlined' },
+  primary: { color: 'primary', fill: 'filled' },
+  secondary: { color: 'primary', fill: 'tinted' },
+  danger: { color: 'danger', fill: 'filled' },
+  inverseNeutral: { color: 'inverseNeutral', fill: 'outlined' },
+  inversePrimary: { color: 'inversePrimary', fill: 'filled' },
+} satisfies Record<string, VariantConfig>;
+
+export type ButtonVariant = keyof typeof buttonVariants;
+export const BUTTON_VARIANTS = Object.keys(buttonVariants) as ButtonVariant[];
 
 type ClickHandler = () => void;
 type TypedClickHandler<T> = (value: T) => void;
@@ -25,11 +51,17 @@ export interface StyledButtonProps {
   disabled?: boolean;
   id?: string;
   role?: string;
+  style?: React.CSSProperties;
   tabIndex?: number;
-  variant?: ButtonVariant;
+
   icon?: IconName | JSX.Element;
   rightIcon?: IconName | JSX.Element;
+  variant?: ButtonVariant;
+  color?: ButtonColor;
+  fill?: ButtonFill;
 }
+
+type ThemedStyledButtonProps = StyledButtonProps & { theme: UiTheme };
 
 export type ButtonProps<T = undefined> = StyledButtonProps & {
   children?: React.ReactNode;
@@ -59,119 +91,261 @@ function resolveIcon(icon: IconName | JSX.Element): JSX.Element {
   return icon;
 }
 
-interface VariantConfig {
-  color: keyof UiTheme['colors'];
-  isSolidColor?: boolean;
+function resolveColorAndFill(p: ThemedStyledButtonProps): {
+  color: ButtonColor;
+  fill: ButtonFill;
+} {
+  const { color, fill }: { color: ButtonColor; fill: ButtonFill } = p.variant
+    ? buttonVariants[p.variant]
+    : { color: 'neutral', fill: 'outlined' };
+  return {
+    color: p.color ?? color,
+    fill: p.fill ?? fill,
+  };
 }
 
-const variantConfigs: Record<ButtonVariant, VariantConfig> = {
-  neutral: { color: 'foreground' },
-  primary: { color: 'accentPrimary', isSolidColor: true },
-  secondary: { color: 'accentSecondary', isSolidColor: true },
-  danger: { color: 'accentDanger', isSolidColor: true },
-};
+function colorAndFillStyles(p: ThemedStyledButtonProps): CSSObject {
+  const { color, fill } = resolveColorAndFill(p);
+  const {
+    theme: { colors },
+  } = p;
 
-function getVariantConfig(p: StyledButtonProps): VariantConfig {
-  return variantConfigs[p.variant || 'neutral'];
+  const styleSpecs: Record<ButtonColor, Record<ButtonFill, CSSObject>> = {
+    primary: {
+      filled: {
+        backgroundColor: colors.primary,
+        color: colors.onPrimary,
+      },
+      tinted: {
+        backgroundColor: colors.primaryContainer,
+        color: colors.primary,
+      },
+      outlined: {
+        borderColor: colors.primary,
+        color: colors.primary,
+      },
+      transparent: {
+        color: colors.primary,
+      },
+    },
+
+    neutral: {
+      filled: {
+        backgroundColor: colors.neutral,
+        color: colors.onNeutral,
+      },
+      tinted: {
+        backgroundColor: colors.container,
+        color: colors.onBackground,
+      },
+      outlined: {
+        borderColor: colors.outline,
+        color: colors.onBackground,
+      },
+      transparent: {
+        color: colors.onBackground,
+      },
+    },
+
+    danger: {
+      filled: {
+        backgroundColor: colors.danger,
+        color: colors.onDanger,
+      },
+      tinted: {
+        backgroundColor: colors.dangerContainer,
+        color: colors.danger,
+      },
+      outlined: {
+        borderColor: colors.danger,
+        color: colors.danger,
+      },
+      transparent: {
+        color: colors.danger,
+      },
+    },
+
+    inversePrimary: {
+      filled: {
+        backgroundColor: colors.inversePrimary,
+        color: colors.onBackground,
+      },
+      tinted: {
+        backgroundColor: colors.primary,
+        color: colors.onPrimary,
+      },
+      outlined: {
+        borderColor: colors.inversePrimary,
+        color: colors.inversePrimary,
+      },
+      transparent: {
+        color: colors.inversePrimary,
+      },
+    },
+
+    inverseNeutral: {
+      filled: {
+        backgroundColor: colors.containerHigh,
+        color: colors.onBackground,
+      },
+      tinted: {
+        backgroundColor: colors.inverseContainer,
+        color: colors.onInverse,
+      },
+      outlined: {
+        borderColor: colors.onInverse,
+        color: colors.onInverse,
+      },
+      transparent: {
+        color: colors.onInverse,
+      },
+    },
+  };
+  const style = styleSpecs[color][fill];
+  return {
+    ...style,
+    backgroundColor: style.backgroundColor ?? 'transparent',
+    // Every button style has a border, that way all buttons are the same size.
+    // For buttons with a background color but no border color (e.g.
+    // filled/tinted), we set the border color to the background color so it's
+    // invisible. For transparent buttons, we set the border color to
+    // transparent so it's invisible.
+    borderColor: style.borderColor ?? style.backgroundColor ?? 'transparent',
+  };
 }
 
-type ThemedStyledButtonProps = StyledButtonProps & { theme: UiTheme };
-
-function getVariantColor(p: ThemedStyledButtonProps): ColorString | undefined {
-  const colorKey = getVariantConfig(p).color;
-  return p.theme.colors[colorKey];
+function isInverse(color: ButtonColor) {
+  return color === 'inverseNeutral' || color === 'inversePrimary';
 }
 
-function getBackgroundColor(
-  p: ThemedStyledButtonProps
-): ColorString | undefined {
-  if (p.disabled) {
-    return p.theme.colors.background;
+function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
+  const { color, fill } = resolveColorAndFill(p);
+  const {
+    theme: { colors, colorMode },
+  } = p;
+  if (colorMode === 'desktop') {
+    const hoverColor = {
+      primary: colors.primaryContainer,
+      neutral: colors.container,
+      danger: colors.dangerContainer,
+      inversePrimary: colors.inverseContainer,
+      inverseNeutral: colors.inverseContainer,
+    }[color];
+    switch (fill) {
+      case 'filled':
+        return { filter: 'saturate(1.2) brightness(1.1)' };
+      case 'tinted':
+        return { filter: 'saturate(1.3) brightness(0.95)' };
+      case 'outlined':
+      case 'transparent':
+        return { backgroundColor: hoverColor };
+      /* istanbul ignore next */
+      default:
+        return throwIllegalValue(fill);
+    }
   }
 
-  if (getVariantConfig(p).isSolidColor) {
-    return getVariantColor(p);
-  }
-
-  return p.theme.colors.background;
+  return {};
 }
 
-function getForegroundColor(
-  p: ThemedStyledButtonProps
-): ColorString | undefined {
-  if (p.disabled) {
-    return p.theme.colors.foregroundDisabled;
+function activeStyles(p: ThemedStyledButtonProps): CSSObject {
+  const {
+    theme: { colorMode },
+  } = p;
+  // Having a different style for the active state on desktop is not necessary
+  // because the transition from hover back to normal gives enough feedback.
+  if (colorMode === 'desktop') {
+    return {};
   }
 
-  const variantConfig = variantConfigs[p.variant || 'neutral'];
-  if (variantConfig.isSolidColor) {
-    return p.theme.colors.background;
-  }
-
-  return getVariantColor(p);
+  const shadowColor = colorAndFillStyles(p).color;
+  return {
+    boxShadow: `inset 0 0 0 0.15rem ${shadowColor}`,
+  };
 }
 
-function getBorderColor(p: ThemedStyledButtonProps): ColorString | undefined {
-  const variantConfig = variantConfigs[p.variant || 'neutral'];
-  if (variantConfig.isSolidColor) {
-    return getBackgroundColor(p);
+function disabledStyles(p: ThemedStyledButtonProps): CSSObject {
+  const { color, fill } = resolveColorAndFill(p);
+  const {
+    theme: { colors, colorMode },
+  } = p;
+  if (colorMode === 'desktop') {
+    return {
+      backgroundColor:
+        fill === 'outlined'
+          ? isInverse(color)
+            ? colors.inverseContainer
+            : colors.container
+          : undefined,
+      filter: 'saturate(0.5) brightness(0.9)',
+      borderStyle: 'dashed',
+      borderColor: colors.outline,
+    };
   }
 
-  return getForegroundColor(p);
+  const [foregroundColor, backgroundColor] = isInverse(color)
+    ? [colors.onInverse, colors.inverseBackground]
+    : [colors.onBackground, colors.background];
+  return {
+    borderStyle: 'dashed',
+    color: foregroundColor,
+    backgroundColor,
+    borderColor: foregroundColor,
+  };
 }
 
-const paddingStyles: Record<SizeMode, string | undefined> = {
-  desktop: '0.5em 0.6em',
+const paddingStyles: Record<SizeMode, string> = {
+  desktop: '0.6em 1.2em',
   touchSmall: '0.5em 0.6em',
   touchMedium: '0.5em 0.6em',
   touchLarge: '0.4em 0.5em',
   touchExtraLarge: '0.3em 0.4em',
 };
 
-function getPadding(p: StyledButtonProps & { theme: DefaultTheme }) {
-  return paddingStyles[p.theme.sizeMode];
-}
-
 export const buttonStyles = css<StyledButtonProps>`
   align-items: center;
-  background: ${getBackgroundColor};
-  border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid ${getBorderColor};
-  border-radius: 0.25rem;
+  background: none;
+  border-radius: ${(p) =>
+    p.theme.sizeMode === 'desktop' ? '0.5rem' : '0.25rem'};
+  border-style: solid;
+  border-width: ${(p) =>
+    p.theme.sizeMode === 'desktop'
+      ? p.theme.sizes.bordersRem.thin
+      : p.theme.sizes.bordersRem.medium}rem;
   box-shadow: none;
   box-sizing: border-box;
-  color: ${getForegroundColor};
   cursor: pointer;
   display: inline-flex;
   flex-wrap: wrap;
-  justify-content: center;
   font-family: inherit;
   font-size: ${FONT_SIZE_REM}rem;
-  font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   gap: 0.5rem;
+  justify-content: center;
   letter-spacing: ${(p) => p.theme.sizes.letterSpacingEm}em;
   line-height: ${(p) => p.theme.sizes.lineHeight};
-  padding: ${getPadding};
+  min-height: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
+  padding: ${(p) => paddingStyles[p.theme.sizeMode]};
   text-align: center;
   text-shadow: none;
   touch-action: manipulation;
   transition: 100ms ease-in;
   transition-property: background, border, box-shadow, color;
-  width: auto;
-  min-height: ${(p) => p.theme.sizes.minTouchAreaSizePx}px;
   vertical-align: middle;
+  width: auto;
 
-  &:hover,
+  ${(p) => css(colorAndFillStyles(p))}
+
   &:active {
-    outline: none;
+    ${(p) => css(activeStyles(p))}
   }
 
-  &:active {
-    box-shadow: inset 0 0 0 0.15rem ${getForegroundColor};
+  &:hover:not(:active) {
+    ${(p) => css(hoverStyles(p))}
   }
 
   &[disabled] {
-    border: ${(p) => p.theme.sizes.bordersRem.medium}rem dashed
-      ${(p) => p.theme.colors.foregroundDisabled};
+    ${(p) => css(disabledStyles(p))}
     box-shadow: none;
     cursor: not-allowed;
   }
@@ -260,8 +434,8 @@ export class Button<T = undefined> extends PureComponent<
       disabled,
       nonAccessibleTitle,
       tabIndex,
+      style,
       value, // eslint-disable-line @typescript-eslint/no-unused-vars
-      variant,
       icon,
       rightIcon,
       ...rest
@@ -276,8 +450,8 @@ export class Button<T = undefined> extends PureComponent<
         onClick={this.onPress}
         ref={this.buttonRef}
         tabIndex={tabIndex}
+        style={style}
         title={nonAccessibleTitle}
-        variant={variant}
       >
         {icon && resolveIcon(icon)}
         {children && <TextContainer>{children}</TextContainer>}
