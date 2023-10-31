@@ -25,6 +25,23 @@ export const BUTTON_FILLS = [
 export type ButtonColor = (typeof BUTTON_COLORS)[number];
 export type ButtonFill = (typeof BUTTON_FILLS)[number];
 
+interface VariantConfig {
+  color: ButtonColor;
+  fill: ButtonFill;
+}
+
+const buttonVariants = {
+  neutral: { color: 'neutral', fill: 'outlined' },
+  primary: { color: 'primary', fill: 'filled' },
+  secondary: { color: 'primary', fill: 'tinted' },
+  danger: { color: 'danger', fill: 'filled' },
+  inverseNeutral: { color: 'inverseNeutral', fill: 'outlined' },
+  inversePrimary: { color: 'inversePrimary', fill: 'filled' },
+} satisfies Record<string, VariantConfig>;
+
+export type ButtonVariant = keyof typeof buttonVariants;
+export const BUTTON_VARIANTS = Object.keys(buttonVariants) as ButtonVariant[];
+
 type ClickHandler = () => void;
 type TypedClickHandler<T> = (value: T) => void;
 
@@ -73,25 +90,6 @@ function resolveIcon(icon: IconName | JSX.Element): JSX.Element {
   }
   return icon;
 }
-
-interface VariantConfig {
-  color: ButtonColor;
-  fill: ButtonFill;
-  icon?: IconName | JSX.Element;
-  iconRight?: IconName | JSX.Element;
-}
-
-const buttonVariants = {
-  neutral: { color: 'neutral', fill: 'outlined' },
-  primary: { color: 'primary', fill: 'filled' },
-  secondary: { color: 'primary', fill: 'tinted' },
-  danger: { color: 'danger', fill: 'filled' },
-  inverseNeutral: { color: 'inverseNeutral', fill: 'outlined' },
-  inversePrimary: { color: 'inversePrimary', fill: 'filled' },
-} satisfies Record<string, VariantConfig>;
-
-export type ButtonVariant = keyof typeof buttonVariants;
-export const BUTTON_VARIANTS = Object.keys(buttonVariants) as ButtonVariant[];
 
 function resolveColorAndFill(p: ThemedStyledButtonProps): {
   color: ButtonColor;
@@ -206,6 +204,7 @@ function colorAndFillStyles(p: ThemedStyledButtonProps): CSSObject {
   const style = styleSpecs[color][fill];
   return {
     ...style,
+    backgroundColor: style.backgroundColor ?? 'transparent',
     // Every button style has a border, that way all buttons are the same size.
     // For buttons with a background color but no border color (e.g.
     // filled/tinted), we set the border color to the background color so it's
@@ -227,7 +226,7 @@ function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
   if (colorMode === 'desktop') {
     const hoverColor = {
       primary: colors.primaryContainer,
-      neutral: colors.containerLow,
+      neutral: colors.container,
       danger: colors.dangerContainer,
       inversePrimary: colors.inverseContainer,
       inverseNeutral: colors.inverseContainer,
@@ -337,12 +336,12 @@ export const buttonStyles = css<StyledButtonProps>`
 
   ${(p) => css(colorAndFillStyles(p))}
 
-  &:hover {
-    ${(p) => css(hoverStyles(p))}
-  }
-
   &:active {
     ${(p) => css(activeStyles(p))}
+  }
+
+  &:hover:not(:active) {
+    ${(p) => css(hoverStyles(p))}
   }
 
   &[disabled] {
