@@ -14,7 +14,6 @@ import {
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import {
-  BALLOT_PACKAGE_FOLDER,
   getExportedCastVoteRecordIds,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
@@ -144,9 +143,7 @@ export async function getCastVoteRecordExportDirectoryPaths(
     usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
   assert(usbMountPoint !== undefined);
 
-  const electionDirectoryNames = fs
-    .readdirSync(usbMountPoint)
-    .filter((name) => name !== BALLOT_PACKAGE_FOLDER);
+  const electionDirectoryNames = fs.readdirSync(usbMountPoint);
   assert(electionDirectoryNames.length === 1);
 
   const electionResultsDirectoryPath = path.join(
