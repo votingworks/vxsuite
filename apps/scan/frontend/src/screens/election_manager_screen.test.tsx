@@ -499,6 +499,8 @@ test('machine *can* be unconfigured if CVR sync is required but in test mode', a
 });
 
 test('renders buttons for saving logs', async () => {
+  // Log saving is tested fully in src/components/export_logs_modal.test.tsx
+
   apiMock.expectGetConfig();
   renderScreen({
     scannerStatus: statusNoPaper,
@@ -508,6 +510,12 @@ test('renders buttons for saving logs', async () => {
 
   userEvent.click(screen.getByRole('tab', { name: /data/i }));
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
-  await screen.findByText('Save Log File');
-  await screen.findByText('Save CDF Log File');
+
+  userEvent.click(screen.getByText('Save Log File'));
+  await screen.findByText('No Log File Present');
+  userEvent.click(screen.getByText('Close'));
+
+  userEvent.click(screen.getByText('Save CDF Log File'));
+  await screen.findByText('No Log File Present');
+  userEvent.click(screen.getByText('Close'));
 });
