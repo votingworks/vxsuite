@@ -38,6 +38,7 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 });
 
 afterEach(() => {
@@ -495,4 +496,18 @@ test('machine *can* be unconfigured if CVR sync is required but in test mode', a
   within(modal).getByText(
     'Do you want to remove all election information and data from this machine?'
   );
+});
+
+test('renders buttons for saving logs', async () => {
+  apiMock.expectGetConfig();
+  renderScreen({
+    scannerStatus: statusNoPaper,
+    usbDrive: mockUsbDriveStatus('no_drive'),
+  });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+  await screen.findByText('Save Log File');
+  await screen.findByText('Save CDF Log File');
 });

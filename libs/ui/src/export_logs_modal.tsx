@@ -15,7 +15,11 @@ import {
   Logger,
 } from '@votingworks/logging';
 
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DippedSmartCardAuth,
+  ElectionDefinition,
+  InsertedSmartCardAuth,
+} from '@votingworks/types';
 import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
@@ -27,7 +31,7 @@ import { Font, P } from './typography';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
-  auth: DippedSmartCardAuth.AuthStatus;
+  auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus;
   logFileType: LogFileType;
   logger: Logger;
   electionDefinition?: ElectionDefinition;

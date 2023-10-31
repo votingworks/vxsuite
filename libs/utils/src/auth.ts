@@ -8,6 +8,12 @@ export function isSystemAdministratorAuth(
 ): auth is InsertedSmartCardAuth.SystemAdministratorLoggedIn;
 export function isSystemAdministratorAuth(
   auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus
+): auth is
+  | InsertedSmartCardAuth.SystemAdministratorLoggedIn
+  | DippedSmartCardAuth.SystemAdministratorLoggedIn;
+
+export function isSystemAdministratorAuth(
+  auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus
 ): boolean {
   return (
     auth.status === 'logged_in' && auth.user.role === 'system_administrator'
@@ -20,6 +26,11 @@ export function isElectionManagerAuth(
 export function isElectionManagerAuth(
   auth: InsertedSmartCardAuth.AuthStatus
 ): auth is InsertedSmartCardAuth.ElectionManagerLoggedIn;
+export function isElectionManagerAuth(
+  auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus
+): auth is
+  | InsertedSmartCardAuth.ElectionManagerLoggedIn
+  | DippedSmartCardAuth.ElectionManagerLoggedIn;
 export function isElectionManagerAuth(
   auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus
 ): boolean {

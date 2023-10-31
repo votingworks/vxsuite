@@ -10,6 +10,7 @@ import {
   P,
   TabbedSection,
   H1,
+  ExportLogsButtonRow,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -23,7 +24,9 @@ import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
 import {
   ejectUsbDrive,
+  getAuthStatus,
   getConfig,
+  getMachineConfig,
   getUsbDriveStatus,
   logOut,
   setIsSoundMuted,
@@ -57,6 +60,8 @@ export function ElectionManagerScreen({
   const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const authStatusQuery = getAuthStatus.useQuery();
+  const machineConfigQuery = getMachineConfig.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
@@ -73,7 +78,12 @@ export function ElectionManagerScreen({
   const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
   const [isUnconfiguring, setIsUnconfiguring] = useState(false);
 
-  if (!configQuery.isSuccess || !usbDriveStatusQuery.isSuccess) {
+  if (
+    !configQuery.isSuccess ||
+    !usbDriveStatusQuery.isSuccess ||
+    !authStatusQuery.isSuccess ||
+    !machineConfigQuery.isSuccess
+  ) {
     return null;
   }
 
@@ -85,6 +95,9 @@ export function ElectionManagerScreen({
     isUltrasonicDisabled,
     pollsState,
   } = configQuery.data;
+  const authStatus = authStatusQuery.data;
+  const machineConfig = machineConfigQuery.data;
+
   const doesUsbDriveRequireCastVoteRecordSync = Boolean(
     usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync
   );
@@ -176,9 +189,18 @@ export function ElectionManagerScreen({
   );
 
   const dataExportButtons = (
-    <P>
-      <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
-    </P>
+    <React.Fragment>
+      <ExportLogsButtonRow
+        electionDefinition={electionDefinition}
+        usbDriveStatus={usbDrive}
+        auth={authStatus}
+        logger={logger}
+        machineConfig={machineConfig}
+      />
+      <P>
+        <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
+      </P>
+    </React.Fragment>
   );
 
   const doubleSheetDetectionToggle = (
