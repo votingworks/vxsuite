@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Renders ContestPage 1`] = `
+exports[`Renders ContestScreen 1`] = `
 .c6 {
   font-size: 1em;
   font-weight: 600;
@@ -236,9 +236,9 @@ exports[`Renders ContestPage 1`] = `
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
   height: 100%;
 }
 
@@ -922,7 +922,7 @@ exports[`Renders ContestPage 1`] = `
 </div>
 `;
 
-exports[`Renders ContestPage in Landscape orientation 1`] = `
+exports[`Renders ContestScreen in Landscape orientation 1`] = `
 .c6 {
   font-size: 1em;
   font-weight: 600;

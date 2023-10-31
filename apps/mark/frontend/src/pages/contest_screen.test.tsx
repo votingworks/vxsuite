@@ -8,14 +8,14 @@ import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 
 import { render as renderWithBallotContext } from '../../test/test_utils';
 
-import { ContestPage } from './contest_page';
+import { ContestScreen } from './contest_screen';
 
 const electionGeneral = electionGeneralDefinition.election;
 const firstContestTitle = electionGeneral.contests[0].title;
 
-it('Renders ContestPage', () => {
+it('Renders ContestScreen', () => {
   const { container } = renderWithBallotContext(
-    <Route path="/contests/:contestNumber" component={ContestPage} />,
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0',
       precinctId: electionGeneral.precincts[0].id,
@@ -26,9 +26,9 @@ it('Renders ContestPage', () => {
   expect(container).toMatchSnapshot();
 });
 
-it('Renders ContestPage in Landscape orientation', () => {
+it('Renders ContestScreen in Landscape orientation', () => {
   const { container } = renderWithBallotContext(
-    <Route path="/contests/:contestNumber" component={ContestPage} />,
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0',
       precinctId: electionGeneral.precincts[0].id,
@@ -40,9 +40,9 @@ it('Renders ContestPage in Landscape orientation', () => {
   expect(container).toMatchSnapshot();
 });
 
-it('Renders ContestPage in Landscape orientation in Review Mode', () => {
+it('Renders ContestScreen in Landscape orientation in Review Mode', () => {
   renderWithBallotContext(
-    <Route path="/contests/:contestNumber" component={ContestPage} />,
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0#review',
       precinctId: electionGeneral.precincts[0].id,
@@ -58,7 +58,7 @@ it('renders display settings button', () => {
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(
-    <Route path="/contests/:contestNumber" component={ContestPage} />,
+    <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       history,
       route: '/contests/0',
