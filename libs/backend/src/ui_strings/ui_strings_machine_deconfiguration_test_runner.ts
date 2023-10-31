@@ -23,11 +23,16 @@ export function runUiStringMachineDeconfigurationTests(
       languageCode: LanguageCode.SPANISH,
       data: { foo: 'bar_es', deeply: { nested: 'value_es' } },
     });
+    store.setUiStringAudioIds({
+      languageCode: LanguageCode.ENGLISH,
+      data: { foo: ['123', 'abc'] },
+    });
 
     await runUnconfigureMachine();
 
     expect(store.getLanguages()).toEqual([]);
     expect(store.getUiStrings(LanguageCode.ENGLISH)).toBeNull();
     expect(store.getUiStrings(LanguageCode.SPANISH)).toBeNull();
+    expect(store.getUiStringAudioIds(LanguageCode.ENGLISH)).toBeNull();
   });
 }

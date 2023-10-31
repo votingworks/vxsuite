@@ -30,6 +30,18 @@ export function createBallotPackageZipArchive(
       JSON.stringify(ballotPackage.uiStrings, null, 2)
     );
   }
+  if (ballotPackage.uiStringAudioIds) {
+    jsZip.file(
+      BallotPackageFileName.UI_STRING_AUDIO_IDS,
+      JSON.stringify(ballotPackage.uiStringAudioIds, null, 2)
+    );
+  }
+  if (ballotPackage.uiStringAudioClips) {
+    jsZip.file(
+      BallotPackageFileName.AUDIO_CLIPS,
+      JSON.stringify(ballotPackage.uiStringAudioClips, null, 2)
+    );
+  }
   return jsZip.generateAsync({ type: 'nodebuffer' });
 }
 
