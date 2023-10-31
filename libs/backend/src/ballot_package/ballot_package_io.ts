@@ -1,4 +1,4 @@
-import path from 'path';
+import { join } from 'path';
 import { Result, assert, err, ok } from '@votingworks/basics';
 import {
   BALLOT_PACKAGE_FOLDER,
@@ -7,7 +7,6 @@ import {
   readBallotPackageFromBuffer,
 } from '@votingworks/utils';
 import * as fs from 'fs/promises';
-import * as fsSync from 'fs';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BallotPackage,
@@ -24,31 +23,66 @@ async function getMostRecentBallotPackageFilepath(
   const usbDriveStatus = await usbDrive.status();
   assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
 
-  const directoryPath = path.join(
-    usbDriveStatus.mountPoint,
-    BALLOT_PACKAGE_FOLDER
-  );
-  if (!fsSync.existsSync(directoryPath)) {
-    return err('no_ballot_package_on_usb_drive');
+  // Although not all USB drive root directories are election directories, we
+  // just check them all. It's not necessary to enforce the naming convention.
+  const possibleElectionDirectories = (
+    await fs.readdir(usbDriveStatus.mountPoint, {
+      withFileTypes: true,
+    })
+  ).filter((entry) => entry.isDirectory());
+
+  const electionBallotPackageDirectories: string[] = [];
+  for (const possibleElectionDirectory of possibleElectionDirectories) {
+    const hasBallotPackageDirectory = (
+      await fs.readdir(
+        join(usbDriveStatus.mountPoint, possibleElectionDirectory.name),
+        {
+          withFileTypes: true,
+        }
+      )
+    ).some(
+      (entry) => entry.isDirectory() && entry.name === BALLOT_PACKAGE_FOLDER
+    );
+
+    if (hasBallotPackageDirectory) {
+      electionBallotPackageDirectories.push(
+        join(
+          usbDriveStatus.mountPoint,
+          possibleElectionDirectory.name,
+          BALLOT_PACKAGE_FOLDER
+        )
+      );
+    }
   }
 
-  const files = await fs.readdir(directoryPath, { withFileTypes: true });
-  const ballotPackageFiles = files.filter(
-    (file) =>
-      // Ignore hidden files that start with `.`
-      file.isFile() && !file.name.startsWith('.') && file.name.endsWith('.zip')
-  );
-  if (ballotPackageFiles.length === 0) {
+  const ballotPackageFilePaths: string[] = [];
+  for (const electionBallotPackageDirectory of electionBallotPackageDirectories) {
+    ballotPackageFilePaths.push(
+      ...(
+        await fs.readdir(electionBallotPackageDirectory, {
+          withFileTypes: true,
+        })
+      )
+        .filter(
+          (file) =>
+            file.isFile() &&
+            file.name.endsWith('.zip') &&
+            // Ignore hidden files that start with `.`
+            !file.name.startsWith('.')
+        )
+        .map((file) => join(electionBallotPackageDirectory, file.name))
+    );
+  }
+
+  if (ballotPackageFilePaths.length === 0) {
     return err('no_ballot_package_on_usb_drive');
   }
 
   const ballotPackageFilesWithStats = await Promise.all(
-    ballotPackageFiles.map(async (file) => {
-      const filePath = path.join(directoryPath, file.name);
+    ballotPackageFilePaths.map(async (filePath) => {
       return {
-        ...file,
         filePath,
-        // Include file stats so we can sort by creation time
+        // Get file stats so we can sort by creation time
         ...(await fs.lstat(filePath)),
       };
     })
