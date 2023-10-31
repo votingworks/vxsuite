@@ -1,26 +1,52 @@
-import { CandidateVote } from '@votingworks/types';
-import { Screen, LinkButton, useScreenInfo, appStrings } from '@votingworks/ui';
-import React, { useContext } from 'react';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+/* istanbul ignore file - tested via Mark/Mark-Scan */
+import React from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+
 import {
-  ButtonFooter,
-  DisplaySettingsButton,
-  Contest as MarkFlowContest,
-} from '@votingworks/mark-flow-ui';
-import { BallotContext } from '../contexts/ballot_context';
+  CandidateVote,
+  ContestId,
+  ElectionDefinition,
+  PrecinctId,
+  VotesDict,
+} from '@votingworks/types';
+import { Screen, LinkButton, useScreenInfo, appStrings } from '@votingworks/ui';
+import { assert, throwIllegalValue } from '@votingworks/basics';
+
+import { Contest, ContestProps } from '../components/contest';
+import { ButtonFooter } from '../components/button_footer';
+import { DisplaySettingsButton } from '../components/display_settings_button';
+import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
+
+interface ContestPageProps {
+  contests: ContestsWithMsEitherNeither;
+  electionDefinition?: ElectionDefinition;
+  getContestUrl: (contestIndex: number) => string;
+  getStartPageUrl: () => string;
+  getReviewPageUrl: (contestId?: ContestId) => string;
+  precinctId?: PrecinctId;
+  updateVote: ContestProps['updateVote'];
+  votes: VotesDict;
+}
 
 interface ContestParams {
   contestNumber: string;
 }
 
-export function ContestPage(): JSX.Element {
+export function ContestPage(props: ContestPageProps): JSX.Element {
   const { contestNumber } = useParams<ContestParams>();
   const history = useHistory();
   const isReviewMode = history.location.hash === '#review';
 
-  const { contests, electionDefinition, precinctId, updateVote, votes } =
-    useContext(BallotContext);
+  const {
+    contests,
+    electionDefinition,
+    getContestUrl,
+    getStartPageUrl,
+    getReviewPageUrl,
+    precinctId,
+    updateVote,
+    votes,
+  } = props;
 
   const screenInfo = useScreenInfo();
 
@@ -72,7 +98,7 @@ export function ContestPage(): JSX.Element {
       rightIcon="Next"
       variant={isVoteComplete ? 'primary' : 'neutral'}
       aria-label="next contest"
-      to={nextContest ? `/contests/${nextContestIndex}` : '/review'}
+      to={nextContest ? getContestUrl(nextContestIndex) : getReviewPageUrl()}
     >
       {appStrings.buttonNext()}
     </LinkButton>
@@ -83,7 +109,7 @@ export function ContestPage(): JSX.Element {
       icon="Previous"
       id="previous"
       aria-label="previous contest"
-      to={prevContest ? `/contests/${prevContestIndex}` : '/'}
+      to={prevContest ? getContestUrl(prevContestIndex) : getStartPageUrl()}
     >
       {/* TODO(kofi): Maybe something like "Previous" would translate better in this context? */}
       {appStrings.buttonBack()}
@@ -94,7 +120,7 @@ export function ContestPage(): JSX.Element {
     <LinkButton
       rightIcon="Next"
       variant={isVoteComplete ? 'primary' : 'neutral'}
-      to={`/review#contest-${contest.id}`}
+      to={getReviewPageUrl(contest.id)}
       id="next"
     >
       {appStrings.buttonReview()}
@@ -105,7 +131,7 @@ export function ContestPage(): JSX.Element {
 
   return (
     <Screen navRight={!screenInfo.isPortrait}>
-      <MarkFlowContest
+      <Contest
         breadcrumbs={{
           ballotContestCount: ballotContestsLength,
           contestNumber: ballotContestNumber,

@@ -6,6 +6,7 @@ export * from './components/review';
 export * from './config/globals';
 export * from './hooks/use_display_settings_manager';
 export * from './pages/cast_ballot_page';
+export * from './pages/contest_page';
 export * from './pages/idle_page';
 export * from './pages/print_page';
 export * from './pages/review_page';
