@@ -4,6 +4,8 @@ import {
   BallotPackage,
   BallotPackageFileName,
   DEFAULT_SYSTEM_SETTINGS,
+  UiStringAudioIdsPackage,
+  UiStringAudioIdsPackageSchema,
   UiStringsPackage,
   UiStringsPackageSchema,
   safeParseElectionDefinitionExtended,
@@ -72,13 +74,28 @@ export async function readBallotPackageFromBuffer(
     _.merge(uiStrings, electionStrings);
   }
 
-  // TODO(kofi): Load metadata, audio key, and audio clips from zip file.
+  // UI String Audio IDs:
+
+  let uiStringAudioIds: UiStringAudioIdsPackage | undefined;
+  const audioIdsEntry = maybeGetFileByName(
+    entries,
+    BallotPackageFileName.UI_STRING_AUDIO_IDS
+  );
+  if (audioIdsEntry) {
+    uiStringAudioIds = safeParseJson(
+      await readTextEntry(audioIdsEntry),
+      UiStringAudioIdsPackageSchema
+    ).unsafeUnwrap();
+  }
+
+  // TODO(kofi): Load metadata and audio clips from zip file.
   // TODO(kofi): Verify package version matches machine build version.
 
   return {
     electionDefinition,
     systemSettings: safeParseSystemSettings(systemSettingsData).unsafeUnwrap(),
     uiStrings,
+    uiStringAudioIds,
   };
 }
 
