@@ -618,16 +618,14 @@ exports[`Single Seat Contest 1`] = `
             <span
               class=""
             >
-              Vote for 4.
+              Votes remaining in this contest:
             </span>
              
             <span
               class="c7"
             >
-              <span
-                class=""
-              >
-                You have selected 4.
+              <span>
+                0
               </span>
             </span>
             <span

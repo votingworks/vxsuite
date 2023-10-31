@@ -1,6 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders 1`] = `
+.c6 {
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+}
+
 .c3 {
   font-size: 1em;
   font-weight: 500;
@@ -16,7 +23,7 @@ exports[`renders 1`] = `
   font-size: 0.75rem;
 }
 
-.c19 {
+.c20 {
   font-size: 1em;
   font-weight: 300;
   line-height: 1.3;
@@ -24,7 +31,7 @@ exports[`renders 1`] = `
   font-size: 0.75rem;
 }
 
-.c17 {
+.c18 {
   font-size: 1em;
   line-height: 1.3;
   margin: 0;
@@ -56,13 +63,13 @@ exports[`renders 1`] = `
   margin-top: 0 !important;
 }
 
-.c15 {
+.c16 {
   fill: currentColor;
   height: 1em;
   width: 1em;
 }
 
-.c9 {
+.c10 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -107,22 +114,22 @@ exports[`renders 1`] = `
   vertical-align: middle;
 }
 
-.c9:hover,
-.c9:active {
+.c10:hover,
+.c10:active {
   outline: none;
 }
 
-.c9:active {
+.c10:active {
   box-shadow: inset 0 0 0 0.15rem #222222;
 }
 
-.c9[disabled] {
+.c10[disabled] {
   border: 0.15rem dashed #222222;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-.c11 {
+.c12 {
   display: inline-block;
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
@@ -133,7 +140,7 @@ exports[`renders 1`] = `
   flex-shrink: 1;
 }
 
-.c14 {
+.c15 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -153,13 +160,13 @@ exports[`renders 1`] = `
   width: 1.75em;
 }
 
-.c14 > * {
+.c15 > * {
   opacity: 0;
   -webkit-transition: opacity 100ms ease-in;
   transition: opacity 100ms ease-in;
 }
 
-.c10 {
+.c11 {
   border: 0.06rem solid currentColor;
   -webkit-box-pack: start;
   -webkit-justify-content: start;
@@ -173,11 +180,11 @@ exports[`renders 1`] = `
   width: 100%;
 }
 
-.c10:active {
+.c11:active {
   border: 0.06rem solid #00437d;
 }
 
-.c12 {
+.c13 {
   -webkit-align-items: center;
   -webkit-box-align: center;
   -ms-flex-align: center;
@@ -192,7 +199,7 @@ exports[`renders 1`] = `
   gap: 0.5rem;
 }
 
-.c13 {
+.c14 {
   -webkit-box-flex: 0;
   -webkit-flex-grow: 0;
   -ms-flex-positive: 0;
@@ -202,7 +209,7 @@ exports[`renders 1`] = `
   flex-shrink: 0;
 }
 
-.c16 {
+.c17 {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -ms-flex-positive: 1;
@@ -210,7 +217,7 @@ exports[`renders 1`] = `
   line-height: 1;
 }
 
-.c18 {
+.c19 {
   line-height: inherit;
   margin-bottom: 0;
 }
@@ -229,7 +236,7 @@ exports[`renders 1`] = `
   overflow: auto;
 }
 
-.c6 {
+.c7 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -239,7 +246,7 @@ exports[`renders 1`] = `
   position: relative;
 }
 
-.c7 {
+.c8 {
   -webkit-align-items: stretch;
   -webkit-box-align: stretch;
   -ms-flex-align: stretch;
@@ -264,7 +271,7 @@ exports[`renders 1`] = `
   padding-bottom: 0;
 }
 
-.c8 {
+.c9 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 0.5rem;
@@ -335,9 +342,16 @@ exports[`renders 1`] = `
           <span
             class=""
           >
-            Vote for 1.
+            Votes remaining in this contest:
           </span>
            
+          <span
+            class="c6"
+          >
+            <span>
+              1
+            </span>
+          </span>
           <span
             class="screen-reader-only"
           >
@@ -351,38 +365,38 @@ exports[`renders 1`] = `
       </div>
     </div>
     <div
-      class="c6"
+      class="c7"
     >
       <div
-        class="c7"
+        class="c8"
       >
         <div
           aria-multiselectable="true"
-          class="c8"
+          class="c9"
           role="listbox"
         >
           <button
             aria-label=" Joseph Barchi and Joseph Hallaren, Federalist."
             aria-selected="false"
-            class="c9 c10"
+            class="c10 c11"
             role="option"
             type="button"
           >
             <span
-              class="c11"
+              class="c12"
             >
               <span
-                class="c12"
+                class="c13"
               >
                 <span
-                  class="c13"
+                  class="c14"
                 >
                   <span
-                    class="c14"
+                    class="c15"
                   >
                     <svg
                       aria-hidden="true"
-                      class="c15"
+                      class="c16"
                       height="100"
                       role="img"
                       viewBox="0 0 100 100"
@@ -395,15 +409,15 @@ exports[`renders 1`] = `
                   </span>
                 </span>
                 <span
-                  class="c16"
+                  class="c17"
                 >
                   <p
-                    class="c17 c18"
+                    class="c18 c19"
                   >
                     Joseph Barchi and Joseph Hallaren
                   </p>
                   <span
-                    class="c19"
+                    class="c20"
                   >
                     <span
                       class=""
@@ -418,25 +432,25 @@ exports[`renders 1`] = `
           <button
             aria-label=" Adam Cramer and Greg Vuocolo, People’s."
             aria-selected="false"
-            class="c9 c10"
+            class="c10 c11"
             role="option"
             type="button"
           >
             <span
-              class="c11"
+              class="c12"
             >
               <span
-                class="c12"
+                class="c13"
               >
                 <span
-                  class="c13"
+                  class="c14"
                 >
                   <span
-                    class="c14"
+                    class="c15"
                   >
                     <svg
                       aria-hidden="true"
-                      class="c15"
+                      class="c16"
                       height="100"
                       role="img"
                       viewBox="0 0 100 100"
@@ -449,15 +463,15 @@ exports[`renders 1`] = `
                   </span>
                 </span>
                 <span
-                  class="c16"
+                  class="c17"
                 >
                   <p
-                    class="c17 c18"
+                    class="c18 c19"
                   >
                     Adam Cramer and Greg Vuocolo
                   </p>
                   <span
-                    class="c19"
+                    class="c20"
                   >
                     <span
                       class=""
@@ -472,25 +486,25 @@ exports[`renders 1`] = `
           <button
             aria-label=" Daniel Court and Amy Blumhardt, Liberty."
             aria-selected="false"
-            class="c9 c10"
+            class="c10 c11"
             role="option"
             type="button"
           >
             <span
-              class="c11"
+              class="c12"
             >
               <span
-                class="c12"
+                class="c13"
               >
                 <span
-                  class="c13"
+                  class="c14"
                 >
                   <span
-                    class="c14"
+                    class="c15"
                   >
                     <svg
                       aria-hidden="true"
-                      class="c15"
+                      class="c16"
                       height="100"
                       role="img"
                       viewBox="0 0 100 100"
@@ -503,15 +517,15 @@ exports[`renders 1`] = `
                   </span>
                 </span>
                 <span
-                  class="c16"
+                  class="c17"
                 >
                   <p
-                    class="c17 c18"
+                    class="c18 c19"
                   >
                     Daniel Court and Amy Blumhardt
                   </p>
                   <span
-                    class="c19"
+                    class="c20"
                   >
                     <span
                       class=""
@@ -526,25 +540,25 @@ exports[`renders 1`] = `
           <button
             aria-label=" Alvin Boone and James Lian, Constitution."
             aria-selected="false"
-            class="c9 c10"
+            class="c10 c11"
             role="option"
             type="button"
           >
             <span
-              class="c11"
+              class="c12"
             >
               <span
-                class="c12"
+                class="c13"
               >
                 <span
-                  class="c13"
+                  class="c14"
                 >
                   <span
-                    class="c14"
+                    class="c15"
                   >
                     <svg
                       aria-hidden="true"
-                      class="c15"
+                      class="c16"
                       height="100"
                       role="img"
                       viewBox="0 0 100 100"
@@ -557,15 +571,15 @@ exports[`renders 1`] = `
                   </span>
                 </span>
                 <span
-                  class="c16"
+                  class="c17"
                 >
                   <p
-                    class="c17 c18"
+                    class="c18 c19"
                   >
                     Alvin Boone and James Lian
                   </p>
                   <span
-                    class="c19"
+                    class="c20"
                   >
                     <span
                       class=""
@@ -580,25 +594,25 @@ exports[`renders 1`] = `
           <button
             aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
             aria-selected="false"
-            class="c9 c10"
+            class="c10 c11"
             role="option"
             type="button"
           >
             <span
-              class="c11"
+              class="c12"
             >
               <span
-                class="c12"
+                class="c13"
               >
                 <span
-                  class="c13"
+                  class="c14"
                 >
                   <span
-                    class="c14"
+                    class="c15"
                   >
                     <svg
                       aria-hidden="true"
-                      class="c15"
+                      class="c16"
                       height="100"
                       role="img"
                       viewBox="0 0 100 100"
@@ -611,15 +625,15 @@ exports[`renders 1`] = `
                   </span>
                 </span>
                 <span
-                  class="c16"
+                  class="c17"
                 >
                   <p
-                    class="c17 c18"
+                    class="c18 c19"
                   >
                     Ashley Hildebrand-McDougall and James Garritty
                   </p>
                   <span
-                    class="c19"
+                    class="c20"
                   >
                     <span
                       class=""
@@ -634,25 +648,25 @@ exports[`renders 1`] = `
           <button
             aria-label=" Martin Patterson and Clay Lariviere, Labor."
             aria-selected="false"
-            class="c9 c10"
+            class="c10 c11"
             role="option"
             type="button"
           >
             <span
-              class="c11"
+              class="c12"
             >
               <span
-                class="c12"
+                class="c13"
               >
                 <span
-                  class="c13"
+                  class="c14"
                 >
                   <span
-                    class="c14"
+                    class="c15"
                   >
                     <svg
                       aria-hidden="true"
-                      class="c15"
+                      class="c16"
                       height="100"
                       role="img"
                       viewBox="0 0 100 100"
@@ -665,15 +679,15 @@ exports[`renders 1`] = `
                   </span>
                 </span>
                 <span
-                  class="c16"
+                  class="c17"
                 >
                   <p
-                    class="c17 c18"
+                    class="c18 c19"
                   >
                     Martin Patterson and Clay Lariviere
                   </p>
                   <span
-                    class="c19"
+                    class="c20"
                   >
                     <span
                       class=""

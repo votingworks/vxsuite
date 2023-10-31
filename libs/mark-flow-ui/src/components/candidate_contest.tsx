@@ -27,6 +27,7 @@ import {
   useScreenInfo,
   appStrings,
   CandidatePartyList,
+  NumberString,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -235,17 +236,10 @@ export function CandidateContest({
           districtName={districtName}
         >
           <Caption>
-            {appStrings.numSeatsInstructions(contest.seats)}{' '}
-            {vote.length === contest.seats && (
-              <Font weight="bold">
-                {appStrings.numVotesSelected(contest.seats)}
-              </Font>
-            )}
-            {vote.length < contest.seats && vote.length !== 0 && (
-              <Font weight="bold">
-                {appStrings.numVotesRemaining(contest.seats - vote.length)}
-              </Font>
-            )}
+            {appStrings.labelNumVotesRemaining()}{' '}
+            <Font weight="bold">
+              <NumberString value={contest.seats - vote.length} />
+            </Font>
             <span className="screen-reader-only">
               {appStrings.instructionsBmdContestNavigation()}
             </span>
