@@ -14,7 +14,7 @@ const electionGeneral = electionGeneralDefinition.election;
 const firstContestTitle = electionGeneral.contests[0].title;
 
 it('Renders ContestScreen', () => {
-  const { container } = renderWithBallotContext(
+  renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0',
@@ -22,12 +22,14 @@ it('Renders ContestScreen', () => {
       ballotStyleId: electionGeneral.ballotStyles[0].id,
     }
   );
-  screen.getByText(firstContestTitle);
-  expect(container).toMatchSnapshot();
+  screen.getByRole('heading', { name: firstContestTitle });
+  screen.getByRole('button', { name: 'next contest' });
+  screen.getByRole('button', { name: 'previous contest' });
+  screen.getByRole('button', { name: 'Color/Size' });
 });
 
 it('Renders ContestScreen in Landscape orientation', () => {
-  const { container } = renderWithBallotContext(
+  renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0',
@@ -36,8 +38,7 @@ it('Renders ContestScreen in Landscape orientation', () => {
       machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
-  screen.getByText(firstContestTitle);
-  expect(container).toMatchSnapshot();
+  screen.getByRole('heading', { name: firstContestTitle });
 });
 
 it('Renders ContestScreen in Landscape orientation in Review Mode', () => {
@@ -50,7 +51,7 @@ it('Renders ContestScreen in Landscape orientation in Review Mode', () => {
       machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
-  screen.getByText(firstContestTitle);
+  screen.getByRole('heading', { name: firstContestTitle });
   screen.getByText('Review');
 });
 

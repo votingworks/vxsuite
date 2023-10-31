@@ -11,14 +11,15 @@ const contest = electionTwoPartyPrimary.contests.find(
 
 test('voting for both yes and no', () => {
   const updateVote = jest.fn();
-  const { container } = render(
+  render(
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
       updateVote={updateVote}
     />
   );
-  expect(container).toMatchSnapshot();
+  screen.getByRole('heading', { name: contest.title });
+  screen.getByText(contest.description);
 
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('YES').closest('button')!);
@@ -30,7 +31,7 @@ test('voting for both yes and no', () => {
 
 test('changing votes', () => {
   const updateVote = jest.fn();
-  const { container } = render(
+  render(
     <YesNoContest
       election={electionTwoPartyPrimary}
       contest={contest}
@@ -38,7 +39,6 @@ test('changing votes', () => {
       updateVote={updateVote}
     />
   );
-  expect(container).toMatchSnapshot();
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('NO').closest('button')!);
   expect(

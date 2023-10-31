@@ -5,24 +5,22 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import { ElectionInfo } from './election_info';
 
-test('renders ElectionInfo with hash when specified', () => {
-  const { container } = render(
-    <ElectionInfo
-      precinctSelection={singlePrecinctSelectionFor('23')}
-      electionDefinition={electionDefinition}
-    />
-  );
-  expect(container).toMatchSnapshot();
-});
+const { election } = electionDefinition;
+const precinct = election.precincts[0];
 
-test('renders ElectionInfo without hash by default', () => {
+test('renders ElectionInfo', () => {
   const { container } = render(
     <ElectionInfo
-      precinctSelection={singlePrecinctSelectionFor('23')}
+      precinctSelection={singlePrecinctSelectionFor(precinct.id)}
       electionDefinition={electionDefinition}
     />
   );
-  expect(container).toMatchSnapshot();
+  expect(container.getElementsByTagName('svg')).toHaveLength(1); // Seal
+  screen.getByRole('heading', { name: election.title });
+  screen.getByText('November 3, 2020');
+  screen.getByText(precinct.name);
+  screen.getByText(election.county.name);
+  screen.getByText(election.state);
 });
 
 test('renders with ballot style id', () => {

@@ -14,7 +14,6 @@ import {
 } from '../utils/ms_either_neither_contests';
 
 const electionGeneral = electionGeneralDefinition.election;
-const firstContestTitle = electionGeneral.contests[0].title;
 
 const candidateContest = find(
   electionGeneral.contests,
@@ -31,19 +30,6 @@ const msEitherNeitherContest = find(
   (c): c is MsEitherNeitherContest => c.type === 'ms-either-neither'
 );
 
-test('renders', () => {
-  const { container } = render(
-    <Contest
-      election={electionGeneral}
-      contest={electionGeneral.contests[0]}
-      votes={{}}
-      updateVote={jest.fn()}
-    />
-  );
-  screen.getByText(firstContestTitle);
-  expect(container).toMatchSnapshot();
-});
-
 test.each([
   ['with votes', candidateContest.candidates.slice(0, 1)],
   ['without votes', undefined],
@@ -58,7 +44,8 @@ test.each([
       updateVote={jest.fn()}
     />
   );
-  screen.getByText(firstContestTitle);
+  screen.getByText(candidateContest.title);
+  // Tested further in candidate_contest.test.tsx
 });
 
 test('yesno contest', () => {
@@ -73,6 +60,7 @@ test('yesno contest', () => {
     />
   );
   screen.getByText(yesnoContest.title);
+  // Tested further in yes_no_contest.test.tsx
 });
 
 test('renders ms-either-neither contests', () => {
@@ -98,4 +86,5 @@ test('renders ms-either-neither contests', () => {
   expect(updateVote).toHaveBeenCalledWith('750000016', [
     msEitherNeitherContest.secondOption.id,
   ]);
+  // Tested further in ms_either_neither_contest.test.tsx
 });

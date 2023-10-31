@@ -68,7 +68,7 @@ it('Single Seat Contest with Write In', async () => {
   await setStateInStorage(storage);
   apiMock.expectGetPrecinctSelectionResolvesDefault(election);
 
-  const { container } = render(
+  render(
     <App
       hardware={hardware}
       storage={storage}
@@ -111,8 +111,6 @@ it('Single Seat Contest with Write In', async () => {
     screen.getByText('add write-in candidate').closest('button')!
   );
   screen.getByText(`Write-In: ${singleSeatContestWithWriteIn.title}`);
-  // Capture styles of Single Candidate Contest
-  expect(container.firstChild).toMatchSnapshot();
 
   // Enter Write-in Candidate Name
   fireEvent.click(getWithinKeyboard('B'));
