@@ -18,12 +18,13 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import {
+  BALLOT_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
 import { Buffer } from 'buffer';
-import { createBallotPackageZipArchive } from '@votingworks/backend';
+import { mockBallotPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
@@ -97,18 +98,15 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
 
   mockElectionManagerAuth(electionDefinition);
 
-  const zipBuffer = await createBallotPackageZipArchive({
-    electionDefinition,
-    systemSettings: safeParseJson(
-      systemSettings.asText(),
-      SystemSettingsSchema
-    ).unsafeUnwrap(),
-  });
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': zipBuffer,
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({
+      electionDefinition,
+      systemSettings: safeParseJson(
+        systemSettings.asText(),
+        SystemSettingsSchema
+      ).unsafeUnwrap(),
+    })
+  );
 
   const writeResult = await apiClient.configureBallotPackageFromUsb();
   assert(writeResult.isOk());
@@ -126,18 +124,15 @@ test('unconfigureMachine deletes system settings and election definition', async
 
   mockElectionManagerAuth(electionDefinition);
 
-  const zipBuffer = await createBallotPackageZipArchive({
-    electionDefinition,
-    systemSettings: safeParseJson(
-      systemSettings.asText(),
-      SystemSettingsSchema
-    ).unsafeUnwrap(),
-  });
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': zipBuffer,
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({
+      electionDefinition,
+      systemSettings: safeParseJson(
+        systemSettings.asText(),
+        SystemSettingsSchema
+      ).unsafeUnwrap(),
+    })
+  );
 
   const writeResult = await apiClient.configureBallotPackageFromUsb();
   assert(writeResult.isOk());
@@ -173,8 +168,10 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
   );
 
   mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': Buffer.from("doesn't matter"),
+    'some-election': {
+      [BALLOT_PACKAGE_FOLDER]: {
+        'test-ballot-package.zip': Buffer.from("doesn't matter"),
+      },
     },
   });
 

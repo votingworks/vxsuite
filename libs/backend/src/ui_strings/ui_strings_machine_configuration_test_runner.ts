@@ -10,7 +10,7 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { extractCdfUiStrings } from '@votingworks/utils';
 import { Result, assertDefined } from '@votingworks/basics';
 import { UiStringsStore } from './ui_strings_store';
-import { createBallotPackageZipArchive } from '../ballot_package/test_utils';
+import { mockBallotPackageFileTree } from '../ballot_package/test_utils';
 
 type MockUsbDriveLike = Pick<MockUsbDrive, 'insertUsbDrive'>;
 
@@ -37,12 +37,9 @@ export function runUiStringMachineConfigurationTests(
   );
 
   async function doTestConfigure(usbBallotPackage: BallotPackage) {
-    getMockUsbDrive().insertUsbDrive({
-      'ballot-packages': {
-        'test-ballot-package.zip':
-          await createBallotPackageZipArchive(usbBallotPackage),
-      },
-    });
+    getMockUsbDrive().insertUsbDrive(
+      await mockBallotPackageFileTree(usbBallotPackage)
+    );
 
     const result = await runConfigureMachine();
     expect(result.err()).toBeUndefined();

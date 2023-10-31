@@ -13,7 +13,6 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
-  assert,
   assertDefined,
   err,
   find,
@@ -21,16 +20,14 @@ import {
   ok,
   unique,
 } from '@votingworks/basics';
-import fs from 'fs';
-import { join } from 'path';
 import {
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
 import {
-  createBallotPackageZipArchive,
   getCastVoteRecordExportDirectoryPaths,
+  mockBallotPackageFileTree,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -110,7 +107,7 @@ test("fails to configure if there's no ballot package on the usb drive", async (
       err('no_ballot_package_on_usb_drive')
     );
 
-    mockUsbDrive.insertUsbDrive({ 'ballot-packages': {} });
+    mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
       err('no_ballot_package_on_usb_drive')
     );
@@ -132,13 +129,11 @@ test('fails to configure ballot package if election definition on card does not 
       mockAuth,
       electionFamousNames2021Fixtures.electionDefinition
     );
-    mockUsbDrive.insertUsbDrive({
-      'ballot-packages': {
-        'test-ballot-package.zip': await createBallotPackageZipArchive({
-          electionDefinition: electionGeneralDefinition,
-        }),
-      },
-    });
+    mockUsbDrive.insertUsbDrive(
+      await mockBallotPackageFileTree({
+        electionDefinition: electionGeneralDefinition,
+      })
+    );
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
       err('election_hash_mismatch')
     );
@@ -150,13 +145,11 @@ test("if there's only one precinct in the election, it's selected automatically 
     electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
   await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(mockAuth, electionDefinition);
-    mockUsbDrive.insertUsbDrive({
-      'ballot-packages': {
-        'test-ballot-package.zip': await createBallotPackageZipArchive({
-          electionDefinition,
-        }),
-      },
-    });
+    mockUsbDrive.insertUsbDrive(
+      await mockBallotPackageFileTree({
+        electionDefinition,
+      })
+    );
     expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
       ok()
     );
@@ -165,46 +158,6 @@ test("if there's only one precinct in the election, it's selected automatically 
       kind: 'SinglePrecinct',
       precinctId: 'precinct-1',
     });
-  });
-});
-
-test('configures using the most recently created ballot package on the usb drive', async () => {
-  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
-    mockElectionManager(mockAuth, electionGeneralDefinition);
-
-    mockUsbDrive.insertUsbDrive({
-      'ballot-packages': {
-        'older-ballot-package.zip': await createBallotPackageZipArchive(
-          electionFamousNames2021Fixtures.electionJson.toBallotPackage()
-        ),
-        'newer-ballot-package.zip': await createBallotPackageZipArchive({
-          electionDefinition: electionGeneralDefinition,
-        }),
-      },
-    });
-    // Ensure our mock actually created the files in the order we expect (the
-    // order of the keys in the object above)
-    const usbDrive = await mockUsbDrive.usbDrive.status();
-    assert(usbDrive.status === 'mounted');
-    const dirPath = join(usbDrive.mountPoint, 'ballot-packages');
-    const files = fs.readdirSync(dirPath);
-    const filesWithStats = files.map((file) => ({
-      file,
-      ...fs.statSync(join(dirPath, file)),
-    }));
-    expect(filesWithStats[0].file).toContain('newer-ballot-package.zip');
-    expect(filesWithStats[1].file).toContain('older-ballot-package.zip');
-    expect(filesWithStats[0].ctime.getTime()).toBeGreaterThan(
-      filesWithStats[1].ctime.getTime()
-    );
-
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      ok()
-    );
-    const config = await apiClient.getConfig();
-    expect(config.electionDefinition?.election.title).toEqual(
-      electionGeneralDefinition.election.title
-    );
   });
 });
 

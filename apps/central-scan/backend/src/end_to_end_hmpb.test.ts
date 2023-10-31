@@ -1,8 +1,8 @@
 import getPort from 'get-port';
 import {
-  createBallotPackageZipArchive,
   getCastVoteRecordExportDirectoryPaths,
   isTestReport,
+  mockBallotPackageFileTree,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import {
@@ -143,21 +143,19 @@ test('going through the whole process works', async () => {
     BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
   );
 
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'ballot-package.zip': await createBallotPackageZipArchive(
-        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
-          {
-            ...DEFAULT_SYSTEM_SETTINGS,
-            markThresholds: {
-              definite: 0.08,
-              marginal: 0.05,
-            },
-          }
-        )
-      ),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree(
+      electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+        {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          markThresholds: {
+            definite: 0.08,
+            marginal: 0.05,
+          },
+        }
+      )
+    )
+  );
   const configureResult =
     await apiClient.configureFromBallotPackageOnUsbDrive();
   expect(configureResult.err()).toBeUndefined();

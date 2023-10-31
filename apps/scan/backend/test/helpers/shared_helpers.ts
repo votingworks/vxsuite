@@ -2,7 +2,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ok } from '@votingworks/basics';
 import {
   areOrWereCastVoteRecordsBeingExportedToUsbDrive,
-  createBallotPackageZipArchive,
+  mockBallotPackageFileTree,
 } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
@@ -80,12 +80,7 @@ export async function configureApp(
     })
   );
 
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip':
-        await createBallotPackageZipArchive(ballotPackage),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(await mockBallotPackageFileTree(ballotPackage));
 
   expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
 

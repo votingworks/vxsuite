@@ -7,7 +7,7 @@ import { Application } from 'express';
 import { AddressInfo } from 'net';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import tmp from 'tmp';
-import { createBallotPackageZipArchive } from '@votingworks/backend';
+import { mockBallotPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -128,13 +128,11 @@ export async function configureApp(
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
-  mockUsbDrive.insertUsbDrive({
-    'ballot-packages': {
-      'test-ballot-package.zip': await createBallotPackageZipArchive(
-        electionJson.toBallotPackage(systemSettings)
-      ),
-    },
-  });
+  mockUsbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree(
+      electionJson.toBallotPackage(systemSettings)
+    )
+  );
   const result = await apiClient.configureBallotPackageFromUsb();
   expect(result.isOk()).toEqual(true);
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
