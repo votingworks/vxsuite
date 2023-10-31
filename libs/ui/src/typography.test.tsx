@@ -112,37 +112,3 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
     });
   });
 }
-
-for (const Component of [Caption, Font, P, Pre, H1, H2, H3, H4, H5, H6]) {
-  test(`renders colored <${Component.name}>`, () => {
-    const theme = makeTheme({
-      colorMode: 'contrastMedium',
-      sizeMode: 'touchLarge',
-    });
-    render(
-      <React.Fragment>
-        <Component color="danger">danger color text</Component>
-        <Component color="default">default color text</Component>
-        <Component color="success">success color text</Component>
-        <Component color="warning">warning color text</Component>
-      </React.Fragment>,
-      { vxTheme: { colorMode: 'contrastMedium', sizeMode: 'touchLarge' } }
-    );
-
-    expect(screen.getByText('danger color text')).toHaveStyle({
-      color: theme.colors.accentDanger,
-    });
-
-    expect(screen.getByText('default color text')).toHaveStyle({
-      color: theme.colors.foreground,
-    });
-
-    expect(screen.getByText('success color text')).toHaveStyle({
-      color: theme.colors.accentSuccess,
-    });
-
-    expect(screen.getByText('warning color text')).toHaveStyle({
-      color: theme.colors.accentWarning,
-    });
-  });
-}
