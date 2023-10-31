@@ -20,8 +20,8 @@ const Container = styled.span`
   background: ${(p) => p.theme.colors.background};
   border-radius: ${PREVIEW_CONTAINER_STATIC_BORDER_RADIUS_PX}px;
   border: ${PREVIEW_CONTAINER_STATIC_BORDER_WIDTH_PX}px solid
-    ${(p) => p.theme.colors.foreground};
-  color: ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.onBackground};
+  color: ${(p) => p.theme.colors.onBackground};
   display: flex;
   flex-shrink: 0;
   font-size: ${(p) => p.theme.sizes.fontDefault}px;
