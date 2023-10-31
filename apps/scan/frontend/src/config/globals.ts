@@ -1,5 +1,3 @@
-export const PRECINCT_SCANNER_FOLDER = 'ballot-packages';
-
 export const FONT_SIZES = [18, 24, 28, 32];
 export const DEFAULT_FONT_SIZE = 1;
 export const LARGE_DISPLAY_FONT_SIZE = 3;
