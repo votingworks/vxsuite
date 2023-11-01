@@ -6,6 +6,7 @@ import {
   SearchSelectProps,
   SearchSelectSingleProps,
 } from './search_select';
+import { makeTheme } from './themes/make_theme';
 
 const options = [
   { value: 'apple', label: 'Apple' },
@@ -15,15 +16,16 @@ const options = [
   { value: 'pear', label: 'Pear' },
 ];
 
-function ControlledSingleSelect(
-  props: Partial<SearchSelectSingleProps>
-): JSX.Element {
-  const [value, setValue] = React.useState<string>();
+function ControlledSingleSelect({
+  value: valueProp,
+  ...rest
+}: Partial<SearchSelectSingleProps>): JSX.Element {
+  const [value, setValue] = React.useState<string | undefined>(valueProp);
   return (
     <SearchSelect
       isSearchable={false}
       options={[]}
-      {...props}
+      {...rest}
       isMulti={false}
       value={value}
       onChange={setValue}
@@ -31,13 +33,16 @@ function ControlledSingleSelect(
   );
 }
 
-function ControlledMultiSelect(props: Partial<SearchSelectProps>): JSX.Element {
-  const [value, setValue] = React.useState<string[]>([]);
+function ControlledMultiSelect({
+  value: valueProp = [],
+  ...rest
+}: Partial<SearchSelectProps>): JSX.Element {
+  const [value, setValue] = React.useState<string[]>(valueProp as string[]);
   return (
     <SearchSelect
       isSearchable={false}
       options={[]}
-      {...props}
+      {...rest}
       isMulti
       value={value}
       onChange={setValue}
@@ -51,7 +56,9 @@ test('single and not searchable', () => {
       isSearchable={false}
       options={options}
       ariaLabel="Choose Fruit"
-    />
+    />,
+    // Change theme in one test for coverage
+    { vxTheme: makeTheme({ sizeMode: 'desktop', colorMode: 'desktop' }) }
   );
 
   // dropdown is closed
@@ -130,13 +137,29 @@ test('single and searchable', async () => {
   screen.getByText('Pear');
 });
 
+test('single disabled', () => {
+  render(
+    <ControlledSingleSelect
+      options={options}
+      ariaLabel="Choose Fruit"
+      value="apple"
+      disabled
+    />
+  );
+  const select = screen.getByLabelText('Choose Fruit');
+  expect(select).toBeDisabled();
+  screen.getByText('Apple');
+});
+
 test('multi and not searchable', () => {
   render(
     <ControlledMultiSelect
       isSearchable={false}
       options={options}
       ariaLabel="Choose Fruit"
-    />
+    />,
+    // Change theme in one test for coverage
+    { vxTheme: makeTheme({ sizeMode: 'desktop', colorMode: 'desktop' }) }
   );
 
   // dropdown is closed
@@ -213,4 +236,19 @@ test('multi and searchable', async () => {
   userEvent.keyboard('bana');
   screen.getByText('Banana');
   userEvent.click(screen.getByText('Banana'));
+});
+
+test('multi disabled', () => {
+  render(
+    <ControlledMultiSelect
+      options={options}
+      ariaLabel="Choose Fruit"
+      value={['apple', 'pear']}
+      disabled
+    />
+  );
+  const select = screen.getByLabelText('Choose Fruit');
+  expect(select).toBeDisabled();
+  screen.getByText('Apple');
+  screen.getByText('Pear');
 });

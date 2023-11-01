@@ -24,10 +24,11 @@ const initialProps: SearchSelectSingleProps = {
   isMulti: false,
   isSearchable: true,
   ariaLabel: 'Fruit Select',
+  disabled: false,
 };
 
 const meta: Meta<typeof SearchSelect> = {
-  title: 'libs-ui/SearchSelectSingle',
+  title: 'libs-ui/SearchSelect',
   component: SearchSelect,
   args: initialProps,
   argTypes: {
@@ -41,9 +42,7 @@ const meta: Meta<typeof SearchSelect> = {
 
 export default meta;
 
-export function SearchSelectSingle(
-  props: SearchSelectSingleProps
-): JSX.Element {
+export function Single(props: SearchSelectSingleProps): JSX.Element {
   const [value, setValue] = useState<string>();
 
   return <SearchSelect {...props} value={value} onChange={setValue} />;

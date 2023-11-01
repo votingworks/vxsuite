@@ -24,10 +24,11 @@ const initialProps: SearchSelectMultiProps = {
   isMulti: true,
   isSearchable: true,
   ariaLabel: 'Fruit Select',
+  disabled: false,
 };
 
 const meta: Meta<typeof SearchSelect> = {
-  title: 'libs-ui/SearchSelectMulti',
+  title: 'libs-ui/SearchSelect',
   component: SearchSelect,
   args: initialProps,
   argTypes: {
@@ -41,7 +42,7 @@ const meta: Meta<typeof SearchSelect> = {
 
 export default meta;
 
-export function SearchSelectMulti(props: SearchSelectMultiProps): JSX.Element {
+export function Multi(props: SearchSelectMultiProps): JSX.Element {
   const [value, setValue] = useState<string[]>([]);
 
   return <SearchSelect {...props} value={value} onChange={setValue} />;

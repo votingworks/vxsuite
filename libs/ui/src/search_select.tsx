@@ -6,14 +6,31 @@ import Select, {
   StylesConfig,
 } from 'react-select';
 import { useTheme } from 'styled-components';
-import { Icons } from './icons';
+import { Button } from './button';
 
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>
 ): JSX.Element {
+  const { innerProps } = props;
   return (
-    <components.DropdownIndicator {...props}>
-      <Icons.CaretDown />
+    <components.DropdownIndicator
+      {...props}
+      innerProps={{ ...innerProps, style: { height: '100%' } }}
+    >
+      <Button
+        fill="transparent"
+        icon="CaretDown"
+        // The react-select DropdownIndicator component has its own click
+        // handler. It seems to work fine with the button inside it, so we just
+        // put a dummy handler on the button itself.
+        onPress={() => {}}
+        style={{
+          height: '100%',
+          padding: '0.25rem 0.5rem',
+          // Turn off inset shadow on press (:active) for touchscreen themes
+          boxShadow: 'none',
+        }}
+      />
     </components.DropdownIndicator>
   );
 }
@@ -21,9 +38,24 @@ function DropdownIndicator(
 function MultiValueRemove(
   props: MultiValueRemoveProps<unknown, true>
 ): JSX.Element {
+  const { selectProps } = props;
   return (
     <components.MultiValueRemove {...props}>
-      <Icons.X />
+      <Button
+        fill={selectProps.isDisabled ? 'transparent' : 'tinted'}
+        color={selectProps.isDisabled ? 'neutral' : 'primary'}
+        icon="X"
+        // The react-select MultiValueRemove component has its own click
+        // handler. It seems to work fine with the button inside it, so we just
+        // put a dummy handler on the button itself.
+        onPress={() => {}}
+        style={{
+          padding: '0.5rem',
+          fontSize: '0.75rem',
+          // Turn off inset shadow on press (:active) for touchscreen themes
+          boxShadow: 'none',
+        }}
+      />
     </components.MultiValueRemove>
   );
 }
@@ -45,6 +77,7 @@ export interface SearchSelectMultiProps<T extends string = string>
   isMulti: true;
   value: T[];
   onChange: (values: T[]) => void;
+  disabled?: boolean;
 }
 
 export interface SearchSelectSingleProps<T extends string = string>
@@ -52,6 +85,7 @@ export interface SearchSelectSingleProps<T extends string = string>
   isMulti: false;
   value?: T;
   onChange: (value?: T) => void;
+  disabled?: boolean;
 }
 
 export type SearchSelectProps<T extends string = string> =
@@ -72,14 +106,17 @@ export function SearchSelect<T extends string = string>({
   value,
   onChange,
   ariaLabel,
+  disabled,
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
+  const borderRadius = theme.sizeMode === 'desktop' ? '0.5rem' : '0.25rem';
 
   return (
     <Select
       isMulti={isMulti}
       isSearchable={isSearchable}
       isClearable={false}
+      isDisabled={disabled}
       options={options}
       defaultValue={
         Array.isArray(value)
@@ -102,86 +139,74 @@ export function SearchSelect<T extends string = string>({
         container: (baseStyles) => ({
           ...baseStyles,
           lineHeight: theme.sizes.lineHeight,
+          fontWeight: theme.sizes.fontWeight.semiBold,
         }),
-        control: (baseStyles) => ({
+        control: (baseStyles, state) => ({
           ...baseStyles,
-          border: `solid ${theme.colors.foreground} ${theme.sizes.bordersRem.thin}rem`,
-          borderRadius: '0.25rem',
-          backgroundColor: theme.colors.background,
-          minHeight: isMulti ? '2.2rem' : undefined,
+          border: `${theme.colors.outline} solid ${theme.sizes.bordersRem.thin}rem`,
+          borderStyle: state.isDisabled ? 'dashed' : 'solid',
+          borderRadius,
+          backgroundColor: state.isDisabled
+            ? theme.colors.containerLow
+            : theme.colors.background,
+          padding: '0.25rem 0.5rem',
         }),
         valueContainer: (baseStyles) => ({
           ...baseStyles,
-          margin: `0.25rem`,
-          gap: '0.2rem',
+          gap: '0.25rem',
+          cursor: isSearchable ? 'text' : 'pointer',
         }),
-        singleValue: (baseStyles) => ({
+        multiValue: (baseStyles, state) => ({
           ...baseStyles,
-          fontWeight: theme.sizes.fontWeight.semiBold,
-        }),
-        multiValue: (baseStyles) => ({
-          ...baseStyles,
-          backgroundColor: theme.colors.foreground,
-          color: theme.colors.background,
-          borderRadius: '0.25rem',
+          alignItems: 'center',
+          backgroundColor: state.isDisabled
+            ? theme.colors.containerHigh
+            : theme.colors.primaryContainer,
+          color: theme.colors.onBackground,
+          borderRadius,
+          border:
+            theme.colorMode === 'desktop'
+              ? undefined
+              : `${theme.sizes.bordersRem.hairline}rem solid ${theme.colors.outline}`,
+          cursor: 'default',
+          // Match the Button transition in the MultiValueRemove button
+          transition: '100ms ease-in',
         }),
         multiValueLabel: (baseStyles) => ({
           ...baseStyles,
-          padding: `0.1rem 0.15rem 0.1rem 0.3rem`,
-          fontWeight: theme.sizes.fontWeight.semiBold,
-        }),
-        multiValueRemove: (baseStyles) => ({
-          ...baseStyles,
-          padding: `0 0.25rem`,
-          border: `solid ${theme.colors.foreground} ${theme.sizes.bordersRem.hairline}rem`,
-          borderRadius: '0 0.25rem 0.25rem 0',
-          color: theme.colors.background,
-          fontSize: '0.7em',
-          ':hover': {
-            backgroundColor: theme.colors.background,
-            color: theme.colors.foreground,
-          },
-        }),
-        dropdownIndicator: (baseStyles) => ({
-          ...baseStyles,
-          padding: `0 0.5rem`,
+          padding: `0.25rem 0.25rem 0.25rem 0.5rem`,
         }),
         menu: (baseStyles) => ({
           ...baseStyles,
-          border: `solid ${theme.colors.foreground} ${theme.sizes.bordersRem.hairline}rem`,
-          borderRadius: '0.25rem',
+          border: `${theme.sizes.bordersRem.thin}rem solid ${theme.colors.outline}`,
+          borderRadius,
           backgroundColor: theme.colors.background,
           top: 'calc(100% + 0.5rem)',
         }),
         menuList: (baseStyles) => ({
           ...baseStyles,
-          borderRadius: '0.25rem',
+          borderRadius,
         }),
         option: (baseStyles, state) => ({
           ...baseStyles,
-          padding: '0 0.25rem',
+          padding: '0.5rem',
           backgroundColor: state.isSelected
-            ? theme.colors.foreground
+            ? theme.colors.primaryContainer
+            : state.isFocused
+            ? theme.colors.container
             : theme.colors.background,
-          color: state.isSelected
-            ? theme.colors.background
-            : theme.colors.foreground,
-          borderTop: state.isSelected
-            ? `solid ${theme.sizes.bordersRem.hairline}rem ${theme.colors.foreground}`
-            : state.isFocused
-            ? `dashed ${theme.sizes.bordersRem.hairline}rem ${theme.colors.foreground}`
-            : `solid ${theme.sizes.bordersRem.hairline}rem ${theme.colors.background}`,
-          borderBottom: state.isSelected
-            ? `solid ${theme.sizes.bordersRem.hairline}rem ${theme.colors.foreground}`
-            : state.isFocused
-            ? `dashed ${theme.sizes.bordersRem.hairline}rem ${theme.colors.foreground}`
-            : `solid ${theme.sizes.bordersRem.hairline}rem ${theme.colors.background}`,
-          ':first-of-type': {
-            borderTop: 'none',
-          },
-          ':last-of-type': {
-            borderBottom: 'none',
-          },
+          color: theme.colors.onBackground,
+          cursor: 'pointer',
+          borderBottom:
+            theme.colorMode === 'desktop'
+              ? undefined
+              : `${theme.sizes.bordersRem.hairline}rem solid ${theme.colors.outline}`,
+          ':last-of-type': { borderBottom: 'none' },
+        }),
+        noOptionsMessage: (baseStyles) => ({
+          ...baseStyles,
+          textAlign: 'left',
+          padding: '0.5rem',
         }),
       })}
     />
