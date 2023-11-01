@@ -1,13 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import { dirSync } from 'tmp';
+import { z } from 'zod';
 import { assert, err, ok } from '@votingworks/basics';
-import { mockOf } from '@votingworks/test-utils';
 import {
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   CVR,
-  safeParseJson,
 } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils';
@@ -21,7 +20,8 @@ import { ArtifactAuthenticationConfig } from './config';
 
 jest.mock('@votingworks/types', (): typeof import('@votingworks/types') => ({
   ...jest.requireActual('@votingworks/types'),
-  safeParseJson: jest.fn(),
+  // Avoid having to prepare a complete CastVoteRecordExportMetadata object
+  CastVoteRecordExportMetadataSchema: z.any(),
 }));
 
 /**
@@ -45,10 +45,6 @@ let electionPackage: {
 };
 
 beforeEach(() => {
-  // Avoid having to prepare a complete CVR.CastVoteRecordReport object for
-  // CastVoteRecordExportMetadata
-  mockOf(safeParseJson).mockImplementation((value) => ok(JSON.parse(value)));
-
   tempDirectoryPath = dirSync().name;
 
   // Prepare mock cast vote records
@@ -364,7 +360,16 @@ test.each<{
 );
 
 test('Error parsing cast vote record export metadata file', async () => {
-  mockOf(safeParseJson).mockImplementation(() => err(new Error('Whoa!')));
+  assert(castVoteRecords.artifactToExport.type === 'cast_vote_records');
+  assert(castVoteRecords.artifactToImport.type === 'cast_vote_records');
+  castVoteRecords.artifactToExport.metadataFileContents += '!';
+  fs.appendFileSync(
+    path.join(
+      castVoteRecords.artifactToImport.directoryPath,
+      CastVoteRecordExportFileName.METADATA
+    ),
+    '!' // Invalid JSON
+  );
 
   const signatureFile = await prepareSignatureFile(
     castVoteRecords.artifactToExport,
@@ -374,10 +379,11 @@ test('Error parsing cast vote record export metadata file', async () => {
     path.join(tempDirectoryPath, signatureFile.fileName),
     signatureFile.fileContents
   );
-  expect(
-    await authenticateArtifactUsingSignatureFile(
-      castVoteRecords.artifactToImport,
-      vxAdminTestConfig
-    )
-  ).toEqual(err(expect.any(Error)));
+  const authenticationResult = await authenticateArtifactUsingSignatureFile(
+    castVoteRecords.artifactToImport,
+    vxAdminTestConfig
+  );
+  expect(authenticationResult.err()?.message).toContain(
+    'Error parsing metadata file'
+  );
 });
