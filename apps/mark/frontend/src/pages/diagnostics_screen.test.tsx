@@ -2,27 +2,22 @@ import userEvent from '@testing-library/user-event';
 import { fakeMarkerInfo } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { MemoryRouter } from 'react-router-dom';
+import { render, screen, waitFor } from '../../test/react_testing_library';
 import {
-  render,
-  screen,
-  waitFor,
-  within,
-} from '../../test/react_testing_library';
-import {
-  CHECKBOX_ICON_TEST_ID,
   DiagnosticsScreen,
   DiagnosticsScreenProps,
-  WARNING_ICON_TEST_ID,
 } from './diagnostics_screen';
 import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
 
 function expectToHaveSuccessIcon(element: HTMLElement) {
-  within(element).getByTestId(CHECKBOX_ICON_TEST_ID);
+  const [icon] = element.getElementsByTagName('svg');
+  expect(icon).toHaveAttribute('data-icon', 'square-check');
 }
 function expectToHaveWarningIcon(element: HTMLElement) {
-  within(element).getByTestId(WARNING_ICON_TEST_ID);
+  const [icon] = element.getElementsByTagName('svg');
+  expect(icon).toHaveAttribute('data-icon', 'triangle-exclamation');
 }
 
 function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {

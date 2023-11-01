@@ -13,8 +13,8 @@ export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
       <FullScreenPromptLayout
         title="Your ballot was counted!"
         image={
-          <FullScreenIconWrapper color="success">
-            <Icons.Done />
+          <FullScreenIconWrapper>
+            <Icons.Done color="success" />
           </FullScreenIconWrapper>
         }
       >

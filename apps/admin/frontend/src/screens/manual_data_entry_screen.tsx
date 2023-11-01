@@ -688,13 +688,9 @@ export function ManualDataEntryScreen(): JSX.Element {
                     {contestValidationState === 'no-results' ? (
                       <Icons.Info />
                     ) : contestValidationState === 'invalid' ? (
-                      <Font color="warning">
-                        <Icons.Warning />
-                      </Font>
+                      <Icons.Warning color="warning" />
                     ) : (
-                      <Font color="success">
-                        <Icons.Checkbox />
-                      </Font>
+                      <Icons.Checkbox color="success" />
                     )}
                   </TD>
                   <TD>

@@ -55,7 +55,7 @@ test('FullScreenIconWrapper renders child icon - landscape screen', () => {
   global.innerWidth = 1920;
 
   render(
-    <FullScreenIconWrapper color="danger">
+    <FullScreenIconWrapper>
       <Icons.Info />
     </FullScreenIconWrapper>
   );

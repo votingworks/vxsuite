@@ -294,8 +294,8 @@ export function PollWorkerScreen({
         <Screen white>
           <Main centerChild padded>
             <Prose id="audiofocus">
-              <FullScreenIconWrapper align="center" color="success">
-                <Icons.Done />
+              <FullScreenIconWrapper align="center">
+                <Icons.Done color="success" />
               </FullScreenIconWrapper>
               <H2 as="h1" align="center">
                 {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}

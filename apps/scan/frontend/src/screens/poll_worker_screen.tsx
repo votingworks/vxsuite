@@ -77,8 +77,8 @@ const BallotsAlreadyScannedScreen = (
     <FullScreenPromptLayout
       title="Ballots Already Scanned"
       image={
-        <FullScreenIconWrapper color="danger">
-          <Icons.Delete />
+        <FullScreenIconWrapper>
+          <Icons.Delete color="danger" />
         </FullScreenIconWrapper>
       }
     >

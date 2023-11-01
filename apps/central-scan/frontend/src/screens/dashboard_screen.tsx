@@ -65,7 +65,7 @@ export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
                     <TD nowrap>{shortDateTime(batch.startedAt)}</TD>
                     <TD nowrap>
                       {isScanning && !batch.endedAt ? (
-                        <Font color="success" weight="bold">
+                        <Font weight="bold">
                           <Icons.Loading /> Scanning…
                         </Font>
                       ) : batch.endedAt ? (

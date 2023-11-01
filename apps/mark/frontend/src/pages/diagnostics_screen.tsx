@@ -12,7 +12,6 @@ import {
   useCancelablePromise,
   P,
   Caption,
-  Font,
   Icons,
 } from '@votingworks/ui';
 import { formatTime, Hardware } from '@votingworks/utils';
@@ -36,19 +35,9 @@ const ButtonAndTimestamp = styled.div`
   }
 `;
 
-export const CHECKBOX_ICON_TEST_ID = 'checkboxIcon';
-const CHECKBOX_ICON = (
-  <Font color="success" data-testid={CHECKBOX_ICON_TEST_ID}>
-    <Icons.Checkbox />
-  </Font>
-);
+const CHECKBOX_ICON = <Icons.Checkbox color="success" />;
 
-export const WARNING_ICON_TEST_ID = 'warningIcon';
-const WARNING_ICON = (
-  <Font color="warning" data-testid={WARNING_ICON_TEST_ID}>
-    <Icons.Warning />
-  </Font>
-);
+const WARNING_ICON = <Icons.Warning color="warning" />;
 
 interface ComputerStatusProps {
   computer: ComputerStatusType;

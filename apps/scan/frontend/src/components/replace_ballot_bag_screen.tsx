@@ -52,8 +52,8 @@ export function ReplaceBallotBagScreen({
         <FullScreenPromptLayout
           title="Ballot Bag Full"
           image={
-            <FullScreenIconWrapper color="warning">
-              <Icons.Warning />
+            <FullScreenIconWrapper>
+              <Icons.Warning color="warning" />
             </FullScreenIconWrapper>
           }
         >

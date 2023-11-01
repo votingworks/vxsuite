@@ -63,8 +63,8 @@ export function App({
         <ErrorBoundary
           errorMessage={
             <React.Fragment>
-              <FullScreenIconWrapper color="danger">
-                <Icons.Delete />
+              <FullScreenIconWrapper>
+                <Icons.Delete color="danger" />
               </FullScreenIconWrapper>
               <CenteredLargeProse>
                 <H1>Something went wrong</H1>

@@ -11,7 +11,6 @@ import {
 import {
   Button,
   Caption,
-  Font,
   FullScreenIconWrapper,
   Icons,
   Modal,
@@ -137,10 +136,7 @@ function MisvoteWarningScreen({
       <FullScreenPromptLayout
         title={
           <React.Fragment>
-            <Font color="warning">
-              <Icons.Warning />
-            </Font>{' '}
-            Review Your Ballot
+            <Icons.Warning color="warning" /> Review Your Ballot
           </React.Fragment>
         }
         actionButtons={
@@ -194,8 +190,8 @@ function BlankBallotWarningScreen(): JSX.Element {
       <FullScreenPromptLayout
         title="Review Your Ballot"
         image={
-          <FullScreenIconWrapper color="warning">
-            <Icons.Warning />
+          <FullScreenIconWrapper>
+            <Icons.Warning color="warning" />
           </FullScreenIconWrapper>
         }
         actionButtons={
@@ -239,8 +235,8 @@ function OtherReasonWarningScreen(): JSX.Element {
       <FullScreenPromptLayout
         title="Scanning Failed"
         image={
-          <FullScreenIconWrapper color="warning">
-            <Icons.Warning />
+          <FullScreenIconWrapper>
+            <Icons.Warning color="warning" />
           </FullScreenIconWrapper>
         }
         actionButtons={

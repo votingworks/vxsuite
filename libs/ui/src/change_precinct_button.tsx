@@ -160,12 +160,11 @@ export function ChangePrecinctButton({
             <Prose>
               <H1>Change Precinct</H1>
               <P>
-                <Font color="warning" weight="bold">
-                  <Icons.Warning /> WARNING:
-                </Font>{' '}
-                The polls are open on this machine. Changing the precinct will
-                reset the polls to closed. To resume voting, the polls must be
-                opened again. Please select a precinct and confirm below.
+                <Icons.Warning color="warning" />{' '}
+                <Font weight="bold">WARNING:</Font> The polls are open on this
+                machine. Changing the precinct will reset the polls to closed.
+                To resume voting, the polls must be opened again. Please select
+                a precinct and confirm below.
               </P>
               <Prose textCenter>{precinctSelectDropdown}</Prose>
             </Prose>

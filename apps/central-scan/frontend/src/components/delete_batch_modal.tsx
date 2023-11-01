@@ -1,4 +1,4 @@
-import { Button, Modal, P } from '@votingworks/ui';
+import { Button, Icons, Modal, P } from '@votingworks/ui';
 import React from 'react';
 import * as api from '../api';
 
@@ -30,7 +30,9 @@ export function DeleteBatchModal({
         <React.Fragment>
           <P>This action cannot be undone.</P>
           {deleteBatchMutation.error ? (
-            <P color="danger">{`${deleteBatchMutation.error}`}</P>
+            <P>
+              <Icons.Danger color="danger" /> {`${deleteBatchMutation.error}`}
+            </P>
           ) : null}
         </React.Fragment>
       }

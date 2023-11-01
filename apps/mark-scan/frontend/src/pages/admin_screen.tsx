@@ -167,10 +167,7 @@ export function AdminScreen({
           </P>
           <H6 as="h2">Configuration</H6>
           <P>
-            <Font color="success">
-              <Icons.Checkbox />
-            </Font>{' '}
-            Election Definition is loaded.{' '}
+            <Icons.Checkbox color="success" /> Election Definition is loaded.
           </P>
           <Button variant="danger" icon="Delete" onPress={unconfigure}>
             Unconfigure Machine

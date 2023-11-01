@@ -16,7 +16,7 @@ import { Modal } from './modal';
 import { InputGroup } from './input_group';
 import { Button, ButtonProps } from './button';
 import { useNow } from './hooks/use_now';
-import { Font, H1, P } from './typography';
+import { H1, P } from './typography';
 import { Icons } from './icons';
 
 export const MIN_YEAR = 2020;
@@ -266,10 +266,8 @@ export function PickDateTimeModal({
               </InputGroup>
             </P>
             <P>
-              <Font color="warning">
-                <Icons.Warning />
-              </Font>{' '}
-              You will have to reauthenticate after changing the clock.
+              <Icons.Warning color="warning" /> You will have to reauthenticate
+              after changing the clock.
             </P>
           </div>
         </Prose>

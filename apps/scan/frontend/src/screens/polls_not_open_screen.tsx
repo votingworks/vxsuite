@@ -41,9 +41,10 @@ export function PollsNotOpenScreen({
           <P>Insert a poll worker card to open polls.</P>
         )}
         {showNoChargerWarning && (
-          <Caption color="warning">
-            <Icons.Warning /> <strong>No Power Detected.</strong> Please ask a
-            poll worker to plug in the power cord.
+          <Caption>
+            <Icons.Warning color="warning" />{' '}
+            <strong>No Power Detected.</strong> Please ask a poll worker to plug
+            in the power cord.
           </Caption>
         )}
       </FullScreenPromptLayout>
