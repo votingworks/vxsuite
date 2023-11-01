@@ -2,13 +2,15 @@ import { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 
 import {
-  UnlockMachineScreen,
+  UnlockMachineScreen as UnlockMachineScreenComponent,
   UnlockMachineScreenProps,
 } from './unlock_machine_screen';
 import { SECURITY_PIN_LENGTH } from './globals';
 import { PinLength } from './utils/pin_length';
 
-type PropsAndCustomArgs = React.ComponentProps<typeof UnlockMachineScreen> & {
+type PropsAndCustomArgs = React.ComponentProps<
+  typeof UnlockMachineScreenComponent
+> & {
   minPinLength: number;
   maxPinLength: number;
 };
@@ -25,6 +27,15 @@ const initialProps: PropsAndCustomArgs = {
   checkPin: async () => {},
   minPinLength: SECURITY_PIN_LENGTH.min,
   maxPinLength: SECURITY_PIN_LENGTH.max,
+};
+
+export const UnlockMachineScreen: StoryObj<PropsAndCustomArgs> = {
+  render: ({ minPinLength, maxPinLength, ...rest }) => (
+    <UnlockMachineScreenComponent
+      {...rest}
+      pinLength={PinLength.range(minPinLength, maxPinLength)}
+    />
+  ),
 };
 
 const meta: Meta<UnlockMachineScreenProps> = {
@@ -55,12 +66,3 @@ const meta: Meta<UnlockMachineScreenProps> = {
 };
 
 export default meta;
-
-export const Primary: StoryObj<PropsAndCustomArgs> = {
-  render: ({ minPinLength, maxPinLength, ...rest }) => (
-    <UnlockMachineScreen
-      {...rest}
-      pinLength={PinLength.range(minPinLength, maxPinLength)}
-    />
-  ),
-};
