@@ -16,6 +16,3 @@ export const DELAY_BEFORE_DECLARING_REAR_JAM_MS = 7_000;
 
 export const SCAN_DPI = 72;
 export const PRINT_DPI = 200;
-
-export const ORIGIN_VENDOR_ID = 0x0a95;
-export const ORIGIN_SWIFTY_PRODUCT_ID = 0x0012;

@@ -3,11 +3,10 @@ import { LogEventType } from './log_event_types';
 import { LogSource } from './log_source';
 
 /**
- * In order to add a new log event you must do four things:
+ * In order to add a new log event you must:
  * 1. Add the new event to the enum LogEventId
  * 2. Define a LogDetails object representing the information about that log event.
  * 3. Add a case statement to the switch in getDetailsForEventId returning your new LogDetails object when you see your new LogEventId.
- * 4. Update the test expectation for number of EventIdDescriptions in libs/logging/src/log_documentation.test.ts
  * You will then be ready to use the log event from your code!
  */
 
@@ -135,6 +134,9 @@ export enum LogEventId {
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
   PaperHandlerStateChanged = 'paper-handler-state-machine-transition',
+
+  // VxMarkScan logs
+  PatDeviceError = 'pat-device-error',
 }
 
 export interface LogDetails {
@@ -927,6 +929,13 @@ const SystemSettingsRetrieved: LogDetails = {
   documentationMessage: 'VxAdmin System Settings read from db',
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
+const PatDeviceError: LogDetails = {
+  eventId: LogEventId.PatDeviceError,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'VxMarkScan encountered an error with the built-in PAT device port or the device itself',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
+};
 
 const WriteInAdjudicated: LogDetails = {
   eventId: LogEventId.WriteInAdjudicated,
@@ -1141,6 +1150,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SystemSettingsRetrieved;
     case LogEventId.WriteInAdjudicated:
       return WriteInAdjudicated;
+    case LogEventId.PatDeviceError:
+      return PatDeviceError;
 
     /* istanbul ignore next - compile time check for completeness */
     default:

@@ -422,3 +422,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Precinct print/scan BMD state machine transitioned states.  
 **Machines:** vx-mark-scan-backend
+### pat-device-error
+**Type:** [system-status](#system-status)  
+**Description:** VxMarkScan encountered an error with the built-in PAT device port or the device itself  
+**Machines:** vx-mark-scan-backend
