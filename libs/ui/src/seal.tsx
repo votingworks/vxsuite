@@ -14,7 +14,7 @@ const DARK_COLOR_MODES: ReadonlySet<ColorMode> = new Set<ColorMode>([
  * dark backgrounds when using dark themes.
  */
 const darkModeSealStyles = css`
-  background: ${(p) => p.theme.colors.foreground};
+  background: ${(p) => p.theme.colors.inverseBackground};
   border-radius: 50%;
   box-sizing: border-box;
   padding: 0.125rem;
