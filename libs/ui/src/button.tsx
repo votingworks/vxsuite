@@ -365,8 +365,6 @@ const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
 
 const TextContainer = styled.span`
   display: inline-block;
-  flex-grow: 1;
-  flex-shrink: 1;
 `;
 
 interface ButtonState {
