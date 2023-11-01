@@ -8,7 +8,7 @@ import {
   printElement,
   printElementToPdf,
 } from '@votingworks/ui';
-import React, { useContext, useMemo, useRef, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import type { ScannerBatch } from '@votingworks/admin-backend';
@@ -29,14 +29,17 @@ import { FileType } from '../save_frontend_file_modal';
 import { ExportBallotCountReportCsvButton } from './export_ballot_count_report_csv_button';
 import {
   ExportActions,
-  NoResultsNotice,
-  PaginationNote,
-  PreviewActionContainer,
+  GenerateButtonWrapper,
   PreviewContainer,
   PreviewLoading,
-  PreviewOverlay,
   PreviewReportPages,
+  ReportWarning,
 } from './shared';
+import {
+  BallotCountReportWarning,
+  getBallotCountReportWarning,
+  getBallotCountReportWarningText,
+} from './ballot_count_report_warnings';
 
 function Report({
   electionDefinition,
@@ -88,14 +91,14 @@ export interface BallotCountReportViewerProps {
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   disabled: boolean;
-  autoPreview: boolean;
+  autoGenerateReport: boolean;
 }
 
 export function BallotCountReportViewer({
   filter,
   groupBy,
   disabled: disabledFromProps,
-  autoPreview,
+  autoGenerateReport,
 }: BallotCountReportViewerProps): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
     useContext(AppContext);
@@ -122,21 +125,15 @@ export function BallotCountReportViewer({
       filter,
       groupBy,
     },
-    { enabled: !disabled && autoPreview }
+    { enabled: !disabled && autoGenerateReport }
   );
-  const reportResultsAreFresh =
+  const reportQueryReady =
     cardCountsQuery.isSuccess && !cardCountsQuery.isStale;
 
-  const previewReportRef = useRef<Optional<JSX.Element>>();
-  const previewReport: Optional<JSX.Element> = useMemo(() => {
-    // Avoid populating the preview with cached data before the caller signals that the parameters are viable
-    if (disabled) {
-      return undefined;
-    }
-
+  const printableReport: Optional<JSX.Element> = useMemo(() => {
     // If there's not current fresh data, return the previous preview report
-    if (!reportResultsAreFresh) {
-      return previewReportRef.current;
+    if (!reportQueryReady) {
+      return undefined;
     }
 
     // If there's no data, don't render anything
@@ -157,8 +154,7 @@ export function BallotCountReportViewer({
       />
     );
   }, [
-    disabled,
-    reportResultsAreFresh,
+    reportQueryReady,
     cardCountsQuery.data,
     cardCountsQuery.dataUpdatedAt,
     electionDefinition,
@@ -168,49 +164,22 @@ export function BallotCountReportViewer({
     isTestMode,
     scannerBatchesQuery.data,
   ]);
-  previewReportRef.current = previewReport;
-  const previewIsFresh = cardCountsQuery.isSuccess && !cardCountsQuery.isStale;
-  const areQueryResultsEmpty =
-    cardCountsQuery.isSuccess && cardCountsQuery.data.length === 0;
 
-  async function refreshPreview() {
+  async function generateReport() {
     setIsFetchingForPreview(true);
     await cardCountsQuery.refetch();
     setIsFetchingForPreview(false);
   }
 
-  async function getFreshQueryResult(): Promise<typeof cardCountsQuery> {
-    if (reportResultsAreFresh) {
-      return cardCountsQuery;
-    }
-
-    return cardCountsQuery.refetch({ cancelRefetch: false });
-  }
-
   async function printReport() {
-    setProgressModalText('Generating Report');
-    const queryResults = await getFreshQueryResult();
-    assert(queryResults.isSuccess);
-    const reportToPrint = (
-      <Report
-        electionDefinition={assertDefined(electionDefinition)}
-        filter={filter}
-        groupBy={groupBy}
-        cardCountsList={queryResults.data}
-        generatedAtTime={new Date(queryResults.dataUpdatedAt)}
-        isOfficialResults={isOfficialResults}
-        isTestMode={isTestMode}
-        scannerBatches={scannerBatchesQuery.data ?? []}
-      />
-    );
-
+    assert(printableReport);
     setProgressModalText('Printing Report');
     const reportProperties = {
       filter: JSON.stringify(filter),
       groupBy: JSON.stringify(groupBy),
     } as const;
     try {
-      await printElement(reportToPrint, { sides: 'one-sided' });
+      await printElement(printableReport, { sides: 'one-sided' });
       await logger.log(LogEventId.TallyReportPrinted, userRole, {
         message: `User printed a ballot count report.`,
         disposition: 'success',
@@ -229,23 +198,17 @@ export function BallotCountReportViewer({
   }
 
   async function generateReportPdf(): Promise<Uint8Array> {
-    const queryResults = await getFreshQueryResult();
-    assert(queryResults.isSuccess);
-    const reportToSave = (
-      <Report
-        electionDefinition={assertDefined(electionDefinition)}
-        filter={filter}
-        groupBy={groupBy}
-        cardCountsList={queryResults.data}
-        generatedAtTime={new Date(queryResults.dataUpdatedAt)}
-        isOfficialResults={isOfficialResults}
-        isTestMode={isTestMode}
-        scannerBatches={scannerBatchesQuery.data ?? []}
-      />
-    );
-
-    return printElementToPdf(reportToSave);
+    assert(printableReport);
+    return printElementToPdf(printableReport);
   }
+
+  const ballotCountReportWarning: BallotCountReportWarning = reportQueryReady
+    ? getBallotCountReportWarning({
+        allCardCounts: cardCountsQuery.data,
+      })
+    : { type: 'none' };
+  const reportIsEmpty =
+    ballotCountReportWarning.type === 'no-reports-match-filter';
 
   const reportPdfFilename = generateBallotCountReportPdfFilename({
     election,
@@ -258,13 +221,26 @@ export function BallotCountReportViewer({
       : undefined,
   });
 
+  const disableActionButtons = disabled || !reportQueryReady || reportIsEmpty;
+
   return (
     <React.Fragment>
+      {!autoGenerateReport && (
+        <GenerateButtonWrapper>
+          <Button
+            variant="primary"
+            disabled={disabled || reportQueryReady}
+            onPress={generateReport}
+          >
+            Generate Report
+          </Button>
+        </GenerateButtonWrapper>
+      )}
       <ExportActions>
         <PrintButton
           print={printReport}
           variant="primary"
-          disabled={disabled || areQueryResultsEmpty}
+          disabled={disableActionButtons}
           useDefaultProgressModal={false}
         >
           Print Report
@@ -273,39 +249,27 @@ export function BallotCountReportViewer({
           electionDefinition={electionDefinition}
           generateReportPdf={generateReportPdf}
           defaultFilename={reportPdfFilename}
-          disabled={disabled || areQueryResultsEmpty}
+          disabled={disableActionButtons}
           fileType={FileType.BallotCountReport}
         />
         <ExportBallotCountReportCsvButton
           filter={filter}
           groupBy={groupBy}
-          disabled={disabled || areQueryResultsEmpty}
+          disabled={disableActionButtons}
         />
       </ExportActions>
-      <PaginationNote />
+      <ReportWarning
+        text={getBallotCountReportWarningText({
+          ballotCountReportWarning,
+        })}
+      />
       <PreviewContainer>
         {!disabled && (
           <React.Fragment>
-            {previewReport && (
-              <PreviewReportPages>{previewReport}</PreviewReportPages>
-            )}
-            {areQueryResultsEmpty && (
-              <NoResultsNotice>
-                No results found given the current report parameters.
-              </NoResultsNotice>
-            )}
-            {!previewIsFresh && <PreviewOverlay />}
-            {isFetchingForPreview && <PreviewLoading />}
-            {!isFetchingForPreview && !previewIsFresh && (
-              <PreviewActionContainer>
-                {previewReport ? (
-                  <Button icon="RotateRight" onPress={refreshPreview}>
-                    Refresh Preview
-                  </Button>
-                ) : (
-                  <Button onPress={refreshPreview}>Load Preview</Button>
-                )}
-              </PreviewActionContainer>
+            {printableReport ? (
+              <PreviewReportPages>{printableReport}</PreviewReportPages>
+            ) : (
+              isFetchingForPreview && <PreviewLoading />
             )}
           </React.Fragment>
         )}
