@@ -4,7 +4,7 @@ import { expectPrint } from '@votingworks/test-utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportBuilder } from './tally_report_builder';
-import { screen, within } from '../../../test/react_testing_library';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 
@@ -29,7 +29,7 @@ test('happy path', async () => {
     apiMock,
   });
 
-  expect(screen.queryByText('Load Preview')).not.toBeInTheDocument();
+  expect(screen.getButton('Generate Report')).toBeDisabled();
   expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Filter
@@ -42,8 +42,10 @@ test('happy path', async () => {
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   userEvent.click(screen.getByText('Absentee'));
 
-  await screen.findButton('Load Preview');
-  expect(screen.getButton('Print Report')).not.toBeDisabled();
+  await waitFor(() => {
+    expect(screen.getButton('Generate Report')).toBeEnabled();
+  });
+  expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Group By
   userEvent.click(screen.getButton('Report By Precinct'));
@@ -69,7 +71,7 @@ test('happy path', async () => {
       },
     ]
   );
-  userEvent.click(screen.getButton('Load Preview'));
+  userEvent.click(screen.getButton('Generate Report'));
 
   await screen.findByText('Unofficial Precinct 1 Absentee Ballot Tally Report');
   const precinct1Page = screen
@@ -87,7 +89,6 @@ test('happy path', async () => {
   userEvent.click(
     within(screen.getByTestId('filter-editor')).getByText('Precinct')
   );
-  screen.getByText('Refresh Preview');
 
   // Refresh Preview
   apiMock.expectGetResultsForTallyReports(
@@ -110,7 +111,7 @@ test('happy path', async () => {
       },
     ]
   );
-  userEvent.click(screen.getByText('Refresh Preview'));
+  userEvent.click(screen.getButton('Generate Report'));
 
   await screen.findByText('Unofficial Precinct 1 Precinct Ballot Tally Report');
   screen.getByText('Unofficial Precinct 2 Precinct Ballot Tally Report');
