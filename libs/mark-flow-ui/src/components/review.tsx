@@ -32,7 +32,7 @@ import {
 
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 
-const Contest = styled.button`
+const Contest = styled.div`
   display: block;
   margin: 0 0 0.75rem;
   border: none;
@@ -199,6 +199,8 @@ export function Review({
     <React.Fragment>
       {contests.map((contest) => (
         <Contest
+          tabIndex={0}
+          role="button"
           id={`contest-${contest.id}`}
           key={contest.id}
           onClick={() => onChangeClick(contest.id)}
