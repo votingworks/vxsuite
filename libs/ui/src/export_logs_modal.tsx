@@ -339,7 +339,7 @@ export function ExportLogsButtonGroup(
 ): JSX.Element {
   return (
     <React.Fragment>
-      <ExportLogsButton logFileType={LogFileType.Raw} {...sharedProps} />{' '}
+      <ExportLogsButton logFileType={LogFileType.Raw} {...sharedProps} />
       <ExportLogsButton logFileType={LogFileType.Cdf} {...sharedProps} />
     </React.Fragment>
   );

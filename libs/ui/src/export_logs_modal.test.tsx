@@ -13,7 +13,11 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { act, render, screen, waitFor } from '../test/react_testing_library';
-import { ExportLogsButton, ExportLogsButtonRow } from './export_logs_modal';
+import {
+  ExportLogsButton,
+  ExportLogsButtonGroup,
+  ExportLogsButtonRow,
+} from './export_logs_modal';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
 const machineConfig = {
@@ -361,6 +365,22 @@ test('failed save to custom location', async () => {
 test('button row renders both buttons', () => {
   render(
     <ExportLogsButtonRow
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
+      logger={fakeLogger()}
+      auth={electionManagerAuthStatus}
+      machineConfig={machineConfig}
+    />
+  );
+
+  expect(screen.getButton('Save Log File')).toBeEnabled();
+
+  // without an election definition, CDF button should be disabled
+  expect(screen.getButton('Save CDF Log File')).toBeDisabled();
+});
+
+test('button group renders both buttons', () => {
+  render(
+    <ExportLogsButtonGroup
       usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={fakeLogger()}
       auth={electionManagerAuthStatus}
