@@ -116,8 +116,10 @@ describe('yesno contest', () => {
           returnToContest={returnToContest}
         />
       );
-      screen.getByText(contest.title);
-      screen.getByText(
+      const contestCard = screen
+        .getByText(contest.title)
+        .closest('div[role="button"]') as HTMLElement;
+      within(contestCard).getByText(
         !vote
           ? 'You may still vote in this contest.'
           : vote === contest.yesOption.id
@@ -125,7 +127,7 @@ describe('yesno contest', () => {
           : 'No'
       );
 
-      userEvent.click(screen.getByText('Change'));
+      userEvent.click(within(contestCard).getButton(/Change/));
       expect(returnToContest).toHaveBeenCalledWith(contest.id);
     }
   );
