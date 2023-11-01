@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library';
 import { SegmentedButton, SegmentedButtonOption } from './segmented_button';
+import { makeTheme } from './themes/make_theme';
 
 type TestOptionId = 'a' | 'b' | 'c';
 
@@ -67,4 +68,37 @@ test('optionally hides label', () => {
 
   // Verify the options are still rendered in an accessible listbox:
   screen.getByRole('listbox', { name: 'Test Label' });
+});
+
+test('with desktop theme', () => {
+  render(
+    <SegmentedButton
+      label="Test Label"
+      onChange={jest.fn()}
+      options={TEST_OPTIONS}
+      selectedOptionId="b"
+    />,
+    { vxTheme: makeTheme({ sizeMode: 'desktop', colorMode: 'desktop' }) }
+  );
+  screen.getByRole('listbox', { name: 'Test Label' });
+  screen.getByRole('option', { name: 'Option A', selected: false });
+  screen.getByRole('option', { name: 'Option B', selected: true });
+  screen.getByRole('option', { name: 'Enable Option C', selected: false });
+});
+
+test('with desktop theme, vertical', () => {
+  render(
+    <SegmentedButton
+      label="Test Label"
+      onChange={jest.fn()}
+      options={TEST_OPTIONS}
+      selectedOptionId="b"
+      vertical
+    />,
+    { vxTheme: makeTheme({ sizeMode: 'desktop', colorMode: 'desktop' }) }
+  );
+  screen.getByRole('listbox', { name: 'Test Label' });
+  screen.getByRole('option', { name: 'Option A', selected: false });
+  screen.getByRole('option', { name: 'Option B', selected: true });
+  screen.getByRole('option', { name: 'Enable Option C', selected: false });
 });
