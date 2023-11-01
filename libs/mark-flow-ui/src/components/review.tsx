@@ -8,6 +8,7 @@ import {
   VotesDict,
   PrecinctId,
   getContestDistrict,
+  ContestId,
 } from '@votingworks/types';
 import {
   Caption,
@@ -187,24 +188,26 @@ export function Review({
   returnToContest,
   selectionsAreEditable = true,
 }: ReviewProps): JSX.Element {
+  function onChangeClick(contestId: ContestId) {
+    if (!returnToContest) {
+      return;
+    }
+    returnToContest(contestId);
+  }
+
   return (
     <React.Fragment>
       {contests.map((contest) => (
         <Contest
           id={`contest-${contest.id}`}
           key={contest.id}
-          onClick={() => {
-            if (!returnToContest) {
-              return;
-            }
-            returnToContest(contest.id);
-          }}
+          onClick={() => onChangeClick(contest.id)}
         >
           <Card
             footerAlign={selectionsAreEditable ? 'right' : undefined}
             footer={
               selectionsAreEditable && (
-                <Button tabIndex={-1} onPress={() => {}}>
+                <Button tabIndex={-1} onPress={() => onChangeClick(contest.id)}>
                   <Caption>
                     {/*
                      * TODO(kofi): Add a <NoAudio> wrapper component for
