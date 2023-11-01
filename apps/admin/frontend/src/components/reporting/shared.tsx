@@ -1,4 +1,4 @@
-import { Caption, Font, H5, Icons, LinkButton, Loading } from '@votingworks/ui';
+import { H5, Icons, LinkButton, Loading, P } from '@votingworks/ui';
 import styled from 'styled-components';
 import { routerPaths } from '../../router_paths';
 
@@ -65,6 +65,12 @@ export const NoResultsNotice = styled(H5)`
   margin-top: 2rem;
 `;
 
+export const GenerateButtonWrapper = styled.div`
+  button {
+    width: 30%;
+  }
+`;
+
 export function PreviewLoading(): JSX.Element {
   return (
     <PreviewActionContainer>
@@ -83,11 +89,25 @@ export function ReportBackButton(): JSX.Element {
   );
 }
 
-export function PaginationNote(): JSX.Element {
+export const WarningContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0.5rem 0;
+
+  p {
+    margin-bottom: 0;
+  }
+`;
+
+export function ReportWarning({ text }: { text: string }): JSX.Element {
   return (
-    <Caption>
-      <Icons.Info /> <Font weight="bold">Note:</Font> Printed reports may be
-      paginated to more than one piece of paper.
-    </Caption>
+    <WarningContainer>
+      {text && (
+        <P>
+          <Icons.Warning /> {text}
+        </P>
+      )}
+    </WarningContainer>
   );
 }
