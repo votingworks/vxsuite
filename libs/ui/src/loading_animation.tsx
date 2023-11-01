@@ -1,13 +1,13 @@
 import styled, { DefaultTheme } from 'styled-components';
 
 const SvgContainer = styled.svg`
-  fill: ${(p) => p.theme.colors.foreground};
+  fill: ${(p) => p.theme.colors.onBackground};
   margin: 0 auto 1rem;
   width: 400px;
 `;
 
 function getForegroundColor(p: { theme: DefaultTheme }): string {
-  return p.theme.colors.accentPrimary;
+  return p.theme.colors.primary;
 }
 
 const LoadingBar = styled.rect`
