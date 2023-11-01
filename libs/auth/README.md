@@ -170,13 +170,14 @@ The following command generates keys and certs for tests:
 
 ### Common Access Card (CAC) Certificate Retrieval Script
 
-This script gets a CAC certificate from a CAC card. It's meant to be used for
+This script gets a Common Access Card's certificate. It's meant to be used for
 development and testing.
 
 ```
-./scripts/get-cac-cert
+# With a card reader connected and a Common Access Card in the card reader
+./scripts/cac-get-cert
 ```
 
-Prints the certificate in PEM format to stdout by default. Use the `--output`
-option to write the certificate to a file, or the `--json` option to print the
-certificate metadata in JSON format.
+The script prints the certificate to stdout in PEM format by default. Use the
+`--output` option to write the certificate to a file, or the `--json` option to
+print the certificate metadata in JSON format.
