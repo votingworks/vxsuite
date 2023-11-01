@@ -218,7 +218,7 @@ export class CardCommand {
 /**
  * A TLV, or tag-length-value, is a byte array that consists of:
  * 1. A tag indicating what the value is
- * 2. A length indicating the size of the value in bytes
+ * 2. A length indicating the size of the value
  * 3. The value itself
  *
  * The data in command and response APDUs is often comprised of TLVs.
@@ -267,45 +267,45 @@ export function parseTlv(
   tagAsByteOrBuffer: Byte | Buffer,
   tlv: Buffer
 ): [tag: Buffer, length: Buffer, value: Buffer] {
-  const expectedTagBytes = Buffer.isBuffer(tagAsByteOrBuffer)
+  const expectedTag = Buffer.isBuffer(tagAsByteOrBuffer)
     ? tagAsByteOrBuffer
     : Buffer.of(tagAsByteOrBuffer);
-  const expectedTagLength = expectedTagBytes.length;
-  const tagBytes = tlv.subarray(0, expectedTagLength);
+  const tagLength = expectedTag.length;
+  const tag = tlv.subarray(0, tagLength);
   assert(
-    tagBytes.equals(expectedTagBytes),
-    `TLV tag (${inspect(tagBytes)}) ` +
-      `does not match expected tag (${inspect(expectedTagBytes)})`
+    tag.equals(expectedTag),
+    `TLV tag (${inspect(tag)}) ` +
+      `does not match expected tag (${inspect(expectedTag)})`
   );
 
   let lengthBytesLength: number;
-  let valueBytesLength: number;
+  let valueLength: number;
   const firstLengthByte = assertDefined(
-    tlv.at(expectedTagLength),
+    tlv.at(tagLength),
     'TLV length is missing'
   );
   if (firstLengthByte <= 0x80) {
     lengthBytesLength = 1;
-    valueBytesLength = firstLengthByte;
+    valueLength = firstLengthByte;
   } else if (firstLengthByte === 0x81) {
     const secondLengthByte = assertDefined(
-      tlv.at(expectedTagLength + 1),
+      tlv.at(tagLength + 1),
       'TLV length is missing expected second byte'
     );
     lengthBytesLength = 2;
-    valueBytesLength = secondLengthByte;
+    valueLength = secondLengthByte;
   } else if (firstLengthByte === 0x82) {
     const secondLengthByte = assertDefined(
-      tlv.at(expectedTagLength + 1),
+      tlv.at(tagLength + 1),
       'TLV length is missing expected second byte'
     );
     const thirdLengthByte = assertDefined(
-      tlv.at(expectedTagLength + 2),
+      tlv.at(tagLength + 2),
       'TLV length is missing expected third byte'
     );
     lengthBytesLength = 3;
     // eslint-disable-next-line no-bitwise
-    valueBytesLength = (secondLengthByte << 8) + thirdLengthByte;
+    valueLength = (secondLengthByte << 8) + thirdLengthByte;
   } else {
     throw new Error(
       'TLV length first byte is too large: ' +
@@ -313,16 +313,13 @@ export function parseTlv(
     );
   }
 
-  const lengthBytes = tlv.subarray(
-    expectedTagLength,
-    expectedTagLength + lengthBytesLength
-  );
-  const valueBytes = tlv.subarray(
-    expectedTagLength + lengthBytesLength,
-    expectedTagLength + lengthBytesLength + valueBytesLength
+  const lengthBytes = tlv.subarray(tagLength, tagLength + lengthBytesLength);
+  const value = tlv.subarray(
+    tagLength + lengthBytesLength,
+    tagLength + lengthBytesLength + valueLength
   );
 
-  return [tagBytes, lengthBytes, valueBytes];
+  return [tag, lengthBytes, value];
 }
 
 /**
