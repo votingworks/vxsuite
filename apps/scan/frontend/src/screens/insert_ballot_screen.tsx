@@ -25,9 +25,10 @@ export function InsertBallotScreen({
       >
         <P>Scan one ballot sheet at a time.</P>
         {showNoChargerWarning && (
-          <Caption color="warning">
-            <Icons.Warning /> <Font weight="bold">No Power Detected.</Font>{' '}
-            Please ask a poll worker to plug in the power cord.
+          <Caption>
+            <Icons.Warning color="warning" />{' '}
+            <Font weight="bold">No Power Detected.</Font> Please ask a poll
+            worker to plug in the power cord.
           </Caption>
         )}
       </FullScreenPromptLayout>

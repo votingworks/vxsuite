@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -39,10 +39,28 @@ import {
   faCircleDot,
 } from '@fortawesome/free-regular-svg-icons';
 
+import { UiTheme } from '@votingworks/types';
 import { Font, FontProps } from './typography';
 import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
 
-interface InnerProps {
+export const ICON_COLORS = [
+  'neutral',
+  'primary',
+  'success',
+  'warning',
+  'danger',
+] as const;
+
+export type IconColor = (typeof ICON_COLORS)[number];
+
+export interface IconProps {
+  color?: IconColor;
+  style?: React.CSSProperties;
+}
+
+export type IconComponent = (props: IconProps) => JSX.Element;
+
+interface InnerProps extends IconProps {
   pulse?: boolean;
   spin?: boolean;
   type: IconDefinition;
@@ -54,10 +72,36 @@ const StyledSvgIcon = styled.svg`
   width: 1em;
 `;
 
-function FaIcon(props: InnerProps): JSX.Element {
-  const { pulse, spin, type } = props;
+function iconColor(theme: UiTheme, color?: IconColor) {
+  if (!color) {
+    return undefined;
+  }
+  const { colors } = theme;
+  return {
+    neutral: colors.onBackground,
+    primary: colors.primary,
+    success: colors.successAccent,
+    warning: colors.warningAccent,
+    danger: colors.dangerAccent,
+    default: undefined,
+  }[color];
+}
 
-  return <FontAwesomeIcon icon={type} spin={spin} pulse={pulse} />;
+function FaIcon(props: InnerProps): JSX.Element {
+  const { pulse, spin, type, color, style = {} } = props;
+  const theme = useTheme();
+
+  return (
+    <FontAwesomeIcon
+      icon={type}
+      spin={spin}
+      pulse={pulse}
+      style={{
+        color: iconColor(theme, color),
+        ...style,
+      }}
+    />
+  );
 }
 
 /**
@@ -66,31 +110,33 @@ function FaIcon(props: InnerProps): JSX.Element {
  * colors.
  */
 export const Icons = {
-  Add() {
-    return <FaIcon type={faCirclePlus} />;
+  Add(props) {
+    return <FaIcon {...props} type={faCirclePlus} />;
   },
 
-  Backspace() {
-    return <FaIcon type={faDeleteLeft} />;
+  Backspace(props) {
+    return <FaIcon {...props} type={faDeleteLeft} />;
   },
 
-  CaretDown() {
-    return <FaIcon type={faCaretDown} />;
+  CaretDown(props) {
+    return <FaIcon {...props} type={faCaretDown} />;
   },
 
-  Circle() {
-    return <FaIcon type={faCircle} />;
+  Circle(props) {
+    return <FaIcon {...props} type={faCircle} />;
   },
 
-  CircleDot() {
-    return <FaIcon type={faCircleDot} />;
+  CircleDot(props) {
+    return <FaIcon {...props} type={faCircleDot} />;
   },
 
-  Checkbox() {
-    return <FaIcon type={faCheckSquare} />;
+  Checkbox(props) {
+    return <FaIcon {...props} type={faCheckSquare} />;
   },
 
-  Checkmark() {
+  Checkmark(props) {
+    const { color, style = {} } = props;
+    const theme = useTheme();
     return (
       <StyledSvgIcon
         aria-hidden="true"
@@ -98,120 +144,124 @@ export const Icons = {
         width="100"
         height="100"
         viewBox="0 0 100 100"
+        style={{
+          color: iconColor(theme, color),
+          ...style,
+        }}
       >
         <path d="M89.7038 10.1045C88.2094 8.40006 85.759 8.40006 84.2646 10.1045L39.0198 61.5065L15.719 34.8471C14.2245 33.1364 11.7906 33.1364 10.2852 34.8471L2.12082 44.1186C0.626395 45.8105 0.626395 48.5951 2.12082 50.2996L36.2782 89.3708C37.7727 91.0628 40.2066 91.0628 41.7175 89.3708L97.8627 25.5632C99.3791 23.8587 99.3791 21.0679 97.8627 19.3572L89.7038 10.1045Z" />
       </StyledSvgIcon>
     );
   },
 
-  Closed() {
-    return <FaIcon type={faMinusCircle} />;
+  Closed(props) {
+    return <FaIcon {...props} type={faMinusCircle} />;
   },
 
-  Contrast() {
-    return <FaIcon type={faCircleHalfStroke} />;
+  Contrast(props) {
+    return <FaIcon {...props} type={faCircleHalfStroke} />;
   },
 
-  Danger() {
-    return <FaIcon type={faExclamationCircle} />;
+  Danger(props) {
+    return <FaIcon {...props} type={faExclamationCircle} />;
   },
 
-  Delete() {
-    return <FaIcon type={faXmarkCircle} />;
+  Delete(props) {
+    return <FaIcon {...props} type={faXmarkCircle} />;
   },
 
-  Disabled() {
-    return <FaIcon type={faBan} />;
+  Disabled(props) {
+    return <FaIcon {...props} type={faBan} />;
   },
 
-  Display() {
-    return <FaIcon type={faDisplay} />;
+  Display(props) {
+    return <FaIcon {...props} type={faDisplay} />;
   },
 
-  Done() {
-    return <FaIcon type={faCheckCircle} />;
+  Done(props) {
+    return <FaIcon {...props} type={faCheckCircle} />;
   },
 
-  DownChevron() {
-    return <FaIcon type={faChevronCircleDown} />;
+  DownChevron(props) {
+    return <FaIcon {...props} type={faChevronCircleDown} />;
   },
 
-  Edit() {
-    return <FaIcon type={faPencil} />;
+  Edit(props) {
+    return <FaIcon {...props} type={faPencil} />;
   },
 
-  Info() {
-    return <FaIcon type={faInfoCircle} />;
+  Info(props) {
+    return <FaIcon {...props} type={faInfoCircle} />;
   },
 
-  Loading() {
-    return <FaIcon type={faSpinner} pulse spin />;
+  Loading(props) {
+    return <FaIcon {...props} type={faSpinner} pulse spin />;
   },
 
-  Next() {
-    return <FaIcon type={faCircleRight} />;
+  Next(props) {
+    return <FaIcon {...props} type={faCircleRight} />;
   },
 
-  Paused() {
-    return <FaIcon type={faPauseCircle} />;
+  Paused(props) {
+    return <FaIcon {...props} type={faPauseCircle} />;
   },
 
-  Previous() {
-    return <FaIcon type={faCircleLeft} />;
+  Previous(props) {
+    return <FaIcon {...props} type={faCircleLeft} />;
   },
 
-  Question() {
-    return <FaIcon type={faCircleQuestion} />;
+  Question(props) {
+    return <FaIcon {...props} type={faCircleQuestion} />;
   },
 
-  RightChevron() {
-    return <FaIcon type={faChevronRight} />;
+  RightChevron(props) {
+    return <FaIcon {...props} type={faChevronRight} />;
   },
 
-  LeftChevron() {
-    return <FaIcon type={faChevronLeft} />;
+  LeftChevron(props) {
+    return <FaIcon {...props} type={faChevronLeft} />;
   },
 
-  RotateRight() {
-    return <FaIcon type={faRotateRight} />;
+  RotateRight(props) {
+    return <FaIcon {...props} type={faRotateRight} />;
   },
 
-  Save() {
-    return <FaIcon type={faFloppyDisk} />;
+  Save(props) {
+    return <FaIcon {...props} type={faFloppyDisk} />;
   },
 
-  Square() {
-    return <FaIcon type={faSquare} />;
+  Square(props) {
+    return <FaIcon {...props} type={faSquare} />;
   },
 
-  Settings() {
-    return <FaIcon type={faGear} />;
+  Settings(props) {
+    return <FaIcon {...props} type={faGear} />;
   },
 
-  TextSize() {
-    return <FaIcon type={faTextHeight} />;
+  TextSize(props) {
+    return <FaIcon {...props} type={faTextHeight} />;
   },
 
-  UpChevron() {
-    return <FaIcon type={faChevronCircleUp} />;
+  UpChevron(props) {
+    return <FaIcon {...props} type={faChevronCircleUp} />;
   },
 
-  Warning() {
-    return <FaIcon type={faExclamationTriangle} />;
+  Warning(props) {
+    return <FaIcon {...props} type={faExclamationTriangle} />;
   },
 
-  X() {
-    return <FaIcon type={faXmark} />;
+  X(props) {
+    return <FaIcon {...props} type={faXmark} />;
   },
 
-  ZoomIn() {
-    return <FaIcon type={faMagnifyingGlassPlus} />;
+  ZoomIn(props) {
+    return <FaIcon {...props} type={faMagnifyingGlassPlus} />;
   },
 
-  ZoomOut() {
-    return <FaIcon type={faMagnifyingGlassMinus} />;
+  ZoomOut(props) {
+    return <FaIcon {...props} type={faMagnifyingGlassMinus} />;
   },
-} satisfies Record<string, () => JSX.Element>;
+} satisfies Record<string, IconComponent>;
 
 export type IconName = keyof typeof Icons;
 

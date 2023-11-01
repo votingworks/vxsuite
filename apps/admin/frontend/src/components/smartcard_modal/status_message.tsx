@@ -78,17 +78,15 @@ export function SuccessOrErrorStatusMessage({
     }
     return (
       <P>
-        <Font color="danger">
-          <Icons.Danger />
-        </Font>{' '}
-        {text} Please try again.
+        <Icons.Danger color="danger" /> {text} Please try again.
       </P>
     );
   }
 
   if (action === 'Program') {
     return (
-      <TextLarge color="success">
+      <TextLarge>
+        <Icons.Done color="success" />{' '}
         {newPin ? (
           <React.Fragment>
             New card PIN is <Font weight="bold">{hyphenatePin(newPin)}</Font>.
@@ -103,16 +101,18 @@ export function SuccessOrErrorStatusMessage({
   if (action === 'PinReset') {
     assert(newPin !== undefined);
     return (
-      <TextLarge color="success">
-        New card PIN is <Font weight="bold">{hyphenatePin(newPin)}</Font>.
+      <TextLarge>
+        <Icons.Done color="success" /> New card PIN is{' '}
+        <Font weight="bold">{hyphenatePin(newPin)}</Font>.
       </TextLarge>
     );
   }
 
   if (action === 'Unprogram') {
     return (
-      <P color="success">
-        {actionRoleReadableString} card has been unprogrammed.
+      <P>
+        <Icons.Done color="success" /> {actionRoleReadableString} card has been
+        unprogrammed.
       </P>
     );
   }

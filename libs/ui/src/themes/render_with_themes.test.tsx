@@ -9,6 +9,7 @@ import {
 import { H1, P } from '../typography';
 import { makeTheme } from './make_theme';
 import { Button } from '../button';
+import { Icons } from '../icons';
 
 test('renders theme-dependent component successfully', () => {
   suppressingConsoleOutput(() =>
@@ -38,15 +39,15 @@ test('renders with specified theme settings', () => {
     sizeMode: 'touchExtraLarge',
   });
 
-  const { getByText } = renderWithThemes(<P color="warning">Warning text</P>, {
+  const { getByRole } = renderWithThemes(<Icons.Add color="warning" />, {
     vxTheme: {
       colorMode: 'contrastLow',
       sizeMode: 'touchExtraLarge',
     },
   });
 
-  expect(getByText('Warning text')).toHaveStyle({
-    color: lowContrastTheme.colors.accentWarning,
+  expect(getByRole('img', { hidden: true })).toHaveStyle({
+    color: lowContrastTheme.colors.warningAccent,
   });
 });
 

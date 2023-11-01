@@ -2,10 +2,9 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import DomPurify from 'dompurify';
 
-import { ColorString, ColorTheme, SizeTheme } from '@votingworks/types';
+import { SizeTheme } from '@votingworks/types';
 
 type Align = 'left' | 'center' | 'right';
-type AccentColor = 'danger' | 'default' | 'success' | 'warning';
 type HeadingType = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 /** Props for {@link Font}, {@link P}, and {@link Caption}. */
@@ -14,7 +13,6 @@ export interface FontProps {
   align?: Align;
   children?: React.ReactNode;
   className?: string;
-  color?: AccentColor;
   id?: string;
   italic?: boolean;
   noWrap?: boolean;
@@ -40,21 +38,7 @@ export type HeadingProps = Omit<FontProps, 'weight'> & {
   as?: HeadingType;
 };
 
-function getColor(color: AccentColor, colorTheme: ColorTheme): ColorString {
-  // Doing this instead of using a switch-case to avoid having to get test
-  // coverage over the default switch case:
-  const fontColors: Record<AccentColor, ColorString> = {
-    danger: colorTheme.accentDanger,
-    default: colorTheme.foreground,
-    success: colorTheme.accentSuccess,
-    warning: colorTheme.accentWarning,
-  };
-
-  return fontColors[color];
-}
-
 const fontStyles = css<FontProps>`
-  color: ${(p) => p.color && getColor(p.color, p.theme.colors)};
   font-size: 1em;
   font-style: ${(p) => (p.italic ? 'italic' : undefined)};
   font-weight: ${(p) =>

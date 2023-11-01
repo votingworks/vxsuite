@@ -78,10 +78,10 @@ export function InsertCardScreen({
       <Main centerChild>
         <Prose textCenter id="audiofocus">
           {showNoChargerAttachedWarning && (
-            <Caption color="warning">
-              <Icons.Warning /> <Font weight="bold">No Power Detected.</Font>{' '}
-              Please ask a poll worker to plug in the power cord for this
-              machine.
+            <Caption>
+              <Icons.Warning color="warning" />{' '}
+              <Font weight="bold">No Power Detected.</Font> Please ask a poll
+              worker to plug in the power cord for this machine.
             </Caption>
           )}
           <P>

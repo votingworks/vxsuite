@@ -63,16 +63,16 @@ export function VoterContestSummary(
         {title}
       </H5>
       {undervoteWarning && (
-        <P color="warning">
+        <P>
           <Caption>
-            <Icons.Warning /> {undervoteWarning}
+            <Icons.Warning color="warning" /> {undervoteWarning}
           </Caption>
         </P>
       )}
       <ListContainer>
         {votes.map((v) => (
           <VoteInfo key={v.id}>
-            <CheckboxContainer color="success">
+            <CheckboxContainer>
               <Checkbox checked />
             </CheckboxContainer>
             <span>

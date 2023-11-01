@@ -1,6 +1,7 @@
 import { render, screen } from '../test/react_testing_library';
 
-import { FullScreenIconWrapper, Icons } from './icons';
+import { FullScreenIconWrapper, IconColor, Icons } from './icons';
+import { makeTheme } from './themes/make_theme';
 
 for (const [name, Component] of Object.entries(Icons)) {
   if (typeof Component !== 'function') {
@@ -13,6 +14,27 @@ for (const [name, Component] of Object.entries(Icons)) {
     screen.getByRole('img', { hidden: true });
   });
 }
+
+test(`Icon renders with color`, () => {
+  const theme = makeTheme({ colorMode: 'desktop' });
+  const expectedColors: Record<IconColor, string> = {
+    neutral: theme.colors.onBackground,
+    primary: theme.colors.primary,
+    success: theme.colors.successAccent,
+    warning: theme.colors.warningAccent,
+    danger: theme.colors.dangerAccent,
+  };
+
+  for (const [color, expectedColor] of Object.entries(expectedColors)) {
+    const { unmount } = render(<Icons.Add color={color as IconColor} />, {
+      vxTheme: theme,
+    });
+    expect(screen.getByRole('img', { hidden: true })).toHaveStyle(
+      `color: ${expectedColor};`
+    );
+    unmount();
+  }
+});
 
 test('FullScreenIconWrapper renders child icon - portrait screen', () => {
   global.innerHeight = 1920;
@@ -33,7 +55,7 @@ test('FullScreenIconWrapper renders child icon - landscape screen', () => {
   global.innerWidth = 1920;
 
   render(
-    <FullScreenIconWrapper color="danger">
+    <FullScreenIconWrapper>
       <Icons.Info />
     </FullScreenIconWrapper>
   );

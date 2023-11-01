@@ -391,12 +391,11 @@ export function CandidateContest({
               <WriteInModalBody>
                 <WriteInForm>
                   <TouchTextInput value={writeInCandidateName} />
-                  <P
-                    align="right"
-                    color={writeInCharsRemaining ? 'default' : 'warning'}
-                  >
+                  <P align="right">
                     <Caption>
-                      {writeInCharsRemaining === 0 && <Icons.Warning />}{' '}
+                      {writeInCharsRemaining === 0 && (
+                        <Icons.Warning color="warning" />
+                      )}{' '}
                       {writeInCharsRemaining}{' '}
                       {pluralize('character', writeInCharsRemaining)} remaining
                     </Caption>

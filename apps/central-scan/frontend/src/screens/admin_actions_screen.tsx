@@ -4,7 +4,6 @@ import { assert } from '@votingworks/basics';
 import {
   Button,
   ExportLogsButtonRow,
-  Font,
   H1,
   Icons,
   LinkButton,
@@ -163,10 +162,10 @@ export function AdminActionsScreen({
               </Button>{' '}
             </ButtonRow>
             {!canUnconfigure && !isTestMode && (
-              <Font color="warning">
-                <Icons.Warning /> You must &quot;Save Backup&quot; before you
-                may delete election data.
-              </Font>
+              <P>
+                <Icons.Warning color="warning" /> You must &quot;Save
+                Backup&quot; before you may delete election data.
+              </P>
             )}
           </div>
         </Main>

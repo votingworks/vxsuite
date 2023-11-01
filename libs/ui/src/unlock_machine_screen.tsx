@@ -92,22 +92,22 @@ export function UnlockMachineScreen({
   let primarySentence: JSX.Element = <P>Enter the card PIN to unlock.</P>;
   if (auth.error) {
     primarySentence = (
-      <P color="danger">
-        <Icons.Danger /> Error checking PIN. Please try again.
+      <P>
+        <Icons.Danger color="danger" /> Error checking PIN. Please try again.
       </P>
     );
   } else if (isLockedOut) {
     assert(auth.lockedOutUntil !== undefined);
     primarySentence = (
-      <P color="warning">
-        <Icons.Warning /> Card locked. Please try again in{' '}
+      <P>
+        <Icons.Warning color="warning" /> Card locked. Please try again in{' '}
         <Timer countDownTo={new Date(auth.lockedOutUntil)} />
       </P>
     );
   } else if (auth.wrongPinEnteredAt) {
     primarySentence = (
-      <P color="warning">
-        <Icons.Warning /> Incorrect PIN. Please try again.
+      <P>
+        <Icons.Warning color="warning" /> Incorrect PIN. Please try again.
       </P>
     );
   }

@@ -268,10 +268,7 @@ export function UnconfiguredScreen(): JSX.Element {
           {inputConversionFiles.map((file) =>
             file.path ? (
               <P key={file.name}>
-                <Font color="success">
-                  <Icons.Checkbox />
-                </Font>{' '}
-                Loaded {file.name}
+                <Icons.Checkbox color="success" /> Loaded {file.name}
               </P>
             ) : (
               <P key={file.name}>
@@ -312,9 +309,7 @@ export function UnconfiguredScreen(): JSX.Element {
         <P>How would you like to start?</P>
         {configureError && (
           <P>
-            <Font color="danger">
-              <Icons.Danger />
-            </Font>{' '}
+            <Icons.Danger color="danger" />{' '}
             {(() => {
               switch (configureError.type) {
                 case 'invalidElection':

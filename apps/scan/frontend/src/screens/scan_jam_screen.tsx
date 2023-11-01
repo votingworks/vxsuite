@@ -12,8 +12,8 @@ export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
       <FullScreenPromptLayout
         title="Ballot Not Counted"
         image={
-          <FullScreenIconWrapper color="danger">
-            <Icons.Delete />
+          <FullScreenIconWrapper>
+            <Icons.Delete color="danger" />
           </FullScreenIconWrapper>
         }
       >

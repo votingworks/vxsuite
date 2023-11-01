@@ -14,6 +14,7 @@ import {
   WithScrollButtons,
   P,
   Font,
+  Icons,
 } from '@votingworks/ui';
 import {
   format,
@@ -394,13 +395,13 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
           <td data-testid="cvr-count">{format.count(cvrCount)}</td>
           {!fileModeLocked && (
             <td>
-              <LabelText>
-                {isTestModeResults ? (
-                  <Font color="warning">Test</Font>
-                ) : (
-                  <Font color="success">Official</Font>
-                )}
-              </LabelText>
+              {isTestModeResults ? (
+                <LabelText>
+                  <Icons.Warning color="warning" /> Test
+                </LabelText>
+              ) : (
+                <LabelText>Official</LabelText>
+              )}
             </td>
           )}
           <TD textAlign="right">

@@ -8,8 +8,8 @@ export function ScanBusyScreen(): JSX.Element {
       <FullScreenPromptLayout
         title="Remove Your Ballot"
         image={
-          <FullScreenIconWrapper color="warning">
-            <Icons.Warning />
+          <FullScreenIconWrapper>
+            <Icons.Warning color="warning" />
           </FullScreenIconWrapper>
         }
       >
