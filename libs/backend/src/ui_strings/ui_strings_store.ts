@@ -7,6 +7,8 @@ import {
   LanguageCodeSchema,
   safeParse,
   safeParseJson,
+  UiStringAudioIds,
+  UiStringAudioIdsSchema,
   UiStringTranslations,
   UiStringTranslationsSchema,
 } from '@votingworks/types';
@@ -19,6 +21,13 @@ export interface UiStringsStore {
   getLanguages(): LanguageCode[];
 
   getUiStrings(languageCode: LanguageCode): UiStringTranslations | null;
+
+  getUiStringAudioIds(languageCode: LanguageCode): UiStringAudioIds | null;
+
+  setUiStringAudioIds(input: {
+    languageCode: LanguageCode;
+    data: UiStringAudioIds;
+  }): void;
 
   setUiStrings(input: {
     languageCode: LanguageCode;
@@ -65,6 +74,25 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
       return safeParseJson(row.data, UiStringTranslationsSchema).unsafeUnwrap();
     },
 
+    getUiStringAudioIds(languageCode) {
+      const row = dbClient.one(
+        `
+        select
+          data
+        from ui_string_audio_ids
+        where
+          language_code = ?
+      `,
+        languageCode
+      ) as Optional<{ data: string }>;
+
+      if (!row) {
+        return null;
+      }
+
+      return safeParseJson(row.data, UiStringAudioIdsSchema).unsafeUnwrap();
+    },
+
     setUiStrings(input) {
       const { languageCode, data } = input;
 
@@ -73,6 +101,22 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
       dbClient.run(
         `
           insert or replace into ui_strings (
+            language_code,
+            data
+          ) values
+            (?, ?)
+        `,
+        languageCode,
+        JSON.stringify(data)
+      );
+    },
+
+    setUiStringAudioIds(input) {
+      const { languageCode, data } = input;
+
+      dbClient.run(
+        `
+          insert or replace into ui_string_audio_ids (
             language_code,
             data
           ) values

@@ -4,6 +4,7 @@ import {
   BallotPackage,
   ExtendedElectionDefinition,
   LanguageCode,
+  UiStringAudioIdsPackage,
   UiStringsPackage,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
@@ -74,5 +75,38 @@ export function runUiStringMachineConfigurationTests(
       expectedElectionStrings[LanguageCode.ENGLISH]
     );
     expect(store.getUiStrings(LanguageCode.SPANISH)).toBeNull();
+  });
+
+  test('loads UI string audio IDs for configured languages', async () => {
+    const uiStrings: UiStringsPackage = {
+      [LanguageCode.ENGLISH]: { foo: 'bar' },
+      [LanguageCode.SPANISH]: { foo: 'bar_es' },
+    };
+
+    const uiStringAudioIds: UiStringAudioIdsPackage = {
+      [LanguageCode.ENGLISH]: { foo: ['123', 'abc'] },
+      [LanguageCode.SPANISH]: { foo: ['456', 'def'] },
+      [LanguageCode.CHINESE]: { foo: ['789', 'fff'] },
+    };
+
+    await doTestConfigure({ electionDefinition, uiStrings, uiStringAudioIds });
+
+    expect(store.getLanguages().sort()).toEqual(
+      [LanguageCode.ENGLISH, LanguageCode.SPANISH].sort()
+    );
+    expect(store.getUiStringAudioIds(LanguageCode.ENGLISH)).toEqual({
+      ...assertDefined(uiStringAudioIds[LanguageCode.ENGLISH]),
+    });
+    expect(store.getUiStringAudioIds(LanguageCode.SPANISH)).toEqual({
+      ...assertDefined(uiStringAudioIds[LanguageCode.SPANISH]),
+    });
+    expect(store.getUiStringAudioIds(LanguageCode.CHINESE)).toBeNull();
+  });
+
+  test('is a no-op for missing uiStringAudioIds package', async () => {
+    await doTestConfigure({ electionDefinition });
+
+    expect(store.getUiStringAudioIds(LanguageCode.ENGLISH)).toBeNull();
+    expect(store.getUiStringAudioIds(LanguageCode.SPANISH)).toBeNull();
   });
 }

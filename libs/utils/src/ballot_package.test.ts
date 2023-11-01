@@ -7,6 +7,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   LanguageCode,
   SystemSettings,
+  UiStringAudioIdsPackage,
   UiStringsPackage,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
@@ -96,6 +97,47 @@ test('readBallotPackageFromFile loads available ui strings', async () => {
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: expectedUiStrings,
+  });
+});
+
+test('readBallotPackageFromFile loads UI string audio IDs', async () => {
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionData } = electionDefinition;
+
+  const audioIds: UiStringAudioIdsPackage = {
+    [LanguageCode.ENGLISH]: {
+      foo: ['123', 'abc'],
+      deeply: { nested: ['321', 'cba'] },
+    },
+    [LanguageCode.CHINESE]: {
+      foo: ['456', 'def'],
+      deeply: { nested: ['654', 'fed'] },
+    },
+  };
+
+  const pkg = await zipFile({
+    [BallotPackageFileName.ELECTION]: electionData,
+    [BallotPackageFileName.UI_STRING_AUDIO_IDS]: JSON.stringify(audioIds),
+  });
+
+  const expectedAudioIds: UiStringAudioIdsPackage = {
+    [LanguageCode.ENGLISH]: {
+      ...assertDefined(audioIds[LanguageCode.ENGLISH]),
+    },
+    [LanguageCode.CHINESE]: {
+      ...assertDefined(audioIds[LanguageCode.CHINESE]),
+    },
+  };
+
+  expect(
+    await readBallotPackageFromFile(
+      new File([pkg], 'election-ballot-package.zip')
+    )
+  ).toEqual<BallotPackage>({
+    electionDefinition,
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    uiStrings: {},
+    uiStringAudioIds: expectedAudioIds,
   });
 });
 

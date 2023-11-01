@@ -28,14 +28,31 @@ function loadStrings(input: BallotPackageProcessorInput): void {
   }
 }
 
+function loadAudioIds(input: BallotPackageProcessorInput): void {
+  const { ballotPackage, store } = input;
+
+  if (!ballotPackage.uiStringAudioIds) {
+    return;
+  }
+
+  const configuredLanguages = store.getLanguages();
+  for (const languageCode of configuredLanguages) {
+    const data = ballotPackage.uiStringAudioIds[languageCode];
+
+    if (data) {
+      store.setUiStringAudioIds({ languageCode, data });
+    }
+  }
+}
+
 /**
  * Loads data related to UI Strings from the given ballot package into the
  * provided store.
  */
 export function configureUiStrings(input: BallotPackageProcessorInput): void {
   loadStrings(input);
+  loadAudioIds(input);
 
   // TODO(kofi):
-  //   loadAudioIds(input);
   //   loadAudioClips(input);
 }

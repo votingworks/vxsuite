@@ -50,10 +50,46 @@ export function runUiStringApiTests(params: {
     expect(api.getUiStrings({ languageCode: LanguageCode.SPANISH })).toBeNull();
   });
 
-  test('getUiStringAudioIds throws not-yet-implemented error', () => {
-    expect(() =>
+  test('getUiStringAudioIds', () => {
+    for (const languageCode of Object.values(LanguageCode)) {
+      expect(api.getUiStringAudioIds({ languageCode })).toBeNull();
+    }
+
+    store.addLanguage(LanguageCode.ENGLISH);
+    store.setUiStringAudioIds({
+      languageCode: LanguageCode.ENGLISH,
+      data: {
+        foo: ['123', 'abc'],
+        deeply: { nested: ['321', 'cba'] },
+      },
+    });
+
+    expect(
+      api.getUiStringAudioIds({ languageCode: LanguageCode.ENGLISH })
+    ).toEqual({
+      foo: ['123', 'abc'],
+      deeply: { nested: ['321', 'cba'] },
+    });
+
+    store.addLanguage(LanguageCode.CHINESE);
+    store.setUiStringAudioIds({
+      languageCode: LanguageCode.CHINESE,
+      data: {
+        foo: ['456', 'def'],
+        deeply: { nested: ['654', 'fed'] },
+      },
+    });
+
+    expect(
       api.getUiStringAudioIds({ languageCode: LanguageCode.CHINESE })
-    ).toThrow(/not yet implemented/i);
+    ).toEqual({
+      foo: ['456', 'def'],
+      deeply: { nested: ['654', 'fed'] },
+    });
+
+    expect(
+      api.getUiStringAudioIds({ languageCode: LanguageCode.SPANISH })
+    ).toBeNull();
   });
 
   test('getAudioClipsBase64 throws not-yet-implemented error', () => {
