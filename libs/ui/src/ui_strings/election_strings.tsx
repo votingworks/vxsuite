@@ -14,6 +14,7 @@ import {
 } from '@votingworks/types';
 
 import { UiString } from './ui_string';
+import { Pre } from '../typography';
 
 type ContestWithDescription = ContestLike & {
   description: string;
@@ -39,7 +40,11 @@ export const electionStrings = {
   ),
 
   [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => (
-    <UiString uiStringKey={Key.CONTEST_DESCRIPTION} uiStringSubKey={contest.id}>
+    <UiString
+      as={Pre}
+      uiStringKey={Key.CONTEST_DESCRIPTION}
+      uiStringSubKey={contest.id}
+    >
       {contest.description}
     </UiString>
   ),

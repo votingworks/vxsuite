@@ -10,6 +10,7 @@ import {
   testUiStrings,
 } from '../../test/ui_strings/test_strings';
 import { newTestContext } from '../../test/ui_strings/test_utils';
+import { UiString } from './ui_string';
 
 const { getLanguageContext, mockBackendApi, render } = newTestContext();
 
@@ -47,5 +48,15 @@ test('renders deeply nested translations', async () => {
   await screen.findByRole('heading', { name: 'Mercury' });
 
   rerender(<H1>{testUiStrings.planetName('planet9')}</H1>);
+  await screen.findByRole('heading', { name: 'Pluto' });
+});
+
+test('renders within optional element type override', async () => {
+  render(
+    <UiString as="h1" uiStringKey="planetName" uiStringSubKey="planet9">
+      Fallback text
+    </UiString>
+  );
+
   await screen.findByRole('heading', { name: 'Pluto' });
 });
