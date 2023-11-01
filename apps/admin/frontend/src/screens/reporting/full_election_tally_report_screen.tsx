@@ -26,7 +26,7 @@ export function FullElectionTallyReportScreen(): JSX.Element {
         filter={{}}
         groupBy={{}}
         disabled={false}
-        autoPreview
+        autoGenerateReport
       />
     </NavigationScreen>
   );

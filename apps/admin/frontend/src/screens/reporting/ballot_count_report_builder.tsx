@@ -110,7 +110,7 @@ export function BallotCountReportBuilder(): JSX.Element {
         filter={filter}
         groupBy={groupBy}
         disabled={!hasMadeSelections}
-        autoPreview={false}
+        autoGenerateReport={false}
       />
     </NavigationScreen>
   );

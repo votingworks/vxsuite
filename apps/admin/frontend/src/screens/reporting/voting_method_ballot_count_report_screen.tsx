@@ -26,7 +26,7 @@ export function VotingMethodBallotCountReport(): JSX.Element {
           groupByParty: electionDefinition.election.type === 'primary',
         }}
         disabled={false}
-        autoPreview
+        autoGenerateReport
       />
     </NavigationScreen>
   );

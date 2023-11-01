@@ -18,7 +18,6 @@ import {
 } from '../../api';
 import {
   ExportActions,
-  PaginationNote,
   PreviewContainer,
   PreviewLoading,
   PreviewReportPages,
@@ -108,7 +107,6 @@ export function TallyWriteInReportScreen(): JSX.Element {
           fileType={FileType.WriteInAdjudicationReport}
         />
       </ExportActions>
-      <PaginationNote />
       <PreviewContainer>
         {report ? (
           <PreviewReportPages>{report}</PreviewReportPages>
