@@ -190,6 +190,9 @@ export function ElectionManagerScreen({
 
   const dataExportButtons = (
     <React.Fragment>
+      <P>
+        <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
+      </P>
       <ExportLogsButtonRow
         electionDefinition={electionDefinition}
         usbDriveStatus={usbDrive}
@@ -197,9 +200,6 @@ export function ElectionManagerScreen({
         logger={logger}
         machineConfig={machineConfig}
       />
-      <P>
-        <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
-      </P>
     </React.Fragment>
   );
 

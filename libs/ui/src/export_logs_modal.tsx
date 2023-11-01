@@ -330,3 +330,17 @@ export function ExportLogsButtonRow(
     </P>
   );
 }
+
+/*
+ * Renders raw and CDF log export buttons without formatting
+ */
+export function ExportLogsButtonGroup(
+  sharedProps: ExportLogsButtonRowProps
+): JSX.Element {
+  return (
+    <React.Fragment>
+      <ExportLogsButton logFileType={LogFileType.Raw} {...sharedProps} />{' '}
+      <ExportLogsButton logFileType={LogFileType.Cdf} {...sharedProps} />
+    </React.Fragment>
+  );
+}
