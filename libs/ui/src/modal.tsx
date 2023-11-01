@@ -117,7 +117,7 @@ export interface ModalProps {
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
   themeDeprecated?: Theme;
-  title?: string;
+  title?: ReactNode;
 }
 
 /* istanbul ignore next - unclear why this isn't covered */

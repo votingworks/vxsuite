@@ -1,3 +1,4 @@
+import { Font } from '../typography';
 import { DateString } from './date_string';
 import { NumberString } from './number_string';
 import { UiString } from './ui_string';
@@ -7,6 +8,8 @@ import { UiString } from './ui_string';
 /* istanbul ignore next - mostly presentational, tested via apps where relevant */
 export const appStrings = {
   // TODO(kofi): Fill out.
+
+  buttonAccept: () => <UiString uiStringKey="buttonAccept">Accept</UiString>,
 
   buttonAddWriteIn: () => (
     <UiString uiStringKey="buttonAddWriteIn">add write-in candidate</UiString>
@@ -32,6 +35,8 @@ export const appStrings = {
     </UiString>
   ),
 
+  buttonCancel: () => <UiString uiStringKey="buttonCancel">Cancel</UiString>,
+
   buttonChange: () => <UiString uiStringKey="buttonChange">Change</UiString>,
 
   buttonDisplaySettings: () => (
@@ -42,15 +47,21 @@ export const appStrings = {
 
   buttonNext: () => <UiString uiStringKey="buttonNext">Next</UiString>,
 
+  buttonNo: () => <UiString uiStringKey="buttonNo">No</UiString>,
+
+  buttonOkay: () => <UiString uiStringKey="buttonOkay">Okay</UiString>,
+
   buttonPrintBallot: () => (
     <UiString uiStringKey="buttonPrintBallot">Print My Ballot</UiString>
   ),
+
+  buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
 
   buttonStartVoting: () => (
     <UiString uiStringKey="buttonStartVoting">Start Voting</UiString>
   ),
 
-  buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
+  buttonYes: () => <UiString uiStringKey="buttonYes">Yes</UiString>,
 
   // TODO(kofi): Remove `date` and `number` and have consumers use the
   // components directly, since this indirection doesn't provided added value.
@@ -98,12 +109,56 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdSelectToContinue: () => (
+    <UiString uiStringKey="instructionsBmdSelectToContinue">
+      Press the select button to continue.
+    </UiString>
+  ),
+
+  instructionsBmdWriteInFormNavigation: () => (
+    <UiString uiStringKey="instructionsBmdWriteInFormNavigation">
+      Use the up and down buttons to navigate between the letters of a standard
+      keyboard. Use the select button to select the current letter.
+    </UiString>
+  ),
+
   labelAllPrecinctsSelection: () => (
     <UiString uiStringKey="labelAllPrecinctsSelection">All Precincts</UiString>
   ),
 
   labelBallotStyle: () => (
     <UiString uiStringKey="labelBallotStyle">Ballot style:</UiString>
+  ),
+
+  labelBmdWriteInForm: () => (
+    <UiString uiStringKey="labelBmdWriteInForm">
+      Enter the name of a person who is <Font weight="bold">not</Font> on the
+      ballot:
+    </UiString>
+  ),
+
+  labelCharactersRemaining: () => (
+    <UiString uiStringKey="labelCharactersRemaining">
+      Characters remaining:
+    </UiString>
+  ),
+
+  labelContestsRemaining: () => (
+    <UiString uiStringKey="labelContestsRemaining">
+      Contests remaining:
+    </UiString>
+  ),
+
+  labelContestNumber: () => (
+    <UiString uiStringKey="labelContestNumber">Contest number:</UiString>
+  ),
+
+  labelDeselectedCandidate: () => (
+    <UiString uiStringKey="labelDeselectedCandidate">Deselected:</UiString>
+  ),
+
+  labelDeselectedOption: () => (
+    <UiString uiStringKey="labelDeselectedOption">Deselected option:</UiString>
   ),
 
   labelNumBallotContests: () => (
@@ -118,6 +173,36 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelSelectedCandidate: () => (
+    <UiString uiStringKey="labelSelectedCandidate">Selected:</UiString>
+  ),
+
+  labelSelectedOption: () => (
+    <UiString uiStringKey="labelSelectedOption">Selected option:</UiString>
+  ),
+
+  labelTotalContests: () => (
+    <UiString uiStringKey="labelTotalContests">Total contests:</UiString>
+  ),
+
+  labelWriteInCandidateName: () => (
+    <UiString uiStringKey="labelWriteInCandidateName">
+      Write-In Candidate
+    </UiString>
+  ),
+
+  // TODO(kofi): Could potentially leverage i18next post-processors to apply
+  // letter case transforms at render-time to avoid maintaining separate, but
+  // we'd need to find a reliable way of applying locale-specific capitalization
+  // rules.
+  labelWriteInTitleCase: () => (
+    <UiString uiStringKey="labelWriteInTitleCase">Write-In</UiString>
+  ),
+
+  labelWriteInTitleCaseColon: () => (
+    <UiString uiStringKey="labelWriteInTitleCaseColon">Write-In:</UiString>
+  ),
+
   labelWriteInParenthesized: () => (
     <UiString uiStringKey="labelWriteInParenthesized">(write-in)</UiString>
   ),
@@ -126,8 +211,27 @@ export const appStrings = {
   // components directly, since this indirection doesn't provided added value.
   number: (value: number) => <NumberString value={value} />,
 
+  promptBmdConfirmRemoveWriteIn: () => (
+    <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
+      Do you want to deselect and remove your write-in candidate?
+    </UiString>
+  ),
+
   titleBmdReviewScreen: () => (
     <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
+  ),
+
+  warningOvervoteCandidateContest: () => (
+    <UiString uiStringKey="warningOvervoteCandidateContest">
+      To vote for another candidate, you must first deselect a previously
+      selected candidate.
+    </UiString>
+  ),
+
+  warningOvervoteYesNoContest: () => (
+    <UiString uiStringKey="warningOvervoteYesNoContest">
+      To change your vote, first deselect your previous vote.
+    </UiString>
   ),
 
   warningNoVotesForContest: () => (

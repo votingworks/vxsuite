@@ -1,15 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Caption, Font, H2, electionStrings } from '@votingworks/ui';
-import { Contest } from '@votingworks/types';
+import {
+  Caption,
+  Font,
+  H2,
+  appStrings,
+  electionStrings,
+} from '@votingworks/ui';
+import { Contest, District } from '@votingworks/types';
 import { MsEitherNeitherContest } from '../utils/ms_either_neither_contests';
 
 export interface ContestHeaderProps {
   breadcrumbs?: BreadcrumbMetadata;
   children?: React.ReactNode;
   contest: Contest | MsEitherNeitherContest;
-  districtName: string;
+  district: District;
 }
 
 export interface BreadcrumbMetadata {
@@ -27,20 +33,30 @@ const ContestInfo = styled.div`
   justify-content: space-between;
 `;
 
+function Breadcrumbs(props: BreadcrumbMetadata) {
+  const { ballotContestCount, contestNumber } = props;
+
+  return (
+    <Caption noWrap>
+      {appStrings.labelContestNumber()}{' '}
+      <Font weight="bold">{contestNumber}</Font> |{' '}
+      {appStrings.labelTotalContests()}{' '}
+      <Font weight="bold">{ballotContestCount}</Font>{' '}
+    </Caption>
+  );
+}
+
 export function ContestHeader(props: ContestHeaderProps): JSX.Element {
-  const { breadcrumbs, children, contest, districtName } = props;
+  const { breadcrumbs, children, contest, district } = props;
 
   return (
     <Container id="contest-header">
       <div id="audiofocus">
         <ContestInfo>
-          <Caption weight="semiBold">{districtName}</Caption>
-          {breadcrumbs && (
-            <Caption noWrap>
-              Contest <Font weight="bold">{breadcrumbs.contestNumber}</Font> of{' '}
-              <Font weight="bold">{breadcrumbs.ballotContestCount}</Font>
-            </Caption>
-          )}
+          <Caption weight="semiBold">
+            {electionStrings.districtName(district)}
+          </Caption>
+          {breadcrumbs && <Breadcrumbs {...breadcrumbs} />}
         </ContestInfo>
         <div>
           <H2 as="h1">{electionStrings.contestTitle(contest)}</H2>

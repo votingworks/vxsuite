@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import {
   YesNoVote,
   YesNoContest as YesNoContestInterface,
-  getContestDistrictName,
   Election,
   YesNoContestOptionId,
+  getContestDistrict,
 } from '@votingworks/types';
 import {
   Button,
   ContestChoiceButton,
   Main,
   Modal,
-  Prose,
   P,
   Caption,
-  Pre,
   WithScrollButtons,
+  AudioOnly,
+  electionStrings,
+  appStrings,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -40,7 +41,7 @@ export function YesNoContest({
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const districtName = getContestDistrictName(election, contest);
+  const district = getContestDistrict(election, contest);
 
   const [overvoteSelection, setOvervoteSelection] =
     useState<Optional<YesNoContestOptionId>>();
@@ -76,21 +77,17 @@ export function YesNoContest({
         <ContestHeader
           breadcrumbs={breadcrumbs}
           contest={contest}
-          districtName={districtName}
+          district={district}
         >
           <Caption>
-            Vote <strong>Yes</strong> or <strong>No</strong>.
-            <span className="screen-reader-only">
-              {contest.description}
-              To navigate through the contest choices, use the down button. To
-              move to the next contest, use the right button.
-            </span>
+            <AudioOnly>
+              {electionStrings.contestDescription(contest)}
+              {appStrings.instructionsBmdContestNavigation()}
+            </AudioOnly>
           </Caption>
         </ContestHeader>
         <WithScrollButtons>
-          <Caption>
-            <Pre>{contest.description}</Pre>
-          </Caption>
+          <Caption>{electionStrings.contestDescription(contest)}</Caption>
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
@@ -100,11 +97,11 @@ export function YesNoContest({
               function handleDisabledClick() {
                 handleChangeVoteAlert(option.id);
               }
-              let prefixAudioText = '';
+              let prefixAudioText: ReactNode = null;
               if (isChecked) {
-                prefixAudioText = 'Selected,';
+                prefixAudioText = appStrings.labelSelectedOption();
               } else if (deselectedVote === option.id) {
-                prefixAudioText = 'Deselected,';
+                prefixAudioText = appStrings.labelDeselectedOption();
               }
               return (
                 <ContestChoiceButton
@@ -114,8 +111,15 @@ export function YesNoContest({
                   onPress={
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
-                  ariaLabel={`${prefixAudioText} ${option.label} on ${contest.title}`}
-                  label={option.label}
+                  label={
+                    <React.Fragment>
+                      <AudioOnly>
+                        {prefixAudioText}
+                        {electionStrings.contestTitle(contest)} |{' '}
+                      </AudioOnly>
+                      {electionStrings.contestOptionLabel(option)}
+                    </React.Fragment>
+                  }
                 />
               );
             })}
@@ -126,29 +130,19 @@ export function YesNoContest({
         <Modal
           centerContent
           content={
-            <Prose>
-              {overvoteSelection && (
-                <P id="modalaudiofocus">
-                  Do you want to change your vote to{' '}
-                  <strong>
-                    {overvoteSelection === contest.yesOption.id
-                      ? contest.yesOption.label
-                      : contest.noOption.label}
-                  </strong>
-                  ? To change your vote, first unselect your vote for{' '}
-                  <strong>
-                    {overvoteSelection === contest.yesOption.id
-                      ? contest.noOption.label
-                      : contest.yesOption.label}
-                  </strong>
-                  .
-                </P>
-              )}
-            </Prose>
+            <P id="modalaudiofocus">
+              {appStrings.warningOvervoteYesNoContest()}
+              <AudioOnly>
+                {appStrings.instructionsBmdSelectToContinue()}
+              </AudioOnly>
+            </P>
           }
           actions={
             <Button variant="primary" autoFocus onPress={closeOvervoteAlert}>
-              Okay
+              {appStrings.buttonOkay()}
+              <AudioOnly>
+                {appStrings.instructionsBmdSelectToContinue()}
+              </AudioOnly>
             </Button>
           }
         />

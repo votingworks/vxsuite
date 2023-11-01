@@ -97,7 +97,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       id="next"
       rightIcon="Next"
       variant={isVoteComplete ? 'primary' : 'neutral'}
-      aria-label="next contest"
       to={nextContest ? getContestUrl(nextContestIndex) : getReviewPageUrl()}
     >
       {appStrings.buttonNext()}
@@ -108,7 +107,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     <LinkButton
       icon="Previous"
       id="previous"
-      aria-label="previous contest"
       to={prevContest ? getContestUrl(prevContestIndex) : getStartPageUrl()}
     >
       {/* TODO(kofi): Maybe something like "Previous" would translate better in this context? */}
