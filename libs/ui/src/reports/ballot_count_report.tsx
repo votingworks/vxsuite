@@ -116,6 +116,10 @@ const BallotCountGrid = styled.div<{
     for (let i = 1; i <= numColumns; i += 1) {
       css += `span:nth-child(${2 * numColumns}n + ${i}) { 
         background-color: #f5f5f5;
+
+        @media print {
+          background-color: #e8e8e8;
+        }
        }`;
     }
     return css;
