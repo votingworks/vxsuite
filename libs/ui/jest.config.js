@@ -7,6 +7,12 @@ module.exports = {
   ...shared,
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  coverageThreshold: {
+    global: {
+      lines: 100,
+      branches: 100,
+    },
+  },
   coveragePathIgnorePatterns: [
     'src/reports/index.ts',
     '.*\\.stories\\.ts',
