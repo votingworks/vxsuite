@@ -86,7 +86,7 @@ test('renders with selected themes', () => {
   );
 
   expect(parseCssColor(computedStyles.color)).toEqual(
-    parseCssColor(expectedTheme.colors.foreground)
+    parseCssColor(expectedTheme.colors.onBackground)
   );
 });
 
