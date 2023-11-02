@@ -283,14 +283,9 @@ function disabledStyles(p: ThemedStyledButtonProps): CSSObject {
     };
   }
 
-  const [foregroundColor, backgroundColor] = isInverse(color)
-    ? [colors.onInverse, colors.inverseBackground]
-    : [colors.onBackground, colors.background];
   return {
     borderStyle: 'dashed',
-    color: foregroundColor,
-    backgroundColor,
-    borderColor: foregroundColor,
+    borderColor: 'currentColor',
   };
 }
 
@@ -336,11 +331,11 @@ export const buttonStyles = css<StyledButtonProps>`
 
   ${(p) => css(colorAndFillStyles(p))}
 
-  &:active {
+  &:active:enabled {
     ${(p) => css(activeStyles(p))}
   }
 
-  &:hover:not(:active) {
+  &:hover:not(:active):enabled {
     ${(p) => css(hoverStyles(p))}
   }
 

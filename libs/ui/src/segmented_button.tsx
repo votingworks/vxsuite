@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css, useTheme } from 'styled-components';
 
 import { Button } from './button';
 import { Caption } from './typography';
@@ -37,20 +37,54 @@ const OuterContainer = styled.span`
 
 const LabelContainer = styled(Caption)`
   display: block;
+  margin-bottom: 0.125rem;
 `;
 
 interface OptionsContainerProps {
   isVertical?: boolean;
+  disabled?: boolean;
 }
 
+const desktopStyles = css<OptionsContainerProps>`
+  button:first-child {
+    border-top-left-radius: 0;
+    ${(p) =>
+      p.isVertical
+        ? 'border-top-right-radius: 0;'
+        : 'border-bottom-left-radius: 0;'}
+  }
+
+  button:last-child {
+    ${(p) =>
+      p.isVertical
+        ? 'border-bottom-left-radius: 0;'
+        : 'border-top-right-radius: 0;'}
+    border-bottom-right-radius: 0;
+  }
+
+  &[disabled] {
+    border-style: dashed;
+
+    button {
+      border-color: transparent;
+    }
+
+    background-color: ${(p) => p.theme.colors.containerLow};
+  }
+`;
+
 const OptionsContainer = styled.span<OptionsContainerProps>`
-  border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.foreground};
-  border-radius: 0.25rem;
+  border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+    ${(p) => p.theme.colors.outline};
+  border-radius: ${(p) =>
+    p.theme.sizeMode === 'desktop' ? '0.5rem' : '0.25rem'};
   display: inline-flex;
   flex-direction: ${(p) => (p.isVertical ? 'column' : 'row')};
   gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
-  padding: 0.75rem;
+  padding: ${(p) => (p.theme.sizeMode === 'desktop' ? undefined : '0.75rem')};
+  overflow: hidden;
+
+  ${(p) => p.theme.colorMode === 'desktop' && desktopStyles}
 `;
 
 /**
@@ -66,6 +100,7 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
 export function SegmentedButton<T extends SegmentedButtonOptionId>(
   props: SegmentedButtonProps<T>
 ): JSX.Element {
+  const theme = useTheme();
   const {
     disabled,
     hideLabel,
@@ -84,26 +119,37 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
         </LabelContainer>
       )}
       <OptionsContainer
+        disabled={disabled}
         aria-disabled={disabled}
         aria-label={label}
         aria-orientation={vertical ? 'vertical' : 'horizontal'}
         isVertical={vertical}
         role="listbox"
       >
-        {options.map((o) => (
-          <Button
-            aria-label={o.ariaLabel}
-            aria-selected={o.id === selectedOptionId}
-            disabled={disabled}
-            key={o.id}
-            onPress={onChange}
-            role="option"
-            value={o.id}
-            variant={o.id === selectedOptionId ? 'primary' : 'neutral'}
-          >
-            {o.label}
-          </Button>
-        ))}
+        {options.map((o) => {
+          const isSelected = o.id === selectedOptionId;
+          return (
+            <Button
+              aria-label={o.ariaLabel}
+              aria-selected={o.id === selectedOptionId}
+              disabled={disabled}
+              key={o.id}
+              onPress={onChange}
+              role="option"
+              value={o.id}
+              variant={isSelected ? 'primary' : 'neutral'}
+              fill={
+                theme.colorMode === 'desktop'
+                  ? isSelected
+                    ? 'tinted'
+                    : 'transparent'
+                  : undefined
+              }
+            >
+              {o.label}
+            </Button>
+          );
+        })}
       </OptionsContainer>
     </OuterContainer>
   );

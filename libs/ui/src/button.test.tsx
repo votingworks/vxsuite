@@ -1,5 +1,4 @@
 import React from 'react';
-import parseCssColor from 'parse-css-color';
 import { Color, ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
@@ -172,9 +171,6 @@ describe('Button', () => {
 
     render(
       <div>
-        <Button onPress={onPress} variant="danger">
-          Enabled Button
-        </Button>
         <Button onPress={onPress} variant="danger" disabled>
           Disabled Button
         </Button>
@@ -182,8 +178,8 @@ describe('Button', () => {
       { vxTheme: { colorMode: 'contrastLow', sizeMode: 'touchMedium' } }
     );
 
-    const enabledButton = screen.getButton('Enabled Button');
     const disabledButton = screen.getButton('Disabled Button');
+    expect(disabledButton).toBeDisabled();
 
     // Ignores click/tap events:
     userEvent.click(disabledButton);
@@ -194,13 +190,7 @@ describe('Button', () => {
     fireEvent.touchEnd(disabledButton, createTouchEndEventProperties(100, 100));
     expect(onPress).not.toHaveBeenCalled();
 
-    const enabledButtonColor =
-      window.getComputedStyle(enabledButton).backgroundColor;
-    const disabledButtonColor =
-      window.getComputedStyle(disabledButton).backgroundColor;
-    expect(parseCssColor(disabledButtonColor)).not.toEqual(
-      parseCssColor(enabledButtonColor)
-    );
+    expect(disabledButton).toHaveStyleRule('border-style: dashed');
   });
 
   test('fills in background of outlined disabled buttons in desktop theme', () => {
