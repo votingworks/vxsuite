@@ -53,7 +53,7 @@ export function SinglePrecinctTallyReportScreen(): JSX.Element {
         filter={{ precinctIds: precinctId ? [precinctId] : [] }}
         groupBy={{}}
         disabled={!precinctId}
-        autoPreview
+        autoGenerateReport
       />
     </NavigationScreen>
   );

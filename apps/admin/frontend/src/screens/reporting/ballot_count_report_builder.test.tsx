@@ -7,7 +7,7 @@ import { expectPrint } from '@votingworks/test-utils';
 import { Tabulation } from '@votingworks/types';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
-import { screen, within } from '../../../test/react_testing_library';
+import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { getMockCardCounts } from '../../../test/helpers/mock_results';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 import { BallotCountReportBuilder } from './ballot_count_report_builder';
@@ -75,8 +75,10 @@ test('happy path', async () => {
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   userEvent.click(screen.getByText('Absentee'));
 
-  await screen.findButton('Load Preview');
-  expect(screen.getButton('Print Report')).not.toBeDisabled();
+  await waitFor(() => {
+    expect(screen.getButton('Generate Report')).toBeEnabled();
+  });
+  expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Group By
   userEvent.click(screen.getButton('Report By Precinct'));
@@ -96,7 +98,7 @@ test('happy path', async () => {
     },
     getMockCardCountList(1)
   );
-  userEvent.click(screen.getButton('Load Preview'));
+  userEvent.click(screen.getButton('Generate Report'));
 
   await screen.findByText(
     'Test Unofficial Absentee Ballot Ballot Count Report'
@@ -123,7 +125,7 @@ test('happy path', async () => {
     },
     getMockCardCountList(2)
   );
-  userEvent.click(screen.getByText('Refresh Preview'));
+  userEvent.click(screen.getByText('Generate Report'));
 
   await screen.findByText(
     'Test Unofficial Precinct Ballot Ballot Count Report'

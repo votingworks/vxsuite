@@ -20,12 +20,10 @@ const SCREEN_TITLE = 'Tally Report Builder';
 
 const FilterEditorContainer = styled.div`
   width: 80%;
-  margin-bottom: 2rem;
 `;
 
 const GroupByEditorContainer = styled.div`
   width: 80%;
-  margin-top: 0.5rem;
   margin-bottom: 2rem;
 `;
 
@@ -65,7 +63,7 @@ export function TallyReportBuilder(): JSX.Element {
           multiple reports
         </li>
       </ul>
-      <H3>Filters</H3>
+      <H3 style={{ marginTop: '1rem' }}>Filters</H3>
       <FilterEditorContainer>
         <FilterEditor
           election={election}
@@ -79,7 +77,7 @@ export function TallyReportBuilder(): JSX.Element {
           ]} // omits party
         />
       </FilterEditorContainer>
-      <H3>Report By</H3>
+      <H3 style={{ marginTop: '1rem' }}>Report By</H3>
       <GroupByEditorContainer>
         <GroupByEditor
           groupBy={groupBy}
@@ -97,7 +95,7 @@ export function TallyReportBuilder(): JSX.Element {
         filter={filter}
         groupBy={groupBy}
         disabled={!hasMadeSelections}
-        autoPreview={false}
+        autoGenerateReport={false}
       />
     </NavigationScreen>
   );

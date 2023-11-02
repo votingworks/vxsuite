@@ -23,7 +23,7 @@ export function AllPrecinctsTallyReportScreen(): JSX.Element {
         filter={{}}
         groupBy={{ groupByPrecinct: true }}
         disabled={false}
-        autoPreview
+        autoGenerateReport
       />
     </NavigationScreen>
   );

@@ -7,7 +7,7 @@ import {
   printElement,
   printElementToPdf,
 } from '@votingworks/ui';
-import React, { useContext, useMemo, useRef, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
@@ -35,14 +35,17 @@ import { ExportTallyReportCsvButton } from './export_tally_report_csv_button';
 import { FileType } from '../save_frontend_file_modal';
 import {
   ExportActions,
-  NoResultsNotice,
-  PaginationNote,
-  PreviewActionContainer,
+  GenerateButtonWrapper,
   PreviewContainer,
   PreviewLoading,
-  PreviewOverlay,
   PreviewReportPages,
+  ReportWarning,
 } from './shared';
+import {
+  TallyReportWarning,
+  getTallyReportWarning,
+  getTallyReportWarningText,
+} from './tally_report_warnings';
 
 function Reports({
   electionDefinition,
@@ -100,14 +103,14 @@ export interface TallyReportViewerProps {
   filter: Tabulation.Filter;
   groupBy: Tabulation.GroupBy;
   disabled: boolean;
-  autoPreview: boolean;
+  autoGenerateReport: boolean;
 }
 
 export function TallyReportViewer({
   filter,
   groupBy,
   disabled: disabledFromProps,
-  autoPreview,
+  autoGenerateReport,
 }: TallyReportViewerProps): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
     useContext(AppContext);
@@ -134,24 +137,16 @@ export function TallyReportViewer({
       filter,
       groupBy,
     },
-    { enabled: !disabled && autoPreview }
+    { enabled: !disabled && autoGenerateReport }
   );
-  const reportResultsAreFresh =
+  const reportQueryReady =
     reportResultsQuery.isSuccess && !reportResultsQuery.isStale;
 
-  const previewReportRef = useRef<Optional<JSX.Element>>();
-  const previewReport: Optional<JSX.Element> = useMemo(() => {
-    // Avoid populating the preview with cached data before the caller signals that the parameters are viable
-    if (disabled) {
+  const printableReport: Optional<JSX.Element> = useMemo(() => {
+    if (!reportQueryReady) {
       return undefined;
     }
 
-    // If there's not current fresh data, return the previous preview report
-    if (!reportResultsAreFresh) {
-      return previewReportRef.current;
-    }
-
-    // If there's no data, don't render anything
     if (reportResultsQuery.data.length === 0) {
       return undefined;
     }
@@ -168,8 +163,7 @@ export function TallyReportViewer({
       />
     );
   }, [
-    disabled,
-    reportResultsAreFresh,
+    reportQueryReady,
     reportResultsQuery.data,
     reportResultsQuery.dataUpdatedAt,
     electionDefinition,
@@ -178,49 +172,22 @@ export function TallyReportViewer({
     isTestMode,
     scannerBatchesQuery.data,
   ]);
-  previewReportRef.current = previewReport;
-  const previewIsFresh =
-    reportResultsQuery.isSuccess && !reportResultsQuery.isStale;
-  const areQueryResultsEmpty =
-    reportResultsQuery.isSuccess && reportResultsQuery.data.length === 0;
 
-  async function refreshPreview() {
+  async function generateReport() {
     setIsFetchingForPreview(true);
     await reportResultsQuery.refetch();
     setIsFetchingForPreview(false);
   }
 
-  async function getFreshQueryResult(): Promise<typeof reportResultsQuery> {
-    if (reportResultsAreFresh) {
-      return reportResultsQuery;
-    }
-
-    return reportResultsQuery.refetch({ cancelRefetch: false });
-  }
-
   async function printReport() {
-    setProgressModalText('Generating Report');
-    const queryResults = await getFreshQueryResult();
-    assert(queryResults.isSuccess);
-    const reportToPrint = (
-      <Reports
-        electionDefinition={assertDefined(electionDefinition)}
-        filterUsed={filter}
-        allTallyReportResults={queryResults.data}
-        generatedAtTime={new Date(queryResults.dataUpdatedAt)}
-        isOfficialResults={isOfficialResults}
-        isTestMode={isTestMode}
-        scannerBatches={scannerBatchesQuery.data ?? []}
-      />
-    );
-
+    assert(printableReport);
     setProgressModalText('Printing Report');
     const reportProperties = {
       filter: JSON.stringify(filter),
       groupBy: JSON.stringify(groupBy),
     } as const;
     try {
-      await printElement(reportToPrint, { sides: 'one-sided' });
+      await printElement(printableReport, { sides: 'one-sided' });
       await logger.log(LogEventId.TallyReportPrinted, userRole, {
         message: `User printed a tally report.`,
         disposition: 'success',
@@ -239,22 +206,17 @@ export function TallyReportViewer({
   }
 
   async function generateReportPdf(): Promise<Uint8Array> {
-    const queryResults = await getFreshQueryResult();
-    assert(queryResults.isSuccess);
-    const reportToSave = (
-      <Reports
-        electionDefinition={assertDefined(electionDefinition)}
-        filterUsed={filter}
-        allTallyReportResults={queryResults.data}
-        generatedAtTime={new Date(queryResults.dataUpdatedAt)}
-        isOfficialResults={isOfficialResults}
-        isTestMode={isTestMode}
-        scannerBatches={scannerBatchesQuery.data ?? []}
-      />
-    );
-
-    return printElementToPdf(reportToSave);
+    assert(printableReport);
+    return printElementToPdf(printableReport);
   }
+
+  const tallyReportWarning: TallyReportWarning = reportQueryReady
+    ? getTallyReportWarning({
+        election,
+        allTallyReports: reportResultsQuery.data,
+      })
+    : { type: 'none' };
+  const reportIsEmpty = tallyReportWarning.type === 'no-reports-match-filter';
 
   const reportPdfFilename = generateTallyReportPdfFilename({
     election,
@@ -267,13 +229,25 @@ export function TallyReportViewer({
       : undefined,
   });
 
+  const disableActionButtons = disabled || !reportQueryReady || reportIsEmpty;
+
   return (
     <React.Fragment>
+      {!autoGenerateReport && (
+        <GenerateButtonWrapper>
+          <Button
+            variant="primary"
+            disabled={disabled || reportQueryReady}
+            onPress={generateReport}
+          >
+            Generate Report
+          </Button>
+        </GenerateButtonWrapper>
+      )}
       <ExportActions>
         <PrintButton
           print={printReport}
-          variant="primary"
-          disabled={disabled || areQueryResultsEmpty}
+          disabled={disableActionButtons}
           useDefaultProgressModal={false}
         >
           Print Report
@@ -282,39 +256,25 @@ export function TallyReportViewer({
           electionDefinition={electionDefinition}
           generateReportPdf={generateReportPdf}
           defaultFilename={reportPdfFilename}
-          disabled={disabled || areQueryResultsEmpty}
+          disabled={disableActionButtons}
           fileType={FileType.TallyReport}
         />
         <ExportTallyReportCsvButton
           filter={filter}
           groupBy={groupBy}
-          disabled={disabled || areQueryResultsEmpty}
+          disabled={disableActionButtons}
         />
       </ExportActions>
-      <PaginationNote />
+      <ReportWarning
+        text={getTallyReportWarningText({ tallyReportWarning, election })}
+      />
       <PreviewContainer>
         {!disabled && (
           <React.Fragment>
-            {previewReport && (
-              <PreviewReportPages>{previewReport}</PreviewReportPages>
-            )}
-            {areQueryResultsEmpty && (
-              <NoResultsNotice>
-                No results found given the current report parameters.
-              </NoResultsNotice>
-            )}
-            {!previewIsFresh && <PreviewOverlay />}
-            {isFetchingForPreview && <PreviewLoading />}
-            {!isFetchingForPreview && !previewIsFresh && (
-              <PreviewActionContainer>
-                {previewReport ? (
-                  <Button icon="RotateRight" onPress={refreshPreview}>
-                    Refresh Preview
-                  </Button>
-                ) : (
-                  <Button onPress={refreshPreview}>Load Preview</Button>
-                )}
-              </PreviewActionContainer>
+            {printableReport ? (
+              <PreviewReportPages>{printableReport}</PreviewReportPages>
+            ) : (
+              isFetchingForPreview && <PreviewLoading />
             )}
           </React.Fragment>
         )}

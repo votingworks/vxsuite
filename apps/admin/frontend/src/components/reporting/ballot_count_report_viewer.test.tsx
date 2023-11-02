@@ -40,12 +40,19 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetScannerBatches([]);
+  window.kiosk = fakeKiosk();
 });
 
 afterEach(() => {
   apiMock.assertComplete();
   window.kiosk = undefined;
 });
+
+const ACTION_BUTTON_LABELS = [
+  'Print Report',
+  'Export Report PDF',
+  'Export Report CSV',
+] as const;
 
 test('disabled shows disabled buttons and no preview', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
@@ -54,17 +61,17 @@ test('disabled shows disabled buttons and no preview', () => {
       disabled
       filter={{}}
       groupBy={{}}
-      autoPreview={false}
+      autoGenerateReport={false}
     />,
     { apiMock, electionDefinition }
   );
 
-  expect(screen.getButton('Print Report')).toBeDisabled();
-  expect(screen.getButton('Export Report PDF')).toBeDisabled();
-  expect(screen.getButton('Export Report CSV')).toBeDisabled();
+  for (const buttonLabel of ACTION_BUTTON_LABELS) {
+    expect(screen.getButton(buttonLabel)).toBeDisabled();
+  }
 });
 
-test('autoPreview loads preview automatically', async () => {
+test('when auto-generation is on, it loads the preview automatically', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   apiMock.expectGetCardCounts(
     {
@@ -79,29 +86,60 @@ test('autoPreview loads preview automatically', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
-      autoPreview
+      autoGenerateReport
     />,
     { apiMock, electionDefinition }
   );
 
   await screen.findByText('Unofficial Full Election Ballot Count Report');
   expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
+
+  expect(
+    screen.queryByRole('button', { name: 'Generate Report' })
+  ).not.toBeInTheDocument();
+  for (const buttonLabel of ACTION_BUTTON_LABELS) {
+    expect(screen.getButton(buttonLabel)).toBeEnabled();
+  }
 });
 
-test('autoPreview = false does not load preview automatically', async () => {
+test('when auto-generation is off, it requires a button press to load the report', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
   renderInAppContext(
     <BallotCountReportViewer
       disabled={false}
       filter={{}}
-      groupBy={{}}
-      autoPreview={false}
+      groupBy={{
+        groupByVotingMethod: true,
+      }}
+      autoGenerateReport={false}
     />,
     { apiMock, electionDefinition }
   );
 
-  await screen.findButton('Load Preview');
+  await screen.findButton('Generate Report');
+  for (const buttonLabel of ACTION_BUTTON_LABELS) {
+    expect(screen.getButton(buttonLabel)).toBeDisabled();
+  }
+  expect(
+    screen.queryByText('Unofficial Full Election Ballot Count Report')
+  ).not.toBeInTheDocument();
+
+  apiMock.expectGetCardCounts(
+    {
+      filter: {},
+      groupBy: { groupByVotingMethod: true },
+    },
+    MOCK_VOTING_METHOD_CARD_COUNTS
+  );
+
+  userEvent.click(screen.getButton('Generate Report'));
+  await screen.findByText('Unofficial Full Election Ballot Count Report');
+  expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
+  expect(screen.getButton('Generate Report')).toBeDisabled();
+  for (const buttonLabel of ACTION_BUTTON_LABELS) {
+    expect(screen.getButton(buttonLabel)).toBeEnabled();
+  }
 });
 
 test('shows no results warning when no results', async () => {
@@ -119,13 +157,13 @@ test('shows no results warning when no results', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByBatch: true }}
-      autoPreview
+      autoGenerateReport
     />,
     { apiMock, electionDefinition }
   );
 
   await screen.findByText(
-    'No results found given the current report parameters.'
+    'The current report parameters do not match any ballots.'
   );
 
   for (const buttonLabel of [
@@ -137,47 +175,7 @@ test('shows no results warning when no results', async () => {
   }
 });
 
-test('print before loading preview', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { resolve: resolveData } = apiMock.expectGetCardCounts(
-    {
-      filter: {},
-      groupBy: { groupByVotingMethod: true },
-    },
-    MOCK_VOTING_METHOD_CARD_COUNTS,
-    true
-  );
-
-  renderInAppContext(
-    <BallotCountReportViewer
-      disabled={false}
-      filter={{}}
-      groupBy={{ groupByVotingMethod: true }}
-      autoPreview={false}
-    />,
-    { apiMock, electionDefinition }
-  );
-
-  await screen.findButton('Load Preview');
-  const { resolve: resolvePrint } = deferNextPrint();
-  userEvent.click(screen.getButton('Print Report'));
-  const modal = await screen.findByRole('alertdialog');
-  await within(modal).findByText('Generating Report');
-  resolveData();
-  await within(modal).findByText('Printing Report');
-  resolvePrint();
-  await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
-  await expectPrint((printResult) => {
-    printResult.getByText('Unofficial Full Election Ballot Count Report');
-    expect(printResult.getByTestId('footer-total')).toHaveTextContent('5');
-  });
-
-  // the preview will now show the report, because its available
-  screen.getByText('Unofficial Full Election Ballot Count Report');
-  expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
-});
-
-test('print after preview loaded + test success logging', async () => {
+test('printing report', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectGetCardCounts(
     {
@@ -193,7 +191,7 @@ test('print after preview loaded + test success logging', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
-      autoPreview
+      autoGenerateReport
     />,
     { apiMock, electionDefinition, logger }
   );
@@ -222,47 +220,6 @@ test('print after preview loaded + test success logging', async () => {
   );
 });
 
-test('print while preview is loading', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { resolve: resolveData } = apiMock.expectGetCardCounts(
-    {
-      filter: {},
-      groupBy: { groupByVotingMethod: true },
-    },
-    MOCK_VOTING_METHOD_CARD_COUNTS,
-    true
-  );
-
-  renderInAppContext(
-    <BallotCountReportViewer
-      disabled={false}
-      filter={{}}
-      groupBy={{ groupByVotingMethod: true }}
-      autoPreview={false}
-    />,
-    { apiMock, electionDefinition }
-  );
-
-  userEvent.click(await screen.findButton('Load Preview'));
-  await screen.findByText('Generating Report');
-  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  const { resolve: resolvePrint } = deferNextPrint();
-  userEvent.click(screen.getButton('Print Report'));
-  const modal = await screen.findByRole('alertdialog');
-  await within(modal).findByText('Generating Report');
-  expect(screen.getAllByText('Generating Report')).toHaveLength(2);
-  resolveData();
-  await within(modal).findByText('Printing Report');
-  resolvePrint();
-  await expectPrint((printResult) => {
-    printResult.getByText('Unofficial Full Election Ballot Count Report');
-    expect(printResult.getByTestId('footer-total')).toHaveTextContent('5');
-  });
-
-  screen.getByText('Unofficial Full Election Ballot Count Report');
-  expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
-});
-
 test('print failure logging', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectGetCardCounts(
@@ -279,7 +236,7 @@ test('print failure logging', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
-      autoPreview
+      autoGenerateReport
     />,
     { apiMock, electionDefinition, logger }
   );
@@ -324,7 +281,7 @@ test('displays custom filter rather than specific title when necessary', async (
       disabled={false}
       filter={filter}
       groupBy={{}}
-      autoPreview
+      autoGenerateReport
     />,
     { apiMock, electionDefinition }
   );
@@ -359,7 +316,7 @@ test('exporting report PDF', async () => {
       groupBy={{
         groupByVotingMethod: true,
       }}
-      autoPreview={false}
+      autoGenerateReport
     />,
     {
       apiMock,
@@ -368,7 +325,9 @@ test('exporting report PDF', async () => {
     }
   );
 
-  await screen.findButton('Load Preview');
+  await waitFor(() => {
+    expect(screen.getButton('Export Report PDF')).toBeEnabled();
+  });
   userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Unofficial Ballot Count Report');

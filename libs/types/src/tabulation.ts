@@ -236,3 +236,4 @@ export interface ScannerBatch {
 }
 
 export const BATCH_ID_DISPLAY_LENGTH = 8;
+export const TALLY_REPORT_PRIVACY_THRESHOLD = 10;
