@@ -877,6 +877,17 @@ test('system administrator sees system administrator screen after logging in to 
   await screen.findByRole('button', { name: 'Reboot from USB' });
 });
 
+test('system administrator sees log export buttons', async () => {
+  apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.authenticateAsSystemAdministrator();
+  renderApp();
+
+  await screen.findByRole('button', { name: 'Save Log File' });
+  await screen.findByRole('button', { name: 'Save CDF Log File' });
+});
+
 test('system administrator can reset polls to paused', async () => {
   apiMock.expectGetConfig({
     pollsState: 'polls_closed_final',

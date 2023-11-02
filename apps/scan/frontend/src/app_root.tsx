@@ -5,6 +5,7 @@ import {
   useDevices,
   UnlockMachineScreen,
   SystemAdministratorScreenContents,
+  ExportLogsButtonGroup,
 } from '@votingworks/ui';
 import {
   Hardware,
@@ -149,6 +150,20 @@ export function AppRoot({
   }
 
   if (isSystemAdministratorAuth(authStatus)) {
+    const additionalButtons = (
+      <React.Fragment>
+        {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
+          <LiveCheckButton />
+        ) : undefined}
+        <ExportLogsButtonGroup
+          electionDefinition={electionDefinition}
+          usbDriveStatus={usbDrive}
+          auth={authStatus}
+          logger={logger}
+          machineConfig={machineConfig}
+        />
+      </React.Fragment>
+    );
     return (
       <ScreenMainCenterChild>
         <SystemAdministratorScreenContents
@@ -173,11 +188,7 @@ export function AppRoot({
           }
           isMachineConfigured={Boolean(electionDefinition)}
           usbDriveStatus={usbDrive}
-          additionalButtons={
-            isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
-              <LiveCheckButton />
-            ) : undefined
-          }
+          additionalButtons={additionalButtons}
         />
       </ScreenMainCenterChild>
     );
