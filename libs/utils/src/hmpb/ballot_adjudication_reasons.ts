@@ -1,27 +1,30 @@
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  Contest,
   ContestOption,
   ContestOptionId,
   Contests,
   MarkStatus,
+  WriteInAreaStatus,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import { allContestOptions } from './all_contest_options';
 
 export interface Options {
-  optionMarkStatus: (option: ContestOption) => MarkStatus;
+  optionStatus: (option: ContestOption) => {
+    markStatus: MarkStatus;
+    writeInAreaStatus: WriteInAreaStatus;
+  };
 }
 
 /**
  * Enumerates all the reasons a series of contests might need adjudication.
- * Callers must provide a function that can get the mark status for any contest
- * option in the contests given.
+ * Callers must provide a function that can get the mark status and write-in
+ * area status for any contest option in the contests given.
  */
 export function* ballotAdjudicationReasons(
   contests: Contests,
-  { optionMarkStatus }: Options
+  { optionStatus }: Options
 ): Generator<AdjudicationReasonInfo> {
   if (contests.length === 0) {
     // This page is intentionally blank.
@@ -29,18 +32,19 @@ export function* ballotAdjudicationReasons(
     let isBlankBallot = true;
 
     for (const contest of contests) {
-      const selectedOptionsByContestId = new Map<
-        Contest['id'],
-        Array<{ id: ContestOption['id']; index: number }>
-      >();
+      const selectedContestOptions: Array<{
+        id: ContestOption['id'];
+        index: number;
+      }> = [];
+
+      const unmarkedWriteInContestOptions: Array<{
+        id: ContestOption['id'];
+        index: number;
+      }> = [];
 
       for (const option of allContestOptions(contest)) {
-        const selectedOptions =
-          selectedOptionsByContestId.get(option.contestId) ?? [];
-        selectedOptionsByContestId.set(option.contestId, selectedOptions);
-
-        const status = optionMarkStatus(option);
-        switch (status) {
+        const { markStatus, writeInAreaStatus } = optionStatus(option);
+        switch (markStatus) {
           case MarkStatus.Marginal:
             yield {
               type: AdjudicationReason.MarginalMark,
@@ -51,7 +55,10 @@ export function* ballotAdjudicationReasons(
             break;
 
           case MarkStatus.Marked:
-            selectedOptions.push({ id: option.id, index: option.optionIndex });
+            selectedContestOptions.push({
+              id: option.id,
+              index: option.optionIndex,
+            });
             isBlankBallot = false;
 
             break;
@@ -61,44 +68,64 @@ export function* ballotAdjudicationReasons(
 
           /* c8 ignore next 2 */
           default:
-            throwIllegalValue(status);
+            throwIllegalValue(markStatus);
+        }
+
+        if (
+          markStatus !== MarkStatus.Marked &&
+          writeInAreaStatus === 'filled'
+        ) {
+          unmarkedWriteInContestOptions.push({
+            id: option.id,
+            index: option.optionIndex,
+          });
         }
       }
 
-      for (const [contestId, selectedOptions] of selectedOptionsByContestId) {
-        let expectedSelectionCount: number;
+      let expectedSelectionCount: number;
 
-        switch (contest.type) {
-          case 'candidate':
-            expectedSelectionCount = contest.seats;
-            break;
+      switch (contest.type) {
+        case 'candidate':
+          expectedSelectionCount = contest.seats;
+          break;
 
-          case 'yesno': // yes or no
-            expectedSelectionCount = 1;
-            break;
+        case 'yesno': // yes or no
+          expectedSelectionCount = 1;
+          break;
 
-          /* c8 ignore next 2 */
-          default:
-            throwIllegalValue(contest, 'type');
-        }
+        /* c8 ignore next 2 */
+        default:
+          throwIllegalValue(contest, 'type');
+      }
 
-        if (selectedOptions.length < expectedSelectionCount) {
-          yield {
-            type: AdjudicationReason.Undervote,
-            contestId,
-            optionIds: selectedOptions.map(({ id }) => id),
-            optionIndexes: selectedOptions.map(({ index }) => index),
-            expected: expectedSelectionCount,
-          };
-        } else if (selectedOptions.length > expectedSelectionCount) {
-          yield {
-            type: AdjudicationReason.Overvote,
-            contestId,
-            optionIds: selectedOptions.map(({ id }) => id),
-            optionIndexes: selectedOptions.map(({ index }) => index),
-            expected: expectedSelectionCount,
-          };
-        }
+      if (selectedContestOptions.length < expectedSelectionCount) {
+        yield {
+          type: AdjudicationReason.Undervote,
+          contestId: contest.id,
+          optionIds: selectedContestOptions.map(({ id }) => id),
+          optionIndexes: selectedContestOptions.map(({ index }) => index),
+          expected: expectedSelectionCount,
+        };
+      }
+
+      const selectedAndUnmarkedWriteInContestOptions = [
+        ...selectedContestOptions,
+        ...unmarkedWriteInContestOptions,
+      ];
+      if (
+        selectedAndUnmarkedWriteInContestOptions.length > expectedSelectionCount
+      ) {
+        yield {
+          type: AdjudicationReason.Overvote,
+          contestId: contest.id,
+          optionIds: selectedAndUnmarkedWriteInContestOptions.map(
+            ({ id }) => id
+          ),
+          optionIndexes: selectedAndUnmarkedWriteInContestOptions.map(
+            ({ index }) => index
+          ),
+          expected: expectedSelectionCount,
+        };
       }
     }
 

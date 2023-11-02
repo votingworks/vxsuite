@@ -10,20 +10,23 @@ import {
 import {
   AdjudicationInfo,
   AnyContest,
-  BallotMark,
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotTargetMark,
   BallotType,
+  ContestOption,
   Contests,
   Corners,
   ElectionDefinition,
   getBallotStyle,
   GridPosition,
   HmpbBallotPageMetadata,
+  InterpretedHmpbPage,
   MarkInfo,
   MarkStatus,
   Rect,
+  WriteInAreaStatus,
+  WriteInId,
 } from '@votingworks/types';
 import {
   allContestOptions,
@@ -38,23 +41,19 @@ import {
   Rect as NextRect,
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
-  ScoredBubbleMarks,
   ScoredPositionArea,
+  ScoredContestOption,
+  ScoredBubbleMarks,
 } from './hmpb-ts';
-import type {
-  InterpretFileResult,
-  InterpretResult,
-  InterpreterOptions,
-} from './interpret';
+import { type InterpretFileResult, type InterpretResult } from './interpret';
+import { getScoreWriteInsFlag, InterpreterOptions } from './options';
 
 type OkType<T> = T extends Ok<infer U> ? U : never;
 
-function convertNewHampshireNextMarkToSharedMark(
+function getContestOptionForGridPosition(
   contests: Contests,
-  [gridPosition, scoredMark]: ScoredBubbleMarks[number]
-): BallotTargetMark {
-  assert(scoredMark, 'scoredMark must be defined');
-
+  gridPosition: GridPosition
+): ContestOption {
   const contest = find(contests, (c) => c.id === gridPosition.contestId);
   const option = iter(allContestOptions(contest)).find((o) =>
     gridPosition.type === 'option'
@@ -70,6 +69,85 @@ function convertNewHampshireNextMarkToSharedMark(
     }`
   );
 
+  return option;
+}
+
+/**
+ * Finds the scored write-in area for the given grid position. Asserts that the
+ * grid position represents a write-in, should be used only if the area is expected to exist.
+ */
+function findScoredWriteInAreaForGridPosition(
+  scoredWriteInAreas: ScoredPositionArea[],
+  gridPosition: GridPosition
+): ScoredPositionArea {
+  assert(gridPosition.type === 'write-in');
+  return find(
+    scoredWriteInAreas,
+    (w) =>
+      w.gridPosition.type === 'write-in' &&
+      w.gridPosition.contestId === gridPosition.contestId &&
+      w.gridPosition.writeInIndex === gridPosition.writeInIndex
+  );
+}
+
+// TODO: Replace usage of this with write-in thresholds specific to each write-in
+const TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD = 0.05;
+
+/**
+ * Determining marks, adjudication status, and and unmarked write-ins share similar
+ * checks and thresholds, so we aggregate information here as a conversion intermediary.
+ */
+function aggregateContestOptionScores({
+  marks,
+  writeIns,
+  contests,
+  options,
+}: {
+  marks: ScoredBubbleMarks;
+  writeIns: ScoredPositionArea[];
+  contests: Contests;
+  options: InterpreterOptions;
+}): ScoredContestOption[] {
+  return marks.map(([gridPosition, scoredMark]) => {
+    const option = getContestOptionForGridPosition(contests, gridPosition);
+
+    assert(scoredMark, 'scoredMark must be defined');
+    const markStatus =
+      scoredMark.fillScore >= options.markThresholds.definite
+        ? MarkStatus.Marked
+        : scoredMark.fillScore >= options.markThresholds.marginal
+        ? MarkStatus.Marginal
+        : MarkStatus.Unmarked;
+
+    const expectScoredWriteInArea =
+      getScoreWriteInsFlag(options) && gridPosition.type === 'write-in';
+    const scoredWriteInArea = expectScoredWriteInArea
+      ? findScoredWriteInAreaForGridPosition(writeIns, gridPosition)
+      : undefined;
+    const writeInTextAreaThreshold =
+      options.markThresholds.writeInTextArea ??
+      TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD;
+    const writeInAreaStatus = scoredWriteInArea
+      ? scoredWriteInArea.score >= writeInTextAreaThreshold
+        ? WriteInAreaStatus.Filled
+        : WriteInAreaStatus.Unfilled
+      : WriteInAreaStatus.Ignored;
+
+    return {
+      option,
+      gridPosition,
+      scoredMark,
+      markStatus,
+      scoredWriteInArea,
+      writeInAreaStatus,
+    };
+  });
+}
+
+function convertScoredContestOptionToLegacyMark({
+  option,
+  scoredMark,
+}: ScoredContestOption): BallotTargetMark {
   const bounds: Rect = {
     x: scoredMark.matchedBounds.left,
     y: scoredMark.matchedBounds.top,
@@ -99,47 +177,68 @@ function convertNewHampshireNextMarkToSharedMark(
   throwIllegalValue(option);
 }
 
+function convertScoredContestOptionsToMarkInfo(
+  geometry: Geometry,
+  scoredContestOptions: ScoredContestOption[]
+): MarkInfo {
+  const markInfo: MarkInfo = {
+    ballotSize: geometry.canvasSize,
+    marks: scoredContestOptions.map((scoredContestOption) =>
+      convertScoredContestOptionToLegacyMark(scoredContestOption)
+    ),
+  };
+
+  return markInfo;
+}
+
+function getUnmarkedWriteInsFromScoredContestOptions(
+  scoredContestOptions: ScoredContestOption[]
+): InterpretedHmpbPage['unmarkedWriteIns'] {
+  return scoredContestOptions
+    .filter(
+      ({ markStatus, writeInAreaStatus }) =>
+        markStatus !== MarkStatus.Marked &&
+        writeInAreaStatus === WriteInAreaStatus.Filled
+    )
+    .map(({ option, scoredWriteInArea }) => {
+      assert(scoredWriteInArea);
+      return {
+        contestId: option.contestId,
+        optionId: option.id as WriteInId,
+      };
+    });
+}
+
 /**
  * Derives adjudication information from the given marks.
  */
-export function convertMarksToAdjudicationInfo(
+export function determineAdjudicationInfoFromScoredContestOptions(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  marks: BallotMark[]
+  contestOptionScores: ScoredContestOption[]
 ): AdjudicationInfo {
-  const enabledReasons = options.adjudicationReasons ?? [];
+  const enabledReasons = options.adjudicationReasons;
 
   const contests = electionDefinition.election.contests.filter((c) =>
-    marks.some(({ contestId }) => contestId === c.id)
+    contestOptionScores.some(
+      ({ gridPosition: { contestId } }) => contestId === c.id
+    )
   );
   const adjudicationReasonInfos = Array.from(
     ballotAdjudicationReasons(contests, {
-      optionMarkStatus: (option) => {
-        const contestMarks = marks.filter((mark) => {
-          if (mark.contestId !== option.contestId) {
-            return false;
+      optionStatus: (option) => {
+        const contestOptionScore = contestOptionScores.find(
+          ({ option: scoredOption }) => {
+            return (
+              scoredOption.contestId === option.contestId &&
+              scoredOption.id === option.id
+            );
           }
-
-          return mark.optionId === option.id;
-        });
-        assert(
-          contestMarks.length > 0,
-          `mark for option ${option.id} not found`
         );
+        assert(contestOptionScore, `mark for option ${option.id} not found`);
 
-        let fallbackStatus = MarkStatus.Unmarked;
-
-        for (const mark of contestMarks) {
-          if (mark.score >= options.markThresholds.definite) {
-            return MarkStatus.Marked;
-          }
-
-          if (mark.score >= options.markThresholds.marginal) {
-            fallbackStatus = MarkStatus.Marginal;
-          }
-        }
-
-        return fallbackStatus;
+        const { markStatus, writeInAreaStatus } = contestOptionScore;
+        return { markStatus, writeInAreaStatus };
       },
     })
   );
@@ -154,35 +253,6 @@ export function convertMarksToAdjudicationInfo(
     enabledReasons,
     ignoredReasonInfos: [...ignoredReasonInfos],
   };
-}
-
-function findScoredWriteInAreaForGridPosition(
-  scoredWriteInAreas: ScoredPositionArea[],
-  gridPosition: GridPosition
-): ScoredPositionArea | undefined {
-  return gridPosition.type === 'write-in'
-    ? scoredWriteInAreas.find(
-        (w) =>
-          w.gridPosition.type === 'write-in' &&
-          w.gridPosition.contestId === gridPosition.contestId &&
-          w.gridPosition.writeInIndex === gridPosition.writeInIndex
-      )
-    : undefined;
-}
-
-function convertMarksToMarkInfo(
-  contests: Contests,
-  geometry: Geometry,
-  marks: ScoredBubbleMarks
-): MarkInfo {
-  const markInfo: MarkInfo = {
-    ballotSize: geometry.canvasSize,
-    marks: marks.map((mark) =>
-      convertNewHampshireNextMarkToSharedMark(contests, mark)
-    ),
-  };
-
-  return markInfo;
 }
 
 function buildInterpretedHmpbPageMetadata(
@@ -292,26 +362,35 @@ function convertNextInterpretedBallotPage(
         );
 
   const interpretation = interpretedBallotCard[side];
-  const markInfo = convertMarksToMarkInfo(
-    electionDefinition.election.contests,
+  const contestOptionScores: ScoredContestOption[] =
+    aggregateContestOptionScores({
+      marks: interpretation.marks,
+      writeIns: interpretation.writeIns,
+      contests: electionDefinition.election.contests,
+      options,
+    });
+  const markInfo = convertScoredContestOptionsToMarkInfo(
     interpretation.grid.geometry,
-    interpretation.marks
+    contestOptionScores
   );
   return {
     interpretation: {
       type: 'InterpretedHmpbPage',
       metadata,
       markInfo,
-      adjudicationInfo: convertMarksToAdjudicationInfo(
+      adjudicationInfo: determineAdjudicationInfoFromScoredContestOptions(
         electionDefinition,
         options,
-        markInfo.marks
+        contestOptionScores
       ),
       votes: convertMarksToVotesDict(
         electionDefinition.election.contests,
         options.markThresholds,
         markInfo.marks
       ),
+      unmarkedWriteIns: getScoreWriteInsFlag(options)
+        ? getUnmarkedWriteInsFromScoredContestOptions(contestOptionScores)
+        : undefined,
       layout: {
         pageSize: interpretation.grid.geometry.canvasSize,
         metadata,

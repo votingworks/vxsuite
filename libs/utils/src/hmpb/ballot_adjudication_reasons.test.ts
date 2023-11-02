@@ -42,7 +42,7 @@ const ballotMeasure3 = electionTwoPartyPrimaryDefinition.election.contests.find(
 test('a ballot with no adjudication reasons', () => {
   expect([
     ...ballotAdjudicationReasons([bestAnimalMammal], {
-      optionMarkStatus: (option) =>
+      optionStatus: (option) =>
         // mark the expected number of options
         option.contestId === bestAnimalMammal.id &&
         option.id === bestAnimalMammalCandidate1.id
@@ -55,7 +55,7 @@ test('a ballot with no adjudication reasons', () => {
 test('a ballot with marginal marks', () => {
   const reasons = [
     ...ballotAdjudicationReasons([bestAnimalMammal], {
-      optionMarkStatus: (option) => {
+      optionStatus: (option) => {
         if (option.contestId === bestAnimalMammal.id) {
           switch (option.id) {
             case bestAnimalMammalCandidate1.id:
@@ -93,7 +93,7 @@ test('a ballot with marginal marks', () => {
 test('a ballot with no marks', () => {
   const reasons = [
     ...ballotAdjudicationReasons([bestAnimalMammal], {
-      optionMarkStatus: () => MarkStatus.Unmarked,
+      optionStatus: () => MarkStatus.Unmarked,
     }),
   ];
 
@@ -123,7 +123,7 @@ test('a ballot with no marks', () => {
 test('a ballot page with no contests', () => {
   const reasons = [
     ...ballotAdjudicationReasons([], {
-      optionMarkStatus: () => MarkStatus.Unmarked,
+      optionStatus: () => MarkStatus.Unmarked,
     }),
   ];
 
@@ -134,7 +134,7 @@ test('a ballot page with no contests', () => {
 test('a ballot with too many marks', () => {
   const reasons = [
     ...ballotAdjudicationReasons([bestAnimalMammal], {
-      optionMarkStatus: (option) => {
+      optionStatus: (option) => {
         if (option.contestId === bestAnimalMammal.id) {
           switch (option.id) {
             case bestAnimalMammalCandidate1.id:
@@ -175,7 +175,7 @@ test('a ballot with too many marks', () => {
 test('multiple contests with issues', () => {
   const reasons = [
     ...ballotAdjudicationReasons([bestAnimalMammal, zooCouncilMammal], {
-      optionMarkStatus: (option) =>
+      optionStatus: (option) =>
         // first "best animal" candidate marginally marked
         option.contestId === bestAnimalMammal.id &&
         option.id === bestAnimalMammalCandidate1.id
@@ -233,7 +233,7 @@ test('multiple contests with issues', () => {
 test('yesno contest overvotes', () => {
   const reasons = [
     ...ballotAdjudicationReasons([ballotMeasure3], {
-      optionMarkStatus: () => MarkStatus.Marked,
+      optionStatus: () => MarkStatus.Marked,
     }),
   ];
 
@@ -259,7 +259,7 @@ test('yesno contest overvotes', () => {
 test('a ballot with just a write-in', () => {
   const reasons = [
     ...ballotAdjudicationReasons([zooCouncilMammal], {
-      optionMarkStatus: (option) =>
+      optionStatus: (option) =>
         option.contestId === zooCouncilMammal.id && option.id === 'write-in-0'
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
