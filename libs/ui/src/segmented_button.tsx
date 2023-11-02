@@ -76,8 +76,7 @@ const desktopStyles = css<OptionsContainerProps>`
 const OptionsContainer = styled.span<OptionsContainerProps>`
   border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
     ${(p) => p.theme.colors.outline};
-  border-radius: ${(p) =>
-    p.theme.sizeMode === 'desktop' ? '0.5rem' : '0.25rem'};
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   display: inline-flex;
   flex-direction: ${(p) => (p.isVertical ? 'column' : 'row')};
   gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;

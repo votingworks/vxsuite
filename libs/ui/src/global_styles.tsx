@@ -42,7 +42,7 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     box-sizing: border-box;
     background: ${(p) => p.theme.colors.background};
     line-height: 1;
-    color: ${(p) => p.theme.colors.foreground};
+    color: ${(p) => p.theme.colors.onBackground};
     font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
     font-size: ${(p) => p.legacyBaseFontSizePx || p.theme.sizes.fontDefault}px;
     font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
@@ -109,23 +109,23 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
 
   select option {
     background-color: ${(p) => p.theme.colors.background};
-    color: ${(p) => p.theme.colors.foreground};
+    color: ${(p) => p.theme.colors.onBackground};
 
     &:disabled {
-      color: ${(p) => p.theme.colors.foregroundDisabled};
+      background-color: ${(p) => p.theme.colors.container};
     }
   }
 
   :link,
   :visited {
-    color: ${(p) => p.theme.colors.accentPrimary};
+    color: ${(p) => p.theme.colors.primary};
     font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   }
 
   :focus {
     outline: ${(p) =>
       p.isTouchscreen
-        ? `${p.theme.colors.accentPrimary} dashed ${p.theme.sizes.bordersRem.medium}rem`
+        ? `${p.theme.colors.primary} dashed ${p.theme.sizes.bordersRem.medium}rem`
         : 'none'};
   }
 

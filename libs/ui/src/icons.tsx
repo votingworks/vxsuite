@@ -281,12 +281,9 @@ const FullScreenIconContainer = styled(Font)<FullScreenIconContainerProps>`
  * Displays the provided child icon at an appropriate full-screen size,
  * depending on screen orientation.
  *
- * Extends the `<Font>` component to support theme-aware accent coloring via the
- * `color` prop.
- *
  * Sample Usage:
  * ```
- * <FullScreenIconWrapper color="success">
+ * <FullScreenIconWrapper>
  *   <Icons.Done />
  * </FullScreenIconWrapper>
  * ```

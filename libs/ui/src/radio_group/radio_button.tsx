@@ -10,7 +10,7 @@ const Container = styled.label<OptionContainerProps>`
   ${buttonStyles}
 
   align-items: center;
-  border-radius: 0.125rem;
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   border-width: ${(p) => p.theme.sizes.bordersRem.hairline}rem;
   display: flex;
   flex-wrap: nowrap;

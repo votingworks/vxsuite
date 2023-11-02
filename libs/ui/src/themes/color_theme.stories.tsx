@@ -346,7 +346,7 @@ export function ColorThemes(): JSX.Element {
             style={{
               marginTop: '1rem',
               display: 'flex',
-              gap: '3rem',
+              justifyContent: 'space-between',
             }}
           >
             <Accent>
@@ -390,7 +390,7 @@ export function ColorThemes(): JSX.Element {
             style={{
               marginTop: '1rem',
               display: 'flex',
-              gap: '3rem',
+              justifyContent: 'space-between',
             }}
           >
             <Accent>

@@ -3,7 +3,7 @@ import { Meta } from '@storybook/react';
 import { InsertBallotImage } from './insert_ballot_image';
 
 const meta: Meta<typeof InsertBallotImage> = {
-  title: 'libs-ui/InsertBallotImage',
+  title: 'libs-ui/Images',
   component: InsertBallotImage,
 };
 

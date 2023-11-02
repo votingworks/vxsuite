@@ -6,11 +6,11 @@ export class Svg {
   `;
 
   static ForegroundFillPath = styled.path`
-    fill: ${(p) => p.theme.colors.foreground};
+    fill: ${(p) => p.theme.colors.onBackground};
   `;
 
   static FullScreenSvg = styled.svg`
-    fill: ${(p) => p.theme.colors.foreground};
+    fill: ${(p) => p.theme.colors.onBackground};
     margin: 0 auto;
     width: min(40vw, 40vh);
 
@@ -19,11 +19,11 @@ export class Svg {
     }
   `;
 
-  static PurpleFillPath = styled.path`
-    fill: ${(p) => p.theme.colors.accentVxPurple};
+  static PrimaryFillPath = styled.path`
+    fill: ${(p) => p.theme.colors.primary};
   `;
 
-  static PurplePolygon = styled.polygon`
-    fill: ${(p) => p.theme.colors.accentVxPurple};
+  static PrimaryPolygon = styled.polygon`
+    fill: ${(p) => p.theme.colors.primary};
   `;
 }

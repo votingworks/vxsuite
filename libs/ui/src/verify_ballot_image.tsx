@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Svg } from './svg';
 
 const ForegroundLine = styled.line`
-  stroke: ${(p) => p.theme.colors.foreground};
+  stroke: ${(p) => p.theme.colors.onBackground};
   stroke-width: 10px;
 `;
 
@@ -12,8 +12,8 @@ interface BubbleProps {
 }
 
 const Bubble = styled.ellipse.attrs({ rx: 27, ry: 15 })<BubbleProps>`
-  fill: ${(p) => (p.filled ? p.theme.colors.foreground : 'none')};
-  stroke: ${(p) => p.theme.colors.foreground};
+  fill: ${(p) => (p.filled ? p.theme.colors.onBackground : 'none')};
+  stroke: ${(p) => p.theme.colors.onBackground};
   stroke-linejoin: round;
   stroke-width: 5px;
 `;

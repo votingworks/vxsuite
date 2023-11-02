@@ -13,16 +13,12 @@ export interface CardProps {
 const StyledContainer = styled.div`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.outline};
-  border-radius: 0.2rem;
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   overflow: hidden;
-
-  &:not(:last-child) {
-    margin-bottom: 1rem;
-  }
 `;
 
 const StyledContent = styled.div`
-  padding: 0.6rem;
+  padding: 0.5rem;
 
   /* Shrink padding if there's a footer: */
   &:not(:last-child) {
@@ -38,7 +34,7 @@ const StyledFooter = styled.div<StyledFooterProps>`
   display: flex;
   flex-wrap: wrap;
   justify-content: ${(p) => p.footerAlign};
-  padding: 0.25rem 0.6rem 0.6rem;
+  padding: 0.25rem 0.5rem 0.5rem;
   gap: 0.5rem;
 `;
 

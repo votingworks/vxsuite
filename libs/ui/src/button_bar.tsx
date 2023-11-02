@@ -6,9 +6,9 @@ export const ButtonBar = styled('div')`
   align-items: center;
   justify-content: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.foreground};
-  padding: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
-  gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
+    ${(p) => p.theme.colors.outline};
+  padding: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.5rem);
+  gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.5rem);
 
   & > * {
     flex-grow: 1;

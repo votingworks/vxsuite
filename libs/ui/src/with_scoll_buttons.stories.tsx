@@ -26,7 +26,7 @@ const initialArgs: Partial<WithScrollButtonsProps> = {
 
 const FixedHeightContainer = styled.div`
   height: 75vh;
-  border: 1px dashed ${(p) => p.theme.colors.foreground};
+  border: 1px dashed ${(p) => p.theme.colors.onBackground};
 `;
 
 const meta: Meta<typeof WithScrollButtons> = {

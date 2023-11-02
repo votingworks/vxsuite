@@ -30,9 +30,6 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   margin: auto;
   outline: none;
   background: ${(p) => p.theme.colors.background};
-  border: ${(p) =>
-      p.fullscreen ? '0' : `${p.theme.sizes.bordersRem.medium}rem`}
-    solid ${(p) => p.theme.colors.foreground};
   width: 100%;
   max-height: 100%;
   overflow: auto;
@@ -60,7 +57,7 @@ const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
   position: fixed;
   inset: 0;
   z-index: 999; /* Should be above all default UI */
-  background: ${(p) => rgba(p.theme.colors.foreground, 0.9)};
+  background: ${(p) => rgba(p.theme.colors.inverseBackground, 0.9)};
 
   @media (min-width: 480px) {
     padding: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};

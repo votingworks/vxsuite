@@ -1,14 +1,18 @@
-import { Color, ColorMode, ColorString, SizeMode } from '@votingworks/types';
+import { ColorMode, ColorString, SizeMode } from '@votingworks/types';
 
-import { makeTheme } from './make_theme';
+import { TouchscreenPalette, makeTheme } from './make_theme';
 
 test('defaults', () => {
   const theme = makeTheme({});
 
   expect<ColorMode>(theme.colorMode).toEqual('contrastMedium');
   expect<SizeMode>(theme.sizeMode).toEqual('touchSmall');
-  expect<ColorString>(theme.colors.background).toEqual(Color.OFF_WHITE);
-  expect<ColorString>(theme.colors.foreground).toEqual(Color.GRAY_DARK);
+  expect<ColorString>(theme.colors.background).toEqual(
+    TouchscreenPalette.Gray5
+  );
+  expect<ColorString>(theme.colors.onBackground).toEqual(
+    TouchscreenPalette.Gray90
+  );
 });
 
 test('varies theme based on selected modes', () => {

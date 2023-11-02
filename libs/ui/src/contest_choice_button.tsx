@@ -29,7 +29,7 @@ interface StyleProps {
 
 const selectedChoiceStyles = css<StyleProps>`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.accentPrimary};
+    ${(p) => p.theme.colors.primary};
 `;
 
 const OuterContainer = styled(Button)<StyleProps>`

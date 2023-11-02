@@ -32,7 +32,7 @@ interface HeaderProps {
 const Header = styled.div<HeaderProps>`
   align-items: ${(p) => (p.portrait ? 'stretch' : 'center')};
   border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.outline};
   display: flex;
   flex-direction: ${(p) => (p.portrait ? 'column' : 'row')};
   gap: ${(p) => (p.portrait ? 0.25 : 0.5)}rem;

@@ -107,6 +107,7 @@ export interface ColorTheme extends LegacyColorTheme {
 
 /** Pixel size values for various UI element types. */
 export interface SizeTheme {
+  readonly borderRadiusRem: number;
   readonly bordersRem: {
     readonly hairline: number;
     readonly medium: number;

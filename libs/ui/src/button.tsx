@@ -258,9 +258,8 @@ function activeStyles(p: ThemedStyledButtonProps): CSSObject {
     return {};
   }
 
-  const shadowColor = colorAndFillStyles(p).color;
   return {
-    boxShadow: `inset 0 0 0 0.15rem ${shadowColor}`,
+    boxShadow: `inset 0 0 0 0.15rem currentColor`,
   };
 }
 
@@ -290,18 +289,25 @@ function disabledStyles(p: ThemedStyledButtonProps): CSSObject {
 }
 
 const paddingStyles: Record<SizeMode, string> = {
-  desktop: '0.6em 1.2em',
-  touchSmall: '0.5em 0.6em',
-  touchMedium: '0.5em 0.6em',
-  touchLarge: '0.4em 0.5em',
-  touchExtraLarge: '0.3em 0.4em',
+  desktop: '0.5rem 1.25rem',
+  touchSmall: '0.5rem 0.75rem',
+  touchMedium: '0.5rem 0.75em',
+  touchLarge: '0.5rem 0.5rem',
+  touchExtraLarge: '0.25rem 0.5rem',
+};
+
+const gapStyles: Record<SizeMode, string> = {
+  desktop: '0.5rem',
+  touchSmall: '0.5rem',
+  touchMedium: '0.5rem',
+  touchLarge: '0.25rem',
+  touchExtraLarge: '0.25rem',
 };
 
 export const buttonStyles = css<StyledButtonProps>`
   align-items: center;
   background: none;
-  border-radius: ${(p) =>
-    p.theme.sizeMode === 'desktop' ? '0.5rem' : '0.25rem'};
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   border-style: solid;
   border-width: ${(p) =>
     p.theme.sizeMode === 'desktop'
@@ -311,11 +317,11 @@ export const buttonStyles = css<StyledButtonProps>`
   box-sizing: border-box;
   cursor: pointer;
   display: inline-flex;
-  flex-wrap: wrap;
+  flex-wrap: ${(p) => (p.rightIcon ? 'wrap-reverse' : 'wrap')};
   font-family: inherit;
   font-size: ${FONT_SIZE_REM}rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-  gap: 0.5rem;
+  gap: ${(p) => gapStyles[p.theme.sizeMode]};
   justify-content: center;
   letter-spacing: ${(p) => p.theme.sizes.letterSpacingEm}em;
   line-height: ${(p) => p.theme.sizes.lineHeight};
@@ -358,8 +364,6 @@ const StyledButton = styled('button').attrs(({ type = 'button' }) => ({
 
 const TextContainer = styled.span`
   display: inline-block;
-  flex-grow: 1;
-  flex-shrink: 1;
 `;
 
 interface ButtonState {
@@ -445,6 +449,7 @@ export class Button<T = undefined> extends PureComponent<
         onClick={this.onPress}
         ref={this.buttonRef}
         tabIndex={tabIndex}
+        rightIcon={rightIcon}
         style={style}
         title={nonAccessibleTitle}
       >

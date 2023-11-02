@@ -16,7 +16,7 @@ const Bar = styled.div`
   align-content: flex-end;
   align-items: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.onBackground};
   display: flex;
   gap: 0.5rem;
   justify-content: space-between;

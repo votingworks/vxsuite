@@ -5,9 +5,9 @@ export interface TouchTextInputProps {
 }
 
 const Container = styled.div`
-  border-radius: 0.25rem;
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   border: ${(p) => p.theme.sizes.bordersRem.medium}rem solid
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.onBackground};
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   line-height: 0.8;
   padding: 0.35rem 0.3rem;
