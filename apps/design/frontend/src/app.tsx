@@ -74,7 +74,7 @@ const StyleOverrides = styled.div`
 
 export function App(): JSX.Element {
   return (
-    <AppBase defaultColorMode="contrastMedium" defaultSizeMode="desktop">
+    <AppBase defaultColorMode="desktop" defaultSizeMode="desktop">
       <StyleOverrides>
         <ApiClientContext.Provider value={createApiClient()}>
           <QueryClientProvider client={createQueryClient()}>
