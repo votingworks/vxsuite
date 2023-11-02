@@ -149,12 +149,13 @@ export function SearchSelect<T extends string = string>({
           backgroundColor: state.isDisabled
             ? theme.colors.containerLow
             : theme.colors.background,
-          padding: '0.25rem 0.5rem',
+          padding: '0.25rem',
         }),
-        valueContainer: (baseStyles) => ({
+        valueContainer: (baseStyles, state) => ({
           ...baseStyles,
           gap: '0.25rem',
           cursor: isSearchable ? 'text' : 'pointer',
+          paddingLeft: isMulti && state.hasValue ? '0' : '0.25rem',
         }),
         multiValue: (baseStyles, state) => ({
           ...baseStyles,
