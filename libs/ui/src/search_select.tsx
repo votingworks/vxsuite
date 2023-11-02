@@ -11,12 +11,8 @@ import { Button } from './button';
 function DropdownIndicator(
   props: DropdownIndicatorProps<unknown, true>
 ): JSX.Element {
-  const { innerProps } = props;
   return (
-    <components.DropdownIndicator
-      {...props}
-      innerProps={{ ...innerProps, style: { height: '100%' } }}
-    >
+    <components.DropdownIndicator {...props}>
       <Button
         fill="transparent"
         icon="CaretDown"
@@ -25,8 +21,7 @@ function DropdownIndicator(
         // put a dummy handler on the button itself.
         onPress={() => {}}
         style={{
-          height: '100%',
-          padding: '0.25rem 0.5rem',
+          padding: '0.25rem',
           // Turn off inset shadow on press (:active) for touchscreen themes
           boxShadow: 'none',
         }}
@@ -70,6 +65,7 @@ interface SearchSelectBaseProps<T extends string = string> {
   isSearchable: boolean;
   options: Array<SelectOption<T>>;
   ariaLabel?: string;
+  style?: React.CSSProperties;
 }
 
 export interface SearchSelectMultiProps<T extends string = string>
@@ -107,6 +103,7 @@ export function SearchSelect<T extends string = string>({
   onChange,
   ariaLabel,
   disabled,
+  style,
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
   const borderRadius = theme.sizeMode === 'desktop' ? '0.5rem' : '0.25rem';
@@ -135,6 +132,7 @@ export function SearchSelect<T extends string = string>({
       aria-label={ariaLabel}
       unstyled
       components={{ DropdownIndicator, MultiValueRemove }}
+      style={style}
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
@@ -172,6 +170,21 @@ export function SearchSelect<T extends string = string>({
           cursor: 'default',
           // Match the Button transition in the MultiValueRemove button
           transition: '100ms ease-in',
+          // Set an exact height so we can match the height of the dropdown
+          // indicator and avoid a change in overall height based on whether or
+          // not there are selections.
+          height:
+            theme.sizeMode === 'desktop'
+              ? '2rem'
+              : `calc(${theme.sizes.minTouchAreaSizePx}px + ${theme.sizes.bordersRem.thin}rem)`,
+        }),
+        dropdownIndicator: (baseStyles) => ({
+          ...baseStyles,
+          // Match the multi-value pill height
+          height:
+            theme.sizeMode === 'desktop'
+              ? '2rem'
+              : `calc(${theme.sizes.minTouchAreaSizePx}px + ${theme.sizes.bordersRem.thin}rem)`,
         }),
         multiValueLabel: (baseStyles) => ({
           ...baseStyles,
@@ -208,6 +221,12 @@ export function SearchSelect<T extends string = string>({
           ...baseStyles,
           textAlign: 'left',
           padding: '0.5rem',
+        }),
+        // If the select wraps to multiple rows, keep the dropdown indicator
+        // aligned to the first row
+        indicatorsContainer: (baseStyles) => ({
+          ...baseStyles,
+          alignItems: 'start',
         }),
       })}
     />
