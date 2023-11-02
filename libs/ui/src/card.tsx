@@ -13,7 +13,7 @@ export interface CardProps {
 const StyledContainer = styled.div`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.outline};
-  border-radius: 0.2rem;
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   overflow: hidden;
 `;
 

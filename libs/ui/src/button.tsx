@@ -307,8 +307,7 @@ const gapStyles: Record<SizeMode, string> = {
 export const buttonStyles = css<StyledButtonProps>`
   align-items: center;
   background: none;
-  border-radius: ${(p) =>
-    p.theme.sizeMode === 'desktop' ? '0.5rem' : '0.25rem'};
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   border-style: solid;
   border-width: ${(p) =>
     p.theme.sizeMode === 'desktop'

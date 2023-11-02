@@ -106,7 +106,7 @@ export function SearchSelect<T extends string = string>({
   style,
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
-  const borderRadius = theme.sizeMode === 'desktop' ? '0.5rem' : '0.25rem';
+  const borderRadius = `${theme.sizes.borderRadiusRem}rem`;
 
   return (
     <Select

@@ -373,6 +373,7 @@ const VVSG_MIN_TOUCH_AREA_SEPARATION_MM = 2.54;
 
 const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
   desktop: () => ({
+    borderRadiusRem: 0.5,
     bordersRem: {
       hairline: 0.06,
       thin: 0.09,
@@ -400,6 +401,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     minTouchAreaSizePx: 0, // Not used on desktop
   }),
   touchSmall: (p) => ({
+    borderRadiusRem: 0.25,
     bordersRem: {
       hairline: 0.06,
       thin: 0.1,
@@ -430,6 +432,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
   touchMedium: (p) => ({
+    borderRadiusRem: 0.25,
     bordersRem: {
       hairline: 0.055,
       thin: 0.1,
@@ -460,6 +463,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
   touchLarge: (p) => ({
+    borderRadiusRem: 0.25,
     bordersRem: {
       hairline: 0.05,
       thin: 0.1,
@@ -490,6 +494,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     minTouchAreaSizePx: mmToPx(VVSG_MIN_TOUCH_AREA_SIZE_MM, p.screenType),
   }),
   touchExtraLarge: (p) => ({
+    borderRadiusRem: 0.25,
     bordersRem: {
       hairline: 0.05,
       thin: 0.075,
