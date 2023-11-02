@@ -16,7 +16,7 @@ export interface TabInfo<Id extends string = string> {
 
 const Container = styled.div`
   border-right: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.onBackground};
   display: flex;
   flex-flow: column wrap;
   flex-shrink: 1;
