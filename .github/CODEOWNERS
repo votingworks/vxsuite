@@ -4,15 +4,12 @@
 
 # The order of this file is important. The last matching rule will take precedence.
 
-
-# More specific ownership rules for more knowledge-specific reviews.
 libs/ballot-encoder/ @eventualbuddha
-libs/ballot-interpreter-nh/ @eventualbuddha
-libs/ballot-interpreter-nh-next/ @eventualbuddha
+libs/ballot-interpreter/ @eventualbuddha
 libs/eslint-plugin-vx/ @eventualbuddha
 libs/logging/ @carolinemodic
 .github/ @carolinemodic
 libs/auth/ @arsalansufi
 libs/dev-dock/ @jonahkagan
 libs/grout/ @jonahkagan
-libs/usb-drive/ @jonahkagan
+libs/usb-drive/ @adghayes
