@@ -23,7 +23,6 @@ import {
   HmpbBallotPageMetadata,
   MarkInfo,
   MarkStatus,
-  MarkThresholds,
   Rect,
 } from '@votingworks/types';
 import {
@@ -52,9 +51,7 @@ type OkType<T> = T extends Ok<infer U> ? U : never;
 
 function convertNewHampshireNextMarkToSharedMark(
   contests: Contests,
-  markThresholds: MarkThresholds,
-  [gridPosition, scoredMark]: ScoredBubbleMarks[number],
-  scoredWriteInArea?: ScoredPositionArea
+  [gridPosition, scoredMark]: ScoredBubbleMarks[number]
 ): BallotTargetMark {
   assert(scoredMark, 'scoredMark must be defined');
 
@@ -81,20 +78,9 @@ function convertNewHampshireNextMarkToSharedMark(
   };
 
   if (option.type === 'candidate' || option.type === 'yesno') {
-    const score =
-      // use the mark fill score if the bubble is filled in enough
-      scoredMark.fillScore >= markThresholds.definite
-        ? scoredMark.fillScore
-        : // or, if there's enough text in the write-in area, score that at 100%
-        scoredWriteInArea &&
-          typeof markThresholds.writeInTextArea === 'number' &&
-          scoredWriteInArea.score >= markThresholds.writeInTextArea
-        ? 1
-        : // otherwise, just leave the mark fill score alone
-          scoredMark.fillScore;
     const ballotTargetMarkBase: Omit<BallotTargetMark, 'type' | 'optionId'> = {
       contestId: option.contestId,
-      score,
+      score: scoredMark.fillScore,
       bounds,
       scoredOffset: {
         x: scoredMark.matchedBounds.left - scoredMark.expectedBounds.left,
@@ -186,20 +172,13 @@ function findScoredWriteInAreaForGridPosition(
 
 function convertMarksToMarkInfo(
   contests: Contests,
-  markThresholds: MarkThresholds,
   geometry: Geometry,
-  marks: ScoredBubbleMarks,
-  writeIns: ScoredPositionArea[]
+  marks: ScoredBubbleMarks
 ): MarkInfo {
   const markInfo: MarkInfo = {
     ballotSize: geometry.canvasSize,
     marks: marks.map((mark) =>
-      convertNewHampshireNextMarkToSharedMark(
-        contests,
-        markThresholds,
-        mark,
-        findScoredWriteInAreaForGridPosition(writeIns, mark[0])
-      )
+      convertNewHampshireNextMarkToSharedMark(contests, mark)
     ),
   };
 
@@ -315,10 +294,8 @@ function convertNextInterpretedBallotPage(
   const interpretation = interpretedBallotCard[side];
   const markInfo = convertMarksToMarkInfo(
     electionDefinition.election.contests,
-    options.markThresholds,
     interpretation.grid.geometry,
-    interpretation.marks,
-    interpretation.writeIns
+    interpretation.marks
   );
   return {
     interpretation: {
