@@ -51,6 +51,9 @@ const StyledSelect = styled.select<SelectProps>`
   }
 `;
 
+/**
+ * @deprecated Select doesn't support themes, use SearchSelect instead
+ */
 export function Select(
   props: SelectProps
 ): React.ReactElement<SelectProps, typeof Select> {

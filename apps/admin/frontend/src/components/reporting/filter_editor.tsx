@@ -7,7 +7,7 @@ import {
 import { Election, Tabulation } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { SearchSelect, SelectOption, Icons, Button } from '@votingworks/ui';
+import { SearchSelect, SelectOption, Button } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 import { getScannerBatches } from '../../api';
 import { getPartiesWithPrimaryElections } from '../../utils/election';
@@ -24,44 +24,27 @@ const FilterRow = styled.div`
   width: 100%;
   display: grid;
   grid-template-columns: 10rem 4rem 1fr 2rem;
+  min-height: 3.25rem;
+  align-items: start;
 `;
 
-const AddSelectFilterContainer = styled.div`
-  width: 100%;
-  align-self: start;
-  margin-top: 0.1rem;
-  min-height: 3rem;
-`;
-
-const Predicate = styled.div`
-  justify-self: center;
+// We want the selects in FilterRow to be able to expand down to multiple
+// rows, but we want the other items in the row to be center aligned with the
+// single-row select, so we can use `align-items: center` on FilterRow, because
+// the row height changes with the selects. Instead, we use this container for
+// the other items in the row and try to match it to about the height of the Select.
+const ContainerWithSelectHeight = styled.div`
+  height: 3.25rem;
   display: flex;
-  margin-top: 0.5rem;
+  align-items: center;
 `;
 
-const FilterValueSelectContainer = styled.div`
-  align-self: starts;
+const Predicate = styled(ContainerWithSelectHeight)`
+  justify-self: center;
 `;
 
 const AddButton = styled(Button)`
   min-width: 6rem;
-`;
-
-const RemoveButton = styled.button`
-  width: 1.5rem;
-  height: 1.5rem;
-  align-self: start;
-  margin-top: 0.3rem;
-  background: none;
-  border: none;
-  border-radius: 0.25rem;
-  color: ${(p) => p.theme.colors.foreground};
-  line-height: 0rem;
-
-  :focus-visible {
-    outline: ${(p) => p.theme.sizes.bordersRem.thin}rem dashed
-      ${(p) => p.theme.colors.foreground};
-  }
 `;
 
 const FILTER_TYPES = [
@@ -258,83 +241,80 @@ export function FilterEditor({
             key={rowId}
             data-testid={`filter-editor-row-${filterType}`}
           >
-            <AddSelectFilterContainer>
-              <SearchSelect
-                isMulti={false}
-                isSearchable={false}
-                value={filterType}
-                options={[
-                  getFilterTypeOption(filterType),
-                  ...unusedFilters.map(getFilterTypeOption),
-                ]}
-                onChange={(newFilterType) => {
-                  assert(newFilterType !== undefined);
-                  updateRowFilterType(rowId, newFilterType);
-                }}
-                ariaLabel="Edit Filter Type"
-              />
-            </AddSelectFilterContainer>
+            <SearchSelect
+              isMulti={false}
+              isSearchable={false}
+              value={filterType}
+              options={[
+                getFilterTypeOption(filterType),
+                ...unusedFilters.map(getFilterTypeOption),
+              ]}
+              onChange={(newFilterType) => {
+                assert(newFilterType !== undefined);
+                updateRowFilterType(rowId, newFilterType);
+              }}
+              ariaLabel="Edit Filter Type"
+            />
             <Predicate>equals</Predicate>
-            <FilterValueSelectContainer>
-              <SearchSelect
-                isMulti
-                isSearchable
-                key={filterType}
-                options={generateOptionsForFilter({
-                  filterType,
-                  election,
-                  scannerBatches,
-                })}
-                value={row.filterValues}
-                onChange={(filterValues) => {
-                  updateRowFilterValues(rowId, filterValues);
-                }}
-                ariaLabel="Select Filter Values"
+            <SearchSelect
+              isMulti
+              isSearchable
+              key={filterType}
+              options={generateOptionsForFilter({
+                filterType,
+                election,
+                scannerBatches,
+              })}
+              value={row.filterValues}
+              onChange={(filterValues) => {
+                updateRowFilterValues(rowId, filterValues);
+              }}
+              ariaLabel="Select Filter Values"
+            />
+            <ContainerWithSelectHeight>
+              <Button
+                icon="X"
+                fill="transparent"
+                onPress={() => deleteRow(rowId)}
+                aria-label="Remove Filter"
               />
-            </FilterValueSelectContainer>
-            <RemoveButton
-              onClick={() => deleteRow(rowId)}
-              aria-label="Remove Filter"
-            >
-              <Icons.X />
-            </RemoveButton>
+            </ContainerWithSelectHeight>
           </FilterRow>
         );
       })}
       {unusedFilters.length > 0 && (
         <FilterRow key="new-row">
-          <AddSelectFilterContainer>
-            {isAddingRow ? (
-              <SearchSelect
-                key={nextRowId}
-                isMulti={false}
-                isSearchable={false}
-                options={unusedFilters
-                  .filter(
-                    (filterType) =>
-                      !rows.some((r) => r.filterType === filterType)
-                  )
-                  .map((filterType) => getFilterTypeOption(filterType))}
-                onChange={(filterType) => {
-                  assert(filterType !== undefined);
-                  addRow(filterType);
-                  setIsAddingRow(false);
-                }}
-                ariaLabel="Select New Filter Type"
-              />
-            ) : (
-              <AddButton icon="Add" onPress={() => setIsAddingRow(true)}>
-                Add Filter
-              </AddButton>
-            )}
-          </AddSelectFilterContainer>
+          {isAddingRow ? (
+            <SearchSelect
+              key={nextRowId}
+              isMulti={false}
+              isSearchable={false}
+              options={unusedFilters
+                .filter(
+                  (filterType) => !rows.some((r) => r.filterType === filterType)
+                )
+                .map((filterType) => getFilterTypeOption(filterType))}
+              onChange={(filterType) => {
+                assert(filterType !== undefined);
+                addRow(filterType);
+                setIsAddingRow(false);
+              }}
+              ariaLabel="Select New Filter Type"
+            />
+          ) : (
+            <AddButton icon="Add" onPress={() => setIsAddingRow(true)}>
+              Add Filter
+            </AddButton>
+          )}
           {isAddingRow && (
-            <RemoveButton
-              onClick={() => setIsAddingRow(false)}
-              aria-label="Cancel Add Filter"
-            >
-              <Icons.X />
-            </RemoveButton>
+            <ContainerWithSelectHeight>
+              <Button
+                icon="X"
+                fill="transparent"
+                onPress={() => setIsAddingRow(false)}
+                aria-label="Cancel Add Filter"
+              />
+            </ContainerWithSelectHeight>
           )}
         </FilterRow>
       )}
