@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Election, Id } from '@votingworks/types';
-import { Button, H1 } from '@votingworks/ui';
+import { Button, H1, SegmentedButton } from '@votingworks/ui';
 import { Buffer } from 'buffer';
 import { useHistory, useParams } from 'react-router-dom';
 import DomPurify from 'dompurify';
@@ -9,7 +9,6 @@ import { Form, FormField, Input, FormActionsRow } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
 import { FileInputButton } from './file_input_button';
-import { SegmentedControl } from './segmented_control';
 
 type ElectionInfo = Pick<
   Election,
@@ -88,12 +87,14 @@ function ElectionInfoForm({
         />
       </FormField>
       <FormField label="Type">
-        <SegmentedControl
+        <SegmentedButton
+          label="Type"
+          hideLabel
           options={[
-            { label: 'General', value: 'general' },
-            { label: 'Primary', value: 'primary' },
+            { label: 'General', id: 'general' },
+            { label: 'Primary', id: 'primary' },
           ]}
-          value={electionInfo.type}
+          selectedOptionId={electionInfo.type}
           onChange={(type) => setElectionInfo({ ...electionInfo, type })}
           disabled={!isEditing}
         />

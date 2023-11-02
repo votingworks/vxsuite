@@ -8,6 +8,7 @@ import {
   H1,
   LinkButton,
   P,
+  SegmentedButton,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -41,7 +42,6 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
-import { SegmentedControl } from './segmented_control';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -307,12 +307,14 @@ function ContestForm({
         </Select>
       </FormField>
       <FormField label="Type">
-        <SegmentedControl
+        <SegmentedButton
+          label="Type"
+          hideLabel
           options={[
-            { value: 'candidate', label: 'Candidate Contest' },
-            { value: 'yesno', label: 'Ballot Measure' },
+            { id: 'candidate', label: 'Candidate Contest' },
+            { id: 'yesno', label: 'Ballot Measure' },
           ]}
-          value={contest.type}
+          selectedOptionId={contest.type}
           onChange={(type) =>
             setContest({
               ...(type === 'candidate'
@@ -369,12 +371,14 @@ function ContestForm({
             />
           </FormField>
           <FormField label="Write-Ins Allowed?">
-            <SegmentedControl
+            <SegmentedButton
+              label="Write-Ins Allowed?"
+              hideLabel
               options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
+                { id: 'yes', label: 'Yes' },
+                { id: 'no', label: 'No' },
               ]}
-              value={contest.allowWriteIns ? 'yes' : 'no'}
+              selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
               onChange={(value) =>
                 setContest({ ...contest, allowWriteIns: value === 'yes' })
               }

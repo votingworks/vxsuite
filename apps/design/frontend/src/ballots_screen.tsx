@@ -1,4 +1,13 @@
-import { H1, Table, TH, TD, LinkButton, P, Button } from '@votingworks/ui';
+import {
+  H1,
+  Table,
+  TH,
+  TD,
+  LinkButton,
+  P,
+  Button,
+  SegmentedButton,
+} from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -14,7 +23,6 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen } from './ballot_screen';
-import { SegmentedControl } from './segmented_control';
 import { paperSizeLabels } from './ballot_viewer';
 import { RadioGroup } from './radio';
 import { TabBar, TabPanel } from './tabs';
@@ -94,12 +102,14 @@ function BallotDesignForm({
       </FormField>
 
       <FormField label="Bubble Position">
-        <SegmentedControl
+        <SegmentedButton
+          label="Bubble Position"
+          hideLabel
           options={[
-            { value: 'left', label: 'Left' },
-            { value: 'right', label: 'Right' },
+            { id: 'left', label: 'Left' },
+            { id: 'right', label: 'Right' },
           ]}
-          value={layoutOptions.bubblePosition}
+          selectedOptionId={layoutOptions.bubblePosition}
           onChange={(targetMarkPosition) =>
             setLayoutOptions({
               ...layoutOptions,

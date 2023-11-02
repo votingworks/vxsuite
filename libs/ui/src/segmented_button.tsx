@@ -46,30 +46,16 @@ interface OptionsContainerProps {
 }
 
 const desktopStyles = css<OptionsContainerProps>`
-  button:first-child {
-    border-top-left-radius: 0;
-    ${(p) =>
-      p.isVertical
-        ? 'border-top-right-radius: 0;'
-        : 'border-bottom-left-radius: 0;'}
-  }
-
-  button:last-child {
-    ${(p) =>
-      p.isVertical
-        ? 'border-bottom-left-radius: 0;'
-        : 'border-top-right-radius: 0;'}
-    border-bottom-right-radius: 0;
+  button {
+    font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   }
 
   &[disabled] {
+    background-color: ${(p) => p.theme.colors.container};
     border-style: dashed;
-
     button {
       border-color: transparent;
     }
-
-    background-color: ${(p) => p.theme.colors.containerLow};
   }
 `;
 
