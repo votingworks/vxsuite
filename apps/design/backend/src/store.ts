@@ -1,4 +1,5 @@
 import {
+  Optional,
   assert,
   groupBy,
   throwIllegalValue,
@@ -23,6 +24,7 @@ import {
   PartyId,
 } from '@votingworks/types';
 import { join } from 'path';
+import { v4 as uuid } from 'uuid';
 
 export interface ElectionRecord {
   id: Id;
@@ -72,6 +74,52 @@ export interface BallotStyle {
   precinctsOrSplits: readonly PrecinctOrSplitId[];
   districtIds: readonly DistrictId[];
   partyId?: PartyId;
+}
+
+export interface BackgroundTask {
+  id: Id;
+  taskName: string;
+  payload: string;
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  error?: string;
+}
+
+const getBackgroundTasksBaseQuery = `
+  select
+    id,
+    task_name as taskName,
+    payload,
+    created_at as createdAt,
+    started_at as startedAt,
+    completed_at as completedAt,
+    error
+  from background_tasks
+`;
+
+interface BackgroundTaskRow {
+  id: Id;
+  taskName: string;
+  payload: string;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  error: string | null;
+}
+
+function backgroundTaskRowToBackgroundTask(
+  row: BackgroundTaskRow
+): BackgroundTask {
+  return {
+    id: row.id,
+    taskName: row.taskName,
+    payload: row.payload,
+    createdAt: new Date(row.createdAt),
+    startedAt: row.startedAt ? new Date(row.startedAt) : undefined,
+    completedAt: row.completedAt ? new Date(row.completedAt) : undefined,
+    error: row.error ?? undefined,
+  };
 }
 
 /**
@@ -227,6 +275,13 @@ export class Store {
     return new Store(DbClient.fileClient(dbPath, SchemaPath));
   }
 
+  /**
+   * Builds and returns a new store whose data is kept in memory.
+   */
+  static memoryStore(): Store {
+    return new Store(DbClient.memoryClient(SchemaPath));
+  }
+
   listElections(): ElectionRecord[] {
     return (
       this.client.all(`
@@ -351,5 +406,74 @@ export class Store {
       `,
       electionId
     );
+  }
+
+  //
+  // Background task processing
+  //
+
+  getQueuedBackgroundTasks(): BackgroundTask[] {
+    const sql = `${getBackgroundTasksBaseQuery}
+      where started_at is null
+      order by created_at asc
+    `;
+    const rows = this.client.all(sql) as BackgroundTaskRow[];
+    return rows.map(backgroundTaskRowToBackgroundTask);
+  }
+
+  getBackgroundTask(taskId: Id): Optional<BackgroundTask> {
+    const sql = `${getBackgroundTasksBaseQuery}
+      where id = ?
+    `;
+    const row = this.client.one(sql, taskId) as Optional<BackgroundTaskRow>;
+    return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
+  }
+
+  createBackgroundTask(taskName: string, payload: unknown): Id {
+    const taskId = uuid();
+    this.client.run(
+      `
+      insert into background_tasks (id, task_name, payload)
+      values (?, ?, ?)
+      `,
+      taskId,
+      taskName,
+      JSON.stringify(payload)
+    );
+    return taskId;
+  }
+
+  startBackgroundTask(taskId: Id): void {
+    this.client.run(
+      `
+      update background_tasks
+      set started_at = current_timestamp
+      where id = ?
+      `,
+      taskId
+    );
+  }
+
+  completeBackgroundTask(taskId: Id, error?: string): void {
+    if (error) {
+      this.client.run(
+        `
+        update background_tasks
+        set completed_at = current_timestamp, error = ?
+        where id = ?
+        `,
+        error,
+        taskId
+      );
+    } else {
+      this.client.run(
+        `
+        update background_tasks
+        set completed_at = current_timestamp
+        where id = ?
+        `,
+        taskId
+      );
+    }
   }
 }
