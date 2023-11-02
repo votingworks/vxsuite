@@ -29,7 +29,11 @@ import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { exportBallot } from './api';
 import { ElectionIdParams, routes } from './routes';
-import { Breadcrumbs, Column, FormField } from './layout';
+import { Breadcrumbs, Column, FieldName as BaseFieldName } from './layout';
+
+const FieldName = styled(BaseFieldName)`
+  font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
+`;
 
 function SvgAnyElement({ element }: { element: AnyElement }) {
   switch (element.type) {
@@ -323,10 +327,19 @@ export function BallotViewer({
           />
           <H1 style={{ marginTop: 0 }}>View Ballot</H1>
           <Column style={{ gap: '1rem' }}>
-            <FormField label="Ballot Style">{ballotStyle.id}</FormField>
-            <FormField label="Precinct">{precinct.name}</FormField>
+            <div>
+              <FieldName>Ballot Style</FieldName>
+              {ballotStyle.id}
+            </div>
+
+            <div>
+              <FieldName>Precinct</FieldName>
+              {precinct.name}
+            </div>
+
             {election.type === 'primary' && (
-              <FormField label="Party">
+              <div>
+                <FieldName>Party</FieldName>
                 {
                   assertDefined(
                     getPartyForBallotStyle({
@@ -335,43 +348,42 @@ export function BallotViewer({
                     })
                   ).fullName
                 }
-              </FormField>
+              </div>
             )}
-            <FormField label="Page Size">
+
+            <div>
+              <FieldName>Page Size</FieldName>
               {paperSizeLabels[paperSize]}{' '}
-            </FormField>
+            </div>
 
-            <FormField label="Ballot Type">
-              <RadioGroup
-                label="Ballot Type"
-                hideLabel
-                options={[
-                  { value: BallotType.Precinct, label: 'Precinct' },
-                  { value: BallotType.Absentee, label: 'Absentee' },
-                ]}
-                value={ballotType}
-                onChange={setBallotType}
-                inverse
-              />
-            </FormField>
+            <RadioGroup
+              label="Ballot Type"
+              options={[
+                { value: BallotType.Precinct, label: 'Precinct' },
+                { value: BallotType.Absentee, label: 'Absentee' },
+              ]}
+              value={ballotType}
+              onChange={setBallotType}
+              inverse
+            />
 
-            <FormField label="Tabulation Mode">
-              <RadioGroup
-                label="Tabulation Mode"
-                hideLabel
-                options={[
-                  { value: 'official', label: 'Official Ballot' },
-                  { value: 'test', label: 'L&A Test Ballot' },
-                  { value: 'sample', label: 'Sample Ballot' },
-                ]}
-                value={ballotMode}
-                onChange={setBallotMode}
-                inverse
-              />
-            </FormField>
+            <RadioGroup
+              label="Tabulation Mode"
+              options={[
+                { value: 'official', label: 'Official Ballot' },
+                { value: 'test', label: 'L&A Test Ballot' },
+                { value: 'sample', label: 'Sample Ballot' },
+              ]}
+              value={ballotMode}
+              onChange={setBallotMode}
+              inverse
+            />
 
-            <FormField label="Timing Mark Grid">
-              {grid.columns} columns x {grid.rows} rows
+            <div>
+              <FieldName>Timing Mark Grid</FieldName>
+              <div>
+                {grid.columns} columns x {grid.rows} rows
+              </div>
               <div style={{ marginTop: '0.25rem' }}>
                 <label style={{ cursor: 'pointer' }}>
                   <input
@@ -382,7 +394,7 @@ export function BallotViewer({
                   Show grid lines
                 </label>
               </div>
-            </FormField>
+            </div>
           </Column>
           <P />
         </section>

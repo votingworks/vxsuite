@@ -48,9 +48,12 @@ export const Form = styled.form`
   }
 `;
 
-export const Input = styled.input``;
+export const FieldName = styled.div`
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  margin-bottom: 0.5rem;
+`;
 
-export function FormField({
+export function InputGroup({
   label,
   children,
 }: {
@@ -58,14 +61,10 @@ export function FormField({
   children: React.ReactNode;
 }): JSX.Element {
   return (
-    <div>
-      <label style={{ display: 'block' }}>
-        <div style={{ marginBottom: '0.4rem', fontWeight: 'bold' }}>
-          {label}
-        </div>
-        {children}
-      </label>
-    </div>
+    <label>
+      <FieldName>{label}</FieldName>
+      {children}
+    </label>
   );
 }
 

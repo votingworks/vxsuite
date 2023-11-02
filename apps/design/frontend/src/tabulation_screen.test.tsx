@@ -187,7 +187,8 @@ test('setting write-in text area threshold', async () => {
   expect(screen.queryByText('Write-In Area Threshold')).not.toBeInTheDocument();
 
   // VxScan adjudication reason triggers the write-in area threshold input
-  const scanContainer = screen.getByText('VxScan').closest('label')!;
+  const scanContainer =
+    screen.getByText('VxScan').parentElement!.parentElement!;
   userEvent.click(
     within(scanContainer).getByRole('checkbox', {
       name: 'Unmarked Write-In',

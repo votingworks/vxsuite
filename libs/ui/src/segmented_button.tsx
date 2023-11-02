@@ -2,7 +2,6 @@ import React from 'react';
 import styled, { css, useTheme } from 'styled-components';
 
 import { Button } from './button';
-import { Caption } from './typography';
 
 /** Props for {@link SegmentedButton}. */
 export interface SegmentedButtonProps<T extends SegmentedButtonOptionId> {
@@ -35,9 +34,10 @@ const OuterContainer = styled.span`
   display: inline-block;
 `;
 
-const LabelContainer = styled(Caption)`
-  display: block;
-  margin-bottom: 0.125rem;
+const LabelContainer = styled.div`
+  margin-bottom: 0.5rem;
+  font-size: ${(p) => p.theme.sizeMode !== 'desktop' && '0.75rem'};
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 `;
 
 interface OptionsContainerProps {
@@ -53,6 +53,7 @@ const desktopStyles = css<OptionsContainerProps>`
   &[disabled] {
     background-color: ${(p) => p.theme.colors.container};
     border-style: dashed;
+
     button {
       border-color: transparent;
     }
@@ -98,11 +99,7 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
 
   return (
     <OuterContainer>
-      {!hideLabel && (
-        <LabelContainer aria-hidden weight="semiBold">
-          {label}
-        </LabelContainer>
-      )}
+      {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       <OptionsContainer
         disabled={disabled}
         aria-disabled={disabled}

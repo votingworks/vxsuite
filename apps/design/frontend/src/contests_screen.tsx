@@ -32,10 +32,10 @@ import {
 import { assert, find } from '@votingworks/basics';
 import {
   Breadcrumbs,
+  FieldName,
   Form,
   FormActionsRow,
-  FormField,
-  Input,
+  InputGroup,
   ScreenContent,
   ScreenHeader,
   TableActionsRow,
@@ -281,21 +281,21 @@ function ContestForm({
 
   return (
     <Form>
-      <FormField label="Title">
-        <Input
+      <InputGroup label="Title">
+        <input
           type="text"
           value={contest.title}
           onChange={(e) => setContest({ ...contest, title: e.target.value })}
         />
-      </FormField>
-      <FormField label="ID">
-        <Input
+      </InputGroup>
+      <InputGroup label="ID">
+        <input
           type="text"
           value={contest.id}
           onChange={(e) => setContest({ ...contest, id: e.target.value })}
         />
-      </FormField>
-      <FormField label="District">
+      </InputGroup>
+      <InputGroup label="District">
         <SearchSelect
           value={contest.districtId}
           onChange={(value) =>
@@ -309,32 +309,29 @@ function ContestForm({
             })),
           ]}
         />
-      </FormField>
-      <FormField label="Type">
-        <SegmentedButton
-          label="Type"
-          hideLabel
-          options={[
-            { id: 'candidate', label: 'Candidate Contest' },
-            { id: 'yesno', label: 'Ballot Measure' },
-          ]}
-          selectedOptionId={contest.type}
-          onChange={(type) =>
-            setContest({
-              ...(type === 'candidate'
-                ? createBlankCandidateContest(contest.id)
-                : createBlankYesNoContest(contest.id)),
-              title: contest.title,
-              districtId: contest.districtId,
-            })
-          }
-        />
-      </FormField>
+      </InputGroup>
+      <SegmentedButton
+        label="Type"
+        options={[
+          { id: 'candidate', label: 'Candidate Contest' },
+          { id: 'yesno', label: 'Ballot Measure' },
+        ]}
+        selectedOptionId={contest.type}
+        onChange={(type) =>
+          setContest({
+            ...(type === 'candidate'
+              ? createBlankCandidateContest(contest.id)
+              : createBlankYesNoContest(contest.id)),
+            title: contest.title,
+            districtId: contest.districtId,
+          })
+        }
+      />
 
       {contest.type === 'candidate' && (
         <React.Fragment>
           {savedElection.type === 'primary' && (
-            <FormField label="Party">
+            <InputGroup label="Party">
               <SearchSelect
                 options={[
                   { value: '' as PartyId, label: 'No Party Affiliation' },
@@ -351,10 +348,10 @@ function ContestForm({
                   })
                 }
               />
-            </FormField>
+            </InputGroup>
           )}
-          <FormField label="Seats">
-            <Input
+          <InputGroup label="Seats">
+            <input
               type="number"
               value={contest.seats}
               onChange={(e) =>
@@ -364,31 +361,29 @@ function ContestForm({
               style={{ width: '4rem' }}
               maxLength={2}
             />
-          </FormField>
-          <FormField label="Term">
-            <Input
+          </InputGroup>
+          <InputGroup label="Term">
+            <input
               type="text"
               value={contest.termDescription}
               onChange={(e) =>
                 setContest({ ...contest, termDescription: e.target.value })
               }
             />
-          </FormField>
-          <FormField label="Write-Ins Allowed?">
-            <SegmentedButton
-              label="Write-Ins Allowed?"
-              hideLabel
-              options={[
-                { id: 'yes', label: 'Yes' },
-                { id: 'no', label: 'No' },
-              ]}
-              selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
-              onChange={(value) =>
-                setContest({ ...contest, allowWriteIns: value === 'yes' })
-              }
-            />
-          </FormField>
-          <FormField label="Candidates">
+          </InputGroup>
+          <SegmentedButton
+            label="Write-Ins Allowed?"
+            options={[
+              { id: 'yes', label: 'Yes' },
+              { id: 'no', label: 'No' },
+            ]}
+            selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
+            onChange={(value) =>
+              setContest({ ...contest, allowWriteIns: value === 'yes' })
+            }
+          />
+          <div>
+            <FieldName>Candidates</FieldName>
             {contest.candidates.length === 0 && (
               <P style={{ marginTop: '0.5rem' }}>
                 You haven&apos;t added any candidates to this contest yet.
@@ -428,9 +423,10 @@ function ContestForm({
                     // eslint-disable-next-line react/no-array-index-key
                     <tr key={`candidate-${index}`}>
                       <TD>
-                        <Input
+                        <input
                           type="text"
                           value={candidate.name}
+                          // eslint-disable-next-line jsx-a11y/no-autofocus
                           autoFocus
                           onChange={(e) =>
                             setContest({
@@ -445,7 +441,7 @@ function ContestForm({
                         />
                       </TD>
                       <TD>
-                        <Input
+                        <input
                           type="text"
                           value={candidate.id}
                           onChange={(e) =>
@@ -509,12 +505,12 @@ function ContestForm({
                 </tbody>
               </Table>
             )}
-          </FormField>
+          </div>
         </React.Fragment>
       )}
 
       {contest.type === 'yesno' && (
-        <FormField label="Description">
+        <InputGroup label="Description">
           <textarea
             style={{ width: '100%', height: '10rem' }}
             value={contest.description}
@@ -522,7 +518,7 @@ function ContestForm({
               setContest({ ...contest, description: e.target.value })
             }
           />
-        </FormField>
+        </InputGroup>
       )}
 
       <div>
@@ -759,36 +755,36 @@ function PartyForm({
 
   return (
     <Form>
-      <FormField label="Full Name">
-        <Input
+      <InputGroup label="Full Name">
+        <input
           type="text"
           value={party.fullName}
           onChange={(e) => setParty({ ...party, fullName: e.target.value })}
         />
-      </FormField>
-      <FormField label="ID">
-        <Input
+      </InputGroup>
+      <InputGroup label="ID">
+        <input
           type="text"
           value={party.id}
           onChange={(e) =>
             setParty({ ...party, id: e.target.value as PartyId })
           }
         />
-      </FormField>
-      <FormField label="Short Name">
-        <Input
+      </InputGroup>
+      <InputGroup label="Short Name">
+        <input
           type="text"
           value={party.name}
           onChange={(e) => setParty({ ...party, name: e.target.value })}
         />
-      </FormField>
-      <FormField label="Abbreviation">
-        <Input
+      </InputGroup>
+      <InputGroup label="Abbreviation">
+        <input
           type="text"
           value={party.abbrev}
           onChange={(e) => setParty({ ...party, abbrev: e.target.value })}
         />
-      </FormField>
+      </InputGroup>
       <div>
         <FormActionsRow>
           <LinkButton to={partyRoutes.root.path}>Cancel</LinkButton>

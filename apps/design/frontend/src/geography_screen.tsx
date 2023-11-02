@@ -31,8 +31,6 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import {
   Form,
-  FormField,
-  Input,
   NestedTr,
   TableActionsRow,
   FormActionsRow,
@@ -41,6 +39,8 @@ import {
   ScreenHeader,
   ScreenContent,
   Column,
+  InputGroup,
+  FieldName,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
 import { hasSplits } from './utils';
@@ -201,22 +201,22 @@ function DistrictForm({
 
   return (
     <Form>
-      <FormField label="Name">
-        <Input
+      <InputGroup label="Name">
+        <input
           type="text"
           value={district.name}
           onChange={(e) => setDistrict({ ...district, name: e.target.value })}
         />
-      </FormField>
-      <FormField label="ID">
-        <Input
+      </InputGroup>
+      <InputGroup label="ID">
+        <input
           type="text"
           value={district.id}
           onChange={(e) =>
             setDistrict({ ...district, id: e.target.value as DistrictId })
           }
         />
-      </FormField>
+      </InputGroup>
       <div>
         <FormActionsRow>
           <LinkButton to={geographyRoutes.districts.root.path}>
@@ -516,21 +516,22 @@ function PrecinctForm({
 
   return (
     <Form>
-      <FormField label="Name">
-        <Input
+      <InputGroup label="Name">
+        <input
           type="text"
           value={precinct.name}
           onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
         />
-      </FormField>
-      <FormField label="ID">
-        <Input
+      </InputGroup>
+      <InputGroup label="ID">
+        <input
           type="text"
           value={precinct.id}
           onChange={(e) => setPrecinct({ ...precinct, id: e.target.value })}
         />
-      </FormField>
-      <FormField label="Districts">
+      </InputGroup>
+      <div>
+        <FieldName>Districts</FieldName>
         <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
           {hasSplits(precinct) ? (
             <React.Fragment>
@@ -539,8 +540,8 @@ function PrecinctForm({
                 // eslint-disable-next-line react/no-array-index-key
                 <Card key={`split-${index}`}>
                   <Column style={{ gap: '1rem' }}>
-                    <FormField label="Name">
-                      <Input
+                    <InputGroup label="Name">
+                      <input
                         type="text"
                         value={split.name}
                         onChange={(e) =>
@@ -554,9 +555,9 @@ function PrecinctForm({
                           })
                         }
                       />
-                    </FormField>
-                    <FormField label="ID">
-                      <Input
+                    </InputGroup>
+                    <InputGroup label="ID">
+                      <input
                         type="text"
                         value={split.id}
                         onChange={(e) =>
@@ -570,31 +571,28 @@ function PrecinctForm({
                           })
                         }
                       />
-                    </FormField>
-                    <FormField label="Districts">
-                      <CheckboxGroup
-                        label="Districts"
-                        hideLabel
-                        options={districts.map((district) => ({
-                          value: district.id,
-                          label: district.name,
-                        }))}
-                        value={[...split.districtIds]}
-                        onChange={(districtIds) =>
-                          setPrecinct({
-                            ...precinct,
-                            splits: precinct.splits.map((s) =>
-                              s.id === split.id
-                                ? {
-                                    ...s,
-                                    districtIds: districtIds as DistrictId[],
-                                  }
-                                : s
-                            ),
-                          })
-                        }
-                      />
-                    </FormField>
+                    </InputGroup>
+                    <CheckboxGroup
+                      label="Districts"
+                      options={districts.map((district) => ({
+                        value: district.id,
+                        label: district.name,
+                      }))}
+                      value={[...split.districtIds]}
+                      onChange={(districtIds) =>
+                        setPrecinct({
+                          ...precinct,
+                          splits: precinct.splits.map((s) =>
+                            s.id === split.id
+                              ? {
+                                  ...s,
+                                  districtIds: districtIds as DistrictId[],
+                                }
+                              : s
+                          ),
+                        })
+                      }
+                    />
                     <Button onPress={() => onRemoveSplitPress(split.id)}>
                       Remove Split
                     </Button>
@@ -634,7 +632,7 @@ function PrecinctForm({
             </React.Fragment>
           )}
         </Row>
-      </FormField>
+      </div>
       <div>
         <FormActionsRow>
           <LinkButton to={geographyRoutes.precincts.root.path}>

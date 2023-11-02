@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { Caption } from './typography';
 import { Button } from './button';
 
 /** Option value type for the RadioGroup component. */
@@ -37,6 +36,8 @@ const OuterContainer = styled.fieldset.attrs({ role: 'radiogroup' })`
 const LabelContainer = styled.legend`
   display: block;
   margin-bottom: 0.5rem;
+  font-size: ${(p) => p.theme.sizeMode !== 'desktop' && '0.75rem'};
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 `;
 
 const Option = styled.span`
@@ -119,11 +120,7 @@ export function RadioGroup<T extends RadioGroupValue>(
 
   return (
     <OuterContainer aria-label={label}>
-      {!hideLabel && (
-        <LabelContainer aria-hidden>
-          <Caption weight="semiBold">{label}</Caption>
-        </LabelContainer>
-      )}
+      {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       <OptionsContainer numColumns={numColumns || 1}>
         {options.map((option) => {
           const isSelected = option.value === value;

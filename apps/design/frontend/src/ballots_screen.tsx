@@ -22,7 +22,6 @@ import { getElection, updateElection, updateLayoutOptions } from './api';
 import {
   Form,
   FormActionsRow,
-  FormField,
   NestedTr,
   ScreenContent,
   ScreenHeader,
@@ -77,59 +76,52 @@ function BallotDesignForm({
 
   return (
     <Form style={{ maxWidth: '16rem' }}>
-      <FormField label="Paper Size">
-        <RadioGroup
-          label="Paper Size"
-          hideLabel
-          options={Object.entries(paperSizeLabels).map(([value, label]) => ({
-            value,
-            label,
-          }))}
-          value={ballotLayout.paperSize}
-          onChange={(paperSize) =>
-            setBallotLayout({
-              ...ballotLayout,
-              paperSize: paperSize as BallotPaperSize,
-            })
-          }
-          disabled={!isEditing}
-        />
-      </FormField>
-      <FormField label="Density">
-        <RadioGroup
-          label="Density"
-          hideLabel
-          options={[
-            { value: 0, label: 'Default' },
-            { value: 1, label: 'Medium' },
-            { value: 2, label: 'Condensed' },
-          ]}
-          value={layoutOptions.layoutDensity}
-          onChange={(layoutDensity) =>
-            setLayoutOptions({ ...layoutOptions, layoutDensity })
-          }
-          disabled={!isEditing}
-        />
-      </FormField>
+      <RadioGroup
+        label="Paper Size"
+        options={Object.entries(paperSizeLabels).map(([value, label]) => ({
+          value,
+          label,
+        }))}
+        value={ballotLayout.paperSize}
+        onChange={(paperSize) =>
+          setBallotLayout({
+            ...ballotLayout,
+            paperSize: paperSize as BallotPaperSize,
+          })
+        }
+        disabled={!isEditing}
+      />
 
-      <FormField label="Bubble Position">
-        <SegmentedButton
-          label="Bubble Position"
-          hideLabel
-          options={[
-            { id: 'left', label: 'Left' },
-            { id: 'right', label: 'Right' },
-          ]}
-          selectedOptionId={layoutOptions.bubblePosition}
-          onChange={(targetMarkPosition) =>
-            setLayoutOptions({
-              ...layoutOptions,
-              bubblePosition: targetMarkPosition,
-            })
-          }
-          disabled={!isEditing}
-        />
-      </FormField>
+      <RadioGroup
+        label="Density"
+        options={[
+          { value: 0, label: 'Default' },
+          { value: 1, label: 'Medium' },
+          { value: 2, label: 'Condensed' },
+        ]}
+        value={layoutOptions.layoutDensity}
+        onChange={(layoutDensity) =>
+          setLayoutOptions({ ...layoutOptions, layoutDensity })
+        }
+        disabled={!isEditing}
+      />
+
+      <SegmentedButton
+        label="Bubble Position"
+        options={[
+          { id: 'left', label: 'Left' },
+          { id: 'right', label: 'Right' },
+        ]}
+        selectedOptionId={layoutOptions.bubblePosition}
+        onChange={(targetMarkPosition) =>
+          setLayoutOptions({
+            ...layoutOptions,
+            bubblePosition: targetMarkPosition,
+          })
+        }
+        disabled={!isEditing}
+      />
+
       {isEditing ? (
         <FormActionsRow>
           <Button

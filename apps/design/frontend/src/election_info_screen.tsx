@@ -6,10 +6,10 @@ import { useHistory, useParams } from 'react-router-dom';
 import DomPurify from 'dompurify';
 import { deleteElection, getElection, updateElection } from './api';
 import {
+  FieldName,
   Form,
-  FormField,
-  Input,
   FormActionsRow,
+  InputGroup,
   ScreenContent,
   ScreenHeader,
 } from './layout';
@@ -74,16 +74,16 @@ function ElectionInfoForm({
 
   return (
     <Form>
-      <FormField label="Title">
-        <Input
+      <InputGroup label="Title">
+        <input
           type="text"
           value={electionInfo.title}
           onChange={onInputChange('title')}
           disabled={!isEditing}
         />
-      </FormField>
-      <FormField label="Date">
-        <Input
+      </InputGroup>
+      <InputGroup label="Date">
+        <input
           type="date"
           value={
             electionInfo.date &&
@@ -92,30 +92,27 @@ function ElectionInfoForm({
           onChange={onInputChange('date')}
           disabled={!isEditing}
         />
-      </FormField>
-      <FormField label="Type">
-        <SegmentedButton
-          label="Type"
-          hideLabel
-          options={[
-            { label: 'General', id: 'general' },
-            { label: 'Primary', id: 'primary' },
-          ]}
-          selectedOptionId={electionInfo.type}
-          onChange={(type) => setElectionInfo({ ...electionInfo, type })}
-          disabled={!isEditing}
-        />
-      </FormField>
-      <FormField label="State">
-        <Input
+      </InputGroup>
+      <SegmentedButton
+        label="Type"
+        options={[
+          { label: 'General', id: 'general' },
+          { label: 'Primary', id: 'primary' },
+        ]}
+        selectedOptionId={electionInfo.type}
+        onChange={(type) => setElectionInfo({ ...electionInfo, type })}
+        disabled={!isEditing}
+      />
+      <InputGroup label="State">
+        <input
           type="text"
           value={electionInfo.state}
           onChange={onInputChange('state')}
           disabled={!isEditing}
         />
-      </FormField>
-      <FormField label="County">
-        <Input
+      </InputGroup>
+      <InputGroup label="County">
+        <input
           type="text"
           value={electionInfo.county.name}
           onChange={(e) =>
@@ -129,8 +126,9 @@ function ElectionInfoForm({
           }
           disabled={!isEditing}
         />
-      </FormField>
-      <FormField label="Seal">
+      </InputGroup>
+      <div>
+        <FieldName>Seal</FieldName>
         {electionInfo.seal && (
           <img
             src={`data:image/svg+xml;base64,${Buffer.from(
@@ -165,7 +163,7 @@ function ElectionInfoForm({
             Upload Seal Image
           </FileInputButton>
         )}
-      </FormField>
+      </div>
 
       {isEditing ? (
         <FormActionsRow>
