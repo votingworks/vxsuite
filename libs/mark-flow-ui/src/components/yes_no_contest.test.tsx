@@ -9,6 +9,10 @@ const contest = electionTwoPartyPrimary.contests.find(
   (c) => c.id === 'fishing' && c.type === 'yesno'
 ) as YesNoContestInterface;
 
+function getOption(accessibleName: string | RegExp) {
+  return screen.getByRole('option', { name: accessibleName });
+}
+
 test('voting for both yes and no', () => {
   const updateVote = jest.fn();
   render(
@@ -19,7 +23,9 @@ test('voting for both yes and no', () => {
     />
   );
   screen.getByRole('heading', { name: contest.title });
-  screen.getByText(contest.description);
+  // Using `getAll*` because the description appears both in the contest header
+  // as an < AudioOnly > element and in the contest body as a visible element.
+  screen.getAllByText(contest.description);
 
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('YES').closest('button')!);
@@ -41,13 +47,7 @@ test('changing votes', () => {
   );
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('NO').closest('button')!);
-  expect(
-    screen.getAllByText(
-      (_, element) =>
-        element?.textContent ===
-        'Do you want to change your vote to NO? To change your vote, first unselect your vote for YES.'
-    )
-  ).toBeTruthy();
+  within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
   userEvent.click(screen.getByText('Okay'));
 });
 
@@ -63,11 +63,10 @@ test('audio cue for vote', () => {
     />
   );
 
-  const contestChoices = screen.getByTestId('contest-choices');
-  const yesButton = within(contestChoices).getByText('YES').closest('button')!;
+  const yesButton = getOption(/YES/i);
 
   // initial state just has a description of the choice
-  expect(yesButton).toHaveAccessibleName('YES on Ballot Measure 3');
+  getOption(/Ballot Measure 3.+yes/i);
   userEvent.click(yesButton);
 
   // manually handle updating the vote
@@ -81,7 +80,7 @@ test('audio cue for vote', () => {
   );
 
   // now the choice is selected
-  expect(yesButton).toHaveAccessibleName('Selected, YES on Ballot Measure 3');
+  getOption(/Selected.+Ballot Measure 3.+yes/i);
 
   // unselect the choice
   userEvent.click(yesButton);
@@ -97,9 +96,9 @@ test('audio cue for vote', () => {
   );
 
   // now the choice is deselected
-  expect(yesButton).toHaveAccessibleName('Deselected, YES on Ballot Measure 3');
+  getOption(/Deselected.+Ballot Measure 3.+yes/i);
 
   // after a second, the choice is no longer selected or deselected
   advanceTimers(1);
-  expect(yesButton).toHaveAccessibleName('YES on Ballot Measure 3');
+  getOption(/Ballot Measure 3.+yes/i);
 });

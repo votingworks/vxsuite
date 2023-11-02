@@ -234,15 +234,17 @@ describe('supports write-in candidates', () => {
 
     const modal = within(screen.getByRole('alertdialog'));
 
-    modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
-    modal.getByText(/40 characters remaining/);
+    modal.getByRole('heading', {
+      name: `Write-In: ${candidateContestWithWriteIns.title}`,
+    });
+    modal.getByText(hasTextAcrossElements(/characters remaining: 40/i));
 
     // type LIZARD PEOPLE, then backspace to remove the E, then add it back
     typeKeysInVirtualKeyboard('LIZARD PEOPLE');
     userEvent.click(modal.getByText(/delete/i).closest('button')!);
-    modal.getByText(/28 characters remaining/);
+    modal.getByText(hasTextAcrossElements(/characters remaining: 28/i));
     typeKeysInVirtualKeyboard('E');
-    modal.getByText(/27 characters remaining/);
+    modal.getByText(hasTextAcrossElements(/characters remaining: 27/i));
 
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -275,8 +277,8 @@ describe('supports write-in candidates', () => {
     userEvent.click(screen.getByText('LIZARD PEOPLE').closest('button')!);
 
     const modal = within(screen.getByRole('alertdialog'));
-    modal.getByText('Do you want to unselect and remove LIZARD PEOPLE?');
-    userEvent.click(modal.getByText('Yes, Remove.'));
+    modal.getByText(/do you want to deselect/i);
+    userEvent.click(modal.getByText('Yes'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(updateVote).toHaveBeenCalledWith(
       candidateContestWithWriteIns.id,
@@ -300,9 +302,11 @@ describe('supports write-in candidates', () => {
 
     const modal = within(screen.getByRole('alertdialog'));
 
-    modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
+    modal.getByRole('heading', {
+      name: `Write-In: ${candidateContestWithWriteIns.title}`,
+    });
     typeKeysInVirtualKeyboard('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT');
-    modal.getByText(/3 characters remaining/);
+    modal.getByText(hasTextAcrossElements(/characters remaining: 3/i));
     userEvent.click(modal.getByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
@@ -332,7 +336,7 @@ describe('supports write-in candidates', () => {
     );
 
     const modal = within(screen.getByRole('alertdialog'));
-    modal.getByText(/You may only select \d+ candidates? in this contest\./);
+    modal.getByText(/you must first deselect/i);
     userEvent.click(modal.getByText('Okay'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -353,11 +357,13 @@ describe('supports write-in candidates', () => {
 
     const modal = within(screen.getByRole('alertdialog'));
 
-    modal.getByText(`Write-In: ${candidateContestWithWriteIns.title}`);
+    modal.getByRole('heading', {
+      name: `Write-In: ${candidateContestWithWriteIns.title}`,
+    });
     const writeInCandidate =
       "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO";
     typeKeysInVirtualKeyboard(writeInCandidate);
-    modal.getByText(/0 characters remaining/);
+    modal.getByText(hasTextAcrossElements(/characters remaining: 0/i));
 
     expect(
       modal.getByText('space').closest('button')!.hasAttribute('disabled')
@@ -414,7 +420,7 @@ describe('audio cues', () => {
 
     // the candidate is now selected
     expect(firstCandidateChoice).toHaveAccessibleName(
-      expect.stringContaining(`Selected, ${candidate.name}`)
+      new RegExp(`Selected.+${candidate.name}`, 'i')
     );
 
     // deselect the candidate and manually update the vote
@@ -430,7 +436,7 @@ describe('audio cues', () => {
 
     // the candidate is no longer selected
     expect(firstCandidateChoice).toHaveAccessibleName(
-      expect.stringContaining(`Deselected, ${candidate.name}`)
+      new RegExp(`Deselected.+${candidate.name}`, 'i')
     );
 
     // after a short delay, the candidate is no longer selected/deselected

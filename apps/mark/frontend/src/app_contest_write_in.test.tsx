@@ -104,7 +104,9 @@ it('Single Seat Contest with Write In', async () => {
   fireEvent.click(
     screen.getByText('add write-in candidate').closest('button')!
   );
-  screen.getByText(`Write-In: ${singleSeatContestWithWriteIn.title}`);
+  screen.getByRole('heading', {
+    name: `Write-In: ${singleSeatContestWithWriteIn.title}`,
+  });
 
   // Enter Write-in Candidate Name
   fireEvent.click(getWithinKeyboard('B'));
@@ -117,7 +119,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Remove Write-In Candidate
   fireEvent.click(screen.getByText('BOB').closest('button')!);
-  fireEvent.click(screen.getByText('Yes, Remove.'));
+  fireEvent.click(screen.getButton('Yes'));
   advanceTimers();
 
   // Add Different Write-In Candidate
@@ -139,18 +141,14 @@ it('Single Seat Contest with Write In', async () => {
       .getByText(singleSeatContestWithWriteIn.candidates[0].name)
       .closest('button')!
   );
-  screen.getByText(
-    `You may only select ${singleSeatContestWithWriteIn.seats} candidate in this contest. To vote for ${singleSeatContestWithWriteIn.candidates[0].name}, you must first unselect the selected candidate.`
-  );
+  within(screen.getByRole('alertdialog')).getByText(/you must first deselect/i);
   fireEvent.click(screen.getByText('Okay'));
 
   // Try to add another write-in when max candidates are selected.
   fireEvent.click(
     screen.getByText('add write-in candidate').closest('button')!
   );
-  screen.getByText(
-    `You may only select ${singleSeatContestWithWriteIn.seats} candidate in this contest. To vote for a write-in candidate, you must first unselect the selected candidate.`
-  );
+  within(screen.getByRole('alertdialog')).getByText(/you must first deselect/i);
   fireEvent.click(screen.getByText('Okay'));
 
   // Go to review page and confirm write in exists

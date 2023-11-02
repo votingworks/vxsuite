@@ -5,6 +5,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { find } from '@votingworks/basics';
 import { CandidateContest, YesNoContest } from '@votingworks/types';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 
 import { Contest } from './contest';
@@ -59,7 +60,7 @@ test('yesno contest', () => {
       updateVote={jest.fn()}
     />
   );
-  screen.getByText(yesnoContest.title);
+  screen.getByRole('heading', { name: yesnoContest.title });
   // Tested further in yes_no_contest.test.tsx
 });
 
@@ -87,4 +88,19 @@ test('renders ms-either-neither contests', () => {
     msEitherNeitherContest.secondOption.id,
   ]);
   // Tested further in ms_either_neither_contest.test.tsx
+});
+
+test('renders breadcrumbs', () => {
+  render(
+    <Contest
+      breadcrumbs={{ ballotContestCount: 15, contestNumber: 3 }}
+      contest={yesnoContest}
+      election={electionGeneral}
+      updateVote={jest.fn()}
+      votes={{}}
+    />
+  );
+
+  screen.getByText(hasTextAcrossElements(/contest number: 3/i));
+  screen.getByText(hasTextAcrossElements(/total contests: 15/i));
 });
