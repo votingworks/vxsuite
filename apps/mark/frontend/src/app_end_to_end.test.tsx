@@ -204,7 +204,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i];
 
-    await screen.findByText(title);
+    await screen.findByRole('heading', { name: title });
 
     // Vote for candidate contest
     if (title === presidentContest.title) {

@@ -1,7 +1,12 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen } from '../test/react_testing_library';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../test/react_testing_library';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
@@ -84,9 +89,7 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises();
 
   // Overvote modal is displayed
-  screen.getByText(
-    `You may only select ${countyCommissionersContest.seats} candidates in this contest. To vote for ${candidate4.name}, you must first unselect the selected candidates.`
-  );
+  within(screen.getByRole('alertdialog')).getByText(/you must first deselect/i);
 
   // Go to Review Screen
   while (!screen.queryByText('Review Your Votes')) {

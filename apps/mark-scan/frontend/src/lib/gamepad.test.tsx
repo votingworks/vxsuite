@@ -127,7 +127,7 @@ it('gamepad controls work', async () => {
   handleGamepadButtonDown('DPadDown'); // selects Okay button
   handleGamepadButtonDown('DPadDown'); // Okay button should still be selected
   handleGamepadButtonDown('DPadDown'); // Okay button should still be selected
-  expect(getActiveElement().textContent).toEqual('Okay');
+  expect(screen.getButton(/Okay/i)).toHaveFocus();
 
   await advanceTimersAndPromises();
 });

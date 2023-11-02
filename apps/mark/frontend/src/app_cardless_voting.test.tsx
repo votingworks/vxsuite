@@ -206,7 +206,7 @@ test('Cardless Voting Flow', async () => {
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i];
 
-    await screen.findByText(title);
+    await screen.findByRole('heading', { name: title });
 
     // Vote for a candidate contest
     if (title === presidentContest.title) {
@@ -298,7 +298,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
     const { title } = voterContests[i];
 
     await advanceTimersAndPromises();
-    screen.getByText(title);
+    screen.getByRole('heading', { name: title });
 
     fireEvent.click(screen.getByText('Next'));
   }
@@ -502,7 +502,7 @@ test('poll worker must select a precinct first', async () => {
     const { title } = voterContests[i];
 
     await advanceTimersAndPromises();
-    screen.getByText(title);
+    screen.getByRole('heading', { name: title });
 
     // Vote for a candidate contest
     if (title === presidentContest.title) {

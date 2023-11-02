@@ -1,3 +1,4 @@
+import React from 'react';
 import _ from 'lodash';
 import { Trans } from 'react-i18next';
 import styled from 'styled-components';
@@ -6,6 +7,7 @@ import { ReactUiString } from './types';
 import { useLanguageContext } from './language_context';
 
 export interface UiStringProps {
+  as?: string | React.ComponentType<never>;
   children: ReactUiString;
   pluralCount?: number;
   uiStringKey: string;
@@ -17,7 +19,7 @@ const Container = styled.span`
 `;
 
 export function UiString(props: UiStringProps): JSX.Element {
-  const { children, pluralCount, uiStringKey, uiStringSubKey } = props;
+  const { as, children, pluralCount, uiStringKey, uiStringSubKey } = props;
 
   const languageContext = useLanguageContext();
 
@@ -28,7 +30,7 @@ export function UiString(props: UiStringProps): JSX.Element {
     // Enable tests to run without the need for a UiStringContext:
     return (
       <Container>
-        <Trans i18nKey={i18nKey} count={pluralCount}>
+        <Trans i18nKey={i18nKey} count={pluralCount} parent={as}>
           {children}
         </Trans>
       </Container>
@@ -43,6 +45,7 @@ export function UiString(props: UiStringProps): JSX.Element {
         i18nKey={i18nKey}
         count={pluralCount}
         i18n={i18next}
+        parent={as}
         t={translationFunction}
       >
         {children}

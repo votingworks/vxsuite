@@ -1,14 +1,13 @@
 import camelCase from 'lodash.camelcase';
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import {
   Candidate,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
-  getCandidatePartiesDescription,
-  getContestDistrictName,
   Election,
+  getContestDistrict,
 } from '@votingworks/types';
 import {
   Button,
@@ -16,7 +15,6 @@ import {
   Icons,
   Main,
   Modal,
-  Prose,
   P,
   Font,
   VirtualKeyboard,
@@ -28,11 +26,10 @@ import {
   appStrings,
   CandidatePartyList,
   NumberString,
+  AudioOnly,
+  electionStrings,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-
-import pluralize from 'pluralize';
-import { stripQuotes } from '../utils/strip_quotes';
 
 import { UpdateVoteFunction } from '../config/types';
 
@@ -85,11 +82,11 @@ export function CandidateContest({
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const districtName = getContestDistrictName(election, contest);
+  const district = getContestDistrict(election, contest);
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
     useState<Candidate>();
-  const [candidatePendingRemoval, setCandidatePendingRemoval] =
+  const [writeInPendingRemoval, setWriteInPendingRemoval] =
     useState<Candidate>();
   const [writeInCandidateModalIsOpen, setWriteInCandidateModalIsOpen] =
     useState(false);
@@ -126,7 +123,7 @@ export function CandidateContest({
       const candidate = findCandidateById(vote, candidateId);
       if (candidate) {
         if (candidate.isWriteIn) {
-          setCandidatePendingRemoval(candidate);
+          setWriteInPendingRemoval(candidate);
         } else {
           removeCandidateFromVote(candidateId);
         }
@@ -144,14 +141,14 @@ export function CandidateContest({
     setAttemptedOvervoteCandidate(undefined);
   }
 
-  function clearCandidateIdPendingRemoval() {
-    setCandidatePendingRemoval(undefined);
+  function clearWriteInPendingRemoval() {
+    setWriteInPendingRemoval(undefined);
   }
 
   function confirmRemovePendingWriteInCandidate() {
-    assert(candidatePendingRemoval);
-    removeCandidateFromVote(candidatePendingRemoval.id);
-    clearCandidateIdPendingRemoval();
+    assert(writeInPendingRemoval);
+    removeCandidateFromVote(writeInPendingRemoval.id);
+    clearWriteInPendingRemoval();
   }
 
   function toggleWriteInCandidateModal(newValue: boolean) {
@@ -221,9 +218,11 @@ export function CandidateContest({
         onPress={addWriteInCandidate}
         disabled={normalizeCandidateName(writeInCandidateName).length === 0}
       >
-        Accept
+        {appStrings.buttonAccept()}
       </Button>
-      <Button onPress={cancelWriteInCandidateModal}>Cancel</Button>
+      <Button onPress={cancelWriteInCandidateModal}>
+        {appStrings.buttonCancel()}
+      </Button>
     </React.Fragment>
   );
 
@@ -233,16 +232,16 @@ export function CandidateContest({
         <ContestHeader
           breadcrumbs={breadcrumbs}
           contest={contest}
-          districtName={districtName}
+          district={district}
         >
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
             <Font weight="bold">
               <NumberString value={contest.seats - vote.length} />
             </Font>
-            <span className="screen-reader-only">
+            <AudioOnly>
               {appStrings.instructionsBmdContestNavigation()}
-            </span>
+            </AudioOnly>
           </Caption>
         </ContestHeader>
         <WithScrollButtons>
@@ -253,15 +252,11 @@ export function CandidateContest({
               function handleDisabledClick() {
                 handleChangeVoteAlert(candidate);
               }
-              const partiesDescription = getCandidatePartiesDescription(
-                election,
-                candidate
-              );
-              let prefixAudioText = '';
+              let prefixAudioText: ReactNode = null;
               if (isChecked) {
-                prefixAudioText = 'Selected,';
+                prefixAudioText = appStrings.labelSelectedCandidate();
               } else if (deselectedCandidate === candidate.id) {
-                prefixAudioText = 'Deselected,';
+                prefixAudioText = appStrings.labelDeselectedCandidate();
               }
               return (
                 <ContestChoiceButton
@@ -271,10 +266,12 @@ export function CandidateContest({
                     isDisabled ? handleDisabledClick : handleUpdateSelection
                   }
                   choice={candidate.id}
-                  ariaLabel={`${prefixAudioText} ${stripQuotes(
-                    candidate.name
-                  )}${partiesDescription ? `, ${partiesDescription}` : ''}.`}
-                  label={candidate.name}
+                  label={
+                    <React.Fragment>
+                      <AudioOnly>{prefixAudioText}</AudioOnly>
+                      {electionStrings.candidateName(candidate)}
+                    </React.Fragment>
+                  }
                   caption={
                     <CandidatePartyList
                       candidate={candidate}
@@ -294,9 +291,17 @@ export function CandidateContest({
                       isSelected
                       choice={candidate.id}
                       onPress={handleUpdateSelection}
-                      ariaLabel={`Selected, write-in: ${candidate.name}.`}
-                      label={candidate.name}
-                      caption="Write-In"
+                      label={
+                        <React.Fragment>
+                          <AudioOnly>
+                            {appStrings.labelSelectedCandidate()}
+                            {appStrings.labelWriteInCandidateName()}
+                          </AudioOnly>
+                          {/* User-generated content - no translation/audio available: */}
+                          {candidate.name}
+                        </React.Fragment>
+                      }
+                      caption={appStrings.labelWriteInTitleCase()}
                     />
                   );
                 })}
@@ -321,42 +326,36 @@ export function CandidateContest({
       </Main>
       {attemptedOvervoteCandidate && (
         <Modal
-          ariaLabel=""
           centerContent
           content={
-            <Prose>
-              <P id="modalaudiofocus">
-                You may only select {contest.seats}{' '}
-                {contest.seats === 1 ? 'candidate' : 'candidates'} in this
-                contest. To vote for {attemptedOvervoteCandidate.name}, you must
-                first unselect the selected{' '}
-                {contest.seats === 1 ? 'candidate' : 'candidates'}.
-                <span aria-label="Use the select button to continue." />
-              </P>
-            </Prose>
+            <P id="modalaudiofocus">
+              {appStrings.warningOvervoteCandidateContest()}
+              <AudioOnly>
+                {appStrings.instructionsBmdSelectToContinue()}
+              </AudioOnly>
+            </P>
           }
           actions={
             <Button
               variant="primary"
               autoFocus
               onPress={closeAttemptedVoteAlert}
-              aria-label="use the select button to continue."
             >
-              Okay
+              {appStrings.buttonOkay() /* TODO(kofi): Exclude from audio: */}
+              <AudioOnly>
+                {appStrings.instructionsBmdSelectToContinue()}
+              </AudioOnly>
             </Button>
           }
         />
       )}
-      {candidatePendingRemoval && (
+      {writeInPendingRemoval && (
         <Modal
           centerContent
           content={
-            <Prose>
-              <P id="modalaudiofocus">
-                Do you want to unselect and remove{' '}
-                {candidatePendingRemoval.name}?
-              </P>
-            </Prose>
+            <P id="modalaudiofocus">
+              {appStrings.promptBmdConfirmRemoveWriteIn()}
+            </P>
           }
           actions={
             <React.Fragment>
@@ -365,9 +364,11 @@ export function CandidateContest({
                 icon="Delete"
                 onPress={confirmRemovePendingWriteInCandidate}
               >
-                Yes, Remove.
+                {appStrings.buttonYes()}
               </Button>
-              <Button onPress={clearCandidateIdPendingRemoval}>Cancel</Button>
+              <Button onPress={clearWriteInPendingRemoval}>
+                {appStrings.buttonNo()}
+              </Button>
             </React.Fragment>
           }
         />
@@ -375,17 +376,23 @@ export function CandidateContest({
       {/* TODO: This should really be broken out into separate components. */}
       {writeInCandidateModalIsOpen && (
         <Modal
-          ariaLabel=""
           modalWidth={ModalWidth.Wide}
-          title={`Write-In: ${contest.title}`}
+          title={
+            <React.Fragment>
+              {appStrings.labelWriteInTitleCaseColon()}{' '}
+              {electionStrings.contestTitle(contest)}
+            </React.Fragment>
+          }
           content={
             <div>
               <div id="modalaudiofocus">
                 <P>
-                  <Caption aria-label="Enter the name of a person who is not on the ballot. Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.">
-                    <Icons.Info /> Enter the name of a person who is{' '}
-                    <Font weight="bold">not</Font> on the ballot:
+                  <Caption>
+                    <Icons.Info /> {appStrings.labelBmdWriteInForm()}
                   </Caption>
+                  <AudioOnly>
+                    {appStrings.instructionsBmdWriteInFormNavigation()}
+                  </AudioOnly>
                 </P>
               </div>
               <WriteInModalBody>
@@ -396,8 +403,8 @@ export function CandidateContest({
                       {writeInCharsRemaining === 0 && (
                         <Icons.Warning color="warning" />
                       )}{' '}
-                      {writeInCharsRemaining}{' '}
-                      {pluralize('character', writeInCharsRemaining)} remaining
+                      {appStrings.labelCharactersRemaining()}{' '}
+                      {writeInCharsRemaining}
                     </Caption>
                   </P>
                   <VirtualKeyboard

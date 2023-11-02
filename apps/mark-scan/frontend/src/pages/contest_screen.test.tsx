@@ -23,8 +23,8 @@ it('Renders ContestScreen', () => {
     }
   );
   screen.getByRole('heading', { name: firstContestTitle });
-  screen.getByRole('button', { name: 'next contest' });
-  screen.getByRole('button', { name: 'previous contest' });
+  screen.getButton(/next/i);
+  screen.getButton(/back/i);
   screen.getByRole('button', { name: 'Color/Size' });
 });
 

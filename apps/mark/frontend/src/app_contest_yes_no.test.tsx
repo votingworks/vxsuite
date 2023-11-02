@@ -72,7 +72,7 @@ it('Single Seat Contest', async () => {
   const getByTextWithMarkup = withMarkup(screen.getByText);
 
   // Advance to multi-seat contest
-  while (!screen.queryByText(measure102Contest.title)) {
+  while (!screen.queryByRole('heading', { name: measure102Contest.title })) {
     fireEvent.click(screen.getByText('Next'));
     await advanceTimersAndPromises();
   }
@@ -91,11 +91,11 @@ it('Single Seat Contest', async () => {
     name: /Deselected.+Yes/,
     selected: false,
   });
-  contestChoices.getByRole('option', { name: /^No/, selected: false });
+  contestChoices.getByRole('option', { name: /\bNo\b/, selected: false });
   act(() => {
     jest.advanceTimersByTime(101);
   });
-  contestChoices.getByRole('option', { name: /^Yes/, selected: false });
+  contestChoices.getByRole('option', { name: /\bYes\b/, selected: false });
 
   // Select Yes
   fireEvent.click(contestChoices.getByText('Yes'));
@@ -104,15 +104,13 @@ it('Single Seat Contest', async () => {
   // Select No
   fireEvent.click(contestChoices.getByText('No'));
   contestChoices.getByRole('option', {
-    name: /^No/,
+    name: /\bNo\b/,
     hidden: true, // Hidden by overvote modal.
     selected: false,
   });
 
   // Overvote modal is displayed
-  getByTextWithMarkup(
-    'Do you want to change your vote to No? To change your vote, first unselect your vote for Yes.'
-  );
+  within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
   fireEvent.click(screen.getByText('Okay'));
   await advanceTimersAndPromises(); // For 200ms Delay in closing modal
 

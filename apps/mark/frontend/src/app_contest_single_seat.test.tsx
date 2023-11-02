@@ -1,7 +1,13 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render, act, screen } from '../test/react_testing_library';
+import {
+  fireEvent,
+  render,
+  act,
+  screen,
+  within,
+} from '../test/react_testing_library';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
@@ -73,9 +79,7 @@ it('Single Seat Contest', async () => {
   await advanceTimersAndPromises();
 
   // Overvote modal is displayed
-  screen.getByText(
-    `You may only select ${presidentContest.seats} candidate in this contest. To vote for ${candidate1}, you must first unselect the selected candidate.`
-  );
+  within(screen.getByRole('alertdialog')).getByText(/you must first deselect/i);
 
   // Close the modal
   fireEvent.click(screen.getByText('Okay'));
@@ -102,9 +106,6 @@ it('Single Seat Contest', async () => {
   act(() => {
     jest.advanceTimersByTime(101);
   });
-  expect(
-    screen.getByText(candidate0).closest('button')?.getAttribute('aria-label')
-  ).not.toContain('Deselected,');
   screen.getByRole('option', {
     name: new RegExp(`^${candidate0}`),
     selected: false,

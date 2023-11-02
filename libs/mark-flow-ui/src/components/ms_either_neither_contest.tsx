@@ -8,13 +8,10 @@ import {
   WithScrollButtons,
 } from '@votingworks/ui';
 
-import { YesNoVote, Election } from '@votingworks/types';
+import { YesNoVote, Election, getContestDistrict } from '@votingworks/types';
 
 import { UpdateVoteFunction } from '../config/types';
-import {
-  getContestDistrictName,
-  MsEitherNeitherContest as MsEitherNeitherContestInterface,
-} from '../utils/ms_either_neither_contests';
+import { MsEitherNeitherContest as MsEitherNeitherContestInterface } from '../utils/ms_either_neither_contests';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 
 const ChoicesGrid = styled.div`
@@ -91,7 +88,7 @@ export function MsEitherNeitherContest({
     updateVote(contest.pickOneContestId, newVote);
   }
 
-  const districtName = getContestDistrictName(election, contest);
+  const district = getContestDistrict(election, contest);
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const forEither = '“for either”';
   const againstBoth = '“against both”';
@@ -118,7 +115,7 @@ export function MsEitherNeitherContest({
       <ContestHeader
         breadcrumbs={breadcrumbs}
         contest={contest}
-        districtName={districtName}
+        district={district}
       >
         <Caption>
           {eitherNeitherVote && pickOneVote ? (
