@@ -3,6 +3,7 @@ import {
   AdjudicationReasonInfo,
   CandidateContest,
   MarkStatus,
+  WriteInAreaStatus,
   YesNoContest,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -39,6 +40,19 @@ const ballotMeasure3 = electionTwoPartyPrimaryDefinition.election.contests.find(
   ({ id }) => id === 'fishing'
 ) as YesNoContest;
 
+function optionStatus(
+  markStatus: MarkStatus,
+  writeInAreaStatus?: WriteInAreaStatus
+): {
+  markStatus: MarkStatus;
+  writeInAreaStatus: WriteInAreaStatus;
+} {
+  return {
+    markStatus,
+    writeInAreaStatus: writeInAreaStatus ?? WriteInAreaStatus.Ignored,
+  };
+}
+
 test('a ballot with no adjudication reasons', () => {
   expect([
     ...ballotAdjudicationReasons([bestAnimalMammal], {
@@ -46,8 +60,8 @@ test('a ballot with no adjudication reasons', () => {
         // mark the expected number of options
         option.contestId === bestAnimalMammal.id &&
         option.id === bestAnimalMammalCandidate1.id
-          ? MarkStatus.Marked
-          : MarkStatus.Unmarked,
+          ? optionStatus(MarkStatus.Marked)
+          : optionStatus(MarkStatus.Unmarked),
     }),
   ]).toEqual([]);
 });
@@ -59,15 +73,15 @@ test('a ballot with marginal marks', () => {
         if (option.contestId === bestAnimalMammal.id) {
           switch (option.id) {
             case bestAnimalMammalCandidate1.id:
-              return MarkStatus.Marked;
+              return optionStatus(MarkStatus.Marked);
             case bestAnimalMammalCandidate2.id:
-              return MarkStatus.Marginal;
+              return optionStatus(MarkStatus.Marginal);
             default:
               break;
           }
         }
 
-        return MarkStatus.Unmarked;
+        return optionStatus(MarkStatus.Unmarked);
       },
     }),
   ];
@@ -93,7 +107,7 @@ test('a ballot with marginal marks', () => {
 test('a ballot with no marks', () => {
   const reasons = [
     ...ballotAdjudicationReasons([bestAnimalMammal], {
-      optionStatus: () => MarkStatus.Unmarked,
+      optionStatus: () => optionStatus(MarkStatus.Unmarked),
     }),
   ];
 
@@ -123,7 +137,7 @@ test('a ballot with no marks', () => {
 test('a ballot page with no contests', () => {
   const reasons = [
     ...ballotAdjudicationReasons([], {
-      optionStatus: () => MarkStatus.Unmarked,
+      optionStatus: () => optionStatus(MarkStatus.Unmarked),
     }),
   ];
 
@@ -139,13 +153,13 @@ test('a ballot with too many marks', () => {
           switch (option.id) {
             case bestAnimalMammalCandidate1.id:
             case bestAnimalMammalCandidate2.id:
-              return MarkStatus.Marked;
+              return optionStatus(MarkStatus.Marked);
             default:
               break;
           }
         }
 
-        return MarkStatus.Unmarked;
+        return optionStatus(MarkStatus.Unmarked);
       },
     }),
   ];
@@ -179,12 +193,12 @@ test('multiple contests with issues', () => {
         // first "best animal" candidate marginally marked
         option.contestId === bestAnimalMammal.id &&
         option.id === bestAnimalMammalCandidate1.id
-          ? MarkStatus.Marginal
+          ? optionStatus(MarkStatus.Marginal)
           : // all "zoo council" options marked
           option.contestId === zooCouncilMammal.id
-          ? MarkStatus.Marked
+          ? optionStatus(MarkStatus.Marked)
           : // everything else unmarked
-            MarkStatus.Unmarked,
+            optionStatus(MarkStatus.Unmarked),
     }),
   ];
 
@@ -233,7 +247,7 @@ test('multiple contests with issues', () => {
 test('yesno contest overvotes', () => {
   const reasons = [
     ...ballotAdjudicationReasons([ballotMeasure3], {
-      optionStatus: () => MarkStatus.Marked,
+      optionStatus: () => optionStatus(MarkStatus.Marked),
     }),
   ];
 
@@ -261,8 +275,8 @@ test('a ballot with just a write-in', () => {
     ...ballotAdjudicationReasons([zooCouncilMammal], {
       optionStatus: (option) =>
         option.contestId === zooCouncilMammal.id && option.id === 'write-in-0'
-          ? MarkStatus.Marked
-          : MarkStatus.Unmarked,
+          ? optionStatus(MarkStatus.Marked)
+          : optionStatus(MarkStatus.Unmarked),
     }),
   ];
 
@@ -279,6 +293,91 @@ test('a ballot with just a write-in', () => {
           4,
         ],
         "type": "Undervote",
+      },
+    ]
+  `);
+});
+
+test('an unmarked write-in is ignored in undervote cases', () => {
+  const reasons = [
+    ...ballotAdjudicationReasons([zooCouncilMammal], {
+      optionStatus: (option) => {
+        if (option.contestId === zooCouncilMammal.id) {
+          switch (option.id) {
+            case 'write-in-0':
+              return optionStatus(
+                MarkStatus.Unmarked,
+                WriteInAreaStatus.Filled
+              );
+            default:
+              return optionStatus(MarkStatus.Unmarked);
+          }
+        }
+        return optionStatus(MarkStatus.Unmarked);
+      },
+    }),
+  ];
+
+  // in particular, no write-in adjudication reason anymore.
+  expect(reasons).toMatchInlineSnapshot(`
+    [
+      {
+        "contestId": "zoo-council-mammal",
+        "expected": 3,
+        "optionIds": [],
+        "optionIndexes": [],
+        "type": "Undervote",
+      },
+      {
+        "type": "BlankBallot",
+      },
+    ]
+  `);
+});
+
+test('an unmarked write-in can trigger the overvote reason', () => {
+  const reasons = [
+    ...ballotAdjudicationReasons([zooCouncilMammal], {
+      optionStatus: (option) => {
+        if (option.contestId === zooCouncilMammal.id) {
+          switch (option.id) {
+            case zooCouncilMammalCandidate1.id:
+            case zooCouncilMammalCandidate2.id:
+            case zooCouncilMammalCandidate3.id:
+              return optionStatus(MarkStatus.Marked);
+            case 'write-in-0':
+              return optionStatus(
+                MarkStatus.Unmarked,
+                WriteInAreaStatus.Filled
+              );
+            default:
+              return optionStatus(MarkStatus.Unmarked);
+          }
+        }
+        return optionStatus(MarkStatus.Unmarked);
+      },
+    }),
+  ];
+
+  // in particular, no write-in adjudication reason anymore.
+  expect(reasons).toMatchInlineSnapshot(`
+    [
+      {
+        "contestId": "zoo-council-mammal",
+        "expected": 3,
+        "optionIds": [
+          "zebra",
+          "lion",
+          "kangaroo",
+          "write-in-0",
+        ],
+        "optionIndexes": [
+          0,
+          1,
+          2,
+          4,
+        ],
+        "type": "Overvote",
       },
     ]
   `);
