@@ -68,7 +68,7 @@ describe('NH HMPB interpretation', () => {
           ...DEFAULT_MARK_THRESHOLDS,
           writeInTextArea: 0.05,
         },
-        adjudicationReasons: [],
+        adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
       },
       validHmpbUnmarkedWriteInsSheet
     );
@@ -77,17 +77,23 @@ describe('NH HMPB interpretation', () => {
     assert(front.interpretation.type === 'InterpretedHmpbPage');
     assert(back.interpretation.type === 'InterpretedHmpbPage');
 
-    const unmarkedWriteInMarks = [
-      ...front.interpretation.markInfo.marks,
-      ...back.interpretation.markInfo.marks,
-    ].filter(
-      (m) =>
-        (m.contestId === 'Executive-Councilor-bb22557f' ||
-          m.contestId === 'County-Treasurer-87d25a31' ||
-          m.contestId === 'County-Commissioner-d6feed25') &&
-        m.optionId === 'write-in-0'
-    );
-    expect(unmarkedWriteInMarks.map((m) => m.score)).toEqual([1, 1, 1]);
+    expect(front.interpretation.unmarkedWriteIns).toEqual([
+      {
+        contestId: 'Executive-Councilor-bb22557f',
+        optionId: 'write-in-0',
+      },
+    ]);
+    expect(back.interpretation.unmarkedWriteIns).toEqual([
+      {
+        contestId: 'County-Treasurer-87d25a31',
+        optionId: 'write-in-0',
+      },
+      {
+        contestId: 'County-Commissioner-d6feed25',
+        optionId: 'write-in-0',
+      },
+    ]);
+
     expect(
       [
         ...front.interpretation.markInfo.marks,
@@ -100,7 +106,7 @@ describe('NH HMPB interpretation', () => {
         "Governor-061a401b|write-in-0|0",
         "United-States-Senator-d3f1c75b|write-in-0|0",
         "Representative-in-Congress-24683b44|write-in-0|0",
-        "Executive-Councilor-bb22557f|write-in-0|1",
+        "Executive-Councilor-bb22557f|write-in-0|0",
         "State-Senator-391381f8|write-in-0|0",
         "State-Representatives-Hillsborough-District-34-b1012d38|write-in-0|0",
         "State-Representatives-Hillsborough-District-34-b1012d38|write-in-1|0",
@@ -108,10 +114,10 @@ describe('NH HMPB interpretation', () => {
         "State-Representative-Hillsborough-District-37-f3bde894|write-in-0|0",
         "Sheriff-4243fe0b|write-in-0|0",
         "County-Attorney-133f910f|write-in-0|0",
-        "County-Treasurer-87d25a31|write-in-0|1",
+        "County-Treasurer-87d25a31|write-in-0|0",
         "Register-of-Deeds-a1278df2|write-in-0|0",
         "Register-of-Probate-a4117da8|write-in-0|0",
-        "County-Commissioner-d6feed25|write-in-0|1",
+        "County-Commissioner-d6feed25|write-in-0|0",
       ]
     `);
   });
@@ -126,7 +132,10 @@ describe('NH HMPB interpretation', () => {
           ...DEFAULT_MARK_THRESHOLDS,
           writeInTextArea: 0.05,
         },
-        adjudicationReasons: [AdjudicationReason.Overvote],
+        adjudicationReasons: [
+          AdjudicationReason.Overvote,
+          AdjudicationReason.UnmarkedWriteIn,
+        ],
       },
       validHmpbUnmarkedWriteInsOvervoteSheet
     );
@@ -222,7 +231,10 @@ describe('HMPB - m17 backup', () => {
             definite: 0.07,
             writeInTextArea: 0.05,
           },
-          adjudicationReasons: [AdjudicationReason.Overvote],
+          adjudicationReasons: [
+            AdjudicationReason.Overvote,
+            AdjudicationReason.UnmarkedWriteIn,
+          ],
         },
         sheet
       );
@@ -230,8 +242,9 @@ describe('HMPB - m17 backup', () => {
       const interpretation = mapSheet(interpretationWithImages, (page) => {
         // Only snapshot stable fields - marks and layout coordinates may change slightly on CI
         if (page.interpretation.type === 'InterpretedHmpbPage') {
-          const { type, metadata, votes } = page.interpretation;
-          return { type, metadata, votes };
+          const { type, metadata, votes, unmarkedWriteIns } =
+            page.interpretation;
+          return { type, metadata, votes, unmarkedWriteIns };
         }
         return page.interpretation;
       });

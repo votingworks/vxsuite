@@ -102,13 +102,14 @@ test('disallows invalid adjudication reasons', () => {
           "MarginalMark",
           "Overvote",
           "Undervote",
-          "BlankBallot"
+          "BlankBallot",
+          "UnmarkedWriteIn"
         ],
         "path": [
           "centralScanAdjudicationReasons",
           0
         ],
-        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot'"
+        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn'"
       },
       {
         "code": "invalid_enum_value",
@@ -117,13 +118,14 @@ test('disallows invalid adjudication reasons', () => {
           "MarginalMark",
           "Overvote",
           "Undervote",
-          "BlankBallot"
+          "BlankBallot",
+          "UnmarkedWriteIn"
         ],
         "path": [
           "precinctScanAdjudicationReasons",
           0
         ],
-        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot'"
+        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn'"
       }
     ]]
   `);
