@@ -14,14 +14,13 @@ async function processBackgroundTask(
 async function processBackgroundTasks(store: Store): Promise<void> {
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const queuedTasks = store.getQueuedBackgroundTasks();
+    const nextTask = store.getOldestQueuedBackgroundTask();
 
-    if (queuedTasks.length === 0) {
+    if (!nextTask) {
       await sleep(1000);
       continue;
     }
 
-    const nextTask = queuedTasks[0];
     store.startBackgroundTask(nextTask.id);
     process.stdout.write(`⏳ Processing background task ${nextTask.id}...\n`);
     try {

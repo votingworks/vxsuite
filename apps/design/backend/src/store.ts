@@ -412,13 +412,13 @@ export class Store {
   // Background task processing
   //
 
-  getQueuedBackgroundTasks(): BackgroundTask[] {
+  getOldestQueuedBackgroundTask(): Optional<BackgroundTask> {
     const sql = `${getBackgroundTasksBaseQuery}
       where started_at is null
-      order by created_at asc
+      order by created_at asc limit 1
     `;
-    const rows = this.client.all(sql) as BackgroundTaskRow[];
-    return rows.map(backgroundTaskRowToBackgroundTask);
+    const row = this.client.one(sql) as Optional<BackgroundTaskRow>;
+    return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
   }
 
   getBackgroundTask(taskId: Id): Optional<BackgroundTask> {
