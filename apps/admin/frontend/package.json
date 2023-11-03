@@ -155,6 +155,9 @@
   },
   "packageManager": "pnpm@8.1.0",
   "vx": {
+    "env": {
+      "VX_MACHINE_TYPE": "admin"
+    },
     "isBundled": true,
     "services": [
       "../backend"

@@ -17,8 +17,8 @@ import {
 } from './cryptography';
 
 /**
- * Whereas openssl.test.ts focuses on code coverage, openssl.end_to_end.test.ts uses no mocks and
- * verifies:
+ * Whereas cryptography.test.ts focuses on code coverage, cryptography.end_to_end.test.ts uses no
+ * mocks and verifies:
  * - The complex control flows of createCert and signMessage
  * - The correctness of OpenSSL commands
  */
