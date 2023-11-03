@@ -455,25 +455,14 @@ export class Store {
   }
 
   completeBackgroundTask(taskId: Id, error?: string): void {
-    if (error) {
-      this.client.run(
-        `
-        update background_tasks
-        set completed_at = current_timestamp, error = ?
-        where id = ?
-        `,
-        error,
-        taskId
-      );
-    } else {
-      this.client.run(
-        `
-        update background_tasks
-        set completed_at = current_timestamp
-        where id = ?
-        `,
-        taskId
-      );
-    }
+    this.client.run(
+      `
+      update background_tasks
+      set completed_at = current_timestamp, error = ?
+      where id = ?
+      `,
+      error ?? null,
+      taskId
+    );
   }
 }
