@@ -10,6 +10,20 @@ export interface SpeechSynthesizer {
 }
 
 /**
+ * Available voices are listed at https://cloud.google.com/text-to-speech/docs/voices.
+ *
+ * TODO: Decide which voices we want to use.
+ */
+export const GoogleCloudVoices: Record<
+  LanguageCode,
+  { languageCode: string; name: string }
+> = {
+  [LanguageCode.CHINESE]: { languageCode: 'cmn-CN', name: 'cmn-CN-Wavenet-B' },
+  [LanguageCode.ENGLISH]: { languageCode: 'en-US', name: 'en-US-Neural2-J' },
+  [LanguageCode.SPANISH]: { languageCode: 'es-US', name: 'es-US-Neural2-B' },
+};
+
+/**
  * The subset of {@link GoogleCloudTextToSpeechClient} that we actually use
  */
 export type MinimalGoogleCloudTextToSpeechClient = Pick<
@@ -63,7 +77,7 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     const [response] = await this.textToSpeechClient.synthesizeSpeech({
       audioConfig: { audioEncoding: 'MP3' },
       input: { text },
-      voice: { languageCode },
+      voice: GoogleCloudVoices[languageCode],
     });
     const audioClipBase64 = Buffer.from(
       assertDefined(response.audioContent)

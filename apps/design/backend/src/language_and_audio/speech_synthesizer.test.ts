@@ -3,7 +3,10 @@ import { LanguageCode } from '@votingworks/types';
 
 import { MockGoogleCloudTextToSpeechClient } from '../../test/helpers';
 import { Store } from '../store';
-import { GoogleCloudSpeechSynthesizer } from './speech_synthesizer';
+import {
+  GoogleCloudSpeechSynthesizer,
+  GoogleCloudVoices,
+} from './speech_synthesizer';
 
 test('GoogleCloudSpeechSynthesizer', async () => {
   const store = Store.memoryStore();
@@ -25,7 +28,7 @@ test('GoogleCloudSpeechSynthesizer', async () => {
     1,
     expect.objectContaining({
       input: { text: 'Do you like apples?' },
-      voice: { languageCode: LanguageCode.ENGLISH },
+      voice: GoogleCloudVoices[LanguageCode.ENGLISH],
     })
   );
   textToSpeechClient.synthesizeSpeech.mockClear();
