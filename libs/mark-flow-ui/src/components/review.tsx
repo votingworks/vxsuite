@@ -21,6 +21,7 @@ import {
   appStrings,
   CandidatePartyList,
   electionStrings,
+  NumberString,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -68,7 +69,7 @@ function CandidateContestResult({
           ) : (
             <React.Fragment>
               {appStrings.labelNumVotesRemaining()}{' '}
-              {appStrings.number(remainingChoices)}
+              <NumberString value={remainingChoices} />
             </React.Fragment>
           )
         ) : undefined
