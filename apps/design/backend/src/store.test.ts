@@ -1,9 +1,86 @@
+import { LanguageCode } from '@votingworks/types';
+
 import { Store } from './store';
 
-const taskName = 'someTaskName';
+test('Translation cache', () => {
+  const store = Store.memoryStore();
+
+  expect(
+    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
+  ).toEqual(undefined);
+  expect(
+    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.CHINESE)
+  ).toEqual(undefined);
+
+  // Add a Spanish translation
+  store.addTranslationCacheEntry({
+    text: 'Happy birthday!',
+    targetLanguageCode: LanguageCode.SPANISH,
+    translatedText: '¡Feliz cumpleaños!',
+  });
+  expect(
+    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
+  ).toEqual('¡Feliz cumpleaños!');
+  expect(
+    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.CHINESE)
+  ).toEqual(undefined);
+
+  // Add a Chinese translation
+  store.addTranslationCacheEntry({
+    text: 'Happy birthday!',
+    targetLanguageCode: LanguageCode.CHINESE,
+    translatedText: '生日快乐！',
+  });
+  expect(
+    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
+  ).toEqual('¡Feliz cumpleaños!');
+  expect(
+    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.CHINESE)
+  ).toEqual('生日快乐！');
+
+  // Update the Spanish translation
+  store.addTranslationCacheEntry({
+    text: 'Happy birthday!',
+    targetLanguageCode: LanguageCode.SPANISH,
+    translatedText: '¡Feliz cumpleaños! 🥳',
+  });
+  expect(
+    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
+  ).toEqual('¡Feliz cumpleaños! 🥳');
+  expect(
+    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.CHINESE)
+  ).toEqual('生日快乐！');
+});
+
+test('Speech synthesis cache', () => {
+  const store = Store.memoryStore();
+
+  expect(store.getAudioClipBase64FromCache('Happy birthday!')).toEqual(
+    undefined
+  );
+
+  // Add an audio clip
+  store.addSpeechSynthesisCacheEntry({
+    text: 'Happy birthday!',
+    audioClipBase64: 'SomeBase64Value',
+  });
+  expect(store.getAudioClipBase64FromCache('Happy birthday!')).toEqual(
+    'SomeBase64Value'
+  );
+
+  // Update the audio clip
+  store.addSpeechSynthesisCacheEntry({
+    text: 'Happy birthday!',
+    audioClipBase64: 'AnotherBase64Value',
+  });
+  expect(store.getAudioClipBase64FromCache('Happy birthday!')).toEqual(
+    'AnotherBase64Value'
+  );
+});
 
 test('Background task processing - task creation and retrieval', () => {
   const store = Store.memoryStore();
+  const taskName = 'someTaskName';
 
   expect(store.getOldestQueuedBackgroundTask()).toEqual(undefined);
 
@@ -38,6 +115,7 @@ test('Background task processing - task creation and retrieval', () => {
 
 test('Background task processing - starting and completing tasks', () => {
   const store = Store.memoryStore();
+  const taskName = 'someTaskName';
 
   expect(store.getOldestQueuedBackgroundTask()).toEqual(undefined);
 
