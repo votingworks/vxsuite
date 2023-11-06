@@ -79,14 +79,17 @@ export const DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS: StartingCardLockout
  * The inactive/idle session time limit, after which the user must reauthenticate - a VVSG2
  * requirement
  */
-export type InactiveSessionTimeLimitMinutes = 10 | 15 | 20 | 25 | 30;
+export type InactiveSessionTimeLimitMinutes = 10 | 15 | 20 | 30 | 360;
 export const InactiveSessionTimeLimitMinutesSchema: z.ZodSchema<InactiveSessionTimeLimitMinutes> =
   z.union([
     z.literal(10),
     z.literal(15),
     z.literal(20),
-    z.literal(25),
     z.literal(30),
+    // Allow significantly increasing the inactive session time limit for cert/pre-cert testing,
+    // which can involve long-running exports
+    // TODO: Pause the inactive session time limit timer during export operations
+    z.literal(360),
   ]);
 export const DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES: InactiveSessionTimeLimitMinutes = 30;
 
