@@ -1,14 +1,19 @@
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
-import { assert, typedAs } from '@votingworks/basics';
+import { assert, find, typedAs } from '@votingworks/basics';
 import { toDataUrl, loadImage, toImageData } from '@votingworks/image-utils';
 import { join } from 'path';
 import {
   BooleanEnvironmentVariableName,
+  UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { Id, Rect } from '@votingworks/types';
+import { CVR, Id, Rect, Tabulation } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
-import { buildTestEnvironment, configureMachine } from '../test/app';
+import {
+  buildTestEnvironment,
+  configureMachine,
+  mockElectionManagerAuth,
+} from '../test/app';
 import { WriteInAdjudicationContext, WriteInRecord } from './types';
 
 jest.setTimeout(30_000);
@@ -225,17 +230,18 @@ test('adjudicateWriteIn', async () => {
     { contestId, name: 'Mr. Pickles' },
   ]);
   const [mrPickles] = await apiClient.getWriteInCandidates();
+  assert(mrPickles);
 
   await apiClient.adjudicateWriteIn({
     writeInId: writeInIdB,
     type: 'write-in-candidate',
-    candidateId: mrPickles!.id,
+    candidateId: mrPickles.id,
   });
 
   expect(await getWriteIn(writeInIdB)).toMatchObject({
     contestId,
     adjudicationType: 'write-in-candidate',
-    candidateId: mrPickles!.id,
+    candidateId: mrPickles.id,
     status: 'adjudicated',
   });
 
@@ -256,18 +262,19 @@ test('adjudicateWriteIn', async () => {
     { contestId, name: 'Pickles Jr.' },
   ]);
   const [, picklesJr] = await apiClient.getWriteInCandidates();
+  assert(picklesJr);
 
   await apiClient.adjudicateWriteIn({
     writeInId: writeInIdB,
     type: 'write-in-candidate',
-    candidateId: picklesJr!.id,
+    candidateId: picklesJr.id,
   });
 
   expect(await getWriteIn(writeInIdB)).toMatchObject({
     contestId,
     adjudicationType: 'write-in-candidate',
     status: 'adjudicated',
-    candidateId: picklesJr!.id,
+    candidateId: picklesJr.id,
   });
 
   expect(
@@ -546,4 +553,88 @@ test('getFirstPendingWriteInId', async () => {
     await adjudicateAtIndex(i);
   }
   expect(await apiClient.getFirstPendingWriteInId({ contestId })).toEqual(null);
+});
+
+test('handling unmarked write-ins', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  const { electionDefinition, castVoteRecordExport } =
+    electionGridLayoutNewHampshireAmherstFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+
+  // modify the write-ins for a contest to be unmarked write-ins
+  const WRITE_IN_CONTEST_ID = 'Governor-061a401b';
+  const exportDirectoryPath = await modifyCastVoteRecordExport(
+    castVoteRecordExport.asDirectoryPath(),
+    {
+      castVoteRecordModifier: (cvr) => {
+        const snapshot = find(
+          cvr.CVRSnapshot,
+          (s) => s.Type === CVR.CVRType.Modified
+        );
+
+        const writeInContest = snapshot.CVRContest.find(
+          (c) => c.ContestId === WRITE_IN_CONTEST_ID
+        );
+        if (writeInContest) {
+          const selectionPosition = writeInContest.CVRContestSelection.find(
+            (sel) => sel.SelectionPosition[0]?.CVRWriteIn
+          )?.SelectionPosition[0];
+          if (selectionPosition) {
+            writeInContest.WriteIns = 0;
+            writeInContest.Undervotes = 1;
+            selectionPosition.HasIndication = CVR.IndicationStatus.No;
+            selectionPosition.IsAllocable = CVR.AllocationStatus.Unknown;
+            selectionPosition.Status = [CVR.PositionStatus.Other];
+            selectionPosition.OtherStatus =
+              UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS;
+          }
+        }
+
+        return cvr;
+      },
+    }
+  );
+
+  const addTestFileResult = await apiClient.addCastVoteRecordFile({
+    path: exportDirectoryPath,
+  });
+  assert(addTestFileResult.isOk());
+
+  const contestWriteInIds = await apiClient.getWriteInAdjudicationQueue({
+    contestId: WRITE_IN_CONTEST_ID,
+  });
+
+  // check that the unmarked status appears in the write-in adjudication context
+  for (const writeInId of contestWriteInIds) {
+    const writeInContext = await apiClient.getWriteInAdjudicationContext({
+      writeInId,
+    });
+    expect(writeInContext.writeIn.isUnmarked).toEqual(true);
+  }
+
+  // check that the unmarked, unadjudicated write-ins do not appear in adjudication summary
+  const writeInSummary = await apiClient.getElectionWriteInSummary();
+  expect(
+    writeInSummary.contestWriteInSummaries[WRITE_IN_CONTEST_ID]
+  ).toMatchObject({
+    pendingTally: 0,
+    invalidTally: 0,
+    totalTally: 0,
+  });
+
+  // check that the unmarked, unadjudicated write-ins do not appear in tally results
+  const [fullElectionReportResults] =
+    await apiClient.getResultsForTallyReports();
+  assert(fullElectionReportResults);
+  const { scannedResults } = fullElectionReportResults;
+  const contestResults = scannedResults.contestResults[WRITE_IN_CONTEST_ID];
+  assert(contestResults?.contestType === 'candidate');
+  expect(contestResults.undervotes).toEqual(4);
+  expect(
+    contestResults.tallies[Tabulation.GENERIC_WRITE_IN_ID]
+  ).toBeUndefined();
+  expect(
+    contestResults.tallies[Tabulation.PENDING_WRITE_IN_ID]
+  ).toBeUndefined();
 });
