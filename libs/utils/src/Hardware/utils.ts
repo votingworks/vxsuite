@@ -16,16 +16,22 @@ export const OmniKeyCardReaderManufacturer = 'HID Global';
 export const OmniKeyCardReaderVendorId = 0x076b;
 export const OmniKeyCardReaderProductId = 0x3031;
 
+export const LenovoBuiltInCardReaderVendorId = 0x2ce3;
+export const LenovoBuiltInCardReaderProductId = 0x9563;
+
 /**
  * Determines whether a device is the card reader.
  */
 export function isCardReader(device: KioskBrowser.Device): boolean {
-  return (
+  const isOmniKeyReader =
     (device.manufacturer.replace(/_/g, ' ') === OmniKeyCardReaderManufacturer &&
       device.deviceName.replace(/_/g, ' ') === OmniKeyCardReaderDeviceName) ||
     (device.vendorId === OmniKeyCardReaderVendorId &&
-      device.productId === OmniKeyCardReaderProductId)
-  );
+      device.productId === OmniKeyCardReaderProductId);
+  const isBuiltInReader =
+    device.vendorId === LenovoBuiltInCardReaderVendorId &&
+    device.productId === LenovoBuiltInCardReaderProductId;
+  return isOmniKeyReader || isBuiltInReader;
 }
 
 export const BrotherHll5100DnVendorId = 0x04f9;
