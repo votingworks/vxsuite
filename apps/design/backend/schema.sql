@@ -16,3 +16,19 @@ create table background_tasks (
   completed_at timestamp,
   error text
 );
+
+create table translation_cache (
+  source_text text not null,
+  target_language_code text not null,
+  translated_text text not null
+);
+
+create unique index idx_translation_cache on translation_cache (
+  source_text,
+  target_language_code
+);
+
+create table speech_synthesis_cache (
+  source_text text primary key,
+  audio_clip_base64 text not null
+);
