@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 import {
   Button,
-  Font,
   H1,
   Icons,
   InsertBallotImage,
@@ -10,6 +9,7 @@ import {
   P,
   Screen,
   VerifyBallotImage,
+  appStrings,
 } from '@votingworks/ui';
 
 const Instructions = styled.ol`
@@ -70,25 +70,24 @@ export function CastBallotPage({
     <Screen white>
       <Main padded>
         <div id="audiofocus">
-          <H1 aria-label="You’re almost done.">You’re Almost Done</H1>
-          <P>Your official ballot is printing. To finish voting you need to…</P>
+          <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
+          <P>{appStrings.instructionsBmdCastBallotPreamble()}</P>
           <Instructions>
             <ListItem>
               <InstructionImageContainer>
                 <VerifyBallotImage />
               </InstructionImageContainer>
-              <span>1. Verify your official ballot.</span>
+              <span>{appStrings.instructionsBmdCastBallotStep1()}</span>
             </ListItem>
             <ListItem>
               <InstructionImageContainer>
                 <InsertBallotImage disableAnimation />
               </InstructionImageContainer>
-              <span>2. Scan your official ballot.</span>
+              <span>{appStrings.instructionsBmdCastBallotStep2()}</span>
             </ListItem>
           </Instructions>
           <P>
-            <Icons.Info /> <Font weight="bold">Need help?</Font> Ask a poll
-            worker.
+            <Icons.Info /> {appStrings.noteAskPollWorkerForHelp()}
           </P>
         </div>
         <Done>
@@ -97,7 +96,7 @@ export function CastBallotPage({
             variant="primary"
             icon="Done"
           >
-            Done
+            {appStrings.buttonDone()}
           </Button>
         </Done>
       </Main>

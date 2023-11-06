@@ -37,6 +37,8 @@ export const appStrings = {
 
   buttonChange: () => <UiString uiStringKey="buttonChange">Change</UiString>,
 
+  buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
+
   buttonDisplaySettings: () => (
     <UiString uiStringKey="buttonDisplaySettings">Color/Size</UiString>
   ),
@@ -68,6 +70,25 @@ export const appStrings = {
       and right buttons. To navigate through contest choices, use the up and
       down buttons. To select or unselect a contest choice as your vote, use the
       select button. Press the right button now to advance to the first contest.
+    </UiString>
+  ),
+
+  instructionsBmdCastBallotPreamble: () => (
+    <UiString uiStringKey="instructionsBmdCastBallotPreamble">
+      Your official ballot is printing. Complete the following steps to finish
+      voting:
+    </UiString>
+  ),
+
+  instructionsBmdCastBallotStep1: () => (
+    <UiString uiStringKey="instructionsBmdCastBallotStep1">
+      1. Verify your official ballot.
+    </UiString>
+  ),
+
+  instructionsBmdCastBallotStep2: () => (
+    <UiString uiStringKey="instructionsBmdCastBallotStep2">
+      2. Scan your official ballot.
     </UiString>
   ),
 
@@ -201,9 +222,27 @@ export const appStrings = {
     <UiString uiStringKey="labelWriteInParenthesized">(write-in)</UiString>
   ),
 
+  noteAskPollWorkerForHelp: () => (
+    <UiString uiStringKey="noteAskPollWorkerForHelp">
+      Ask a poll worker if you need help.
+    </UiString>
+  ),
+
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
+    </UiString>
+  ),
+
+  titleBmdCastBallotScreen: () => (
+    <UiString uiStringKey="titleBmdCastBallotScreen">
+      You’re Almost Done
+    </UiString>
+  ),
+
+  titleBmdPrintScreen: () => (
+    <UiString uiStringKey="titleBmdPrintScreen">
+      Printing Your Official Ballot...
     </UiString>
   ),
 
