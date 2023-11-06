@@ -1,6 +1,4 @@
 import { Font } from '../typography';
-import { DateString } from './date_string';
-import { NumberString } from './number_string';
 import { UiString } from './ui_string';
 
 // TODO(kofi): Add lint rule to ensure object keys match uiStringKey props.
@@ -62,10 +60,6 @@ export const appStrings = {
   ),
 
   buttonYes: () => <UiString uiStringKey="buttonYes">Yes</UiString>,
-
-  // TODO(kofi): Remove `date` and `number` and have consumers use the
-  // components directly, since this indirection doesn't provided added value.
-  date: (value: Date) => <DateString value={value} />,
 
   instructionsBmdBallotNavigation: () => (
     <UiString uiStringKey="instructionsBmdBallotNavigation">
@@ -207,10 +201,6 @@ export const appStrings = {
     <UiString uiStringKey="labelWriteInParenthesized">(write-in)</UiString>
   ),
 
-  // TODO(kofi): Remove `date` and `number` and have consumers use the
-  // components directly, since this indirection doesn't provided added value.
-  number: (value: number) => <NumberString value={value} />,
-
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
@@ -240,3 +230,5 @@ export const appStrings = {
     </UiString>
   ),
 } as const;
+
+export type AppStringKey = keyof typeof appStrings;

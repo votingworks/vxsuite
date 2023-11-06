@@ -16,7 +16,6 @@ import {
   Main,
   Modal,
   P,
-  Font,
   VirtualKeyboard,
   Caption,
   TouchTextInput,
@@ -236,9 +235,7 @@ export function CandidateContest({
         >
           <Caption>
             {appStrings.labelNumVotesRemaining()}{' '}
-            <Font weight="bold">
-              <NumberString value={contest.seats - vote.length} />
-            </Font>
+            <NumberString value={contest.seats - vote.length} weight="bold" />
             <AudioOnly>
               {appStrings.instructionsBmdContestNavigation()}
             </AudioOnly>

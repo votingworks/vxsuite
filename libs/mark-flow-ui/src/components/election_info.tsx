@@ -13,12 +13,13 @@ import {
   H1,
   P,
   Caption,
-  Font,
   Seal,
   electionStrings,
   appStrings,
   PrecinctSelectionName,
   PrimaryElectionTitlePrefix,
+  NumberString,
+  DateString,
 } from '@votingworks/ui';
 
 const Container = styled.div`
@@ -79,7 +80,7 @@ export function ElectionInfo({
         <P
           aria-label={`${electionDate}. ${county.name}, ${state}. ${precinctName}.`}
         >
-          <Font weight="bold">{appStrings.date(new Date(date))}</Font>
+          <DateString value={new Date(date)} weight="bold" />
           <br />
           <Caption>
             {/* TODO(kofi): Use more language-agnostic delimiter (e.g. '|') or find way to translate commas. */}
@@ -109,7 +110,7 @@ export function ElectionInfo({
               <br />
               <Caption>
                 {appStrings.labelNumBallotContests()}{' '}
-                <Font weight="bold">{appStrings.number(contestCount)}</Font>
+                <NumberString value={contestCount} weight="bold" />
               </Caption>
             </React.Fragment>
           )}
