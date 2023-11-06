@@ -22,6 +22,7 @@ import {
   safeParseSystemSettings,
   CandidateContest,
   PartyId,
+  LanguageCode,
 } from '@votingworks/types';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -409,6 +410,78 @@ export class Store {
   }
 
   //
+  // Language and audio management
+  //
+
+  getTranslatedTextFromCache(
+    text: string,
+    targetLanguageCode: LanguageCode
+  ): Optional<string> {
+    const cacheEntry = this.client.one(
+      `
+      select
+        translated_text as translatedText
+      from translation_cache
+      where
+        source_text = ? and
+        target_language_code = ?
+      `,
+      text,
+      targetLanguageCode
+    ) as Optional<{ translatedText: string }>;
+    return cacheEntry?.translatedText;
+  }
+
+  addTranslationCacheEntry(cacheEntry: {
+    text: string;
+    targetLanguageCode: LanguageCode;
+    translatedText: string;
+  }): void {
+    this.client.run(
+      `
+      insert or replace into translation_cache (
+        source_text,
+        target_language_code,
+        translated_text
+      ) values (?, ?, ?)
+      `,
+      cacheEntry.text,
+      cacheEntry.targetLanguageCode,
+      cacheEntry.translatedText
+    );
+  }
+
+  getAudioClipBase64FromCache(text: string): Optional<string> {
+    const cacheEntry = this.client.one(
+      `
+      select
+        audio_clip_base64 as audioClipBase64
+      from speech_synthesis_cache
+      where
+        source_text = ?
+      `,
+      text
+    ) as Optional<{ audioClipBase64: string }>;
+    return cacheEntry?.audioClipBase64;
+  }
+
+  addSpeechSynthesisCacheEntry(cacheEntry: {
+    text: string;
+    audioClipBase64: string;
+  }): void {
+    this.client.run(
+      `
+      insert or replace into speech_synthesis_cache (
+        source_text,
+        audio_clip_base64
+      ) values (?, ?)
+      `,
+      cacheEntry.text,
+      cacheEntry.audioClipBase64
+    );
+  }
+
+  //
   // Background task processing
   //
 
@@ -433,8 +506,11 @@ export class Store {
     const taskId = uuid();
     this.client.run(
       `
-      insert into background_tasks (id, task_name, payload)
-      values (?, ?, ?)
+      insert into background_tasks (
+        id,
+        task_name,
+        payload
+      ) values (?, ?, ?)
       `,
       taskId,
       taskName,
