@@ -81,8 +81,8 @@ export function referencedImageFile(input: {
 }
 
 /**
- * An layout file referenced by a cast vote record report. When read, the layout file's hash will
- * be checked against the hash in the cast vote record report.
+ * A layout file referenced by a cast vote record report. When read, the layout file's hash will be
+ * checked against the hash in the cast vote record report.
  */
 export function referencedLayoutFile(input: {
   expectedFileHash: string;
