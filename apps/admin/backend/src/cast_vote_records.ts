@@ -350,6 +350,7 @@ export async function importCastVoteRecords(
               electionId,
               optionId: hmpbCastVoteRecordWriteIn.optionId,
               side: assertDefined(hmpbCastVoteRecordWriteIn.side),
+              isUnmarked: hmpbCastVoteRecordWriteIn.isUnmarked,
             });
           }
         }

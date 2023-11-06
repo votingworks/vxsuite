@@ -28,6 +28,7 @@ import {
   YesNoVote,
 } from '@votingworks/types';
 import {
+  UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
   getContestsForBallotPage,
   getMarkStatus,
   getWriteInCount,
@@ -325,7 +326,7 @@ function buildCVRCandidateContest({
             NumberVotes: 1,
             IsAllocable: CVR.AllocationStatus.Unknown,
             Status: [CVR.PositionStatus.Other],
-            OtherStatus: 'unmarked-write-in',
+            OtherStatus: UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
             CVRWriteIn: {
               '@type': 'CVR.CVRWriteIn',
               WriteInImage: buildCvrImageData(options.image),

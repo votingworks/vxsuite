@@ -90,6 +90,7 @@ create table write_ins (
   side text not null check (side = 'front' or side = 'back'),
   contest_id text not null,
   option_id text not null,
+  is_unmarked boolean not null default false,
   official_candidate_id text,
   write_in_candidate_id varchar(36),
   is_invalid boolean not null default false,

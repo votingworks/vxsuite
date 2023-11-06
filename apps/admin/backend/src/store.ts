@@ -1008,12 +1008,14 @@ export class Store {
     side,
     contestId,
     optionId,
+    isUnmarked = false,
   }: {
     electionId: Id;
     castVoteRecordId: Id;
     side: Side;
     contestId: Id;
     optionId: Id;
+    isUnmarked?: boolean;
   }): Id {
     const id = uuid();
 
@@ -1025,9 +1027,10 @@ export class Store {
           cvr_id,
           side,
           contest_id,
-          option_id
+          option_id,
+          is_unmarked
         ) values (
-          ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1035,7 +1038,8 @@ export class Store {
       castVoteRecordId,
       side,
       contestId,
-      optionId
+      optionId,
+      isUnmarked ? 1 : 0
     );
 
     return id;

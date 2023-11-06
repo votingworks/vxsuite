@@ -245,6 +245,34 @@ describe('getWriteInsFromCastVoteRecord', () => {
                   },
                 ],
               },
+              {
+                '@type': 'CVR.CVRContest',
+                ContestId: 'tractors',
+                CVRContestSelection: [
+                  {
+                    '@type': 'CVR.CVRContestSelection',
+                    ContestSelectionId: 'write-in-0',
+                    Status: [CVR.ContestSelectionStatus.NeedsAdjudication],
+                    SelectionPosition: [
+                      {
+                        '@type': 'CVR.SelectionPosition',
+                        HasIndication: CVR.IndicationStatus.No,
+                        IsAllocable: CVR.AllocationStatus.Unknown,
+                        Status: [CVR.PositionStatus.Other],
+                        OtherStatus: 'unmarked-write-in',
+                        NumberVotes: 1,
+                        CVRWriteIn: {
+                          '@type': 'CVR.CVRWriteIn',
+                          WriteInImage: {
+                            '@type': 'CVR.ImageData',
+                            Location: 'back.jpg',
+                          },
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
           },
         ],
@@ -253,6 +281,12 @@ describe('getWriteInsFromCastVoteRecord', () => {
       { contestId: 'animals', optionId: 'write-in-0', side: 'front' },
       { contestId: 'animals', optionId: 'write-in-1', side: 'front' },
       { contestId: 'flowers', optionId: 'write-in-0', side: 'back' },
+      {
+        contestId: 'tractors',
+        optionId: 'write-in-0',
+        side: 'back',
+        isUnmarked: true,
+      },
     ]);
   });
 
