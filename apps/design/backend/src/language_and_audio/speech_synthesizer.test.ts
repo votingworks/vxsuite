@@ -1,0 +1,42 @@
+import { Buffer } from 'buffer';
+import { LanguageCode } from '@votingworks/types';
+
+import { MockGoogleCloudTextToSpeechClient } from '../../test/helpers';
+import { Store } from '../store';
+import { GoogleCloudSpeechSynthesizer } from './speech_synthesizer';
+
+test('GoogleCloudSpeechSynthesizer', async () => {
+  const store = Store.memoryStore();
+  const textToSpeechClient = new MockGoogleCloudTextToSpeechClient();
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
+    store,
+    textToSpeechClient,
+  });
+
+  let audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+    'Do you like apples?',
+    LanguageCode.ENGLISH
+  );
+  expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
+    'Do you like apples? (audio)'
+  );
+  expect(textToSpeechClient.synthesizeSpeech).toHaveBeenCalledTimes(1);
+  expect(textToSpeechClient.synthesizeSpeech).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining({
+      input: { text: 'Do you like apples?' },
+      voice: { languageCode: LanguageCode.ENGLISH },
+    })
+  );
+  textToSpeechClient.synthesizeSpeech.mockClear();
+
+  // Expect a cache hit
+  audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
+    'Do you like apples?',
+    LanguageCode.ENGLISH
+  );
+  expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
+    'Do you like apples? (audio)'
+  );
+  expect(textToSpeechClient.synthesizeSpeech).not.toHaveBeenCalled();
+});
