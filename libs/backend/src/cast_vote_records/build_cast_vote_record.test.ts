@@ -16,6 +16,7 @@ import {
   fishingContest,
   interpretedBmdPage,
   interpretedHmpbPage1,
+  interpretedHmpbPage1WithUnmarkedWriteIn,
   interpretedHmpbPage1WithWriteIn,
   interpretedHmpbPage2,
 } from '../../test/fixtures/interpretations';
@@ -741,5 +742,104 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
         })
       ),
     ])
+  );
+});
+
+test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
+  const castVoteRecord = buildCastVoteRecord({
+    election,
+    electionId,
+    castVoteRecordId,
+    scannerId,
+    batchId,
+    ballotMarkingMode: 'hand',
+    interpretations: [
+      interpretedHmpbPage1WithUnmarkedWriteIn,
+      interpretedHmpbPage2,
+    ],
+    images: [
+      {
+        imageHash: 'a',
+        imageRelativePath: 'ballot-images/front.jpg',
+        layoutFileHash: 'b',
+      },
+      {
+        imageHash: 'c',
+        imageRelativePath: 'ballot-images/back.jpg',
+        layoutFileHash: 'd',
+      },
+    ],
+    definiteMarkThreshold,
+  });
+
+  const expectedFrontImageData: CVR.ImageData = {
+    '@type': 'CVR.ImageData',
+    Hash: {
+      '@type': 'CVR.Hash',
+      Type: CVR.HashType.Sha256,
+      Value: 'a',
+    },
+    Location: 'file:ballot-images/front.jpg',
+    vxLayoutFileHash: 'b',
+  };
+
+  const expectedBackImageData: CVR.ImageData = {
+    '@type': 'CVR.ImageData',
+    Hash: {
+      '@type': 'CVR.Hash',
+      Type: CVR.HashType.Sha256,
+      Value: 'c',
+    },
+    Location: 'file:ballot-images/back.jpg',
+    vxLayoutFileHash: 'd',
+  };
+
+  expect(castVoteRecord.BallotImage).toEqual([
+    expectedFrontImageData,
+    expectedBackImageData,
+  ]);
+
+  const modifiedSnapshot = find(
+    castVoteRecord.CVRSnapshot,
+    (snapshot) => snapshot.Type === CVR.CVRType.Modified
+  );
+
+  expect(modifiedSnapshot.vxWriteIns).toEqual(0);
+
+  const cvrFishCouncilContest = find(
+    modifiedSnapshot.CVRContest,
+    (c) => c.ContestId === 'aquarium-council-fish'
+  );
+
+  // unmarked write-in should be represented as undervote, not an explicit write-in
+  expect(cvrFishCouncilContest.Undervotes).toEqual(2);
+  expect(cvrFishCouncilContest.WriteIns).toEqual(0);
+
+  const unmarkedWriteInSelection = find(
+    cvrFishCouncilContest.CVRContestSelection,
+    (cs) => cs.ContestSelectionId === 'write-in-1'
+  );
+
+  expect(unmarkedWriteInSelection).toEqual(
+    typedAs<CVR.CVRContestSelection>({
+      '@type': 'CVR.CVRContestSelection',
+      ContestSelectionId: 'write-in-1',
+      OptionPosition: 5,
+      Status: [CVR.ContestSelectionStatus.NeedsAdjudication],
+      SelectionPosition: [
+        {
+          '@type': 'CVR.SelectionPosition',
+          HasIndication: CVR.IndicationStatus.No,
+          NumberVotes: 1,
+          IsAllocable: CVR.AllocationStatus.Unknown,
+          Status: [CVR.PositionStatus.Other],
+          OtherStatus: 'unmarked-write-in',
+          CVRWriteIn: {
+            '@type': 'CVR.CVRWriteIn',
+            WriteInImage: expectedFrontImageData,
+          },
+        },
+      ],
+    })
   );
 });

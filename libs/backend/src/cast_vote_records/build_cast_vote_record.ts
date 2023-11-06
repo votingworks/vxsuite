@@ -197,11 +197,13 @@ function buildCVRCandidateContest({
   contest,
   contestOptionPositionMap,
   vote,
+  unmarkedWriteIns,
   options,
 }: {
   contest: CandidateContest;
   contestOptionPositionMap?: ContestOptionPositionMap;
   vote: CandidateVote;
+  unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   options: CVRContestRequiredBallotPageOptions;
 }): CVR.CVRContest {
   const overvoted = vote.length > contest.seats;
@@ -251,14 +253,8 @@ function buildCVRCandidateContest({
     }
   }
 
-  return {
-    '@type': 'CVR.CVRContest',
-    ContestId: contest.id,
-    Overvotes: vote.length > contest.seats ? contest.seats : 0, // VVSG 2.0 1.1.5-E.2
-    Undervotes: Math.max(contest.seats - vote.length, 0), // VVSG 2.0 1.1.5-E.2
-    WriteIns: numWriteIns, // VVSG 2.0 1.1.5-E.3
-    Status: statuses.length > 0 ? statuses : undefined,
-    CVRContestSelection: voteWriteInIndexed.map((candidate) => {
+  const markedVoteSelections: CVR.CVRContestSelection[] =
+    voteWriteInIndexed.map((candidate) => {
       const { isWriteIn } = candidate;
 
       return {
@@ -304,7 +300,52 @@ function buildCVRCandidateContest({
           },
         ],
       };
-    }),
+    });
+
+  // We include unmarked write-ins (write-ins without the bubble filled) as
+  // contest selections without an indication and with the allocation
+  // status unknown.
+  const unmarkedWriteInSelections: CVR.CVRContestSelection[] =
+    unmarkedWriteIns?.map((unmarkedWriteIn) => {
+      // We can only have unmarked write-ins on hand-marked ballots
+      assert(options.ballotMarkingMode === 'hand');
+      assert(options.image);
+
+      return {
+        '@type': 'CVR.CVRContestSelection',
+        ContestSelectionId: unmarkedWriteIn.optionId,
+        OptionPosition: contestOptionPositionMap
+          ? contestOptionPositionMap[unmarkedWriteIn.optionId]
+          : getOptionPosition({ contest, optionId: unmarkedWriteIn.optionId }),
+        Status: [CVR.ContestSelectionStatus.NeedsAdjudication],
+        SelectionPosition: [
+          {
+            '@type': 'CVR.SelectionPosition',
+            HasIndication: CVR.IndicationStatus.No,
+            NumberVotes: 1,
+            IsAllocable: CVR.AllocationStatus.Unknown,
+            Status: [CVR.PositionStatus.Other],
+            OtherStatus: 'unmarked-write-in',
+            CVRWriteIn: {
+              '@type': 'CVR.CVRWriteIn',
+              WriteInImage: buildCvrImageData(options.image),
+            },
+          },
+        ],
+      };
+    }) ?? [];
+
+  return {
+    '@type': 'CVR.CVRContest',
+    ContestId: contest.id,
+    Overvotes: vote.length > contest.seats ? contest.seats : 0, // VVSG 2.0 1.1.5-E.2
+    Undervotes: Math.max(contest.seats - vote.length, 0), // VVSG 2.0 1.1.5-E.2
+    WriteIns: numWriteIns, // VVSG 2.0 1.1.5-E.3
+    Status: statuses.length > 0 ? statuses : undefined,
+    CVRContestSelection: [
+      ...markedVoteSelections,
+      ...unmarkedWriteInSelections,
+    ],
   };
 }
 
@@ -318,11 +359,13 @@ function buildCVRCandidateContest({
  */
 export function buildCVRContestsFromVotes({
   votes,
+  unmarkedWriteIns,
   contests,
   electionOptionPositionMap,
   options,
 }: {
   votes: VotesDict;
+  unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   contests: Contests;
   electionOptionPositionMap?: ElectionOptionPositionMap;
   options: CVRContestRequiredBallotPageOptions;
@@ -333,13 +376,16 @@ export function buildCVRContestsFromVotes({
     // If there is no element in the `votes` object, there are no votes. We
     // must include information about this contest as an undervoted contest
     // per VVSG 2.0 1.1.5-E.2
-    const vote = votes[contest.id] || [];
+    const contestVote = votes[contest.id] || [];
+    const contestUnmarkedWriteIns = unmarkedWriteIns?.filter(
+      ({ contestId }) => contestId === contest.id
+    );
     switch (contest.type) {
       case 'yesno':
         cvrContests.push(
           buildCVRBallotMeasureContest({
             contest,
-            vote: vote as YesNoVote,
+            vote: contestVote as YesNoVote,
           })
         );
         break;
@@ -350,7 +396,8 @@ export function buildCVRContestsFromVotes({
             contestOptionPositionMap: electionOptionPositionMap
               ? electionOptionPositionMap[contest.id]
               : undefined,
-            vote: vote as CandidateVote,
+            vote: contestVote as CandidateVote,
+            unmarkedWriteIns: contestUnmarkedWriteIns,
             options,
           })
         );
@@ -564,6 +611,7 @@ export function buildCastVoteRecord({
           election,
         }),
         votes: interpretations[0].votes,
+        unmarkedWriteIns: interpretations[0].unmarkedWriteIns,
         options: {
           ballotMarkingMode: 'hand',
           image: images?.[0],
@@ -576,6 +624,7 @@ export function buildCastVoteRecord({
           election,
         }),
         votes: interpretations[1].votes,
+        unmarkedWriteIns: interpretations[1].unmarkedWriteIns,
         options: {
           ballotMarkingMode: 'hand',
           image: images?.[1],
