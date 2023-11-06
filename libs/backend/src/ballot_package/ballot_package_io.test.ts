@@ -252,7 +252,7 @@ test('configures using the most recently created ballot package for an election'
     ...DEFAULT_SYSTEM_SETTINGS,
     auth: {
       ...DEFAULT_SYSTEM_SETTINGS.auth,
-      inactiveSessionTimeLimitMinutes: 25,
+      inactiveSessionTimeLimitMinutes: 20,
       overallSessionTimeLimitHours: 11,
       numIncorrectPinAttemptsAllowedBeforeCardLockout: 7,
     },
