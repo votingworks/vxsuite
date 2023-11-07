@@ -5,10 +5,11 @@ import {
   H1,
   Main,
   printElement as DefaultPrintElement,
-  Prose,
   Screen,
   useLock,
   PrintingBallotImage,
+  appStrings,
+  Font,
 } from '@votingworks/ui';
 
 import {
@@ -85,12 +86,12 @@ export function PrintPage({
   return (
     <Screen white>
       <Main centerChild padded>
-        <Prose textCenter id="audiofocus">
+        <Font align="center" id="audiofocus">
           <PrintingBallotImage />
           <div>
-            <H1>Printing Your Official Ballot...</H1>
+            <H1>{appStrings.titleBmdPrintScreen()}</H1>
           </div>
-        </Prose>
+        </Font>
       </Main>
     </Screen>
   );
