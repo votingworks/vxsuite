@@ -1,4 +1,4 @@
-import { Main, Screen, Text, H1 } from '@votingworks/ui';
+import { Main, Screen, H1, appStrings, P, Font } from '@votingworks/ui';
 
 interface Props {
   stateMachineState: 'jam_cleared' | 'resetting_state_machine_after_jam';
@@ -7,16 +7,18 @@ interface Props {
 export function JamClearedPage({ stateMachineState }: Props): JSX.Element {
   const statusMessage =
     stateMachineState === 'jam_cleared'
-      ? 'The hardware is resetting'
-      : 'The hardware has been reset';
+      ? appStrings.noteBmdHardwareResetting()
+      : appStrings.noteBmdHardwareReset();
 
   return (
     <Screen white>
       <Main padded centerChild>
-        <Text center>
-          <H1>Jam Cleared</H1>
-          <p>{statusMessage}. Your voting session will restart shortly.</p>
-        </Text>
+        <Font align="center" id="audiofocus">
+          <H1>{appStrings.titleBmdJamClearedScreen()}</H1>
+          <P>
+            {statusMessage} {appStrings.noteBmdSessionRestart()}
+          </P>
+        </Font>
       </Main>
     </Screen>
   );
