@@ -1,42 +1,24 @@
 import { createInterface } from 'readline';
+import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
+
 import { JavaCard } from '../src';
-import { CommonAccessCardDetails, CommonAccessCard } from '../src/cac';
+import { CommonAccessCard, CommonAccessCardDetails } from '../src/cac';
 import { CardDetails, PinProtectedCard, StatefulCard } from '../src/card';
 import { waitForReadyCardStatus } from './utils';
 
-/**
- * Checks whether a PIN is correct.
- */
-export async function main(args: readonly string[]): Promise<void> {
-  let card: PinProtectedCard &
-    StatefulCard<CardDetails | CommonAccessCardDetails>;
+const usageMessage = 'Usage: check-pin [--cac|--vxsuite (default)]';
 
-  for (const arg of args) {
-    switch (arg) {
-      case '--vxsuite': {
-        // default
-        break;
-      }
+type CardType = 'cac' | 'vxsuite';
 
-      case '--cac': {
-        card = new CommonAccessCard();
-        break;
-      }
-
-      case '--help':
-      case '-h': {
-        process.stdout.write(`Usage: check-pin [--vxsuite (default)|--cac]\n`);
-        process.exit(0);
-        break;
-      }
-
-      default: {
-        process.stderr.write(`Unknown argument: ${arg}\n`);
-        process.exit(1);
-      }
-    }
+function parseCommandLineArgs(args: readonly string[]): { cardType: CardType } {
+  if (![undefined, '--cac', '--vxsuite'].includes(args[0]) || args.length > 1) {
+    console.log(usageMessage);
+    process.exit(0);
   }
+  return { cardType: args[0] === '--cac' ? 'cac' : 'vxsuite' };
+}
 
+async function checkPin(cardType: CardType): Promise<void> {
   const pin = await new Promise<string>((resolve) => {
     createInterface(process.stdin, process.stdout).question(
       'Enter PIN: ',
@@ -44,15 +26,38 @@ export async function main(args: readonly string[]): Promise<void> {
     );
   });
 
-  card ??= new JavaCard();
-  console.time('waitForReadyCardStatus');
+  let card: PinProtectedCard &
+    StatefulCard<CardDetails | CommonAccessCardDetails>;
+  switch (cardType) {
+    case 'cac': {
+      card = new CommonAccessCard();
+      break;
+    }
+    case 'vxsuite': {
+      (process.env.VX_MACHINE_TYPE as string) = 'admin';
+      card = new JavaCard();
+      break;
+    }
+    default: {
+      throwIllegalValue(cardType);
+    }
+  }
+
   await waitForReadyCardStatus(card);
-  console.timeEnd('waitForReadyCardStatus');
+  const checkPinResponse = await card.checkPin(pin);
+  console.log(checkPinResponse);
+}
 
-  console.time('checkPin');
-  const result = await card.checkPin(pin);
-  console.timeEnd('checkPin');
-
-  console.log(result);
-  process.exit(result.response === 'correct' ? 0 : 1);
+/**
+ * A script for checking a Java Card PIN
+ */
+export async function main(args: readonly string[]): Promise<void> {
+  try {
+    const { cardType } = parseCommandLineArgs(args);
+    await checkPin(cardType);
+  } catch (error) {
+    console.error(`❌ ${extractErrorMessage(error)}`);
+    process.exit(1);
+  }
+  process.exit(0);
 }
