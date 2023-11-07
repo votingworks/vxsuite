@@ -15,7 +15,7 @@ export function assert(
  * Asserts that `condition` is true. This function exists to avoid a polyfill
  * for `assert` in the browser.
  */
-export function assertDefined<T>(entity?: T, message?: string): T {
+export function assertDefined<T>(entity?: T | null, message?: string): T {
   if (entity === undefined || entity === null) {
     throw new Error(message);
   }
