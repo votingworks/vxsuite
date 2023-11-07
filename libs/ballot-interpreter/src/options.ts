@@ -16,7 +16,7 @@ export interface InterpreterOptions {
   adjudicationReasons: readonly AdjudicationReason[];
 }
 
-export function getScoreWriteInsFlag(options: InterpreterOptions): boolean {
+export function shouldScoreWriteIns(options: InterpreterOptions): boolean {
   return options.adjudicationReasons.includes(
     AdjudicationReason.UnmarkedWriteIn
   );

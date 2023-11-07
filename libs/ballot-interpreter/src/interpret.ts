@@ -20,7 +20,7 @@ import makeDebug from 'debug';
 import { interpret as interpretNhHmpbBallotSheet } from './hmpb-ts';
 import { interpret as interpretVxBmdBallotSheet } from './bmd';
 import { convertNhInterpretResultToLegacyResult } from './legacy_adapter';
-import { InterpreterOptions, getScoreWriteInsFlag } from './options';
+import { InterpreterOptions, shouldScoreWriteIns } from './options';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');
 
@@ -123,7 +123,7 @@ function interpretAndConvertNhHmpbResult(
   options: InterpreterOptions
 ): SheetOf<InterpretFileResult> {
   const result = interpretNhHmpbBallotSheet(electionDefinition, sheet, {
-    scoreWriteIns: getScoreWriteInsFlag(options),
+    scoreWriteIns: shouldScoreWriteIns(options),
   });
 
   return validateInterpretResults(

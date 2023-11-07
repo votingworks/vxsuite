@@ -46,7 +46,7 @@ import {
   ScoredBubbleMarks,
 } from './hmpb-ts';
 import { type InterpretFileResult, type InterpretResult } from './interpret';
-import { getScoreWriteInsFlag, InterpreterOptions } from './options';
+import { shouldScoreWriteIns, InterpreterOptions } from './options';
 
 type OkType<T> = T extends Ok<infer U> ? U : never;
 
@@ -120,7 +120,7 @@ function aggregateContestOptionScores({
         : MarkStatus.Unmarked;
 
     const expectScoredWriteInArea =
-      getScoreWriteInsFlag(options) && gridPosition.type === 'write-in';
+      shouldScoreWriteIns(options) && gridPosition.type === 'write-in';
     const scoredWriteInArea = expectScoredWriteInArea
       ? findScoredWriteInAreaForGridPosition(writeIns, gridPosition)
       : undefined;
@@ -388,7 +388,7 @@ function convertNextInterpretedBallotPage(
         options.markThresholds,
         markInfo.marks
       ),
-      unmarkedWriteIns: getScoreWriteInsFlag(options)
+      unmarkedWriteIns: shouldScoreWriteIns(options)
         ? getUnmarkedWriteInsFromScoredContestOptions(contestOptionScores)
         : undefined,
       layout: {
