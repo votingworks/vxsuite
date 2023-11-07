@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { IdleTimerProvider } from 'react-idle-timer';
 
-import { Paths } from '@votingworks/mark-flow-ui';
-import { IDLE_TIMEOUT_SECONDS } from '../config/globals';
+import { IDLE_TIMEOUT_SECONDS, Paths } from '@votingworks/mark-flow-ui';
 import { ContestScreen } from '../pages/contest_screen';
 import { DisplaySettingsPage } from '../pages/display_settings_page';
 import { IdlePage } from '../pages/idle_page';

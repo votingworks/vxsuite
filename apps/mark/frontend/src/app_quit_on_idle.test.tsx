@@ -4,6 +4,10 @@ import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
+import {
+  IDLE_RESET_TIMEOUT_SECONDS,
+  IDLE_TIMEOUT_SECONDS,
+} from '@votingworks/mark-flow-ui';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { App } from './app';
 
@@ -14,11 +18,7 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 
-import {
-  IDLE_RESET_TIMEOUT_SECONDS,
-  IDLE_TIMEOUT_SECONDS,
-  QUIT_KIOSK_IDLE_SECONDS,
-} from './config/globals';
+import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
