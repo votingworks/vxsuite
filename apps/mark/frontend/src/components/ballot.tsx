@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { IdleTimerProvider } from 'react-idle-timer';
+import {
+  DEFAULT_EVENTS,
+  EventsType,
+  IdleTimerProvider,
+} from 'react-idle-timer';
 
-import { Paths } from '@votingworks/mark-flow-ui';
-import { IDLE_TIMEOUT_SECONDS } from '../config/globals';
+import { IDLE_TIMEOUT_SECONDS, Paths } from '@votingworks/mark-flow-ui';
 import { ContestScreen } from '../pages/contest_screen';
 import { DisplaySettingsPage } from '../pages/display_settings_page';
 import { IdlePage } from '../pages/idle_page';
@@ -11,6 +14,16 @@ import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
 import { ReviewScreen } from '../pages/review_screen';
 import { StartScreen } from '../pages/start_screen';
+
+const USER_ACTIVITY_EVENT_TYPES: EventsType[] = (() => {
+  const allEvents = new Set(DEFAULT_EVENTS);
+  // The IdlePage has an autofocus button to enable gamepad interaction,
+  // which ends up triggering a focus event that would reset the idle timer.
+  // Ignoring focus events here, since we expect that any user-triggered
+  // focus event would be preceded by a touch/mouse/keyboard event.
+  allEvents.delete('focus');
+  return [...allEvents];
+})();
 
 export function Ballot(): JSX.Element {
   const [isIdle, setIsIdle] = useState(false);
@@ -29,6 +42,7 @@ export function Ballot(): JSX.Element {
   return (
     <IdleTimerProvider
       element={document}
+      events={USER_ACTIVITY_EVENT_TYPES}
       onActive={onActive}
       onIdle={onIdle}
       debounce={250}
