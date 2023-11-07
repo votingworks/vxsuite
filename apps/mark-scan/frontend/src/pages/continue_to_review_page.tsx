@@ -1,5 +1,14 @@
 import { ButtonFooter } from '@votingworks/mark-flow-ui';
-import { Main, Screen, Text, H1, LinkButton } from '@votingworks/ui';
+import {
+  Main,
+  Screen,
+  H1,
+  LinkButton,
+  appStrings,
+  AudioOnly,
+  Font,
+  P,
+} from '@votingworks/ui';
 
 // This page is rendered as part of the blank ballot interpretation flow immediately after
 // the poll worker card is removed. To protect voter privacy, we render this screen first to
@@ -8,17 +17,21 @@ export function ContinueToReviewPage(): JSX.Element {
   return (
     <Screen white>
       <Main padded centerChild>
-        <Text center>
-          <H1>Ready to Review</H1>
-          <p>
-            The ballot sheet has been loaded. You will have a chance to review
-            your selections before reprinting your ballot.
-          </p>
-        </Text>
+        <Font align="center" id="audiofocus">
+          <H1>{appStrings.titleBmdReadyToReview()}</H1>
+          <P>{appStrings.noteBmdBallotSheetLoaded()}</P>
+          <AudioOnly>{appStrings.instructionsBmdSelectToContinue()}</AudioOnly>
+        </Font>
       </Main>
       <ButtonFooter>
-        <LinkButton to="/review" id="next" variant="primary" icon="Done">
-          Return to Ballot Review
+        <LinkButton
+          autoFocus
+          to="/review"
+          id="next"
+          variant="primary"
+          icon="Done"
+        >
+          {appStrings.buttonReturnToBallotReview()}
         </LinkButton>
       </ButtonFooter>
     </Screen>
