@@ -1705,6 +1705,13 @@ export class Store {
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);
 
+    // we ignore unmarked write-ins that are not adjudicated for a candidate
+    whereParts.push(`not (
+      write_ins.is_unmarked = 1 and
+      official_candidate_id is null and
+      write_in_candidate_id is null
+    )`);
+
     for (const row of this.client.each(
       `
           select
@@ -1725,11 +1732,6 @@ export class Store {
           left join
             write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
           where ${whereParts.join(' and ')}
-            and (
-              write_ins.is_unmarked = 0 or
-              official_candidate_id is not null or
-              write_in_candidate_id is not null
-            )
           group by 
             ${groupByParts.map((line) => `${line},`).join('\n')}
             write_ins.contest_id,
