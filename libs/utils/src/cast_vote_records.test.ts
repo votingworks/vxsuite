@@ -278,9 +278,24 @@ describe('getWriteInsFromCastVoteRecord', () => {
         ],
       })
     ).toEqual([
-      { contestId: 'animals', optionId: 'write-in-0', side: 'front' },
-      { contestId: 'animals', optionId: 'write-in-1', side: 'front' },
-      { contestId: 'flowers', optionId: 'write-in-0', side: 'back' },
+      {
+        contestId: 'animals',
+        optionId: 'write-in-0',
+        side: 'front',
+        isUnmarked: false,
+      },
+      {
+        contestId: 'animals',
+        optionId: 'write-in-1',
+        side: 'front',
+        isUnmarked: false,
+      },
+      {
+        contestId: 'flowers',
+        optionId: 'write-in-0',
+        side: 'back',
+        isUnmarked: false,
+      },
       {
         contestId: 'tractors',
         optionId: 'write-in-0',
@@ -332,7 +347,9 @@ describe('getWriteInsFromCastVoteRecord', () => {
         ...mockCastVoteRecord,
         CVRSnapshot: [getMockSnapshotWithWriteIn('bad.jpg')],
       })
-    ).toEqual([{ contestId: 'animals', optionId: 'write-in-0' }]);
+    ).toEqual([
+      { contestId: 'animals', optionId: 'write-in-0', isUnmarked: false },
+    ]);
   });
 
   test('HMPB lacks top-level ballot image references', () => {
@@ -342,7 +359,9 @@ describe('getWriteInsFromCastVoteRecord', () => {
         BallotImage: undefined,
         CVRSnapshot: [getMockSnapshotWithWriteIn('front.jpg')],
       })
-    ).toEqual([{ contestId: 'animals', optionId: 'write-in-0' }]);
+    ).toEqual([
+      { contestId: 'animals', optionId: 'write-in-0', isUnmarked: false },
+    ]);
   });
 
   test('HMPB top-level ballot image reference lacks locations', () => {
@@ -355,7 +374,9 @@ describe('getWriteInsFromCastVoteRecord', () => {
         ],
         CVRSnapshot: [getMockSnapshotWithWriteIn(undefined)],
       })
-    ).toEqual([{ contestId: 'animals', optionId: 'write-in-0' }]);
+    ).toEqual([
+      { contestId: 'animals', optionId: 'write-in-0', isUnmarked: false },
+    ]);
   });
 
   test('HMPB write-in image reference lacks location', () => {
@@ -368,7 +389,9 @@ describe('getWriteInsFromCastVoteRecord', () => {
         ],
         CVRSnapshot: [getMockSnapshotWithWriteIn()],
       })
-    ).toEqual([{ contestId: 'animals', optionId: 'write-in-0' }]);
+    ).toEqual([
+      { contestId: 'animals', optionId: 'write-in-0', isUnmarked: false },
+    ]);
   });
 
   test('BMD path', () => {

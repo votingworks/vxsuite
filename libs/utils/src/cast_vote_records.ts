@@ -133,9 +133,7 @@ export function getWriteInsFromCastVoteRecord(
                   : 'back',
               isUnmarked:
                 selectionPosition.OtherStatus ===
-                UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS
-                  ? true
-                  : undefined,
+                UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
             });
           }
         }
