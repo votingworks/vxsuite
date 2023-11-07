@@ -49,6 +49,10 @@ export const appStrings = {
 
   buttonNo: () => <UiString uiStringKey="buttonNo">No</UiString>,
 
+  buttonStillVoting: () => (
+    <UiString uiStringKey="buttonStillVoting">Yes, I’m still voting.</UiString>
+  ),
+
   buttonOkay: () => <UiString uiStringKey="buttonOkay">Okay</UiString>,
 
   buttonPrintBallot: () => (
@@ -145,6 +149,12 @@ export const appStrings = {
     <UiString uiStringKey="labelBallotStyle">Ballot style:</UiString>
   ),
 
+  labelBmdSecondsRemaining: () => (
+    <UiString uiStringKey="labelBmdSecondsRemaining">
+      Number of seconds remaining:
+    </UiString>
+  ),
+
   labelBmdWriteInForm: () => (
     <UiString uiStringKey="labelBmdWriteInForm">
       Enter the name of a person who is <Font weight="bold">not</Font> on the
@@ -228,6 +238,10 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteClearingBallot: () => (
+    <UiString uiStringKey="noteClearingBallot">Clearing ballot</UiString>
+  ),
+
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
@@ -240,6 +254,10 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleBmdIdleScreen: () => (
+    <UiString uiStringKey="titleBmdIdleScreen">Are you still voting?</UiString>
+  ),
+
   titleBmdPrintScreen: () => (
     <UiString uiStringKey="titleBmdPrintScreen">
       Printing Your Official Ballot...
@@ -248,6 +266,19 @@ export const appStrings = {
 
   titleBmdReviewScreen: () => (
     <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
+  ),
+
+  warningBmdInactiveSession: () => (
+    <UiString uiStringKey="warningBmdInactiveSession">
+      This voting station has been inactive for more than 5 minutes.
+    </UiString>
+  ),
+
+  warningBmdInactiveTimeRemaining: () => (
+    <UiString uiStringKey="warningBmdInactiveTimeRemaining">
+      To protect your privacy, this ballot will be cleared when the timer runs
+      out.
+    </UiString>
   ),
 
   warningOvervoteCandidateContest: () => (

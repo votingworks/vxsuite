@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import { ProgressEllipsis } from './progress_ellipsis';
 import { Prose } from './prose';
@@ -10,7 +11,7 @@ const Fullscreen = styled.div`
 `;
 
 interface LoadingProps {
-  children?: string;
+  children?: React.ReactNode;
   isFullscreen?: boolean;
   as?: keyof JSX.IntrinsicElements;
 }
