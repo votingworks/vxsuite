@@ -515,26 +515,10 @@ pub fn interpret_ballot_card(
         .score_write_ins
         .then(|| {
             par_map_pair(
-                (
-                    &front_image,
-                    &front_contest_layouts,
-                    &front_scored_bubble_marks,
-                    &front_debug,
-                ),
-                (
-                    &back_image,
-                    &back_contest_layouts,
-                    &back_scored_bubble_marks,
-                    &back_debug,
-                ),
-                |(image, contest_layouts, scored_bubble_marks, debug)| {
-                    score_write_in_areas(
-                        image,
-                        grid_layout,
-                        contest_layouts,
-                        scored_bubble_marks,
-                        debug,
-                    )
+                (&front_image, &front_grid, BallotSide::Front, &front_debug),
+                (&back_image, &back_grid, BallotSide::Back, &back_debug),
+                |(image, grid, side, debug)| {
+                    score_write_in_areas(image, grid, grid_layout, sheet_number, side, debug)
                 },
             )
         })

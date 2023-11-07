@@ -15,7 +15,7 @@ use crate::{
     election::UnitIntervalValue,
     geometry::{
         find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
-        PixelUnit, Point, Rect, Segment, Size, SubPixelUnit,
+        PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
     },
     image_utils::{expand_image, match_template, WHITE},
     interpret::Error,
@@ -139,18 +139,55 @@ impl TimingMarkGrid {
     /// interpolating between the two based on the column.
     pub fn point_for_location(
         &self,
-        column: GridUnit,
-        row: GridUnit,
+        column: SubGridUnit,
+        row: SubGridUnit,
     ) -> Option<Point<SubPixelUnit>> {
-        if column >= self.geometry.grid_size.width || row >= self.geometry.grid_size.height {
+        if column >= self.geometry.grid_size.width as SubGridUnit
+            || row >= self.geometry.grid_size.height as SubGridUnit
+        {
             return None;
         }
 
-        let timing_mark_width = self.geometry.timing_mark_size.width.round() as u32;
-        let left = self.complete_timing_marks.left_rects.get(row as usize)?;
-        let right = self.complete_timing_marks.right_rects.get(row as usize)?;
+        let row_before = row.floor() as GridUnit;
+        let row_after = row.ceil() as GridUnit;
+        let distance_percentage_between_rows = row - row_before as f32;
+        let left_before = self
+            .complete_timing_marks
+            .left_rects
+            .get(row_before as usize)?;
+        let right_before = self
+            .complete_timing_marks
+            .right_rects
+            .get(row_before as usize)?;
+        let left_after = self
+            .complete_timing_marks
+            .left_rects
+            .get(row_after as usize)?;
+        let right_after = self
+            .complete_timing_marks
+            .right_rects
+            .get(row_after as usize)?;
+        let left = Rect::new(
+            left_before.left(),
+            left_before.top()
+                + (distance_percentage_between_rows
+                    * ((left_after.top() - left_before.top()) as SubPixelUnit))
+                    as PixelPosition,
+            left_before.width(),
+            left_before.height(),
+        );
+        let right = Rect::new(
+            right_before.left(),
+            right_before.top()
+                + (distance_percentage_between_rows
+                    * ((right_after.top() - right_before.top()) as SubPixelUnit))
+                    as PixelPosition,
+            right_before.width(),
+            right_before.height(),
+        );
 
         // account for marks being cropped during scanning or border removal
+        let timing_mark_width = self.geometry.timing_mark_size.width.round() as u32;
         let corrected_left = Rect::new(
             left.right() - timing_mark_width as PixelPosition,
             left.top(),
@@ -161,8 +198,7 @@ impl TimingMarkGrid {
             Rect::new(right.left(), right.top(), timing_mark_width, right.height());
 
         let horizontal_segment = Segment::new(corrected_left.center(), corrected_right.center());
-        let distance_percentage =
-            column as SubPixelUnit / (self.geometry.grid_size.width - 1) as SubPixelUnit;
+        let distance_percentage = column / (self.geometry.grid_size.width - 1) as SubGridUnit;
         let Segment {
             start: _,
             end: expected_timing_mark_center,
@@ -854,7 +890,9 @@ pub fn find_empty_bubbles_matching_template(
 
     for column in 1..grid.geometry.grid_size.width - 1 {
         for row in 1..grid.geometry.grid_size.height - 1 {
-            if let Some(bubble_center) = grid.point_for_location(column, row) {
+            if let Some(bubble_center) =
+                grid.point_for_location(column as SubGridUnit, row as SubGridUnit)
+            {
                 let bubble_center = bubble_center.round();
                 let bubble_origin = Point::new(
                     (bubble_center.x as SubPixelUnit
