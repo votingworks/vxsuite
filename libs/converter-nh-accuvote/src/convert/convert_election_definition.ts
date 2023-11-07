@@ -207,12 +207,27 @@ export function convertElectionDefinition(
         {
           ...gridLayout,
           ballotStyleId,
-          gridPositions: mergedGrids.map(([definition, bubble]) => ({
-            ...definition,
-            side: bubble.side,
-            column: bubble.column,
-            row: bubble.row,
-          })),
+          gridPositions: mergedGrids.map(([definition, bubble]) =>
+            definition.type === 'option'
+              ? {
+                  ...definition,
+                  side: bubble.side,
+                  column: bubble.column,
+                  row: bubble.row,
+                }
+              : {
+                  ...definition,
+                  side: bubble.side,
+                  column: bubble.column,
+                  row: bubble.row,
+                  writeInArea: {
+                    x: bubble.column - 5,
+                    y: bubble.row - 0.65,
+                    width: 4.5,
+                    height: 0.85,
+                  },
+                }
+          ),
         },
       ],
     };
