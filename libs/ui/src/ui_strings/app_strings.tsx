@@ -59,6 +59,12 @@ export const appStrings = {
     <UiString uiStringKey="buttonPrintBallot">Print My Ballot</UiString>
   ),
 
+  buttonReturnToBallotReview: () => (
+    <UiString uiStringKey="buttonReturnToBallotReview">
+      Return to Ballot Review
+    </UiString>
+  ),
+
   buttonReview: () => <UiString uiStringKey="buttonReview">Review</UiString>,
 
   buttonStartVoting: () => (
@@ -238,6 +244,13 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteBmdBallotSheetLoaded: () => (
+    <UiString uiStringKey="noteBmdBallotSheetLoaded">
+      The ballot sheet has been loaded. You will have a chance to review your
+      selections before reprinting your ballot.
+    </UiString>
+  ),
+
   noteClearingBallot: () => (
     <UiString uiStringKey="noteClearingBallot">Clearing ballot</UiString>
   ),
@@ -262,6 +275,10 @@ export const appStrings = {
     <UiString uiStringKey="titleBmdPrintScreen">
       Printing Your Official Ballot...
     </UiString>
+  ),
+
+  titleBmdReadyToReview: () => (
+    <UiString uiStringKey="titleBmdReadyToReview">Ready to Review</UiString>
   ),
 
   titleBmdReviewScreen: () => (
