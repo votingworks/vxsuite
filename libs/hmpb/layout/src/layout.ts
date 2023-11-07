@@ -1025,6 +1025,12 @@ function CandidateContest({
         column: gridColumn + bubbleColumn - 1,
         row: gridRow + optionRow,
         writeInIndex,
+        writeInArea: {
+          x: gridColumn + optionLabelColumn - 1,
+          y: gridRow + optionRow - 0.25 - (m.WRITE_IN_ROW_HEIGHT - 1) / 2,
+          width: width - 2,
+          height: 0.45 + (m.WRITE_IN_ROW_HEIGHT - 1) / 2,
+        },
       });
     }
   }
