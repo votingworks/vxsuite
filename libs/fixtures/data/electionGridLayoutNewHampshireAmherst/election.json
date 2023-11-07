@@ -659,7 +659,13 @@
           "column": 32,
           "row": 8,
           "contestId": "Governor-061a401b",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 7.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -668,7 +674,13 @@
           "column": 32,
           "row": 11,
           "contestId": "United-States-Senator-d3f1c75b",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 10.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -677,7 +689,13 @@
           "column": 32,
           "row": 14,
           "contestId": "Representative-in-Congress-24683b44",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 13.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -686,7 +704,13 @@
           "column": 32,
           "row": 17,
           "contestId": "Executive-Councilor-bb22557f",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 16.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -695,7 +719,13 @@
           "column": 32,
           "row": 20,
           "contestId": "State-Senator-391381f8",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 19.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -704,7 +734,13 @@
           "column": 32,
           "row": 23,
           "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 22.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -713,7 +749,13 @@
           "column": 32,
           "row": 25,
           "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-          "writeInIndex": 1
+          "writeInIndex": 1,
+          "writeInArea": {
+            "x": 27,
+            "y": 24.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -722,7 +764,13 @@
           "column": 32,
           "row": 27,
           "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
-          "writeInIndex": 2
+          "writeInIndex": 2,
+          "writeInArea": {
+            "x": 27,
+            "y": 26.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -731,7 +779,13 @@
           "column": 32,
           "row": 32,
           "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 31.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -740,7 +794,13 @@
           "column": 32,
           "row": 4,
           "contestId": "Sheriff-4243fe0b",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 3.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -749,7 +809,13 @@
           "column": 32,
           "row": 7,
           "contestId": "County-Attorney-133f910f",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 6.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -758,7 +824,13 @@
           "column": 32,
           "row": 10,
           "contestId": "County-Treasurer-87d25a31",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 9.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -767,7 +839,13 @@
           "column": 32,
           "row": 13,
           "contestId": "Register-of-Deeds-a1278df2",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 12.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -776,7 +854,13 @@
           "column": 32,
           "row": 16,
           "contestId": "Register-of-Probate-a4117da8",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 15.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -785,7 +869,13 @@
           "column": 32,
           "row": 19,
           "contestId": "County-Commissioner-d6feed25",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 18.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "option",
