@@ -1,29 +1,14 @@
-import { ButtonFooter } from '@votingworks/mark-flow-ui';
-import {
-  Main,
-  Screen,
-  H1,
-  LinkButton,
-  appStrings,
-  AudioOnly,
-  Font,
-  P,
-} from '@votingworks/ui';
+import { LinkButton, appStrings, AudioOnly, P } from '@votingworks/ui';
+import { CenteredPageLayout } from '../components/centered_page_layout';
 
 // This page is rendered as part of the blank ballot interpretation flow immediately after
 // the poll worker card is removed. To protect voter privacy, we render this screen first to
 // ask the voter to approve before showing ballot selections on screen.
 export function ContinueToReviewPage(): JSX.Element {
   return (
-    <Screen white>
-      <Main padded centerChild>
-        <Font align="center" id="audiofocus">
-          <H1>{appStrings.titleBmdReadyToReview()}</H1>
-          <P>{appStrings.noteBmdBallotSheetLoaded()}</P>
-          <AudioOnly>{appStrings.instructionsBmdSelectToContinue()}</AudioOnly>
-        </Font>
-      </Main>
-      <ButtonFooter>
+    <CenteredPageLayout
+      title={appStrings.titleBmdReadyToReview()}
+      buttons={
         <LinkButton
           autoFocus
           to="/review"
@@ -33,7 +18,11 @@ export function ContinueToReviewPage(): JSX.Element {
         >
           {appStrings.buttonReturnToBallotReview()}
         </LinkButton>
-      </ButtonFooter>
-    </Screen>
+      }
+      voterFacing
+    >
+      <P>{appStrings.noteBmdBallotSheetLoaded()}</P>
+      <AudioOnly>{appStrings.instructionsBmdSelectToContinue()}</AudioOnly>
+    </CenteredPageLayout>
   );
 }
