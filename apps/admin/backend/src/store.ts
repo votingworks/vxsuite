@@ -9,7 +9,6 @@ import {
   ok,
   typedAs,
   isResult,
-  assertDefined,
   assert,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
@@ -53,8 +52,6 @@ import {
   ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
-  CastVoteRecordStoreFilter,
-  WriteInAdjudicationAction,
   WriteInCandidateRecord,
   WriteInRecord,
   WriteInRecordAdjudicatedInvalid,
@@ -69,6 +66,11 @@ import {
   ManualResultsFilter,
   CardTally,
   WriteInAdjudicationQueueMetadata,
+  VoteAdjudication,
+  CastVoteRecordVoteInfo,
+  WriteInAdjudicationActionOfficialCandidate,
+  WriteInAdjudicationActionInvalid,
+  WriteInAdjudicationActionWriteInCandidate,
 } from './types';
 import { isBlankSheet } from './tabulation/utils';
 import { rootDebug } from './util/debug';
@@ -105,6 +107,12 @@ interface WriteInTallyRow {
   writeInCandidateId: string | null;
   writeInCandidateName: string | null;
   tally: number;
+}
+
+interface CastVoteRecordVoteAdjudication {
+  contestId: ContestId;
+  optionId: ContestOptionId;
+  isVote: 0 | 1;
 }
 
 /**
@@ -1250,6 +1258,37 @@ export class Store {
     return sheetNumber ? { type: 'hmpb', sheetNumber } : { type: 'bmd' };
   }
 
+  private parseVotesWithAdjudications({
+    votesString,
+    adjudicationsString,
+  }: {
+    votesString: string;
+    adjudicationsString: string | null;
+  }): Tabulation.Votes {
+    const votes = JSON.parse(votesString) as Tabulation.Votes;
+    if (!adjudicationsString) return votes;
+
+    const adjudications = JSON.parse(
+      adjudicationsString
+    ) as CastVoteRecordVoteAdjudication[];
+
+    for (const adjudication of adjudications) {
+      const currentContestVotes =
+        votes[adjudication.contestId] ?? /* c8 ignore next 1 */ [];
+      if (adjudication.isVote) {
+        votes[adjudication.contestId] = [
+          ...currentContestVotes,
+          adjudication.optionId,
+        ];
+      } else {
+        votes[adjudication.contestId] = currentContestVotes.filter(
+          (optionId) => optionId !== adjudication.optionId
+        );
+      }
+    }
+    return votes;
+  }
+
   /**
    * Returns an iterator of cast vote records for tabulation purposes. Filters
    * the cast vote records by specified filters.
@@ -1276,12 +1315,31 @@ export class Store {
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
           cvrs.sheet_number as sheetNumber,
-          cvrs.votes as votes
+          cvrs.votes as votes,
+          aggregated_adjudications.adjudications as adjudications
         from cvrs 
         inner join scanner_batches on cvrs.batch_id = scanner_batches.id
         inner join ballot_styles on
           cvrs.election_id = ballot_styles.election_id and 
           cvrs.ballot_style_id = ballot_styles.id
+        left join (
+          select
+            cvr_id,
+            case when id is null 
+              then null 
+              else json_group_array(
+                json_object(
+                  'contestId', contest_id,
+                  'optionId', option_id,
+                  'isVote', is_vote
+                )
+              ) 
+            end adjudications
+          from vote_adjudications
+          where deleted_at is null
+          group by cvr_id
+        ) aggregated_adjudications 
+          on cvrs.id = aggregated_adjudications.cvr_id
         where ${whereParts.join(' and ')}
       `,
       ...params
@@ -1289,6 +1347,7 @@ export class Store {
       StoreCastVoteRecordAttributes & {
         sheetNumber: number | null;
         votes: string;
+        adjudications: string | null;
       }
     >) {
       yield {
@@ -1299,7 +1358,10 @@ export class Store {
         scannerId: row.scannerId,
         precinctId: row.precinctId,
         card: this.convertSheetNumberToCard(row.sheetNumber),
-        votes: JSON.parse(row.votes),
+        votes: this.parseVotesWithAdjudications({
+          votesString: row.votes,
+          adjudicationsString: row.adjudications,
+        }),
       };
     }
   }
@@ -1509,7 +1571,7 @@ export class Store {
     };
   }
 
-  private deleteWriteInCandidateIfChildless(id: Id): void {
+  deleteWriteInCandidateIfNotReferenced(id: Id): void {
     const adjudicatedWriteIn = this.client.one(
       `
         select id from write_ins
@@ -1537,7 +1599,7 @@ export class Store {
     }
   }
 
-  private deleteAllChildlessWriteInCandidates(): void {
+  deleteAllWriteInCandidatesNotReferenced(): void {
     this.client.run(
       `
       delete from write_in_candidates
@@ -1661,7 +1723,7 @@ export class Store {
   }: {
     electionId: Id;
     election: Election;
-    filter?: CastVoteRecordStoreFilter;
+    filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<WriteInTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
@@ -1834,7 +1896,8 @@ export class Store {
       if (row.officialCandidateId) {
         return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
           id: row.id,
-          castVoteRecordId: row.castVoteRecordId,
+          electionId,
+          cvrId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
           status: 'adjudicated',
@@ -1847,7 +1910,8 @@ export class Store {
       if (row.writeInCandidateId) {
         return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
           id: row.id,
-          castVoteRecordId: row.castVoteRecordId,
+          electionId,
+          cvrId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
           status: 'adjudicated',
@@ -1860,7 +1924,8 @@ export class Store {
       if (row.isInvalid) {
         return typedAs<WriteInRecordAdjudicatedInvalid>({
           id: row.id,
-          castVoteRecordId: row.castVoteRecordId,
+          electionId,
+          cvrId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
           status: 'adjudicated',
@@ -1871,10 +1936,11 @@ export class Store {
 
       return typedAs<WriteInRecordPending>({
         id: row.id,
-        status: 'pending',
-        castVoteRecordId: row.castVoteRecordId,
+        electionId,
+        cvrId: row.castVoteRecordId,
         contestId: row.contestId,
         optionId: row.optionId,
+        status: 'pending',
         isUnmarked: Boolean(row.isUnmarked),
       });
     });
@@ -1961,46 +2027,184 @@ export class Store {
     return row?.id;
   }
 
-  /**
-   * Adjudicates a write-in.
-   */
-  adjudicateWriteIn(adjudicationAction: WriteInAdjudicationAction): void {
-    const [initialWriteInRecord] = this.getWriteInRecords({
-      electionId: assertDefined(this.getCurrentElectionId()),
-      writeInId: adjudicationAction.writeInId,
-    });
-    assert(initialWriteInRecord, 'write-in record does not exist');
+  getCastVoteRecordVoteInfo({
+    electionId,
+    cvrId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+  }): CastVoteRecordVoteInfo {
+    const row = this.client.one(
+      `
+        select
+          id,
+          election_id as electionId,
+          votes as votes
+        from cvrs
+        where
+          election_id = ? and
+          id = ?
+      `,
+      electionId,
+      cvrId
+    ) as {
+      id: Id;
+      electionId: Id;
+      votes: string;
+    };
 
-    const params =
-      adjudicationAction.type === 'invalid'
-        ? [adjudicationAction.writeInId]
-        : [adjudicationAction.candidateId, adjudicationAction.writeInId];
+    return {
+      id: row.id,
+      electionId: row.electionId,
+      votes: JSON.parse(row.votes),
+    };
+  }
 
+  getVoteAdjudication({
+    electionId,
+    cvrId,
+    contestId,
+    optionId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+    contestId: ContestId;
+    optionId: ContestOptionId;
+  }): Optional<VoteAdjudication> {
+    const row = this.client.one(
+      `
+      select
+        election_id as electionId,
+        cvr_id as cvrId,
+        contest_id as contestId,
+        option_id as optionId,
+        is_vote as isVote,
+        id
+      from vote_adjudications 
+      where
+        election_id = ? and
+        cvr_id = ? and 
+        contest_id = ? and 
+        option_id = ? and
+        deleted_at is null
+    `,
+      electionId,
+      cvrId,
+      contestId,
+      optionId
+    ) as Optional<{
+      id: Id;
+      electionId: Id;
+      cvrId: Id;
+      contestId: Id;
+      optionId: Id;
+      isVote: 0 | 1;
+    }>;
+
+    return row
+      ? {
+          ...row,
+          isVote: Boolean(row.isVote),
+        }
+      : undefined;
+  }
+
+  deleteVoteAdjudication({ id }: { id: Id }): void {
+    this.client.run(
+      `
+      update vote_adjudications
+      set deleted_at = current_timestamp
+      where id = ?
+    `,
+      id
+    );
+  }
+
+  createVoteAdjudication({
+    electionId,
+    cvrId,
+    contestId,
+    optionId,
+    isVote,
+  }: Omit<VoteAdjudication, 'id'>): VoteAdjudication {
+    const { id } = this.client.one(
+      `
+      insert into vote_adjudications
+        (election_id, cvr_id, contest_id, option_id, is_vote)
+      values
+        (?, ?, ?, ?, ?)
+      returning (id)
+    `,
+      electionId,
+      cvrId,
+      contestId,
+      optionId,
+      isVote ? 1 : 0
+    ) as { id: Id };
+
+    return {
+      id,
+      electionId,
+      cvrId,
+      contestId,
+      optionId,
+      isVote,
+    };
+  }
+
+  setWriteInRecordOfficialCandidate({
+    writeInId,
+    candidateId,
+  }: WriteInAdjudicationActionOfficialCandidate): void {
     this.client.run(
       `
         update write_ins
         set 
-          is_invalid = ${adjudicationAction.type === 'invalid' ? 1 : 0}, 
-          official_candidate_id = ${
-            adjudicationAction.type === 'official-candidate' ? '?' : 'null'
-          }, 
-          write_in_candidate_id = ${
-            adjudicationAction.type === 'write-in-candidate' ? '?' : 'null'
-          }, 
+          is_invalid = 0, 
+          official_candidate_id = ?, 
+          write_in_candidate_id = null,
           adjudicated_at = current_timestamp
         where id = ?
       `,
-      ...params
+      candidateId,
+      writeInId
     );
+  }
 
-    // if we are switching away from a write-in candidate, we may have to clean
-    // up the record if it has no references
-    if (
-      initialWriteInRecord.status === 'adjudicated' &&
-      initialWriteInRecord.adjudicationType === 'write-in-candidate'
-    ) {
-      this.deleteWriteInCandidateIfChildless(initialWriteInRecord.candidateId);
-    }
+  setWriteInRecordUnofficialCandidate({
+    writeInId,
+    candidateId,
+  }: WriteInAdjudicationActionWriteInCandidate): void {
+    this.client.run(
+      `
+        update write_ins
+        set 
+          is_invalid = 0, 
+          official_candidate_id = null, 
+          write_in_candidate_id = ?,
+          adjudicated_at = current_timestamp
+        where id = ?
+      `,
+      candidateId,
+      writeInId
+    );
+  }
+
+  setWriteInRecordInvalid({
+    writeInId,
+  }: WriteInAdjudicationActionInvalid): void {
+    this.client.run(
+      `
+        update write_ins
+        set 
+          is_invalid = 1, 
+          official_candidate_id = null, 
+          write_in_candidate_id = null,
+          adjudicated_at = current_timestamp
+        where id = ?
+      `,
+      writeInId
+    );
   }
 
   deleteAllManualResults({ electionId }: { electionId: Id }): void {
@@ -2011,7 +2215,7 @@ export class Store {
 
     // removing manual results may have left unofficial write-in candidates
     // without any references, so we delete them
-    this.deleteAllChildlessWriteInCandidates();
+    this.deleteAllWriteInCandidatesNotReferenced();
   }
 
   deleteManualResults({
@@ -2034,9 +2238,9 @@ export class Store {
       votingMethod
     );
 
-    // removing the manual result may have left unofficial write-in candidates
+    // removing manual results may have left unofficial write-in candidates
     // without any references, so we delete them
-    this.deleteAllChildlessWriteInCandidates();
+    this.deleteAllWriteInCandidatesNotReferenced();
   }
 
   setManualResults({
@@ -2124,7 +2328,7 @@ export class Store {
 
     // delete write-in candidates that may have only been included on the
     // previously entered manual results and are now not referenced
-    this.deleteAllChildlessWriteInCandidates();
+    this.deleteAllWriteInCandidatesNotReferenced();
   }
 
   private getManualResultsFilterAsSql(

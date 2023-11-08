@@ -132,6 +132,23 @@ create table cvrs (
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
 
+create table vote_adjudications (
+  id integer primary key,
+  cvr_id varchar(36) not null,
+  election_id varchar(36) not null,
+  contest_id text not null,
+  option_id text not null,
+  is_vote boolean not null,
+  created_at timestamp not null default current_timestamp,
+  deleted_at timestamp,
+  foreign key (election_id) references elections(id)
+    on delete cascade,
+  foreign key (cvr_id) references cvrs(id)
+    on delete cascade
+);
+
+create index idx_vote_adjudications_cvr_id on vote_adjudications(cvr_id);
+
 create table scanner_batches (
   id text not null,
   label text not null,

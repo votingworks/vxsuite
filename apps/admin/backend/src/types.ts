@@ -161,7 +161,8 @@ interface WriteInRecordBase {
   readonly id: Id;
   readonly contestId: ContestId;
   readonly optionId: ContestOptionId;
-  readonly castVoteRecordId: Id;
+  readonly cvrId: Id;
+  readonly electionId: Id;
   readonly isUnmarked?: boolean;
 }
 
@@ -354,6 +355,28 @@ export interface WriteInAdjudicationContext {
 }
 
 /**
+ * An adjudication that creates a mark where one was not previously tabulated
+ * or removes a mark that was previously tabulated.
+ */
+export interface VoteAdjudication {
+  id: Id;
+  electionId: Id;
+  cvrId: Id;
+  contestId: Id;
+  optionId: Id;
+  isVote: boolean;
+}
+
+/**
+ * Top-level adjudication information about a cast vote record.
+ */
+export interface CastVoteRecordVoteInfo {
+  id: Id;
+  electionId: Id;
+  votes: Tabulation.CastVoteRecord['votes'];
+}
+
+/**
  * Ballot mode.
  */
 export type BallotMode =
@@ -418,12 +441,6 @@ export type ManualResultsFilter = Omit<
   Tabulation.Filter,
   'scannerIds' | 'batchIds'
 >;
-
-/**
- * Subset of tabulation filters that we can use to directly filter cast
- * vote records.
- */
-export type CastVoteRecordStoreFilter = Omit<Tabulation.Filter, 'partyIds'>;
 
 /**
  * Contest tally format for export to SEMS converter.

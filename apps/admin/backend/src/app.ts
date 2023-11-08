@@ -86,6 +86,7 @@ import {
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
+import { adjudicateWriteIn } from './adjudication';
 
 const debug = rootDebug.extend('app');
 
@@ -516,7 +517,7 @@ function buildApi({
     },
 
     adjudicateWriteIn(input: WriteInAdjudicationAction): void {
-      store.adjudicateWriteIn(input);
+      adjudicateWriteIn(input, store);
     },
 
     getWriteInAdjudicationQueueMetadata(
