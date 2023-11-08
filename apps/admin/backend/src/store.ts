@@ -516,8 +516,8 @@ export class Store {
           insert into voting_methods (
             election_id,
             voting_method
-          ) 
-          values 
+          )
+          values
             ${Tabulation.SUPPORTED_VOTING_METHODS.map(() => '(?, ?)').join(
               ',\n'
             )}
@@ -598,10 +598,10 @@ export class Store {
           ${['1 as universalGroup', ...selectParts].join(',\n')}
         from ballot_styles
         inner join ballot_styles_to_precincts on
-          ballot_styles_to_precincts.election_id = ballot_styles.election_id and 
+          ballot_styles_to_precincts.election_id = ballot_styles.election_id and
           ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
         inner join precincts on
-          ballot_styles_to_precincts.election_id = precincts.election_id and 
+          ballot_styles_to_precincts.election_id = precincts.election_id and
           ballot_styles_to_precincts.precinct_id = precincts.id
         inner join voting_methods on
           voting_methods.election_id = ballot_styles.election_id
@@ -668,13 +668,13 @@ export class Store {
       select contests.id as contestId, contests.sort_index as sortIndex
       from contests
       inner join ballot_styles_to_districts on
-        ballot_styles_to_districts.election_id = ? and 
+        ballot_styles_to_districts.election_id = ? and
         ballot_styles_to_districts.district_id = contests.district_id
       inner join ballot_styles on
         ballot_styles.election_id = ? and
         ballot_styles.id = ballot_styles_to_districts.ballot_style_id
       inner join ballot_styles_to_precincts on
-        ballot_styles_to_precincts.election_id = ? and 
+        ballot_styles_to_precincts.election_id = ? and
         ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
       where
         ${whereParts.join(' and\n')}
@@ -1075,8 +1075,8 @@ export class Store {
             ballot_images.layout as layout
           from write_ins
           inner join
-            ballot_images on 
-              write_ins.cvr_id = ballot_images.cvr_id and 
+            ballot_images on
+              write_ins.cvr_id = ballot_images.cvr_id and
               write_ins.side = ballot_images.side
           where write_ins.id = ?
         `,
@@ -1317,28 +1317,28 @@ export class Store {
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes,
           aggregated_adjudications.adjudications as adjudications
-        from cvrs 
+        from cvrs
         inner join scanner_batches on cvrs.batch_id = scanner_batches.id
         inner join ballot_styles on
-          cvrs.election_id = ballot_styles.election_id and 
+          cvrs.election_id = ballot_styles.election_id and
           cvrs.ballot_style_id = ballot_styles.id
         left join (
           select
             cvr_id,
-            case when id is null 
-              then null 
+            case when id is null
+              then null
               else json_group_array(
                 json_object(
                   'contestId', contest_id,
                   'optionId', option_id,
                   'isVote', is_vote
                 )
-              ) 
+              )
             end adjudications
           from vote_adjudications
           where deleted_at is null
           group by cvr_id
-        ) aggregated_adjudications 
+        ) aggregated_adjudications
           on cvrs.id = aggregated_adjudications.cvr_id
         where ${whereParts.join(' and ')}
       `,
@@ -1427,10 +1427,10 @@ export class Store {
             ${selectParts.map((line) => `${line},`).join('\n')}
             cvrs.sheet_number as sheetNumber,
             count(cvrs.id) as tally
-          from cvrs 
+          from cvrs
           inner join scanner_batches on cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
-            cvrs.election_id = ballot_styles.election_id and 
+            cvrs.election_id = ballot_styles.election_id and
             cvrs.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
           group by
@@ -1552,7 +1552,7 @@ export class Store {
 
     this.client.run(
       `
-        insert into write_in_candidates 
+        insert into write_in_candidates
           (id, election_id, contest_id, name)
         values
           (?, ?, ?, ?)
@@ -1603,12 +1603,12 @@ export class Store {
     this.client.run(
       `
       delete from write_in_candidates
-      where 
+      where
         id not in (
           select distinct write_in_candidate_id
           from write_ins
           where write_in_candidate_id is not null
-        ) and 
+        ) and
         id not in (
           select distinct write_in_candidate_id
           from manual_result_write_in_candidate_references
@@ -1789,12 +1789,12 @@ export class Store {
             cvrs on write_ins.cvr_id = cvrs.id
           inner join scanner_batches on cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
-              cvrs.election_id = ballot_styles.election_id and 
+              cvrs.election_id = ballot_styles.election_id and
               cvrs.ballot_style_id = ballot_styles.id
           left join
             write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
           where ${whereParts.join(' and ')}
-          group by 
+          group by
             ${groupByParts.map((line) => `${line},`).join('\n')}
             write_ins.contest_id,
             write_ins.official_candidate_id,
@@ -2080,11 +2080,11 @@ export class Store {
         option_id as optionId,
         is_vote as isVote,
         id
-      from vote_adjudications 
+      from vote_adjudications
       where
         election_id = ? and
-        cvr_id = ? and 
-        contest_id = ? and 
+        cvr_id = ? and
+        contest_id = ? and
         option_id = ? and
         deleted_at is null
     `,
@@ -2159,9 +2159,9 @@ export class Store {
     this.client.run(
       `
         update write_ins
-        set 
-          is_invalid = 0, 
-          official_candidate_id = ?, 
+        set
+          is_invalid = 0,
+          official_candidate_id = ?,
           write_in_candidate_id = null,
           adjudicated_at = current_timestamp
         where id = ?
@@ -2178,9 +2178,9 @@ export class Store {
     this.client.run(
       `
         update write_ins
-        set 
-          is_invalid = 0, 
-          official_candidate_id = null, 
+        set
+          is_invalid = 0,
+          official_candidate_id = null,
           write_in_candidate_id = ?,
           adjudicated_at = current_timestamp
         where id = ?
@@ -2196,9 +2196,9 @@ export class Store {
     this.client.run(
       `
         update write_ins
-        set 
-          is_invalid = 1, 
-          official_candidate_id = null, 
+        set
+          is_invalid = 1,
+          official_candidate_id = null,
           write_in_candidate_id = null,
           adjudicated_at = current_timestamp
         where id = ?
@@ -2227,7 +2227,7 @@ export class Store {
     this.client.run(
       `
         delete from manual_results
-        where 
+        where
           election_id = ? and
           precinct_id = ? and
           ballot_style_id = ? and
@@ -2267,7 +2267,7 @@ export class Store {
           voting_method,
           ballot_count,
           contest_results
-        ) values 
+        ) values
           (?, ?, ?, ?, ?, ?)
         on conflict
           (election_id, precinct_id, ballot_style_id, voting_method)
@@ -2387,7 +2387,7 @@ export class Store {
     return (
       this.client.all(
         `
-          select 
+          select
             manual_results.precinct_id as precinctId,
             manual_results.ballot_style_id as ballotStyleId,
             manual_results.voting_method as votingMethod,
@@ -2396,7 +2396,7 @@ export class Store {
             datetime(manual_results.created_at, 'localtime') as createdAt
           from manual_results
           inner join ballot_styles on
-            manual_results.election_id = ballot_styles.election_id and 
+            manual_results.election_id = ballot_styles.election_id and
             manual_results.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
         `,
@@ -2437,7 +2437,7 @@ export class Store {
     return (
       this.client.all(
         `
-          select 
+          select
             manual_results.precinct_id as precinctId,
             manual_results.ballot_style_id as ballotStyleId,
             manual_results.voting_method as votingMethod,
@@ -2445,7 +2445,7 @@ export class Store {
             datetime(manual_results.created_at, 'localtime') as createdAt
           from manual_results
           inner join ballot_styles on
-            manual_results.election_id = ballot_styles.election_id and 
+            manual_results.election_id = ballot_styles.election_id and
             manual_results.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
         `,
