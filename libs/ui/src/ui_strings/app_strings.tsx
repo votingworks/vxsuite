@@ -292,6 +292,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteBmdInterpretationProblem: () => (
+    <UiString uiStringKey="noteBmdInterpretationProblem">
+      There was a problem interpreting your ballot.
+    </UiString>
+  ),
+
   noteBmdSessionRestart: () => (
     <UiString uiStringKey="noteBmdSessionRestart">
       Your voting session will restart shortly.
