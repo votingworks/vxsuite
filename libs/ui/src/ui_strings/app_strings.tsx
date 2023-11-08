@@ -109,6 +109,13 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdInvalidatedBallot: () => (
+    <UiString uiStringKey="instructionsBmdInvalidatedBallot">
+      You have indicated your ballot needs changes. Please alert a poll worker
+      to invalidate your incorrect ballot and restart your voting session.
+    </UiString>
+  ),
+
   instructionsBmdLoadPaper: () => (
     <UiString uiStringKey="instructionsBmdLoadPaper">
       Please feed one sheet of paper into the front input tray. The printer will
@@ -294,6 +301,12 @@ export const appStrings = {
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
+    </UiString>
+  ),
+
+  titleBmdAskForHelpScreen: () => (
+    <UiString uiStringKey="titleBmdAskForHelpScreen">
+      Ask a Poll Worker for Help
     </UiString>
   ),
 
