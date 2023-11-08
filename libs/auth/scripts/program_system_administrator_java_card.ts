@@ -27,7 +27,7 @@ If not, that's likely the cause of this error.
 Run that and then retry.
 `;
 
-async function programSystemAdministratorJavaCard(): Promise<string> {
+async function programSystemAdministratorJavaCard(): Promise<void> {
   const card = new JavaCard(); // Uses NODE_ENV to determine which config to use
   await waitForReadyCardStatus(card);
 
@@ -45,7 +45,7 @@ async function programSystemAdministratorJavaCard(): Promise<string> {
     }
     throw error;
   }
-  return pin;
+  console.log(`✅ Done! Card PIN is ${hyphenatePin(pin)}.`);
 }
 
 /**
@@ -56,13 +56,11 @@ async function programSystemAdministratorJavaCard(): Promise<string> {
  * Programming a production card requires additional production-machine-specific env vars.
  */
 export async function main(): Promise<void> {
-  let pin: string;
   try {
-    pin = await programSystemAdministratorJavaCard();
+    await programSystemAdministratorJavaCard();
+    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
-  console.log(`✅ Done! Card PIN is ${hyphenatePin(pin)}.`);
-  process.exit(0);
 }

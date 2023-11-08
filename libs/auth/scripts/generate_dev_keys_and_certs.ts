@@ -267,6 +267,8 @@ async function generateDevKeysAndCerts({
       );
     }
   }
+
+  console.log('✅ Done!');
 }
 
 /**
@@ -298,12 +300,10 @@ async function generateDevKeysAndCerts({
  */
 export async function main(): Promise<void> {
   try {
-    const generateDevKeysAndCertsInput = await parseCommandLineArgs();
-    await generateDevKeysAndCerts(generateDevKeysAndCertsInput);
+    await generateDevKeysAndCerts(await parseCommandLineArgs());
+    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
-  console.log('✅ Done!');
-  process.exit(0);
 }

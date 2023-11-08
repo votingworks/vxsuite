@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import { extractErrorMessage } from '@votingworks/basics';
 
 import { constructMachineCertSubject } from '../src/certs';
@@ -11,24 +10,23 @@ const jurisdiction =
     ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
     : undefined;
 
-async function createProductionMachineCertSigningRequest(): Promise<Buffer> {
-  return await createCertSigningRequest({
+async function createProductionMachineCertSigningRequest(): Promise<void> {
+  const certSigningRequest = await createCertSigningRequest({
     certKey: { source: 'tpm' },
     certSubject: constructMachineCertSubject(machineType, jurisdiction),
   });
+  process.stdout.write(certSigningRequest);
 }
 
 /**
  * A script for creating a production machine cert signing request, using the machine's TPM key
  */
 export async function main(): Promise<void> {
-  let certSigningRequest: Buffer;
   try {
-    certSigningRequest = await createProductionMachineCertSigningRequest();
+    await createProductionMachineCertSigningRequest();
+    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
-  process.stdout.write(certSigningRequest);
-  process.exit(0);
 }

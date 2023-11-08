@@ -1,10 +1,10 @@
 import { extractErrorMessage } from '@votingworks/basics';
 
+import { CardDetails } from '../src/card';
 import {
   DEV_VX_CERT_AUTHORITY_CERT_PATH,
   PROD_VX_CERT_AUTHORITY_CERT_PATH,
-} from '../src';
-import { CardDetails } from '../src/card';
+} from '../src/config';
 import { verifyFirstCertWasSignedBySecondCert } from '../src/cryptography';
 import { JavaCard } from '../src/java_card';
 import { waitForReadyCardStatus } from './utils';
@@ -52,19 +52,20 @@ async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
   return undefined;
 }
 
-function formatCardDetails(extendedCardDetails?: ExtendedCardDetails): string {
+function printCardDetails(extendedCardDetails?: ExtendedCardDetails): void {
   const { cardDetails, env } = extendedCardDetails ?? {};
   const { jurisdiction, role } = cardDetails?.user ?? {};
   const electionHash =
     cardDetails?.user.role !== 'system_administrator'
       ? cardDetails?.user.electionHash
       : undefined;
-  return `
+  const formattedCardDetails = `
 Env:           ${env ?? '-'}
 Jurisdiction:  ${jurisdiction ?? '-'}
 User role:     ${role ?? '-'}
 Election hash: ${electionHash ?? '-'}
 `;
+  console.log(formattedCardDetails);
 }
 
 /**
@@ -72,14 +73,11 @@ Election hash: ${electionHash ?? '-'}
  * election hash
  */
 export async function main(): Promise<void> {
-  let formattedCardDetails: string;
   try {
-    const cardDetails = await readJavaCardDetails();
-    formattedCardDetails = formatCardDetails(cardDetails);
+    printCardDetails(await readJavaCardDetails());
+    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
-  console.log(formattedCardDetails);
-  process.exit(0);
 }
