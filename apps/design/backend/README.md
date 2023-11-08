@@ -1,7 +1,5 @@
 # VxDesign (Backend)
 
-**Experimental Prototype**
-
 Backend server for VxDesign.
 
 ## Setup
@@ -15,6 +13,12 @@ frontend, which will automatically run the backend.
 cd apps/design/frontend
 pnpm start
 ```
+
+### Google Cloud Authentication
+
+Follow the instructions
+[here](./src/language_and_audio/README.md#google-cloud-authentication) to
+authenticate with Google Cloud for language and audio file generation.
 
 ## Configuration
 
