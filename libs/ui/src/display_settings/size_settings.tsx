@@ -6,6 +6,7 @@ import { RadioGroup } from '../radio_group';
 import { ThemeManagerContext } from '../theme_manager_context';
 import { ThemeLabel } from './theme_label';
 import { useScreenInfo } from '../hooks/use_screen_info';
+import { appStrings } from '../ui_strings';
 
 export interface SizeSettingsProps {
   /** @default ['touchSmall', 'touchMedium', 'touchLarge', 'touchExtraLarge'] */
@@ -19,11 +20,11 @@ const DEFAULT_SIZE_MODES: SizeMode[] = [
   'touchExtraLarge',
 ];
 
-const ORDERED_SIZE_MODE_LABELS: Record<TouchSizeMode, string> = {
-  touchSmall: 'Small',
-  touchMedium: 'Medium',
-  touchLarge: 'Large',
-  touchExtraLarge: 'Extra-Large',
+const ORDERED_SIZE_MODE_LABELS: Record<TouchSizeMode, JSX.Element> = {
+  touchSmall: appStrings.labelThemesSizeSmall(),
+  touchMedium: appStrings.labelThemesSizeMedium(),
+  touchLarge: appStrings.labelThemesSizeLarge(),
+  touchExtraLarge: appStrings.labelThemesSizeExtraLarge(),
 };
 
 export function SizeSettings(props: SizeSettingsProps): JSX.Element {
