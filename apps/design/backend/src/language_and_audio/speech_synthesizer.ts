@@ -32,6 +32,15 @@ export type MinimalGoogleCloudTextToSpeechClient = Pick<
 >;
 
 /**
+ * i18next catalog strings can contain tags that interfere with speech synthesis, e.g.
+ * "Do you prefer <1>apple pie</1> or <3>orange marmalade</3>?". This function cleans text in
+ * preparation for speech synthesis accordingly.
+ */
+export function cleanText(text: string): string {
+  return text.replace(/<\/?\d+>/g, '');
+}
+
+/**
  * An implementation of {@link SpeechSynthesizer} that uses the Google Cloud Text-to-Speech API
  */
 export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
@@ -60,7 +69,7 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     }
 
     const audioClipBase64 = await this.synthesizeSpeechWithGoogleCloud(
-      text,
+      cleanText(text),
       languageCode
     );
     this.store.addSpeechSynthesisCacheEntry({
