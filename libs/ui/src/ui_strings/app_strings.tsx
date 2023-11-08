@@ -269,8 +269,8 @@ export const appStrings = {
     <UiString uiStringKey="noteBmdCastingBallot">Casting Ballot...</UiString>
   ),
 
-  noteClearingBallot: () => (
-    <UiString uiStringKey="noteClearingBallot">Clearing ballot</UiString>
+  noteBmdClearingBallot: () => (
+    <UiString uiStringKey="noteBmdClearingBallot">Clearing ballot</UiString>
   ),
 
   noteBmdHardwareReset: () => (
