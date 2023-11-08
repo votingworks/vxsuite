@@ -405,7 +405,7 @@ test('modifyElectionResultsWithWriteInSummary', () => {
         tally: 11,
       },
     },
-    undervotes: 15,
+    undervotes: 6,
     votesAllowed: 3,
   });
 });

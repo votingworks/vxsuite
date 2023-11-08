@@ -21,6 +21,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
+import { adjudicateWriteIn } from '../adjudication';
 
 // mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -302,18 +303,18 @@ test('tabulateElectionResults - write-in handling', async () => {
   expect(store.getCastVoteRecordCountByFileId(fileId)).toEqual(184);
 
   /*  ******************* 
-  /*   Without WIA Data    
+  /*   Pre-Adjudication, No WIA Data
   /*  ******************* */
 
-  const overallResultsNoWiaData = (
+  const overallResultsPreAdjudication = (
     await tabulateElectionResults({
       electionId,
       store,
     })
   )[GROUP_KEY_ROOT];
-  assert(overallResultsNoWiaData);
+  assert(overallResultsPreAdjudication);
 
-  const partialExpectedResultsNoWiaData = buildElectionResultsFixture({
+  const partialExpectedResultsPreAdjudication = buildElectionResultsFixture({
     election,
     cardCounts: {
       bmd: 0,
@@ -341,11 +342,13 @@ test('tabulateElectionResults - write-in handling', async () => {
     includeGenericWriteIn: true,
   });
 
-  expect(overallResultsNoWiaData.cardCounts).toEqual(
-    partialExpectedResultsNoWiaData.cardCounts
+  expect(overallResultsPreAdjudication.cardCounts).toEqual(
+    partialExpectedResultsPreAdjudication.cardCounts
   );
-  expect(overallResultsNoWiaData.contestResults[candidateContestId]).toEqual(
-    partialExpectedResultsNoWiaData.contestResults[candidateContestId]
+  expect(
+    overallResultsPreAdjudication.contestResults[candidateContestId]
+  ).toEqual(
+    partialExpectedResultsPreAdjudication.contestResults[candidateContestId]
   );
 
   /*  ********************** 
@@ -358,65 +361,117 @@ test('tabulateElectionResults - write-in handling', async () => {
     contestId: candidateContestId,
   });
   const [writeIn1, writeIn2, writeIn3, writeIn4, writeIn5, writeIn6] = writeIns;
-  store.adjudicateWriteIn({
-    writeInId: writeIn1!.id,
-    type: 'invalid',
-  });
-  store.adjudicateWriteIn({
-    writeInId: writeIn2!.id,
-    type: 'invalid',
-  });
-  store.adjudicateWriteIn({
-    writeInId: writeIn3!.id,
-    type: 'official-candidate',
-    candidateId: 'Obadiah-Carrigan-5c95145a',
-  });
-  store.adjudicateWriteIn({
-    writeInId: writeIn4!.id,
-    type: 'official-candidate',
-    candidateId: 'Abigail-Bartlett-4e46c9d4',
-  });
+  adjudicateWriteIn(
+    {
+      writeInId: writeIn1!.id,
+      type: 'invalid',
+    },
+    store
+  );
+  adjudicateWriteIn(
+    {
+      writeInId: writeIn2!.id,
+      type: 'invalid',
+    },
+    store
+  );
+  adjudicateWriteIn(
+    {
+      writeInId: writeIn3!.id,
+      type: 'official-candidate',
+      candidateId: 'Obadiah-Carrigan-5c95145a',
+    },
+    store
+  );
+  adjudicateWriteIn(
+    {
+      writeInId: writeIn4!.id,
+      type: 'official-candidate',
+      candidateId: 'Abigail-Bartlett-4e46c9d4',
+    },
+    store
+  );
   const writeInCandidate1 = store.addWriteInCandidate({
     electionId,
     contestId: candidateContestId,
     name: 'Mr. Pickles',
   });
-  store.adjudicateWriteIn({
-    writeInId: writeIn5!.id,
-    type: 'write-in-candidate',
-    candidateId: writeInCandidate1.id,
-  });
+  adjudicateWriteIn(
+    {
+      writeInId: writeIn5!.id,
+      type: 'write-in-candidate',
+      candidateId: writeInCandidate1.id,
+    },
+    store
+  );
   const writeInCandidate2 = store.addWriteInCandidate({
     electionId,
     contestId: candidateContestId,
     name: 'Ms. Tomato',
   });
-  store.adjudicateWriteIn({
-    writeInId: writeIn6!.id,
-    type: 'write-in-candidate',
-    candidateId: writeInCandidate2.id,
+  adjudicateWriteIn(
+    {
+      writeInId: writeIn6!.id,
+      type: 'write-in-candidate',
+      candidateId: writeInCandidate2.id,
+    },
+    store
+  );
+
+  // if we don't specify we need the detailed WIA data, undervotes still reflect the invalid write-ins
+  const overallResultsScreenWiaNoDetail = (
+    await tabulateElectionResults({
+      electionId,
+      store,
+    })
+  )[GROUP_KEY_ROOT];
+  assert(overallResultsScreenWiaNoDetail);
+  const partialExpectedResultsScreenWiaNoDetail = buildElectionResultsFixture({
+    election,
+    cardCounts: {
+      bmd: 0,
+      hmpb: [184],
+    },
+    contestResultsSummaries: {
+      [candidateContestId]: {
+        type: 'candidate',
+        ballots: 184,
+        overvotes: 30,
+        undervotes: 14,
+        officialOptionTallies: {
+          'Abigail-Bartlett-4e46c9d4': 56,
+          'Elijah-Miller-a52e6988': 56,
+          'Isaac-Hill-d6c9deeb': 56,
+          'Jacob-Freese-b5146505': 56,
+          'Mary-Baker-Eddy-350785d5': 58,
+          'Obadiah-Carrigan-5c95145a': 60,
+          'Samuel-Bell-17973275': 56,
+          'Samuel-Livermore-f927fef1': 56,
+          'write-in': 54,
+        },
+      },
+    },
+    includeGenericWriteIn: true,
   });
-
-  // if we don't specify we need the WIA data, results are the same
+  expect(overallResultsScreenWiaNoDetail.cardCounts).toEqual(
+    partialExpectedResultsScreenWiaNoDetail.cardCounts
+  );
   expect(
-    (
-      await tabulateElectionResults({
-        electionId,
-        store,
-      })
-    )[GROUP_KEY_ROOT]
-  ).toEqual(overallResultsNoWiaData);
+    overallResultsScreenWiaNoDetail.contestResults[candidateContestId]
+  ).toEqual(
+    partialExpectedResultsScreenWiaNoDetail.contestResults[candidateContestId]
+  );
 
-  const overallResultsScreenWiaData = (
+  const overallResultsScreenWiaDetail = (
     await tabulateElectionResults({
       electionId,
       store,
       includeWriteInAdjudicationResults: true,
     })
   )[GROUP_KEY_ROOT];
-  assert(overallResultsScreenWiaData);
+  assert(overallResultsScreenWiaDetail);
 
-  const partialExpectedResultsScreenWiaData = buildElectionResultsFixture({
+  const partialExpectedResultsScreenWiaDetail = buildElectionResultsFixture({
     election,
     cardCounts: {
       bmd: 0,
@@ -457,13 +512,13 @@ test('tabulateElectionResults - write-in handling', async () => {
     includeGenericWriteIn: false,
   });
 
-  expect(overallResultsScreenWiaData.cardCounts).toEqual(
-    overallResultsScreenWiaData.cardCounts
+  expect(overallResultsScreenWiaDetail.cardCounts).toEqual(
+    overallResultsScreenWiaDetail.cardCounts
   );
   expect(
-    overallResultsScreenWiaData.contestResults[candidateContestId]
+    overallResultsScreenWiaDetail.contestResults[candidateContestId]
   ).toEqual(
-    partialExpectedResultsScreenWiaData.contestResults[candidateContestId]
+    partialExpectedResultsScreenWiaDetail.contestResults[candidateContestId]
   );
 
   /*  *******************************
@@ -505,7 +560,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     }),
   });
 
-  const overallResultsScreenAndManualWiaData = (
+  const overallResultsScreenAndManualWiaDetail = (
     await tabulateElectionResults({
       electionId,
       store,
@@ -513,9 +568,9 @@ test('tabulateElectionResults - write-in handling', async () => {
       includeManualResults: true,
     })
   )[GROUP_KEY_ROOT];
-  assert(overallResultsScreenAndManualWiaData);
+  assert(overallResultsScreenAndManualWiaDetail);
 
-  const partialExpectedResultsScreenAndManualWiaData =
+  const partialExpectedResultsScreenAndManualWiaDetail =
     buildElectionResultsFixture({
       election,
       cardCounts: {
@@ -562,13 +617,13 @@ test('tabulateElectionResults - write-in handling', async () => {
       includeGenericWriteIn: false,
     });
 
-  expect(overallResultsScreenAndManualWiaData.cardCounts).toEqual(
-    partialExpectedResultsScreenAndManualWiaData.cardCounts
+  expect(overallResultsScreenAndManualWiaDetail.cardCounts).toEqual(
+    partialExpectedResultsScreenAndManualWiaDetail.cardCounts
   );
   expect(
-    overallResultsScreenAndManualWiaData.contestResults[candidateContestId]
+    overallResultsScreenAndManualWiaDetail.contestResults[candidateContestId]
   ).toEqual(
-    partialExpectedResultsScreenAndManualWiaData.contestResults[
+    partialExpectedResultsScreenAndManualWiaDetail.contestResults[
       candidateContestId
     ]
   );
@@ -577,16 +632,16 @@ test('tabulateElectionResults - write-in handling', async () => {
   /*   With Screen + Manual WIA Data, Without Detail    
   /*  *********************************************** */
 
-  const overallResultsScreenAndManualNoWiaDetail = (
+  const overallResultsScreenAndManualWiaNoDetail = (
     await tabulateElectionResults({
       electionId,
       store,
       includeManualResults: true,
     })
   )[GROUP_KEY_ROOT];
-  assert(overallResultsScreenAndManualNoWiaDetail);
+  assert(overallResultsScreenAndManualWiaNoDetail);
 
-  const partialExpectedResultsScreenAndManualNoWiaDetail =
+  const partialExpectedResultsScreenAndManualWiaNoDetail =
     buildElectionResultsFixture({
       election,
       cardCounts: {
@@ -599,7 +654,7 @@ test('tabulateElectionResults - write-in handling', async () => {
           type: 'candidate',
           ballots: 189,
           overvotes: 30,
-          undervotes: 12,
+          undervotes: 14,
           officialOptionTallies: {
             'Abigail-Bartlett-4e46c9d4': 56,
             'Elijah-Miller-a52e6988': 56,
@@ -609,20 +664,20 @@ test('tabulateElectionResults - write-in handling', async () => {
             'Obadiah-Carrigan-5c95145a': 60,
             'Samuel-Bell-17973275': 56,
             'Samuel-Livermore-f927fef1': 56,
-            'write-in': 61,
+            'write-in': 59,
           },
         },
       },
       includeGenericWriteIn: true,
     });
 
-  expect(overallResultsScreenAndManualNoWiaDetail.cardCounts).toEqual(
-    partialExpectedResultsScreenAndManualNoWiaDetail.cardCounts
+  expect(overallResultsScreenAndManualWiaNoDetail.cardCounts).toEqual(
+    partialExpectedResultsScreenAndManualWiaNoDetail.cardCounts
   );
   expect(
-    overallResultsScreenAndManualNoWiaDetail.contestResults[candidateContestId]
+    overallResultsScreenAndManualWiaNoDetail.contestResults[candidateContestId]
   ).toEqual(
-    partialExpectedResultsScreenAndManualNoWiaDetail.contestResults[
+    partialExpectedResultsScreenAndManualWiaNoDetail.contestResults[
       candidateContestId
     ]
   );
@@ -652,10 +707,13 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   });
   expect(writeIns.length).toEqual(56);
   for (const writeIn of writeIns) {
-    store.adjudicateWriteIn({
-      writeInId: writeIn.id,
-      type: 'invalid',
-    });
+    adjudicateWriteIn(
+      {
+        writeInId: writeIn.id,
+        type: 'invalid',
+      },
+      store
+    );
   }
 
   // check absentee results, should have received half of the adjudicated as invalid write-ins
