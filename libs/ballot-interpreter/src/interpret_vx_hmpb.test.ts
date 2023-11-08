@@ -5,12 +5,18 @@ import {
   primaryElectionFixtures,
   generalElectionFixtures,
 } from '@votingworks/hmpb-render-backend';
-import { BallotType, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  BallotType,
+  DEFAULT_MARK_THRESHOLDS,
+} from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import {
   sortVotesDict,
   ballotPdfToPageImages,
   votesForSheet,
+  sortUnmarkedWriteIns,
+  unmarkedWriteInsForSheet,
 } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
@@ -162,6 +168,7 @@ for (const {
   ballotStyleId,
   gridLayout,
   votes,
+  unmarkedWriteIns,
   markedBallotPath,
 } of generalElectionFixtures) {
   describe(`HMPB - general election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
@@ -178,13 +185,21 @@ for (const {
             precinctSelection: singlePrecinctSelectionFor(precinctId),
             testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
-            adjudicationReasons: [],
+            adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
           },
           sheetImagePaths
         );
 
         const sheetNumber = sheetIndex + 1;
         const expectedVotes = votesForSheet(votes, sheetNumber, gridLayout);
+        const expectedUnmarkedWriteIns = unmarkedWriteInsForSheet(
+          unmarkedWriteIns.map(({ contestId, writeInIndex }) => ({
+            contestId,
+            optionId: `write-in-${writeInIndex}`,
+          })),
+          sheetNumber,
+          gridLayout
+        );
 
         assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
         assert(backResult.interpretation.type === 'InterpretedHmpbPage');
@@ -194,6 +209,13 @@ for (const {
             ...backResult.interpretation.votes,
           })
         ).toEqual(sortVotesDict(expectedVotes));
+
+        expect(
+          sortUnmarkedWriteIns([
+            ...(frontResult.interpretation.unmarkedWriteIns ?? []),
+            ...(backResult.interpretation.unmarkedWriteIns ?? []),
+          ])
+        ).toEqual(sortUnmarkedWriteIns(expectedUnmarkedWriteIns));
 
         expect(frontResult.interpretation.metadata).toEqual({
           source: 'qr-code',
