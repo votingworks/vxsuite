@@ -33,7 +33,7 @@ const mockPageLayout: BallotPageLayout = {
  * Allows adding mock cast vote record to the store for testing tabulation.
  * Specify a list of cast vote records with an optional `multiplier` attribute
  * which will mean a cast vote record with the specified data will be added
- * `multiplier` times.
+ * `multiplier` times. Returns the created cast vote record IDs.
  */
 export function addMockCvrFileToStore({
   electionId,
@@ -43,7 +43,7 @@ export function addMockCvrFileToStore({
   electionId: Id;
   mockCastVoteRecordFile: MockCastVoteRecordFile;
   store: Store;
-}): void {
+}): string[] {
   const scannerIds = new Set<string>();
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     store.addScannerBatch({
@@ -65,6 +65,7 @@ export function addMockCvrFileToStore({
     scannerIds,
   });
 
+  const cvrIds = [];
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     for (let i = 0; i < (mockCastVoteRecord.multiplier ?? 1); i += 1) {
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
@@ -76,6 +77,7 @@ export function addMockCvrFileToStore({
 
       addCastVoteRecordResult.assertOk('failed to add mock cvr');
       const { cvrId } = addCastVoteRecordResult.unsafeUnwrap();
+      cvrIds.push(cvrId);
 
       const writeIns: Array<[contestId: string, optionId: string]> = [];
       for (const [contestId, optionIds] of Object.entries(
@@ -109,4 +111,6 @@ export function addMockCvrFileToStore({
       }
     }
   }
+
+  return cvrIds;
 }
