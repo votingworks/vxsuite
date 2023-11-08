@@ -218,9 +218,8 @@ export function tabulateWriteInTallies({
  * Modify an election results object generated from CVRs with write-in
  * adjudication data from the write-in table. Before modifying, contests with
  * write-ins will only contain a generic write-in tally. Modification will add
- * write-ins adjudicated for official candidates to their official counts, add
- * distinct counts for unofficial candidates, and treat invalid write-ins as
- * undervotes.
+ * write-ins adjudicated for official candidates to their official counts and add
+ * distinct counts for unofficial candidates.
  */
 export function modifyElectionResultsWithWriteInSummary(
   results: Tabulation.ElectionResults,
@@ -289,8 +288,7 @@ export function modifyElectionResultsWithWriteInSummary(
       votesAllowed: contestResults.votesAllowed,
       ballots: contestResults.ballots,
       overvotes: contestResults.overvotes,
-      undervotes:
-        contestResults.undervotes + contestWriteInSummary.invalidTally,
+      undervotes: contestResults.undervotes,
       tallies: modifiedCandidateTallies,
     };
   }
