@@ -84,6 +84,8 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
+const WRITE_IN_QUEUE_ORDER_BY = `order by is_unmarked, sequence_id`;
+
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
  */
@@ -1977,8 +1979,7 @@ export class Store {
         from write_ins
         where
           ${whereParts.join(' and ')}
-        order by
-          sequence_id
+        ${WRITE_IN_QUEUE_ORDER_BY}
       `,
       ...params
     ) as Array<{ id: Id }>;
@@ -2015,8 +2016,7 @@ export class Store {
           official_candidate_id is null and
           write_in_candidate_id is null and
           is_invalid = 0
-        order by
-          sequence_id
+        ${WRITE_IN_QUEUE_ORDER_BY}
         limit 1
       `,
       electionId,
