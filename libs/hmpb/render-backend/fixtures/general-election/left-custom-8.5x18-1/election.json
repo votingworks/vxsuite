@@ -3544,10 +3544,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 22.75,
+                          "Y": 52.75,
+                          "W": 9,
+                          "H": 0.45
                         }
                       ]
                     },
@@ -3571,10 +3571,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 22.75,
+                          "Y": 53.75,
+                          "W": 9,
+                          "H": 0.45
                         }
                       ]
                     },
@@ -3598,10 +3598,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 22.75,
+                          "Y": 54.75,
+                          "W": 9,
+                          "H": 0.45
                         }
                       ]
                     },
@@ -3625,10 +3625,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 22.75,
+                          "Y": 55.75,
+                          "W": 9,
+                          "H": 0.45
                         }
                       ]
                     }
@@ -3686,10 +3686,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 2.75,
+                          "Y": 5.75,
+                          "W": 7.5,
+                          "H": 0.45
                         }
                       ]
                     }
@@ -3763,10 +3763,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 12.75,
+                          "Y": 7.75,
+                          "W": 7.5,
+                          "H": 0.45
                         }
                       ]
                     }
@@ -3904,10 +3904,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 22.75,
+                          "Y": 15.75,
+                          "W": 9,
+                          "H": 0.45
                         }
                       ]
                     },
@@ -3931,10 +3931,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 22.75,
+                          "Y": 16.75,
+                          "W": 9,
+                          "H": 0.45
                         }
                       ]
                     },
@@ -3958,10 +3958,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 22.75,
+                          "Y": 17.75,
+                          "W": 9,
+                          "H": 0.45
                         }
                       ]
                     }
@@ -4908,10 +4908,10 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "H": 0,
-                          "W": 0,
-                          "X": 0,
-                          "Y": 0
+                          "X": 22.75,
+                          "Y": 25.75,
+                          "W": 9,
+                          "H": 0.45
                         }
                       ]
                     }
