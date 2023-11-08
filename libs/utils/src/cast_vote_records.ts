@@ -19,6 +19,9 @@ import {
   Tabulation,
 } from '@votingworks/types';
 
+export const UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS =
+  'unmarked-write-in';
+
 /**
  * Returns the current snapshot of a cast vote record, or undefined if none
  * exists. If undefined, the cast vote record is invalid.
@@ -42,7 +45,7 @@ export function convertCastVoteRecordVotesToTabulationVotes(
     const contestSelectionIds: string[] = [];
     for (const cvrContestSelection of cvrContest.CVRContestSelection) {
       // We assume every contest selection has only one selection position,
-      // which is true for standard voting but is not be true for ranked choice
+      // which is true for standard voting but would not be true for ranked choice
       assert(cvrContestSelection.SelectionPosition.length === 1);
       const selectionPosition = cvrContestSelection.SelectionPosition[0];
       assert(selectionPosition);
@@ -79,6 +82,8 @@ export interface CastVoteRecordWriteIn {
   optionId: ContestOptionId;
   side?: Side;
   text?: string;
+  /** Means that the write-in is not accompanied by a filled bubble */
+  isUnmarked?: boolean;
 }
 
 /**
@@ -98,8 +103,10 @@ export function getWriteInsFromCastVoteRecord(
       for (const selectionPosition of cvrContestSelection.SelectionPosition) {
         const cvrWriteIn = selectionPosition.CVRWriteIn;
         if (
-          selectionPosition.HasIndication === CVR.IndicationStatus.Yes &&
-          cvrWriteIn
+          cvrWriteIn &&
+          (selectionPosition.HasIndication === CVR.IndicationStatus.Yes ||
+            selectionPosition.OtherStatus ===
+              UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS)
         ) {
           if (isBmdWriteIn(cvrWriteIn)) {
             castVoteRecordWriteIns.push({
@@ -124,6 +131,9 @@ export function getWriteInsFromCastVoteRecord(
                   : pageIndex === 0
                   ? 'front'
                   : 'back',
+              isUnmarked:
+                selectionPosition.OtherStatus ===
+                UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
             });
           }
         }

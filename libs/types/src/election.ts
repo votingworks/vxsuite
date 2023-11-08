@@ -373,6 +373,7 @@ export enum AdjudicationReason {
   Overvote = 'Overvote',
   Undervote = 'Undervote',
   BlankBallot = 'BlankBallot',
+  UnmarkedWriteIn = 'UnmarkedWriteIn',
 }
 export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
   z.nativeEnum(AdjudicationReason);

@@ -193,6 +193,19 @@ export const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
   },
 };
 
+export const interpretedHmpbPage1WithUnmarkedWriteIn: InterpretedHmpbPage = {
+  ...interpretedHmpbPage1,
+  votes: {
+    [fishCouncilContest.id]: [],
+  },
+  unmarkedWriteIns: [
+    {
+      contestId: fishCouncilContest.id,
+      optionId: 'write-in-1',
+    },
+  ],
+};
+
 export const blankPage: BlankPage = {
   type: 'BlankPage',
 };
@@ -209,5 +222,10 @@ export const interpretedBmdBallot: SheetOf<PageInterpretation> = [
 
 export const interpretedHmpbWithWriteIn: SheetOf<PageInterpretation> = [
   interpretedHmpbPage1WithWriteIn,
+  interpretedHmpbPage2,
+];
+
+export const interpretedHmpbWithUnmarkedWriteIn: SheetOf<PageInterpretation> = [
+  interpretedHmpbPage1WithUnmarkedWriteIn,
   interpretedHmpbPage2,
 ];

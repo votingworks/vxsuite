@@ -5,7 +5,8 @@ import {
   mapSheet,
 } from '@votingworks/types';
 import { saveSheetImage } from './save_images';
-import { InterpreterOptions, interpretSheet } from './interpret';
+import { interpretSheet } from './interpret';
+import { InterpreterOptions } from './options';
 
 /**
  * Interpret a ballot sheet and save the images to their final storage location.

@@ -162,6 +162,7 @@ interface WriteInRecordBase {
   readonly contestId: ContestId;
   readonly optionId: ContestOptionId;
   readonly castVoteRecordId: Id;
+  readonly isUnmarked?: boolean;
 }
 
 /**

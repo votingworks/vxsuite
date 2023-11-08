@@ -1008,12 +1008,14 @@ export class Store {
     side,
     contestId,
     optionId,
+    isUnmarked = false,
   }: {
     electionId: Id;
     castVoteRecordId: Id;
     side: Side;
     contestId: Id;
     optionId: Id;
+    isUnmarked?: boolean;
   }): Id {
     const id = uuid();
 
@@ -1025,9 +1027,10 @@ export class Store {
           cvr_id,
           side,
           contest_id,
-          option_id
+          option_id,
+          is_unmarked
         ) values (
-          ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1035,7 +1038,8 @@ export class Store {
       castVoteRecordId,
       side,
       contestId,
-      optionId
+      optionId,
+      isUnmarked ? 1 : 0
     );
 
     return id;
@@ -1701,6 +1705,13 @@ export class Store {
     const officialCandidateNameLookup =
       getOfficialCandidateNameLookup(election);
 
+    // we ignore unmarked write-ins that are not adjudicated for a candidate
+    whereParts.push(`not (
+      write_ins.is_unmarked = 1 and
+      official_candidate_id is null and
+      write_in_candidate_id is null
+    )`);
+
     for (const row of this.client.each(
       `
           select
@@ -1796,6 +1807,7 @@ export class Store {
           write_ins.official_candidate_id as officialCandidateId,
           write_ins.write_in_candidate_id as writeInCandidateId,
           write_ins.is_invalid as isInvalid,
+          write_ins.is_unmarked as isUnmarked,
           datetime(write_ins.adjudicated_at, 'localtime') as adjudicatedAt
         from write_ins
         where
@@ -1811,6 +1823,7 @@ export class Store {
       contestId: ContestId;
       optionId: ContestOptionId;
       isInvalid: boolean;
+      isUnmarked: boolean;
       officialCandidateId: string | null;
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
@@ -1827,6 +1840,7 @@ export class Store {
           status: 'adjudicated',
           adjudicationType: 'official-candidate',
           candidateId: row.officialCandidateId,
+          isUnmarked: Boolean(row.isUnmarked),
         });
       }
 
@@ -1839,6 +1853,7 @@ export class Store {
           status: 'adjudicated',
           adjudicationType: 'write-in-candidate',
           candidateId: row.writeInCandidateId,
+          isUnmarked: Boolean(row.isUnmarked),
         });
       }
 
@@ -1850,6 +1865,7 @@ export class Store {
           optionId: row.optionId,
           status: 'adjudicated',
           adjudicationType: 'invalid',
+          isUnmarked: Boolean(row.isUnmarked),
         });
       }
 
@@ -1859,6 +1875,7 @@ export class Store {
         castVoteRecordId: row.castVoteRecordId,
         contestId: row.contestId,
         optionId: row.optionId,
+        isUnmarked: Boolean(row.isUnmarked),
       });
     });
   }

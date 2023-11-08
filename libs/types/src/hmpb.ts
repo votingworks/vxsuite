@@ -78,6 +78,14 @@ export enum MarkStatus {
 export const MarkStatusSchema: z.ZodSchema<MarkStatus> =
   z.nativeEnum(MarkStatus);
 
+export enum WriteInAreaStatus {
+  Filled = 'filled',
+  Unfilled = 'unfilled',
+  Ignored = 'ignored',
+}
+export const WriteInAreaStatusSchema: z.ZodSchema<WriteInAreaStatus> =
+  z.nativeEnum(WriteInAreaStatus);
+
 export type SheetOf<T> = readonly [T, T];
 
 /**

@@ -13,6 +13,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 1`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [
+        {
+          "contestId": "State-Senator-391381f8",
+          "optionId": "write-in-0",
+        },
+      ],
       "votes": {
         "State-Senator-391381f8": [
           {
@@ -21,11 +27,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 1`] = `
             "partyIds": [
               "Democratic-aea20adb",
             ],
-          },
-          {
-            "id": "write-in-0",
-            "isWriteIn": true,
-            "name": "Write-In #1",
           },
         ],
       },
@@ -40,6 +41,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 1`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -59,6 +61,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 2`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -138,6 +141,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 2`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -157,6 +161,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 3`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -206,6 +211,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 3`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -225,6 +231,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 4`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -288,6 +295,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 4`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -307,6 +315,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -373,6 +382,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -451,6 +461,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 6`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -482,6 +493,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 6`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -501,6 +513,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 7`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
     {
@@ -513,6 +526,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 7`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -532,6 +546,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 8`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -615,6 +630,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 8`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -634,6 +650,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 9`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -679,6 +696,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 9`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -698,6 +716,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -764,6 +783,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -842,6 +862,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 11`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
@@ -885,6 +906,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 11`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -904,6 +926,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 12`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -944,6 +967,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 12`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -963,6 +987,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -1001,6 +1026,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Commissioner-d6feed25": [
           {
@@ -1037,6 +1063,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 14`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -1113,6 +1140,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 14`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -1191,6 +1219,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
@@ -1234,6 +1263,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Treasurer-87d25a31": [
           {
@@ -1275,6 +1305,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 16`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -1315,6 +1346,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 16`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -1334,6 +1366,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 17`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -1370,6 +1403,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 17`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -1389,6 +1423,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 18`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -1456,6 +1491,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 18`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -1475,6 +1511,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 19`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -1565,6 +1602,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 19`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -1640,6 +1678,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Representative-in-Congress-24683b44": [
           {
@@ -1679,6 +1718,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -1698,6 +1738,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [
+        {
+          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "optionId": "write-in-0",
+        },
+      ],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -1724,13 +1770,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
             "partyIds": [
               "Democratic-aea20adb",
             ],
-          },
-        ],
-        "State-Representative-Hillsborough-District-37-f3bde894": [
-          {
-            "id": "write-in-0",
-            "isWriteIn": true,
-            "name": "Write-In #1",
           },
         ],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
@@ -1777,6 +1816,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -1837,6 +1877,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 22`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Representative-in-Congress-24683b44": [
           {
@@ -1914,6 +1955,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 22`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -1933,6 +1975,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 23`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2005,6 +2048,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 23`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -2073,6 +2117,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 24`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -2104,6 +2149,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 24`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -2123,6 +2169,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 25`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2186,6 +2233,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 25`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -2215,6 +2263,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 26`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -2244,6 +2293,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 26`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -2263,6 +2313,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 27`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2294,6 +2345,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 27`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -2313,6 +2365,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 28`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2380,6 +2433,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 28`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -2431,6 +2485,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 29`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2489,6 +2544,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 29`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -2508,6 +2564,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 30`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2598,6 +2655,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 30`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -2676,6 +2734,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 31`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2716,6 +2775,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 31`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -2735,6 +2795,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2816,6 +2877,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -2885,6 +2947,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -2943,6 +3006,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -2962,6 +3026,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -3020,6 +3085,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -3039,6 +3105,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -3127,6 +3194,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -3201,6 +3269,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 36`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -3291,6 +3360,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 36`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -3369,6 +3439,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -3409,6 +3480,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -3428,6 +3500,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [
+        {
+          "contestId": "Governor-061a401b",
+          "optionId": "write-in-0",
+        },
+      ],
       "votes": {
         "Governor-061a401b": [
           {
@@ -3436,11 +3514,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
             "partyIds": [
               "Democratic-aea20adb",
             ],
-          },
-          {
-            "id": "write-in-0",
-            "isWriteIn": true,
-            "name": "Write-In #1",
           },
         ],
         "Representative-in-Congress-24683b44": [
@@ -3464,6 +3537,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -3483,6 +3557,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -3571,6 +3646,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -3638,6 +3714,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -3705,6 +3782,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -3756,6 +3834,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -3814,6 +3893,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -3833,6 +3913,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
@@ -3869,6 +3950,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -3888,6 +3970,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -3951,6 +4034,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -3970,6 +4054,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -4006,6 +4091,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -4025,6 +4111,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -4047,6 +4134,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -4066,6 +4154,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 46`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -4156,6 +4245,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 46`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -4175,6 +4265,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -4242,6 +4333,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -4293,6 +4385,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -4333,6 +4426,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -4352,6 +4446,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 49`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -4442,6 +4537,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 49`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -4520,6 +4616,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 50`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -4610,6 +4707,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 50`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -4685,6 +4783,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -4760,6 +4859,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -4779,6 +4879,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
@@ -4799,6 +4900,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -4818,6 +4920,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -4876,6 +4979,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -4954,6 +5058,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -5058,6 +5163,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -5124,6 +5230,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -5205,6 +5312,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -5280,6 +5388,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -5332,6 +5441,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Commissioner-d6feed25": [
           {
@@ -5361,6 +5471,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -5447,6 +5558,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -5522,6 +5634,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
     {
@@ -5534,6 +5647,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -5553,6 +5667,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "United-States-Senator-d3f1c75b": [
           {
@@ -5582,6 +5697,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -5601,6 +5717,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -5687,6 +5804,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -5762,6 +5880,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
@@ -5805,6 +5924,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -5824,6 +5944,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Representative-in-Congress-24683b44": [
           {
@@ -5853,6 +5974,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -5872,6 +5994,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -5921,6 +6044,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -5940,6 +6064,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -6030,6 +6155,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -6099,6 +6225,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 65`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -6175,6 +6302,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 65`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -6194,6 +6322,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "State-Senator-391381f8": [
           {
@@ -6221,6 +6350,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -6240,6 +6370,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -6316,6 +6447,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Sheriff-4243fe0b": [
           {
@@ -6343,6 +6475,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -6406,6 +6539,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Commissioner-d6feed25": [
           {
@@ -6458,6 +6592,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -6496,6 +6631,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Sheriff-4243fe0b": [
           {
@@ -6526,6 +6662,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
     {
@@ -6538,6 +6675,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -6557,6 +6695,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -6645,6 +6784,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -6664,6 +6804,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [
+        {
+          "contestId": "Governor-061a401b",
+          "optionId": "write-in-0",
+        },
+      ],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -6672,13 +6818,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
             "partyIds": [
               "Republican-f0167ce7",
             ],
-          },
-        ],
-        "Governor-061a401b": [
-          {
-            "id": "write-in-0",
-            "isWriteIn": true,
-            "name": "Write-In #1",
           },
         ],
         "State-Representative-Hillsborough-District-37-f3bde894": [
@@ -6727,6 +6866,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -6746,6 +6886,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "State-Senator-391381f8": [
           {
@@ -6775,6 +6916,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -6794,6 +6936,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
     {
@@ -6806,6 +6949,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -6825,6 +6969,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -6847,6 +6992,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -6866,6 +7012,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -6954,6 +7101,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -7032,6 +7180,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -7090,6 +7239,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "County-Attorney-133f910f": [
           {
@@ -7141,6 +7291,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {
         "Governor-061a401b": [
           {
@@ -7182,6 +7333,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],
@@ -7201,6 +7353,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 79`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [
+        {
+          "contestId": "Governor-061a401b",
+          "optionId": "write-in-0",
+        },
+      ],
       "votes": {
         "Executive-Councilor-bb22557f": [
           {
@@ -7209,13 +7367,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 79`] = `
             "partyIds": [
               "Republican-f0167ce7",
             ],
-          },
-        ],
-        "Governor-061a401b": [
-          {
-            "id": "write-in-0",
-            "isWriteIn": true,
-            "name": "Write-In #1",
           },
         ],
         "State-Representative-Hillsborough-District-37-f3bde894": [
@@ -7264,6 +7415,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 79`] = `
         "precinctId": "town-id-00701-precinct-id-",
       },
       "type": "InterpretedHmpbPage",
+      "unmarkedWriteIns": [],
       "votes": {},
     },
   ],

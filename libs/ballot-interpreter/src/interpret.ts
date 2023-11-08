@@ -2,7 +2,6 @@ import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { Result, throwIllegalValue, typedAs } from '@votingworks/basics';
 import { loadImageData } from '@votingworks/image-utils';
 import {
-  AdjudicationReason,
   BallotMetadata,
   BallotType,
   ElectionDefinition,
@@ -10,7 +9,6 @@ import {
   InvalidPrecinctPage,
   InvalidTestModePage,
   mapSheet,
-  MarkThresholds,
   PageInterpretation,
   PageInterpretationWithFiles,
   PrecinctSelection,
@@ -22,6 +20,7 @@ import makeDebug from 'debug';
 import { interpret as interpretNhHmpbBallotSheet } from './hmpb-ts';
 import { interpret as interpretVxBmdBallotSheet } from './bmd';
 import { convertNhInterpretResultToLegacyResult } from './legacy_adapter';
+import { InterpreterOptions, shouldScoreWriteIns } from './options';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');
 
@@ -36,17 +35,6 @@ export type InterpretResult = Result<SheetOf<InterpretFileResult>, Error>;
 export interface InterpretFileResult {
   interpretation: PageInterpretation;
   normalizedImage: ImageData;
-}
-
-/**
- * Options for interpreting a sheet of ballot images.
- */
-export interface InterpreterOptions {
-  electionDefinition: ElectionDefinition;
-  precinctSelection: PrecinctSelection;
-  testMode: boolean;
-  markThresholds: MarkThresholds;
-  adjudicationReasons: readonly AdjudicationReason[];
 }
 
 /**
@@ -135,7 +123,7 @@ function interpretAndConvertNhHmpbResult(
   options: InterpreterOptions
 ): SheetOf<InterpretFileResult> {
   const result = interpretNhHmpbBallotSheet(electionDefinition, sheet, {
-    scoreWriteIns: options.markThresholds.writeInTextArea !== undefined,
+    scoreWriteIns: shouldScoreWriteIns(options),
   });
 
   return validateInterpretResults(

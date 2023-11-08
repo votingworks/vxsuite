@@ -9,12 +9,16 @@ import {
   BallotIdSchema,
   BallotMetadata,
   BallotMetadataSchema,
+  ContestId,
+  ContestIdSchema,
   HmpbBallotPageMetadata,
   HmpbBallotPageMetadataSchema,
   MarkInfo,
   MarkInfoSchema,
   VotesDict,
   VotesDictSchema,
+  WriteInId,
+  WriteInIdSchema,
 } from './election';
 import {
   Id,
@@ -45,11 +49,22 @@ export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
     votes: VotesDictSchema,
   });
 
+export interface UnmarkedWriteIn {
+  contestId: ContestId;
+  optionId: WriteInId;
+}
+
+export const UnmarkedWriteInSchema: z.ZodSchema<UnmarkedWriteIn> = z.object({
+  contestId: ContestIdSchema,
+  optionId: WriteInIdSchema,
+});
+
 export interface InterpretedHmpbPage {
   type: 'InterpretedHmpbPage';
   ballotId?: BallotId;
   metadata: HmpbBallotPageMetadata;
   markInfo: MarkInfo;
+  unmarkedWriteIns?: UnmarkedWriteIn[];
   votes: VotesDict;
   adjudicationInfo: AdjudicationInfo;
   layout: BallotPageLayout;
@@ -60,6 +75,7 @@ export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> =
     ballotId: BallotIdSchema.optional(),
     metadata: HmpbBallotPageMetadataSchema,
     markInfo: MarkInfoSchema,
+    unmarkedWriteIns: z.array(UnmarkedWriteInSchema).optional(),
     votes: VotesDictSchema,
     adjudicationInfo: AdjudicationInfoSchema,
     layout: BallotPageLayoutSchema,
