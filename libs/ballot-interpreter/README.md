@@ -24,6 +24,8 @@ to run the Rust build and copy the built library into
 
 ## CLI
 
+### bin/interpret
+
 Currently, the CLI only works for HMPB.
 
 ```sh
@@ -40,6 +42,21 @@ bin/interpret path/to/workspace d34d-b33f
 # (i.e. ballot-side-a_debug_scored_bubble_marks.png)
 bin/interpret -d election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg
 ```
+
+### bin/scoring-report
+
+To generate a scoring report for a collection of ballot images, run:
+
+```sh
+# Score bubble marks
+bin/scoring-report -m election.json ballot-images-dir output-dir
+
+# Score write-ins
+bin/scoring-report -w election.json ballot-images-dir output-dir
+```
+
+This can be used to iteratively tune the mark thresholds/write-in area
+parameters for an election.
 
 ## Benchmarks
 
