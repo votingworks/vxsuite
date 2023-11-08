@@ -399,10 +399,7 @@ function convertNextInterpretedBallotPage(
         ),
       },
     },
-    normalizedImage: {
-      ...interpretation.normalizedImage,
-      data: new Uint8ClampedArray(interpretation.normalizedImage.data),
-    },
+    normalizedImage: interpretation.normalizedImage,
   };
 }
 
