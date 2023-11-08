@@ -13,8 +13,6 @@ import { type ScoredContestOption } from './legacy_adapter';
 
 /**
  * Enumerates all the reasons a series of contests might need adjudication.
- * Callers must provide a function that can get the mark status and write-in
- * area status for any contest option in the contests given.
  */
 export function getAllPossibleAdjudicationReasons(
   contests: Contests,
@@ -72,7 +70,7 @@ export function getAllPossibleAdjudicationReasons(
         case MarkStatus.Unmarked:
           break;
 
-        /* c8 ignore next 2 */
+        // istanbul ignore next
         default:
           throwIllegalValue(markStatus);
       }
@@ -99,7 +97,7 @@ export function getAllPossibleAdjudicationReasons(
         expectedSelectionCount = 1;
         break;
 
-      /* c8 ignore next 2 */
+      // istanbul ignore next
       default:
         throwIllegalValue(contest, 'type');
     }
@@ -168,7 +166,7 @@ export function adjudicationReasonDescription(
     case AdjudicationReason.BlankBallot:
       return `Ballot has no votes.`;
 
-    /* c8 ignore next 2 */
+    // istanbul ignore next
     default:
       throwIllegalValue(reason);
   }
