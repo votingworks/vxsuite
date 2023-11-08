@@ -2,10 +2,14 @@
 
 set -euo pipefail
 
-rm -r ./certs/test
+SCRIPTS_DIRECTORY="$(dirname "${BASH_SOURCE[0]}")"
 
-echo -n 'Generating keys and certs in ./certs/test/set-1... '
-./scripts/generate-dev-keys-and-certs --for-tests --output-dir ./certs/test/set-1
+rm -r "${SCRIPTS_DIRECTORY}/../certs/test"
 
-echo -n 'Generating keys and certs in ./certs/test/set-2... '
-./scripts/generate-dev-keys-and-certs --for-tests --output-dir ./certs/test/set-2
+echo -n 'Generating keys and certs in libs/auth/certs/test/set-1... '
+"${SCRIPTS_DIRECTORY}/generate-dev-keys-and-certs" \
+    --for-tests --output-dir "${SCRIPTS_DIRECTORY}/../certs/test/set-1"
+
+echo -n 'Generating keys and certs in libs/auth/certs/test/set-2... '
+"${SCRIPTS_DIRECTORY}/generate-dev-keys-and-certs" \
+    --for-tests --output-dir "${SCRIPTS_DIRECTORY}/../certs/test/set-2"

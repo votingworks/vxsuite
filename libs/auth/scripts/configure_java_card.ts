@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import { existsSync } from 'fs';
+import path from 'path';
 import { extractErrorMessage } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
@@ -23,8 +24,11 @@ import {
 import { runCommand } from '../src/shell';
 import { waitForReadyCardStatus } from './utils';
 
-const APPLET_PATH = 'applets/OpenFIPS201-v1.10.2-with-vx-mods.cap';
-const GLOBAL_PLATFORM_JAR_FILE_PATH = 'scripts/gp.jar';
+const APPLET_PATH = path.join(
+  __dirname,
+  '../applets/OpenFIPS201-v1.10.2-with-vx-mods.cap'
+);
+const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(__dirname, '../scripts/gp.jar');
 
 /**
  * CHANGE REFERENCE DATA ADMIN is an OpenFIPS201-specific extension of the PIV-standard CHANGE
@@ -84,7 +88,7 @@ function globalPlatformCommand(command: string[]): string[] {
 function checkForScriptDependencies(): void {
   if (!existsSync(GLOBAL_PLATFORM_JAR_FILE_PATH)) {
     throw new Error(
-      'Missing script dependencies; install using `make install-script-dependencies`'
+      'Missing script dependencies; install using `make install-script-dependencies` in libs/auth'
     );
   }
 }

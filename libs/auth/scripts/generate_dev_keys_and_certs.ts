@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
+import path from 'path';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
@@ -72,16 +73,16 @@ async function parseCommandLineArgs() {
       'output-dir': {
         description: 'The directory to output generated keys and certs to',
         type: 'string',
-        default: './certs/dev',
+        default: path.join(__dirname, '../certs/dev'),
       },
     })
     .hide('help')
     .version(false)
-    .example('$ ./scripts/generate-dev-keys-and-certs --help', '')
-    .example('$ ./scripts/generate-dev-keys-and-certs', '')
+    .example('$ generate-dev-keys-and-certs --help', '')
+    .example('$ generate-dev-keys-and-certs', '')
     .example(
-      '$ ./scripts/generate-dev-keys-and-certs \\\n' +
-        '--for-tests --output-dir ./certs/test/set-1',
+      '$ generate-dev-keys-and-certs \\\n' +
+        '--for-tests --output-dir path/to/output-dir',
       ''
     )
     .strict();

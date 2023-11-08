@@ -43,25 +43,25 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
     })
     .hide('help')
     .version(false)
-    .example('$ ./scripts/mock-card --help', '')
-    .example('$ ./scripts/mock-card --card-type system-administrator', '')
+    .example('$ mock-card --help', '')
+    .example('$ mock-card --card-type system-administrator', '')
     .example(
-      '$ ./scripts/mock-card --card-type election-manager \\\n' +
-        '--election-definition ../fixtures/data/electionFamousNames2021/election.json',
+      '$ mock-card --card-type election-manager \\\n' +
+        '--election-definition path/to/election.json',
       ''
     )
     .example(
-      '$ ./scripts/mock-card --card-type poll-worker \\\n' +
-        '--election-definition ../fixtures/data/electionGeneral/election.json',
+      '$ mock-card --card-type poll-worker \\\n' +
+        '--election-definition path/to/election.json',
       ''
     )
     .example(
-      '$ ./scripts/mock-card --card-type poll-worker-with-pin \\\n' +
-        '--election-definition ../fixtures/data/electionGeneral/election.json',
+      '$ mock-card --card-type poll-worker-with-pin \\\n' +
+        '--election-definition path/to/election.json',
       ''
     )
-    .example('$ ./scripts/mock-card --card-type unprogrammed', '')
-    .example('$ ./scripts/mock-card --card-type no-card', '')
+    .example('$ mock-card --card-type unprogrammed', '')
+    .example('$ mock-card --card-type no-card', '')
     .strict();
 
   const helpMessage = await argParser.getHelp();

@@ -39,9 +39,6 @@ frontend error boundary, which throwing errors on the backend typically does.
 
 ## Scripts
 
-Note that all scripts are meant to be run from `libs/auth/` and not
-`libs/auth/scripts/`.
-
 ### Initial Java Card Configuration Script
 
 This script configures a Java Card for use with VotingWorks machines. The script
@@ -111,10 +108,14 @@ This script prompts you for a PIN and returns whether or not the PIN is correct
 for the inserted Java Card.
 
 ```
-# Check a VxSuite card PIN
-VX_MACHINE_TYPE=admin ./scripts/check-pin --vxsuite
+# With a card reader connected and a Java Card in the card reader
+./scripts/check-pin
+```
 
-# Check a Common Access Card (CAC) PIN
+The script works not only with VxSuite cards but also with Common Access Cards:
+
+```
+# With a card reader connected and a Common Access Card in the card reader
 ./scripts/check-pin --cac
 ```
 
@@ -168,7 +169,7 @@ The following command generates keys and certs for tests:
 ./scripts/generate-test-keys-and-certs
 ```
 
-### Common Access Card (CAC) Certificate Retrieval Script
+### Common Access Card Certificate Retrieval Script
 
 This script gets a Common Access Card's certificate. It's meant to be used for
 development and testing.
@@ -181,3 +182,5 @@ development and testing.
 The script prints the certificate to stdout in PEM format by default. Use the
 `--output` option to write the certificate to a file, or the `--json` option to
 print the certificate metadata in JSON format.
+
+More on Common Access Cards [here](./src/cac/README.md).

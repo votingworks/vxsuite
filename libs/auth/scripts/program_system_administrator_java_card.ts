@@ -20,8 +20,8 @@ const jurisdiction = isProduction
 const initialJavaCardConfigurationScriptReminder = `
 ${
   isProduction
-    ? 'Have you run this card through the initial Java Card configuration script on VxCertifier yet?'
-    : 'Have you run `./scripts/configure-dev-java-card` on this card yet?'
+    ? 'Have you run this card through the configure-java-card yet?'
+    : 'Have you run this card through the configure-dev-java-card script yet?'
 }
 If not, that's likely the cause of this error.
 Run that and then retry.
