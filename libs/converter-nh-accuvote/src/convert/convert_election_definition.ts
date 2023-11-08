@@ -220,6 +220,11 @@ export function convertElectionDefinition(
                   side: bubble.side,
                   column: bubble.column,
                   row: bubble.row,
+                  // This area is based on the largest rectangle that fits in
+                  // the write-in box without intersecting with any of the contest
+                  // labels (there may be more than one in a multi-seat
+                  // contest). Some examples of the ballots this was based on
+                  // can be found in the NH elections in libs/fixtures.
                   writeInArea: {
                     x: bubble.column - 5,
                     y: bubble.row - 0.65,

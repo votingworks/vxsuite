@@ -1025,6 +1025,10 @@ function CandidateContest({
         column: gridColumn + bubbleColumn - 1,
         row: gridRow + optionRow,
         writeInIndex,
+        // This area is designed to be a rectangle that floats just above the
+        // write-in line. For higher densities, we need to make sure that we
+        // don't intersect with the "write-in" label text, so the height of the
+        // rectangle is adjusted accordingly.
         writeInArea: {
           x: gridColumn + optionLabelColumn - 1,
           y: gridRow + optionRow - 0.25 - (m.WRITE_IN_ROW_HEIGHT - 1) / 2,
