@@ -1,4 +1,4 @@
-import { iter } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb-render-backend';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
@@ -67,7 +67,7 @@ export function sortVotesDict(votes: VotesDict): VotesDict {
   return Object.fromEntries(
     Object.entries(votes).map(([contestId, candidates]) => [
       contestId,
-      sortVotes(candidates ?? []),
+      sortVotes(assertDefined(candidates)),
     ])
   );
 }
@@ -78,6 +78,7 @@ export function sortUnmarkedWriteIns(
   return [...writeIns].sort(
     (a, b) =>
       a.contestId.localeCompare(b.contestId) ||
+      /* istanbul ignore next */
       a.optionId.localeCompare(b.optionId)
   );
 }
