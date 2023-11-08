@@ -18,7 +18,8 @@ import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 const mockPartialWriteInIdentifier = {
   contestId: 'contest-id',
   optionId: 'write-in-0',
-  castVoteRecordId: 'cast-vote-record-id',
+  cvrId: 'cast-vote-record-id',
+  electionId: 'election-id',
 } as const;
 
 let apiMock: ApiMock;
@@ -214,13 +215,13 @@ describe('preventing double votes', () => {
     apiMock.expectGetWriteInAdjudicationContext('id', {
       relatedWriteIns: [
         {
+          ...mockPartialWriteInIdentifier,
           id: 'id',
           status: 'adjudicated',
           adjudicationType: 'official-candidate',
           contestId,
           candidateId: 'fox',
           optionId: 'write-in-0',
-          castVoteRecordId: 'id',
         },
       ],
     });
@@ -255,13 +256,13 @@ describe('preventing double votes', () => {
     apiMock.expectGetWriteInAdjudicationContext('id', {
       relatedWriteIns: [
         {
+          ...mockPartialWriteInIdentifier,
           id: 'id',
           status: 'adjudicated',
           adjudicationType: 'write-in-candidate',
           contestId,
           candidateId: mockWriteInCandidate.id,
           optionId: 'write-in-0',
-          castVoteRecordId: 'id',
         },
       ],
     });
