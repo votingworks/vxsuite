@@ -72,6 +72,7 @@ test('mark thresholds', async () => {
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     markThresholds: {
+      ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
       definite: 0.259,
       marginal: 0.178,
     },

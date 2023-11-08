@@ -86,6 +86,7 @@ export function safeParseSystemSettings(
 export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
   marginal: 0.17,
   definite: 0.25,
+  writeInTextArea: 0.02,
 };
 
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {

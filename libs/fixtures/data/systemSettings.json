@@ -8,7 +8,8 @@
   },
   "markThresholds": {
     "definite": 0.25,
-    "marginal": 0.17
+    "marginal": 0.17,
+    "writeInTextArea": 0.02
   },
   "centralScanAdjudicationReasons": [],
   "precinctScanAdjudicationReasons": []
