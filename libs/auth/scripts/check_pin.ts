@@ -11,7 +11,7 @@ const usageMessage = 'Usage: check-pin [--cac|--vxsuite (default)]';
 type CardType = 'cac' | 'vxsuite';
 
 function parseCommandLineArgs(args: readonly string[]): { cardType: CardType } {
-  if (![undefined, '--cac', '--vxsuite'].includes(args[0]) || args.length > 1) {
+  if (args.length > 1 || ![undefined, '--cac', '--vxsuite'].includes(args[0])) {
     console.log(usageMessage);
     process.exit(0);
   }
