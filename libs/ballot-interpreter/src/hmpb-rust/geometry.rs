@@ -13,9 +13,13 @@ use serde::{Deserialize, Serialize};
 /// with the same underlying representation is not used.
 pub type GridUnit = i32;
 
+/// A fractional GridUnit.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
 pub type SubGridUnit = f32;
 
-// A rectangle area defined by coordinates in the timing mark grid.
+/// A rectangle area defined by coordinates in the timing mark grid.
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SubGridRect {
     pub x: SubGridUnit,

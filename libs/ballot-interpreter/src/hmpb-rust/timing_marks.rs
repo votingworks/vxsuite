@@ -122,7 +122,7 @@ impl TimingMarkGrid {
 
     /// Returns the center of the grid position at the given coordinates. Timing
     /// marks are at the edges of the grid, and the inside of the grid is where
-    /// the bubbles are.
+    /// the bubbles are. The grid coordinates may be fractional.
     ///
     /// For example, if the grid is 34x51, then:
     ///
@@ -133,10 +133,14 @@ impl TimingMarkGrid {
     ///   - (c, r) where 0 < c < 33 and 0 < r < 50 is the bubble at column c and
     ///     row r
     ///
-    /// The point location is determined by finding the left and right timing
-    /// marks for the given row, correcting their position to account for
-    /// the marks being cropped during scanning or border removal, and
-    /// interpolating between the two based on the column.
+    /// The point location is determined by:
+    /// 1. Finding the left and right timing marks for the given row (if given a
+    /// fractional row index, then interpolating vertically between the closest
+    /// two rows).
+    /// 2. Correcting the left/right timing mark position to account for
+    /// the marks being cropped during scanning or border removal
+    /// 3. Interpolating horizontally between the left/right timing mark
+    /// positions based on the given column index.
     pub fn point_for_location(
         &self,
         column: SubGridUnit,
@@ -148,6 +152,8 @@ impl TimingMarkGrid {
             return None;
         }
 
+        // Find the left and right timing marks for the given row, interpolating
+        // vertically if given a fractional row index
         let row_before = row.floor() as GridUnit;
         let row_after = row.ceil() as GridUnit;
         let distance_percentage_between_rows = row - row_before as f32;
@@ -187,7 +193,7 @@ impl TimingMarkGrid {
         );
 
         // account for marks being cropped during scanning or border removal
-        let timing_mark_width = self.geometry.timing_mark_size.width.round() as u32;
+        let timing_mark_width = self.geometry.timing_mark_size.width.round() as PixelUnit;
         let corrected_left = Rect::new(
             left.right() - timing_mark_width as PixelPosition,
             left.top(),
@@ -198,7 +204,7 @@ impl TimingMarkGrid {
             Rect::new(right.left(), right.top(), timing_mark_width, right.height());
 
         let horizontal_segment = Segment::new(corrected_left.center(), corrected_right.center());
-        let distance_percentage = column / (self.geometry.grid_size.width - 1) as SubGridUnit;
+        let distance_percentage = column / (self.geometry.grid_size.width - 1) as f32;
         let Segment {
             start: _,
             end: expected_timing_mark_center,

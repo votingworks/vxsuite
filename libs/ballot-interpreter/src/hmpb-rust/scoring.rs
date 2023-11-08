@@ -285,8 +285,9 @@ fn score_write_in_area(
     grid_position: &GridPosition,
     threshold: u8,
 ) -> Option<ScoredPositionArea> {
-    let GridPosition::WriteIn { write_in_area, ..  } = *grid_position
-    else { return None; };
+    let GridPosition::WriteIn { write_in_area, .. } = *grid_position else {
+        return None;
+    };
 
     let top_left_corner = grid.point_for_location(write_in_area.x, write_in_area.y)?;
     let bottom_right_corner = grid.point_for_location(
