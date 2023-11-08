@@ -1,18 +1,11 @@
-import {
-  Main,
-  Screen,
-  InsertBallotImage,
-  P,
-  appStrings,
-} from '@votingworks/ui';
+import { InsertBallotImage, P, appStrings } from '@votingworks/ui';
+import { CenteredPageLayout } from '../components/centered_page_layout';
 
 export function CastingBallotPage(): JSX.Element {
   return (
-    <Screen white>
-      <Main centerChild padded id="audiofocus">
-        <InsertBallotImage />
-        <P>{appStrings.noteBmdCastingBallot()}</P>
-      </Main>
-    </Screen>
+    <CenteredPageLayout voterFacing>
+      <InsertBallotImage />
+      <P>{appStrings.noteBmdCastingBallot()}</P>
+    </CenteredPageLayout>
   );
 }
