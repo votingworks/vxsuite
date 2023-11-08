@@ -109,6 +109,20 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdLoadPaper: () => (
+    <UiString uiStringKey="instructionsBmdLoadPaper">
+      Please feed one sheet of paper into the front input tray. The printer will
+      automatically grab the paper when positioned correctly.
+    </UiString>
+  ),
+
+  instructionsBmdPaperJam: () => (
+    <UiString uiStringKey="instructionsBmdPaperJam">
+      Please alert a poll worker to clear the jam, opening the printer cover or
+      ballot box if necessary.
+    </UiString>
+  ),
+
   instructionsBmdReviewPageNavigation: () => (
     <UiString uiStringKey="instructionsBmdReviewPageNavigation">
       To review your votes, advance through the ballot contests using the up and
@@ -251,8 +265,30 @@ export const appStrings = {
     </UiString>
   ),
 
-  noteClearingBallot: () => (
-    <UiString uiStringKey="noteClearingBallot">Clearing ballot</UiString>
+  noteBmdCastingBallot: () => (
+    <UiString uiStringKey="noteBmdCastingBallot">Casting Ballot...</UiString>
+  ),
+
+  noteBmdClearingBallot: () => (
+    <UiString uiStringKey="noteBmdClearingBallot">Clearing ballot</UiString>
+  ),
+
+  noteBmdHardwareReset: () => (
+    <UiString uiStringKey="noteBmdHardwareReset">
+      The hardware has been reset.
+    </UiString>
+  ),
+
+  noteBmdHardwareResetting: () => (
+    <UiString uiStringKey="noteBmdHardwareResetting">
+      The hardware is resetting.
+    </UiString>
+  ),
+
+  noteBmdSessionRestart: () => (
+    <UiString uiStringKey="noteBmdSessionRestart">
+      Your voting session will restart shortly.
+    </UiString>
   ),
 
   promptBmdConfirmRemoveWriteIn: () => (
@@ -269,6 +305,20 @@ export const appStrings = {
 
   titleBmdIdleScreen: () => (
     <UiString uiStringKey="titleBmdIdleScreen">Are you still voting?</UiString>
+  ),
+
+  titleBmdJamClearedScreen: () => (
+    <UiString uiStringKey="titleBmdJamClearedScreen">Jam Cleared</UiString>
+  ),
+
+  titleBmdJammedScreen: () => (
+    <UiString uiStringKey="titleBmdJammedScreen">Paper is Jammed</UiString>
+  ),
+
+  titleBmdLoadPaperScreen: () => (
+    <UiString uiStringKey="titleBmdLoadPaperScreen">
+      Load Blank Ballot Sheet
+    </UiString>
   ),
 
   titleBmdPrintScreen: () => (

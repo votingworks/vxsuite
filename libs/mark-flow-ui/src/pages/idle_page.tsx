@@ -58,7 +58,7 @@ export function IdlePage({
     <Screen navRight>
       <Main centerChild padded>
         {isLoading ? (
-          <Loading>{appStrings.noteClearingBallot()}</Loading>
+          <Loading>{appStrings.noteBmdClearingBallot()}</Loading>
         ) : (
           <Font align="center">
             {/*

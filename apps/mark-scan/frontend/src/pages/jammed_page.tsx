@@ -1,16 +1,13 @@
-import { Main, Screen, Text, H1 } from '@votingworks/ui';
+import { Main, Screen, H1, Font, appStrings, P } from '@votingworks/ui';
 
 export function JammedPage(): JSX.Element {
   return (
     <Screen white>
       <Main padded centerChild>
-        <Text center>
-          <H1>Paper is Jammed</H1>
-          <p>
-            Please alert a poll worker to clear the jam, opening the printer
-            cover or ballot box if necessary.
-          </p>
-        </Text>
+        <Font align="center" id="audiofocus">
+          <H1>{appStrings.titleBmdJammedScreen()}</H1>
+          <P>{appStrings.instructionsBmdPaperJam()}</P>
+        </Font>
       </Main>
     </Screen>
   );

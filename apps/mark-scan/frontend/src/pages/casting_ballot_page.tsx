@@ -1,11 +1,17 @@
-import { Main, Screen, InsertBallotImage, P } from '@votingworks/ui';
+import {
+  Main,
+  Screen,
+  InsertBallotImage,
+  P,
+  appStrings,
+} from '@votingworks/ui';
 
 export function CastingBallotPage(): JSX.Element {
   return (
     <Screen white>
-      <Main centerChild padded>
+      <Main centerChild padded id="audiofocus">
         <InsertBallotImage />
-        <P>Casting Ballot...</P>
+        <P>{appStrings.noteBmdCastingBallot()}</P>
       </Main>
     </Screen>
   );
