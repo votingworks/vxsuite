@@ -163,6 +163,7 @@ test('markInfoToVotesDict candidate', () => {
         id: 'write-in-0',
         name: 'Write-In #1',
         isWriteIn: true,
+        writeInIndex: 0,
       }),
     ],
   });

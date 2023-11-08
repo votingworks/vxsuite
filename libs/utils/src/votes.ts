@@ -115,6 +115,7 @@ function markToCandidateVotes(
         id: mark.optionId,
         name: `Write-In #${writeInIndex + 1}`,
         isWriteIn: true,
+        writeInIndex,
       },
     ];
   }

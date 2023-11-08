@@ -68,6 +68,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 2`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "Governor-061a401b": [
@@ -256,6 +257,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 4`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Senator-391381f8": [
@@ -322,6 +324,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Representative-Hillsborough-District-37-f3bde894": [
@@ -368,6 +371,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -682,6 +686,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 9`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -723,6 +728,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Representative-Hillsborough-District-37-f3bde894": [
@@ -769,6 +775,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -1012,6 +1019,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -1033,6 +1041,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "Register-of-Deeds-a1278df2": [
@@ -1226,6 +1235,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
@@ -1389,6 +1399,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 17`] = `
             "id": "write-in-1",
             "isWriteIn": true,
             "name": "Write-In #2",
+            "writeInIndex": 1,
           },
         ],
       },
@@ -1694,16 +1705,19 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
           {
             "id": "write-in-1",
             "isWriteIn": true,
             "name": "Write-In #2",
+            "writeInIndex": 1,
           },
           {
             "id": "write-in-2",
             "isWriteIn": true,
             "name": "Write-In #3",
+            "writeInIndex": 2,
           },
         ],
       },
@@ -1793,6 +1807,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "United-States-Senator-d3f1c75b": [
@@ -1923,6 +1938,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 22`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Senator-391381f8": [
@@ -3228,6 +3244,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "Register-of-Probate-a4117da8": [
@@ -3235,6 +3252,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
@@ -3564,6 +3582,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "Governor-061a401b": [
@@ -3662,6 +3681,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "Register-of-Deeds-a1278df2": [
@@ -3927,6 +3947,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
             "id": "write-in-2",
             "isWriteIn": true,
             "name": "Write-In #3",
+            "writeInIndex": 2,
           },
         ],
         "United-States-Senator-d3f1c75b": [
@@ -3995,6 +4016,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Senator-391381f8": [
@@ -4845,6 +4867,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -4886,6 +4909,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
             "id": "write-in-1",
             "isWriteIn": true,
             "name": "Write-In #2",
+            "writeInIndex": 1,
           },
         ],
       },
@@ -5503,6 +5527,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Representative-Hillsborough-District-37-f3bde894": [
@@ -5565,6 +5590,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "County-Commissioner-d6feed25": [
@@ -5749,6 +5775,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Representative-Hillsborough-District-37-f3bde894": [
@@ -5811,6 +5838,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "County-Commissioner-d6feed25": [
@@ -6336,6 +6364,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -6454,6 +6483,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -6525,6 +6555,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -6546,6 +6577,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "County-Treasurer-87d25a31": [
@@ -6553,6 +6585,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "Register-of-Deeds-a1278df2": [
@@ -6770,6 +6803,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
       },
@@ -7046,6 +7080,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
@@ -7298,6 +7333,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
         ],
         "Representative-in-Congress-24683b44": [
@@ -7314,11 +7350,13 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
             "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In #1",
+            "writeInIndex": 0,
           },
           {
             "id": "write-in-1",
             "isWriteIn": true,
             "name": "Write-In #2",
+            "writeInIndex": 1,
           },
         ],
       },
