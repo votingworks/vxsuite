@@ -204,11 +204,10 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
  */
 export async function main(): Promise<void> {
   try {
-    const mockCardInput = await parseCommandLineArgs();
-    mockCardWrapper(mockCardInput);
+    mockCardWrapper(await parseCommandLineArgs());
+    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
-  process.exit(0);
 }

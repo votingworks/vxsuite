@@ -1,16 +1,18 @@
 import { createInterface } from 'readline';
 import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
 
-import { JavaCard } from '../src';
 import { CommonAccessCard, CommonAccessCardDetails } from '../src/cac';
 import { CardDetails, PinProtectedCard, StatefulCard } from '../src/card';
+import { JavaCard } from '../src/java_card';
 import { waitForReadyCardStatus } from './utils';
 
 const usageMessage = 'Usage: check-pin [--cac|--vxsuite (default)]';
 
-type CardType = 'cac' | 'vxsuite';
+interface CheckPinInput {
+  cardType: 'cac' | 'vxsuite';
+}
 
-function parseCommandLineArgs(args: readonly string[]): { cardType: CardType } {
+function parseCommandLineArgs(args: readonly string[]): CheckPinInput {
   if (args.length > 1 || ![undefined, '--cac', '--vxsuite'].includes(args[0])) {
     console.log(usageMessage);
     process.exit(0);
@@ -18,7 +20,7 @@ function parseCommandLineArgs(args: readonly string[]): { cardType: CardType } {
   return { cardType: args[0] === '--cac' ? 'cac' : 'vxsuite' };
 }
 
-async function checkPin(cardType: CardType): Promise<void> {
+async function checkPin({ cardType }: CheckPinInput): Promise<void> {
   const pin = await new Promise<string>((resolve) => {
     createInterface(process.stdin, process.stdout).question(
       'Enter PIN: ',
@@ -53,11 +55,10 @@ async function checkPin(cardType: CardType): Promise<void> {
  */
 export async function main(args: readonly string[]): Promise<void> {
   try {
-    const { cardType } = parseCommandLineArgs(args);
-    await checkPin(cardType);
+    await checkPin(parseCommandLineArgs(args));
+    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
-  process.exit(0);
 }

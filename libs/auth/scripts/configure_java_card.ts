@@ -285,10 +285,10 @@ export async function main(): Promise<void> {
     await installApplet();
     await runAppletConfigurationCommands();
     await createAndStoreCardVxCert();
+    sectionLog('✅', 'Done!');
+    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
   }
-  sectionLog('✅', 'Done!');
-  process.exit(0);
 }
