@@ -1,10 +1,7 @@
 import {
   BallotPaperSize,
-  ContestOption,
   GridPosition,
   HmpbBallotPageMetadata,
-  MarkStatus,
-  WriteInAreaStatus,
 } from '@votingworks/types';
 import { Optional, Result } from '@votingworks/basics';
 
@@ -131,19 +128,6 @@ export interface ScoredPositionArea {
   gridPosition: GridPosition;
   bounds: Rect;
   score: UnitIntervalScore;
-}
-
-/**
- * Conversion intermediary for marks containing the grid position, associated
- * contest option, the mark score, and the write-in area score if applicable.
- */
-export interface ScoredContestOption {
-  option: ContestOption;
-  gridPosition: GridPosition;
-  scoredMark: ScoredBubbleMark;
-  markStatus: MarkStatus;
-  scoredWriteInArea?: ScoredPositionArea;
-  writeInAreaStatus: WriteInAreaStatus;
 }
 
 /**

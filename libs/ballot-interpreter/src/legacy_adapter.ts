@@ -28,11 +28,7 @@ import {
   WriteInAreaStatus,
   WriteInId,
 } from '@votingworks/types';
-import {
-  allContestOptions,
-  ballotAdjudicationReasons,
-  convertMarksToVotesDict,
-} from '@votingworks/utils';
+import { allContestOptions, convertMarksToVotesDict } from '@votingworks/utils';
 import {
   BallotPageTimingMarkMetadataFront,
   Geometry,
@@ -42,11 +38,25 @@ import {
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
   ScoredPositionArea,
-  ScoredContestOption,
   ScoredBubbleMarks,
+  ScoredBubbleMark,
 } from './hmpb-ts';
 import { type InterpretFileResult, type InterpretResult } from './interpret';
 import { shouldScoreWriteIns, InterpreterOptions } from './options';
+import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
+
+/**
+ * Conversion intermediary for marks containing the grid position, associated
+ * contest option, the mark score, and the write-in area score if applicable.
+ */
+export interface ScoredContestOption {
+  option: ContestOption;
+  gridPosition: GridPosition;
+  scoredMark: ScoredBubbleMark;
+  markStatus: MarkStatus;
+  scoredWriteInArea?: ScoredPositionArea;
+  writeInAreaStatus: WriteInAreaStatus;
+}
 
 type OkType<T> = T extends Ok<infer U> ? U : never;
 
@@ -224,23 +234,9 @@ export function determineAdjudicationInfoFromScoredContestOptions(
       ({ gridPosition: { contestId } }) => contestId === c.id
     )
   );
-  const adjudicationReasonInfos = Array.from(
-    ballotAdjudicationReasons(contests, {
-      optionStatus: (option) => {
-        const contestOptionScore = contestOptionScores.find(
-          ({ option: scoredOption }) => {
-            return (
-              scoredOption.contestId === option.contestId &&
-              scoredOption.id === option.id
-            );
-          }
-        );
-        assert(contestOptionScore, `mark for option ${option.id} not found`);
-
-        const { markStatus, writeInAreaStatus } = contestOptionScore;
-        return { markStatus, writeInAreaStatus };
-      },
-    })
+  const adjudicationReasonInfos = getAllPossibleAdjudicationReasons(
+    contests,
+    contestOptionScores
   );
 
   const [enabledReasonInfos, ignoredReasonInfos] = iter(
