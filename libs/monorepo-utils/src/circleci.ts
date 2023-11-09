@@ -57,18 +57,6 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
     );
   }
 
-  if (pkg.name === '@votingworks/ui') {
-    lines.push(
-      `    - when:`,
-      `        condition:`,
-      `          equal: [ main, << pipeline.git.branch >> ]`,
-      `        steps:`,
-      `          - run:`,
-      `              name: Export App Strings Catalog`,
-      `              command: echo 0 # TODO(kofi): export to versioned folder accessible from VxDesign`
-    );
-  }
-
   return lines;
 }
 
