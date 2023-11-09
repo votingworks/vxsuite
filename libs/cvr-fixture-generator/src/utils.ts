@@ -2,7 +2,6 @@ import { assert, assertDefined } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import {
   BallotPageLayout,
-  BallotPaperSize,
   Contests,
   CVR,
   Election,
@@ -11,18 +10,6 @@ import {
   SheetOf,
   VotesDict,
 } from '@votingworks/types';
-
-/**
- * A mapping from ballot paper size to page height, in inches
- */
-export const PAGE_HEIGHT_INCHES: Record<BallotPaperSize, number> = {
-  [BallotPaperSize.Letter]: 11,
-  [BallotPaperSize.Legal]: 14,
-  [BallotPaperSize.Custom17]: 17,
-  [BallotPaperSize.Custom18]: 18,
-  [BallotPaperSize.Custom21]: 21,
-  [BallotPaperSize.Custom22]: 22,
-};
 
 /**
  * Generate all combinations of an array.

@@ -3,6 +3,7 @@ import {
   CVR,
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
+  ballotPaperDimensions,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
@@ -22,11 +23,7 @@ import {
   generateCvrs,
   populateImageAndLayoutFileHashes,
 } from '../../generate_cvrs';
-import {
-  replaceUniqueId,
-  getBatchIdForScannerId,
-  PAGE_HEIGHT_INCHES,
-} from '../../utils';
+import { replaceUniqueId, getBatchIdForScannerId } from '../../utils';
 
 /**
  * Script to generate a cast vote record file for a given election.
@@ -240,18 +237,16 @@ export async function main(
         );
         const layoutFilePath = imageFilePath.replace('.jpg', '.layout.json');
 
-        const pageHeightInches =
-          PAGE_HEIGHT_INCHES[election.ballotLayout.paperSize];
-        const pageWidthInches = 8.5;
+        const { width, height } = ballotPaperDimensions(
+          election.ballotLayout.paperSize
+        );
         const pageDpi = 200;
         await writeImageData(
           imageFilePath,
           createImageData(
-            new Uint8ClampedArray(
-              pageWidthInches * pageDpi * pageHeightInches * pageDpi * 4
-            ),
-            pageWidthInches * pageDpi,
-            pageHeightInches * pageDpi
+            new Uint8ClampedArray(width * pageDpi * height * pageDpi * 4),
+            width * pageDpi,
+            height * pageDpi
           )
         );
 

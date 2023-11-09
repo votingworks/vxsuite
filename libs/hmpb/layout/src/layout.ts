@@ -5,12 +5,12 @@ import {
   ok,
   range,
   Result,
-  throwIllegalValue,
   uniqueBy,
   wrapException,
 } from '@votingworks/basics';
 import {
   AnyContest,
+  ballotPaperDimensions,
   BallotPaperSize,
   BallotStyle,
   BallotType,
@@ -146,54 +146,13 @@ export interface GridDimensions {
   columns: number;
 }
 
-// In inches
-export function dimensionsForPaper(paperSize: BallotPaperSize): {
-  width: number;
-  height: number;
-} {
-  switch (paperSize) {
-    case BallotPaperSize.Letter:
-      return {
-        width: 8.5,
-        height: 11,
-      };
-    case BallotPaperSize.Legal:
-      return {
-        width: 8.5,
-        height: 14,
-      };
-    case BallotPaperSize.Custom17:
-      return {
-        width: 8.5,
-        height: 17,
-      };
-    case BallotPaperSize.Custom18:
-      return {
-        width: 8.5,
-        height: 18,
-      };
-    case BallotPaperSize.Custom21:
-      return {
-        width: 8.5,
-        height: 21,
-      };
-    case BallotPaperSize.Custom22:
-      return {
-        width: 8.5,
-        height: 22,
-      };
-    default:
-      throwIllegalValue(paperSize);
-  }
-}
-
 export function gridForPaper(paperSize: BallotPaperSize): GridDimensions {
   // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
   // interpreter can support both Accuvote-style ballots and our ballots.
   // This formula is replicated in libs/ballot-interpreter/src/ballot_card.rs.
   const columnsPerInch = 4;
   const rowsPerInch = 4;
-  const dimensions = dimensionsForPaper(paperSize);
+  const dimensions = ballotPaperDimensions(paperSize);
   return {
     rows: dimensions.height * rowsPerInch - 3,
     columns: dimensions.width * columnsPerInch,
@@ -225,7 +184,7 @@ export function measurements(
   const WRITE_IN_ROW_HEIGHT = [2, 1, 1][density];
   const BALLOT_MEASURE_OPTION_POSITION = ['block', 'block', 'inline'][density];
 
-  const dimensions = dimensionsForPaper(paperSize);
+  const dimensions = ballotPaperDimensions(paperSize);
   const DOCUMENT_WIDTH = dimensions.width * PPI;
   const DOCUMENT_HEIGHT = dimensions.height * PPI;
   const COLUMN_GAP = DOCUMENT_WIDTH / (grid.columns + 1);

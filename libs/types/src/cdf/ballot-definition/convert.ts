@@ -14,7 +14,7 @@ import {
 } from '@votingworks/basics';
 import * as Cdf from '.';
 import * as Vxf from '../../election';
-import { getContests } from '../../election_utils';
+import { ballotPaperDimensions, getContests } from '../../election_utils';
 import { Id, safeParse } from '../../generic';
 import { safeParseInt } from '../../numeric';
 
@@ -28,16 +28,6 @@ function dateTimeString(date: Date) {
   // Need to remove fractional seconds to satisfy CDF schema
   return `${isoString.split('.')[0]}Z`;
 }
-
-const paperSizeDimensionsInches: Record<Vxf.BallotPaperSize, [number, number]> =
-  {
-    [Vxf.BallotPaperSize.Letter]: [8.5, 11],
-    [Vxf.BallotPaperSize.Legal]: [8.5, 14],
-    [Vxf.BallotPaperSize.Custom17]: [8.5, 17],
-    [Vxf.BallotPaperSize.Custom18]: [8.5, 18],
-    [Vxf.BallotPaperSize.Custom21]: [8.5, 21],
-    [Vxf.BallotPaperSize.Custom22]: [8.5, 22],
-  };
 
 export function convertVxfElectionToCdfBallotDefinition(
   vxfElection: Vxf.Election
@@ -419,10 +409,10 @@ export function convertVxfElectionToCdfBallotDefinition(
           },
         ],
         MeasurementUnit: Cdf.MeasurementUnitType.In,
-        ShortEdge:
-          paperSizeDimensionsInches[vxfElection.ballotLayout.paperSize][0],
-        LongEdge:
-          paperSizeDimensionsInches[vxfElection.ballotLayout.paperSize][1],
+        ShortEdge: ballotPaperDimensions(vxfElection.ballotLayout.paperSize)
+          .width,
+        LongEdge: ballotPaperDimensions(vxfElection.ballotLayout.paperSize)
+          .height,
         Orientation: Cdf.OrientationType.Portrait,
         SelectionCaptureMethod: Cdf.SelectionCaptureMethod.Omr,
       },
@@ -667,11 +657,12 @@ export function convertCdfBallotDefinitionToVxfElection(
     }),
 
     ballotLayout: {
-      paperSize: find(
-        Object.entries(paperSizeDimensionsInches),
-        ([, [width, height]]) =>
+      paperSize: find(Object.values(Vxf.BallotPaperSize), (paperSize) => {
+        const { width, height } = ballotPaperDimensions(paperSize);
+        return (
           width === ballotFormat.ShortEdge && height === ballotFormat.LongEdge
-      )[0] as Vxf.BallotPaperSize,
+        );
+      }),
       metadataEncoding: 'qr-code',
     },
 

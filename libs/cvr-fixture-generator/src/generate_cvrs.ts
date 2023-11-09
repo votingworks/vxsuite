@@ -9,7 +9,7 @@ import {
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotPageLayout,
-  BallotPaperSize,
+  ballotPaperDimensions,
   BallotType,
   Candidate,
   CandidateContest,
@@ -137,9 +137,11 @@ export function generateBallotPageLayouts(
   }
 
   const { paperSize } = election.ballotLayout;
+  const { width, height } = ballotPaperDimensions(paperSize);
+  const PPI = 200;
   const pageSize: Size = {
-    width: 200 * 8.5,
-    height: 200 * (paperSize === BallotPaperSize.Letter ? 11 : 14),
+    width: PPI * width,
+    height: PPI * height,
   };
   return mapSheet([1, 2], (pageNumber, side) => ({
     pageSize,
