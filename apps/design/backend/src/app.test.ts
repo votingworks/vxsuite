@@ -200,6 +200,13 @@ test('Update layout options', async () => {
 test('Export setup package', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.electionDefinition;
+  const mockSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    precinctScanAdjudicationReasons: [
+      AdjudicationReason.Overvote,
+      AdjudicationReason.UnmarkedWriteIn,
+    ],
+  };
   const { apiClient } = setupApp();
 
   const electionId = (
@@ -207,6 +214,10 @@ test('Export setup package', async () => {
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
+  await apiClient.updateSystemSettings({
+    electionId,
+    systemSettings: mockSystemSettings,
+  });
   const { election: appElection } = await apiClient.getElection({ electionId });
 
   const { zipContents, electionHash } = await apiClient.exportSetupPackage({
@@ -246,7 +257,7 @@ test('Export setup package', async () => {
   const systemSettings = safeParseSystemSettings(
     await zip.file('systemSettings.json')!.async('text')
   ).unsafeUnwrap();
-  expect(systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
+  expect(systemSettings).toEqual(mockSystemSettings);
 });
 
 // Rendering an SVG to PDF and then generating the PDF takes about 3s per
