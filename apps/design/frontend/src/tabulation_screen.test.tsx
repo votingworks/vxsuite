@@ -73,8 +73,8 @@ test('mark thresholds', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     markThresholds: {
       ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
-      definite: 0.259,
-      marginal: 0.178,
+      definite: 0.079,
+      marginal: 0.058,
     },
   };
   apiMock.updateSystemSettings

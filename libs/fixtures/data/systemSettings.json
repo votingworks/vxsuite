@@ -7,9 +7,9 @@
     "startingCardLockoutDurationSeconds": 15
   },
   "markThresholds": {
-    "definite": 0.25,
-    "marginal": 0.17,
-    "writeInTextArea": 0.02
+    "definite": 0.07,
+    "marginal": 0.05,
+    "writeInTextArea": 0.05
   },
   "centralScanAdjudicationReasons": [],
   "precinctScanAdjudicationReasons": []
