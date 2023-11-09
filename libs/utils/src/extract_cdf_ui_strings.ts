@@ -40,7 +40,7 @@ function setInternationalizedUiStrings(params: {
     }
 
     const valuePath = [languageCode, stringKey].flat();
-    _.set(uiStrings, valuePath, value.Content);
+    _.setWith(uiStrings, valuePath, value.Content, Object);
   }
 }
 
@@ -56,7 +56,7 @@ function setStaticUiString(params: {
   const { stringKey, uiStrings, value } = params;
 
   const valuePath = [LanguageCode.ENGLISH, stringKey].flat();
-  _.set(uiStrings, valuePath, value);
+  _.setWith(uiStrings, valuePath, value, Object);
 }
 
 const extractorFns: Record<

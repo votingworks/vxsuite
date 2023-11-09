@@ -583,3 +583,36 @@ const tests: Record<ElectionStringKey, () => void> = {
 test.each(Object.entries(tests))('extract %s', (_electionStringKey, testFn) =>
   testFn()
 );
+
+test('handles legacy numeric entity IDs', () => {
+  const uiStrings = extractCdfUiStrings({
+    ...testCdfBallotDefinition,
+    GpUnit: [
+      {
+        '@id': '0',
+        '@type': 'BallotDefinition.ReportingUnit',
+        Name: buildInternationalizedText({
+          [LanguageCode.ENGLISH]: 'Brooklyn Nine-Nine',
+        }),
+        Type: BallotDefinition.ReportingUnitType.Precinct,
+      },
+      {
+        '@id': '1',
+        '@type': 'BallotDefinition.ReportingUnit',
+        Name: buildInternationalizedText({
+          [LanguageCode.ENGLISH]: 'West River',
+        }),
+        Type: BallotDefinition.ReportingUnitType.Precinct,
+      },
+    ],
+  });
+
+  expect(uiStrings).toEqual({
+    [LanguageCode.ENGLISH]: expect.objectContaining({
+      [ElectionStringKey.PRECINCT_NAME]: {
+        '0': 'Brooklyn Nine-Nine',
+        '1': 'West River',
+      },
+    }),
+  });
+});
