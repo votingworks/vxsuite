@@ -45,5 +45,12 @@ export default meta;
 export function Single(props: SearchSelectSingleProps): JSX.Element {
   const [value, setValue] = useState<string>();
 
-  return <SearchSelect {...props} value={value} onChange={setValue} />;
+  return (
+    <SearchSelect
+      style={{ minWidth: '8rem' }}
+      {...props}
+      value={value}
+      onChange={setValue}
+    />
+  );
 }

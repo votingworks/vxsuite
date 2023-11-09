@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Select,
   Button,
   Table,
   TH,
@@ -9,6 +8,7 @@ import {
   LinkButton,
   P,
   SegmentedButton,
+  SearchSelect,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -85,35 +85,6 @@ function ContestsTab(): JSX.Element | null {
         <P>You haven&apos;t added any contests to this election yet.</P>
       )}
       <TableActionsRow>
-        {contests.length > 0 && (
-          <React.Fragment>
-            <Select
-              value={filterDistrictId}
-              onChange={(e) => setFilterDistrictId(e.target.value)}
-            >
-              <option value="all">All Districts</option>
-              {districts.map((district) => (
-                <option key={district.id} value={district.id}>
-                  {district.name}
-                </option>
-              ))}
-            </Select>
-            {election.type === 'primary' && (
-              <Select
-                value={filterPartyId}
-                onChange={(e) => setFilterPartyId(e.target.value)}
-              >
-                <option value="all">All Parties</option>
-                <option value="nonpartisan">Nonpartisan</option>
-                {parties.map((party) => (
-                  <option key={party.id} value={party.id}>
-                    {party.name}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </React.Fragment>
-        )}
         <LinkButton
           variant="primary"
           icon="Add"
@@ -121,6 +92,37 @@ function ContestsTab(): JSX.Element | null {
         >
           Add Contest
         </LinkButton>
+        {contests.length > 0 && (
+          <React.Fragment>
+            <SearchSelect
+              options={[
+                { value: FILTER_ALL, label: 'All Districts' },
+                ...districts.map((district) => ({
+                  value: district.id,
+                  label: district.name,
+                })),
+              ]}
+              value={filterDistrictId}
+              onChange={(value) => setFilterDistrictId(value ?? FILTER_ALL)}
+              style={{ minWidth: '8rem' }}
+            />
+            {election.type === 'primary' && (
+              <SearchSelect
+                options={[
+                  { value: FILTER_ALL, label: 'All Parties' },
+                  { value: FILTER_NONPARTISAN, label: 'Nonpartisan' },
+                  ...parties.map((party) => ({
+                    value: party.id,
+                    label: party.name,
+                  })),
+                ]}
+                value={filterPartyId}
+                onChange={(value) => setFilterPartyId(value ?? FILTER_ALL)}
+                style={{ minWidth: '8rem' }}
+              />
+            )}
+          </React.Fragment>
+        )}
       </TableActionsRow>
       {contests.length > 0 &&
         (filteredContests.length === 0 ? (
@@ -292,19 +294,19 @@ function ContestForm({
         />
       </FormField>
       <FormField label="District">
-        <Select
+        <SearchSelect
           value={contest.districtId}
-          onChange={(e) =>
-            setContest({ ...contest, districtId: e.target.value as DistrictId })
+          onChange={(value) =>
+            setContest({ ...contest, districtId: value ?? ('' as DistrictId) })
           }
-        >
-          <option value="" />
-          {savedElection.districts.map((district) => (
-            <option key={district.id} value={district.id}>
-              {district.name}
-            </option>
-          ))}
-        </Select>
+          options={[
+            { value: '' as DistrictId, label: '' },
+            ...savedElection.districts.map((district) => ({
+              value: district.id,
+              label: district.name,
+            })),
+          ]}
+        />
       </FormField>
       <FormField label="Type">
         <SegmentedButton
@@ -331,24 +333,22 @@ function ContestForm({
         <React.Fragment>
           {savedElection.type === 'primary' && (
             <FormField label="Party">
-              <Select
-                value={contest.partyId ?? ''}
-                onChange={(e) =>
+              <SearchSelect
+                options={[
+                  { value: '' as PartyId, label: 'No Party Affiliation' },
+                  ...savedElection.parties.map((party) => ({
+                    value: party.id,
+                    label: party.name,
+                  })),
+                ]}
+                value={contest.partyId}
+                onChange={(value) =>
                   setContest({
                     ...contest,
-                    partyId: e.target.value
-                      ? (e.target.value as PartyId)
-                      : undefined,
+                    partyId: value || undefined,
                   })
                 }
-              >
-                <option value="">No Party Affiliation</option>
-                {savedElection.parties.map((party) => (
-                  <option key={party.id} value={party.id}>
-                    {party.name}
-                  </option>
-                ))}
-              </Select>
+              />
             </FormField>
           )}
           <FormField label="Seats">
@@ -457,32 +457,33 @@ function ContestForm({
                         />
                       </TD>
                       <TD>
-                        <Select
+                        <SearchSelect
+                          options={[
+                            {
+                              value: '' as PartyId,
+                              label: 'No Party Affiliation',
+                            },
+                            ...savedElection.parties.map((party) => ({
+                              value: party.id,
+                              label: party.name,
+                            })),
+                          ]}
                           // Only support one party per candidate for now
                           value={candidate.partyIds?.[0] ?? ('' as PartyId)}
-                          onChange={(e) =>
+                          onChange={(value) =>
                             setContest({
                               ...contest,
                               candidates: contest.candidates.map((c) =>
                                 c.id === candidate.id
                                   ? {
                                       ...candidate,
-                                      partyIds: e.target.value
-                                        ? [e.target.value as PartyId]
-                                        : undefined,
+                                      partyIds: value ? [value] : undefined,
                                     }
                                   : c
                               ),
                             })
                           }
-                        >
-                          <option value="">No Party Affiliation</option>
-                          {savedElection.parties.map((party) => (
-                            <option key={party.id} value={party.id}>
-                              {party.name}
-                            </option>
-                          ))}
-                        </Select>
+                        />
                       </TD>
                       <TD>
                         <Button
