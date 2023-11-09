@@ -119,7 +119,7 @@ test('adjudication reasons', async () => {
     const container = screen.getByText(machine).closest('label')!;
     const select = within(container).getByRole('listbox');
     const options = within(select).getAllByRole('option');
-    expect(options).toHaveLength(4);
+    expect(options).toHaveLength(5);
     for (const option of options) {
       expect(
         within(option).getByRole('checkbox', { hidden: true })
@@ -129,6 +129,7 @@ test('adjudication reasons', async () => {
     expect(options[1]).toHaveTextContent('Undervote');
     expect(options[2]).toHaveTextContent('Marginal Mark');
     expect(options[3]).toHaveTextContent('Blank Ballot');
+    expect(options[4]).toHaveTextContent('Unmarked Write-In');
 
     userEvent.click(options[0]);
     expect(

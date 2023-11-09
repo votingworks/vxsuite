@@ -42,6 +42,7 @@ export function TabulationForm({
     { label: 'Undervote', value: AdjudicationReason.Undervote },
     { label: 'Marginal Mark', value: AdjudicationReason.MarginalMark },
     { label: 'Blank Ballot', value: AdjudicationReason.BlankBallot },
+    { label: 'Unmarked Write-In', value: AdjudicationReason.UnmarkedWriteIn },
   ];
 
   return (
