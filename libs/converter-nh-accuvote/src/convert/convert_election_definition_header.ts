@@ -206,7 +206,10 @@ export function convertElectionDefinitionHeader(
   const optionMetadataByCandidateElement = new Map<
     Element,
     | Omit<GridPositionOption, 'row' | 'column' | 'sheetNumber' | 'side'>
-    | Omit<GridPositionWriteIn, 'row' | 'column' | 'sheetNumber' | 'side'>
+    | Omit<
+        GridPositionWriteIn,
+        'row' | 'column' | 'sheetNumber' | 'side' | 'writeInArea'
+      >
   >();
 
   for (const contestElement of Array.from(
@@ -481,6 +484,14 @@ export function convertElectionDefinitionHeader(
                 row,
                 contestId: metadata.contestId,
                 writeInIndex: metadata.writeInIndex,
+                // We'll compute the actual write-in area later once we have the
+                // bubble position
+                writeInArea: {
+                  x: -1,
+                  y: -1,
+                  width: -1,
+                  height: -1,
+                },
               };
         }),
       },

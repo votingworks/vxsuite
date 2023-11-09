@@ -10,9 +10,8 @@ use crate::{
     ballot_card::BallotSide,
     debug::{self, ImageDebugWriter},
     election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue},
-    geometry::{PixelPosition, PixelUnit, Point, Rect, SubPixelUnit},
+    geometry::{PixelPosition, PixelUnit, Point, Rect, SubGridUnit, SubPixelUnit},
     image_utils::{diff, ratio, BLACK, WHITE},
-    layout::InterpretedContestLayout,
     timing_marks::TimingMarkGrid,
 };
 
@@ -123,7 +122,7 @@ pub fn score_bubble_marks_from_grid_layout(
             }
 
             timing_mark_grid
-                .point_for_location(location.column, location.row)
+                .point_for_location(location.column as SubGridUnit, location.row as SubGridUnit)
                 .map_or_else(
                     || vec![(grid_position.clone(), None)],
                     |expected_bubble_center| {
@@ -256,32 +255,21 @@ pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
 /// vote even if the bubble is not filled in.
 pub fn score_write_in_areas(
     img: &GrayImage,
+    grid: &TimingMarkGrid,
     grid_layout: &GridLayout,
-    contest_layouts: &[InterpretedContestLayout],
-    scored_bubble_marks: &ScoredBubbleMarks,
+    sheet_number: u32,
+    side: BallotSide,
     debug: &ImageDebugWriter,
 ) -> Vec<ScoredPositionArea> {
     let threshold = otsu_level(img);
 
     let scored_write_in_areas = grid_layout
         .write_in_positions()
-        .filter_map(|grid_position| {
-            let (_, scored_bubble_mark) =
-                scored_bubble_marks
-                    .iter()
-                    .find(|(location, scored_bubble_mark)| {
-                        scored_bubble_mark.is_some()
-                            && location.location() == grid_position.location()
-                    })?;
-            let scored_bubble_mark = scored_bubble_mark.as_ref()?;
-            score_write_in_area(
-                img,
-                grid_position,
-                scored_bubble_mark.matched_bounds,
-                contest_layouts,
-                threshold,
-            )
+        .filter(|grid_position| {
+            let location = grid_position.location();
+            grid_position.sheet_number() == sheet_number && location.side == side
         })
+        .filter_map(|grid_position| score_write_in_area(img, grid, grid_position, threshold))
         .collect();
 
     debug.write("scored_write_in_areas", |canvas| {
@@ -293,38 +281,20 @@ pub fn score_write_in_areas(
 
 fn score_write_in_area(
     img: &GrayImage,
+    grid: &TimingMarkGrid,
     grid_position: &GridPosition,
-    scored_bubble_mark_bounds: Rect,
-    contest_layouts: &[InterpretedContestLayout],
     threshold: u8,
 ) -> Option<ScoredPositionArea> {
-    let GridPosition::WriteIn {
-        side, column, row, ..
-    } = *grid_position
-    else {
+    let GridPosition::WriteIn { write_in_area, .. } = *grid_position else {
         return None;
     };
-    let contest_layout = contest_layouts
-        .iter()
-        .find(|contest_layout| contest_layout.contest_id == grid_position.contest_id())?;
-    let write_in_layout = contest_layout.options.iter().find(|option| {
-        option.grid_location.side == side
-            && option.grid_location.column == column
-            && option.grid_location.row == row
-    })?;
-    let write_in_layout_width = write_in_layout.bounds.width();
 
-    // 75% of the width of the write-in crop area and 2x the height of the
-    // bubble turned out to work pretty well with the NH state ballot layout.
-    // For now we're not trying to be more general than that.
-    let width = write_in_layout_width * 3 / 4;
-    let height = scored_bubble_mark_bounds.height() * 2;
-    let bounds = Rect::new(
-        scored_bubble_mark_bounds.left() - width as i32,
-        scored_bubble_mark_bounds.bottom() - height as i32,
-        width,
-        height,
-    );
+    let top_left_corner = grid.point_for_location(write_in_area.x, write_in_area.y)?;
+    let bottom_right_corner = grid.point_for_location(
+        write_in_area.x + write_in_area.width,
+        write_in_area.y + write_in_area.height,
+    )?;
+    let bounds = Rect::from_points(top_left_corner.round(), bottom_right_corner.round());
     let cropped = img
         .view(
             bounds.left() as PixelUnit,

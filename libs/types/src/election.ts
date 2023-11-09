@@ -406,6 +406,13 @@ export interface GridPositionWriteIn {
   readonly row: number;
   readonly contestId: ContestId;
   readonly writeInIndex: number;
+  /**
+   * The absolute grid coordinates of the area of the ballot where the voter is
+   * expected to write the write-in candidate name. We use this to detect
+   * unmarked write-ins (when the voter written in a candidate name but didn't
+   * fill in the bubble).
+   */
+  readonly writeInArea: Rect;
 }
 export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
   z.object({
@@ -416,6 +423,7 @@ export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
     row: z.number().int().nonnegative(),
     contestId: ContestIdSchema,
     writeInIndex: z.number().int().nonnegative(),
+    writeInArea: RectSchema,
   });
 
 export type GridPosition = GridPositionOption | GridPositionWriteIn;

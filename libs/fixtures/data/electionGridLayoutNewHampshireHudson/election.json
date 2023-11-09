@@ -887,7 +887,13 @@
           "column": 32,
           "row": 9,
           "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 8.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -896,7 +902,13 @@
           "column": 32,
           "row": 13,
           "contestId": "Governor-061a401b",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 12.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -905,7 +917,13 @@
           "column": 32,
           "row": 16,
           "contestId": "United-States-Senator-d3f1c75b",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 15.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -914,7 +932,13 @@
           "column": 32,
           "row": 19,
           "contestId": "Representative-in-Congress-24683b44",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 18.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -923,7 +947,13 @@
           "column": 32,
           "row": 22,
           "contestId": "Executive-Councilor-bb22557f",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 21.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -932,7 +962,13 @@
           "column": 32,
           "row": 25,
           "contestId": "State-Senator-391381f8",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 24.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -941,7 +977,13 @@
           "column": 32,
           "row": 28,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 27.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -950,7 +992,13 @@
           "column": 32,
           "row": 30,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 1
+          "writeInIndex": 1,
+          "writeInArea": {
+            "x": 27,
+            "y": 29.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -959,7 +1007,13 @@
           "column": 32,
           "row": 32,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 2
+          "writeInIndex": 2,
+          "writeInArea": {
+            "x": 27,
+            "y": 31.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -968,7 +1022,13 @@
           "column": 32,
           "row": 34,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 3
+          "writeInIndex": 3,
+          "writeInArea": {
+            "x": 27,
+            "y": 33.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -977,7 +1037,13 @@
           "column": 32,
           "row": 36,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 4
+          "writeInIndex": 4,
+          "writeInArea": {
+            "x": 27,
+            "y": 35.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -986,7 +1052,13 @@
           "column": 32,
           "row": 38,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 5
+          "writeInIndex": 5,
+          "writeInArea": {
+            "x": 27,
+            "y": 37.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -995,7 +1067,13 @@
           "column": 32,
           "row": 40,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 6
+          "writeInIndex": 6,
+          "writeInArea": {
+            "x": 27,
+            "y": 39.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1004,7 +1082,13 @@
           "column": 32,
           "row": 42,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 7
+          "writeInIndex": 7,
+          "writeInArea": {
+            "x": 27,
+            "y": 41.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1013,7 +1097,13 @@
           "column": 32,
           "row": 44,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 8
+          "writeInIndex": 8,
+          "writeInArea": {
+            "x": 27,
+            "y": 43.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1022,7 +1112,13 @@
           "column": 32,
           "row": 46,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 9
+          "writeInIndex": 9,
+          "writeInArea": {
+            "x": 27,
+            "y": 45.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1031,7 +1127,13 @@
           "column": 32,
           "row": 48,
           "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 10
+          "writeInIndex": 10,
+          "writeInArea": {
+            "x": 27,
+            "y": 47.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1040,7 +1142,13 @@
           "column": 32,
           "row": 4,
           "contestId": "Sheriff-4243fe0b",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 3.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1049,7 +1157,13 @@
           "column": 32,
           "row": 7,
           "contestId": "County-Attorney-133f910f",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 6.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1058,7 +1172,13 @@
           "column": 32,
           "row": 10,
           "contestId": "County-Treasurer-87d25a31",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 9.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1067,7 +1187,13 @@
           "column": 32,
           "row": 13,
           "contestId": "Register-of-Deeds-a1278df2",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 12.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1076,7 +1202,13 @@
           "column": 32,
           "row": 16,
           "contestId": "Register-of-Probate-a4117da8",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 15.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         },
         {
           "type": "write-in",
@@ -1085,7 +1217,13 @@
           "column": 32,
           "row": 19,
           "contestId": "County-Commissioner-d6feed25",
-          "writeInIndex": 0
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 27,
+            "y": 18.35,
+            "width": 4.5,
+            "height": 0.85
+          }
         }
       ]
     }

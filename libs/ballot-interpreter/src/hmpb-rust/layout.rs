@@ -4,7 +4,7 @@ use serde::Serialize;
 use crate::{
     ballot_card::BallotSide,
     election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId},
-    geometry::{GridUnit, Point, Rect},
+    geometry::{GridUnit, Point, Rect, SubGridUnit},
     timing_marks::TimingMarkGrid,
 };
 
@@ -39,38 +39,46 @@ fn build_option_layout(
         + grid_layout.option_bounds_from_target_mark.bottom
         + 1;
 
-    let clamp_row = |row: i32| -> GridUnit {
-        row.clamp(0, grid.geometry.grid_size.height as i32 - 1) as GridUnit
-    };
-    let clamp_column = |column: i32| -> GridUnit {
-        column.clamp(0, grid.geometry.grid_size.width as i32 - 1) as GridUnit
-    };
+    let clamp_row =
+        |row: GridUnit| -> GridUnit { row.clamp(0, grid.geometry.grid_size.height - 1) };
+    let clamp_column =
+        |column: GridUnit| -> GridUnit { column.clamp(0, grid.geometry.grid_size.width - 1) };
 
     let bubble_location = grid_position.location();
 
     let top_left_location: Point<GridUnit> = Point::new(
-        clamp_column(bubble_location.column as i32 + column_offset),
-        clamp_row(bubble_location.row as i32 + row_offset),
+        clamp_column(bubble_location.column + column_offset),
+        clamp_row(bubble_location.row + row_offset),
     );
     let bottom_left_location: Point<GridUnit> = Point::new(
-        clamp_column(bubble_location.column as i32 + column_offset),
-        clamp_row(bubble_location.row as i32 + row_offset + height as i32),
+        clamp_column(bubble_location.column + column_offset),
+        clamp_row(bubble_location.row + row_offset + height),
     );
     let top_right_location: Point<GridUnit> = Point::new(
-        clamp_column(bubble_location.column as i32 + column_offset + width as i32),
-        clamp_row(bubble_location.row as i32 + row_offset),
+        clamp_column(bubble_location.column + column_offset + width),
+        clamp_row(bubble_location.row + row_offset),
     );
     let bottom_right_location: Point<GridUnit> = Point::new(
-        clamp_column(bubble_location.column as i32 + column_offset + width as i32),
-        clamp_row(bubble_location.row as i32 + row_offset + height as i32),
+        clamp_column(bubble_location.column + column_offset + width),
+        clamp_row(bubble_location.row + row_offset + height),
     );
 
-    let top_left_point = grid.point_for_location(top_left_location.x, top_left_location.y)?;
-    let bottom_left_point =
-        grid.point_for_location(bottom_left_location.x, bottom_left_location.y)?;
-    let top_right_point = grid.point_for_location(top_right_location.x, top_right_location.y)?;
-    let bottom_right_point =
-        grid.point_for_location(bottom_right_location.x, bottom_right_location.y)?;
+    let top_left_point = grid.point_for_location(
+        top_left_location.x as SubGridUnit,
+        top_left_location.y as SubGridUnit,
+    )?;
+    let bottom_left_point = grid.point_for_location(
+        bottom_left_location.x as SubGridUnit,
+        bottom_left_location.y as SubGridUnit,
+    )?;
+    let top_right_point = grid.point_for_location(
+        top_right_location.x as SubGridUnit,
+        top_right_location.y as SubGridUnit,
+    )?;
+    let bottom_right_point = grid.point_for_location(
+        bottom_right_location.x as SubGridUnit,
+        bottom_right_location.y as SubGridUnit,
+    )?;
 
     // We use the furthest points to determine the bounding box so we enclose
     // content that may have moved further away when skewed.

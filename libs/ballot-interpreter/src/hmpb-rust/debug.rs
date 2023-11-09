@@ -11,7 +11,7 @@ use rusttype::{Font, Scale};
 use crate::{
     ballot_card::Geometry,
     election::GridPosition,
-    geometry::{PixelPosition, PixelUnit, Rect, Segment, SubPixelUnit},
+    geometry::{PixelPosition, PixelUnit, Rect, Segment, SubGridUnit, SubPixelUnit},
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
@@ -349,7 +349,7 @@ pub fn draw_timing_mark_grid_debug_image_mut(
     for column in 0..geometry.grid_size.width {
         for row in 0..geometry.grid_size.height {
             let point = timing_mark_grid
-                .point_for_location(column, row)
+                .point_for_location(column as SubGridUnit, row as SubGridUnit)
                 .expect("grid point is defined");
             draw_cross_mut(
                 canvas,

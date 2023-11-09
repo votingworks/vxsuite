@@ -136,6 +136,7 @@ function aggregateContestOptionScores({
       : undefined;
     const writeInTextAreaThreshold =
       options.markThresholds.writeInTextArea ??
+      /* istanbul ignore next */
       TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD;
     const writeInAreaStatus = scoredWriteInArea
       ? scoredWriteInArea.score >= writeInTextAreaThreshold

@@ -2,7 +2,11 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{ballot_card::BallotSide, geometry::GridUnit, types::idtype};
+use crate::{
+    ballot_card::BallotSide,
+    geometry::{GridUnit, SubGridRect},
+    types::idtype,
+};
 
 idtype!(ContestId);
 idtype!(OptionId);
@@ -101,6 +105,7 @@ pub enum GridPosition {
         row: GridUnit,
         contest_id: ContestId,
         write_in_index: u32,
+        write_in_area: SubGridRect,
     },
 }
 
@@ -152,7 +157,7 @@ impl GridPosition {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, PartialEq)]
 pub struct GridLocation {
     pub side: BallotSide,
     pub column: GridUnit,
@@ -247,7 +252,13 @@ mod tests {
             "column": 1,
             "row": 2,
             "contestId": "contest-1",
-            "writeInIndex": 3
+            "writeInIndex": 3,
+            "writeInArea": {
+                "x": 1,
+                "y": 1.5,
+                "width": 2,
+                "height": 1
+            }
         }"#;
         match serde_json::from_str(json).unwrap() {
             GridPosition::WriteIn {
@@ -257,6 +268,7 @@ mod tests {
                 row,
                 contest_id,
                 write_in_index,
+                write_in_area,
             } => {
                 assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);
@@ -264,6 +276,15 @@ mod tests {
                 assert_eq!(row, 2);
                 assert_eq!(contest_id, ContestId::from("contest-1".to_string()));
                 assert_eq!(write_in_index, 3);
+                assert_eq!(
+                    write_in_area,
+                    SubGridRect {
+                        x: 1.0,
+                        y: 1.5,
+                        width: 2.0,
+                        height: 1.0
+                    }
+                )
             }
             _ => panic!("expected WriteIn"),
         }

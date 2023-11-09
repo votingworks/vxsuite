@@ -1,7 +1,12 @@
-import { iter } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb-render-backend';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { GridLayout, Vote, VotesDict } from '@votingworks/types';
+import {
+  GridLayout,
+  UnmarkedWriteIn,
+  Vote,
+  VotesDict,
+} from '@votingworks/types';
 import { tmpNameSync } from 'tmp';
 import { readFile } from 'fs/promises';
 
@@ -19,19 +24,36 @@ export async function ballotPdfToPageImages(
     .toArray();
 }
 
+function isContestOnSheet(
+  gridLayout: GridLayout,
+  contestId: string,
+  sheetNumber: number
+): boolean {
+  return gridLayout.gridPositions.some(
+    (position) =>
+      position.contestId === contestId && position.sheetNumber === sheetNumber
+  );
+}
+
 export function votesForSheet(
   votes: VotesDict,
   sheetNumber: number,
   gridLayout: GridLayout
 ): VotesDict {
   return Object.fromEntries(
-    Object.entries(votes).filter(([contestId]) => {
-      return gridLayout.gridPositions.some(
-        (position) =>
-          position.contestId === contestId &&
-          position.sheetNumber === sheetNumber
-      );
-    })
+    Object.entries(votes).filter(([contestId]) =>
+      isContestOnSheet(gridLayout, contestId, sheetNumber)
+    )
+  );
+}
+
+export function unmarkedWriteInsForSheet(
+  unmarkedWriteIns: UnmarkedWriteIn[],
+  sheetNumber: number,
+  gridLayout: GridLayout
+): UnmarkedWriteIn[] {
+  return unmarkedWriteIns.filter(({ contestId }) =>
+    isContestOnSheet(gridLayout, contestId, sheetNumber)
   );
 }
 
@@ -45,7 +67,18 @@ export function sortVotesDict(votes: VotesDict): VotesDict {
   return Object.fromEntries(
     Object.entries(votes).map(([contestId, candidates]) => [
       contestId,
-      sortVotes(candidates ?? []),
+      sortVotes(assertDefined(candidates)),
     ])
+  );
+}
+
+export function sortUnmarkedWriteIns(
+  writeIns: UnmarkedWriteIn[]
+): UnmarkedWriteIn[] {
+  return [...writeIns].sort(
+    (a, b) =>
+      a.contestId.localeCompare(b.contestId) ||
+      /* istanbul ignore next */
+      a.optionId.localeCompare(b.optionId)
   );
 }

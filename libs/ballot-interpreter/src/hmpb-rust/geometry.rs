@@ -3,7 +3,7 @@ use std::{
     ops::{Add, AddAssign, Sub},
 };
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// A unit of length in timing mark grid, i.e. 1 `GridUnit` is the logical
 /// distance from one timing mark to the next. This does not map directly to
@@ -11,7 +11,22 @@ use serde::Serialize;
 ///
 /// Because this is just a type alias it does not enforce that another type
 /// with the same underlying representation is not used.
-pub type GridUnit = u32;
+pub type GridUnit = i32;
+
+/// A fractional GridUnit.
+///
+/// Because this is just a type alias it does not enforce that another type
+/// with the same underlying representation is not used.
+pub type SubGridUnit = f32;
+
+/// A rectangle area defined by coordinates in the timing mark grid.
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SubGridRect {
+    pub x: SubGridUnit,
+    pub y: SubGridUnit,
+    pub width: SubGridUnit,
+    pub height: SubGridUnit,
+}
 
 /// An x or y coordinate in pixels.
 ///

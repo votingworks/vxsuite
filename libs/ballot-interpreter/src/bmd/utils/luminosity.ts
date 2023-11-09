@@ -1,5 +1,4 @@
 import { assertDefined } from '@votingworks/basics';
-import { otsu } from '@votingworks/image-utils';
 import { Rect } from '@votingworks/types';
 import makeDebug from 'debug';
 
@@ -22,13 +21,9 @@ export interface LuminosityCounts {
  */
 export function stats(
   { data, width, height }: ImageData,
-  {
-    threshold: fixedThreshold,
-    bounds = { x: 0, y: 0, width, height },
-  }: { threshold?: number; bounds?: Rect } = {}
+  { threshold, bounds }: { threshold: number; bounds: Rect }
 ): Stats {
   const start = Date.now();
-  const threshold = fixedThreshold ?? otsu(data);
   const channels = data.length / (width * height);
   const pixelCount = bounds.width * bounds.height;
 

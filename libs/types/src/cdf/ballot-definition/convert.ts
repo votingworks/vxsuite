@@ -197,14 +197,11 @@ export function convertVxfElectionToCdfBallotDefinition(
                             '@type': 'BallotDefinition.WriteInPosition',
                             Sheet: position.sheetNumber,
                             Side: position.side as Cdf.BallotSideType,
-                            // We don't currently use the write-in position, so
-                            // setting to a dummy value for now. In the future,
-                            // we might want to use this for detecting unmarked
-                            // write-ins or for write-in adjudication cropping.
-                            H: 0,
-                            W: 0,
-                            X: 0,
-                            Y: 0,
+                            // Note that these are in grid coordinates
+                            X: position.writeInArea.x,
+                            Y: position.writeInArea.y,
+                            W: position.writeInArea.width,
+                            H: position.writeInArea.height,
                           },
                         ]
                       : undefined,
@@ -692,6 +689,12 @@ export function convertCdfBallotDefinitionToVxfElection(
                           orderedContest.ContestId,
                           option.ContestOptionId
                         ),
+                        writeInArea: {
+                          x: option.WriteInPosition[0].X,
+                          y: option.WriteInPosition[0].Y,
+                          width: option.WriteInPosition[0].W,
+                          height: option.WriteInPosition[0].H,
+                        },
                       }
                     : {
                         type: 'option',

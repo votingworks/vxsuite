@@ -60,8 +60,7 @@ export async function interpret(
   }
 
   const foundQrCode = (frontResult.ok() ?? backResult.ok()) as DetectedQrCode;
-  const actualElectionHash =
-    decodeElectionHash(foundQrCode.data) ?? 'not found';
+  const actualElectionHash = decodeElectionHash(foundQrCode.data);
   const expectedElectionHash = electionDefinition.electionHash.slice(
     0,
     ELECTION_HASH_LENGTH
@@ -71,7 +70,10 @@ export async function interpret(
     return err({
       type: 'mismatched-election',
       expectedElectionHash,
-      actualElectionHash,
+      actualElectionHash:
+        actualElectionHash ??
+        /* istanbul ignore next */
+        '',
     });
   }
 
