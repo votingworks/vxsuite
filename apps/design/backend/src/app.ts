@@ -6,7 +6,6 @@ import {
   Id,
   safeParseElection,
   BallotPaperSize,
-  DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   BallotType,
   BallotPackageFileName,
@@ -225,7 +224,9 @@ function buildApi({ store }: { store: Store }) {
     async exportSetupPackage(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions } = store.getElection(input.electionId);
+      const { election, layoutOptions, systemSettings } = store.getElection(
+        input.electionId
+      );
       const { electionDefinition } = layOutAllBallotStyles({
         election,
         // Ballot type and ballot mode shouldn't change the election definition, so
@@ -239,7 +240,7 @@ function buildApi({ store }: { store: Store }) {
       zip.file(BallotPackageFileName.ELECTION, electionDefinition.electionData);
       zip.file(
         BallotPackageFileName.SYSTEM_SETTINGS,
-        JSON.stringify(DEFAULT_SYSTEM_SETTINGS, null, 2)
+        JSON.stringify(systemSettings, null, 2)
       );
 
       return {
