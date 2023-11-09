@@ -30,7 +30,7 @@
   "instructionsBmdPaperJam": "Please alert a poll worker to clear the jam, opening the printer cover or ballot box if necessary.",
   "instructionsBmdReviewPageChangingVotes": "To change your vote in any contest, use the select button to navigate to that contest. When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.",
   "instructionsBmdReviewPageNavigation": "To review your votes, advance through the ballot contests using the up and down buttons.",
-  "instructionsBmdScanReviewConfirmation": "If your selections are correct, press “My Ballot is Correct”. If there is an error, press “My Ballot is Incorrect” and alert a poll worker.",
+  "instructionsBmdScanReviewConfirmation": "If your selections are correct, press \"My Ballot is Correct”. If there is an error, press \"My Ballot is Incorrect” and alert a poll worker.",
   "instructionsBmdSelectToContinue": "Press the select button to continue.",
   "instructionsBmdWriteInFormNavigation": "Use the up and down buttons to navigate between the letters of a standard keyboard. Use the select button to select the current letter.",
   "labelAllPrecinctsSelection": "All Precincts",
