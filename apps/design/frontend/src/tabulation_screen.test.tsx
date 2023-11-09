@@ -169,3 +169,75 @@ test('adjudication reasons', async () => {
     }
   }
 });
+
+test('setting write-in text area threshold', async () => {
+  apiMock.getElection
+    .expectCallWith({ electionId })
+    .resolves(generalElectionRecord);
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Tabulation' });
+
+  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+
+  expect(screen.queryByText('Write-In Area Threshold')).not.toBeInTheDocument();
+
+  // VxCentralScan adjudication reason triggers the write-in area threshold input
+  const centralScanContainer = screen
+    .getByText('VxCentralScan')
+    .closest('label')!;
+  userEvent.click(
+    within(centralScanContainer).getByRole('option', {
+      name: 'Unmarked Write-In',
+    })
+  );
+  await screen.findByText('Write-In Area Threshold');
+  userEvent.click(
+    within(centralScanContainer).getByRole('option', {
+      name: 'Unmarked Write-In',
+    })
+  );
+  expect(screen.queryByText('Write-In Area Threshold')).not.toBeInTheDocument();
+
+  // VxScan adjudication reason triggers the write-in area threshold input
+  const scanContainer = screen.getByText('VxScan').closest('label')!;
+  userEvent.click(
+    within(scanContainer).getByRole('option', {
+      name: 'Unmarked Write-In',
+    })
+  );
+
+  await screen.findByText('Write-In Area Threshold');
+  const thresholdInput = screen.getByRole('spinbutton', {
+    name: 'Write-In Area Threshold',
+  });
+  expect(thresholdInput).toHaveValue(
+    generalElectionRecord.systemSettings.markThresholds.writeInTextArea
+  );
+
+  // Due to some weirdness with the tests, we can't clear the input before
+  // typing, so we have to just append
+  userEvent.type(thresholdInput, '8');
+  const updatedSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    markThresholds: {
+      ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
+      writeInTextArea: 0.058,
+    },
+    precinctScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getElection.expectCallWith({ electionId }).resolves({
+    ...generalElectionRecord,
+    systemSettings: updatedSystemSettings,
+  });
+
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
+
+  expect(thresholdInput).toHaveValue(
+    updatedSystemSettings.markThresholds.writeInTextArea
+  );
+});

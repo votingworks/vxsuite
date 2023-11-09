@@ -45,6 +45,14 @@ export function TabulationForm({
     { label: 'Unmarked Write-In', value: AdjudicationReason.UnmarkedWriteIn },
   ];
 
+  const isScoringUnmarkedWriteIns =
+    tabulationSettings.centralScanAdjudicationReasons.includes(
+      AdjudicationReason.UnmarkedWriteIn
+    ) ||
+    tabulationSettings.precinctScanAdjudicationReasons.includes(
+      AdjudicationReason.UnmarkedWriteIn
+    );
+
   return (
     <Form>
       <Row style={{ gap: '1rem' }}>
@@ -128,6 +136,32 @@ export function TabulationForm({
                 disabled={!isEditing}
               />
             </FormField>
+            {isScoringUnmarkedWriteIns && (
+              <FormField label="Write-In Area Threshold">
+                <Input
+                  type="number"
+                  value={
+                    tabulationSettings.markThresholds?.writeInTextArea ?? ''
+                  }
+                  onChange={(e) =>
+                    setTabulationSettings({
+                      ...tabulationSettings,
+                      markThresholds: {
+                        ...(tabulationSettings.markThresholds || {
+                          definite: 0,
+                          marginal: 0,
+                        }),
+                        writeInTextArea: e.target.valueAsNumber,
+                      },
+                    })
+                  }
+                  step={0.01}
+                  min={0}
+                  max={1}
+                  disabled={!isEditing}
+                />
+              </FormField>
+            )}
           </Column>
         </Card>
       </Row>
