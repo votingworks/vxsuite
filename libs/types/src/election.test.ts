@@ -1,6 +1,7 @@
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
 import {
+  ballotPaperDimensions,
   getBallotStyle,
   getCandidateParties,
   getCandidatePartiesDescription,
@@ -28,6 +29,7 @@ import {
 } from '../test/election';
 import {
   BallotIdSchema,
+  BallotPaperSize,
   CandidateContest,
   CandidateSchema,
   ElectionDefinitionSchema,
@@ -538,4 +540,31 @@ test('safeParseElection shows VXF and CDF parsing errors', () => {
   expect(error.message).toContain('VXF error:');
   expect(error.message).toContain('CDF error:');
   expect(error).toMatchSnapshot();
+});
+
+test('ballotPaperDimensions', () => {
+  expect(ballotPaperDimensions(BallotPaperSize.Letter)).toEqual({
+    width: 8.5,
+    height: 11,
+  });
+  expect(ballotPaperDimensions(BallotPaperSize.Legal)).toEqual({
+    width: 8.5,
+    height: 14,
+  });
+  expect(ballotPaperDimensions(BallotPaperSize.Custom17)).toEqual({
+    width: 8.5,
+    height: 17,
+  });
+  expect(ballotPaperDimensions(BallotPaperSize.Custom18)).toEqual({
+    width: 8.5,
+    height: 18,
+  });
+  expect(ballotPaperDimensions(BallotPaperSize.Custom21)).toEqual({
+    width: 8.5,
+    height: 21,
+  });
+  expect(ballotPaperDimensions(BallotPaperSize.Custom22)).toEqual({
+    width: 8.5,
+    height: 22,
+  });
 });

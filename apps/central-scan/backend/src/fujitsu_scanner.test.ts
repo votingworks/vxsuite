@@ -60,9 +60,14 @@ test('fujitsu scanner can scan with letter size', () => {
       'Press Ctrl + D to terminate.\n',
     ].join('')
   );
-  expect(exec).not.toHaveBeenCalledWith(
+  expect(exec).toHaveBeenCalledWith(
     'scanimage',
-    expect.arrayContaining(['--page-height'])
+    expect.arrayContaining([
+      '--page-width',
+      '215.872',
+      '--page-height',
+      '279.364',
+    ])
   );
 });
 
@@ -85,7 +90,12 @@ test('fujitsu scanner can scan with legal size', () => {
   );
   expect(exec).toHaveBeenCalledWith(
     'scanimage',
-    expect.arrayContaining(['--page-height'])
+    expect.arrayContaining([
+      '--page-width',
+      '215.872',
+      '--page-height',
+      '355.554',
+    ])
   );
 });
 

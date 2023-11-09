@@ -1,5 +1,7 @@
+import { throwIllegalValue } from '@votingworks/basics';
 import {
   AnyContest,
+  BallotPaperSize,
   BallotStyle,
   BallotStyleId,
   Candidate,
@@ -394,4 +396,46 @@ export function getDisplayElectionHash(
   electionDefinition: Pick<ElectionDefinition, 'electionHash'>
 ): string {
   return electionDefinition.electionHash.slice(0, ELECTION_HASH_DISPLAY_LENGTH);
+}
+
+// In inches
+export function ballotPaperDimensions(paperSize: BallotPaperSize): {
+  width: number;
+  height: number;
+} {
+  switch (paperSize) {
+    case BallotPaperSize.Letter:
+      return {
+        width: 8.5,
+        height: 11,
+      };
+    case BallotPaperSize.Legal:
+      return {
+        width: 8.5,
+        height: 14,
+      };
+    case BallotPaperSize.Custom17:
+      return {
+        width: 8.5,
+        height: 17,
+      };
+    case BallotPaperSize.Custom18:
+      return {
+        width: 8.5,
+        height: 18,
+      };
+    case BallotPaperSize.Custom21:
+      return {
+        width: 8.5,
+        height: 21,
+      };
+    case BallotPaperSize.Custom22:
+      return {
+        width: 8.5,
+        height: 22,
+      };
+    /* istanbul ignore next */
+    default:
+      return throwIllegalValue(paperSize);
+  }
 }
