@@ -2,7 +2,11 @@ import { assert, deferredQueue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';
-import { BallotPaperSize, SheetOf } from '@votingworks/types';
+import {
+  BallotPaperSize,
+  SheetOf,
+  ballotPaperDimensions,
+} from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { streamExecFile } from './exec';
 import { StreamLines } from './util/stream_lines';
@@ -87,15 +91,17 @@ export class FujitsuScanner implements BatchScanner {
       `--batch-prompt`,
     ];
 
-    if (pageSize === BallotPaperSize.Legal) {
-      args.push('--page-width', '215.872', '--page-height', '355.6'); // values in millimeters
-    } else if (pageSize === BallotPaperSize.Custom17) {
-      args.push('--page-width', '215.872', '--page-height', '431.8'); // values in millimeters
-    } else if (pageSize === BallotPaperSize.Letter) {
-      // this is the default, no changes needed.
-    } else {
-      throw new Error(`Unsupported page size: ${pageSize}`);
+    const MM_PER_INCH = 25.3967;
+    function toMillimeters(inches: number): string {
+      return String(Math.round(inches * MM_PER_INCH * 1000) / 1000);
     }
+    const { width, height } = ballotPaperDimensions(pageSize);
+    args.push(
+      '--page-width',
+      toMillimeters(width),
+      '--page-height',
+      toMillimeters(height)
+    );
 
     if (this.mode) {
       args.push('--mode', this.mode);
