@@ -166,6 +166,7 @@ interface CandidateContestResultProps {
 function CandidateContestResult({
   contest,
   election,
+  /* istanbul ignore next */
   vote = [],
 }: CandidateContestResultProps): JSX.Element {
   const remainingChoices = contest.seats - vote.length;

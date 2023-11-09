@@ -442,9 +442,9 @@ test('throws on trying to encode a bad yes/no vote', () => {
   const precinctId = precinct.id;
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const contests = getContests({ ballotStyle, election });
-  const votes = vote(contests, {
-    'judicial-robert-demergue': 'judicial-robert-demergue-option-yes',
-  });
+  const votes = vote(contests, {});
+  votes['judicial-robert-demergue'] =
+    'judicial-robert-demergue-option-yes' as unknown as string[];
   const ballot: CompletedBallot = {
     electionHash,
     ballotId,
@@ -675,7 +675,9 @@ test('encodes & decodes candidate choice votes correctly', () => {
     // ballot id
     .writeString('abcde')
     // vote roll call
-    .writeBoolean(...contests.map((contest) => contest.id in votes))
+    .writeBoolean(
+      ...contests.map((contest) => isVotePresent(votes[contest.id]))
+    )
     // vote data
     // - president (barchi-hallaren)
     .writeBoolean(true, ...falses(5))
@@ -765,7 +767,9 @@ test('encodes & decodes write-in votes correctly', () => {
     // ballot id
     .writeString('abcde')
     // vote roll call
-    .writeBoolean(...contests.map((contest) => contest.id in votes))
+    .writeBoolean(
+      ...contests.map((contest) => isVotePresent(votes[contest.id]))
+    )
     // vote data
     // - county-registrar-of-wills (ramachandrani)
     .writeBoolean(false)

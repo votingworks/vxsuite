@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import {
   AnyContest,
   BallotPaperSize,
@@ -351,39 +351,33 @@ export function vote(
     [key: string]: Vote | string | readonly string[] | Candidate;
   }
 ): VotesDict {
-  return Object.getOwnPropertyNames(shorthand).reduce((result, contestId) => {
-    const contest = findContest({ contests, contestId });
-
-    if (!contest) {
-      throw new Error(`unknown contest ${contestId}`);
+  const votes: VotesDict = {};
+  for (const contest of contests) {
+    const choice = shorthand[contest.id];
+    if (!choice) {
+      votes[contest.id] = [];
+    } else if (contest.type === 'yesno') {
+      assert(Array.isArray(choice), 'yesno shorthand must be an array');
+      votes[contest.id] = choice;
+    } else if (Array.isArray(choice) && typeof choice[0] === 'string') {
+      votes[contest.id] = contest.candidates.filter((c) =>
+        (choice as readonly string[]).includes(c.id)
+      );
+    } else if (typeof choice === 'string') {
+      votes[contest.id] = [find(contest.candidates, (c) => c.id === choice)];
+    } else {
+      votes[contest.id] = Array.isArray(choice) ? choice : [choice];
     }
+  }
 
-    const choice = shorthand[contestId];
-
-    if (contest.type !== 'candidate') {
-      return { ...result, [contestId]: choice };
-    }
-    if (Array.isArray(choice) && typeof choice[0] === 'string') {
-      return {
-        ...result,
-        [contestId]: contest.candidates.filter((c) =>
-          (choice as readonly string[]).includes(c.id)
-        ),
-      };
-    }
-
-    if (typeof choice === 'string') {
-      return {
-        ...result,
-        [contestId]: [contest.candidates.find((c) => c.id === choice)],
-      };
-    }
-
-    return {
-      ...result,
-      [contestId]: Array.isArray(choice) ? choice : [choice],
-    };
-  }, {});
+  if (
+    Object.keys(shorthand).some(
+      (shorthandContestId) => !contests.some((c) => c.id === shorthandContestId)
+    )
+  ) {
+    throw new Error('unknown contest specified in vote shorthand');
+  }
+  return votes;
 }
 
 export function isVotePresent(v?: Vote): boolean {

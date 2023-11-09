@@ -236,12 +236,12 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
       ballotType: BallotType.Precinct,
       electionHash: electionGeneralDefinition.electionHash,
       isTestMode: true,
-      votes: {
+      votes: expect.objectContaining({
         president: [expect.objectContaining({ id: 'barchi-hallaren' })],
         'lieutenant-governor': [expect.objectContaining({ id: 'norberg' })],
         'question-a': ['question-a-option-yes'],
         'question-b': ['question-b-option-no'],
-      },
+      }),
     })
   );
 
