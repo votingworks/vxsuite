@@ -207,13 +207,13 @@ test('audio cues', () => {
     />
   );
   expect(eitherButton).toHaveAccessibleName(
-    expect.stringMatching(/^selected, for approval of either/i)
+    expect.stringMatching(/^selected: for approval of either/i)
   );
   expect(neitherButton).toHaveAccessibleName(
     expect.stringMatching(/^against both/i)
   );
   expect(pickFirstButton).toHaveAccessibleName(
-    expect.stringMatching(/^selected, for initiative/i)
+    expect.stringMatching(/^selected: for initiative/i)
   );
   expect(pickSecondButton).toHaveAccessibleName(
     expect.stringMatching(/^for alternative/i)
@@ -233,13 +233,13 @@ test('audio cues', () => {
     expect.stringMatching(/^for approval of either/i)
   );
   expect(neitherButton).toHaveAccessibleName(
-    expect.stringMatching(/^selected, against both/i)
+    expect.stringMatching(/^selected: against both/i)
   );
   expect(pickFirstButton).toHaveAccessibleName(
     expect.stringMatching(/^for initiative/i)
   );
   expect(pickSecondButton).toHaveAccessibleName(
-    expect.stringMatching(/^selected, for alternative/i)
+    expect.stringMatching(/^selected: for alternative/i)
   );
 
   // deselecting "either" should add a "deselected" cue
@@ -263,7 +263,7 @@ test('audio cues', () => {
     />
   );
   expect(eitherButton).toHaveAccessibleName(
-    expect.stringMatching(/^deselected, for approval of either/i)
+    expect.stringMatching(/^deselected: for approval of either/i)
   );
 
   // after a timeout, the cue should be removed
@@ -293,7 +293,7 @@ test('audio cues', () => {
     />
   );
   expect(neitherButton).toHaveAccessibleName(
-    expect.stringMatching(/^deselected, against both/i)
+    expect.stringMatching(/^deselected: against both/i)
   );
 
   // after a timeout, the cue should be removed
@@ -323,7 +323,7 @@ test('audio cues', () => {
     />
   );
   expect(pickFirstButton).toHaveAccessibleName(
-    expect.stringMatching(/^deselected, for initiative/i)
+    expect.stringMatching(/^deselected: for initiative/i)
   );
 
   // after a timeout, the cue should be removed
@@ -353,7 +353,7 @@ test('audio cues', () => {
     />
   );
   expect(pickSecondButton).toHaveAccessibleName(
-    expect.stringMatching(/^deselected, for alternative/i)
+    expect.stringMatching(/^deselected: for alternative/i)
   );
 
   // after a timeout, the cue should be removed

@@ -35,8 +35,6 @@ test('mergeMsEitherNeitherContests detects pairs of ballot measures and merges t
     eitherNeitherContestId: eitherNeitherContest.id,
     pickOneContestId: pickOneContest.id,
     description: eitherNeitherContest.description,
-    eitherNeitherLabel: 'VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH',
-    pickOneLabel: 'AND VOTE FOR ONE',
     eitherOption: eitherNeitherContest.yesOption,
     neitherOption: eitherNeitherContest.noOption,
     firstOption: pickOneContest.yesOption,

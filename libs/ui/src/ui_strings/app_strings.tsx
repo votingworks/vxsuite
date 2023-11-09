@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unescaped-entities */
+
 import { Font } from '../typography';
 import { UiString } from './ui_string';
 
@@ -152,8 +154,8 @@ export const appStrings = {
   // the confirm/reject buttons at the bottom of the screen.
   instructionsBmdScanReviewConfirmation: () => (
     <UiString uiStringKey="instructionsBmdScanReviewConfirmation">
-      If your selections are correct, press “My Ballot is Correct”. If there is
-      an error, press “My Ballot is Incorrect” and alert a poll worker.
+      If your selections are correct, press "My Ballot is Correct”. If there is
+      an error, press "My Ballot is Incorrect” and alert a poll worker.
     </UiString>
   ),
 
@@ -207,12 +209,24 @@ export const appStrings = {
     <UiString uiStringKey="labelContestNumber">Contest number:</UiString>
   ),
 
-  labelDeselectedCandidate: () => (
-    <UiString uiStringKey="labelDeselectedCandidate">Deselected:</UiString>
+  labelDeselected: () => (
+    <UiString uiStringKey="labelDeselected">Deselected:</UiString>
   ),
 
   labelDeselectedOption: () => (
     <UiString uiStringKey="labelDeselectedOption">Deselected option:</UiString>
+  ),
+
+  labelEitherNeitherContestEitherNeitherSection: () => (
+    <UiString uiStringKey="labelEitherNeitherContestEitherNeitherSection">
+      VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH
+    </UiString>
+  ),
+
+  labelEitherNeitherContestPickOneSection: () => (
+    <UiString uiStringKey="labelEitherNeitherContestPickOneSection">
+      AND VOTE FOR ONE
+    </UiString>
   ),
 
   labelNumBallotContests: () => (
@@ -227,8 +241,8 @@ export const appStrings = {
     </UiString>
   ),
 
-  labelSelectedCandidate: () => (
-    <UiString uiStringKey="labelSelectedCandidate">Selected:</UiString>
+  labelSelected: () => (
+    <UiString uiStringKey="labelSelected">Selected:</UiString>
   ),
 
   labelSelectedOption: () => (
@@ -320,6 +334,48 @@ export const appStrings = {
 
   noteBmdClearingBallot: () => (
     <UiString uiStringKey="noteBmdClearingBallot">Clearing ballot</UiString>
+  ),
+
+  noteBmdEitherNeitherNoSelection: () => (
+    <UiString uiStringKey="noteBmdEitherNeitherNoSelection">
+      First, vote "for either" or "against both". Then select your preferred
+      measure.
+    </UiString>
+  ),
+
+  noteBmdEitherNeitherSelectedEither: () => (
+    <UiString uiStringKey="noteBmdEitherNeitherSelectedEither">
+      You have selected "for either".{' '}
+      <Font weight="bold">Now select your preferred measure.</Font>
+    </UiString>
+  ),
+
+  noteBmdEitherNeitherSelectedEitherAndPreferred: () => (
+    <UiString uiStringKey="noteBmdEitherNeitherSelectedEitherAndPreferred">
+      You have selected "for either" and your preferred measure.
+    </UiString>
+  ),
+
+  noteBmdEitherNeitherSelectedNeitherAndPreferred: () => (
+    <UiString uiStringKey="noteBmdEitherNeitherSelectedNeitherAndPreferred">
+      You have selected "against both" and your preferred measure.
+    </UiString>
+  ),
+
+  noteBmdEitherNeitherSelectedNeither: () => (
+    <UiString uiStringKey="noteBmdEitherNeitherSelectedNeither">
+      You have selected "against both".{' '}
+      <Font weight="bold">
+        You may additionally select your preferred measure.
+      </Font>
+    </UiString>
+  ),
+
+  noteBmdEitherNeitherSelectedPreferred: () => (
+    <UiString uiStringKey="noteBmdEitherNeitherSelectedPreferred">
+      You have selected your preferred measure.{' '}
+      <Font weight="bold">Now vote "for either" or "against both".</Font>
+    </UiString>
   ),
 
   noteBmdHardwareReset: () => (
