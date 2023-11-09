@@ -46,9 +46,19 @@ describe('HMPB - Famous Names', () => {
     );
 
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-    expect(frontResult.interpretation.votes).toEqual({});
+    expect(frontResult.interpretation.votes).toEqual({
+      attorney: [],
+      'chief-of-police': [],
+      controller: [],
+      mayor: [],
+      'parks-and-recreation-director': [],
+      'public-works-director': [],
+    });
     assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-    expect(backResult.interpretation.votes).toEqual({});
+    expect(backResult.interpretation.votes).toEqual({
+      'board-of-alderman': [],
+      'city-council': [],
+    });
 
     expect(frontResult.interpretation.metadata).toEqual({
       source: 'qr-code',
@@ -271,7 +281,9 @@ describe('HMPB - primary election', () => {
       );
 
       assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-      expect(frontResult.interpretation.votes).toEqual({});
+      expect(frontResult.interpretation.votes).toEqual(
+        votesForSheet({}, 1, gridLayout)
+      );
       assert(backResult.interpretation.type === 'InterpretedHmpbPage');
       expect(backResult.interpretation.votes).toEqual({});
 

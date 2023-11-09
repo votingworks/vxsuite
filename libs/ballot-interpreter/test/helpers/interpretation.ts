@@ -1,7 +1,8 @@
-import { assertDefined, iter } from '@votingworks/basics';
+import { assertDefined, iter, unique } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb-render-backend';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
+  ContestId,
   GridLayout,
   UnmarkedWriteIn,
   Vote,
@@ -35,16 +36,32 @@ function isContestOnSheet(
   );
 }
 
+function getContestIdsForSheet(
+  gridLayout: GridLayout,
+  sheetNumber: number
+): ContestId[] {
+  return unique(
+    gridLayout.gridPositions
+      .filter((position) => position.sheetNumber === sheetNumber)
+      .map((position) => position.contestId)
+  );
+}
+
+/**
+ * Extract the votes for a single sheet from a full votes dictionary. Each
+ * sheet should have votes for all contests on that sheet regardless of
+ * whether they were marked or not.
+ */
 export function votesForSheet(
   votes: VotesDict,
   sheetNumber: number,
   gridLayout: GridLayout
 ): VotesDict {
-  return Object.fromEntries(
-    Object.entries(votes).filter(([contestId]) =>
-      isContestOnSheet(gridLayout, contestId, sheetNumber)
-    )
-  );
+  const sheetVotes: VotesDict = {};
+  for (const contestId of getContestIdsForSheet(gridLayout, sheetNumber)) {
+    sheetVotes[contestId] = votes[contestId] ?? [];
+  }
+  return sheetVotes;
 }
 
 export function unmarkedWriteInsForSheet(
