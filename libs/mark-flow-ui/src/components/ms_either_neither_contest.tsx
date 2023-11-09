@@ -1,14 +1,21 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   ContestChoiceButton,
   Main,
   Caption,
-  Pre,
   WithScrollButtons,
+  appStrings,
+  AudioOnly,
+  electionStrings,
 } from '@votingworks/ui';
 
-import { YesNoVote, Election, getContestDistrict } from '@votingworks/types';
+import {
+  YesNoVote,
+  Election,
+  getContestDistrict,
+  YesNoOption,
+} from '@votingworks/types';
 
 import { UpdateVoteFunction } from '../config/types';
 import { MsEitherNeitherContest as MsEitherNeitherContestInterface } from '../utils/ms_either_neither_contests';
@@ -50,6 +57,32 @@ interface Props {
   updateVote: UpdateVoteFunction;
 }
 
+function getVoteStatusText(
+  contest: MsEitherNeitherContestInterface,
+  votes: { eitherNeitherVote?: string; pickOneVote?: string }
+) {
+  const { eitherOption, neitherOption, firstOption, secondOption } = contest;
+  const { eitherNeitherVote, pickOneVote } = votes;
+
+  if (eitherNeitherVote === eitherOption.id) {
+    return pickOneVote
+      ? appStrings.noteBmdEitherNeitherSelectedEitherAndPreferred()
+      : appStrings.noteBmdEitherNeitherSelectedEither();
+  }
+
+  if (eitherNeitherVote === neitherOption.id) {
+    return pickOneVote
+      ? appStrings.noteBmdEitherNeitherSelectedNeitherAndPreferred()
+      : appStrings.noteBmdEitherNeitherSelectedNeither();
+  }
+
+  if (pickOneVote === firstOption.id || pickOneVote === secondOption.id) {
+    return appStrings.noteBmdEitherNeitherSelectedPreferred();
+  }
+
+  return appStrings.noteBmdEitherNeitherNoSelection();
+}
+
 export function MsEitherNeitherContest({
   breadcrumbs,
   election,
@@ -58,42 +91,32 @@ export function MsEitherNeitherContest({
   pickOneContestVote,
   updateVote,
 }: Props): JSX.Element {
-  const [deselectedOption, setDeselectedOption] = useState<
-    'either' | 'neither' | 'first' | 'second'
-  >();
+  const [deselectedOptionId, setDeselectedOptionId] = useState<string>();
 
   function handleUpdateEitherNeither(targetVote: string) {
     const currentVote = eitherNeitherContestVote?.[0];
     const newVote = currentVote === targetVote ? [] : [targetVote];
-    setDeselectedOption(
-      currentVote === contest.eitherOption.id
-        ? 'either'
-        : currentVote === contest.neitherOption.id
-        ? 'neither'
-        : undefined
-    );
+
+    if (newVote.length === 0) {
+      setDeselectedOptionId(targetVote);
+    }
+
     updateVote(contest.eitherNeitherContestId, newVote);
   }
   function handleUpdatePickOne(targetVote: string) {
     const currentVote = pickOneContestVote?.[0];
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
-    setDeselectedOption(
-      currentVote === contest.firstOption.id
-        ? 'first'
-        : currentVote === contest.secondOption.id
-        ? 'second'
-        : undefined
-    );
+
+    if (newVote.length === 0) {
+      setDeselectedOptionId(targetVote);
+    }
+
     updateVote(contest.pickOneContestId, newVote);
   }
 
   const district = getContestDistrict(election, contest);
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
-  const forEither = '“for either”';
-  const againstBoth = '“against both”';
-  const eitherLabel =
-    eitherNeitherVote === contest.eitherOption.id ? forEither : againstBoth;
   const pickOneVote = pickOneContestVote?.[0];
 
   const eitherSelected =
@@ -104,11 +127,38 @@ export function MsEitherNeitherContest({
   const secondSelected = pickOneContestVote?.[0] === contest.secondOption.id;
 
   useEffect(() => {
-    if (deselectedOption) {
-      const timer = setTimeout(() => setDeselectedOption(undefined), 100);
+    if (deselectedOptionId) {
+      const timer = setTimeout(() => setDeselectedOptionId(undefined), 100);
       return () => clearTimeout(timer);
     }
-  }, [deselectedOption]);
+  }, [deselectedOptionId]);
+
+  function getOptionLabel(option: YesNoOption): JSX.Element {
+    const optionLabel = electionStrings.contestOptionLabel(option);
+
+    const selectedOptionIds = new Set<string>();
+    if (eitherNeitherContestVote?.[0]) {
+      selectedOptionIds.add(eitherNeitherContestVote[0]);
+    }
+    if (pickOneContestVote?.[0]) {
+      selectedOptionIds.add(pickOneContestVote[0]);
+    }
+
+    let audioPrefix: JSX.Element | undefined;
+    if (selectedOptionIds.has(option.id)) {
+      audioPrefix = appStrings.labelSelected();
+    }
+    if (deselectedOptionId === option.id) {
+      audioPrefix = appStrings.labelDeselected();
+    }
+
+    return (
+      <React.Fragment>
+        {audioPrefix && <AudioOnly>{audioPrefix} </AudioOnly>}
+        {optionLabel}
+      </React.Fragment>
+    );
+  }
 
   return (
     <Main flexColumn>
@@ -118,43 +168,16 @@ export function MsEitherNeitherContest({
         district={district}
       >
         <Caption>
-          {eitherNeitherVote && pickOneVote ? (
-            <span>
-              You have selected {eitherLabel} and your preferred measure.
-            </span>
-          ) : eitherNeitherVote && !pickOneVote ? (
-            <span>
-              You have selected {eitherLabel}.{' '}
-              {eitherNeitherVote === contest.eitherOption.id ? (
-                <strong>Now select your preferred measure.</strong>
-              ) : (
-                <strong>
-                  You may additionally select your preferred measure.
-                </strong>
-              )}
-            </span>
-          ) : !eitherNeitherVote && pickOneVote ? (
-            <span>
-              You have selected your preferred measure.{' '}
-              <strong>
-                Now vote {forEither} or {againstBoth}.
-              </strong>
-            </span>
-          ) : (
-            <span>
-              First vote {forEither} or {againstBoth}. Then select your
-              preferred measure.
-            </span>
-          )}
-          <span className="screen-reader-only">
-            To navigate through the contest choices, use the down button. To
-            move to the next contest, use the right button.
-          </span>
+          {getVoteStatusText(contest, { eitherNeitherVote, pickOneVote })}
         </Caption>
+        <AudioOnly>
+          {electionStrings.contestDescription(contest.eitherNeitherContest)}{' '}
+          {appStrings.instructionsBmdContestNavigation()}
+        </AudioOnly>
       </ContestHeader>
       <WithScrollButtons>
         <Caption>
-          <Pre>{contest.description}</Pre>
+          {electionStrings.contestDescription(contest.eitherNeitherContest)}
         </Caption>
       </WithScrollButtons>
       <ChoicesGrid data-testid="contest-choices">
@@ -163,70 +186,46 @@ export function MsEitherNeitherContest({
             gridArea: 'either-neither-label',
           }}
         >
-          <Caption weight="bold">{contest.eitherNeitherLabel}</Caption>
+          <Caption weight="bold">
+            {appStrings.labelEitherNeitherContestEitherNeitherSection()}
+          </Caption>
         </GridLabel>
         <ContestChoiceButton
           choice={contest.eitherOption.id}
           isSelected={eitherSelected}
           onPress={handleUpdateEitherNeither}
           gridArea="either-option"
-          ariaLabel={`${
-            eitherSelected
-              ? 'Selected, '
-              : deselectedOption === 'either'
-              ? 'Deselected, '
-              : ''
-          }${contest.eitherOption.label}`}
-          label={contest.eitherOption.label}
+          label={getOptionLabel(contest.eitherOption)}
         />
         <ContestChoiceButton
           choice={contest.neitherOption.id}
           isSelected={neitherSelected}
           onPress={handleUpdateEitherNeither}
           gridArea="neither-option"
-          ariaLabel={`${
-            neitherSelected
-              ? 'Selected, '
-              : deselectedOption === 'neither'
-              ? 'Deselected, '
-              : ''
-          }${contest.neitherOption.label}`}
-          label={contest.neitherOption.label}
+          label={getOptionLabel(contest.neitherOption)}
         />
         <GridLabel
           style={{
             gridArea: 'pick-one-label',
           }}
         >
-          <Caption weight="bold">{contest.pickOneLabel}</Caption>
+          <Caption weight="bold">
+            {appStrings.labelEitherNeitherContestPickOneSection()}
+          </Caption>
         </GridLabel>
         <ContestChoiceButton
           choice={contest.firstOption.id}
           isSelected={firstSelected}
           onPress={handleUpdatePickOne}
           gridArea="first-option"
-          ariaLabel={`${
-            firstSelected
-              ? 'Selected, '
-              : deselectedOption === 'first'
-              ? 'Deselected, '
-              : ''
-          }${contest.firstOption.label}`}
-          label={contest.firstOption.label}
+          label={getOptionLabel(contest.firstOption)}
         />
         <ContestChoiceButton
           choice={contest.secondOption.id}
           isSelected={secondSelected}
           onPress={handleUpdatePickOne}
           gridArea="second-option"
-          ariaLabel={`${
-            secondSelected
-              ? 'Selected, '
-              : deselectedOption === 'second'
-              ? 'Deselected, '
-              : ''
-          }${contest.secondOption.label}`}
-          label={contest.secondOption.label}
+          label={getOptionLabel(contest.secondOption)}
         />
         <Divider />
       </ChoicesGrid>

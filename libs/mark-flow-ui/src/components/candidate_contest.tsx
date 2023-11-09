@@ -251,9 +251,9 @@ export function CandidateContest({
               }
               let prefixAudioText: ReactNode = null;
               if (isChecked) {
-                prefixAudioText = appStrings.labelSelectedCandidate();
+                prefixAudioText = appStrings.labelSelected();
               } else if (deselectedCandidate === candidate.id) {
-                prefixAudioText = appStrings.labelDeselectedCandidate();
+                prefixAudioText = appStrings.labelDeselected();
               }
               return (
                 <ContestChoiceButton
@@ -291,7 +291,7 @@ export function CandidateContest({
                       label={
                         <React.Fragment>
                           <AudioOnly>
-                            {appStrings.labelSelectedCandidate()}
+                            {appStrings.labelSelected()}
                             {appStrings.labelWriteInCandidateName()}
                           </AudioOnly>
                           {/* User-generated content - no translation/audio available: */}

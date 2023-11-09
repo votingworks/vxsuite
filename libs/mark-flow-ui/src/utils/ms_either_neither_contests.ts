@@ -7,6 +7,7 @@ import {
   YesNoOption,
   getContestDistrictName as getContestDistrictNameBase,
   Election,
+  YesNoContest,
 } from '@votingworks/types';
 
 /**
@@ -18,10 +19,10 @@ import {
 export interface MsEitherNeitherContest extends Omit<Contest, 'type'> {
   readonly type: 'ms-either-neither';
   readonly eitherNeitherContestId: ContestId;
+  readonly eitherNeitherContest: YesNoContest;
   readonly pickOneContestId: ContestId;
+  readonly pickOneContest: YesNoContest;
   readonly description: string;
-  readonly eitherNeitherLabel: string;
-  readonly pickOneLabel: string;
   readonly eitherOption: YesNoOption;
   readonly neitherOption: YesNoOption;
   readonly firstOption: YesNoOption;
@@ -78,10 +79,10 @@ export function mergeMsEitherNeitherContests(
     districtId: eitherNeitherContest.districtId,
     title: eitherNeitherContest.title,
     eitherNeitherContestId: eitherNeitherContest.id,
+    eitherNeitherContest,
     pickOneContestId: pickOneContest.id,
+    pickOneContest,
     description: eitherNeitherContest.description,
-    eitherNeitherLabel: 'VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH',
-    pickOneLabel: 'AND VOTE FOR ONE',
     eitherOption: assertDefined(eitherNeitherContest.yesOption),
     neitherOption: assertDefined(eitherNeitherContest.noOption),
     firstOption: assertDefined(pickOneContest.yesOption),
