@@ -9,6 +9,7 @@ import { H2 } from '../typography';
 import { Button } from '../button';
 import { ThemeManagerContext } from '../theme_manager_context';
 import { useScreenInfo } from '../hooks/use_screen_info';
+import { appStrings } from '../ui_strings';
 
 export interface DisplaySettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -71,7 +72,7 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
   return (
     <Container>
       <Header portrait={screenInfo.isPortrait}>
-        <H2 as="h1">Display Settings:</H2>
+        <H2 as="h1">{appStrings.titleDisplaySettings()}</H2>
         <TabBar
           activePaneId={activePaneId}
           grow={!screenInfo.isPortrait}
@@ -87,9 +88,9 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
         )}
       </ActivePaneContainer>
       <Footer>
-        <Button onPress={resetThemes}>Reset</Button>
+        <Button onPress={resetThemes}>{appStrings.buttonReset()}</Button>
         <Button onPress={onClose} variant="primary" icon="Done">
-          Done
+          {appStrings.buttonDone()}
         </Button>
       </Footer>
     </Container>

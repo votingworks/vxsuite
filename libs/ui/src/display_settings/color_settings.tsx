@@ -6,6 +6,7 @@ import { RadioGroup } from '../radio_group';
 import { ThemeManagerContext } from '../theme_manager_context';
 import { ThemeLabel } from './theme_label';
 import { useScreenInfo } from '../hooks/use_screen_info';
+import { appStrings } from '../ui_strings';
 
 export interface ColorSettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -19,11 +20,11 @@ const DEFAULT_COLOR_MODES: TouchColorMode[] = [
   'contrastHighLight',
 ];
 
-const ORDERED_COLOR_MODE_LABELS: Record<TouchColorMode, string> = {
-  contrastHighDark: 'White text, black background',
-  contrastLow: 'Gray text, dark background',
-  contrastMedium: 'Dark text, light background',
-  contrastHighLight: 'Black text, white background',
+const ORDERED_COLOR_MODE_LABELS: Record<TouchColorMode, JSX.Element> = {
+  contrastHighDark: appStrings.labelThemesContrastHighDark(),
+  contrastLow: appStrings.labelThemesContrastLow(),
+  contrastMedium: appStrings.labelThemesContrastMedium(),
+  contrastHighLight: appStrings.labelThemesContrastHighLight(),
 };
 
 export function ColorSettings(props: ColorSettingsProps): JSX.Element {

@@ -55,6 +55,8 @@ export const appStrings = {
 
   buttonOkay: () => <UiString uiStringKey="buttonOkay">Okay</UiString>,
 
+  buttonReset: () => <UiString uiStringKey="buttonReset">Reset</UiString>,
+
   buttonPrintBallot: () => (
     <UiString uiStringKey="buttonPrintBallot">Print My Ballot</UiString>
   ),
@@ -233,6 +235,46 @@ export const appStrings = {
     <UiString uiStringKey="labelSelectedOption">Selected option:</UiString>
   ),
 
+  labelThemesContrastHighDark: () => (
+    <UiString uiStringKey="labelThemesContrastHighDark">
+      White text, black background
+    </UiString>
+  ),
+
+  labelThemesContrastHighLight: () => (
+    <UiString uiStringKey="labelThemesContrastHighLight">
+      Black text, white background
+    </UiString>
+  ),
+
+  labelThemesContrastLow: () => (
+    <UiString uiStringKey="labelThemesContrastLow">
+      Gray text, dark background
+    </UiString>
+  ),
+
+  labelThemesContrastMedium: () => (
+    <UiString uiStringKey="labelThemesContrastMedium">
+      Dark text, light background
+    </UiString>
+  ),
+
+  labelThemesSizeExtraLarge: () => (
+    <UiString uiStringKey="labelThemesSizeExtraLarge">Extra-Large</UiString>
+  ),
+
+  labelThemesSizeLarge: () => (
+    <UiString uiStringKey="labelThemesSizeLarge">Large</UiString>
+  ),
+
+  labelThemesSizeMedium: () => (
+    <UiString uiStringKey="labelThemesSizeMedium">Medium</UiString>
+  ),
+
+  labelThemesSizeSmall: () => (
+    <UiString uiStringKey="labelThemesSizeSmall">Small</UiString>
+  ),
+
   labelTotalContests: () => (
     <UiString uiStringKey="labelTotalContests">Total contests:</UiString>
   ),
@@ -352,6 +394,18 @@ export const appStrings = {
 
   titleBmdReviewScreen: () => (
     <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
+  ),
+
+  titleDisplaySettings: () => (
+    <UiString uiStringKey="titleDisplaySettings">Display Settings:</UiString>
+  ),
+
+  titleDisplaySettingsColor: () => (
+    <UiString uiStringKey="titleDisplaySettingsColor">Color</UiString>
+  ),
+
+  titleDisplaySettingsSize: () => (
+    <UiString uiStringKey="titleDisplaySettingsSize">Text Size</UiString>
   ),
 
   warningBmdInactiveSession: () => (

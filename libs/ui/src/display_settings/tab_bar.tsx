@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { PANE_IDS, SettingsPaneId } from './types';
 import { Button } from '../button';
+import { appStrings } from '../ui_strings';
 
 export interface TabBarProps {
   activePaneId: SettingsPaneId;
@@ -34,8 +35,8 @@ const TabLabel = styled.span`
 `;
 
 const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
-  displaySettingsColor: <span>Color</span>,
-  displaySettingsSize: <span>Text Size</span>,
+  displaySettingsColor: appStrings.titleDisplaySettingsColor(),
+  displaySettingsSize: appStrings.titleDisplaySettingsSize(),
 };
 
 /**
