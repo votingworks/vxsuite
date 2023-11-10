@@ -1,14 +1,14 @@
 import React from 'react';
-import { H1, LinkButton, Icons, Main, Screen } from '@votingworks/ui';
+import { LinkButton, Icons, Main, Screen } from '@votingworks/ui';
 import { useRouteMatch, Link } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { Row } from './layout';
 import { electionNavRoutes } from './routes';
 
 const LeftNavBar = styled.nav`
-  background: ${({ theme }) => theme.colors.foreground};
+  background: ${({ theme }) => theme.colors.inverseBackground};
   padding: 1rem;
-  min-width: 11rem;
+  min-width: 14rem;
 
   ul {
     list-style: none;
@@ -21,39 +21,43 @@ const LeftNavBar = styled.nav`
 
   li {
     margin-bottom: 0.5rem;
-
-    button {
-      width: 100%;
-
-      span {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-    }
   }
 `;
 
-const NavLinkButton = styled(LinkButton)<{ isActive: boolean }>`
-  background: ${({ isActive }) => (isActive ? '' : 'none')};
-  color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.foreground : theme.colors.background};
+const NavLinkButton = styled(LinkButton)`
+  width: 100%;
+  justify-content: start;
 `;
 
 function AppLogo(): JSX.Element {
   const theme = useTheme();
   return (
-    <H1 style={{ textAlign: 'center' }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        marginTop: '-0.125rem',
+        marginBottom: '1rem',
+      }}
+    >
+      <img
+        alt="VotingWorks"
+        src="/images/logo-circle-white-on-purple.svg"
+        style={{ height: '2.5rem' }}
+      />
       <Link
         to="/"
         style={{
+          fontSize: `${theme.sizes.headingsRem.h2}rem`,
+          fontWeight: theme.sizes.fontWeight.bold,
           color: theme.colors.background,
           textDecoration: 'none',
         }}
       >
         VxDesign
       </Link>
-    </H1>
+    </div>
   );
 }
 
@@ -77,6 +81,12 @@ export function NavScreen({
   );
 }
 
+const Divider = styled.div`
+  border-top: ${({ theme }) => theme.sizes.bordersRem.thin}rem solid
+    ${({ theme }) => theme.colors.outline};
+  margin: 0.5rem 0;
+`;
+
 export function ElectionNavScreen({
   electionId,
   children,
@@ -85,7 +95,6 @@ export function ElectionNavScreen({
   children: React.ReactNode;
 }): JSX.Element {
   const currentRoute = useRouteMatch();
-  const theme = useTheme();
   return (
     <NavScreen
       navContent={
@@ -94,30 +103,31 @@ export function ElectionNavScreen({
             const isActive = path === currentRoute.url;
             return (
               <li key={path}>
-                <NavLinkButton to={path} isActive={isActive}>
+                <NavLinkButton
+                  to={path}
+                  fill={isActive ? 'tinted' : 'transparent'}
+                  color="inverseNeutral"
+                  rightIcon={
+                    isActive ? (
+                      <Icons.RightChevron style={{ marginLeft: 'auto' }} />
+                    ) : undefined
+                  }
+                >
                   {label}
-                  {isActive && <Icons.RightChevron />}
                 </NavLinkButton>
               </li>
             );
           })}
-          <li
-            style={{
-              padding: '1rem',
-              borderTop: `1px solid ${theme.colors.background}`,
-              marginTop: '0.5rem',
-              paddingTop: '1.5rem',
-            }}
-          >
-            <Link
+          <Divider />
+          <li>
+            <NavLinkButton
               to="/"
-              style={{
-                color: theme.colors.background,
-                textDecoration: 'none',
-              }}
+              fill="transparent"
+              color="inverseNeutral"
+              icon="LeftChevron"
             >
-              <Icons.LeftChevron /> All Elections
-            </Link>
+              All Elections
+            </NavLinkButton>
           </li>
         </ul>
       }
