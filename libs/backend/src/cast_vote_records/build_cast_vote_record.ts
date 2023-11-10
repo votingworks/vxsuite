@@ -13,11 +13,10 @@ import {
   Candidate,
   CandidateContest,
   CandidateVote,
-  Contests,
   CVR,
   Election,
+  ElectionDefinition,
   getBallotStyle,
-  getContests,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkStatus,
@@ -29,7 +28,7 @@ import {
 } from '@votingworks/types';
 import {
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
-  getContestsForBallotPage,
+  getContestById,
   getMarkStatus,
   getWriteInCount,
 } from '@votingworks/utils';
@@ -361,18 +360,21 @@ function buildCVRCandidateContest({
 export function buildCVRContestsFromVotes({
   votes,
   unmarkedWriteIns,
-  contests,
+  electionDefinition,
   electionOptionPositionMap,
   options,
 }: {
   votes: VotesDict;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
-  contests: Contests;
+  electionDefinition: ElectionDefinition;
   electionOptionPositionMap?: ElectionOptionPositionMap;
   options: CVRContestRequiredBallotPageOptions;
 }): CVR.CVRContest[] {
   const cvrContests: CVR.CVRContest[] = [];
 
+  const contests = Object.keys(votes).map((contestId) =>
+    getContestById(electionDefinition, contestId)
+  );
   for (const contest of contests) {
     // If there is no element in the `votes` object, there are no votes. We
     // must include information about this contest as an undervoted contest
@@ -487,7 +489,7 @@ function buildOriginalSnapshot({
  * Required parameters for building a cast vote record in CDF format ({@link CVR.CVR}).
  */
 type BuildCastVoteRecordParams = {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   electionId: string;
   scannerId: string;
   castVoteRecordId: BallotId;
@@ -513,7 +515,7 @@ type BuildCastVoteRecordParams = {
  * Builds a cast vote record in CDF format ({@link CVR.CVR}).
  */
 export function buildCastVoteRecord({
-  election,
+  electionDefinition,
   electionId,
   scannerId,
   castVoteRecordId,
@@ -522,6 +524,7 @@ export function buildCastVoteRecord({
   electionOptionPositionMap,
   ...rest
 }: BuildCastVoteRecordParams): CVR.CVR {
+  const { election } = electionDefinition;
   const ballotMetadata =
     rest.ballotMarkingMode === 'machine'
       ? rest.interpretation.metadata
@@ -555,7 +558,6 @@ export function buildCastVoteRecord({
       election,
     });
     assert(ballotStyle);
-    const contests = getContests({ election, ballotStyle });
     const writeInCount = getWriteInCount(interpretation.votes);
 
     return {
@@ -567,8 +569,8 @@ export function buildCastVoteRecord({
           '@id': `${castVoteRecordId}-original`,
           Type: CVR.CVRType.Original,
           CVRContest: buildCVRContestsFromVotes({
-            contests,
             votes: interpretation.votes,
+            electionDefinition,
             options: {
               ballotMarkingMode: 'machine',
             },
@@ -607,12 +609,9 @@ export function buildCastVoteRecord({
     Type: CVR.CVRType.Modified,
     CVRContest: [
       ...buildCVRContestsFromVotes({
-        contests: getContestsForBallotPage({
-          ballotPageMetadata: interpretations[0].metadata,
-          election,
-        }),
         votes: interpretations[0].votes,
         unmarkedWriteIns: interpretations[0].unmarkedWriteIns,
+        electionDefinition,
         options: {
           ballotMarkingMode: 'hand',
           image: images?.[0],
@@ -620,12 +619,9 @@ export function buildCastVoteRecord({
         electionOptionPositionMap,
       }),
       ...buildCVRContestsFromVotes({
-        contests: getContestsForBallotPage({
-          ballotPageMetadata: interpretations[1].metadata,
-          election,
-        }),
         votes: interpretations[1].votes,
         unmarkedWriteIns: interpretations[1].unmarkedWriteIns,
+        electionDefinition,
         options: {
           ballotMarkingMode: 'hand',
           image: images?.[1],

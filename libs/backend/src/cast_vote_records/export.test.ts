@@ -18,9 +18,6 @@ import {
 } from '@votingworks/utils';
 
 import {
-  bestFishContest,
-  fishCouncilContest,
-  fishingContest,
   interpretedBmdBallot,
   interpretedBmdPage,
   interpretedHmpb,
@@ -57,12 +54,6 @@ const mockFeatureFlagger = getFeatureFlagMock();
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
     ...jest.requireActual('@votingworks/utils'),
-    // Mock this function because it expects the election definition to have gridLayouts, and the
-    // election definition fixture that we're using does not
-    getContestsForBallotPage: ({ ballotPageMetadata }) =>
-      ballotPageMetadata.pageNumber === 1
-        ? [bestFishContest, fishCouncilContest]
-        : [fishingContest],
     isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
   };
 });

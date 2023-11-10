@@ -2,16 +2,12 @@ import { assert, find, typedAs } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
-  BallotPageMetadata,
   BallotType,
   CandidateContest,
   CVR,
-  getBallotStyle,
-  getContests,
   unsafeParse,
 } from '@votingworks/types';
 import {
-  bestFishContest,
   fishCouncilContest,
   fishingContest,
   interpretedBmdPage,
@@ -91,7 +87,7 @@ describe('getOptionPosition', () => {
 describe('buildCVRContestsFromVotes', () => {
   test('builds well-formed ballot measure contest (yes vote)', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [fishingContest],
+      electionDefinition,
       votes: { [fishingContest.id]: [fishingContest.yesOption.id] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -128,7 +124,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('ballot measure contest is correct for no vote', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [fishingContest],
+      electionDefinition,
       votes: { [fishingContest.id]: [fishingContest.noOption.id] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -150,7 +146,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('ballot measure contest is correct for overvote', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [fishingContest],
+      electionDefinition,
       votes: { [fishingContest.id]: ['ban-fishing', 'allow-fishing'] },
       options: { ballotMarkingMode: 'hand' },
     });
@@ -180,7 +176,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('ballot measure contest is correct for undervote', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [fishingContest],
+      electionDefinition,
       votes: { [fishingContest.id]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -199,7 +195,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('builds well-formed candidate contest', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [mammalCouncilContest],
+      electionDefinition,
       votes: {
         [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 3),
       },
@@ -272,7 +268,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('candidate contest includes appropriate information when not indicated', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [mammalCouncilContest],
+      electionDefinition,
       votes: { [mammalCouncilContest.id]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -291,7 +287,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('candidate contest includes appropriate information when undervoted', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [mammalCouncilContest],
+      electionDefinition,
       votes: {
         [mammalCouncilContest.id]: [mammalCouncilContest.candidates[0]!],
       },
@@ -309,7 +305,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('candidate contest includes appropriate information when overvoted', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [mammalCouncilContest],
+      electionDefinition,
       votes: {
         [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 4),
       },
@@ -343,7 +339,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('candidate contest includes appropriate information for HMPB write-in', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [mammalCouncilContest],
+      electionDefinition,
       votes: {
         [mammalCouncilContest.id]: [
           {
@@ -399,7 +395,7 @@ describe('buildCVRContestsFromVotes', () => {
 
   test('candidate contest includes appropriate information for BMD write-in', () => {
     const result = buildCVRContestsFromVotes({
-      contests: [mammalCouncilContest],
+      electionDefinition,
       votes: {
         [mammalCouncilContest.id]: [
           {
@@ -440,51 +436,6 @@ describe('buildCVRContestsFromVotes', () => {
       ],
     });
   });
-
-  test('assumes contests without votes are undervoted', () => {
-    const result = buildCVRContestsFromVotes({
-      contests: [fishingContest],
-      votes: {},
-      options: { ballotMarkingMode: 'machine' },
-    });
-
-    expect(result).toHaveLength(1);
-    const cvrContest = result[0];
-    expect(cvrContest).toMatchObject({
-      Undervotes: 1,
-    });
-  });
-
-  test('ignores votes outside of the contest list', () => {
-    const result = buildCVRContestsFromVotes({
-      contests: [fishingContest],
-      votes: {
-        [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 3),
-      },
-      options: { ballotMarkingMode: 'machine' },
-    });
-
-    expect(result).toHaveLength(1);
-    const cvrContest = result[0];
-    expect(cvrContest).toMatchObject({
-      ContestId: fishingContest.id,
-    });
-  });
-});
-
-// Mock the contests on each side of the ballot
-jest.mock('@votingworks/utils', () => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    getContestsForBallotPage: ({
-      ballotPageMetadata,
-    }: {
-      ballotPageMetadata: BallotPageMetadata;
-    }) =>
-      ballotPageMetadata.pageNumber === 1
-        ? [bestFishContest, fishCouncilContest]
-        : [fishingContest],
-  };
 });
 
 const electionId = '0000000000'; // fixed for resiliency to hash change
@@ -496,7 +447,7 @@ const definiteMarkThreshold = 0.15;
 
 test('buildCastVoteRecord - BMD ballot', () => {
   const castVoteRecord = buildCastVoteRecord({
-    election,
+    electionDefinition,
     electionId,
     castVoteRecordId,
     scannerId,
@@ -524,13 +475,6 @@ test('buildCastVoteRecord - BMD ballot', () => {
   expect(castVoteRecord.CVRSnapshot).toHaveLength(1);
   const snapshot = castVoteRecord.CVRSnapshot[0]!;
   expect(snapshot.Type).toEqual(CVR.CVRType.Original);
-  // There should be a CVRContest for every contest in the ballot style
-  expect(snapshot.CVRContest).toHaveLength(
-    getContests({
-      ballotStyle: getBallotStyle({ election, ballotStyleId: '2F' })!,
-      election,
-    }).length
-  );
 });
 
 test('buildCastVoteRecord - BMD ballot images', () => {
@@ -538,7 +482,7 @@ test('buildCastVoteRecord - BMD ballot images', () => {
     ballotMarkingMode: 'machine',
     batchId,
     castVoteRecordId,
-    election,
+    electionDefinition,
     electionId,
     interpretation: interpretedBmdPage,
     scannerId,
@@ -590,7 +534,7 @@ test('buildCastVoteRecord - BMD ballot images', () => {
 
 describe('buildCastVoteRecord - HMPB Ballot', () => {
   const castVoteRecord = buildCastVoteRecord({
-    election,
+    electionDefinition,
     electionId,
     castVoteRecordId,
     scannerId,
@@ -674,20 +618,11 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       ])
     );
   });
-
-  test('includes contests results for all contests in the layout, not just those with votes', () => {
-    const modifiedSnapshot = find(
-      castVoteRecord.CVRSnapshot,
-      (snapshot) => snapshot['@id'] === `${castVoteRecordId}-modified`
-    );
-    expect(modifiedSnapshot.Type).toEqual(CVR.CVRType.Modified);
-    expect(modifiedSnapshot.CVRContest).toHaveLength(3);
-  });
 });
 
 test('buildCastVoteRecord - HMPB ballot with write-in', () => {
   const castVoteRecord = buildCastVoteRecord({
-    election,
+    electionDefinition,
     electionId,
     castVoteRecordId,
     scannerId,
@@ -747,7 +682,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
 
 test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
   const castVoteRecord = buildCastVoteRecord({
-    election,
+    electionDefinition,
     electionId,
     castVoteRecordId,
     scannerId,
