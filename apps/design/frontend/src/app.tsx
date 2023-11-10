@@ -66,10 +66,6 @@ const StyleOverrides = styled.div`
   h2 {
     margin-bottom: 0.8rem;
   }
-
-  a {
-    color: ${({ theme }) => theme.colors.foreground};
-  }
 `;
 
 export function App(): JSX.Element {

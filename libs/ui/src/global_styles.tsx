@@ -120,6 +120,10 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
   :visited {
     color: ${(p) => p.theme.colors.primary};
     font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+
+    &:hover {
+      filter: brightness(1.2);
+    }
   }
 
   /* Create a CSS variable for the focus outline styling, that way it can be
