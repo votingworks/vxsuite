@@ -60,6 +60,7 @@ const desktopStyles = css<OptionsContainerProps>`
 `;
 
 const OptionsContainer = styled.span<OptionsContainerProps>`
+  background: ${(p) => p.theme.colors.containerLow};
   border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
     ${(p) => p.theme.colors.outline};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;

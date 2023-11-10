@@ -32,6 +32,8 @@ const LabelContainer = styled.legend`
 `;
 
 const Option = styled(Button)`
+  background-color: ${(p) =>
+    p.color === 'neutral' && p.theme.colors.containerLow};
   border-color: ${(p) => p.theme.colors.outline};
   flex-wrap: nowrap;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};

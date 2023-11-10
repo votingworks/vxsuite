@@ -18,21 +18,16 @@ export const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-`;
 
-export const Input = styled.input`
-  border: 1px solid #ccc;
-  background: #fff;
-  padding: 0.35rem 0.5rem;
-  line-height: 1.25rem;
-  border-radius: 0.25rem;
-  width: 100%;
-  max-width: 18rem;
-
-  &:disabled {
-    background: transparent;
+  input[type='text'] {
+    min-width: 18rem;
+  }
+  .search-select {
+    min-width: 18rem;
   }
 `;
+
+export const Input = styled.input``;
 
 export function FormField({
   label,

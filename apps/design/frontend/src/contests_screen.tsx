@@ -359,6 +359,8 @@ function ContestForm({
                 setContest({ ...contest, seats: e.target.valueAsNumber })
               }
               min={1}
+              style={{ width: '4rem' }}
+              maxLength={2}
             />
           </FormField>
           <FormField label="Term">
@@ -483,6 +485,7 @@ function ContestForm({
                               ),
                             })
                           }
+                          style={{ minWidth: '8rem !important' }}
                         />
                       </TD>
                       <TD>

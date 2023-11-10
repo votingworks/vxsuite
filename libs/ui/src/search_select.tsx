@@ -134,6 +134,7 @@ export function SearchSelect<T extends string = string>({
       aria-label={ariaLabel}
       unstyled
       components={{ DropdownIndicator, MultiValueRemove }}
+      className="search-select"
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
@@ -149,8 +150,10 @@ export function SearchSelect<T extends string = string>({
           borderStyle: state.isDisabled ? 'dashed' : 'solid',
           borderRadius,
           backgroundColor: state.isDisabled
-            ? theme.colors.containerLow
-            : theme.colors.background,
+            ? theme.colors.container
+            : state.isFocused
+            ? theme.colors.background
+            : theme.colors.containerLow,
           padding: '0.25rem',
         }),
         valueContainer: (baseStyles, state) => ({

@@ -107,6 +107,25 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     display: block;
   }
 
+  input, textarea {
+    cursor: text;
+    border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid ${(p) =>
+      p.theme.colors.outline};
+    background: ${(p) => p.theme.colors.containerLow};
+    padding: 0.5rem;
+    line-height: ${(p) => p.theme.sizes.lineHeight};
+    border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+
+    &:focus {
+      background: none;
+    }
+
+    &:disabled {
+      background: ${(p) => p.theme.colors.container};
+      border-style: dashed;
+    }
+  }
+
   select option {
     background-color: ${(p) => p.theme.colors.background};
     color: ${(p) => p.theme.colors.onBackground};

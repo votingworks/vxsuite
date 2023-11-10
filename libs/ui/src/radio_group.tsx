@@ -43,13 +43,14 @@ const Option = styled.span`
   position: relative;
 
   /* Apply focus outline to the button when the radio input is focused. */
-  input:focus + button {
+  input:not(:active):focus + button {
     outline: var(--focus-outline);
   }
 `;
 
 const StyledButton = styled(Button)`
-  padding-left: 0.5rem;
+  background-color: ${(p) =>
+    p.color === 'neutral' && p.theme.colors.containerLow};
   border-color: ${(p) => p.theme.colors.outline};
   border-width: ${(p) =>
     p.theme.sizeMode === 'desktop'
@@ -58,6 +59,7 @@ const StyledButton = styled(Button)`
   flex-wrap: nowrap;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
+  padding-left: 0.5rem;
   text-align: left;
   width: 100%;
 
