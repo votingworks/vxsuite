@@ -38,6 +38,8 @@ import {
   FormActionsRow,
   Breadcrumbs,
   Row,
+  ScreenHeader,
+  ScreenContent,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
 import { hasSplits } from './utils';
@@ -258,14 +260,18 @@ function AddDistrictForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          geographyRoutes.districts.root,
-          geographyRoutes.districts.addDistrict,
-        ]}
-      />
-      <H1>Add District</H1>
-      <DistrictForm electionId={electionId} savedElection={election} />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            geographyRoutes.districts.root,
+            geographyRoutes.districts.addDistrict,
+          ]}
+        />
+        <H1>Add District</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <DistrictForm electionId={electionId} savedElection={election} />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -285,19 +291,23 @@ function EditDistrictForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          geographyRoutes.districts.root,
-          geographyRoutes.districts.editDistrict(districtId),
-        ]}
-      />
-      <H1>Edit District</H1>
-      <DistrictForm
-        electionId={electionId}
-        districtId={districtId}
-        savedElection={election}
-        savedPrecincts={precincts}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            geographyRoutes.districts.root,
+            geographyRoutes.districts.editDistrict(districtId),
+          ]}
+        />
+        <H1>Edit District</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <DistrictForm
+          electionId={electionId}
+          districtId={districtId}
+          savedElection={election}
+          savedPrecincts={precincts}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -664,18 +674,22 @@ function AddPrecinctForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          geographyRoutes.precincts.root,
-          geographyRoutes.precincts.addPrecinct,
-        ]}
-      />
-      <H1>Add Precinct</H1>
-      <PrecinctForm
-        electionId={electionId}
-        savedPrecincts={precincts}
-        districts={election.districts}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            geographyRoutes.precincts.root,
+            geographyRoutes.precincts.addPrecinct,
+          ]}
+        />
+        <H1>Add Precinct</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <PrecinctForm
+          electionId={electionId}
+          savedPrecincts={precincts}
+          districts={election.districts}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -695,19 +709,23 @@ function EditPrecinctForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          geographyRoutes.precincts.root,
-          geographyRoutes.precincts.editPrecinct(precinctId),
-        ]}
-      />
-      <H1>Edit Precinct</H1>
-      <PrecinctForm
-        electionId={electionId}
-        precinctId={precinctId}
-        savedPrecincts={precincts}
-        districts={election.districts}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            geographyRoutes.precincts.root,
+            geographyRoutes.precincts.editPrecinct(precinctId),
+          ]}
+        />
+        <H1>Edit Precinct</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <PrecinctForm
+          electionId={electionId}
+          precinctId={precinctId}
+          savedPrecincts={precincts}
+          districts={election.districts}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -740,27 +758,31 @@ export function GeographyScreen(): JSX.Element {
           component={EditPrecinctForm}
         />
         <Route path={geographyParamRoutes.root.path}>
-          <H1>Geography</H1>
-          <TabBar
-            tabs={[
-              geographyRoutes.districts.root,
-              geographyRoutes.precincts.root,
-            ]}
-          />
-          <Switch>
-            <Route
-              path={geographyParamRoutes.districts.root.path}
-              component={DistrictsTab}
+          <ScreenHeader>
+            <H1>Geography</H1>
+          </ScreenHeader>
+          <ScreenContent>
+            <TabBar
+              tabs={[
+                geographyRoutes.districts.root,
+                geographyRoutes.precincts.root,
+              ]}
             />
-            <Route
-              path={geographyParamRoutes.precincts.root.path}
-              component={PrecinctsTab}
-            />
-            <Redirect
-              from={geographyParamRoutes.root.path}
-              to={geographyParamRoutes.districts.root.path}
-            />
-          </Switch>
+            <Switch>
+              <Route
+                path={geographyParamRoutes.districts.root.path}
+                component={DistrictsTab}
+              />
+              <Route
+                path={geographyParamRoutes.precincts.root.path}
+                component={PrecinctsTab}
+              />
+              <Redirect
+                from={geographyParamRoutes.root.path}
+                to={geographyParamRoutes.districts.root.path}
+              />
+            </Switch>
+          </ScreenContent>
         </Route>
       </Switch>
     </ElectionNavScreen>

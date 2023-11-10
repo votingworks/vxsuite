@@ -36,6 +36,8 @@ import {
   FormActionsRow,
   FormField,
   Input,
+  ScreenContent,
+  ScreenHeader,
   TableActionsRow,
 } from './layout';
 import { ElectionNavScreen } from './nav_screen';
@@ -560,14 +562,18 @@ function AddContestForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          contestRoutes.contests.root,
-          contestRoutes.contests.addContest,
-        ]}
-      />
-      <H1>Add Contest</H1>
-      <ContestForm electionId={electionId} savedElection={election} />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            contestRoutes.contests.root,
+            contestRoutes.contests.addContest,
+          ]}
+        />
+        <H1>Add Contest</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <ContestForm electionId={electionId} savedElection={election} />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -587,18 +593,22 @@ function EditContestForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          contestRoutes.contests.root,
-          contestRoutes.contests.editContest(contestId),
-        ]}
-      />
-      <H1>Edit Contest</H1>
-      <ContestForm
-        electionId={electionId}
-        contestId={contestId}
-        savedElection={election}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            contestRoutes.contests.root,
+            contestRoutes.contests.editContest(contestId),
+          ]}
+        />
+        <H1>Edit Contest</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <ContestForm
+          electionId={electionId}
+          contestId={contestId}
+          savedElection={election}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -816,9 +826,13 @@ function AddPartyForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs routes={[partyRoutes.root, partyRoutes.addParty]} />
-      <H1>Add Party</H1>
-      <PartyForm electionId={electionId} savedElection={election} />
+      <ScreenHeader>
+        <Breadcrumbs routes={[partyRoutes.root, partyRoutes.addParty]} />
+        <H1>Add Party</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <PartyForm electionId={electionId} savedElection={election} />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -838,15 +852,19 @@ function EditPartyForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[partyRoutes.root, partyRoutes.editParty(partyId)]}
-      />
-      <H1>Edit Party</H1>
-      <PartyForm
-        electionId={electionId}
-        partyId={partyId as PartyId}
-        savedElection={election}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[partyRoutes.root, partyRoutes.editParty(partyId)]}
+        />
+        <H1>Edit Party</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <PartyForm
+          electionId={electionId}
+          partyId={partyId as PartyId}
+          savedElection={election}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -879,24 +897,28 @@ export function ContestsScreen(): JSX.Element {
           component={EditPartyForm}
         />
         <Route path={contestParamRoutes.root.path}>
-          <H1>Contests</H1>
-          <TabBar
-            tabs={[contestRoutes.contests.root, contestRoutes.parties.root]}
-          />
-          <Switch>
-            <Route
-              path={contestParamRoutes.contests.root.path}
-              component={ContestsTab}
+          <ScreenHeader>
+            <H1>Contests</H1>
+          </ScreenHeader>
+          <ScreenContent>
+            <TabBar
+              tabs={[contestRoutes.contests.root, contestRoutes.parties.root]}
             />
-            <Route
-              path={contestParamRoutes.parties.root.path}
-              component={PartiesTab}
-            />
-            <Redirect
-              from={contestParamRoutes.root.path}
-              to={contestParamRoutes.contests.root.path}
-            />
-          </Switch>
+            <Switch>
+              <Route
+                path={contestParamRoutes.contests.root.path}
+                component={ContestsTab}
+              />
+              <Route
+                path={contestParamRoutes.parties.root.path}
+                component={PartiesTab}
+              />
+              <Redirect
+                from={contestParamRoutes.root.path}
+                to={contestParamRoutes.contests.root.path}
+              />
+            </Switch>
+          </ScreenContent>
         </Route>
       </Switch>
     </ElectionNavScreen>

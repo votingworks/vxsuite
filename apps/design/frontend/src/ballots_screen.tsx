@@ -18,7 +18,14 @@ import {
 import { useState } from 'react';
 import { LayoutOptions } from '@votingworks/hmpb-layout';
 import { getElection, updateElection, updateLayoutOptions } from './api';
-import { Form, FormActionsRow, FormField, NestedTr } from './layout';
+import {
+  Form,
+  FormActionsRow,
+  FormField,
+  NestedTr,
+  ScreenContent,
+  ScreenHeader,
+} from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
@@ -308,33 +315,37 @@ export function BallotsScreen(): JSX.Element | null {
       />
       <Route path={ballotsParamRoutes.root.path}>
         <ElectionNavScreen electionId={electionId}>
-          <H1>Ballots</H1>
-          <TabBar
-            tabs={[
-              {
-                label: 'Ballot Styles',
-                path: ballotsRoutes.ballotStyles.path,
-              },
-              {
-                label: 'Ballot Layout',
-                path: ballotsRoutes.ballotLayout.path,
-              },
-            ]}
-          />
-          <Switch>
-            <Route
-              path={ballotsParamRoutes.ballotStyles.path}
-              component={BallotStylesTab}
+          <ScreenHeader>
+            <H1>Ballots</H1>
+          </ScreenHeader>
+          <ScreenContent>
+            <TabBar
+              tabs={[
+                {
+                  label: 'Ballot Styles',
+                  path: ballotsRoutes.ballotStyles.path,
+                },
+                {
+                  label: 'Ballot Layout',
+                  path: ballotsRoutes.ballotLayout.path,
+                },
+              ]}
             />
-            <Route
-              path={ballotsParamRoutes.ballotLayout.path}
-              component={BallotLayoutTab}
-            />
-            <Redirect
-              from={ballotsParamRoutes.root.path}
-              to={ballotsParamRoutes.ballotStyles.path}
-            />
-          </Switch>
+            <Switch>
+              <Route
+                path={ballotsParamRoutes.ballotStyles.path}
+                component={BallotStylesTab}
+              />
+              <Route
+                path={ballotsParamRoutes.ballotLayout.path}
+                component={BallotLayoutTab}
+              />
+              <Redirect
+                from={ballotsParamRoutes.root.path}
+                to={ballotsParamRoutes.ballotStyles.path}
+              />
+            </Switch>
+          </ScreenContent>
         </ElectionNavScreen>
       </Route>
     </Switch>

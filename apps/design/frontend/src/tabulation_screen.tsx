@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { H1, H2, Button, Card, CheckboxGroup } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 import { AdjudicationReason, Id, SystemSettings } from '@votingworks/types';
-import { Form, FormField, Input, Column, Row, FormActionsRow } from './layout';
+import {
+  Form,
+  FormField,
+  Input,
+  Column,
+  Row,
+  FormActionsRow,
+  ScreenHeader,
+  ScreenContent,
+} from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 import { updateSystemSettings, getElection } from './api';
@@ -209,11 +218,15 @@ export function TabulationScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <H1>Tabulation</H1>
-      <TabulationForm
-        electionId={electionId}
-        savedSystemSettings={systemSettings}
-      />
+      <ScreenHeader>
+        <H1>Tabulation</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <TabulationForm
+          electionId={electionId}
+          savedSystemSettings={systemSettings}
+        />
+      </ScreenContent>
     </ElectionNavScreen>
   );
 }

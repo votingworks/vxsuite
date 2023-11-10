@@ -75,14 +75,14 @@ export function NavScreen({
           <AppLogo />
           {navContent}
         </LeftNavBar>
-        <Main padded>{children}</Main>
+        <Main style={{ position: 'relative' }}>{children}</Main>
       </Row>
     </Screen>
   );
 }
 
 const Divider = styled.div`
-  border-top: ${({ theme }) => theme.sizes.bordersRem.thin}rem solid
+  border-top: ${({ theme }) => theme.sizes.bordersRem.hairline}rem solid
     ${({ theme }) => theme.colors.outline};
   margin: 0.5rem 0;
 `;

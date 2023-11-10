@@ -14,6 +14,26 @@ export const Column = styled.div`
   flex-direction: column;
 `;
 
+export const ScreenHeader = styled.div`
+  padding: 1rem 1.5rem;
+  background: ${(p) => p.theme.colors.container};
+  position: sticky;
+  top: 0;
+  width: 100%;
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+    ${(p) => p.theme.colors.outline};
+  z-index: 1;
+
+  h1 {
+    margin: 0 !important;
+  }
+`;
+
+export const ScreenContent = styled.div`
+  overflow: auto;
+  padding: 1rem 1.5rem;
+`;
+
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -22,6 +42,7 @@ export const Form = styled.form`
   input[type='text'] {
     min-width: 18rem;
   }
+
   .search-select {
     min-width: 18rem;
   }
@@ -76,7 +97,7 @@ export const NestedTr = styled.tr`
 
 export function Breadcrumbs({ routes }: { routes: Route[] }): JSX.Element {
   return (
-    <Row style={{ gap: '0.5rem' }}>
+    <Row style={{ gap: '0.5rem', marginBottom: '0.75rem' }}>
       {routes.map((route, index) => {
         if (index === routes.length - 1) {
           return route.label;

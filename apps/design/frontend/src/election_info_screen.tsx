@@ -5,7 +5,14 @@ import { Buffer } from 'buffer';
 import { useHistory, useParams } from 'react-router-dom';
 import DomPurify from 'dompurify';
 import { deleteElection, getElection, updateElection } from './api';
-import { Form, FormField, Input, FormActionsRow } from './layout';
+import {
+  Form,
+  FormField,
+  Input,
+  FormActionsRow,
+  ScreenContent,
+  ScreenHeader,
+} from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
 import { FileInputButton } from './file_input_button';
@@ -218,8 +225,12 @@ export function ElectionInfoScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <H1>Election Info</H1>
-      <ElectionInfoForm electionId={electionId} savedElection={election} />
+      <ScreenHeader>
+        <H1>Election Info</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <ElectionInfoForm electionId={electionId} savedElection={election} />
+      </ScreenContent>
     </ElectionNavScreen>
   );
 }
