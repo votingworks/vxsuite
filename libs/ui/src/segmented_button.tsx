@@ -68,7 +68,6 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   flex-direction: ${(p) => (p.isVertical ? 'column' : 'row')};
   gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
   padding: ${(p) => (p.theme.sizeMode === 'desktop' ? undefined : '0.75rem')};
-  overflow: hidden;
 
   ${(p) => p.theme.colorMode === 'desktop' && desktopStyles}
 `;

@@ -155,6 +155,7 @@ export function SearchSelect<T extends string = string>({
             ? theme.colors.background
             : theme.colors.containerLow,
           padding: '0.25rem',
+          outline: state.isFocused ? `var(--focus-outline)` : undefined,
         }),
         valueContainer: (baseStyles, state) => ({
           ...baseStyles,

@@ -152,10 +152,10 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     --focus-outline: ${(p) =>
       p.isTouchscreen
         ? `${p.theme.colors.primary} dashed ${p.theme.sizes.bordersRem.medium}rem`
-        : 'none'};
+        : `${p.theme.colors.primary} solid ${p.theme.sizes.bordersRem.medium}rem`}
   }
 
-  :focus {
+  :focus-visible {
     outline: var(--focus-outline);
   }
 
