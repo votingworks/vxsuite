@@ -11,6 +11,7 @@ import {
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
+import { fakeLogger } from '@votingworks/logging';
 import {
   tabulateCastVoteRecords,
   tabulateElectionResults,
@@ -285,6 +286,7 @@ const candidateContestId =
 
 test('tabulateElectionResults - write-in handling', async () => {
   const store = Store.memoryStore();
+  const logger = fakeLogger();
 
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
@@ -361,61 +363,67 @@ test('tabulateElectionResults - write-in handling', async () => {
     contestId: candidateContestId,
   });
   const [writeIn1, writeIn2, writeIn3, writeIn4, writeIn5, writeIn6] = writeIns;
-  adjudicateWriteIn(
+  await adjudicateWriteIn(
     {
       writeInId: writeIn1!.id,
       type: 'invalid',
     },
-    store
+    store,
+    logger
   );
-  adjudicateWriteIn(
+  await adjudicateWriteIn(
     {
       writeInId: writeIn2!.id,
       type: 'invalid',
     },
-    store
+    store,
+    logger
   );
-  adjudicateWriteIn(
+  await adjudicateWriteIn(
     {
       writeInId: writeIn3!.id,
       type: 'official-candidate',
       candidateId: 'Obadiah-Carrigan-5c95145a',
     },
-    store
+    store,
+    logger
   );
-  adjudicateWriteIn(
+  await adjudicateWriteIn(
     {
       writeInId: writeIn4!.id,
       type: 'official-candidate',
       candidateId: 'Abigail-Bartlett-4e46c9d4',
     },
-    store
+    store,
+    logger
   );
   const writeInCandidate1 = store.addWriteInCandidate({
     electionId,
     contestId: candidateContestId,
     name: 'Mr. Pickles',
   });
-  adjudicateWriteIn(
+  await adjudicateWriteIn(
     {
       writeInId: writeIn5!.id,
       type: 'write-in-candidate',
       candidateId: writeInCandidate1.id,
     },
-    store
+    store,
+    logger
   );
   const writeInCandidate2 = store.addWriteInCandidate({
     electionId,
     contestId: candidateContestId,
     name: 'Ms. Tomato',
   });
-  adjudicateWriteIn(
+  await adjudicateWriteIn(
     {
       writeInId: writeIn6!.id,
       type: 'write-in-candidate',
       candidateId: writeInCandidate2.id,
     },
-    store
+    store,
+    logger
   );
 
   // if we don't specify we need the detailed WIA data, undervotes still reflect the invalid write-ins
@@ -685,6 +693,7 @@ test('tabulateElectionResults - write-in handling', async () => {
 
 test('tabulateElectionResults - group and filter by voting method', async () => {
   const store = Store.memoryStore();
+  const logger = fakeLogger();
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
   const { election, electionData } = electionDefinition;
@@ -707,12 +716,13 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   });
   expect(writeIns.length).toEqual(56);
   for (const writeIn of writeIns) {
-    adjudicateWriteIn(
+    await adjudicateWriteIn(
       {
         writeInId: writeIn.id,
         type: 'invalid',
       },
-      store
+      store,
+      logger
     );
   }
 

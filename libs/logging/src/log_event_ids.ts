@@ -80,6 +80,7 @@ export enum LogEventId {
   SystemSettingsSaveInitiated = 'system-settings-save-initiated',
   SystemSettingsSaved = 'system-settings-saved',
   SystemSettingsRetrieved = 'system-settings-retrieved',
+  WriteInAdjudicated = 'write-in-adjudicated',
 
   // VxCentralScan specific user action logs
   TogglingTestMode = 'toggle-test-mode-init',
@@ -927,6 +928,13 @@ const SystemSettingsRetrieved: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 
+const WriteInAdjudicated: LogDetails = {
+  eventId: LogEventId.WriteInAdjudicated,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User adjudicated a write-in.',
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1131,6 +1139,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SystemSettingsSaved;
     case LogEventId.SystemSettingsRetrieved:
       return SystemSettingsRetrieved;
+    case LogEventId.WriteInAdjudicated:
+      return WriteInAdjudicated;
 
     /* istanbul ignore next - compile time check for completeness */
     default:

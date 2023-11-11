@@ -516,8 +516,8 @@ function buildApi({
       );
     },
 
-    adjudicateWriteIn(input: WriteInAdjudicationAction): void {
-      adjudicateWriteIn(input, store);
+    async adjudicateWriteIn(input: WriteInAdjudicationAction): Promise<void> {
+      await adjudicateWriteIn(input, store, logger);
     },
 
     getWriteInAdjudicationQueueMetadata(

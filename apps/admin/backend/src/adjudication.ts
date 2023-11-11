@@ -1,5 +1,10 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { VoteAdjudication, WriteInAdjudicationAction } from './types';
+import { LogEventId, Logger } from '@votingworks/logging';
+import {
+  VoteAdjudication,
+  WriteInAdjudicationAction,
+  WriteInRecord,
+} from './types';
 import { type Store } from './store';
 
 /**
@@ -48,14 +53,83 @@ export function adjudicateVote(
   store.createVoteAdjudication(voteAdjudication);
 }
 
+async function logWriteInAdjudication({
+  initialWriteInRecord,
+  adjudicationAction,
+  logger,
+}: {
+  initialWriteInRecord: WriteInRecord;
+  adjudicationAction: WriteInAdjudicationAction;
+  logger: Logger;
+}): Promise<void> {
+  const { cvrId, contestId, optionId } = initialWriteInRecord;
+  const formerStatusText = (() => {
+    if (initialWriteInRecord.status === 'pending') {
+      return 'unadjudicated';
+    }
+
+    switch (initialWriteInRecord.adjudicationType) {
+      case 'invalid':
+        return 'invalid';
+      case 'official-candidate':
+        return `a vote for an official candidate (${initialWriteInRecord.candidateId})`;
+      case 'write-in-candidate':
+        return `a vote for a write-in candidate (${initialWriteInRecord.candidateId})`;
+      /* c8 ignore start */
+      default:
+        throwIllegalValue(initialWriteInRecord, 'adjudicationType');
+      /* c8 ignore stop */
+    }
+  })();
+
+  const newStatusText = (() => {
+    switch (adjudicationAction.type) {
+      case 'invalid':
+        return 'invalid';
+      case 'official-candidate':
+        return `a vote for an official candidate (${adjudicationAction.candidateId})`;
+      case 'write-in-candidate':
+        return `a vote for a write-in candidate (${adjudicationAction.candidateId})`;
+      /* c8 ignore start */
+      default:
+        throwIllegalValue(adjudicationAction, 'type');
+      /* c8 ignore stop */
+    }
+  })();
+
+  const message = `User adjudicated a write-in from ${formerStatusText} to ${newStatusText}.`;
+  await logger.log(LogEventId.WriteInAdjudicated, 'election_manager', {
+    disposition: 'success',
+    message,
+    cvrId,
+    contestId,
+    optionId,
+    previousStatus:
+      initialWriteInRecord.status === 'pending'
+        ? 'pending'
+        : initialWriteInRecord.adjudicationType,
+    previousCandidateId:
+      initialWriteInRecord.status === 'adjudicated' &&
+      initialWriteInRecord.adjudicationType !== 'invalid'
+        ? initialWriteInRecord.candidateId
+        : undefined,
+    status: adjudicationAction.type,
+    candidateId:
+      adjudicationAction.type !== 'invalid'
+        ? adjudicationAction.candidateId
+        : undefined,
+  });
+}
+
 /**
- *
- * @param adjudicationAction
+ * Adjudicates a write-in record for an official candidate, write-in candidate,
+ * or marks it as invalid.
  */
-export function adjudicateWriteIn(
+export async function adjudicateWriteIn(
   adjudicationAction: WriteInAdjudicationAction,
-  store: Store
-): void {
+  store: Store,
+  logger: Logger
+): Promise<void> {
   const [initialWriteInRecord] = store.getWriteInRecords({
     electionId: assertDefined(store.getCurrentElectionId()),
     writeInId: adjudicationAction.writeInId,
@@ -107,4 +181,10 @@ export function adjudicateWriteIn(
       initialWriteInRecord.candidateId
     );
   }
+
+  await logWriteInAdjudication({
+    initialWriteInRecord,
+    adjudicationAction,
+    logger,
+  });
 }

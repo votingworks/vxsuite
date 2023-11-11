@@ -5,6 +5,7 @@ import {
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
+import { LogEventId, fakeLogger } from '@votingworks/logging';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
@@ -108,8 +109,9 @@ test('adjudicateVote', () => {
   expectVoteAdjudicationRecordCount(4);
 });
 
-test('adjudicationWriteIn', () => {
+test('adjudicationWriteIn', async () => {
   const store = Store.memoryStore();
+  const logger = fakeLogger();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
   const electionId = store.addElection({
@@ -130,11 +132,12 @@ test('adjudicationWriteIn', () => {
       multiplier: 1,
     },
   ];
-  addMockCvrFileToStore({
+  const [cvrId] = addMockCvrFileToStore({
     electionId,
     mockCastVoteRecordFile,
     store,
   });
+  assert(cvrId !== undefined);
 
   const [writeInId] = store.getWriteInAdjudicationQueue({ electionId });
   assert(writeInId !== undefined);
@@ -150,21 +153,41 @@ test('adjudicationWriteIn', () => {
     expect(writeInRecord).toMatchObject(expected);
   }
 
+  function expectLog(message: string, attributes: Record<string, unknown>) {
+    expect(logger.log).lastCalledWith(
+      LogEventId.WriteInAdjudicated,
+      'election_manager',
+      {
+        disposition: 'success',
+        message,
+        cvrId,
+        contestId: 'zoo-council-mammal',
+        optionId: 'write-in-0',
+        ...attributes,
+      }
+    );
+  }
+
   expectVotes({ 'zoo-council-mammal': ['write-in-0'] });
   expectWriteInRecord({
     status: 'pending',
   });
 
-  adjudicateWriteIn({ writeInId, type: 'invalid' }, store);
+  await adjudicateWriteIn({ writeInId, type: 'invalid' }, store, logger);
   expectVotes({ 'zoo-council-mammal': [] });
   expectWriteInRecord({
     status: 'adjudicated',
     adjudicationType: 'invalid',
   });
+  expectLog('User adjudicated a write-in from unadjudicated to invalid.', {
+    previousStatus: 'pending',
+    status: 'invalid',
+  });
 
-  adjudicateWriteIn(
+  await adjudicateWriteIn(
     { writeInId, type: 'official-candidate', candidateId: 'lion' },
-    store
+    store,
+    logger
   );
   expectVotes({ 'zoo-council-mammal': ['write-in-0'] });
   expectWriteInRecord({
@@ -172,15 +195,24 @@ test('adjudicationWriteIn', () => {
     adjudicationType: 'official-candidate',
     candidateId: 'lion',
   });
+  expectLog(
+    'User adjudicated a write-in from invalid to a vote for an official candidate (lion).',
+    {
+      previousStatus: 'invalid',
+      status: 'official-candidate',
+      candidateId: 'lion',
+    }
+  );
 
   const writeInCandidate = store.addWriteInCandidate({
     electionId,
     contestId,
     name: 'Unofficial',
   });
-  adjudicateWriteIn(
+  await adjudicateWriteIn(
     { writeInId, type: 'write-in-candidate', candidateId: writeInCandidate.id },
-    store
+    store,
+    logger
   );
   expectVotes({ 'zoo-council-mammal': ['write-in-0'] });
   expectWriteInRecord({
@@ -188,8 +220,17 @@ test('adjudicationWriteIn', () => {
     adjudicationType: 'write-in-candidate',
     candidateId: writeInCandidate.id,
   });
+  expectLog(
+    `User adjudicated a write-in from a vote for an official candidate (lion) to a vote for a write-in candidate (${writeInCandidate.id}).`,
+    {
+      previousStatus: 'official-candidate',
+      previousCandidateId: 'lion',
+      status: 'write-in-candidate',
+      candidateId: writeInCandidate.id,
+    }
+  );
 
-  adjudicateWriteIn({ writeInId, type: 'invalid' }, store);
+  await adjudicateWriteIn({ writeInId, type: 'invalid' }, store, logger);
   expectVotes({ 'zoo-council-mammal': [] });
   expectWriteInRecord({
     status: 'adjudicated',
@@ -197,4 +238,12 @@ test('adjudicationWriteIn', () => {
   });
   // switching away from a write-in candidate should delete the candidate if applicable
   expect(store.getWriteInCandidates({ electionId })).toEqual([]);
+  expectLog(
+    `User adjudicated a write-in from a vote for a write-in candidate (${writeInCandidate.id}) to invalid.`,
+    {
+      previousStatus: 'write-in-candidate',
+      previousCandidateId: writeInCandidate.id,
+      status: 'invalid',
+    }
+  );
 });
