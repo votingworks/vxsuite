@@ -117,17 +117,19 @@ function validateInterpretResults(
 /**
  * Interpret a NH HMPB ballot sheet.
  */
-function interpretAndConvertNhHmpbResult(
+async function interpretAndConvertNhHmpbResult(
   electionDefinition: ElectionDefinition,
   sheet: SheetOf<string>,
   options: InterpreterOptions
-): SheetOf<InterpretFileResult> {
+): Promise<SheetOf<InterpretFileResult>> {
   const result = interpretNhHmpbBallotSheet(electionDefinition, sheet, {
     scoreWriteIns: shouldScoreWriteIns(options),
   });
 
   return validateInterpretResults(
-    convertNhInterpretResultToLegacyResult(options, result).unsafeUnwrap(),
+    (
+      await convertNhInterpretResultToLegacyResult(options, result, sheet)
+    ).unsafeUnwrap(),
     {
       electionHash: electionDefinition.electionHash,
       precinctSelection: options.precinctSelection,
@@ -153,7 +155,7 @@ export async function interpretSheet(
 
   try {
     if (electionDefinition.election.gridLayouts) {
-      return interpretAndConvertNhHmpbResult(electionDefinition, sheet, {
+      return await interpretAndConvertNhHmpbResult(electionDefinition, sheet, {
         electionDefinition,
         precinctSelection,
         testMode,

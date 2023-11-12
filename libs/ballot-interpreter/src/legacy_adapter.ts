@@ -1,6 +1,5 @@
 import {
   assert,
-  err,
   find,
   iter,
   ok,
@@ -25,10 +24,12 @@ import {
   MarkInfo,
   MarkStatus,
   Rect,
+  SheetOf,
   WriteInAreaStatus,
   WriteInId,
 } from '@votingworks/types';
 import { allContestOptions, convertMarksToVotesDict } from '@votingworks/utils';
+import { loadImageData } from '@votingworks/image-utils';
 import {
   BallotPageTimingMarkMetadataFront,
   Geometry,
@@ -407,13 +408,29 @@ function convertNextInterpretedBallotPage(
 /**
  * Converts the result of the NH interpreter to the legacy interpreter result format.
  */
-export function convertNhInterpretResultToLegacyResult(
+export async function convertNhInterpretResultToLegacyResult(
   options: InterpreterOptions,
-  nextResult: NextInterpretResult
-): InterpretResult {
+  nextResult: NextInterpretResult,
+  sheet: SheetOf<string>
+): Promise<InterpretResult> {
   /* istanbul ignore next */
   if (nextResult.isErr()) {
-    return err(new Error(JSON.stringify(nextResult.err())));
+    return ok([
+      {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: nextResult.err().type,
+        },
+        normalizedImage: await loadImageData(sheet[0]),
+      },
+      {
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: nextResult.err().type,
+        },
+        normalizedImage: await loadImageData(sheet[1]),
+      },
+    ]);
   }
 
   const ballotCard = nextResult.ok();
