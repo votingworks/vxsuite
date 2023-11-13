@@ -109,7 +109,7 @@ test('adjudicateVote', () => {
   expectVoteAdjudicationRecordCount(4);
 });
 
-test('adjudicationWriteIn', async () => {
+test('adjudicateWriteIn', async () => {
   const store = Store.memoryStore();
   const logger = fakeLogger();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;

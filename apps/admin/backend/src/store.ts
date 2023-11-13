@@ -823,7 +823,7 @@ export class Store {
           batch_id as batchId,
           precinct_id as precinctId,
           sheet_number as sheetNumber,
-          votes as votes
+          votes
         from cvrs
         where
           election_id = ? and
@@ -2039,7 +2039,7 @@ export class Store {
         select
           id,
           election_id as electionId,
-          votes as votes
+          votes
         from cvrs
         where
           election_id = ? and
