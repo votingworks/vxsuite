@@ -69,6 +69,21 @@ export async function readBallotPackageFromBuffer(
 
     _.merge(uiStrings, appStrings);
   }
+
+  // Extract non-CDF election strings:
+  const vxElectionStringsEntry = maybeGetFileByName(
+    entries,
+    BallotPackageFileName.VX_ELECTION_STRINGS
+  );
+  if (vxElectionStringsEntry) {
+    const vxElectionStrings = safeParseJson(
+      await readTextEntry(vxElectionStringsEntry),
+      UiStringsPackageSchema
+    ).unsafeUnwrap();
+
+    _.merge(uiStrings, vxElectionStrings);
+  }
+
   if (cdfElection) {
     const electionStrings = extractCdfUiStrings(cdfElection);
     _.merge(uiStrings, electionStrings);

@@ -17,6 +17,7 @@ import * as Vxf from '../../election';
 import { ballotPaperDimensions, getContests } from '../../election_utils';
 import { Id, safeParse } from '../../generic';
 import { safeParseInt } from '../../numeric';
+import { LanguageCode } from '../../language_code';
 
 function dateString(date: Date) {
   const isoString = date.toISOString();
@@ -38,7 +39,7 @@ export function convertVxfElectionToCdfBallotDefinition(
       Text: [
         {
           '@type': 'BallotDefinition.LanguageString',
-          Language: 'en',
+          Language: LanguageCode.ENGLISH,
           Content: content,
         },
       ],
@@ -511,7 +512,10 @@ export function convertCdfBallotDefinitionToVxfElection(
   }
 
   function englishText(text: Cdf.InternationalizedText): string {
-    const content = find(text.Text, (t) => t.Language === 'en').Content;
+    const content = find(
+      text.Text,
+      (t) => t.Language === LanguageCode.ENGLISH
+    ).Content;
     assert(content !== undefined, 'Could not find English text');
     return content;
   }
