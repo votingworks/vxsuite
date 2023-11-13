@@ -6,7 +6,6 @@ import {
   ElectionDefinition,
   PrecinctSelection,
 } from '@votingworks/types';
-import { format, getPrecinctSelectionName } from '@votingworks/utils';
 
 import {
   NoWrap,
@@ -19,7 +18,6 @@ import {
   PrecinctSelectionName,
   PrimaryElectionTitlePrefix,
   NumberString,
-  DateString,
 } from '@votingworks/ui';
 
 const Container = styled.div`
@@ -46,11 +44,7 @@ export function ElectionInfo({
   contestCount,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
-  const { state, county, date, seal } = election;
-
-  const precinctName =
-    precinctSelection &&
-    getPrecinctSelectionName(election.precincts, precinctSelection);
+  const { county, seal } = election;
 
   const partyPrimaryAdjective = (
     <React.Fragment>
@@ -70,17 +64,13 @@ export function ElectionInfo({
     </React.Fragment>
   );
 
-  const electionDate = format.localeLongDate(new Date(date));
-
   return (
     <Container>
       <Seal seal={seal} />
       <div>
         <H1>{title}</H1>
-        <P
-          aria-label={`${electionDate}. ${county.name}, ${state}. ${precinctName}.`}
-        >
-          <DateString value={new Date(date)} weight="bold" />
+        <P>
+          {electionStrings.electionDate(election)}
           <br />
           <Caption>
             {/* TODO(kofi): Use more language-agnostic delimiter (e.g. '|') or find way to translate commas. */}
