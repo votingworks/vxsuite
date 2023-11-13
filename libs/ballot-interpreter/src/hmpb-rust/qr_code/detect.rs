@@ -66,8 +66,11 @@ impl DetectionArea {
 pub fn get_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
     let (width, height) = img.dimensions();
     let crop_size = Size {
-        width: width / 5,
-        height: height / 5,
+        width: width / 4,
+        // Yes, the detection area height is based on the ballot width.
+        // We don't want to search more of the image in a taller ballot
+        // because the QR code is anchored to the bottom anyway.
+        height: width / 4,
     };
     let bottom_left_origin = Point::new(0, height - crop_size.height);
     let top_right_origin = Point::new(width - crop_size.width, 0);
@@ -234,5 +237,23 @@ mod test {
         );
         assert_eq!(qr_code.bounds(), Rect::new(97, 2016, 108, 107));
         assert_eq!(qr_code.orientation(), Orientation::Portrait);
+    }
+
+    #[test]
+    fn test_detect_qr_code_in_skewed_image() {
+        let fixture_path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
+        let scan_side_a_path = fixture_path.join("scan-skewed-side-a.jpeg");
+        let scan_side_b_path = fixture_path.join("scan-skewed-side-b.jpeg");
+        detect(
+            &image::open(scan_side_a_path).unwrap().into_luma8(),
+            &ImageDebugWriter::disabled(),
+        )
+        .expect("side A QR code should be detected");
+        detect(
+            &image::open(scan_side_b_path).unwrap().into_luma8(),
+            &ImageDebugWriter::disabled(),
+        )
+        .expect("side B QR code should be detected");
     }
 }
