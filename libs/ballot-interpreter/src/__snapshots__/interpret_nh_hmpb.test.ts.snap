@@ -7459,3 +7459,16 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 79`] = `
   ],
 }
 `;
+
+exports[`blank sheet of paper 1`] = `
+[
+  {
+    "reason": "missingTimingMarks",
+    "type": "UnreadablePage",
+  },
+  {
+    "reason": "missingTimingMarks",
+    "type": "UnreadablePage",
+  },
+]
+`;

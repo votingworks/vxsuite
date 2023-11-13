@@ -1,5 +1,8 @@
 import { assert, unique } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireAmherstFixtures,
+  sampleBallotImages,
+} from '@votingworks/fixtures';
 import {
   SheetOf,
   mapSheet,
@@ -251,4 +254,29 @@ describe('HMPB - m17 backup', () => {
       expect({ [ballotId]: interpretation }).toMatchSnapshot();
     }
   });
+});
+
+test('blank sheet of paper', async () => {
+  const sheet: SheetOf<string> = [
+    sampleBallotImages.blankPage.asFilePath(),
+    sampleBallotImages.blankPage.asFilePath(),
+  ];
+
+  const interpretationWithImages = await interpretSheet(
+    {
+      electionDefinition:
+        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: false,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    },
+    sheet
+  );
+
+  const interpretation = mapSheet(
+    interpretationWithImages,
+    (page) => page.interpretation
+  );
+  expect(interpretation).toMatchSnapshot();
 });
