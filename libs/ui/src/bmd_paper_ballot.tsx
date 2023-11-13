@@ -166,7 +166,6 @@ interface CandidateContestResultProps {
 function CandidateContestResult({
   contest,
   election,
-  /* istanbul ignore next */
   vote = [],
 }: CandidateContestResultProps): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
@@ -202,7 +201,7 @@ interface YesNoContestResultProps {
 
 function YesNoContestResult({
   contest,
-  vote,
+  vote = [],
 }: YesNoContestResultProps): JSX.Element {
   const singleVote = getSingleYesNoVote(vote);
   if (!singleVote) return <NoSelection />;

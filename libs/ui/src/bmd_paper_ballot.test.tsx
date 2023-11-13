@@ -145,6 +145,20 @@ test('BmdPaperBallot renders when no votes', () => {
   expect(screen.getAllByText('[no selection]')).toHaveLength(9);
 });
 
+test('BmdPaperBallot treats missing entries in the votes dict as undervotes', () => {
+  render(
+    <BmdPaperBallot
+      electionDefinition={electionWithMsEitherNeitherDefinition}
+      ballotStyleId="1"
+      precinctId="6525"
+      isLiveMode
+      votes={{}}
+    />
+  );
+
+  expect(screen.getAllByText('[no selection]')).toHaveLength(9);
+});
+
 test('BmdPaperBallot renders when not in live mode', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
