@@ -97,6 +97,16 @@ function convertSqliteTimestampToIso8601(
   return new Date(sqliteTimestamp).toISOString();
 }
 
+type SqlBool = 0 | 1;
+
+function asSqlBool(bool: boolean): SqlBool {
+  return bool ? 1 : 0;
+}
+
+function fromSqlBool(sqlBool: SqlBool): boolean {
+  return sqlBool === 1;
+}
+
 function asQueryPlaceholders(list: unknown[]): string {
   const questionMarks = list.map(() => '?');
   return `(${questionMarks.join(', ')})`;
@@ -114,7 +124,7 @@ interface WriteInTallyRow {
 interface CastVoteRecordVoteAdjudication {
   contestId: ContestId;
   optionId: ContestOptionId;
-  isVote: 0 | 1;
+  isVote: SqlBool;
 }
 
 /**
@@ -202,7 +212,7 @@ export class Store {
         id: Id;
         electionData: string;
         createdAt: string;
-        isOfficialResults: 0 | 1;
+        isOfficialResults: SqlBool;
       }>
     ).map((r) => ({
       id: r.id,
@@ -234,7 +244,7 @@ export class Store {
           id: Id;
           electionData: string;
           createdAt: string;
-          isOfficialResults: 0 | 1;
+          isOfficialResults: SqlBool;
         }
       | undefined;
     if (!result) {
@@ -762,7 +772,7 @@ export class Store {
       `,
       id,
       electionId,
-      isTestMode ? 1 : 0,
+      asSqlBool(isTestMode),
       filename,
       exportedTimestamp,
       JSON.stringify([]),
@@ -889,7 +899,7 @@ export class Store {
         cvr.precinctId,
         cvrSheetNumber,
         serializedVotes,
-        isBlankSheet(cvr.votes) ? 1 : 0
+        asSqlBool(isBlankSheet(cvr.votes))
       );
     }
 
@@ -1049,7 +1059,7 @@ export class Store {
       side,
       contestId,
       optionId,
-      isUnmarked ? 1 : 0
+      asSqlBool(isUnmarked)
     );
 
     return id;
@@ -1886,8 +1896,8 @@ export class Store {
       castVoteRecordId: Id;
       contestId: ContestId;
       optionId: ContestOptionId;
-      isInvalid: boolean;
-      isUnmarked: boolean;
+      isInvalid: SqlBool;
+      isUnmarked: SqlBool;
       officialCandidateId: string | null;
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
@@ -1905,7 +1915,7 @@ export class Store {
           status: 'adjudicated',
           adjudicationType: 'official-candidate',
           candidateId: row.officialCandidateId,
-          isUnmarked: Boolean(row.isUnmarked),
+          isUnmarked: fromSqlBool(row.isUnmarked),
         });
       }
 
@@ -1919,7 +1929,7 @@ export class Store {
           status: 'adjudicated',
           adjudicationType: 'write-in-candidate',
           candidateId: row.writeInCandidateId,
-          isUnmarked: Boolean(row.isUnmarked),
+          isUnmarked: fromSqlBool(row.isUnmarked),
         });
       }
 
@@ -1932,7 +1942,7 @@ export class Store {
           optionId: row.optionId,
           status: 'adjudicated',
           adjudicationType: 'invalid',
-          isUnmarked: Boolean(row.isUnmarked),
+          isUnmarked: fromSqlBool(row.isUnmarked),
         });
       }
 
@@ -1943,7 +1953,7 @@ export class Store {
         contestId: row.contestId,
         optionId: row.optionId,
         status: 'pending',
-        isUnmarked: Boolean(row.isUnmarked),
+        isUnmarked: fromSqlBool(row.isUnmarked),
       });
     });
   }
@@ -2098,13 +2108,13 @@ export class Store {
       cvrId: Id;
       contestId: Id;
       optionId: Id;
-      isVote: 0 | 1;
+      isVote: SqlBool;
     }>;
 
     return row
       ? {
           ...row,
-          isVote: Boolean(row.isVote),
+          isVote: fromSqlBool(row.isVote),
         }
       : undefined;
   }
@@ -2139,7 +2149,7 @@ export class Store {
       cvrId,
       contestId,
       optionId,
-      isVote ? 1 : 0
+      asSqlBool(isVote)
     ) as { id: Id };
 
     return {
@@ -2475,7 +2485,7 @@ export class Store {
         set is_official_results = ?
         where id = ?
       `,
-      isOfficialResults ? 1 : 0,
+      asSqlBool(isOfficialResults),
       electionId
     );
   }
