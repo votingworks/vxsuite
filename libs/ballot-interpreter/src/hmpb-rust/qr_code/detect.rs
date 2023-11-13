@@ -249,11 +249,11 @@ mod test {
             &image::open(scan_side_a_path).unwrap().into_luma8(),
             &ImageDebugWriter::disabled(),
         )
-        .expect("side A QR code not detected");
+        .expect("side A QR code should be detected");
         detect(
             &image::open(scan_side_b_path).unwrap().into_luma8(),
             &ImageDebugWriter::disabled(),
         )
-        .expect("side B QR code not detected");
+        .expect("side B QR code should be detected");
     }
 }
