@@ -4,11 +4,14 @@ import { toDataUrl, loadImage, toImageData } from '@votingworks/image-utils';
 import { join } from 'path';
 import {
   BooleanEnvironmentVariableName,
+  ContestResultsSummary,
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
+  buildElectionResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { CVR, Id, Rect, Tabulation } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import { ContestWriteInSummary } from '@votingworks/types/src/tabulation';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -119,177 +122,6 @@ test('getWriteInAdjudicationQueueMetadata', async () => {
       totalTally: 2,
       pendingTally: 2,
     },
-  ]);
-});
-
-test('adjudicateWriteIn', async () => {
-  const { auth, apiClient } = buildTestEnvironment();
-  const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
-  await configureMachine(apiClient, auth, electionDefinition);
-
-  (
-    await apiClient.addCastVoteRecordFile({
-      path: castVoteRecordExport.asDirectoryPath(),
-    })
-  ).unsafeUnwrap();
-
-  // focus on this contest with two write-ins
-  const contestId = 'Sheriff-4243fe0b';
-  const contestWriteIns = await apiClient.getWriteInAdjudicationQueue({
-    contestId,
-  });
-  expect(contestWriteIns).toHaveLength(2);
-
-  const [writeInIdA, writeInIdB] = contestWriteIns;
-  assert(writeInIdA !== undefined && writeInIdB !== undefined);
-
-  async function getWriteIn(writeInId: Id): Promise<WriteInRecord> {
-    return (await apiClient.getWriteInAdjudicationContext({ writeInId }))
-      .writeIn;
-  }
-
-  expect(await getWriteIn(writeInIdA)).toMatchObject({
-    contestId,
-    status: 'pending',
-  });
-
-  // write-in A: adjudicate for an official candidate
-  const officialCandidateId = 'Edward-Randolph-bf4c848a';
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeInIdA,
-    type: 'official-candidate',
-    candidateId: officialCandidateId,
-  });
-
-  expect(await getWriteIn(writeInIdA)).toMatchObject({
-    contestId,
-    adjudicationType: 'official-candidate',
-    candidateId: officialCandidateId,
-    status: 'adjudicated',
-  });
-  expect(
-    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
-  ).toEqual([
-    {
-      contestId,
-      pendingTally: 1,
-      totalTally: 2,
-    },
-  ]);
-
-  // write-in A: re-adjudicate as invalid
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeInIdA,
-    type: 'invalid',
-  });
-
-  expect(await getWriteIn(writeInIdA)).toMatchObject({
-    contestId,
-    adjudicationType: 'invalid',
-    status: 'adjudicated',
-  });
-  expect(
-    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
-  ).toEqual([
-    {
-      contestId,
-      pendingTally: 1,
-      totalTally: 2,
-    },
-  ]);
-
-  // write-in A: re-adjudicate for the official candidate
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeInIdA,
-    type: 'official-candidate',
-    candidateId: officialCandidateId,
-  });
-
-  expect(await getWriteIn(writeInIdA)).toMatchObject({
-    contestId,
-    adjudicationType: 'official-candidate',
-    candidateId: officialCandidateId,
-    status: 'adjudicated',
-  });
-  expect(
-    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
-  ).toEqual([
-    {
-      contestId,
-      pendingTally: 1,
-      totalTally: 2,
-    },
-  ]);
-
-  // write-in B: add and adjudicate for a write-in candidate
-  expect(await apiClient.getWriteInCandidates()).toMatchObject([]);
-
-  await apiClient.addWriteInCandidate({ contestId, name: 'Mr. Pickles' });
-  expect(await apiClient.getWriteInCandidates()).toMatchObject([
-    { contestId, name: 'Mr. Pickles' },
-  ]);
-  const [mrPickles] = await apiClient.getWriteInCandidates();
-  assert(mrPickles);
-
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeInIdB,
-    type: 'write-in-candidate',
-    candidateId: mrPickles.id,
-  });
-
-  expect(await getWriteIn(writeInIdB)).toMatchObject({
-    contestId,
-    adjudicationType: 'write-in-candidate',
-    candidateId: mrPickles.id,
-    status: 'adjudicated',
-  });
-
-  expect(
-    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
-  ).toEqual([
-    {
-      contestId,
-      pendingTally: 0,
-      totalTally: 2,
-    },
-  ]);
-
-  // write-in B: re-adjudicate for a different write-in candidate
-  await apiClient.addWriteInCandidate({ contestId, name: 'Pickles Jr.' });
-  expect(await apiClient.getWriteInCandidates()).toMatchObject([
-    { contestId, name: 'Mr. Pickles' },
-    { contestId, name: 'Pickles Jr.' },
-  ]);
-  const [, picklesJr] = await apiClient.getWriteInCandidates();
-  assert(picklesJr);
-
-  await apiClient.adjudicateWriteIn({
-    writeInId: writeInIdB,
-    type: 'write-in-candidate',
-    candidateId: picklesJr.id,
-  });
-
-  expect(await getWriteIn(writeInIdB)).toMatchObject({
-    contestId,
-    adjudicationType: 'write-in-candidate',
-    status: 'adjudicated',
-    candidateId: picklesJr.id,
-  });
-
-  expect(
-    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
-  ).toEqual([
-    {
-      contestId,
-      pendingTally: 0,
-      totalTally: 2,
-    },
-  ]);
-
-  // now that Mr. Pickles has no adjudications, he should have been removed as a write-in candidate
-  expect(await apiClient.getWriteInCandidates({ contestId })).toMatchObject([
-    { name: 'Pickles Jr.' },
   ]);
 });
 
@@ -559,11 +391,13 @@ test('handling unmarked write-ins', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireAmherstFixtures;
+  const { election } = electionDefinition;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
 
   // modify the write-ins for a contest to be unmarked write-ins
   const WRITE_IN_CONTEST_ID = 'Governor-061a401b';
+  const OFFICIAL_CANDIDATE_ID = 'Hannah-Dustin-ab4ef7c8';
   const exportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
     {
@@ -601,40 +435,392 @@ test('handling unmarked write-ins', async () => {
   });
   assert(addTestFileResult.isOk());
 
-  const contestWriteInIds = await apiClient.getWriteInAdjudicationQueue({
+  const [writeInId] = await apiClient.getWriteInAdjudicationQueue({
     contestId: WRITE_IN_CONTEST_ID,
   });
+  assert(writeInId !== undefined);
 
   // check that the unmarked status appears in the write-in adjudication context
-  for (const writeInId of contestWriteInIds) {
-    const writeInContext = await apiClient.getWriteInAdjudicationContext({
-      writeInId,
+  const writeInContext = await apiClient.getWriteInAdjudicationContext({
+    writeInId,
+  });
+  expect(writeInContext.writeIn.isUnmarked).toEqual(true);
+
+  async function expectContestResults(
+    contestSummary: ContestResultsSummary
+  ): Promise<void> {
+    const expectedResults = buildElectionResultsFixture({
+      election,
+      contestResultsSummaries: { [WRITE_IN_CONTEST_ID]: contestSummary },
+      cardCounts: {
+        bmd: 0,
+        hmpb: [contestSummary.ballots],
+      },
+      includeGenericWriteIn: false,
     });
-    expect(writeInContext.writeIn.isUnmarked).toEqual(true);
+    expect(
+      (await apiClient.getResultsForTallyReports())[0]?.scannedResults
+        .contestResults[WRITE_IN_CONTEST_ID]
+    ).toEqual(expectedResults.contestResults[WRITE_IN_CONTEST_ID]);
   }
 
-  // check that the unmarked, unadjudicated write-ins do not appear in adjudication summary
-  const writeInSummary = await apiClient.getElectionWriteInSummary();
-  expect(
-    writeInSummary.contestWriteInSummaries[WRITE_IN_CONTEST_ID]
-  ).toMatchObject({
+  async function expectWriteInSummary(
+    summary: Partial<ContestWriteInSummary>
+  ): Promise<void> {
+    expect(
+      (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+        WRITE_IN_CONTEST_ID
+      ]
+    ).toMatchObject(summary);
+  }
+
+  // the unmarked write-in should appear as no vote at all in tallies
+  await expectWriteInSummary({
     pendingTally: 0,
     invalidTally: 0,
     totalTally: 0,
   });
+  await expectContestResults({
+    type: 'candidate',
+    ballots: 184,
+    overvotes: 4,
+    undervotes: 4,
+    officialOptionTallies: {
+      'Hannah-Dustin-ab4ef7c8': 2,
+      'John-Spencer-9ffb5970': 172,
+      'Josiah-Bartlett-1bb99985': 2,
+    },
+  });
 
-  // check that the unmarked, unadjudicated write-ins do not appear in tally results
-  const [fullElectionReportResults] =
-    await apiClient.getResultsForTallyReports();
-  assert(fullElectionReportResults);
-  const { scannedResults } = fullElectionReportResults;
-  const contestResults = scannedResults.contestResults[WRITE_IN_CONTEST_ID];
-  assert(contestResults?.contestType === 'candidate');
-  expect(contestResults.undervotes).toEqual(4);
+  // it should be reflected in tallies if we mark it as valid
+  await apiClient.adjudicateWriteIn({
+    writeInId,
+    type: 'official-candidate',
+    candidateId: OFFICIAL_CANDIDATE_ID,
+  });
+  await expectWriteInSummary({
+    pendingTally: 0,
+    invalidTally: 0,
+    totalTally: 1,
+    candidateTallies: {
+      [OFFICIAL_CANDIDATE_ID]: {
+        id: OFFICIAL_CANDIDATE_ID,
+        name: 'Hannah Dustin',
+        tally: 1,
+      },
+    },
+  });
+  await expectContestResults({
+    type: 'candidate',
+    ballots: 184,
+    overvotes: 4,
+    undervotes: 3,
+    officialOptionTallies: {
+      'Hannah-Dustin-ab4ef7c8': 3,
+      'John-Spencer-9ffb5970': 172,
+      'Josiah-Bartlett-1bb99985': 2,
+    },
+  });
+
+  // it should, again, not be reflected in tallies if we mark it as invalid
+  await apiClient.adjudicateWriteIn({
+    writeInId,
+    type: 'invalid',
+  });
+  await expectWriteInSummary({
+    pendingTally: 0,
+    invalidTally: 0,
+    totalTally: 0,
+  });
+  await expectContestResults({
+    type: 'candidate',
+    ballots: 184,
+    overvotes: 4,
+    undervotes: 4,
+    officialOptionTallies: {
+      'Hannah-Dustin-ab4ef7c8': 2,
+      'John-Spencer-9ffb5970': 172,
+      'Josiah-Bartlett-1bb99985': 2,
+    },
+  });
+});
+
+test('adjudicating write-ins changes their status and is reflected in tallies', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const { electionDefinition, castVoteRecordExport } =
+    electionGridLayoutNewHampshireAmherstFixtures;
+  const { election } = electionDefinition;
+  await configureMachine(apiClient, auth, electionDefinition);
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+
+  // look at a contest that can have multiple write-ins per ballot
+  const contestId = 'Governor-061a401b';
+  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
+    contestId,
+  });
+  expect(writeInIds).toHaveLength(2);
+  const writeInId = writeInIds[0]!;
+
+  async function expectContestResults(
+    contestSummary: ContestResultsSummary
+  ): Promise<void> {
+    const expectedResults = buildElectionResultsFixture({
+      election,
+      contestResultsSummaries: { [contestId]: contestSummary },
+      cardCounts: {
+        bmd: 0,
+        hmpb: [contestSummary.ballots],
+      },
+      includeGenericWriteIn: false,
+    });
+    expect(
+      (await apiClient.getResultsForTallyReports())[0]?.scannedResults
+        .contestResults[contestId]
+    ).toEqual(expectedResults.contestResults[contestId]);
+  }
+
+  async function expectWriteInSummary(
+    summary: ContestWriteInSummary
+  ): Promise<void> {
+    expect(
+      (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+        contestId
+      ]
+    ).toEqual(summary);
+  }
+
+  async function expectWriteInRecord(
+    id: Id,
+    expected: Partial<WriteInRecord>
+  ): Promise<void> {
+    expect(
+      (await apiClient.getWriteInAdjudicationContext({ writeInId: id })).writeIn
+    ).toMatchObject(expected);
+  }
+
+  // unadjudicated results
+  await expectWriteInRecord(writeInId, {
+    status: 'pending',
+  });
   expect(
-    contestResults.tallies[Tabulation.GENERIC_WRITE_IN_ID]
-  ).toBeUndefined();
+    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
+  ).toEqual([
+    {
+      contestId,
+      pendingTally: 2,
+      totalTally: 2,
+    },
+  ]);
+  await expectContestResults({
+    type: 'candidate',
+    ballots: 184,
+    overvotes: 4,
+    undervotes: 2,
+    officialOptionTallies: {
+      'Hannah-Dustin-ab4ef7c8': 2,
+      'John-Spencer-9ffb5970': 172,
+      'Josiah-Bartlett-1bb99985': 2,
+    },
+    writeInOptionTallies: {
+      [Tabulation.PENDING_WRITE_IN_ID]: {
+        name: Tabulation.PENDING_WRITE_IN_NAME,
+        tally: 2,
+      },
+    },
+  });
+  await expectWriteInSummary({
+    candidateTallies: {},
+    contestId: 'Governor-061a401b',
+    invalidTally: 0,
+    pendingTally: 2,
+    totalTally: 2,
+  });
+
+  // check invalid
+  await apiClient.adjudicateWriteIn({
+    type: 'invalid',
+    writeInId,
+  });
+  await expectWriteInRecord(writeInId, {
+    adjudicationType: 'invalid',
+    status: 'adjudicated',
+  });
+  await expectContestResults({
+    type: 'candidate',
+    ballots: 184,
+    overvotes: 4,
+    undervotes: 3,
+    officialOptionTallies: {
+      'Hannah-Dustin-ab4ef7c8': 2,
+      'John-Spencer-9ffb5970': 172,
+      'Josiah-Bartlett-1bb99985': 2,
+    },
+    writeInOptionTallies: {
+      [Tabulation.PENDING_WRITE_IN_ID]: {
+        name: Tabulation.PENDING_WRITE_IN_NAME,
+        tally: 1,
+      },
+    },
+  });
   expect(
-    contestResults.tallies[Tabulation.PENDING_WRITE_IN_ID]
-  ).toBeUndefined();
+    (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+      contestId
+    ]
+  ).toEqual({
+    candidateTallies: {},
+    contestId: 'Governor-061a401b',
+    invalidTally: 1,
+    pendingTally: 1,
+    totalTally: 2,
+  });
+
+  // check official candidate
+  await apiClient.adjudicateWriteIn({
+    type: 'official-candidate',
+    candidateId: 'Hannah-Dustin-ab4ef7c8',
+    writeInId,
+  });
+  await expectWriteInRecord(writeInId, {
+    adjudicationType: 'official-candidate',
+    candidateId: 'Hannah-Dustin-ab4ef7c8',
+    status: 'adjudicated',
+  });
+  await expectContestResults({
+    type: 'candidate',
+    ballots: 184,
+    overvotes: 4,
+    undervotes: 2,
+    officialOptionTallies: {
+      'Hannah-Dustin-ab4ef7c8': 3,
+      'John-Spencer-9ffb5970': 172,
+      'Josiah-Bartlett-1bb99985': 2,
+    },
+    writeInOptionTallies: {
+      [Tabulation.PENDING_WRITE_IN_ID]: {
+        name: Tabulation.PENDING_WRITE_IN_NAME,
+        tally: 1,
+      },
+    },
+  });
+  await expectWriteInSummary({
+    contestId: 'Governor-061a401b',
+    invalidTally: 0,
+    pendingTally: 1,
+    totalTally: 2,
+    candidateTallies: {
+      'Hannah-Dustin-ab4ef7c8': {
+        id: 'Hannah-Dustin-ab4ef7c8',
+        isWriteIn: false,
+        name: 'Hannah Dustin',
+        tally: 1,
+      },
+    },
+  });
+
+  // check unofficial candidate
+  const writeInCandidate = await apiClient.addWriteInCandidate({
+    contestId,
+    name: 'Mr. Hero',
+  });
+  await apiClient.adjudicateWriteIn({
+    type: 'write-in-candidate',
+    candidateId: writeInCandidate.id,
+    writeInId,
+  });
+  await expectWriteInRecord(writeInId, {
+    adjudicationType: 'write-in-candidate',
+    candidateId: writeInCandidate.id,
+    status: 'adjudicated',
+  });
+  await expectContestResults({
+    type: 'candidate',
+    ballots: 184,
+    overvotes: 4,
+    undervotes: 2,
+    officialOptionTallies: {
+      'Hannah-Dustin-ab4ef7c8': 2,
+      'John-Spencer-9ffb5970': 172,
+      'Josiah-Bartlett-1bb99985': 2,
+    },
+    writeInOptionTallies: {
+      [Tabulation.PENDING_WRITE_IN_ID]: {
+        name: Tabulation.PENDING_WRITE_IN_NAME,
+        tally: 1,
+      },
+      [writeInCandidate.id]: {
+        name: writeInCandidate.name,
+        tally: 1,
+      },
+    },
+  });
+  await expectWriteInSummary({
+    contestId: 'Governor-061a401b',
+    invalidTally: 0,
+    pendingTally: 1,
+    totalTally: 2,
+    candidateTallies: {
+      [writeInCandidate.id]: {
+        id: writeInCandidate.id,
+        isWriteIn: true,
+        name: writeInCandidate.name,
+        tally: 1,
+      },
+    },
+  });
+
+  // circle back to invalid
+  await apiClient.adjudicateWriteIn({
+    type: 'invalid',
+    writeInId,
+  });
+  await expectWriteInRecord(writeInId, {
+    adjudicationType: 'invalid',
+    status: 'adjudicated',
+  });
+  await expectContestResults({
+    type: 'candidate',
+    ballots: 184,
+    overvotes: 4,
+    undervotes: 3,
+    officialOptionTallies: {
+      'Hannah-Dustin-ab4ef7c8': 2,
+      'John-Spencer-9ffb5970': 172,
+      'Josiah-Bartlett-1bb99985': 2,
+    },
+    writeInOptionTallies: {
+      [Tabulation.PENDING_WRITE_IN_ID]: {
+        name: Tabulation.PENDING_WRITE_IN_NAME,
+        tally: 1,
+      },
+    },
+  });
+  expect(
+    (await apiClient.getElectionWriteInSummary()).contestWriteInSummaries[
+      contestId
+    ]
+  ).toEqual({
+    candidateTallies: {},
+    contestId: 'Governor-061a401b',
+    invalidTally: 1,
+    pendingTally: 1,
+    totalTally: 2,
+  });
+
+  // write-in candidate should be deleted as they are no longer referenced
+  expect(await apiClient.getWriteInCandidates({ contestId })).toEqual([]);
+
+  // adjudication queue metadata should be updated
+  expect(
+    await apiClient.getWriteInAdjudicationQueueMetadata({ contestId })
+  ).toEqual([
+    {
+      contestId,
+      pendingTally: 1,
+      totalTally: 2,
+    },
+  ]);
 });

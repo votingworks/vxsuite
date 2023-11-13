@@ -271,7 +271,8 @@ export function createApiMock(
           writeIn: {
             id: writeInId,
             contestId: 'id',
-            castVoteRecordId: 'id',
+            electionId: 'id',
+            cvrId: 'id',
             optionId: 'id',
             status: 'pending',
           },

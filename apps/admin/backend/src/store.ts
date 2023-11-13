@@ -9,7 +9,6 @@ import {
   ok,
   typedAs,
   isResult,
-  assertDefined,
   assert,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient } from '@votingworks/db';
@@ -53,8 +52,6 @@ import {
   ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
-  CastVoteRecordStoreFilter,
-  WriteInAdjudicationAction,
   WriteInCandidateRecord,
   WriteInRecord,
   WriteInRecordAdjudicatedInvalid,
@@ -69,6 +66,11 @@ import {
   ManualResultsFilter,
   CardTally,
   WriteInAdjudicationQueueMetadata,
+  VoteAdjudication,
+  CastVoteRecordVoteInfo,
+  WriteInAdjudicationActionOfficialCandidate,
+  WriteInAdjudicationActionInvalid,
+  WriteInAdjudicationActionWriteInCandidate,
 } from './types';
 import { isBlankSheet } from './tabulation/utils';
 import { rootDebug } from './util/debug';
@@ -82,6 +84,8 @@ type StoreCastVoteRecordAttributes = Omit<
   readonly partyId: string | null;
 };
 
+const WRITE_IN_QUEUE_ORDER_BY = `order by is_unmarked, sequence_id`;
+
 /**
  * Path to the store's schema file, i.e. the file that defines the database.
  */
@@ -91,6 +95,16 @@ function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string
 ): Iso8601Timestamp {
   return new Date(sqliteTimestamp).toISOString();
+}
+
+type SqlBool = 0 | 1;
+
+function asSqlBool(bool: boolean): SqlBool {
+  return bool ? 1 : 0;
+}
+
+function fromSqlBool(sqlBool: SqlBool): boolean {
+  return sqlBool === 1;
 }
 
 function asQueryPlaceholders(list: unknown[]): string {
@@ -105,6 +119,12 @@ interface WriteInTallyRow {
   writeInCandidateId: string | null;
   writeInCandidateName: string | null;
   tally: number;
+}
+
+interface CastVoteRecordVoteAdjudication {
+  contestId: ContestId;
+  optionId: ContestOptionId;
+  isVote: SqlBool;
 }
 
 /**
@@ -192,7 +212,7 @@ export class Store {
         id: Id;
         electionData: string;
         createdAt: string;
-        isOfficialResults: 0 | 1;
+        isOfficialResults: SqlBool;
       }>
     ).map((r) => ({
       id: r.id,
@@ -224,7 +244,7 @@ export class Store {
           id: Id;
           electionData: string;
           createdAt: string;
-          isOfficialResults: 0 | 1;
+          isOfficialResults: SqlBool;
         }
       | undefined;
     if (!result) {
@@ -508,8 +528,8 @@ export class Store {
           insert into voting_methods (
             election_id,
             voting_method
-          ) 
-          values 
+          )
+          values
             ${Tabulation.SUPPORTED_VOTING_METHODS.map(() => '(?, ?)').join(
               ',\n'
             )}
@@ -590,10 +610,10 @@ export class Store {
           ${['1 as universalGroup', ...selectParts].join(',\n')}
         from ballot_styles
         inner join ballot_styles_to_precincts on
-          ballot_styles_to_precincts.election_id = ballot_styles.election_id and 
+          ballot_styles_to_precincts.election_id = ballot_styles.election_id and
           ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
         inner join precincts on
-          ballot_styles_to_precincts.election_id = precincts.election_id and 
+          ballot_styles_to_precincts.election_id = precincts.election_id and
           ballot_styles_to_precincts.precinct_id = precincts.id
         inner join voting_methods on
           voting_methods.election_id = ballot_styles.election_id
@@ -660,13 +680,13 @@ export class Store {
       select contests.id as contestId, contests.sort_index as sortIndex
       from contests
       inner join ballot_styles_to_districts on
-        ballot_styles_to_districts.election_id = ? and 
+        ballot_styles_to_districts.election_id = ? and
         ballot_styles_to_districts.district_id = contests.district_id
       inner join ballot_styles on
         ballot_styles.election_id = ? and
         ballot_styles.id = ballot_styles_to_districts.ballot_style_id
       inner join ballot_styles_to_precincts on
-        ballot_styles_to_precincts.election_id = ? and 
+        ballot_styles_to_precincts.election_id = ? and
         ballot_styles_to_precincts.ballot_style_id = ballot_styles.id
       where
         ${whereParts.join(' and\n')}
@@ -752,7 +772,7 @@ export class Store {
       `,
       id,
       electionId,
-      isTestMode ? 1 : 0,
+      asSqlBool(isTestMode),
       filename,
       exportedTimestamp,
       JSON.stringify([]),
@@ -813,7 +833,7 @@ export class Store {
           batch_id as batchId,
           precinct_id as precinctId,
           sheet_number as sheetNumber,
-          votes as votes
+          votes
         from cvrs
         where
           election_id = ? and
@@ -879,7 +899,7 @@ export class Store {
         cvr.precinctId,
         cvrSheetNumber,
         serializedVotes,
-        isBlankSheet(cvr.votes) ? 1 : 0
+        asSqlBool(isBlankSheet(cvr.votes))
       );
     }
 
@@ -1039,7 +1059,7 @@ export class Store {
       side,
       contestId,
       optionId,
-      isUnmarked ? 1 : 0
+      asSqlBool(isUnmarked)
     );
 
     return id;
@@ -1067,8 +1087,8 @@ export class Store {
             ballot_images.layout as layout
           from write_ins
           inner join
-            ballot_images on 
-              write_ins.cvr_id = ballot_images.cvr_id and 
+            ballot_images on
+              write_ins.cvr_id = ballot_images.cvr_id and
               write_ins.side = ballot_images.side
           where write_ins.id = ?
         `,
@@ -1250,6 +1270,37 @@ export class Store {
     return sheetNumber ? { type: 'hmpb', sheetNumber } : { type: 'bmd' };
   }
 
+  private parseVotesWithAdjudications({
+    votesString,
+    adjudicationsString,
+  }: {
+    votesString: string;
+    adjudicationsString: string | null;
+  }): Tabulation.Votes {
+    const votes = JSON.parse(votesString) as Tabulation.Votes;
+    if (!adjudicationsString) return votes;
+
+    const adjudications = JSON.parse(
+      adjudicationsString
+    ) as CastVoteRecordVoteAdjudication[];
+
+    for (const adjudication of adjudications) {
+      const currentContestVotes =
+        votes[adjudication.contestId] ?? /* c8 ignore next 1 */ [];
+      if (adjudication.isVote) {
+        votes[adjudication.contestId] = [
+          ...currentContestVotes,
+          adjudication.optionId,
+        ];
+      } else {
+        votes[adjudication.contestId] = currentContestVotes.filter(
+          (optionId) => optionId !== adjudication.optionId
+        );
+      }
+    }
+    return votes;
+  }
+
   /**
    * Returns an iterator of cast vote records for tabulation purposes. Filters
    * the cast vote records by specified filters.
@@ -1276,12 +1327,30 @@ export class Store {
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
           cvrs.sheet_number as sheetNumber,
-          cvrs.votes as votes
-        from cvrs 
+          cvrs.votes as votes,
+          aggregated_adjudications.adjudications as adjudications
+        from cvrs
         inner join scanner_batches on cvrs.batch_id = scanner_batches.id
         inner join ballot_styles on
-          cvrs.election_id = ballot_styles.election_id and 
+          cvrs.election_id = ballot_styles.election_id and
           cvrs.ballot_style_id = ballot_styles.id
+        left join (
+          select
+            election_id,
+            cvr_id,
+            json_group_array(
+              json_object(
+                'contestId', contest_id,
+                'optionId', option_id,
+                'isVote', is_vote
+              )
+            ) as adjudications
+          from vote_adjudications
+          group by cvr_id
+        ) aggregated_adjudications
+          on 
+            cvrs.election_id = aggregated_adjudications.election_id and
+            cvrs.id = aggregated_adjudications.cvr_id
         where ${whereParts.join(' and ')}
       `,
       ...params
@@ -1289,6 +1358,7 @@ export class Store {
       StoreCastVoteRecordAttributes & {
         sheetNumber: number | null;
         votes: string;
+        adjudications: string | null;
       }
     >) {
       yield {
@@ -1299,7 +1369,10 @@ export class Store {
         scannerId: row.scannerId,
         precinctId: row.precinctId,
         card: this.convertSheetNumberToCard(row.sheetNumber),
-        votes: JSON.parse(row.votes),
+        votes: this.parseVotesWithAdjudications({
+          votesString: row.votes,
+          adjudicationsString: row.adjudications,
+        }),
       };
     }
   }
@@ -1365,10 +1438,10 @@ export class Store {
             ${selectParts.map((line) => `${line},`).join('\n')}
             cvrs.sheet_number as sheetNumber,
             count(cvrs.id) as tally
-          from cvrs 
+          from cvrs
           inner join scanner_batches on cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
-            cvrs.election_id = ballot_styles.election_id and 
+            cvrs.election_id = ballot_styles.election_id and
             cvrs.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
           group by
@@ -1490,7 +1563,7 @@ export class Store {
 
     this.client.run(
       `
-        insert into write_in_candidates 
+        insert into write_in_candidates
           (id, election_id, contest_id, name)
         values
           (?, ?, ?, ?)
@@ -1509,7 +1582,7 @@ export class Store {
     };
   }
 
-  private deleteWriteInCandidateIfChildless(id: Id): void {
+  deleteWriteInCandidateIfNotReferenced(id: Id): void {
     const adjudicatedWriteIn = this.client.one(
       `
         select id from write_ins
@@ -1537,16 +1610,16 @@ export class Store {
     }
   }
 
-  private deleteAllChildlessWriteInCandidates(): void {
+  deleteAllWriteInCandidatesNotReferenced(): void {
     this.client.run(
       `
       delete from write_in_candidates
-      where 
+      where
         id not in (
           select distinct write_in_candidate_id
           from write_ins
           where write_in_candidate_id is not null
-        ) and 
+        ) and
         id not in (
           select distinct write_in_candidate_id
           from manual_result_write_in_candidate_references
@@ -1661,7 +1734,7 @@ export class Store {
   }: {
     electionId: Id;
     election: Election;
-    filter?: CastVoteRecordStoreFilter;
+    filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<WriteInTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
@@ -1727,12 +1800,12 @@ export class Store {
             cvrs on write_ins.cvr_id = cvrs.id
           inner join scanner_batches on cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
-              cvrs.election_id = ballot_styles.election_id and 
+              cvrs.election_id = ballot_styles.election_id and
               cvrs.ballot_style_id = ballot_styles.id
           left join
             write_in_candidates on write_in_candidates.id = write_ins.write_in_candidate_id
           where ${whereParts.join(' and ')}
-          group by 
+          group by
             ${groupByParts.map((line) => `${line},`).join('\n')}
             write_ins.contest_id,
             write_ins.official_candidate_id,
@@ -1822,8 +1895,8 @@ export class Store {
       castVoteRecordId: Id;
       contestId: ContestId;
       optionId: ContestOptionId;
-      isInvalid: boolean;
-      isUnmarked: boolean;
+      isInvalid: SqlBool;
+      isUnmarked: SqlBool;
       officialCandidateId: string | null;
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
@@ -1834,48 +1907,52 @@ export class Store {
       if (row.officialCandidateId) {
         return typedAs<WriteInRecordAdjudicatedOfficialCandidate>({
           id: row.id,
-          castVoteRecordId: row.castVoteRecordId,
+          electionId,
+          cvrId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
           status: 'adjudicated',
           adjudicationType: 'official-candidate',
           candidateId: row.officialCandidateId,
-          isUnmarked: Boolean(row.isUnmarked),
+          isUnmarked: fromSqlBool(row.isUnmarked),
         });
       }
 
       if (row.writeInCandidateId) {
         return typedAs<WriteInRecordAdjudicatedWriteInCandidate>({
           id: row.id,
-          castVoteRecordId: row.castVoteRecordId,
+          electionId,
+          cvrId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
           status: 'adjudicated',
           adjudicationType: 'write-in-candidate',
           candidateId: row.writeInCandidateId,
-          isUnmarked: Boolean(row.isUnmarked),
+          isUnmarked: fromSqlBool(row.isUnmarked),
         });
       }
 
       if (row.isInvalid) {
         return typedAs<WriteInRecordAdjudicatedInvalid>({
           id: row.id,
-          castVoteRecordId: row.castVoteRecordId,
+          electionId,
+          cvrId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
           status: 'adjudicated',
           adjudicationType: 'invalid',
-          isUnmarked: Boolean(row.isUnmarked),
+          isUnmarked: fromSqlBool(row.isUnmarked),
         });
       }
 
       return typedAs<WriteInRecordPending>({
         id: row.id,
-        status: 'pending',
-        castVoteRecordId: row.castVoteRecordId,
+        electionId,
+        cvrId: row.castVoteRecordId,
         contestId: row.contestId,
         optionId: row.optionId,
-        isUnmarked: Boolean(row.isUnmarked),
+        status: 'pending',
+        isUnmarked: fromSqlBool(row.isUnmarked),
       });
     });
   }
@@ -1911,8 +1988,7 @@ export class Store {
         from write_ins
         where
           ${whereParts.join(' and ')}
-        order by
-          sequence_id
+        ${WRITE_IN_QUEUE_ORDER_BY}
       `,
       ...params
     ) as Array<{ id: Id }>;
@@ -1949,8 +2025,7 @@ export class Store {
           official_candidate_id is null and
           write_in_candidate_id is null and
           is_invalid = 0
-        order by
-          sequence_id
+        ${WRITE_IN_QUEUE_ORDER_BY}
         limit 1
       `,
       electionId,
@@ -1961,46 +2036,177 @@ export class Store {
     return row?.id;
   }
 
-  /**
-   * Adjudicates a write-in.
-   */
-  adjudicateWriteIn(adjudicationAction: WriteInAdjudicationAction): void {
-    const [initialWriteInRecord] = this.getWriteInRecords({
-      electionId: assertDefined(this.getCurrentElectionId()),
-      writeInId: adjudicationAction.writeInId,
-    });
-    assert(initialWriteInRecord, 'write-in record does not exist');
+  getCastVoteRecordVoteInfo({
+    electionId,
+    cvrId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+  }): CastVoteRecordVoteInfo {
+    const row = this.client.one(
+      `
+        select
+          id,
+          election_id as electionId,
+          votes
+        from cvrs
+        where
+          election_id = ? and
+          id = ?
+      `,
+      electionId,
+      cvrId
+    ) as {
+      id: Id;
+      electionId: Id;
+      votes: string;
+    };
 
-    const params =
-      adjudicationAction.type === 'invalid'
-        ? [adjudicationAction.writeInId]
-        : [adjudicationAction.candidateId, adjudicationAction.writeInId];
+    return {
+      id: row.id,
+      electionId: row.electionId,
+      votes: JSON.parse(row.votes),
+    };
+  }
 
+  getVoteAdjudication({
+    electionId,
+    cvrId,
+    contestId,
+    optionId,
+  }: Omit<VoteAdjudication, 'isVote'>): Optional<VoteAdjudication> {
+    const row = this.client.one(
+      `
+      select
+        election_id as electionId,
+        cvr_id as cvrId,
+        contest_id as contestId,
+        option_id as optionId,
+        is_vote as isVote
+      from vote_adjudications
+      where
+        election_id = ? and
+        cvr_id = ? and
+        contest_id = ? and
+        option_id = ?
+      `,
+      electionId,
+      cvrId,
+      contestId,
+      optionId
+    ) as Optional<{
+      electionId: Id;
+      cvrId: Id;
+      contestId: Id;
+      optionId: Id;
+      isVote: SqlBool;
+    }>;
+
+    return row
+      ? {
+          ...row,
+          isVote: fromSqlBool(row.isVote),
+        }
+      : undefined;
+  }
+
+  deleteVoteAdjudication({
+    electionId,
+    cvrId,
+    contestId,
+    optionId,
+  }: Omit<VoteAdjudication, 'isVote'>): void {
+    this.client.run(
+      `
+      delete from vote_adjudications
+      where 
+        election_id = ? and
+        cvr_id = ? and
+        contest_id = ? and
+        option_id = ?
+    `,
+      electionId,
+      cvrId,
+      contestId,
+      optionId
+    );
+  }
+
+  createVoteAdjudication({
+    electionId,
+    cvrId,
+    contestId,
+    optionId,
+    isVote,
+  }: VoteAdjudication): void {
+    this.client.run(
+      `
+      insert into vote_adjudications
+        (election_id, cvr_id, contest_id, option_id, is_vote)
+      values
+        (?, ?, ?, ?, ?)
+    `,
+      electionId,
+      cvrId,
+      contestId,
+      optionId,
+      asSqlBool(isVote)
+    );
+  }
+
+  setWriteInRecordOfficialCandidate({
+    writeInId,
+    candidateId,
+  }: WriteInAdjudicationActionOfficialCandidate): void {
     this.client.run(
       `
         update write_ins
-        set 
-          is_invalid = ${adjudicationAction.type === 'invalid' ? 1 : 0}, 
-          official_candidate_id = ${
-            adjudicationAction.type === 'official-candidate' ? '?' : 'null'
-          }, 
-          write_in_candidate_id = ${
-            adjudicationAction.type === 'write-in-candidate' ? '?' : 'null'
-          }, 
+        set
+          is_invalid = 0,
+          official_candidate_id = ?,
+          write_in_candidate_id = null,
           adjudicated_at = current_timestamp
         where id = ?
       `,
-      ...params
+      candidateId,
+      writeInId
     );
+  }
 
-    // if we are switching away from a write-in candidate, we may have to clean
-    // up the record if it has no references
-    if (
-      initialWriteInRecord.status === 'adjudicated' &&
-      initialWriteInRecord.adjudicationType === 'write-in-candidate'
-    ) {
-      this.deleteWriteInCandidateIfChildless(initialWriteInRecord.candidateId);
-    }
+  setWriteInRecordUnofficialCandidate({
+    writeInId,
+    candidateId,
+  }: WriteInAdjudicationActionWriteInCandidate): void {
+    this.client.run(
+      `
+        update write_ins
+        set
+          is_invalid = 0,
+          official_candidate_id = null,
+          write_in_candidate_id = ?,
+          adjudicated_at = current_timestamp
+        where id = ?
+      `,
+      candidateId,
+      writeInId
+    );
+  }
+
+  setWriteInRecordInvalid({
+    writeInId,
+  }: WriteInAdjudicationActionInvalid): void {
+    this.client.run(
+      `
+        update write_ins
+        set
+          is_invalid = 1,
+          official_candidate_id = null,
+          write_in_candidate_id = null,
+          adjudicated_at = current_timestamp
+        where id = ?
+      `,
+      writeInId
+    );
   }
 
   deleteAllManualResults({ electionId }: { electionId: Id }): void {
@@ -2011,7 +2217,7 @@ export class Store {
 
     // removing manual results may have left unofficial write-in candidates
     // without any references, so we delete them
-    this.deleteAllChildlessWriteInCandidates();
+    this.deleteAllWriteInCandidatesNotReferenced();
   }
 
   deleteManualResults({
@@ -2023,7 +2229,7 @@ export class Store {
     this.client.run(
       `
         delete from manual_results
-        where 
+        where
           election_id = ? and
           precinct_id = ? and
           ballot_style_id = ? and
@@ -2034,9 +2240,9 @@ export class Store {
       votingMethod
     );
 
-    // removing the manual result may have left unofficial write-in candidates
+    // removing manual results may have left unofficial write-in candidates
     // without any references, so we delete them
-    this.deleteAllChildlessWriteInCandidates();
+    this.deleteAllWriteInCandidatesNotReferenced();
   }
 
   setManualResults({
@@ -2063,7 +2269,7 @@ export class Store {
           voting_method,
           ballot_count,
           contest_results
-        ) values 
+        ) values
           (?, ?, ?, ?, ?, ?)
         on conflict
           (election_id, precinct_id, ballot_style_id, voting_method)
@@ -2124,7 +2330,7 @@ export class Store {
 
     // delete write-in candidates that may have only been included on the
     // previously entered manual results and are now not referenced
-    this.deleteAllChildlessWriteInCandidates();
+    this.deleteAllWriteInCandidatesNotReferenced();
   }
 
   private getManualResultsFilterAsSql(
@@ -2183,7 +2389,7 @@ export class Store {
     return (
       this.client.all(
         `
-          select 
+          select
             manual_results.precinct_id as precinctId,
             manual_results.ballot_style_id as ballotStyleId,
             manual_results.voting_method as votingMethod,
@@ -2192,7 +2398,7 @@ export class Store {
             datetime(manual_results.created_at, 'localtime') as createdAt
           from manual_results
           inner join ballot_styles on
-            manual_results.election_id = ballot_styles.election_id and 
+            manual_results.election_id = ballot_styles.election_id and
             manual_results.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
         `,
@@ -2233,7 +2439,7 @@ export class Store {
     return (
       this.client.all(
         `
-          select 
+          select
             manual_results.precinct_id as precinctId,
             manual_results.ballot_style_id as ballotStyleId,
             manual_results.voting_method as votingMethod,
@@ -2241,7 +2447,7 @@ export class Store {
             datetime(manual_results.created_at, 'localtime') as createdAt
           from manual_results
           inner join ballot_styles on
-            manual_results.election_id = ballot_styles.election_id and 
+            manual_results.election_id = ballot_styles.election_id and
             manual_results.ballot_style_id = ballot_styles.id
           where ${whereParts.join(' and ')}
         `,
@@ -2271,7 +2477,7 @@ export class Store {
         set is_official_results = ?
         where id = ?
       `,
-      isOfficialResults ? 1 : 0,
+      asSqlBool(isOfficialResults),
       electionId
     );
   }

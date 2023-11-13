@@ -226,6 +226,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** VxAdmin System Settings read from db  
 **Machines:** vx-admin-service
+### write-in-adjudicated
+**Type:** [user-action](#user-action)  
+**Description:** User adjudicated a write-in.  
+**Machines:** vx-admin-service
 ### toggle-test-mode-init
 **Type:** [user-action](#user-action)  
 **Description:** User has initiated toggling between test mode and live mode in the current application.  
