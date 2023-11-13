@@ -9,9 +9,11 @@ import {
 import { find } from '@votingworks/basics';
 import pluralize from 'pluralize';
 import { format } from '@votingworks/utils';
-import { tableBorderColor, TD, TH } from '../table';
+import { TD, TH } from '../table';
 import { Font, FontProps } from '../typography';
 import { NoWrap, Text } from '../text';
+
+const tableBorderColor = 'rgb(194, 200, 203)';
 
 const Contest = styled.div`
   margin: 2.5em 0;

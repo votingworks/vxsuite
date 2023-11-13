@@ -28,7 +28,7 @@ test('table with borderTop', () => {
     </Table>
   );
   const table = screen.getByText('border-top').closest('table');
-  expect(table).toHaveStyleRule('border-top', '1px solid');
+  expect(table).toHaveStyleRule('border-top', '0.1rem solid #222222');
 });
 
 test('table with expanded', () => {
@@ -58,7 +58,7 @@ test('table with condensed', () => {
   );
   const table = screen.getByText('condensed').closest('table');
   const dataCell = { modifier: '& td' } as const;
-  expect(table).toHaveStyleRule('padding', '0.15rem 0.25rem', dataCell);
+  expect(table).toHaveStyleRule('padding', '0.125rem 0.25rem', dataCell);
 });
 
 test('can render TD with props', () => {
