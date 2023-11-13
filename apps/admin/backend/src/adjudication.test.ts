@@ -26,6 +26,11 @@ test('adjudicateVote', () => {
   });
   store.setCurrentElectionId(electionId);
 
+  const initialVotes: Tabulation.Votes = {
+    'zoo-council-mammal': ['lion'],
+    'best-animal-mammal': ['horse'],
+  };
+
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
       ballotStyleId: '1M',
@@ -33,7 +38,7 @@ test('adjudicateVote', () => {
       scannerId: 'scanner-1',
       precinctId: 'precinct-1',
       votingMethod: 'precinct',
-      votes: { 'zoo-council-mammal': ['lion'] },
+      votes: initialVotes,
       card: { type: 'bmd' },
       multiplier: 1,
     },
@@ -47,7 +52,10 @@ test('adjudicateVote', () => {
   function expectVotes(votes: Tabulation.Votes) {
     const [cvr] = [...store.getCastVoteRecords({ electionId, filter: {} })];
     assert(cvr);
-    expect(cvr.votes).toEqual(votes);
+    expect(cvr.votes).toEqual({
+      ...initialVotes,
+      ...votes,
+    });
   }
 
   function setOption(optionId: ContestOptionId, isVote: boolean): void {
