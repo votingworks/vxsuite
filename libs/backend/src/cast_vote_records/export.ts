@@ -304,7 +304,7 @@ async function buildCastVoteRecord(
       ballotMarkingMode: 'machine',
       batchId,
       castVoteRecordId,
-      election,
+      electionDefinition,
       electionId,
       electionOptionPositionMap,
       images,
@@ -321,7 +321,7 @@ async function buildCastVoteRecord(
     batchId,
     castVoteRecordId,
     definiteMarkThreshold: markThresholds.definite,
-    election,
+    electionDefinition,
     electionId,
     electionOptionPositionMap,
     excludeOriginalSnapshots: isFeatureFlagEnabled(

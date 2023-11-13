@@ -42,10 +42,14 @@ describe('Interpret - HMPB - All bubble ballot', () => {
     );
 
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
-    expect(frontResult.interpretation.votes).toEqual({});
+    expect(frontResult.interpretation.votes).toEqual({
+      'test-contest-page-1': [],
+    });
 
     assert(backResult.interpretation.type === 'InterpretedHmpbPage');
-    expect(backResult.interpretation.votes).toEqual({});
+    expect(backResult.interpretation.votes).toEqual({
+      'test-contest-page-2': [],
+    });
   });
 
   test('Filled ballot interpretation', async () => {

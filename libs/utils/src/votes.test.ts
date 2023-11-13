@@ -132,7 +132,9 @@ test('markInfoToVotesDict candidate', () => {
       { marginal: 0.5, definite: 0.8 },
       [sherlockForMayorMark]
     )
-  ).toEqual({});
+  ).toEqual({
+    mayor: [],
+  });
   expect(
     convertMarksToVotesDict(
       election.contests,
@@ -212,7 +214,10 @@ test('markInfoToVotesDict yesno', () => {
       { marginal: 0.5, definite: 0.8 },
       [yesMark]
     )
-  ).toEqual({});
+  ).toEqual({
+    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc':
+      [],
+  });
   expect(
     convertMarksToVotesDict(
       election.contests,

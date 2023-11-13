@@ -201,7 +201,7 @@ interface YesNoContestResultProps {
 
 function YesNoContestResult({
   contest,
-  vote,
+  vote = [],
 }: YesNoContestResultProps): JSX.Element {
   const singleVote = getSingleYesNoVote(vote);
   if (!singleVote) return <NoSelection />;

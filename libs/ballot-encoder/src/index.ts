@@ -395,6 +395,10 @@ function readPaddingToEnd(bits: BitReader): void {
 function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
   const votes: VotesDict = {};
 
+  for (const contest of contests) {
+    votes[contest.id] = [];
+  }
+
   // read roll call
   const contestsWithAnswers = contests.flatMap((contest) => {
     if (bits.readBoolean()) {

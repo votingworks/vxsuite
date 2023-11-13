@@ -1,5 +1,6 @@
 import * as fc from 'fast-check';
 import { sha256 } from 'js-sha256';
+import { find } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
   getBallotStyle,
@@ -70,11 +71,12 @@ test('can build votes from an array of candidate IDs', () => {
 });
 
 test('can build votes from yesno values', () => {
-  expect(vote(election.contests, { YNC: 'option-yes' })).toEqual({
-    YNC: 'option-yes',
+  const yesNoContest = find(election.contests, (c) => c.id === 'YNC');
+  expect(vote([yesNoContest], { YNC: ['option-yes'] })).toEqual({
+    YNC: ['option-yes'],
   });
-  expect(vote(election.contests, { YNC: 'option-no' })).toEqual({
-    YNC: 'option-no',
+  expect(vote([yesNoContest], { YNC: ['option-no'] })).toEqual({
+    YNC: ['option-no'],
   });
 });
 
@@ -100,8 +102,16 @@ test('can build votes from a candidates array', () => {
 
 test('vote throws when given a contest id that does not match a contest', () => {
   expect(() => vote([], { nope: 'yes-option' })).toThrowError(
-    'unknown contest nope'
+    'unknown contest specified in vote shorthand'
   );
+});
+
+test('vote fills in empty votes', () => {
+  const contests = election.contests.filter((c) => c.id === 'CC');
+
+  expect(vote(contests, {})).toEqual({
+    CC: [],
+  });
 });
 
 test('can get a party primary adjective from ballot style', () => {

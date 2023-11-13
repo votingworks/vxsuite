@@ -156,9 +156,7 @@ export function convertMarksToVotesDict(
         : /* c8 ignore next */
           throwIllegalValue(contest, 'type');
 
-    if (newVotes.length > 0) {
-      votesDict[mark.contestId] = [...existingVotes, ...newVotes] as Vote;
-    }
+    votesDict[mark.contestId] = [...existingVotes, ...newVotes] as Vote;
   }
   return votesDict;
 }

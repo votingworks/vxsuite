@@ -260,29 +260,27 @@ export const generalElectionFixtures = (() => {
 
         const contests = getContests({ election, ballotStyle });
         const votes: VotesDict = Object.fromEntries(
-          contests
-            .map((contest, i) => {
-              if (contest.type === 'candidate') {
-                const candidates = range(0, contest.seats - (i % 2)).map(
-                  (j) => contest.candidates[(i + j) % contest.candidates.length]
-                );
-                if (contest.allowWriteIns && i % 2 === 0) {
-                  const writeInIndex = i % contest.seats;
-                  candidates.push({
-                    id: `write-in-${writeInIndex}`,
-                    name: `Write-In #${writeInIndex + 1}`,
-                    isWriteIn: true,
-                    writeInIndex,
-                  });
-                }
-                return [contest.id, candidates];
+          contests.map((contest, i) => {
+            if (contest.type === 'candidate') {
+              const candidates = range(0, contest.seats - (i % 2)).map(
+                (j) => contest.candidates[(i + j) % contest.candidates.length]
+              );
+              if (contest.allowWriteIns && i % 2 === 0) {
+                const writeInIndex = i % contest.seats;
+                candidates.push({
+                  id: `write-in-${writeInIndex}`,
+                  name: `Write-In #${writeInIndex + 1}`,
+                  isWriteIn: true,
+                  writeInIndex,
+                });
               }
-              return [
-                contest.id,
-                i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
-              ];
-            })
-            .filter(([, contestVotes]) => contestVotes.length > 0)
+              return [contest.id, candidates];
+            }
+            return [
+              contest.id,
+              i % 2 === 0 ? [contest.yesOption.id] : [contest.noOption.id],
+            ];
+          })
         );
 
         const unmarkedWriteIns = contests.flatMap((contest, i) => {
@@ -291,7 +289,7 @@ export const generalElectionFixtures = (() => {
           }
           // Skip contests where we already voted for a write-in above
           if (
-            votes[contest.id]?.some(
+            assertDefined(votes[contest.id]).some(
               (vote) => voteIsCandidate(vote) && vote.isWriteIn
             )
           ) {

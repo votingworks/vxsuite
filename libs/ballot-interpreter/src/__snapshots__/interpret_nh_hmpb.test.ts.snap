@@ -20,6 +20,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 1`] = `
         },
       ],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "James-Poole-db5ef4bd",
@@ -29,6 +34,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 1`] = `
             ],
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -42,7 +48,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 1`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -130,6 +144,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 2`] = `
             ],
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -143,7 +158,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 2`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -191,6 +214,9 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 3`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "John-Langdon-5951c8e1",
@@ -213,7 +239,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 3`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -234,6 +268,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 4`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -260,6 +295,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 4`] = `
             "writeInIndex": 0,
           },
         ],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "James-Poole-db5ef4bd",
@@ -298,7 +334,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 4`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -319,6 +363,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "write-in-0",
@@ -327,6 +372,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
             "writeInIndex": 0,
           },
         ],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "William-Lovejoy-fde3c2df",
@@ -366,6 +412,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "write-in-0",
@@ -467,6 +514,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 6`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -476,6 +524,10 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 6`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -498,7 +550,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 6`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -518,7 +578,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 7`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
+      },
     },
     {
       "metadata": {
@@ -531,7 +599,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 7`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -635,7 +711,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 8`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -656,6 +740,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 9`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -689,6 +774,9 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 9`] = `
             "writeInIndex": 0,
           },
         ],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -702,7 +790,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 9`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -723,6 +819,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "write-in-0",
@@ -731,6 +828,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
             "writeInIndex": 0,
           },
         ],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "William-Lovejoy-fde3c2df",
@@ -770,6 +868,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "write-in-0",
@@ -871,6 +970,10 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 11`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Samuel-Bell-17973275",
@@ -901,6 +1004,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 11`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -914,7 +1019,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 11`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -944,6 +1057,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 12`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
         "Representative-in-Congress-24683b44": [
           {
             "id": "Jeremiah-Smith-469560c9",
@@ -953,6 +1067,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 12`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Abigail-Bartlett-4e46c9d4",
@@ -962,6 +1077,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 12`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -975,7 +1092,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 12`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -996,6 +1121,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "John-Spencer-9ffb5970",
@@ -1014,6 +1140,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "write-in-0",
@@ -1022,6 +1150,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
             "writeInIndex": 0,
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -1036,6 +1165,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "County-Attorney-133f910f": [],
         "County-Commissioner-d6feed25": [
           {
             "id": "write-in-0",
@@ -1044,6 +1174,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
             "writeInIndex": 0,
           },
         ],
+        "County-Treasurer-87d25a31": [],
         "Register-of-Deeds-a1278df2": [
           {
             "id": "John-Mann-b56bbdd3",
@@ -1053,6 +1184,9 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
             ],
           },
         ],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
       },
     },
   ],
@@ -1230,6 +1364,9 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "write-in-0",
@@ -1261,6 +1398,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -1275,6 +1414,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
         "County-Treasurer-87d25a31": [
           {
             "id": "Jane-Jones-9caa141f",
@@ -1293,9 +1434,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
             ],
           },
         ],
+        "Register-of-Probate-a4117da8": [],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
+        "Sheriff-4243fe0b": [],
       },
     },
   ],
@@ -1317,6 +1460,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 16`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Hannah-Dustin-ab4ef7c8",
@@ -1335,6 +1479,9 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 16`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -1357,7 +1504,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 16`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -1387,6 +1542,9 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 17`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Isaac-Hill-d6c9deeb",
@@ -1402,6 +1560,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 17`] = `
             "writeInIndex": 1,
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -1415,7 +1575,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 17`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -1481,6 +1649,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 18`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -1503,7 +1672,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 18`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -1660,6 +1837,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 19`] = `
             ],
           },
         ],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
         "Sheriff-4243fe0b": [
           {
             "id": "Edward-Randolph-bf4c848a",
@@ -1691,6 +1869,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
         "Representative-in-Congress-24683b44": [
           {
             "id": "Jeremiah-Smith-469560c9",
@@ -1700,6 +1880,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "write-in-0",
@@ -1720,6 +1901,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
             "writeInIndex": 2,
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -1733,7 +1916,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -1786,6 +1977,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Samuel-Bell-17973275",
@@ -1851,6 +2043,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
             ],
           },
         ],
+        "County-Treasurer-87d25a31": [],
         "Register-of-Deeds-a1278df2": [
           {
             "id": "Ellen-A-Stileman-14408737",
@@ -1860,6 +2053,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
             ],
           },
         ],
+        "Register-of-Probate-a4117da8": [],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
@@ -1894,6 +2088,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 22`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
         "Representative-in-Congress-24683b44": [
           {
             "id": "Jeremiah-Smith-469560c9",
@@ -1972,7 +2168,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 22`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -2020,6 +2224,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 23`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Obadiah-Carrigan-5c95145a",
@@ -2043,6 +2248,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 23`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -2114,6 +2320,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 23`] = `
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
+        "Sheriff-4243fe0b": [],
       },
     },
   ],
@@ -2135,6 +2342,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 24`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -2153,6 +2361,10 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 24`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -2166,7 +2378,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 24`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -2228,6 +2448,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 25`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "Matthew-Thornton-f66fec5e",
@@ -2237,6 +2459,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 25`] = `
             ],
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -2260,6 +2483,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 25`] = `
             ],
           },
         ],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
       },
     },
   ],
@@ -2281,6 +2510,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 26`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -2297,6 +2527,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 26`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -2310,7 +2545,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 26`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -2349,6 +2592,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 27`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -2362,7 +2610,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 27`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -2428,6 +2684,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 28`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -2460,6 +2717,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 28`] = `
             ],
           },
         ],
+        "County-Commissioner-d6feed25": [],
         "County-Treasurer-87d25a31": [
           {
             "id": "Jane-Jones-9caa141f",
@@ -2469,6 +2727,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 28`] = `
             ],
           },
         ],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
@@ -2530,6 +2790,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 29`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "James-Poole-db5ef4bd",
@@ -2561,7 +2823,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 29`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -2761,6 +3031,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 31`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
         "Representative-in-Congress-24683b44": [
           {
             "id": "Jeremiah-Smith-469560c9",
@@ -2779,6 +3050,9 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 31`] = `
             ],
           },
         ],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -2792,7 +3066,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 31`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -2831,6 +3113,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "Abeil-Foster-ded38e36",
@@ -2904,6 +3187,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
             ],
           },
         ],
+        "County-Commissioner-d6feed25": [],
         "County-Treasurer-87d25a31": [
           {
             "id": "Jane-Jones-9caa141f",
@@ -2992,6 +3276,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "Matthew-Thornton-f66fec5e",
@@ -3023,7 +3309,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -3071,6 +3365,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "Matthew-Thornton-f66fec5e",
@@ -3102,7 +3398,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -3132,6 +3436,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
         "Representative-in-Congress-24683b44": [
           {
             "id": "Richard-Coote-b9095636",
@@ -3459,6 +3764,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "John-Spencer-9ffb5970",
@@ -3468,6 +3774,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "Charles-H-Hersey-096286a4",
@@ -3477,6 +3784,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
             ],
           },
         ],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "Matthew-Thornton-f66fec5e",
@@ -3486,6 +3794,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
             ],
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -3499,7 +3808,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -3525,6 +3842,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
         },
       ],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -3543,6 +3861,10 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -3556,7 +3878,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -3676,6 +4006,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
             ],
           },
         ],
+        "County-Commissioner-d6feed25": [],
         "County-Treasurer-87d25a31": [
           {
             "id": "write-in-0",
@@ -3781,6 +4112,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -3813,6 +4145,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
             ],
           },
         ],
+        "County-Commissioner-d6feed25": [],
         "County-Treasurer-87d25a31": [
           {
             "id": "Jane-Jones-9caa141f",
@@ -3822,6 +4155,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
             ],
           },
         ],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
@@ -3883,6 +4218,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Mary-Baker-Eddy-350785d5",
@@ -3892,6 +4228,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "John-Langdon-5951c8e1",
@@ -3914,7 +4251,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -3935,6 +4280,10 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Obadiah-Carrigan-5c95145a",
@@ -3950,6 +4299,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
             "writeInIndex": 2,
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -3972,7 +4322,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -3993,6 +4351,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -4019,6 +4378,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
             "writeInIndex": 0,
           },
         ],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "James-Poole-db5ef4bd",
@@ -4057,7 +4417,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -4078,6 +4446,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -4101,6 +4470,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -4114,7 +4488,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -4144,6 +4526,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -4157,7 +4545,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -4268,7 +4664,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 46`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -4334,6 +4738,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -4366,6 +4771,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
             ],
           },
         ],
+        "County-Commissioner-d6feed25": [],
         "County-Treasurer-87d25a31": [
           {
             "id": "Jane-Jones-9caa141f",
@@ -4375,6 +4781,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
             ],
           },
         ],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
         "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
         ],
@@ -4427,6 +4835,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Mary-Baker-Eddy-350785d5",
@@ -4436,6 +4846,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -4449,7 +4861,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -4776,6 +5196,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 50`] = `
             ],
           },
         ],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
         "Sheriff-4243fe0b": [
           {
             "id": "Edward-Randolph-bf4c848a",
@@ -4807,6 +5228,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -4832,6 +5254,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Samuel-Livermore-f927fef1",
@@ -4862,6 +5285,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "write-in-0",
@@ -4883,7 +5307,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -4904,6 +5336,10 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "write-in-1",
@@ -4912,6 +5348,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
             "writeInIndex": 1,
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -4925,7 +5363,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -4955,6 +5401,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "Charles-H-Hersey-096286a4",
@@ -5207,6 +5655,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
             ],
           },
         ],
+        "County-Treasurer-87d25a31": [],
         "Register-of-Deeds-a1278df2": [
           {
             "id": "Ellen-A-Stileman-14408737",
@@ -5225,6 +5674,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
             ],
           },
         ],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
         "Sheriff-4243fe0b": [
           {
             "id": "Edward-Randolph-bf4c848a",
@@ -5274,6 +5724,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "Charles-H-Hersey-096286a4",
@@ -5383,6 +5834,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
             ],
           },
         ],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
         "Sheriff-4243fe0b": [
           {
             "id": "Edward-Randolph-bf4c848a",
@@ -5414,6 +5866,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -5423,6 +5876,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Obadiah-Carrigan-5c95145a",
@@ -5453,6 +5908,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -5467,6 +5924,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "County-Attorney-133f910f": [],
         "County-Commissioner-d6feed25": [
           {
             "id": "Ichabod-Goodwin-55e8de1f",
@@ -5476,6 +5934,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
             ],
           },
         ],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
       },
     },
   ],
@@ -5562,6 +6025,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -5611,6 +6075,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
             ],
           },
         ],
+        "Register-of-Deeds-a1278df2": [],
         "Register-of-Probate-a4117da8": [
           {
             "id": "Claire-Cutts-07a436e7",
@@ -5661,7 +6126,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
+      },
     },
     {
       "metadata": {
@@ -5674,7 +6147,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -5695,6 +6176,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "John-Langdon-5951c8e1",
@@ -5724,7 +6211,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -5810,6 +6305,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "William-Preston-3778fcd5",
@@ -5859,6 +6355,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
             ],
           },
         ],
+        "Register-of-Deeds-a1278df2": [],
         "Register-of-Probate-a4117da8": [
           {
             "id": "Claire-Cutts-07a436e7",
@@ -5910,6 +6407,10 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Samuel-Bell-17973275",
@@ -5940,6 +6441,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -5953,7 +6456,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -5974,6 +6485,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
         "Representative-in-Congress-24683b44": [
           {
             "id": "Nicholas-Gilman-1791aed7",
@@ -5990,6 +6503,10 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -6003,7 +6520,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -6033,6 +6558,9 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "Samuel-Livermore-f927fef1",
@@ -6073,7 +6601,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -6212,6 +6748,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
             ],
           },
         ],
+        "Register-of-Deeds-a1278df2": [],
         "Register-of-Probate-a4117da8": [
           {
             "id": "Claire-Cutts-07a436e7",
@@ -6331,7 +6868,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 65`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -6352,6 +6897,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "Matthew-Thornton-f66fec5e",
@@ -6367,6 +6917,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
             "writeInIndex": 0,
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -6380,7 +6931,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -6478,6 +7037,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
         "Sheriff-4243fe0b": [
           {
             "id": "write-in-0",
@@ -6507,6 +7072,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Hannah-Dustin-ab4ef7c8",
@@ -6558,6 +7124,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
             "writeInIndex": 0,
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -6572,6 +7139,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "County-Attorney-133f910f": [],
         "County-Commissioner-d6feed25": [
           {
             "id": "write-in-0",
@@ -6606,6 +7174,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
             ],
           },
         ],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
       },
     },
   ],
@@ -6652,6 +7222,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
             ],
           },
         ],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -6666,6 +7241,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
         "Sheriff-4243fe0b": [
           {
             "id": "Edward-Randolph-bf4c848a",
@@ -6696,7 +7277,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
+      },
     },
     {
       "metadata": {
@@ -6709,7 +7298,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -6819,7 +7416,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -6854,6 +7459,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "William-Lovejoy-fde3c2df",
@@ -6872,6 +7479,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "John-Langdon-5951c8e1",
@@ -6901,7 +7509,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -6922,6 +7538,11 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
         "State-Senator-391381f8": [
           {
             "id": "James-Poole-db5ef4bd",
@@ -6938,6 +7559,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
             ],
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -6951,7 +7573,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -6971,7 +7601,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "Executive-Councilor-bb22557f": [],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
+      },
     },
     {
       "metadata": {
@@ -6984,7 +7622,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -7014,6 +7660,12 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
+        "State-Representatives-Hillsborough-District-34-b1012d38": [],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -7027,7 +7679,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -7217,6 +7877,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "Josiah-Bartlett-1bb99985",
@@ -7262,6 +7923,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
             ],
           },
         ],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -7285,6 +7947,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
             ],
           },
         ],
+        "County-Commissioner-d6feed25": [],
         "County-Treasurer-87d25a31": [
           {
             "id": "Jane-Jones-9caa141f",
@@ -7294,6 +7957,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
             ],
           },
         ],
+        "Register-of-Deeds-a1278df2": [],
         "Register-of-Probate-a4117da8": [
           {
             "id": "Claire-Cutts-07a436e7",
@@ -7307,6 +7971,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
           "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
         ],
+        "Sheriff-4243fe0b": [],
       },
     },
   ],
@@ -7328,6 +7993,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
       "votes": {
+        "Executive-Councilor-bb22557f": [],
         "Governor-061a401b": [
           {
             "id": "write-in-0",
@@ -7345,6 +8011,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
             ],
           },
         ],
+        "State-Representative-Hillsborough-District-37-f3bde894": [],
         "State-Representatives-Hillsborough-District-34-b1012d38": [
           {
             "id": "write-in-0",
@@ -7359,6 +8026,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
             "writeInIndex": 1,
           },
         ],
+        "State-Senator-391381f8": [],
+        "United-States-Senator-d3f1c75b": [],
       },
     },
     {
@@ -7372,7 +8041,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }
@@ -7407,6 +8084,8 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 79`] = `
             ],
           },
         ],
+        "Governor-061a401b": [],
+        "Representative-in-Congress-24683b44": [],
         "State-Representative-Hillsborough-District-37-f3bde894": [
           {
             "id": "William-Lovejoy-fde3c2df",
@@ -7425,6 +8104,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 79`] = `
             ],
           },
         ],
+        "State-Senator-391381f8": [],
         "United-States-Senator-d3f1c75b": [
           {
             "id": "John-Langdon-5951c8e1",
@@ -7454,7 +8134,15 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 79`] = `
       },
       "type": "InterpretedHmpbPage",
       "unmarkedWriteIns": [],
-      "votes": {},
+      "votes": {
+        "County-Attorney-133f910f": [],
+        "County-Commissioner-d6feed25": [],
+        "County-Treasurer-87d25a31": [],
+        "Register-of-Deeds-a1278df2": [],
+        "Register-of-Probate-a4117da8": [],
+        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
+        "Sheriff-4243fe0b": [],
+      },
     },
   ],
 }

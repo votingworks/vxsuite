@@ -285,7 +285,7 @@ export function* generateCvrs({
                     '@id': `${castVoteRecordId}-modified`,
                     Type: CVR.CVRType.Modified,
                     CVRContest: buildCVRContestsFromVotes({
-                      contests,
+                      electionDefinition,
                       votes,
                       options: {
                         ballotMarkingMode: 'machine',
@@ -309,12 +309,10 @@ export function* generateCvrs({
                 sheetContests,
               ] of contestsBySheet.entries()) {
                 const [frontContests, backContests] = sheetContests;
-                const frontHasWriteIns = hasWriteIns(
-                  filterVotesByContests(votes, frontContests)
-                );
-                const backHasWriteIns = hasWriteIns(
-                  filterVotesByContests(votes, backContests)
-                );
+                const frontVotes = filterVotesByContests(votes, frontContests);
+                const backVotes = filterVotesByContests(votes, backContests);
+                const frontHasWriteIns = hasWriteIns(frontVotes);
+                const backHasWriteIns = hasWriteIns(backVotes);
                 const sheetHasWriteIns = frontHasWriteIns || backHasWriteIns;
 
                 const frontImageRelativePath = generateBallotAssetPath({
@@ -349,8 +347,8 @@ export function* generateCvrs({
                       Type: CVR.CVRType.Modified,
                       CVRContest: [
                         ...buildCVRContestsFromVotes({
-                          contests: frontContests,
-                          votes,
+                          electionDefinition,
+                          votes: frontVotes,
                           options: {
                             ballotMarkingMode: 'hand',
                             image: sheetHasWriteIns
@@ -363,8 +361,8 @@ export function* generateCvrs({
                           },
                         }),
                         ...buildCVRContestsFromVotes({
-                          contests: backContests,
-                          votes,
+                          electionDefinition,
+                          votes: backVotes,
                           options: {
                             ballotMarkingMode: 'hand',
                             image: sheetHasWriteIns
