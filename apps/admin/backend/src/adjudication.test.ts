@@ -72,49 +72,33 @@ test('adjudicateVote', () => {
     );
   }
 
-  function expectVoteAdjudicationRecordCount(num: number): void {
-    expect(store.getDebugSummary().get('vote_adjudications')).toEqual(num);
-  }
-
   expectVotes({ 'zoo-council-mammal': ['lion'] });
-  expectVoteAdjudicationRecordCount(0);
 
   // toggle a vote that has a scanned mark back and forth, confirm it is idempotent
   setOption('lion', true);
   expectVotes({ 'zoo-council-mammal': ['lion'] });
-  expectVoteAdjudicationRecordCount(0);
   setOption('lion', false);
   expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudicationRecordCount(1);
   setOption('lion', true);
   expectVotes({ 'zoo-council-mammal': ['lion'] });
-  expectVoteAdjudicationRecordCount(1);
   setOption('lion', true);
   expectVotes({ 'zoo-council-mammal': ['lion'] });
-  expectVoteAdjudicationRecordCount(1);
   setOption('lion', false);
   expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudicationRecordCount(2);
   setOption('lion', false);
   expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudicationRecordCount(2);
 
   // toggle a vote without a scanned mark back and forth, confirm it is idempotent
   setOption('zebra', false);
   expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudicationRecordCount(2);
   setOption('zebra', true);
   expectVotes({ 'zoo-council-mammal': ['zebra'] });
-  expectVoteAdjudicationRecordCount(3);
   setOption('zebra', true);
   expectVotes({ 'zoo-council-mammal': ['zebra'] });
-  expectVoteAdjudicationRecordCount(3);
   setOption('zebra', false);
   expectVotes({ 'zoo-council-mammal': [] });
-  expectVoteAdjudicationRecordCount(3);
   setOption('zebra', true);
   expectVotes({ 'zoo-council-mammal': ['zebra'] });
-  expectVoteAdjudicationRecordCount(4);
 });
 
 test('adjudicateWriteIn', async () => {

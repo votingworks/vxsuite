@@ -359,7 +359,6 @@ export interface WriteInAdjudicationContext {
  * or removes a mark that was previously tabulated.
  */
 export interface VoteAdjudication {
-  id: Id;
   electionId: Id;
   cvrId: Id;
   contestId: Id;
