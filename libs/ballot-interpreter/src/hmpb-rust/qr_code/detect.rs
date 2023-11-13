@@ -43,6 +43,15 @@ impl DetectionArea {
         self.origin
     }
 
+    pub fn bounds(&self) -> Rect {
+        Rect::new(
+            self.origin.x as i32,
+            self.origin.y as i32,
+            self.image.width(),
+            self.image.height(),
+        )
+    }
+
     pub const fn orientation(&self) -> Orientation {
         self.orientation
     }
@@ -74,21 +83,42 @@ pub fn get_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
     ]
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Detector {
+    Rqrr,
+    Zbar,
+}
+
 /// Information about a QR code found in an image.
 #[derive(Debug, Clone)]
 pub struct DetectedQrCode {
+    detector: Detector,
+    detection_areas: Vec<Rect>,
     bytes: Vec<u8>,
     bounds: Rect,
     orientation: Orientation,
 }
 
 impl DetectedQrCode {
-    pub const fn new(bytes: Vec<u8>, bounds: Rect, orientation: Orientation) -> Self {
+    pub const fn new(
+        detector: Detector,
+        detection_areas: Vec<Rect>,
+        bytes: Vec<u8>,
+        bounds: Rect,
+        orientation: Orientation,
+    ) -> Self {
         Self {
+            detector,
+            detection_areas,
             bytes,
             bounds,
             orientation,
         }
+    }
+
+    /// The detector that was used to find the QR code.
+    pub const fn detector(&self) -> Detector {
+        self.detector
     }
 
     /// Gets the data decoded from the detected QR code.
@@ -105,16 +135,41 @@ impl DetectedQrCode {
     pub const fn orientation(&self) -> Orientation {
         self.orientation
     }
+
+    /// The areas of the image that were searched for QR codes.
+    pub fn detection_areas(&self) -> &[Rect] {
+        &self.detection_areas
+    }
 }
 
 #[derive(Debug, Clone, Serialize, thiserror::Error)]
 pub enum Error {
-    #[error("failed to decode QR code: {0}")]
-    DecodeFailed(String),
-    #[error("failed to detect QR code: {0}")]
-    DetectFailed(String),
+    #[error("failed to decode QR code: {message}")]
+    DecodeFailed {
+        detection_areas: Vec<Rect>,
+        message: String,
+    },
+    #[error("failed to detect QR code: {message}")]
+    DetectFailed {
+        detection_areas: Vec<Rect>,
+        message: String,
+    },
     #[error("no QR code detected")]
-    NoQrCodeDetected,
+    NoQrCodeDetected { detection_areas: Vec<Rect> },
+}
+
+impl Error {
+    fn detection_areas(&self) -> &[Rect] {
+        match self {
+            Self::DecodeFailed {
+                detection_areas, ..
+            } => detection_areas,
+            Self::DetectFailed {
+                detection_areas, ..
+            } => detection_areas,
+            Self::NoQrCodeDetected { detection_areas } => detection_areas,
+        }
+    }
 }
 
 pub type Result = std::result::Result<DetectedQrCode, Error>;
@@ -128,11 +183,16 @@ pub type Result = std::result::Result<DetectedQrCode, Error>;
 pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
     let rqrr_result = rqrr::detect(img);
     let detect_result = rqrr_result.or_else(|_| zbar::detect(img));
+    let detection_areas = match detect_result {
+        Ok(ref qr_code) => qr_code.detection_areas().to_vec(),
+        Err(ref e) => e.detection_areas().to_vec(),
+    };
 
     debug.write("qr_code", |canvas| {
         debug::draw_qr_code_debug_image_mut(
             canvas,
-            detect_result.as_ref().ok().map(DetectedQrCode::bounds),
+            detect_result.as_ref().ok(),
+            &detection_areas,
         );
     });
 
@@ -141,7 +201,13 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
         let bytes = STANDARD
             .decode(qr_code.bytes())
             .unwrap_or_else(|_| qr_code.bytes().clone());
-        DetectedQrCode::new(bytes, qr_code.bounds(), qr_code.orientation())
+        DetectedQrCode::new(
+            qr_code.detector(),
+            qr_code.detection_areas().to_vec(),
+            bytes,
+            qr_code.bounds(),
+            qr_code.orientation(),
+        )
     })
 }
 

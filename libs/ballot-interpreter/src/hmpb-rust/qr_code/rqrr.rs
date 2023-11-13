@@ -3,26 +3,36 @@ use rqrr::PreparedImage;
 
 use crate::geometry::{PixelUnit, Point, Rect};
 
-use super::detect::{get_detection_areas, DetectedQrCode, Error, Result};
+use super::detect::{get_detection_areas, DetectedQrCode, Detector, Error, Result};
 
 /// Uses the `rqrr` QR code library to detect a QR code in the given ballot
 /// image. Crops the image to improve performance.
 pub fn detect(img: &GrayImage) -> Result {
-    for area in get_detection_areas(img) {
+    let detection_areas = get_detection_areas(img);
+    let detection_area_rects = detection_areas.iter().map(|a| a.bounds()).collect();
+    for area in detection_areas.iter() {
         let mut prepared_img = PreparedImage::prepare(area.image().clone());
         if let Some(grid) = prepared_img.detect_grids().first() {
             let mut bytes = Vec::new();
-            grid.decode_to(&mut bytes)
-                .map_err(|e| Error::DecodeFailed(e.to_string()))?;
-            return Ok(DetectedQrCode::new(
-                bytes,
-                get_original_bounds_rqrr(area.origin(), grid),
-                area.orientation(),
-            ));
+            return match grid.decode_to(&mut bytes) {
+                Ok(_) => Ok(DetectedQrCode::new(
+                    Detector::Rqrr,
+                    detection_area_rects,
+                    bytes,
+                    get_original_bounds_rqrr(area.origin(), grid),
+                    area.orientation(),
+                )),
+                Err(e) => Err(Error::DecodeFailed {
+                    detection_areas: detection_area_rects,
+                    message: e.to_string(),
+                }),
+            };
         }
     }
 
-    Err(Error::NoQrCodeDetected)
+    Err(Error::NoQrCodeDetected {
+        detection_areas: detection_area_rects,
+    })
 }
 
 const fn get_original_bounds_rqrr<G>(origin: Point<PixelUnit>, qr_code: &rqrr::Grid<G>) -> Rect {
