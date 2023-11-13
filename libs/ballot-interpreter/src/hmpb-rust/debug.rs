@@ -16,22 +16,57 @@ use crate::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
     },
+    qr_code::DetectedQrCode,
     scoring::{ScoredBubbleMark, ScoredPositionAreas},
     timing_marks::{Partial, TimingMarkGrid},
 };
 
 pub fn draw_qr_code_debug_image_mut(
     canvas: &mut RgbImage,
-    qr_code: Option<Rect>,
+    qr_code: Option<&DetectedQrCode>,
     detection_areas: &[Rect],
 ) {
-    for detecction_area in detection_areas {
-        draw_hollow_rect_mut(canvas, (*detecction_area).into(), ORANGE);
+    for detection_area in detection_areas {
+        draw_hollow_rect_mut(canvas, (*detection_area).into(), ORANGE);
     }
 
     match qr_code {
         Some(qr_code) => {
-            draw_hollow_rect_mut(canvas, qr_code.into(), DARK_GREEN);
+            let scale = Scale::uniform(20.0);
+            let font = monospace_font();
+            let fg = WHITE_RGB;
+            let bg = DARK_GREEN;
+            draw_hollow_rect_mut(canvas, qr_code.bounds().into(), DARK_GREEN);
+            draw_text_with_background_mut(
+                canvas,
+                &format!("QR code: {:x?}", qr_code.bytes()),
+                0,
+                0,
+                scale,
+                &font,
+                fg,
+                bg,
+            );
+            draw_text_with_background_mut(
+                canvas,
+                &format!("Detector: {:?}", qr_code.detector()),
+                0,
+                20,
+                scale,
+                &font,
+                fg,
+                bg
+            );
+            draw_text_with_background_mut(
+                canvas,
+                &format!("Orientation: {:?}", qr_code.orientation()),
+                0,
+                40,
+                scale,
+                &font,
+                fg,
+                bg
+            );
         }
         None => {
             draw_text_mut(

@@ -3,7 +3,7 @@ use rqrr::PreparedImage;
 
 use crate::geometry::{PixelUnit, Point, Rect};
 
-use super::detect::{get_detection_areas, DetectedQrCode, Error, Result};
+use super::detect::{get_detection_areas, DetectedQrCode, Detector, Error, Result};
 
 /// Uses the `rqrr` QR code library to detect a QR code in the given ballot
 /// image. Crops the image to improve performance.
@@ -16,6 +16,7 @@ pub fn detect(img: &GrayImage) -> Result {
             let mut bytes = Vec::new();
             return match grid.decode_to(&mut bytes) {
                 Ok(_) => Ok(DetectedQrCode::new(
+                    Detector::Rqrr,
                     detection_area_rects,
                     bytes,
                     get_original_bounds_rqrr(area.origin(), grid),

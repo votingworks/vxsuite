@@ -83,9 +83,16 @@ pub fn get_detection_areas(img: &GrayImage) -> Vec<DetectionArea> {
     ]
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Detector {
+    Rqrr,
+    Zbar,
+}
+
 /// Information about a QR code found in an image.
 #[derive(Debug, Clone)]
 pub struct DetectedQrCode {
+    detector: Detector,
     detection_areas: Vec<Rect>,
     bytes: Vec<u8>,
     bounds: Rect,
@@ -94,17 +101,24 @@ pub struct DetectedQrCode {
 
 impl DetectedQrCode {
     pub const fn new(
+        detector: Detector,
         detection_areas: Vec<Rect>,
         bytes: Vec<u8>,
         bounds: Rect,
         orientation: Orientation,
     ) -> Self {
         Self {
+            detector,
             detection_areas,
             bytes,
             bounds,
             orientation,
         }
+    }
+
+    /// The detector that was used to find the QR code.
+    pub const fn detector(&self) -> Detector {
+        self.detector
     }
 
     /// Gets the data decoded from the detected QR code.
@@ -177,7 +191,7 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
     debug.write("qr_code", |canvas| {
         debug::draw_qr_code_debug_image_mut(
             canvas,
-            detect_result.as_ref().ok().map(DetectedQrCode::bounds),
+            detect_result.as_ref().ok(),
             &detection_areas,
         );
     });
@@ -188,6 +202,7 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
             .decode(qr_code.bytes())
             .unwrap_or_else(|_| qr_code.bytes().clone());
         DetectedQrCode::new(
+            qr_code.detector(),
             qr_code.detection_areas().to_vec(),
             bytes,
             qr_code.bounds(),
