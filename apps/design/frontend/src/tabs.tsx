@@ -14,16 +14,14 @@ interface TabBarProps {
 
 const TabRow = styled(Row)`
   gap: 0.5rem;
-  border-bottom: 2px solid ${(p) => p.theme.colors.foreground};
+  border-bottom: ${(p) =>
+    `${p.theme.sizes.bordersRem.medium}rem solid ${p.theme.colors.outline}`};
 `;
 
-const TabButton = styled(Button)<{ isActive: boolean }>`
+const TabButton = styled(Button)`
   min-width: 8rem;
-  border-radius: 0.25rem 0.25rem 0 0;
-  border-bottom-width: 0;
-  color: ${(p) =>
-    p.isActive ? p.theme.colors.background : p.theme.colors.foreground};
-  background: ${(p) => (p.isActive ? p.theme.colors.foreground : 'none')};
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 `;
 
 export function TabBar({ tabs }: TabBarProps): JSX.Element {
@@ -36,7 +34,8 @@ export function TabBar({ tabs }: TabBarProps): JSX.Element {
         return (
           <TabButton
             key={tab.path}
-            isActive={isActive}
+            fill="tinted"
+            color={isActive ? 'primary' : 'neutral'}
             onPress={() => history.push(tab.path)}
             role="tab"
             aria-selected={isActive}
