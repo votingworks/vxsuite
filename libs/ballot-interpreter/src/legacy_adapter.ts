@@ -21,6 +21,7 @@ import {
   GridPosition,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
+  mapSheet,
   MarkInfo,
   MarkStatus,
   Rect,
@@ -415,22 +416,15 @@ export async function convertNhInterpretResultToLegacyResult(
 ): Promise<InterpretResult> {
   /* istanbul ignore next */
   if (nextResult.isErr()) {
-    return ok([
-      {
+    return ok(
+      await mapSheet(sheet, async (page) => ({
         interpretation: {
           type: 'UnreadablePage',
           reason: nextResult.err().type,
         },
-        normalizedImage: await loadImageData(sheet[0]),
-      },
-      {
-        interpretation: {
-          type: 'UnreadablePage',
-          reason: nextResult.err().type,
-        },
-        normalizedImage: await loadImageData(sheet[1]),
-      },
-    ]);
+        normalizedImage: await loadImageData(page),
+      }))
+    );
   }
 
   const ballotCard = nextResult.ok();
