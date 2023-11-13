@@ -84,6 +84,25 @@ pub fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotP
     })
 }
 
+pub fn infer_missing_page_metadata(
+    detected_ballot_metadata: &BallotPageQrCodeMetadata,
+) -> BallotPageQrCodeMetadata {
+    let inferred_page_number = match detected_ballot_metadata.page_number % 2 {
+        0 => detected_ballot_metadata.page_number - 1,
+        1 => detected_ballot_metadata.page_number + 1,
+        _ => unreachable!(),
+    };
+
+    BallotPageQrCodeMetadata {
+        election_hash: detected_ballot_metadata.election_hash.clone(),
+        ballot_style_id: detected_ballot_metadata.ballot_style_id.clone(),
+        precinct_id: detected_ballot_metadata.precinct_id.clone(),
+        ballot_type: detected_ballot_metadata.ballot_type,
+        is_test_mode: detected_ballot_metadata.is_test_mode,
+        page_number: inferred_page_number,
+    }
+}
+
 const fn bit_size(n: u32) -> u32 {
     if n == 0 {
         1
@@ -95,6 +114,8 @@ const fn bit_size(n: u32) -> u32 {
 #[cfg(test)]
 mod test {
     use std::{fs::File, io::BufReader, path::PathBuf};
+
+    use proptest::{proptest, strategy::{Strategy, Just}, prop_oneof};
 
     use super::*;
 
@@ -119,5 +140,40 @@ mod test {
                 ballot_type: BallotType::Precinct,
             })
         );
+    }
+
+    fn arbitrary_ballot_type() -> impl Strategy<Value = BallotType> {
+        prop_oneof![Just(BallotType::Precinct), Just(BallotType::Absentee), Just(BallotType::Provisional)]
+    }
+
+    proptest! {
+        #[test]
+        fn test_infer_missing_page_metadata(
+            page_number in 1u8..100,
+            election_hash in "[0-9a-f]{20}",
+            precinct_id in "[0-9a-z-]{1,100}",
+            ballot_style_id in "[0-9a-z-]{1,100}",
+            is_test_mode in proptest::bool::ANY,
+            ballot_type in arbitrary_ballot_type()
+        ) {
+            let detected_metadata = BallotPageQrCodeMetadata {
+                election_hash,
+                precinct_id: PrecinctId::from(precinct_id.to_string()),
+                ballot_style_id: BallotStyleId::from(ballot_style_id.to_string()),
+                page_number,
+                is_test_mode,
+                ballot_type,
+            };
+
+            // The inferred page number should be one less or one more than the detected page number.
+            let inferred_metadata = infer_missing_page_metadata(&detected_metadata);
+            assert_eq!(u8::abs_diff(inferred_metadata.page_number, detected_metadata.page_number), 1);
+
+            assert_eq!(inferred_metadata.election_hash, detected_metadata.election_hash);
+            assert_eq!(inferred_metadata.precinct_id, detected_metadata.precinct_id);
+            assert_eq!(inferred_metadata.ballot_style_id, detected_metadata.ballot_style_id);
+            assert_eq!(inferred_metadata.is_test_mode, detected_metadata.is_test_mode);
+            assert_eq!(inferred_metadata.ballot_type, detected_metadata.ballot_type);
+        }
     }
 }

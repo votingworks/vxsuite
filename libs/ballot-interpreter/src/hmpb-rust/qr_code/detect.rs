@@ -242,7 +242,7 @@ mod test {
     #[test]
     fn test_detect_qr_code_in_skewed_image() {
         let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
         let scan_side_a_path = fixture_path.join("scan-skewed-side-a.jpeg");
         let scan_side_b_path = fixture_path.join("scan-skewed-side-b.jpeg");
         detect(

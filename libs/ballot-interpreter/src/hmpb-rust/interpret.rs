@@ -25,6 +25,7 @@ use crate::layout::InterpretedContestLayout;
 use crate::qr_code;
 use crate::qr_code_metadata::decode_metadata_bits;
 use crate::qr_code_metadata::BallotPageQrCodeMetadataError;
+use crate::qr_code_metadata::infer_missing_page_metadata;
 use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
@@ -357,9 +358,29 @@ pub fn interpret_ballot_card(
                 },
             );
 
-            // TODO - To increase resiliency, if we successfully read a QR code from one
-            // side but not the other, we could correct the other side's metadata before
-            // unwrapping the results below.
+            // If one side has a detected QR code and the other doesn't, we can
+            // infer the missing metadata from the detected metadata.
+            let (side_a_qr_code_result, side_b_qr_code_result) = match (side_a_qr_code_result, side_b_qr_code_result) {
+                (Err(Error::InvalidQrCodeMetadata { .. }), Ok((side_b_metadata, side_b_orientation))) => {
+                    let side_a_metadata = infer_missing_page_metadata(&side_b_metadata);
+                    let side_a_orientation = side_b_orientation;
+
+                    (
+                        Ok((side_a_metadata, side_a_orientation)),
+                        Ok((side_b_metadata, side_b_orientation)),
+                    )
+                }
+                (Ok((side_a_metadata, side_a_orientation)), Err(Error::InvalidQrCodeMetadata { .. })) => {
+                    let side_b_metadata = infer_missing_page_metadata(&side_a_metadata);
+                    let side_b_orientation = side_a_orientation;
+
+                    (
+                        Ok((side_a_metadata, side_a_orientation)),
+                        Ok((side_b_metadata, side_b_orientation)),
+                    )
+                }
+                (side_a_qr_code_result, side_b_qr_code_result) => (side_a_qr_code_result, side_b_qr_code_result),
+            };
 
             let (side_a_metadata, side_a_orientation) = side_a_qr_code_result?;
             let (side_b_metadata, side_b_orientation) = side_b_qr_code_result?;
@@ -618,5 +639,29 @@ mod test {
             )
             .unwrap();
         }
+    }
+
+    #[test]
+    fn test_inferred_missing_metadata_from_one_side() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let election_path = fixture_path.join("election-vxf.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join("scan-skewed-side-a.jpeg");
+        let side_b_path = fixture_path.join("scan-skewed-side-b.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        interpret_ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                debug_side_a_base: None,
+                debug_side_b_base: None,
+                bubble_template: bubble_template.clone(),
+                election: election.clone(),
+                score_write_ins: true,
+            },
+        )
+        .unwrap();
     }
 }
