@@ -20,7 +20,15 @@ use crate::{
     timing_marks::{Partial, TimingMarkGrid},
 };
 
-pub fn draw_qr_code_debug_image_mut(canvas: &mut RgbImage, qr_code: Option<Rect>) {
+pub fn draw_qr_code_debug_image_mut(
+    canvas: &mut RgbImage,
+    qr_code: Option<Rect>,
+    detection_areas: &[Rect],
+) {
+    for detecction_area in detection_areas {
+        draw_hollow_rect_mut(canvas, (*detecction_area).into(), ORANGE);
+    }
+
     match qr_code {
         Some(qr_code) => {
             draw_hollow_rect_mut(canvas, qr_code.into(), DARK_GREEN);
