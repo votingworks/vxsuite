@@ -106,10 +106,8 @@ test('adjudication reasons', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
-  for (const option of screen.getAllByRole('option')) {
-    expect(
-      within(option).getByRole('checkbox', { hidden: true })
-    ).toBeDisabled();
+  for (const option of screen.getAllByRole('checkbox')) {
+    expect(option).toBeDisabled();
   }
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
@@ -117,13 +115,11 @@ test('adjudication reasons', async () => {
   screen.getByRole('heading', { name: 'Adjudication Reasons' });
   for (const machine of ['VxScan', 'VxCentralScan']) {
     const container = screen.getByText(machine).closest('label')!;
-    const select = within(container).getByRole('listbox');
-    const options = within(select).getAllByRole('option');
+    const select = within(container).getByRole('group');
+    const options = within(select).getAllByRole('checkbox');
     expect(options).toHaveLength(5);
     for (const option of options) {
-      expect(
-        within(option).getByRole('checkbox', { hidden: true })
-      ).not.toBeChecked();
+      expect(option).not.toBeChecked();
     }
     expect(options[0]).toHaveTextContent('Overvote');
     expect(options[1]).toHaveTextContent('Undervote');
@@ -132,9 +128,7 @@ test('adjudication reasons', async () => {
     expect(options[4]).toHaveTextContent('Unmarked Write-In');
 
     userEvent.click(options[0]);
-    expect(
-      within(options[0]).getByRole('checkbox', { hidden: true })
-    ).toBeChecked();
+    expect(options[0]).toBeChecked();
   }
 
   const updatedSystemSettings: SystemSettings = {
@@ -154,18 +148,12 @@ test('adjudication reasons', async () => {
 
   await screen.findByRole('button', { name: 'Edit' });
 
-  for (const option of screen.getAllByRole('option')) {
-    expect(
-      within(option).getByRole('checkbox', { hidden: true })
-    ).toBeDisabled();
+  for (const option of screen.getAllByRole('checkbox')) {
+    expect(option).toBeDisabled();
     if (option.textContent === 'Overvote') {
-      expect(
-        within(option).getByRole('checkbox', { hidden: true })
-      ).toBeChecked();
+      expect(option).toBeChecked();
     } else {
-      expect(
-        within(option).getByRole('checkbox', { hidden: true })
-      ).not.toBeChecked();
+      expect(option).not.toBeChecked();
     }
   }
 });
@@ -186,13 +174,13 @@ test('setting write-in text area threshold', async () => {
     .getByText('VxCentralScan')
     .closest('label')!;
   userEvent.click(
-    within(centralScanContainer).getByRole('option', {
+    within(centralScanContainer).getByRole('checkbox', {
       name: 'Unmarked Write-In',
     })
   );
   await screen.findByText('Write-In Area Threshold');
   userEvent.click(
-    within(centralScanContainer).getByRole('option', {
+    within(centralScanContainer).getByRole('checkbox', {
       name: 'Unmarked Write-In',
     })
   );
@@ -201,7 +189,7 @@ test('setting write-in text area threshold', async () => {
   // VxScan adjudication reason triggers the write-in area threshold input
   const scanContainer = screen.getByText('VxScan').closest('label')!;
   userEvent.click(
-    within(scanContainer).getByRole('option', {
+    within(scanContainer).getByRole('checkbox', {
       name: 'Unmarked Write-In',
     })
   );
