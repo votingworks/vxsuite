@@ -1,13 +1,21 @@
 import styled from 'styled-components';
 
 import { AnyContest } from '@votingworks/types';
-import { Caption, Font, Icons, List, ListItem } from '@votingworks/ui';
+import {
+  Caption,
+  Font,
+  Icons,
+  List,
+  ListItem,
+  electionStrings,
+} from '@votingworks/ui';
+import React from 'react';
 
 export interface ContestListProps {
   contests: readonly AnyContest[];
-  helpNote: string;
+  helpNote: React.ReactNode;
   maxColumns: number;
-  title: string;
+  title: React.ReactNode;
 }
 
 const Container = styled.div`
@@ -37,7 +45,7 @@ export function ContestList(props: ContestListProps): JSX.Element {
       <List maxColumns={maxColumns}>
         {contests.map((c) => (
           <Caption key={c.id}>
-            <ListItem>{c.title}</ListItem>
+            <ListItem>{electionStrings.contestTitle(c)}</ListItem>
           </Caption>
         ))}
       </List>

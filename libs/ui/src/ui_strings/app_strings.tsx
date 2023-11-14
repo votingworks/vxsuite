@@ -37,7 +37,13 @@ export const appStrings = {
 
   buttonCancel: () => <UiString uiStringKey="buttonCancel">Cancel</UiString>,
 
+  buttonCastBallotAsIs: () => (
+    <UiString uiStringKey="buttonCastBallotAsIs">Cast Ballot As Is</UiString>
+  ),
+
   buttonChange: () => <UiString uiStringKey="buttonChange">Change</UiString>,
+
+  buttonClose: () => <UiString uiStringKey="buttonClose">Close</UiString>,
 
   buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
 
@@ -63,6 +69,10 @@ export const appStrings = {
     <UiString uiStringKey="buttonPrintBallot">Print My Ballot</UiString>
   ),
 
+  buttonReturnBallot: () => (
+    <UiString uiStringKey="buttonReturnBallot">Return Ballot</UiString>
+  ),
+
   buttonReturnToBallotReview: () => (
     <UiString uiStringKey="buttonReturnToBallotReview">
       Return to Ballot Review
@@ -75,7 +85,17 @@ export const appStrings = {
     <UiString uiStringKey="buttonStartVoting">Start Voting</UiString>
   ),
 
+  buttonViewContests: () => (
+    <UiString uiStringKey="buttonViewContests">View contests</UiString>
+  ),
+
   buttonYes: () => <UiString uiStringKey="buttonYes">Yes</UiString>,
+
+  buttonYesCastBallotAsIs: () => (
+    <UiString uiStringKey="buttonYesCastBallotAsIs">
+      Yes, Cast Ballot As Is
+    </UiString>
+  ),
 
   instructionsBmdBallotNavigation: () => (
     <UiString uiStringKey="instructionsBmdBallotNavigation">
@@ -217,6 +237,24 @@ export const appStrings = {
 
   labelContestNumber: () => (
     <UiString uiStringKey="labelContestNumber">Contest number:</UiString>
+  ),
+
+  labelContestsWithNoVotes: () => (
+    <UiString uiStringKey="labelContestsWithNoVotes">
+      Contests with no votes marked:
+    </UiString>
+  ),
+
+  labelContestsWithTooManyVotes: () => (
+    <UiString uiStringKey="labelContestsWithTooManyVotes">
+      Contests with too many votes marked:
+    </UiString>
+  ),
+
+  labelContestsWithVotesRemaining: () => (
+    <UiString uiStringKey="labelContestsWithVotesRemaining">
+      Contests with one or more votes remaining:
+    </UiString>
   ),
 
   labelDeselected: () => (
@@ -412,6 +450,43 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteScannerBlankContestsCardPlural: () => (
+    <UiString uiStringKey="noteScannerBlankContestsCardPlural">
+      Did you mean to leave these contests blank?
+    </UiString>
+  ),
+
+  noteScannerBlankContestsCardSingular: () => (
+    <UiString uiStringKey="noteScannerBlankContestsCardSingular">
+      Did you mean to leave this contest blank?
+    </UiString>
+  ),
+
+  noteScannerOvervoteContestsCardPlural: () => (
+    <UiString uiStringKey="noteScannerOvervoteContestsCardPlural">
+      Your votes in these contests will not be counted.
+    </UiString>
+  ),
+
+  noteScannerOvervoteContestsCardSingular: () => (
+    <UiString uiStringKey="noteScannerOvervoteContestsCardSingular">
+      Your votes in this contest will not be counted.
+    </UiString>
+  ),
+
+  noteScannerUndervoteContestsCardPlural: () => (
+    <UiString uiStringKey="noteScannerUndervoteContestsCardPlural">
+      All other votes in these contests will count, even if you leave some
+      blank.
+    </UiString>
+  ),
+
+  noteScannerUndervoteContestsCardSingular: () => (
+    <UiString uiStringKey="noteScannerUndervoteContestsCardSingular">
+      All other votes in this contest will count, even if you leave some blank.
+    </UiString>
+  ),
+
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
@@ -474,9 +549,37 @@ export const appStrings = {
     <UiString uiStringKey="titleDisplaySettingsSize">Text Size</UiString>
   ),
 
+  titleModalAreYouSure: () => (
+    <UiString uiStringKey="titleModalAreYouSure">Are you sure?</UiString>
+  ),
+
   titleScannerInsertBallotScreen: () => (
     <UiString uiStringKey="titleScannerInsertBallotScreen">
       Insert Your Ballot
+    </UiString>
+  ),
+
+  titleScannerBallotWarningsScreen: () => (
+    <UiString uiStringKey="titleScannerBallotWarningsScreen">
+      Review Your Ballot
+    </UiString>
+  ),
+
+  titleScannerNoVotesWarning: () => (
+    <UiString uiStringKey="titleScannerNoVotesWarning">
+      No votes marked:
+    </UiString>
+  ),
+
+  titleScannerOvervoteWarning: () => (
+    <UiString uiStringKey="titleScannerOvervoteWarning">
+      Too many votes marked:
+    </UiString>
+  ),
+
+  titleScannerUndervoteWarning: () => (
+    <UiString uiStringKey="titleScannerUndervoteWarning">
+      You may add one or more votes:
     </UiString>
   ),
 

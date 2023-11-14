@@ -1,4 +1,10 @@
-import { Button, Modal, ModalWidth, WithScrollButtons } from '@votingworks/ui';
+import {
+  Button,
+  Modal,
+  ModalWidth,
+  WithScrollButtons,
+  appStrings,
+} from '@votingworks/ui';
 import React from 'react';
 import { MisvoteWarningsProps } from './types';
 import { WarningDetails } from './warning_details';
@@ -24,7 +30,7 @@ export function WarningDetailsModalButton(
         }
         actions={
           <Button onPress={setIsModalOpen} value={false} variant="primary">
-            Close
+            {appStrings.buttonClose()}
           </Button>
         }
         onOverlayClick={() => setIsModalOpen(false)}
@@ -34,7 +40,7 @@ export function WarningDetailsModalButton(
 
   return (
     <Button onPress={setIsModalOpen} value>
-      View contests
+      {appStrings.buttonViewContests()}
     </Button>
   );
 }

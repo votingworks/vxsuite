@@ -1,5 +1,10 @@
-import { Caption, Font, List, ListItem } from '@votingworks/ui';
-import pluralize from 'pluralize';
+import {
+  Caption,
+  List,
+  ListItem,
+  NumberString,
+  appStrings,
+} from '@votingworks/ui';
 import React from 'react';
 import { WarningDetailsModalButton } from './warning_details_modal_button';
 import { MisvoteWarningsProps } from './types';
@@ -13,27 +18,27 @@ export function WarningsSummary(props: MisvoteWarningsProps): JSX.Element {
         {blankContests.length > 0 && (
           <Caption>
             <ListItem>
-              No votes marked in{' '}
-              <Font weight="bold">{blankContests.length}</Font>{' '}
-              {pluralize('contest', blankContests.length)}.
+              {appStrings.labelContestsWithNoVotes()}{' '}
+              <NumberString weight="bold" value={blankContests.length} />
             </ListItem>
           </Caption>
         )}
         {partiallyVotedContests.length > 0 && (
           <Caption>
             <ListItem>
-              You may add one or more votes in{' '}
-              <Font weight="bold">{partiallyVotedContests.length}</Font>{' '}
-              {pluralize('contest', partiallyVotedContests.length)}.
+              {appStrings.labelContestsWithVotesRemaining()}{' '}
+              <NumberString
+                weight="bold"
+                value={partiallyVotedContests.length}
+              />
             </ListItem>
           </Caption>
         )}
         {overvoteContests.length > 0 && (
           <Caption>
             <ListItem>
-              Too many votes marked in{' '}
-              <Font weight="bold">{overvoteContests.length}</Font>{' '}
-              {pluralize('contest', overvoteContests.length)}.
+              {appStrings.labelContestsWithTooManyVotes()}{' '}
+              <NumberString weight="bold" value={overvoteContests.length} />
             </ListItem>
           </Caption>
         )}

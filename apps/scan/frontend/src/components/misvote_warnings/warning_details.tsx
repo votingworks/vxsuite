@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 
-import { AnyContest } from '@votingworks/types';
-
-import pluralize from 'pluralize';
+import { appStrings } from '@votingworks/ui';
 import { ContestList } from './contest_list';
 import { useLayoutConfig } from './use_layout_config_hook';
 import { MisvoteWarningsProps } from './types';
@@ -18,13 +16,6 @@ const Container = styled.div<ContainerProps>`
   grid-gap: 0.5rem;
 `;
 
-function pluralizeThisContestPhrase(contests: readonly AnyContest[]) {
-  return `${pluralize('this', contests.length)} ${pluralize(
-    'contest',
-    contests.length
-  )}`;
-}
-
 export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
   const { blankContests, overvoteContests, partiallyVotedContests } = props;
   const layout = useLayoutConfig(props);
@@ -35,10 +26,12 @@ export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
         <ContestList
           contests={blankContests}
           maxColumns={layout.maxColumnsPerCard}
-          title="No votes marked:"
-          helpNote={`Did you mean to leave ${pluralizeThisContestPhrase(
-            blankContests
-          )} blank?`}
+          title={appStrings.titleScannerNoVotesWarning()}
+          helpNote={
+            blankContests.length === 1
+              ? appStrings.noteScannerBlankContestsCardSingular()
+              : appStrings.noteScannerBlankContestsCardPlural()
+          }
         />
       )}
 
@@ -46,10 +39,12 @@ export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
         <ContestList
           contests={partiallyVotedContests}
           maxColumns={layout.maxColumnsPerCard}
-          title="You may add one or more votes:"
-          helpNote={`All other votes in ${pluralizeThisContestPhrase(
-            partiallyVotedContests
-          )} will count, even if you leave some blank.`}
+          title={appStrings.titleScannerUndervoteWarning()}
+          helpNote={
+            partiallyVotedContests.length === 1
+              ? appStrings.noteScannerUndervoteContestsCardSingular()
+              : appStrings.noteScannerUndervoteContestsCardPlural()
+          }
         />
       )}
 
@@ -57,10 +52,12 @@ export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
         <ContestList
           contests={overvoteContests}
           maxColumns={layout.maxColumnsPerCard}
-          title="Too many votes marked:"
-          helpNote={`Your votes in ${pluralizeThisContestPhrase(
-            overvoteContests
-          )} will not be counted.`}
+          title={appStrings.titleScannerOvervoteWarning()}
+          helpNote={
+            overvoteContests.length === 1
+              ? appStrings.noteScannerOvervoteContestsCardSingular()
+              : appStrings.noteScannerOvervoteContestsCardPlural()
+          }
         />
       )}
     </Container>
