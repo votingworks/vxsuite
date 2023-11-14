@@ -1,25 +1,45 @@
 import styled from 'styled-components';
-import React from 'react';
 import { Caption } from './typography';
 import { Button } from './button';
 
-/** Option ID type for the RadioGroup component. */
-type RadioGroupOptionId = string | number;
+/** Option value type for the RadioGroup component. */
+type RadioGroupValue = string | number;
 
 /** Data schema for a single option in the RadioGroup component. */
-interface RadioGroupOption<T extends RadioGroupOptionId> {
-  id: T;
+interface RadioGroupOption<T extends RadioGroupValue> {
+  value: T;
   label: React.ReactNode;
-  inverse?: boolean;
 }
-/** Common props for subcomponents of a single RadioGroup option. */
-export type OptionProps<T extends RadioGroupOptionId> = RadioGroupOption<T> & {
-  onSelect: (id: T) => void;
-  selected: boolean;
-  disabled?: boolean;
-};
 
-const RadioContainer = styled.span`
+/** Props for {@link RadioGroup}. */
+export interface RadioGroupProps<T extends RadioGroupValue> {
+  disabled?: boolean;
+  hideLabel?: boolean;
+  inverse?: boolean;
+  /**
+   * Required for a11y - use {@link hideLabel} to visually hide the label, while
+   * still allowing it to be assigned to the control for screen readers.
+   */
+  label: string;
+  /** @default 1 */
+  numColumns?: number;
+  onChange: (newId: T) => void;
+  options: ReadonlyArray<RadioGroupOption<T>>;
+  value?: T;
+}
+
+const OuterContainer = styled.fieldset.attrs({ role: 'radiogroup' })`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const LabelContainer = styled.legend`
+  display: block;
+  margin-bottom: 0.5rem;
+`;
+
+const Option = styled.span`
   position: relative;
 
   /* Apply focus outline to the button when the radio input is focused. */
@@ -36,6 +56,7 @@ const StyledButton = styled(Button)`
       ? p.theme.sizes.bordersRem.thin
       : p.theme.sizes.bordersRem.hairline}rem;
   flex-wrap: nowrap;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
   text-align: left;
   width: 100%;
@@ -51,69 +72,17 @@ const StyledButton = styled(Button)`
 // state. This ensures that we maintain the recommended a11y interaction pattern
 // (https://www.w3.org/WAI/ARIA/apg/patterns/radio/).
 const RadioInput = styled.input.attrs({ type: 'radio' })`
+  cursor: pointer;
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
   width: 100%;
   opacity: 0;
-`;
 
-export function RadioButton<T extends RadioGroupOptionId>(
-  props: OptionProps<T>
-): JSX.Element {
-  const { disabled, id, inverse, label, onSelect, selected } = props;
-
-  return (
-    <RadioContainer>
-      <RadioInput
-        aria-labelledby={`${id}-label`}
-        checked={selected}
-        disabled={disabled}
-        onChange={() => onSelect(id)}
-      />
-      <StyledButton
-        id={`${id}-label`}
-        disabled={disabled}
-        color={inverse ? 'inverseNeutral' : selected ? 'primary' : 'neutral'}
-        fill={selected ? 'tinted' : 'outlined'}
-        icon={selected ? 'CircleDot' : 'Circle'}
-        tabIndex={-1}
-        // Interaction will be handled by the radio input
-        onPress={() => {}}
-      >
-        {label}
-      </StyledButton>
-    </RadioContainer>
-  );
-}
-
-/** Props for {@link RadioGroup}. */
-export interface RadioGroupProps<T extends RadioGroupOptionId> {
-  disabled?: boolean;
-  hideLabel?: boolean;
-  /**
-   * Required for a11y - use {@link hideLabel} to visually hide the label, while
-   * still allowing it to be assigned to the control for screen readers.
-   */
-  label: string;
-  /** @default 1 */
-  numColumns?: number;
-  onChange: (newId: T) => void;
-  options: ReadonlyArray<RadioGroupOption<T>>;
-  selectedOptionId?: T;
-  inverse?: boolean;
-}
-
-const OuterContainer = styled.fieldset.attrs({ role: 'radiogroup' })`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-
-const LabelContainer = styled.legend`
-  display: block;
-  margin-bottom: 0.5rem;
+  &[disabled] {
+    cursor: not-allowed;
+  }
 `;
 
 interface OptionsContainerProps {
@@ -132,7 +101,7 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
 /**
  * Renders a theme-compatible and touch-friendly radio button input group.
  */
-export function RadioGroup<T extends RadioGroupOptionId>(
+export function RadioGroup<T extends RadioGroupValue>(
   props: RadioGroupProps<T>
 ): JSX.Element {
   const {
@@ -143,7 +112,7 @@ export function RadioGroup<T extends RadioGroupOptionId>(
     numColumns,
     onChange,
     options,
-    selectedOptionId,
+    value,
   } = props;
 
   return (
@@ -154,16 +123,49 @@ export function RadioGroup<T extends RadioGroupOptionId>(
         </LabelContainer>
       )}
       <OptionsContainer numColumns={numColumns || 1}>
-        {options.map((o) => (
-          <RadioButton
-            {...o}
-            key={o.id}
-            onSelect={onChange}
-            selected={o.id === selectedOptionId}
-            disabled={disabled}
-            inverse={inverse}
-          />
-        ))}
+        {options.map((option) => {
+          const isSelected = option.value === value;
+          return (
+            <Option key={option.value}>
+              <RadioInput
+                aria-labelledby={`${option.value}-label`}
+                checked={isSelected}
+                disabled={disabled}
+                name={label}
+                onChange={(e) => {
+                  onChange(option.value);
+                  // If clicked, blur to remove focus outline. If triggered via
+                  // other input (e.g. keyboard), keep focus.
+                  /* istanbul ignore next */
+                  if (
+                    'pointerType' in e.nativeEvent &&
+                    e.nativeEvent['pointerType'] === 'mouse'
+                  ) {
+                    e.currentTarget.blur();
+                  }
+                }}
+              />
+              <StyledButton
+                id={`${option.value}-label`}
+                disabled={disabled}
+                color={
+                  inverse
+                    ? 'inverseNeutral'
+                    : isSelected
+                    ? 'primary'
+                    : 'neutral'
+                }
+                fill={isSelected ? 'tinted' : 'outlined'}
+                icon={isSelected ? 'CircleDot' : 'Circle'}
+                tabIndex={-1}
+                // Interaction will be handled by the radio input
+                onPress={() => {}}
+              >
+                {option.label}
+              </StyledButton>
+            </Option>
+          );
+        })}
       </OptionsContainer>
     </OuterContainer>
   );
