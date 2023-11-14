@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { H1, H2, Button, Card } from '@votingworks/ui';
+import { H1, H2, Button, Card, CheckboxGroup } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 import { AdjudicationReason, Id, SystemSettings } from '@votingworks/types';
 import { Form, FormField, Input, Column, Row, FormActionsRow } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
-import { MultiSelect } from './multiselect';
 import { updateSystemSettings, getElection } from './api';
 
 type TabulationSettings = Pick<
@@ -60,7 +59,9 @@ export function TabulationForm({
           <H2>Adjudication Reasons</H2>
           <Column style={{ gap: '1.5rem' }}>
             <FormField label="VxScan">
-              <MultiSelect
+              <CheckboxGroup
+                label="VxScan"
+                hideLabel
                 options={adjudicationReasonOptions}
                 value={
                   (tabulationSettings.precinctScanAdjudicationReasons ??
@@ -77,7 +78,9 @@ export function TabulationForm({
               />
             </FormField>
             <FormField label="VxCentralScan">
-              <MultiSelect
+              <CheckboxGroup
+                label="VxCentralScan"
+                hideLabel
                 options={adjudicationReasonOptions}
                 value={
                   (tabulationSettings.centralScanAdjudicationReasons ??
