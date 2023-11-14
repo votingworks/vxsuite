@@ -39,6 +39,7 @@ import {
   waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from './shared_helpers';
+import { Store } from '../../src/store';
 
 export async function withApp(
   {
@@ -123,7 +124,7 @@ export async function withApp(
     });
     mockUsbDrive.assertComplete();
   } finally {
-    await waitForContinuousExportToUsbDrive(mockUsbDrive);
+    await waitForContinuousExportToUsbDrive(workspace.store);
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });
@@ -216,8 +217,8 @@ export function simulateScan(
 
 export async function scanBallot(
   mockScanner: jest.Mocked<CustomScanner>,
-  mockUsbDrive: MockUsbDrive,
   apiClient: grout.Client<Api>,
+  store: Store,
   initialBallotsCounted: number
 ): Promise<void> {
   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
@@ -242,5 +243,5 @@ export async function scanBallot(
     ballotsCounted: initialBallotsCounted + 1,
   });
 
-  await waitForContinuousExportToUsbDrive(mockUsbDrive);
+  await waitForContinuousExportToUsbDrive(store);
 }
