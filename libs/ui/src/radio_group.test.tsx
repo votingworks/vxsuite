@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { render, screen, within } from '../../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { RadioGroup } from '.';
 
 test('renders all provided options', () => {
@@ -33,7 +33,7 @@ test('renders all provided options', () => {
   expect(onChange).toBeCalledWith('hearts-4');
 });
 
-test('a11y for disabled options', () => {
+test('disabled', () => {
   const onChange = jest.fn();
 
   render(
@@ -42,8 +42,9 @@ test('a11y for disabled options', () => {
       onChange={onChange}
       options={[
         { id: 'hearts-4', label: 'Four of Hearts' },
-        { id: 'clubs-6', label: 'Six of Clubs', disabled: true },
+        { id: 'clubs-6', label: 'Six of Clubs' },
       ]}
+      disabled
       selectedOptionId="hearts-4"
     />
   );
