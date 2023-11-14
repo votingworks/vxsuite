@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { existsSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import {
@@ -59,9 +58,9 @@ import { readCastVoteRecordExportMetadata } from './import';
 import { buildElectionOptionPositionMap } from './option_map';
 
 /**
- * The subset of scanner store methods relevant to exporting cast vote records
+ * Methods shared by both {@link CentralScannerStore} and {@link PrecinctScannerStore}
  */
-export interface ScannerStore {
+export interface ScannerStoreBase {
   clearCastVoteRecordHashes(): void;
   getBatches(): BatchInfo[];
   getCastVoteRecordRootHash(): string;
@@ -72,11 +71,35 @@ export interface ScannerStore {
     castVoteRecordId: string,
     castVoteRecordHash: string
   ): void;
-
-  getExportDirectoryName?(): string | undefined;
-  getPollsState?(): PollsState;
-  setExportDirectoryName?(exportDirectoryName: string): void;
 }
+
+/**
+ * The subset of central scanner store methods relevant to exporting cast vote records
+ */
+export interface CentralScannerStore extends ScannerStoreBase {
+  scannerType: 'central';
+}
+
+/**
+ * The subset of precinct scanner store methods relevant to exporting cast vote records
+ */
+export interface PrecinctScannerStore extends ScannerStoreBase {
+  scannerType: 'precinct';
+
+  getBallotsCounted(): number;
+  getExportDirectoryName(): string | undefined;
+  getPollsState(): PollsState;
+  isContinuousExportOperationInProgress(): boolean;
+  setExportDirectoryName(exportDirectoryName: string): void;
+  setIsContinuousExportOperationInProgress(
+    isContinuousExportOperationInProgress: boolean
+  ): void;
+}
+
+/**
+ * The subset of scanner store methods relevant to exporting cast vote records
+ */
+export type ScannerStore = CentralScannerStore | PrecinctScannerStore;
 
 /**
  * State that can be retrieved via the ScannerStore interface and that is unchanged by exporting
@@ -215,8 +238,7 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
       break;
     }
     case 'precinct': {
-      assert(scannerStore.getExportDirectoryName !== undefined);
-      assert(scannerStore.setExportDirectoryName !== undefined);
+      assert(scannerStore.scannerType === 'precinct');
       exportDirectoryName = scannerStore.getExportDirectoryName();
       if (!exportDirectoryName || exportOptions.isFullExport) {
         exportDirectoryName = generateCastVoteRecordExportDirectoryName({
@@ -604,35 +626,6 @@ async function randomlyUpdateCreationTimestamps(
   }
 }
 
-function getCastVoteRecordExportInProgressMarkerFilePath(
-  usbMountPoint: string
-): string {
-  return path.join(usbMountPoint, '.vx-export-in-progress');
-}
-
-/**
- * Marks a cast vote record export as in progress, by writing a hidden file to the USB drive
- */
-export async function markCastVoteRecordExportAsInProgress(
-  usbMountPoint: string
-): Promise<void> {
-  await fs.writeFile(
-    getCastVoteRecordExportInProgressMarkerFilePath(usbMountPoint),
-    ''
-  );
-}
-
-/**
- * The counterpart to {@link markCastVoteRecordExportAsInProgress}
- */
-async function markCastVoteRecordExportAsComplete(
-  usbMountPoint: string
-): Promise<void> {
-  await fs.rm(getCastVoteRecordExportInProgressMarkerFilePath(usbMountPoint), {
-    force: true,
-  });
-}
-
 //
 // Top-level functions
 //
@@ -647,6 +640,7 @@ export async function exportCastVoteRecordsToUsbDrive(
   sheets: Iterable<Sheet>,
   exportOptions: ExportOptions
 ): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+  assert(scannerStore.scannerType === exportOptions.scannerType);
   const usbDriveStatus = await usbDrive.status();
   const usbMountPoint =
     usbDriveStatus.status === 'mounted' ? usbDriveStatus.mountPoint : undefined;
@@ -664,13 +658,14 @@ export async function exportCastVoteRecordsToUsbDrive(
       electionDefinition: assertDefined(scannerStore.getElectionDefinition()),
       inTestMode: scannerStore.getTestMode(),
       markThresholds: scannerStore.getMarkThresholds(),
-      pollsState: scannerStore.getPollsState?.(),
+      pollsState:
+        scannerStore.scannerType === 'precinct'
+          ? scannerStore.getPollsState()
+          : undefined,
     },
     scannerStore,
     usbMountPoint,
   };
-
-  await markCastVoteRecordExportAsInProgress(usbMountPoint);
 
   // Before a full export, clear cast vote record hashes so that they can be recomputed from
   // scratch. This is particularly important for VxCentralScan, where batches can be deleted
@@ -781,25 +776,18 @@ export async function exportCastVoteRecordsToUsbDrive(
     return exportSignatureFileResult;
   }
 
-  await markCastVoteRecordExportAsComplete(usbMountPoint);
+  /**
+   * Perform the scanner store update before clearing the cache for
+   * {@link doesUsbDriveRequireCastVoteRecordSync} because
+   * {@link doesUsbDriveRequireCastVoteRecordSync} considers the state modified by the scanner
+   * store update
+   */
+  if (scannerStore.scannerType === 'precinct') {
+    scannerStore.setIsContinuousExportOperationInProgress(false);
+  }
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
 
   return ok();
-}
-
-/**
- * Checks whether cast vote records are being exported to a USB drive (or were being exported
- * to the USB drive before it was last removed)
- */
-export function areOrWereCastVoteRecordsBeingExportedToUsbDrive(
-  usbDriveStatus: UsbDriveStatus
-): boolean {
-  if (usbDriveStatus.status !== 'mounted') {
-    return false;
-  }
-  return existsSync(
-    getCastVoteRecordExportInProgressMarkerFilePath(usbDriveStatus.mountPoint)
-  );
 }
 
 /**
@@ -814,11 +802,7 @@ export function areOrWereCastVoteRecordsBeingExportedToUsbDrive(
  * recomputation.
  */
 export async function doesUsbDriveRequireCastVoteRecordSync(
-  scannerStore: ScannerStore & {
-    getBallotsCounted: () => number;
-    getExportDirectoryName: NonNullable<ScannerStore['getExportDirectoryName']>;
-    getPollsState: NonNullable<ScannerStore['getPollsState']>;
-  },
+  scannerStore: PrecinctScannerStore,
   usbDriveStatus: UsbDriveStatus
 ): Promise<boolean> {
   if (
@@ -852,7 +836,7 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     }
 
     // A previous export operation may have failed midway
-    if (areOrWereCastVoteRecordsBeingExportedToUsbDrive(usbDriveStatus)) {
+    if (scannerStore.isContinuousExportOperationInProgress()) {
       return true;
     }
 
