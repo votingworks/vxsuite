@@ -1,4 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
+import { Contest } from '@votingworks/types';
 import { ContestList } from './contest_list';
 import { render, screen, within } from '../../../test/react_testing_library';
 import { WarningDetails } from './warning_details';
@@ -18,12 +19,34 @@ jest.mock(
   })
 );
 
+function expectMockContestListProps(
+  container: HTMLElement,
+  matchers: {
+    title: string | RegExp;
+    helpNote: string | RegExp;
+    maxColumns: number;
+    contests: Contest[];
+  }
+) {
+  const { contests, helpNote, maxColumns, title } = matchers;
+
+  const contestList = within(container);
+  expect(contestList.getByTestId('title')).toHaveTextContent(title);
+  expect(contestList.getByTestId('helpNote')).toHaveTextContent(helpNote);
+  expect(contestList.getByTestId('maxColumns')).toHaveTextContent(
+    `${maxColumns}`
+  );
+  for (const c of contests) {
+    contestList.getByText(c.title);
+  }
+}
+
 beforeEach(() => {
   mockOf(ContestList).mockImplementation((props) => (
     <div data-testid="mockContestList">
-      <div>title: {props.title}</div>
-      <div>helpNote: {props.helpNote}</div>
-      <div>maxColumns: {props.maxColumns}</div>
+      <div data-testid="title">{props.title}</div>
+      <div data-testid="helpNote">{props.helpNote}</div>
+      <div data-testid="maxColumns">{props.maxColumns}</div>
       <div>
         contests:{' '}
         {props.contests.map((c) => (
@@ -61,35 +84,26 @@ test('renders all relevant warnings', () => {
   const contestLists = screen.getAllByTestId('mockContestList');
   expect(contestLists).toHaveLength(3);
 
-  const blankContestWarnings = within(contestLists[0]);
-  blankContestWarnings.getByText(/title:.+no votes/i);
-  blankContestWarnings.getByText(
-    /helpNote:.+did you mean to leave these contests blank?/i
-  );
-  blankContestWarnings.getByText(/maxColumns: 2/i);
-  for (const c of blankContests) {
-    blankContestWarnings.getByText(c.title);
-  }
+  expectMockContestListProps(contestLists[0], {
+    title: /no votes/i,
+    helpNote: /did you mean to leave these contests blank?/i,
+    maxColumns: 2,
+    contests: blankContests,
+  });
 
-  const partialVoteWarnings = within(contestLists[1]);
-  partialVoteWarnings.getByText(/title:.+you may add one or more/i);
-  partialVoteWarnings.getByText(
-    /helpNote:.+all other votes in these contests will count/i
-  );
-  partialVoteWarnings.getByText(/maxColumns: 2/i);
-  for (const c of partiallyVotedContests) {
-    partialVoteWarnings.getByText(c.title);
-  }
+  expectMockContestListProps(contestLists[1], {
+    title: /you may add one or more/i,
+    helpNote: /all other votes in these contests will count/i,
+    maxColumns: 2,
+    contests: partiallyVotedContests,
+  });
 
-  const overvoteWarnings = within(contestLists[2]);
-  overvoteWarnings.getByText(/title:.+too many votes/i);
-  overvoteWarnings.getByText(
-    /helpNote:.+votes in this contest will not be counted/i
-  );
-  overvoteWarnings.getByText(/maxColumns: 2/i);
-  for (const c of overvoteContests) {
-    overvoteWarnings.getByText(c.title);
-  }
+  expectMockContestListProps(contestLists[2], {
+    title: /too many votes/i,
+    helpNote: /votes in this contest will not be counted/i,
+    maxColumns: 2,
+    contests: overvoteContests,
+  });
 });
 
 test('omits warnings with no contests', () => {
@@ -111,13 +125,10 @@ test('omits warnings with no contests', () => {
 
   const contestList = screen.getByTestId('mockContestList');
 
-  const overvoteWarnings = within(contestList);
-  overvoteWarnings.getByText(/title:.+too many votes/i);
-  overvoteWarnings.getByText(
-    /helpNote:.+votes in these contests will not be counted/i
-  );
-  overvoteWarnings.getByText(/maxColumns: 3/i);
-  for (const c of overvoteContests) {
-    overvoteWarnings.getByText(c.title);
-  }
+  expectMockContestListProps(contestList, {
+    title: /too many votes/i,
+    helpNote: /votes in these contests will not be counted/i,
+    maxColumns: 3,
+    contests: overvoteContests,
+  });
 });
