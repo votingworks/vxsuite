@@ -76,7 +76,7 @@ function BallotDesignForm({
   }
 
   return (
-    <Form>
+    <Form style={{ maxWidth: '16rem' }}>
       <FormField label="Paper Size">
         <RadioGroup
           label="Paper Size"
