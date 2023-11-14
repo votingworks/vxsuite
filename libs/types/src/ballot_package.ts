@@ -17,6 +17,7 @@ export enum BallotPackageFileName {
   METADATA = 'metadata.json',
   SYSTEM_SETTINGS = 'systemSettings.json',
   UI_STRING_AUDIO_IDS = 'uiStringAudioIds.json',
+  VX_ELECTION_STRINGS = 'vxElectionStrings.json',
 }
 
 export interface BallotPackage {

@@ -163,6 +163,14 @@ const extractorFns: Record<
     }
   },
 
+  [ElectionStringKey.ELECTION_DATE](_cdfElection, uiStrings) {
+    // No-Op: This election string is not available via CDF.
+    // It is currently extracted directly from the
+    // `@votingworks/types/BallotPackageFileName.VX_ELECTION_STRINGS` file.
+
+    return uiStrings;
+  },
+
   [ElectionStringKey.ELECTION_TITLE](cdfElection, uiStrings) {
     setInternationalizedUiStrings({
       stringKey: ElectionStringKey.ELECTION_TITLE,

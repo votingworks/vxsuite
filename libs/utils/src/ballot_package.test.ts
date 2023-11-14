@@ -5,6 +5,7 @@ import {
   BallotPackage,
   BallotPackageFileName,
   DEFAULT_SYSTEM_SETTINGS,
+  ElectionStringKey,
   LanguageCode,
   SystemSettings,
   UiStringAudioIdsPackage,
@@ -85,6 +86,47 @@ test('readBallotPackageFromFile loads available ui strings', async () => {
     },
     [LanguageCode.CHINESE]: {
       ...assertDefined(appStrings[LanguageCode.CHINESE]),
+    },
+  };
+
+  expect(
+    await readBallotPackageFromFile(
+      new File([pkg], 'election-ballot-package.zip')
+    )
+  ).toEqual<BallotPackage>({
+    electionDefinition:
+      safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    uiStrings: expectedUiStrings,
+  });
+});
+
+test('readBallotPackageFromFile loads vx election strings', async () => {
+  const vxElectionStrings: UiStringsPackage = {
+    [LanguageCode.ENGLISH]: {
+      [ElectionStringKey.ELECTION_DATE]: 'The Day The Earth Stood Still',
+      [ElectionStringKey.ELECTION_TITLE]: 'Should be overridden by CDF string',
+    },
+    [LanguageCode.SPANISH]: {
+      [ElectionStringKey.ELECTION_DATE]: 'El día que la Tierra se detuvo',
+    },
+  };
+
+  const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
+  const pkg = await zipFile({
+    [BallotPackageFileName.ELECTION]: testCdfElectionData,
+    [BallotPackageFileName.VX_ELECTION_STRINGS]:
+      JSON.stringify(vxElectionStrings),
+  });
+
+  const expectedCdfStrings = extractCdfUiStrings(testCdfBallotDefinition);
+  const expectedUiStrings: UiStringsPackage = {
+    [LanguageCode.ENGLISH]: {
+      [ElectionStringKey.ELECTION_DATE]: 'The Day The Earth Stood Still',
+      ...assertDefined(expectedCdfStrings[LanguageCode.ENGLISH]),
+    },
+    [LanguageCode.SPANISH]: {
+      [ElectionStringKey.ELECTION_DATE]: 'El día que la Tierra se detuvo',
     },
   };
 

@@ -15,6 +15,7 @@ import {
 
 import { UiString } from './ui_string';
 import { Pre } from '../typography';
+import { DateString } from './date_string';
 
 type ContestWithDescription = ContestLike & {
   description: string;
@@ -70,6 +71,12 @@ export const electionStrings = {
   [Key.DISTRICT_NAME]: (district: District) => (
     <UiString uiStringKey={Key.DISTRICT_NAME} uiStringSubKey={district.id}>
       {district.name}
+    </UiString>
+  ),
+
+  [Key.ELECTION_DATE]: (election: Election) => (
+    <UiString uiStringKey={Key.ELECTION_DATE}>
+      <DateString value={new Date(election.date)} />
     </UiString>
   ),
 

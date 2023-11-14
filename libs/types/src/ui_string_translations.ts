@@ -14,6 +14,7 @@ export enum ElectionStringKey {
   CONTEST_TITLE = 'contestTitle',
   COUNTY_NAME = 'countyName',
   DISTRICT_NAME = 'districtName',
+  ELECTION_DATE = 'electionDate',
   ELECTION_TITLE = 'electionTitle',
   PARTY_FULL_NAME = 'partyFullName',
   PARTY_NAME = 'partyName',
