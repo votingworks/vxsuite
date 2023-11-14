@@ -52,14 +52,14 @@ export function SizeSettings(props: SizeSettingsProps): JSX.Element {
             numColumns={numColumns}
             onChange={setSizeMode}
             options={orderedSizeModes.map((m) => ({
-              id: m,
+              value: m,
               label: (
                 <ThemeLabel sizeMode={m}>
                   {ORDERED_SIZE_MODE_LABELS[m]}
                 </ThemeLabel>
               ),
             }))}
-            selectedOptionId={currentTheme.sizeMode}
+            value={currentTheme.sizeMode}
           />
         </SettingsPane>
       )}

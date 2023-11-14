@@ -8,6 +8,7 @@ import {
   LinkButton,
   P,
   Card,
+  CheckboxGroup,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -39,7 +40,6 @@ import {
   Row,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
-import { MultiSelect } from './multiselect';
 import { hasSplits } from './utils';
 
 function DistrictsTab(): JSX.Element | null {
@@ -558,7 +558,9 @@ function PrecinctForm({
                     />
                   </FormField>
                   <FormField label="Districts">
-                    <MultiSelect
+                    <CheckboxGroup
+                      label="Districts"
+                      hideLabel
                       options={districts.map((district) => ({
                         value: district.id,
                         label: district.name,
@@ -593,7 +595,9 @@ function PrecinctForm({
           ) : (
             <React.Fragment>
               <div style={{ minWidth: '12rem' }}>
-                <MultiSelect
+                <CheckboxGroup
+                  label="Districts"
+                  hideLabel
                   options={districts.map((district) => ({
                     value: district.id,
                     label: district.name,

@@ -52,14 +52,14 @@ export function ColorSettings(props: ColorSettingsProps): JSX.Element {
             numColumns={numColumns}
             onChange={setColorMode}
             options={orderedColorModes.map((mode) => ({
-              id: mode,
+              value: mode,
               label: (
                 <ThemeLabel colorMode={mode}>
                   {ORDERED_COLOR_MODE_LABELS[mode]}
                 </ThemeLabel>
               ),
             }))}
-            selectedOptionId={currentTheme.colorMode}
+            value={currentTheme.colorMode}
           />
         </SettingsPane>
       )}

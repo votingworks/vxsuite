@@ -9,6 +9,7 @@ export * from './button_list';
 export * from './card';
 export * from './cast_vote_records';
 export * from './centered_large_prose';
+export * from './checkbox_group';
 export * from './contest_choice_button';
 export * from './display_settings';
 export * from './error_boundary';

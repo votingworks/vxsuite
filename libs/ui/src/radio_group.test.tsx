@@ -11,12 +11,12 @@ test('renders all provided options', () => {
       label="Pick a card:"
       onChange={onChange}
       options={[
-        { id: 'hearts-4', label: 'Four of Hearts' },
-        { id: 'clubs-6', label: 'Six of Clubs' },
-        { id: 'diamonds-jack', label: 'Jack of Diamonds' },
-        { id: 'spades-2', label: 'Two of Spades' },
+        { value: 'hearts-4', label: 'Four of Hearts' },
+        { value: 'clubs-6', label: 'Six of Clubs' },
+        { value: 'diamonds-jack', label: 'Jack of Diamonds' },
+        { value: 'spades-2', label: 'Two of Spades' },
       ]}
-      selectedOptionId="diamonds-jack"
+      value="diamonds-jack"
     />
   );
 
@@ -42,11 +42,11 @@ test('disabled', () => {
       label="Pick a card:"
       onChange={onChange}
       options={[
-        { id: 'hearts-4', label: 'Four of Hearts' },
-        { id: 'clubs-6', label: 'Six of Clubs' },
+        { value: 'hearts-4', label: 'Four of Hearts' },
+        { value: 'clubs-6', label: 'Six of Clubs' },
       ]}
       disabled
-      selectedOptionId="hearts-4"
+      value="hearts-4"
     />
   );
 
@@ -65,10 +65,10 @@ test('label is not visible if `hideLabel == true`', () => {
       label="Pick a card:"
       onChange={onChange}
       options={[
-        { id: 'hearts-4', label: 'Four of Hearts' },
-        { id: 'clubs-6', label: 'Six of Clubs' },
+        { value: 'hearts-4', label: 'Four of Hearts' },
+        { value: 'clubs-6', label: 'Six of Clubs' },
       ]}
-      selectedOptionId="hearts-4"
+      value="hearts-4"
     />
   );
 
@@ -86,12 +86,12 @@ test('desktop, inverse', () => {
       label="Pick a card:"
       onChange={jest.fn()}
       options={[
-        { id: 'hearts-4', label: 'Four of Hearts' },
-        { id: 'clubs-6', label: 'Six of Clubs' },
-        { id: 'diamonds-jack', label: 'Jack of Diamonds' },
-        { id: 'spades-2', label: 'Two of Spades' },
+        { value: 'hearts-4', label: 'Four of Hearts' },
+        { value: 'clubs-6', label: 'Six of Clubs' },
+        { value: 'diamonds-jack', label: 'Jack of Diamonds' },
+        { value: 'spades-2', label: 'Two of Spades' },
       ]}
-      selectedOptionId="diamonds-jack"
+      value="diamonds-jack"
       inverse
     />,
     { vxTheme: theme }
