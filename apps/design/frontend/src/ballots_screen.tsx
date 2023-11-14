@@ -7,6 +7,7 @@ import {
   P,
   Button,
   SegmentedButton,
+  RadioGroup,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
@@ -31,7 +32,6 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen } from './ballot_screen';
 import { paperSizeLabels } from './ballot_viewer';
-import { RadioGroup } from './radio';
 import { TabBar, TabPanel } from './tabs';
 
 function BallotDesignForm({
@@ -79,6 +79,8 @@ function BallotDesignForm({
     <Form>
       <FormField label="Paper Size">
         <RadioGroup
+          label="Paper Size"
+          hideLabel
           options={Object.entries(paperSizeLabels).map(([value, label]) => ({
             value,
             label,
@@ -95,6 +97,8 @@ function BallotDesignForm({
       </FormField>
       <FormField label="Density">
         <RadioGroup
+          label="Density"
+          hideLabel
           options={[
             { value: 0, label: 'Default' },
             { value: 1, label: 'Medium' },

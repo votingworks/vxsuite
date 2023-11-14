@@ -10,7 +10,7 @@ import {
   Precinct,
 } from '@votingworks/types';
 import styled from 'styled-components';
-import { Button, H1, H3, P } from '@votingworks/ui';
+import { Button, H1, H3, P, RadioGroup } from '@votingworks/ui';
 import {
   AnyElement,
   Document,
@@ -30,7 +30,6 @@ import { useParams } from 'react-router-dom';
 import { exportBallot } from './api';
 import { ElectionIdParams, routes } from './routes';
 import { Breadcrumbs, Column, FormField } from './layout';
-import { RadioGroup } from './radio';
 
 function SvgAnyElement({ element }: { element: AnyElement }) {
   switch (element.type) {
@@ -339,17 +338,22 @@ export function BallotViewer({
 
             <FormField label="Ballot Type">
               <RadioGroup
+                label="Ballot Type"
+                hideLabel
                 options={[
                   { value: BallotType.Precinct, label: 'Precinct' },
                   { value: BallotType.Absentee, label: 'Absentee' },
                 ]}
                 value={ballotType}
                 onChange={setBallotType}
+                inverse
               />
             </FormField>
 
             <FormField label="Tabulation Mode">
               <RadioGroup
+                label="Tabulation Mode"
+                hideLabel
                 options={[
                   { value: 'official', label: 'Official Ballot' },
                   { value: 'test', label: 'L&A Test Ballot' },
@@ -357,6 +361,7 @@ export function BallotViewer({
                 ]}
                 value={ballotMode}
                 onChange={setBallotMode}
+                inverse
               />
             </FormField>
 
