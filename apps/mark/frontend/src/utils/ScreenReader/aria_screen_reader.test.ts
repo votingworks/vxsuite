@@ -121,13 +121,13 @@ it('speaks aria-label instead of text content if present', async () => {
   );
 });
 
-it('speaks a description of an aria-labeledby element if present', async () => {
+it('speaks a description of an aria-labelledby element if present', async () => {
   const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
   const field = h(
     'span',
     h('label', { id: 'name-label' }, text('Name')),
-    h('input', { type: 'text', 'aria-labeledby': 'name-label' })
+    h('input', { type: 'text', 'aria-labelledby': 'name-label' })
   );
 
   document.body.append(field);
@@ -140,13 +140,13 @@ it('speaks a description of an aria-labeledby element if present', async () => {
   }
 });
 
-it('ignores an aria-labeledby attribute if the element exists but has no description', async () => {
+it('ignores an aria-labelledby attribute if the element exists but has no description', async () => {
   const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
   const field = h(
     'span',
     h('label', { id: 'name-label' }, text('')),
-    h('input', { type: 'text', 'aria-labeledby': 'name-label' })
+    h('input', { type: 'text', 'aria-labelledby': 'name-label' })
   );
 
   document.body.append(field);
@@ -159,14 +159,14 @@ it('ignores an aria-labeledby attribute if the element exists but has no descrip
   }
 });
 
-it('ignores an aria-labeledby attribute if no such element exists', async () => {
+it('ignores an aria-labelledby attribute if no such element exists', async () => {
   const tts = fakeTts();
   const asr = new AriaScreenReader(tts);
 
   await asr.speakNode(
     h(
       'span',
-      { 'aria-labeledby': 'name-label' },
+      { 'aria-labelledby': 'name-label' },
       text('Read this since name-label does not exist')
     )
   );
