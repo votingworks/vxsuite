@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
-import { render, screen, within } from '../../test/react_testing_library';
+import { render, screen, within } from '../test/react_testing_library';
 import { RadioGroup } from '.';
+import { makeTheme } from './themes/make_theme';
 
 test('renders all provided options', () => {
   const onChange = jest.fn();
@@ -33,7 +34,7 @@ test('renders all provided options', () => {
   expect(onChange).toBeCalledWith('hearts-4');
 });
 
-test('a11y for disabled options', () => {
+test('disabled', () => {
   const onChange = jest.fn();
 
   render(
@@ -42,8 +43,9 @@ test('a11y for disabled options', () => {
       onChange={onChange}
       options={[
         { id: 'hearts-4', label: 'Four of Hearts' },
-        { id: 'clubs-6', label: 'Six of Clubs', disabled: true },
+        { id: 'clubs-6', label: 'Six of Clubs' },
       ]}
+      disabled
       selectedOptionId="hearts-4"
     />
   );
@@ -74,4 +76,30 @@ test('label is not visible if `hideLabel == true`', () => {
 
   // Verify the radiogroup role is still labelled appropriately.
   screen.getByRole('radiogroup', { name: 'Pick a card:' });
+});
+
+// For coverage of styles
+test('desktop, inverse', () => {
+  const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
+  render(
+    <RadioGroup
+      label="Pick a card:"
+      onChange={jest.fn()}
+      options={[
+        { id: 'hearts-4', label: 'Four of Hearts' },
+        { id: 'clubs-6', label: 'Six of Clubs' },
+        { id: 'diamonds-jack', label: 'Jack of Diamonds' },
+        { id: 'spades-2', label: 'Two of Spades' },
+      ]}
+      selectedOptionId="diamonds-jack"
+      inverse
+    />,
+    { vxTheme: theme }
+  );
+
+  const option = screen.getByRole('radio', {
+    name: 'Four of Hearts',
+  }).nextSibling; // Select the button that has the styling
+  expect(option).toHaveStyle(`color: ${theme.colors.onInverse}`);
+  expect(option).toHaveStyle(`border-width: ${theme.sizes.bordersRem.thin}rem`);
 });

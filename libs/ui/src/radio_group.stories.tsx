@@ -9,9 +9,10 @@ const initialArgs: Partial<RadioGroupProps<string>> = {
     { id: 'raindrops', label: 'Raindrops on roses' },
     { id: 'whiskers', label: 'Whiskers on kittens' },
     { id: 'kettles', label: 'Bright copper kettles' },
-    { id: 'mittens', label: 'Warm woolen mittens', disabled: true },
+    { id: 'mittens', label: 'Warm woolen mittens' },
     { id: 'packages', label: 'Brown paper packages tied up with strings' },
   ],
+  disabled: false,
 };
 
 const meta: Meta<typeof Component> = {

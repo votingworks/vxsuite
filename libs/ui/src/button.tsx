@@ -105,10 +105,17 @@ function resolveColorAndFill(p: ThemedStyledButtonProps): {
 }
 
 function colorAndFillStyles(p: ThemedStyledButtonProps): CSSObject {
-  const { color, fill } = resolveColorAndFill(p);
+  // eslint-disable-next-line prefer-const
+  let { color, fill } = resolveColorAndFill(p);
   const {
-    theme: { colors },
+    theme: { colors, colorMode },
   } = p;
+
+  // Style tinted buttons as filled buttons for touch themes, since we don't
+  // have "tinted" colors to use.
+  if (colorMode !== 'desktop' && fill === 'tinted') {
+    fill = 'filled';
+  }
 
   const styleSpecs: Record<ButtonColor, Record<ButtonFill, CSSObject>> = {
     primary: {
@@ -252,8 +259,11 @@ function activeStyles(p: ThemedStyledButtonProps): CSSObject {
   const {
     theme: { colorMode },
   } = p;
-  // Having a different style for the active state on desktop is not necessary
-  // because the transition from hover back to normal gives enough feedback.
+  // Generally, when a button is pressed, it changes the UI enough to provide
+  // feedback that the button was pressed, so we don't use active styles. This
+  // is especially important for controls that use Button as a subcomponent
+  // (e.g. SegmentedButton), in which having an active style makes the state
+  // transition from unselected to selected look jittery.
   if (colorMode === 'desktop') {
     return {};
   }
@@ -331,18 +341,19 @@ export const buttonStyles = css<StyledButtonProps>`
   text-shadow: none;
   touch-action: manipulation;
   transition: 100ms ease-in;
-  transition-property: background, border, box-shadow, color;
+  transition-property: background, background-color, filter, border, box-shadow,
+    color;
   vertical-align: middle;
   width: auto;
 
   ${(p) => css(colorAndFillStyles(p))}
 
-  &:active:enabled {
-    ${(p) => css(activeStyles(p))}
+  &:hover:enabled {
+    ${(p) => css(hoverStyles(p))}
   }
 
-  &:hover:not(:active):enabled {
-    ${(p) => css(hoverStyles(p))}
+  &:active:enabled {
+    ${(p) => css(activeStyles(p))}
   }
 
   &[disabled] {
@@ -350,10 +361,6 @@ export const buttonStyles = css<StyledButtonProps>`
     box-shadow: none;
     cursor: not-allowed;
   }
-`;
-
-export const DecoyButton = styled.div`
-  ${buttonStyles}
 `;
 
 const StyledButton = styled('button').attrs(({ type = 'button' }) => ({

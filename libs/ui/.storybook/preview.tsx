@@ -152,6 +152,7 @@ export const decorators: DecoratorFunction[] = [
           defaultSizeMode={globals.sizeMode}
           enableScroll
           screenType={globals.screenType}
+          isTouchscreen={['elo13', 'elo15'].includes(globals.screenType)}
         >
           <StoryWrapper context={context}>
             <Story />
