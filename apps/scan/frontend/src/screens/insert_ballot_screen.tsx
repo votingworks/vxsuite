@@ -1,4 +1,10 @@
-import { Caption, Font, Icons, InsertBallotImage, P } from '@votingworks/ui';
+import {
+  Caption,
+  Icons,
+  InsertBallotImage,
+  P,
+  appStrings,
+} from '@votingworks/ui';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
@@ -20,15 +26,13 @@ export function InsertBallotScreen({
       ballotCountOverride={scannedBallotCount}
     >
       <FullScreenPromptLayout
-        title="Insert Your Ballot"
+        title={appStrings.titleScannerInsertBallotScreen()}
         image={<InsertBallotImage ballotFeedLocation="top" />}
       >
-        <P>Scan one ballot sheet at a time.</P>
+        <P>{appStrings.instructionsScannerInsertBallotScreen()}</P>
         {showNoChargerWarning && (
           <Caption>
-            <Icons.Warning color="warning" />{' '}
-            <Font weight="bold">No Power Detected.</Font> Please ask a poll
-            worker to plug in the power cord.
+            <Icons.Warning color="warning" /> {appStrings.warningNoPower()}
           </Caption>
         )}
       </FullScreenPromptLayout>

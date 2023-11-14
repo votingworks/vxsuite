@@ -1,4 +1,4 @@
-import { BigMetric } from '@votingworks/ui';
+import { BigMetric, appStrings } from '@votingworks/ui';
 import styled from 'styled-components';
 
 interface Props {
@@ -13,7 +13,7 @@ export function ScannedBallotCount({ count }: Props): JSX.Element {
   return (
     <BallotsScannedContainer>
       <BigMetric
-        label="Ballots Scanned"
+        label={appStrings.labelNumBallotsScanned()}
         value={count}
         valueElementTestId="ballot-count"
       />

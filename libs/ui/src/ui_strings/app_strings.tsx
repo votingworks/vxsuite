@@ -172,8 +172,18 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsScannerInsertBallotScreen: () => (
+    <UiString uiStringKey="instructionsScannerInsertBallotScreen">
+      Scan one ballot sheet at a time.
+    </UiString>
+  ),
+
   labelAllPrecinctsSelection: () => (
     <UiString uiStringKey="labelAllPrecinctsSelection">All Precincts</UiString>
+  ),
+
+  labelNumBallotsScanned: () => (
+    <UiString uiStringKey="labelNumBallotsScanned">Ballots Scanned</UiString>
   ),
 
   labelBallotStyle: () => (
@@ -464,6 +474,12 @@ export const appStrings = {
     <UiString uiStringKey="titleDisplaySettingsSize">Text Size</UiString>
   ),
 
+  titleScannerInsertBallotScreen: () => (
+    <UiString uiStringKey="titleScannerInsertBallotScreen">
+      Insert Your Ballot
+    </UiString>
+  ),
+
   warningBmdInactiveSession: () => (
     <UiString uiStringKey="warningBmdInactiveSession">
       This voting station has been inactive for more than 5 minutes.
@@ -493,6 +509,13 @@ export const appStrings = {
   warningNoVotesForContest: () => (
     <UiString uiStringKey="warningNoVotesForContest">
       You may still vote in this contest.
+    </UiString>
+  ),
+
+  warningNoPower: () => (
+    <UiString uiStringKey="warningNoPower">
+      <Font weight="bold">No Power Detected.</Font> Please ask a poll worker to
+      plug in the power cord.
     </UiString>
   ),
 } as const;
