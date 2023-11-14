@@ -64,7 +64,7 @@ export function TabulationForm({
   return (
     <Form>
       <Row style={{ gap: '1rem' }}>
-        <Card style={{ minWidth: '16rem' }}>
+        <Card>
           <H2>Adjudication Reasons</H2>
           <Column style={{ gap: '1.5rem' }}>
             <FormField label="VxScan">
