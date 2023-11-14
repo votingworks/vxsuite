@@ -3,21 +3,26 @@ import styled from 'styled-components';
 
 import { LabelButton, ButtonProps } from '@votingworks/ui';
 
-const HiddenFileInput = styled.input`
+const LabelButtonContainer = styled(LabelButton)`
   position: relative;
+
+  &:focus-within {
+    outline: var(--focus-outline);
+  }
+`;
+
+const HiddenFileInput = styled.input`
+  position: absolute;
   opacity: 0;
   z-index: -1;
-  width: 0.1px;
-  height: 0.1px;
-  overflow: hidden;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  cursor: pointer;
 
-  &:focus + label {
-    outline: none;
-  }
-
-  &:hover + label,
-  &:active + label {
-    outline: none;
+  &[disabled] {
+    cursor: not-allowed;
   }
 `;
 
@@ -46,7 +51,7 @@ export function FileInputButton({
     input?.blur();
   }
   return (
-    <LabelButton {...buttonProps} disabled={disabled}>
+    <LabelButtonContainer {...buttonProps}>
       <HiddenFileInput
         {...rest}
         accept={accept}
@@ -57,6 +62,6 @@ export function FileInputButton({
         type="file"
       />
       {children}
-    </LabelButton>
+    </LabelButtonContainer>
   );
 }
