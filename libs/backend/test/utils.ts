@@ -14,21 +14,23 @@ import {
   PollsState,
 } from '@votingworks/types';
 
-import { ScannerStore } from '../src/cast_vote_records/export';
+import {
+  CentralScannerStore,
+  PrecinctScannerStore,
+  ScannerStoreBase,
+} from '../src/cast_vote_records/export';
 import {
   FileSystemEntryType,
   listDirectoryRecursive,
 } from '../src/list_directory';
 
-class MockScannerStore implements ScannerStore {
-  private ballotsCounted: number;
+class MockScannerStoreBase implements ScannerStoreBase {
   private batches: BatchInfo[];
   private readonly client: Client;
   private electionDefinition?: ElectionDefinition;
   private testMode: boolean;
 
   constructor() {
-    this.ballotsCounted = 0;
     this.batches = [];
     this.client = Client.memoryClient();
     this.electionDefinition = undefined;
@@ -37,35 +39,16 @@ class MockScannerStore implements ScannerStore {
     this.client.exec(CAST_VOTE_RECORD_HASHES_TABLE_SCHEMA);
   }
 
-  //
-  // Cast vote record hash methods
-  //
-
-  getCastVoteRecordRootHash(): string {
-    return getCastVoteRecordRootHash(this.client);
-  }
-
-  updateCastVoteRecordHashes(
-    castVoteRecordId: string,
-    castVoteRecordHash: string
-  ): void {
-    return updateCastVoteRecordHashes(
-      this.client,
-      castVoteRecordId,
-      castVoteRecordHash
-    );
-  }
-
   clearCastVoteRecordHashes(): void {
     return clearCastVoteRecordHashes(this.client);
   }
 
-  //
-  // Other getters
-  //
-
   getBatches(): BatchInfo[] {
     return this.batches;
+  }
+
+  getCastVoteRecordRootHash(): string {
+    return getCastVoteRecordRootHash(this.client);
   }
 
   getElectionDefinition(): ElectionDefinition | undefined {
@@ -80,17 +63,20 @@ class MockScannerStore implements ScannerStore {
     return this.testMode;
   }
 
+  updateCastVoteRecordHashes(
+    castVoteRecordId: string,
+    castVoteRecordHash: string
+  ): void {
+    return updateCastVoteRecordHashes(
+      this.client,
+      castVoteRecordId,
+      castVoteRecordHash
+    );
+  }
+
   //
   // Methods to facilitate testing, beyond the ScannerStore interface
   //
-
-  getBallotsCounted(): number {
-    return this.ballotsCounted;
-  }
-
-  setBallotsCounted(ballotsCounted: number): void {
-    this.ballotsCounted = ballotsCounted;
-  }
 
   setBatches(batches: BatchInfo[]): void {
     this.batches = batches;
@@ -108,31 +94,70 @@ class MockScannerStore implements ScannerStore {
 /**
  * A mock central scanner store
  */
-export class MockCentralScannerStore extends MockScannerStore {}
+export class MockCentralScannerStore
+  extends MockScannerStoreBase
+  implements CentralScannerStore
+{
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  readonly scannerType = 'central';
+}
 
 /**
  * A mock precinct scanner store
  */
-export class MockPrecinctScannerStore extends MockScannerStore {
+export class MockPrecinctScannerStore
+  extends MockScannerStoreBase
+  implements PrecinctScannerStore
+{
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  readonly scannerType = 'precinct';
+
+  private ballotsCounted: number;
   private exportDirectoryName?: string;
+  private isContinuousExportOperationInProgressValue: boolean;
   private pollsState: PollsState;
 
   constructor() {
     super();
+    this.ballotsCounted = 0;
     this.exportDirectoryName = undefined;
+    this.isContinuousExportOperationInProgressValue = false;
     this.pollsState = 'polls_closed_initial';
+  }
+
+  getBallotsCounted(): number {
+    return this.ballotsCounted;
   }
 
   getExportDirectoryName(): string | undefined {
     return this.exportDirectoryName;
   }
 
+  getPollsState(): PollsState {
+    return this.pollsState;
+  }
+
+  isContinuousExportOperationInProgress(): boolean {
+    return this.isContinuousExportOperationInProgressValue;
+  }
+
   setExportDirectoryName(exportDirectoryName: string): void {
     this.exportDirectoryName = exportDirectoryName;
   }
 
-  getPollsState(): PollsState {
-    return this.pollsState;
+  setIsContinuousExportOperationInProgress(
+    isContinuousExportOperationInProgress: boolean
+  ): void {
+    this.isContinuousExportOperationInProgressValue =
+      isContinuousExportOperationInProgress;
+  }
+
+  //
+  // Methods to facilitate testing, beyond the ScannerStore interface
+  //
+
+  setBallotsCounted(ballotsCounted: number): void {
+    this.ballotsCounted = ballotsCounted;
   }
 
   setPollsState(pollsState: PollsState): void {

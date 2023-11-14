@@ -31,12 +31,10 @@ import {
 } from '../../test/utils';
 import {
   AcceptedSheet,
-  areOrWereCastVoteRecordsBeingExportedToUsbDrive,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   doesUsbDriveRequireCastVoteRecordSync,
   exportCastVoteRecordsToUsbDrive,
   ExportOptions,
-  markCastVoteRecordExportAsInProgress,
   RejectedSheet,
   Sheet,
 } from './export';
@@ -794,7 +792,7 @@ test.each<{
       mockPrecinctScannerStore.setBallotsCounted(1);
       const usbDriveStatus = await mockUsbDrive.usbDrive.status();
       assert(usbDriveStatus.status === 'mounted');
-      await markCastVoteRecordExportAsInProgress(usbDriveStatus.mountPoint);
+      mockPrecinctScannerStore.setIsContinuousExportOperationInProgress(true);
     },
     shouldUsbDriveRequireCastVoteRecordSync: true,
   },
@@ -1014,12 +1012,6 @@ test('cast vote record export clears doesUsbDriveRequireCastVoteRecordSync cache
       mockPrecinctScannerStore,
       usbDriveStatus
     )
-  ).toEqual(false);
-});
-
-test('areOrWereCastVoteRecordsBeingExportedToUsbDrive returns false when no USB drive', () => {
-  expect(
-    areOrWereCastVoteRecordsBeingExportedToUsbDrive({ status: 'no_drive' })
   ).toEqual(false);
 });
 
