@@ -11,6 +11,7 @@ interface RadioGroupOption<T extends RadioGroupOptionId> {
   ariaLabel?: string;
   id: T;
   label: React.ReactNode;
+  inverse?: boolean;
 }
 /** Common props for subcomponents of a single RadioGroup option. */
 export type OptionProps<T extends RadioGroupOptionId> = RadioGroupOption<T> & {
@@ -39,14 +40,14 @@ const StyledButton = styled(Button)`
 export function RadioButton<T extends RadioGroupOptionId>(
   props: OptionProps<T>
 ): JSX.Element {
-  const { ariaLabel, disabled, id, label, onSelect, selected } = props;
+  const { ariaLabel, disabled, id, inverse, label, onSelect, selected } = props;
 
   return (
     <StyledButton
       aria-label={ariaLabel}
       aria-checked={selected}
       disabled={disabled}
-      color={selected ? 'primary' : 'neutral'}
+      color={inverse ? 'inverseNeutral' : selected ? 'primary' : 'neutral'}
       fill={selected ? 'tinted' : 'outlined'}
       icon={selected ? 'CircleDot' : 'Circle'}
       tabIndex={0}
@@ -72,6 +73,7 @@ export interface RadioGroupProps<T extends RadioGroupOptionId> {
   onChange: (newId: T) => void;
   options: ReadonlyArray<RadioGroupOption<T>>;
   selectedOptionId?: T;
+  inverse?: boolean;
 }
 
 const OuterContainer = styled.fieldset.attrs({ role: 'radiogroup' })`
@@ -107,6 +109,7 @@ export function RadioGroup<T extends RadioGroupOptionId>(
   const {
     disabled,
     hideLabel,
+    inverse,
     label,
     numColumns,
     onChange,
@@ -129,6 +132,7 @@ export function RadioGroup<T extends RadioGroupOptionId>(
             onSelect={onChange}
             selected={o.id === selectedOptionId}
             disabled={disabled}
+            inverse={inverse}
           />
         ))}
       </OptionsContainer>
