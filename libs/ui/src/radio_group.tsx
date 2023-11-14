@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-
+import React from 'react';
 import { Caption } from './typography';
 import { Button } from './button';
 
@@ -8,7 +8,6 @@ type RadioGroupOptionId = string | number;
 
 /** Data schema for a single option in the RadioGroup component. */
 interface RadioGroupOption<T extends RadioGroupOptionId> {
-  ariaLabel?: string;
   id: T;
   label: React.ReactNode;
   inverse?: boolean;
@@ -20,6 +19,15 @@ export type OptionProps<T extends RadioGroupOptionId> = RadioGroupOption<T> & {
   disabled?: boolean;
 };
 
+const RadioContainer = styled.span`
+  position: relative;
+
+  /* Apply focus outline to the button when the radio input is focused. */
+  input:focus + button {
+    outline: var(--focus-outline);
+  }
+`;
+
 const StyledButton = styled(Button)`
   padding-left: 0.5rem;
   border-color: ${(p) => p.theme.colors.outline};
@@ -29,6 +37,8 @@ const StyledButton = styled(Button)`
       : p.theme.sizes.bordersRem.hairline}rem;
   flex-wrap: nowrap;
   justify-content: start;
+  text-align: left;
+  width: 100%;
 
   /* Increase contrast between selected/unselected options when disabled by
    * removing the darkening filter for unselected options. */
@@ -37,25 +47,44 @@ const StyledButton = styled(Button)`
   }
 `;
 
+// Use an invisible radio input to handle the user interaction and checked
+// state. This ensures that we maintain the recommended a11y interaction pattern
+// (https://www.w3.org/WAI/ARIA/apg/patterns/radio/).
+const RadioInput = styled.input.attrs({ type: 'radio' })`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+`;
+
 export function RadioButton<T extends RadioGroupOptionId>(
   props: OptionProps<T>
 ): JSX.Element {
-  const { ariaLabel, disabled, id, inverse, label, onSelect, selected } = props;
+  const { disabled, id, inverse, label, onSelect, selected } = props;
 
   return (
-    <StyledButton
-      aria-label={ariaLabel}
-      aria-checked={selected}
-      disabled={disabled}
-      color={inverse ? 'inverseNeutral' : selected ? 'primary' : 'neutral'}
-      fill={selected ? 'tinted' : 'outlined'}
-      icon={selected ? 'CircleDot' : 'Circle'}
-      tabIndex={0}
-      role="radio"
-      onPress={() => onSelect(id)}
-    >
-      {label}
-    </StyledButton>
+    <RadioContainer>
+      <RadioInput
+        aria-labelledby={`${id}-label`}
+        checked={selected}
+        disabled={disabled}
+        onChange={() => onSelect(id)}
+      />
+      <StyledButton
+        id={`${id}-label`}
+        disabled={disabled}
+        color={inverse ? 'inverseNeutral' : selected ? 'primary' : 'neutral'}
+        fill={selected ? 'tinted' : 'outlined'}
+        icon={selected ? 'CircleDot' : 'Circle'}
+        tabIndex={-1}
+        // Interaction will be handled by the radio input
+        onPress={() => {}}
+      >
+        {label}
+      </StyledButton>
+    </RadioContainer>
   );
 }
 

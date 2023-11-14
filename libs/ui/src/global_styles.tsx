@@ -122,11 +122,18 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
   }
 
-  :focus {
-    outline: ${(p) =>
+  /* Create a CSS variable for the focus outline styling, that way it can be
+   * applied manually as needed in some components that have abnormal focus
+   * triggers (e.g. RadioGroup). */
+  :root {
+    --focus-outline: ${(p) =>
       p.isTouchscreen
         ? `${p.theme.colors.primary} dashed ${p.theme.sizes.bordersRem.medium}rem`
         : 'none'};
+  }
+
+  :focus {
+    outline: var(--focus-outline);
   }
 
   select:disabled {

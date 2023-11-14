@@ -97,7 +97,9 @@ test('desktop, inverse', () => {
     { vxTheme: theme }
   );
 
-  const option = screen.getByRole('radio', { name: 'Four of Hearts' });
+  const option = screen.getByRole('radio', {
+    name: 'Four of Hearts',
+  }).nextSibling; // Select the button that has the styling
   expect(option).toHaveStyle(`color: ${theme.colors.onInverse}`);
   expect(option).toHaveStyle(`border-width: ${theme.sizes.bordersRem.thin}rem`);
 });
