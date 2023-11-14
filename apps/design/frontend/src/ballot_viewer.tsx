@@ -201,17 +201,16 @@ const Controls = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 15rem;
-  background: ${({ theme }) => theme.colors.foreground};
-  color: ${({ theme }) => theme.colors.background};
+  background: ${({ theme }) => theme.colors.inverseBackground};
+  color: ${({ theme }) => theme.colors.onInverse};
   height: 100%;
   padding: 1rem;
   gap: 1rem;
   justify-items: stretch;
   overflow-y: auto;
 
-  /* Override link color for inverted background */
-  section a {
-    color: ${({ theme }) => theme.colors.background};
+  a {
+    color: ${({ theme }) => theme.colors.inversePrimary};
   }
 `;
 
