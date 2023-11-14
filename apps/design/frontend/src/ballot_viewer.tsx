@@ -214,6 +214,12 @@ const Controls = styled.div`
   }
 `;
 
+const Canvas = styled.div`
+  width: 100%;
+  height: 100%;
+  background: ${({ theme }) => theme.colors.container};
+`;
+
 const ErrorMessage = styled.div`
   color: red;
   display: flex;
@@ -315,7 +321,7 @@ export function BallotViewer({
               ballotRoutes.viewBallot(ballotStyle.id, precinct.id),
             ]}
           />
-          <H1>View Ballot</H1>
+          <H1 style={{ marginTop: 0 }}>View Ballot</H1>
           <Column style={{ gap: '1rem' }}>
             <FormField label="Ballot Style">{ballotStyle.id}</FormField>
             <FormField label="Precinct">{precinct.name}</FormField>
@@ -385,6 +391,7 @@ export function BallotViewer({
           <H3>Export</H3>
           <P>
             <Button
+              color="inverseNeutral"
               onPress={onExportPress}
               disabled={exportBallotMutation.isLoading}
             >
@@ -393,7 +400,7 @@ export function BallotViewer({
           </P>
         </section>
       </Controls>
-      <div ref={measureRef} style={{ width: '100%', height: '100%' }}>
+      <Canvas ref={measureRef}>
         {dimensions && (
           <DocumentSvg
             dimensions={dimensions}
@@ -401,7 +408,7 @@ export function BallotViewer({
             grid={showGridLines ? grid : undefined}
           />
         )}
-      </div>
+      </Canvas>
     </div>
   );
 }
