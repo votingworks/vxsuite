@@ -25,8 +25,9 @@ import {
   SystemSettings,
   safeParseSystemSettings,
   AdjudicationReason,
+  PollsTransitionType,
 } from '@votingworks/types';
-import { assert, assertDefined, Optional } from '@votingworks/basics';
+import { assert, assertDefined, Optional, typedAs } from '@votingworks/basics';
 import * as fs from 'fs-extra';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
@@ -44,9 +45,15 @@ import {
   getCastVoteRecordRootHash,
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
-import { SqliteBool, asSqliteBool, fromSqliteBool } from '@votingworks/utils';
+import {
+  SqliteBool,
+  asSqliteBool,
+  fromSqliteBool,
+  getPollsTransitionDestinationState,
+} from '@votingworks/utils';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
+import { PollsTransition } from './types';
 
 const debug = rootDebug.extend('store');
 
@@ -449,14 +456,78 @@ export class Store {
   }
 
   /**
-   * Sets the current polls state
+   * Sets the current polls state and last transition information.
    */
-  setPollsState(pollsState: PollsStateType): void {
+  transitionPolls({ type, time }: Omit<PollsTransition, 'ballotCount'>): void {
     if (!this.hasElection()) {
       throw new Error('Cannot set polls state without an election.');
     }
 
-    this.client.run('update election set polls_state = ?', pollsState);
+    this.client.run(
+      `
+      update election set
+        polls_state = ?,
+        last_polls_transition_type = ?,
+        last_polls_transition_time = ?,
+        last_polls_transition_ballot_count = ?
+        `,
+      getPollsTransitionDestinationState(type),
+      type,
+      time,
+      this.getBallotsCounted()
+    );
+  }
+
+  resetPollsState(): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot reset polls state without an election.');
+    }
+
+    this.client.run(
+      `
+      update election set
+        polls_state = ?,
+        last_polls_transition_type = ?,
+        last_polls_transition_time = ?,
+        last_polls_transition_ballot_count = ?
+        `,
+      typedAs<PollsStateType>('polls_closed_initial'),
+      null,
+      null,
+      null
+    );
+  }
+
+  getLastPollsTransition(): PollsTransition | null {
+    if (!this.hasElection()) {
+      throw new Error(
+        'Cannot get last polls transition info without an election.'
+      );
+    }
+
+    const row = this.client.one(
+      `
+      select
+        last_polls_transition_type as transition,
+        last_polls_transition_time as time,
+        last_polls_transition_ballot_count as ballotCount
+      from election
+      `
+    ) as {
+      transition: PollsTransitionType | null;
+      time: number | null;
+      ballotCount: number | null;
+    };
+
+    if (row.transition) {
+      return {
+        type: row.transition,
+        time: assertDefined(row.time),
+        ballotCount: assertDefined(row.ballotCount),
+      };
+    }
+
+    return null;
   }
 
   /**
@@ -587,7 +658,7 @@ export class Store {
   resetElectionSession(): void {
     if (this.hasElection()) {
       this.client.transaction(() => {
-        this.setPollsState('polls_closed_initial');
+        this.resetPollsState();
         this.setBallotCountWhenBallotBagLastReplaced(0);
       });
     }

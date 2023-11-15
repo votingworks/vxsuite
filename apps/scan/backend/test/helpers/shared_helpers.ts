@@ -88,7 +88,10 @@ export async function configureApp(
       : ALL_PRECINCTS_SELECTION,
   });
   await apiClient.setTestMode({ isTestMode: testMode });
-  await apiClient.setPollsState({ pollsState: 'polls_open' });
+  await apiClient.transitionPolls({
+    type: 'open_polls',
+    time: Date.now(),
+  });
 }
 
 /**
