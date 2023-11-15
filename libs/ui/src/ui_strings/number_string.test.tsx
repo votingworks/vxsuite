@@ -22,7 +22,8 @@ test('formats based on current language code', async () => {
 
   await screen.findByRole('heading', { name: '100,000' });
 
-  act(() => getLanguageContext()?.setLanguage(LanguageCode.SPANISH));
+  // Force-cast a non-Vx language to test locale-specific formatting:
+  act(() => getLanguageContext()?.setLanguage('es-ES' as LanguageCode));
 
   await screen.findByRole('heading', { name: '100.000' });
 });

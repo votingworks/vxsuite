@@ -21,15 +21,17 @@ export function runUiStringApiTests(params: {
     store.addLanguage(LanguageCode.ENGLISH); // Should be a no-op.
     expect(api.getAvailableLanguages()).toEqual([LanguageCode.ENGLISH]);
 
-    store.addLanguage(LanguageCode.CHINESE);
+    store.addLanguage(LanguageCode.CHINESE_TRADITIONAL);
     expect([...api.getAvailableLanguages()].sort()).toEqual(
-      [LanguageCode.ENGLISH, LanguageCode.CHINESE].sort()
+      [LanguageCode.ENGLISH, LanguageCode.CHINESE_TRADITIONAL].sort()
     );
   });
 
   test('getUiStrings', () => {
     expect(api.getUiStrings({ languageCode: LanguageCode.ENGLISH })).toBeNull();
-    expect(api.getUiStrings({ languageCode: LanguageCode.CHINESE })).toBeNull();
+    expect(
+      api.getUiStrings({ languageCode: LanguageCode.CHINESE_TRADITIONAL })
+    ).toBeNull();
     expect(api.getUiStrings({ languageCode: LanguageCode.SPANISH })).toBeNull();
 
     store.setUiStrings({
@@ -37,14 +39,16 @@ export function runUiStringApiTests(params: {
       data: { foo: 'bar' },
     });
     store.setUiStrings({
-      languageCode: LanguageCode.CHINESE,
+      languageCode: LanguageCode.CHINESE_TRADITIONAL,
       data: { foo: 'bar_zh' },
     });
 
     expect(api.getUiStrings({ languageCode: LanguageCode.ENGLISH })).toEqual({
       foo: 'bar',
     });
-    expect(api.getUiStrings({ languageCode: LanguageCode.CHINESE })).toEqual({
+    expect(
+      api.getUiStrings({ languageCode: LanguageCode.CHINESE_TRADITIONAL })
+    ).toEqual({
       foo: 'bar_zh',
     });
     expect(api.getUiStrings({ languageCode: LanguageCode.SPANISH })).toBeNull();
@@ -71,9 +75,9 @@ export function runUiStringApiTests(params: {
       deeply: { nested: ['321', 'cba'] },
     });
 
-    store.addLanguage(LanguageCode.CHINESE);
+    store.addLanguage(LanguageCode.CHINESE_TRADITIONAL);
     store.setUiStringAudioIds({
-      languageCode: LanguageCode.CHINESE,
+      languageCode: LanguageCode.CHINESE_TRADITIONAL,
       data: {
         foo: ['456', 'def'],
         deeply: { nested: ['654', 'fed'] },
@@ -81,7 +85,9 @@ export function runUiStringApiTests(params: {
     });
 
     expect(
-      api.getUiStringAudioIds({ languageCode: LanguageCode.CHINESE })
+      api.getUiStringAudioIds({
+        languageCode: LanguageCode.CHINESE_TRADITIONAL,
+      })
     ).toEqual({
       foo: ['456', 'def'],
       deeply: { nested: ['654', 'fed'] },

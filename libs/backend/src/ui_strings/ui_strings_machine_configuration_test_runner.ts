@@ -64,7 +64,7 @@ export function runUiStringMachineConfigurationTests(
     expect(store.getUiStrings(LanguageCode.SPANISH)).toEqual(
       appStrings[LanguageCode.SPANISH]
     );
-    expect(store.getUiStrings(LanguageCode.CHINESE)).toBeNull();
+    expect(store.getUiStrings(LanguageCode.CHINESE_TRADITIONAL)).toBeNull();
   });
 
   test('is a no-op for missing uiStrings package', async () => {
@@ -86,7 +86,7 @@ export function runUiStringMachineConfigurationTests(
     const uiStringAudioIds: UiStringAudioIdsPackage = {
       [LanguageCode.ENGLISH]: { foo: ['123', 'abc'] },
       [LanguageCode.SPANISH]: { foo: ['456', 'def'] },
-      [LanguageCode.CHINESE]: { foo: ['789', 'fff'] },
+      [LanguageCode.CHINESE_TRADITIONAL]: { foo: ['789', 'fff'] },
     };
 
     await doTestConfigure({ electionDefinition, uiStrings, uiStringAudioIds });
@@ -100,7 +100,9 @@ export function runUiStringMachineConfigurationTests(
     expect(store.getUiStringAudioIds(LanguageCode.SPANISH)).toEqual({
       ...assertDefined(uiStringAudioIds[LanguageCode.SPANISH]),
     });
-    expect(store.getUiStringAudioIds(LanguageCode.CHINESE)).toBeNull();
+    expect(
+      store.getUiStringAudioIds(LanguageCode.CHINESE_TRADITIONAL)
+    ).toBeNull();
   });
 
   test('is a no-op for missing uiStringAudioIds package', async () => {

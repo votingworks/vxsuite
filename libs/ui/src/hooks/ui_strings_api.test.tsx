@@ -37,7 +37,7 @@ test('getAvailableLanguages', async () => {
   // Simulate configuring an election:
   await act(async () => {
     mockApiClient.getAvailableLanguages.mockResolvedValueOnce([
-      LanguageCode.CHINESE,
+      LanguageCode.CHINESE_TRADITIONAL,
       LanguageCode.SPANISH,
     ]);
     await api.onMachineConfigurationChange(queryClient);
@@ -45,7 +45,7 @@ test('getAvailableLanguages', async () => {
 
   await waitFor(() => expect(result.current.isLoading).toEqual(false));
   expect(result.current.data).toEqual([
-    LanguageCode.CHINESE,
+    LanguageCode.CHINESE_TRADITIONAL,
     LanguageCode.SPANISH,
   ]);
 

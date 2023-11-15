@@ -16,7 +16,8 @@ test('formats counts properly', () => {
   expect(format.count(-1000000)).toEqual('-1,000,000');
   expect(format.count(-3141098210928)).toEqual('-3,141,098,210,928');
   expect(format.count(40240, LanguageCode.ENGLISH)).toEqual('40,240');
-  expect(format.count(40240, LanguageCode.SPANISH)).toEqual('40.240');
+  // Force-cast a non-Vx language to test locale-specific formatting:
+  expect(format.count(40240, 'es-ES' as LanguageCode)).toEqual('40.240');
 });
 
 test('formats locale long date and time properly', () => {
@@ -50,7 +51,7 @@ test('formats locale long date properly', () => {
   expect(
     format.localeLongDate(
       new Date(2020, 3, 14, 1, 15, 9, 26),
-      LanguageCode.CHINESE
+      LanguageCode.CHINESE_TRADITIONAL
     )
   ).toEqual('2020年4月14日');
 });

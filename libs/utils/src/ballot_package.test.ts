@@ -65,7 +65,7 @@ test('readBallotPackageFromFile loads available ui strings', async () => {
       foo: 'bar',
       deeply: { nested: 'value' },
     },
-    [LanguageCode.CHINESE]: {
+    [LanguageCode.CHINESE_TRADITIONAL]: {
       foo: 'bar_zh',
       deeply: { nested: 'value_zh' },
     },
@@ -84,8 +84,8 @@ test('readBallotPackageFromFile loads available ui strings', async () => {
       ...assertDefined(appStrings[LanguageCode.ENGLISH]),
       ...assertDefined(expectedElectionStrings[LanguageCode.ENGLISH]),
     },
-    [LanguageCode.CHINESE]: {
-      ...assertDefined(appStrings[LanguageCode.CHINESE]),
+    [LanguageCode.CHINESE_TRADITIONAL]: {
+      ...assertDefined(appStrings[LanguageCode.CHINESE_TRADITIONAL]),
     },
   };
 
@@ -151,7 +151,7 @@ test('readBallotPackageFromFile loads UI string audio IDs', async () => {
       foo: ['123', 'abc'],
       deeply: { nested: ['321', 'cba'] },
     },
-    [LanguageCode.CHINESE]: {
+    [LanguageCode.CHINESE_TRADITIONAL]: {
       foo: ['456', 'def'],
       deeply: { nested: ['654', 'fed'] },
     },
@@ -166,8 +166,8 @@ test('readBallotPackageFromFile loads UI string audio IDs', async () => {
     [LanguageCode.ENGLISH]: {
       ...assertDefined(audioIds[LanguageCode.ENGLISH]),
     },
-    [LanguageCode.CHINESE]: {
-      ...assertDefined(audioIds[LanguageCode.CHINESE]),
+    [LanguageCode.CHINESE_TRADITIONAL]: {
+      ...assertDefined(audioIds[LanguageCode.CHINESE_TRADITIONAL]),
     },
   };
 

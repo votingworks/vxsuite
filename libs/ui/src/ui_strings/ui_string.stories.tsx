@@ -65,7 +65,7 @@ const uiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
   getAvailableLanguages: () =>
     Promise.resolve([
       LanguageCode.ENGLISH,
-      LanguageCode.CHINESE,
+      LanguageCode.CHINESE_TRADITIONAL,
       LanguageCode.SPANISH,
     ]),
   getUiStringAudioIds: () => Promise.reject(new Error('not yet implemented')),
