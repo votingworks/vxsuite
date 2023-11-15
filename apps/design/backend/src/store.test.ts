@@ -9,7 +9,10 @@ test('Translation cache', () => {
     store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
   ).toEqual(undefined);
   expect(
-    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.CHINESE)
+    store.getTranslatedTextFromCache(
+      'Happy birthday!',
+      LanguageCode.CHINESE_TRADITIONAL
+    )
   ).toEqual(undefined);
 
   // Add a Spanish translation
@@ -22,20 +25,26 @@ test('Translation cache', () => {
     store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
   ).toEqual('¡Feliz cumpleaños!');
   expect(
-    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.CHINESE)
+    store.getTranslatedTextFromCache(
+      'Happy birthday!',
+      LanguageCode.CHINESE_TRADITIONAL
+    )
   ).toEqual(undefined);
 
   // Add a Chinese translation
   store.addTranslationCacheEntry({
     text: 'Happy birthday!',
-    targetLanguageCode: LanguageCode.CHINESE,
+    targetLanguageCode: LanguageCode.CHINESE_TRADITIONAL,
     translatedText: '生日快乐！',
   });
   expect(
     store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
   ).toEqual('¡Feliz cumpleaños!');
   expect(
-    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.CHINESE)
+    store.getTranslatedTextFromCache(
+      'Happy birthday!',
+      LanguageCode.CHINESE_TRADITIONAL
+    )
   ).toEqual('生日快乐！');
 
   // Update the Spanish translation
@@ -48,7 +57,10 @@ test('Translation cache', () => {
     store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.SPANISH)
   ).toEqual('¡Feliz cumpleaños! 🥳');
   expect(
-    store.getTranslatedTextFromCache('Happy birthday!', LanguageCode.CHINESE)
+    store.getTranslatedTextFromCache(
+      'Happy birthday!',
+      LanguageCode.CHINESE_TRADITIONAL
+    )
   ).toEqual('生日快乐！');
 });
 

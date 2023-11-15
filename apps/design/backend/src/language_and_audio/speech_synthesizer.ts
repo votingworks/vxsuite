@@ -18,7 +18,14 @@ export const GoogleCloudVoices: Record<
   LanguageCode,
   { languageCode: string; name: string }
 > = {
-  [LanguageCode.CHINESE]: { languageCode: 'cmn-CN', name: 'cmn-CN-Wavenet-B' },
+  [LanguageCode.CHINESE_SIMPLIFIED]: {
+    languageCode: 'cmn-CN',
+    name: 'cmn-CN-Wavenet-B',
+  },
+  [LanguageCode.CHINESE_TRADITIONAL]: {
+    languageCode: 'cmn-CN',
+    name: 'cmn-CN-Wavenet-B',
+  },
   [LanguageCode.ENGLISH]: { languageCode: 'en-US', name: 'en-US-Neural2-J' },
   [LanguageCode.SPANISH]: { languageCode: 'es-US', name: 'es-US-Neural2-B' },
 };

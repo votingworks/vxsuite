@@ -4,7 +4,11 @@ import { LanguageCode } from '@votingworks/types';
 import { GoogleCloudTranslator } from '../src/language_and_audio/translator';
 import { Store } from '../src/store';
 
-const languageCodes: string[] = [LanguageCode.CHINESE, LanguageCode.SPANISH];
+const languageCodes: Set<string> = (() => {
+  const nonEnglishLanguageCodes = new Set<string>(Object.values(LanguageCode));
+  nonEnglishLanguageCodes.delete(LanguageCode.ENGLISH);
+  return nonEnglishLanguageCodes;
+})();
 const usageMessage = `Usage: translate-text 'Text to translate' <target-language-code>
 
 Arguments:
@@ -16,7 +20,7 @@ interface TranslateTextInput {
 }
 
 function parseCommandLineArgs(args: readonly string[]): TranslateTextInput {
-  if (args.length !== 2 || !languageCodes.includes(args[1])) {
+  if (args.length !== 2 || !languageCodes.has(args[1])) {
     console.log(usageMessage);
     process.exit(0);
   }

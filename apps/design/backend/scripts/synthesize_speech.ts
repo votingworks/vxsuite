@@ -6,11 +6,7 @@ import { LanguageCode } from '@votingworks/types';
 import { GoogleCloudSpeechSynthesizer } from '../src/language_and_audio/speech_synthesizer';
 import { Store } from '../src/store';
 
-const languageCodes: string[] = [
-  LanguageCode.CHINESE,
-  LanguageCode.ENGLISH,
-  LanguageCode.SPANISH,
-];
+const languageCodes: string[] = Object.values(LanguageCode);
 const usageMessage = `Usage: synthesize-speech 'Text to convert to speech' <language-code> <output-file-path>
 
 Arguments:

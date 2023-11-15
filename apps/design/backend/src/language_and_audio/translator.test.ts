@@ -63,7 +63,7 @@ test('GoogleCloudTranslator', async () => {
   // been translated to this specific language
   translatedTextArray = await translator.translateText(
     ['Do you like apples?', 'Do you like bananas?', 'Do you like oranges?'],
-    LanguageCode.CHINESE
+    LanguageCode.CHINESE_TRADITIONAL
   );
   expect(translatedTextArray).toEqual([
     'Do you like apples? (in zh)',
@@ -79,7 +79,7 @@ test('GoogleCloudTranslator', async () => {
         'Do you like bananas?',
         'Do you like oranges?',
       ],
-      targetLanguageCode: LanguageCode.CHINESE,
+      targetLanguageCode: LanguageCode.CHINESE_TRADITIONAL,
     })
   );
 });
