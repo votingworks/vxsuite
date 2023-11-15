@@ -44,6 +44,7 @@ import {
   getCastVoteRecordRootHash,
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
+import { SqliteBool, asSqliteBool, fromSqliteBool } from '@votingworks/utils';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 
@@ -834,8 +835,10 @@ export class Store {
         is_continuous_export_operation_in_progress as isContinuousExportOperationInProgress
       from is_continuous_export_operation_in_progress
       `
-    ) as { isContinuousExportOperationInProgress: number } | undefined;
-    return Boolean(row?.isContinuousExportOperationInProgress);
+    ) as { isContinuousExportOperationInProgress: SqliteBool } | undefined;
+    return row
+      ? fromSqliteBool(row.isContinuousExportOperationInProgress)
+      : false;
   }
 
   setIsContinuousExportOperationInProgress(
@@ -848,7 +851,7 @@ export class Store {
         is_continuous_export_operation_in_progress
       ) values (?)
       `,
-      isContinuousExportOperationInProgress ? 1 : 0
+      asSqliteBool(isContinuousExportOperationInProgress)
     );
   }
 
