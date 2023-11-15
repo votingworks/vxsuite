@@ -84,9 +84,9 @@ describe('PollsNotOpenScreen', () => {
 
   test('shows jurisdiction, precinct, and machine id in election info bar', async () => {
     renderScreen();
-    await screen.findByText('Franklin County,');
+    await screen.findByText('Franklin County');
     await screen.findByText('State of Hamilton');
-    screen.getByText('Center Springfield,');
+    screen.getByText('Center Springfield');
     screen.getByText(machineConfig.machineId);
   });
 });

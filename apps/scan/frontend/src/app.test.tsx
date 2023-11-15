@@ -210,7 +210,7 @@ test('election manager must set precinct', async () => {
   apiMock.removeCard();
   // Confirm precinct is set and correct
   await screen.findByText('Polls Closed');
-  screen.getByText('Center Springfield,');
+  screen.getByText('Center Springfield');
 
   // Poll Worker card can be used to open polls now
   apiMock.expectGetScannerResultsByParty([]);
@@ -317,7 +317,7 @@ test('election manager and poll worker configuration', async () => {
   });
   apiMock.removeCard();
   await screen.findByText('Polls Closed');
-  await screen.findByText('South Springfield,');
+  await screen.findByText('South Springfield');
 
   // Open the polls again
   apiMock.expectGetScannerStatus(statusNoPaper);

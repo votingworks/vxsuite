@@ -5,12 +5,11 @@ import {
   getDisplayElectionHash,
   PrecinctSelection,
 } from '@votingworks/types';
-import { formatShortDate, getPrecinctSelectionName } from '@votingworks/utils';
 import styled from 'styled-components';
-import { DateTime } from 'luxon';
 import { Seal } from './seal';
 import { Caption, Font } from './typography';
 import { LabelledText } from './labelled_text';
+import { electionStrings, PrecinctSelectionName } from './ui_strings';
 
 const Bar = styled.div`
   align-content: flex-end;
@@ -63,27 +62,33 @@ export function ElectionInfoBar({
   precinctSelection,
 }: ElectionInfoBarProps): JSX.Element {
   const {
-    election: { precincts, date, title, county, state, seal },
+    election,
+    election: { precincts, county, seal },
   } = electionDefinition;
-  const electionDate = formatShortDate(DateTime.fromISO(date));
 
   const electionInfoLabel = (
     <React.Fragment>
       {precinctSelection && (
         <React.Fragment>
           <Font noWrap>
-            {getPrecinctSelectionName(precincts, precinctSelection)},
+            <PrecinctSelectionName
+              electionPrecincts={precincts}
+              precinctSelection={precinctSelection}
+            />
+            ,
           </Font>{' '}
         </React.Fragment>
       )}
-      <Font noWrap>{county.name},</Font> <Font noWrap>{state}</Font>
+      <Font noWrap>{electionStrings.countyName(county)},</Font>{' '}
+      <Font noWrap>{electionStrings.stateName(election)}</Font>
     </React.Fragment>
   );
 
   const electionInfo = (
     <Caption weight="regular">
       <LabelledText labelPosition="bottom" label={electionInfoLabel}>
-        <Font weight="bold">{title}</Font> — <Font noWrap>{electionDate}</Font>
+        <Font weight="bold">{electionStrings.electionTitle(election)}</Font> —{' '}
+        <Font noWrap>{electionStrings.electionDate(election)}</Font>
       </LabelledText>
     </Caption>
   );
@@ -156,9 +161,9 @@ export function VerticalElectionInfoBar({
   precinctSelection,
 }: ElectionInfoBarProps): JSX.Element {
   const {
-    election: { precincts, date, title, county, state, seal },
+    election,
+    election: { precincts, county, seal },
   } = electionDefinition;
-  const electionDate = formatShortDate(DateTime.fromISO(date));
 
   return (
     <VerticalBar>
@@ -167,20 +172,24 @@ export function VerticalElectionInfoBar({
           <SealContainer>
             <Seal seal={seal} />
           </SealContainer>
-          <Font weight="bold">{title}</Font>
+          <Font weight="bold">{electionStrings.electionTitle(election)}</Font>
         </ElectionInfoContainer>
 
         {precinctSelection && (
           <TinyInfo>
-            {getPrecinctSelectionName(precincts, precinctSelection)}
+            <PrecinctSelectionName
+              electionPrecincts={precincts}
+              precinctSelection={precinctSelection}
+            />
           </TinyInfo>
         )}
 
         <TinyInfo>
-          {county.name}, {state}
+          {electionStrings.countyName(county)},{' '}
+          {electionStrings.stateName(election)}
         </TinyInfo>
 
-        <TinyInfo>{electionDate}</TinyInfo>
+        <TinyInfo>{electionStrings.electionDate(election)}</TinyInfo>
       </Caption>
 
       <MachineInfoSection>
