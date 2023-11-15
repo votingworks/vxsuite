@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { Election, Id } from '@votingworks/types';
-import { Button, H1 } from '@votingworks/ui';
+import { Button, H1, SegmentedButton } from '@votingworks/ui';
 import { Buffer } from 'buffer';
 import { useHistory, useParams } from 'react-router-dom';
 import DomPurify from 'dompurify';
 import { deleteElection, getElection, updateElection } from './api';
-import { Form, FormField, Input, FormActionsRow } from './layout';
+import {
+  FieldName,
+  Form,
+  FormActionsRow,
+  InputGroup,
+  ScreenContent,
+  ScreenHeader,
+} from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
 import { FileInputButton } from './file_input_button';
-import { SegmentedControl } from './segmented_control';
 
 type ElectionInfo = Pick<
   Election,
@@ -68,16 +74,16 @@ function ElectionInfoForm({
 
   return (
     <Form>
-      <FormField label="Title">
-        <Input
+      <InputGroup label="Title">
+        <input
           type="text"
           value={electionInfo.title}
           onChange={onInputChange('title')}
           disabled={!isEditing}
         />
-      </FormField>
-      <FormField label="Date">
-        <Input
+      </InputGroup>
+      <InputGroup label="Date">
+        <input
           type="date"
           value={
             electionInfo.date &&
@@ -86,28 +92,27 @@ function ElectionInfoForm({
           onChange={onInputChange('date')}
           disabled={!isEditing}
         />
-      </FormField>
-      <FormField label="Type">
-        <SegmentedControl
-          options={[
-            { label: 'General', value: 'general' },
-            { label: 'Primary', value: 'primary' },
-          ]}
-          value={electionInfo.type}
-          onChange={(type) => setElectionInfo({ ...electionInfo, type })}
-          disabled={!isEditing}
-        />
-      </FormField>
-      <FormField label="State">
-        <Input
+      </InputGroup>
+      <SegmentedButton
+        label="Type"
+        options={[
+          { label: 'General', id: 'general' },
+          { label: 'Primary', id: 'primary' },
+        ]}
+        selectedOptionId={electionInfo.type}
+        onChange={(type) => setElectionInfo({ ...electionInfo, type })}
+        disabled={!isEditing}
+      />
+      <InputGroup label="State">
+        <input
           type="text"
           value={electionInfo.state}
           onChange={onInputChange('state')}
           disabled={!isEditing}
         />
-      </FormField>
-      <FormField label="County">
-        <Input
+      </InputGroup>
+      <InputGroup label="County">
+        <input
           type="text"
           value={electionInfo.county.name}
           onChange={(e) =>
@@ -121,8 +126,9 @@ function ElectionInfoForm({
           }
           disabled={!isEditing}
         />
-      </FormField>
-      <FormField label="Seal">
+      </InputGroup>
+      <div>
+        <FieldName>Seal</FieldName>
         {electionInfo.seal && (
           <img
             src={`data:image/svg+xml;base64,${Buffer.from(
@@ -157,7 +163,7 @@ function ElectionInfoForm({
             Upload Seal Image
           </FileInputButton>
         )}
-      </FormField>
+      </div>
 
       {isEditing ? (
         <FormActionsRow>
@@ -217,8 +223,12 @@ export function ElectionInfoScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <H1>Election Info</H1>
-      <ElectionInfoForm electionId={electionId} savedElection={election} />
+      <ScreenHeader>
+        <H1>Election Info</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <ElectionInfoForm electionId={electionId} savedElection={election} />
+      </ScreenContent>
     </ElectionNavScreen>
   );
 }

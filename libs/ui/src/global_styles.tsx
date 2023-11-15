@@ -107,6 +107,25 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     display: block;
   }
 
+  input, textarea {
+    cursor: text;
+    border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid ${(p) =>
+      p.theme.colors.outline};
+    background: ${(p) => p.theme.colors.containerLow};
+    padding: 0.5rem;
+    line-height: ${(p) => p.theme.sizes.lineHeight};
+    border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+
+    &:focus {
+      background: none;
+    }
+
+    &:disabled {
+      background: ${(p) => p.theme.colors.container};
+      border-style: dashed;
+    }
+  }
+
   select option {
     background-color: ${(p) => p.theme.colors.background};
     color: ${(p) => p.theme.colors.onBackground};
@@ -120,6 +139,10 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
   :visited {
     color: ${(p) => p.theme.colors.primary};
     font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+
+    &:hover {
+      filter: brightness(1.2);
+    }
   }
 
   /* Create a CSS variable for the focus outline styling, that way it can be
@@ -129,10 +152,10 @@ export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
     --focus-outline: ${(p) =>
       p.isTouchscreen
         ? `${p.theme.colors.primary} dashed ${p.theme.sizes.bordersRem.medium}rem`
-        : 'none'};
+        : `${p.theme.colors.primary} solid ${p.theme.sizes.bordersRem.medium}rem`}
   }
 
-  :focus {
+  :focus-visible {
     outline: var(--focus-outline);
   }
 

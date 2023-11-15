@@ -5,6 +5,7 @@ import { getDisplayElectionHash } from '@votingworks/types';
 import { exportAllBallots, exportSetupPackage } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
+import { ScreenContent, ScreenHeader } from './layout';
 
 export function ExportScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
@@ -41,25 +42,29 @@ export function ExportScreen(): JSX.Element {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <H1>Export</H1>
-      <P>
-        <Button
-          variant="primary"
-          onPress={onPressExportAllBallots}
-          disabled={exportAllBallotsMutation.isLoading}
-        >
-          Export All Ballots
-        </Button>
-      </P>
-      <P>
-        <Button
-          variant="primary"
-          onPress={onPressExportSetupPackage}
-          disabled={exportSetupPackageMutation.isLoading}
-        >
-          Export Setup Package
-        </Button>
-      </P>
+      <ScreenHeader>
+        <H1>Export</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <P>
+          <Button
+            variant="primary"
+            onPress={onPressExportAllBallots}
+            disabled={exportAllBallotsMutation.isLoading}
+          >
+            Export All Ballots
+          </Button>
+        </P>
+        <P>
+          <Button
+            variant="primary"
+            onPress={onPressExportSetupPackage}
+            disabled={exportSetupPackageMutation.isLoading}
+          >
+            Export Setup Package
+          </Button>
+        </P>
+      </ScreenContent>
     </ElectionNavScreen>
   );
 }

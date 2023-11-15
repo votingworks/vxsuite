@@ -1,4 +1,14 @@
-import { H1, Table, TH, TD, LinkButton, P, Button } from '@votingworks/ui';
+import {
+  H1,
+  Table,
+  TH,
+  TD,
+  LinkButton,
+  P,
+  Button,
+  SegmentedButton,
+  RadioGroup,
+} from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -9,14 +19,18 @@ import {
 import { useState } from 'react';
 import { LayoutOptions } from '@votingworks/hmpb-layout';
 import { getElection, updateElection, updateLayoutOptions } from './api';
-import { Form, FormActionsRow, FormField, NestedTr } from './layout';
+import {
+  Form,
+  FormActionsRow,
+  NestedTr,
+  ScreenContent,
+  ScreenHeader,
+} from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
 import { BallotScreen } from './ballot_screen';
-import { SegmentedControl } from './segmented_control';
 import { paperSizeLabels } from './ballot_viewer';
-import { RadioGroup } from './radio';
 import { TabBar, TabPanel } from './tabs';
 
 function BallotDesignForm({
@@ -61,54 +75,53 @@ function BallotDesignForm({
   }
 
   return (
-    <Form>
-      <FormField label="Paper Size">
-        <RadioGroup
-          options={Object.entries(paperSizeLabels).map(([value, label]) => ({
-            value,
-            label,
-          }))}
-          value={ballotLayout.paperSize}
-          onChange={(paperSize) =>
-            setBallotLayout({
-              ...ballotLayout,
-              paperSize: paperSize as BallotPaperSize,
-            })
-          }
-          disabled={!isEditing}
-        />
-      </FormField>
-      <FormField label="Density">
-        <RadioGroup
-          options={[
-            { value: 0, label: 'Default' },
-            { value: 1, label: 'Medium' },
-            { value: 2, label: 'Condensed' },
-          ]}
-          value={layoutOptions.layoutDensity}
-          onChange={(layoutDensity) =>
-            setLayoutOptions({ ...layoutOptions, layoutDensity })
-          }
-          disabled={!isEditing}
-        />
-      </FormField>
+    <Form style={{ maxWidth: '16rem' }}>
+      <RadioGroup
+        label="Paper Size"
+        options={Object.entries(paperSizeLabels).map(([value, label]) => ({
+          value,
+          label,
+        }))}
+        value={ballotLayout.paperSize}
+        onChange={(paperSize) =>
+          setBallotLayout({
+            ...ballotLayout,
+            paperSize: paperSize as BallotPaperSize,
+          })
+        }
+        disabled={!isEditing}
+      />
 
-      <FormField label="Bubble Position">
-        <SegmentedControl
-          options={[
-            { value: 'left', label: 'Left' },
-            { value: 'right', label: 'Right' },
-          ]}
-          value={layoutOptions.bubblePosition}
-          onChange={(targetMarkPosition) =>
-            setLayoutOptions({
-              ...layoutOptions,
-              bubblePosition: targetMarkPosition,
-            })
-          }
-          disabled={!isEditing}
-        />
-      </FormField>
+      <RadioGroup
+        label="Density"
+        options={[
+          { value: 0, label: 'Default' },
+          { value: 1, label: 'Medium' },
+          { value: 2, label: 'Condensed' },
+        ]}
+        value={layoutOptions.layoutDensity}
+        onChange={(layoutDensity) =>
+          setLayoutOptions({ ...layoutOptions, layoutDensity })
+        }
+        disabled={!isEditing}
+      />
+
+      <SegmentedButton
+        label="Bubble Position"
+        options={[
+          { id: 'left', label: 'Left' },
+          { id: 'right', label: 'Right' },
+        ]}
+        selectedOptionId={layoutOptions.bubblePosition}
+        onChange={(targetMarkPosition) =>
+          setLayoutOptions({
+            ...layoutOptions,
+            bubblePosition: targetMarkPosition,
+          })
+        }
+        disabled={!isEditing}
+      />
+
       {isEditing ? (
         <FormActionsRow>
           <Button
@@ -298,33 +311,37 @@ export function BallotsScreen(): JSX.Element | null {
       />
       <Route path={ballotsParamRoutes.root.path}>
         <ElectionNavScreen electionId={electionId}>
-          <H1>Ballots</H1>
-          <TabBar
-            tabs={[
-              {
-                label: 'Ballot Styles',
-                path: ballotsRoutes.ballotStyles.path,
-              },
-              {
-                label: 'Ballot Layout',
-                path: ballotsRoutes.ballotLayout.path,
-              },
-            ]}
-          />
-          <Switch>
-            <Route
-              path={ballotsParamRoutes.ballotStyles.path}
-              component={BallotStylesTab}
+          <ScreenHeader>
+            <H1>Ballots</H1>
+          </ScreenHeader>
+          <ScreenContent>
+            <TabBar
+              tabs={[
+                {
+                  label: 'Ballot Styles',
+                  path: ballotsRoutes.ballotStyles.path,
+                },
+                {
+                  label: 'Ballot Layout',
+                  path: ballotsRoutes.ballotLayout.path,
+                },
+              ]}
             />
-            <Route
-              path={ballotsParamRoutes.ballotLayout.path}
-              component={BallotLayoutTab}
-            />
-            <Redirect
-              from={ballotsParamRoutes.root.path}
-              to={ballotsParamRoutes.ballotStyles.path}
-            />
-          </Switch>
+            <Switch>
+              <Route
+                path={ballotsParamRoutes.ballotStyles.path}
+                component={BallotStylesTab}
+              />
+              <Route
+                path={ballotsParamRoutes.ballotLayout.path}
+                component={BallotLayoutTab}
+              />
+              <Redirect
+                from={ballotsParamRoutes.root.path}
+                to={ballotsParamRoutes.ballotStyles.path}
+              />
+            </Switch>
+          </ScreenContent>
         </ElectionNavScreen>
       </Route>
     </Switch>

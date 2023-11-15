@@ -499,4 +499,12 @@ export const SegmentedButtonDeprecated = styled.span`
 
 export const LabelButton = styled.label`
   ${buttonStyles}
+
+  &:hover {
+    ${(p) => css(hoverStyles(p))}
+  }
+
+  &:active {
+    ${(p) => css(activeStyles(p))}
+  }
 `;

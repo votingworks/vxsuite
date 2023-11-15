@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { H1, H2, Button, Card, CheckboxGroup } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 import { AdjudicationReason, Id, SystemSettings } from '@votingworks/types';
-import { Form, FormField, Input, Column, Row, FormActionsRow } from './layout';
+import {
+  Form,
+  Column,
+  Row,
+  FormActionsRow,
+  ScreenHeader,
+  ScreenContent,
+  InputGroup,
+} from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 import { updateSystemSettings, getElection } from './api';
@@ -55,54 +63,47 @@ export function TabulationForm({
   return (
     <Form>
       <Row style={{ gap: '1rem' }}>
-        <Card style={{ minWidth: '16rem' }}>
+        <Card>
           <H2>Adjudication Reasons</H2>
           <Column style={{ gap: '1.5rem' }}>
-            <FormField label="VxScan">
-              <CheckboxGroup
-                label="VxScan"
-                hideLabel
-                options={adjudicationReasonOptions}
-                value={
-                  (tabulationSettings.precinctScanAdjudicationReasons ??
-                    []) as string[]
-                }
-                onChange={(value) =>
-                  setTabulationSettings({
-                    ...tabulationSettings,
-                    precinctScanAdjudicationReasons:
-                      value as AdjudicationReason[],
-                  })
-                }
-                disabled={!isEditing}
-              />
-            </FormField>
-            <FormField label="VxCentralScan">
-              <CheckboxGroup
-                label="VxCentralScan"
-                hideLabel
-                options={adjudicationReasonOptions}
-                value={
-                  (tabulationSettings.centralScanAdjudicationReasons ??
-                    []) as string[]
-                }
-                onChange={(value) =>
-                  setTabulationSettings({
-                    ...tabulationSettings,
-                    centralScanAdjudicationReasons:
-                      value as AdjudicationReason[],
-                  })
-                }
-                disabled={!isEditing}
-              />
-            </FormField>
+            <CheckboxGroup
+              label="VxScan"
+              options={adjudicationReasonOptions}
+              value={
+                (tabulationSettings.precinctScanAdjudicationReasons ??
+                  []) as string[]
+              }
+              onChange={(value) =>
+                setTabulationSettings({
+                  ...tabulationSettings,
+                  precinctScanAdjudicationReasons:
+                    value as AdjudicationReason[],
+                })
+              }
+              disabled={!isEditing}
+            />
+            <CheckboxGroup
+              label="VxCentralScan"
+              options={adjudicationReasonOptions}
+              value={
+                (tabulationSettings.centralScanAdjudicationReasons ??
+                  []) as string[]
+              }
+              onChange={(value) =>
+                setTabulationSettings({
+                  ...tabulationSettings,
+                  centralScanAdjudicationReasons: value as AdjudicationReason[],
+                })
+              }
+              disabled={!isEditing}
+            />
           </Column>
         </Card>
         <Card style={{ minWidth: '16rem' }}>
           <H2>Mark Thresholds</H2>
           <Column style={{ gap: '1.5rem' }}>
-            <FormField label="Definite Mark Threshold">
-              <Input
+            <InputGroup label="Definite Mark Threshold">
+              <input
                 type="number"
                 value={tabulationSettings.markThresholds?.definite ?? ''}
                 onChange={(e) =>
@@ -119,16 +120,18 @@ export function TabulationForm({
                 max={1}
                 disabled={!isEditing}
               />
-            </FormField>
-            <FormField label="Marginal Mark Threshold">
-              <Input
+            </InputGroup>
+            <InputGroup label="Marginal Mark Threshold">
+              <input
                 type="number"
                 value={tabulationSettings.markThresholds?.marginal ?? ''}
                 onChange={(e) =>
                   setTabulationSettings({
                     ...tabulationSettings,
                     markThresholds: {
-                      ...(tabulationSettings.markThresholds || { definite: 0 }),
+                      ...(tabulationSettings.markThresholds || {
+                        definite: 0,
+                      }),
                       marginal: e.target.valueAsNumber,
                     },
                   })
@@ -138,10 +141,10 @@ export function TabulationForm({
                 max={1}
                 disabled={!isEditing}
               />
-            </FormField>
+            </InputGroup>
             {isScoringUnmarkedWriteIns && (
-              <FormField label="Write-In Area Threshold">
-                <Input
+              <InputGroup label="Write-In Area Threshold">
+                <input
                   type="number"
                   value={
                     tabulationSettings.markThresholds?.writeInTextArea ?? ''
@@ -163,7 +166,7 @@ export function TabulationForm({
                   max={1}
                   disabled={!isEditing}
                 />
-              </FormField>
+              </InputGroup>
             )}
           </Column>
         </Card>
@@ -209,11 +212,15 @@ export function TabulationScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <H1>Tabulation</H1>
-      <TabulationForm
-        electionId={electionId}
-        savedSystemSettings={systemSettings}
-      />
+      <ScreenHeader>
+        <H1>Tabulation</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <TabulationForm
+          electionId={electionId}
+          savedSystemSettings={systemSettings}
+        />
+      </ScreenContent>
     </ElectionNavScreen>
   );
 }

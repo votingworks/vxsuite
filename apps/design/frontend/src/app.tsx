@@ -2,7 +2,6 @@ import './polyfills';
 import { AppBase } from '@votingworks/ui';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import styled from 'styled-components';
 import { ApiClientContext, createApiClient, createQueryClient } from './api';
 import { ElectionsScreen } from './elections_screen';
 import { electionParamRoutes, routes } from './routes';
@@ -45,55 +44,26 @@ function ElectionScreens(): JSX.Element {
   );
 }
 
-const StyleOverrides = styled.div`
-  width: 100%;
-  height: 100%;
-
-  button,
-  input[type='checkbox'],
-  input[type='radio'] {
-    cursor: pointer;
-  }
-
-  h1 {
-    margin-bottom: 1.2rem;
-
-    &:not(:first-child) {
-      margin-top: 1rem;
-    }
-  }
-
-  h2 {
-    margin-bottom: 0.8rem;
-  }
-
-  a {
-    color: ${({ theme }) => theme.colors.foreground};
-  }
-`;
-
 export function App(): JSX.Element {
   return (
-    <AppBase defaultColorMode="contrastMedium" defaultSizeMode="desktop">
-      <StyleOverrides>
-        <ApiClientContext.Provider value={createApiClient()}>
-          <QueryClientProvider client={createQueryClient()}>
-            <BrowserRouter>
-              <Switch>
-                <Route
-                  path={routes.root.path}
-                  exact
-                  component={ElectionsScreen}
-                />
-                <Route
-                  path={electionParamRoutes.root.path}
-                  component={ElectionScreens}
-                />
-              </Switch>
-            </BrowserRouter>
-          </QueryClientProvider>
-        </ApiClientContext.Provider>
-      </StyleOverrides>
+    <AppBase defaultColorMode="desktop" defaultSizeMode="desktop">
+      <ApiClientContext.Provider value={createApiClient()}>
+        <QueryClientProvider client={createQueryClient()}>
+          <BrowserRouter>
+            <Switch>
+              <Route
+                path={routes.root.path}
+                exact
+                component={ElectionsScreen}
+              />
+              <Route
+                path={electionParamRoutes.root.path}
+                component={ElectionScreens}
+              />
+            </Switch>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ApiClientContext.Provider>
     </AppBase>
   );
 }

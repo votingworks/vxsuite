@@ -3,7 +3,13 @@ import { Color, ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library';
-import { BUTTON_VARIANTS, Button, ButtonColor, ButtonFill } from './button';
+import {
+  BUTTON_VARIANTS,
+  Button,
+  ButtonColor,
+  ButtonFill,
+  LabelButton,
+} from './button';
 import { makeTheme } from './themes/make_theme';
 import { Icons } from './icons';
 
@@ -322,5 +328,12 @@ describe('Button', () => {
     // TouchEnd too far from TouchStart does not call onPress.
     fireEvent.touchEnd(button, createTouchEndEventProperties(131, 95));
     expect(onPress).toHaveBeenCalledTimes(2);
+  });
+
+  test('renders as label', () => {
+    render(<LabelButton>I am a label</LabelButton>);
+    expect(screen.getByText('I am a label').tagName.toLowerCase()).toEqual(
+      'label'
+    );
   });
 });

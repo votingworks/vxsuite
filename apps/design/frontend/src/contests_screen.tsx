@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Select,
   Button,
   Table,
   TH,
@@ -8,6 +7,8 @@ import {
   H1,
   LinkButton,
   P,
+  SegmentedButton,
+  SearchSelect,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -31,17 +32,18 @@ import {
 import { assert, find } from '@votingworks/basics';
 import {
   Breadcrumbs,
+  FieldName,
   Form,
   FormActionsRow,
-  FormField,
-  Input,
+  InputGroup,
+  ScreenContent,
+  ScreenHeader,
   TableActionsRow,
 } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
-import { SegmentedControl } from './segmented_control';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -85,35 +87,6 @@ function ContestsTab(): JSX.Element | null {
         <P>You haven&apos;t added any contests to this election yet.</P>
       )}
       <TableActionsRow>
-        {contests.length > 0 && (
-          <React.Fragment>
-            <Select
-              value={filterDistrictId}
-              onChange={(e) => setFilterDistrictId(e.target.value)}
-            >
-              <option value="all">All Districts</option>
-              {districts.map((district) => (
-                <option key={district.id} value={district.id}>
-                  {district.name}
-                </option>
-              ))}
-            </Select>
-            {election.type === 'primary' && (
-              <Select
-                value={filterPartyId}
-                onChange={(e) => setFilterPartyId(e.target.value)}
-              >
-                <option value="all">All Parties</option>
-                <option value="nonpartisan">Nonpartisan</option>
-                {parties.map((party) => (
-                  <option key={party.id} value={party.id}>
-                    {party.name}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </React.Fragment>
-        )}
         <LinkButton
           variant="primary"
           icon="Add"
@@ -121,6 +94,37 @@ function ContestsTab(): JSX.Element | null {
         >
           Add Contest
         </LinkButton>
+        {contests.length > 0 && (
+          <React.Fragment>
+            <SearchSelect
+              options={[
+                { value: FILTER_ALL, label: 'All Districts' },
+                ...districts.map((district) => ({
+                  value: district.id,
+                  label: district.name,
+                })),
+              ]}
+              value={filterDistrictId}
+              onChange={(value) => setFilterDistrictId(value ?? FILTER_ALL)}
+              style={{ minWidth: '8rem' }}
+            />
+            {election.type === 'primary' && (
+              <SearchSelect
+                options={[
+                  { value: FILTER_ALL, label: 'All Parties' },
+                  { value: FILTER_NONPARTISAN, label: 'Nonpartisan' },
+                  ...parties.map((party) => ({
+                    value: party.id,
+                    label: party.name,
+                  })),
+                ]}
+                value={filterPartyId}
+                onChange={(value) => setFilterPartyId(value ?? FILTER_ALL)}
+                style={{ minWidth: '8rem' }}
+              />
+            )}
+          </React.Fragment>
+        )}
       </TableActionsRow>
       {contests.length > 0 &&
         (filteredContests.length === 0 ? (
@@ -277,110 +281,109 @@ function ContestForm({
 
   return (
     <Form>
-      <FormField label="Title">
-        <Input
+      <InputGroup label="Title">
+        <input
           type="text"
           value={contest.title}
           onChange={(e) => setContest({ ...contest, title: e.target.value })}
         />
-      </FormField>
-      <FormField label="ID">
-        <Input
+      </InputGroup>
+      <InputGroup label="ID">
+        <input
           type="text"
           value={contest.id}
           onChange={(e) => setContest({ ...contest, id: e.target.value })}
         />
-      </FormField>
-      <FormField label="District">
-        <Select
+      </InputGroup>
+      <InputGroup label="District">
+        <SearchSelect
           value={contest.districtId}
-          onChange={(e) =>
-            setContest({ ...contest, districtId: e.target.value as DistrictId })
+          onChange={(value) =>
+            setContest({ ...contest, districtId: value ?? ('' as DistrictId) })
           }
-        >
-          <option value="" />
-          {savedElection.districts.map((district) => (
-            <option key={district.id} value={district.id}>
-              {district.name}
-            </option>
-          ))}
-        </Select>
-      </FormField>
-      <FormField label="Type">
-        <SegmentedControl
           options={[
-            { value: 'candidate', label: 'Candidate Contest' },
-            { value: 'yesno', label: 'Ballot Measure' },
+            { value: '' as DistrictId, label: '' },
+            ...savedElection.districts.map((district) => ({
+              value: district.id,
+              label: district.name,
+            })),
           ]}
-          value={contest.type}
-          onChange={(type) =>
-            setContest({
-              ...(type === 'candidate'
-                ? createBlankCandidateContest(contest.id)
-                : createBlankYesNoContest(contest.id)),
-              title: contest.title,
-              districtId: contest.districtId,
-            })
-          }
         />
-      </FormField>
+      </InputGroup>
+      <SegmentedButton
+        label="Type"
+        options={[
+          { id: 'candidate', label: 'Candidate Contest' },
+          { id: 'yesno', label: 'Ballot Measure' },
+        ]}
+        selectedOptionId={contest.type}
+        onChange={(type) =>
+          setContest({
+            ...(type === 'candidate'
+              ? createBlankCandidateContest(contest.id)
+              : createBlankYesNoContest(contest.id)),
+            title: contest.title,
+            districtId: contest.districtId,
+          })
+        }
+      />
 
       {contest.type === 'candidate' && (
         <React.Fragment>
           {savedElection.type === 'primary' && (
-            <FormField label="Party">
-              <Select
-                value={contest.partyId ?? ''}
-                onChange={(e) =>
+            <InputGroup label="Party">
+              <SearchSelect
+                options={[
+                  { value: '' as PartyId, label: 'No Party Affiliation' },
+                  ...savedElection.parties.map((party) => ({
+                    value: party.id,
+                    label: party.name,
+                  })),
+                ]}
+                value={contest.partyId}
+                onChange={(value) =>
                   setContest({
                     ...contest,
-                    partyId: e.target.value
-                      ? (e.target.value as PartyId)
-                      : undefined,
+                    partyId: value || undefined,
                   })
                 }
-              >
-                <option value="">No Party Affiliation</option>
-                {savedElection.parties.map((party) => (
-                  <option key={party.id} value={party.id}>
-                    {party.name}
-                  </option>
-                ))}
-              </Select>
-            </FormField>
+              />
+            </InputGroup>
           )}
-          <FormField label="Seats">
-            <Input
+          <InputGroup label="Seats">
+            <input
               type="number"
               value={contest.seats}
               onChange={(e) =>
                 setContest({ ...contest, seats: e.target.valueAsNumber })
               }
               min={1}
+              style={{ width: '4rem' }}
+              maxLength={2}
             />
-          </FormField>
-          <FormField label="Term">
-            <Input
+          </InputGroup>
+          <InputGroup label="Term">
+            <input
               type="text"
               value={contest.termDescription}
               onChange={(e) =>
                 setContest({ ...contest, termDescription: e.target.value })
               }
             />
-          </FormField>
-          <FormField label="Write-Ins Allowed?">
-            <SegmentedControl
-              options={[
-                { value: 'yes', label: 'Yes' },
-                { value: 'no', label: 'No' },
-              ]}
-              value={contest.allowWriteIns ? 'yes' : 'no'}
-              onChange={(value) =>
-                setContest({ ...contest, allowWriteIns: value === 'yes' })
-              }
-            />
-          </FormField>
-          <FormField label="Candidates">
+          </InputGroup>
+          <SegmentedButton
+            label="Write-Ins Allowed?"
+            options={[
+              { id: 'yes', label: 'Yes' },
+              { id: 'no', label: 'No' },
+            ]}
+            selectedOptionId={contest.allowWriteIns ? 'yes' : 'no'}
+            onChange={(value) =>
+              setContest({ ...contest, allowWriteIns: value === 'yes' })
+            }
+          />
+          <div>
+            <FieldName>Candidates</FieldName>
             {contest.candidates.length === 0 && (
               <P style={{ marginTop: '0.5rem' }}>
                 You haven&apos;t added any candidates to this contest yet.
@@ -420,9 +423,10 @@ function ContestForm({
                     // eslint-disable-next-line react/no-array-index-key
                     <tr key={`candidate-${index}`}>
                       <TD>
-                        <Input
+                        <input
                           type="text"
                           value={candidate.name}
+                          // eslint-disable-next-line jsx-a11y/no-autofocus
                           autoFocus
                           onChange={(e) =>
                             setContest({
@@ -437,7 +441,7 @@ function ContestForm({
                         />
                       </TD>
                       <TD>
-                        <Input
+                        <input
                           type="text"
                           value={candidate.id}
                           onChange={(e) =>
@@ -453,32 +457,34 @@ function ContestForm({
                         />
                       </TD>
                       <TD>
-                        <Select
+                        <SearchSelect
+                          options={[
+                            {
+                              value: '' as PartyId,
+                              label: 'No Party Affiliation',
+                            },
+                            ...savedElection.parties.map((party) => ({
+                              value: party.id,
+                              label: party.name,
+                            })),
+                          ]}
                           // Only support one party per candidate for now
                           value={candidate.partyIds?.[0] ?? ('' as PartyId)}
-                          onChange={(e) =>
+                          onChange={(value) =>
                             setContest({
                               ...contest,
                               candidates: contest.candidates.map((c) =>
                                 c.id === candidate.id
                                   ? {
                                       ...candidate,
-                                      partyIds: e.target.value
-                                        ? [e.target.value as PartyId]
-                                        : undefined,
+                                      partyIds: value ? [value] : undefined,
                                     }
                                   : c
                               ),
                             })
                           }
-                        >
-                          <option value="">No Party Affiliation</option>
-                          {savedElection.parties.map((party) => (
-                            <option key={party.id} value={party.id}>
-                              {party.name}
-                            </option>
-                          ))}
-                        </Select>
+                          style={{ minWidth: '8rem !important' }}
+                        />
                       </TD>
                       <TD>
                         <Button
@@ -499,12 +505,12 @@ function ContestForm({
                 </tbody>
               </Table>
             )}
-          </FormField>
+          </div>
         </React.Fragment>
       )}
 
       {contest.type === 'yesno' && (
-        <FormField label="Description">
+        <InputGroup label="Description">
           <textarea
             style={{ width: '100%', height: '10rem' }}
             value={contest.description}
@@ -512,7 +518,7 @@ function ContestForm({
               setContest({ ...contest, description: e.target.value })
             }
           />
-        </FormField>
+        </InputGroup>
       )}
 
       <div>
@@ -552,14 +558,18 @@ function AddContestForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          contestRoutes.contests.root,
-          contestRoutes.contests.addContest,
-        ]}
-      />
-      <H1>Add Contest</H1>
-      <ContestForm electionId={electionId} savedElection={election} />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            contestRoutes.contests.root,
+            contestRoutes.contests.addContest,
+          ]}
+        />
+        <H1>Add Contest</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <ContestForm electionId={electionId} savedElection={election} />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -579,18 +589,22 @@ function EditContestForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          contestRoutes.contests.root,
-          contestRoutes.contests.editContest(contestId),
-        ]}
-      />
-      <H1>Edit Contest</H1>
-      <ContestForm
-        electionId={electionId}
-        contestId={contestId}
-        savedElection={election}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            contestRoutes.contests.root,
+            contestRoutes.contests.editContest(contestId),
+          ]}
+        />
+        <H1>Edit Contest</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <ContestForm
+          electionId={electionId}
+          contestId={contestId}
+          savedElection={election}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -741,36 +755,36 @@ function PartyForm({
 
   return (
     <Form>
-      <FormField label="Full Name">
-        <Input
+      <InputGroup label="Full Name">
+        <input
           type="text"
           value={party.fullName}
           onChange={(e) => setParty({ ...party, fullName: e.target.value })}
         />
-      </FormField>
-      <FormField label="ID">
-        <Input
+      </InputGroup>
+      <InputGroup label="ID">
+        <input
           type="text"
           value={party.id}
           onChange={(e) =>
             setParty({ ...party, id: e.target.value as PartyId })
           }
         />
-      </FormField>
-      <FormField label="Short Name">
-        <Input
+      </InputGroup>
+      <InputGroup label="Short Name">
+        <input
           type="text"
           value={party.name}
           onChange={(e) => setParty({ ...party, name: e.target.value })}
         />
-      </FormField>
-      <FormField label="Abbreviation">
-        <Input
+      </InputGroup>
+      <InputGroup label="Abbreviation">
+        <input
           type="text"
           value={party.abbrev}
           onChange={(e) => setParty({ ...party, abbrev: e.target.value })}
         />
-      </FormField>
+      </InputGroup>
       <div>
         <FormActionsRow>
           <LinkButton to={partyRoutes.root.path}>Cancel</LinkButton>
@@ -808,9 +822,13 @@ function AddPartyForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs routes={[partyRoutes.root, partyRoutes.addParty]} />
-      <H1>Add Party</H1>
-      <PartyForm electionId={electionId} savedElection={election} />
+      <ScreenHeader>
+        <Breadcrumbs routes={[partyRoutes.root, partyRoutes.addParty]} />
+        <H1>Add Party</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <PartyForm electionId={electionId} savedElection={election} />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -830,15 +848,19 @@ function EditPartyForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[partyRoutes.root, partyRoutes.editParty(partyId)]}
-      />
-      <H1>Edit Party</H1>
-      <PartyForm
-        electionId={electionId}
-        partyId={partyId as PartyId}
-        savedElection={election}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[partyRoutes.root, partyRoutes.editParty(partyId)]}
+        />
+        <H1>Edit Party</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <PartyForm
+          electionId={electionId}
+          partyId={partyId as PartyId}
+          savedElection={election}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -871,24 +893,28 @@ export function ContestsScreen(): JSX.Element {
           component={EditPartyForm}
         />
         <Route path={contestParamRoutes.root.path}>
-          <H1>Contests</H1>
-          <TabBar
-            tabs={[contestRoutes.contests.root, contestRoutes.parties.root]}
-          />
-          <Switch>
-            <Route
-              path={contestParamRoutes.contests.root.path}
-              component={ContestsTab}
+          <ScreenHeader>
+            <H1>Contests</H1>
+          </ScreenHeader>
+          <ScreenContent>
+            <TabBar
+              tabs={[contestRoutes.contests.root, contestRoutes.parties.root]}
             />
-            <Route
-              path={contestParamRoutes.parties.root.path}
-              component={PartiesTab}
-            />
-            <Redirect
-              from={contestParamRoutes.root.path}
-              to={contestParamRoutes.contests.root.path}
-            />
-          </Switch>
+            <Switch>
+              <Route
+                path={contestParamRoutes.contests.root.path}
+                component={ContestsTab}
+              />
+              <Route
+                path={contestParamRoutes.parties.root.path}
+                component={PartiesTab}
+              />
+              <Redirect
+                from={contestParamRoutes.root.path}
+                to={contestParamRoutes.contests.root.path}
+              />
+            </Switch>
+          </ScreenContent>
         </Route>
       </Switch>
     </ElectionNavScreen>

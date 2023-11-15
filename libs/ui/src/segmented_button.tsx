@@ -2,7 +2,6 @@ import React from 'react';
 import styled, { css, useTheme } from 'styled-components';
 
 import { Button } from './button';
-import { Caption } from './typography';
 
 /** Props for {@link SegmentedButton}. */
 export interface SegmentedButtonProps<T extends SegmentedButtonOptionId> {
@@ -35,9 +34,10 @@ const OuterContainer = styled.span`
   display: inline-block;
 `;
 
-const LabelContainer = styled(Caption)`
-  display: block;
-  margin-bottom: 0.125rem;
+const LabelContainer = styled.div`
+  margin-bottom: 0.5rem;
+  font-size: ${(p) => p.theme.sizeMode !== 'desktop' && '0.75rem'};
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 `;
 
 interface OptionsContainerProps {
@@ -46,34 +46,22 @@ interface OptionsContainerProps {
 }
 
 const desktopStyles = css<OptionsContainerProps>`
-  button:first-child {
-    border-top-left-radius: 0;
-    ${(p) =>
-      p.isVertical
-        ? 'border-top-right-radius: 0;'
-        : 'border-bottom-left-radius: 0;'}
-  }
-
-  button:last-child {
-    ${(p) =>
-      p.isVertical
-        ? 'border-bottom-left-radius: 0;'
-        : 'border-top-right-radius: 0;'}
-    border-bottom-right-radius: 0;
+  button {
+    font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   }
 
   &[disabled] {
+    background-color: ${(p) => p.theme.colors.container};
     border-style: dashed;
 
     button {
       border-color: transparent;
     }
-
-    background-color: ${(p) => p.theme.colors.containerLow};
   }
 `;
 
 const OptionsContainer = styled.span<OptionsContainerProps>`
+  background: ${(p) => p.theme.colors.containerLow};
   border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
     ${(p) => p.theme.colors.outline};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
@@ -81,7 +69,6 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   flex-direction: ${(p) => (p.isVertical ? 'column' : 'row')};
   gap: ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px;
   padding: ${(p) => (p.theme.sizeMode === 'desktop' ? undefined : '0.75rem')};
-  overflow: hidden;
 
   ${(p) => p.theme.colorMode === 'desktop' && desktopStyles}
 `;
@@ -112,11 +99,7 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
 
   return (
     <OuterContainer>
-      {!hideLabel && (
-        <LabelContainer aria-hidden weight="semiBold">
-          {label}
-        </LabelContainer>
-      )}
+      {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       <OptionsContainer
         disabled={disabled}
         aria-disabled={disabled}

@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { listElections, createElection } from './api';
 import { FileInputButton } from './file_input_button';
-import { Column, Row } from './layout';
+import { Column, Row, ScreenContent, ScreenHeader } from './layout';
 import { NavScreen } from './nav_screen';
 
 const ElectionList = styled.ul`
@@ -65,46 +65,50 @@ export function ElectionsScreen(): JSX.Element | null {
 
   return (
     <NavScreen>
-      <H1>Elections</H1>
-      <Column style={{ gap: '1rem', width: '25rem' }}>
-        {elections.length === 0 ? (
-          <P>
-            <Icons.Info /> You haven&apos;t created any elections yet.
-          </P>
-        ) : (
-          <ElectionList>
-            {elections.map(({ id, election }) => (
-              <li key={id}>
-                <LinkButton to={`/elections/${id}`}>
-                  {election.title
-                    ? election.title +
-                      (election.date
-                        ? ` - ${new Date(election.date).toLocaleDateString()}`
-                        : '')
-                    : 'Untitled Election'}
-                </LinkButton>
-              </li>
-            ))}
-          </ElectionList>
-        )}
-        <Row style={{ gap: '0.5rem' }}>
-          <Button
-            variant={elections.length === 0 ? 'primary' : undefined}
-            icon="Add"
-            onPress={onCreateElectionPress}
-            disabled={createElectionMutation.isLoading}
-          >
-            Create Election
-          </Button>
-          <FileInputButton
-            accept=".json"
-            onChange={onSelectElectionFile}
-            disabled={createElectionMutation.isLoading}
-          >
-            Load Election
-          </FileInputButton>
-        </Row>
-      </Column>
+      <ScreenHeader>
+        <H1>Elections</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <Column style={{ gap: '1rem', width: '25rem' }}>
+          {elections.length === 0 ? (
+            <P>
+              <Icons.Info /> You haven&apos;t created any elections yet.
+            </P>
+          ) : (
+            <ElectionList>
+              {elections.map(({ id, election }) => (
+                <li key={id}>
+                  <LinkButton to={`/elections/${id}`}>
+                    {election.title
+                      ? election.title +
+                        (election.date
+                          ? ` - ${new Date(election.date).toLocaleDateString()}`
+                          : '')
+                      : 'Untitled Election'}
+                  </LinkButton>
+                </li>
+              ))}
+            </ElectionList>
+          )}
+          <Row style={{ gap: '0.5rem' }}>
+            <Button
+              variant={elections.length === 0 ? 'primary' : undefined}
+              icon="Add"
+              onPress={onCreateElectionPress}
+              disabled={createElectionMutation.isLoading}
+            >
+              Create Election
+            </Button>
+            <FileInputButton
+              accept=".json"
+              onChange={onSelectElectionFile}
+              disabled={createElectionMutation.isLoading}
+            >
+              Load Election
+            </FileInputButton>
+          </Row>
+        </Column>
+      </ScreenContent>
     </NavScreen>
   );
 }

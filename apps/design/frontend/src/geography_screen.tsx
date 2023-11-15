@@ -31,13 +31,16 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import {
   Form,
-  FormField,
-  Input,
   NestedTr,
   TableActionsRow,
   FormActionsRow,
   Breadcrumbs,
   Row,
+  ScreenHeader,
+  ScreenContent,
+  Column,
+  InputGroup,
+  FieldName,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
 import { hasSplits } from './utils';
@@ -198,22 +201,22 @@ function DistrictForm({
 
   return (
     <Form>
-      <FormField label="Name">
-        <Input
+      <InputGroup label="Name">
+        <input
           type="text"
           value={district.name}
           onChange={(e) => setDistrict({ ...district, name: e.target.value })}
         />
-      </FormField>
-      <FormField label="ID">
-        <Input
+      </InputGroup>
+      <InputGroup label="ID">
+        <input
           type="text"
           value={district.id}
           onChange={(e) =>
             setDistrict({ ...district, id: e.target.value as DistrictId })
           }
         />
-      </FormField>
+      </InputGroup>
       <div>
         <FormActionsRow>
           <LinkButton to={geographyRoutes.districts.root.path}>
@@ -258,14 +261,18 @@ function AddDistrictForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          geographyRoutes.districts.root,
-          geographyRoutes.districts.addDistrict,
-        ]}
-      />
-      <H1>Add District</H1>
-      <DistrictForm electionId={electionId} savedElection={election} />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            geographyRoutes.districts.root,
+            geographyRoutes.districts.addDistrict,
+          ]}
+        />
+        <H1>Add District</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <DistrictForm electionId={electionId} savedElection={election} />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -285,19 +292,23 @@ function EditDistrictForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          geographyRoutes.districts.root,
-          geographyRoutes.districts.editDistrict(districtId),
-        ]}
-      />
-      <H1>Edit District</H1>
-      <DistrictForm
-        electionId={electionId}
-        districtId={districtId}
-        savedElection={election}
-        savedPrecincts={precincts}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            geographyRoutes.districts.root,
+            geographyRoutes.districts.editDistrict(districtId),
+          ]}
+        />
+        <H1>Edit District</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <DistrictForm
+          electionId={electionId}
+          districtId={districtId}
+          savedElection={election}
+          savedPrecincts={precincts}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -505,62 +516,64 @@ function PrecinctForm({
 
   return (
     <Form>
-      <FormField label="Name">
-        <Input
+      <InputGroup label="Name">
+        <input
           type="text"
           value={precinct.name}
           onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
         />
-      </FormField>
-      <FormField label="ID">
-        <Input
+      </InputGroup>
+      <InputGroup label="ID">
+        <input
           type="text"
           value={precinct.id}
           onChange={(e) => setPrecinct({ ...precinct, id: e.target.value })}
         />
-      </FormField>
-      <FormField label="Districts">
-        <Row style={{ gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+      </InputGroup>
+      <div>
+        <FieldName>Districts</FieldName>
+        <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
           {hasSplits(precinct) ? (
             <React.Fragment>
               {precinct.splits.map((split, index) => (
                 // Because we want to be able to edit the ID, we can't use it as a key
                 // eslint-disable-next-line react/no-array-index-key
-                <Card key={`split-${index}`} style={{ minWidth: '15rem' }}>
-                  <FormField label="Name">
-                    <Input
-                      type="text"
-                      value={split.name}
-                      onChange={(e) =>
-                        setPrecinct({
-                          ...precinct,
-                          splits: precinct.splits.map((s) =>
-                            s.id === split.id
-                              ? { ...s, name: e.target.value }
-                              : s
-                          ),
-                        })
-                      }
-                    />
-                  </FormField>
-                  <FormField label="ID">
-                    <Input
-                      type="text"
-                      value={split.id}
-                      onChange={(e) =>
-                        setPrecinct({
-                          ...precinct,
-                          splits: precinct.splits.map((s) =>
-                            s.id === split.id ? { ...s, id: e.target.value } : s
-                          ),
-                        })
-                      }
-                    />
-                  </FormField>
-                  <FormField label="Districts">
+                <Card key={`split-${index}`}>
+                  <Column style={{ gap: '1rem' }}>
+                    <InputGroup label="Name">
+                      <input
+                        type="text"
+                        value={split.name}
+                        onChange={(e) =>
+                          setPrecinct({
+                            ...precinct,
+                            splits: precinct.splits.map((s) =>
+                              s.id === split.id
+                                ? { ...s, name: e.target.value }
+                                : s
+                            ),
+                          })
+                        }
+                      />
+                    </InputGroup>
+                    <InputGroup label="ID">
+                      <input
+                        type="text"
+                        value={split.id}
+                        onChange={(e) =>
+                          setPrecinct({
+                            ...precinct,
+                            splits: precinct.splits.map((s) =>
+                              s.id === split.id
+                                ? { ...s, id: e.target.value }
+                                : s
+                            ),
+                          })
+                        }
+                      />
+                    </InputGroup>
                     <CheckboxGroup
                       label="Districts"
-                      hideLabel
                       options={districts.map((district) => ({
                         value: district.id,
                         label: district.name,
@@ -580,10 +593,10 @@ function PrecinctForm({
                         })
                       }
                     />
-                  </FormField>
-                  <Button onPress={() => onRemoveSplitPress(split.id)}>
-                    Remove Split
-                  </Button>
+                    <Button onPress={() => onRemoveSplitPress(split.id)}>
+                      Remove Split
+                    </Button>
+                  </Column>
                 </Card>
               ))}
               <div>
@@ -619,7 +632,7 @@ function PrecinctForm({
             </React.Fragment>
           )}
         </Row>
-      </FormField>
+      </div>
       <div>
         <FormActionsRow>
           <LinkButton to={geographyRoutes.precincts.root.path}>
@@ -664,18 +677,22 @@ function AddPrecinctForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          geographyRoutes.precincts.root,
-          geographyRoutes.precincts.addPrecinct,
-        ]}
-      />
-      <H1>Add Precinct</H1>
-      <PrecinctForm
-        electionId={electionId}
-        savedPrecincts={precincts}
-        districts={election.districts}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            geographyRoutes.precincts.root,
+            geographyRoutes.precincts.addPrecinct,
+          ]}
+        />
+        <H1>Add Precinct</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <PrecinctForm
+          electionId={electionId}
+          savedPrecincts={precincts}
+          districts={election.districts}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -695,19 +712,23 @@ function EditPrecinctForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Breadcrumbs
-        routes={[
-          geographyRoutes.precincts.root,
-          geographyRoutes.precincts.editPrecinct(precinctId),
-        ]}
-      />
-      <H1>Edit Precinct</H1>
-      <PrecinctForm
-        electionId={electionId}
-        precinctId={precinctId}
-        savedPrecincts={precincts}
-        districts={election.districts}
-      />
+      <ScreenHeader>
+        <Breadcrumbs
+          routes={[
+            geographyRoutes.precincts.root,
+            geographyRoutes.precincts.editPrecinct(precinctId),
+          ]}
+        />
+        <H1>Edit Precinct</H1>
+      </ScreenHeader>
+      <ScreenContent>
+        <PrecinctForm
+          electionId={electionId}
+          precinctId={precinctId}
+          savedPrecincts={precincts}
+          districts={election.districts}
+        />
+      </ScreenContent>
     </React.Fragment>
   );
 }
@@ -740,27 +761,31 @@ export function GeographyScreen(): JSX.Element {
           component={EditPrecinctForm}
         />
         <Route path={geographyParamRoutes.root.path}>
-          <H1>Geography</H1>
-          <TabBar
-            tabs={[
-              geographyRoutes.districts.root,
-              geographyRoutes.precincts.root,
-            ]}
-          />
-          <Switch>
-            <Route
-              path={geographyParamRoutes.districts.root.path}
-              component={DistrictsTab}
+          <ScreenHeader>
+            <H1>Geography</H1>
+          </ScreenHeader>
+          <ScreenContent>
+            <TabBar
+              tabs={[
+                geographyRoutes.districts.root,
+                geographyRoutes.precincts.root,
+              ]}
             />
-            <Route
-              path={geographyParamRoutes.precincts.root.path}
-              component={PrecinctsTab}
-            />
-            <Redirect
-              from={geographyParamRoutes.root.path}
-              to={geographyParamRoutes.districts.root.path}
-            />
-          </Switch>
+            <Switch>
+              <Route
+                path={geographyParamRoutes.districts.root.path}
+                component={DistrictsTab}
+              />
+              <Route
+                path={geographyParamRoutes.precincts.root.path}
+                component={PrecinctsTab}
+              />
+              <Redirect
+                from={geographyParamRoutes.root.path}
+                to={geographyParamRoutes.districts.root.path}
+              />
+            </Switch>
+          </ScreenContent>
         </Route>
       </Switch>
     </ElectionNavScreen>

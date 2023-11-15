@@ -25,6 +25,7 @@ function DropdownIndicator(
           // Turn off inset shadow on press (:active) for touchscreen themes
           boxShadow: 'none',
         }}
+        tabIndex={-1}
       />
     </components.DropdownIndicator>
   );
@@ -45,7 +46,8 @@ function MultiValueRemove(
         // put a dummy handler on the button itself.
         onPress={() => {}}
         style={{
-          padding: '0.5rem',
+          padding: '0 0.5rem',
+          height: '100%',
           fontSize: '0.75rem',
           // Turn off inset shadow on press (:active) for touchscreen themes
           boxShadow: 'none',
@@ -61,8 +63,8 @@ export interface SelectOption<T extends string = string> {
 }
 
 interface SearchSelectBaseProps<T extends string = string> {
-  isMulti: boolean;
-  isSearchable: boolean;
+  isMulti?: boolean;
+  isSearchable?: boolean;
   options: Array<SelectOption<T>>;
   ariaLabel?: string;
   style?: React.CSSProperties;
@@ -78,7 +80,7 @@ export interface SearchSelectMultiProps<T extends string = string>
 
 export interface SearchSelectSingleProps<T extends string = string>
   extends SearchSelectBaseProps<T> {
-  isMulti: false;
+  isMulti?: false;
   value?: T;
   onChange: (value?: T) => void;
   disabled?: boolean;
@@ -132,12 +134,14 @@ export function SearchSelect<T extends string = string>({
       aria-label={ariaLabel}
       unstyled
       components={{ DropdownIndicator, MultiValueRemove }}
-      style={style}
+      className="search-select"
       styles={typedAs<StylesConfig>({
         container: (baseStyles) => ({
           ...baseStyles,
+          display: 'inline-block',
           lineHeight: theme.sizes.lineHeight,
           fontWeight: theme.sizes.fontWeight.semiBold,
+          .../* istanbul ignore next */ (style ?? {}),
         }),
         control: (baseStyles, state) => ({
           ...baseStyles,
@@ -145,15 +149,18 @@ export function SearchSelect<T extends string = string>({
           borderStyle: state.isDisabled ? 'dashed' : 'solid',
           borderRadius,
           backgroundColor: state.isDisabled
-            ? theme.colors.containerLow
-            : theme.colors.background,
+            ? theme.colors.container
+            : state.isFocused
+            ? theme.colors.background
+            : theme.colors.containerLow,
           padding: '0.25rem',
+          outline: state.isFocused ? `var(--focus-outline)` : undefined,
         }),
         valueContainer: (baseStyles, state) => ({
           ...baseStyles,
           gap: '0.25rem',
           cursor: isSearchable ? 'text' : 'pointer',
-          paddingLeft: isMulti && state.hasValue ? '0' : '0.25rem',
+          padding: isMulti && state.hasValue ? 0 : '0.25rem',
         }),
         multiValue: (baseStyles, state) => ({
           ...baseStyles,
@@ -170,21 +177,10 @@ export function SearchSelect<T extends string = string>({
           cursor: 'default',
           // Match the Button transition in the MultiValueRemove button
           transition: '100ms ease-in',
-          // Set an exact height so we can match the height of the dropdown
-          // indicator and avoid a change in overall height based on whether or
-          // not there are selections.
-          height:
-            theme.sizeMode === 'desktop'
-              ? '2rem'
-              : `calc(${theme.sizes.minTouchAreaSizePx}px + ${theme.sizes.bordersRem.thin}rem)`,
         }),
         dropdownIndicator: (baseStyles) => ({
           ...baseStyles,
-          // Match the multi-value pill height
-          height:
-            theme.sizeMode === 'desktop'
-              ? '2rem'
-              : `calc(${theme.sizes.minTouchAreaSizePx}px + ${theme.sizes.bordersRem.thin}rem)`,
+          height: '100%',
         }),
         multiValueLabel: (baseStyles) => ({
           ...baseStyles,
@@ -196,6 +192,9 @@ export function SearchSelect<T extends string = string>({
           borderRadius,
           backgroundColor: theme.colors.background,
           top: 'calc(100% + 0.5rem)',
+          // Always match longest option width
+          width: 'max-content',
+          minWidth: '100%',
         }),
         menuList: (baseStyles) => ({
           ...baseStyles,
@@ -216,6 +215,8 @@ export function SearchSelect<T extends string = string>({
               ? undefined
               : `${theme.sizes.bordersRem.hairline}rem solid ${theme.colors.outline}`,
           ':last-of-type': { borderBottom: 'none' },
+          // Ensure empty option still has height
+          minHeight: '2.5rem',
         }),
         noOptionsMessage: (baseStyles) => ({
           ...baseStyles,

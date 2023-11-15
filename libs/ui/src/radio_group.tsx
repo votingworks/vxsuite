@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { Caption } from './typography';
 import { Button } from './button';
 
 /** Option value type for the RadioGroup component. */
@@ -37,19 +36,22 @@ const OuterContainer = styled.fieldset.attrs({ role: 'radiogroup' })`
 const LabelContainer = styled.legend`
   display: block;
   margin-bottom: 0.5rem;
+  font-size: ${(p) => p.theme.sizeMode !== 'desktop' && '0.75rem'};
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 `;
 
 const Option = styled.span`
   position: relative;
 
   /* Apply focus outline to the button when the radio input is focused. */
-  input:focus + button {
+  input:not(:active):focus + button {
     outline: var(--focus-outline);
   }
 `;
 
 const StyledButton = styled(Button)`
-  padding-left: 0.5rem;
+  background-color: ${(p) =>
+    p.color === 'neutral' && p.theme.colors.containerLow};
   border-color: ${(p) => p.theme.colors.outline};
   border-width: ${(p) =>
     p.theme.sizeMode === 'desktop'
@@ -58,6 +60,7 @@ const StyledButton = styled(Button)`
   flex-wrap: nowrap;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
+  padding-left: 0.5rem;
   text-align: left;
   width: 100%;
 
@@ -117,11 +120,7 @@ export function RadioGroup<T extends RadioGroupValue>(
 
   return (
     <OuterContainer aria-label={label}>
-      {!hideLabel && (
-        <LabelContainer aria-hidden>
-          <Caption weight="semiBold">{label}</Caption>
-        </LabelContainer>
-      )}
+      {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       <OptionsContainer numColumns={numColumns || 1}>
         {options.map((option) => {
           const isSelected = option.value === value;

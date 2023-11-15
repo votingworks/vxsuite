@@ -12,7 +12,8 @@ import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional } from '@votingworks/basics';
 
 import { Text, NoWrap } from '../text';
-import { tableBorderColor } from '../table';
+
+const tableBorderColor = 'rgb(194, 200, 203)';
 
 const Contest = styled.div`
   margin: 2.5em 0;

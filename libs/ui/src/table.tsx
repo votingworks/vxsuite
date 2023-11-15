@@ -6,29 +6,30 @@ interface TableProps {
   expanded?: boolean;
 }
 
-export const tableBorderColor = 'rgb(194, 200, 203)';
-
 export const Table = styled.table<TableProps>`
-  border-top: ${({ borderTop = false }) =>
-    borderTop ? '1px solid' : undefined};
-  border-color: ${tableBorderColor};
+  border-top: ${({ theme, borderTop = false }) =>
+    borderTop
+      ? `${theme.sizes.bordersRem.thin}rem solid ${theme.colors.outline}`
+      : undefined};
   width: 100%;
   border-collapse: collapse;
   text-align: left;
 
   & th,
   & td {
-    border-bottom: 1px solid ${tableBorderColor};
+    border-bottom: ${(p) =>
+      `${p.theme.sizes.bordersRem.thin}rem solid ${p.theme.colors.outline}`};
     padding: ${({ condensed, expanded }) =>
       condensed
-        ? '0.15rem 0.25rem'
+        ? '0.125rem 0.25rem'
         : expanded
         ? '0.25rem 1rem'
         : '0.25rem 0.5rem'};
   }
 
   & th {
-    border-top: 1px solid ${tableBorderColor};
+    border-top: ${(p) =>
+      `${p.theme.sizes.bordersRem.thin}rem solid ${p.theme.colors.outline}`};
 
     @media print {
       font-size: 0.75rem;
@@ -36,7 +37,8 @@ export const Table = styled.table<TableProps>`
   }
 
   @media print {
-    border-top: 1px solid ${tableBorderColor};
+    border-top: ${(p) =>
+      `${p.theme.sizes.bordersRem.thin}rem solid ${p.theme.colors.outline}`};
   }
 `;
 

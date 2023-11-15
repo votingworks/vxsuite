@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { Button } from './button';
-import { Caption } from './typography';
 
 interface Option {
   label: string;
@@ -29,9 +28,13 @@ const Container = styled.fieldset`
 const LabelContainer = styled.legend`
   display: block;
   margin-bottom: 0.5rem;
+  font-size: ${(p) => p.theme.sizeMode !== 'desktop' && '0.75rem'};
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 `;
 
 const Option = styled(Button)`
+  background-color: ${(p) =>
+    p.color === 'neutral' && p.theme.colors.containerLow};
   border-color: ${(p) => p.theme.colors.outline};
   flex-wrap: nowrap;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
@@ -59,11 +62,7 @@ export function CheckboxGroup({
 }: CheckboxGroupProps): JSX.Element {
   return (
     <Container aria-label={label}>
-      {!hideLabel && (
-        <LabelContainer aria-hidden>
-          <Caption weight="semiBold">{label}</Caption>
-        </LabelContainer>
-      )}
+      {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       {options.map((option) => {
         const isSelected = value.includes(option.value);
         return (

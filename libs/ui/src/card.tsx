@@ -11,14 +11,17 @@ export interface CardProps {
 }
 
 const StyledContainer = styled.div`
-  border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.outline};
+  border: ${(p) =>
+      p.theme.sizeMode === 'desktop'
+        ? p.theme.sizes.bordersRem.thin
+        : p.theme.sizes.bordersRem.hairline}rem
+    solid ${(p) => p.theme.colors.outline};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   overflow: hidden;
 `;
 
 const StyledContent = styled.div`
-  padding: 0.5rem;
+  padding: ${(p) => (p.theme.sizeMode === 'desktop' ? '1rem' : '0.5rem')};
 
   /* Shrink padding if there's a footer: */
   &:not(:last-child) {

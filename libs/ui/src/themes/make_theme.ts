@@ -295,7 +295,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     container: DesktopPalette.Gray10,
     containerLow: DesktopPalette.Gray5,
     containerHigh: DesktopPalette.Gray20,
-    outline: DesktopPalette.Gray50,
+    outline: DesktopPalette.Gray40,
 
     primary: DesktopPalette.Purple80,
     onPrimary: DesktopPalette.Gray0,

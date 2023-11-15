@@ -130,61 +130,66 @@ test('Ballot layout tab', async () => {
     .resolves(generalElectionRecord);
   userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
 
-  const [paperSizeRadioGroup, densityRadioGroup, bubblePositionControl] =
-    screen.getAllByRole('radiogroup');
+  const paperSizeRadioGroup = screen.getByRole('radiogroup', {
+    name: 'Paper Size',
+  });
+  const densityRadioGroup = screen.getByRole('radiogroup', { name: 'Density' });
+  const bubblePositionControl = screen.getByRole('listbox', {
+    name: 'Bubble Position',
+  });
 
   // Paper size initial state
-  expect(paperSizeRadioGroup.closest('label')).toHaveTextContent('Paper Size');
-  const paperSizeOptions = within(paperSizeRadioGroup).getAllByRole('radio', {
-    hidden: true,
-  });
-  for (const option of paperSizeOptions) {
-    expect(option).toBeDisabled();
-  }
-  expect(
-    paperSizeOptions.map((radio) => radio.closest('label')?.textContent)
-  ).toEqual([
+  for (const optionName of [
     '8.5 x 11 inches (Letter)',
     '8.5 x 14 inches (Legal)',
     '8.5 x 17 inches',
     '8.5 x 18 inches',
     '8.5 x 21 inches',
     '8.5 x 22 inches',
-  ]);
+  ]) {
+    expect(
+      within(paperSizeRadioGroup).getByRole('radio', {
+        name: optionName,
+      })
+    ).toBeDisabled();
+  }
   expect(
     within(paperSizeRadioGroup).getByLabelText('8.5 x 11 inches (Letter)')
   ).toBeChecked();
 
   // Density initial state
-  expect(densityRadioGroup.closest('label')).toHaveTextContent('Density');
-  const densityOptions = within(densityRadioGroup).getAllByRole('radio', {
-    hidden: true,
-  });
-  for (const option of densityOptions) {
-    expect(option).toBeDisabled();
-  }
   expect(
-    densityOptions.map((radio) => radio.closest('label')?.textContent)
-  ).toEqual(['Default', 'Medium', 'Condensed']);
-  expect(within(densityRadioGroup).getByLabelText('Default')).toBeChecked();
+    within(densityRadioGroup).getByRole('radio', {
+      name: 'Default',
+      checked: true,
+    })
+  ).toBeDisabled();
+  expect(
+    within(densityRadioGroup).getByRole('radio', {
+      name: 'Medium',
+      checked: false,
+    })
+  ).toBeDisabled();
+  expect(
+    within(densityRadioGroup).getByRole('radio', {
+      name: 'Condensed',
+      checked: false,
+    })
+  ).toBeDisabled();
 
   // Bubble position initial state
-  expect(bubblePositionControl.closest('label')).toHaveTextContent(
-    'Bubble Position'
-  );
-  const bubblePositionOptions = within(bubblePositionControl).getAllByRole(
-    'radio'
-  );
-  for (const option of bubblePositionOptions) {
-    expect(option).toBeDisabled();
-  }
-  expect(bubblePositionOptions.map((radio) => radio.textContent)).toEqual([
-    'Left',
-    'Right',
-  ]);
   expect(
-    within(bubblePositionControl).getByRole('radio', { name: 'Left' })
-  ).toBeChecked();
+    within(bubblePositionControl).getByRole('option', {
+      name: 'Left',
+      selected: true,
+    })
+  ).toBeDisabled();
+  expect(
+    within(bubblePositionControl).getByRole('option', {
+      name: 'Right',
+      selected: false,
+    })
+  ).toBeDisabled();
 
   // Edit
   userEvent.click(screen.getByRole('button', { name: /Edit/ }));
@@ -195,8 +200,8 @@ test('Ballot layout tab', async () => {
   userEvent.click(screen.getByLabelText('Medium'));
   expect(screen.getByLabelText('Medium')).toBeChecked();
 
-  userEvent.click(screen.getByLabelText('Right'));
-  expect(screen.getByLabelText('Right')).toBeChecked();
+  userEvent.click(screen.getByRole('option', { name: 'Right' }));
+  screen.getByRole('option', { name: 'Right', selected: true });
 
   // Save
   const updatedElection: Election = {
@@ -239,5 +244,5 @@ test('Ballot layout tab', async () => {
 
   expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
   expect(screen.getByLabelText('Medium')).toBeChecked();
-  expect(screen.getByLabelText('Right')).toBeChecked();
+  screen.getByRole('option', { name: 'Right', selected: true });
 });
