@@ -44,6 +44,7 @@ import {
   getCastVoteRecordRootHash,
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
+import { SqliteBool, asSqliteBool, fromSqliteBool } from '@votingworks/utils';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 
@@ -128,6 +129,10 @@ export class Store {
     private readonly client: DbClient,
     private readonly uiStringsStore: UiStringsStore
   ) {}
+
+  // Used by shared CVR export logic in libs/backend
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  readonly scannerType = 'precinct';
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -823,15 +828,46 @@ export class Store {
     return safeParseSystemSettings(result.data).unsafeUnwrap();
   }
 
+  isContinuousExportOperationInProgress(): boolean {
+    const row = this.client.one(
+      `
+      select
+        is_continuous_export_operation_in_progress as isContinuousExportOperationInProgress
+      from is_continuous_export_operation_in_progress
+      `
+    ) as { isContinuousExportOperationInProgress: SqliteBool } | undefined;
+    return row
+      ? fromSqliteBool(row.isContinuousExportOperationInProgress)
+      : false;
+  }
+
+  setIsContinuousExportOperationInProgress(
+    isContinuousExportOperationInProgress: boolean
+  ): void {
+    this.client.run('delete from is_continuous_export_operation_in_progress');
+    this.client.run(
+      `
+      insert into is_continuous_export_operation_in_progress (
+        is_continuous_export_operation_in_progress
+      ) values (?)
+      `,
+      asSqliteBool(isContinuousExportOperationInProgress)
+    );
+  }
+
   /**
    * Gets the name of the directory that we're continuously exporting to, e.g.
    * TEST__machine_SCAN-0001__2023-08-16_17-02-24. Returns undefined if not yet set.
    */
   getExportDirectoryName(): string | undefined {
-    const result = this.client.one(
-      'select export_directory_name as exportDirectoryName from export_directory_name'
+    const row = this.client.one(
+      `
+      select
+        export_directory_name as exportDirectoryName
+      from export_directory_name
+      `
     ) as { exportDirectoryName: string } | undefined;
-    return result?.exportDirectoryName;
+    return row?.exportDirectoryName;
   }
 
   /**
@@ -840,7 +876,11 @@ export class Store {
   setExportDirectoryName(exportDirectoryName: string): void {
     this.client.run('delete from export_directory_name');
     this.client.run(
-      'insert into export_directory_name (export_directory_name) values (?)',
+      `
+      insert into export_directory_name (
+        export_directory_name
+      ) values (?)
+      `,
       exportDirectoryName
     );
   }

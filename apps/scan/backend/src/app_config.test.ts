@@ -164,9 +164,9 @@ test("if there's only one precinct in the election, it's selected automatically 
 test('continuous CVR export', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
+    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
 
       const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
         mockUsbDrive.usbDrive
@@ -216,10 +216,10 @@ test('continuous CVR export', async () => {
 test('continuous CVR export, including polls closing, followed by a full export', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
+    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 1);
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, apiClient, workspace.store, 1);
 
       expect(
         await apiClient.exportCastVoteRecordsToUsbDrive({
@@ -239,9 +239,9 @@ test('continuous CVR export, including polls closing, followed by a full export'
 test('CVR resync', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive }) => {
+    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
 
       // When a CVR resync is required, the CVR resync modal appears on the "insert your ballot"
       // screen, i.e. the screen displayed when no card is inserted
@@ -300,8 +300,8 @@ test('ballot batching', async () => {
       }
 
       // Scan two ballots, which should have the same batch
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 1);
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, apiClient, workspace.store, 1);
       let batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(2);
       expect(batchIds).toHaveLength(1);
@@ -338,8 +338,8 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a new, second batch distinct from the first
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 2);
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 3);
+      await scanBallot(mockScanner, apiClient, workspace.store, 2);
+      await scanBallot(mockScanner, apiClient, workspace.store, 3);
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(4);
       expect(batchIds).toHaveLength(2);
@@ -376,8 +376,8 @@ test('ballot batching', async () => {
       });
 
       // Confirm there is a third batch, distinct from the second
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 4);
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 5);
+      await scanBallot(mockScanner, apiClient, workspace.store, 4);
+      await scanBallot(mockScanner, apiClient, workspace.store, 5);
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(6);
       expect(batchIds).toHaveLength(3);

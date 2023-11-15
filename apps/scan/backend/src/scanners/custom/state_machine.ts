@@ -434,11 +434,15 @@ async function recordAcceptedSheet(
   const { sheetId } = interpretation;
   store.withTransaction(() => {
     storeInterpretedSheet(store, sheetId, interpretation);
+
     // If we're storing an accepted sheet that needed review, that means that it was "adjudicated"
     // (i.e. the voter said to count it without changing anything).
     if (interpretation.type === 'NeedsReviewSheet') {
       store.adjudicateSheet(sheetId);
     }
+
+    // Gets reset to false within exportCastVoteRecordsToUsbDrive
+    store.setIsContinuousExportOperationInProgress(true);
   });
   (
     await exportCastVoteRecordsToUsbDrive(
@@ -460,10 +464,14 @@ async function recordRejectedSheet(
   const { sheetId } = interpretation;
   store.withTransaction(() => {
     storeInterpretedSheet(store, sheetId, interpretation);
+
     // We want to keep rejected ballots in the store, but not count them. We accomplish this by
     // "deleting" them, which just marks them as deleted and is how we indicate that an interpreted
     // ballot wasn't counted.
     store.deleteSheet(sheetId);
+
+    // Gets reset to false within exportCastVoteRecordsToUsbDrive
+    store.setIsContinuousExportOperationInProgress(true);
   });
   (
     await exportCastVoteRecordsToUsbDrive(

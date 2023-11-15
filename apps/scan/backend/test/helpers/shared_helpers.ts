@@ -1,9 +1,6 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ok } from '@votingworks/basics';
-import {
-  areOrWereCastVoteRecordsBeingExportedToUsbDrive,
-  mockBallotPackageFileTree,
-} from '@votingworks/backend';
+import { mockBallotPackageFileTree } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
@@ -24,6 +21,7 @@ import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { Api } from '../../src/app';
 import { PrecinctScannerStatus } from '../../src/types';
+import { Store } from '../../src/store';
 
 export async function expectStatus(
   apiClient: grout.Client<Api>,
@@ -99,18 +97,11 @@ export async function configureApp(
  * while they're still being read from / written to.
  */
 export async function waitForContinuousExportToUsbDrive(
-  mockUsbDrive: MockUsbDrive
+  store: Store
 ): Promise<void> {
-  // Check that mockUsbDrive.usbDrive.status has been configured before calling it
-  if (mockUsbDrive.usbDrive.status.hasExpectedCalls()) {
-    const usbDriveStatus = await mockUsbDrive.usbDrive.status();
-    await waitForExpect(
-      () =>
-        expect(
-          areOrWereCastVoteRecordsBeingExportedToUsbDrive(usbDriveStatus)
-        ).toEqual(false),
-      10000,
-      250
-    );
-  }
+  await waitForExpect(
+    () => expect(store.isContinuousExportOperationInProgress()).toEqual(false),
+    10000,
+    250
+  );
 }

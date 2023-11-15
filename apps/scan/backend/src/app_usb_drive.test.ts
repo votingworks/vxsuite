@@ -46,7 +46,7 @@ test('ejectUsbDrive', async () => {
 test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockAuth, mockUsbDrive, mockScanner }) => {
+    async ({ apiClient, mockAuth, mockUsbDrive, mockScanner, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       const mountedUsbDriveStatus = {
         status: 'mounted',
@@ -57,7 +57,7 @@ test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => 
         mountedUsbDriveStatus
       );
 
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
       await expect(apiClient.getUsbDriveStatus()).resolves.toEqual(
         mountedUsbDriveStatus
       );

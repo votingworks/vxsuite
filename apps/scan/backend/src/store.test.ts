@@ -720,6 +720,16 @@ test('getBallotsCounted', () => {
   expect(store.getBallotsCounted()).toEqual(1);
 });
 
+test('isContinuousExportOperationInProgress and setIsContinuousExportOperationInProgress', () => {
+  const store = Store.memoryStore();
+
+  expect(store.isContinuousExportOperationInProgress()).toEqual(false);
+  store.setIsContinuousExportOperationInProgress(true);
+  expect(store.isContinuousExportOperationInProgress()).toEqual(true);
+  store.setIsContinuousExportOperationInProgress(false);
+  expect(store.isContinuousExportOperationInProgress()).toEqual(false);
+});
+
 test('getExportDirectoryName and setExportDirectoryName', () => {
   const store = Store.memoryStore();
 

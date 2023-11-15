@@ -51,13 +51,19 @@ create table sheets (
 );
 
 create table system_settings (
-  -- enforce singleton table
+  -- Enforce singleton table
   id integer primary key check (id = 1),
   data text not null -- JSON blob
 );
 
+create table is_continuous_export_operation_in_progress (
+  -- Enforce singleton table
+  id integer primary key check (id = 1),
+  is_continuous_export_operation_in_progress boolean not null
+);
+
 create table export_directory_name (
-  -- enforce singleton table
+  -- Enforce singleton table
   id integer primary key check (id = 1),
   export_directory_name text not null
 );

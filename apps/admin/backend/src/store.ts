@@ -40,8 +40,11 @@ import { join } from 'path';
 import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
 import {
-  OfficialCandidateNameLookup,
+  asSqliteBool,
+  fromSqliteBool,
   getOfficialCandidateNameLookup,
+  OfficialCandidateNameLookup,
+  SqliteBool,
 } from '@votingworks/utils';
 import {
   CastVoteRecordFileRecord,
@@ -97,16 +100,6 @@ function convertSqliteTimestampToIso8601(
   return new Date(sqliteTimestamp).toISOString();
 }
 
-type SqlBool = 0 | 1;
-
-function asSqlBool(bool: boolean): SqlBool {
-  return bool ? 1 : 0;
-}
-
-function fromSqlBool(sqlBool: SqlBool): boolean {
-  return sqlBool === 1;
-}
-
 function asQueryPlaceholders(list: unknown[]): string {
   const questionMarks = list.map(() => '?');
   return `(${questionMarks.join(', ')})`;
@@ -124,7 +117,7 @@ interface WriteInTallyRow {
 interface CastVoteRecordVoteAdjudication {
   contestId: ContestId;
   optionId: ContestOptionId;
-  isVote: SqlBool;
+  isVote: SqliteBool;
 }
 
 /**
@@ -212,7 +205,7 @@ export class Store {
         id: Id;
         electionData: string;
         createdAt: string;
-        isOfficialResults: SqlBool;
+        isOfficialResults: SqliteBool;
       }>
     ).map((r) => ({
       id: r.id,
@@ -244,7 +237,7 @@ export class Store {
           id: Id;
           electionData: string;
           createdAt: string;
-          isOfficialResults: SqlBool;
+          isOfficialResults: SqliteBool;
         }
       | undefined;
     if (!result) {
@@ -772,7 +765,7 @@ export class Store {
       `,
       id,
       electionId,
-      asSqlBool(isTestMode),
+      asSqliteBool(isTestMode),
       filename,
       exportedTimestamp,
       JSON.stringify([]),
@@ -899,7 +892,7 @@ export class Store {
         cvr.precinctId,
         cvrSheetNumber,
         serializedVotes,
-        asSqlBool(isBlankSheet(cvr.votes))
+        asSqliteBool(isBlankSheet(cvr.votes))
       );
     }
 
@@ -1059,7 +1052,7 @@ export class Store {
       side,
       contestId,
       optionId,
-      asSqlBool(isUnmarked)
+      asSqliteBool(isUnmarked)
     );
 
     return id;
@@ -1895,8 +1888,8 @@ export class Store {
       castVoteRecordId: Id;
       contestId: ContestId;
       optionId: ContestOptionId;
-      isInvalid: SqlBool;
-      isUnmarked: SqlBool;
+      isInvalid: SqliteBool;
+      isUnmarked: SqliteBool;
       officialCandidateId: string | null;
       writeInCandidateId: Id | null;
       adjudicatedAt: Iso8601Timestamp | null;
@@ -1914,7 +1907,7 @@ export class Store {
           status: 'adjudicated',
           adjudicationType: 'official-candidate',
           candidateId: row.officialCandidateId,
-          isUnmarked: fromSqlBool(row.isUnmarked),
+          isUnmarked: fromSqliteBool(row.isUnmarked),
         });
       }
 
@@ -1928,7 +1921,7 @@ export class Store {
           status: 'adjudicated',
           adjudicationType: 'write-in-candidate',
           candidateId: row.writeInCandidateId,
-          isUnmarked: fromSqlBool(row.isUnmarked),
+          isUnmarked: fromSqliteBool(row.isUnmarked),
         });
       }
 
@@ -1941,7 +1934,7 @@ export class Store {
           optionId: row.optionId,
           status: 'adjudicated',
           adjudicationType: 'invalid',
-          isUnmarked: fromSqlBool(row.isUnmarked),
+          isUnmarked: fromSqliteBool(row.isUnmarked),
         });
       }
 
@@ -1952,7 +1945,7 @@ export class Store {
         contestId: row.contestId,
         optionId: row.optionId,
         status: 'pending',
-        isUnmarked: fromSqlBool(row.isUnmarked),
+        isUnmarked: fromSqliteBool(row.isUnmarked),
       });
     });
   }
@@ -2099,13 +2092,13 @@ export class Store {
       cvrId: Id;
       contestId: Id;
       optionId: Id;
-      isVote: SqlBool;
+      isVote: SqliteBool;
     }>;
 
     return row
       ? {
           ...row,
-          isVote: fromSqlBool(row.isVote),
+          isVote: fromSqliteBool(row.isVote),
         }
       : undefined;
   }
@@ -2150,7 +2143,7 @@ export class Store {
       cvrId,
       contestId,
       optionId,
-      asSqlBool(isVote)
+      asSqliteBool(isVote)
     );
   }
 
@@ -2477,7 +2470,7 @@ export class Store {
         set is_official_results = ?
         where id = ?
       `,
-      asSqlBool(isOfficialResults),
+      asSqliteBool(isOfficialResults),
       electionId
     );
   }

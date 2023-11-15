@@ -28,13 +28,13 @@ beforeEach(() => {
 test('end-to-end tabulated results', async () => {
   await withApp(
     {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       // scan a few ballots
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 0);
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 1);
-      await scanBallot(mockScanner, mockUsbDrive, apiClient, 2);
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, apiClient, workspace.store, 1);
+      await scanBallot(mockScanner, apiClient, workspace.store, 2);
 
       const allResults = await apiClient.getScannerResultsByParty();
       expect(allResults).toHaveLength(1);
