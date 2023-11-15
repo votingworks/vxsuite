@@ -36,6 +36,7 @@ export * from './input_group';
 export * from './insert_ballot_image';
 export * from './insert_card_image';
 export * from './labelled_text';
+export * from './left_nav';
 export * from './link_button';
 export * from './list';
 export * from './list_item';
