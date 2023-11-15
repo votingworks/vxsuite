@@ -1,12 +1,20 @@
 import { Result } from '@votingworks/basics';
 import { Id } from '@votingworks/types';
-import { H1, P, Icons, LinkButton, Button } from '@votingworks/ui';
+import {
+  H1,
+  P,
+  Icons,
+  LinkButton,
+  Button,
+  MainContent,
+  MainHeader,
+} from '@votingworks/ui';
 import { FormEvent } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { listElections, createElection } from './api';
 import { FileInputButton } from './file_input_button';
-import { Column, Row, ScreenContent, ScreenHeader } from './layout';
+import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
 
 const ElectionList = styled.ul`
@@ -65,10 +73,10 @@ export function ElectionsScreen(): JSX.Element | null {
 
   return (
     <NavScreen>
-      <ScreenHeader>
+      <MainHeader>
         <H1>Elections</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <Column style={{ gap: '1rem', width: '25rem' }}>
           {elections.length === 0 ? (
             <P>
@@ -108,7 +116,7 @@ export function ElectionsScreen(): JSX.Element | null {
             </FileInputButton>
           </Row>
         </Column>
-      </ScreenContent>
+      </MainContent>
     </NavScreen>
   );
 }

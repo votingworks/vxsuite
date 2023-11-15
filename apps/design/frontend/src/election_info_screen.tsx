@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { Election, Id } from '@votingworks/types';
-import { Button, H1, SegmentedButton } from '@votingworks/ui';
+import {
+  Button,
+  H1,
+  MainContent,
+  MainHeader,
+  SegmentedButton,
+} from '@votingworks/ui';
 import { Buffer } from 'buffer';
 import { useHistory, useParams } from 'react-router-dom';
 import DomPurify from 'dompurify';
 import { deleteElection, getElection, updateElection } from './api';
-import {
-  FieldName,
-  Form,
-  FormActionsRow,
-  InputGroup,
-  ScreenContent,
-  ScreenHeader,
-} from './layout';
+import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
 import { FileInputButton } from './file_input_button';
@@ -223,12 +222,12 @@ export function ElectionInfoScreen(): JSX.Element | null {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <ScreenHeader>
+      <MainHeader>
         <H1>Election Info</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <ElectionInfoForm electionId={electionId} savedElection={election} />
-      </ScreenContent>
+      </MainContent>
     </ElectionNavScreen>
   );
 }

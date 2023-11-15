@@ -8,6 +8,9 @@ interface Props {
   flexColumn?: boolean;
 }
 
+/**
+ * The main content area of a page in the app (not including navigation).
+ */
 export const Main = styled('main')<Props>`
   display: ${({ centerChild, flexRow, flexColumn }) => {
     assert(
@@ -23,4 +26,31 @@ export const Main = styled('main')<Props>`
   justify-content: ${({ centerChild }) => centerChild && 'center'};
   overflow: auto;
   padding: ${({ padded }) => (padded ? '1rem' : undefined)};
+  position: relative; /* For sticky header */
+`;
+
+/**
+ * A header for the page that sticks to the top of Main.
+ */
+export const MainHeader = styled.header`
+  padding: 1rem 1.5rem;
+  background: ${(p) => p.theme.colors.container};
+  position: sticky;
+  top: 0;
+  width: 100%;
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+    ${(p) => p.theme.colors.outline};
+  z-index: 1;
+
+  h1 {
+    margin: 0 !important;
+  }
+`;
+
+/**
+ * When using MainHeader, a sibling container for the page contents.
+ */
+export const MainContent = styled.div`
+  overflow: auto;
+  padding: 1rem 1.5rem;
 `;
