@@ -13,9 +13,9 @@ test('renders all relevant warnings', () => {
 
   const listItems = screen.getAllByRole('listitem').map((li) => li.textContent);
   expect(listItems).toEqual([
-    expect.stringMatching(/no votes .+ 3 contests/i),
-    expect.stringMatching(/you may add .+ 1 contest/i),
-    expect.stringMatching(/too many votes .+ 2 contests/i),
+    expect.stringMatching(/no votes.+3/i),
+    expect.stringMatching(/one or more votes remaining.+1/i),
+    expect.stringMatching(/too many votes.+2/i),
   ]);
 });
 
@@ -29,7 +29,5 @@ test('omits warnings with no contests listed', () => {
   );
 
   const listItems = screen.getAllByRole('listitem').map((li) => li.textContent);
-  expect(listItems).toEqual([
-    expect.stringMatching(/too many votes .+ 2 contests/i),
-  ]);
+  expect(listItems).toEqual([expect.stringMatching(/too many votes.+2/i)]);
 });

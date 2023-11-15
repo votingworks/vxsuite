@@ -17,6 +17,7 @@ import {
   ModalWidth,
   P,
   WithScrollButtons,
+  appStrings,
 } from '@votingworks/ui';
 import { assert, integers } from '@votingworks/basics';
 
@@ -46,7 +47,7 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
   return (
     <Modal
       modalWidth={ModalWidth.Wide}
-      title="Are you sure?"
+      title={appStrings.titleModalAreYouSure()}
       content={content}
       actions={
         <React.Fragment>
@@ -59,10 +60,10 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
             }}
             disabled={confirmed}
           >
-            Yes, Cast Ballot As Is
+            {appStrings.buttonYesCastBallotAsIs()}
           </Button>
           <Button onPress={onCancel} disabled={confirmed}>
-            Cancel
+            {appStrings.buttonCancel()}
           </Button>
         </React.Fragment>
       }
@@ -136,7 +137,8 @@ function MisvoteWarningScreen({
       <FullScreenPromptLayout
         title={
           <React.Fragment>
-            <Icons.Warning color="warning" /> Review Your Ballot
+            <Icons.Warning color="warning" />{' '}
+            {appStrings.titleScannerBallotWarningsScreen()}
           </React.Fragment>
         }
         actionButtons={
@@ -145,12 +147,12 @@ function MisvoteWarningScreen({
               variant="primary"
               onPress={() => returnBallotMutation.mutate()}
             >
-              Return Ballot
+              {appStrings.buttonReturnBallot()}
             </Button>
 
             {(allowCastingOvervotes || overvoteContests.length === 0) && (
               <Button onPress={() => setConfirmTabulate(true)}>
-                Cast Ballot As Is
+                {appStrings.buttonCastBallotAsIs()}
               </Button>
             )}
           </React.Fragment>
@@ -188,7 +190,7 @@ function BlankBallotWarningScreen(): JSX.Element {
   return (
     <Screen centerContent>
       <FullScreenPromptLayout
-        title="Review Your Ballot"
+        title={appStrings.titleScannerBallotWarningsScreen()}
         image={
           <FullScreenIconWrapper>
             <Icons.Warning color="warning" />
@@ -200,10 +202,10 @@ function BlankBallotWarningScreen(): JSX.Element {
               variant="primary"
               onPress={() => returnBallotMutation.mutate()}
             >
-              Return Ballot
+              {appStrings.buttonReturnBallot()}
             </Button>
             <Button onPress={() => setConfirmTabulate(true)}>
-              Cast Ballot As Is
+              {appStrings.buttonCastBallotAsIs()}
             </Button>
           </React.Fragment>
         }
@@ -245,10 +247,10 @@ function OtherReasonWarningScreen(): JSX.Element {
               variant="primary"
               onPress={() => returnBallotMutation.mutate()}
             >
-              Return Ballot
+              {appStrings.buttonReturnBallot()}
             </Button>
             <Button onPress={() => setConfirmTabulate(true)}>
-              Cast Ballot As Is
+              {appStrings.buttonCastBallotAsIs()}
             </Button>
           </React.Fragment>
         }
