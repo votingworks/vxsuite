@@ -2,7 +2,7 @@ import { Main, Screen, Text, H1, P } from '@votingworks/ui';
 
 export function NoPaperHandlerPage(): JSX.Element {
   return (
-    <Screen white>
+    <Screen>
       <Main padded centerChild>
         <Text center>
           <H1>No Connection to Printer-Scanner</H1>

@@ -16,7 +16,7 @@ export function SetupCardReaderPage({
     : 'Please connect the card reader to continue.';
 
   return (
-    <Screen white>
+    <Screen>
       <Main centerChild>
         <Prose
           textCenter

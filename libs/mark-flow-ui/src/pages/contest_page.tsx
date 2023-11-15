@@ -128,7 +128,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const settingsButton = <DisplaySettingsButton />;
 
   return (
-    <Screen navRight={!screenInfo.isPortrait}>
+    <Screen flexDirection={screenInfo.isPortrait ? 'column' : 'row'}>
       <Contest
         breadcrumbs={{
           ballotContestCount: ballotContestsLength,

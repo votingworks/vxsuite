@@ -47,14 +47,12 @@ type CheckingPinAuth =
 export interface UnlockMachineScreenProps {
   auth: CheckingPinAuth;
   checkPin: (pin: string) => Promise<void>;
-  grayBackground?: boolean;
   pinLength?: PinLength;
 }
 
 export function UnlockMachineScreen({
   auth,
   checkPin,
-  grayBackground,
   pinLength = SECURITY_PIN_LENGTH,
 }: UnlockMachineScreenProps): JSX.Element {
   const pinEntry = usePinEntry({ pinLength });
@@ -113,7 +111,7 @@ export function UnlockMachineScreen({
   }
 
   return (
-    <Screen white={!grayBackground}>
+    <Screen>
       <Main centerChild>
         <Prose
           textCenter

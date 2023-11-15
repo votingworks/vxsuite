@@ -15,7 +15,7 @@ interface Props {
 
 export function RemoveCardScreen({ productName }: Props): JSX.Element {
   return (
-    <Screen white>
+    <Screen>
       <Main centerChild>
         <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
           <RemoveCardImage aria-hidden src="/assets/remove-card.svg" alt="" />

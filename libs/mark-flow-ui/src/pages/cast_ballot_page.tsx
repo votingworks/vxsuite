@@ -67,7 +67,7 @@ export function CastBallotPage({
   hidePostVotingInstructions,
 }: Props): JSX.Element {
   return (
-    <Screen white>
+    <Screen>
       <Main padded>
         <div id="audiofocus">
           <H1>{appStrings.titleBmdCastBallotScreen()}</H1>

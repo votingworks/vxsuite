@@ -223,7 +223,7 @@ export function PollWorkerScreen({
 
   if (hasVotes && pollWorkerAuth.cardlessVoterUser) {
     return (
-      <Screen white>
+      <Screen>
         <Main centerChild>
           <Prose textCenter>
             <H1
@@ -254,7 +254,7 @@ export function PollWorkerScreen({
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 
     return (
-      <Screen white>
+      <Screen>
         <Main centerChild padded>
           <Prose id="audiofocus">
             <FullScreenIconWrapper align="center">
@@ -304,7 +304,7 @@ export function PollWorkerScreen({
   }
 
   return (
-    <Screen white>
+    <Screen>
       {!isLiveMode && <TestMode />}
       <Main padded>
         <Prose maxWidth={false}>

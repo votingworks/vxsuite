@@ -73,7 +73,7 @@ export function InsertCardScreen({
   const precinctSelection = getPrecinctSelectionQuery.data;
 
   return (
-    <Screen white>
+    <Screen>
       {!isLiveMode && <TestMode />}
       <Main centerChild>
         <Prose textCenter id="audiofocus">
