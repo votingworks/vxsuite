@@ -170,7 +170,8 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Using an invalid Poll Worker Card shows an error
   apiMock.setAuthStatus({
     status: 'logged_out',
-    reason: 'poll_worker_wrong_election',
+    reason: 'wrong_election',
+    cardUserRole: 'poll_worker',
   });
   await screen.findByText('Invalid Card Data');
   screen.getByText('Card is not configured for this election.');
