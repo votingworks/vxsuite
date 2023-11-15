@@ -3,7 +3,7 @@ import {
   ElectionDefinition,
   PartyId,
   PrecinctSelection,
-  StandardPollsTransition,
+  StandardPollsTransitionType,
   Tabulation,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
@@ -18,7 +18,7 @@ interface Props {
   precinctSelection: PrecinctSelection;
   contests: Contests;
   scannedElectionResults: Tabulation.ElectionResults;
-  pollsTransition: StandardPollsTransition;
+  pollsTransition: StandardPollsTransitionType;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
   currentTime: number;

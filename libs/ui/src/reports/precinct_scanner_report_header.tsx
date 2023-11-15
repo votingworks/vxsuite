@@ -2,7 +2,7 @@ import {
   ElectionDefinition,
   getPartySpecificElectionTitle,
   PartyId,
-  PollsTransition,
+  PollsTransitionType,
   PrecinctSelection,
 } from '@votingworks/types';
 import {
@@ -90,7 +90,7 @@ interface Props {
   electionDefinition: ElectionDefinition;
   partyId?: PartyId;
   precinctSelection: PrecinctSelection;
-  pollsTransition: PollsTransition;
+  pollsTransition: PollsTransitionType;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
   currentTime: number;

@@ -2,7 +2,7 @@ import {
   ElectionDefinition,
   getPartyIdsWithContests,
   PrecinctSelection,
-  StandardPollsTransition,
+  StandardPollsTransitionType,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -19,7 +19,7 @@ export interface PrecinctScannerTallyReportsProps {
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
   electionResultsByParty: Tabulation.GroupList<Tabulation.ElectionResults>;
-  pollsTransition: StandardPollsTransition;
+  pollsTransition: StandardPollsTransitionType;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
   precinctScannerMachineId: string;
