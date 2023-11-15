@@ -114,8 +114,7 @@ test('adjudication reasons', async () => {
 
   screen.getByRole('heading', { name: 'Adjudication Reasons' });
   for (const machine of ['VxScan', 'VxCentralScan']) {
-    const container = screen.getByText(machine).closest('label')!;
-    const select = within(container).getByRole('group');
+    const select = screen.getByRole('group', { name: machine });
     const options = within(select).getAllByRole('checkbox');
     expect(options).toHaveLength(5);
     for (const option of options) {
@@ -170,9 +169,9 @@ test('setting write-in text area threshold', async () => {
   expect(screen.queryByText('Write-In Area Threshold')).not.toBeInTheDocument();
 
   // VxCentralScan adjudication reason triggers the write-in area threshold input
-  const centralScanContainer = screen
-    .getByText('VxCentralScan')
-    .closest('label')!;
+  const centralScanContainer = screen.getByRole('group', {
+    name: 'VxCentralScan',
+  });
   userEvent.click(
     within(centralScanContainer).getByRole('checkbox', {
       name: 'Unmarked Write-In',
@@ -187,8 +186,7 @@ test('setting write-in text area threshold', async () => {
   expect(screen.queryByText('Write-In Area Threshold')).not.toBeInTheDocument();
 
   // VxScan adjudication reason triggers the write-in area threshold input
-  const scanContainer =
-    screen.getByText('VxScan').parentElement!.parentElement!;
+  const scanContainer = screen.getByRole('group', { name: 'VxScan' });
   userEvent.click(
     within(scanContainer).getByRole('checkbox', {
       name: 'Unmarked Write-In',

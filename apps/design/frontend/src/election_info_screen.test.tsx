@@ -57,14 +57,13 @@ test('newly created election starts in edit mode', async () => {
   expect(dateInput).toHaveValue('');
   expect(dateInput).toBeEnabled();
 
-  const typeInput = within(
-    screen.getByText('Type').closest('label')!
-  ).getByRole('radiogroup');
-  expect(within(typeInput).getByLabelText('General')).toBeChecked();
-  expect(within(typeInput).getByLabelText('Primary')).not.toBeChecked();
-  for (const option of within(typeInput).getAllByRole('radio')) {
-    expect(option).toBeEnabled();
-  }
+  const typeInput = screen.getByRole('listbox', { name: 'Type' });
+  expect(
+    within(typeInput).getByRole('option', { name: 'General', selected: true })
+  ).toBeEnabled();
+  expect(
+    within(typeInput).getByRole('option', { name: 'Primary', selected: false })
+  ).toBeEnabled();
 
   const stateInput = screen.getByLabelText('State');
   expect(stateInput).toHaveValue('');
@@ -74,7 +73,7 @@ test('newly created election starts in edit mode', async () => {
   expect(countyInput).toHaveValue('');
   expect(countyInput).toBeEnabled();
 
-  const sealInput = screen.getByText('Seal').closest('label')!;
+  const sealInput = screen.getByText('Seal').parentElement!;
   expect(within(sealInput).queryByRole('img')).not.toBeInTheDocument();
   expect(within(sealInput).getByLabelText('Upload Seal Image')).toBeEnabled();
 
@@ -101,11 +100,9 @@ test('edit and save election', async () => {
   expect(dateInput).toHaveValue(election.date);
   expect(dateInput).toBeDisabled();
 
-  const typeInput = within(
-    screen.getByText('Type').closest('label')!
-  ).getByRole('radiogroup');
-  expect(within(typeInput).getByLabelText('General')).toBeChecked();
-  for (const option of within(typeInput).getAllByRole('radio')) {
+  const typeInput = screen.getByRole('listbox', { name: 'Type' });
+  within(typeInput).getByRole('option', { name: 'General', selected: true });
+  for (const option of within(typeInput).getAllByRole('option')) {
     expect(option).toBeDisabled();
   }
 
@@ -117,7 +114,7 @@ test('edit and save election', async () => {
   expect(countyInput).toHaveValue(election.county.name);
   expect(countyInput).toBeDisabled();
 
-  const sealInput = screen.getByText('Seal').closest('label')!;
+  const sealInput = screen.getByText('Seal').parentElement!;
   expect(within(sealInput).getByRole('img')).toHaveAttribute(
     'src',
     `data:image/svg+xml;base64,${Buffer.from(election.seal).toString('base64')}`
@@ -136,9 +133,9 @@ test('edit and save election', async () => {
   userEvent.type(dateInput, '2023-09-06');
   expect(dateInput).toHaveValue('2023-09-06');
 
-  userEvent.click(within(typeInput).getByLabelText('Primary'));
-  expect(within(typeInput).getByLabelText('General')).not.toBeChecked();
-  expect(within(typeInput).getByLabelText('Primary')).toBeChecked();
+  userEvent.click(within(typeInput).getByRole('option', { name: 'Primary' }));
+  within(typeInput).getByRole('option', { name: 'General', selected: false });
+  within(typeInput).getByRole('option', { name: 'Primary', selected: true });
 
   userEvent.clear(stateInput);
   userEvent.type(stateInput, 'New State');
