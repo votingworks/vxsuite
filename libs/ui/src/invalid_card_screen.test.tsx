@@ -4,37 +4,48 @@ import { InvalidCardScreen, Props } from './invalid_card_screen';
 
 const testCases: Array<{
   description: string;
-  reason: Props['reason'];
+  reasonAndContext: Props['reasonAndContext'];
   recommendedAction?: string;
   expectedHeading: string;
   expectedText: string;
 }> = [
   {
     description: 'card is backwards',
-    reason: 'card_error',
+    reasonAndContext: {
+      reason: 'card_error',
+    },
     expectedHeading: 'Card is Backwards',
     expectedText: 'Remove the card, turn it around, and insert it again.',
   },
   {
     description:
       'election manager card election hash does not match machine election hash',
-    reason: 'election_manager_wrong_election',
+    reasonAndContext: {
+      reason: 'wrong_election',
+      cardUserRole: 'election_manager',
+    },
     expectedHeading: 'Invalid Card',
     expectedText:
       'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Please insert a valid Election Manager or System Administrator card.',
+      'Please insert a valid card.',
+  },
+  {
+    description:
+      'poll worker card election hash does not match machine election hash',
+    reasonAndContext: {
+      reason: 'wrong_election',
+      cardUserRole: 'poll_worker',
+    },
+    expectedHeading: 'Invalid Card',
+    expectedText:
+      'The inserted Poll Worker card is programmed for another election and cannot be used to unlock this machine. ' +
+      'Please insert a valid card.',
   },
   {
     description: 'machine not configured',
-    reason: 'machine_not_configured',
-    expectedHeading: 'Invalid Card',
-    expectedText:
-      'This machine is unconfigured and cannot be unlocked with this card. ' +
-      'Please insert a valid Election Manager or System Administrator card.',
-  },
-  {
-    description: 'machine not configured, custom recommended action',
-    reason: 'machine_not_configured',
+    reasonAndContext: {
+      reason: 'machine_not_configured',
+    },
     recommendedAction: 'Please insert a System Administrator card.',
     expectedHeading: 'Invalid Card',
     expectedText:
@@ -42,20 +53,44 @@ const testCases: Array<{
       'Please insert a System Administrator card.',
   },
   {
-    description: 'other error',
-    reason: 'invalid_user_on_card',
+    description: 'machine not configured, custom recommended action',
+    reasonAndContext: {
+      reason: 'machine_not_configured',
+    },
+    recommendedAction: 'Please insert a System Administrator card.',
     expectedHeading: 'Invalid Card',
     expectedText:
-      'Please insert a valid Election Manager or System Administrator card.',
+      'This machine is unconfigured and cannot be unlocked with this card. ' +
+      'Please insert a System Administrator card.',
+  },
+  {
+    description: 'card jurisdiction does not match machine jurisdiction',
+    reasonAndContext: {
+      reason: 'wrong_jurisdiction',
+      cardJurisdiction: 'some-jurisdiction',
+      machineJurisdiction: 'another-jurisdiction',
+    },
+    expectedHeading: 'Invalid Card',
+    expectedText:
+      'The inserted card’s jurisdiction (some-jurisdiction) does not match this machine’s jurisdiction (another-jurisdiction). ' +
+      'Please insert a valid card.',
+  },
+  {
+    description: 'other error',
+    reasonAndContext: {
+      reason: 'invalid_user_on_card',
+    },
+    expectedHeading: 'Invalid Card',
+    expectedText: 'Please insert a valid card.',
   },
 ];
 
 test.each(testCases)(
   'InvalidCardScreen renders expected text ($description)',
-  ({ reason, recommendedAction, expectedHeading, expectedText }) => {
+  ({ reasonAndContext, recommendedAction, expectedHeading, expectedText }) => {
     render(
       <InvalidCardScreen
-        reason={reason}
+        reasonAndContext={reasonAndContext}
         recommendedAction={recommendedAction}
       />
     );
