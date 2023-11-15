@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
-/* ISO 639-1 codes for supported VxSuite languages.  */
+/* ISO IETF language tags for supported VxSuite languages.  */
 export enum LanguageCode {
-  CHINESE = 'zh',
+  CHINESE_SIMPLIFIED = 'zh-HANS',
+  CHINESE_TRADITIONAL = 'zh-HANT',
   ENGLISH = 'en',
-  SPANISH = 'es',
+  SPANISH = 'es-419', // Default to Latin-American Spanish, since that's more common in the US.
 }
 
 export const LanguageCodeSchema: z.ZodType<LanguageCode> =
