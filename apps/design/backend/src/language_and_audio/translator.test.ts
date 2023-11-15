@@ -14,8 +14,8 @@ test('GoogleCloudTranslator', async () => {
     LanguageCode.SPANISH
   );
   expect(translatedTextArray).toEqual([
-    'Do you like apples? (in es)',
-    'Do you like oranges? (in es)',
+    `Do you like apples? (in ${LanguageCode.SPANISH})`,
+    `Do you like oranges? (in ${LanguageCode.SPANISH})`,
   ]);
   expect(translationClient.translateText).toHaveBeenCalledTimes(1);
   expect(translationClient.translateText).toHaveBeenNthCalledWith(
@@ -33,9 +33,9 @@ test('GoogleCloudTranslator', async () => {
     LanguageCode.SPANISH
   );
   expect(translatedTextArray).toEqual([
-    'Do you like apples? (in es)',
-    'Do you like bananas? (in es)',
-    'Do you like oranges? (in es)',
+    `Do you like apples? (in ${LanguageCode.SPANISH})`,
+    `Do you like bananas? (in ${LanguageCode.SPANISH})`,
+    `Do you like oranges? (in ${LanguageCode.SPANISH})`,
   ]);
   expect(translationClient.translateText).toHaveBeenCalledTimes(1);
   expect(translationClient.translateText).toHaveBeenNthCalledWith(
@@ -53,9 +53,9 @@ test('GoogleCloudTranslator', async () => {
     LanguageCode.SPANISH
   );
   expect(translatedTextArray).toEqual([
-    'Do you like apples? (in es)',
-    'Do you like bananas? (in es)',
-    'Do you like oranges? (in es)',
+    `Do you like apples? (in ${LanguageCode.SPANISH})`,
+    `Do you like bananas? (in ${LanguageCode.SPANISH})`,
+    `Do you like oranges? (in ${LanguageCode.SPANISH})`,
   ]);
   expect(translationClient.translateText).not.toHaveBeenCalled();
 
@@ -66,9 +66,9 @@ test('GoogleCloudTranslator', async () => {
     LanguageCode.CHINESE_TRADITIONAL
   );
   expect(translatedTextArray).toEqual([
-    'Do you like apples? (in zh)',
-    'Do you like bananas? (in zh)',
-    'Do you like oranges? (in zh)',
+    `Do you like apples? (in ${LanguageCode.CHINESE_TRADITIONAL})`,
+    `Do you like bananas? (in ${LanguageCode.CHINESE_TRADITIONAL})`,
+    `Do you like oranges? (in ${LanguageCode.CHINESE_TRADITIONAL})`,
   ]);
   expect(translationClient.translateText).toHaveBeenCalledTimes(1);
   expect(translationClient.translateText).toHaveBeenNthCalledWith(
