@@ -23,7 +23,7 @@ import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { ejectUsbDrive, logOut } from '../api';
-import { NavItem, Sidebar } from './layout/sidebar';
+import { NavItem, Sidebar } from './sidebar';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 interface Props {

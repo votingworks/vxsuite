@@ -10,7 +10,7 @@ import {
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
 
-import { AppContext } from '../../contexts/app_context';
+import { AppContext } from '../contexts/app_context';
 
 export interface SidebarProps {
   navItems: readonly NavItem[];
