@@ -1,6 +1,7 @@
 import { render, screen } from '../test/react_testing_library';
 
 import { Card } from './card';
+import { makeTheme } from './themes/make_theme';
 import { P } from './typography';
 
 test('renders without footer', () => {
@@ -22,4 +23,16 @@ test('renders with footer', () => {
 
   expect(screen.getByText('Card content')).toBeDefined();
   expect(screen.getByText('Footer content')).toBeDefined();
+});
+
+test('renders with desktop theme', () => {
+  const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
+  render(
+    <Card>
+      <P>Card content</P>
+    </Card>,
+    { vxTheme: theme }
+  );
+  const cardContents = screen.getByText('Card content');
+  expect(cardContents).toHaveStyleRule('padding: 1rem');
 });

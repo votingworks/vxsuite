@@ -141,8 +141,7 @@ export function SearchSelect<T extends string = string>({
           display: 'inline-block',
           lineHeight: theme.sizes.lineHeight,
           fontWeight: theme.sizes.fontWeight.semiBold,
-          /* istanbul ignore next */
-          ...(style ?? {}),
+          .../* istanbul ignore next */ (style ?? {}),
         }),
         control: (baseStyles, state) => ({
           ...baseStyles,
