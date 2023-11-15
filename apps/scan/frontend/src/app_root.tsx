@@ -128,7 +128,7 @@ export function AppRoot({
   }
 
   if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
-    return <InvalidCardScreen />;
+    return <InvalidCardScreen authStatus={authStatus} />;
   }
 
   if (

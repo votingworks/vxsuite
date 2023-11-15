@@ -1,11 +1,17 @@
+import { InsertedSmartCardAuth } from '@votingworks/types';
 import { InvalidCardScreen as SharedInvalidCardScreen } from '@votingworks/ui';
+
 import { ScreenMainCenterChild } from '../components/layout';
 
-export function InvalidCardScreen(): JSX.Element {
+export function InvalidCardScreen({
+  authStatus,
+}: {
+  authStatus: InsertedSmartCardAuth.LoggedOut;
+}): JSX.Element {
   return (
     <ScreenMainCenterChild infoBarMode="pollworker">
       <SharedInvalidCardScreen
-        reason="invalid_user_on_card"
+        reasonAndContext={authStatus}
         recommendedAction="Remove the card to continue."
       />
     </ScreenMainCenterChild>
@@ -14,5 +20,9 @@ export function InvalidCardScreen(): JSX.Element {
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return <InvalidCardScreen />;
+  return (
+    <InvalidCardScreen
+      authStatus={{ status: 'logged_out', reason: 'invalid_user_on_card' }}
+    />
+  );
 }
