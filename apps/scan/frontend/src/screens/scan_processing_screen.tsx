@@ -1,4 +1,10 @@
-import { CenteredLargeProse, H1, LoadingAnimation, P } from '@votingworks/ui';
+import {
+  CenteredLargeProse,
+  H1,
+  LoadingAnimation,
+  P,
+  appStrings,
+} from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanProcessingScreen(): JSX.Element {
@@ -6,8 +12,8 @@ export function ScanProcessingScreen(): JSX.Element {
     <ScreenMainCenterChild>
       <LoadingAnimation />
       <CenteredLargeProse>
-        <H1>Please wait…</H1>
-        <P>Scanning the marks on your ballot.</P>
+        <H1>{appStrings.titleScannerProcessingScreen()}</H1>
+        <P>{appStrings.noteScannerScanInProgress()}</P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

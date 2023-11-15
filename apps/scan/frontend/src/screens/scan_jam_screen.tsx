@@ -1,4 +1,10 @@
-import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
+import {
+  Caption,
+  FullScreenIconWrapper,
+  Icons,
+  P,
+  appStrings,
+} from '@votingworks/ui';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
@@ -10,15 +16,15 @@ export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
     <Screen centerContent ballotCountOverride={scannedBallotCount}>
       <FullScreenPromptLayout
-        title="Ballot Not Counted"
+        title={appStrings.titleScannerBallotNotCounted()}
         image={
           <FullScreenIconWrapper>
             <Icons.Delete color="danger" />
           </FullScreenIconWrapper>
         }
       >
-        <P>The ballot is jammed in the scanner.</P>
-        <Caption>Ask a poll worker for help.</Caption>
+        <P>{appStrings.warningScannerJammed()}</P>
+        <Caption>{appStrings.instructionsAskForHelp()}</Caption>
       </FullScreenPromptLayout>
     </Screen>
   );

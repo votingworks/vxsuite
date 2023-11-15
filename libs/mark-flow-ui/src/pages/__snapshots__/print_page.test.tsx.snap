@@ -251,14 +251,14 @@ exports[`no votes 1`] = `
 
 }
 
+@media print {
+
+}
+
 @media screen {
   .c0 {
     display: none;
   }
-}
-
-@media print {
-
 }
 
 <div>
@@ -995,14 +995,14 @@ exports[`with votes 1`] = `
   margin-bottom: 0.125em;
 }
 
+@media print {
+
+}
+
 @media screen {
   .c0 {
     display: none;
   }
-}
-
-@media print {
-
 }
 
 @media print {
@@ -1748,14 +1748,14 @@ exports[`without votes and inline seal 1`] = `
   margin-bottom: 0.125em;
 }
 
+@media print {
+
+}
+
 @media screen {
   .c0 {
     display: none;
   }
-}
-
-@media print {
-
 }
 
 @media print {

@@ -1,4 +1,4 @@
-import { CenteredLargeProse, H1, P } from '@votingworks/ui';
+import { CenteredLargeProse, H1, P, appStrings } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 interface Props {
@@ -17,13 +17,13 @@ export function SetupScannerScreen({
     <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
       {batteryIsCharging ? (
         <CenteredLargeProse>
-          <H1>Internal Connection Problem</H1>
-          <P>Please ask a poll worker for help.</P>
+          <H1>{appStrings.titleInternalConnectionProblem()}</H1>
+          <P>{appStrings.instructionsAskForHelp()}</P>
         </CenteredLargeProse>
       ) : (
         <CenteredLargeProse>
-          <H1>No Power Detected</H1>
-          <P>Please ask a poll worker to plug in the power cord.</P>
+          <H1>{appStrings.titleNoPowerDetected()}</H1>
+          <P>{appStrings.instructionsAskPollWorkerToPlugInPower()}</P>
         </CenteredLargeProse>
       )}
     </ScreenMainCenterChild>

@@ -1327,14 +1327,14 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 }
 
+@media print {
+
+}
+
 @media screen {
   .c0 {
     display: none;
   }
-}
-
-@media print {
-
 }
 
 @media (min-width:480px) {

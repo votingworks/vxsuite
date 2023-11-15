@@ -7,6 +7,7 @@ import {
   H1,
   Icons,
   P,
+  appStrings,
   useExternalStateChangeListener,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
@@ -50,17 +51,15 @@ export function ReplaceBallotBagScreen({
     if (!confirmed && !pollWorkerAuthenticated) {
       return (
         <FullScreenPromptLayout
-          title="Ballot Bag Full"
+          title={appStrings.titleBallotBagFull()}
           image={
             <FullScreenIconWrapper>
               <Icons.Warning color="warning" />
             </FullScreenIconWrapper>
           }
         >
-          <P>
-            A poll worker must replace the full ballot bag with a new empty
-            ballot bag.
-          </P>
+          <P>{appStrings.noteScannerReplaceFullBallotBag()}</P>
+          {/* Poll-worker-facing string - not translated: */}
           <Caption>Insert a poll worker card to continue.</Caption>
         </FullScreenPromptLayout>
       );

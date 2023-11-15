@@ -1,4 +1,4 @@
-import { FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
+import { FullScreenIconWrapper, Icons, P, appStrings } from '@votingworks/ui';
 
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
@@ -11,14 +11,14 @@ export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
     <Screen centerContent ballotCountOverride={scannedBallotCount}>
       <FullScreenPromptLayout
-        title="Your ballot was counted!"
+        title={appStrings.titleScannerSuccessScreen()}
         image={
           <FullScreenIconWrapper>
             <Icons.Done color="success" />
           </FullScreenIconWrapper>
         }
       >
-        <P>Thank you for voting.</P>
+        <P>{appStrings.noteThankYouForVoting()}</P>
       </FullScreenPromptLayout>
     </Screen>
   );
