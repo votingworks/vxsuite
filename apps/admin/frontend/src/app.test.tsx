@@ -118,13 +118,12 @@ test('configuring with a demo election definition', async () => {
 
   await screen.findByText('Election Definition');
 
-  // You can view the Logs screen and save log files when there is an election.
+  // You can view the Logs screen and save log files
   fireEvent.click(screen.getByText('Logs'));
   fireEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('No Log File Present');
-  fireEvent.click(screen.getByText('Close'));
-  fireEvent.click(screen.getByText('Save CDF Log File'));
-  await screen.findByText('No Log File Present');
+  await screen.findByText('No USB Drive Detected');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  await screen.findByText('Save logs on the inserted USB drive?');
 
   fireEvent.click(getByText('Definition'));
 
@@ -142,12 +141,9 @@ test('configuring with a demo election definition', async () => {
 
   // You can view the Logs screen and save log files when there is no election.
   fireEvent.click(screen.getByText('Logs'));
+  await screen.findByText('Save Log File');
   fireEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('No Log File Present');
-  fireEvent.click(screen.getByText('Close'));
-  fireEvent.click(screen.getByText('Save CDF Log File'));
-  // You can not save as CDF when there is no election.
-  expect(screen.queryAllByText('No Log File Present')).toHaveLength(0);
+  await screen.findByText('Save logs on the inserted USB drive?');
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByText('Load Demo Election Definition');

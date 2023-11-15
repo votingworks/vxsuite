@@ -440,7 +440,6 @@ export function AppRoot({
           <AdminActionsScreen
             isTestMode={isTestMode}
             canUnconfigure={status.canUnconfigure}
-            electionDefinition={electionDefinition}
           />
         </Route>
         <Route path="/">

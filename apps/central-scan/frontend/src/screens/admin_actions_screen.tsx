@@ -1,6 +1,6 @@
-import { ElectionDefinition } from '@votingworks/types';
 import React, { useState, useContext } from 'react';
-import { assert } from '@votingworks/basics';
+import { assert, err } from '@votingworks/basics';
+import { LogsResultType } from '@votingworks/backend';
 import {
   Button,
   ExportLogsButtonRow,
@@ -27,6 +27,7 @@ import {
   clearBallotData,
   exportCastVoteRecordsToUsbDrive,
   ejectUsbDrive,
+  exportLogsToUsb,
 } from '../api';
 
 const ButtonRow = styled.div`
@@ -38,17 +39,14 @@ const ButtonRow = styled.div`
 export interface AdminActionScreenProps {
   isTestMode: boolean;
   canUnconfigure: boolean;
-  electionDefinition: ElectionDefinition;
 }
 
 export function AdminActionsScreen({
   isTestMode,
   canUnconfigure,
-  electionDefinition,
 }: AdminActionScreenProps): JSX.Element {
   const history = useHistory();
-  const { logger, auth, usbDriveStatus, machineConfig } =
-    useContext(AppContext);
+  const { logger, auth, usbDriveStatus } = useContext(AppContext);
   assert(isElectionManagerAuth(auth));
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
@@ -56,6 +54,16 @@ export function AdminActionsScreen({
   const clearBallotDataMutation = clearBallotData.useMutation();
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
+
+  const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
+
+  async function doExportLogs(): Promise<LogsResultType> {
+    try {
+      return await exportLogsToUsbMutation.mutateAsync();
+    } catch (e) {
+      return err('copy-failed');
+    }
+  }
 
   function redirectToDashboard() {
     history.replace('/');
@@ -130,11 +138,10 @@ export function AdminActionsScreen({
             </ButtonRow>
             <ButtonRow>
               <ExportLogsButtonRow
-                electionDefinition={electionDefinition}
                 usbDriveStatus={usbDriveStatus}
                 auth={auth}
                 logger={logger}
-                machineConfig={machineConfig}
+                onExportLogs={doExportLogs}
               />
             </ButtonRow>
             <ButtonRow>

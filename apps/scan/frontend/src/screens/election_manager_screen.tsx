@@ -1,3 +1,5 @@
+import { ok } from '@votingworks/basics';
+import { LogsResultType } from '@votingworks/backend';
 import { ElectionDefinition } from '@votingworks/types';
 import {
   Button,
@@ -19,6 +21,7 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  LogFileType,
 } from '@votingworks/utils';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
@@ -50,6 +53,7 @@ export interface ElectionManagerScreenProps {
   scannerStatus: PrecinctScannerStatus;
   usbDrive: UsbDriveStatus;
   logger: Logger;
+  doExportLogs: (lft: LogFileType) => Promise<LogsResultType>;
 }
 
 export function ElectionManagerScreen({
@@ -57,6 +61,7 @@ export function ElectionManagerScreen({
   scannerStatus,
   usbDrive,
   logger,
+  doExportLogs,
 }: ElectionManagerScreenProps): JSX.Element | null {
   const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
@@ -95,7 +100,6 @@ export function ElectionManagerScreen({
     configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
   const authStatus = authStatusQuery.data;
-  const machineConfig = machineConfigQuery.data;
 
   const doesUsbDriveRequireCastVoteRecordSync = Boolean(
     usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync
@@ -193,11 +197,10 @@ export function ElectionManagerScreen({
         <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
       </P>
       <ExportLogsButtonRow
-        electionDefinition={electionDefinition}
         usbDriveStatus={usbDrive}
         auth={authStatus}
         logger={logger}
-        machineConfig={machineConfig}
+        onExportLogs={doExportLogs}
       />
     </React.Fragment>
   );
@@ -376,6 +379,10 @@ export function ElectionManagerScreen({
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const { electionDefinition } = usePreviewContext();
+  // eslint-disable-next-line @typescript-eslint/require-await
+  const doExportLogs: () => Promise<LogsResultType> = async () => {
+    return ok();
+  };
   return (
     <ElectionManagerScreen
       electionDefinition={electionDefinition}
@@ -385,6 +392,7 @@ export function DefaultPreview(): JSX.Element {
       }}
       usbDrive={{ status: 'no_drive' }}
       logger={new Logger(LogSource.VxScanFrontend)}
+      doExportLogs={doExportLogs}
     />
   );
 }

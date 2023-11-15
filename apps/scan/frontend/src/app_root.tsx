@@ -17,7 +17,8 @@ import {
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 
-import { assert } from '@votingworks/basics';
+import { assert, err } from '@votingworks/basics';
+import { LogsResultType } from '@votingworks/backend';
 import { PrecinctReportDestination } from '@votingworks/types';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
@@ -45,6 +46,7 @@ import {
   getUsbDriveStatus,
   transitionPolls,
   unconfigureElection,
+  exportLogsToUsb,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
@@ -70,6 +72,15 @@ export function AppRoot({
   const checkPinMutation = checkPin.useMutation();
   const transitionPollsMutation = transitionPolls.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
+  const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
+
+  async function doExportLogs(): Promise<LogsResultType> {
+    try {
+      return await exportLogsToUsbMutation.mutateAsync();
+    } catch (e) {
+      return err('copy-failed');
+    }
+  }
 
   const {
     cardReader,
@@ -160,11 +171,10 @@ export function AppRoot({
           <LiveCheckButton />
         ) : undefined}
         <ExportLogsButtonGroup
-          electionDefinition={electionDefinition}
           usbDriveStatus={usbDrive}
           auth={authStatus}
           logger={logger}
-          machineConfig={machineConfig}
+          onExportLogs={doExportLogs}
         />
       </React.Fragment>
     );
@@ -238,6 +248,7 @@ export function AppRoot({
         scannerStatus={scannerStatus}
         usbDrive={usbDrive}
         logger={logger}
+        doExportLogs={doExportLogs}
       />
     );
   }

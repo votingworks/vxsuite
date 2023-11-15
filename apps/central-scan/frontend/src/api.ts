@@ -212,3 +212,10 @@ export const exportCastVoteRecordsToUsbDrive = {
     return useMutation(apiClient.exportCastVoteRecordsToUsbDrive);
   },
 } as const;
+
+export const exportLogsToUsb = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportLogsToUsb);
+  },
+} as const;
