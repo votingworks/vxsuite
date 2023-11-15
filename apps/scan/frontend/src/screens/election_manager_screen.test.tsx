@@ -34,6 +34,7 @@ beforeEach(() => {
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
+  apiMock.expectGetPollsInfo();
   apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetMachineConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -105,9 +106,10 @@ test('option to set precinct if more than one', async () => {
   apiMock.expectGetConfig();
   const precinct = electionGeneralDefinition.election.precincts[0];
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
-  apiMock.expectSetPrecinct(precinctSelection);
   renderScreen();
 
+  apiMock.expectSetPrecinct(precinctSelection);
+  apiMock.expectGetPollsInfo();
   apiMock.expectGetConfig({ precinctSelection });
   const selectPrecinct = await screen.findByTestId('selectPrecinct');
   userEvent.selectOptions(selectPrecinct, precinct.id);

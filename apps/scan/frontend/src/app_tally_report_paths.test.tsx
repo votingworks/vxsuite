@@ -11,7 +11,6 @@ import {
   fakeKiosk,
 } from '@votingworks/test-utils';
 import {
-  ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
   MemoryHardware,
   buildElectionResultsFixture,
@@ -20,7 +19,6 @@ import {
   Election,
   ElectionDefinition,
   PrecinctReportDestination,
-  PrecinctSelection,
   Tabulation,
 } from '@votingworks/types';
 
@@ -164,12 +162,10 @@ afterEach(() => {
 async function closePolls({
   electionDefinition,
   latestScannerResultsByParty,
-  precinctSelection,
   removeCardAfter = true,
 }: {
   electionDefinition: ElectionDefinition;
   latestScannerResultsByParty?: Tabulation.GroupList<Tabulation.ElectionResults>;
-  precinctSelection: PrecinctSelection;
   removeCardAfter?: boolean;
 }): Promise<void> {
   if (latestScannerResultsByParty) {
@@ -178,12 +174,8 @@ async function closePolls({
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
-    electionDefinition,
-    precinctSelection,
-    pollsState: 'polls_closed_final',
-  });
+  apiMock.expectTransitionPolls('close_polls');
+  apiMock.expectGetPollsInfo('polls_closed_final');
   userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Polls are closed.');
   if (removeCardAfter) {
@@ -196,6 +188,7 @@ test('polls open, All Precincts, primary election + check additional report', as
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election } = electionDefinition;
   apiMock.expectGetConfig({ electionDefinition });
+  apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp({
     connectPrinter: true,
@@ -207,8 +200,8 @@ test('polls open, All Precincts, primary election + check additional report', as
   apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
-  apiMock.expectSetPollsState('polls_open');
-  apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
+  apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(screen.getByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
 
@@ -253,7 +246,7 @@ test('polls open, All Precincts, primary election + check additional report', as
   }
   await checkReport();
 
-  userEvent.click(screen.getByText('Print Additional Polls Opened Report'));
+  userEvent.click(screen.getByText('Print Additional Report'));
   await screen.findByText('Printing Report…');
   await screen.findByText('Polls are open.');
   await checkReport();
@@ -268,9 +261,9 @@ test('polls closed, primary election, single precinct + quickresults on', async 
   const precinctSelection = singlePrecinctSelectionFor('precinct-1');
   apiMock.expectGetConfig({
     electionDefinition,
-    pollsState: 'polls_open',
     precinctSelection,
   });
+  apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 3 });
   renderApp({
     connectPrinter: true,
@@ -282,7 +275,6 @@ test('polls closed, primary election, single precinct + quickresults on', async 
   await closePolls({
     electionDefinition,
     latestScannerResultsByParty: PRIMARY_ELECTION_RESULTS,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
   });
 
   await expectPrint((printedElement) => {
@@ -331,9 +323,9 @@ test('polls open, general election, single precinct', async () => {
   const precinctSelection = singlePrecinctSelectionFor('23');
   apiMock.expectGetConfig({
     electionDefinition,
-    pollsState: 'polls_closed_initial',
     precinctSelection,
   });
+  apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp({
     connectPrinter: true,
@@ -345,8 +337,8 @@ test('polls open, general election, single precinct', async () => {
   apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
-  apiMock.expectSetPollsState('polls_open');
-  apiMock.expectGetConfig({ electionDefinition, pollsState: 'polls_open' });
+  apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(screen.getByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
 
@@ -364,8 +356,8 @@ test('polls closed, general election, all precincts', async () => {
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
-    pollsState: 'polls_open',
   });
+  apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({
     connectPrinter: true,
@@ -377,7 +369,6 @@ test('polls closed, general election, all precincts', async () => {
   await closePolls({
     electionDefinition,
     latestScannerResultsByParty: GENERAL_ELECTION_RESULTS,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
   });
 
   await expectPrint((printedElement) => {
@@ -399,8 +390,8 @@ test('polls paused', async () => {
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_open',
   });
+  apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({
     connectPrinter: true,
@@ -413,12 +404,8 @@ test('polls paused', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
-  apiMock.expectSetPollsState('polls_paused');
-  apiMock.expectGetConfig({
-    electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_paused',
-  });
+  apiMock.expectTransitionPolls('pause_voting');
+  apiMock.expectGetPollsInfo('polls_paused');
   userEvent.click(await screen.findByText('Pause Voting'));
   await screen.findByText('Voting paused.');
 
@@ -443,8 +430,8 @@ test('polls unpaused', async () => {
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_paused',
   });
+  apiMock.expectGetPollsInfo('polls_paused');
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({
     connectPrinter: true,
@@ -457,11 +444,9 @@ test('polls unpaused', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to resume voting?');
   userEvent.click(await screen.findByText('Yes, Resume Voting'));
-  apiMock.expectSetPollsState('polls_open');
-  apiMock.expectGetConfig({
-    electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_open',
+  apiMock.expectTransitionPolls('resume_voting');
+  apiMock.expectGetPollsInfo('polls_open', {
+    type: 'resume_voting',
   });
   await screen.findByText('Voting resumed.');
 
@@ -484,8 +469,8 @@ test('polls closed from paused', async () => {
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
-    pollsState: 'polls_paused',
   });
+  apiMock.expectGetPollsInfo('polls_paused');
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   renderApp({
     connectPrinter: true,
@@ -499,12 +484,8 @@ test('polls closed from paused', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to resume voting?');
   userEvent.click(screen.getByText('No'));
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetConfig({
-    electionDefinition,
-    precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_closed_final',
-  });
+  apiMock.expectTransitionPolls('close_polls');
+  apiMock.expectGetPollsInfo('polls_closed_final');
   userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Polls are closed.');
 
@@ -526,8 +507,8 @@ test('must have printer attached to open polls (thermal printer)', async () => {
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_closed_initial',
   });
+  apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   const { hardware } = renderApp({
     connectPrinter: false,
@@ -558,8 +539,8 @@ test('must have printer attached to close polls (thermal printer)', async () => 
   apiMock.expectGetConfig({
     electionDefinition,
     precinctSelection: singlePrecinctSelectionFor('23'),
-    pollsState: 'polls_open',
   });
+  apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus({ ...statusNoPaper, ballotsCounted: 2 });
   const { hardware } = renderApp({
     connectPrinter: false,
