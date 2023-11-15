@@ -210,16 +210,12 @@ function BlankBallotWarningScreen(): JSX.Element {
           </React.Fragment>
         }
       >
-        <P>No votes were found when scanning this ballot.</P>
-        <Caption>
-          Your votes will count, even if you leave some blank.
-          <br />
-          Ask a poll worker if you need help.
-        </Caption>
+        <P>{appStrings.warningScannerNoVotesFound()}</P>
+        <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
       </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
-          content={<P>No votes will be counted from this ballot.</P>}
+          content={<P>{appStrings.warningScannerBlankBallotSubmission()}</P>}
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}
         />
@@ -235,7 +231,7 @@ function OtherReasonWarningScreen(): JSX.Element {
   return (
     <Screen centerContent>
       <FullScreenPromptLayout
-        title="Scanning Failed"
+        title={appStrings.titleScanningFailed()}
         image={
           <FullScreenIconWrapper>
             <Icons.Warning color="warning" />
@@ -255,12 +251,12 @@ function OtherReasonWarningScreen(): JSX.Element {
           </React.Fragment>
         }
       >
-        <P>There was a problem scanning this ballot.</P>
-        <Caption>Ask a poll worker if you need help.</Caption>
+        <P>{appStrings.warningProblemScanningBallot()}</P>
+        <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
       </FullScreenPromptLayout>
       {confirmTabulate && (
         <ConfirmModal
-          content={<P>No votes will be recorded for this ballot.</P>}
+          content={<P>{appStrings.warningScannerBlankBallotSubmission()}</P>}
           onConfirm={() => acceptBallotMutation.mutate()}
           onCancel={() => setConfirmTabulate(false)}
         />
