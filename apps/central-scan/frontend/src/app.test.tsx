@@ -281,7 +281,7 @@ test('configuring election from usb ballot package works end to end', async () =
   await screen.findByText('No ballots have been scanned.');
 
   screen.getByText('General Election');
-  screen.getByText(/Franklin County,/);
+  screen.getByText(/Franklin County/);
   screen.getByText(/State of Hamilton/);
   screen.getByText(hasTextAcrossElements('Machine ID0001'));
 

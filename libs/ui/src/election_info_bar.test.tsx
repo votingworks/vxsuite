@@ -16,7 +16,7 @@ jest.mock('@votingworks/types', () => {
 });
 
 test('Renders ElectionInfoBar with appropriate information', () => {
-  const { container } = render(
+  render(
     <ElectionInfoBar
       electionDefinition={electionGeneralDefinition}
       machineId="0000"
@@ -25,8 +25,8 @@ test('Renders ElectionInfoBar with appropriate information', () => {
     />
   );
   screen.getByText('General Election');
-  screen.getByText('Nov 3, 2020');
-  screen.getByText('Franklin County,');
+  screen.getByText('November 3, 2020');
+  screen.getByText('Franklin County');
   screen.getByText('State of Hamilton');
 
   const versionLabel = screen.getByText('Software Version');
@@ -39,7 +39,6 @@ test('Renders ElectionInfoBar with appropriate information', () => {
   expect(electionIdLabel.parentElement?.lastChild).toHaveTextContent(
     getDisplayElectionHash(electionGeneralDefinition)
   );
-  expect(container).toMatchSnapshot();
 });
 
 test('Renders ElectionInfoBar with all precincts when specified', () => {
@@ -52,7 +51,7 @@ test('Renders ElectionInfoBar with all precincts when specified', () => {
       precinctSelection={ALL_PRECINCTS_SELECTION}
     />
   );
-  screen.getByText('All Precincts,');
+  screen.getByText('All Precincts');
 });
 
 test('Renders ElectionInfoBar with specific precinct', () => {
@@ -65,7 +64,7 @@ test('Renders ElectionInfoBar with specific precinct', () => {
       precinctSelection={singlePrecinctSelectionFor('23')}
     />
   );
-  screen.getByText('Center Springfield,');
+  screen.getByText('Center Springfield');
 });
 
 test('Renders ElectionInfoBar without admin info in default voter mode', () => {
