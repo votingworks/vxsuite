@@ -5,7 +5,7 @@ import {
   LinkButton,
   Main,
   NavDivider,
-  NavItem,
+  NavListItem,
   NavLink,
   NavList,
   Screen,
@@ -45,15 +45,15 @@ export function ElectionNavScreen({
         <NavList>
           {electionNavRoutes(electionId).map(({ label, path }) => {
             return (
-              <NavItem key={path}>
+              <NavListItem key={path}>
                 <NavLink to={path} isActive={path === currentRoute.url}>
                   {label}
                 </NavLink>
-              </NavItem>
+              </NavListItem>
             );
           })}
           <NavDivider />
-          <NavItem>
+          <NavListItem>
             <LinkButton
               to="/"
               fill="transparent"
@@ -62,7 +62,7 @@ export function ElectionNavScreen({
             >
               All Elections
             </LinkButton>
-          </NavItem>
+          </NavListItem>
         </NavList>
       }
     >

@@ -28,7 +28,7 @@ export const NavList = styled.ul`
 /**
  * A nav item in a NavList.
  */
-export const NavItem = styled.li`
+export const NavListItem = styled.li`
   /* For now, we don't need any specific styles here. */
 `;
 
@@ -38,7 +38,7 @@ const NavLinkButton = styled(LinkButton)`
 `;
 
 /**
- * A nav link in a NavList. Should go inside a NavItem.
+ * A nav link in a NavList. Should go inside a NavListItem.
  */
 export function NavLink({
   isActive,
@@ -61,7 +61,7 @@ export function NavLink({
 }
 
 /**
- * A divider line between NavItems in a NavList.
+ * A divider line between NavListItems in a NavList.
  */
 export const NavDivider = styled.div`
   border-top: ${({ theme }) => theme.sizes.bordersRem.hairline}rem solid
