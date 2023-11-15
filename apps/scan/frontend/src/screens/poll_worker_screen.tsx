@@ -2,14 +2,8 @@ import React, { useState } from 'react';
 
 import {
   Button,
-  Prose,
   Loading,
   DEFAULT_NUMBER_POLL_REPORT_COPIES,
-  fontSizeTheme,
-  PrecinctScannerTallyReports,
-  printElement,
-  getSignedQuickResultsReportingUrl,
-  PrecinctScannerBallotCountReport,
   CenteredLargeProse,
   LoadingAnimation,
   H1,
@@ -19,17 +13,11 @@ import {
   Icons,
 } from '@votingworks/ui';
 import {
-  compressTally,
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  getPollsTransitionDestinationState,
-  getPollsReportTitle,
-  isPollsSuspensionTransition,
-  combineElectionResults,
 } from '@votingworks/utils';
 import {
-  PollsState,
-  PollsTransition,
+  PollsTransitionType,
   ElectionDefinition,
   PrecinctSelection,
   PrecinctReportDestination,
@@ -41,25 +29,29 @@ import {
 } from '@votingworks/logging';
 import {
   assert,
+  assertFalsy,
   Optional,
-  sleep,
   throwIllegalValue,
 } from '@votingworks/basics';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
+import type {
+  PollsTransition,
+  PrecinctScannerPollsInfo,
+} from '@votingworks/scan-backend';
 import { ScreenMainCenterChild, Screen } from '../components/layout';
-import { rootDebug } from '../utils/debug';
 import {
   exportCastVoteRecordsToUsbDrive,
   getScannerResultsByParty,
   getUsbDriveStatus,
-  setPollsState,
+  transitionPolls as apiTransitionPolls,
 } from '../api';
 import { MachineConfig } from '../config/types';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
-import { getPageCount } from '../utils/get_page_count';
 import { CastVoteRecordSyncReminderModal } from '../components/cast_vote_record_sync_modal';
+import { printReport } from '../utils/print_report';
+import { ReprintReportButton } from '../components/reprint_report_button';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -68,9 +60,8 @@ type PollWorkerFlowState =
   | 'close_polls_prompt'
   | 'polls_transition_processing'
   | 'polls_transition_complete'
-  | 'reprinting_report';
-
-const debug = rootDebug.extend('pollworker-screen');
+  | 'reprinting_report'
+  | 'reprinting_previous_report_complete';
 
 const BallotsAlreadyScannedScreen = (
   <Screen centerContent infoBarMode="pollworker">
@@ -97,7 +88,7 @@ export interface PollWorkerScreenProps {
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
   scannedBallotCount: number;
-  pollsState: PollsState;
+  pollsInfo: PrecinctScannerPollsInfo;
   isLiveMode: boolean;
   printerInfo?: KioskBrowser.PrinterInfo;
   logger: Logger;
@@ -116,16 +107,15 @@ export function PollWorkerScreen({
   electionDefinition,
   precinctSelection,
   scannedBallotCount,
-  pollsState,
+  pollsInfo,
   isLiveMode,
   printerInfo,
   logger,
   precinctReportDestination,
 }: PollWorkerScreenProps): JSX.Element {
-  const { election } = electionDefinition;
   const scannerResultsByPartyQuery = getScannerResultsByParty.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  const setPollsStateMutation = setPollsState.useMutation();
+  const transitionPollsMutation = apiTransitionPolls.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
   const [numReportPages, setNumReportPages] = useState<number>();
@@ -138,6 +128,7 @@ export function PollWorkerScreen({
     setIsCastVoteRecordSyncReminderModalOpen,
   ] = useState(false);
   const needsToAttachPrinterToTransitionPolls = !printerInfo && !!window.kiosk;
+  const { pollsState } = pollsInfo;
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
     switch (pollsState) {
@@ -154,88 +145,29 @@ export function PollWorkerScreen({
   const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
     Optional<PollWorkerFlowState>
   >(initialPollWorkerFlowState());
-  const [currentPollsTransition, setCurrentPollsTransition] =
-    useState<PollsTransition>();
-  const [currentPollsTransitionTime, setCurrentPollsTransitionTime] =
-    useState<number>();
+
+  // optimistically set lastPollsTransition based on mutation input if it exists
+  const lastPollsTransition: Optional<PollsTransition> =
+    transitionPollsMutation.variables
+      ? {
+          // eslint-disable-next-line vx/gts-spread-like-types
+          ...transitionPollsMutation.variables,
+          ballotCount: scannedBallotCount,
+        }
+      : pollsInfo.pollsState !== 'polls_closed_initial'
+      ? pollsInfo.lastPollsTransition
+      : undefined;
 
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
   }
 
-  async function printReport(
-    pollsTransition: PollsTransition,
-    timePollsTransitioned: number,
-    copies: number
-  ) {
-    const scannerResultsByParty = scannerResultsByPartyQuery.data;
-    assert(scannerResultsByParty);
-    const combinedScannerResults = combineElectionResults({
-      election,
-      allElectionResults: scannerResultsByParty,
-    });
-
-    const report = await (async () => {
-      if (isPollsSuspensionTransition(pollsTransition)) {
-        debug('printing ballot count report...');
-        return (
-          <PrecinctScannerBallotCountReport
-            electionDefinition={electionDefinition}
-            precinctSelection={precinctSelection}
-            totalBallotsScanned={scannedBallotCount}
-            pollsTransition={pollsTransition}
-            pollsTransitionedTime={timePollsTransitioned}
-            isLiveMode={isLiveMode}
-            precinctScannerMachineId={machineConfig.machineId}
-          />
-        );
-      }
-
-      debug('printing tally report...');
-
-      const signedQuickResultsReportingUrl =
-        await getSignedQuickResultsReportingUrl({
-          electionDefinition,
-          isLiveMode,
-          compressedTally: compressTally(
-            electionDefinition.election,
-            combinedScannerResults
-          ),
-          signingMachineId: machineConfig.machineId,
-        });
-
-      return (
-        <PrecinctScannerTallyReports
-          electionDefinition={electionDefinition}
-          precinctSelection={precinctSelection}
-          electionResultsByParty={scannerResultsByParty}
-          pollsTransition={pollsTransition}
-          isLiveMode={isLiveMode}
-          pollsTransitionedTime={timePollsTransitioned}
-          precinctScannerMachineId={machineConfig.machineId}
-          totalBallotsScanned={scannedBallotCount}
-          signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
-        />
-      );
-    })();
-
-    await printElement(report, {
-      sides: 'one-sided',
-      copies,
-    });
-
-    /* istanbul ignore next - prototype */
-    if (precinctReportDestination === 'thermal-sheet-printer') {
-      setNumReportPages(await getPageCount(report));
-    }
-  }
-
-  async function transitionPolls(pollsTransition: PollsTransition) {
+  async function transitionPolls(pollsTransitionType: PollsTransitionType) {
     try {
       // In compliance with VVSG 2.0 1.1.3-B, confirm there are no scanned
       // ballots before opening polls, even though this should be an impossible
       // state in production.
-      if (pollsTransition === 'open_polls' && scannedBallotCount > 0) {
+      if (pollsTransitionType === 'open_polls' && scannedBallotCount > 0) {
         setIsShowingBallotsAlreadyScannedScreen(true);
         await logger.log(LogEventId.PollsOpened, 'poll_worker', {
           disposition: 'failure',
@@ -246,30 +178,42 @@ export function PollWorkerScreen({
         return;
       }
 
-      const timePollsTransitioned = Date.now();
-      setCurrentPollsTransition(pollsTransition);
+      const pollsTransitionTime = Date.now();
+      await transitionPollsMutation.mutateAsync({
+        type: pollsTransitionType,
+        time: pollsTransitionTime,
+      });
       setPollWorkerFlowState('polls_transition_processing');
-      await printReport(
-        pollsTransition,
-        timePollsTransitioned,
-        /* istanbul ignore next - prototype */
-        precinctReportDestination === 'thermal-sheet-printer'
-          ? 1
-          : DEFAULT_NUMBER_POLL_REPORT_COPIES
-      );
-      if (pollsTransition === 'close_polls' && scannedBallotCount > 0) {
+
+      assert(scannerResultsByPartyQuery.data);
+      await printReport({
+        pollsTransitionInfo: {
+          type: pollsTransitionType,
+          time: pollsTransitionTime,
+          ballotCount: scannedBallotCount,
+        },
+        electionDefinition,
+        precinctSelection,
+        isLiveMode,
+        machineConfig,
+        scannerResultsByParty: scannerResultsByPartyQuery.data,
+        copies:
+          precinctReportDestination === 'thermal-sheet-printer'
+            ? 1
+            : DEFAULT_NUMBER_POLL_REPORT_COPIES,
+        numPagesCallback: setNumReportPages,
+      });
+
+      if (pollsTransitionType === 'close_polls' && scannedBallotCount > 0) {
         (
           await exportCastVoteRecordsMutation.mutateAsync({
             mode: 'polls_closing',
           })
         ).unsafeUnwrap();
       }
-      setCurrentPollsTransitionTime(timePollsTransitioned);
-      await setPollsStateMutation.mutateAsync({
-        pollsState: getPollsTransitionDestinationState(pollsTransition),
-      });
+
       await logger.log(
-        getLogEventIdForPollsTransition(pollsTransition),
+        getLogEventIdForPollsTransition(pollsTransitionType),
         'poll_worker',
         {
           disposition: 'success',
@@ -279,7 +223,7 @@ export function PollWorkerScreen({
       setPollWorkerFlowState('polls_transition_complete');
     } catch (error) {
       await logger.log(
-        getLogEventIdForPollsTransition(pollsTransition),
+        getLogEventIdForPollsTransition(pollsTransitionType),
         'poll_worker',
         {
           disposition: 'failure',
@@ -309,15 +253,6 @@ export function PollWorkerScreen({
     return transitionPolls('resume_voting');
   }
 
-  async function reprintReport() {
-    assert(typeof currentPollsTransition === 'string');
-    assert(typeof currentPollsTransitionTime === 'number');
-    setPollWorkerFlowState('reprinting_report');
-    await printReport(currentPollsTransition, currentPollsTransitionTime, 1);
-    await sleep(REPRINT_REPORT_TIMEOUT_SECONDS * 1000);
-    setPollWorkerFlowState('polls_transition_complete');
-  }
-
   if (
     !scannerResultsByPartyQuery.isSuccess ||
     scannerResultsByPartyQuery.isFetching
@@ -336,7 +271,7 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerFlowState === 'open_polls_prompt') {
-    const pollsTransition: PollsTransition =
+    const pollsTransition: PollsTransitionType =
       pollsState === 'polls_closed_initial' ? 'open_polls' : 'resume_voting';
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
@@ -397,9 +332,10 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerFlowState === 'polls_transition_processing') {
-    assert(typeof currentPollsTransition === 'string');
+    assert(lastPollsTransition);
     const pollsTransitionProcessingText = (() => {
-      switch (currentPollsTransition) {
+      const pollsTransitionType = lastPollsTransition.type;
+      switch (pollsTransitionType) {
         case 'close_polls':
           return 'Closing Polls…';
         case 'open_polls':
@@ -410,7 +346,7 @@ export function PollWorkerScreen({
           return 'Resuming Voting…';
         /* istanbul ignore next - compile-time check for completeness */
         default:
-          throwIllegalValue(currentPollsTransition);
+          throwIllegalValue(pollsTransitionType);
       }
     })();
 
@@ -424,10 +360,18 @@ export function PollWorkerScreen({
     );
   }
 
-  if (pollWorkerFlowState === 'polls_transition_complete') {
-    assert(typeof currentPollsTransition === 'string');
-    const pollsTransitionCompleteText = (() => {
-      switch (currentPollsTransition) {
+  if (
+    pollWorkerFlowState === 'polls_transition_complete' ||
+    pollWorkerFlowState === 'reprinting_previous_report_complete'
+  ) {
+    assert(lastPollsTransition);
+    const primaryText = (() => {
+      if (pollWorkerFlowState === 'reprinting_previous_report_complete') {
+        return '';
+      }
+
+      const pollsTransitionType = lastPollsTransition.type;
+      switch (pollsTransitionType) {
         case 'close_polls':
           return 'Polls are closed.';
         case 'open_polls':
@@ -438,41 +382,42 @@ export function PollWorkerScreen({
           return 'Voting paused.';
         /* istanbul ignore next - compile-time check for completeness */
         default:
-          throwIllegalValue(currentPollsTransition);
+          throwIllegalValue(pollsTransitionType);
       }
     })();
 
     return (
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
-          <H1>{pollsTransitionCompleteText}</H1>
-          <Prose themeDeprecated={fontSizeTheme.medium}>
-            {/* istanbul ignore next - prototype */}
-            {precinctReportDestination === 'thermal-sheet-printer' && (
-              <P>
-                Insert{' '}
-                {numReportPages
-                  ? `${numReportPages} ${pluralize(
-                      'sheet',
-                      numReportPages
-                    )} of paper`
-                  : 'paper'}{' '}
-                into the printer to print the report.
-              </P>
-            )}
+          {primaryText && <H1>{primaryText}</H1>}
+          {precinctReportDestination === 'thermal-sheet-printer' && (
             <P>
-              <Button
-                onPress={reprintReport}
-                disabled={needsToAttachPrinterToTransitionPolls}
-              >
-                Print Additional {getPollsReportTitle(currentPollsTransition)}
-              </Button>
+              Insert{' '}
+              {numReportPages
+                ? `${numReportPages} ${pluralize(
+                    'sheet',
+                    numReportPages
+                  )} of paper`
+                : 'paper'}{' '}
+              into the printer to print the report.
             </P>
-            <P>
-              Remove the poll worker card if you have printed all necessary
-              reports.
-            </P>
-          </Prose>
+          )}
+          <P>
+            Remove the poll worker card once you have printed all necessary
+            reports.
+          </P>
+          <P>
+            <ReprintReportButton
+              printerInfo={printerInfo}
+              lastPollsTransition={lastPollsTransition}
+              scannedBallotCount={scannedBallotCount}
+              reportLabel="Additional"
+              beforePrint={() => setPollWorkerFlowState('reprinting_report')}
+              afterPrint={() =>
+                setPollWorkerFlowState('polls_transition_complete')
+              }
+            />
+          </P>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );
@@ -489,8 +434,23 @@ export function PollWorkerScreen({
     );
   }
 
+  // compile-time check for completeness
+  assertFalsy(pollWorkerFlowState);
+
   const commonActions = (
     <React.Fragment>
+      {pollsState !== 'polls_closed_initial' && (
+        <ReprintReportButton
+          printerInfo={printerInfo}
+          scannedBallotCount={scannedBallotCount}
+          lastPollsTransition={lastPollsTransition}
+          reportLabel="Previous"
+          beforePrint={() => setPollWorkerFlowState('reprinting_report')}
+          afterPrint={() =>
+            setPollWorkerFlowState('reprinting_previous_report_complete')
+          }
+        />
+      )}
       <PowerDownButton logger={logger} userRole="poll_worker" />
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
         <LiveCheckButton />
@@ -553,10 +513,8 @@ export function PollWorkerScreen({
 
   return (
     <ScreenMainCenterChild infoBarMode="pollworker">
-      <Prose textCenter>
-        <H1>Poll Worker Actions</H1>
-        {content}
-      </Prose>
+      <H1>Poll Worker Actions</H1>
+      {content}
       {isCastVoteRecordSyncReminderModalOpen && (
         <CastVoteRecordSyncReminderModal
           blockedAction="close_polls"

@@ -126,6 +126,16 @@ export const getConfig = {
   },
 } as const;
 
+export const getPollsInfo = {
+  queryKey(): QueryKey {
+    return ['getPollsInfo'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPollsInfo());
+  },
+} as const;
+
 export const getUsbDriveStatus = {
   queryKey(): QueryKey {
     return ['getUsbDriveStatus'];
@@ -185,6 +195,8 @@ export const setPrecinctSelection = {
     return useMutation(apiClient.setPrecinctSelection, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
+        // changing the precinct selection after polls open will reset polls to closed
+        await queryClient.invalidateQueries(getPollsInfo.queryKey());
       },
     });
   },
@@ -226,13 +238,13 @@ export const setTestMode = {
   },
 } as const;
 
-export const setPollsState = {
+export const transitionPolls = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setPollsState, {
+    return useMutation(apiClient.transitionPolls, {
       async onSuccess() {
-        await queryClient.invalidateQueries(getConfig.queryKey());
+        await queryClient.invalidateQueries(getPollsInfo.queryKey());
       },
     });
   },
