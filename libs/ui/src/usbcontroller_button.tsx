@@ -1,14 +1,15 @@
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
+import { IconName } from './icons';
 
 type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
 
-const buttonText: Record<ExtendedUsbDriveStatus, string> = {
-  no_drive: 'No USB',
-  error: 'No USB',
-  mounted: 'Eject USB',
-  ejecting: 'Ejecting...',
-  ejected: 'Ejected',
+const buttonIconAndText: Record<ExtendedUsbDriveStatus, [IconName, string]> = {
+  no_drive: ['Disabled', 'No USB'],
+  error: ['Disabled', 'No USB'],
+  mounted: ['Eject', 'Eject USB'],
+  ejecting: ['Eject', 'Ejecting...'],
+  ejected: ['Disabled', 'USB Ejected'],
 };
 
 interface Props {
@@ -28,13 +29,16 @@ export function UsbControllerButton({
     ? 'ejecting'
     : usbDriveStatus.status;
 
+  const [icon, text] = buttonIconAndText[extendedUsbDriveStatus];
+
   return (
     <Button
+      icon={icon}
       variant={primary ? 'primary' : 'neutral'}
       disabled={extendedUsbDriveStatus !== 'mounted'}
       onPress={usbDriveEject}
     >
-      {buttonText[extendedUsbDriveStatus]}
+      {text}
     </Button>
   );
 }
