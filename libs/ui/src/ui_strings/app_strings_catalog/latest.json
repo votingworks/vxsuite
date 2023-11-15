@@ -110,10 +110,14 @@
   "titleScannerNoVotesWarning": "No votes marked:",
   "titleScannerOvervoteWarning": "Too many votes marked:",
   "titleScannerUndervoteWarning": "You may add one or more votes:",
+  "titleScanningFailed": "Scanning Failed",
   "warningBmdInactiveSession": "This voting station has been inactive for more than 5 minutes.",
   "warningBmdInactiveTimeRemaining": "To protect your privacy, this ballot will be cleared when the timer runs out.",
   "warningNoPower": "<0>No Power Detected.</0> Please ask a poll worker to plug in the power cord.",
   "warningNoVotesForContest": "You may still vote in this contest.",
   "warningOvervoteCandidateContest": "To vote for another candidate, you must first deselect a previously selected candidate.",
-  "warningOvervoteYesNoContest": "To change your vote, first deselect your previous vote."
+  "warningOvervoteYesNoContest": "To change your vote, first deselect your previous vote.",
+  "warningProblemScanningBallot": "There was a problem scanning this ballot.",
+  "warningScannerBlankBallotSubmission": "No votes will be counted from this ballot.",
+  "warningScannerNoVotesFound": "No votes were found when scanning this ballot."
 }

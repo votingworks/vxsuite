@@ -583,6 +583,10 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleScanningFailed: () => (
+    <UiString uiStringKey="titleScanningFailed">Scanning Failed</UiString>
+  ),
+
   warningBmdInactiveSession: () => (
     <UiString uiStringKey="warningBmdInactiveSession">
       This voting station has been inactive for more than 5 minutes.
@@ -612,6 +616,24 @@ export const appStrings = {
   warningNoVotesForContest: () => (
     <UiString uiStringKey="warningNoVotesForContest">
       You may still vote in this contest.
+    </UiString>
+  ),
+
+  warningProblemScanningBallot: () => (
+    <UiString uiStringKey="warningProblemScanningBallot">
+      There was a problem scanning this ballot.
+    </UiString>
+  ),
+
+  warningScannerBlankBallotSubmission: () => (
+    <UiString uiStringKey="warningScannerBlankBallotSubmission">
+      No votes will be counted from this ballot.
+    </UiString>
+  ),
+
+  warningScannerNoVotesFound: () => (
+    <UiString uiStringKey="warningScannerNoVotesFound">
+      No votes were found when scanning this ballot.
     </UiString>
   ),
 
