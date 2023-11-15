@@ -97,6 +97,18 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsAskForHelp: () => (
+    <UiString uiStringKey="instructionsAskForHelp">
+      Please ask a poll worker for help.
+    </UiString>
+  ),
+
+  instructionsAskPollWorkerToPlugInPower: () => (
+    <UiString uiStringKey="instructionsAskPollWorkerToPlugInPower">
+      Please ask a poll worker to plug in the power cord.
+    </UiString>
+  ),
+
   instructionsBmdBallotNavigation: () => (
     <UiString uiStringKey="instructionsBmdBallotNavigation">
       When voting with the text-to-speech audio, use the accessible controller
@@ -192,9 +204,27 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsScannerAskForRestart: () => (
+    <UiString uiStringKey="instructionsScannerAskForRestart">
+      Ask a poll worker to restart the scanner.
+    </UiString>
+  ),
+
   instructionsScannerInsertBallotScreen: () => (
     <UiString uiStringKey="instructionsScannerInsertBallotScreen">
       Scan one ballot sheet at a time.
+    </UiString>
+  ),
+
+  instructionsScannerRemoveBallotToContinue: () => (
+    <UiString uiStringKey="instructionsScannerRemoveBallotToContinue">
+      Remove ballot to continue.
+    </UiString>
+  ),
+
+  instructionsScannerRemoveDoubleSheet: () => (
+    <UiString uiStringKey="instructionsScannerRemoveDoubleSheet">
+      Remove your ballot and insert one sheet at a time.
     </UiString>
   ),
 
@@ -450,6 +480,13 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteScannerReplaceFullBallotBag: () => (
+    <UiString uiStringKey="noteScannerReplaceFullBallotBag">
+      A poll worker must replace the full ballot bag with a new empty ballot
+      bag.
+    </UiString>
+  ),
+
   noteScannerBlankContestsCardPlural: () => (
     <UiString uiStringKey="noteScannerBlankContestsCardPlural">
       Did you mean to leave these contests blank?
@@ -474,6 +511,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteScannerScanInProgress: () => (
+    <UiString uiStringKey="noteScannerScanInProgress">
+      Scanning the marks on your ballot.
+    </UiString>
+  ),
+
   noteScannerUndervoteContestsCardPlural: () => (
     <UiString uiStringKey="noteScannerUndervoteContestsCardPlural">
       All other votes in these contests will count, even if you leave some
@@ -487,10 +530,20 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteThankYouForVoting: () => (
+    <UiString uiStringKey="noteThankYouForVoting">
+      Thank you for voting.
+    </UiString>
+  ),
+
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
     </UiString>
+  ),
+
+  titleBallotBagFull: () => (
+    <UiString uiStringKey="titleBallotBagFull">Ballot Bag Full</UiString>
   ),
 
   titleBmdAskForHelpScreen: () => (
@@ -549,8 +602,28 @@ export const appStrings = {
     <UiString uiStringKey="titleDisplaySettingsSize">Text Size</UiString>
   ),
 
+  titleInternalConnectionProblem: () => (
+    <UiString uiStringKey="titleInternalConnectionProblem">
+      Internal Connection Problem
+    </UiString>
+  ),
+
   titleModalAreYouSure: () => (
     <UiString uiStringKey="titleModalAreYouSure">Are you sure?</UiString>
+  ),
+
+  titleNoPowerDetected: () => (
+    <UiString uiStringKey="titleNoPowerDetected">No Power Detected</UiString>
+  ),
+
+  titleRemoveYourBallot: () => (
+    <UiString uiStringKey="titleRemoveYourBallot">Remove Your Ballot</UiString>
+  ),
+
+  titleScannerBallotNotCounted: () => (
+    <UiString uiStringKey="titleScannerBallotNotCounted">
+      Ballot Not Counted
+    </UiString>
   ),
 
   titleScannerInsertBallotScreen: () => (
@@ -574,6 +647,16 @@ export const appStrings = {
   titleScannerOvervoteWarning: () => (
     <UiString uiStringKey="titleScannerOvervoteWarning">
       Too many votes marked:
+    </UiString>
+  ),
+
+  titleScannerProcessingScreen: () => (
+    <UiString uiStringKey="titleScannerProcessingScreen">Please wait…</UiString>
+  ),
+
+  titleScannerSuccessScreen: () => (
+    <UiString uiStringKey="titleScannerSuccessScreen">
+      Your ballot was counted!
     </UiString>
   ),
 
@@ -613,6 +696,13 @@ export const appStrings = {
     </UiString>
   ),
 
+  warningNoPower: () => (
+    <UiString uiStringKey="warningNoPower">
+      <Font weight="bold">No Power Detected.</Font> Please ask a poll worker to
+      plug in the power cord.
+    </UiString>
+  ),
+
   warningNoVotesForContest: () => (
     <UiString uiStringKey="warningNoVotesForContest">
       You may still vote in this contest.
@@ -625,9 +715,51 @@ export const appStrings = {
     </UiString>
   ),
 
+  warningProblemScanningBallotScanAgain: () => (
+    <UiString uiStringKey="warningProblemScanningBallotScanAgain">
+      There was a problem scanning your ballot. Please scan it again.
+    </UiString>
+  ),
+
+  warningScannerAnotherScanInProgress: () => (
+    <UiString uiStringKey="warningScannerAnotherScanInProgress">
+      Another ballot is being scanned.
+    </UiString>
+  ),
+
+  warningScannerJammed: () => (
+    <UiString uiStringKey="warningScannerJammed">
+      The ballot is jammed in the scanner.
+    </UiString>
+  ),
+
   warningScannerBlankBallotSubmission: () => (
     <UiString uiStringKey="warningScannerBlankBallotSubmission">
       No votes will be counted from this ballot.
+    </UiString>
+  ),
+
+  warningScannerLiveBallotInTestMode: () => (
+    <UiString uiStringKey="warningScannerLiveBallotInTestMode">
+      The scanner is in test mode and a live ballot was detected.
+    </UiString>
+  ),
+
+  warningScannerMismatchedElection: () => (
+    <UiString uiStringKey="warningScannerMismatchedElection">
+      The ballot does not match the election this scanner is configured for.
+    </UiString>
+  ),
+
+  warningScannerMismatchedPrecinct: () => (
+    <UiString uiStringKey="warningScannerMismatchedPrecinct">
+      The ballot does not match the precinct this scanner is configured for.
+    </UiString>
+  ),
+
+  warningScannerMultipleSheetsDetected: () => (
+    <UiString uiStringKey="warningScannerMultipleSheetsDetected">
+      Multiple sheets detected.
     </UiString>
   ),
 
@@ -637,10 +769,9 @@ export const appStrings = {
     </UiString>
   ),
 
-  warningNoPower: () => (
-    <UiString uiStringKey="warningNoPower">
-      <Font weight="bold">No Power Detected.</Font> Please ask a poll worker to
-      plug in the power cord.
+  warningScannerTestBallotInLiveMode: () => (
+    <UiString uiStringKey="warningScannerTestBallotInLiveMode">
+      The scanner is in live mode and a test ballot was detected.
     </UiString>
   ),
 } as const;

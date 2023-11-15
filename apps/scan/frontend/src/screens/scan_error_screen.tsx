@@ -1,4 +1,10 @@
-import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
+import {
+  Caption,
+  FullScreenIconWrapper,
+  Icons,
+  P,
+  appStrings,
+} from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { PrecinctScannerErrorType } from '@votingworks/scan-backend';
 import { InvalidInterpretationReason } from '@votingworks/types';
@@ -24,15 +30,15 @@ export function ScanErrorScreen({
       // Invalid ballot interpretations
       case 'invalid_test_mode':
         return isTestMode
-          ? 'The scanner is in test mode and a live ballot was detected.'
-          : 'The scanner is in live mode and a test ballot was detected.';
+          ? appStrings.warningScannerLiveBallotInTestMode()
+          : appStrings.warningScannerTestBallotInLiveMode();
       case 'invalid_election_hash':
-        return 'The ballot does not match the election this scanner is configured for.';
+        return appStrings.warningScannerMismatchedElection();
       case 'invalid_precinct':
-        return 'The ballot does not match the precinct this scanner is configured for.';
+        return appStrings.warningScannerMismatchedPrecinct();
       case 'unreadable':
       case 'unknown':
-        return 'There was a problem scanning your ballot. Please scan it again.';
+        return appStrings.warningProblemScanningBallotScanAgain();
       // Precinct scanner errors
       case 'scanning_failed':
       case 'both_sides_have_paper':
@@ -40,7 +46,7 @@ export function ScanErrorScreen({
       case 'paper_in_back_after_reconnect':
       case 'paper_in_back_after_accept':
       case 'paper_in_both_sides_after_reconnect':
-        return 'Remove ballot to continue.';
+        return appStrings.instructionsScannerRemoveBallotToContinue();
       case 'paper_status_timed_out':
       case 'scanning_timed_out':
       case 'unexpected_paper_status':
@@ -60,7 +66,7 @@ export function ScanErrorScreen({
       ballotCountOverride={scannedBallotCount}
     >
       <FullScreenPromptLayout
-        title="Ballot Not Counted"
+        title={appStrings.titleScannerBallotNotCounted()}
         image={
           <FullScreenIconWrapper>
             <Icons.Delete color="danger" />
@@ -69,9 +75,9 @@ export function ScanErrorScreen({
       >
         <P>{errorMessage}</P>
         {restartRequired ? (
-          <P>Ask a poll worker to restart the scanner.</P>
+          <P>{appStrings.instructionsScannerAskForRestart()}</P>
         ) : (
-          <Caption>Ask a poll worker if you need help.</Caption>
+          <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
         )}
       </FullScreenPromptLayout>
     </Screen>

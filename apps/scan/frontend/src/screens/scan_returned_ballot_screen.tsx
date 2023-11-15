@@ -1,4 +1,4 @@
-import { Caption, CenteredLargeProse, H1 } from '@votingworks/ui';
+import { Caption, CenteredLargeProse, H1, appStrings } from '@votingworks/ui';
 import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanReturnedBallotScreen(): JSX.Element {
@@ -6,8 +6,8 @@ export function ScanReturnedBallotScreen(): JSX.Element {
     <ScreenMainCenterChild>
       {/* TODO: make a graphic for this screen */}
       <CenteredLargeProse>
-        <H1>Remove Your Ballot</H1>
-        <Caption>Ask a poll worker if you need help.</Caption>
+        <H1>{appStrings.titleRemoveYourBallot()}</H1>
+        <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

@@ -1,4 +1,10 @@
-import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
+import {
+  Caption,
+  FullScreenIconWrapper,
+  Icons,
+  P,
+  appStrings,
+} from '@votingworks/ui';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
@@ -12,15 +18,20 @@ export function ScanDoubleSheetScreen({
   return (
     <Screen centerContent ballotCountOverride={scannedBallotCount}>
       <FullScreenPromptLayout
-        title="Ballot Not Counted"
+        title={appStrings.titleScannerBallotNotCounted()}
         image={
           <FullScreenIconWrapper>
             <Icons.Delete color="danger" />
           </FullScreenIconWrapper>
         }
       >
-        <P>Multiple sheets detected.</P>
-        <Caption>Remove your ballot and insert one sheet at a time.</Caption>
+        <P>{appStrings.warningScannerMultipleSheetsDetected()}</P>
+        <P>
+          <Caption>{appStrings.instructionsScannerRemoveDoubleSheet()}</Caption>
+        </P>
+        <P>
+          <Caption>{appStrings.noteAskPollWorkerForHelp()}</Caption>
+        </P>
       </FullScreenPromptLayout>
     </Screen>
   );

@@ -5,6 +5,7 @@ import { format } from '@votingworks/utils';
 
 import { H1 } from './typography';
 import { LabelledText } from './labelled_text';
+import { NumberString } from './ui_strings';
 
 /** Props for {@link BigMetric}. */
 export interface BigMetricProps {
@@ -40,11 +41,8 @@ export function BigMetric(props: BigMetricProps): JSX.Element {
   return (
     <StyledContainer>
       <LabelledText label={<span aria-hidden>{label}</span>}>
-        <StyledValue
-          aria-label={formattedLabel}
-          data-testid={valueElementTestId}
-        >
-          {formattedValue}
+        <StyledValue data-testid={valueElementTestId}>
+          <NumberString aria-label={formattedLabel} value={value} />
         </StyledValue>
       </LabelledText>
     </StyledContainer>
