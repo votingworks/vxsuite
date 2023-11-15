@@ -184,10 +184,10 @@ export class AriaScreenReader implements ScreenReader {
       return ariaLabel + terminator;
     }
 
-    const ariaLabeledBy = node.getAttribute('aria-labeledby');
+    const ariaLabelledBy = node.getAttribute('aria-labelledby');
 
-    if (ariaLabeledBy) {
-      const element = document.getElementById(ariaLabeledBy);
+    if (ariaLabelledBy) {
+      const element = document.getElementById(ariaLabelledBy);
 
       if (element) {
         const description = this.describeNode(element);
