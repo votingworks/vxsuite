@@ -1,15 +1,11 @@
 import * as batcher from '@yornaath/batshit';
 
 import { QueryClient, QueryKey, useQuery } from '@tanstack/react-query';
-import { LanguageCode, UiStringsApi } from '@votingworks/types';
+import { LanguageCode } from '@votingworks/types';
+import type { UiStringsApi } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 
-// Unable to use `grout.Client<UseStringsApi>` directly due to some mismatched
-// type inference with `grout.AnyMethods`, so copying the `grout.Client`
-// definition here for now:
-export type UiStringsApiClient = {
-  [Method in keyof UiStringsApi]: grout.AsyncRpcMethod<UiStringsApi[Method]>;
-};
+export type UiStringsApiClient = grout.Client<UiStringsApi>;
 
 function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
   function createBatchAudioClipsClient(languageCode: LanguageCode) {

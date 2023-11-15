@@ -100,6 +100,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
+    "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",

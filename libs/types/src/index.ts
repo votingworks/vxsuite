@@ -33,6 +33,5 @@ export * from './tallies';
 export * from './ui_string_audio_clips';
 export * from './ui_string_audio_ids';
 export * from './ui_string_translations';
-export * from './ui_strings_api';
 export * from './ui_theme';
 export * from './voting_method';
