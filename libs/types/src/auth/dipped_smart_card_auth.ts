@@ -1,7 +1,6 @@
 import {
   ElectionManagerUser,
   SystemAdministratorUser,
-  UserRole,
   UserWithCard,
 } from './auth';
 
@@ -9,12 +8,15 @@ export interface LoggedOut {
   readonly status: 'logged_out';
   readonly reason:
     | 'card_error'
-    | 'election_manager_wrong_election'
     | 'invalid_user_on_card'
     | 'machine_locked'
     | 'machine_not_configured'
-    | 'user_role_not_allowed';
-  readonly cardUserRole?: UserRole;
+    | 'user_role_not_allowed'
+    | 'wrong_election'
+    | 'wrong_jurisdiction';
+  readonly cardJurisdiction?: string;
+  readonly cardUserRole?: UserWithCard['role'];
+  readonly machineJurisdiction?: string;
 }
 
 export interface CheckingPin {
