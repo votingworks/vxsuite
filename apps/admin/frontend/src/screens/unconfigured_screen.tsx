@@ -94,54 +94,52 @@ export function UnconfiguredScreen(): JSX.Element {
 
   if (isUploading || isUploadingZip) {
     return (
-      <NavigationScreen centerChild>
+      <NavigationScreen>
         <Loading isFullscreen />
       </NavigationScreen>
     );
   }
 
   return (
-    <NavigationScreen centerChild title="Configure VxAdmin">
-      <Font align="center">
-        <P>How would you like to start?</P>
-        {configureError && (
-          <P>
-            <Icons.Danger color="danger" />{' '}
-            {(() => {
-              switch (configureError.type) {
-                case 'invalidElection':
-                  return 'Invalid Election Definition file.';
-                case 'invalidSystemSettings':
-                  return 'Invalid System Settings file.';
-                /* istanbul ignore next */
-                default:
-                  return throwIllegalValue(configureError);
-              }
-            })()}
-          </P>
-        )}
+    <NavigationScreen title="Configure VxAdmin">
+      <P>How would you like to start?</P>
+      {configureError && (
         <P>
-          <FileInputButton
-            accept=".json,application/json"
-            onChange={handleVxElectionFile}
-          >
-            Select Existing Election Definition File
-          </FileInputButton>
+          <Icons.Danger color="danger" />{' '}
+          {(() => {
+            switch (configureError.type) {
+              case 'invalidElection':
+                return 'Invalid Election Definition file.';
+              case 'invalidSystemSettings':
+                return 'Invalid System Settings file.';
+              /* istanbul ignore next */
+              default:
+                return throwIllegalValue(configureError);
+            }
+          })()}
         </P>
-        <P>
-          <FileInputButton
-            accept=".zip,application/zip"
-            onChange={handleSetupPackageFile}
-          >
-            Select Existing Setup Package Zip File
-          </FileInputButton>
-        </P>
-        <P>
-          <Button onPress={loadDemoElection}>
-            Load Demo Election Definition
-          </Button>
-        </P>
-      </Font>
+      )}
+      <P>
+        <FileInputButton
+          accept=".json,application/json"
+          onChange={handleVxElectionFile}
+        >
+          Select Existing Election Definition File
+        </FileInputButton>
+      </P>
+      <P>
+        <FileInputButton
+          accept=".zip,application/zip"
+          onChange={handleSetupPackageFile}
+        >
+          Select Existing Setup Package Zip File
+        </FileInputButton>
+      </P>
+      <P>
+        <Button onPress={loadDemoElection}>
+          Load Demo Election Definition
+        </Button>
+      </P>
     </NavigationScreen>
   );
 }
