@@ -4,7 +4,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
 [
   {
     "bounds": {
-      "height": 152,
+      "height": 102,
       "left": 372,
       "top": 455,
       "width": 1301,
@@ -13,10 +13,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 372,
           "top": 455,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 12,
@@ -27,10 +27,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 722,
           "top": 455,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -41,10 +41,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1072,
           "top": 455,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 26,
@@ -55,7 +55,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1372,
           "top": 455,
           "width": 301,
@@ -71,7 +71,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   },
   {
     "bounds": {
-      "height": 152,
+      "height": 102,
       "left": 373,
       "top": 606,
       "width": 1300,
@@ -80,10 +80,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 373,
           "top": 606,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -94,10 +94,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 723,
           "top": 606,
-          "width": 350,
+          "width": 300,
         },
         "gridLocation": {
           "column": 19,
@@ -108,7 +108,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 1372,
           "top": 606,
           "width": 301,
@@ -124,7 +124,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   },
   {
     "bounds": {
-      "height": 153,
+      "height": 103,
       "left": 373,
       "top": 757,
       "width": 1301,
@@ -133,10 +133,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 153,
+          "height": 103,
           "left": 373,
           "top": 757,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -147,10 +147,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 723,
           "top": 757,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -161,10 +161,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1072,
           "top": 757,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 26,
@@ -175,7 +175,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1372,
           "top": 757,
           "width": 302,
@@ -191,7 +191,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   },
   {
     "bounds": {
-      "height": 153,
+      "height": 102,
       "left": 373,
       "top": 908,
       "width": 1301,
@@ -200,10 +200,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 373,
           "top": 909,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -214,10 +214,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 723,
           "top": 908,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -228,7 +228,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 151,
+          "height": 101,
           "left": 1373,
           "top": 908,
           "width": 301,
@@ -244,7 +244,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   },
   {
     "bounds": {
-      "height": 154,
+      "height": 104,
       "left": 373,
       "top": 1058,
       "width": 1301,
@@ -253,10 +253,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 153,
+          "height": 103,
           "left": 373,
           "top": 1059,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 12,
@@ -267,10 +267,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 723,
           "top": 1059,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -281,7 +281,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1373,
           "top": 1058,
           "width": 301,
@@ -297,7 +297,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   },
   {
     "bounds": {
-      "height": 406,
+      "height": 356,
       "left": 374,
       "top": 1209,
       "width": 1301,
@@ -306,10 +306,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 374,
           "top": 1261,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -320,10 +320,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 101,
           "left": 374,
-          "top": 1361,
-          "width": 351,
+          "top": 1362,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -334,10 +334,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 103,
           "left": 374,
           "top": 1462,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 12,
@@ -348,10 +348,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 724,
           "top": 1210,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -362,10 +362,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 724,
           "top": 1310,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -376,10 +376,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 103,
           "left": 724,
           "top": 1411,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -390,10 +390,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1073,
           "top": 1260,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 26,
@@ -404,10 +404,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 1074,
           "top": 1360,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 26,
@@ -418,7 +418,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1373,
           "top": 1209,
           "width": 302,
@@ -432,7 +432,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 1374,
           "top": 1310,
           "width": 301,
@@ -446,10 +446,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
-          "left": 1374,
+          "height": 103,
+          "left": 1373,
           "top": 1410,
-          "width": 301,
+          "width": 302,
         },
         "gridLocation": {
           "column": 32,
@@ -462,7 +462,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
   },
   {
     "bounds": {
-      "height": 153,
+      "height": 104,
       "left": 375,
       "top": 1661,
       "width": 1301,
@@ -471,10 +471,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 151,
+          "height": 102,
           "left": 375,
           "top": 1663,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -485,10 +485,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 151,
+          "height": 102,
           "left": 725,
           "top": 1662,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -499,10 +499,10 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 151,
+          "height": 102,
           "left": 1074,
           "top": 1661,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 26,
@@ -513,7 +513,7 @@ exports[`interpret \`ImageData\` objects 1`] = `
       },
       {
         "bounds": {
-          "height": 151,
+          "height": 101,
           "left": 1374,
           "top": 1661,
           "width": 302,
@@ -534,7 +534,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
 [
   {
     "bounds": {
-      "height": 153,
+      "height": 102,
       "left": 382,
       "top": 253,
       "width": 1301,
@@ -543,10 +543,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
     "options": [
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 382,
           "top": 253,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -557,10 +557,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 732,
           "top": 253,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -571,7 +571,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 1382,
           "top": 253,
           "width": 301,
@@ -587,7 +587,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
   },
   {
     "bounds": {
-      "height": 152,
+      "height": 101,
       "left": 382,
       "top": 405,
       "width": 1301,
@@ -596,10 +596,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
     "options": [
       {
         "bounds": {
-          "height": 151,
+          "height": 101,
           "left": 382,
           "top": 405,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -610,10 +610,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 732,
           "top": 405,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -624,7 +624,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 1382,
           "top": 405,
           "width": 301,
@@ -640,19 +640,19 @@ exports[`interpret \`ImageData\` objects 2`] = `
   },
   {
     "bounds": {
-      "height": 153,
+      "height": 103,
       "left": 382,
       "top": 555,
-      "width": 1301,
+      "width": 1302,
     },
     "contestId": "County-Treasurer-87d25a31",
     "options": [
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 382,
           "top": 555,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -663,10 +663,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 732,
           "top": 555,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -677,10 +677,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1382,
           "top": 556,
-          "width": 301,
+          "width": 302,
         },
         "gridLocation": {
           "column": 32,
@@ -693,7 +693,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
   },
   {
     "bounds": {
-      "height": 152,
+      "height": 102,
       "left": 382,
       "top": 707,
       "width": 1301,
@@ -702,10 +702,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
     "options": [
       {
         "bounds": {
-          "height": 151,
+          "height": 101,
           "left": 382,
           "top": 707,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -716,10 +716,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 732,
           "top": 707,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -730,7 +730,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1382,
           "top": 707,
           "width": 301,
@@ -746,19 +746,19 @@ exports[`interpret \`ImageData\` objects 2`] = `
   },
   {
     "bounds": {
-      "height": 153,
-      "left": 382,
+      "height": 103,
+      "left": 381,
       "top": 857,
-      "width": 1301,
+      "width": 1302,
     },
     "contestId": "Register-of-Probate-a4117da8",
     "options": [
       {
         "bounds": {
-          "height": 152,
-          "left": 382,
+          "height": 102,
+          "left": 381,
           "top": 857,
-          "width": 351,
+          "width": 302,
         },
         "gridLocation": {
           "column": 12,
@@ -769,10 +769,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
-          "left": 732,
+          "height": 102,
+          "left": 731,
           "top": 857,
-          "width": 351,
+          "width": 302,
         },
         "gridLocation": {
           "column": 19,
@@ -783,7 +783,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1381,
           "top": 858,
           "width": 302,
@@ -799,19 +799,19 @@ exports[`interpret \`ImageData\` objects 2`] = `
   },
   {
     "bounds": {
-      "height": 154,
-      "left": 381,
+      "height": 103,
+      "left": 382,
       "top": 1008,
-      "width": 1301,
+      "width": 1300,
     },
     "contestId": "County-Commissioner-d6feed25",
     "options": [
       {
         "bounds": {
-          "height": 153,
-          "left": 381,
+          "height": 102,
+          "left": 382,
           "top": 1008,
-          "width": 352,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -822,10 +822,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
-          "left": 731,
+          "height": 102,
+          "left": 732,
           "top": 1008,
-          "width": 351,
+          "width": 300,
         },
         "gridLocation": {
           "column": 19,
@@ -836,7 +836,7 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 1381,
           "top": 1009,
           "width": 301,
@@ -852,19 +852,19 @@ exports[`interpret \`ImageData\` objects 2`] = `
   },
   {
     "bounds": {
-      "height": 154,
-      "left": 1081,
+      "height": 103,
+      "left": 1080,
       "top": 1260,
-      "width": 601,
+      "width": 602,
     },
     "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
     "options": [
       {
         "bounds": {
-          "height": 154,
-          "left": 1081,
+          "height": 103,
+          "left": 1080,
           "top": 1260,
-          "width": 351,
+          "width": 302,
         },
         "gridLocation": {
           "column": 26,
@@ -875,10 +875,10 @@ exports[`interpret \`ImageData\` objects 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
-          "left": 1381,
+          "height": 102,
+          "left": 1380,
           "top": 1261,
-          "width": 301,
+          "width": 302,
         },
         "gridLocation": {
           "column": 32,
@@ -896,7 +896,7 @@ exports[`interpret images from paths 1`] = `
 [
   {
     "bounds": {
-      "height": 152,
+      "height": 102,
       "left": 372,
       "top": 455,
       "width": 1301,
@@ -905,10 +905,10 @@ exports[`interpret images from paths 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 372,
           "top": 455,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 12,
@@ -919,10 +919,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 722,
           "top": 455,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -933,10 +933,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1072,
           "top": 455,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 26,
@@ -947,7 +947,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1372,
           "top": 455,
           "width": 301,
@@ -963,7 +963,7 @@ exports[`interpret images from paths 1`] = `
   },
   {
     "bounds": {
-      "height": 152,
+      "height": 102,
       "left": 373,
       "top": 606,
       "width": 1300,
@@ -972,10 +972,10 @@ exports[`interpret images from paths 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 373,
           "top": 606,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -986,10 +986,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 723,
           "top": 606,
-          "width": 350,
+          "width": 300,
         },
         "gridLocation": {
           "column": 19,
@@ -1000,7 +1000,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 1372,
           "top": 606,
           "width": 301,
@@ -1016,7 +1016,7 @@ exports[`interpret images from paths 1`] = `
   },
   {
     "bounds": {
-      "height": 153,
+      "height": 103,
       "left": 373,
       "top": 757,
       "width": 1301,
@@ -1025,10 +1025,10 @@ exports[`interpret images from paths 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 153,
+          "height": 103,
           "left": 373,
           "top": 757,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1039,10 +1039,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 723,
           "top": 757,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1053,10 +1053,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1072,
           "top": 757,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 26,
@@ -1067,7 +1067,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1372,
           "top": 757,
           "width": 302,
@@ -1083,7 +1083,7 @@ exports[`interpret images from paths 1`] = `
   },
   {
     "bounds": {
-      "height": 153,
+      "height": 102,
       "left": 373,
       "top": 908,
       "width": 1301,
@@ -1092,10 +1092,10 @@ exports[`interpret images from paths 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 373,
           "top": 909,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1106,10 +1106,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 723,
           "top": 908,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1120,7 +1120,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 151,
+          "height": 101,
           "left": 1373,
           "top": 908,
           "width": 301,
@@ -1136,7 +1136,7 @@ exports[`interpret images from paths 1`] = `
   },
   {
     "bounds": {
-      "height": 154,
+      "height": 104,
       "left": 373,
       "top": 1058,
       "width": 1301,
@@ -1145,10 +1145,10 @@ exports[`interpret images from paths 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 153,
+          "height": 103,
           "left": 373,
           "top": 1059,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 12,
@@ -1159,10 +1159,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 723,
           "top": 1059,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1173,7 +1173,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1373,
           "top": 1058,
           "width": 301,
@@ -1189,7 +1189,7 @@ exports[`interpret images from paths 1`] = `
   },
   {
     "bounds": {
-      "height": 406,
+      "height": 356,
       "left": 374,
       "top": 1209,
       "width": 1301,
@@ -1198,10 +1198,10 @@ exports[`interpret images from paths 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 374,
           "top": 1261,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1212,10 +1212,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 101,
           "left": 374,
-          "top": 1361,
-          "width": 351,
+          "top": 1362,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1226,10 +1226,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 103,
           "left": 374,
           "top": 1462,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 12,
@@ -1240,10 +1240,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 724,
           "top": 1210,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1254,10 +1254,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 724,
           "top": 1310,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1268,10 +1268,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 103,
           "left": 724,
           "top": 1411,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1282,10 +1282,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1073,
           "top": 1260,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 26,
@@ -1296,10 +1296,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 1074,
           "top": 1360,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 26,
@@ -1310,7 +1310,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1373,
           "top": 1209,
           "width": 302,
@@ -1324,7 +1324,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 1374,
           "top": 1310,
           "width": 301,
@@ -1338,10 +1338,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 153,
-          "left": 1374,
+          "height": 103,
+          "left": 1373,
           "top": 1410,
-          "width": 301,
+          "width": 302,
         },
         "gridLocation": {
           "column": 32,
@@ -1354,7 +1354,7 @@ exports[`interpret images from paths 1`] = `
   },
   {
     "bounds": {
-      "height": 153,
+      "height": 104,
       "left": 375,
       "top": 1661,
       "width": 1301,
@@ -1363,10 +1363,10 @@ exports[`interpret images from paths 1`] = `
     "options": [
       {
         "bounds": {
-          "height": 151,
+          "height": 102,
           "left": 375,
           "top": 1663,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1377,10 +1377,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 151,
+          "height": 102,
           "left": 725,
           "top": 1662,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1391,10 +1391,10 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 151,
+          "height": 102,
           "left": 1074,
           "top": 1661,
-          "width": 352,
+          "width": 302,
         },
         "gridLocation": {
           "column": 26,
@@ -1405,7 +1405,7 @@ exports[`interpret images from paths 1`] = `
       },
       {
         "bounds": {
-          "height": 151,
+          "height": 101,
           "left": 1374,
           "top": 1661,
           "width": 302,
@@ -1426,7 +1426,7 @@ exports[`interpret images from paths 2`] = `
 [
   {
     "bounds": {
-      "height": 153,
+      "height": 102,
       "left": 382,
       "top": 253,
       "width": 1301,
@@ -1435,10 +1435,10 @@ exports[`interpret images from paths 2`] = `
     "options": [
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 382,
           "top": 253,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1449,10 +1449,10 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 732,
           "top": 253,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1463,7 +1463,7 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 1382,
           "top": 253,
           "width": 301,
@@ -1479,7 +1479,7 @@ exports[`interpret images from paths 2`] = `
   },
   {
     "bounds": {
-      "height": 152,
+      "height": 101,
       "left": 382,
       "top": 405,
       "width": 1301,
@@ -1488,10 +1488,10 @@ exports[`interpret images from paths 2`] = `
     "options": [
       {
         "bounds": {
-          "height": 151,
+          "height": 101,
           "left": 382,
           "top": 405,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1502,10 +1502,10 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 732,
           "top": 405,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1516,7 +1516,7 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 101,
           "left": 1382,
           "top": 405,
           "width": 301,
@@ -1532,19 +1532,19 @@ exports[`interpret images from paths 2`] = `
   },
   {
     "bounds": {
-      "height": 153,
+      "height": 103,
       "left": 382,
       "top": 555,
-      "width": 1301,
+      "width": 1302,
     },
     "contestId": "County-Treasurer-87d25a31",
     "options": [
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 382,
           "top": 555,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1555,10 +1555,10 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 732,
           "top": 555,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1569,10 +1569,10 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1382,
           "top": 556,
-          "width": 301,
+          "width": 302,
         },
         "gridLocation": {
           "column": 32,
@@ -1585,7 +1585,7 @@ exports[`interpret images from paths 2`] = `
   },
   {
     "bounds": {
-      "height": 152,
+      "height": 102,
       "left": 382,
       "top": 707,
       "width": 1301,
@@ -1594,10 +1594,10 @@ exports[`interpret images from paths 2`] = `
     "options": [
       {
         "bounds": {
-          "height": 151,
+          "height": 101,
           "left": 382,
           "top": 707,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1608,10 +1608,10 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 732,
           "top": 707,
-          "width": 351,
+          "width": 301,
         },
         "gridLocation": {
           "column": 19,
@@ -1622,7 +1622,7 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1382,
           "top": 707,
           "width": 301,
@@ -1638,19 +1638,19 @@ exports[`interpret images from paths 2`] = `
   },
   {
     "bounds": {
-      "height": 153,
-      "left": 382,
+      "height": 103,
+      "left": 381,
       "top": 857,
-      "width": 1301,
+      "width": 1302,
     },
     "contestId": "Register-of-Probate-a4117da8",
     "options": [
       {
         "bounds": {
-          "height": 152,
-          "left": 382,
+          "height": 102,
+          "left": 381,
           "top": 857,
-          "width": 351,
+          "width": 302,
         },
         "gridLocation": {
           "column": 12,
@@ -1661,10 +1661,10 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
-          "left": 732,
+          "height": 102,
+          "left": 731,
           "top": 857,
-          "width": 351,
+          "width": 302,
         },
         "gridLocation": {
           "column": 19,
@@ -1675,7 +1675,7 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 152,
+          "height": 102,
           "left": 1381,
           "top": 858,
           "width": 302,
@@ -1691,19 +1691,19 @@ exports[`interpret images from paths 2`] = `
   },
   {
     "bounds": {
-      "height": 154,
-      "left": 381,
+      "height": 103,
+      "left": 382,
       "top": 1008,
-      "width": 1301,
+      "width": 1300,
     },
     "contestId": "County-Commissioner-d6feed25",
     "options": [
       {
         "bounds": {
-          "height": 153,
-          "left": 381,
+          "height": 102,
+          "left": 382,
           "top": 1008,
-          "width": 352,
+          "width": 301,
         },
         "gridLocation": {
           "column": 12,
@@ -1714,10 +1714,10 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
-          "left": 731,
+          "height": 102,
+          "left": 732,
           "top": 1008,
-          "width": 351,
+          "width": 300,
         },
         "gridLocation": {
           "column": 19,
@@ -1728,7 +1728,7 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
+          "height": 102,
           "left": 1381,
           "top": 1009,
           "width": 301,
@@ -1744,19 +1744,19 @@ exports[`interpret images from paths 2`] = `
   },
   {
     "bounds": {
-      "height": 154,
-      "left": 1081,
+      "height": 103,
+      "left": 1080,
       "top": 1260,
-      "width": 601,
+      "width": 602,
     },
     "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
     "options": [
       {
         "bounds": {
-          "height": 154,
-          "left": 1081,
+          "height": 103,
+          "left": 1080,
           "top": 1260,
-          "width": 351,
+          "width": 302,
         },
         "gridLocation": {
           "column": 26,
@@ -1767,10 +1767,10 @@ exports[`interpret images from paths 2`] = `
       },
       {
         "bounds": {
-          "height": 153,
-          "left": 1381,
+          "height": 102,
+          "left": 1380,
           "top": 1261,
-          "width": 301,
+          "width": 302,
         },
         "gridLocation": {
           "column": 32,
