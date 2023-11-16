@@ -44,6 +44,7 @@ export interface MockCard {
   writeData: MockFunction<Card['writeData']>;
   clearData: MockFunction<Card['clearData']>;
   unprogram: MockFunction<Card['unprogram']>;
+  disconnect: MockFunction<Card['disconnect']>;
 }
 
 /**
@@ -58,6 +59,7 @@ export function buildMockCard(): MockCard {
     writeData: mockFunction<Card['writeData']>('writeData'),
     clearData: mockFunction<Card['clearData']>('clearData'),
     unprogram: mockFunction<Card['unprogram']>('unprogram'),
+    disconnect: mockFunction<Card['disconnect']>('disconnect'),
   };
 }
 

@@ -228,4 +228,8 @@ export class MockFileCard implements Card {
     });
     return Promise.resolve();
   }
+
+  disconnect(): Promise<void> {
+    return Promise.resolve();
+  }
 }

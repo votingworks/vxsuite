@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { Byte, Id } from '@votingworks/types';
-import { StatefulCard } from '../card';
+import { BaseCard, PinProtectedCard, StatefulCard } from '../card';
 
 /**
  * Details about a Common Access Card.
@@ -32,5 +32,8 @@ export interface CertificateProviderCard {
 /**
  * The API for a Common Access Card-compatible smart card.
  */
-export type CommonAccessCardCompatibleCard =
-  StatefulCard<CommonAccessCardDetails> & SigningCard & CertificateProviderCard;
+export type CommonAccessCardCompatibleCard = BaseCard &
+  StatefulCard<CommonAccessCardDetails> &
+  PinProtectedCard &
+  SigningCard &
+  CertificateProviderCard;

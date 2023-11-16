@@ -1,6 +1,10 @@
 import { createWriteStream } from 'fs';
 import { throwIllegalValue } from '@votingworks/basics';
-import { CARD_DOD_CERT, CommonAccessCard } from '../src/cac';
+import {
+  CARD_DOD_CERT,
+  CommonAccessCard,
+  CommonAccessCardCompatibleCard,
+} from '../src/cac';
 import { waitForReadyCardStatus } from './utils';
 
 /**
@@ -54,7 +58,7 @@ export async function main(args: readonly string[]): Promise<void> {
     }
   }
 
-  const card = new CommonAccessCard();
+  const card: CommonAccessCardCompatibleCard = new CommonAccessCard();
   await waitForReadyCardStatus(card);
 
   switch (format) {
