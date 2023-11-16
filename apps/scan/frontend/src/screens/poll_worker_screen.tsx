@@ -52,6 +52,7 @@ import { LiveCheckButton } from '../components/live_check_button';
 import { CastVoteRecordSyncReminderModal } from '../components/cast_vote_record_sync_modal';
 import { printReport } from '../utils/print_report';
 import { ReprintReportButton } from '../components/reprint_report_button';
+import { getCurrentTime } from '../utils/get_current_time';
 
 export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
@@ -178,7 +179,7 @@ export function PollWorkerScreen({
         return;
       }
 
-      const pollsTransitionTime = Date.now();
+      const pollsTransitionTime = getCurrentTime();
       await transitionPollsMutation.mutateAsync({
         type: pollsTransitionType,
         time: pollsTransitionTime,

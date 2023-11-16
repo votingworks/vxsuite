@@ -1,10 +1,6 @@
 /* eslint-disable no-console */
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import {
-  expectPrint,
-  fakeKiosk,
-  suppressingConsoleOutput,
-} from '@votingworks/test-utils';
+import { expectPrint, suppressingConsoleOutput } from '@votingworks/test-utils';
 
 import userEvent from '@testing-library/user-event';
 
@@ -19,6 +15,7 @@ import {
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
 import { buildStandardScanHardware } from '../test/helpers/build_app';
+import { mockGetCurrentTime } from '../test/helpers/mock_polls_info';
 
 let apiMock: ApiMock;
 
@@ -35,6 +32,8 @@ function renderApp(props: Partial<AppProps> = {}) {
   );
   return { hardware, logger };
 }
+
+mockGetCurrentTime();
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -210,14 +209,14 @@ test('shows instructions to restart when the scanner client crashed', async () =
 test('App shows warning message to connect to power when disconnected', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetScannerResultsByParty([]);
+
   const hardware = buildStandardScanHardware();
   hardware.setBatteryDischarging(true);
   hardware.setBatteryLevel(0.9);
-  const kiosk = fakeKiosk();
-  window.kiosk = kiosk;
-  apiMock.expectGetScannerStatus(statusNoPaper);
+
   renderApp({ hardware });
-  apiMock.expectGetScannerResultsByParty([]);
   await screen.findByText('Polls Closed');
   await screen.findByText('No Power Detected.');
   await screen.findByText(
@@ -233,6 +232,7 @@ test('App shows warning message to connect to power when disconnected', async ()
 
   // Open Polls
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  await screen.findByText('Yes, Open the Polls');
   apiMock.expectTransitionPolls('open_polls');
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));

@@ -10,17 +10,16 @@ import {
   PrecinctSelection,
   Tabulation,
 } from '@votingworks/types';
-import { MockClient, createMockClient } from '@votingworks/grout-test-utils';
+import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
   MachineConfig,
   PollsTransition,
   PrecinctScannerConfig,
-  PrecinctScannerPollsInfo,
   PrecinctScannerStatus,
 } from '@votingworks/scan-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ok, throwIllegalValue } from '@votingworks/basics';
+import { ok } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
@@ -31,6 +30,8 @@ import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { mockUsbDriveStatus } from './mock_usb_drive';
+import { getCurrentTime } from '../../src/utils/get_current_time';
+import { mockPollsInfo } from './mock_polls_info';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -53,69 +54,12 @@ export const statusNoPaper: PrecinctScannerStatus = {
 };
 
 /**
- * Because you can get to the opened state by either opening polls or resuming
- * voting, we don't know exactly what the last transition was. But we want to
- * interpolate our best guess for testing ease.
- */
-function getLikelyLastPollsTransitionType(
-  pollsState: Exclude<PollsState, 'polls_closed_initial'>
-): PollsTransitionType {
-  switch (pollsState) {
-    case 'polls_closed_final':
-      return 'close_polls';
-    case 'polls_open':
-      return 'open_polls';
-    case 'polls_paused':
-      return 'pause_voting';
-    // istanbul ignore next
-    default:
-      throwIllegalValue(pollsState);
-  }
-}
-
-export function mockPollsInfo(
-  pollsState: PollsState,
-  lastPollsTransition?: Partial<PollsTransition>
-): PrecinctScannerPollsInfo {
-  if (pollsState === 'polls_closed_initial') {
-    return {
-      pollsState,
-    };
-  }
-  return {
-    pollsState,
-    lastPollsTransition: {
-      type: getLikelyLastPollsTransitionType(pollsState),
-      time: Date.now(),
-      ballotCount: 0,
-      ...(lastPollsTransition ?? {}),
-    },
-  };
-}
-
-type MockApiClient = Omit<MockClient<Api>, 'transitionPolls'> & {
-  // Because transitionPolls takes a timestamp as an argument, which is difficult to mock
-  // precisely even with fake timers, we use a jest mock for more flexible matching
-  transitionPolls: jest.Mock;
-};
-
-function createMockApiClient(): MockApiClient {
-  const mockApiClient = createMockClient<Api>();
-  // For some reason, using an object spread to override methods breaks the rest
-  // of the mockApiClient, so we override like this instead
-  (mockApiClient.transitionPolls as unknown as jest.Mock) = jest.fn(() => {
-    throw new Error('transitionPolls not mocked');
-  });
-  return mockApiClient as unknown as MockApiClient;
-}
-
-/**
  * Creates a VxScan specific wrapper around commonly used methods from the Grout
  * mock API client to make it easier to use for our specific test needs
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createApiMock() {
-  const mockApiClient = createMockApiClient();
+  const mockApiClient = createMockClient<Api>();
 
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
@@ -210,15 +154,12 @@ export function createApiMock() {
     },
 
     expectTransitionPolls(expectedTransitionType: PollsTransitionType): void {
-      mockApiClient.transitionPolls.mockImplementationOnce(
-        (transition: Omit<PollsTransition, 'ballotCount'>) => {
-          if (transition.type !== expectedTransitionType) {
-            throw new Error(
-              `Unexpected polls transition. Expected ${expectedTransitionType}, got ${transition.type}`
-            );
-          }
-        }
-      );
+      mockApiClient.transitionPolls
+        .expectCallWith({
+          type: expectedTransitionType,
+          time: getCurrentTime(),
+        })
+        .resolves();
     },
 
     expectGetScannerResultsByParty(

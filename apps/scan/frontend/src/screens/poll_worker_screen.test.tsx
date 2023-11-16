@@ -19,10 +19,13 @@ import {
   ApiMock,
   createApiMock,
   machineConfig,
-  mockPollsInfo,
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
+import {
+  mockGetCurrentTime,
+  mockPollsInfo,
+} from '../../test/helpers/mock_polls_info';
 
 let apiMock: ApiMock;
 
@@ -36,7 +39,9 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
-jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+const mockDate = new Date();
+mockGetCurrentTime(mockDate);
+jest.useFakeTimers().setSystemTime(mockDate);
 
 beforeEach(() => {
   featureFlagMock.resetFeatureFlags();

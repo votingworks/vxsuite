@@ -38,6 +38,7 @@ import {
   createApiMock,
   statusNoPaper,
 } from '../test/helpers/mock_api_client';
+import { mockGetCurrentTime } from '../test/helpers/mock_polls_info';
 
 let apiMock: ApiMock;
 
@@ -144,6 +145,8 @@ const PRIMARY_ELECTION_RESULTS = [
     }),
   },
 ];
+
+mockGetCurrentTime();
 
 beforeEach(() => {
   jest.useFakeTimers();

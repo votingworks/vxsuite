@@ -42,6 +42,7 @@ import {
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
 import { DisplaySettingsManager } from './components/display_settings_manager';
+import { mockGetCurrentTime } from '../test/helpers/mock_polls_info';
 
 jest.mock(
   './components/display_settings_manager',
@@ -89,6 +90,8 @@ async function hackActuallyCleanUpReactModal() {
 
   window.document.body.firstElementChild?.removeAttribute('aria-hidden');
 }
+
+mockGetCurrentTime();
 
 beforeEach(() => {
   jest.useFakeTimers();
