@@ -33,7 +33,8 @@ export function InvalidCardScreen({
   switch (reason) {
     case 'card_error': {
       graphic = <RotateCardImage />;
-      // The only cause we currently know of for a card error
+      // We've also seen a faulty card reader trigger this case, but that seems to be a much rarer
+      // case than the card being backwards.
       heading = 'Card is Backwards';
       recommendedAction =
         'Remove the card, turn it around, and insert it again.';
