@@ -24,6 +24,7 @@ import {
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
   GENERAL_AUTHENTICATE,
   GET_DATA,
+  isIncorrectPinStatusWord,
   isSecurityConditionNotSatisfiedStatusWord,
   pivDataObjectId,
   PUT_DATA,
@@ -171,7 +172,10 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
     } catch (error) {
       if (
         error instanceof ResponseApduError &&
-        isSecurityConditionNotSatisfiedStatusWord(error.statusWord())
+        // real CAC cards return 0x6982 for an incorrect PIN
+        (isSecurityConditionNotSatisfiedStatusWord(error.statusWord()) ||
+          // our mock CAC cards return 0x63c? for an incorrect PIN
+          isIncorrectPinStatusWord(error.statusWord()))
       ) {
         return { response: 'incorrect', numIncorrectPinAttempts: -1 };
       }
