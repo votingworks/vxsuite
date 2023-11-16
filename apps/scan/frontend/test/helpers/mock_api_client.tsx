@@ -85,10 +85,10 @@ export function mockPollsInfo(
   return {
     pollsState,
     lastPollsTransition: {
-      ...(lastPollsTransition ?? {}),
       type: getLikelyLastPollsTransitionType(pollsState),
       time: Date.now(),
       ballotCount: 0,
+      ...(lastPollsTransition ?? {}),
     },
   };
 }

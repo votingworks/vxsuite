@@ -397,3 +397,75 @@ test('polls cannot be closed if CVR sync is required, even from polls paused sta
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
+
+describe('reprinting previous report', () => {
+  const BUTTON_TEXT = 'Print Previous Report';
+
+  test('not available if no previous report', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_closed_initial'),
+    });
+
+    userEvent.click(await screen.findByText('No'));
+    expect(screen.queryByText(BUTTON_TEXT)).not.toBeInTheDocument();
+  });
+
+  test('available after polls open + can print additional afterward', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_open'),
+    });
+
+    userEvent.click(await screen.findByText('No'));
+    const button = await screen.findByText(BUTTON_TEXT);
+    expect(button).toBeEnabled();
+    userEvent.click(button);
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Polls Opened Report for All Precincts');
+    });
+    userEvent.click(await screen.findButton('Print Additional Report'));
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Polls Opened Report for All Precincts');
+    });
+  });
+
+  test('available after polls paused', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_paused'),
+    });
+
+    userEvent.click(await screen.findByText('No'));
+    const button = await screen.findByText(BUTTON_TEXT);
+    expect(button).toBeEnabled();
+    userEvent.click(button);
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Voting Paused Report for All Precincts');
+    });
+  });
+
+  test('available after polls resumed', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_open', { type: 'resume_voting' }),
+    });
+
+    userEvent.click(await screen.findByText('No'));
+    const button = await screen.findByText(BUTTON_TEXT);
+    expect(button).toBeEnabled();
+    userEvent.click(button);
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Voting Resumed Report for All Precincts');
+    });
+  });
+
+  test('available after polls closed', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_closed_final'),
+    });
+
+    const button = await screen.findByText(BUTTON_TEXT);
+    expect(button).toBeEnabled();
+    userEvent.click(button);
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Polls Closed Report for All Precincts');
+    });
+  });
+});

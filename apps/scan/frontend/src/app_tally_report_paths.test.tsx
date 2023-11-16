@@ -9,6 +9,7 @@ import {
   expectPrint,
   hasTextAcrossElements,
   fakeKiosk,
+  PrintRenderResult,
 } from '@votingworks/test-utils';
 import {
   singlePrecinctSelectionFor,
@@ -163,10 +164,12 @@ async function closePolls({
   electionDefinition,
   latestScannerResultsByParty,
   removeCardAfter = true,
+  ballotCount,
 }: {
   electionDefinition: ElectionDefinition;
   latestScannerResultsByParty?: Tabulation.GroupList<Tabulation.ElectionResults>;
   removeCardAfter?: boolean;
+  ballotCount?: number;
 }): Promise<void> {
   if (latestScannerResultsByParty) {
     apiMock.expectGetScannerResultsByParty(latestScannerResultsByParty);
@@ -175,7 +178,10 @@ async function closePolls({
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectTransitionPolls('close_polls');
-  apiMock.expectGetPollsInfo('polls_closed_final');
+  apiMock.expectGetPollsInfo(
+    'polls_closed_final',
+    ballotCount ? { ballotCount } : {}
+  );
   userEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Polls are closed.');
   if (removeCardAfter) {
@@ -352,7 +358,7 @@ test('polls open, general election, single precinct', async () => {
   });
 });
 
-test('polls closed, general election, all precincts', async () => {
+test('polls closed, general election, all precincts, reprint report', async () => {
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetConfig({
     electionDefinition,
@@ -369,9 +375,10 @@ test('polls closed, general election, all precincts', async () => {
   await closePolls({
     electionDefinition,
     latestScannerResultsByParty: GENERAL_ELECTION_RESULTS,
+    ballotCount: 2,
   });
 
-  await expectPrint((printedElement) => {
+  function checkPrint(printedElement: PrintRenderResult): void {
     printedElement.getByText('Test Polls Closed Report for All Precincts');
     printedElement.getByText('General Election:');
     within(printedElement.getByTestId('total-ballots')).getByText('100');
@@ -381,7 +388,16 @@ test('polls closed, general election, all precincts', async () => {
     within(printedElement.getByTestId('president-barchi-hallaren')).getByText(
       '70'
     );
-  });
+  }
+
+  await expectPrint(checkPrint);
+
+  apiMock.authenticateAsPollWorker(electionDefinition);
+  const reprintButton = await screen.findButton('Print Previous Report');
+  expect(reprintButton).toBeEnabled();
+  userEvent.click(reprintButton);
+
+  await expectPrint(checkPrint);
 });
 
 test('polls paused', async () => {
