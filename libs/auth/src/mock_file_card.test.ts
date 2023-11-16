@@ -281,3 +281,8 @@ test('MockFileCard resiliency to underlying file that cannot be parsed', async (
     status: 'no_card',
   });
 });
+
+test('MockFileCard disconnect does nothing', async () => {
+  const card = new MockFileCard();
+  await card.disconnect();
+});

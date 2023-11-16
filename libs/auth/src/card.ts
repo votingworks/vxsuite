@@ -100,6 +100,13 @@ export type CheckPinResponse =
   | CheckPinResponseIncorrect;
 
 /**
+ * The base API any card should support
+ */
+export interface BaseCard {
+  disconnect(): Promise<void>;
+}
+
+/**
  * The API for a card that can provide its status
  */
 export interface StatefulCard<T = CardDetails> {
@@ -138,7 +145,8 @@ export interface DataCard {
 /**
  * The API for a VxSuite-compatible card
  */
-export type Card = StatefulCard &
+export type Card = BaseCard &
+  StatefulCard &
   PinProtectedCard &
   ProgrammableCard &
   DataCard;
