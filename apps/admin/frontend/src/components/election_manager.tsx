@@ -78,15 +78,16 @@ export function ElectionManager(): JSX.Element {
     if (auth.reason === 'machine_locked') {
       return <MachineLockedScreen />;
     }
-    if (auth.reason === 'machine_not_configured') {
-      return (
-        <InvalidCardScreen
-          reason={auth.reason}
-          recommendedAction="Please insert a System Administrator card."
-        />
-      );
-    }
-    return <InvalidCardScreen reason={auth.reason} />;
+    return (
+      <InvalidCardScreen
+        reasonAndContext={auth}
+        recommendedAction={
+          auth.reason === 'machine_not_configured'
+            ? 'Please insert a System Administrator card.'
+            : 'Please insert a valid Election Manager or System Administrator card.'
+        }
+      />
+    );
   }
 
   if (isSystemAdministratorAuth(auth)) {

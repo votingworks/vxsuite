@@ -415,7 +415,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
             return {
               status: 'logged_out',
               reason: validationResult.err(),
+              cardJurisdiction: cardDetails?.user.jurisdiction,
               cardUserRole: cardDetails?.user.role,
+              machineJurisdiction: machineState.jurisdiction,
             };
           }
           /* istanbul ignore next: Compile-time check for completeness */
@@ -508,7 +510,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       machineState.jurisdiction &&
       user.jurisdiction !== machineState.jurisdiction
     ) {
-      return err('invalid_user_on_card');
+      return err('wrong_jurisdiction');
     }
 
     if (user.role === 'election_manager') {
@@ -520,7 +522,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
         !this.config
           .allowElectionManagersToAccessMachinesConfiguredForOtherElections
       ) {
-        return err('election_manager_wrong_election');
+        return err('wrong_election');
       }
     }
 
@@ -529,7 +531,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
         return err('machine_not_configured');
       }
       if (user.electionHash !== machineState.electionHash) {
-        return err('poll_worker_wrong_election');
+        return err('wrong_election');
       }
       // If a poll worker card doesn't have a PIN but poll worker card PINs are enabled, treat the
       // card as unprogrammed. And vice versa. If a poll worker card does have a PIN but poll

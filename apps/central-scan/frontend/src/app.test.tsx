@@ -454,7 +454,8 @@ test('election manager cannot auth onto machine with different election hash', a
   await screen.findByText('VxCentralScan is Locked');
   setAuthStatus(mockApiClient, {
     status: 'logged_out',
-    reason: 'election_manager_wrong_election',
+    reason: 'wrong_election',
+    cardUserRole: 'election_manager',
   });
   await screen.findByText(
     'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +

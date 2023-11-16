@@ -36,7 +36,12 @@ export function SmartcardModal(): JSX.Element | null {
     }
     case 'card_error': {
       return (
-        <Modal fullscreen content={<InvalidCardScreen reason="card_error" />} />
+        <Modal
+          fullscreen
+          content={
+            <InvalidCardScreen reasonAndContext={{ reason: 'card_error' }} />
+          }
+        />
       );
     }
     case 'ready': {

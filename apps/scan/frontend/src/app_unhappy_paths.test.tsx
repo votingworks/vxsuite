@@ -123,13 +123,15 @@ test.each<{
 
     apiMock.setAuthStatus({
       status: 'logged_out',
-      reason: 'election_manager_wrong_election',
+      reason: 'wrong_election',
+      cardUserRole: 'election_manager',
     });
     await screen.findByText('Invalid Card');
 
     apiMock.setAuthStatus({
       status: 'logged_out',
-      reason: 'poll_worker_wrong_election',
+      reason: 'wrong_election',
+      cardUserRole: 'poll_worker',
     });
     await screen.findByText('Invalid Card');
 

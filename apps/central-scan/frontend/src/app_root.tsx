@@ -338,15 +338,16 @@ export function AppRoot({
         </AppContext.Provider>
       );
     }
-    if (authStatus.reason === 'machine_not_configured') {
-      return (
-        <InvalidCardScreen
-          reason={authStatus.reason}
-          recommendedAction="Please insert an Election Manager card."
-        />
-      );
-    }
-    return <InvalidCardScreen reason={authStatus.reason} />;
+    return (
+      <InvalidCardScreen
+        reasonAndContext={authStatus}
+        recommendedAction={
+          authStatus.reason === 'machine_not_configured'
+            ? 'Please insert an Election Manager card.'
+            : 'Please insert a valid Election Manager or System Administrator card.'
+        }
+      />
+    );
   }
 
   if (authStatus.status === 'checking_pin') {

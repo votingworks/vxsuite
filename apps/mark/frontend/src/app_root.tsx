@@ -712,7 +712,8 @@ export function AppRoot({
     }
     if (
       authStatus.status === 'logged_out' &&
-      authStatus.reason === 'poll_worker_wrong_election'
+      authStatus.reason === 'wrong_election' &&
+      authStatus.cardUserRole === 'poll_worker'
     ) {
       return <WrongElectionScreen />;
     }

@@ -479,7 +479,9 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 return {
                   status: 'logged_out',
                   reason: validationResult.err(),
+                  cardJurisdiction: cardDetails?.user.jurisdiction,
                   cardUserRole: cardDetails?.user.role,
+                  machineJurisdiction: machineState.jurisdiction,
                 };
               }
               /* istanbul ignore next: Compile-time check for completeness */
@@ -607,7 +609,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       machineState.jurisdiction &&
       user.jurisdiction !== machineState.jurisdiction
     ) {
-      return err('invalid_user_on_card');
+      return err('wrong_jurisdiction');
     }
 
     if (!['system_administrator', 'election_manager'].includes(user.role)) {
@@ -621,7 +623,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           : err('machine_not_configured');
       }
       if (user.electionHash !== machineState.electionHash) {
-        return err('election_manager_wrong_election');
+        return err('wrong_election');
       }
     }
 

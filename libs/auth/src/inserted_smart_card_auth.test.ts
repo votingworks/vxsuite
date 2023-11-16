@@ -570,6 +570,7 @@ test.each<{
     expectedAuthStatus: {
       status: 'logged_out',
       reason: 'invalid_user_on_card',
+      machineJurisdiction: jurisdiction,
     },
     expectedLog: [
       LogEventId.AuthLogin,
@@ -590,8 +591,10 @@ test.each<{
     },
     expectedAuthStatus: {
       status: 'logged_out',
-      reason: 'invalid_user_on_card',
+      reason: 'wrong_jurisdiction',
+      cardJurisdiction: otherJurisdiction,
       cardUserRole: 'system_administrator',
+      machineJurisdiction: jurisdiction,
     },
     expectedLog: [
       LogEventId.AuthLogin,
@@ -599,7 +602,7 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Failure,
         message: 'User failed login.',
-        reason: 'invalid_user_on_card',
+        reason: 'wrong_jurisdiction',
       },
     ],
   },
@@ -638,7 +641,9 @@ test.each<{
     expectedAuthStatus: {
       status: 'logged_out',
       reason: 'machine_not_configured',
+      cardJurisdiction: jurisdiction,
       cardUserRole: 'poll_worker',
+      machineJurisdiction: jurisdiction,
     },
     expectedLog: [
       LogEventId.AuthLogin,
@@ -659,8 +664,10 @@ test.each<{
     },
     expectedAuthStatus: {
       status: 'logged_out',
-      reason: 'election_manager_wrong_election',
+      reason: 'wrong_election',
+      cardJurisdiction: jurisdiction,
       cardUserRole: 'election_manager',
+      machineJurisdiction: jurisdiction,
     },
     expectedLog: [
       LogEventId.AuthLogin,
@@ -668,7 +675,7 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Failure,
         message: 'User failed login.',
-        reason: 'election_manager_wrong_election',
+        reason: 'wrong_election',
       },
     ],
   },
@@ -699,8 +706,10 @@ test.each<{
     },
     expectedAuthStatus: {
       status: 'logged_out',
-      reason: 'poll_worker_wrong_election',
+      reason: 'wrong_election',
+      cardJurisdiction: jurisdiction,
       cardUserRole: 'poll_worker',
+      machineJurisdiction: jurisdiction,
     },
     expectedLog: [
       LogEventId.AuthLogin,
@@ -708,7 +717,7 @@ test.each<{
       {
         disposition: LogDispositionStandardTypes.Failure,
         message: 'User failed login.',
-        reason: 'poll_worker_wrong_election',
+        reason: 'wrong_election',
       },
     ],
   },
@@ -727,7 +736,9 @@ test.each<{
     expectedAuthStatus: {
       status: 'logged_out',
       reason: 'invalid_user_on_card',
+      cardJurisdiction: jurisdiction,
       cardUserRole: 'poll_worker',
+      machineJurisdiction: jurisdiction,
     },
     expectedLog: [
       LogEventId.AuthLogin,
@@ -751,7 +762,9 @@ test.each<{
     expectedAuthStatus: {
       status: 'logged_out',
       reason: 'invalid_user_on_card',
+      cardJurisdiction: jurisdiction,
       cardUserRole: 'poll_worker',
+      machineJurisdiction: jurisdiction,
     },
     expectedLog: [
       LogEventId.AuthLogin,
