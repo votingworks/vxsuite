@@ -16,6 +16,7 @@ test('formats counts properly', () => {
   expect(format.count(-1000000)).toEqual('-1,000,000');
   expect(format.count(-3141098210928)).toEqual('-3,141,098,210,928');
   expect(format.count(40240, LanguageCode.ENGLISH)).toEqual('40,240');
+  expect(format.count(40240, LanguageCode.SPANISH)).toEqual('40,240');
   // Force-cast a non-Vx language to test locale-specific formatting:
   expect(format.count(40240, 'es-ES' as LanguageCode)).toEqual('40.240');
 });
