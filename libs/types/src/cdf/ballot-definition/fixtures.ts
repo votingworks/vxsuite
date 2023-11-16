@@ -148,7 +148,7 @@ export const testVxfElection: Election = {
         bottom: 1,
         left: 1,
         right: 9,
-        top: 2,
+        top: 1,
       },
       gridPositions: [
         {
@@ -210,7 +210,7 @@ export const testVxfElection: Election = {
         bottom: 1,
         left: 1,
         right: 9,
-        top: 2,
+        top: 1,
       },
       gridPositions: [
         {
@@ -230,7 +230,7 @@ export const testVxfElection: Election = {
         bottom: 1,
         left: 1,
         right: 9,
-        top: 2,
+        top: 1,
       },
       gridPositions: [
         {
@@ -500,7 +500,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                     bottom: 1,
                     left: 1,
                     right: 9,
-                    top: 2,
+                    top: 1,
                   },
                   PhysicalContestOption: [
                     {
@@ -577,7 +577,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                     bottom: 1,
                     left: 1,
                     right: 9,
-                    top: 2,
+                    top: 1,
                   },
                   PhysicalContestOption: [
                     {
@@ -640,7 +640,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                     bottom: 1,
                     left: 1,
                     right: 9,
-                    top: 2,
+                    top: 1,
                   },
                   PhysicalContestOption: [
                     {
@@ -687,7 +687,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                     bottom: 1,
                     left: 1,
                     right: 9,
-                    top: 2,
+                    top: 1,
                   },
                   PhysicalContestOption: [
                     {
@@ -764,7 +764,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                     bottom: 1,
                     left: 1,
                     right: 9,
-                    top: 2,
+                    top: 1,
                   },
                   PhysicalContestOption: [
                     {
@@ -814,7 +814,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
                     bottom: 1,
                     left: 1,
                     right: 9,
-                    top: 2,
+                    top: 1,
                   },
                   PhysicalContestOption: [
                     {

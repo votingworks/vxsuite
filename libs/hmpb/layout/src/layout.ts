@@ -1687,7 +1687,7 @@ function layOutBallotHelper({
         bottom: 1,
         left: 1,
         right: 9,
-        top: 2,
+        top: 1,
       },
       gridPositions,
     },

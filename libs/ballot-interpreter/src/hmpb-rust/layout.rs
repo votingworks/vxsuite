@@ -33,11 +33,9 @@ fn build_option_layout(
     let column_offset = -(grid_layout.option_bounds_from_target_mark.left as i32);
     let row_offset = -(grid_layout.option_bounds_from_target_mark.top as i32);
     let width: GridUnit = grid_layout.option_bounds_from_target_mark.left
-        + grid_layout.option_bounds_from_target_mark.right
-        + 1;
+        + grid_layout.option_bounds_from_target_mark.right;
     let height: GridUnit = grid_layout.option_bounds_from_target_mark.top
-        + grid_layout.option_bounds_from_target_mark.bottom
-        + 1;
+        + grid_layout.option_bounds_from_target_mark.bottom;
 
     let clamp_row =
         |row: GridUnit| -> GridUnit { row.clamp(0, grid.geometry.grid_size.height - 1) };
