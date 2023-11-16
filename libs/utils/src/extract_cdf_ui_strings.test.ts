@@ -132,7 +132,7 @@ const tests: Record<ElectionStringKey, () => void> = {
               '@type': 'BallotDefinition.BallotMeasureContest',
               FullText: buildInternationalizedText({
                 [LanguageCode.ENGLISH]: 'Would you like apples or oranges?',
-                [LanguageCode.CHINESE]: '你想要蘋果還是橘子？',
+                [LanguageCode.CHINESE_TRADITIONAL]: '你想要蘋果還是橘子？',
                 unsupported_lang: '🍎🍊',
               }),
               ContestOption: [],
@@ -143,7 +143,7 @@ const tests: Record<ElectionStringKey, () => void> = {
               '@type': 'BallotDefinition.BallotMeasureContest',
               FullText: buildInternationalizedText({
                 [LanguageCode.ENGLISH]: 'Would you like olives or pickles?',
-                [LanguageCode.CHINESE]: '您想要橄欖還是泡菜？',
+                [LanguageCode.CHINESE_TRADITIONAL]: '您想要橄欖還是泡菜？',
                 unsupported_lang: '🫒🥒',
               }),
               ContestOption: [],
@@ -160,7 +160,7 @@ const tests: Record<ElectionStringKey, () => void> = {
           contest2: 'Would you like olives or pickles?',
         },
       }),
-      [LanguageCode.CHINESE]: expect.objectContaining({
+      [LanguageCode.CHINESE_TRADITIONAL]: expect.objectContaining({
         [ElectionStringKey.CONTEST_DESCRIPTION]: {
           contest1: '你想要蘋果還是橘子？',
           contest2: '您想要橄欖還是泡菜？',
@@ -267,7 +267,7 @@ const tests: Record<ElectionStringKey, () => void> = {
               '@id': 'contest1',
               BallotTitle: buildInternationalizedText({
                 [LanguageCode.ENGLISH]: 'President',
-                [LanguageCode.CHINESE]: '總統',
+                [LanguageCode.CHINESE_TRADITIONAL]: '總統',
                 unsupported_lang: '🗳✅',
               }),
             },
@@ -276,7 +276,7 @@ const tests: Record<ElectionStringKey, () => void> = {
               '@id': 'contest2',
               BallotTitle: buildInternationalizedText({
                 [LanguageCode.ENGLISH]: 'Mayor',
-                [LanguageCode.CHINESE]: '市長',
+                [LanguageCode.CHINESE_TRADITIONAL]: '市長',
                 unsupported_lang: '🗳✅',
               }),
             },
@@ -292,7 +292,7 @@ const tests: Record<ElectionStringKey, () => void> = {
           contest2: 'Mayor',
         },
       }),
-      [LanguageCode.CHINESE]: expect.objectContaining({
+      [LanguageCode.CHINESE_TRADITIONAL]: expect.objectContaining({
         [ElectionStringKey.CONTEST_TITLE]: {
           contest1: '總統',
           contest2: '市長',

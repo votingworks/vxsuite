@@ -7,7 +7,7 @@ test('valid structure', () => {
     JSON.stringify({
       dataBase64: 'test data',
       id: 'testKey',
-      languageCode: LanguageCode.CHINESE,
+      languageCode: LanguageCode.CHINESE_TRADITIONAL,
     }),
     UiStringAudioClipSchema
   );
@@ -16,7 +16,7 @@ test('valid structure', () => {
   expect(result.ok()).toEqual({
     dataBase64: 'test data',
     id: 'testKey',
-    languageCode: LanguageCode.CHINESE,
+    languageCode: LanguageCode.CHINESE_TRADITIONAL,
   });
 });
 

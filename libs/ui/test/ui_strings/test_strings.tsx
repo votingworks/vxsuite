@@ -18,7 +18,7 @@ export const TEST_UI_STRING_TRANSLATIONS: UiStringsPackage = {
       planet9: 'Pluto', // #NeverForget
     },
   },
-  [LanguageCode.CHINESE]: {
+  [LanguageCode.CHINESE_TRADITIONAL]: {
     [`numPlanets_one`]: '只有<2>{{count}}</2>個行星。',
     [`numPlanets_other`]: '有 <2>{{count}}</2> 個行星。',
     planetName: {

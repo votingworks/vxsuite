@@ -15,7 +15,7 @@ beforeEach(() => {
 
   mockBackendApi.getAvailableLanguages.mockResolvedValueOnce([
     LanguageCode.ENGLISH,
-    LanguageCode.CHINESE,
+    LanguageCode.CHINESE_TRADITIONAL,
   ]);
 
   mockBackendApi.getUiStrings.mockImplementation(({ languageCode }) =>
@@ -29,7 +29,7 @@ test('availableLanguages', async () => {
   await waitFor(() => expect(getLanguageContext()).toBeDefined());
   expect(getLanguageContext()?.availableLanguages).toEqual([
     LanguageCode.ENGLISH,
-    LanguageCode.CHINESE,
+    LanguageCode.CHINESE_TRADITIONAL,
   ]);
 });
 
@@ -48,17 +48,19 @@ test('setLanguage', async () => {
     )
   ).toEqual(TEST_UI_STRING_TRANSLATIONS[DEFAULT_LANGUAGE_CODE]);
 
-  act(() => getLanguageContext()?.setLanguage(LanguageCode.CHINESE));
+  act(
+    () => getLanguageContext()?.setLanguage(LanguageCode.CHINESE_TRADITIONAL)
+  );
 
   await waitFor(() =>
     expect(getLanguageContext()?.currentLanguageCode).toEqual(
-      LanguageCode.CHINESE
+      LanguageCode.CHINESE_TRADITIONAL
     )
   );
   expect(
     getLanguageContext()?.i18next.getResourceBundle(
-      LanguageCode.CHINESE,
+      LanguageCode.CHINESE_TRADITIONAL,
       DEFAULT_I18NEXT_NAMESPACE
     )
-  ).toEqual(TEST_UI_STRING_TRANSLATIONS[LanguageCode.CHINESE]);
+  ).toEqual(TEST_UI_STRING_TRANSLATIONS[LanguageCode.CHINESE_TRADITIONAL]);
 });
