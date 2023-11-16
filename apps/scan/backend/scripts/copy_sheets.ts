@@ -21,6 +21,10 @@ interface CopySheetsInput {
   targetSheetCount: number;
 }
 
+function checkEnvironment(): void {
+  assert(process.env.NODE_ENV !== 'production', 'Cannot be run in production');
+}
+
 function parseCommandLineArgs(args: readonly string[]): CopySheetsInput {
   if (args.length !== 1 || !safeParseNumber(args[0]).isOk()) {
     console.log(usageMessage);
@@ -85,6 +89,7 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
  */
 export function main(args: readonly string[]): void {
   try {
+    checkEnvironment();
     copySheets(parseCommandLineArgs(args));
     process.exit(0);
   } catch (error) {
