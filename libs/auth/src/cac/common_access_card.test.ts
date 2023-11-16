@@ -203,6 +203,23 @@ test('checkPin: failure', async () => {
   );
 });
 
+test('checkPin: failure with incorrect pin status word', async () => {
+  const cac = new CommonAccessCard();
+
+  mockCardAppletSelectionRequest();
+  mockCardGetCertificateRequest(
+    CARD_DOD_CERT.OBJECT_ID,
+    await certPemToDer(DEV_CERT_PEM)
+  );
+  mockCardPinVerificationRequest('1234', new ResponseApduError([0x63, 0xc1]));
+  expect(await cac.checkPin('1234')).toEqual(
+    typedAs<CheckPinResponse>({
+      response: 'incorrect',
+      numIncorrectPinAttempts: -1,
+    })
+  );
+});
+
 test('checkPin: unexpected error', async () => {
   const cac = new CommonAccessCard();
 
