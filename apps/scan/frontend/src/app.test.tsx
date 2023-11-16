@@ -368,6 +368,7 @@ test('election manager and poll worker configuration', async () => {
   // Actually unconfigure
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetPollsInfo();
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.expectGetUsbDriveStatus('ejected');
   userEvent.click(
@@ -853,6 +854,7 @@ test('system administrator can log in and unconfigure machine', async () => {
 
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetPollsInfo();
   userEvent.click(unconfigureMachineButton);
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(

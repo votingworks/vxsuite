@@ -141,6 +141,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
 
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetPollsInfo();
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   userEvent.click(screen.getByText('Yes, Delete All'));
   // No call to apiClient.ejectUsbDrive should have occurred, which is confirmed
@@ -162,6 +163,7 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
 
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetPollsInfo();
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   userEvent.click(screen.getByText('Yes, Delete All'));

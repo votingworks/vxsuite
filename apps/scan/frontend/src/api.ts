@@ -182,6 +182,7 @@ export const unconfigureElection = {
     return useMutation(apiClient.unconfigureElection, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
+        await queryClient.invalidateQueries(getPollsInfo.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
