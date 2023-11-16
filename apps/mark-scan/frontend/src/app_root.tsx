@@ -99,7 +99,6 @@ interface SharedState {
 interface OtherState {
   lastVoteUpdateAt: number;
   lastVoteSaveToCardAt: number;
-  forceSaveVoteFlag: boolean;
   writingVoteToCard: boolean;
   initializedFromStorage: boolean;
 }
@@ -138,7 +137,6 @@ const initialSharedState: Readonly<SharedState> = {
 const initialOtherState: Readonly<OtherState> = {
   lastVoteUpdateAt: 0,
   lastVoteSaveToCardAt: 0,
-  forceSaveVoteFlag: false,
   writingVoteToCard: false,
   initializedFromStorage: false,
 };
@@ -158,7 +156,6 @@ type AppAction =
   | { type: 'updateLastVoteUpdateAt'; date: number }
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
-  | { type: 'forceSaveVote' }
   | { type: 'resetBallot' }
   | { type: 'enableLiveMode' }
   | { type: 'toggleLiveMode' }
@@ -191,11 +188,6 @@ function appReducer(state: State, action: AppAction): State {
         },
       };
     }
-    case 'forceSaveVote':
-      return {
-        ...state,
-        forceSaveVoteFlag: true,
-      };
     case 'resetBallot':
       return {
         ...state,
@@ -383,10 +375,6 @@ export function AppRoot({
 
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchAppState({ type: 'updateVote', contestId, vote });
-  }, []);
-
-  const forceSaveVote = useCallback(() => {
-    dispatchAppState({ type: 'forceSaveVote' });
   }, []);
 
   const enableLiveMode = useCallback(() => {
@@ -767,7 +755,6 @@ export function AppRoot({
                 endVoterSession,
                 resetBallot,
                 updateVote,
-                forceSaveVote,
                 votes: votes ?? blankBallotVotes,
               }}
             >

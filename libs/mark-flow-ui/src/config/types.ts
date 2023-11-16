@@ -34,7 +34,6 @@ export interface BallotContextInterface {
   resetBallot: (showPostVotingInstructions?: boolean) => void;
   updateTally: () => void;
   updateVote: UpdateVoteFunction;
-  forceSaveVote: () => void;
   votes: VotesDict;
 }
 

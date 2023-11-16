@@ -16,7 +16,6 @@ const ballot: BallotContextInterface = {
   resetBallot: () => undefined,
   updateTally: () => undefined,
   updateVote: () => undefined,
-  forceSaveVote: () => undefined,
   votes: {},
 };
 

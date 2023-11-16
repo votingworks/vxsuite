@@ -37,7 +37,6 @@ export function render(
     resetBallot = jest.fn(),
     updateTally = jest.fn(),
     updateVote = jest.fn(),
-    forceSaveVote = jest.fn(),
     votes = {},
     apiMock = createApiMock(),
   }: {
@@ -56,7 +55,6 @@ export function render(
     setUserSettings?(): void;
     updateTally?(): void;
     updateVote?(): void;
-    forceSaveVote?(): void;
     votes?: VotesDict;
     apiMock?: ApiMock;
   } = {}
@@ -79,7 +77,6 @@ export function render(
               resetBallot,
               updateTally,
               updateVote,
-              forceSaveVote,
               votes,
             }}
           >

@@ -5,16 +5,10 @@ import { BallotContext } from '../contexts/ballot_context';
 
 export function StartScreen(): JSX.Element {
   const history = useHistory();
-  const {
-    ballotStyleId,
-    contests,
-    electionDefinition,
-    precinctId,
-    forceSaveVote,
-  } = React.useContext(BallotContext);
+  const { ballotStyleId, contests, electionDefinition, precinctId } =
+    React.useContext(BallotContext);
 
   function onStart() {
-    forceSaveVote();
     history.push('/contests/0');
   }
 
