@@ -6,6 +6,7 @@ import {
   ElectionDefinition,
   InsertedSmartCardAuth,
   PollsState,
+  PollsTransitionType,
   PrecinctSelection,
   Tabulation,
 } from '@votingworks/types';
@@ -13,6 +14,7 @@ import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
   MachineConfig,
+  PollsTransition,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
 } from '@votingworks/scan-backend';
@@ -28,6 +30,8 @@ import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { mockUsbDriveStatus } from './mock_usb_drive';
+import { getCurrentTime } from '../../src/utils/get_current_time';
+import { mockPollsInfo } from './mock_polls_info';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -38,7 +42,6 @@ const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
   isUltrasonicDisabled: false,
   isTestMode: true,
-  pollsState: 'polls_closed_initial',
   ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionGeneralDefinition,
   precinctSelection: ALL_PRECINCTS_SELECTION,
@@ -122,6 +125,20 @@ export function createApiMock() {
       });
     },
 
+    expectGetPollsInfo(
+      pollsState?: PollsState,
+      lastPollsTransition?: Partial<PollsTransition>
+    ): void {
+      mockApiClient.getPollsInfo
+        .expectCallWith()
+        .resolves(
+          mockPollsInfo(
+            pollsState ?? 'polls_closed_initial',
+            lastPollsTransition
+          )
+        );
+    },
+
     expectSetPrecinct(precinctSelection: PrecinctSelection): void {
       mockApiClient.setPrecinctSelection
         .expectCallWith({ precinctSelection })
@@ -136,8 +153,13 @@ export function createApiMock() {
       mockApiClient.getScannerStatus.expectRepeatedCallsWith().resolves(status);
     },
 
-    expectSetPollsState(pollsState: PollsState): void {
-      mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
+    expectTransitionPolls(expectedTransitionType: PollsTransitionType): void {
+      mockApiClient.transitionPolls
+        .expectCallWith({
+          type: expectedTransitionType,
+          time: getCurrentTime(),
+        })
+        .resolves();
     },
 
     expectGetScannerResultsByParty(

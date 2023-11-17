@@ -5,12 +5,12 @@ import {
   BallotPackageConfigurationError,
   DEFAULT_SYSTEM_SETTINGS,
   ExportCastVoteRecordsToUsbDriveError,
-  PollsState,
   PrecinctSelection,
   SinglePrecinctSelection,
   Tabulation,
 } from '@votingworks/types';
 import {
+  getPollsTransitionDestinationState,
   isElectionManagerAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -22,7 +22,13 @@ import {
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
 } from '@votingworks/backend';
-import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
@@ -33,6 +39,8 @@ import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
+  PollsTransition,
+  PrecinctScannerPollsInfo,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -183,9 +191,22 @@ export function buildApi(
         isTestMode: store.getTestMode(),
         isUltrasonicDisabled:
           !machine.supportsUltrasonic() || store.getIsUltrasonicDisabled(),
-        pollsState: store.getPollsState(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
+      };
+    },
+
+    getPollsInfo(): PrecinctScannerPollsInfo {
+      const pollsState = store.getPollsState();
+      if (pollsState === 'polls_closed_initial') {
+        return {
+          pollsState,
+        };
+      }
+
+      return {
+        pollsState,
+        lastPollsTransition: assertDefined(store.getLastPollsTransition()),
       };
     },
 
@@ -217,9 +238,11 @@ export function buildApi(
       store.setTestMode(input.isTestMode);
     },
 
-    async setPollsState(input: { pollsState: PollsState }): Promise<void> {
+    async transitionPolls(
+      input: Omit<PollsTransition, 'ballotCount'>
+    ): Promise<void> {
       const previousPollsState = store.getPollsState();
-      const newPollsState = input.pollsState;
+      const newPollsState = getPollsTransitionDestinationState(input.type);
 
       // Start new batch if opening polls, end batch if pausing or closing polls
       if (
@@ -248,7 +271,7 @@ export function buildApi(
         });
       }
 
-      store.setPollsState(newPollsState);
+      store.transitionPolls(input);
     },
 
     async recordBallotBagReplaced(): Promise<void> {

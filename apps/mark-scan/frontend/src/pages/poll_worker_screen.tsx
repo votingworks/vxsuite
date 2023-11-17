@@ -6,7 +6,7 @@ import {
   ElectionDefinition,
   PrecinctId,
   PollsState,
-  PollsTransition,
+  PollsTransitionType,
   InsertedSmartCardAuth,
   PrecinctSelection,
 } from '@votingworks/types';
@@ -76,7 +76,7 @@ function UpdatePollsButton({
   updatePollsState,
   isPrimaryButton,
 }: {
-  pollsTransition: PollsTransition;
+  pollsTransition: PollsTransitionType;
   updatePollsState: (pollsState: PollsState) => void;
   isPrimaryButton: boolean;
 }): JSX.Element {

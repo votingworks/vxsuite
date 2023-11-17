@@ -264,7 +264,10 @@ test('get/set polls state', () => {
 
   // Before setting an election
   expect(store.getPollsState()).toEqual('polls_closed_initial');
-  expect(() => store.setPollsState('polls_open')).toThrowError();
+  expect(() =>
+    store.transitionPolls({ type: 'open_polls', time: Date.now() })
+  ).toThrowError();
+  expect(() => store.getLastPollsTransition()).toThrowError();
 
   store.setElectionAndJurisdiction({
     electionData:
@@ -274,8 +277,14 @@ test('get/set polls state', () => {
   });
 
   // After setting an election
-  store.setPollsState('polls_open');
+  const openPollsTime = Date.now();
+  store.transitionPolls({ type: 'open_polls', time: openPollsTime });
   expect(store.getPollsState()).toEqual('polls_open');
+  expect(store.getLastPollsTransition()).toEqual({
+    type: 'open_polls',
+    time: openPollsTime,
+    ballotCount: 0,
+  });
 });
 
 test('batch cleanup works correctly', () => {
@@ -617,7 +626,7 @@ test('resetElectionSession', () => {
     jurisdiction,
   });
 
-  store.setPollsState('polls_open');
+  store.transitionPolls({ type: 'open_polls', time: Date.now() });
   store.setBallotCountWhenBallotBagLastReplaced(1500);
 
   store.addBatch();

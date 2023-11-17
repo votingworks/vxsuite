@@ -1,14 +1,14 @@
 import {
   PollsState,
-  PollsSuspensionTransition,
-  PollsTransition,
+  PollsSuspensionTransitionType,
+  PollsTransitionType,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 
 export function getPollsTransitionDestinationState(
-  transition: PollsTransition
+  transitionType: PollsTransitionType
 ): PollsState {
-  switch (transition) {
+  switch (transitionType) {
     case 'open_polls':
     case 'resume_voting':
       return 'polls_open';
@@ -18,12 +18,14 @@ export function getPollsTransitionDestinationState(
       return 'polls_closed_final';
     /* c8 ignore next 2 */
     default:
-      throwIllegalValue(transition);
+      throwIllegalValue(transitionType);
   }
 }
 
-export function getPollsTransitionAction(transition: PollsTransition): string {
-  switch (transition) {
+export function getPollsTransitionAction(
+  transitionType: PollsTransitionType
+): string {
+  switch (transitionType) {
     case 'open_polls':
       return 'Open Polls';
     case 'pause_voting':
@@ -34,12 +36,14 @@ export function getPollsTransitionAction(transition: PollsTransition): string {
       return 'Close Polls';
     /* c8 ignore next 2 */
     default:
-      throwIllegalValue(transition);
+      throwIllegalValue(transitionType);
   }
 }
 
-export function getPollsReportTitle(transition: PollsTransition): string {
-  switch (transition) {
+export function getPollsReportTitle(
+  transitionType: PollsTransitionType
+): string {
+  switch (transitionType) {
     case 'open_polls':
       return 'Polls Opened Report';
     case 'resume_voting':
@@ -50,7 +54,7 @@ export function getPollsReportTitle(transition: PollsTransition): string {
       return 'Polls Closed Report';
     /* c8 ignore next 2 */
     default:
-      throwIllegalValue(transition);
+      throwIllegalValue(transitionType);
   }
 }
 
@@ -75,7 +79,7 @@ export function getPollsStateName(state: PollsState): string {
  */
 export function getPollTransitionsFromState(
   state: PollsState
-): PollsTransition[] {
+): PollsTransitionType[] {
   switch (state) {
     case 'polls_open':
       return ['close_polls', 'pause_voting'];
@@ -112,9 +116,9 @@ export function isValidPollsStateChange(
   }
 }
 export function getPollsTransitionActionPastTense(
-  transition: PollsTransition
+  transitionType: PollsTransitionType
 ): string {
-  switch (transition) {
+  switch (transitionType) {
     case 'close_polls':
       return 'Polls Closed';
     case 'open_polls':
@@ -125,14 +129,14 @@ export function getPollsTransitionActionPastTense(
       return 'Voting Paused';
     /* c8 ignore next 2 */
     default:
-      throwIllegalValue(transition);
+      throwIllegalValue(transitionType);
   }
 }
 
 export function isPollsSuspensionTransition(
-  transition: PollsTransition
-): transition is PollsSuspensionTransition {
-  switch (transition) {
+  transitionType: PollsTransitionType
+): transitionType is PollsSuspensionTransitionType {
+  switch (transitionType) {
     case 'close_polls':
     case 'open_polls':
       return false;
@@ -141,6 +145,6 @@ export function isPollsSuspensionTransition(
       return true;
     /* c8 ignore next 2 */
     default:
-      throwIllegalValue(transition);
+      throwIllegalValue(transitionType);
   }
 }

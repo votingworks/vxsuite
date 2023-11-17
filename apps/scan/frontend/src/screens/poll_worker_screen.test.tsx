@@ -1,24 +1,19 @@
 import {
+  deferNextPrint,
   expectPrint,
   fakeKiosk,
   fakePrinterInfo,
-  mockOf,
 } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
-  isFeatureFlagEnabled,
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
 } from '@votingworks/utils';
-import { mocked } from 'jest-mock';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { waitFor, within } from '@testing-library/react';
-import {
-  screen,
-  RenderResult,
-  render,
-  act,
-} from '../../test/react_testing_library';
+import { screen, RenderResult, render } from '../../test/react_testing_library';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
   ApiMock,
@@ -27,20 +22,29 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
+import {
+  mockGetCurrentTime,
+  mockPollsInfo,
+} from '../../test/helpers/mock_polls_info';
 
 let apiMock: ApiMock;
+
+const featureFlagMock = getFeatureFlagMock();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
     ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: jest.fn(),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
   };
 });
 
-jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+const mockDate = new Date();
+mockGetCurrentTime(mockDate);
+jest.useFakeTimers().setSystemTime(mockDate);
 
 beforeEach(() => {
-  mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
+  featureFlagMock.resetFeatureFlags();
   window.location.href = '/';
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
@@ -67,7 +71,7 @@ function renderScreen(
         electionDefinition={electionGeneralDefinition}
         precinctSelection={ALL_PRECINCTS_SELECTION}
         scannedBallotCount={0}
-        pollsState="polls_closed_initial"
+        pollsInfo={{ pollsState: 'polls_closed_initial' }}
         isLiveMode
         printerInfo={fakePrinterInfo()}
         logger={fakeLogger()}
@@ -80,11 +84,11 @@ function renderScreen(
 
 describe('shows Livecheck button only when enabled', () => {
   test('enable livecheck', async () => {
-    mocked(isFeatureFlagEnabled).mockReturnValue(true);
+    featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.LIVECHECK);
 
     renderScreen({
       scannedBallotCount: 5,
-      pollsState: 'polls_open',
+      pollsInfo: mockPollsInfo('polls_open'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -96,11 +100,13 @@ describe('shows Livecheck button only when enabled', () => {
   });
 
   test('disable livecheck', async () => {
-    mocked(isFeatureFlagEnabled).mockReturnValue(false);
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.LIVECHECK
+    );
 
     renderScreen({
       scannedBallotCount: 5,
-      pollsState: 'polls_open',
+      pollsInfo: mockPollsInfo('polls_open'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -108,23 +114,24 @@ describe('shows Livecheck button only when enabled', () => {
   });
 });
 
-describe('transitions from polls closed', () => {
+describe('transitions from polls closed initial', () => {
   let logger = fakeLogger();
   beforeEach(async () => {
     logger = fakeLogger();
     renderScreen({
       scannedBallotCount: 0,
-      pollsState: 'polls_closed_initial',
+      pollsInfo: mockPollsInfo('polls_closed_initial'),
       logger,
     });
     await screen.findByText('Do you want to open the polls?');
   });
 
   test('open polls happy path', async () => {
-    apiMock.expectSetPollsState('polls_open');
-    apiMock.expectGetConfig({ pollsState: 'polls_open' });
+    apiMock.expectTransitionPolls('open_polls');
     userEvent.click(screen.getByText('Yes, Open the Polls'));
+    const { resolve } = deferNextPrint();
     await screen.findByText('Opening Polls…');
+    resolve();
     await expectPrint();
     await screen.findByText('Polls are open.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -138,11 +145,12 @@ describe('transitions from polls closed', () => {
   });
 
   test('open polls from landing screen', async () => {
-    apiMock.expectSetPollsState('polls_open');
-    apiMock.expectGetConfig({ pollsState: 'polls_open' });
+    apiMock.expectTransitionPolls('open_polls');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Open Polls'));
+    const { resolve } = deferNextPrint();
     await screen.findByText('Opening Polls…');
+    resolve();
     await expectPrint();
     await screen.findByText('Polls are open.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -162,7 +170,7 @@ describe('transitions from polls open', () => {
     logger = fakeLogger();
     renderScreen({
       scannedBallotCount: 7,
-      pollsState: 'polls_open',
+      pollsInfo: mockPollsInfo('polls_open'),
       logger,
     });
     await screen.findByText('Do you want to close the polls?');
@@ -170,10 +178,11 @@ describe('transitions from polls open', () => {
 
   test('close polls happy path', async () => {
     apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
-    apiMock.expectSetPollsState('polls_closed_final');
-    apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
+    apiMock.expectTransitionPolls('close_polls');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
+    const { resolve } = deferNextPrint();
     await screen.findByText('Closing Polls…');
+    resolve();
     await expectPrint();
     await screen.findByText('Polls are closed.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -188,11 +197,12 @@ describe('transitions from polls open', () => {
 
   test('close polls from landing screen', async () => {
     apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
-    apiMock.expectSetPollsState('polls_closed_final');
-    apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
+    apiMock.expectTransitionPolls('close_polls');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
+    const { resolve } = deferNextPrint();
     await screen.findByText('Closing Polls…');
+    resolve();
     await expectPrint();
     await screen.findByText('Polls are closed.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -206,13 +216,12 @@ describe('transitions from polls open', () => {
   });
 
   test('pause voting', async () => {
-    apiMock.expectSetPollsState('polls_paused');
-    apiMock.expectGetConfig({ pollsState: 'polls_paused' });
+    apiMock.expectTransitionPolls('pause_voting');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Pause Voting'));
-    await act(async () => {
-      await screen.findByText('Pausing Voting…');
-    });
+    const { resolve } = deferNextPrint();
+    await screen.findByText('Pausing Voting…');
+    resolve();
     await expectPrint();
     await screen.findByText('Voting paused.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -232,19 +241,18 @@ describe('transitions from polls paused', () => {
     logger = fakeLogger();
     renderScreen({
       scannedBallotCount: 7,
-      pollsState: 'polls_paused',
+      pollsInfo: mockPollsInfo('polls_paused'),
       logger,
     });
     await screen.findByText('Do you want to resume voting?');
   });
 
   test('resume voting happy path', async () => {
-    apiMock.expectSetPollsState('polls_open');
-    apiMock.expectGetConfig({ pollsState: 'polls_open' });
+    apiMock.expectTransitionPolls('resume_voting');
     userEvent.click(screen.getByText('Yes, Resume Voting'));
-    await act(async () => {
-      await screen.findByText('Resuming Voting…');
-    });
+    const { resolve } = deferNextPrint();
+    await screen.findByText('Resuming Voting…');
+    resolve();
     await expectPrint();
     await screen.findByText('Voting resumed.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -258,13 +266,12 @@ describe('transitions from polls paused', () => {
   });
 
   test('resume voting from landing screen', async () => {
-    apiMock.expectSetPollsState('polls_open');
-    apiMock.expectGetConfig({ pollsState: 'polls_open' });
+    apiMock.expectTransitionPolls('resume_voting');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Resume Voting'));
-    await act(async () => {
-      await screen.findByText('Resuming Voting…');
-    });
+    const { resolve } = deferNextPrint();
+    await screen.findByText('Resuming Voting…');
+    resolve();
     await expectPrint();
     await screen.findByText('Voting resumed.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -278,12 +285,13 @@ describe('transitions from polls paused', () => {
   });
 
   test('close polls from landing screen', async () => {
-    apiMock.expectSetPollsState('polls_closed_final');
-    apiMock.expectGetConfig({ pollsState: 'polls_closed_final' });
+    apiMock.expectTransitionPolls('close_polls');
     apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
+    const { resolve } = deferNextPrint();
     await screen.findByText('Closing Polls…');
+    resolve();
     await expectPrint();
     await screen.findByText('Polls are closed.');
     expect(logger.log).toHaveBeenCalledWith(
@@ -300,13 +308,16 @@ describe('transitions from polls paused', () => {
 test('no transitions from polls closed final', async () => {
   renderScreen({
     scannedBallotCount: 0,
-    pollsState: 'polls_closed_final',
+    pollsInfo: mockPollsInfo('polls_closed_final'),
   });
   await screen.findByText(
     'Voting is complete and the polls cannot be reopened.'
   );
-  // There should only be the power down button
-  expect(screen.queryAllByRole('button')).toHaveLength(1);
+
+  // There should only be the power down and print previous report button
+  expect(screen.queryAllByRole('button')).toHaveLength(2);
+  screen.getButton('Power Down');
+  screen.getButton('Print Polls Closed Report');
 });
 
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
@@ -314,7 +325,7 @@ test('there is a warning if we attempt to open polls with ballots scanned', asyn
   const logger = fakeLogger();
   renderScreen({
     scannedBallotCount: 1,
-    pollsState: 'polls_closed_initial',
+    pollsInfo: mockPollsInfo('polls_closed_initial'),
     logger,
   });
   await screen.findByText('Do you want to open the polls?');
@@ -336,7 +347,7 @@ test('polls cannot be closed if CVR sync is required', async () => {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
   renderScreen({
-    pollsState: 'polls_open',
+    pollsInfo: mockPollsInfo('polls_open'),
     scannedBallotCount: 1,
   });
 
@@ -374,7 +385,7 @@ test('polls cannot be closed if CVR sync is required, even from polls paused sta
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
   renderScreen({
-    pollsState: 'polls_paused',
+    pollsInfo: mockPollsInfo('polls_paused'),
     scannedBallotCount: 1,
   });
 
@@ -390,4 +401,79 @@ test('polls cannot be closed if CVR sync is required, even from polls paused sta
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+});
+
+describe('reprinting previous report', () => {
+  test('not available if no previous report', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_closed_initial'),
+    });
+
+    userEvent.click(await screen.findByText('No'));
+    expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
+      'Open Polls',
+      'Power Down',
+    ]);
+  });
+
+  test('available after polls open + can print additional afterward', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_open'),
+    });
+
+    userEvent.click(await screen.findByText('No'));
+    const button = await screen.findByText('Print Polls Opened Report');
+    expect(button).toBeEnabled();
+    userEvent.click(button);
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Polls Opened Report for All Precincts');
+    });
+    userEvent.click(
+      await screen.findButton('Print Additional Polls Opened Report')
+    );
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Polls Opened Report for All Precincts');
+    });
+  });
+
+  test('available after polls paused', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_paused'),
+    });
+
+    userEvent.click(await screen.findByText('No'));
+    const button = await screen.findByText('Print Voting Paused Report');
+    expect(button).toBeEnabled();
+    userEvent.click(button);
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Voting Paused Report for All Precincts');
+    });
+  });
+
+  test('available after polls resumed', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_open', { type: 'resume_voting' }),
+    });
+
+    userEvent.click(await screen.findByText('No'));
+    const button = await screen.findByText('Print Voting Resumed Report');
+    expect(button).toBeEnabled();
+    userEvent.click(button);
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Voting Resumed Report for All Precincts');
+    });
+  });
+
+  test('available after polls closed', async () => {
+    renderScreen({
+      pollsInfo: mockPollsInfo('polls_closed_final'),
+    });
+
+    const button = await screen.findByText('Print Polls Closed Report');
+    expect(button).toBeEnabled();
+    userEvent.click(button);
+    await expectPrint((printedElement) => {
+      printedElement.getByText('Test Polls Closed Report for All Precincts');
+    });
+  });
 });

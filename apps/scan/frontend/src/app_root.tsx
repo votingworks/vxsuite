@@ -40,9 +40,10 @@ import {
   getAuthStatus,
   getConfig,
   getMachineConfig,
+  getPollsInfo,
   getScannerStatus,
   getUsbDriveStatus,
-  setPollsState,
+  transitionPolls,
   unconfigureElection,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
@@ -64,9 +65,10 @@ export function AppRoot({
   const machineConfigQuery = getMachineConfig.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
+  const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
-  const setPollsStateMutation = setPollsState.useMutation();
+  const transitionPollsMutation = transitionPolls.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
 
   const {
@@ -88,7 +90,8 @@ export function AppRoot({
       authStatusQuery.isSuccess &&
       configQuery.isSuccess &&
       scannerStatusQuery.isSuccess &&
-      usbDriveStatusQuery.isSuccess
+      usbDriveStatusQuery.isSuccess &&
+      pollsInfoQuery.isSuccess
     )
   ) {
     return <LoadingConfigurationScreen />;
@@ -100,12 +103,13 @@ export function AppRoot({
     electionDefinition,
     isTestMode,
     precinctSelection,
-    pollsState,
     isSoundMuted,
     ballotCountWhenBallotBagLastReplaced,
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
+  const pollsInfo = pollsInfoQuery.data;
+  const { pollsState } = pollsInfo;
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
@@ -181,8 +185,9 @@ export function AppRoot({
           resetPollsToPaused={
             pollsState === 'polls_closed_final'
               ? () =>
-                  setPollsStateMutation.mutateAsync({
-                    pollsState: 'polls_paused',
+                  transitionPollsMutation.mutateAsync({
+                    type: 'pause_voting',
+                    time: Date.now(),
                   })
               : undefined
           }
@@ -263,7 +268,7 @@ export function AppRoot({
         electionDefinition={electionDefinition}
         precinctSelection={precinctSelection}
         scannedBallotCount={scannerStatus.ballotsCounted}
-        pollsState={pollsState}
+        pollsInfo={pollsInfo}
         printerInfo={printerInfo}
         isLiveMode={!isTestMode}
         logger={logger}

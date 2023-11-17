@@ -13,17 +13,18 @@ export const PollsStateSchema: z.ZodSchema<PollsState> = z.union([
   z.literal('polls_closed_final'),
 ]);
 
-export type StandardPollsTransition = 'open_polls' | 'close_polls';
-export type PollsSuspensionTransition = 'pause_voting' | 'resume_voting';
-export type PollsTransition =
-  | StandardPollsTransition
-  | PollsSuspensionTransition;
+export type StandardPollsTransitionType = 'open_polls' | 'close_polls';
+export type PollsSuspensionTransitionType = 'pause_voting' | 'resume_voting';
+export type PollsTransitionType =
+  | StandardPollsTransitionType
+  | PollsSuspensionTransitionType;
 
-export const StandardPollsTransitionSchema: z.ZodSchema<StandardPollsTransition> =
+export const StandardPollsTransitionTypeSchema: z.ZodSchema<StandardPollsTransitionType> =
   z.union([z.literal('open_polls'), z.literal('close_polls')]);
-export const PollsSuspensionTransitionSchema: z.ZodSchema<PollsSuspensionTransition> =
+export const PollsSuspensionTransitionTypeSchema: z.ZodSchema<PollsSuspensionTransitionType> =
   z.union([z.literal('pause_voting'), z.literal('resume_voting')]);
-export const PollsTransitionSchema: z.ZodSchema<PollsTransition> = z.union([
-  StandardPollsTransitionSchema,
-  PollsSuspensionTransitionSchema,
-]);
+export const PollsTransitionTypeSchema: z.ZodSchema<PollsTransitionType> =
+  z.union([
+    StandardPollsTransitionTypeSchema,
+    PollsSuspensionTransitionTypeSchema,
+  ]);

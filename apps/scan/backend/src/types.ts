@@ -2,6 +2,7 @@ import {
   ElectionDefinition,
   PageInterpretation,
   PollsState,
+  PollsTransitionType,
   PrecinctSelection,
   SheetInterpretation,
   SystemSettings,
@@ -51,7 +52,6 @@ export interface PrecinctScannerConfig {
   isUltrasonicDisabled: boolean;
   // "Config" that is specific to each election session
   isTestMode: boolean;
-  pollsState: PollsState;
   ballotCountWhenBallotBagLastReplaced: number;
 }
 
@@ -70,3 +70,18 @@ export interface PrecinctScannerStateMachine {
   accept: () => void;
   return: () => void;
 }
+
+export interface PollsTransition {
+  type: PollsTransitionType;
+  time: number;
+  ballotCount: number;
+}
+
+export type PrecinctScannerPollsInfo =
+  | {
+      pollsState: Extract<PollsState, 'polls_closed_initial'>;
+    }
+  | {
+      pollsState: Exclude<PollsState, 'polls_closed_initial'>;
+      lastPollsTransition: PollsTransition;
+    };

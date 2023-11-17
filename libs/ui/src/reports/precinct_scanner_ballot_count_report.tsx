@@ -1,6 +1,6 @@
 import {
   ElectionDefinition,
-  PollsSuspensionTransition,
+  PollsSuspensionTransitionType,
   PrecinctSelection,
 } from '@votingworks/types';
 import {
@@ -46,7 +46,7 @@ interface Props {
   electionDefinition: ElectionDefinition;
   precinctSelection: PrecinctSelection;
   totalBallotsScanned: number;
-  pollsTransition: PollsSuspensionTransition;
+  pollsTransition: PollsSuspensionTransitionType;
   pollsTransitionedTime: number;
   isLiveMode: boolean;
   precinctScannerMachineId: string;

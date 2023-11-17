@@ -18,6 +18,7 @@ import {
   find,
   iter,
   ok,
+  typedAs,
   unique,
 } from '@votingworks/basics';
 import {
@@ -34,6 +35,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { CVR, ElectionDefinition } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers';
 import { scanBallot, withApp } from '../test/helpers/custom_helpers';
+import { PrecinctScannerPollsInfo } from '.';
 
 jest.setTimeout(30_000);
 
@@ -259,18 +261,29 @@ test('CVR resync', async () => {
 });
 
 test('setPrecinctSelection will reset polls to closed', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockUsbDrive, workspace, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      workspace.store.setPollsState('polls_open');
-      await apiClient.setPrecinctSelection({
-        precinctSelection: singlePrecinctSelectionFor('21'),
-      });
-      expect(workspace.store.getPollsState()).toEqual('polls_closed_initial');
-    }
-  );
+    expect(await apiClient.getPollsInfo()).toEqual(
+      typedAs<PrecinctScannerPollsInfo>({
+        pollsState: 'polls_open',
+        lastPollsTransition: {
+          type: 'open_polls',
+          time: expect.anything(),
+          ballotCount: 0,
+        },
+      })
+    );
+
+    await apiClient.setPrecinctSelection({
+      precinctSelection: singlePrecinctSelectionFor('21'),
+    });
+    expect(await apiClient.getPollsInfo()).toEqual(
+      typedAs<PrecinctScannerPollsInfo>({
+        pollsState: 'polls_closed_initial',
+      })
+    );
+  });
 });
 
 test('ballot batching', async () => {
@@ -308,7 +321,10 @@ test('ballot batching', async () => {
       const batch1Id = batchIds[0];
 
       // Pause polls, which should stop the current batch
-      await apiClient.setPollsState({ pollsState: 'polls_paused' });
+      await apiClient.transitionPolls({
+        type: 'pause_voting',
+        time: Date.now(),
+      });
       await waitForExpect(() => {
         expect(logger.log).toHaveBeenCalledWith(
           LogEventId.ScannerBatchEnded,
@@ -323,7 +339,10 @@ test('ballot batching', async () => {
       });
 
       // Reopen polls, which should start a new batch
-      await apiClient.setPollsState({ pollsState: 'polls_open' });
+      await apiClient.transitionPolls({
+        type: 'resume_voting',
+        time: Date.now(),
+      });
       await waitForExpect(() => {
         expect(logger.log).toHaveBeenCalledWith(
           LogEventId.ScannerBatchStarted,

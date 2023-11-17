@@ -1,11 +1,11 @@
-import { PollsTransition } from '@votingworks/types';
+import { PollsTransitionType } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import { LogEventId } from './log_event_ids';
 
 export function getLogEventIdForPollsTransition(
-  transition: PollsTransition
+  transitionType: PollsTransitionType
 ): LogEventId {
-  switch (transition) {
+  switch (transitionType) {
     case 'open_polls':
       return LogEventId.PollsOpened;
     case 'pause_voting':
@@ -16,6 +16,6 @@ export function getLogEventIdForPollsTransition(
       return LogEventId.PollsClosed;
     /* istanbul ignore next */
     default:
-      throwIllegalValue(transition);
+      throwIllegalValue(transitionType);
   }
 }

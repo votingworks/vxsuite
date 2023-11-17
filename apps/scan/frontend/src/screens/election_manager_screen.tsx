@@ -27,6 +27,7 @@ import {
   getAuthStatus,
   getConfig,
   getMachineConfig,
+  getPollsInfo,
   getUsbDriveStatus,
   logOut,
   setIsSoundMuted,
@@ -59,6 +60,7 @@ export function ElectionManagerScreen({
 }: ElectionManagerScreenProps): JSX.Element | null {
   const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
+  const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const machineConfigQuery = getMachineConfig.useQuery();
@@ -82,19 +84,16 @@ export function ElectionManagerScreen({
     !configQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !authStatusQuery.isSuccess ||
-    !machineConfigQuery.isSuccess
+    !machineConfigQuery.isSuccess ||
+    !pollsInfoQuery.isSuccess
   ) {
     return null;
   }
 
   const { election } = electionDefinition;
-  const {
-    precinctSelection,
-    isTestMode,
-    isSoundMuted,
-    isUltrasonicDisabled,
-    pollsState,
-  } = configQuery.data;
+  const { precinctSelection, isTestMode, isSoundMuted, isUltrasonicDisabled } =
+    configQuery.data;
+  const { pollsState } = pollsInfoQuery.data;
   const authStatus = authStatusQuery.data;
   const machineConfig = machineConfigQuery.data;
 
