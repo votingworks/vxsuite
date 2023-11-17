@@ -117,14 +117,14 @@ export function WriteInsSummaryScreen(): JSX.Element {
                 return (
                   <tr key={contest.id}>
                     <TD nowrap>
-                      <Font weight={hasWriteIns ? 'semiBold' : 'light'}>
+                      <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
                         {getContestDistrictName(election, contest)},{' '}
                         {contest.title}
                       </Font>
                     </TD>
                     {election.type === 'primary' && (
                       <TD nowrap>
-                        <Font weight={hasWriteIns ? 'semiBold' : 'light'}>
+                        <Font weight={hasWriteIns ? 'semiBold' : 'regular'}>
                           {contest.partyId &&
                             `(${getPartyAbbreviationByPartyId({
                               partyId: contest.partyId,
