@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor, Storage } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { electionStorageKey, State, stateStorageKey } from '../../src/app_root';
+import { State, stateStorageKey } from '../../src/app_root';
 
 export const electionDefinition = electionGeneralDefinition;
 export const { election } = electionDefinition;
@@ -56,13 +56,6 @@ export const voterContests = getContests({
   ballotStyle,
   election,
 });
-
-export async function setElectionInStorage(
-  storage: Storage,
-  newElectionDefinition = electionDefinition
-): Promise<void> {
-  await storage.set(electionStorageKey, newElectionDefinition);
-}
 
 export async function setStateInStorage(
   storage: Storage,

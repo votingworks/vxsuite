@@ -28,10 +28,7 @@ import { render as renderWithBallotContext } from '../test/test_utils';
 import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -207,9 +204,8 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
-  await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     appPrecinct: singlePrecinctSelectionFor(precinctId),
   });

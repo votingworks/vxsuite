@@ -1,5 +1,6 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { Button } from 'react-gamepad';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   act,
   fireEvent,
@@ -15,7 +16,6 @@ import {
   contest0candidate0,
   contest0candidate1,
   contest1candidate0,
-  setElectionInStorage,
   setStateInStorage,
 } from '../../test/helpers/election';
 
@@ -38,7 +38,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -50,7 +49,7 @@ it('gamepad controls work', async () => {
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
 
-  await setElectionInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   await setStateInStorage(storage);
 
   render(

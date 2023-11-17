@@ -1,4 +1,7 @@
-import { electionGeneral } from '@votingworks/fixtures';
+import {
+  electionGeneral,
+  electionGeneralDefinition,
+} from '@votingworks/fixtures';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import { getContestDistrictName } from '@votingworks/types';
@@ -16,11 +19,7 @@ import { withMarkup } from '../test/helpers/with_markup';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  measure102Contest,
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { measure102Contest, setStateInStorage } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -30,7 +29,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -43,9 +41,9 @@ it('Single Seat Contest', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
 
-  await setElectionInStorage(storage);
   await setStateInStorage(storage);
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
   render(
     <App

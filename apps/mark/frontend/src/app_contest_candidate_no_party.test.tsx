@@ -12,7 +12,6 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { setStateInStorage } from '../test/helpers/election';
-import { electionStorageKey } from './app_root';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -41,7 +40,9 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionDefinition(
+    asElectionDefinition(electionWithNoPartyCandidateContests)
+  );
 });
 
 afterEach(() => {
@@ -55,10 +56,6 @@ it('Single Seat Contest', async () => {
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
 
-  await storage.set(
-    electionStorageKey,
-    asElectionDefinition(electionWithNoPartyCandidateContests)
-  );
   await setStateInStorage(storage);
 
   render(
