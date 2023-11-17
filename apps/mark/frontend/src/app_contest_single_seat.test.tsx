@@ -1,6 +1,7 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   fireEvent,
   render,
@@ -12,11 +13,7 @@ import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  presidentContest,
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { presidentContest, setStateInStorage } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -26,7 +23,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -40,7 +36,7 @@ it('Single Seat Contest', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
 
-  await setElectionInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   await setStateInStorage(storage);
 
   render(

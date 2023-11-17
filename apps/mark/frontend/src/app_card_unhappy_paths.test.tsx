@@ -1,12 +1,10 @@
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
 
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -16,7 +14,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -28,7 +25,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
 
-  await setElectionInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   await setStateInStorage(storage);
 
   render(

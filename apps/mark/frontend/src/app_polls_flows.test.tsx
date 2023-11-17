@@ -3,10 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { screen, waitFor, within } from '../test/react_testing_library';
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -18,7 +15,6 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -31,9 +27,8 @@ test('full polls flow', async () => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   const { renderApp, storage, logger } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionGeneralDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
   renderApp();
   await screen.findByText('Polls Closed');
@@ -105,7 +100,7 @@ test('full polls flow', async () => {
 
 test('can close polls from paused', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_paused' });
   renderApp();
   await screen.findByText('Voting Paused');
@@ -125,7 +120,7 @@ test('can close polls from paused', async () => {
 
 test('no buttons to change polls from closed final', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');
@@ -146,7 +141,7 @@ test('no buttons to change polls from closed final', async () => {
 
 test('can reset polls to paused with system administrator card', async () => {
   const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
   renderApp();
   await screen.findByText('Polls Closed');

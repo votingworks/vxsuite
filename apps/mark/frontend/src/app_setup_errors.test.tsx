@@ -13,11 +13,7 @@ import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  electionDefinition,
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { setStateInStorage } from '../test/helpers/election';
 import { withMarkup } from '../test/helpers/with_markup';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -28,7 +24,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -46,7 +41,7 @@ describe('Displays setup warning messages and errors screens', () => {
     const hardware = MemoryHardware.buildStandard();
     hardware.setAccessibleControllerConnected(true);
 
-    await setElectionInStorage(storage);
+    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     await setStateInStorage(storage);
 
     render(
@@ -85,7 +80,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage);
+    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     await setStateInStorage(storage);
 
     render(
@@ -119,7 +114,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage);
+    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     await setStateInStorage(storage);
     render(
       <App
@@ -151,7 +146,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage, electionDefinition);
+    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     await setStateInStorage(storage);
     render(
       <App
@@ -182,7 +177,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.expectGetMachineConfig();
     const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
-    await setElectionInStorage(storage);
+    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     await setStateInStorage(storage);
     render(
       <App

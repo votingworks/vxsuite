@@ -1,6 +1,7 @@
 import { expectPrint } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   fireEvent,
   render,
@@ -17,7 +18,6 @@ import {
 
 import {
   singleSeatContestWithWriteIn,
-  setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -45,7 +45,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -58,8 +57,8 @@ it('Single Seat Contest with Write In', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  await setElectionInStorage(storage);
   await setStateInStorage(storage);
 
   render(
