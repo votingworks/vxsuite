@@ -73,7 +73,7 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
     `Target sheet count should be greater than current sheet count (${sheets.length})`
   );
 
-  const numSheetsToCreate = Math.max(targetSheetCount - sheets.length, 0);
+  const numSheetsToCreate = targetSheetCount - sheets.length;
   for (let i = 0; i < numSheetsToCreate; i += 1) {
     const sheet = sheets[i % sheets.length];
     copySheet(store, sheet);
