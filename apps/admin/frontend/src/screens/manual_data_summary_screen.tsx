@@ -10,17 +10,12 @@ import {
   LinkButton,
   P,
   H4,
-  Select,
   Modal,
   Font,
+  SearchSelect,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import {
-  BallotStyle,
-  Election,
-  Precinct,
-  SelectChangeEventFunction,
-} from '@votingworks/types';
+import { BallotStyle, Election, Precinct } from '@votingworks/types';
 import type {
   ManualResultsVotingMethod,
   ManualResultsIdentifier,
@@ -55,10 +50,6 @@ function getAllPossibleManualTallyIdentifiers(
 }
 
 const SummaryTableWrapper = styled.div`
-  table {
-    width: 60%;
-  }
-
   tfoot td {
     border-bottom: unset;
     padding-top: 0.5rem;
@@ -198,26 +189,20 @@ export function ManualDataSummaryScreen(): JSX.Element {
         })
       : [];
 
-  const handleBallotStyleSelect: SelectChangeEventFunction = (event) => {
-    const { value } = event.currentTarget;
-
-    setSelectedBallotStyle(
-      find(election.ballotStyles, (bs) => bs.id === value)
-    );
+  function handleBallotStyleSelect(value?: string) {
+    setSelectedBallotStyle(election.ballotStyles.find((bs) => bs.id === value));
     setSelectedPrecinct(undefined);
     setSelectedBallotType(undefined);
-  };
-  const handlePrecinctSelect: SelectChangeEventFunction = (event) => {
-    const { value } = event.currentTarget;
+  }
 
-    setSelectedPrecinct(find(election.precincts, (p) => p.id === value));
+  function handlePrecinctSelect(value?: string) {
+    setSelectedPrecinct(election.precincts.find((p) => p.id === value));
     setSelectedBallotType(undefined);
-  };
-  const handleBallotTypeSelect: SelectChangeEventFunction = (event) => {
-    const { value } = event.currentTarget;
+  }
 
+  function handleBallotTypeSelect(value?: string) {
     setSelectedBallotType(value as ManualResultsVotingMethod);
-  };
+  }
 
   if (!getManualTallyMetadataQuery.isSuccess) {
     return (
@@ -235,23 +220,26 @@ export function ManualDataSummaryScreen(): JSX.Element {
             Back to Tally
           </Button>
         </P>
-        <H4>Total Manual Ballot Count: {totalNumberBallotsEntered}</H4>
+        <H4>
+          Total Manual Ballot Count:{' '}
+          {totalNumberBallotsEntered.toLocaleString()}
+        </H4>
         <br />
         <SummaryTableWrapper>
           <Table condensed data-testid="summary-data">
             <thead>
               <tr>
-                <TD as="th" narrow nowrap>
+                <TD as="th" style={{ width: '9rem' }}>
                   Ballot Style
                 </TD>
-                <TD as="th" narrow nowrap>
+                <TD as="th" style={{ width: '9rem' }}>
                   Precinct
                 </TD>
-                <TD as="th" narrow nowrap>
+                <TD as="th" style={{ width: '10rem' }}>
                   Voting Method
                 </TD>
-                <TD as="th" />
-                <TD as="th" />
+                <TD as="th" narrow />
+                <TD as="th" narrow />
                 <TD as="th" narrow nowrap>
                   Ballot Count
                 </TD>
@@ -286,7 +274,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                       </Button>
                     </TD>
                     <TD nowrap textAlign="center" data-testid="numBallots">
-                      {metadata.ballotCount}
+                      {metadata.ballotCount.toLocaleString()}
                     </TD>
                   </tr>
                 );
@@ -296,63 +284,50 @@ export function ManualDataSummaryScreen(): JSX.Element {
               <tfoot>
                 <tr>
                   <TD>
-                    <Select
+                    <SearchSelect
                       id="selectBallotStyle"
                       data-testid="selectBallotStyle"
-                      value={selectedBallotStyle?.id || ''}
-                      onBlur={handleBallotStyleSelect}
+                      options={[
+                        ...selectableBallotStyles.map((bs) => ({
+                          label: bs.id,
+                          value: bs.id,
+                        })),
+                      ]}
+                      value={selectedBallotStyle?.id}
                       onChange={handleBallotStyleSelect}
-                      small
-                    >
-                      <option value="" disabled>
-                        Select Ballot Style...{' '}
-                      </option>
-                      {selectableBallotStyles.map((bs) => (
-                        <option key={bs.id} value={bs.id}>
-                          {bs.id}
-                        </option>
-                      ))}
-                    </Select>
+                      placeholder="Select Ballot Style..."
+                      style={{ width: '100%' }}
+                    />
                   </TD>
                   <TD>
-                    <Select
+                    <SearchSelect
                       id="selectPrecinct"
                       data-testid="selectPrecinct"
-                      value={selectedPrecinct?.id || ''}
-                      onBlur={handlePrecinctSelect}
+                      options={selectablePrecincts.map((p) => ({
+                        label: p.name,
+                        value: p.id,
+                      }))}
+                      value={selectedPrecinct?.id}
                       onChange={handlePrecinctSelect}
-                      small
                       disabled={!selectedBallotStyle}
-                    >
-                      <option value="" disabled>
-                        Select Precinct...{' '}
-                      </option>
-                      {selectablePrecincts.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </Select>
+                      placeholder="Select Precinct..."
+                      style={{ width: '100%' }}
+                    />
                   </TD>
                   <TD>
-                    <Select
+                    <SearchSelect
                       id="selectBallotType"
                       data-testid="selectBallotType"
-                      value={selectedVotingMethod || ''}
-                      onBlur={handleBallotTypeSelect}
+                      options={selectableBallotTypes.map((bt) => ({
+                        label: bt === 'absentee' ? 'Absentee' : 'Precinct',
+                        value: bt,
+                      }))}
+                      value={selectedVotingMethod}
                       onChange={handleBallotTypeSelect}
-                      small
                       disabled={!selectedPrecinct}
-                    >
-                      <option value="" disabled>
-                        Select Voting Method...{' '}
-                      </option>
-                      {selectableBallotTypes.map((bt) => (
-                        <option key={bt} value={bt}>
-                          {bt === 'absentee' ? 'Absentee' : 'Precinct'}
-                        </option>
-                      ))}
-                    </Select>
+                      placeholder="Select Voting Method..."
+                      style={{ width: '100%' }}
+                    />
                   </TD>
                   <TD nowrap>
                     {selectedBallotStyle &&
