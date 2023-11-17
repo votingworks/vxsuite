@@ -53,4 +53,5 @@ export const MainHeader = styled.header`
 export const MainContent = styled.div`
   overflow: auto;
   padding: 1rem 1.5rem;
+  flex-grow: 1;
 `;
