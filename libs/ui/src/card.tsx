@@ -5,6 +5,7 @@ export type CardFooterAlign = 'left' | 'center' | 'right';
 
 export interface CardProps {
   children?: React.ReactNode;
+  className?: string;
   footer?: React.ReactNode;
   footerAlign?: CardFooterAlign;
   style?: React.CSSProperties;
@@ -46,10 +47,10 @@ const StyledFooter = styled.div<StyledFooterProps>`
  * components.
  */
 export function Card(props: CardProps): JSX.Element {
-  const { children, footer, footerAlign, style } = props;
+  const { children, className, footer, footerAlign, style } = props;
 
   return (
-    <StyledContainer style={style}>
+    <StyledContainer className={className} style={style}>
       <StyledContent>{children}</StyledContent>
       {footer && (
         <StyledFooter footerAlign={footerAlign || 'left'}>
