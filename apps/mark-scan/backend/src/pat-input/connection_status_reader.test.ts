@@ -25,7 +25,7 @@ test('logs when it cannot access the gpio pin sysfs file', async () => {
 
 test('isPatDeviceConnected can read "true" pin value from a file', async () => {
   const file = tmp.fileSync();
-  const buf = Buffer.of(0);
+  const buf = Buffer.of(48); // ASCII char '0'
   await fs.appendFile(file.name, buf);
 
   const reader = new PatConnectionStatusReader(logger, file.name);
@@ -37,7 +37,7 @@ test('isPatDeviceConnected can read "true" pin value from a file', async () => {
 
 test('isPatDeviceConnected can read "false" pin value from a file', async () => {
   const file = tmp.fileSync();
-  const buf = Buffer.of(1);
+  const buf = Buffer.of(49); // ASCII char '1'
   await fs.appendFile(file.name, buf);
 
   const reader = new PatConnectionStatusReader(logger, file.name);
