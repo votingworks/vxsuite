@@ -255,7 +255,7 @@ test('polls open, All Precincts, primary election + check additional report', as
   }
   await checkReport();
 
-  userEvent.click(screen.getByText('Print Additional Report'));
+  userEvent.click(screen.getByText('Print Additional Polls Opened Report'));
   await screen.findByText('Printing Report…');
   await screen.findByText('Polls are open.');
   await checkReport();
@@ -396,7 +396,7 @@ test('polls closed, general election, all precincts, reprint report', async () =
   await expectPrint(checkPrint);
 
   apiMock.authenticateAsPollWorker(electionDefinition);
-  const reprintButton = await screen.findButton('Print Previous Report');
+  const reprintButton = await screen.findButton('Print Polls Closed Report');
   expect(reprintButton).toBeEnabled();
   userEvent.click(reprintButton);
 

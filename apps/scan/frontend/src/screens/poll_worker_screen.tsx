@@ -415,7 +415,7 @@ export function PollWorkerScreen({
               printerInfo={printerInfo}
               lastPollsTransition={lastPollsTransition}
               scannedBallotCount={scannedBallotCount}
-              reportLabel="Additional"
+              isAdditional
               beforePrint={() => setPollWorkerFlowState('reprinting_report')}
               afterPrint={() =>
                 setPollWorkerFlowState('polls_transition_complete')
@@ -443,12 +443,12 @@ export function PollWorkerScreen({
 
   const commonActions = (
     <React.Fragment>
-      {pollsState !== 'polls_closed_initial' && (
+      {pollsInfo.pollsState !== 'polls_closed_initial' && (
         <ReprintReportButton
           printerInfo={printerInfo}
           scannedBallotCount={scannedBallotCount}
-          lastPollsTransition={lastPollsTransition}
-          reportLabel="Previous"
+          lastPollsTransition={pollsInfo.lastPollsTransition}
+          isAdditional={false}
           beforePrint={() => setPollWorkerFlowState('reprinting_report')}
           afterPrint={() =>
             setPollWorkerFlowState('reprinting_previous_report_complete')

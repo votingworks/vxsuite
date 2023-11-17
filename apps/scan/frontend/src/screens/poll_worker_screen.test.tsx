@@ -317,7 +317,7 @@ test('no transitions from polls closed final', async () => {
   // There should only be the power down and print previous report button
   expect(screen.queryAllByRole('button')).toHaveLength(2);
   screen.getButton('Power Down');
-  screen.getButton('Print Previous Report');
+  screen.getButton('Print Polls Closed Report');
 });
 
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
@@ -404,15 +404,16 @@ test('polls cannot be closed if CVR sync is required, even from polls paused sta
 });
 
 describe('reprinting previous report', () => {
-  const BUTTON_TEXT = 'Print Previous Report';
-
   test('not available if no previous report', async () => {
     renderScreen({
       pollsInfo: mockPollsInfo('polls_closed_initial'),
     });
 
     userEvent.click(await screen.findByText('No'));
-    expect(screen.queryByText(BUTTON_TEXT)).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
+      'Open Polls',
+      'Power Down',
+    ]);
   });
 
   test('available after polls open + can print additional afterward', async () => {
@@ -421,13 +422,15 @@ describe('reprinting previous report', () => {
     });
 
     userEvent.click(await screen.findByText('No'));
-    const button = await screen.findByText(BUTTON_TEXT);
+    const button = await screen.findByText('Print Polls Opened Report');
     expect(button).toBeEnabled();
     userEvent.click(button);
     await expectPrint((printedElement) => {
       printedElement.getByText('Test Polls Opened Report for All Precincts');
     });
-    userEvent.click(await screen.findButton('Print Additional Report'));
+    userEvent.click(
+      await screen.findButton('Print Additional Polls Opened Report')
+    );
     await expectPrint((printedElement) => {
       printedElement.getByText('Test Polls Opened Report for All Precincts');
     });
@@ -439,7 +442,7 @@ describe('reprinting previous report', () => {
     });
 
     userEvent.click(await screen.findByText('No'));
-    const button = await screen.findByText(BUTTON_TEXT);
+    const button = await screen.findByText('Print Voting Paused Report');
     expect(button).toBeEnabled();
     userEvent.click(button);
     await expectPrint((printedElement) => {
@@ -453,7 +456,7 @@ describe('reprinting previous report', () => {
     });
 
     userEvent.click(await screen.findByText('No'));
-    const button = await screen.findByText(BUTTON_TEXT);
+    const button = await screen.findByText('Print Voting Resumed Report');
     expect(button).toBeEnabled();
     userEvent.click(button);
     await expectPrint((printedElement) => {
@@ -466,7 +469,7 @@ describe('reprinting previous report', () => {
       pollsInfo: mockPollsInfo('polls_closed_final'),
     });
 
-    const button = await screen.findByText(BUTTON_TEXT);
+    const button = await screen.findByText('Print Polls Closed Report');
     expect(button).toBeEnabled();
     userEvent.click(button);
     await expectPrint((printedElement) => {

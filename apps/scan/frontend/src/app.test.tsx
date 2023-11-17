@@ -673,13 +673,13 @@ test('poll worker can open and close polls without scanning any ballots', async 
   await screen.findByText('Polls are open.');
   await expectPrint();
   userEvent.click(
-    screen.getByRole('button', { name: 'Print Additional Report' })
+    screen.getByRole('button', { name: 'Print Additional Polls Opened Report' })
   );
   await screen.findByText('Printing Report…');
   await expectPrint();
   await advanceTimersAndPromises(REPRINT_REPORT_TIMEOUT_SECONDS);
   await screen.findByText('Polls are open.');
-  screen.getByRole('button', { name: 'Print Additional Report' });
+  screen.getByRole('button', { name: 'Print Additional Polls Opened Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
   apiMock.removeCard();
   await screen.findByText(/Insert Your Ballot/i);
@@ -693,13 +693,13 @@ test('poll worker can open and close polls without scanning any ballots', async 
   await screen.findByText('Polls are closed.');
   await expectPrint();
   userEvent.click(
-    screen.getByRole('button', { name: 'Print Additional Report' })
+    screen.getByRole('button', { name: 'Print Additional Polls Closed Report' })
   );
   await screen.findByText('Printing Report…');
   await expectPrint();
   await advanceTimersAndPromises(REPRINT_REPORT_TIMEOUT_SECONDS);
   await screen.findByText('Polls are closed.');
-  screen.getByRole('button', { name: 'Print Additional Report' });
+  screen.getByRole('button', { name: 'Print Additional Polls Closed Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
   apiMock.removeCard();
   await screen.findByText('Polls Closed');

@@ -1,14 +1,15 @@
 import { Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import type { PollsTransition } from '@votingworks/scan-backend';
+import { getPollsReportTitle } from '@votingworks/utils';
 import { getConfig, getMachineConfig, getScannerResultsByParty } from '../api';
 import { printReport } from '../utils/print_report';
 
 interface ReprintReportButtonProps {
   printerInfo?: KioskBrowser.PrinterInfo;
-  lastPollsTransition?: PollsTransition;
+  lastPollsTransition: PollsTransition;
   scannedBallotCount: number;
-  reportLabel: 'Additional' | 'Previous';
+  isAdditional: boolean;
   beforePrint: () => void;
   afterPrint: (numPages: number) => void;
 }
@@ -17,7 +18,7 @@ export function ReprintReportButton({
   scannedBallotCount,
   lastPollsTransition,
   printerInfo,
-  reportLabel,
+  isAdditional,
   beforePrint,
   afterPrint,
 }: ReprintReportButtonProps): JSX.Element | null {
@@ -60,7 +61,8 @@ export function ReprintReportButton({
 
   return (
     <Button onPress={reprintReport} disabled={!canPrintReport}>
-      Print {reportLabel} Report
+      Print {isAdditional ? 'Additional ' : ''}
+      {getPollsReportTitle(lastPollsTransition.type)}
     </Button>
   );
 }
