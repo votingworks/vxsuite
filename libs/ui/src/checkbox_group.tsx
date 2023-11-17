@@ -17,19 +17,20 @@ export interface CheckboxGroupProps {
   value: string[];
   onChange: (value: string[]) => void;
   disabled?: boolean;
+  direction?: 'row' | 'column';
 }
-
-const Container = styled.fieldset`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-`;
 
 const LabelContainer = styled.legend`
   display: block;
   margin-bottom: 0.5rem;
   font-size: ${(p) => p.theme.sizeMode !== 'desktop' && '0.75rem'};
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+`;
+
+const OptionsContainer = styled.div<{ direction: 'row' | 'column' }>`
+  display: flex;
+  flex-direction: ${(p) => p.direction};
+  gap: 0.25rem;
 `;
 
 const Option = styled(Button)`
@@ -59,33 +60,36 @@ export function CheckboxGroup({
   value,
   onChange,
   disabled = false,
+  direction = 'column',
 }: CheckboxGroupProps): JSX.Element {
   return (
-    <Container aria-label={label}>
+    <fieldset aria-label={label}>
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
-      {options.map((option) => {
-        const isSelected = value.includes(option.value);
-        return (
-          <Option
-            key={option.label}
-            aria-checked={isSelected}
-            disabled={disabled}
-            role="checkbox"
-            fill={isSelected ? 'tinted' : 'outlined'}
-            color={isSelected ? 'primary' : 'neutral'}
-            onPress={() => {
-              if (isSelected) {
-                onChange(value.filter((v) => v !== option.value));
-              } else {
-                onChange([...value, option.value]);
-              }
-            }}
-            icon={isSelected ? 'Checkbox' : 'Square'}
-          >
-            {option.label}
-          </Option>
-        );
-      })}
-    </Container>
+      <OptionsContainer direction={direction}>
+        {options.map((option) => {
+          const isSelected = value.includes(option.value);
+          return (
+            <Option
+              key={option.label}
+              aria-checked={isSelected}
+              disabled={disabled}
+              role="checkbox"
+              fill={isSelected ? 'tinted' : 'outlined'}
+              color={isSelected ? 'primary' : 'neutral'}
+              onPress={() => {
+                if (isSelected) {
+                  onChange(value.filter((v) => v !== option.value));
+                } else {
+                  onChange([...value, option.value]);
+                }
+              }}
+              icon={isSelected ? 'Checkbox' : 'Square'}
+            >
+              {option.label}
+            </Option>
+          );
+        })}
+      </OptionsContainer>
+    </fieldset>
   );
 }
