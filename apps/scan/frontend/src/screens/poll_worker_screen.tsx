@@ -147,7 +147,10 @@ export function PollWorkerScreen({
     Optional<PollWorkerFlowState>
   >(initialPollWorkerFlowState());
 
-  // optimistically set lastPollsTransition based on mutation input if it exists
+  // Optimistically set lastPollsTransition based on mutation input if it
+  // exists. The query may not have updated by the time we need to show a
+  // screen that depends on lastPollsTransition. During a transition,
+  // lastPollsTransition is really the currentPollsTransition.
   const lastPollsTransition: Optional<PollsTransition> =
     transitionPollsMutation.variables
       ? {
