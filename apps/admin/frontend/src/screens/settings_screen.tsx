@@ -35,7 +35,7 @@ export function SettingsScreen(): JSX.Element {
       <H2>Software Update</H2>
       <P>
         <RebootFromUsbButton logger={logger} usbDriveStatus={usbDriveStatus} />{' '}
-        or <RebootToBiosButton logger={logger} />
+        <RebootToBiosButton logger={logger} />
       </P>
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
         <React.Fragment>
