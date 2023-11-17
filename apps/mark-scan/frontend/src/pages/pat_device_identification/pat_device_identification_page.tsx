@@ -1,5 +1,5 @@
 import { Main, Screen, P, Font, Button } from '@votingworks/ui';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { ButtonFooter } from '@votingworks/mark-flow-ui';
 import {
   DiagnosticScreenHeader,
@@ -7,6 +7,7 @@ import {
 } from '../diagnostic_screen_components';
 import { PatIntroductionStep } from './pat_introduction_step';
 import { IdentifyInputStep } from './identify_input_step';
+import { handleGamepadKeyboardEvent } from '../../lib/gamepad';
 
 interface Props {
   onAllInputsIdentified: () => void;
@@ -18,6 +19,19 @@ export function PatDeviceIdentificationPage({
   onExitCalibration,
 }: Props): JSX.Element {
   const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    // During PAT identification the voter triggers PAT inputs to identify them. We don't
+    // want PAT input to actually navigate focus or select elements as random navigate +
+    // select events could accidentally exit PAT calibration early.
+    document.removeEventListener('keydown', handleGamepadKeyboardEvent);
+
+    // On cleanup, re-enable the listener once devices are identified and the user is prompted
+    // to select the "Continue with Voting" button
+    return () => {
+      document.addEventListener('keydown', handleGamepadKeyboardEvent);
+    };
+  }, []);
 
   const nextStep = useCallback(() => {
     setStep(step + 1);

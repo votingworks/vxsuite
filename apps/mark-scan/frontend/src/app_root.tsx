@@ -477,16 +477,13 @@ export function AppRoot({
       'data-useragent',
       navigator.userAgent
     );
-    // During PAT calibration the voter triggers PAT inputs to identify them. We don't
-    // want PAT input to actually navigate focus or select elements as random navigate +
-    // select events could accidentally exit PAT calibration early.
-    if (stateMachineState !== 'pat_device_connected') {
-      document.addEventListener('keydown', handleGamepadKeyboardEvent);
-    }
+
+    document.addEventListener('keydown', handleGamepadKeyboardEvent);
+
     return () => {
       document.removeEventListener('keydown', handleGamepadKeyboardEvent);
     };
-  }, [stateMachineState]);
+  }, []);
 
   // Bootstraps the AppRoot Component
   useEffect(() => {
