@@ -38,8 +38,7 @@ void emit(int fd, int type, int code, int val)
 
 void interrupt(int signal)
 {
-  // TODO handle error signals
-  printf("Got signal %d\n", signal);
+  printf("Got exit signal %d\n", signal);
   should_exit_cleanly = true;
 }
 
