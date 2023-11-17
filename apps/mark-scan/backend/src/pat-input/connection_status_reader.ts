@@ -2,10 +2,7 @@ import * as fs from 'fs/promises';
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { LogEventId, Logger } from '@votingworks/logging';
-import makeDebug from 'debug';
 import { PATH_TO_PAT_CONNECTION_STATUS_PIN } from './constants';
-
-const debug = makeDebug('mark-scan:pat-status-reader');
 
 export interface PatConnectionStatusReaderInterface {
   readonly logger: Logger;
@@ -34,10 +31,8 @@ export class PatConnectionStatusReader
   async open(): Promise<boolean> {
     assert(this.filePath !== undefined);
     try {
-      debug('Checking access to sysfs file %s', this.filePath);
       await fs.access(this.filePath, fs.constants.R_OK);
     } catch (err) {
-      debug('Err checking access to syfs file: %O', err);
       await this.logger.log(LogEventId.PatDeviceError, 'system', {
         message: `${this.filePath} is not accessible from VxMarkScan backend. It may be unexported or the backend may be running on development hardware.`,
       });
@@ -45,9 +40,7 @@ export class PatConnectionStatusReader
       return false;
     }
 
-    debug('Opening sysfs file');
     this.file = await fs.open(this.filePath);
-    debug('Successfully opened sysfs file');
     return true;
   }
 
@@ -58,7 +51,6 @@ export class PatConnectionStatusReader
     );
     // The value file will always contain a single byte (0 or 1)
     const buf = Buffer.alloc(1);
-    debug('Attempting to read PAT connection status from file');
     await this.file.read(buf, 0, 1, 0);
 
     // We need to convert from raw value to char value
@@ -66,8 +58,6 @@ export class PatConnectionStatusReader
     const raw = buf.at(0);
     assert(raw !== undefined);
     const charValue = String.fromCharCode(raw);
-    debug('Read raw value: %d', raw);
-    debug('Read char value: %d', charValue);
 
     // Contrary to boolean conventions, the value is 0 when a PAT device
     // is connected and 1 when no PAT device is connected
