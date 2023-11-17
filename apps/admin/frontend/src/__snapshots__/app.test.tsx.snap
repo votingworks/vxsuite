@@ -5,7 +5,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   font-size: 0.8em;
 }
 
-.c10 {
+.c13 {
   white-space: nowrap;
 }
 
@@ -76,50 +76,48 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   font-weight: 400;
 }
 
+.c10 {
+  margin-bottom: 0;
+  font-size: 0.8em;
+}
+
+.c11 {
+  margin-top: 0;
+  margin-bottom: 0.2em;
+}
+
+.c12 {
+  margin-top: 0;
+  margin-bottom: 0.2em;
+  font-size: 0.8em;
+}
+
 .c9 {
   margin: 2.5em 0;
   page-break-inside: avoid;
 }
 
-.c9 h3 {
-  margin-top: 0;
-  margin-bottom: 0.5em;
-}
-
-.c9 h3 + p {
-  margin-top: -0.8em;
-  margin-bottom: 0.25em;
-}
-
-.c9 h3 + table {
-  margin-top: -0.5em;
-}
-
-.c9 p:first-child {
-  margin-bottom: 0;
-}
-
-.c11 {
+.c14 {
   width: 100%;
   height: 1px;
   border-collapse: collapse;
 }
 
-.c11 tr {
+.c14 tr {
   border-top: 1px solid rgb(194,200,203);
   border-bottom: 1px solid rgb(194,200,203);
   height: 100%;
 }
 
-.c11 tr.metadata {
+.c14 tr.metadata {
   font-size: 0.75em;
 }
 
-.c11 tr.metadata.last-metadata {
+.c14 tr.metadata.last-metadata {
   border-bottom: 1px solid #e6e6e6;
 }
 
-.c11 td {
+.c14 td {
   width: 1%;
   height: 100%;
   padding: 0.25em 0.625em;
@@ -128,23 +126,23 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   white-space: no-wrap;
 }
 
-.c11 th {
+.c14 th {
   padding: 0 0.5em;
   text-align: right;
   font-weight: 400;
 }
 
-.c11 th.option-label {
+.c14 th.option-label {
   padding: 0.25em 0.5em;
   line-height: 1;
 }
 
-.c11 th:first-child {
+.c14 th:first-child {
   padding-left: 0.25em;
   text-align: left;
 }
 
-.c11 th:not(:first-child) {
+.c14 th:not(:first-child) {
   padding-right: 0;
 }
 
@@ -297,18 +295,20 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020876"
         >
           <p
-            class="c3"
+            class="c10"
           >
             United States
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             President
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -316,7 +316,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -325,14 +325,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -391,18 +391,20 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020877"
         >
           <p
-            class="c3"
+            class="c10"
           >
             United States
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             Senate 
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -410,7 +412,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -419,14 +421,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -485,18 +487,20 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020872"
         >
           <p
-            class="c3"
+            class="c10"
           >
             US House Of Representatives
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             1st Congressional District
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -504,7 +508,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -513,14 +517,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -567,18 +571,20 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020870"
         >
           <p
-            class="c3"
+            class="c10"
           >
             Northern District
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             Supreme Court District 3(Northern) Position 3
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -586,7 +592,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -595,14 +601,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -649,18 +655,20 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020903"
         >
           <p
-            class="c3"
+            class="c10"
           >
             Election Commissioner 05
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             Election Commissioner 05
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -668,7 +676,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -677,14 +685,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -731,18 +739,20 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-775020904"
         >
           <p
-            class="c3"
+            class="c10"
           >
             School Board District 5
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             School Board 05
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -750,7 +760,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -759,14 +769,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -801,19 +811,21 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           data-testid="results-table-750000017"
         >
           <p
-            class="c3"
+            class="c10"
           >
             State Of Mississippi
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             Ballot Measure 2
 House Concurrent Resolution No. 47
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -821,7 +833,7 @@ House Concurrent Resolution No. 47
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -830,14 +842,14 @@ House Concurrent Resolution No. 47
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -872,19 +884,21 @@ House Concurrent Resolution No. 47
           data-testid="results-table-750000018"
         >
           <p
-            class="c3"
+            class="c10"
           >
             State Of Mississippi
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             Ballot Measure 3
 House Bill 1796 - Flag Referendum
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -892,7 +906,7 @@ House Bill 1796 - Flag Referendum
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -901,14 +915,14 @@ House Bill 1796 - Flag Referendum
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -943,18 +957,20 @@ House Bill 1796 - Flag Referendum
           data-testid="results-table-750000015"
         >
           <p
-            class="c3"
+            class="c10"
           >
             State Of Mississippi
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             Ballot Measure 1
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -962,7 +978,7 @@ House Bill 1796 - Flag Referendum
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -971,14 +987,14 @@ House Bill 1796 - Flag Referendum
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
@@ -1013,18 +1029,20 @@ House Bill 1796 - Flag Referendum
           data-testid="results-table-750000016"
         >
           <p
-            class="c3"
+            class="c10"
           >
             State Of Mississippi
           </p>
-          <h3>
+          <h3
+            class="c11"
+          >
             Ballot Measure 1
           </h3>
           <p
-            class="c3"
+            class="c12"
           >
             <span
-              class="c10"
+              class="c13"
             >
               8 ballots
                
@@ -1032,7 +1050,7 @@ House Bill 1796 - Flag Referendum
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 overvotes
@@ -1041,14 +1059,14 @@ House Bill 1796 - Flag Referendum
             </span>
              
             <span
-              class="c10"
+              class="c13"
             >
                
               0 undervotes
             </span>
           </p>
           <table
-            class="c11"
+            class="c14"
           >
             <tbody>
               <tr
