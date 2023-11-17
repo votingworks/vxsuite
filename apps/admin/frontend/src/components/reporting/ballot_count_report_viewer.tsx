@@ -225,17 +225,6 @@ export function BallotCountReportViewer({
 
   return (
     <React.Fragment>
-      {!autoGenerateReport && (
-        <GenerateButtonWrapper>
-          <Button
-            variant="primary"
-            disabled={disabled || reportQueryReady}
-            onPress={generateReport}
-          >
-            Generate Report
-          </Button>
-        </GenerateButtonWrapper>
-      )}
       <ExportActions>
         <PrintButton
           print={printReport}
@@ -257,6 +246,17 @@ export function BallotCountReportViewer({
           groupBy={groupBy}
           disabled={disableActionButtons}
         />
+        {!autoGenerateReport && (
+          <GenerateButtonWrapper>
+            <Button
+              variant="primary"
+              disabled={disabled || reportQueryReady}
+              onPress={generateReport}
+            >
+              Generate Report
+            </Button>
+          </GenerateButtonWrapper>
+        )}
       </ExportActions>
       <ReportWarning
         text={getBallotCountReportWarningText({

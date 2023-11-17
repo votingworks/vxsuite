@@ -23,28 +23,21 @@ const FilterRow = styled.div`
   flex-shrink: 0;
   width: 100%;
   display: grid;
-  grid-template-columns: 10rem 4rem 1fr 2rem;
-  min-height: 3.25rem;
-  align-items: start;
-`;
-
-// We want the selects in FilterRow to be able to expand down to multiple
-// rows, but we want the other items in the row to be center aligned with the
-// single-row select, so we can use `align-items: center` on FilterRow, because
-// the row height changes with the selects. Instead, we use this container for
-// the other items in the row and try to match it to about the height of the Select.
-const ContainerWithSelectHeight = styled.div`
-  height: 3.25rem;
-  display: flex;
+  grid-template-columns: 10rem 4rem 1fr 2.25rem;
   align-items: center;
 `;
 
-const Predicate = styled(ContainerWithSelectHeight)`
+const Predicate = styled.div`
   justify-self: center;
 `;
 
 const AddButton = styled(Button)`
   min-width: 6rem;
+`;
+
+const RemoveButton = styled(Button)`
+  margin-left: 0.25rem;
+  width: 1rem;
 `;
 
 const FILTER_TYPES = [
@@ -271,14 +264,14 @@ export function FilterEditor({
               }}
               ariaLabel="Select Filter Values"
             />
-            <ContainerWithSelectHeight>
-              <Button
+            <div>
+              <RemoveButton
                 icon="X"
                 fill="transparent"
                 onPress={() => deleteRow(rowId)}
                 aria-label="Remove Filter"
               />
-            </ContainerWithSelectHeight>
+            </div>
           </FilterRow>
         );
       })}
@@ -307,14 +300,13 @@ export function FilterEditor({
             </AddButton>
           )}
           {isAddingRow && (
-            <ContainerWithSelectHeight>
-              <Button
-                icon="X"
-                fill="transparent"
-                onPress={() => setIsAddingRow(false)}
-                aria-label="Cancel Add Filter"
-              />
-            </ContainerWithSelectHeight>
+            <RemoveButton
+              style={{ width: '1rem' }}
+              icon="X"
+              fill="transparent"
+              onPress={() => setIsAddingRow(false)}
+              aria-label="Cancel Add Filter"
+            />
           )}
         </FilterRow>
       )}

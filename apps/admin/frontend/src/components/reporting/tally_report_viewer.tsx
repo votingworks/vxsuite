@@ -233,17 +233,6 @@ export function TallyReportViewer({
 
   return (
     <React.Fragment>
-      {!autoGenerateReport && (
-        <GenerateButtonWrapper>
-          <Button
-            variant="primary"
-            disabled={disabled || reportQueryReady}
-            onPress={generateReport}
-          >
-            Generate Report
-          </Button>
-        </GenerateButtonWrapper>
-      )}
       <ExportActions>
         <PrintButton
           print={printReport}
@@ -264,6 +253,17 @@ export function TallyReportViewer({
           groupBy={groupBy}
           disabled={disableActionButtons}
         />
+        {!autoGenerateReport && (
+          <GenerateButtonWrapper>
+            <Button
+              variant="primary"
+              disabled={disabled || reportQueryReady}
+              onPress={generateReport}
+            >
+              Generate Report
+            </Button>
+          </GenerateButtonWrapper>
+        )}
       </ExportActions>
       <ReportWarning
         text={getTallyReportWarningText({ tallyReportWarning, election })}

@@ -1,4 +1,4 @@
-import { H5, Icons, LinkButton, Loading, P } from '@votingworks/ui';
+import { Card, H3, H5, Icons, LinkButton, Loading, P } from '@votingworks/ui';
 import styled from 'styled-components';
 import { routerPaths } from '../../router_paths';
 
@@ -7,7 +7,7 @@ export const ExportActions = styled.div`
   margin-bottom: 0.5rem;
   display: flex;
   justify-content: start;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 export const PreviewContainer = styled.div`
@@ -15,19 +15,11 @@ export const PreviewContainer = styled.div`
   min-height: 11in;
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background: rgba(0, 0, 0, 10%);
-  border-radius: 0.5rem;
+  background: ${(p) => p.theme.colors.container};
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-export const PreviewOverlay = styled.div`
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: black;
-  opacity: 0.3;
 `;
 
 export const PreviewReportPages = styled.div`
@@ -43,22 +35,10 @@ export const PreviewReportPages = styled.div`
   }
 `;
 
-export const PreviewActionContainer = styled.div`
-  position: absolute;
-  inset: 0;
-  margin-left: auto;
-  margin-right: auto;
+export const PreviewLoadingContainer = styled.div`
   margin-top: 4rem;
   display: flex;
   justify-content: center;
-  align-items: start;
-  z-index: 2;
-`;
-
-export const LoadingTextContainer = styled.div`
-  background: white;
-  width: 35rem;
-  border-radius: 0.5rem;
 `;
 
 export const NoResultsNotice = styled(H5)`
@@ -66,18 +46,28 @@ export const NoResultsNotice = styled(H5)`
 `;
 
 export const GenerateButtonWrapper = styled.div`
+  margin-left: auto;
+
   button {
-    width: 30%;
+    min-width: 15rem;
   }
+`;
+
+export const ReportBuilderControls = styled(Card)`
+  background: ${(p) => p.theme.colors.containerLow};
+  margin-bottom: 1rem;
+  overflow: visible;
+`;
+
+export const ControlLabel = styled(H3)`
+  /* No added styles */
 `;
 
 export function PreviewLoading(): JSX.Element {
   return (
-    <PreviewActionContainer>
-      <LoadingTextContainer>
-        <Loading>Generating Report</Loading>
-      </LoadingTextContainer>
-    </PreviewActionContainer>
+    <PreviewLoadingContainer>
+      <Loading>Generating Report</Loading>
+    </PreviewLoadingContainer>
   );
 }
 
