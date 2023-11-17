@@ -97,9 +97,6 @@ interface SharedState {
 }
 
 interface OtherState {
-  lastVoteUpdateAt: number;
-  lastVoteSaveToCardAt: number;
-  writingVoteToCard: boolean;
   initializedFromStorage: boolean;
 }
 
@@ -135,9 +132,6 @@ const initialSharedState: Readonly<SharedState> = {
 };
 
 const initialOtherState: Readonly<OtherState> = {
-  lastVoteUpdateAt: 0,
-  lastVoteSaveToCardAt: 0,
-  writingVoteToCard: false,
   initializedFromStorage: false,
 };
 
@@ -153,7 +147,6 @@ const initialAppState: Readonly<State> = {
 
 // Sets State. All side effects done outside: storage, fetching, etc
 type AppAction =
-  | { type: 'updateLastVoteUpdateAt'; date: number }
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'resetBallot' }
@@ -169,11 +162,6 @@ function appReducer(state: State, action: AppAction): State {
     ballotsPrintedCount: initialAppState.ballotsPrintedCount,
   };
   switch (action.type) {
-    case 'updateLastVoteUpdateAt':
-      return {
-        ...state,
-        lastVoteUpdateAt: action.date,
-      };
     case 'unconfigure':
       return {
         ...state,
@@ -341,13 +329,6 @@ export function AppRoot({
       void storeElection(optionalElectionDefinition);
     }
   }, [optionalElectionDefinition, storage]);
-
-  // Handle Vote Updated
-  useEffect(() => {
-    if (votes) {
-      dispatchAppState({ type: 'updateLastVoteUpdateAt', date: Date.now() });
-    }
-  }, [votes]);
 
   const resetBallot = useCallback(
     (newShowPostVotingInstructions?: boolean) => {
