@@ -24,7 +24,6 @@ async function createProductionMachineCertSigningRequest(): Promise<void> {
 export async function main(): Promise<void> {
   try {
     await createProductionMachineCertSigningRequest();
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

@@ -56,7 +56,6 @@ async function checkPin({ cardType }: CheckPinInput): Promise<void> {
 export async function main(args: readonly string[]): Promise<void> {
   try {
     await checkPin(parseCommandLineArgs(args));
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

@@ -75,7 +75,6 @@ Election hash: ${electionHash ?? '-'}
 export async function main(): Promise<void> {
   try {
     printCardDetails(await readJavaCardDetails());
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

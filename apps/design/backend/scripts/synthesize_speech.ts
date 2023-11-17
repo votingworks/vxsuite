@@ -52,7 +52,6 @@ async function synthesizeSpeech({
 export async function main(args: readonly string[]): Promise<void> {
   try {
     await synthesizeSpeech(parseCommandLineArgs(args));
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

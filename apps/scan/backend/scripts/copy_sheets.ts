@@ -91,7 +91,6 @@ export function main(args: readonly string[]): void {
   try {
     checkEnvironment();
     copySheets(parseCommandLineArgs(args));
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

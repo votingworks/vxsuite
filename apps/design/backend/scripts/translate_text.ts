@@ -47,7 +47,6 @@ async function translateText({
 export async function main(args: readonly string[]): Promise<void> {
   try {
     await translateText(parseCommandLineArgs(args));
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
