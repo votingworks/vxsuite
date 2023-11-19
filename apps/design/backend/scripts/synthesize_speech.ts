@@ -21,8 +21,8 @@ interface SynthesizeSpeechInput {
 
 function parseCommandLineArgs(args: readonly string[]): SynthesizeSpeechInput {
   if (args.length !== 3 || !languageCodes.includes(args[1])) {
-    console.log(usageMessage);
-    process.exit(0);
+    console.error(usageMessage);
+    process.exit(1);
   }
   const [text, languageCode, outputFilePath] = args as [
     string,

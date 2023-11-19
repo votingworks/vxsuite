@@ -6,7 +6,7 @@ import {
   assertDefined,
   extractErrorMessage,
 } from '@votingworks/basics';
-import { safeParseNumber } from '@votingworks/types';
+import { safeParseInt } from '@votingworks/types';
 
 import { SCAN_WORKSPACE } from '../src/globals';
 import { Store } from '../src/store';
@@ -26,11 +26,12 @@ function checkEnvironment(): void {
 }
 
 function parseCommandLineArgs(args: readonly string[]): CopySheetsInput {
-  if (args.length !== 1 || !safeParseNumber(args[0]).isOk()) {
-    console.log(usageMessage);
-    process.exit(0);
+  const parseTargetSheetCountResult = safeParseInt(args[0]);
+  if (args.length !== 1 || !parseTargetSheetCountResult.isOk()) {
+    console.error(usageMessage);
+    process.exit(1);
   }
-  const targetSheetCount = safeParseNumber(args[0]).unsafeUnwrap();
+  const targetSheetCount = parseTargetSheetCountResult.ok();
   return { targetSheetCount };
 }
 
