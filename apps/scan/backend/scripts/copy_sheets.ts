@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { v4 as uuid } from 'uuid';
 import { AcceptedSheet } from '@votingworks/backend';
 import {
@@ -11,6 +10,7 @@ import { safeParseNumber } from '@votingworks/types';
 
 import { SCAN_WORKSPACE } from '../src/globals';
 import { Store } from '../src/store';
+import { createWorkspace } from '../src/util/workspace';
 
 const usageMessage = `Usage: copy-sheets <target-sheet-count>
 
@@ -59,25 +59,39 @@ function copySheet(store: Store, sheet: AcceptedSheet): void {
 }
 
 function copySheets({ targetSheetCount }: CopySheetsInput): void {
-  const store = Store.fileStore(
-    path.join(assertDefined(SCAN_WORKSPACE), 'ballots.db')
-  );
-  const sheets = Array.from(store.forEachAcceptedSheet());
+  const { store } = createWorkspace(assertDefined(SCAN_WORKSPACE));
 
+  const currentSheetCount = store.getBallotsCounted();
   assert(
-    sheets.length > 0,
+    currentSheetCount > 0,
     'Scanner store should contain at least one sheet to copy'
   );
   assert(
-    targetSheetCount > sheets.length,
-    `Target sheet count should be greater than current sheet count (${sheets.length})`
+    targetSheetCount > currentSheetCount,
+    `Target sheet count should be greater than current sheet count (${currentSheetCount})`
   );
+  const numSheetsToCreate = targetSheetCount - currentSheetCount;
 
-  const numSheetsToCreate = targetSheetCount - sheets.length;
-  for (let i = 0; i < numSheetsToCreate; i += 1) {
+  const maxNumSheetsToReadForCopying = Math.min(
+    numSheetsToCreate,
+    500 // A cap to limit how much data the script loads
+  );
+  const sheetGenerator = store.forEachAcceptedSheet();
+  const sheets: AcceptedSheet[] = [];
+  let i = 0;
+  for (const sheet of sheetGenerator) {
+    sheets.push(sheet);
+    i += 1;
+    if (i === maxNumSheetsToReadForCopying) {
+      break;
+    }
+  }
+
+  for (i = 0; i < numSheetsToCreate; i += 1) {
     const sheet = sheets[i % sheets.length];
     copySheet(store, sheet);
   }
+
   console.log(
     `✅ Created ${numSheetsToCreate} new sheets by copying existing sheets, ` +
       `bringing total sheet count to ${targetSheetCount}`
