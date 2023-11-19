@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
-import { AcceptedSheet } from '@votingworks/backend';
+import {
+  AcceptedSheet,
+  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
+} from '@votingworks/backend';
 import {
   assert,
   assertDefined,
@@ -66,6 +69,11 @@ function copySheet(store: Store, sheet: AcceptedSheet): void {
   ]);
 }
 
+function surfaceCastVoteRecordSyncModal(store: Store): void {
+  store.setIsContinuousExportOperationInProgress(true);
+  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+}
+
 function copySheets({ targetSheetCount }: CopySheetsInput): void {
   const { store } = createWorkspace(assertDefined(SCAN_WORKSPACE));
 
@@ -99,6 +107,9 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
     const sheet = sheets[i % sheets.length];
     copySheet(store, sheet);
   }
+
+  // Ensure that the user is forced to sync cast vote records to the now out-of-sync USB drive
+  surfaceCastVoteRecordSyncModal(store);
 
   const sheetOrSheets = numSheetsToCreate === 1 ? 'sheet' : 'sheets';
   console.log(
