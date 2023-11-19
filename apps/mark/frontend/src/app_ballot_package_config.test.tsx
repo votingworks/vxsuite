@@ -1,6 +1,6 @@
 import { fakeLogger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { MemoryHardware } from '@votingworks/utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { render, screen } from '../test/react_testing_library';
@@ -24,12 +24,12 @@ test('renders an error if ballot package config endpoint returns an error', asyn
   });
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionState();
   apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
 
   render(
     <App
       hardware={MemoryHardware.buildStandard()}
-      storage={new MemoryStorage()}
       reload={jest.fn()}
       logger={fakeLogger()}
       apiClient={apiMock.mockApiClient}
@@ -39,6 +39,7 @@ test('renders an error if ballot package config endpoint returns an error', asyn
   apiMock.expectConfigureBallotPackageFromUsbError('election_hash_mismatch');
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionState();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   await screen.findByText('Configuring VxMark from USB drive…');
   await screen.findByText(

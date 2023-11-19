@@ -53,9 +53,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
           appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
           ballotsPrintedCount={0}
           electionDefinition={asElectionDefinition(election)}
-          isLiveMode={false}
-          updateAppPrecinct={jest.fn()}
-          toggleLiveMode={jest.fn()}
+          isTestMode
           unconfigure={jest.fn()}
           machineConfig={fakeMachineConfig({
             codeVersion: 'test', // Override default
@@ -108,16 +106,11 @@ test('renders date and time settings modal', async () => {
 });
 
 test('can switch the precinct', () => {
-  const updateAppPrecinct = jest.fn();
-  renderScreen({ updateAppPrecinct });
+  renderScreen();
 
   const precinctSelect = screen.getByLabelText('Precinct');
-  const allPrecinctsOption =
-    within(precinctSelect).getByText<HTMLOptionElement>('All Precincts');
-  fireEvent.change(precinctSelect, {
-    target: { value: allPrecinctsOption.value },
-  });
-  expect(updateAppPrecinct).toHaveBeenCalledWith(ALL_PRECINCTS_SELECTION);
+  apiMock.expectSetPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  userEvent.selectOptions(precinctSelect, 'All Precincts');
 });
 
 test('precinct change disabled if polls closed', () => {

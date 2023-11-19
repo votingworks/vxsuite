@@ -23,6 +23,7 @@ export async function configureFromUsbThenRemove(
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.expectGetElectionDefinition(electionDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
+  apiMock.expectGetElectionState();
 
   // Remove USB after configuration is done
   await screen.findByText('Election Definition is loaded.');

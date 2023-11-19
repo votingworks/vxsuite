@@ -66,7 +66,6 @@ function renderScreen(
           resetCardlessVoterSession={jest.fn()}
           appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
           electionDefinition={electionDefinition}
-          enableLiveMode={jest.fn()}
           hasVotes={false}
           isLiveMode={false}
           pollsState="polls_open"
@@ -75,7 +74,6 @@ function renderScreen(
           hardware={MemoryHardware.buildStandard()}
           devices={fakeDevices()}
           screenReader={new AriaScreenReader(fakeTts())}
-          updatePollsState={jest.fn()}
           reload={jest.fn()}
           {...props}
         />
@@ -97,18 +95,16 @@ test('switching out of test mode on election day', () => {
     ...election,
     date: new Date().toISOString(),
   });
-  const enableLiveMode = jest.fn();
+  apiMock.expectSetTestMode(false);
   renderScreen({
     pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
     electionDefinition,
-    enableLiveMode,
   });
 
   screen.getByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
-  fireEvent.click(screen.getByText('Switch to Official Ballot Mode'));
-  expect(enableLiveMode).toHaveBeenCalled();
+  userEvent.click(screen.getByText('Switch to Official Ballot Mode'));
 });
 
 test('keeping test mode on election day', () => {
@@ -116,14 +112,12 @@ test('keeping test mode on election day', () => {
     ...election,
     date: new Date().toISOString(),
   });
-  const enableLiveMode = jest.fn();
-  renderScreen({ electionDefinition, enableLiveMode });
+  renderScreen({ electionDefinition });
 
   screen.getByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
   fireEvent.click(screen.getByText('Cancel'));
-  expect(enableLiveMode).not.toHaveBeenCalled();
 });
 
 test('live mode on election day', () => {

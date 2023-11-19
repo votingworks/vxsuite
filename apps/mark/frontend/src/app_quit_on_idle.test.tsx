@@ -1,5 +1,5 @@
 import { fakeKiosk } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
@@ -12,8 +12,6 @@ import { render, screen, waitFor } from '../test/react_testing_library';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
-
-import { setStateInStorage } from '../test/helpers/election';
 
 import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -36,7 +34,6 @@ afterEach(() => {
 
 test('Insert Card screen idle timeout to quit app', async () => {
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
     // machineId used to determine whether we quit. Now they all do.
     // making sure a machineId that ends in 0 still triggers.
@@ -44,12 +41,14 @@ test('Insert Card screen idle timeout to quit app', async () => {
   });
 
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-  await setStateInStorage(storage);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -69,17 +68,14 @@ test('Insert Card screen idle timeout to quit app', async () => {
 
 test('Voter idle timeout', async () => {
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-  await setStateInStorage(storage);
-  render(
-    <App
-      apiClient={apiMock.mockApiClient}
-      hardware={hardware}
-      storage={storage}
-    />
-  );
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
+
+  render(<App apiClient={apiMock.mockApiClient} hardware={hardware} />);
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({

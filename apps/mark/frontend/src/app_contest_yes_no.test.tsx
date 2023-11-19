@@ -2,7 +2,7 @@ import {
   electionGeneral,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 
 import { getContestDistrictName } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -19,7 +19,7 @@ import { withMarkup } from '../test/helpers/with_markup';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import { measure102Contest, setStateInStorage } from '../test/helpers/election';
+import { measure102Contest } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -39,17 +39,18 @@ it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
 
-  await setStateInStorage(storage);
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       apiClient={apiMock.mockApiClient}
       hardware={hardware}
-      storage={storage}
       reload={jest.fn()}
     />
   );
