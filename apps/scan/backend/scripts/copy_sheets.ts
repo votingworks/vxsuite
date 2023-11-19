@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { v4 as uuid } from 'uuid';
 import { AcceptedSheet } from '@votingworks/backend';
 import {
@@ -40,8 +41,14 @@ function copySheet(store: Store, sheet: AcceptedSheet): void {
   const newSheet: AcceptedSheet = {
     ...sheet,
     id: newSheetId,
-    frontImagePath: sheet.frontImagePath.replace(sheet.id, newSheetId),
-    backImagePath: sheet.backImagePath.replace(sheet.id, newSheetId),
+    frontImagePath: path.join(
+      path.dirname(sheet.frontImagePath),
+      `${newSheetId}-front.jpg`
+    ),
+    backImagePath: path.join(
+      path.dirname(sheet.backImagePath),
+      `${newSheetId}-back.jpg`
+    ),
   };
 
   fs.copyFileSync(sheet.frontImagePath, newSheet.frontImagePath);
@@ -93,8 +100,9 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
     copySheet(store, sheet);
   }
 
+  const sheetOrSheets = numSheetsToCreate === 1 ? 'sheet' : 'sheets';
   console.log(
-    `✅ Created ${numSheetsToCreate} new sheets by copying existing sheets, ` +
+    `✅ Created ${numSheetsToCreate} new ${sheetOrSheets} by copying existing sheets, ` +
       `bringing total sheet count to ${targetSheetCount}`
   );
 }
