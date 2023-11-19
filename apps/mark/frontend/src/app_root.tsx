@@ -7,8 +7,6 @@ import {
   ContestId,
   PrecinctId,
   BallotStyleId,
-  PrecinctSelection,
-  PollsState,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 
@@ -16,10 +14,7 @@ import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
 import { IdleTimerProvider } from 'react-idle-timer';
 import {
-  Storage,
   Hardware,
-  singlePrecinctSelectionFor,
-  makeAsync,
   isElectionManagerAuth,
   isCardlessVoterAuth,
   isPollWorkerAuth,
@@ -27,7 +22,7 @@ import {
   randomBallotId,
 } from '@votingworks/utils';
 
-import { LogEventId, Logger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 
 import {
   SetupCardReaderPage,
@@ -43,6 +38,7 @@ import {
   CastBallotPage,
   useDisplaySettingsManager,
 } from '@votingworks/mark-flow-ui';
+import type { ElectionState } from '@votingworks/mark-backend';
 import {
   checkPin,
   endCardlessVoterSession,
@@ -50,6 +46,9 @@ import {
   getElectionDefinition,
   getMachineConfig,
   getUsbDriveStatus,
+  getElectionState,
+  incrementBallotsPrintedCount,
+  setPollsState,
   startCardlessVoterSession,
   unconfigureMachine,
 } from './api';
@@ -74,32 +73,13 @@ import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 
-interface UserState {
+export interface VotingState {
   votes?: VotesDict;
   showPostVotingInstructions?: boolean;
 }
 
-interface SharedState {
-  appPrecinct?: PrecinctSelection;
-  ballotsPrintedCount: number;
-  isLiveMode: boolean;
-  pollsState: PollsState;
-}
-
-interface OtherState {
-  lastVoteUpdateAt: number;
-  lastVoteSaveToCardAt: number;
-  writingVoteToCard: boolean;
-  initializedFromStorage: boolean;
-}
-
-export interface InitialUserState extends UserState, SharedState {}
-
-export interface State extends InitialUserState, OtherState {}
-
 export interface Props {
   hardware: Hardware;
-  storage: Storage;
   screenReader: ScreenReader;
   reload: VoidFunction;
   logger: Logger;
@@ -108,62 +88,33 @@ export interface Props {
 export const stateStorageKey = 'state';
 export const blankBallotVotes: VotesDict = {};
 
-const initialVoterState: Readonly<UserState> = {
+export const initialElectionState: Readonly<ElectionState> = {
+  precinctSelection: undefined,
+  ballotsPrintedCount: 0,
+  isTestMode: true,
+  pollsState: 'polls_closed_initial',
+};
+
+const initialVotingState: Readonly<VotingState> = {
   votes: undefined,
   showPostVotingInstructions: undefined,
 };
 
-const initialSharedState: Readonly<SharedState> = {
-  appPrecinct: undefined,
-  ballotsPrintedCount: 0,
-  isLiveMode: false,
-  pollsState: 'polls_closed_initial',
-};
-
-const initialOtherState: Readonly<OtherState> = {
-  lastVoteUpdateAt: 0,
-  lastVoteSaveToCardAt: 0,
-  writingVoteToCard: false,
-  initializedFromStorage: false,
-};
-
-const initialUserState: Readonly<InitialUserState> = {
-  ...initialVoterState,
-  ...initialSharedState,
-};
-
-const initialAppState: Readonly<State> = {
-  ...initialUserState,
-  ...initialOtherState,
-};
-
 // Sets State. All side effects done outside: storage, fetching, etc
-type AppAction =
-  | { type: 'updateLastVoteUpdateAt'; date: number }
+type VotingAction =
   | { type: 'unconfigure' }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
-  | { type: 'resetBallot'; showPostVotingInstructions?: boolean }
-  | { type: 'updateAppPrecinct'; appPrecinct: PrecinctSelection }
-  | { type: 'enableLiveMode' }
-  | { type: 'toggleLiveMode' }
-  | { type: 'updatePollsState'; pollsState: PollsState }
-  | { type: 'updateTally' }
-  | { type: 'initializeAppState'; appState: Partial<State> };
+  | { type: 'resetBallot'; showPostVotingInstructions?: boolean };
 
-function appReducer(state: State, action: AppAction): State {
-  const resetTally: Partial<State> = {
-    ballotsPrintedCount: initialAppState.ballotsPrintedCount,
-  };
+function votingStateReducer(
+  state: VotingState,
+  action: VotingAction
+): VotingState {
   switch (action.type) {
-    case 'updateLastVoteUpdateAt':
-      return {
-        ...state,
-        lastVoteUpdateAt: action.date,
-      };
     case 'unconfigure':
       return {
         ...state,
-        ...initialUserState,
+        ...initialVotingState,
       };
     case 'updateVote': {
       return {
@@ -177,45 +128,8 @@ function appReducer(state: State, action: AppAction): State {
     case 'resetBallot':
       return {
         ...state,
-        ...initialVoterState,
+        ...initialVotingState,
         showPostVotingInstructions: action.showPostVotingInstructions,
-      };
-    case 'updateAppPrecinct':
-      return {
-        ...state,
-        ...resetTally,
-        appPrecinct: action.appPrecinct,
-      };
-    case 'enableLiveMode':
-      return {
-        ...state,
-        ...resetTally,
-        isLiveMode: true,
-        pollsState: initialAppState.pollsState,
-      };
-    case 'toggleLiveMode':
-      return {
-        ...state,
-        ...resetTally,
-        isLiveMode: !state.isLiveMode,
-        pollsState: initialAppState.pollsState,
-      };
-    case 'updatePollsState':
-      return {
-        ...state,
-        pollsState: action.pollsState,
-      };
-    case 'updateTally': {
-      return {
-        ...state,
-        ballotsPrintedCount: state.ballotsPrintedCount + 1,
-      };
-    }
-    case 'initializeAppState':
-      return {
-        ...state,
-        ...action.appState,
-        initializedFromStorage: true,
       };
     /* istanbul ignore next - compile time check for completeness */
     default:
@@ -226,21 +140,15 @@ function appReducer(state: State, action: AppAction): State {
 export function AppRoot({
   hardware,
   screenReader,
-  storage,
   reload,
   logger,
 }: Props): JSX.Element | null {
   const PostVotingInstructionsTimeout = useRef(0);
-  const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
-  const {
-    appPrecinct,
-    ballotsPrintedCount,
-    isLiveMode,
-    pollsState,
-    initializedFromStorage,
-    showPostVotingInstructions,
-    votes,
-  } = appState;
+  const [votingState, dispatchVotingState] = useReducer(
+    votingStateReducer,
+    initialVotingState
+  );
+  const { showPostVotingInstructions, votes } = votingState;
 
   const history = useHistory();
 
@@ -275,21 +183,25 @@ export function AppRoot({
     endCardlessVoterSessionMutation.mutateAsync;
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
   const unconfigureMachineMutateAsync = unconfigureMachineMutation.mutateAsync;
+  const incrementBallotsPrintedCountMutation =
+    incrementBallotsPrintedCount.useMutation();
+  const incrementBallotsPrintedCountMutate =
+    incrementBallotsPrintedCountMutation.mutate;
+  const setPollsStateMutation = setPollsState.useMutation();
+  const setPollsStateMutateAsync = setPollsStateMutation.mutateAsync;
 
   const getElectionDefinitionQuery = getElectionDefinition.useQuery();
   const optionalElectionDefinition = getElectionDefinitionQuery.data;
 
-  useEffect(() => {
-    if (optionalElectionDefinition && !appPrecinct) {
-      const { precincts } = optionalElectionDefinition.election;
-      if (precincts.length === 1) {
-        dispatchAppState({
-          type: 'updateAppPrecinct',
-          appPrecinct: singlePrecinctSelectionFor(precincts[0].id),
-        });
-      }
-    }
-  }, [appPrecinct, optionalElectionDefinition]);
+  const electionStateQuery = getElectionState.useQuery();
+  const {
+    precinctSelection: appPrecinct,
+    ballotsPrintedCount,
+    isTestMode,
+    pollsState,
+  } = electionStateQuery.isSuccess
+    ? electionStateQuery.data
+    : initialElectionState;
 
   const precinctId = isCardlessVoterAuth(authStatus)
     ? authStatus.user.precinctId
@@ -314,16 +226,9 @@ export function AppRoot({
         )
       : [];
 
-  // Handle Vote Updated
-  useEffect(() => {
-    if (votes) {
-      dispatchAppState({ type: 'updateLastVoteUpdateAt', date: Date.now() });
-    }
-  }, [votes]);
-
   const resetBallot = useCallback(
     (newShowPostVotingInstructions?: boolean) => {
-      dispatchAppState({
+      dispatchVotingState({
         type: 'resetBallot',
         showPostVotingInstructions: newShowPostVotingInstructions,
       });
@@ -366,68 +271,28 @@ export function AppRoot({
   }, [showPostVotingInstructions]);
 
   const unconfigure = useCallback(async () => {
-    await storage.clear();
     await unconfigureMachineMutateAsync();
-    dispatchAppState({ type: 'unconfigure' });
+    dispatchVotingState({ type: 'unconfigure' });
     history.push('/');
-  }, [storage, history, unconfigureMachineMutateAsync]);
+  }, [history, unconfigureMachineMutateAsync]);
 
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
-    dispatchAppState({ type: 'updateVote', contestId, vote });
+    dispatchVotingState({ type: 'updateVote', contestId, vote });
   }, []);
 
-  const updateAppPrecinct = useCallback((newAppPrecinct: PrecinctSelection) => {
-    dispatchAppState({
-      type: 'updateAppPrecinct',
-      appPrecinct: newAppPrecinct,
-    });
-  }, []);
-
-  const enableLiveMode = useCallback(() => {
-    dispatchAppState({ type: 'enableLiveMode' });
-  }, []);
-
-  const toggleLiveMode = useCallback(() => {
-    dispatchAppState({ type: 'toggleLiveMode' });
-  }, []);
-
-  const updatePollsState = useCallback(
-    async (newPollsState: PollsState) => {
-      assert(newPollsState !== 'polls_closed_initial');
-      const logEvent = (() => {
-        switch (newPollsState) {
-          case 'polls_closed_final':
-            return LogEventId.PollsClosed;
-          case 'polls_paused':
-            return LogEventId.VotingPaused;
-          case 'polls_open':
-            if (pollsState === 'polls_closed_initial') {
-              return LogEventId.PollsOpened;
-            }
-            return LogEventId.VotingResumed;
-          /* istanbul ignore next */
-          default:
-            throwIllegalValue(newPollsState);
-        }
-      })();
-
-      dispatchAppState({
-        type: 'updatePollsState',
-        pollsState: newPollsState,
+  const resetPollsToPaused = useCallback(async () => {
+    try {
+      await setPollsStateMutateAsync({
+        pollsState: 'polls_paused',
       });
-
-      await logger.log(logEvent, 'poll_worker', { disposition: 'success' });
-    },
-    [logger, pollsState]
-  );
-
-  const resetPollsToPaused = useCallback(() => {
-    dispatchAppState({ type: 'updatePollsState', pollsState: 'polls_paused' });
-  }, []);
+    } catch (error) {
+      // Handled by default query client error handling
+    }
+  }, [setPollsStateMutateAsync]);
 
   const updateTally = useCallback(() => {
-    dispatchAppState({ type: 'updateTally' });
-  }, []);
+    incrementBallotsPrintedCountMutate();
+  }, [incrementBallotsPrintedCountMutate]);
 
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
@@ -458,7 +323,7 @@ export function AppRoot({
 
   useEffect(() => {
     function resetBallotOnLogout() {
-      if (!initializedFromStorage) return;
+      if (!electionStateQuery.isSuccess) return;
       if (
         authStatus.status === 'logged_out' &&
         authStatus.reason === 'no_card'
@@ -467,7 +332,7 @@ export function AppRoot({
       }
     }
     resetBallotOnLogout();
-  }, [authStatus, resetBallot, initializedFromStorage]);
+  }, [authStatus, resetBallot, electionStateQuery.isSuccess]);
 
   const endVoterSession = useCallback(async () => {
     try {
@@ -498,57 +363,6 @@ export function AppRoot({
       document.removeEventListener('keydown', handleGamepadKeyboardEvent);
     };
   }, []);
-
-  // Bootstraps the AppRoot Component
-  useEffect(() => {
-    async function updateStorage() {
-      const storedAppState: Partial<State> =
-        // TODO: validate this with zod schema
-        ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
-        {};
-
-      const {
-        appPrecinct: storedAppPrecinct = initialAppState.appPrecinct,
-        ballotsPrintedCount:
-          storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
-        isLiveMode: storedIsLiveMode = initialAppState.isLiveMode,
-        pollsState: storedPollsState = initialAppState.pollsState,
-      } = storedAppState;
-      dispatchAppState({
-        type: 'initializeAppState',
-        appState: {
-          appPrecinct: storedAppPrecinct,
-          ballotsPrintedCount: storedBallotsPrintedCount,
-          isLiveMode: storedIsLiveMode,
-          pollsState: storedPollsState,
-        },
-      });
-    }
-    void updateStorage();
-  }, [storage]);
-
-  // Handle Storing AppState (should be after last to ensure that storage is updated after all other updates)
-  useEffect(() => {
-    async function storeAppState() {
-      if (initializedFromStorage) {
-        await storage.set(stateStorageKey, {
-          appPrecinct,
-          ballotsPrintedCount,
-          isLiveMode,
-          pollsState,
-        });
-      }
-    }
-
-    void storeAppState();
-  }, [
-    appPrecinct,
-    ballotsPrintedCount,
-    isLiveMode,
-    pollsState,
-    storage,
-    initializedFromStorage,
-  ]);
 
   useDisplaySettingsManager({ authStatus, votes });
 
@@ -596,9 +410,7 @@ export function AppRoot({
         unconfigureMachine={unconfigure}
         isMachineConfigured={Boolean(optionalElectionDefinition)}
         resetPollsToPaused={
-          pollsState === 'polls_closed_final'
-            ? makeAsync(resetPollsToPaused)
-            : undefined
+          pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
         }
         usbDriveStatus={usbDriveStatus}
       />
@@ -634,9 +446,7 @@ export function AppRoot({
         appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
         electionDefinition={optionalElectionDefinition}
-        isLiveMode={isLiveMode}
-        updateAppPrecinct={updateAppPrecinct}
-        toggleLiveMode={toggleLiveMode}
+        isTestMode={isTestMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
         screenReader={screenReader}
@@ -665,15 +475,13 @@ export function AppRoot({
           resetCardlessVoterSession={resetCardlessBallot}
           appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
-          enableLiveMode={enableLiveMode}
-          isLiveMode={isLiveMode}
+          isLiveMode={!isTestMode}
           pollsState={pollsState}
           ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
           hardware={hardware}
           devices={devices}
           screenReader={screenReader}
-          updatePollsState={updatePollsState}
           hasVotes={!!votes}
           reload={reload}
         />
@@ -700,7 +508,7 @@ export function AppRoot({
                 generateBallotId: randomBallotId,
                 updateTally,
                 isCardlessVoter: isCardlessVoterAuth(authStatus),
-                isLiveMode,
+                isLiveMode: !isTestMode,
                 endVoterSession,
                 resetBallot,
                 updateVote,
@@ -724,7 +532,7 @@ export function AppRoot({
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={!accessibleController}
           showNoChargerAttachedWarning={!computer.batteryIsCharging}
-          isLiveMode={isLiveMode}
+          isLiveMode={!isTestMode}
           pollsState={pollsState}
         />
       </IdleTimerProvider>
