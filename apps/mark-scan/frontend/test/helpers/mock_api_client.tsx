@@ -194,14 +194,6 @@ export function createApiMock() {
         .resolves();
     },
 
-    expectSetPrecinctSelectionRepeated(
-      precinctSelection: PrecinctSelection | AllPrecinctsSelection
-    ) {
-      mockApiClient.setPrecinctSelection
-        .expectRepeatedCallsWith({ precinctSelection })
-        .resolves();
-    },
-
     expectGetSystemSettings(
       systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
     ) {
