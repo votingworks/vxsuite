@@ -91,7 +91,6 @@ export function generateConfig(pkgs: ReadonlyMap<string, PackageInfo>): string {
   const jobIds = [
     ...[...jobs.keys()].map((pkg) => jobIdForPackage(pkg)),
     // hardcoded jobs
-    'test-services-converter-ms-sems',
     'validate-monorepo',
   ];
 
@@ -107,13 +106,13 @@ orbs:
 executors:
   nodejs-browsers:
     docker:
-      - image: votingworks/cimg-debian11-browsers:2.0.5
+      - image: votingworks/cimg-debian12-browsers:2.0.4
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
   nodejs:
     docker:
-      - image: votingworks/cimg-debian11:2.0.5
+      - image: votingworks/cimg-debian12:2.0.4
         auth:
           username: $VX_DOCKER_USERNAME
           password: $VX_DOCKER_PASSWORD
@@ -122,23 +121,6 @@ jobs:
 ${[...jobs.values()]
   .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
   .join('\n\n')}
-
-  # TODO: remove this once we replace the Python code
-  test-services-converter-ms-sems:
-    executor: nodejs
-    resource_class: medium
-    steps:
-      - checkout
-      - run:
-          name: Dependencies
-          command: |
-            sudo apt update -y
-            make -C services/converter-ms-sems install-dependencies
-            make -C services/converter-ms-sems install-dev-dependencies
-      - run:
-          name: Test
-          command: |
-            make -C services/converter-ms-sems coverage
 
   validate-monorepo:
     executor: nodejs
