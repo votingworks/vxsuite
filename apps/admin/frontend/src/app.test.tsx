@@ -98,7 +98,7 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   fireEvent.click(screen.getByText('Load Demo Election Definition'));
 
-  await screen.findByText('Election Definition');
+  await screen.findByRole('heading', { name: 'Election' });
 
   // You can view the Logs screen and save log files
   fireEvent.click(screen.getByText('Logs'));
@@ -107,7 +107,7 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   await screen.findByText('Save logs on the inserted USB drive?');
 
-  fireEvent.click(screen.getByText('Definition'));
+  fireEvent.click(screen.getByText('Election'));
 
   // remove the election
   apiMock.expectUnconfigure();
@@ -115,7 +115,8 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
   fireEvent.click(screen.getByText('Remove Election'));
-  fireEvent.click(screen.getByText('Remove Election Definition'));
+  const modal = await screen.findByRole('alertdialog');
+  fireEvent.click(within(modal).getButton('Remove Election'));
 
   await screen.findByText('Configure VxAdmin');
 
@@ -125,7 +126,7 @@ test('configuring with a demo election definition', async () => {
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('Save logs on the inserted USB drive?');
 
-  userEvent.click(screen.getByText('Definition'));
+  userEvent.click(screen.getByText('Election'));
   await screen.findByText('Load Demo Election Definition');
 });
 
@@ -367,7 +368,7 @@ test('removing election resets cvr and manual data files', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
 
-  const { getByText } = renderApp();
+  renderApp();
 
   await apiMock.authenticateAsElectionManager(electionDefinition);
 
@@ -379,9 +380,10 @@ test('removing election resets cvr and manual data files', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetMachineConfig();
-  fireEvent.click(getByText('Definition'));
-  fireEvent.click(getByText('Remove Election'));
-  fireEvent.click(getByText('Remove Election Definition'));
+  fireEvent.click(screen.getButton('Election'));
+  fireEvent.click(screen.getByText('Remove Election'));
+  const modal = await screen.findByRole('alertdialog');
+  fireEvent.click(within(modal).getButton('Remove Election'));
   await screen.findByText('Configure VxAdmin');
 });
 
@@ -484,10 +486,10 @@ test('election manager UI has expected nav', async () => {
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
-  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(screen.getButton('L&A'));
   await screen.findByRole('heading', { name: 'L&A Testing Documents' });
 
-  userEvent.click(screen.getByText('Tally'));
+  userEvent.click(screen.getButton('Tally'));
   await screen.findByRole('heading', {
     name: 'Cast Vote Record (CVR) Management',
   });
@@ -496,7 +498,7 @@ test('election manager UI has expected nav', async () => {
   await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
-  expect(screen.queryByText('Definition')).not.toBeInTheDocument();
+  expect(screen.queryByText('Election')).not.toBeInTheDocument();
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
   expect(screen.queryByText('Advanced')).not.toBeInTheDocument();
 });
@@ -508,13 +510,13 @@ test('system administrator UI has expected nav', async () => {
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(screen.getByText('Definition'));
-  await screen.findByRole('heading', { name: 'Election Definition' });
-  userEvent.click(screen.getByText('Smartcards'));
+  userEvent.click(screen.getButton('Election'));
+  await screen.findByRole('heading', { name: 'Election' });
+  userEvent.click(screen.getButton('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
-  userEvent.click(screen.getByText('Settings'));
+  userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
-  userEvent.click(screen.getByText('Logs'));
+  userEvent.click(screen.getButton('Logs'));
   await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 });
@@ -526,18 +528,18 @@ test('system administrator UI has expected nav when no election', async () => {
 
   await apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(screen.getByText('Definition'));
+  userEvent.click(screen.getButton('Election'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
-  userEvent.click(screen.getByText('Settings'));
+  userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
-  userEvent.click(screen.getByText('Logs'));
+  userEvent.click(screen.getButton('Logs'));
   await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 
-  // Create an election definition and verify that previously hidden tabs appear
-  userEvent.click(screen.getByText('Definition'));
+  // Configure with an election definition and verify that previously hidden tabs appear
+  userEvent.click(screen.getButton('Election'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectConfigure(
@@ -564,7 +566,7 @@ test('system administrator UI has expected nav when no election', async () => {
   userEvent.click(screen.getByText('Remove Election'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
-    within(modal).getByRole('button', { name: 'Remove Election Definition' })
+    within(modal).getByRole('button', { name: 'Remove Election' })
   );
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()

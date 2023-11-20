@@ -29,7 +29,7 @@ export function DefinitionScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen title="Election Definition">
+      <NavigationScreen title="Election">
         <P>
           Configured with the current election at{' '}
           <Font weight="bold">
@@ -41,9 +41,7 @@ export function DefinitionScreen(): JSX.Element {
             <Seal seal={election.seal} />
           </div>
           <div>
-            <P>
-              <H2 as="h3">{election.title}</H2>
-            </P>
+            <H2 as="h3">{election.title}</H2>
             <P>
               {election.county.name}, {election.state}
               <br />

@@ -15,7 +15,7 @@ import {
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { DefinitionScreen } from '../screens/definition_screen';
+import { DefinitionScreen } from '../screens/election_screen';
 import { BallotListScreen } from '../screens/ballot_list_screen';
 import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
