@@ -372,7 +372,7 @@ const VVSG_MIN_TOUCH_AREA_SIZE_MM = 12.7;
 const VVSG_MIN_TOUCH_AREA_SEPARATION_MM = 2.54;
 
 const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
-  desktop: () => ({
+  desktop: ({ screenType }) => ({
     borderRadiusRem: 0.5,
     bordersRem: {
       hairline: 0.06,
@@ -380,7 +380,10 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
       medium: 0.15,
       thick: 0.25,
     },
-    fontDefault: 16,
+    fontDefault:
+      screenType === 'lenovoThinkpad15'
+        ? 24 // VxAdmin, VxCentralScan
+        : 16, // VxDesign
     fontWeight: {
       light: 200,
       regular: 400,
