@@ -1,6 +1,5 @@
 APP := ..
 export ADMIN_WORKSPACE=/tmp/admin-integration-testing
-export PIPENV_VENV_IN_PROJECT=1
 
 build-frontend:
 	make -C $(APP)/frontend install; \
