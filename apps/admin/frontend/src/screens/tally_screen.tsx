@@ -3,16 +3,7 @@ import moment from 'moment';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { assert, find, throwIllegalValue, unique } from '@votingworks/basics';
-import {
-  Button,
-  Table,
-  TD,
-  LinkButton,
-  H2,
-  P,
-  Icons,
-  Caption,
-} from '@votingworks/ui';
+import { Button, Table, TD, LinkButton, H2, P, Icons } from '@votingworks/ui';
 import { ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
@@ -240,9 +231,9 @@ export function TallyScreen(): JSX.Element | null {
             </tbody>
           </Table>
         ) : (
-          <Caption>
+          <P>
             <Icons.Info /> No CVRs loaded.
-          </Caption>
+          </P>
         )}
         <H2>Manually Entered Results</H2>
         <P>
