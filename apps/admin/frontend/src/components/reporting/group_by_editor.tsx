@@ -39,12 +39,7 @@ export function GroupByEditor({
       }
       onChange={(value) =>
         setGroupBy(
-          Object.fromEntries(
-            allowedGroupings.map((grouping) => [
-              grouping,
-              value.includes(grouping),
-            ])
-          )
+          Object.fromEntries(value.map((grouping) => [grouping, true]))
         )
       }
     />

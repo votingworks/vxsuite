@@ -48,7 +48,9 @@ test('happy path', async () => {
   expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Group By
-  userEvent.click(screen.getButton('Report By Precinct'));
+  const precinctCheckbox = screen.getByRole('checkbox', { name: 'Precinct' });
+  userEvent.click(precinctCheckbox);
+  expect(precinctCheckbox).toBeChecked();
 
   // Load Preview
   apiMock.expectGetResultsForTallyReports(

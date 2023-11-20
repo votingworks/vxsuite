@@ -65,26 +65,23 @@ test('initial table without manual tallies & adding a manual tally', async () =>
 
   // adding a manual tally
   expect(screen.getButton('Add Results')).toBeDisabled();
-  expect(screen.getByTestId('selectBallotType')).toBeDisabled();
-  expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
+  expect(screen.getByLabelText('Select Voting Method')).toBeDisabled();
+  expect(screen.getByLabelText('Select Precinct')).toBeDisabled();
 
-  const ballotStylePicker = await screen.findByTestId('selectBallotStyle');
-  userEvent.selectOptions(ballotStylePicker, '1M');
-  screen.getByRole('option', { name: '1M', selected: true });
+  userEvent.click(screen.getByLabelText('Select Ballot Style'));
+  userEvent.click(screen.getByText('1M'));
 
   expect(screen.getButton('Add Results')).toBeDisabled();
-  expect(screen.getByTestId('selectBallotType')).toBeDisabled();
+  expect(screen.getByLabelText('Select Voting Method')).toBeDisabled();
 
-  const precinctPicker = await screen.findByTestId('selectPrecinct');
-  userEvent.selectOptions(precinctPicker, 'Precinct 1');
-  screen.getByRole('option', { name: 'Precinct 1', selected: true });
+  userEvent.click(screen.getByLabelText('Select Precinct'));
+  userEvent.click(screen.getByText('Precinct 1'));
 
   expect(screen.getButton('Add Results')).toBeDisabled();
 
-  const ballotTypePicker = await screen.findByTestId('selectBallotType');
-  screen.getByText('Absentee');
-  userEvent.selectOptions(ballotTypePicker, 'Precinct');
-  screen.getByRole('option', { name: 'Precinct', selected: true });
+  userEvent.click(screen.getByLabelText('Select Voting Method'));
+  const options = screen.getByText('Absentee').parentElement!;
+  userEvent.click(within(options).getByText('Precinct'));
 
   userEvent.click(screen.getButton('Add Results'));
   expect(history.location.pathname).toEqual(
@@ -188,9 +185,13 @@ test('full table & clearing all data', async () => {
   ).not.toBeDisabled();
 
   // adding row should be gone
-  expect(screen.queryByTestId('selectBallotStyle')).not.toBeInTheDocument();
-  expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
-  expect(screen.queryByTestId('selectBallotType')).not.toBeInTheDocument();
+  expect(
+    screen.queryByLabelText('Select Ballot Style')
+  ).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Select Precinct')).not.toBeInTheDocument();
+  expect(
+    screen.queryByLabelText('Select Voting Method')
+  ).not.toBeInTheDocument();
   expect(screen.queryByText('Add Results')).not.toBeInTheDocument();
 
   // existing entries
@@ -208,7 +209,7 @@ test('full table & clearing all data', async () => {
   );
 
   await screen.findByText('Add Results');
-  screen.getByTestId('selectBallotStyle');
-  screen.getByTestId('selectPrecinct');
-  screen.getByTestId('selectBallotType');
+  screen.getByLabelText('Select Ballot Style');
+  screen.getByLabelText('Select Precinct');
+  screen.getByLabelText('Select Voting Method');
 });

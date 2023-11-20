@@ -81,9 +81,12 @@ test('happy path', async () => {
   expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Group By
-  userEvent.click(screen.getButton('Report By Precinct'));
-  expect(screen.queryByLabelText('Report By Party')).toBeInTheDocument();
-  userEvent.click(screen.getButton('Report By Party'));
+  const precinctCheckbox = screen.getByRole('checkbox', { name: 'Precinct' });
+  userEvent.click(precinctCheckbox);
+  expect(precinctCheckbox).toBeChecked();
+  const partyCheckbox = screen.getByRole('checkbox', { name: 'Party' });
+  userEvent.click(partyCheckbox);
+  expect(partyCheckbox).toBeChecked();
 
   // Load Preview
   apiMock.expectGetCardCounts(

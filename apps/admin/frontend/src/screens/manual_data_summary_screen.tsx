@@ -286,7 +286,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                   <TD>
                     <SearchSelect
                       id="selectBallotStyle"
-                      data-testid="selectBallotStyle"
+                      ariaLabel="Select Ballot Style"
                       options={[
                         ...selectableBallotStyles.map((bs) => ({
                           label: bs.id,
@@ -302,7 +302,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                   <TD>
                     <SearchSelect
                       id="selectPrecinct"
-                      data-testid="selectPrecinct"
+                      ariaLabel="Select Precinct"
                       options={selectablePrecincts.map((p) => ({
                         label: p.name,
                         value: p.id,
@@ -317,7 +317,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                   <TD>
                     <SearchSelect
                       id="selectBallotType"
-                      data-testid="selectBallotType"
+                      ariaLabel="Select Voting Method"
                       options={selectableBallotTypes.map((bt) => ({
                         label: bt === 'absentee' ? 'Absentee' : 'Precinct',
                         value: bt,

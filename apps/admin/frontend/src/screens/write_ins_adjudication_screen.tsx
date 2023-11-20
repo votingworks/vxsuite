@@ -13,7 +13,6 @@ import {
   Button,
   Main,
   Screen,
-  P,
   Font,
   Caption,
   H2,
@@ -468,64 +467,60 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             </ContestTitle>
           </ContestTitleContainer>
           <AdjudicationForm>
-            <P>
+            <RadioGroup
+              label="Official Candidates"
+              options={officialCandidates.map((candidate) => ({
+                label: candidate.name,
+                value: candidate.id,
+              }))}
+              value={
+                currentWriteIn &&
+                currentWriteIn.status === 'adjudicated' &&
+                currentWriteIn.adjudicationType === 'official-candidate'
+                  ? currentWriteIn.candidateId
+                  : undefined
+              }
+              onChange={(candidateId) => {
+                if (isWriteInAdjudicationContextFresh) {
+                  adjudicateAsOfficialCandidate(
+                    find(officialCandidates, (c) => c.id === candidateId)
+                  );
+                }
+              }}
+            />
+
+            <SectionLabel>Write-In Candidates</SectionLabel>
+            {writeInCandidates.length > 0 && (
               <RadioGroup
-                label="Official Candidates"
-                options={officialCandidates.map((candidate) => ({
+                label="Write-In Candidates"
+                hideLabel
+                options={writeInCandidates.map((candidate) => ({
                   label: candidate.name,
                   value: candidate.id,
                 }))}
                 value={
                   currentWriteIn &&
                   currentWriteIn.status === 'adjudicated' &&
-                  currentWriteIn.adjudicationType === 'official-candidate'
+                  currentWriteIn.adjudicationType === 'write-in-candidate'
                     ? currentWriteIn.candidateId
                     : undefined
                 }
                 onChange={(candidateId) => {
                   if (isWriteInAdjudicationContextFresh) {
-                    adjudicateAsOfficialCandidate(
-                      find(officialCandidates, (c) => c.id === candidateId)
+                    adjudicateAsWriteInCandidate(
+                      find(writeInCandidates, (c) => c.id === candidateId)
                     );
                   }
                 }}
               />
-            </P>
-
-            <SectionLabel>Write-In Candidates</SectionLabel>
-            {writeInCandidates.length > 0 && (
-              <P>
-                <RadioGroup
-                  label="Write-In Candidates"
-                  hideLabel
-                  options={writeInCandidates.map((candidate) => ({
-                    label: candidate.name,
-                    value: candidate.id,
-                  }))}
-                  value={
-                    currentWriteIn &&
-                    currentWriteIn.status === 'adjudicated' &&
-                    currentWriteIn.adjudicationType === 'write-in-candidate'
-                      ? currentWriteIn.candidateId
-                      : undefined
-                  }
-                  onChange={(candidateId) => {
-                    if (isWriteInAdjudicationContextFresh) {
-                      adjudicateAsWriteInCandidate(
-                        find(writeInCandidates, (c) => c.id === candidateId)
-                      );
-                    }
-                  }}
-                />
-              </P>
             )}
 
-            <P>
+            <div style={{ margin: '0.5rem 0' }}>
               {showNewWriteInCandidateForm ? (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <input
                     key={currentWriteInId}
-                    value={newWriteInCandidateName}
+                    value={newWriteInCandidateName ?? ''}
                     onChange={(e) => setNewWriteInCandidateName(e.target.value)}
                     aria-label="Candidate Name"
                     placeholder="Candidate Name"
@@ -564,8 +559,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   Add new write-in candidate
                 </WriteInActionButton>
               )}
-            </P>
-            <P>
+            </div>
+
+            <div>
               <WriteInActionButton
                 onPress={() => {
                   if (
@@ -580,7 +576,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
               >
                 Mark write-in invalid
               </WriteInActionButton>
-            </P>
+            </div>
           </AdjudicationForm>
           <AdjudicationNav>
             <Button

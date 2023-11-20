@@ -201,7 +201,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getButton('Fox'));
+    userEvent.click(screen.getByLabelText('Fox'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a bubble selection marked for/);
   });
@@ -235,7 +235,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getButton('Fox'));
+    userEvent.click(screen.getByLabelText('Fox'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a write-in that has already been adjudicated for/);
   });
@@ -276,7 +276,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getButton('Puma'));
+    userEvent.click(screen.getByLabelText('Puma'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a write-in that has already been adjudicated for/);
   });
@@ -350,11 +350,11 @@ test('marking adjudications', async () => {
   });
 
   await screen.findByRole('img', { name: /ballot/i });
-  screen.getButton('Zebra');
-  screen.getButton('Lion');
-  screen.getButton('Kangaroo');
-  screen.getButton('Elephant');
-  screen.getButton('Lemur');
+  screen.getByLabelText('Zebra');
+  screen.getByLabelText('Lion');
+  screen.getByLabelText('Kangaroo');
+  screen.getByLabelText('Elephant');
+  screen.getByLabelText('Lemur');
 
   // adjudicate for official candidate
   apiMock.apiClient.adjudicateWriteIn
@@ -376,13 +376,13 @@ test('marking adjudications', async () => {
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
-  userEvent.click(screen.getButton('Zebra'));
+  userEvent.click(screen.getByLabelText('Zebra'));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
   );
 
   // clicking current selection should be no-op
-  userEvent.click(screen.getButton('Zebra'));
+  userEvent.click(screen.getByLabelText('Zebra'));
   apiMock.assertComplete();
 
   // adjudicate for existing write-in candidate
@@ -405,13 +405,13 @@ test('marking adjudications', async () => {
   apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
   expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
-  userEvent.click(screen.getButton('Lemur'));
+  userEvent.click(screen.getByLabelText('Lemur'));
   await waitFor(async () =>
     expect(await screen.findButton('Next')).toHaveFocus()
   );
 
   // clicking current selection should be no-op
-  userEvent.click(screen.getButton('Lemur'));
+  userEvent.click(screen.getByLabelText('Lemur'));
   apiMock.assertComplete();
 
   // adjudicate for a new write-in-candidate

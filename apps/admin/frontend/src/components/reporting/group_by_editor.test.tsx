@@ -36,9 +36,9 @@ test('GroupByEditor', () => {
   ];
 
   for (const [label, checked] of items) {
-    const button = screen.getByRole('button', {
-      name: `Report By ${label}`,
-      pressed: checked,
+    const button = screen.getByRole('checkbox', {
+      name: label,
+      checked,
     });
     expect(button).toHaveTextContent(label);
   }

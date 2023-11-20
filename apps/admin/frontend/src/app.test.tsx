@@ -694,7 +694,7 @@ test('usb formatting flows', async () => {
 
   apiMock.expectGetUsbDriveStatus('ejected');
   await screen.findByText('USB Drive Formatted');
-  screen.getByText('Ejected');
+  screen.getByText('USB Ejected');
 
   // Removing USB resets modal
   apiMock.expectGetUsbDriveStatus('no_drive');
@@ -716,7 +716,7 @@ test('usb formatting flows', async () => {
 
   apiMock.expectGetUsbDriveStatus('ejected');
   await screen.findByText('USB Drive Formatted');
-  screen.getByText('Ejected');
+  screen.getByText('USB Ejected');
 
   // Removing USB resets modal
   apiMock.expectGetUsbDriveStatus('no_drive');
