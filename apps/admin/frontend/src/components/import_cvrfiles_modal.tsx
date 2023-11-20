@@ -15,6 +15,7 @@ import {
   P,
   Font,
   Icons,
+  FileInputButton,
 } from '@votingworks/ui';
 import {
   format,
@@ -33,7 +34,6 @@ import {
   CastVoteRecordFilePreprocessedData,
   InputEventFunction,
 } from '../config/types';
-import { FileInputButton } from './file_input_button';
 import { TIME_FORMAT } from '../config/globals';
 import {
   addCastVoteRecordFile,

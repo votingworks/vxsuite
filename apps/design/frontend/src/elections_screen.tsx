@@ -8,12 +8,12 @@ import {
   Button,
   MainContent,
   MainHeader,
+  FileInputButton,
 } from '@votingworks/ui';
 import { FormEvent } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { listElections, createElection } from './api';
-import { FileInputButton } from './file_input_button';
 import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
 

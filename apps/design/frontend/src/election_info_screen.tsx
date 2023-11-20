@@ -6,6 +6,7 @@ import {
   MainContent,
   MainHeader,
   SegmentedButton,
+  FileInputButton,
 } from '@votingworks/ui';
 import { Buffer } from 'buffer';
 import { useHistory, useParams } from 'react-router-dom';
@@ -14,7 +15,6 @@ import { deleteElection, getElection, updateElection } from './api';
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
-import { FileInputButton } from './file_input_button';
 
 type ElectionInfo = Pick<
   Election,

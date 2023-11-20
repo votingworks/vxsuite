@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { Button, Font, Icons, P } from '@votingworks/ui';
+import { Button, FileInputButton, Icons, P } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 
 import { readFileAsyncAsString } from '@votingworks/utils';
@@ -13,7 +13,6 @@ import { readInitialAdminSetupPackageFromFile } from '../utils/initial_setup_pac
 import { InputEventFunction } from '../config/types';
 
 import { routerPaths } from '../router_paths';
-import { FileInputButton } from '../components/file_input_button';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure } from '../api';

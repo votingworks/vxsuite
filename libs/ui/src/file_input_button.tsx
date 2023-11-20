@@ -1,7 +1,6 @@
 import { ChangeEvent, FormEvent, RefObject } from 'react';
 import styled from 'styled-components';
-
-import { LabelButton, ButtonProps } from '@votingworks/ui';
+import { LabelButton, ButtonProps } from './button';
 
 const LabelButtonContainer = styled(LabelButton)`
   position: relative;
@@ -26,7 +25,7 @@ const HiddenFileInput = styled.input`
   }
 `;
 
-interface Props {
+export interface FileInputButtonProps {
   accept?: string;
   buttonProps?: Omit<ButtonProps, 'onPress'>;
   disabled?: boolean;
@@ -45,9 +44,10 @@ export function FileInputButton({
   onChange,
   innerRef,
   ...rest
-}: Props): JSX.Element {
+}: FileInputButtonProps): JSX.Element {
   function onBlur(event: FormEvent<HTMLInputElement>) {
     const input = event.currentTarget;
+    /* istanbul ignore next */
     input?.blur();
   }
   return (

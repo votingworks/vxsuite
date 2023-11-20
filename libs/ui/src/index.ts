@@ -14,6 +14,7 @@ export * from './contest_choice_button';
 export * from './display_settings';
 export * from './error_boundary';
 export * from './election_info_bar';
+export * from './file_input_button';
 export * from './fonts/font_family';
 export * from './global_styles';
 export * from './globals';
