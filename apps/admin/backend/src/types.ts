@@ -9,7 +9,6 @@ import {
   Iso8601TimestampSchema,
   Rect,
   CandidateId,
-  Dictionary,
   PrecinctId,
   BallotStyleId,
   Tabulation,
@@ -440,30 +439,6 @@ export type ManualResultsFilter = Omit<
   Tabulation.Filter,
   'scannerIds' | 'batchIds'
 >;
-
-/**
- * Contest tally format for export to SEMS converter.
- */
-export interface SemsExportableContestTally {
-  readonly tallies: Dictionary<number>;
-  readonly metadata: {
-    readonly overvotes: number;
-    readonly undervotes: number;
-    readonly ballots: number;
-  };
-}
-
-/**
- * Tally format for export to SEMS converter.
- */
-export type SemsExportableTally = Dictionary<SemsExportableContestTally>;
-
-/**
- * Tallies by precinct for export to SEMS converter.
- */
-export interface SemsExportableTallies {
-  readonly talliesByPrecinct: Dictionary<SemsExportableTally>;
-}
 
 /**
  * A count of a specific kind of card. For representation of aggregate values

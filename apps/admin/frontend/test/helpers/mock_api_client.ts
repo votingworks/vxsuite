@@ -9,7 +9,6 @@ import type {
   ManualResultsMetadataRecord,
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
-  SemsExportableTallies,
   ScannerBatch,
   TallyReportResults,
   WriteInAdjudicationQueueMetadata,
@@ -341,10 +340,6 @@ export function createApiMock(
 
     expectSaveBallotPackageToUsb(result: Result<void, ExportDataError> = ok()) {
       apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
-    },
-
-    expectGetSemsExportableTallies(result: SemsExportableTallies) {
-      apiClient.getSemsExportableTallies.expectCallWith().resolves(result);
     },
 
     expectExportTallyReportCsv({

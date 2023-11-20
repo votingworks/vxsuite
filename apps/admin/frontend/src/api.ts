@@ -390,20 +390,6 @@ export const getManualResultsMetadata = {
   },
 } as const;
 
-export const getSemsExportableTallies = {
-  queryKey(): QueryKey {
-    return ['getSemsExportableTallies'];
-  },
-  useQuery({ enabled }: { enabled: boolean }) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getSemsExportableTallies(),
-      { enabled }
-    );
-  },
-} as const;
-
 type GetCardCountsInput = QueryInput<'getCardCounts'>;
 export const getCardCounts = {
   queryKey(input?: GetCardCountsInput): QueryKey {
@@ -476,7 +462,6 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getScannerBatches.queryKey()),
 
     // results endpoints relying on cast vote records (all)
-    queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
     queryClient.invalidateQueries(getCardCounts.queryKey()),
     queryClient.invalidateQueries(getResultsForTallyReports.queryKey()),
     queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
@@ -511,7 +496,6 @@ function invalidateManualResultsQueries(queryClient: QueryClient) {
 
     // results queries that include manual results
     queryClient.invalidateQueries(getResultsForTallyReports.queryKey()),
-    queryClient.invalidateQueries(getSemsExportableTallies.queryKey()),
     queryClient.invalidateQueries(getCardCounts.queryKey()),
     queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
   ]);

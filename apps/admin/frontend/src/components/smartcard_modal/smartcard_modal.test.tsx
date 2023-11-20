@@ -1,6 +1,5 @@
-import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
-import { err, throwIllegalValue, typedAs } from '@votingworks/basics';
+import { err, throwIllegalValue } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
@@ -22,7 +21,6 @@ import {
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { buildApp } from '../../../test/helpers/build_app';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
-import { VxFiles } from '../../lib/converters';
 
 const electionDefinition = electionGeneralDefinition;
 const { electionHash } = electionDefinition;
@@ -39,12 +37,6 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbDriveStatus('no_drive');
-
-  fetchMock.reset();
-  fetchMock.get(
-    '/convert/election/files',
-    typedAs<VxFiles>({ inputFiles: [], outputFiles: [] })
-  );
 });
 
 afterEach(() => {
