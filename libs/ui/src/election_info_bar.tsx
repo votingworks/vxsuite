@@ -148,7 +148,6 @@ const VerticalBar = styled.div<{ inverse?: boolean }>`
   gap: 0.5rem;
 `;
 
-/* istanbul ignore next - purely presentational */
 export function VerticalElectionInfoBar({
   mode = 'voter',
   electionDefinition,

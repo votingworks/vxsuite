@@ -56,6 +56,7 @@ test('single and not searchable', () => {
       isSearchable={false}
       options={options}
       ariaLabel="Choose Fruit"
+      placeholder="Pick a fruit"
     />,
     // Change theme in one test for coverage
     { vxTheme: makeTheme({ sizeMode: 'desktop', colorMode: 'desktop' }) }
@@ -65,6 +66,8 @@ test('single and not searchable', () => {
   for (const option of options) {
     expect(screen.queryByText(option.label)).not.toBeInTheDocument();
   }
+
+  screen.getByText('Pick a fruit');
 
   // open dropdown
   userEvent.click(screen.getByLabelText('Choose Fruit'));

@@ -1,6 +1,5 @@
-import { render } from '../test/react_testing_library';
-
-import { Main } from './main';
+import { render, screen } from '../test/react_testing_library';
+import { Main, MainContent, MainHeader } from './main';
 
 describe('renders Main', () => {
   test('with defaults', () => {
@@ -48,5 +47,20 @@ describe('renders Main', () => {
     expect(main).toHaveStyleRule('flex-direction', 'column');
     expect(main).not.toHaveStyleRule('justify-content');
     expect(main).not.toHaveStyleRule('align-items');
+  });
+
+  test('with header and content', () => {
+    const { container } = render(
+      <Main flexColumn>
+        <MainHeader>Header</MainHeader>
+        <MainContent>Content</MainContent>
+      </Main>
+    );
+    const main = container.firstChild;
+    const header = screen.getByText('Header');
+    const content = screen.getByText('Content');
+    expect(main).toHaveStyleRule('position', 'relative');
+    expect(header).toHaveStyleRule('position', 'sticky');
+    expect(content).toHaveStyleRule('overflow', 'auto');
   });
 });
