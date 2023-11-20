@@ -90,8 +90,8 @@ test('shows ejected if recently ejected', () => {
     />
   );
 
-  expect(container.firstChild).toHaveTextContent('Ejected');
-  fireEvent.click(getByText('Ejected'));
+  expect(container.firstChild).toHaveTextContent('USB Ejected');
+  fireEvent.click(getByText('USB Ejected'));
   expect(eject).not.toHaveBeenCalled();
 });
 
