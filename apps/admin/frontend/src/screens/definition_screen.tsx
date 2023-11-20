@@ -4,17 +4,20 @@ import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
-import { Button, Font, H3, LinkButton, P, Seal } from '@votingworks/ui';
+import { Button, Font, H2, P, Seal } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
-
-import { routerPaths } from '../router_paths';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveElectionModal } from '../components/remove_election_modal';
 
-const ButtonList = styled.div`
+const ElectionMetadataContainer = styled.div`
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
+  margin: 1rem 0;
+  align-items: center;
+  padding: 1rem;
+  background: ${(p) => p.theme.colors.containerLow};
+  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
 `;
 
 export function DefinitionScreen(): JSX.Element {
@@ -33,32 +36,28 @@ export function DefinitionScreen(): JSX.Element {
             {format.localeLongDateAndTime(new Date(configuredAt))}
           </Font>
         </P>
-        <H3 as="h2">Election Metadata</H3>
-        <P>
-          <Font weight="semiBold">Title:</Font> {election.title}
-        </P>
-        <P>
-          <Font weight="semiBold">Date:</Font>{' '}
-          {format.localeLongDateAndTime(new Date(election.date))}
-        </P>
-        <P>
-          <Font weight="semiBold">County Name:</Font> {election.county.name}
-        </P>
-        <P>
-          <Font weight="semiBold">State:</Font> {election.state}
-        </P>
-        <div>
-          <Font weight="semiBold">Seal:</Font> <Seal seal={election.seal} />
-        </div>
-        <H3 as="h2">Advanced Features</H3>
-        <ButtonList>
-          <LinkButton to={routerPaths.definitionViewer}>
-            View Definition JSON
-          </LinkButton>
-          <Button icon="Delete" onPress={() => setIsRemovingElection(true)}>
-            Remove Election
-          </Button>
-        </ButtonList>
+        <ElectionMetadataContainer>
+          <div style={{ width: '7rem' }}>
+            <Seal seal={election.seal} />
+          </div>
+          <div>
+            <P>
+              <H2 as="h3">{election.title}</H2>
+            </P>
+            <P>
+              {election.county.name}, {election.state}
+              <br />
+              {format.localeDate(new Date(election.date))}
+            </P>
+          </div>
+        </ElectionMetadataContainer>
+        <Button
+          variant="danger"
+          icon="Delete"
+          onPress={() => setIsRemovingElection(true)}
+        >
+          Remove Election
+        </Button>
       </NavigationScreen>
       {isRemovingElection && (
         <RemoveElectionModal onClose={() => setIsRemovingElection(false)} />

@@ -84,7 +84,7 @@ test('configuring with a demo election definition', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata(null);
 
-  const { getByText } = renderApp();
+  renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
   await screen.findByText('Load Demo Election Definition');
@@ -107,17 +107,15 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   await screen.findByText('Save logs on the inserted USB drive?');
 
-  fireEvent.click(getByText('Definition'));
-
-  fireEvent.click(getByText('View Definition JSON'));
+  fireEvent.click(screen.getByText('Definition'));
 
   // remove the election
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
-  apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  fireEvent.click(getByText('Remove'));
-  fireEvent.click(getByText('Remove Election Definition'));
+  apiMock.expectGetMachineConfig();
+  fireEvent.click(screen.getByText('Remove Election'));
+  fireEvent.click(screen.getByText('Remove Election Definition'));
 
   await screen.findByText('Configure VxAdmin');
 

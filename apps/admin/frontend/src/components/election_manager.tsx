@@ -21,7 +21,6 @@ import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
 import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudication_report_screen';
-import { DefinitionViewerScreen } from '../screens/definition_viewer_screen';
 import { ManualDataSummaryScreen } from '../screens/manual_data_summary_screen';
 import { ManualDataEntryScreen } from '../screens/manual_data_entry_screen';
 import { SmartcardsScreen } from '../screens/smartcards_screen';
@@ -116,9 +115,6 @@ export function ElectionManager(): JSX.Element {
         <Switch>
           <Route exact path={routerPaths.electionDefinition}>
             <DefinitionScreen />
-          </Route>
-          <Route exact path={routerPaths.definitionViewer}>
-            <DefinitionViewerScreen />
           </Route>
           <Route exact path={routerPaths.smartcards}>
             <Redirect
