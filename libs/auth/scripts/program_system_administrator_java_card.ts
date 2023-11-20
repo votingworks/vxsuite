@@ -58,7 +58,6 @@ async function programSystemAdministratorJavaCard(): Promise<void> {
 export async function main(): Promise<void> {
   try {
     await programSystemAdministratorJavaCard();
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

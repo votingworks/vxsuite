@@ -21,8 +21,8 @@ interface SynthesizeSpeechInput {
 
 function parseCommandLineArgs(args: readonly string[]): SynthesizeSpeechInput {
   if (args.length !== 3 || !languageCodes.includes(args[1])) {
-    console.log(usageMessage);
-    process.exit(0);
+    console.error(usageMessage);
+    process.exit(1);
   }
   const [text, languageCode, outputFilePath] = args as [
     string,
@@ -52,7 +52,6 @@ async function synthesizeSpeech({
 export async function main(args: readonly string[]): Promise<void> {
   try {
     await synthesizeSpeech(parseCommandLineArgs(args));
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

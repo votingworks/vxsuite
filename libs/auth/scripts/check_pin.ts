@@ -14,8 +14,8 @@ interface CheckPinInput {
 
 function parseCommandLineArgs(args: readonly string[]): CheckPinInput {
   if (args.length > 1 || ![undefined, '--cac', '--vxsuite'].includes(args[0])) {
-    console.log(usageMessage);
-    process.exit(0);
+    console.error(usageMessage);
+    process.exit(1);
   }
   return { cardType: args[0] === '--cac' ? 'cac' : 'vxsuite' };
 }
@@ -56,7 +56,6 @@ async function checkPin({ cardType }: CheckPinInput): Promise<void> {
 export async function main(args: readonly string[]): Promise<void> {
   try {
     await checkPin(parseCommandLineArgs(args));
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

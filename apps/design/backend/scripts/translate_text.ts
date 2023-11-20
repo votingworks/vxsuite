@@ -21,8 +21,8 @@ interface TranslateTextInput {
 
 function parseCommandLineArgs(args: readonly string[]): TranslateTextInput {
   if (args.length !== 2 || !languageCodes.has(args[1])) {
-    console.log(usageMessage);
-    process.exit(0);
+    console.error(usageMessage);
+    process.exit(1);
   }
   const [text, targetLanguageCode] = args as [string, LanguageCode];
   return { targetLanguageCode, text };
@@ -47,7 +47,6 @@ async function translateText({
 export async function main(args: readonly string[]): Promise<void> {
   try {
     await translateText(parseCommandLineArgs(args));
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

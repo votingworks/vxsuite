@@ -301,7 +301,6 @@ async function generateDevKeysAndCerts({
 export async function main(): Promise<void> {
   try {
     await generateDevKeysAndCerts(await parseCommandLineArgs());
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

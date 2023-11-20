@@ -205,7 +205,6 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
 export async function main(): Promise<void> {
   try {
     mockCardWrapper(await parseCommandLineArgs());
-    process.exit(0);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
