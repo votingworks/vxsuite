@@ -15,27 +15,32 @@ import { Text, NoWrap } from '../text';
 
 const tableBorderColor = 'rgb(194, 200, 203)';
 
+const DistrictName = styled.p`
+  margin-bottom: 0;
+  font-size: 0.8em;
+`;
+
+const ContestTitle = styled.h3`
+  margin-top: 0;
+  margin-bottom: 0.2em;
+`;
+
+const TermDescription = styled.p`
+  margin-top: -0.2em;
+  margin-bottom: 0.2em;
+  font-weight: 500;
+  font-size: 0.8em;
+`;
+
+const MetadataLabel = styled.p`
+  margin-top: 0;
+  margin-bottom: 0.2em;
+  font-size: 0.8em;
+`;
+
 const Contest = styled.div`
   margin: 2.5em 0;
   page-break-inside: avoid;
-
-  h3 {
-    margin-top: 0;
-    margin-bottom: 0.5em;
-
-    & + p {
-      margin-top: -0.8em;
-      margin-bottom: 0.25em;
-    }
-
-    & + table {
-      margin-top: -0.5em;
-    }
-  }
-
-  p:first-child {
-    margin-bottom: 0;
-  }
 `;
 
 const ContestTable = styled.table`
@@ -277,8 +282,8 @@ export function ContestResultsTable({
 
   return (
     <Contest data-testid={`results-table-${contest.id}`}>
-      <Text small>{getContestDistrictName(election, contest)}</Text>
-      <h3>
+      <DistrictName>{getContestDistrictName(election, contest)}</DistrictName>
+      <ContestTitle>
         {contest.title}
         {contest.type === 'candidate' && contest.seats > 1 && (
           <React.Fragment>
@@ -288,9 +293,12 @@ export function ContestResultsTable({
             </Text>
           </React.Fragment>
         )}
-      </h3>
+      </ContestTitle>
+      {contest.type === 'candidate' && contest.termDescription && (
+        <TermDescription>{contest.termDescription}</TermDescription>
+      )}
       {!hasManualResults && (
-        <Text small>
+        <MetadataLabel>
           <NoWrap>
             {`${format.count(scannedContestResults.ballots)} ${pluralize(
               'ballots',
@@ -313,7 +321,7 @@ export function ContestResultsTable({
               scannedContestResults.undervotes
             )}`}
           </NoWrap>
-        </Text>
+        </MetadataLabel>
       )}
       <ContestTable>
         <tbody>{contestTableRows}</tbody>

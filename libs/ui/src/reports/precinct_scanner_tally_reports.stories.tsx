@@ -4,6 +4,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
 } from '@votingworks/utils';
+import { ElectionDefinition } from '@votingworks/types';
 import { TallyReportPreview } from './tally_report';
 import {
   PrecinctScannerTallyReports,
@@ -72,8 +73,24 @@ const electionResultsByParty = [
   },
 ];
 
+const electionDefinitionWithTermDescription: ElectionDefinition = {
+  ...electionTwoPartyPrimaryDefinition,
+  election: {
+    ...electionTwoPartyPrimaryDefinition.election,
+    contests: electionTwoPartyPrimaryDefinition.election.contests.map((c) => {
+      if (c.type === 'candidate') {
+        return {
+          ...c,
+          termDescription: 'For three years',
+        };
+      }
+      return c;
+    }),
+  },
+};
+
 const reportArgs: PrecinctScannerTallyReportsProps = {
-  electionDefinition: electionTwoPartyPrimaryDefinition,
+  electionDefinition: electionDefinitionWithTermDescription,
   electionResultsByParty,
   precinctSelection: ALL_PRECINCTS_SELECTION,
   pollsTransition: 'close_polls',

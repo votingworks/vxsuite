@@ -240,3 +240,15 @@ test('uses write-in adjudication aggregation', () => {
   within(fishing).getByText(hasTextAcrossElements('Giraffe (Write-In)40'));
   within(fishing).getByText(hasTextAcrossElements('Other Write-In20'));
 });
+
+test('shows term description if it exists', () => {
+  render(
+    <ContestResultsTable
+      election={election}
+      contest={{ ...candidateContest, termDescription: 'For three years' }}
+      scannedContestResults={candidateContestScannedResults}
+    />
+  );
+  const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
+  within(bestAnimalFish).getByText('For three years');
+});

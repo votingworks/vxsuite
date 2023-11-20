@@ -4,7 +4,12 @@ import {
   buildElectionResultsFixture,
   buildManualResultsFixture,
 } from '@votingworks/utils';
-import { Tabulation, getBallotStyle, getContests } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  Tabulation,
+  getBallotStyle,
+  getContests,
+} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { AdminTallyReportProps, AdminTallyReport } from './admin_tally_report';
 import { TallyReportPreview } from './tally_report';
@@ -128,14 +133,30 @@ export const BallotStyleManualReport: Story = {
   args: ballotStyleManualReportArgs,
 };
 
+const electionDefinitionWithTermDescription: ElectionDefinition = {
+  ...electionTwoPartyPrimaryDefinition,
+  election: {
+    ...electionTwoPartyPrimaryDefinition.election,
+    contests: electionTwoPartyPrimaryDefinition.election.contests.map((c) => {
+      if (c.type === 'candidate') {
+        return {
+          ...c,
+          termDescription: 'For three years',
+        };
+      }
+      return c;
+    }),
+  },
+};
+
 const fullElectionWriteInReportArgs: AdminTallyReportProps = {
   title: 'Full Election Tally Report',
   isTest: true,
   isOfficial: false,
   subtitle: election.title,
   testId: 'tally-report',
-  electionDefinition,
-  contests: election.contests,
+  electionDefinition: electionDefinitionWithTermDescription,
+  contests: electionDefinitionWithTermDescription.election.contests,
   scannedElectionResults: buildElectionResultsFixture({
     election,
     cardCounts: {
