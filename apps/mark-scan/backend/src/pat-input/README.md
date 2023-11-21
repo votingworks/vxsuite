@@ -22,6 +22,9 @@ sudo ./bin/patinputd
 udev rule configuration to allow running the daemon without `sudo` is on the
 backlog.
 
+The daemon must be running for `connection_status_reader` to work. Otherwise it
+will fail because the pin will be unexported.
+
 ## Data Format and Protocol
 
 Three status bits can be read from the 3.5mm jack:
@@ -53,7 +56,7 @@ mark-scan frontend to handle. More specifically, it
 
 - Sets itself up to read GPIO pins and send keypress events
 - Polls GPIO pin data in a loop
-- When "A" or "B" signal is received, sends a "1" or "2" keypress event
+- When "A" or "B" signal is received, emits a keypress event
 - Cleans up on exit
 
 `connection_status_reader.ts` is a small node helper that reads PAT device
@@ -78,9 +81,3 @@ Once `patinputd` has "A" or "B" signal, it sends a keypress event with
 [uinput](https://kernel.org/doc/html/v4.12/input/uinput.html). VxMarkScan
 listens for keypresses "1" or "2" and handles them as DOM navigation and DOM
 element selection, respectively.
-
-### connection_status_reader
-
-`connection_status_reader` reads the GPIO pin for PAT device connection status.
-The daemon must be running or `connection_status_reader` will fail because the
-pin will be exported.
