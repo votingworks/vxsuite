@@ -12,5 +12,6 @@
     "writeInTextArea": 0.05
   },
   "centralScanAdjudicationReasons": [],
-  "precinctScanAdjudicationReasons": []
+  "precinctScanAdjudicationReasons": [],
+  "precinctScanDisallowCastingOvervotes": false
 }

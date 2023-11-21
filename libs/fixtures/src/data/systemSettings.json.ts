@@ -10,9 +10,9 @@ import { join, sep } from 'path';
 /**
  * Data of data/systemSettings.json encoded as base64.
  *
- * SHA-256 hash of file data: 533a978e692e465478726de133810ba535269f3f9b1cd1f4925e78b5879cb6fb
+ * SHA-256 hash of file data: 879dc2241ef3dfef0f4afefdad76c9a0b99e46613ae4ecfc5868a75fcbd701c3
  */
-const resourceDataBase64 = 'ewogICJhdXRoIjogewogICAgImFyZVBvbGxXb3JrZXJDYXJkUGluc0VuYWJsZWQiOiBmYWxzZSwKICAgICJpbmFjdGl2ZVNlc3Npb25UaW1lTGltaXRNaW51dGVzIjogMzAsCiAgICAibnVtSW5jb3JyZWN0UGluQXR0ZW1wdHNBbGxvd2VkQmVmb3JlQ2FyZExvY2tvdXQiOiA1LAogICAgIm92ZXJhbGxTZXNzaW9uVGltZUxpbWl0SG91cnMiOiAxMiwKICAgICJzdGFydGluZ0NhcmRMb2Nrb3V0RHVyYXRpb25TZWNvbmRzIjogMTUKICB9LAogICJtYXJrVGhyZXNob2xkcyI6IHsKICAgICJkZWZpbml0ZSI6IDAuMDcsCiAgICAibWFyZ2luYWwiOiAwLjA1LAogICAgIndyaXRlSW5UZXh0QXJlYSI6IDAuMDUKICB9LAogICJjZW50cmFsU2NhbkFkanVkaWNhdGlvblJlYXNvbnMiOiBbXSwKICAicHJlY2luY3RTY2FuQWRqdWRpY2F0aW9uUmVhc29ucyI6IFtdCn0K';
+const resourceDataBase64 = 'ewogICJhdXRoIjogewogICAgImFyZVBvbGxXb3JrZXJDYXJkUGluc0VuYWJsZWQiOiBmYWxzZSwKICAgICJpbmFjdGl2ZVNlc3Npb25UaW1lTGltaXRNaW51dGVzIjogMzAsCiAgICAibnVtSW5jb3JyZWN0UGluQXR0ZW1wdHNBbGxvd2VkQmVmb3JlQ2FyZExvY2tvdXQiOiA1LAogICAgIm92ZXJhbGxTZXNzaW9uVGltZUxpbWl0SG91cnMiOiAxMiwKICAgICJzdGFydGluZ0NhcmRMb2Nrb3V0RHVyYXRpb25TZWNvbmRzIjogMTUKICB9LAogICJtYXJrVGhyZXNob2xkcyI6IHsKICAgICJkZWZpbml0ZSI6IDAuMDcsCiAgICAibWFyZ2luYWwiOiAwLjA1LAogICAgIndyaXRlSW5UZXh0QXJlYSI6IDAuMDUKICB9LAogICJjZW50cmFsU2NhbkFkanVkaWNhdGlvblJlYXNvbnMiOiBbXSwKICAicHJlY2luY3RTY2FuQWRqdWRpY2F0aW9uUmVhc29ucyI6IFtdLAogICJwcmVjaW5jdFNjYW5EaXNhbGxvd0Nhc3RpbmdPdmVydm90ZXMiOiBmYWxzZQp9';
 
 /**
  * MIME type of data/systemSettings.json.
@@ -22,7 +22,7 @@ export const mimeType = 'application/json';
 /**
  * Path to a file containing this file's contents.
  *
- * SHA-256 hash of file data: 533a978e692e465478726de133810ba535269f3f9b1cd1f4925e78b5879cb6fb
+ * SHA-256 hash of file data: 879dc2241ef3dfef0f4afefdad76c9a0b99e46613ae4ecfc5868a75fcbd701c3
  */
 export function asFilePath(): string {
   const directoryPath = mkdtempSync(tmpdir() + sep);
@@ -34,7 +34,7 @@ export function asFilePath(): string {
 /**
  * Convert to a `data:` URL of data/systemSettings.json, suitable for embedding in HTML.
  *
- * SHA-256 hash of file data: 533a978e692e465478726de133810ba535269f3f9b1cd1f4925e78b5879cb6fb
+ * SHA-256 hash of file data: 879dc2241ef3dfef0f4afefdad76c9a0b99e46613ae4ecfc5868a75fcbd701c3
  */
 export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
@@ -43,7 +43,7 @@ export function asDataUrl(): string {
 /**
  * Raw data of data/systemSettings.json.
  *
- * SHA-256 hash of file data: 533a978e692e465478726de133810ba535269f3f9b1cd1f4925e78b5879cb6fb
+ * SHA-256 hash of file data: 879dc2241ef3dfef0f4afefdad76c9a0b99e46613ae4ecfc5868a75fcbd701c3
  */
 export function asBuffer(): Buffer {
   return Buffer.from(resourceDataBase64, 'base64');
@@ -52,7 +52,7 @@ export function asBuffer(): Buffer {
 /**
  * Text content of data/systemSettings.json.
  *
- * SHA-256 hash of file data: 533a978e692e465478726de133810ba535269f3f9b1cd1f4925e78b5879cb6fb
+ * SHA-256 hash of file data: 879dc2241ef3dfef0f4afefdad76c9a0b99e46613ae4ecfc5868a75fcbd701c3
  */
 export function asText(): string {
   return asBuffer().toString('utf-8');
