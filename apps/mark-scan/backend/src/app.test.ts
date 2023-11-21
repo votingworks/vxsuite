@@ -336,7 +336,7 @@ test('setting precinct', async () => {
   });
 });
 
-test('printing a ballot incrementes the printed ballot count', async () => {
+test('printing a ballot increments the printed ballot count', async () => {
   await expectElectionState({ ballotsPrintedCount: 0 });
 
   await configureMachine(
