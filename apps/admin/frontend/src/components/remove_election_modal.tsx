@@ -26,7 +26,7 @@ export function RemoveElectionModal({ onClose }: Props): JSX.Element {
       centerContent
       content={
         <React.Fragment>
-          <P>Do you want to remove the current election definition?</P>
+          <P>Do you want to remove the current election?</P>
           <P>All data will be removed from this app.</P>
         </React.Fragment>
       }
@@ -34,7 +34,7 @@ export function RemoveElectionModal({ onClose }: Props): JSX.Element {
       actions={
         <React.Fragment>
           <Button icon="Delete" variant="danger" onPress={unconfigureElection}>
-            Remove Election Definition
+            Remove Election
           </Button>
           <Button onPress={onClose}>Cancel</Button>
         </React.Fragment>

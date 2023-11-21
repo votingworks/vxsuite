@@ -34,14 +34,14 @@ interface Props {
 }
 
 const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Definition', routerPath: routerPaths.electionDefinition },
+  { label: 'Election', routerPath: routerPaths.electionDefinition },
   { label: 'Smartcards', routerPath: routerPaths.smartcards },
   { label: 'Logs', routerPath: routerPaths.logs },
   { label: 'Settings', routerPath: routerPaths.settings },
 ];
 
 const SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [
-  { label: 'Definition', routerPath: routerPaths.electionDefinition },
+  { label: 'Election', routerPath: routerPaths.electionDefinition },
   { label: 'Logs', routerPath: routerPaths.logs },
   { label: 'Settings', routerPath: routerPaths.settings },
 ];

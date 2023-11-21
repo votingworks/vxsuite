@@ -1,4 +1,3 @@
-import { ContestId } from '@votingworks/types';
 import {
   ManualDataEntryScreenProps,
   SmartcardsScreenProps,
@@ -9,9 +8,6 @@ export const routerPaths = {
   root: '/',
   advanced: '/advanced',
   electionDefinition: '/definition',
-  definitionViewer: '/definition/viewer',
-  definitionContest: ({ contestId }: { contestId: ContestId }): string =>
-    `/definition/contests/${contestId}`,
   smartcards: '/smartcards',
   smartcardsByType: ({ smartcardType }: SmartcardsScreenProps): string =>
     `/smartcards/smartcard-types/${smartcardType}`,

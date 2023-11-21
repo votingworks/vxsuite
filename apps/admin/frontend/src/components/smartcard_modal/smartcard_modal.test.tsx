@@ -102,7 +102,7 @@ test('Smartcard modal displays card details', async () => {
   ];
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election Definition' });
+  await screen.findByRole('heading', { name: 'Election' });
 
   for (const testCase of testCases) {
     const {
@@ -151,7 +151,7 @@ test('Smartcard modal displays card details', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    await screen.findByRole('heading', { name: 'Election Definition' });
+    await screen.findByRole('heading', { name: 'Election' });
   }
 });
 
@@ -292,7 +292,7 @@ test('Programming election manager and poll worker smartcards', async () => {
   ];
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election Definition' });
+  await screen.findByRole('heading', { name: 'Election' });
 
   for (const testCase of testCases) {
     const {
@@ -359,9 +359,9 @@ test('Programming election manager and poll worker smartcards', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    // For some reason, finding by role doesn't work here, though 'Election Definition' is present
-    // in a heading
-    await screen.findByText('Election Definition');
+    // For some reason, we need to use the "hidden" option here, even though the
+    // heading is not hidden
+    await screen.findByRole('heading', { name: 'Election', hidden: true });
   }
 });
 
@@ -500,7 +500,7 @@ test('Resetting smartcard PINs', async () => {
   ];
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election Definition' });
+  await screen.findByRole('heading', { name: 'Election' });
 
   for (const testCase of testCases) {
     const { programmedUser, expectedHeading } = testCase;
@@ -532,9 +532,9 @@ test('Resetting smartcard PINs', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    // For some reason, finding by role doesn't work here, though 'Election Definition' is present
-    // in a heading
-    await screen.findByText('Election Definition');
+    // For some reason, we need to use the "hidden" option here, even though the
+    // heading is not hidden
+    await screen.findByRole('heading', { name: 'Election', hidden: true });
   }
 });
 
@@ -588,7 +588,7 @@ test('Unprogramming smartcards', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election Definition' });
+  await screen.findByRole('heading', { name: 'Election' });
 
   const testCases: Array<{
     programmedUser: UserWithCard;
@@ -650,9 +650,9 @@ test('Unprogramming smartcards', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    // For some reason, finding by role doesn't work here, though 'Election Definition' is present
-    // in a heading
-    await screen.findByText('Election Definition');
+    // For some reason, we need to use the "hidden" option here, even though the
+    // heading is not hidden
+    await screen.findByRole('heading', { name: 'Election', hidden: true });
   }
 });
 

@@ -72,7 +72,7 @@ export async function forceLogOutAndResetElectionDefinition(
   await page.goto('/');
 
   await logInAsSystemAdministrator(page);
-  await page.getByText('Definition', { exact: true }).click();
+  await page.getByRole('button', { name: 'Election', exact: true }).click();
 
   const removeElectionButton = page.getByRole('button', {
     name: 'Remove Election',
@@ -80,7 +80,8 @@ export async function forceLogOutAndResetElectionDefinition(
 
   if (await removeElectionButton.isVisible()) {
     await removeElectionButton.click();
-    await page.getByText('Remove Election Definition').click();
+    const modal = page.getByRole('alertdialog');
+    await modal.getByRole('button', { name: 'Remove Election' }).click();
   }
 
   await forceLogOut(page);
