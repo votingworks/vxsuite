@@ -41,8 +41,6 @@ export function doCopy(pkgRoot: string, outRoot: string): void {
   } else if (existsSync(join(pkgRoot, 'Pipfile'))) {
     execSync('rsync', ['--recursive', '--links', `${pkgRoot}/`, pkgOut]);
   } else {
-    throw new Error(
-      `unknown package language at ${pkgRoot}, expected nodejs or python`
-    );
+    throw new Error(`unknown package language at ${pkgRoot}, expected nodejs`);
   }
 }
