@@ -165,11 +165,6 @@ export interface AcceptedSheet {
    * this would compromise voter privacy.
    */
   readonly indexInBatch?: number;
-
-  /**
-   * TODO: Determine whether this field is still used and, if not, remove
-   */
-  readonly batchLabel?: string;
 }
 
 /**

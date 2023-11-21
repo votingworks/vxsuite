@@ -546,7 +546,6 @@ test('iterating over sheets', () => {
     type: 'accepted',
     id: sheet1Id,
     batchId,
-    batchLabel: 'Batch 1',
     interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
     frontImagePath: '1-front.jpg',
     backImagePath: '1-back.jpg',
@@ -598,7 +597,6 @@ test('iterating over sheets', () => {
     type: 'accepted',
     id: sheet3Id,
     batchId,
-    batchLabel: 'Batch 1',
     interpretation: [
       interpretationRequiringAdjudication,
       sheetWithFiles[1].interpretation,
