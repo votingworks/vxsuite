@@ -9,10 +9,7 @@ import { createMemoryHistory } from 'history';
 import { err, ok } from '@votingworks/basics';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import {
-  AdminActionScreenProps,
-  AdminActionsScreen,
-} from './admin_actions_screen';
+import { SettingsScreenProps, SettingsScreen } from './settings_screen';
 import {
   createMockApiClient,
   MockApiClient,
@@ -37,11 +34,11 @@ afterEach(() => {
 });
 
 function renderScreen(
-  props: Partial<AdminActionScreenProps> = {},
+  props: Partial<SettingsScreenProps> = {},
   history = createMemoryHistory()
 ) {
   return renderInAppContext(
-    <AdminActionsScreen canUnconfigure={false} isTestMode={false} {...props} />,
+    <SettingsScreen canUnconfigure={false} isTestMode={false} {...props} />,
     { apiClient: mockApiClient, history }
   );
 }

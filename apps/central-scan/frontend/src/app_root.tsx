@@ -34,7 +34,7 @@ import { useInterval } from './hooks/use_interval';
 
 import { ScanBallotsScreen } from './screens/scan_ballots_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
-import { AdminActionsScreen } from './screens/admin_actions_screen';
+import { SettingsScreen } from './screens/settings_screen';
 
 import { machineConfigProvider } from './util/machine_config';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
@@ -427,8 +427,6 @@ export function AppRoot({
         </Route>
         <Route path="/settings">
           <SettingsScreen
-        <Route path="/admin">
-          <AdminActionsScreen
             isTestMode={isTestMode}
             canUnconfigure={status.canUnconfigure}
           />
