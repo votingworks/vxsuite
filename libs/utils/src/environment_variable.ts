@@ -15,8 +15,6 @@ export enum BooleanEnvironmentVariableName {
   DISABLE_CARD_READER_CHECK = 'REACT_APP_VX_DISABLE_CARD_READER_CHECK',
   // Enables livecheck in VxScan.
   LIVECHECK = 'REACT_APP_VX_ENABLE_LIVECHECK',
-  // Whether overvotes can be cast (this exists entirely for NH special case right now).
-  DISALLOW_CASTING_OVERVOTES = 'REACT_APP_VX_DISALLOW_CASTING_OVERVOTES',
   // Enables the React Query Devtools in development.
   ENABLE_REACT_QUERY_DEVTOOLS = 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
   // Enables the VxSuite Dev Dock in development. See libs/dev-dock.
@@ -86,8 +84,6 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_DISABLE_CARD_READER_CHECK;
     case BooleanEnvironmentVariableName.LIVECHECK:
       return process.env.REACT_APP_VX_ENABLE_LIVECHECK;
-    case BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES:
-      return process.env.REACT_APP_VX_DISALLOW_CASTING_OVERVOTES;
     case BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS:
       return process.env.REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS;
     case BooleanEnvironmentVariableName.ENABLE_DEV_DOCK:
@@ -153,12 +149,6 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: true,
         autoEnableInDevelopment: true,
-      };
-    case BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES:
-      return {
-        name,
-        allowInProduction: true,
-        autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS:
       return {
