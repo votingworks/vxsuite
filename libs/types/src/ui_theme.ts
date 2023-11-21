@@ -95,6 +95,8 @@ export interface ColorTheme extends LegacyColorTheme {
   readonly onDanger: ColorString;
   readonly dangerContainer: ColorString;
 
+  readonly warningContainer: ColorString;
+
   readonly inverseBackground: ColorString;
   readonly onInverse: ColorString;
   readonly inverseContainer: ColorString;

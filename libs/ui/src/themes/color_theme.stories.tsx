@@ -58,6 +58,7 @@ function computeContrastRatio(color1: string, color2: string): number {
 const Container = styled.div`
   padding: 1rem;
   min-height: 100vh;
+  line-height: 1.25;
 
   h4 {
     margin: 0;
@@ -252,6 +253,39 @@ export function ColorThemes(): JSX.Element {
           </div>
           <div style={{ color: colors.onBackgroundMuted }}>
             On background muted - <ContrastTag />
+          </div>
+          <div>
+            <span style={{ color: colors.dangerAccent }}>
+              <Icons.Danger />
+            </span>{' '}
+            Danger Accent -{' '}
+            <span style={{ color: colors.dangerAccent }}>
+              <ContrastTag />
+            </span>
+          </div>
+        </RoundedRect>
+        <RoundedRect
+          style={{
+            backgroundColor: colors.warningContainer,
+            color: colors.onBackground,
+            border: outlineIfTouchscreen,
+          }}
+        >
+          <H4>Warning Container</H4>
+          <div style={{ color: colors.onBackground }}>
+            On background - <ContrastTag />
+          </div>
+          <div style={{ color: colors.onBackgroundMuted }}>
+            On background muted - <ContrastTag />
+          </div>
+          <div>
+            <span style={{ color: colors.warningAccent }}>
+              <Icons.Warning />
+            </span>{' '}
+            Warning Accent -{' '}
+            <span style={{ color: colors.warningAccent }}>
+              <ContrastTag />
+            </span>
           </div>
         </RoundedRect>
         <RoundedRect
