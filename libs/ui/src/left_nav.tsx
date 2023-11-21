@@ -9,7 +9,7 @@ import { Icons } from './icons';
 export const LeftNav = styled.nav`
   background: ${(p) => p.theme.colors.inverseBackground};
   padding: 1rem;
-  width: 14rem;
+  width: 15rem;
   display: flex;
   flex-direction: column;
 `;
