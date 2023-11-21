@@ -1,22 +1,15 @@
-import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
-import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
-import {
-  electionDefinition,
-  election,
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
-import { render, screen, within } from '../test/react_testing_library';
+import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { fakeKiosk } from '@votingworks/test-utils';
+import { electionDefinition } from '../test/helpers/election';
+import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
 import { createApiMock, ApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 let kiosk = fakeKiosk();
 let hardware: MemoryHardware;
-let storage: MemoryStorage;
 
-beforeEach(async () => {
+beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
@@ -24,13 +17,12 @@ beforeEach(async () => {
   window.kiosk = kiosk;
 
   hardware = MemoryHardware.buildStandard();
-  storage = new MemoryStorage();
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
 
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionDefinition);
-  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
   apiMock.expectGetSystemSettings();
 });
 
@@ -46,7 +38,6 @@ test('`jammed` state renders jam page', async () => {
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -62,7 +53,6 @@ test('`jam_cleared` state renders jam cleared page', async () => {
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -79,7 +69,6 @@ test('`resetting_state_machine_after_jam` state renders jam cleared page', async
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -91,24 +80,19 @@ test('`resetting_state_machine_after_jam` state renders jam cleared page', async
 
 test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with cardless voter auth', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  apiMock.mockApiClient.getElectionState.reset();
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
-
-  // Open Polls
-  // Once state is moved to the backend this can be mocked more concisely
-  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
-  userEvent.click(screen.getByText('Open Polls'));
-  userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
-  );
-  await screen.findByText(hasTextAcrossElements('Polls: Open'));
 
   apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
   apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
@@ -117,24 +101,19 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
 
 test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with poll worker auth', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  apiMock.mockApiClient.getElectionState.reset();
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
   );
-
-  // Open Polls
-  // Once state is moved to the backend this can be mocked more concisely
-  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
-  userEvent.click(screen.getByText('Open Polls'));
-  userEvent.click(
-    within(await screen.findByRole('alertdialog')).getByText('Open Polls')
-  );
-  await screen.findByText(hasTextAcrossElements('Polls: Open'));
 
   apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -152,7 +131,6 @@ test('`blank_page_interpretation` state renders BlankPageInterpretationPage for 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -170,7 +148,6 @@ test('`blank_page_interpretation` state renders BlankPageInterpretationPage for 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -192,7 +169,6 @@ test('`pat_device_connected` state renders PAT device calibration page', async (
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -209,7 +185,6 @@ test('`paper_reloaded` state renders PaperReloadedPage', async () => {
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />

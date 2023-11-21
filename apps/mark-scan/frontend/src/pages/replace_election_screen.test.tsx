@@ -27,7 +27,6 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
-  apiMock.expectGetPrecinctSelection();
 });
 
 afterEach(() => {

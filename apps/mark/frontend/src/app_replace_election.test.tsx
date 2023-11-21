@@ -30,7 +30,7 @@ jest.setTimeout(2000);
 test('app renders a notice when election hash on card does not match that of machine config', async () => {
   const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
-  // Set up an already-congfigured election
+  // Set up an already-configured election
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 

@@ -1,6 +1,7 @@
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   fireEvent,
   render,
@@ -11,12 +12,7 @@ import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  election,
-  countyCommissionersContest,
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { countyCommissionersContest } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -26,7 +22,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 
@@ -38,17 +33,16 @@ it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
-  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />

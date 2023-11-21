@@ -27,11 +27,11 @@ test('full polls flow', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_closed_initial',
   });
+  const { renderApp } = buildApp(apiMock);
 
   renderApp();
   await screen.findByText('Polls Closed');

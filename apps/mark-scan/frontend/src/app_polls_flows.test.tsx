@@ -1,12 +1,8 @@
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { LogEventId } from '@votingworks/logging';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { screen, waitFor, within } from '../test/react_testing_library';
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -18,7 +14,6 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
 });
 
 afterEach(() => {
@@ -31,19 +26,23 @@ test('full polls flow', async () => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
-  apiMock.expectGetPrecinctSelectionResolvesDefault(
-    electionGeneralDefinition.election
-  );
-  const { renderApp, storage, logger } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionGeneralDefinition);
-  await setStateInStorage(storage, { pollsState: 'polls_closed_initial' });
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_closed_initial',
+  });
+  const { renderApp } = buildApp(apiMock);
+
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Insert Poll Worker card to open.');
 
   // Open Polls
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
+  apiMock.expectSetPollsState('polls_open');
+  apiMock.expectGetElectionState({
+    pollsState: 'polls_open',
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   userEvent.click(screen.getByText('Open Polls'));
   userEvent.click(
@@ -52,14 +51,13 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.PollsOpened,
-    'poll_worker',
-    expect.anything()
-  );
 
   // Pause Voting
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
+  apiMock.expectSetPollsState('polls_paused');
+  apiMock.expectGetElectionState({
+    pollsState: 'polls_paused',
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Pause Voting'));
@@ -69,14 +67,13 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.VotingPaused,
-    'poll_worker',
-    expect.anything()
-  );
 
   // Resume Voting
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
+  apiMock.expectSetPollsState('polls_open');
+  apiMock.expectGetElectionState({
+    pollsState: 'polls_open',
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Resume Voting'));
   userEvent.click(
@@ -85,14 +82,13 @@ test('full polls flow', async () => {
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.VotingResumed,
-    'poll_worker',
-    expect.anything()
-  );
 
   // Close Polls
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
+  apiMock.expectSetPollsState('polls_closed_final');
+  apiMock.expectGetElectionState({
+    pollsState: 'polls_closed_final',
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
@@ -103,26 +99,26 @@ test('full polls flow', async () => {
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.PollsClosed,
-    'poll_worker',
-    expect.anything()
-  );
 });
 
 test('can close from paused', async () => {
-  apiMock.expectGetPrecinctSelectionResolvesDefault(
-    electionGeneralDefinition.election
-  );
-  const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionGeneralDefinition);
-  await setStateInStorage(storage, { pollsState: 'polls_paused' });
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_paused',
+  });
+
   renderApp();
   await screen.findByText('Voting Paused');
   screen.getByText('Insert Poll Worker card to resume voting.');
 
   // Close Polls
   apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
+  apiMock.expectSetPollsState('polls_closed_final');
+  apiMock.expectGetElectionState({
+    pollsState: 'polls_closed_final',
+  });
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   userEvent.click(screen.getByText('Close Polls'));
   userEvent.click(
@@ -135,12 +131,13 @@ test('can close from paused', async () => {
 });
 
 test('no buttons to change polls from closed final', async () => {
-  apiMock.expectGetPrecinctSelectionResolvesDefault(
-    electionGeneralDefinition.election
-  );
-  const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionGeneralDefinition);
-  await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_closed_final',
+  });
+
   renderApp();
   await screen.findByText('Polls Closed');
   screen.getByText('Voting is complete.');
@@ -159,15 +156,20 @@ test('no buttons to change polls from closed final', async () => {
 });
 
 test('can reset polls to paused with system administrator card', async () => {
-  apiMock.expectGetPrecinctSelectionResolvesDefault(
-    electionGeneralDefinition.election
-  );
-  const { renderApp, storage } = buildApp(apiMock);
-  await setElectionInStorage(storage, electionGeneralDefinition);
-  await setStateInStorage(storage, { pollsState: 'polls_closed_final' });
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_closed_final',
+  });
+
   renderApp();
   await screen.findByText('Polls Closed');
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
+  apiMock.expectSetPollsState('polls_paused');
+  apiMock.expectGetElectionState({
+    pollsState: 'polls_paused',
+  });
 
   userEvent.click(await screen.findByText('Reset Polls to Paused'));
   const modal = await screen.findByRole('alertdialog');

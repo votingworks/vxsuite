@@ -14,7 +14,7 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen, within } from '../../test/react_testing_library';
+import { fireEvent, screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
 
@@ -66,7 +66,6 @@ function renderScreen(
           activateCardlessVoterSession={jest.fn()}
           resetCardlessVoterSession={jest.fn()}
           electionDefinition={electionDefinition}
-          enableLiveMode={jest.fn()}
           hasVotes={false}
           isLiveMode={false}
           pollsState="polls_open"
@@ -75,7 +74,6 @@ function renderScreen(
           hardware={MemoryHardware.buildStandard()}
           devices={fakeDevices()}
           screenReader={new AriaScreenReader(fakeTts())}
-          updatePollsState={jest.fn()}
           reload={jest.fn()}
           precinctSelection={singlePrecinctSelectionFor(
             electionDefinition.election.precincts[0].id
@@ -100,18 +98,16 @@ test('switching out of test mode on election day', () => {
     ...election,
     date: new Date().toISOString(),
   });
-  const enableLiveMode = jest.fn();
+  apiMock.expectSetTestMode(false);
   renderScreen({
     pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
     electionDefinition,
-    enableLiveMode,
   });
 
   screen.getByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
-  fireEvent.click(screen.getByText('Switch to Official Ballot Mode'));
-  expect(enableLiveMode).toHaveBeenCalled();
+  userEvent.click(screen.getByText('Switch to Official Ballot Mode'));
 });
 
 test('keeping test mode on election day', () => {
@@ -119,14 +115,12 @@ test('keeping test mode on election day', () => {
     ...election,
     date: new Date().toISOString(),
   });
-  const enableLiveMode = jest.fn();
-  renderScreen({ electionDefinition, enableLiveMode });
+  renderScreen({ electionDefinition });
 
   screen.getByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
   fireEvent.click(screen.getByText('Cancel'));
-  expect(enableLiveMode).not.toHaveBeenCalled();
 });
 
 test('live mode on election day', () => {
@@ -153,30 +147,6 @@ test('navigates to System Diagnostics screen', () => {
   // Explicitly unmount before the printer status has resolved to verify that
   // we properly cancel the request for printer status.
   unmount();
-});
-
-test('requires confirmation to open polls if no report on card', () => {
-  const updatePollsState = jest.fn();
-  renderScreen({
-    pollsState: 'polls_closed_initial',
-    updatePollsState,
-  });
-
-  fireEvent.click(screen.getByText('Open Polls'));
-
-  // Should show the modal and not open/close polls
-  expect(updatePollsState).not.toHaveBeenCalled();
-
-  // Clicking Cancel closes the modal
-  fireEvent.click(screen.getByText('Cancel'));
-  screen.getByText('Open Polls');
-
-  // Clicking Open Polls should open/close polls anyway
-  fireEvent.click(screen.getByText('Open Polls'));
-  userEvent.click(
-    within(screen.getByRole('alertdialog')).getByText('Open Polls')
-  );
-  expect(updatePollsState).toHaveBeenCalled();
 });
 
 test('can toggle between vote activation and "other actions" during polls open', async () => {

@@ -1,6 +1,7 @@
 import { expectPrintToPdf, fakeKiosk } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
-import { MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   fireEvent,
   render,
@@ -15,12 +16,7 @@ import {
   advanceTimersAndPromises,
 } from '../test/helpers/timers';
 
-import {
-  election,
-  singleSeatContestWithWriteIn,
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
+import { singleSeatContestWithWriteIn } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -49,7 +45,6 @@ beforeEach(() => {
   window.kiosk = kiosk;
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 
@@ -61,17 +56,17 @@ it('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
-  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+    isTestMode: false,
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -170,6 +165,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Print Screen
   apiMock.expectPrintBallot();
+  apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
   screen.getByText(/Printing Your Official Ballot/i);

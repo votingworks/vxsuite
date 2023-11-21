@@ -35,7 +35,6 @@ export function render(
     machineConfig = fakeMachineConfig(),
     precinctId,
     resetBallot = jest.fn(),
-    updateTally = jest.fn(),
     updateVote = jest.fn(),
     votes = {},
     apiMock = createApiMock(),
@@ -75,7 +74,6 @@ export function render(
               endVoterSession,
               precinctId,
               resetBallot,
-              updateTally,
               updateVote,
               votes,
             }}

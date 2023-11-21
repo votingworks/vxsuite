@@ -1,5 +1,5 @@
 import { fakeKiosk } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
@@ -7,16 +7,11 @@ import {
   IDLE_RESET_TIMEOUT_SECONDS,
   IDLE_TIMEOUT_SECONDS,
 } from '@votingworks/mark-flow-ui';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
-
-import {
-  election,
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
 
 import { QUIT_KIOSK_IDLE_SECONDS } from './config/globals';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -30,8 +25,6 @@ beforeEach(() => {
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
-  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 
@@ -42,20 +35,21 @@ afterEach(() => {
 
 test('Insert Card screen idle timeout to quit app', async () => {
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
     // machineId used to determine whether we quit. Now they all do.
     // making sure a machineId that ends in 0 still triggers.
     machineId: '0000',
   });
 
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />
@@ -75,17 +69,14 @@ test('Insert Card screen idle timeout to quit app', async () => {
 
 test('Voter idle timeout', async () => {
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
-  render(
-    <App
-      apiClient={apiMock.mockApiClient}
-      hardware={hardware}
-      storage={storage}
-    />
-  );
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
+
+  render(<App apiClient={apiMock.mockApiClient} hardware={hardware} />);
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
