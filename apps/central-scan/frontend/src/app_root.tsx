@@ -321,6 +321,7 @@ export function AppRoot({
   const currentContext: AppContextInterface = {
     usbDriveStatus,
     electionDefinition,
+    isTestMode,
     machineConfig,
     logger,
     auth: authStatus,
