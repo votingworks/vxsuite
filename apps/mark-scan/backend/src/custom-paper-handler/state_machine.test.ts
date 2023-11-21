@@ -13,6 +13,8 @@ import {
   getPaperHandlerStateMachine,
 } from './state_machine';
 import { Workspace, createWorkspace } from '../util/workspace';
+import { PatConnectionStatusReaderInterface } from '../pat-input/connection_status_reader';
+import { MockPatConnectionStatusReader } from '../pat-input/mock_connection_status_reader';
 
 // Use shorter polling interval in tests to reduce run times
 const TEST_POLLING_INTERVAL_MS = 10;
@@ -23,6 +25,7 @@ let driver: PaperHandlerDriver;
 let workspace: Workspace;
 let machine: PaperHandlerStateMachine;
 let logger: Logger;
+let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 
 beforeEach(async () => {
   logger = fakeLogger();
@@ -37,6 +40,7 @@ beforeEach(async () => {
     selectConfiguration: jest.fn(),
   };
   driver = new PaperHandlerDriver(webDevice);
+  patConnectionStatusReader = new MockPatConnectionStatusReader(logger);
   jest
     .spyOn(driver, 'syncScannerConfig')
     .mockImplementation(() => Promise.resolve(false));
@@ -49,6 +53,7 @@ beforeEach(async () => {
     auth,
     logger,
     driver,
+    patConnectionStatusReader,
     devicePollingIntervalMs: TEST_POLLING_INTERVAL_MS,
     authPollingIntervalMs: TEST_POLLING_INTERVAL_MS,
   })) as PaperHandlerStateMachine;

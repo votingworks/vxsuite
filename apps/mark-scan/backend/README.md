@@ -9,6 +9,13 @@ Follow the instructions in the [VxSuite README](../../../README.md)
 You generally should not need to run the backend directly. Instead, run the
 frontend, which will automatically run the backend.
 
+```sh
+cd apps/mark-scan/frontend
+pnpm start
+```
+
+## PAT Inputs
+
 For the backend to recognize the USB PAT switch you may need to extend your udev
 rules. Create or edit `/etc/udev/rules.d/50-usb-hid.rules` with:
 
@@ -24,10 +31,10 @@ then run
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
-```sh
-cd apps/mark/frontend
-pnpm start
-```
+To work on production hardware with the built-in 3.5mm PAT input, you'll need to
+run `./backend/build/patinputd` in the background or a separate terminal. There
+are no build steps for this tool besides
+`cd apps/mark-scan/backend && pnpm build`.
 
 ## Testing
 

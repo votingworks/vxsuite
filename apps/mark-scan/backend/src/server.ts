@@ -24,6 +24,8 @@ import {
   DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
   DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
 } from './custom-paper-handler/constants';
+import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
+import { MockPatConnectionStatusReader } from './pat-input/mock_connection_status_reader';
 
 const debug = makeDebug('mark-scan:server');
 
@@ -66,6 +68,13 @@ export async function start({
   /* istanbul ignore next */
   const resolvedAuth = auth ?? getDefaultAuth(logger);
   const driver = await resolveDriver();
+  let patConnectionStatusReader = new PatConnectionStatusReader(logger);
+  const canReadPatConnectionStatus = await patConnectionStatusReader.open();
+
+  if (!canReadPatConnectionStatus) {
+    // Expect this branch if running on non-production hardware or in a test
+    patConnectionStatusReader = new MockPatConnectionStatusReader(logger);
+  }
 
   let stateMachine;
   if (driver) {
@@ -74,6 +83,7 @@ export async function start({
       auth: resolvedAuth,
       logger,
       driver,
+      patConnectionStatusReader,
       devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
       authPollingIntervalMs: DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
     });

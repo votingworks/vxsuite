@@ -477,7 +477,9 @@ export function AppRoot({
       'data-useragent',
       navigator.userAgent
     );
+
     document.addEventListener('keydown', handleGamepadKeyboardEvent);
+
     return () => {
       document.removeEventListener('keydown', handleGamepadKeyboardEvent);
     };

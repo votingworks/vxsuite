@@ -37,6 +37,7 @@ import {
   DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
   DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
 } from '../src/custom-paper-handler/constants';
+import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
 
 jest.mock('@votingworks/custom-paper-handler');
 
@@ -55,6 +56,9 @@ export async function getMockStateMachine(
   };
   const driver = new PaperHandlerDriver(webDevice);
   const auth = buildMockInsertedSmartCardAuth();
+  const mockPatConnectionStatusReader = new MockPatConnectionStatusReader(
+    logger
+  );
   jest
     .spyOn(driver, 'getPaperHandlerStatus')
     .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
@@ -63,6 +67,7 @@ export async function getMockStateMachine(
     auth,
     logger,
     driver,
+    patConnectionStatusReader: mockPatConnectionStatusReader,
     devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
     authPollingIntervalMs: DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
   });

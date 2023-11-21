@@ -17,6 +17,7 @@ import {
   getPaperHandlerStateMachine,
 } from '../state_machine';
 import { getDefaultAuth } from '../../util/auth';
+import { MockPatConnectionStatusReader } from '../../pat-input/mock_connection_status_reader';
 
 // We could add a LogSource for this CLI tool but that's unnecessary because
 // these logs will never reach production
@@ -82,11 +83,14 @@ export async function main(): Promise<number> {
     'Could not get paper handler driver. Is a paper handler device connected?'
   );
 
+  const patConnectionStatusReader = new MockPatConnectionStatusReader(logger);
+
   const stateMachine = await getPaperHandlerStateMachine({
     workspace,
     auth,
     logger,
     driver,
+    patConnectionStatusReader,
     devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
     authPollingIntervalMs: AUTH_STATUS_POLLING_INTERVAL_MS,
   });

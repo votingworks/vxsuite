@@ -38,8 +38,6 @@ import {
   DELAY_BEFORE_DECLARING_REAR_JAM_MS,
   DEVICE_STATUS_POLLING_INTERVAL_MS,
   DEVICE_STATUS_POLLING_TIMEOUT_MS,
-  ORIGIN_SWIFTY_PRODUCT_ID,
-  ORIGIN_VENDOR_ID,
   RESET_AFTER_JAM_DELAY_MS,
 } from './constants';
 import {
@@ -55,16 +53,22 @@ import {
   resetAndReconnect,
   loadAndParkPaper,
 } from './application_driver';
+import { PatConnectionStatusReader } from '../pat-input/connection_status_reader';
+import {
+  ORIGIN_SWIFTY_PRODUCT_ID,
+  ORIGIN_VENDOR_ID,
+} from '../pat-input/constants';
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   driver: PaperHandlerDriver;
+  patConnectionStatusReader: PatConnectionStatusReader;
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;
   scannedImagePaths?: SheetOf<string>;
   interpretation?: SheetOf<InterpretFileResult>;
-  patDevice?: HID.HID;
+  isPatDeviceConnected: boolean;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -92,11 +96,11 @@ type PaperHandlerStatusEvent =
   | { type: 'AUTH_STATUS_CARDLESS_VOTER' }
   | { type: 'AUTH_STATUS_POLL_WORKER' }
   | { type: 'AUTH_STATUS_UNHANDLED' }
-  | { type: 'PAT_DEVICE_CONNECTED'; patDevice: HID.HID }
+  | { type: 'PAT_DEVICE_CONNECTED' }
   | { type: 'PAT_DEVICE_DISCONNECTED' }
   | { type: 'VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION' }
   | { type: 'PAT_DEVICE_NO_STATUS_CHANGE' }
-  | { type: 'PAT_DEVICE_STATUS_UNHANDLED'; patDevice?: HID.HID };
+  | { type: 'PAT_DEVICE_STATUS_UNHANDLED' };
 
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
@@ -242,7 +246,7 @@ function pollAuthStatus(): InvokeConfig<Context, PaperHandlerStatusEvent> {
 
 // Finds the Origin Swifty PAT input converter or returns an empty Promise.
 // This is a Promise because Observable's switchMap gives a type error if it's not.
-function findPatDevice(): Promise<HID.HID | void> {
+function findUsbPatDevice(): Promise<HID.HID | void> {
   // `new HID.HID(vendorId, productId)` throws if device is not found.
   // Listing devices first avoids hard failure.
   const devices = HID.devices();
@@ -262,22 +266,30 @@ function findPatDevice(): Promise<HID.HID | void> {
 function buildPatDeviceConnectionStatusObservable() {
   return ({
     devicePollingIntervalMs,
-    patDevice: existingPatDevice,
+    isPatDeviceConnected: oldConnectionStatus,
+    patConnectionStatusReader,
   }: Context) => {
     return timer(0, devicePollingIntervalMs).pipe(
       switchMap(async () => {
         try {
-          const currentPatDevice = await findPatDevice();
+          // Checks for a PAT device connected to the built-in PAT jack first. If no device found,
+          // checks for a device connected through the Origin Swifty USB switch. We support the Swifty
+          // for development only and should be open to deprecating support if the cost of maintaining
+          // Swifty support is too high.
+          let newConnectionStatus =
+            await patConnectionStatusReader.isPatDeviceConnected();
 
-          if (existingPatDevice && !currentPatDevice) {
+          if (!newConnectionStatus) {
+            const currentPatDevice = await findUsbPatDevice();
+            newConnectionStatus = !!currentPatDevice;
+          }
+
+          if (oldConnectionStatus && !newConnectionStatus) {
             return { type: 'PAT_DEVICE_DISCONNECTED' };
           }
 
-          if (!existingPatDevice && currentPatDevice) {
-            return {
-              type: 'PAT_DEVICE_CONNECTED',
-              patDevice: currentPatDevice,
-            };
+          if (!oldConnectionStatus && newConnectionStatus) {
+            return { type: 'PAT_DEVICE_CONNECTED' };
           }
 
           return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
@@ -368,13 +380,13 @@ export function buildMachine(
       JAMMED_STATUS_NO_PAPER: 'voting_flow.jam_physically_cleared',
       PAT_DEVICE_CONNECTED: {
         actions: assign({
-          patDevice: (_, event) => event.patDevice,
+          isPatDeviceConnected: true,
         }),
         target: 'pat_device_connected',
       },
       PAT_DEVICE_DISCONNECTED: {
         actions: assign({
-          patDevice: () => undefined,
+          isPatDeviceConnected: false,
         }),
         // Without this target, the PAT device observable won't have an updated value
         // for context.patDevice
@@ -628,7 +640,7 @@ export function buildMachine(
               assign({
                 interpretation: undefined,
                 scannedImagePaths: undefined,
-                patDevice: undefined,
+                isPatDeviceConnected: false,
               });
             },
             after: {
@@ -645,7 +657,7 @@ export function buildMachine(
               assign({
                 interpretation: undefined,
                 scannedImagePaths: undefined,
-                patDevice: undefined,
+                isPatDeviceConnected: false,
               });
             },
             always: 'not_accepting_paper',
@@ -657,7 +669,7 @@ export function buildMachine(
           VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
           PAT_DEVICE_DISCONNECTED: {
             actions: assign({
-              patDevice: () => undefined,
+              isPatDeviceConnected: false,
             }),
             target: 'voting_flow.history',
           },
@@ -741,6 +753,7 @@ export async function getPaperHandlerStateMachine({
   auth,
   logger,
   driver,
+  patConnectionStatusReader,
   devicePollingIntervalMs = DEVICE_STATUS_POLLING_INTERVAL_MS,
   authPollingIntervalMs = AUTH_STATUS_POLLING_INTERVAL_MS,
 }: {
@@ -748,6 +761,7 @@ export async function getPaperHandlerStateMachine({
   auth: InsertedSmartCardAuthApi;
   logger: Logger;
   driver: PaperHandlerDriverInterface;
+  patConnectionStatusReader: PatConnectionStatusReader;
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;
 }): Promise<Optional<PaperHandlerStateMachine>> {
@@ -755,8 +769,10 @@ export async function getPaperHandlerStateMachine({
     auth,
     workspace,
     driver,
+    patConnectionStatusReader,
     devicePollingIntervalMs,
     authPollingIntervalMs,
+    isPatDeviceConnected: false,
   };
 
   const machine = buildMachine(initialContext, auth);
