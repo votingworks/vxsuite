@@ -50,7 +50,6 @@
   "dependencies": {
     "@tanstack/react-query": "4.32.1",
     "@votingworks/api": "workspace:*",
-    "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/dev-dock-frontend": "workspace:*",
     "@votingworks/grout": "workspace:*",
@@ -100,6 +99,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@vitejs/plugin-react": "^1.3.2",
+    "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/central-scan-backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
