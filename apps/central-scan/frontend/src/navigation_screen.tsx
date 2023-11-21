@@ -110,7 +110,6 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
             <SessionTimeLimitTimer authStatus={auth} />
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
-              /* TODO test mode */
               <React.Fragment>
                 <UsbControllerButton
                   usbDriveEject={() => ejectUsbDriveMutation.mutate()}
