@@ -15,13 +15,6 @@ coverage
 junit.xml
 .jestcache
 
-# python
-*.pyc
-.coverage
-.pytest_cache
-.mypy_cache
-.venv
-
 # misc
 .DS_Store
 .env.local
