@@ -16,12 +16,17 @@ import {
   RemoveCardScreen,
   Screen,
   SetupCardReaderPage,
-  SystemAdministratorScreenContents,
-  UsbControllerButton,
   useDevices,
   LinkButton,
   Button,
   H1,
+  P,
+  PowerDownButton,
+  RebootFromUsbButton,
+  RebootToBiosButton,
+  UnconfigureMachineButton,
+  H2,
+  Icons,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
@@ -51,6 +56,7 @@ import {
   unconfigure,
 } from './api';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
+import { NavigationScreen } from './navigation_screen';
 
 export interface AppRootProps {
   hardware: Hardware;
@@ -373,35 +379,27 @@ export function AppRoot({
   if (isSystemAdministratorAuth(authStatus)) {
     return (
       <AppContext.Provider value={currentContext}>
-        <Screen>
-          <SystemAdministratorScreenContents
-            logger={logger}
-            primaryText={
-              <React.Fragment>
-                To adjust settings for the current election, please insert an
-                Election Manager card.
-              </React.Fragment>
-            }
+        <NavigationScreen title="System Administrator">
+          <H2>Election</H2>
+          <P>
+            <Icons.Info /> To adjust settings for the current election, please
+            insert an Election Manager card.
+          </P>
+          <UnconfigureMachineButton
             unconfigureMachine={() =>
               Promise.resolve(systemAdministratorUnconfigure())
             }
             isMachineConfigured={Boolean(electionDefinition)}
-            usbDriveStatus={usbDriveStatus}
           />
-          {electionDefinition && (
-            <ElectionInfoBar
-              mode="admin"
-              electionDefinition={electionDefinition}
-              codeVersion={machineConfig.codeVersion}
-              machineId={machineConfig.machineId}
-            />
-          )}
-          <MainNav>
-            <Button onPress={() => logOutMutation.mutate()}>
-              Lock Machine
-            </Button>
-          </MainNav>
-        </Screen>
+          <H2>Machine</H2>
+          <PowerDownButton logger={logger} userRole="system_administrator" />
+          <H2>Software Update</H2>
+          <RebootFromUsbButton
+            usbDriveStatus={usbDriveStatus}
+            logger={logger}
+          />{' '}
+          <RebootToBiosButton logger={logger} />
+        </NavigationScreen>
       </AppContext.Provider>
     );
   }
