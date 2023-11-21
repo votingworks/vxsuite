@@ -94,22 +94,6 @@ export const getElectionDefinition = {
   },
 } as const;
 
-export const getPrecinctSelection = {
-  queryKey(): QueryKey {
-    return ['getPrecinctSelection'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      // Since query functions are not allowed to return undefined, coalesce undefined to null
-      async () => (await apiClient.getPrecinctSelection()) ?? null,
-      // Convert back to undefined when reading the query results
-      { select: (precinctSelection) => precinctSelection ?? undefined }
-    );
-  },
-} as const;
-
 export const getInterpretation = {
   queryKey(): QueryKey {
     return ['getInterpretation'];
@@ -128,6 +112,16 @@ export const getSystemSettings = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
+  },
+} as const;
+
+export const getElectionState = {
+  queryKey(): QueryKey {
+    return ['getElectionState'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getElectionState());
   },
 } as const;
 
@@ -241,6 +235,7 @@ export const configureBallotPackageFromUsb = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(getElectionState.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
@@ -255,7 +250,7 @@ export const unconfigureMachine = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
-        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+        await queryClient.invalidateQueries(getElectionState.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
@@ -269,6 +264,31 @@ export const printBallot = {
     return useMutation(apiClient.printBallot, {
       async onSuccess() {
         await queryClient.invalidateQueries(getStateMachineState.queryKey());
+        await queryClient.invalidateQueries(getElectionState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setPollsState = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPollsState, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setTestMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setTestMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionState.queryKey());
       },
     });
   },
@@ -280,7 +300,7 @@ export const setPrecinctSelection = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.setPrecinctSelection, {
       async onSuccess() {
-        await queryClient.invalidateQueries(getPrecinctSelection.queryKey());
+        await queryClient.invalidateQueries(getElectionState.queryKey());
       },
     });
   },
