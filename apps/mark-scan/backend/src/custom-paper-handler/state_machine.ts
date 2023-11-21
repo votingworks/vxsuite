@@ -96,8 +96,8 @@ type PaperHandlerStatusEvent =
   | { type: 'AUTH_STATUS_CARDLESS_VOTER' }
   | { type: 'AUTH_STATUS_POLL_WORKER' }
   | { type: 'AUTH_STATUS_UNHANDLED' }
-  | { type: 'PAT_DEVICE_CONNECTED'; isPatDeviceConnected: boolean }
-  | { type: 'PAT_DEVICE_DISCONNECTED'; isPatDeviceConnected: boolean }
+  | { type: 'PAT_DEVICE_CONNECTED' }
+  | { type: 'PAT_DEVICE_DISCONNECTED' }
   | { type: 'VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION' }
   | { type: 'PAT_DEVICE_NO_STATUS_CHANGE' }
   | { type: 'PAT_DEVICE_STATUS_UNHANDLED' };

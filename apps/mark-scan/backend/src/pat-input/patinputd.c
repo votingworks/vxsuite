@@ -65,16 +65,6 @@ int main(void)
   ioctl(uinput_fd, UI_DEV_SETUP, &usetup);
   ioctl(uinput_fd, UI_DEV_CREATE);
 
-  /*
-   * On UI_DEV_CREATE the kernel will create the device node for this
-   * device. We are inserting a pause here so that userspace has time
-   * to detect, initialize the new device, and can start listening to
-   * the event, otherwise it will not notice the event we are about
-   * to send. This pause is only needed in our example code!
-   */
-  sleep(1);
-
-  // TODO handle already-exported pins
   export_pin(pat_is_connected_gpio_number);
   export_pin(pat_a_signal_gpio_number);
   export_pin(pat_b_signal_gpio_number);
@@ -130,16 +120,17 @@ int main(void)
 
     a_signal = new_a_signal;
     b_signal = new_b_signal;
-    int close_result = close(a_signal_fd);
-    if (close_result != 0)
+
+    if (close(a_signal_fd) != 0)
     {
       perror("Failed to close A signal file descriptor\n");
     }
-    close_result = close(b_signal_fd);
-    if (close_result != 0)
+
+    if (close(b_signal_fd) != 0)
     {
       perror("Failed to close B signal file descriptor\n");
     }
+
     // Sleep accepts integer seconds only and we want to poll more frequently
     nanosleep(&interval_timespec, &rem);
   }

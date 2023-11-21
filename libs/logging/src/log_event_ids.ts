@@ -929,19 +929,20 @@ const SystemSettingsRetrieved: LogDetails = {
   documentationMessage: 'VxAdmin System Settings read from db',
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
-const PatDeviceError: LogDetails = {
-  eventId: LogEventId.PatDeviceError,
-  eventType: LogEventType.SystemStatus,
-  documentationMessage:
-    'VxMarkScan encountered an error with the built-in PAT device port or the device itself',
-  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
-};
 
 const WriteInAdjudicated: LogDetails = {
   eventId: LogEventId.WriteInAdjudicated,
   eventType: LogEventType.UserAction,
   documentationMessage: 'User adjudicated a write-in.',
   restrictInDocumentationToApps: [LogSource.VxAdminService],
+};
+
+const PatDeviceError: LogDetails = {
+  eventId: LogEventId.PatDeviceError,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'VxMarkScan encountered an error with the built-in PAT device port or the device itself',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
 };
 
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
