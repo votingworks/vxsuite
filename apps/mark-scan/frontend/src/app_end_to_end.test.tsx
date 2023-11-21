@@ -5,11 +5,7 @@ import {
   expectPrintToPdf,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
-import {
-  MemoryStorage,
-  MemoryHardware,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -19,8 +15,6 @@ import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
-
-import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import {
   presidentContest,
@@ -54,20 +48,18 @@ test('MarkAndPrint end-to-end flow', async () => {
   const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
   apiMock.expectSetAcceptingPaperState();
-  apiMock.expectGetPrecinctSelection();
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const reload = jest.fn();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionState();
   render(
     <App
       hardware={hardware}
-      storage={storage}
       reload={reload}
       logger={logger}
       apiClient={apiMock.mockApiClient}
@@ -136,16 +128,18 @@ test('MarkAndPrint end-to-end flow', async () => {
   assert(precinct, `Expected to find a precinct for ${precinctName}`);
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
   apiMock.expectSetPrecinctSelection(precinctSelection);
-  apiMock.expectGetPrecinctSelection(precinctSelection);
-  userEvent.selectOptions(
-    screen.getByLabelText('Precinct'),
-    screen.getByText(precinctName)
-  );
-  await advanceTimersAndPromises();
+  apiMock.expectGetElectionState({
+    precinctSelection,
+  });
+  userEvent.selectOptions(screen.getByLabelText('Precinct'), precinctName);
   await within(screen.getByTestId('electionInfoBar')).findByText(
     /Center Springfield/
   );
 
+  apiMock.expectSetTestMode(false);
+  apiMock.expectGetElectionState({
+    isTestMode: false,
+  });
   userEvent.click(
     screen.getByRole('option', {
       name: 'Official Ballot Mode',
@@ -153,7 +147,10 @@ test('MarkAndPrint end-to-end flow', async () => {
     })
   );
 
-  screen.getByRole('option', { name: 'Official Ballot Mode', selected: true });
+  await screen.findByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
@@ -177,11 +174,13 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Open Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  apiMock.expectSetPollsState('polls_open');
+  apiMock.expectGetElectionState({ pollsState: 'polls_open' });
   userEvent.click(await screen.findByText('Open Polls'));
   userEvent.click(
     within(await screen.findByRole('alertdialog')).getByText('Open Polls')
   );
-  screen.getByText('Select Voter’s Ballot Style');
+  await screen.findByText('Select Voter’s Ballot Style');
   // Force refresh
   userEvent.click(screen.getByText('View More Actions'));
   userEvent.click(screen.getByText('Reset Accessible Controller'));
@@ -285,6 +284,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Print Screen
   apiMock.expectPrintBallot();
+  apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
   await expectPrintToPdf();
@@ -304,6 +304,8 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Close Polls with Poll Worker Card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  apiMock.expectSetPollsState('polls_closed_final');
+  apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
   userEvent.click(await screen.findByText('View More Actions'));
   userEvent.click(screen.getByText('Close Polls'));
   userEvent.click(
@@ -329,7 +331,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
-  apiMock.expectGetPrecinctSelection();
+  apiMock.expectGetElectionState();
   userEvent.click(screen.getByText('Unconfigure Machine'));
 
   // Default Unconfigured
@@ -360,7 +362,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
-  apiMock.expectGetPrecinctSelection();
+  apiMock.expectGetElectionState();
   userEvent.click(
     within(modal).getByRole('button', {
       name: 'Yes, Delete Election Data',

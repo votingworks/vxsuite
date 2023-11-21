@@ -79,6 +79,7 @@ export async function getMockStateMachine(
 interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
+  logger: Logger;
   mockAuth: InsertedSmartCardAuthApi;
   mockUsbDrive: MockUsbDrive;
   server: Server;
@@ -110,6 +111,7 @@ export async function createApp(): Promise<MockAppContents> {
   return {
     apiClient,
     app,
+    logger,
     mockAuth,
     mockUsbDrive,
     server,

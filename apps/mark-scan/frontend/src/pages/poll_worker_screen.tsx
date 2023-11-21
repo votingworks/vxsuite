@@ -53,7 +53,12 @@ import { ScreenReader } from '../config/types';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
 import { LoadPaperPage } from './load_paper_page';
-import { getStateMachineState, setAcceptingPaperState } from '../api';
+import {
+  getStateMachineState,
+  setAcceptingPaperState,
+  setPollsState,
+  setTestMode,
+} from '../api';
 import { PaperHandlerHardwareCheckDisabledScreen } from './paper_handler_hardware_check_disabled_screen';
 
 const VotingSession = styled.div`
@@ -147,7 +152,6 @@ export interface PollworkerScreenProps {
   ) => void;
   resetCardlessVoterSession: () => void;
   electionDefinition: ElectionDefinition;
-  enableLiveMode: () => void;
   hasVotes: boolean;
   isLiveMode: boolean;
   pollsState: PollsState;
@@ -156,7 +160,6 @@ export interface PollworkerScreenProps {
   hardware: Hardware;
   devices: Devices;
   screenReader: ScreenReader;
-  updatePollsState: (pollsState: PollsState) => void;
   reload: () => void;
   precinctSelection: PrecinctSelection;
 }
@@ -166,7 +169,6 @@ export function PollWorkerScreen({
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   electionDefinition,
-  enableLiveMode,
   isLiveMode,
   pollsState,
   ballotsPrintedCount,
@@ -174,7 +176,6 @@ export function PollWorkerScreen({
   hardware,
   devices,
   screenReader,
-  updatePollsState,
   hasVotes,
   reload,
   precinctSelection,
@@ -182,6 +183,9 @@ export function PollWorkerScreen({
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
+
+  const setTestModeMutation = setTestMode.useMutation();
+  const setPollsStateMutation = setPollsState.useMutation();
 
   const getStateMachineStateQuery = getStateMachineState.useQuery();
   const stateMachineState = getStateMachineStateQuery.data;
@@ -229,7 +233,7 @@ export function PollWorkerScreen({
     useState(false);
 
   function confirmEnableLiveMode() {
-    enableLiveMode();
+    setTestModeMutation.mutate({ isTestMode: false });
     setIsConfirmingEnableLiveMode(false);
   }
 
@@ -456,7 +460,11 @@ export function PollWorkerScreen({
                       <P key={`${pollsTransition}-button`}>
                         <UpdatePollsButton
                           pollsTransition={pollsTransition}
-                          updatePollsState={updatePollsState}
+                          updatePollsState={(newPollsState) =>
+                            setPollsStateMutation.mutate({
+                              pollsState: newPollsState,
+                            })
+                          }
                           isPrimaryButton={index === 0}
                         />
                       </P>

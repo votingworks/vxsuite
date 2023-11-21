@@ -24,23 +24,22 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ScreenReader } from '../config/types';
 import {
   ejectUsbDrive,
-  getPrecinctSelection,
   logOut,
   setPrecinctSelection,
+  setTestMode,
 } from '../api';
 
 export interface AdminScreenProps {
+  appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
-  isLiveMode: boolean;
-  toggleLiveMode: VoidFunction;
+  isTestMode: boolean;
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
   screenReader: ScreenReader;
@@ -50,10 +49,10 @@ export interface AdminScreenProps {
 }
 
 export function AdminScreen({
+  appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
-  isLiveMode,
-  toggleLiveMode,
+  isTestMode,
   unconfigure,
   machineConfig,
   screenReader,
@@ -64,13 +63,8 @@ export function AdminScreen({
   const { election } = electionDefinition;
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
-  const getPrecinctSelectionQuery = getPrecinctSelection.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
-  function updatePrecinctSelection(newPrecinctSelection: PrecinctSelection) {
-    setPrecinctSelectionMutation.mutate({
-      precinctSelection: newPrecinctSelection,
-    });
-  }
+  const setTestModeMutation = setTestMode.useMutation();
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -79,15 +73,9 @@ export function AdminScreen({
     return () => screenReader.toggleMuted(initialMuted);
   }, [screenReader]);
 
-  if (!getPrecinctSelectionQuery.isSuccess) {
-    return null;
-  }
-
-  const precinctSelection = getPrecinctSelectionQuery.data;
-
   return (
     <Screen>
-      {election && !isLiveMode && <TestMode />}
+      {election && isTestMode && <TestMode />}
       <Main padded>
         <Prose>
           <H3 as="h1">
@@ -110,8 +98,16 @@ export function AdminScreen({
               </H6>
               <P>
                 <ChangePrecinctButton
-                  appPrecinctSelection={precinctSelection}
-                  updatePrecinctSelection={makeAsync(updatePrecinctSelection)}
+                  appPrecinctSelection={appPrecinct}
+                  updatePrecinctSelection={async (newPrecinctSelection) => {
+                    try {
+                      await setPrecinctSelectionMutation.mutateAsync({
+                        precinctSelection: newPrecinctSelection,
+                      });
+                    } catch (error) {
+                      // Handled by default query client error handling
+                    }
+                  }}
                   election={election}
                   mode={
                     pollsState === 'polls_closed_final' ||
@@ -140,12 +136,14 @@ export function AdminScreen({
                 <SegmentedButton
                   label="Test Ballot Mode"
                   hideLabel
-                  onChange={toggleLiveMode}
+                  onChange={() =>
+                    setTestModeMutation.mutate({ isTestMode: !isTestMode })
+                  }
                   options={[
                     { id: 'test', label: 'Test Ballot Mode' },
                     { id: 'official', label: 'Official Ballot Mode' },
                   ]}
-                  selectedOptionId={isLiveMode ? 'official' : 'test'}
+                  selectedOptionId={isTestMode ? 'test' : 'official'}
                 />
                 <br />
                 <Caption>
@@ -187,7 +185,7 @@ export function AdminScreen({
           electionDefinition={electionDefinition}
           codeVersion={machineConfig.codeVersion}
           machineId={machineConfig.machineId}
-          precinctSelection={precinctSelection}
+          precinctSelection={appPrecinct}
         />
       )}
     </Screen>

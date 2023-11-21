@@ -254,14 +254,6 @@ declare namespace KioskBrowser {
     readFile(path: string): Promise<Uint8Array>;
     readFile(path: string, encoding: string): Promise<string>;
 
-    // storage
-    storage: {
-      set(key: string, value: unknown): Promise<void>;
-      get(key: string): Promise<unknown | undefined>;
-      remove(key: string): Promise<void>;
-      clear(): Promise<void>;
-    };
-
     setClock(params: SetClockParams): Promise<void>;
 
     totp: {

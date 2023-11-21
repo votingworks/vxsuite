@@ -1,5 +1,6 @@
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { Button } from 'react-gamepad';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   act,
   fireEvent,
@@ -15,9 +16,6 @@ import {
   contest0candidate0,
   contest0candidate1,
   contest1candidate0,
-  election,
-  setElectionInStorage,
-  setStateInStorage,
 } from '../../test/helpers/election';
 
 import {
@@ -39,7 +37,6 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 });
 
@@ -49,17 +46,17 @@ afterEach(() => {
 
 it('gamepad controls work', async () => {
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
 
-  await setElectionInStorage(storage);
-  await setStateInStorage(storage);
-  apiMock.expectGetPrecinctSelectionResolvesDefault(election);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />

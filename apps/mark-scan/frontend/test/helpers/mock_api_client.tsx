@@ -1,17 +1,20 @@
 import React from 'react';
 import { Buffer } from 'buffer';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import type { Api, MachineConfig } from '@votingworks/mark-scan-backend';
+import type {
+  Api,
+  ElectionState,
+  MachineConfig,
+} from '@votingworks/mark-scan-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
-  AllPrecinctsSelection,
   BallotPackageConfigurationError,
   BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
   ElectionDefinition,
   InsertedSmartCardAuth,
   InterpretedBmdPage,
+  PollsState,
   PrecinctId,
   PrecinctSelection,
   SystemSettings,
@@ -23,13 +26,13 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { assert, err, ok, Result } from '@votingworks/basics';
+import { err, ok, Result } from '@votingworks/basics';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
+import { initialElectionState } from '../../src/app_root';
 
 interface CardlessVoterUserParams {
   ballotStyleId: BallotStyleId;
@@ -86,6 +89,10 @@ export function createApiMock() {
       Promise.resolve(usbDriveStatus)
     );
   }
+
+  const electionStateRef: { current: ElectionState } = {
+    current: initialElectionState,
+  };
 
   return {
     mockApiClient,
@@ -164,34 +171,6 @@ export function createApiMock() {
       mockApiClient.getElectionDefinition
         .expectCallWith()
         .resolves(electionDefinition);
-    },
-
-    /**
-     * Expects a call to getPrecinctSelection. The call will resolve with the first precinct of the given election.
-     * @param election The election to reference when choosing the precinct with which getPrecinctSelection() will resolve.
-     */
-    expectGetPrecinctSelectionResolvesDefault(election: Election) {
-      assert(
-        election?.precincts[0] !== undefined,
-        'Could not mock getPrecinctSelection because the provided election has no precincts'
-      );
-      mockApiClient.getPrecinctSelection
-        .expectCallWith()
-        .resolves(singlePrecinctSelectionFor(election.precincts[0].id));
-    },
-
-    expectGetPrecinctSelection(precinctSelection?: PrecinctSelection) {
-      mockApiClient.getPrecinctSelection
-        .expectCallWith()
-        .resolves(precinctSelection);
-    },
-
-    expectSetPrecinctSelection(
-      precinctSelection: PrecinctSelection | AllPrecinctsSelection
-    ) {
-      mockApiClient.setPrecinctSelection
-        .expectCallWith({ precinctSelection })
-        .resolves();
     },
 
     expectGetSystemSettings(
@@ -290,6 +269,32 @@ export function createApiMock() {
 
     expectSetPatDeviceIsCalibrated() {
       mockApiClient.setPatDeviceIsCalibrated.expectCallWith().resolves();
+    },
+
+    expectGetElectionState(electionState?: Partial<ElectionState>) {
+      electionStateRef.current = electionState
+        ? {
+            ...electionStateRef.current,
+            ...electionState,
+          }
+        : initialElectionState;
+      mockApiClient.getElectionState
+        .expectCallWith()
+        .resolves(electionStateRef.current);
+    },
+
+    expectSetPollsState(pollsState: PollsState) {
+      mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
+    },
+
+    expectSetTestMode(isTestMode: boolean) {
+      mockApiClient.setTestMode.expectCallWith({ isTestMode }).resolves();
+    },
+
+    expectSetPrecinctSelection(precinctSelection: PrecinctSelection) {
+      mockApiClient.setPrecinctSelection
+        .expectCallWith({ precinctSelection })
+        .resolves();
     },
   };
 }

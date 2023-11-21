@@ -4,8 +4,8 @@ import {
   assert,
   assertDefined,
   ok,
-  Optional,
   Result,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
@@ -17,8 +17,8 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   PrecinctSelection,
-  AllPrecinctsSelection,
   InterpretedBmdPage,
+  PollsState,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -42,6 +42,7 @@ import {
   PaperHandlerStateMachine,
   SimpleServerStatus,
 } from './custom-paper-handler';
+import { ElectionState } from './types';
 
 const debug = makeDebug('mark-scan:app-backend');
 
@@ -53,6 +54,8 @@ export function buildApi(
   workspace: Workspace,
   stateMachine?: PaperHandlerStateMachine
 ) {
+  const { store } = workspace;
+
   async function getUserRole(): Promise<LoggingUserRole> {
     const authStatus = await auth.getAuthStatus(
       constructAuthMachineState(workspace)
@@ -116,16 +119,6 @@ export function buildApi(
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
-    setPrecinctSelection(input: {
-      precinctSelection: PrecinctSelection | AllPrecinctsSelection;
-    }): void {
-      workspace.store.setPrecinctSelection(input.precinctSelection);
-    },
-
-    getPrecinctSelection(): Optional<PrecinctSelection> {
-      return workspace.store.getPrecinctSelection();
-    },
-
     unconfigureMachine() {
       workspace.store.reset();
     },
@@ -157,10 +150,12 @@ export function buildApi(
         });
         workspace.store.setSystemSettings(systemSettings);
 
-        const { precincts } = electionDefinition.election;
-        if (precincts.length === 1) {
+        // automatically set precinct for single precinct elections
+        if (electionDefinition.election.precincts.length === 1) {
           workspace.store.setPrecinctSelection(
-            singlePrecinctSelectionFor(precincts[0].id)
+            singlePrecinctSelectionFor(
+              electionDefinition.election.precincts[0].id
+            )
           );
         }
 
@@ -207,8 +202,9 @@ export function buildApi(
     },
 
     printBallot(input: { pdfData: Buffer }): void {
-      assert(stateMachine);
+      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
 
+      assert(stateMachine);
       void stateMachine.printBallot(input.pdfData);
     },
 
@@ -260,6 +256,60 @@ export function buildApi(
       logger,
       store: workspace.store.getUiStringsStore(),
     }),
+
+    async setPollsState(input: { pollsState: PollsState }) {
+      const newPollsState = input.pollsState;
+      const oldPollsState = store.getPollsState();
+
+      store.setPollsState(newPollsState);
+
+      assert(newPollsState !== 'polls_closed_initial');
+      const logEvent = (() => {
+        switch (newPollsState) {
+          case 'polls_closed_final':
+            return LogEventId.PollsClosed;
+          case 'polls_paused':
+            if (oldPollsState === 'polls_closed_final') {
+              // logging case handled by ResetPollsToPausedButton
+              return undefined;
+            }
+            return LogEventId.VotingPaused;
+          case 'polls_open':
+            if (oldPollsState === 'polls_closed_initial') {
+              return LogEventId.PollsOpened;
+            }
+            return LogEventId.VotingResumed;
+          /* istanbul ignore next */
+          default:
+            throwIllegalValue(newPollsState);
+        }
+      })();
+      if (logEvent) {
+        await logger.log(logEvent, 'poll_worker', { disposition: 'success' });
+      }
+    },
+
+    setTestMode(input: { isTestMode: boolean }) {
+      store.setTestMode(input.isTestMode);
+      store.setPollsState('polls_closed_initial');
+      store.setBallotsPrintedCount(0);
+    },
+
+    setPrecinctSelection(input: {
+      precinctSelection: PrecinctSelection;
+    }): void {
+      store.setPrecinctSelection(input.precinctSelection);
+      store.setBallotsPrintedCount(0);
+    },
+
+    getElectionState(): ElectionState {
+      return {
+        precinctSelection: store.getPrecinctSelection(),
+        ballotsPrintedCount: store.getBallotsPrintedCount(),
+        isTestMode: store.getTestMode(),
+        pollsState: store.getPollsState(),
+      };
+    },
   });
 }
 

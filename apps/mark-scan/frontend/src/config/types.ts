@@ -33,7 +33,6 @@ export interface BallotContextInterface {
   endVoterSession: () => Promise<void>;
   precinctId?: PrecinctId;
   resetBallot: (showPostVotingInstructions?: boolean) => void;
-  updateTally: () => void;
   updateVote: UpdateVoteFunction;
   votes: VotesDict;
 }

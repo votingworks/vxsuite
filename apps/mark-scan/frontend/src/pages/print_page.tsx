@@ -17,7 +17,6 @@ export function PrintPage(): JSX.Element | null {
     isLiveMode,
     votes,
     generateBallotId,
-    updateTally,
   } = useContext(BallotContext);
   assert(electionDefinition, 'electionDefinition is not defined');
   assert(typeof ballotStyleId === 'string', 'ballotStyleId is not defined');
@@ -33,10 +32,6 @@ export function PrintPage(): JSX.Element | null {
     printBallotMutation.mutate({ pdfData });
   }
 
-  function onPrintStarted() {
-    updateTally();
-  }
-
   return (
     <MarkFlowPrintPage
       electionDefinition={electionDefinition}
@@ -45,7 +40,6 @@ export function PrintPage(): JSX.Element | null {
       isLiveMode={isLiveMode}
       votes={votes}
       generateBallotId={generateBallotId}
-      onPrintStarted={onPrintStarted}
       printElement={printElementToCustomPaperHandler}
       largeTopMargin
     />

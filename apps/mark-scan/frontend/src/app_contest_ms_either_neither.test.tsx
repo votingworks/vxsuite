@@ -1,8 +1,4 @@
-import {
-  MemoryStorage,
-  MemoryHardware,
-  singlePrecinctSelectionFor,
-} from '@votingworks/utils';
+import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
 import { Route } from 'react-router-dom';
 import {
   getBallotStyle,
@@ -28,10 +24,6 @@ import { render as renderWithBallotContext } from '../test/test_utils';
 import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import {
-  setElectionInStorage,
-  setStateInStorage,
-} from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -213,19 +205,18 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
 test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
-  apiMock.expectGetPrecinctSelection(singlePrecinctSelectionFor(precinctId));
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
-  await setElectionInStorage(storage, electionDefinition);
-  await setStateInStorage(storage);
+  apiMock.expectGetElectionState({
+    precinctSelection: singlePrecinctSelectionFor(precinctId),
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />

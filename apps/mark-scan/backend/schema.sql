@@ -4,6 +4,9 @@ create table election (
   election_data text not null,
   jurisdiction text not null,
   precinct_selection text,
+  is_test_mode boolean not null default true,
+  polls_state text not null default "polls_closed_initial",
+  ballots_printed_count integer not null default 0,
   created_at timestamp not null default current_timestamp
 );
 
