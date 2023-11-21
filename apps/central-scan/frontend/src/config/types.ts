@@ -1,4 +1,4 @@
-import { ElectionDefinition, MachineId } from '@votingworks/types';
+import { MachineId } from '@votingworks/types';
 import { z } from 'zod';
 
 export interface MachineConfig {
@@ -12,6 +12,3 @@ export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
 
 export type MachineConfigResponse = MachineConfig;
 export const MachineConfigResponseSchema = MachineConfigSchema;
-
-// Election
-export type SetElectionDefinition = (value: ElectionDefinition) => void;
