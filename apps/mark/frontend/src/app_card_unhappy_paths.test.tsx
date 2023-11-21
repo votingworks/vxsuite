@@ -1,10 +1,9 @@
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 
 import { App } from './app';
 
-import { setStateInStorage } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -22,16 +21,17 @@ afterEach(() => {
 
 test('Shows card backwards screen when card connection error occurs', async () => {
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
   apiMock.expectGetMachineConfig();
 
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-  await setStateInStorage(storage);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
 
   render(
     <App
       hardware={hardware}
-      storage={storage}
       apiClient={apiMock.mockApiClient}
       reload={jest.fn()}
     />

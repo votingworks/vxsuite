@@ -49,6 +49,15 @@ export function ChangePrecinctButton({
   const [unconfirmedPrecinctSelection, setUnconfirmedPrecinctSelection] =
     useState<PrecinctSelection>();
 
+  const dropdownPrecinctSelection =
+    unconfirmedPrecinctSelection || appPrecinctSelection;
+
+  const dropdownCurrentValue = dropdownPrecinctSelection
+    ? dropdownPrecinctSelection.kind === 'AllPrecincts'
+      ? ALL_PRECINCTS_OPTION_VALUE
+      : dropdownPrecinctSelection.precinctId
+    : '';
+
   function openModal() {
     setIsConfirmationModalShowing(true);
   }
@@ -81,6 +90,11 @@ export function ChangePrecinctButton({
     const { value } = event.currentTarget;
     if (!value) return; // in case of blur on placeholder option
 
+    if (value === dropdownCurrentValue) {
+      // blur on current value should be no-op
+      return;
+    }
+
     const newPrecinctSelection =
       value === ALL_PRECINCTS_OPTION_VALUE
         ? ALL_PRECINCTS_SELECTION
@@ -98,15 +112,6 @@ export function ChangePrecinctButton({
     await updatePrecinctSelectionAndLog(unconfirmedPrecinctSelection);
     closeModal();
   }
-
-  const dropdownPrecinctSelection =
-    unconfirmedPrecinctSelection || appPrecinctSelection;
-
-  const dropdownCurrentValue = dropdownPrecinctSelection
-    ? dropdownPrecinctSelection.kind === 'AllPrecincts'
-      ? ALL_PRECINCTS_OPTION_VALUE
-      : dropdownPrecinctSelection.precinctId
-    : '';
 
   const precinctSelectDropdown = (
     <Select

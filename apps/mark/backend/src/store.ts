@@ -3,12 +3,19 @@
 //
 
 import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
+import { Optional } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   ElectionDefinition,
   safeParseElectionDefinition,
   SystemSettings,
   safeParseSystemSettings,
+  PrecinctSelection,
+  PrecinctSelectionSchema,
+  safeParseJson,
+  PollsState,
+  safeParse,
+  PollsStateSchema,
 } from '@votingworks/types';
 import { join } from 'path';
 
@@ -162,5 +169,148 @@ export class Store {
 
   getUiStringsStore(): UiStringsStore {
     return this.uiStringsStore;
+  }
+
+  /**
+   * Gets the current precinct for which voters can cast ballots. If set to
+   * `undefined`, ballots from all precincts will be accepted (this is the
+   * default).
+   */
+  getPrecinctSelection(): Optional<PrecinctSelection> {
+    const electionRow = this.client.one(
+      'select precinct_selection as rawPrecinctSelection from election'
+    ) as { rawPrecinctSelection: string } | undefined;
+
+    const rawPrecinctSelection = electionRow?.rawPrecinctSelection;
+
+    if (!rawPrecinctSelection) {
+      // precinct selection is undefined when there is no election
+      return undefined;
+    }
+
+    const precinctSelectionParseResult = safeParseJson(
+      rawPrecinctSelection,
+      PrecinctSelectionSchema
+    );
+
+    // istanbul ignore next
+    if (precinctSelectionParseResult.isErr()) {
+      throw new Error('Unable to parse stored precinct selection.');
+    }
+
+    return precinctSelectionParseResult.ok();
+  }
+
+  /**
+   * Sets the current precinct for which voters can cast ballots. Set to
+   * `undefined` to accept from all precincts (this is the default).
+   */
+  setPrecinctSelection(precinctSelection: PrecinctSelection): void {
+    // istanbul ignore next
+    if (!this.hasElection()) {
+      throw new Error('Cannot set precinct selection without an election.');
+    }
+
+    this.client.run(
+      'update election set precinct_selection = ?',
+      JSON.stringify(precinctSelection)
+    );
+  }
+
+  /**
+   * Gets the current test mode setting value.
+   */
+  getTestMode(): boolean {
+    const electionRow = this.client.one(
+      'select is_test_mode as isTestMode from election'
+    ) as { isTestMode: number } | undefined;
+
+    if (!electionRow) {
+      // test mode will be the default once an election is defined
+      return true;
+    }
+
+    return Boolean(electionRow.isTestMode);
+  }
+
+  /**
+   * Sets the current test mode setting value.
+   */
+  setTestMode(isTestMode: boolean): void {
+    // istanbul ignore next
+    if (!this.hasElection()) {
+      throw new Error('Cannot set test mode without an election.');
+    }
+
+    this.client.run('update election set is_test_mode = ?', isTestMode ? 1 : 0);
+  }
+
+  /**
+   * Gets the current polls state (open, paused, closed initial, or closed final)
+   */
+  getPollsState(): PollsState {
+    const electionRow = this.client.one(
+      'select polls_state as rawPollsState from election'
+    ) as { rawPollsState: string } | undefined;
+
+    if (!electionRow) {
+      // polls_closed_initial will be the default once an election is defined
+      return 'polls_closed_initial';
+    }
+
+    const pollsStateParseResult = safeParse(
+      PollsStateSchema,
+      electionRow.rawPollsState
+    );
+
+    // istanbul ignore next
+    if (pollsStateParseResult.isErr()) {
+      throw new Error('Unable to parse stored polls state.');
+    }
+
+    return pollsStateParseResult.ok();
+  }
+
+  /**
+   * Sets the current polls state
+   */
+  setPollsState(pollsState: PollsState): void {
+    // istanbul ignore next
+    if (!this.hasElection()) {
+      throw new Error('Cannot set polls state without an election.');
+    }
+
+    this.client.run('update election set polls_state = ?', pollsState);
+  }
+
+  /**
+   * Gets the current ballots printed count
+   */
+  getBallotsPrintedCount(): number {
+    const electionRow = this.client.one(
+      'select ballots_printed_count as ballotsPrintedCount from election'
+    ) as { ballotsPrintedCount: number } | undefined;
+
+    if (!electionRow) {
+      // 0 will be the default once an election is defined
+      return 0;
+    }
+
+    return electionRow.ballotsPrintedCount;
+  }
+
+  /**
+   * Sets the current ballots printed count
+   */
+  setBallotsPrintedCount(ballotsPrintedCount: number): void {
+    // istanbul ignore next
+    if (!this.hasElection()) {
+      throw new Error('Cannot set ballots printed count without an election.');
+    }
+
+    this.client.run(
+      'update election set ballots_printed_count = ?',
+      ballotsPrintedCount
+    );
   }
 }

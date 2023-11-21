@@ -49,6 +49,7 @@ import { ScreenReader } from '../config/types';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
+import { setPollsState, setTestMode } from '../api';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -142,7 +143,6 @@ export interface PollworkerScreenProps {
   resetCardlessVoterSession: () => void;
   appPrecinct: PrecinctSelection;
   electionDefinition: ElectionDefinition;
-  enableLiveMode: () => void;
   hasVotes: boolean;
   isLiveMode: boolean;
   pollsState: PollsState;
@@ -151,7 +151,6 @@ export interface PollworkerScreenProps {
   hardware: Hardware;
   devices: Devices;
   screenReader: ScreenReader;
-  updatePollsState: (pollsState: PollsState) => void;
   reload: () => void;
 }
 
@@ -161,7 +160,6 @@ export function PollWorkerScreen({
   resetCardlessVoterSession,
   appPrecinct,
   electionDefinition,
-  enableLiveMode,
   isLiveMode,
   pollsState,
   ballotsPrintedCount,
@@ -169,13 +167,15 @@ export function PollWorkerScreen({
   hardware,
   devices,
   screenReader,
-  updatePollsState,
   hasVotes,
   reload,
 }: PollworkerScreenProps): JSX.Element {
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
+
+  const setTestModeMutation = setTestMode.useMutation();
+  const setPollsStateMutation = setPollsState.useMutation();
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
@@ -217,7 +217,7 @@ export function PollWorkerScreen({
     useState(false);
 
   function confirmEnableLiveMode() {
-    enableLiveMode();
+    setTestModeMutation.mutate({ isTestMode: false });
     setIsConfirmingEnableLiveMode(false);
   }
 
@@ -407,7 +407,11 @@ export function PollWorkerScreen({
                       <P key={`${pollsTransition}-button`}>
                         <UpdatePollsButton
                           pollsTransition={pollsTransition}
-                          updatePollsState={updatePollsState}
+                          updatePollsState={(newPollsState) =>
+                            setPollsStateMutation.mutate({
+                              pollsState: newPollsState,
+                            })
+                          }
                           isPrimaryButton={index === 0}
                         />
                       </P>

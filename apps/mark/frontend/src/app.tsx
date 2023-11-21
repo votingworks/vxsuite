@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
-import {
-  KioskStorage,
-  LocalStorage,
-  getHardware,
-  isAccessibleController,
-} from '@votingworks/utils';
+import { getHardware, isAccessibleController } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -48,7 +43,6 @@ const DEFAULT_SIZE_MODE: SizeMode = 'touchMedium';
 
 export interface Props {
   hardware?: AppRootProps['hardware'];
-  storage?: AppRootProps['storage'];
   screenReader?: ScreenReader;
   reload?: VoidFunction;
   logger?: AppRootProps['logger'];
@@ -63,7 +57,6 @@ export function App({
       ? new KioskTextToSpeech()
       : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
   ),
-  storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   hardware = getHardware(),
   reload = () => window.location.reload(),
   logger = new Logger(LogSource.VxMarkFrontend, window.kiosk),
@@ -165,7 +158,6 @@ export function App({
                 >
                   <AppRoot
                     hardware={hardware}
-                    storage={storage}
                     screenReader={screenReader}
                     reload={reload}
                     logger={logger}

@@ -135,11 +135,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   );
   assert(precinct, `Expected to find a precinct for ${precinctName}`);
   const precinctSelection = singlePrecinctSelectionFor(precinct.id);
-  // TODO(kevin)
-  // This set operation is called twice with the same value. Not a risk
-  // but we should figure out why when time allows.
-  apiMock.expectSetPrecinctSelectionRepeated(precinctSelection);
-  // Expect one call for each rerender from here
+  apiMock.expectSetPrecinctSelection(precinctSelection);
   apiMock.expectGetPrecinctSelection(precinctSelection);
   userEvent.selectOptions(
     screen.getByLabelText('Precinct'),
@@ -150,7 +146,6 @@ test('MarkAndPrint end-to-end flow', async () => {
     /Center Springfield/
   );
 
-  apiMock.expectGetPrecinctSelection(precinctSelection);
   userEvent.click(
     screen.getByRole('option', {
       name: 'Official Ballot Mode',

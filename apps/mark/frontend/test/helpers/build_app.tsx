@@ -30,7 +30,6 @@ export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
     return render(
       <App
         hardware={hardware}
-        storage={storage}
         reload={reload}
         logger={logger}
         apiClient={apiMock.mockApiClient}

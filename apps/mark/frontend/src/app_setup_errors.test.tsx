@@ -1,4 +1,4 @@
-import { MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { LOW_BATTERY_THRESHOLD } from '@votingworks/ui';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -13,7 +13,6 @@ import { App } from './app';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
-import { setStateInStorage } from '../test/helpers/election';
 import { withMarkup } from '../test/helpers/with_markup';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -37,17 +36,18 @@ const noPowerDetectedWarningText = 'No Power Detected.';
 describe('Displays setup warning messages and errors screens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     hardware.setAccessibleControllerConnected(true);
 
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-    await setStateInStorage(storage);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+    });
 
     render(
       <App
         hardware={hardware}
-        storage={storage}
         apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
@@ -78,15 +78,16 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays error screen if Card Reader connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-    await setStateInStorage(storage);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+    });
 
     render(
       <App
         hardware={hardware}
-        storage={storage}
         apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
@@ -112,14 +113,16 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays error screen if Power connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-    await setStateInStorage(storage);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+    });
+
     render(
       <App
         hardware={hardware}
-        storage={storage}
         apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
@@ -144,14 +147,16 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
     apiMock.expectGetMachineConfig();
-    const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-    await setStateInStorage(storage);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+    });
+
     render(
       <App
         hardware={hardware}
-        storage={storage}
         apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />
@@ -175,14 +180,16 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     apiMock.expectGetMachineConfig();
-    const storage = new MemoryStorage();
     const hardware = MemoryHardware.buildStandard();
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-    await setStateInStorage(storage);
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+    });
+
     render(
       <App
         hardware={hardware}
-        storage={storage}
         apiClient={apiMock.mockApiClient}
         reload={jest.fn()}
       />

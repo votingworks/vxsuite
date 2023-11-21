@@ -1,7 +1,11 @@
 import React from 'react';
 
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import type { Api, MachineConfig } from '@votingworks/mark-backend';
+import type {
+  Api,
+  MachineConfig,
+  ElectionState,
+} from '@votingworks/mark-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
   BallotPackageConfigurationError,
@@ -9,7 +13,9 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   InsertedSmartCardAuth,
+  PollsState,
   PrecinctId,
+  PrecinctSelection,
   SystemSettings,
 } from '@votingworks/types';
 import {
@@ -24,6 +30,7 @@ import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
+import { initialElectionState } from '../../src/app_root';
 
 interface CardlessVoterUserParams {
   ballotStyleId: BallotStyleId;
@@ -72,6 +79,10 @@ export function createApiMock() {
       Promise.resolve(usbDriveStatus)
     );
   }
+
+  const electionStateRef: { current: ElectionState } = {
+    current: initialElectionState,
+  };
 
   return {
     mockApiClient,
@@ -192,6 +203,36 @@ export function createApiMock() {
 
     expectEjectUsbDrive() {
       mockApiClient.ejectUsbDrive.expectCallWith().resolves();
+    },
+
+    expectGetElectionState(electionState?: Partial<ElectionState>) {
+      electionStateRef.current = electionState
+        ? {
+            ...electionStateRef.current,
+            ...electionState,
+          }
+        : initialElectionState;
+      mockApiClient.getElectionState
+        .expectCallWith()
+        .resolves(electionStateRef.current);
+    },
+
+    expectSetPollsState(pollsState: PollsState) {
+      mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
+    },
+
+    expectSetTestMode(isTestMode: boolean) {
+      mockApiClient.setTestMode.expectCallWith({ isTestMode }).resolves();
+    },
+
+    expectSetPrecinctSelection(precinctSelection: PrecinctSelection) {
+      mockApiClient.setPrecinctSelection
+        .expectCallWith({ precinctSelection })
+        .resolves();
+    },
+
+    expectIncrementBallotsPrintedCount() {
+      mockApiClient.incrementBallotsPrintedCount.expectCallWith().resolves();
     },
   };
 }

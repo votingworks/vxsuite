@@ -3,7 +3,13 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { assert, assertDefined, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   BallotPackageConfigurationError,
@@ -12,8 +18,13 @@ import {
   PrecinctId,
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
+  PollsState,
+  PrecinctSelection,
 } from '@votingworks/types';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  isElectionManagerAuth,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 
 import {
   createUiStringsApi,
@@ -25,6 +36,7 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
+import { ElectionState } from './types';
 
 function constructAuthMachineState(
   workspace: Workspace
@@ -47,6 +59,8 @@ export function buildApi(
   logger: Logger,
   workspace: Workspace
 ) {
+  const { store } = workspace;
+
   async function getUserRole(): Promise<LoggingUserRole> {
     const authStatus = await auth.getAuthStatus(
       constructAuthMachineState(workspace)
@@ -141,6 +155,15 @@ export function buildApi(
         });
         workspace.store.setSystemSettings(systemSettings);
 
+        // automatically set precinct for single precinct elections
+        if (electionDefinition.election.precincts.length === 1) {
+          workspace.store.setPrecinctSelection(
+            singlePrecinctSelectionFor(
+              electionDefinition.election.precincts[0].id
+            )
+          );
+        }
+
         configureUiStrings({
           ballotPackage,
           logger,
@@ -159,6 +182,64 @@ export function buildApi(
       logger,
       store: workspace.store.getUiStringsStore(),
     }),
+
+    incrementBallotsPrintedCount() {
+      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+    },
+
+    async setPollsState(input: { pollsState: PollsState }) {
+      const newPollsState = input.pollsState;
+      const oldPollsState = store.getPollsState();
+
+      store.setPollsState(newPollsState);
+
+      assert(newPollsState !== 'polls_closed_initial');
+      const logEvent = (() => {
+        switch (newPollsState) {
+          case 'polls_closed_final':
+            return LogEventId.PollsClosed;
+          case 'polls_paused':
+            if (oldPollsState === 'polls_closed_final') {
+              // logging case handled by ResetPollsToPausedButton
+              return undefined;
+            }
+            return LogEventId.VotingPaused;
+          case 'polls_open':
+            if (oldPollsState === 'polls_closed_initial') {
+              return LogEventId.PollsOpened;
+            }
+            return LogEventId.VotingResumed;
+          /* istanbul ignore next */
+          default:
+            throwIllegalValue(newPollsState);
+        }
+      })();
+      if (logEvent) {
+        await logger.log(logEvent, 'poll_worker', { disposition: 'success' });
+      }
+    },
+
+    setTestMode(input: { isTestMode: boolean }) {
+      store.setTestMode(input.isTestMode);
+      store.setPollsState('polls_closed_initial');
+      store.setBallotsPrintedCount(0);
+    },
+
+    setPrecinctSelection(input: {
+      precinctSelection: PrecinctSelection;
+    }): void {
+      store.setPrecinctSelection(input.precinctSelection);
+      store.setBallotsPrintedCount(0);
+    },
+
+    getElectionState(): ElectionState {
+      return {
+        precinctSelection: store.getPrecinctSelection(),
+        ballotsPrintedCount: store.getBallotsPrintedCount(),
+        isTestMode: store.getTestMode(),
+        pollsState: store.getPollsState(),
+      };
+    },
   });
 }
 

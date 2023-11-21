@@ -24,20 +24,22 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { makeAsync } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ScreenReader } from '../config/types';
-import { ejectUsbDrive, logOut } from '../api';
+import {
+  ejectUsbDrive,
+  logOut,
+  setPrecinctSelection,
+  setTestMode,
+} from '../api';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
-  isLiveMode: boolean;
-  updateAppPrecinct: (appPrecinct: PrecinctSelection) => void;
-  toggleLiveMode: VoidFunction;
+  isTestMode: boolean;
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
   screenReader: ScreenReader;
@@ -50,9 +52,7 @@ export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
-  isLiveMode,
-  updateAppPrecinct,
-  toggleLiveMode,
+  isTestMode,
   unconfigure,
   machineConfig,
   screenReader,
@@ -63,6 +63,8 @@ export function AdminScreen({
   const { election } = electionDefinition;
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+  const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
+  const setTestModeMutation = setTestMode.useMutation();
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {
@@ -73,7 +75,7 @@ export function AdminScreen({
 
   return (
     <Screen>
-      {election && !isLiveMode && <TestMode />}
+      {election && isTestMode && <TestMode />}
       <Main padded>
         <Prose>
           <H3 as="h1">
@@ -97,7 +99,15 @@ export function AdminScreen({
               <P>
                 <ChangePrecinctButton
                   appPrecinctSelection={appPrecinct}
-                  updatePrecinctSelection={makeAsync(updateAppPrecinct)}
+                  updatePrecinctSelection={async (newPrecinctSelection) => {
+                    try {
+                      await setPrecinctSelectionMutation.mutateAsync({
+                        precinctSelection: newPrecinctSelection,
+                      });
+                    } catch (error) {
+                      // Handled by default query client error handling
+                    }
+                  }}
                   election={election}
                   mode={
                     pollsState === 'polls_closed_final' ||
@@ -126,12 +136,14 @@ export function AdminScreen({
                 <SegmentedButton
                   label="Test Ballot Mode"
                   hideLabel
-                  onChange={toggleLiveMode}
+                  onChange={() =>
+                    setTestModeMutation.mutate({ isTestMode: !isTestMode })
+                  }
                   options={[
                     { id: 'test', label: 'Test Ballot Mode' },
                     { id: 'official', label: 'Official Ballot Mode' },
                   ]}
-                  selectedOptionId={isLiveMode ? 'official' : 'test'}
+                  selectedOptionId={isTestMode ? 'test' : 'official'}
                 />
                 <br />
                 <Caption>

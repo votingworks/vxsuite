@@ -102,6 +102,16 @@ export const getSystemSettings = {
   },
 } as const;
 
+export const getElectionState = {
+  queryKey(): QueryKey {
+    return ['getElectionState'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getElectionState());
+  },
+} as const;
+
 export const getAuthStatus = {
   queryKey(): QueryKey {
     return ['getAuthStatus'];
@@ -196,6 +206,7 @@ export const configureBallotPackageFromUsb = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(getElectionState.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
@@ -210,7 +221,56 @@ export const unconfigureMachine = {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        await queryClient.invalidateQueries(getElectionState.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
+      },
+    });
+  },
+} as const;
+
+export const setPollsState = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPollsState, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const incrementBallotsPrintedCount = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.incrementBallotsPrintedCount, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setTestMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setTestMode, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionState.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setPrecinctSelection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setPrecinctSelection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getElectionState.queryKey());
       },
     });
   },
