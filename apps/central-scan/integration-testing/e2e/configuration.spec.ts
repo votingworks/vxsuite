@@ -23,7 +23,7 @@ test('configure + scan', async ({ page }) => {
   await page.getByText('No ballots have been scanned').waitFor();
   usbHandler.remove();
 
-  await page.getByText('Admin').click();
+  await page.getByRole('button', { name: 'Settings' }).click();
   await page.getByText('Toggle to Official Ballot Mode').click();
   await page
     .getByRole('alertdialog')
