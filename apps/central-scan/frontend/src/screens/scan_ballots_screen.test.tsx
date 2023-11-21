@@ -3,7 +3,7 @@ import { AdjudicationStatus } from '@votingworks/types';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { render } from '../../test/react_testing_library';
-import { DashboardScreen } from './dashboard_screen';
+import { ScanBallotsScreen } from './scan_ballots_screen';
 
 const noneLeftAdjudicationStatus: AdjudicationStatus = {
   adjudicated: 0,
@@ -18,7 +18,7 @@ test('null state', () => {
   };
   const component = render(
     <Router history={createMemoryHistory()}>
-      <DashboardScreen isScanning={false} status={status} />
+      <ScanBallotsScreen isScanning={false} status={status} />
     </Router>
   );
 
@@ -52,7 +52,7 @@ test('shows scanned ballot count', () => {
   };
   const component = render(
     <Router history={createMemoryHistory()}>
-      <DashboardScreen isScanning={false} status={status} />
+      <ScanBallotsScreen isScanning={false} status={status} />
     </Router>
   );
 
@@ -77,7 +77,7 @@ test('shows whether a batch is scanning', () => {
   };
   const component = render(
     <Router history={createMemoryHistory()}>
-      <DashboardScreen isScanning status={status} />
+      <ScanBallotsScreen isScanning status={status} />
     </Router>
   );
 
