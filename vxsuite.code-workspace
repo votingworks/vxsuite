@@ -185,10 +185,6 @@
       "path": "libs/utils"
     },
     {
-      "name": "services/converter-ms-sems",
-      "path": "services/converter-ms-sems"
-    },
-    {
       "path": "docs"
     },
     {
