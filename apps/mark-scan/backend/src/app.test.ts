@@ -12,6 +12,7 @@ import {
 } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
+  ALL_PRECINCTS_SELECTION,
   BALLOT_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -24,13 +25,16 @@ import * as grout from '@votingworks/grout';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
-  SinglePrecinctSelection,
+  SystemSettingsSchema,
+  safeParseJson,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
+import { ElectionState } from './types';
 
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
@@ -46,6 +50,7 @@ let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
+let logger: Logger;
 
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
@@ -54,6 +59,7 @@ beforeEach(async () => {
 
   const result = await createApp();
   apiClient = result.apiClient;
+  logger = result.logger;
   mockAuth = result.mockAuth;
   mockUsbDrive = result.mockUsbDrive;
   server = result.server;
@@ -118,24 +124,6 @@ test('uses default machine config if not set', async () => {
   });
 });
 
-test('precinct selection can be written/read to/from store', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  mockElectionManagerAuth(electionDefinition);
-  await setUpUsbAndConfigureElection(electionDefinition);
-
-  let precinctSelectionFromStore = await apiClient.getPrecinctSelection();
-  expect(precinctSelectionFromStore).toBeUndefined();
-
-  const precinct = electionDefinition.election.precincts[0].id;
-  const precinctSelection = singlePrecinctSelectionFor(precinct);
-  await apiClient.setPrecinctSelection({
-    precinctSelection,
-  });
-
-  precinctSelectionFromStore = await apiClient.getPrecinctSelection();
-  expect(precinctSelectionFromStore).toEqual(precinctSelection);
-});
-
 test('configureBallotPackageFromUsb reads to and writes from store', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
@@ -148,38 +136,6 @@ test('configureBallotPackageFromUsb reads to and writes from store', async () =>
   );
   const electionDefinitionResult = await apiClient.getElectionDefinition();
   expect(electionDefinitionResult).toEqual(electionDefinition);
-});
-
-test('configureBallotPackageFromUsb automatically writes precinct selection if only 1 option', async () => {
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
-  assert(
-    electionDefinition.election.precincts.length === 1,
-    'Expected election to have exactly 1 precinct'
-  );
-
-  mockElectionManagerAuth(electionDefinition);
-  await setUpUsbAndConfigureElection(electionDefinition);
-
-  const precinctSelection = await apiClient.getPrecinctSelection();
-  assert(precinctSelection, 'Expected precinct selection to be defined');
-  expect((precinctSelection as SinglePrecinctSelection).precinctId).toEqual(
-    electionDefinition.election.precincts[0].id
-  );
-});
-
-test('configureBallotPackageFromUsb does not automatically write precinct selection if > 1 option', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  assert(
-    electionDefinition.election.precincts.length > 1,
-    'Expected election to have > 1 precinct'
-  );
-
-  mockElectionManagerAuth(electionDefinition);
-  await setUpUsbAndConfigureElection(electionDefinition);
-
-  const precinctSelection = await apiClient.getPrecinctSelection();
-  expect(precinctSelection).toBeUndefined();
 });
 
 test('unconfigureMachine deletes system settings and election definition', async () => {
@@ -251,4 +207,144 @@ test('usbDrive', async () => {
   mockElectionManagerAuth(electionFamousNames2021Fixtures.electionDefinition);
   usbDrive.eject.expectCallWith('election_manager').resolves();
   await apiClient.ejectUsbDrive();
+});
+
+async function expectElectionState(expected: Partial<ElectionState>) {
+  expect(await apiClient.getElectionState()).toMatchObject(expected);
+}
+
+async function configureMachine(
+  usbDrive: MockUsbDrive,
+  electionDefinition: ElectionDefinition
+) {
+  mockElectionManagerAuth(electionDefinition);
+
+  usbDrive.insertUsbDrive(
+    await mockBallotPackageFileTree({
+      electionDefinition,
+      systemSettings: safeParseJson(
+        systemSettings.asText(),
+        SystemSettingsSchema
+      ).unsafeUnwrap(),
+    })
+  );
+
+  const writeResult = await apiClient.configureBallotPackageFromUsb();
+  assert(writeResult.isOk());
+
+  usbDrive.removeUsbDrive();
+}
+
+test('single precinct election automatically has precinct set on configure', async () => {
+  await configureMachine(
+    mockUsbDrive,
+    electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition
+  );
+
+  await expectElectionState({
+    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
+  });
+});
+
+test('polls state', async () => {
+  await expectElectionState({ pollsState: 'polls_closed_initial' });
+
+  await configureMachine(
+    mockUsbDrive,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
+  await expectElectionState({ pollsState: 'polls_closed_initial' });
+
+  await apiClient.setPollsState({ pollsState: 'polls_open' });
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.PollsOpened,
+    'poll_worker',
+    { disposition: 'success' }
+  );
+  await expectElectionState({ pollsState: 'polls_open' });
+
+  await apiClient.setPollsState({ pollsState: 'polls_paused' });
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.VotingPaused,
+    'poll_worker',
+    { disposition: 'success' }
+  );
+  await expectElectionState({ pollsState: 'polls_paused' });
+
+  await apiClient.setPollsState({ pollsState: 'polls_open' });
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.VotingResumed,
+    'poll_worker',
+    { disposition: 'success' }
+  );
+  await expectElectionState({ pollsState: 'polls_open' });
+
+  await apiClient.setPollsState({ pollsState: 'polls_closed_final' });
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.PollsClosed,
+    'poll_worker',
+    { disposition: 'success' }
+  );
+  await expectElectionState({ pollsState: 'polls_closed_final' });
+
+  // system admin resetting polls to paused
+  await apiClient.setPollsState({ pollsState: 'polls_paused' });
+  await expectElectionState({ pollsState: 'polls_paused' });
+});
+
+test('test mode', async () => {
+  await expectElectionState({ isTestMode: true });
+
+  await configureMachine(
+    mockUsbDrive,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
+
+  await apiClient.setTestMode({ isTestMode: false });
+  await expectElectionState({ isTestMode: false });
+
+  await apiClient.setTestMode({ isTestMode: true });
+  await expectElectionState({ isTestMode: true });
+});
+
+test('setting precinct', async () => {
+  expect(
+    (await apiClient.getElectionState()).precinctSelection
+  ).toBeUndefined();
+
+  await configureMachine(
+    mockUsbDrive,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
+  expect(
+    (await apiClient.getElectionState()).precinctSelection
+  ).toBeUndefined();
+
+  await apiClient.setPrecinctSelection({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  await expectElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+
+  const singlePrecinctSelection = singlePrecinctSelectionFor('23');
+  await apiClient.setPrecinctSelection({
+    precinctSelection: singlePrecinctSelection,
+  });
+  await expectElectionState({
+    precinctSelection: singlePrecinctSelection,
+  });
+});
+
+test('printing a ballot incrementes the printed ballot count', async () => {
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  await configureMachine(
+    mockUsbDrive,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  await apiClient.printBallot({ pdfData: Buffer.from('pdf data') });
+  await expectElectionState({ ballotsPrintedCount: 1 });
 });
