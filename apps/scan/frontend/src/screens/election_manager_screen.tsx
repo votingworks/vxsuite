@@ -1,5 +1,5 @@
 import { ok } from '@votingworks/basics';
-import { LogsResultType } from '@votingworks/backend';
+import type { LogsResultType } from '@votingworks/backend';
 import { ElectionDefinition } from '@votingworks/types';
 import {
   Button,

@@ -18,7 +18,7 @@ import {
 import { Logger } from '@votingworks/logging';
 
 import { assert, err } from '@votingworks/basics';
-import { LogsResultType } from '@votingworks/backend';
+import type { LogsResultType } from '@votingworks/backend';
 import { PrecinctReportDestination } from '@votingworks/types';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';

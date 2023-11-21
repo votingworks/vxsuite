@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { ExportLogsButtonRow } from '@votingworks/ui';
 import { err } from '@votingworks/basics';
-import { LogsResultType } from '@votingworks/backend';
+import type { LogsResultType } from '@votingworks/backend';
 import { exportLogsToUsb } from '../api';
 
 import { AppContext } from '../contexts/app_context';

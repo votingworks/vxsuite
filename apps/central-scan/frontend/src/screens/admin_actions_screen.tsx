@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { assert, err } from '@votingworks/basics';
-import { LogsResultType } from '@votingworks/backend';
+import type { LogsResultType } from '@votingworks/backend';
 import {
   Button,
   ExportLogsButtonRow,
