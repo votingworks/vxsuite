@@ -58,8 +58,10 @@ int main(void)
 
   memset(&usetup, 0, sizeof(usetup));
   usetup.id.bustype = BUS_USB;
-  usetup.id.vendor = 0x1234;  /* sample vendor */
-  usetup.id.product = 0x5678; /* sample product */
+  // Vendor and product ID are required but their values are never read,
+  // so we use dummy values.
+  usetup.id.vendor = 0x1234;
+  usetup.id.product = 0x5678;
   strcpy(usetup.name, "PAT Input daemon virtual device");
 
   ioctl(uinput_fd, UI_DEV_SETUP, &usetup);
