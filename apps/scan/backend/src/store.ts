@@ -63,7 +63,6 @@ const getSheetsBaseQuery = `
   select
     sheets.id as id,
     batches.id as batchId,
-    batches.label as batchLabel,
     front_interpretation_json as frontInterpretationJson,
     back_interpretation_json as backInterpretationJson,
     front_image_path as frontImagePath,
@@ -78,7 +77,6 @@ const getSheetsBaseQuery = `
 interface SheetRow {
   id: string;
   batchId: string;
-  batchLabel: string | null;
   frontInterpretationJson: string;
   backInterpretationJson: string;
   frontImagePath: string;
@@ -94,7 +92,6 @@ function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
     type: 'accepted',
     id: row.id,
     batchId: row.batchId,
-    batchLabel: row.batchLabel ?? undefined,
     interpretation: mapSheet(
       [row.frontInterpretationJson, row.backInterpretationJson],
       (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
