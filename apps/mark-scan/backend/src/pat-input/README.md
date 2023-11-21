@@ -30,7 +30,7 @@ Three status bits can be read from the 3.5mm jack:
 2. "A" signal - is the user currently triggering their "A" input?
 3. "B" signal - is the user currently triggering their "B" input?
 
-These bits are read communicated through
+These bits are communicated through
 [GPIO](https://en.wikipedia.org/wiki/General-purpose_input/output). From the
 software perspective, GPIO pins may be thought of as shared registers for the
 3.5mm jack to communicate with the OS.
