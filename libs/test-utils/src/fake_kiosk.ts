@@ -75,12 +75,6 @@ export function fakeKiosk({
     readFile: jest.fn().mockResolvedValue(''),
     getFileSystemEntries: jest.fn().mockResolvedValue([]),
     makeDirectory: jest.fn(),
-    storage: {
-      set: jest.fn(),
-      get: jest.fn(),
-      remove: jest.fn(),
-      clear: jest.fn(),
-    },
     setClock: jest.fn(),
     totp: {
       get: jest.fn(),
