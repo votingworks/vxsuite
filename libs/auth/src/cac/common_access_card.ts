@@ -3,6 +3,7 @@ import { Byte } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
+import { FileKey, TpmKey } from '../keys';
 
 import {
   CardCommand,
@@ -13,15 +14,23 @@ import {
 } from '../apdu';
 import { CardStatus, CheckPinResponse } from '../card';
 import { CardReader } from '../card_reader';
-import { parseCardDetailsFromCert } from './common_access_card_certs';
+import {
+  parseCardDetailsFromCert,
+  constructCardCertSubject,
+} from './common_access_card_certs';
+import { CERT_EXPIRY_IN_DAYS } from '../certs';
 import {
   certDerToPem,
   extractPublicKeyFromCert,
   verifySignature,
+  publicKeyDerToPem,
+  createCert,
+  certPemToDer,
 } from '../cryptography';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
+  GENERATE_ASYMMETRIC_KEY_PAIR,
   GENERAL_AUTHENTICATE,
   GET_DATA,
   isIncorrectPinStatusWord,
@@ -29,6 +38,10 @@ import {
   pivDataObjectId,
   PUT_DATA,
   VERIFY,
+  GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG,
+  RSA_PUBLIC_KEY_MODULUS_TAG,
+  RSA_PUBLIC_KEY_EXPONENT_TAG,
+  SEQUENCE_TAG,
 } from '../piv';
 import {
   CommonAccessCardCompatibleCard,
@@ -49,6 +62,11 @@ export const CARD_DOD_CERT = {
   OBJECT_ID: pivDataObjectId(0x0a),
   PRIVATE_KEY_ID: 0x9c,
 } as const;
+
+/**
+ * Default PIN that is used for test CAC cards by DoD
+ */
+export const DEFAULT_PIN = '77777777';
 
 /**
  * Builds a command for generating a signature using the specified private key.
@@ -109,12 +127,18 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
   private readonly cardReader: CardReader;
   private cardStatus: CardStatus<CommonAccessCardDetails>;
   private readonly customChallengeGenerator?: () => string;
+  private readonly certPath?: string;
 
   constructor({
     customChallengeGenerator,
-  }: { customChallengeGenerator?: () => string } = {}) {
+    certPath,
+  }: {
+    customChallengeGenerator?: () => string;
+    certPath?: string;
+  } = {}) {
     this.cardStatus = { status: 'no_card' };
     this.customChallengeGenerator = customChallengeGenerator;
+    this.certPath = certPath;
 
     this.cardReader = new CardReader({
       onReaderStatusChange: async (readerStatus) => {
@@ -189,11 +213,14 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
    * Reads the card details, performing various forms of verification along the way. Throws an
    * error if any verification fails (this includes the case that the card is simply unprogrammed).
    */
-  private async readCardDetails(): Promise<CommonAccessCardDetails> {
+  private async readCardDetails(): Promise<
+    CommonAccessCardDetails | undefined
+  > {
     await this.selectApplet();
     const cert = await this.getCertificate({
       objectId: CARD_DOD_CERT.OBJECT_ID,
     });
+
     return parseCardDetailsFromCert(cert);
   }
 
@@ -271,10 +298,48 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
   }
 
   /**
+   * Generate a keypair and certify it
+   */
+  async createAndStoreCert(
+    vxPrivateKey: FileKey | TpmKey,
+    commonName: string
+  ): Promise<void> {
+    if (!this.certPath) {
+      throw new Error(
+        'Cannot create a cert without an authority, which is to be provided in the constructor.'
+      );
+    }
+
+    await this.selectApplet();
+
+    const publicKey = await this.generateAsymmetricKeyPair(
+      CARD_DOD_CERT.PRIVATE_KEY_ID
+    );
+
+    const cardVxCert = await createCert({
+      certKeyInput: {
+        type: 'public',
+        key: { source: 'inline', content: publicKey.toString('utf-8') },
+      },
+      certSubject: constructCardCertSubject(commonName),
+      expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
+      signingCertAuthorityCertPath: this.certPath,
+      signingPrivateKey: vxPrivateKey,
+    });
+
+    await this.storeCert(CARD_DOD_CERT.OBJECT_ID, cardVxCert);
+  }
+
+  /**
    * Retrieves a cert in PEM format.
    */
   async getCertificate(options: { objectId: Buffer }): Promise<Buffer> {
     const data = await this.getData(options.objectId);
+
+    if (data.length === 0) {
+      return Buffer.of();
+    }
+
     const certTlv = data.subarray(0, -5); // Trim metadata
     const [, , certInDerFormat] = parseTlv(PUT_DATA.CERT_TAG, certTlv);
     return await certDerToPem(certInDerFormat);
@@ -298,16 +363,126 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
   }
 
   private async getData(objectId: Buffer): Promise<Buffer> {
-    const dataTlv = await this.cardReader.transmit(
+    try {
+      const dataTlv = await this.cardReader.transmit(
+        new CardCommand({
+          ins: GET_DATA.INS,
+          p1: GET_DATA.P1,
+          p2: GET_DATA.P2,
+          data: constructTlv(GET_DATA.TAG_LIST_TAG, objectId),
+        })
+      );
+      const [, , data] = parseTlv(PUT_DATA.DATA_TAG, dataTlv);
+      return data;
+    } catch {
+      return Buffer.of();
+    }
+  }
+
+  /**
+   * Generates an asymmetric key pair on the card. The public key is exported, and the private key
+   * never leaves the card. The returned public key will be in PEM format.
+   *
+   * A PIN must be provided if the specified private key is PIN-gated.
+   */
+  private async generateAsymmetricKeyPair(privateKeyId: Byte): Promise<Buffer> {
+    const generateKeyPairResponse = await this.cardReader.transmit(
       new CardCommand({
-        ins: GET_DATA.INS,
-        p1: GET_DATA.P1,
-        p2: GET_DATA.P2,
-        data: constructTlv(GET_DATA.TAG_LIST_TAG, objectId),
+        ins: GENERATE_ASYMMETRIC_KEY_PAIR.INS,
+        p1: GENERATE_ASYMMETRIC_KEY_PAIR.P1,
+        p2: privateKeyId,
+        data: constructTlv(
+          GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG,
+          constructTlv(
+            GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TAG,
+            Buffer.of(CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.RSA2048)
+          )
+        ),
       })
     );
-    const [, , data] = parseTlv(PUT_DATA.DATA_TAG, dataTlv);
-    return data;
+
+    const [, , rsaPublicKeyTlv] = parseTlv(
+      GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG,
+      generateKeyPairResponse
+    );
+    const [modulusTag, modulusLength, modulusValue] = parseTlv(
+      RSA_PUBLIC_KEY_MODULUS_TAG,
+      rsaPublicKeyTlv
+    );
+    const [, , exponentValue] = parseTlv(
+      RSA_PUBLIC_KEY_EXPONENT_TAG,
+      rsaPublicKeyTlv.subarray(
+        modulusTag.length + modulusLength.length + modulusValue.length
+      )
+    );
+
+    // construct the DER, which is a bunch of TLVs
+    const publicKeyInDerFormat = constructTlv(
+      SEQUENCE_TAG,
+      Buffer.concat([
+        constructTlv(
+          SEQUENCE_TAG,
+          Buffer.concat([
+            constructTlv(
+              0x06, // OID tag
+              Buffer.of(0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01) // OID
+            ),
+            constructTlv(0x05, Buffer.of()), // a null
+          ])
+        ),
+        constructTlv(
+          0x03, // bit string
+          Buffer.concat([
+            Buffer.of(0x00),
+            constructTlv(
+              SEQUENCE_TAG,
+              Buffer.concat([
+                constructTlv(0x02, modulusValue),
+                constructTlv(0x02, exponentValue),
+              ])
+            ),
+          ])
+        ),
+      ])
+    );
+
+    return await publicKeyDerToPem(publicKeyInDerFormat);
+  }
+
+  /**
+   * Stores a cert. The cert should be in PEM format, but it will be stored in DER format as per
+   * PIV standards and Java conventions.
+   */
+  private async storeCert(
+    certObjectId: Buffer,
+    certInPemFormat: Buffer
+  ): Promise<void> {
+    const certInDerFormat = await certPemToDer(certInPemFormat);
+    await this.putData(
+      certObjectId,
+      Buffer.concat([
+        constructTlv(PUT_DATA.CERT_TAG, certInDerFormat),
+        constructTlv(
+          PUT_DATA.CERT_INFO_TAG,
+          Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
+        ),
+        constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.from([])),
+      ])
+    );
+  }
+
+  private async putData(objectId: Buffer, data: Buffer): Promise<void> {
+    await this.cardReader.transmit(
+      new CardCommand({
+        ins: PUT_DATA.INS,
+        p1: PUT_DATA.P1,
+        p2: PUT_DATA.P2,
+        data: Buffer.concat([
+          constructTlv(PUT_DATA.TAG_LIST_TAG, objectId),
+          constructTlv(PUT_DATA.DATA_TAG, data),
+        ]),
+      })
+    );
   }
 
   /**

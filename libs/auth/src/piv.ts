@@ -10,6 +10,14 @@ import { STATUS_WORD } from './apdu';
  */
 
 /**
+ * standard tags for PIV TLVs
+ */
+export const GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG = Buffer.of(0x7f, 0x49); // eslint-disable-next-line vx/gts-jsdoc
+export const RSA_PUBLIC_KEY_MODULUS_TAG = 0x81; // eslint-disable-next-line vx/gts-jsdoc
+export const RSA_PUBLIC_KEY_EXPONENT_TAG = 0x82; // eslint-disable-next-line vx/gts-jsdoc
+export const SEQUENCE_TAG = 0x30;
+
+/**
  * PIV IDs for different cryptographic algorithms, e.g. elliptic curve cryptography, RSA, etc.
  */
 export const CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER = {

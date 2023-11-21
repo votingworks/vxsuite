@@ -1,12 +1,12 @@
 import { Buffer } from 'buffer';
-import { readFileSync } from 'fs';
+import * as fs from 'fs';
 import { join } from 'path';
 import { mockOf } from '@votingworks/test-utils';
 import { Byte } from '@votingworks/types';
 import { assertDefined, typedAs } from '@votingworks/basics';
 import waitForExpect from 'wait-for-expect';
-import { certPemToDer, createCert } from '../cryptography';
-import { MockCardReader } from '../../test/utils';
+import { certPemToDer, createCert, certDerToPem } from '../cryptography';
+import { MockCardReader, getTestFilePath } from '../../test/utils';
 import { CardReader } from '../card_reader';
 import {
   CARD_DOD_CERT,
@@ -15,7 +15,14 @@ import {
   buildGenerateSignatureCardCommand,
 } from './common_access_card';
 import { CardCommand, ResponseApduError, SELECT, constructTlv } from '../apdu';
-import { GET_DATA, PUT_DATA, VERIFY, construct8BytePinBuffer } from '../piv';
+import {
+  GET_DATA,
+  PUT_DATA,
+  VERIFY,
+  construct8BytePinBuffer,
+  GENERATE_ASYMMETRIC_KEY_PAIR,
+  CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
+} from '../piv';
 import { CheckPinResponse } from '../card';
 
 jest.mock('../card_reader');
@@ -27,7 +34,11 @@ jest.mock('../cryptography', (): typeof import('../cryptography') => ({
   createCert: jest.fn(),
 }));
 
-const DEV_CERT_PEM = readFileSync(join(__dirname, './cac-dev-cert.pem'));
+const DEV_CERT_PEM = fs.readFileSync(join(__dirname, './cac-dev-cert.pem'));
+const CERTIFYING_PRIVATE_KEY_PATH = join(
+  __dirname,
+  '../../certs/dev/vx-cert-authority-cert.pem'
+);
 
 let mockCardReader: MockCardReader;
 
@@ -94,6 +105,54 @@ function mockCardGetCertificateRequest(
   mockCardGetDataRequest(objectId, certTlvWithMetadata);
 }
 
+function mockCardKeyPairGenerationRequest(privateKeyId: Byte): void {
+  const command = new CardCommand({
+    ins: GENERATE_ASYMMETRIC_KEY_PAIR.INS,
+    p1: GENERATE_ASYMMETRIC_KEY_PAIR.P1,
+    p2: privateKeyId,
+    data: constructTlv(
+      GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG,
+      constructTlv(
+        GENERATE_ASYMMETRIC_KEY_PAIR.CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TAG,
+        Buffer.of(CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.RSA2048)
+      )
+    ),
+  });
+
+  const responseData = Buffer.from(
+    '7f4982010981820100822f01a0914eec41ec37a4dd3147594f3097f32a3998d3ce67418b2b3fd11a4229787c7089e7dd7ffad2c453b86a76e9ed3bc344d215cc367acda3c83c646759569feb5dd31970dc20e28b1067299f59959c77e9ed504e273c52ce99ec440cf310893b9c8e6d63f7a2b80dc0066f87a8a80b29a6c778f44598c3778c5b2e19e159ba3a7c19a47ad67834602bf79312ac928fb95cd41507203b9d59567dcdaebf805263ab731df376d3af2b94174dd279ec33505197e9e7f00af0eb3d91f95b4ae1d70d53c8dbbe8f97a923dad17107245681d3d78eaea0ba3054331dc9c0c564740b34dbf3eac93b325b98da33a3ac1d07b93efb642e7e78b4723146bacba81d8203010001',
+    'hex'
+  );
+  mockCardReader.transmit.expectCallWith(command).resolves(responseData);
+}
+
+function mockCardCertStorageRequest(
+  certObjectId: Buffer,
+  certPath: string
+): void {
+  const command = new CardCommand({
+    ins: PUT_DATA.INS,
+    p1: PUT_DATA.P1,
+    p2: PUT_DATA.P2,
+    data: Buffer.concat([
+      constructTlv(PUT_DATA.TAG_LIST_TAG, certObjectId),
+      constructTlv(
+        PUT_DATA.DATA_TAG,
+        Buffer.concat([
+          constructTlv(PUT_DATA.CERT_TAG, fs.readFileSync(certPath)),
+          constructTlv(
+            PUT_DATA.CERT_INFO_TAG,
+            Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
+          ),
+          constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.of()),
+        ])
+      ),
+    ]),
+  });
+  const responseData = Buffer.from('9000', 'hex');
+  mockCardReader.transmit.expectCallWith(command).resolves(responseData);
+}
+
 function mockCardPinVerificationRequest(pin: string, error?: Error): void {
   const command = new CardCommand({
     ins: VERIFY.INS,
@@ -148,6 +207,18 @@ test('cardStatus', async () => {
     CARD_DOD_CERT.OBJECT_ID,
     await certPemToDer(DEV_CERT_PEM)
   );
+  mockCardReader.setReaderStatus('ready');
+  await waitForExpect(async () => {
+    expect((await cac.getCardStatus()).status).toEqual('ready');
+  });
+
+  // remove the cert and make sure we are back to ready
+  mockCardReader.setReaderStatus('no_card');
+  expect((await cac.getCardStatus()).status).toEqual('no_card');
+
+  mockCardAppletSelectionRequest();
+  mockCardGetCertificateRequest(CARD_DOD_CERT.OBJECT_ID, new Error('no cert'));
+
   mockCardReader.setReaderStatus('ready');
   await waitForExpect(async () => {
     expect((await cac.getCardStatus()).status).toEqual('ready');
@@ -230,6 +301,46 @@ test('checkPin: unexpected error', async () => {
   );
   mockCardPinVerificationRequest('1234', new Error('unexpected error'));
   await expect(cac.checkPin('1234')).rejects.toThrow('unexpected error');
+});
+
+test('create and store cert', async () => {
+  // this is a bogus cert but it doesn't matter as the cert is not verified at this stage
+  const certPath = getTestFilePath({
+    fileType: 'card-vx-cert.der',
+    cardType: 'system-administrator',
+  });
+  mockOf(createCert).mockImplementationOnce(() =>
+    certDerToPem(fs.readFileSync(certPath))
+  );
+
+  const cac = new CommonAccessCard({ certPath });
+
+  mockCardAppletSelectionRequest();
+  mockCardKeyPairGenerationRequest(CARD_DOD_CERT.PRIVATE_KEY_ID);
+  mockCardCertStorageRequest(CARD_DOD_CERT.OBJECT_ID, certPath);
+
+  await cac.createAndStoreCert(
+    {
+      source: 'file',
+      path: CERTIFYING_PRIVATE_KEY_PATH,
+    },
+    'SMITH.FRED.12345'
+  );
+
+  expect(createCert).toHaveBeenCalledTimes(1);
+});
+
+test('throws error when attempting to create a cert without a signing authority', async () => {
+  const cac = new CommonAccessCard();
+  await expect(async () => {
+    await cac.createAndStoreCert(
+      {
+        source: 'file',
+        path: CERTIFYING_PRIVATE_KEY_PATH,
+      },
+      'SMITH.FRED.12345'
+    );
+  }).rejects.toThrow();
 });
 
 test('disconnect', async () => {

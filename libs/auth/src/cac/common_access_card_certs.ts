@@ -1,7 +1,10 @@
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
+import makeDebug from 'debug';
 import { openssl } from '../cryptography';
 import { CommonAccessCardDetails } from './common_access_card_api';
+
+const debug = makeDebug('auth: cac:certs');
 
 /**
  * Parts of a Common Access Card's CN field.
@@ -11,6 +14,25 @@ export interface CommonAccessCardCommonNameParts {
   middleName?: string;
   familyName: string;
   commonAccessCardId: string;
+}
+
+/**
+ * Constructs a CAC card cert subject that can be
+ * passed to an openssl command
+ *
+ * commonName should be in the form AIKINS.ROBERT.EDDIE.1404922102
+ */
+export function constructCardCertSubject(commonName: string): string {
+  const entries = [
+    'C=US',
+    'O=U.S. Government',
+    'OU=DoD',
+    'OU=PKI',
+    'OU=USA',
+    `CN=${commonName}`,
+  ];
+  const certSubject = `/${entries.join('/')}/`;
+  return certSubject;
 }
 
 /**
@@ -107,14 +129,19 @@ export async function parseCert(
  */
 export async function parseCardDetailsFromCert(
   cert: Buffer
-): Promise<CommonAccessCardDetails> {
-  const certDetails = await parseCert(cert);
+): Promise<CommonAccessCardDetails | undefined> {
+  try {
+    const certDetails = await parseCert(cert);
 
-  const { commonAccessCardId, givenName, middleName, familyName } = certDetails;
-  return {
-    commonAccessCardId,
-    givenName,
-    middleName,
-    familyName,
-  };
+    const { commonAccessCardId, givenName, middleName, familyName } =
+      certDetails;
+    return {
+      commonAccessCardId,
+      givenName,
+      middleName,
+      familyName,
+    };
+  } catch (error) {
+    debug('error parsing CAC details from certificate: %s', error);
+  }
 }

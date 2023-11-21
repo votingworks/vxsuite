@@ -39,6 +39,7 @@
     "@votingworks/utils": "workspace:*",
     "base64-js": "1.5.1",
     "combined-stream": "^1.0.8",
+    "debug": "4.3.4",
     "js-sha256": "^0.9.0",
     "luxon": "^3.0.0",
     "node-fetch": "^2.6.0",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@types/combined-stream": "^1.0.3",
+    "@types/debug": "4.1.8",
     "@types/jest": "^29.5.3",
     "@types/luxon": "^3.0.0",
     "@types/node-fetch": "^2.6.0",
