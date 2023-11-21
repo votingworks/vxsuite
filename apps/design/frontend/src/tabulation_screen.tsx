@@ -18,6 +18,7 @@ import { updateSystemSettings, getElection } from './api';
 type TabulationSettings = Pick<
   SystemSettings,
   | 'precinctScanAdjudicationReasons'
+  | 'precinctScanDisallowCastingOvervotes'
   | 'centralScanAdjudicationReasons'
   | 'markThresholds'
 >;
@@ -78,6 +79,27 @@ export function TabulationForm({
                   ...tabulationSettings,
                   precinctScanAdjudicationReasons:
                     value as AdjudicationReason[],
+                })
+              }
+              disabled={!isEditing}
+            />
+            <CheckboxGroup
+              label=""
+              options={[
+                {
+                  label: 'Disallow Casting Overvotes',
+                  value: 'precinctScanDisallowCastingOvervotes',
+                },
+              ]}
+              value={
+                tabulationSettings.precinctScanDisallowCastingOvervotes
+                  ? ['precinctScanDisallowCastingOvervotes']
+                  : []
+              }
+              onChange={(value) =>
+                setTabulationSettings({
+                  ...tabulationSettings,
+                  precinctScanDisallowCastingOvervotes: value.length > 0,
                 })
               }
               disabled={!isEditing}

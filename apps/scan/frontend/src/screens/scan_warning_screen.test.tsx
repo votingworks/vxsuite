@@ -1,10 +1,10 @@
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { AdjudicationReason, CandidateContest } from '@votingworks/types';
 import {
-  isFeatureFlagEnabled,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
+  AdjudicationReason,
+  CandidateContest,
+  DEFAULT_SYSTEM_SETTINGS,
+} from '@votingworks/types';
 import { mockOf } from '@votingworks/test-utils';
 import { integers } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
@@ -63,6 +63,7 @@ function renderScreen(props: Partial<Props> = {}) {
       apiMock,
       <ScanWarningScreen
         electionDefinition={electionGeneralDefinition}
+        systemSettings={DEFAULT_SYSTEM_SETTINGS}
         adjudicationReasonInfo={[]}
         {...props}
       />
@@ -120,11 +121,6 @@ test('overvote', async () => {
 
 test('overvote when casting overvotes is disallowed', async () => {
   apiMock.mockApiClient.returnBallot.expectCallWith().resolves();
-  mockOf(isFeatureFlagEnabled).mockImplementation(
-    (flag: BooleanEnvironmentVariableName) => {
-      return flag === BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES;
-    }
-  );
 
   const contest = electionGeneralDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -140,6 +136,10 @@ test('overvote when casting overvotes is disallowed', async () => {
         expected: 1,
       },
     ],
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      precinctScanDisallowCastingOvervotes: true,
+    },
   });
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });

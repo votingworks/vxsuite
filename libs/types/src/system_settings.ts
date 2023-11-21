@@ -61,6 +61,7 @@ export interface SystemSettings {
   readonly markThresholds: MarkThresholds;
   readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
+  readonly precinctScanDisallowCastingOvervotes: boolean;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -72,6 +73,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   precinctScanAdjudicationReasons: z.array(
     z.lazy(() => AdjudicationReasonSchema)
   ),
+  precinctScanDisallowCastingOvervotes: z.boolean(),
 });
 
 /**
@@ -102,5 +104,6 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   },
   markThresholds: DEFAULT_MARK_THRESHOLDS,
   precinctScanAdjudicationReasons: [],
+  precinctScanDisallowCastingOvervotes: false,
   centralScanAdjudicationReasons: [],
 };
