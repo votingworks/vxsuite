@@ -30,7 +30,7 @@ const Actions = styled.div`
   margin-bottom: 1rem;
 `;
 
-interface Props {
+export interface ScanBallotsScreenProps {
   isScannerAttached: boolean;
   isScanning: boolean;
   isExportingCvrs: boolean;
@@ -46,7 +46,7 @@ export function ScanBallotsScreen({
   setIsExportingCvrs,
   scanBatch,
   status,
-}: Props): JSX.Element {
+}: ScanBallotsScreenProps): JSX.Element {
   const { batches } = status;
   const batchCount = batches.length;
   const ballotCount = batches.reduce((result, b) => result + b.count, 0);

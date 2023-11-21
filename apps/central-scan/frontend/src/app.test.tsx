@@ -150,7 +150,7 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
-  userEvent.click(screen.getByText('Admin'));
+  userEvent.click(screen.getButton('Settings'));
 
   screen.getByText('Toggle to Test Ballot Mode');
 
@@ -169,7 +169,7 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
-  userEvent.click(screen.getByText('Admin'));
+  userEvent.click(screen.getButton('Settings'));
 
   screen.getByText('Toggle to Official Ballot Mode');
 
@@ -278,18 +278,18 @@ test('configuring election from usb ballot package works end to end', async () =
   expectConfigureFromBallotPackageOnUsbDrive();
   setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('mounted'));
 
-  await screen.findByText('No ballots have been scanned.');
+  await screen.findByText('No ballots have been scanned');
 
   screen.getByText('General Election');
   screen.getByText(/Franklin County/);
   screen.getByText(/State of Hamilton/);
-  screen.getByText(hasTextAcrossElements('Machine ID0001'));
+  screen.getByText(hasTextAcrossElements('Machine ID: 0001'));
 
   // Remove USB drive
   setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('no_drive'));
 
-  userEvent.click(screen.getByText('Admin'));
-  screen.getByText('Admin Actions');
+  userEvent.click(screen.getButton('Settings'));
+  screen.getByRole('heading', { name: 'Settings' });
   expect(
     screen.getButton('Delete Election Data from VxCentralScan')
   ).toBeEnabled();
@@ -400,7 +400,7 @@ test('authentication works', async () => {
     user: fakeElectionManagerUser(electionGeneralDefinition),
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
-  await screen.findByText('No Scanner');
+  await screen.findByRole('heading', { name: 'Scan Ballots' });
 
   // Lock the machine
   mockApiClient.logOut.expectCallWith().resolves();

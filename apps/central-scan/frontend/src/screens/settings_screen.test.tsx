@@ -1,32 +1,16 @@
 import userEvent from '@testing-library/user-event';
-import { electionGeneralDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import {
-  fakeElectionManagerUser,
-  fakeKiosk,
-  fakeSessionExpiresAt,
-} from '@votingworks/test-utils';
+import { fakeKiosk } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { err, ok } from '@votingworks/basics';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreenProps, SettingsScreen } from './settings_screen';
-import {
-  createMockApiClient,
-  MockApiClient,
-  setAuthStatus,
-} from '../../test/api';
+import { createMockApiClient, MockApiClient } from '../../test/api';
 
 let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   mockApiClient = createMockApiClient();
-  setAuthStatus(mockApiClient, {
-    status: 'logged_in',
-    user: fakeElectionManagerUser({
-      electionHash: testElectionDefinition.electionHash,
-    }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
-  });
 });
 
 afterEach(() => {
@@ -141,7 +125,7 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
 
   renderScreen();
 
-  screen.getByRole('heading', { name: 'Admin Actions' });
+  screen.getByRole('heading', { name: 'Settings' });
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior

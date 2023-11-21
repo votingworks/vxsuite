@@ -1,30 +1,51 @@
 import { Scan } from '@votingworks/api';
 import { AdjudicationStatus } from '@votingworks/types';
-import { createMemoryHistory } from 'history';
-import { Router } from 'react-router-dom';
-import { render } from '../../test/react_testing_library';
-import { ScanBallotsScreen } from './scan_ballots_screen';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { screen } from '../../test/react_testing_library';
+import {
+  ScanBallotsScreen,
+  ScanBallotsScreenProps,
+} from './scan_ballots_screen';
+import { renderInAppContext } from '../../test/render_in_app_context';
+import { MockApiClient, createMockApiClient } from '../../test/api';
 
 const noneLeftAdjudicationStatus: AdjudicationStatus = {
   adjudicated: 0,
   remaining: 0,
 };
 
-test('null state', () => {
-  const status: Scan.GetScanStatusResponse = {
-    canUnconfigure: false,
-    batches: [],
-    adjudication: noneLeftAdjudicationStatus,
-  };
-  const component = render(
-    <Router history={createMemoryHistory()}>
-      <ScanBallotsScreen isScanning={false} status={status} />
-    </Router>
-  );
+let mockApiClient: MockApiClient;
 
-  expect(component.baseElement.textContent).toMatch(
-    /No ballots have been scanned/
+beforeEach(() => {
+  mockApiClient = createMockApiClient();
+});
+
+afterEach(() => {
+  mockApiClient.assertComplete();
+});
+
+function renderScreen(props?: Partial<ScanBallotsScreenProps>) {
+  return renderInAppContext(
+    <ScanBallotsScreen
+      isScannerAttached
+      isExportingCvrs={false}
+      isScanning={false}
+      setIsExportingCvrs={jest.fn()}
+      scanBatch={jest.fn()}
+      status={{
+        canUnconfigure: false,
+        batches: [],
+        adjudication: noneLeftAdjudicationStatus,
+      }}
+      {...props}
+    />,
+    { apiClient: mockApiClient }
   );
+}
+
+test('null state', () => {
+  renderScreen();
+  screen.getByText('No ballots have been scanned');
 });
 
 test('shows scanned ballot count', () => {
@@ -50,14 +71,11 @@ test('shows scanned ballot count', () => {
     ],
     adjudication: noneLeftAdjudicationStatus,
   };
-  const component = render(
-    <Router history={createMemoryHistory()}>
-      <ScanBallotsScreen isScanning={false} status={status} />
-    </Router>
-  );
-
-  expect(component.baseElement.textContent).toMatch(
-    /A total of 4 ballots have been scanned in 2 batches/
+  renderScreen({ status });
+  screen.getByText(
+    hasTextAcrossElements(
+      'A total of 4 ballots have been scanned in 2 batches.'
+    )
   );
 });
 
@@ -75,11 +93,6 @@ test('shows whether a batch is scanning', () => {
     ],
     adjudication: noneLeftAdjudicationStatus,
   };
-  const component = render(
-    <Router history={createMemoryHistory()}>
-      <ScanBallotsScreen isScanning status={status} />
-    </Router>
-  );
-
-  expect(component.baseElement.textContent).toMatch(/Scanning…/);
+  renderScreen({ isScanning: true, status });
+  screen.getByText('Scanning…');
 });
