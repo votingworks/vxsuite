@@ -1,4 +1,4 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { useQueryChangeListener } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { acceptBallot, getScannerStatus, scanBallot } from '../api';
@@ -16,6 +16,7 @@ import { ScanDoubleSheetScreen } from './scan_double_sheet_screen';
 
 interface VoterScreenProps {
   electionDefinition: ElectionDefinition;
+  systemSettings: SystemSettings;
   isTestMode: boolean;
   isSoundMuted: boolean;
   batteryIsCharging: boolean;
@@ -23,6 +24,7 @@ interface VoterScreenProps {
 
 export function VoterScreen({
   electionDefinition,
+  systemSettings,
   isTestMode,
   isSoundMuted,
   batteryIsCharging,
@@ -111,6 +113,7 @@ export function VoterScreen({
       return (
         <ScanWarningScreen
           electionDefinition={electionDefinition}
+          systemSettings={systemSettings}
           adjudicationReasonInfo={scannerStatus.interpretation.reasons}
         />
       );

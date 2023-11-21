@@ -7,6 +7,8 @@ import {
   OvervoteAdjudicationReasonInfo,
   UndervoteAdjudicationReasonInfo,
   AnyContest,
+  SystemSettings,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import {
   Button,
@@ -21,10 +23,6 @@ import {
 } from '@votingworks/ui';
 import { assert, integers } from '@votingworks/basics';
 
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { Screen } from '../components/layout';
 
 import { acceptBallot, returnBallot } from '../api';
@@ -74,20 +72,21 @@ function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
 
 interface MisvoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
+  systemSettings: SystemSettings;
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
   undervotes: readonly UndervoteAdjudicationReasonInfo[];
 }
 
 function MisvoteWarningScreen({
   electionDefinition,
+  systemSettings,
   overvotes,
   undervotes,
 }: MisvoteWarningScreenProps): JSX.Element {
   const returnBallotMutation = returnBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
-  const allowCastingOvervotes = !isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.DISALLOW_CASTING_OVERVOTES
-  );
+  const allowCastingOvervotes =
+    !systemSettings.precinctScanDisallowCastingOvervotes;
   const [confirmTabulate, setConfirmTabulate] = useState(false);
 
   const { contests } = electionDefinition.election;
@@ -268,11 +267,13 @@ function OtherReasonWarningScreen(): JSX.Element {
 export interface Props {
   electionDefinition: ElectionDefinition;
   adjudicationReasonInfo: readonly AdjudicationReasonInfo[];
+  systemSettings: SystemSettings;
 }
 
 export function ScanWarningScreen({
   electionDefinition,
   adjudicationReasonInfo,
+  systemSettings,
 }: Props): JSX.Element {
   let isBlank = false;
   const overvoteReasons: OvervoteAdjudicationReasonInfo[] = [];
@@ -296,6 +297,7 @@ export function ScanWarningScreen({
     return (
       <MisvoteWarningScreen
         electionDefinition={electionDefinition}
+        systemSettings={systemSettings}
         undervotes={undervoteReasons}
         overvotes={overvoteReasons}
       />
@@ -334,6 +336,7 @@ export function OvervotePreview(): JSX.Element {
           expected: contest.seats,
         },
       ]}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
     />
   );
 }
@@ -350,6 +353,7 @@ export function UndervoteNoVotes1ContestPreview(): JSX.Element {
   return (
     <ScanWarningScreen
       electionDefinition={electionDefinition}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[
         {
           type: AdjudicationReason.Undervote,
@@ -375,6 +379,7 @@ export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
   return (
     <ScanWarningScreen
       electionDefinition={electionDefinition}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={contests.map((contest) => ({
         type: AdjudicationReason.Undervote,
         contestId: contest.id,
@@ -398,6 +403,7 @@ export function Undervote1ContestPreview(): JSX.Element {
   return (
     <ScanWarningScreen
       electionDefinition={electionDefinition}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[
         {
           type: AdjudicationReason.Undervote,
@@ -427,6 +433,7 @@ export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
   return (
     <ScanWarningScreen
       electionDefinition={electionDefinition}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[
         ...multiSeatContests.map<AdjudicationReasonInfo>((c) => ({
           type: AdjudicationReason.Undervote,
@@ -461,6 +468,7 @@ export function BlankBallotPreview(): JSX.Element {
   return (
     <ScanWarningScreen
       electionDefinition={electionDefinition}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
       adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
     />
   );

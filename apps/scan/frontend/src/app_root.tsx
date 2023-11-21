@@ -112,6 +112,7 @@ export function AppRoot({
   const authStatus = authStatusQuery.data;
   const {
     electionDefinition,
+    systemSettings,
     isTestMode,
     precinctSelection,
     isSoundMuted,
@@ -306,6 +307,7 @@ export function AppRoot({
     <React.Fragment>
       <VoterScreen
         electionDefinition={electionDefinition}
+        systemSettings={systemSettings}
         isTestMode={isTestMode}
         isSoundMuted={isSoundMuted}
         batteryIsCharging={computer.batteryIsCharging}
