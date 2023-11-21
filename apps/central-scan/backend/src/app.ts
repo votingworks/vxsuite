@@ -5,6 +5,7 @@ import {
 } from '@votingworks/auth';
 import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
+  createLogsApi,
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
@@ -25,6 +26,7 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
+import { getMachineConfig } from './machine_config';
 
 type NoParams = never;
 
@@ -256,6 +258,8 @@ function buildApi({
       }
       return exportResult;
     },
+
+    ...createLogsApi({ usbDrive, machineId: getMachineConfig().machineId }),
   });
 }
 

@@ -41,7 +41,7 @@ import {
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import { ExportDataError } from '@votingworks/backend';
+import { ExportDataError, createLogsApi } from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   CastVoteRecordFileRecord,
@@ -778,6 +778,8 @@ function buildApi({
         store,
       });
     },
+
+    ...createLogsApi({ usbDrive, machineId: getMachineConfig().machineId }),
   });
 }
 

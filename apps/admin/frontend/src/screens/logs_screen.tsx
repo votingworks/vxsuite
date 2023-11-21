@@ -1,21 +1,32 @@
 import { useContext } from 'react';
 import { ExportLogsButtonRow } from '@votingworks/ui';
+import { err } from '@votingworks/basics';
+import { LogsResultType } from '@votingworks/backend';
+import { exportLogsToUsb } from '../api';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 
 export function LogsScreen(): JSX.Element {
-  const { electionDefinition, usbDriveStatus, auth, logger, machineConfig } =
-    useContext(AppContext);
+  const { usbDriveStatus, auth, logger } = useContext(AppContext);
+
+  const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
+
+  async function doExportLogs(): Promise<LogsResultType> {
+    try {
+      return await exportLogsToUsbMutation.mutateAsync();
+    } catch (e) {
+      return err('copy-failed');
+    }
+  }
 
   return (
     <NavigationScreen title="Logs">
       <ExportLogsButtonRow
-        electionDefinition={electionDefinition}
         usbDriveStatus={usbDriveStatus}
         auth={auth}
         logger={logger}
-        machineConfig={machineConfig}
+        onExportLogs={doExportLogs}
       />
     </NavigationScreen>
   );

@@ -1,7 +1,8 @@
-import userEvent from '@testing-library/user-event';
 import { fakeKiosk } from '@votingworks/test-utils';
+import { ok } from '@votingworks/basics';
+import { mockUsbDriveStatus } from '@votingworks/ui';
+import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
-
 import { LogsScreen } from './logs_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -20,28 +21,15 @@ afterEach(() => {
 });
 
 test('Exporting logs', async () => {
-  renderInAppContext(<LogsScreen />, { apiMock });
+  renderInAppContext(<LogsScreen />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+
+  apiMock.apiClient.exportLogsToUsb.expectCallWith().resolves(ok());
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
   userEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('No Log File Present');
-  userEvent.click(screen.getByText('Close'));
-
-  // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Save CDF Log File'));
-  await screen.findByText('No Log File Present');
-  userEvent.click(screen.getByText('Close'));
-});
-
-test('Exporting logs when no election definition', async () => {
-  renderInAppContext(<LogsScreen />, { electionDefinition: 'NONE', apiMock });
-
-  // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('No Log File Present');
-  userEvent.click(screen.getByText('Close'));
-
-  expect(
-    screen.getByText('Save CDF Log File').closest('button')
-  ).toHaveAttribute('disabled');
+  await screen.findByText('Save logs on the inserted USB drive?');
+  userEvent.click(screen.getByText('Save'));
 });

@@ -4,5 +4,7 @@ declare namespace NodeJS {
     readonly NODE_ENV: 'development' | 'production' | 'test';
     readonly PORT?: string;
     readonly SCAN_WORKSPACE?: string;
+    readonly VX_MACHINE_ID?: string;
+    readonly VX_CODE_VERSION?: string;
   }
 }

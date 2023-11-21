@@ -17,6 +17,7 @@ import {
 import express, { Application } from 'express';
 import {
   createUiStringsApi,
+  createLogsApi,
   readBallotPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
@@ -392,6 +393,8 @@ export function buildApi(
       logger,
       store: workspace.store.getUiStringsStore(),
     }),
+
+    ...createLogsApi({ usbDrive, machineId: getMachineConfig().machineId }),
   });
 }
 

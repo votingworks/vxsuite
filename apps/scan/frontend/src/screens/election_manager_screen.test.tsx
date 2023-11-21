@@ -1,3 +1,4 @@
+import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
   electionGeneralDefinition,
@@ -50,6 +51,7 @@ afterEach(() => {
 function renderScreen(
   props: Partial<ElectionManagerScreenProps> = {}
 ): RenderResult {
+  const doExportLogs = props.doExportLogs || jest.fn().mockResolvedValue(ok());
   return render(
     provideApi(
       apiMock,
@@ -58,6 +60,7 @@ function renderScreen(
         scannerStatus={statusNoPaper}
         usbDrive={mockUsbDriveStatus('no_drive')}
         logger={fakeLogger()}
+        doExportLogs={doExportLogs}
         {...props}
       />
     )
@@ -503,23 +506,18 @@ test('machine *can* be unconfigured if CVR sync is required but in test mode', a
 });
 
 test('renders buttons for saving logs', async () => {
-  // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-
   apiMock.expectGetConfig();
+  const doExportLogsMock = jest.fn().mockResolvedValue(ok());
   renderScreen({
     scannerStatus: statusNoPaper,
-    usbDrive: mockUsbDriveStatus('no_drive'),
+    usbDrive: mockUsbDriveStatus('mounted'),
+    doExportLogs: doExportLogsMock,
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   userEvent.click(screen.getByRole('tab', { name: /data/i }));
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
   userEvent.click(screen.getByText('Save Log File'));
-  await screen.findByText('No Log File Present');
-  userEvent.click(screen.getByText('Close'));
-
-  userEvent.click(screen.getByText('Save CDF Log File'));
-  await screen.findByText('No Log File Present');
-  userEvent.click(screen.getByText('Close'));
+  userEvent.click(screen.getByText('Save'));
+  expect(doExportLogsMock).toHaveBeenCalledTimes(1);
 });

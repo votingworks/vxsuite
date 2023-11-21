@@ -54,6 +54,7 @@
   "dependencies": {
     "@tanstack/react-query": "4.32.1",
     "@tanstack/react-query-devtools": "4.32.1",
+    "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/dev-dock-frontend": "workspace:*",

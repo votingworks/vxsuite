@@ -41,12 +41,7 @@ function renderScreen(
   history = createMemoryHistory()
 ) {
   return renderInAppContext(
-    <AdminActionsScreen
-      canUnconfigure={false}
-      isTestMode={false}
-      electionDefinition={testElectionDefinition}
-      {...props}
-    />,
+    <AdminActionsScreen canUnconfigure={false} isTestMode={false} {...props} />,
     { apiClient: mockApiClient, history }
   );
 }
