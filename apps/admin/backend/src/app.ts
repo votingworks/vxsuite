@@ -54,7 +54,6 @@ import {
   ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
-  SemsExportableTallies,
   TallyReportResults,
   WriteInAdjudicationAction,
   WriteInAdjudicationQueueMetadata,
@@ -73,8 +72,6 @@ import {
 import { handleEnteredWriteInCandidateData } from './util/manual_results';
 import { addFileToZipStream } from './util/zip';
 import { exportFile } from './util/export_file';
-import { tabulateElectionResults } from './tabulation/full_results';
-import { getSemsExportableTallies } from './exports/sems_tallies';
 import { generateTallyReportCsv } from './exports/csv_tally_report';
 import { tabulateFullCardCounts } from './tabulation/card_counts';
 import { getOverallElectionWriteInSummary } from './tabulation/write_ins';
@@ -694,21 +691,6 @@ function buildApi({
 
     getScannerBatches(): ScannerBatch[] {
       return store.getScannerBatches(loadCurrentElectionIdOrThrow(workspace));
-    },
-
-    async getSemsExportableTallies(): Promise<SemsExportableTallies> {
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-
-      debug('aggregating results for SEMS exportable tallies');
-      return getSemsExportableTallies(
-        await tabulateElectionResults({
-          electionId,
-          store,
-          groupBy: { groupByPrecinct: true },
-          includeManualResults: true,
-          includeWriteInAdjudicationResults: false,
-        })
-      );
     },
 
     async exportTallyReportCsv(input: {

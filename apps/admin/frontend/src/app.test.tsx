@@ -1,12 +1,11 @@
 import userEvent from '@testing-library/user-event';
-import fetchMock from 'fetch-mock';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { err, typedAs } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import {
   advanceTimers,
   expectPrint,
@@ -27,7 +26,6 @@ import {
 } from '../test/react_testing_library';
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-import { VxFiles } from './lib/converters';
 import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
@@ -73,22 +71,6 @@ beforeEach(() => {
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-
-  fetchMock.reset();
-  fetchMock.get(
-    '/convert/election/files',
-    typedAs<VxFiles>({
-      inputFiles: [{ name: 'name' }, { name: 'name' }],
-      outputFiles: [{ name: 'name' }],
-    })
-  );
-  fetchMock.get(
-    '/convert/tallies/files',
-    typedAs<VxFiles>({
-      inputFiles: [{ name: 'name' }, { name: 'name' }],
-      outputFiles: [{ name: 'name' }],
-    })
-  );
 });
 
 afterEach(() => {
