@@ -8,6 +8,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import {
+  getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
@@ -72,6 +73,7 @@ export async function getScannerResults({
   const electionDefinition = store.getElectionDefinition();
   assert(electionDefinition);
   const { election } = electionDefinition;
+  const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
   const cvrs = iter(store.forEachAcceptedSheet()).map((resultSheet) => {
     const [frontInterpretation, backInterpretation] =
@@ -100,6 +102,10 @@ export async function getScannerResults({
         scannerId: VX_MACHINE_ID,
         precinctId: frontInterpretation.metadata.precinctId,
         ballotStyleId: frontInterpretation.metadata.ballotStyleId,
+        partyId:
+          ballotStyleIdPartyIdLookup[
+            frontInterpretation.metadata.ballotStyleId
+          ],
         votingMethod:
           BALLOT_TYPE_TO_VOTING_METHOD[frontInterpretation.metadata.ballotType],
       });
@@ -120,6 +126,8 @@ export async function getScannerResults({
       scannerId: VX_MACHINE_ID,
       precinctId: interpretation.metadata.precinctId,
       ballotStyleId: interpretation.metadata.ballotStyleId,
+      partyId:
+        ballotStyleIdPartyIdLookup[interpretation.metadata.ballotStyleId],
       votingMethod:
         BALLOT_TYPE_TO_VOTING_METHOD[interpretation.metadata.ballotType],
     });
