@@ -395,9 +395,11 @@ export function AppRoot({
 
   if (!electionDefinition) {
     return (
-      <UnconfiguredElectionScreenWrapper
-        isElectionManagerAuth={isElectionManagerAuth(authStatus)}
-      />
+      <AppContext.Provider value={currentContext}>
+        <UnconfiguredElectionScreenWrapper
+          isElectionManagerAuth={isElectionManagerAuth(authStatus)}
+        />
+      </AppContext.Provider>
     );
   }
 

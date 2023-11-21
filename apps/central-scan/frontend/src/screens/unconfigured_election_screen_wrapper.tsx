@@ -1,17 +1,13 @@
 import {
-  Button,
-  Main,
-  Screen,
   UnconfiguredElectionScreen,
   useQueryChangeListener,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { MainNav } from '../components/main_nav';
 import {
   configureFromBallotPackageOnUsbDrive,
   getUsbDriveStatus,
-  logOut,
 } from '../api';
+import { NavigationScreen } from '../navigation_screen';
 
 interface Props {
   isElectionManagerAuth: boolean;
@@ -25,7 +21,6 @@ export function UnconfiguredElectionScreenWrapper({
   // this component until the USB drive query succeeds.
   assert(usbDriveStatusQuery.isSuccess);
 
-  const logOutMutation = logOut.useMutation();
   const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
 
   useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
@@ -37,18 +32,15 @@ export function UnconfiguredElectionScreenWrapper({
   const error = configureMutation.data?.err();
 
   return (
-    <Screen>
-      <MainNav>
-        <Button onPress={() => logOutMutation.mutate()}>Lock Machine</Button>
-      </MainNav>
-      <Main centerChild>
+    <NavigationScreen>
+      <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
         <UnconfiguredElectionScreen
           usbDriveStatus={usbDriveStatusQuery.data}
           isElectionManagerAuth={isElectionManagerAuth}
           backendConfigError={error}
           machineName="VxCentralScan"
         />
-      </Main>
-    </Screen>
+      </div>
+    </NavigationScreen>
   );
 }
