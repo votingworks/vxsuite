@@ -26,13 +26,6 @@ function isTscBuildPackage(cwd: string): boolean {
 }
 
 /**
- * Determines whether a package runs with Python.
- */
-function isPythonPackage(cwd: string): boolean {
-  return fs.existsSync(join(cwd, 'Pipfile'));
-}
-
-/**
  * Creates a `concurrently` command for running a binary from a package's
  * `node_modules/.bin` directory.
  */
@@ -177,14 +170,6 @@ export async function main(
               env: extraEnv,
             })
           );
-        } else if (isPythonPackage(serviceRoot)) {
-          commands.push({
-            name: `${name}:run`,
-            command: `make run`,
-            prefixColor: 'magenta',
-            cwd: serviceRoot,
-            env: extraEnv,
-          });
         } else {
           stderr.write(`Cannot find build command for service: ${name}\n`);
           return 1;
