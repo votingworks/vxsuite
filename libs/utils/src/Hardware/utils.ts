@@ -16,8 +16,8 @@ export const OmniKeyCardReaderManufacturer = 'HID Global';
 export const OmniKeyCardReaderVendorId = 0x076b;
 export const OmniKeyCardReaderProductId = 0x3031;
 
-export const LenovoBuiltInCardReaderVendorId = 0x2ce3;
-export const LenovoBuiltInCardReaderProductId = 0x9563;
+export const LenovoBuiltInCardReaderVendorIds = [0x2ec3, 0x058f];
+export const LenovoBuiltInCardReaderProductIds = [0x9563, 0x9540];
 
 /**
  * Determines whether a device is the card reader.
@@ -29,8 +29,8 @@ export function isCardReader(device: KioskBrowser.Device): boolean {
     (device.vendorId === OmniKeyCardReaderVendorId &&
       device.productId === OmniKeyCardReaderProductId);
   const isBuiltInReader =
-    device.vendorId === LenovoBuiltInCardReaderVendorId &&
-    device.productId === LenovoBuiltInCardReaderProductId;
+    LenovoBuiltInCardReaderVendorIds.includes(device.vendorId) &&
+    LenovoBuiltInCardReaderProductIds.includes(device.productId);
   return isOmniKeyReader || isBuiltInReader;
 }
 
