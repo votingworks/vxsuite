@@ -31,7 +31,7 @@ test('renders StartScreen', () => {
     hasTextAcrossElements('Number of contests on your ballot: 7')
   );
   expect(
-    heading.parentElement!.parentElement!.getElementsByTagName('svg')
+    heading.parentElement!.parentElement!.getElementsByTagName('img')
   ).toHaveLength(1); // Seal
 });
 
