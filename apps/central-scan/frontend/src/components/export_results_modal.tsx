@@ -152,7 +152,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button variant="primary" onPress={exportResults}>
+              <Button icon="Export" variant="primary" onPress={exportResults}>
                 Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>

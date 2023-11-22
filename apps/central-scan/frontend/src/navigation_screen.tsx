@@ -1,6 +1,7 @@
 import {
   AppLogo,
   Button,
+  Card,
   H1,
   Icons,
   LeftNav,
@@ -42,14 +43,13 @@ const HeaderActions = styled.div`
   align-items: center;
 `;
 
-const TestModeCallout = styled.div`
-  background: ${(p) => p.theme.colors.warningContainer};
-  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
-  border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.warningAccent};
+const TestModeCallout = styled(Card).attrs({ color: 'warning' })`
   font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-  padding: 0.5rem 1rem;
+
+  > div {
+    padding: 0.5rem 1rem;
+  }
 `;
 
 export function NavigationScreen({ children, title }: Props): JSX.Element {
