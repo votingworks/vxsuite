@@ -154,20 +154,20 @@ test('can edit counts, receive validation messages, and save', async () => {
   // Initial validation shows that results are empty
   const bestAnimalTable = screen.getByTestId(testInputId).closest('table')!
     .parentElement!;
-  within(bestAnimalTable).getByText('No results entered');
-  screen.getByText('At least one contest above has no results entered');
+  within(bestAnimalTable).getByText('No tallies entered');
+  screen.getByText('At least one contest above has no tallies entered');
 
-  // while results are incomplete, we should get validation warning
+  // while tallies are incomplete, we should get validation warning
   userEvent.type(
     screen.getByTestId('best-animal-mammal-numBallots-input'),
     '10'
   );
   within(bestAnimalTable).getByText(
-    'Entered results do not match total ballots cast'
+    'Entered tallies do not match total ballots cast'
   );
-  screen.getByText('At least one contest above has invalid results entered');
+  screen.getByText('At least one contest above has invalid tallies entered');
 
-  // finish entering results for current contest
+  // finish entering tallies for current contest
   userEvent.type(screen.getByTestId('best-animal-mammal-overvotes-input'), '1');
   userEvent.type(
     screen.getByTestId('best-animal-mammal-undervotes-input'),
@@ -178,9 +178,9 @@ test('can edit counts, receive validation messages, and save', async () => {
   userEvent.type(screen.getByTestId('best-animal-mammal-fox-input'), '2');
 
   // validation should be successful
-  within(bestAnimalTable).getByText('Entered results are valid');
+  within(bestAnimalTable).getByText('Entered tallies are valid');
 
-  // fill out the rest of the form with valid results, covering yes no contests
+  // fill out the rest of the form with valid tallies, covering yes no contests
   const resultsToEnter: Array<[string, string, string]> = [
     ['zoo-council-mammal', 'numBallots', '10'],
     ['zoo-council-mammal', 'overvotes', '6'],
@@ -213,7 +213,7 @@ test('can edit counts, receive validation messages, and save', async () => {
     );
   }
 
-  await screen.findByText('All entered contest results are valid');
+  await screen.findByText('All entered contest tallies are valid');
 
   apiMock.expectSetManualResults({
     ballotStyleId: '1M',
@@ -221,7 +221,7 @@ test('can edit counts, receive validation messages, and save', async () => {
     votingMethod: 'absentee',
     manualResults: mockValidResults,
   });
-  userEvent.click(screen.getButton('Save Results'));
+  userEvent.click(screen.getButton('Save Tallies'));
 });
 
 test('loads pre-existing manual data to edit', async () => {
@@ -272,8 +272,8 @@ test('loads pre-existing manual data to edit', async () => {
   ).toEqual('2');
 
   // validation should be good
-  screen.getByText('All entered contest results are valid');
-  expect(screen.getAllByText('Entered results are valid')).toHaveLength(5);
+  screen.getByText('All entered contest tallies are valid');
+  expect(screen.getAllByText('Entered tallies are valid')).toHaveLength(5);
 });
 
 test('adding new write-in candidates', async () => {
@@ -343,13 +343,13 @@ test('adding new write-in candidates', async () => {
 
   // Write-in counts affect validation
   await within(zooCouncilMammal).findByText(
-    'Entered results do not match total ballots cast'
+    'Entered tallies do not match total ballots cast'
   );
   userEvent.type(
     screen.getByTestId('zoo-council-mammal-numBallots-input'),
     '10'
   );
-  await within(zooCouncilMammal).findByText('Entered results are valid');
+  await within(zooCouncilMammal).findByText('Entered tallies are valid');
 
   // Can remove our write-in
   userEvent.click(within(zooCouncilMammal).getByText('Remove'));
@@ -357,7 +357,7 @@ test('adding new write-in candidates', async () => {
     screen.queryByTestId('temp-write-in-(Mock Candidate)')
   ).not.toBeInTheDocument();
   await within(zooCouncilMammal).findByText(
-    'Entered results do not match total ballots cast'
+    'Entered tallies do not match total ballots cast'
   );
 
   // Add back the candidate and save
@@ -373,7 +373,7 @@ test('adding new write-in candidates', async () => {
     ),
     '30'
   );
-  await within(zooCouncilMammal).findByText('Entered results are valid');
+  await within(zooCouncilMammal).findByText('Entered tallies are valid');
 
   // saves temp write-in candidate to backend
   apiMock.expectSetManualResults({
@@ -399,7 +399,7 @@ test('adding new write-in candidates', async () => {
       },
     }),
   });
-  userEvent.click(screen.getButton('Save Results'));
+  userEvent.click(screen.getButton('Save Tallies'));
 });
 
 test('loads existing write-in candidates', async () => {

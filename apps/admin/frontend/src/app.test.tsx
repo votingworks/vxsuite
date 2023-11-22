@@ -417,12 +417,8 @@ test('clearing results', async () => {
     (await screen.findByText('Load CVRs')).closest('button')
   ).toBeDisabled();
   expect(getByText('Remove CVRs').closest('button')).toBeDisabled();
-  expect(
-    getByText('Edit Manually Entered Results').closest('button')
-  ).toBeDisabled();
-  expect(
-    getByText('Remove Manually Entered Results').closest('button')
-  ).toBeDisabled();
+  expect(getByText('Edit Manual Tallies').closest('button')).toBeDisabled();
+  expect(getByText('Remove Manual Tallies').closest('button')).toBeDisabled();
 
   apiMock.expectDeleteAllManualResults();
 
@@ -433,7 +429,7 @@ test('clearing results', async () => {
   apiMock.expectGetManualResultsMetadata([]);
   fireEvent.click(getByText('Clear All Tallies and Results'));
   getByText(
-    'Do you want to remove the 1 loaded CVR export and the manually entered data?'
+    'Do you want to remove the 1 loaded CVR export and all manual tallies?'
   );
   fireEvent.click(getByText('Remove All Data'));
 
@@ -441,15 +437,11 @@ test('clearing results', async () => {
     expect(getByText('Load CVRs').closest('button')).toBeEnabled();
   });
   await waitFor(() => {
-    expect(
-      getByText('Add Manually Entered Results').closest('button')
-    ).toBeEnabled();
+    expect(getByText('Add Manual Tallies').closest('button')).toBeEnabled();
   });
 
   expect(getByText('Remove CVRs').closest('button')).toBeDisabled();
-  expect(
-    getByText('Remove Manually Entered Results').closest('button')
-  ).toBeDisabled();
+  expect(getByText('Remove Manual Tallies').closest('button')).toBeDisabled();
 
   expect(queryByText('Clear All Tallies and Results')).not.toBeInTheDocument();
 

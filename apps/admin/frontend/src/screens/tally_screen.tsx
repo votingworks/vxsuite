@@ -207,7 +207,7 @@ export function TallyScreen(): JSX.Element | null {
                   </TD>
                   <TD narrow>{format.count(manualTallyTotalBallotCount)}</TD>
                   <TD narrow nowrap>
-                    Manually Entered Results
+                    Manual Tallies
                   </TD>
                   <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
                 </tr>
@@ -235,21 +235,19 @@ export function TallyScreen(): JSX.Element | null {
             <Icons.Info /> No CVRs loaded.
           </P>
         )}
-        <H2>Manually Entered Results</H2>
+        <H2>Manual Tallies</H2>
         <P>
           <LinkButton
             to={routerPaths.manualDataSummary}
             disabled={isOfficialResults}
           >
-            {hasManualTally
-              ? 'Edit Manually Entered Results'
-              : 'Add Manually Entered Results'}
+            {hasManualTally ? 'Edit Manual Tallies' : 'Add Manual Tallies'}
           </LinkButton>{' '}
           <Button
             disabled={!hasManualTally || isOfficialResults}
             onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
           >
-            Remove Manually Entered Results
+            Remove Manual Tallies
           </Button>
         </P>
       </NavigationScreen>

@@ -59,31 +59,29 @@ test('initial table without manual tallies & adding a manual tally', async () =>
     }
   );
   await screen.findByText('Total Manual Ballot Count: 0');
-  expect(
-    screen.getButton('Remove All Manually Entered Results')
-  ).toBeDisabled();
+  expect(screen.getButton('Remove All Manual Tallies')).toBeDisabled();
 
   // adding a manual tally
-  expect(screen.getButton('Add Results')).toBeDisabled();
+  expect(screen.getButton('Add Tallies')).toBeDisabled();
   expect(screen.getByLabelText('Select Voting Method')).toBeDisabled();
   expect(screen.getByLabelText('Select Precinct')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Select Ballot Style'));
   userEvent.click(screen.getByText('1M'));
 
-  expect(screen.getButton('Add Results')).toBeDisabled();
+  expect(screen.getButton('Add Tallies')).toBeDisabled();
   expect(screen.getByLabelText('Select Voting Method')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Select Precinct'));
   userEvent.click(screen.getByText('Precinct 1'));
 
-  expect(screen.getButton('Add Results')).toBeDisabled();
+  expect(screen.getButton('Add Tallies')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Select Voting Method'));
   const options = screen.getByText('Absentee').parentElement!;
   userEvent.click(within(options).getByText('Precinct'));
 
-  userEvent.click(screen.getButton('Add Results'));
+  userEvent.click(screen.getButton('Add Tallies'));
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-entry/1M/precinct/precinct-1'
   );
@@ -112,11 +110,9 @@ test('link to edit an existing tally', async () => {
   );
 
   await screen.findByText('Total Manual Ballot Count: 10');
-  expect(
-    screen.getButton('Remove All Manually Entered Results')
-  ).not.toBeDisabled();
+  expect(screen.getButton('Remove All Manual Tallies')).not.toBeDisabled();
 
-  userEvent.click(screen.getButton('Edit Results'));
+  userEvent.click(screen.getButton('Edit Tallies'));
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-entry/1M/precinct/precinct-1'
   );
@@ -138,11 +134,9 @@ test('delete an existing tally', async () => {
   });
 
   await screen.findByText('Total Manual Ballot Count: 10');
-  expect(
-    screen.getButton('Remove All Manually Entered Results')
-  ).not.toBeDisabled();
+  expect(screen.getButton('Remove All Manual Tallies')).not.toBeDisabled();
 
-  userEvent.click(screen.getButton('Remove Results'));
+  userEvent.click(screen.getButton('Remove Tallies'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText(hasTextAcrossElements(/Ballot Style: 1M/));
   within(modal).getByText(hasTextAcrossElements(/Precinct: Precinct 1/));
@@ -155,7 +149,7 @@ test('delete an existing tally', async () => {
     votingMethod: 'precinct',
   });
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(screen.getButton('Remove Manually Entered Results'));
+  userEvent.click(screen.getButton('Remove Manual Tallies'));
 });
 
 test('full table & clearing all data', async () => {
@@ -180,9 +174,7 @@ test('full table & clearing all data', async () => {
   });
 
   await screen.findByText('Total Manual Ballot Count: 80');
-  expect(
-    screen.getButton('Remove All Manually Entered Results')
-  ).not.toBeDisabled();
+  expect(screen.getButton('Remove All Manual Tallies')).not.toBeDisabled();
 
   // adding row should be gone
   expect(
@@ -192,23 +184,21 @@ test('full table & clearing all data', async () => {
   expect(
     screen.queryByLabelText('Select Voting Method')
   ).not.toBeInTheDocument();
-  expect(screen.queryByText('Add Results')).not.toBeInTheDocument();
+  expect(screen.queryByText('Add Tallies')).not.toBeInTheDocument();
 
   // existing entries
-  expect(screen.getAllButtons('Edit Results')).toHaveLength(8);
-  expect(screen.getAllButtons('Remove Results')).toHaveLength(8);
+  expect(screen.getAllButtons('Edit Tallies')).toHaveLength(8);
+  expect(screen.getAllButtons('Remove Tallies')).toHaveLength(8);
 
   // clearing all results
-  userEvent.click(screen.getButton('Remove All Manually Entered Results'));
+  userEvent.click(screen.getButton('Remove All Manual Tallies'));
   const modal = await screen.findByRole('alertdialog');
 
   apiMock.expectDeleteAllManualResults();
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(
-    within(modal).getButton('Remove All Manually Entered Results')
-  );
+  userEvent.click(within(modal).getButton('Remove All Manual Tallies'));
 
-  await screen.findByText('Add Results');
+  await screen.findByText('Add Tallies');
   screen.getByLabelText('Select Ballot Style');
   screen.getByLabelText('Select Precinct');
   screen.getByLabelText('Select Voting Method');

@@ -18,17 +18,16 @@ export function RemoveAllManualTalliesModal({
   }
   return (
     <Modal
-      title="Remove Manually Entered Results"
+      title="Remove Manual Tallies"
       content={
         <P>
-          Do you want to remove <Font weight="bold">all</Font> manually entered
-          results?
+          Do you want to remove <Font weight="bold">all</Font> manual tallies?
         </P>
       }
       actions={
         <React.Fragment>
           <Button icon="Delete" variant="danger" onPress={onConfirm}>
-            Remove All Manually Entered Results
+            Remove All Manual Tallies
           </Button>
           <Button onPress={onClose}>Cancel</Button>
         </React.Fragment>
