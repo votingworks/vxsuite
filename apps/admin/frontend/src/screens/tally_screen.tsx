@@ -13,6 +13,7 @@ import {
   Icons,
   Card,
   H3,
+  H4,
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { ResultsFileType } from '../config/types';
@@ -40,6 +41,12 @@ const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
     align-items: center;
     justify-content: space-between;
   }
+`;
+
+const Actions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
 `;
 
 export function TallyScreen(): JSX.Element | null {
@@ -130,12 +137,6 @@ export function TallyScreen(): JSX.Element | null {
   const hasAnyFiles = castVoteRecordFileList.length > 0 || hasManualTally;
 
   const fileMode = castVoteRecordFileModeQuery.data;
-  const fileModeText =
-    fileMode === 'test'
-      ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to tally official ballots, remove the test ballot mode CVRs.'
-      : fileMode === 'official'
-      ? 'Currently tallying official ballots.'
-      : '';
 
   return (
     <React.Fragment>
@@ -162,10 +163,18 @@ export function TallyScreen(): JSX.Element | null {
           </OfficialResultsCard>
         )}
         <H2>Cast Vote Records (CVRs)</H2>
-        {!hasAnyFiles && <P>No CVRs loaded</P>}
-        {fileModeText && <P>{fileModeText}</P>}
+        {!hasAnyFiles && <P>No CVRs loaded.</P>}
+        {fileMode === 'test' && (
+          <Card color="warning" style={{ marginBottom: '0.5rem' }}>
+            <H4>
+              <Icons.Warning color="warning" /> Test Ballot Mode
+            </H4>
+            Once you have completed L&A testing and are ready to tally official
+            ballots, remove the test ballot CVRs.
+          </Card>
+        )}
 
-        <P style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Actions>
           <Button
             icon="Import"
             variant="primary"
@@ -186,7 +195,7 @@ export function TallyScreen(): JSX.Element | null {
               Remove CVRs
             </Button>
           )}
-        </P>
+        </Actions>
         {hasAnyFiles && (
           <Table data-testid="loaded-file-table">
             <tbody>
