@@ -4,14 +4,15 @@ import {
   Contest,
   PageInterpretation,
   Side,
+  getDisplayElectionHash,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
 import {
   Button,
-  Caption,
-  ElectionInfoBar,
-  H4,
+  H1,
+  Icons,
+  LabelledText,
   Main,
   Modal,
   P,
@@ -22,29 +23,24 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
-import { MainNav } from '../components/main_nav';
 import { AppContext } from '../contexts/app_context';
+import { Header } from '../navigation_screen';
 
-const MainChildFlexRow = styled.div`
+const AdjudicationHeader = styled(Header)`
+  position: static;
+  background: ${(p) => p.theme.colors.inverseBackground};
+  color: ${(p) => p.theme.colors.onInverse};
+  border: none;
+`;
+
+const AdjudicationExplanation = styled.div`
+  padding: 1rem 1.5rem;
   flex: 1;
-  display: flex;
-  margin-top: 0.5em;
-
-  > div {
-    margin-right: 1em;
-
-    &:first-child {
-      flex: 1;
-      margin-left: 1em;
-    }
-
-    &:last-child {
-      margin-right: 0;
-    }
-  }
 `;
 
 const RectoVerso = styled.div`
+  background: ${(p) => p.theme.colors.containerHigh};
+  padding: 1rem;
   display: flex;
 
   & > * {
@@ -79,14 +75,14 @@ export function BallotEjectScreen({
   continueScanning,
   isTestMode,
 }: Props): JSX.Element | null {
-  const { auth, logger, electionDefinition, machineConfig } =
-    useContext(AppContext);
+  const { auth, logger, electionDefinition } = useContext(AppContext);
   const [reviewInfo, setReviewInfo] =
     useState<Scan.GetNextReviewSheetResponse>();
   const [ballotState, setBallotState] = useState<EjectState>();
   function ResetBallotState() {
     setBallotState(undefined);
   }
+  assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
@@ -313,133 +309,133 @@ export function BallotEjectScreen({
   const isBlankSheet =
     isFrontBlank && (isBackBlank || isBackIntentionallyLeftBlank);
 
+  const adjudicationTitle = isInvalidTestModeSheet
+    ? isTestMode
+      ? 'Official Ballot'
+      : 'Test Ballot'
+    : isInvalidElectionHashSheet
+    ? 'Wrong Election'
+    : isUnreadableSheet
+    ? 'Unreadable'
+    : isOvervotedSheet
+    ? 'Overvote'
+    : isBlankSheet
+    ? 'Blank Ballot'
+    : isUndervotedSheet
+    ? 'Undervote'
+    : 'Unknown Issue';
+
   return (
-    <React.Fragment>
-      <Screen>
-        <MainNav />
-        <Main>
-          <MainChildFlexRow>
-            <div>
-              <H4 as="h1">
-                <span style={{ fontSize: '2em' }}>
-                  {isInvalidTestModeSheet
-                    ? isTestMode
-                      ? 'Official Ballot'
-                      : 'Test Ballot'
-                    : isInvalidElectionHashSheet
-                    ? 'Wrong Election'
-                    : isUnreadableSheet
-                    ? 'Unreadable'
-                    : isOvervotedSheet
-                    ? 'Overvote'
-                    : isBlankSheet
-                    ? 'Blank Ballot'
-                    : isUndervotedSheet
-                    ? 'Undervote'
-                    : 'Unknown Reason'}
-                </span>
-              </H4>
-              {isOvervotedSheet ? (
-                <P>
-                  The last scanned ballot was not tabulated because an overvote
-                  was detected.
-                </P>
-              ) : isBlankSheet ? (
-                <P>
-                  The last scanned ballot was not tabulated because no votes
-                  were detected.
-                </P>
-              ) : isUndervotedSheet ? (
-                <P>
-                  The last scanned ballot was not tabulated because an undervote
-                  was detected.
-                </P>
-              ) : (
-                <P>The last scanned ballot was not tabulated.</P>
-              )}
-              {allowBallotDuplication ? (
-                <React.Fragment>
-                  <P>
-                    <Button
-                      variant="primary"
-                      onPress={() => setBallotState('removeBallot')}
-                    >
-                      Remove to Adjudicate
-                    </Button>
-                  </P>
-                  <P>
-                    <Button
-                      variant="primary"
-                      onPress={() => setBallotState('acceptBallot')}
-                    >
-                      Tabulate As Is
-                    </Button>
-                  </P>
-                </React.Fragment>
-              ) : isInvalidTestModeSheet ? (
-                isTestMode ? (
-                  <P>Remove the OFFICIAL ballot before continuing.</P>
-                ) : (
-                  <P>Remove the TEST ballot before continuing.</P>
-                )
-              ) : isInvalidElectionHashSheet ? (
-                <React.Fragment>
-                  <P>
-                    The scanned ballot does not match the election this scanner
-                    is configured for. Remove the invalid ballot before
-                    continuing.
-                  </P>
-                  <Caption>
-                    Ballot Election Hash: {actualElectionHash?.slice(0, 10)}
-                  </Caption>
-                </React.Fragment>
-              ) : (
-                // Unreadable
-                <React.Fragment>
-                  <P>
-                    There was a problem reading the ballot. Remove ballot and
-                    reload in the scanner to try again.
-                  </P>
-                  <P>
-                    If the error persists remove ballot and create a duplicate
-                    ballot for the Resolution Board to review.
-                  </P>
-                </React.Fragment>
-              )}
-              {!allowBallotDuplication && (
+    <Screen>
+      <AdjudicationHeader>
+        <H1>
+          <Icons.Warning /> {adjudicationTitle}
+        </H1>
+      </AdjudicationHeader>
+      <Main flexRow>
+        <AdjudicationExplanation>
+          {isOvervotedSheet ? (
+            <P>
+              The last scanned ballot was not tabulated because an overvote was
+              detected.
+            </P>
+          ) : isBlankSheet ? (
+            <P>
+              The last scanned ballot was not tabulated because no votes were
+              detected.
+            </P>
+          ) : isUndervotedSheet ? (
+            <P>
+              The last scanned ballot was not tabulated because an undervote was
+              detected.
+            </P>
+          ) : (
+            <P>The last scanned ballot was not tabulated.</P>
+          )}
+          {allowBallotDuplication ? (
+            <React.Fragment>
+              <P>
                 <Button
                   variant="primary"
-                  onPress={() => continueScanning({ forceAccept: false })}
+                  onPress={() => setBallotState('removeBallot')}
+                  style={{ width: '100%', marginTop: '0.5rem' }}
                 >
-                  The ballot has been removed
+                  Remove to adjudicate
                 </Button>
-              )}
-            </div>
-            <RectoVerso>
-              <BallotSheetImage
-                imageUrl={reviewInfo.interpreted.front.image.url}
-                layout={reviewInfo.layouts.front}
-                contestIds={reviewInfo.definitions.front?.contestIds}
-                styleForContest={styleForContest}
-              />
-              <BallotSheetImage
-                imageUrl={reviewInfo.interpreted.back.image.url}
-                layout={reviewInfo.layouts.back}
-                contestIds={reviewInfo.definitions.back?.contestIds}
-                styleForContest={styleForContest}
-              />
-            </RectoVerso>
-          </MainChildFlexRow>
-        </Main>
-        {electionDefinition && (
-          <ElectionInfoBar
-            mode="admin"
-            electionDefinition={electionDefinition}
-            codeVersion={machineConfig.codeVersion}
-            machineId={machineConfig.machineId}
+              </P>
+              <P>
+                <Button
+                  variant="primary"
+                  onPress={() => setBallotState('acceptBallot')}
+                  style={{ width: '100%' }}
+                >
+                  Tabulate as is
+                </Button>
+              </P>
+            </React.Fragment>
+          ) : isInvalidTestModeSheet ? (
+            isTestMode ? (
+              <P>Remove the official ballot before continuing.</P>
+            ) : (
+              <P>Remove the test ballot before continuing.</P>
+            )
+          ) : isInvalidElectionHashSheet ? (
+            <React.Fragment>
+              <P>
+                The scanned ballot does not match the election this scanner is
+                configured for. Remove the invalid ballot before continuing.
+              </P>
+              <P>
+                <LabelledText label="Ballot Election ID">
+                  {getDisplayElectionHash({
+                    electionHash: actualElectionHash ?? '',
+                  })}
+                </LabelledText>
+              </P>
+              <P>
+                <LabelledText label="Scanner Election ID">
+                  {getDisplayElectionHash(electionDefinition)}
+                </LabelledText>
+              </P>
+            </React.Fragment>
+          ) : (
+            // Unreadable
+            <React.Fragment>
+              <P>
+                There was a problem reading the ballot. Remove ballot and reload
+                in the scanner to try again.
+              </P>
+              <P>
+                If the error persists remove ballot and create a duplicate
+                ballot for the Resolution Board to review.
+              </P>
+            </React.Fragment>
+          )}
+          {!allowBallotDuplication && (
+            <Button
+              variant="primary"
+              onPress={() => continueScanning({ forceAccept: false })}
+              style={{ marginTop: '0.5rem', width: '100%' }}
+            >
+              The ballot has been removed
+            </Button>
+          )}
+        </AdjudicationExplanation>
+        <RectoVerso>
+          <BallotSheetImage
+            imageUrl={reviewInfo.interpreted.front.image.url}
+            layout={reviewInfo.layouts.front}
+            contestIds={reviewInfo.definitions.front?.contestIds}
+            styleForContest={styleForContest}
           />
-        )}
-      </Screen>
+          <BallotSheetImage
+            imageUrl={reviewInfo.interpreted.back.image.url}
+            layout={reviewInfo.layouts.back}
+            contestIds={reviewInfo.definitions.back?.contestIds}
+            styleForContest={styleForContest}
+          />
+        </RectoVerso>
+      </Main>
       {ballotState === 'removeBallot' && (
         <Modal
           title="Remove the Ballot"
@@ -452,7 +448,7 @@ export function BallotEjectScreen({
                 variant="primary"
                 onPress={() => continueScanning({ forceAccept: false })}
               >
-                Ballot has been removed
+                The ballot has been removed
               </Button>
               <Button onPress={ResetBallotState}>Cancel</Button>
             </React.Fragment>
@@ -484,6 +480,6 @@ export function BallotEjectScreen({
           onOverlayClick={ResetBallotState}
         />
       )}
-    </React.Fragment>
+    </Screen>
   );
 }

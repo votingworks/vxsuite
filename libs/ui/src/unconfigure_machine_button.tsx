@@ -4,7 +4,6 @@ import { sleep } from '@votingworks/basics';
 import { Button } from './button';
 import { Loading } from './loading';
 import { Modal } from './modal';
-import { Prose } from './prose';
 import { H2, P } from './typography';
 
 interface Props {
@@ -65,19 +64,23 @@ export function UnconfigureMachineButton({
             isUnconfiguringMachine ? (
               <Loading>Deleting election data</Loading>
             ) : (
-              <Prose textCenter>
+              <React.Fragment>
                 <H2 as="h1">Delete all election data?</H2>
                 <P>
                   This will delete the election configuration and any
                   election-specific data on this machine.
                 </P>
-              </Prose>
+              </React.Fragment>
             )
           }
           actions={
             !isUnconfiguringMachine && (
               <React.Fragment>
-                <Button onPress={unconfigureMachineAndDelay} variant="danger">
+                <Button
+                  onPress={unconfigureMachineAndDelay}
+                  variant="danger"
+                  icon="Delete"
+                >
                   Yes, Delete Election Data
                 </Button>
                 <Button onPress={closeConfirmationModal}>Cancel</Button>

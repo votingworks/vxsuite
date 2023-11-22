@@ -188,13 +188,15 @@ function expandToFullColorTheme(
     onDanger: theme.background,
     dangerContainer: theme.background,
 
+    warningContainer: theme.background,
+
     inverseBackground: theme.onBackground,
     onInverse: theme.background,
     inversePrimary: theme.background,
     inverseContainer: theme.onBackground,
 
-    warningAccent: theme.warningAccent,
     successAccent: theme.successAccent,
+    warningAccent: theme.warningAccent,
     dangerAccent: theme.danger,
   };
 }
@@ -308,13 +310,15 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     onDanger: DesktopPalette.Gray0,
     dangerContainer: DesktopPalette.Red10,
 
+    warningContainer: DesktopPalette.Orange10,
+
     inverseBackground: DesktopPalette.Gray95,
     onInverse: DesktopPalette.Gray0,
     inversePrimary: DesktopPalette.Purple30,
     inverseContainer: DesktopPalette.Gray80,
 
-    warningAccent: DesktopPalette.Orange50,
     successAccent: DesktopPalette.Green60,
+    warningAccent: DesktopPalette.Orange50,
     dangerAccent: DesktopPalette.Red60,
   },
 };

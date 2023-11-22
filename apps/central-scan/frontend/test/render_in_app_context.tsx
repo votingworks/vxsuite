@@ -30,6 +30,7 @@ interface RenderInAppContextParams {
 
 export function makeAppContext({
   electionDefinition = testElectionDefinition,
+  isTestMode = false,
   machineConfig = {
     machineId: '0000',
     codeVersion: 'TEST',
@@ -46,6 +47,7 @@ export function makeAppContext({
 }: Partial<AppContextInterface> = {}): AppContextInterface {
   return {
     electionDefinition,
+    isTestMode,
     machineConfig,
     usbDriveStatus,
     auth,

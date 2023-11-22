@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import pluralize from 'pluralize';
-
 import { Scan } from '@votingworks/api';
-
-import { Button, Font, H1, Icons, P, TD, Table } from '@votingworks/ui';
+import { Button, Font, Icons, P, TD, Table } from '@votingworks/ui';
 import { BatchInfo } from '@votingworks/types';
+import styled from 'styled-components';
 import { DeleteBatchModal } from '../components/delete_batch_modal';
+import { NavigationScreen } from '../navigation_screen';
+import { ExportResultsModal } from '../components/export_results_modal';
+import { ScanButton } from '../components/scan_button';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');
@@ -21,21 +23,64 @@ function shortDateTime(iso8601Timestamp: string) {
   )} ${d.getHours()}:${z2(d.getMinutes())}:${z2(d.getSeconds())}`;
 }
 
-interface Props {
+const Actions = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+`;
+
+export interface ScanBallotsScreenProps {
+  isScannerAttached: boolean;
   isScanning: boolean;
+  isExportingCvrs: boolean;
+  setIsExportingCvrs: (isExportingCvrs: boolean) => void;
+  scanBatch: () => void;
   status: Scan.GetScanStatusResponse;
 }
 
-export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
+export function ScanBallotsScreen({
+  isScannerAttached,
+  isScanning,
+  isExportingCvrs,
+  setIsExportingCvrs,
+  scanBatch,
+  status,
+}: ScanBallotsScreenProps): JSX.Element {
   const { batches } = status;
   const batchCount = batches.length;
   const ballotCount = batches.reduce((result, b) => result + b.count, 0);
 
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState<BatchInfo>();
+  let exportButtonTitle;
+  if (status.adjudication.remaining > 0) {
+    exportButtonTitle =
+      'You cannot save results until all ballots have been adjudicated.';
+  } else if (status.batches.length === 0) {
+    exportButtonTitle =
+      'You cannot save results until you have scanned at least 1 ballot.';
+  }
 
   return (
-    <React.Fragment>
-      <H1>Scanned Ballot Batches</H1>
+    <NavigationScreen title="Scan Ballots">
+      <Actions>
+        <ScanButton
+          onPress={scanBatch}
+          disabled={isScanning}
+          isScannerAttached={isScannerAttached}
+        />
+        <Button
+          onPress={() => setIsExportingCvrs(true)}
+          disabled={
+            status.adjudication.remaining > 0 || status.batches.length === 0
+          }
+          nonAccessibleTitle={exportButtonTitle}
+          icon="Done"
+          variant="secondary"
+        >
+          Save CVRs
+        </Button>
+      </Actions>
       <div>
         {batchCount ? (
           <React.Fragment>
@@ -73,7 +118,13 @@ export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
                       ) : null}
                     </TD>
                     <TD narrow>
-                      <Button onPress={() => setPendingDeleteBatch(batch)}>
+                      <Button
+                        icon="Delete"
+                        fill="transparent"
+                        color="danger"
+                        onPress={() => setPendingDeleteBatch(batch)}
+                        style={{ flexWrap: 'nowrap' }}
+                      >
                         Delete
                       </Button>
                     </TD>
@@ -83,7 +134,9 @@ export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
             </Table>
           </React.Fragment>
         ) : (
-          <P>No ballots have been scanned.</P>
+          <P>
+            <Icons.Info /> No ballots have been scanned
+          </P>
         )}
       </div>
       {pendingDeleteBatch && (
@@ -93,6 +146,9 @@ export function DashboardScreen({ isScanning, status }: Props): JSX.Element {
           onClose={() => setPendingDeleteBatch(undefined)}
         />
       )}
-    </React.Fragment>
+      {isExportingCvrs && (
+        <ExportResultsModal onClose={() => setIsExportingCvrs(false)} />
+      )}
+    </NavigationScreen>
   );
 }

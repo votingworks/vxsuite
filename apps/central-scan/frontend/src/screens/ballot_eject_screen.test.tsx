@@ -3,42 +3,27 @@ import {
   AdjudicationReason,
   BallotMetadata,
   BallotType,
+  getDisplayElectionHash,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/basics';
 import fetchMock from 'fetch-mock';
 import userEvent from '@testing-library/user-event';
-import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
-} from '@votingworks/test-utils';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { screen, waitFor } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
-import {
-  createMockApiClient,
-  MockApiClient,
-  setAuthStatus,
-} from '../../test/api';
+import { createMockApiClient, MockApiClient } from '../../test/api';
 
 let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   mockApiClient = createMockApiClient();
-  setAuthStatus(mockApiClient, {
-    status: 'logged_in',
-    user: fakeElectionManagerUser({
-      electionHash: electionGeneralDefinition.electionHash,
-    }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
-  });
 });
 
-afterEach(async () => {
-  // these tests run quickly and sometimes finish before auth polling kicks in,
-  // so we wait for the auth call to complete to avoid flakiness
-  await waitFor(() => mockApiClient.assertComplete());
+afterEach(() => {
+  mockApiClient.assertComplete();
 });
 
 test('says the sheet is unreadable if it is', async () => {
@@ -197,13 +182,13 @@ test('says the ballot sheet is overvoted if it is', async () => {
     })
   );
 
-  userEvent.click(screen.getByText('Remove to Adjudicate'));
-  userEvent.click(screen.getByText('Ballot has been removed'));
+  userEvent.click(screen.getByText('Remove to adjudicate'));
+  userEvent.click(screen.getByText('The ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  userEvent.click(screen.getByText('Tabulate As Is'));
+  userEvent.click(screen.getByText('Tabulate as is'));
   userEvent.click(screen.getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
@@ -317,13 +302,13 @@ test('says the ballot sheet is undervoted if it is', async () => {
     })
   );
 
-  userEvent.click(screen.getByText('Remove to Adjudicate'));
-  userEvent.click(screen.getByText('Ballot has been removed'));
+  userEvent.click(screen.getByText('Remove to adjudicate'));
+  userEvent.click(screen.getByText('The ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  userEvent.click(screen.getByText('Tabulate As Is'));
+  userEvent.click(screen.getByText('Tabulate as is'));
   userEvent.click(screen.getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
@@ -444,13 +429,13 @@ test('says the ballot sheet is blank if it is', async () => {
     })
   );
 
-  userEvent.click(screen.getByText('Remove to Adjudicate'));
-  userEvent.click(screen.getByText('Ballot has been removed'));
+  userEvent.click(screen.getByText('Remove to adjudicate'));
+  userEvent.click(screen.getByText('The ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  userEvent.click(screen.getByText('Tabulate As Is'));
+  userEvent.click(screen.getByText('Tabulate as is'));
   userEvent.click(screen.getByText('Yes, tabulate ballot as is'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
@@ -507,7 +492,7 @@ test('calls out official ballot sheets in test mode', async () => {
 
   await screen.findByText('Official Ballot');
   screen.getByText('The last scanned ballot was not tabulated.');
-  screen.getByText('Remove the OFFICIAL ballot before continuing.');
+  screen.getByText('Remove the official ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
     'The ballot has been removed'
   );
@@ -578,7 +563,7 @@ test('calls out test ballot sheets in live mode', async () => {
 
   await screen.findByText('Test Ballot');
   screen.getByText('The last scanned ballot was not tabulated.');
-  screen.getByText('Remove the TEST ballot before continuing.');
+  screen.getByText('Remove the test ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
     'The ballot has been removed'
   );
@@ -632,8 +617,13 @@ test('shows invalid election screen when appropriate', async () => {
   );
 
   await screen.findByText('Wrong Election');
-  getByText('Ballot Election Hash: this-is-a-');
-  expect(queryAllByText('Tabulate As Is').length).toEqual(0);
+  getByText(hasTextAcrossElements('Ballot Election IDthis-is-a-'));
+  getByText(
+    hasTextAcrossElements(
+      `Scanner Election ID${getDisplayElectionHash(electionGeneralDefinition)}`
+    )
+  );
+  expect(queryAllByText('Tabulate as is').length).toEqual(0);
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,

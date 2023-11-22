@@ -13,6 +13,7 @@ export function ScanButton({
 }: Props): JSX.Element {
   return (
     <Button
+      icon={isScannerAttached ? 'Add' : 'Closed'}
       disabled={disabled || !isScannerAttached}
       variant="primary"
       onPress={onPress}

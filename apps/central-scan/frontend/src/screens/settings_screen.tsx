@@ -4,21 +4,17 @@ import type { LogsResultType } from '@votingworks/backend';
 import {
   Button,
   ExportLogsButtonRow,
-  H1,
+  H2,
   Icons,
-  LinkButton,
   Loading,
-  Main,
   Modal,
   P,
-  Screen,
   SetClockButton,
   userReadableMessageFromExportError,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { MainNav } from '../components/main_nav';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { AppContext } from '../contexts/app_context';
 import {
@@ -29,22 +25,23 @@ import {
   ejectUsbDrive,
   exportLogsToUsb,
 } from '../api';
+import { NavigationScreen } from '../navigation_screen';
 
 const ButtonRow = styled.div`
   &:not(:last-child) {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
 `;
 
-export interface AdminActionScreenProps {
+export interface SettingsScreenProps {
   isTestMode: boolean;
   canUnconfigure: boolean;
 }
 
-export function AdminActionsScreen({
+export function SettingsScreen({
   isTestMode,
   canUnconfigure,
-}: AdminActionScreenProps): JSX.Element {
+}: SettingsScreenProps): JSX.Element {
   const history = useHistory();
   const { logger, auth, usbDriveStatus } = useContext(AppContext);
   assert(isElectionManagerAuth(auth));
@@ -119,68 +116,69 @@ export function AdminActionsScreen({
   }
 
   return (
-    <React.Fragment>
-      <Screen>
-        <Main padded>
-          <div>
-            <H1>Admin Actions</H1>
-            <ButtonRow>
-              <ToggleTestModeButton
-                isTestMode={isTestMode}
-                canUnconfigure={canUnconfigure}
-              />
-            </ButtonRow>
-            {backupError && <P style={{ color: 'red' }}>{backupError}</P>}
-            <ButtonRow>
-              <Button onPress={saveBackup} disabled={isBackingUp}>
-                {isBackingUp ? 'Saving…' : 'Save Backup'}
-              </Button>
-            </ButtonRow>
-            <ButtonRow>
-              <ExportLogsButtonRow
-                usbDriveStatus={usbDriveStatus}
-                auth={auth}
-                logger={logger}
-                onExportLogs={doExportLogs}
-              />
-            </ButtonRow>
-            <ButtonRow>
-              <SetClockButton logOut={() => logOutMutation.mutate()}>
-                Update Date and Time
-              </SetClockButton>
-            </ButtonRow>
-            <ButtonRow>
-              <Button
-                icon="Delete"
-                disabled={!canUnconfigure}
-                onPress={() => setDeleteBallotDataFlowState('confirmation')}
-              >
-                Delete Ballot Data
-              </Button>
-            </ButtonRow>
+    <NavigationScreen title="Settings">
+      <H2>Election</H2>
+      <ButtonRow>
+        <ToggleTestModeButton
+          isTestMode={isTestMode}
+          canUnconfigure={canUnconfigure}
+        />
+      </ButtonRow>
+      <ButtonRow>
+        <Button
+          icon="Delete"
+          color="danger"
+          disabled={!canUnconfigure}
+          onPress={() => setDeleteBallotDataFlowState('confirmation')}
+        >
+          Delete Ballot Data
+        </Button>
+      </ButtonRow>
+      <ButtonRow>
+        <Button
+          icon="Delete"
+          color="danger"
+          disabled={!canUnconfigure}
+          onPress={() => setUnconfigureFlowState('initial-confirmation')}
+        >
+          Delete Election Data from VxCentralScan
+        </Button>{' '}
+      </ButtonRow>
 
-            <ButtonRow>
-              <Button
-                icon="Delete"
-                disabled={!canUnconfigure}
-                onPress={() => setUnconfigureFlowState('initial-confirmation')}
-              >
-                Delete Election Data from VxCentralScan
-              </Button>{' '}
-            </ButtonRow>
-            {!canUnconfigure && !isTestMode && (
-              <P>
-                <Icons.Warning color="warning" /> You must &quot;Save
-                Backup&quot; before you may delete election data.
-              </P>
-            )}
-          </div>
-        </Main>
-        <MainNav isTestMode={isTestMode}>
-          <Button onPress={() => logOutMutation.mutate()}>Lock Machine</Button>
-          <LinkButton to="/">Back to Dashboard</LinkButton>
-        </MainNav>
-      </Screen>
+      <H2>Backup</H2>
+      {backupError && (
+        <P>
+          <Icons.Danger color="danger" /> {backupError}
+        </P>
+      )}
+      <ButtonRow>
+        <Button onPress={saveBackup} disabled={isBackingUp}>
+          {isBackingUp ? 'Saving…' : 'Save Backup'}
+        </Button>
+      </ButtonRow>
+
+      <H2>Logs</H2>
+      <ButtonRow>
+        <ExportLogsButtonRow
+          usbDriveStatus={usbDriveStatus}
+          auth={auth}
+          logger={logger}
+          onExportLogs={doExportLogs}
+        />
+      </ButtonRow>
+
+      <H2>Date and Time</H2>
+      <ButtonRow>
+        <SetClockButton logOut={() => logOutMutation.mutate()}>
+          Update Date and Time
+        </SetClockButton>
+      </ButtonRow>
+      {!canUnconfigure && !isTestMode && (
+        <P>
+          <Icons.Warning color="warning" /> You must &quot;Save Backup&quot;
+          before you may delete election data.
+        </P>
+      )}
       {deleteBallotDataFlowState === 'confirmation' && (
         <Modal
           title="Delete All Scanned Ballot Data?"
@@ -192,10 +190,10 @@ export function AdminActionsScreen({
           }
           actions={
             <React.Fragment>
-              <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
               <Button variant="danger" icon="Delete" onPress={deleteBallotData}>
                 Yes, Delete Ballot Data
               </Button>
+              <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
             </React.Fragment>
           }
           onOverlayClick={resetDeleteBallotDataFlow}
@@ -260,6 +258,6 @@ export function AdminActionsScreen({
       {isBackingUp && (
         <Modal centerContent content={<Loading>Saving backup</Loading>} />
       )}
-    </React.Fragment>
+    </NavigationScreen>
   );
 }
