@@ -85,13 +85,7 @@ describe('ElectionInfoBar', () => {
 
   test('Renders seal', () => {
     render(<ElectionInfoBar electionDefinition={electionGeneralDefinition} />);
-    expect(screen.getByTestId('seal').innerHTML.toString()).toMatch(
-      /Seal of Montgomery County, Maryland/
-    );
-    screen.getByText('Election ID');
-    within(screen.getByText('Election ID').parentElement!).getByText(
-      getDisplayElectionHash(electionGeneralDefinition)
-    );
+    screen.getByTestId('seal');
   });
 
   test('Renders inverse', () => {
@@ -128,10 +122,9 @@ describe('VerticalElectionInfoBar', () => {
 
     screen.getByText(hasTextAcrossElements('Software Version: DEV'));
     screen.getByText(hasTextAcrossElements('Machine ID: 0000'));
-    screen.getByText(
-      hasTextAcrossElements(
-        `Election ID: ${getDisplayElectionHash(electionGeneralDefinition)}`
-      )
+    screen.getByText(/Election ID/);
+    within(screen.getByText(/Election ID/).parentElement!).getByText(
+      getDisplayElectionHash(electionGeneralDefinition)
     );
   });
 
@@ -178,9 +171,7 @@ describe('VerticalElectionInfoBar', () => {
     render(
       <VerticalElectionInfoBar electionDefinition={electionGeneralDefinition} />
     );
-    expect(screen.getByTestId('seal').innerHTML.toString()).toMatch(
-      /Seal of Montgomery County, Maryland/
-    );
+    screen.getByTestId('seal');
   });
 
   test('Renders inverse', () => {

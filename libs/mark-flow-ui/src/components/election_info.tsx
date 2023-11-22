@@ -66,7 +66,7 @@ export function ElectionInfo({
 
   return (
     <Container>
-      <Seal seal={seal} />
+      <Seal seal={seal} maxWidth="7rem" />
       <div>
         <H1>{title}</H1>
         <P>

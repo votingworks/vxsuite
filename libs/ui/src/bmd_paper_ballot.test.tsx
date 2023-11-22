@@ -224,7 +224,7 @@ test('BmdPaperBallot renders seal', () => {
     votes: {},
   });
 
-  screen.getByTestId('printed-ballot-seal');
+  screen.getByTestId('seal');
 });
 
 test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', () => {
