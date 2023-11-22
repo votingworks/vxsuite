@@ -95,4 +95,7 @@ test('shows whether a batch is scanning', () => {
   };
   renderScreen({ isScanning: true, status });
   screen.getByText('Scanning…');
+  for (const deleteButton of screen.getAllButtons('Delete')) {
+    expect(deleteButton).toBeDisabled();
+  }
 });

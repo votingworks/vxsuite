@@ -124,6 +124,7 @@ export function ScanBallotsScreen({
                         color="danger"
                         onPress={() => setPendingDeleteBatch(batch)}
                         style={{ flexWrap: 'nowrap' }}
+                        disabled={isScanning}
                       >
                         Delete
                       </Button>
