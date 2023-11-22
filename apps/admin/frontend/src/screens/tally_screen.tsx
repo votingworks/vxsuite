@@ -13,7 +13,6 @@ import {
   Icons,
   Card,
   H3,
-  H4,
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { ResultsFileType } from '../config/types';
@@ -36,6 +35,8 @@ import { Loading } from '../components/loading';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
 
 const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
+  margin-bottom: 1rem;
+
   > div {
     display: flex;
     align-items: center;
@@ -43,10 +44,18 @@ const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
   }
 `;
 
+const TestModeCard = styled(Card).attrs({ color: 'warning' })`
+  margin-bottom: 1rem;
+`;
+
 const Actions = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.5rem;
+`;
+
+const Section = styled.section`
+  margin-bottom: 2rem;
 `;
 
 export function TallyScreen(): JSX.Element | null {
@@ -162,138 +171,146 @@ export function TallyScreen(): JSX.Element | null {
             </Button>
           </OfficialResultsCard>
         )}
-        <H2>Cast Vote Records (CVRs)</H2>
-        {!hasAnyFiles && <P>No CVRs loaded.</P>}
+
         {fileMode === 'test' && (
-          <Card color="warning" style={{ marginBottom: '0.5rem' }}>
-            <H4>
+          <TestModeCard>
+            <H3>
               <Icons.Warning color="warning" /> Test Ballot Mode
-            </H4>
+            </H3>
             Once you have completed L&A testing and are ready to tally official
             ballots, remove the test ballot CVRs.
-          </Card>
+          </TestModeCard>
         )}
 
-        <Actions>
-          <Button
-            icon="Import"
-            variant="primary"
-            disabled={isOfficialResults}
-            onPress={() => setIsImportCvrModalOpen(true)}
-          >
-            Load CVRs
-          </Button>
+        <Section>
+          <H2>Cast Vote Records (CVRs)</H2>
+          {!hasAnyFiles && <P>No CVRs loaded.</P>}
+          <Actions>
+            <Button
+              icon="Import"
+              variant="primary"
+              disabled={isOfficialResults}
+              onPress={() => setIsImportCvrModalOpen(true)}
+            >
+              Load CVRs
+            </Button>
+            {hasAnyFiles && (
+              <Button
+                icon="Delete"
+                color="danger"
+                disabled={isOfficialResults}
+                onPress={() =>
+                  beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
+                }
+              >
+                Remove CVRs
+              </Button>
+            )}
+          </Actions>
           {hasAnyFiles && (
-            <Button
-              icon="Delete"
-              color="danger"
-              disabled={isOfficialResults}
-              onPress={() =>
-                beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
-              }
-            >
-              Remove CVRs
-            </Button>
-          )}
-        </Actions>
-        {hasAnyFiles && (
-          <Table data-testid="loaded-file-table">
-            <tbody>
-              <tr>
-                <TD as="th" narrow nowrap textAlign="right">
-                  #
-                </TD>
-                <TD as="th" narrow nowrap>
-                  Created At
-                </TD>
-                <TD as="th" nowrap>
-                  CVR Count
-                </TD>
-                <TD as="th" narrow nowrap>
-                  Source
-                </TD>
-                <TD as="th" nowrap>
-                  Precinct
-                </TD>
-              </tr>
-              {castVoteRecordFileList.map(
-                (
-                  {
-                    filename,
-                    exportTimestamp,
-                    numCvrsImported,
-                    scannerIds,
-                    precinctIds,
-                  },
-                  cvrFileIndex
-                ) => (
-                  <tr key={filename}>
-                    <TD narrow nowrap textAlign="right">
-                      {cvrFileIndex + 1}.
-                    </TD>
-                    <TD narrow nowrap>
-                      {moment(exportTimestamp).format('MM/DD/YYYY hh:mm:ss A')}
-                    </TD>
-                    <TD nowrap>{format.count(numCvrsImported)} </TD>
-                    <TD narrow nowrap>
-                      {scannerIds.join(', ')}
-                    </TD>
-                    <TD>{getPrecinctNames(precinctIds)}</TD>
-                  </tr>
-                )
-              )}
-              {hasManualTally ? (
-                <tr key="manual-data">
-                  <TD />
-                  <TD narrow nowrap>
-                    {moment(manualTallyFirstAdded).format(TIME_FORMAT)}
+            <Table data-testid="loaded-file-table">
+              <tbody>
+                <tr>
+                  <TD as="th" narrow nowrap textAlign="right">
+                    #
                   </TD>
-                  <TD narrow>{format.count(manualTallyTotalBallotCount)}</TD>
-                  <TD narrow nowrap>
-                    Manual Tallies
+                  <TD as="th" narrow nowrap>
+                    Created At
                   </TD>
-                  <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
+                  <TD as="th" nowrap>
+                    CVR Count
+                  </TD>
+                  <TD as="th" narrow nowrap>
+                    Source
+                  </TD>
+                  <TD as="th" nowrap>
+                    Precinct
+                  </TD>
                 </tr>
-              ) : null}
-              <tr>
-                <TD />
-                <TD as="th" narrow nowrap>
-                  Total CVR Count
-                </TD>
-                <TD as="th" narrow data-testid="total-cvr-count">
-                  {format.count(
-                    castVoteRecordFileList.reduce(
-                      (prev, curr) => prev + curr.numCvrsImported,
-                      0
-                    ) + manualTallyTotalBallotCount
-                  )}
-                </TD>
-                <TD />
-                <TD as="th" />
-              </tr>
-            </tbody>
-          </Table>
-        )}
-        <H2>Manual Tallies</H2>
-        <P>
-          <LinkButton
-            icon={hasManualTally ? 'Edit' : 'Add'}
-            to={routerPaths.manualDataSummary}
-            disabled={isOfficialResults}
-          >
-            {hasManualTally ? 'Edit Manual Tallies' : 'Add Manual Tallies'}
-          </LinkButton>{' '}
-          {hasManualTally && (
-            <Button
-              icon="Delete"
-              color="danger"
-              disabled={isOfficialResults}
-              onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
-            >
-              Remove Manual Tallies
-            </Button>
+                {castVoteRecordFileList.map(
+                  (
+                    {
+                      filename,
+                      exportTimestamp,
+                      numCvrsImported,
+                      scannerIds,
+                      precinctIds,
+                    },
+                    cvrFileIndex
+                  ) => (
+                    <tr key={filename}>
+                      <TD narrow nowrap textAlign="right">
+                        {cvrFileIndex + 1}.
+                      </TD>
+                      <TD narrow nowrap>
+                        {moment(exportTimestamp).format(
+                          'MM/DD/YYYY hh:mm:ss A'
+                        )}
+                      </TD>
+                      <TD nowrap>{format.count(numCvrsImported)} </TD>
+                      <TD narrow nowrap>
+                        {scannerIds.join(', ')}
+                      </TD>
+                      <TD>{getPrecinctNames(precinctIds)}</TD>
+                    </tr>
+                  )
+                )}
+                {hasManualTally ? (
+                  <tr key="manual-data">
+                    <TD />
+                    <TD narrow nowrap>
+                      {moment(manualTallyFirstAdded).format(TIME_FORMAT)}
+                    </TD>
+                    <TD narrow>{format.count(manualTallyTotalBallotCount)}</TD>
+                    <TD narrow nowrap>
+                      Manual Tallies
+                    </TD>
+                    <TD>{getPrecinctNames(manualTallyPrecinctIds)}</TD>
+                  </tr>
+                ) : null}
+                <tr>
+                  <TD />
+                  <TD as="th" narrow nowrap>
+                    Total CVR Count
+                  </TD>
+                  <TD as="th" narrow data-testid="total-cvr-count">
+                    {format.count(
+                      castVoteRecordFileList.reduce(
+                        (prev, curr) => prev + curr.numCvrsImported,
+                        0
+                      ) + manualTallyTotalBallotCount
+                    )}
+                  </TD>
+                  <TD />
+                  <TD as="th" />
+                </tr>
+              </tbody>
+            </Table>
           )}
-        </P>
+        </Section>
+
+        <Section>
+          <H2>Manual Tallies</H2>
+          <P>
+            <LinkButton
+              icon={hasManualTally ? 'Edit' : 'Add'}
+              to={routerPaths.manualDataSummary}
+              disabled={isOfficialResults}
+            >
+              {hasManualTally ? 'Edit Manual Tallies' : 'Add Manual Tallies'}
+            </LinkButton>{' '}
+            {hasManualTally && (
+              <Button
+                icon="Delete"
+                color="danger"
+                disabled={isOfficialResults}
+                onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
+              >
+                Remove Manual Tallies
+              </Button>
+            )}
+          </P>
+        </Section>
       </NavigationScreen>
       {confirmingRemoveFileType && (
         <ConfirmRemovingFileModal

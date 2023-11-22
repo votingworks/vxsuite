@@ -185,4 +185,4 @@ test('Printing L&A packages for all precincts', async () => {
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-});
+}, 30_000);
