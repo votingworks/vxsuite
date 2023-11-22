@@ -11,6 +11,7 @@ import { assert } from '@votingworks/basics';
 import {
   Button,
   H1,
+  H2,
   Icons,
   LabelledText,
   Main,
@@ -329,11 +330,12 @@ export function BallotEjectScreen({
     <Screen>
       <AdjudicationHeader>
         <H1>
-          <Icons.Warning /> {adjudicationTitle}
+          <Icons.Warning /> Ballot Not Counted
         </H1>
       </AdjudicationHeader>
       <Main flexRow>
         <AdjudicationExplanation>
+          <H2>{adjudicationTitle}</H2>
           {isOvervotedSheet ? (
             <P>
               The last scanned ballot was not tabulated because an overvote was
