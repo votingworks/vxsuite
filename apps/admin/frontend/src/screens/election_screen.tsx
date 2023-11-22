@@ -37,9 +37,7 @@ export function DefinitionScreen(): JSX.Element {
           </Font>
         </P>
         <ElectionMetadataContainer>
-          <div style={{ width: '7rem' }}>
-            <Seal seal={election.seal} />
-          </div>
+          <Seal seal={election.seal} maxWidth="7rem" />
           <div>
             <H2 as="h3">{election.title}</H2>
             <P>

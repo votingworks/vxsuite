@@ -11,5 +11,5 @@ const meta: Meta<typeof Seal> = {
 export default meta;
 
 export function seal(props: SealProps): JSX.Element {
-  return <Seal {...props} seal={electionGeneral.seal} />;
+  return <Seal {...props} seal={electionGeneral.seal} maxWidth="7rem" />;
 }

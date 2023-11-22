@@ -15,7 +15,7 @@ test('renders ElectionInfo', () => {
       electionDefinition={electionDefinition}
     />
   );
-  expect(container.getElementsByTagName('svg')).toHaveLength(1); // Seal
+  expect(container.getElementsByTagName('img')).toHaveLength(1); // Seal
   screen.getByRole('heading', { name: election.title });
   screen.getByText('November 3, 2020');
   screen.getByText(precinct.name);

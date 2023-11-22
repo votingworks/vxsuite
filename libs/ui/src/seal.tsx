@@ -1,19 +1,15 @@
 import styled from 'styled-components';
+import { Buffer } from 'buffer';
 
 import { ColorMode } from '@votingworks/types';
-
-const sealMaxWidth = '250px';
 
 const DARK_COLOR_MODES: ReadonlySet<ColorMode> = new Set<ColorMode>([
   'contrastHighDark',
   'contrastLow',
 ]);
 
-const SealContainer = styled.div<{ inverse?: boolean }>`
+const SealImage = styled.img<{ inverse?: boolean }>`
   height: 100%;
-  max-height: ${sealMaxWidth};
-  max-width: ${sealMaxWidth};
-  position: relative;
   width: 100%;
 
   /**
@@ -31,17 +27,26 @@ const SealContainer = styled.div<{ inverse?: boolean }>`
 `;
 
 export interface SealProps {
+  maxWidth: string;
   seal: string;
   inverse?: boolean;
+  style?: React.CSSProperties;
 }
 
-export function Seal({ seal, inverse }: SealProps): JSX.Element {
+export function Seal({
+  seal,
+  maxWidth,
+  style,
+  inverse,
+}: SealProps): JSX.Element {
   return (
-    <SealContainer
-      inverse={inverse}
+    <SealImage
       aria-hidden
+      src={`data:image/svg+xml;base64,${Buffer.from(seal).toString('base64')}`}
       data-testid="seal"
-      dangerouslySetInnerHTML={{ __html: seal }}
+      alt="Seal"
+      inverse={inverse}
+      style={{ maxWidth, maxHeight: maxWidth, ...(style ?? {}) }}
     />
   );
 }

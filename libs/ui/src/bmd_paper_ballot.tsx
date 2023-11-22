@@ -34,6 +34,7 @@ import { QrCode } from './qrcode';
 import { Font, H4, H5, H6, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
+import { Seal } from './seal';
 
 const Ballot = styled.div`
   background: #fff;
@@ -61,11 +62,6 @@ const Header = styled.div<StyledHeaderProps>`
   align-items: center;
   border-bottom: 0.2em solid #000;
   margin-top: ${(p) => (p.largeTopMargin ? '1.75in' : undefined)};
-
-  & > .seal {
-    margin: 0.25em 0;
-    width: 1in;
-  }
 
   & h2 {
     margin-bottom: 0;
@@ -283,11 +279,7 @@ export function BmdPaperBallot({
   return withPrintTheme(
     <Ballot aria-hidden>
       <Header largeTopMargin={largeTopMargin} data-testid="header">
-        <div
-          className="seal"
-          dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
-          data-testid="printed-ballot-seal"
-        />
+        <Seal seal={seal} maxWidth="1in" style={{ margin: '0.25em 0' }} />
         <div className="ballot-header-content">
           <H4>{isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}</H4>
           <H5>

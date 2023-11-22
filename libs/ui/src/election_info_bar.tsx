@@ -31,12 +31,6 @@ const ElectionInfoContainer = styled.div`
   justify-content: start;
 `;
 
-const SealContainer = styled.div`
-  flex-shrink: 0;
-  height: 2.25rem;
-  width: 2.25rem;
-`;
-
 const SystemInfoContainer = styled.div`
   align-content: flex-end;
   display: flex;
@@ -126,9 +120,7 @@ export function ElectionInfoBar({
   return (
     <Bar data-testid="electionInfoBar" inverse={inverse}>
       <ElectionInfoContainer>
-        <SealContainer>
-          <Seal seal={seal} inverse={inverse} />
-        </SealContainer>
+        <Seal seal={seal} maxWidth="2.25rem" inverse={inverse} />
         {electionInfo}
       </ElectionInfoContainer>
       <SystemInfoContainer>
@@ -165,9 +157,7 @@ export function VerticalElectionInfoBar({
     <VerticalBar inverse={inverse}>
       <Caption>
         <ElectionInfoContainer>
-          <SealContainer>
-            <Seal seal={seal} inverse={inverse} />
-          </SealContainer>
+          <Seal seal={seal} maxWidth="2.25rem" inverse={inverse} />
           <Font weight="bold">{electionStrings.electionTitle(election)}</Font>
         </ElectionInfoContainer>
       </Caption>

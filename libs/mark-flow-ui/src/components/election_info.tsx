@@ -18,6 +18,7 @@ import {
   PrecinctSelectionName,
   PrimaryElectionTitlePrefix,
   NumberString,
+  useScreenInfo,
 } from '@votingworks/ui';
 
 const Container = styled.div`
@@ -46,6 +47,8 @@ export function ElectionInfo({
   const { election } = electionDefinition;
   const { county, seal } = election;
 
+  const screenInfo = useScreenInfo();
+
   const partyPrimaryAdjective = (
     <React.Fragment>
       {ballotStyleId && (
@@ -66,7 +69,14 @@ export function ElectionInfo({
 
   return (
     <Container>
-      <Seal seal={seal} />
+      <Seal
+        seal={seal}
+        maxWidth="7rem"
+        style={{
+          marginRight: screenInfo.isPortrait ? undefined : '1rem', // for horizontal layout
+          marginBottom: screenInfo.isPortrait ? '0.5rem' : undefined, // for vertical layout
+        }}
+      />
       <div>
         <H1>{title}</H1>
         <P>
