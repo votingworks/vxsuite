@@ -128,11 +128,15 @@ test('with no data loaded', async () => {
     apiMock,
   });
   await screen.findByRole('heading', {
-    name: 'Cast Vote Record (CVR) Management',
+    name: 'Cast Vote Records (CVRs)',
   });
   await screen.findByText('No CVRs loaded.');
   expect(screen.getButton('Load CVRs')).toBeEnabled();
-  expect(screen.getButton('Remove CVRs')).toBeDisabled();
+  expect(
+    screen.queryByRole('button', { name: 'Remove CVRs' })
+  ).not.toBeInTheDocument();
   expect(screen.getButton('Add Manual Tallies')).toBeEnabled();
-  expect(screen.getButton('Remove Manual Tallies')).toBeDisabled();
+  expect(
+    screen.queryByRole('button', { name: 'Remove Manual Tallies' })
+  ).not.toBeInTheDocument();
 });

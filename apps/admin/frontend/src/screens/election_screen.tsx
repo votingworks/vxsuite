@@ -1,27 +1,33 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 
-import { format } from '@votingworks/utils';
+import {
+  format,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+} from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
-import { Button, Font, H2, P, Seal } from '@votingworks/ui';
+import { Button, Card, Font, H2, P, Seal } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveElectionModal } from '../components/remove_election_modal';
+import { ExportElectionBallotPackageModalButton } from '../components/export_election_ballot_package_modal_button';
 
-const ElectionMetadataContainer = styled.div`
-  display: flex;
-  gap: 1rem;
+const ElectionCard = styled(Card).attrs({ color: 'neutral' })`
   margin: 1rem 0;
-  align-items: center;
-  padding: 1rem;
-  background: ${(p) => p.theme.colors.containerLow};
-  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
+
+  > div {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+  }
 `;
 
-export function DefinitionScreen(): JSX.Element {
-  const { electionDefinition, configuredAt } = useContext(AppContext);
+export function ElectionScreen(): JSX.Element {
+  const { electionDefinition, configuredAt, auth } = useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
@@ -35,8 +41,9 @@ export function DefinitionScreen(): JSX.Element {
           <Font weight="bold">
             {format.localeLongDateAndTime(new Date(configuredAt))}
           </Font>
+          .
         </P>
-        <ElectionMetadataContainer>
+        <ElectionCard>
           <Seal seal={election.seal} maxWidth="7rem" />
           <div>
             <H2 as="h3">{election.title}</H2>
@@ -46,14 +53,27 @@ export function DefinitionScreen(): JSX.Element {
               {format.localeDate(new Date(election.date))}
             </P>
           </div>
-        </ElectionMetadataContainer>
-        <Button
-          variant="danger"
-          icon="Delete"
-          onPress={() => setIsRemovingElection(true)}
-        >
-          Remove Election
-        </Button>
+        </ElectionCard>
+        {isSystemAdministratorAuth(auth) && (
+          <Button
+            color="danger"
+            icon="Delete"
+            onPress={() => setIsRemovingElection(true)}
+          >
+            Remove Election
+          </Button>
+        )}
+        {isElectionManagerAuth(auth) && (
+          <React.Fragment>
+            <P>
+              Save the Ballot Package to USB to configure VxCentralScan or
+              VxScan.
+            </P>
+            <P>
+              <ExportElectionBallotPackageModalButton />
+            </P>
+          </React.Fragment>
+        )}
       </NavigationScreen>
       {isRemovingElection && (
         <RemoveElectionModal onClose={() => setIsRemovingElection(false)} />

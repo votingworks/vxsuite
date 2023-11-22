@@ -59,7 +59,9 @@ test('initial table without manual tallies & adding a manual tally', async () =>
     }
   );
   await screen.findByText('Total Manual Ballot Count: 0');
-  expect(screen.getButton('Remove All Manual Tallies')).toBeDisabled();
+  expect(
+    screen.queryByRole('button', { name: 'Remove All Manual Tallies' })
+  ).not.toBeInTheDocument();
 
   // adding a manual tally
   expect(screen.getButton('Add Tallies')).toBeDisabled();
@@ -112,7 +114,7 @@ test('link to edit an existing tally', async () => {
   await screen.findByText('Total Manual Ballot Count: 10');
   expect(screen.getButton('Remove All Manual Tallies')).not.toBeDisabled();
 
-  userEvent.click(screen.getButton('Edit Tallies'));
+  userEvent.click(screen.getButton('Edit'));
   expect(history.location.pathname).toEqual(
     '/tally/manual-data-entry/1M/precinct/precinct-1'
   );
@@ -134,9 +136,9 @@ test('delete an existing tally', async () => {
   });
 
   await screen.findByText('Total Manual Ballot Count: 10');
-  expect(screen.getButton('Remove All Manual Tallies')).not.toBeDisabled();
+  expect(screen.getButton('Remove All Manual Tallies')).toBeEnabled();
 
-  userEvent.click(screen.getButton('Remove Tallies'));
+  userEvent.click(screen.getButton('Remove'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText(hasTextAcrossElements(/Ballot Style: 1M/));
   within(modal).getByText(hasTextAcrossElements(/Precinct: Precinct 1/));
@@ -174,7 +176,7 @@ test('full table & clearing all data', async () => {
   });
 
   await screen.findByText('Total Manual Ballot Count: 80');
-  expect(screen.getButton('Remove All Manual Tallies')).not.toBeDisabled();
+  expect(screen.getButton('Remove All Manual Tallies')).toBeEnabled();
 
   // adding row should be gone
   expect(
@@ -187,8 +189,8 @@ test('full table & clearing all data', async () => {
   expect(screen.queryByText('Add Tallies')).not.toBeInTheDocument();
 
   // existing entries
-  expect(screen.getAllButtons('Edit Tallies')).toHaveLength(8);
-  expect(screen.getAllButtons('Remove Tallies')).toHaveLength(8);
+  expect(screen.getAllButtons('Edit')).toHaveLength(8);
+  expect(screen.getAllButtons('Remove')).toHaveLength(8);
 
   // clearing all results
   userEvent.click(screen.getButton('Remove All Manual Tallies'));

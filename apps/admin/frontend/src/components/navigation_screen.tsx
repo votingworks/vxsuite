@@ -32,20 +32,20 @@ interface Props {
 }
 
 const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
-  { label: 'Election', routerPath: routerPaths.electionDefinition },
+  { label: 'Election', routerPath: routerPaths.election },
   { label: 'Smartcards', routerPath: routerPaths.smartcards },
   { label: 'Logs', routerPath: routerPaths.logs },
   { label: 'Settings', routerPath: routerPaths.settings },
 ];
 
 const SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [
-  { label: 'Election', routerPath: routerPaths.electionDefinition },
+  { label: 'Election', routerPath: routerPaths.election },
   { label: 'Logs', routerPath: routerPaths.logs },
   { label: 'Settings', routerPath: routerPaths.settings },
 ];
 
 const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = _.compact([
-  { label: 'Ballots', routerPath: routerPaths.ballotsList },
+  { label: 'Election', routerPath: routerPaths.election },
   { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
   { label: 'Tally', routerPath: routerPaths.tally },
   isFeatureFlagEnabled(

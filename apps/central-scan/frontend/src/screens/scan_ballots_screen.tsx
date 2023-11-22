@@ -75,8 +75,8 @@ export function ScanBallotsScreen({
             status.adjudication.remaining > 0 || status.batches.length === 0
           }
           nonAccessibleTitle={exportButtonTitle}
-          icon="Done"
-          variant="secondary"
+          icon="Export"
+          color="primary"
         >
           Save CVRs
         </Button>

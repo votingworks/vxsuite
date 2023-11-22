@@ -59,7 +59,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   async function loadDemoElection() {
     await configureFromElectionPackage(demoElection);
-    history.push(routerPaths.electionDefinition);
+    history.push(routerPaths.election);
   }
 
   const handleVxElectionFile: InputEventFunction = async (event) => {

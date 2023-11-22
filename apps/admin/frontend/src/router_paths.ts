@@ -7,11 +7,10 @@ import {
 export const routerPaths = {
   root: '/',
   advanced: '/advanced',
-  electionDefinition: '/definition',
+  election: '/election',
   smartcards: '/smartcards',
   smartcardsByType: ({ smartcardType }: SmartcardsScreenProps): string =>
     `/smartcards/smartcard-types/${smartcardType}`,
-  ballotsList: '/ballots',
   manualDataSummary: '/tally/manual-data-summary',
   manualDataEntry: ({
     precinctId,

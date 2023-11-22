@@ -15,8 +15,7 @@ import {
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { DefinitionScreen } from '../screens/election_screen';
-import { BallotListScreen } from '../screens/ballot_list_screen';
+import { ElectionScreen } from '../screens/election_screen';
 import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
@@ -44,7 +43,7 @@ import { PrecinctBallotCountReport } from '../screens/reporting/precinct_ballot_
 import { VotingMethodBallotCountReport } from '../screens/reporting/voting_method_ballot_count_report_screen';
 import { FullElectionTallyReportScreen } from '../screens/reporting/full_election_tally_report_screen';
 
-export function ElectionManager(): JSX.Element {
+export function AppRoutes(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
     useContext(AppContext);
   const election = electionDefinition?.election;
@@ -94,7 +93,7 @@ export function ElectionManager(): JSX.Element {
       return (
         <React.Fragment>
           <Switch>
-            <Route exact path={routerPaths.electionDefinition}>
+            <Route exact path={routerPaths.election}>
               <UnconfiguredScreen />
             </Route>
             <Route exact path={routerPaths.settings}>
@@ -103,7 +102,7 @@ export function ElectionManager(): JSX.Element {
             <Route exact path={routerPaths.logs}>
               <LogsScreen />
             </Route>
-            <Redirect to={routerPaths.electionDefinition} />
+            <Redirect to={routerPaths.election} />
           </Switch>
           <SmartcardModal />
         </React.Fragment>
@@ -113,8 +112,8 @@ export function ElectionManager(): JSX.Element {
     return (
       <React.Fragment>
         <Switch>
-          <Route exact path={routerPaths.electionDefinition}>
-            <DefinitionScreen />
+          <Route exact path={routerPaths.election}>
+            <ElectionScreen />
           </Route>
           <Route exact path={routerPaths.smartcards}>
             <Redirect
@@ -135,7 +134,7 @@ export function ElectionManager(): JSX.Element {
           <Route exact path={routerPaths.logs}>
             <LogsScreen />
           </Route>
-          <Redirect to={routerPaths.electionDefinition} />
+          <Redirect to={routerPaths.election} />
         </Switch>
         <SmartcardModal />
       </React.Fragment>
@@ -145,8 +144,8 @@ export function ElectionManager(): JSX.Element {
   // Election manager UI
   return (
     <Switch>
-      <Route exact path={routerPaths.ballotsList}>
-        <BallotListScreen />
+      <Route exact path={routerPaths.election}>
+        <ElectionScreen />
       </Route>
       <Route exact path={routerPaths.manualDataSummary}>
         <ManualDataSummaryScreen />
@@ -219,7 +218,7 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.system}>
         <ElectionManagerSystemScreen />
       </Route>
-      <Redirect to={routerPaths.ballotsList} />
+      <Redirect to={routerPaths.election} />
     </Switch>
   );
 }

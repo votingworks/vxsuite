@@ -440,9 +440,6 @@ test('clearing results', async () => {
     expect(getByText('Add Manual Tallies').closest('button')).toBeEnabled();
   });
 
-  expect(getByText('Remove CVRs').closest('button')).toBeDisabled();
-  expect(getByText('Remove Manual Tallies').closest('button')).toBeDisabled();
-
   expect(queryByText('Clear All Tallies and Results')).not.toBeInTheDocument();
 
   getByText('No CVRs loaded.');
@@ -478,19 +475,21 @@ test('election manager UI has expected nav', async () => {
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
+  userEvent.click(screen.getButton('Election'));
+  await screen.findByRole('heading', { name: 'Election' });
+
   userEvent.click(screen.getButton('L&A'));
   await screen.findByRole('heading', { name: 'L&A Testing Documents' });
 
   userEvent.click(screen.getButton('Tally'));
   await screen.findByRole('heading', {
-    name: 'Cast Vote Record (CVR) Management',
+    name: 'Cast Vote Records (CVRs)',
   });
 
   userEvent.click(screen.getByText('Reports'));
   await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
-  expect(screen.queryByText('Election')).not.toBeInTheDocument();
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
   expect(screen.queryByText('Advanced')).not.toBeInTheDocument();
 });

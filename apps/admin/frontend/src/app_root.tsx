@@ -4,7 +4,7 @@ import { Hardware, randomBallotId } from '@votingworks/utils';
 import { useDevices } from '@votingworks/ui';
 
 import { AppContext } from './contexts/app_context';
-import { ElectionManager } from './components/election_manager';
+import { AppRoutes } from './components/app_routes';
 import {
   getAuthStatus,
   getCurrentElectionMetadata,
@@ -66,7 +66,7 @@ export function AppRoot({
         logger,
       }}
     >
-      <ElectionManager />
+      <AppRoutes />
     </AppContext.Provider>
   );
 }

@@ -6,15 +6,24 @@ import {
   isElectionManagerAuth,
   getBallotCount,
 } from '@votingworks/utils';
-import { LinkButton, H2, P, Font } from '@votingworks/ui';
+import { LinkButton, H2, P, Font, Card, H3, Icons } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
+import styled from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
 
 import { NavigationScreen } from '../../components/navigation_screen';
 import { routerPaths } from '../../router_paths';
 import { getCardCounts, getCastVoteRecordFileMode } from '../../api';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
+
+const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+`;
 
 export function ReportsScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, configuredAt, auth } =
@@ -48,7 +57,24 @@ export function ReportsScreen(): JSX.Element {
   return (
     <NavigationScreen title="Election Reports">
       {ballotCountSummaryText}
-      <MarkResultsOfficialButton />
+      <OfficialResultsCard>
+        {isOfficialResults ? (
+          <div>
+            <H3>
+              <Icons.Done color="success" /> Results Marked as Official
+            </H3>
+            <div>Election results have been marked as official.</div>
+          </div>
+        ) : (
+          <div>
+            <H3>
+              <Icons.Info /> Results are Unofficial
+            </H3>
+            <div>Election results have not yet been marked as official.</div>
+          </div>
+        )}
+        <MarkResultsOfficialButton />
+      </OfficialResultsCard>
       <H2>{statusPrefix} Tally Reports</H2>
       <P>
         <LinkButton variant="primary" to={routerPaths.tallyFullReport}>

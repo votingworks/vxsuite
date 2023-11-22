@@ -25,9 +25,11 @@ export default meta;
 export function Card(props: Props): JSX.Element {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <Component {...props} />
-      <Component {...props} />
-      <Component {...props} />
+      <Component {...props} color={undefined} />
+      <Component {...props} color="neutral" />
+      <Component {...props} color="primary" />
+      <Component {...props} color="warning" />
+      <Component {...props} color="danger" />
     </div>
   );
 }
