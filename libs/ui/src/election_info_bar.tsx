@@ -27,7 +27,7 @@ const Bar = styled.div<{ inverse?: boolean }>`
 const ElectionInfoContainer = styled.div`
   align-items: center;
   display: flex;
-  gap: 0.25rem;
+  gap: 0.5rem;
   justify-content: start;
 `;
 
@@ -155,28 +155,26 @@ export function VerticalElectionInfoBar({
 
   return (
     <VerticalBar inverse={inverse}>
-      <Caption>
-        <ElectionInfoContainer>
-          <Seal seal={seal} maxWidth="2.25rem" inverse={inverse} />
+      <ElectionInfoContainer>
+        <Seal seal={seal} maxWidth="3rem" inverse={inverse} />
+
+        <Caption weight="regular" align="left">
           <Font weight="bold">{electionStrings.electionTitle(election)}</Font>
-        </ElectionInfoContainer>
-      </Caption>
+          {precinctSelection && (
+            <PrecinctSelectionName
+              electionPrecincts={precincts}
+              precinctSelection={precinctSelection}
+            />
+          )}
 
-      <Caption weight="regular" align="left">
-        {precinctSelection && (
-          <PrecinctSelectionName
-            electionPrecincts={precincts}
-            precinctSelection={precinctSelection}
-          />
-        )}
+          <div>
+            {electionStrings.countyName(county)},{' '}
+            {electionStrings.stateName(election)}
+          </div>
 
-        <div>
-          {electionStrings.countyName(county)},{' '}
-          {electionStrings.stateName(election)}
-        </div>
-
-        <div>{electionStrings.electionDate(election)}</div>
-      </Caption>
+          <div>{electionStrings.electionDate(election)}</div>
+        </Caption>
+      </ElectionInfoContainer>
 
       <Caption>
         {mode !== 'voter' && codeVersion && (
