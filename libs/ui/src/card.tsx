@@ -43,7 +43,7 @@ function cardColors(
       background: colors.dangerContainer,
       border: colors.dangerAccent,
     },
-  }[color ?? 'neutral'];
+  }[color];
 }
 
 const StyledContainer = styled.div<{ color?: CardColor }>`

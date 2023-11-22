@@ -25,14 +25,17 @@ test('renders with footer', () => {
   expect(screen.getByText('Footer content')).toBeDefined();
 });
 
-test('renders with desktop theme', () => {
+test('renders with desktop theme and color', () => {
   const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
   render(
-    <Card>
+    <Card color="primary">
       <P>Card content</P>
     </Card>,
     { vxTheme: theme }
   );
   const cardContents = screen.getByText('Card content');
   expect(cardContents).toHaveStyleRule('padding: 1rem');
+  expect(cardContents.parentElement).toHaveStyleRule(
+    `background-color: ${theme.colors.primaryContainer}`
+  );
 });
