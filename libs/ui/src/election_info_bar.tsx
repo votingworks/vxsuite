@@ -11,7 +11,9 @@ import { Caption, Font } from './typography';
 import { LabelledText } from './labelled_text';
 import { electionStrings, PrecinctSelectionName } from './ui_strings';
 
-const Bar = styled.div`
+const Bar = styled.div<{ inverse?: boolean }>`
+  background: ${(p) => p.inverse && p.theme.colors.inverseBackground};
+  color: ${(p) => p.inverse && p.theme.colors.onInverse};
   align-content: flex-end;
   align-items: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
@@ -53,6 +55,7 @@ export interface ElectionInfoBarProps {
   codeVersion?: string;
   machineId?: string;
   precinctSelection?: PrecinctSelection;
+  inverse?: boolean;
 }
 export function ElectionInfoBar({
   mode = 'voter',
@@ -60,6 +63,7 @@ export function ElectionInfoBar({
   codeVersion,
   machineId,
   precinctSelection,
+  inverse,
 }: ElectionInfoBarProps): JSX.Element {
   const {
     election,
@@ -120,10 +124,10 @@ export function ElectionInfoBar({
   );
 
   return (
-    <Bar data-testid="electionInfoBar">
+    <Bar data-testid="electionInfoBar" inverse={inverse}>
       <ElectionInfoContainer>
         <SealContainer>
-          <Seal seal={seal} />
+          <Seal seal={seal} inverse={inverse} />
         </SealContainer>
         {electionInfo}
       </ElectionInfoContainer>
@@ -136,29 +140,21 @@ export function ElectionInfoBar({
   );
 }
 
-const VerticalBar = styled.div`
+const VerticalBar = styled.div<{ inverse?: boolean }>`
+  background: ${(p) => p.inverse && p.theme.colors.inverseBackground};
+  color: ${(p) => p.inverse && p.theme.colors.onInverse};
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 `;
 
-const MachineInfoSection = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const TinyInfo = styled(Caption)`
-  display: block;
-  font-size: 0.6rem;
-`;
-
-/* istanbul ignore next - purely presentational */
 export function VerticalElectionInfoBar({
   mode = 'voter',
   electionDefinition,
   codeVersion,
   machineId,
   precinctSelection,
+  inverse,
 }: ElectionInfoBarProps): JSX.Element {
   const {
     election,
@@ -166,52 +162,52 @@ export function VerticalElectionInfoBar({
   } = electionDefinition;
 
   return (
-    <VerticalBar>
-      <Caption weight="regular" align="left">
+    <VerticalBar inverse={inverse}>
+      <Caption>
         <ElectionInfoContainer>
           <SealContainer>
-            <Seal seal={seal} />
+            <Seal seal={seal} inverse={inverse} />
           </SealContainer>
           <Font weight="bold">{electionStrings.electionTitle(election)}</Font>
         </ElectionInfoContainer>
-
-        {precinctSelection && (
-          <TinyInfo>
-            <PrecinctSelectionName
-              electionPrecincts={precincts}
-              precinctSelection={precinctSelection}
-            />
-          </TinyInfo>
-        )}
-
-        <TinyInfo>
-          {electionStrings.countyName(county)},{' '}
-          {electionStrings.stateName(election)}
-        </TinyInfo>
-
-        <TinyInfo>{electionStrings.electionDate(election)}</TinyInfo>
       </Caption>
 
-      <MachineInfoSection>
+      <Caption weight="regular" align="left">
+        {precinctSelection && (
+          <PrecinctSelectionName
+            electionPrecincts={precincts}
+            precinctSelection={precinctSelection}
+          />
+        )}
+
+        <div>
+          {electionStrings.countyName(county)},{' '}
+          {electionStrings.stateName(election)}
+        </div>
+
+        <div>{electionStrings.electionDate(election)}</div>
+      </Caption>
+
+      <Caption>
         {mode !== 'voter' && codeVersion && (
-          <TinyInfo>
+          <div>
             Software Version: <Font weight="semiBold">{codeVersion}</Font>
-          </TinyInfo>
+          </div>
         )}
 
         {mode !== 'voter' && machineId && (
-          <TinyInfo>
+          <div>
             Machine ID: <Font weight="semiBold">{machineId}</Font>
-          </TinyInfo>
+          </div>
         )}
 
-        <TinyInfo>
+        <div>
           Election ID:{' '}
           <Font weight="semiBold">
             {getDisplayElectionHash(electionDefinition)}
           </Font>
-        </TinyInfo>
-      </MachineInfoSection>
+        </div>
+      </Caption>
     </VerticalBar>
   );
 }

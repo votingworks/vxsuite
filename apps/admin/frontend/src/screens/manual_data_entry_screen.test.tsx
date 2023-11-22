@@ -152,7 +152,8 @@ test('can edit counts, receive validation messages, and save', async () => {
   expect(screen.getByTestId(testInputId).closest('input')!.value).toEqual('');
 
   // Initial validation shows that results are empty
-  const bestAnimalTable = screen.getByTestId(testInputId).closest('table')!;
+  const bestAnimalTable = screen.getByTestId(testInputId).closest('table')!
+    .parentElement!;
   within(bestAnimalTable).getByText('No results entered');
   screen.getByText('At least one contest above has no results entered');
 
@@ -306,7 +307,7 @@ test('adding new write-in candidates', async () => {
   // zoo council mammal contest should allow write-ins
   const zooCouncilMammal = screen
     .getByTestId('zoo-council-mammal-numBallots-input')
-    .closest('table')!;
+    .closest('table')!.parentElement!;
   userEvent.click(within(zooCouncilMammal).getButton('Add Write-In Candidate'));
   // Original button should have been replaced
   expect(

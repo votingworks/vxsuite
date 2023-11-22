@@ -4,6 +4,7 @@ import styled, { css, CSSObject } from 'styled-components';
 import { SizeMode, UiTheme } from '@votingworks/types';
 
 import { throwIllegalValue } from '@votingworks/basics';
+import { rgba } from 'polished';
 import { IconName, Icons } from './icons';
 
 const FONT_SIZE_REM = 1;
@@ -231,13 +232,6 @@ function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
     theme: { colors, colorMode },
   } = p;
   if (colorMode === 'desktop') {
-    const hoverColor = {
-      primary: colors.primaryContainer,
-      neutral: colors.container,
-      danger: colors.dangerContainer,
-      inversePrimary: colors.inverseContainer,
-      inverseNeutral: colors.inverseContainer,
-    }[color];
     switch (fill) {
       case 'filled':
         return { filter: 'saturate(1.2) brightness(1.1)' };
@@ -245,7 +239,15 @@ function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
         return { filter: 'saturate(1.3) brightness(0.95)' };
       case 'outlined':
       case 'transparent':
-        return { backgroundColor: hoverColor };
+        return {
+          backgroundColor: {
+            primary: colors.primaryContainer,
+            neutral: rgba(colors.neutral, 0.1),
+            danger: colors.dangerContainer,
+            inversePrimary: rgba(colors.onInverse, 0.1),
+            inverseNeutral: rgba(colors.onInverse, 0.1),
+          }[color],
+        };
       /* istanbul ignore next */
       default:
         return throwIllegalValue(fill);

@@ -30,6 +30,8 @@ import {
   faCirclePlus,
   faRotateRight,
   faCircleQuestion,
+  faLock,
+  faEject,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -190,12 +192,20 @@ export const Icons = {
     return <FaIcon {...props} type={faPencil} />;
   },
 
+  Eject(props) {
+    return <FaIcon {...props} type={faEject} />;
+  },
+
   Info(props) {
     return <FaIcon {...props} type={faInfoCircle} />;
   },
 
   Loading(props) {
     return <FaIcon {...props} type={faSpinner} pulse spin />;
+  },
+
+  Lock(props) {
+    return <FaIcon {...props} type={faLock} />;
   },
 
   Next(props) {

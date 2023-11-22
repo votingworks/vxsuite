@@ -154,6 +154,10 @@ exports[`L&A (logic and accuracy) flow 1`] = `
 
 }
 
+@media print {
+
+}
+
 @media (min-width:480px) {
 
 }
@@ -1339,6 +1343,10 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 .c13:not(:last-child) {
   margin-bottom: 0.125em;
+}
+
+@media print {
+
 }
 
 @media print {

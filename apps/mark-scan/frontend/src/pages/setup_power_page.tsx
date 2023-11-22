@@ -2,7 +2,7 @@ import { Main, NoWrap, Screen, Prose, H1, P } from '@votingworks/ui';
 
 export function SetupPowerPage(): JSX.Element {
   return (
-    <Screen white>
+    <Screen>
       <Main padded centerChild>
         <Prose textCenter>
           <H1>

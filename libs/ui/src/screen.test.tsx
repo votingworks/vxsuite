@@ -16,14 +16,10 @@ describe('renders Screen', () => {
     });
   });
 
-  test('with left nav', () => {
-    const { container } = render(<Screen navLeft>Screen</Screen>);
-    const screen = container.firstChild;
-    expect(screen).toHaveStyleRule('flex-direction', 'row-reverse');
-  });
-
-  test('with right nav', () => {
-    const { container } = render(<Screen navRight>Screen</Screen>);
+  test('with flexDirection', () => {
+    const { container } = render(<Screen flexDirection="row">Screen</Screen>, {
+      vxTheme: { colorMode: 'contrastMedium' },
+    });
     const screen = container.firstChild;
     expect(screen).toHaveStyleRule('flex-direction', 'row');
   });

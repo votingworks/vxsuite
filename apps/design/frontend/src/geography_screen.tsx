@@ -9,6 +9,8 @@ import {
   P,
   Card,
   CheckboxGroup,
+  MainContent,
+  MainHeader,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -36,8 +38,6 @@ import {
   FormActionsRow,
   Breadcrumbs,
   Row,
-  ScreenHeader,
-  ScreenContent,
   Column,
   InputGroup,
   FieldName,
@@ -261,7 +261,7 @@ function AddDistrictForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <ScreenHeader>
+      <MainHeader>
         <Breadcrumbs
           routes={[
             geographyRoutes.districts.root,
@@ -269,10 +269,10 @@ function AddDistrictForm(): JSX.Element | null {
           ]}
         />
         <H1>Add District</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <DistrictForm electionId={electionId} savedElection={election} />
-      </ScreenContent>
+      </MainContent>
     </React.Fragment>
   );
 }
@@ -292,7 +292,7 @@ function EditDistrictForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <ScreenHeader>
+      <MainHeader>
         <Breadcrumbs
           routes={[
             geographyRoutes.districts.root,
@@ -300,15 +300,15 @@ function EditDistrictForm(): JSX.Element | null {
           ]}
         />
         <H1>Edit District</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <DistrictForm
           electionId={electionId}
           districtId={districtId}
           savedElection={election}
           savedPrecincts={precincts}
         />
-      </ScreenContent>
+      </MainContent>
     </React.Fragment>
   );
 }
@@ -677,7 +677,7 @@ function AddPrecinctForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <ScreenHeader>
+      <MainHeader>
         <Breadcrumbs
           routes={[
             geographyRoutes.precincts.root,
@@ -685,14 +685,14 @@ function AddPrecinctForm(): JSX.Element | null {
           ]}
         />
         <H1>Add Precinct</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <PrecinctForm
           electionId={electionId}
           savedPrecincts={precincts}
           districts={election.districts}
         />
-      </ScreenContent>
+      </MainContent>
     </React.Fragment>
   );
 }
@@ -712,7 +712,7 @@ function EditPrecinctForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <ScreenHeader>
+      <MainHeader>
         <Breadcrumbs
           routes={[
             geographyRoutes.precincts.root,
@@ -720,15 +720,15 @@ function EditPrecinctForm(): JSX.Element | null {
           ]}
         />
         <H1>Edit Precinct</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <PrecinctForm
           electionId={electionId}
           precinctId={precinctId}
           savedPrecincts={precincts}
           districts={election.districts}
         />
-      </ScreenContent>
+      </MainContent>
     </React.Fragment>
   );
 }
@@ -761,10 +761,10 @@ export function GeographyScreen(): JSX.Element {
           component={EditPrecinctForm}
         />
         <Route path={geographyParamRoutes.root.path}>
-          <ScreenHeader>
+          <MainHeader>
             <H1>Geography</H1>
-          </ScreenHeader>
-          <ScreenContent>
+          </MainHeader>
+          <MainContent>
             <TabBar
               tabs={[
                 geographyRoutes.districts.root,
@@ -785,7 +785,7 @@ export function GeographyScreen(): JSX.Element {
                 to={geographyParamRoutes.districts.root.path}
               />
             </Switch>
-          </ScreenContent>
+          </MainContent>
         </Route>
       </Switch>
     </ElectionNavScreen>

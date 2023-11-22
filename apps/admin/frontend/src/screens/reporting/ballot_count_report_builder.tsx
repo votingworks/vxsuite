@@ -1,4 +1,4 @@
-import { Font, H3, P } from '@votingworks/ui';
+import { P } from '@votingworks/ui';
 import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
 import {
@@ -7,7 +7,6 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { Tabulation } from '@votingworks/types';
-import styled from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import {
@@ -20,20 +19,13 @@ import {
 } from '../../components/reporting/group_by_editor';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
-import { ReportBackButton } from '../../components/reporting/shared';
+import {
+  ControlLabel,
+  ReportBackButton,
+  ReportBuilderControls,
+} from '../../components/reporting/shared';
 
 const SCREEN_TITLE = 'Ballot Count Report Builder';
-
-const FilterEditorContainer = styled.div`
-  width: 80%;
-  margin-bottom: 2rem;
-`;
-
-const GroupByEditorContainer = styled.div`
-  width: 80%;
-  margin-top: 0.5rem;
-  margin-bottom: 2rem;
-`;
 
 export function BallotCountReportBuilder(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -74,38 +66,29 @@ export function BallotCountReportBuilder(): JSX.Element {
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
   return (
     <NavigationScreen title={SCREEN_TITLE}>
-      <P>
+      <P style={{ marginBottom: '1rem' }}>
         <ReportBackButton />
       </P>
-      <P>
-        Use the report builder to create custom reports for print or export.
-      </P>
-      <ul>
-        <li>
-          <Font weight="bold">Filters</Font> restrict the report to ballots
-          matching the criteria
-        </li>
-        <li>
-          <Font weight="bold">Report By</Font> organizes the ballot counts into
-          multiple rows
-        </li>
-      </ul>
-      <H3>Filters</H3>
-      <FilterEditorContainer>
-        <FilterEditor
-          election={election}
-          onChange={updateFilter}
-          allowedFilters={allowedFilters}
-        />
-      </FilterEditorContainer>
-      <H3>Report By</H3>
-      <GroupByEditorContainer>
-        <GroupByEditor
-          groupBy={groupBy}
-          setGroupBy={updateGroupBy}
-          allowedGroupings={allowedGroupBys}
-        />
-      </GroupByEditorContainer>
+      <ReportBuilderControls>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <ControlLabel>Filters</ControlLabel>
+          <P>Restrict the report to ballots matching the criteria</P>
+          <FilterEditor
+            election={election}
+            onChange={updateFilter}
+            allowedFilters={allowedFilters}
+          />
+        </div>
+        <div>
+          <ControlLabel>Report By</ControlLabel>
+          <P>Organize the results into multiple reports</P>
+          <GroupByEditor
+            groupBy={groupBy}
+            setGroupBy={updateGroupBy}
+            allowedGroupings={allowedGroupBys}
+          />
+        </div>
+      </ReportBuilderControls>
       <BallotCountReportViewer
         filter={filter}
         groupBy={groupBy}

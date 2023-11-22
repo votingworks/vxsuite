@@ -12,7 +12,7 @@ export function PaperReloadedPage(): JSX.Element {
   });
 
   return (
-    <Screen white>
+    <Screen>
       <Main padded centerChild>
         <Text center>
           <H1>Remove Poll Worker Card</H1>

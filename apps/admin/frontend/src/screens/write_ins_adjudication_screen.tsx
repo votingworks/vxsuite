@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -13,14 +13,13 @@ import {
   Button,
   Main,
   Screen,
-  P,
   Font,
   Caption,
-  LabelledText,
   H2,
-  H4,
   LinkButton,
   Loading,
+  H1,
+  RadioGroup,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
@@ -31,8 +30,6 @@ import type {
   WriteInRecordAdjudicatedOfficialCandidate,
 } from '@votingworks/admin-backend';
 import { useParams } from 'react-router-dom';
-import { ScreenHeader } from '../components/layout/screen_header';
-import { InlineForm, TextInput } from '../components/text_input';
 import {
   getWriteInAdjudicationContext,
   getWriteInAdjudicationQueue,
@@ -53,39 +50,24 @@ import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
 } from '../components/adjudication_double_vote_alert_modal';
+import { Header, HeaderActions } from '../components/navigation_screen';
 
-const AdjudicationScreen = styled(Screen)`
-  /* Matches the focus style applied in libs/ui/global_styles.tsx, which are
-   * disabled by default in VxAdmin and enabled on the touch-only VxSuite
-   * machines.
-   * TODO: We should probably figure out a more consistent approach to
-   * enabling/disabling focus outlines across a single app, instead of
-   * conditionally enabling on certain pages.
-   */
-  & *:focus {
-    outline: ${(p) => p.theme.colors.accentPrimary} dashed
-      ${(p) => p.theme.sizes.bordersRem.medium}rem;
-  }
-`;
-
-const AdjudicationHeader = styled.div`
-  align-items: center;
-  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.foreground};
-  display: flex;
-  gap: 1rem;
-  padding: 0.5rem;
+const AdjudicationHeader = styled(Header)`
+  position: static;
+  background: ${(p) => p.theme.colors.inverseBackground};
+  color: ${(p) => p.theme.colors.onInverse};
+  border: none;
 `;
 
 const ContestTitleContainer = styled.div`
-  display: flex;
-  flex-grow: 1;
+  background: ${(p) => p.theme.colors.containerLow};
+  padding: 0.5rem;
+  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
 `;
 
 const ContestTitle = styled(H2)`
-  display: flex;
-  flex-direction: column;
-  font-size: 1.2rem;
+  font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
 
   /*
@@ -98,12 +80,27 @@ const ContestTitle = styled(H2)`
 
 const AdjudicationNav = styled.div`
   align-items: center;
+  background: ${(p) => p.theme.colors.containerLow};
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
   display: flex;
+  flex-direction: row;
   gap: 0.5rem;
+  margin-top: auto;
+  padding: 0.5rem;
+
+  /* Make previous/next buttons equal width */
+  button {
+    flex-wrap: nowrap;
+    flex-basis: 0;
+    flex-grow: 1;
+  }
 `;
 
 const BallotViews = styled.div`
-  background: ${(p) => p.theme.colors.foreground};
+  /* Since the edges of the ballot image are black, using a black background
+   * creates the least noise. */
+  background: black;
   padding: 0 0.5rem;
   width: 75vw;
 `;
@@ -114,23 +111,29 @@ const AdjudicationControls = styled.div`
   flex-direction: column;
 `;
 
+const AdjudicationMetadata = styled(Caption)`
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: ${(p) => p.theme.colors.containerHigh};
+`;
+
 const AdjudicationForm = styled.div`
   overflow: scroll;
   padding: 0.5rem;
 `;
 
-const TranscribedButtons = styled.div`
-  display: grid;
-  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
-  grid-template-columns: 1fr;
+const WriteInActionButton = styled(Button)`
+  /* Emulate radio group options */
+  padding-left: 0.5rem;
+  border: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+    ${(p) => p.theme.colors.outline};
+`;
 
-  &:not(:last-child) {
-    margin-bottom: 0.5rem;
-  }
-
-  & button {
-    text-align: left;
-  }
+const SectionLabel = styled.div`
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
 `;
 
 export function WriteInsAdjudicationScreen(): JSX.Element {
@@ -225,9 +228,10 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
   const [doubleVoteAlert, setDoubleVoteAlert] = useState<DoubleVoteAlert>();
   const [showNewWriteInCandidateForm, setShowNewWriteInCandidateForm] =
     useState(false);
-  const newWriteInCandidateInput = useRef<HTMLInputElement>(null);
+  const [newWriteInCandidateName, setNewWriteInCandidateName] =
+    useState<string>();
   const nextButton = useRef<Button>(null);
-  const firstAdjudicationButton = useRef<Button>(null);
+  const firstAdjudicationControl = useRef<HTMLFieldSetElement>(null);
 
   if (
     !writeInQueueMetadataQuery.isSuccess ||
@@ -238,17 +242,17 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     !currentWriteInId
   ) {
     return (
-      <AdjudicationScreen>
-        <ScreenHeader
-          title="Write-In Adjudication"
-          actions={
-            <LinkButton variant="neutral" to={routerPaths.writeIns}>
+      <Screen>
+        <AdjudicationHeader>
+          <H1>Write-In Adjudication</H1>
+          <HeaderActions>
+            <LinkButton variant="inverseNeutral" to={routerPaths.writeIns}>
               Back to All Write-Ins
             </LinkButton>
-          }
-        />
+          </HeaderActions>
+        </AdjudicationHeader>
         <Loading isFullscreen />
-      </AdjudicationScreen>
+      </Screen>
     );
   }
 
@@ -304,15 +308,22 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
         .map((w) => w.candidateId)
     : [];
 
+  function hideNewWriteInCandidateForm() {
+    setNewWriteInCandidateName(undefined);
+    setShowNewWriteInCandidateForm(false);
+  }
+
   function goPrevious() {
     setOffset((v) => v - 1);
-    setShowNewWriteInCandidateForm(false);
+    hideNewWriteInCandidateForm();
   }
   function goNext() {
     setOffset((v) => v + 1);
-    setShowNewWriteInCandidateForm(false);
+    hideNewWriteInCandidateForm();
     nextButton.current?.blur();
-    firstAdjudicationButton.current?.focus();
+    // For some reason, focusing on the RadioGroup fieldset itself doesn't seem
+    // to work, we have to pick out an individual input
+    firstAdjudicationControl.current?.getElementsByTagName('input')[0]?.focus();
   }
   function focusNext() {
     setTimeout(() => {
@@ -376,8 +387,8 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
   }
 
   async function onAddWriteInCandidate() {
-    const name = newWriteInCandidateInput.current?.value;
     assert(currentWriteInId !== undefined);
+    const name = newWriteInCandidateName;
     if (!name) return;
     if (disallowedWriteInCandidateNames.includes(normalizeWriteInName(name))) {
       return;
@@ -389,84 +400,34 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
         name,
       });
       adjudicateAsWriteInCandidate(writeInCandidate);
-      setShowNewWriteInCandidateForm(false);
+      hideNewWriteInCandidateForm();
     } catch (error) {
       // Handled by default query client error handling
     }
   }
-  function hideAddNewWriteInCandidateWhenEmpty() {
-    if (
-      !newWriteInCandidateInput.current ||
-      newWriteInCandidateInput.current.value === ''
-    ) {
-      setShowNewWriteInCandidateForm(false);
-    }
-  }
 
   return (
-    <AdjudicationScreen>
-      <ScreenHeader
-        title="Write-In Adjudication"
-        actions={
-          <React.Fragment>
-            <span>
-              {areAllWriteInsAdjudicated
-                ? 'No further write-ins to transcribe for this contest.'
-                : `${format.count(adjudicationsLeft)} ${pluralize(
-                    'write-in',
-                    adjudicationsLeft
-                  )} to adjudicate.`}
-            </span>
-            <LinkButton
-              variant={areAllWriteInsAdjudicated ? 'primary' : 'neutral'}
-              to={routerPaths.writeIns}
-            >
-              Back to All Write-Ins
-            </LinkButton>
-          </React.Fragment>
-        }
-      />
+    <Screen>
       <AdjudicationHeader>
-        <ContestTitleContainer>
-          <ContestTitle>
-            <Caption>{getContestDistrictName(election, contest)}</Caption>
-            <span>
-              {contest.title}
-              {contest.partyId &&
-                ` (${getPartyAbbreviationByPartyId({
-                  partyId: contest.partyId,
-                  election,
-                })})`}
-            </span>
-          </ContestTitle>
-        </ContestTitleContainer>
-        <LabelledText label="Ballot ID">
-          <Font weight="bold">
-            {writeInImageView ? writeInImageView.cvrId.substring(0, 4) : '-'}
-          </Font>
-        </LabelledText>
-        <LabelledText label="Adjudication ID">
-          <Font weight="bold">{currentWriteInId.substring(0, 4)}</Font>
-        </LabelledText>
-        <AdjudicationNav>
-          <Button disabled={offset === 0} onPress={goPrevious} icon="Previous">
-            Previous
-          </Button>
-          <Caption weight="semiBold">
-            {format.count(offset + 1)} of {format.count(totalWriteIns)}
-          </Caption>
-          <Button
-            ref={nextButton}
+        <H1>Write-In Adjudication</H1>
+        <HeaderActions>
+          <span>
+            {areAllWriteInsAdjudicated
+              ? 'You have adjudicated all of the write-ins for this contest'
+              : `${format.count(adjudicationsLeft)} ${pluralize(
+                  'write-in',
+                  adjudicationsLeft
+                )} to adjudicate`}
+          </span>
+          <LinkButton
             variant={
-              currentWriteIn?.status === 'adjudicated' ? 'primary' : 'neutral'
+              areAllWriteInsAdjudicated ? 'inversePrimary' : 'inverseNeutral'
             }
-            rightIcon="Next"
-            disabled={isLastAdjudication}
-            onPress={goNext}
+            to={routerPaths.writeIns}
           >
-            Next
-          </Button>
-        </AdjudicationNav>
+            Back to All Write-Ins
+          </LinkButton>
+        </HeaderActions>
       </AdjudicationHeader>
       <Main flexRow data-testid={`transcribe:${currentWriteInId}`}>
         <BallotViews>
@@ -480,100 +441,131 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           ) : null}
         </BallotViews>
         <AdjudicationControls>
+          <AdjudicationMetadata>
+            <span>
+              Ballot ID:{' '}
+              <Font weight="bold">
+                {writeInImageView
+                  ? writeInImageView.cvrId.substring(0, 4)
+                  : '-'}
+              </Font>
+            </span>{' '}
+            <span>
+              Adjudication ID:{' '}
+              <Font weight="bold">{currentWriteInId.substring(0, 4)}</Font>
+            </span>
+          </AdjudicationMetadata>
+          <ContestTitleContainer>
+            <Caption>{getContestDistrictName(election, contest)}</Caption>
+            <ContestTitle>
+              <span>
+                {contest.title}
+                {contest.partyId &&
+                  ` (${getPartyAbbreviationByPartyId({
+                    partyId: contest.partyId,
+                    election,
+                  })})`}
+              </span>
+            </ContestTitle>
+          </ContestTitleContainer>
           <AdjudicationForm>
-            <div>
-              <H4 as="h3">Official Candidates</H4>
-              <TranscribedButtons>
-                {officialCandidates.map((candidate, i) => {
-                  const isCurrentAdjudication =
-                    currentWriteIn &&
-                    currentWriteIn.status === 'adjudicated' &&
-                    currentWriteIn.adjudicationType === 'official-candidate' &&
-                    currentWriteIn.candidateId === candidate.id;
-                  return (
-                    <Button
-                      key={candidate.id}
-                      ref={i === 0 ? firstAdjudicationButton : undefined}
-                      variant={isCurrentAdjudication ? 'secondary' : 'neutral'}
-                      onPress={() => {
-                        if (
-                          isWriteInAdjudicationContextFresh &&
-                          !isCurrentAdjudication
-                        ) {
-                          adjudicateAsOfficialCandidate(candidate);
-                        }
-                      }}
-                    >
-                      {candidate.name}
-                    </Button>
+            <RadioGroup
+              ref={firstAdjudicationControl}
+              label="Official Candidates"
+              options={officialCandidates.map((candidate) => ({
+                label: candidate.name,
+                value: candidate.id,
+              }))}
+              value={
+                currentWriteIn &&
+                currentWriteIn.status === 'adjudicated' &&
+                currentWriteIn.adjudicationType === 'official-candidate'
+                  ? currentWriteIn.candidateId
+                  : undefined
+              }
+              onChange={(candidateId) => {
+                if (isWriteInAdjudicationContextFresh) {
+                  adjudicateAsOfficialCandidate(
+                    find(officialCandidates, (c) => c.id === candidateId)
                   );
-                })}
-              </TranscribedButtons>
-              <H4 as="h3">Write-In Candidates</H4>
-              <TranscribedButtons>
-                {writeInCandidates.map((candidate) => {
-                  const isCurrentAdjudication =
-                    currentWriteIn &&
-                    currentWriteIn.status === 'adjudicated' &&
-                    currentWriteIn.adjudicationType === 'write-in-candidate' &&
-                    currentWriteIn.candidateId === candidate.id;
-                  return (
-                    <Button
-                      key={candidate.id}
-                      variant={isCurrentAdjudication ? 'secondary' : 'neutral'}
-                      onPress={() => {
-                        if (
-                          isWriteInAdjudicationContextFresh &&
-                          !isCurrentAdjudication
-                        ) {
-                          adjudicateAsWriteInCandidate(candidate);
-                        }
-                      }}
-                    >
-                      {candidate.name}
-                    </Button>
-                  );
-                })}
-              </TranscribedButtons>
-              <P>
-                {showNewWriteInCandidateForm ? (
-                  <InlineForm as="span">
-                    <TextInput
-                      ref={newWriteInCandidateInput}
-                      placeholder="Candidate Name"
-                      autoFocus
-                      onBlur={hideAddNewWriteInCandidateWhenEmpty}
-                      onKeyDown={async (event) => {
-                        if (event.key === 'Enter') {
-                          await onAddWriteInCandidate();
-                        }
-                      }}
-                    />
-                    <Button
-                      onPress={onAddWriteInCandidate}
-                      variant="secondary"
-                      disabled={
-                        !!newWriteInCandidateInput.current &&
-                        disallowedWriteInCandidateNames.includes(
-                          normalizeWriteInName(
-                            newWriteInCandidateInput.current.value
-                          )
-                        )
+                }
+              }}
+            />
+
+            <SectionLabel>Write-In Candidates</SectionLabel>
+            {writeInCandidates.length > 0 && (
+              <RadioGroup
+                label="Write-In Candidates"
+                hideLabel
+                options={writeInCandidates.map((candidate) => ({
+                  label: candidate.name,
+                  value: candidate.id,
+                }))}
+                value={
+                  currentWriteIn &&
+                  currentWriteIn.status === 'adjudicated' &&
+                  currentWriteIn.adjudicationType === 'write-in-candidate'
+                    ? currentWriteIn.candidateId
+                    : undefined
+                }
+                onChange={(candidateId) => {
+                  if (isWriteInAdjudicationContextFresh) {
+                    adjudicateAsWriteInCandidate(
+                      find(writeInCandidates, (c) => c.id === candidateId)
+                    );
+                  }
+                }}
+              />
+            )}
+
+            <div style={{ margin: '0.5rem 0' }}>
+              {showNewWriteInCandidateForm ? (
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    key={currentWriteInId}
+                    value={newWriteInCandidateName ?? ''}
+                    onChange={(e) => setNewWriteInCandidateName(e.target.value)}
+                    aria-label="Candidate Name"
+                    placeholder="Candidate Name"
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    onBlur={() => {
+                      if (!newWriteInCandidateName) {
+                        hideNewWriteInCandidateForm();
                       }
-                    >
-                      Add
-                    </Button>
-                  </InlineForm>
-                ) : (
+                    }}
+                    onKeyDown={async (event) => {
+                      if (event.key === 'Enter') {
+                        await onAddWriteInCandidate();
+                      }
+                    }}
+                    style={{ flexGrow: 1 }}
+                  />
                   <Button
-                    icon="Add"
-                    onPress={() => setShowNewWriteInCandidateForm(true)}
+                    onPress={onAddWriteInCandidate}
+                    variant="secondary"
+                    disabled={
+                      !newWriteInCandidateName ||
+                      disallowedWriteInCandidateNames.includes(
+                        normalizeWriteInName(newWriteInCandidateName)
+                      )
+                    }
                   >
-                    Add new write-in candidate
+                    Add
                   </Button>
-                )}
-              </P>
-              <Button
+                </div>
+              ) : (
+                <WriteInActionButton
+                  icon="Add"
+                  onPress={() => setShowNewWriteInCandidateForm(true)}
+                >
+                  Add new write-in candidate
+                </WriteInActionButton>
+              )}
+            </div>
+
+            <div>
+              <WriteInActionButton
                 onPress={() => {
                   if (
                     isWriteInAdjudicationContextFresh &&
@@ -583,12 +575,35 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   }
                 }}
                 variant={currentWriteInMarkedInvalid ? 'secondary' : 'neutral'}
-                icon="Delete"
+                icon="Disabled"
               >
                 Mark write-in invalid
-              </Button>
+              </WriteInActionButton>
             </div>
           </AdjudicationForm>
+          <AdjudicationNav>
+            <Button
+              disabled={offset === 0}
+              onPress={goPrevious}
+              icon="Previous"
+            >
+              Previous
+            </Button>
+            <Caption weight="semiBold">
+              {format.count(offset + 1)} of {format.count(totalWriteIns)}
+            </Caption>
+            <Button
+              ref={nextButton}
+              variant={
+                currentWriteIn?.status === 'adjudicated' ? 'primary' : 'neutral'
+              }
+              rightIcon="Next"
+              disabled={isLastAdjudication}
+              onPress={goNext}
+            >
+              Next
+            </Button>
+          </AdjudicationNav>
         </AdjudicationControls>
         {doubleVoteAlert && (
           <DoubleVoteAlertModal
@@ -597,6 +612,6 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           />
         )}
       </Main>
-    </AdjudicationScreen>
+    </Screen>
   );
 }

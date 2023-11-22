@@ -1,6 +1,5 @@
 import { Tabulation } from '@votingworks/types';
-import styled from 'styled-components';
-import { Checkbox, Font } from '@votingworks/ui';
+import { CheckboxGroup } from '@votingworks/ui';
 
 export type GroupByType = keyof Tabulation.GroupBy;
 
@@ -19,71 +18,30 @@ export interface GroupByEditorProps {
   allowedGroupings: GroupByType[];
 }
 
-const Container = styled.div`
-  display: grid;
-  grid-template-columns: repeat(6, min-content);
-  gap: 0.75rem;
-`;
-
-const Item = styled.button`
-  margin: 0;
-  padding: 0.25rem;
-  cursor: pointer;
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 0.5rem;
-  background: none;
-  border: none;
-  font-weight: 300;
-  color: inherit;
-  -webkit-tap-highlight-color: transparent;
-`;
-
-const ItemLabel = styled(Font)`
-  white-space: nowrap;
-`;
-
-const CheckboxContainer = styled.div`
-  border: none;
-  background: none;
-  padding: 0;
-  margin: 0;
-  flex-grow: 0;
-  flex-shrink: 0;
-  font-size: 0.8em;
-`;
-
 export function GroupByEditor({
   groupBy,
   setGroupBy,
   allowedGroupings,
 }: GroupByEditorProps): JSX.Element {
-  function toggleGrouping(grouping: GroupByType): void {
-    setGroupBy({
-      ...groupBy,
-      [grouping]: !groupBy[grouping],
-    });
-  }
-
   return (
-    <Container data-testid="group-by-editor">
-      {allowedGroupings.map((grouping) => {
-        const checked = Boolean(groupBy[grouping]);
-        return (
-          <Item
-            key={grouping}
-            onClick={() => toggleGrouping(grouping)}
-            aria-label={`Report By ${GROUPING_LABEL[grouping]}`}
-            aria-pressed={checked}
-          >
-            <CheckboxContainer>
-              <Checkbox checked={checked} />
-            </CheckboxContainer>
-            <ItemLabel>{GROUPING_LABEL[grouping]}</ItemLabel>
-          </Item>
-        );
-      })}
-    </Container>
+    <CheckboxGroup
+      hideLabel
+      label="Report By"
+      direction="row"
+      options={allowedGroupings.map((grouping) => ({
+        value: grouping,
+        label: GROUPING_LABEL[grouping],
+      }))}
+      value={
+        Object.keys(groupBy).filter(
+          (grouping) => groupBy[grouping as GroupByType]
+        ) as GroupByType[]
+      }
+      onChange={(value) =>
+        setGroupBy(
+          Object.fromEntries(value.map((grouping) => [grouping, true]))
+        )
+      }
+    />
   );
 }

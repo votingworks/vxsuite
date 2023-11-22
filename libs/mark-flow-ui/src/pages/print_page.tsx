@@ -84,7 +84,7 @@ export function PrintPage({
   }, [printBallot]);
 
   return (
-    <Screen white>
+    <Screen>
       <Main centerChild padded>
         <Font align="center" id="audiofocus">
           <PrintingBallotImage />

@@ -55,7 +55,7 @@ export function IdlePage({
   }, 1000);
 
   return (
-    <Screen navRight>
+    <Screen flexDirection="row">
       <Main centerChild padded>
         {isLoading ? (
           <Loading>{appStrings.noteBmdClearingBallot()}</Loading>

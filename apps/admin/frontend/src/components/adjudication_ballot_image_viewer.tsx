@@ -115,6 +115,8 @@ export function BallotImageViewer({
           icon="ZoomOut"
           onPress={() => setIsZoomedIn(false)}
           disabled={!isZoomedIn}
+          color="neutral"
+          fill="tinted"
         >
           Zoom Out
         </Button>
@@ -122,6 +124,8 @@ export function BallotImageViewer({
           icon="ZoomIn"
           onPress={() => setIsZoomedIn(true)}
           disabled={isZoomedIn}
+          color="neutral"
+          fill="tinted"
         >
           Zoom In
         </Button>

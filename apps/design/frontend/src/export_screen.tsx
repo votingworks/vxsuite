@@ -1,11 +1,10 @@
-import { H1, P, Button } from '@votingworks/ui';
+import { H1, P, Button, MainContent, MainHeader } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { getDisplayElectionHash } from '@votingworks/types';
 import { exportAllBallots, exportSetupPackage } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
-import { ScreenContent, ScreenHeader } from './layout';
 
 export function ExportScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
@@ -42,10 +41,10 @@ export function ExportScreen(): JSX.Element {
 
   return (
     <ElectionNavScreen electionId={electionId}>
-      <ScreenHeader>
+      <MainHeader>
         <H1>Export</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <P>
           <Button
             variant="primary"
@@ -64,7 +63,7 @@ export function ExportScreen(): JSX.Element {
             Export Setup Package
           </Button>
         </P>
-      </ScreenContent>
+      </MainContent>
     </ElectionNavScreen>
   );
 }

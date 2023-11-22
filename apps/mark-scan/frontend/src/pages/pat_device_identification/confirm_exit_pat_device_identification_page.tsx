@@ -12,7 +12,7 @@ export function ConfirmExitPatDeviceIdentificationPage({
   onPressContinue,
 }: Props): JSX.Element {
   return (
-    <Screen white>
+    <Screen>
       <Main centerChild>
         <PortraitStepInnerContainer>
           <Icons.Done />

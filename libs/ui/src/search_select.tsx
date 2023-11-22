@@ -63,11 +63,13 @@ export interface SelectOption<T extends string = string> {
 }
 
 interface SearchSelectBaseProps<T extends string = string> {
+  id?: string;
   isMulti?: boolean;
   isSearchable?: boolean;
   options: Array<SelectOption<T>>;
   ariaLabel?: string;
   style?: React.CSSProperties;
+  placeholder?: string;
 }
 
 export interface SearchSelectMultiProps<T extends string = string>
@@ -98,6 +100,7 @@ function findOption<T extends string = string>(
 }
 
 export function SearchSelect<T extends string = string>({
+  id,
   isMulti,
   isSearchable,
   options,
@@ -105,6 +108,7 @@ export function SearchSelect<T extends string = string>({
   onChange,
   ariaLabel,
   disabled,
+  placeholder,
   style,
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
@@ -112,12 +116,13 @@ export function SearchSelect<T extends string = string>({
 
   return (
     <Select
+      id={id}
       isMulti={isMulti}
       isSearchable={isSearchable}
       isClearable={false}
       isDisabled={disabled}
       options={options}
-      defaultValue={
+      value={
         Array.isArray(value)
           ? value.map((v) => findOption(options, v))
           : value
@@ -130,7 +135,7 @@ export function SearchSelect<T extends string = string>({
               onChange(selectedOptions.map((o) => o.value))
           : (selectedOption: SelectOption<T>) => onChange(selectedOption.value)
       }
-      placeholder={null}
+      placeholder={placeholder ?? null}
       aria-label={ariaLabel}
       unstyled
       components={{ DropdownIndicator, MultiValueRemove }}
@@ -228,6 +233,10 @@ export function SearchSelect<T extends string = string>({
         indicatorsContainer: (baseStyles) => ({
           ...baseStyles,
           alignItems: 'start',
+        }),
+        placeholder: (baseStyles) => ({
+          ...baseStyles,
+          color: theme.colors.onBackgroundMuted,
         }),
       })}
     />

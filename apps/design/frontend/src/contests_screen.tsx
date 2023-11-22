@@ -9,6 +9,8 @@ import {
   P,
   SegmentedButton,
   SearchSelect,
+  MainContent,
+  MainHeader,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -36,8 +38,6 @@ import {
   Form,
   FormActionsRow,
   InputGroup,
-  ScreenContent,
-  ScreenHeader,
   TableActionsRow,
 } from './layout';
 import { ElectionNavScreen } from './nav_screen';
@@ -558,7 +558,7 @@ function AddContestForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <ScreenHeader>
+      <MainHeader>
         <Breadcrumbs
           routes={[
             contestRoutes.contests.root,
@@ -566,10 +566,10 @@ function AddContestForm(): JSX.Element | null {
           ]}
         />
         <H1>Add Contest</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <ContestForm electionId={electionId} savedElection={election} />
-      </ScreenContent>
+      </MainContent>
     </React.Fragment>
   );
 }
@@ -589,7 +589,7 @@ function EditContestForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <ScreenHeader>
+      <MainHeader>
         <Breadcrumbs
           routes={[
             contestRoutes.contests.root,
@@ -597,14 +597,14 @@ function EditContestForm(): JSX.Element | null {
           ]}
         />
         <H1>Edit Contest</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <ContestForm
           electionId={electionId}
           contestId={contestId}
           savedElection={election}
         />
-      </ScreenContent>
+      </MainContent>
     </React.Fragment>
   );
 }
@@ -822,13 +822,13 @@ function AddPartyForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <ScreenHeader>
+      <MainHeader>
         <Breadcrumbs routes={[partyRoutes.root, partyRoutes.addParty]} />
         <H1>Add Party</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <PartyForm electionId={electionId} savedElection={election} />
-      </ScreenContent>
+      </MainContent>
     </React.Fragment>
   );
 }
@@ -848,19 +848,19 @@ function EditPartyForm(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <ScreenHeader>
+      <MainHeader>
         <Breadcrumbs
           routes={[partyRoutes.root, partyRoutes.editParty(partyId)]}
         />
         <H1>Edit Party</H1>
-      </ScreenHeader>
-      <ScreenContent>
+      </MainHeader>
+      <MainContent>
         <PartyForm
           electionId={electionId}
           partyId={partyId as PartyId}
           savedElection={election}
         />
-      </ScreenContent>
+      </MainContent>
     </React.Fragment>
   );
 }
@@ -893,10 +893,10 @@ export function ContestsScreen(): JSX.Element {
           component={EditPartyForm}
         />
         <Route path={contestParamRoutes.root.path}>
-          <ScreenHeader>
+          <MainHeader>
             <H1>Contests</H1>
-          </ScreenHeader>
-          <ScreenContent>
+          </MainHeader>
+          <MainContent>
             <TabBar
               tabs={[contestRoutes.contests.root, contestRoutes.parties.root]}
             />
@@ -914,7 +914,7 @@ export function ContestsScreen(): JSX.Element {
                 to={contestParamRoutes.contests.root.path}
               />
             </Switch>
-          </ScreenContent>
+          </MainContent>
         </Route>
       </Switch>
     </ElectionNavScreen>

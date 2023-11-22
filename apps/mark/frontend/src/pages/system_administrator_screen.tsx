@@ -26,7 +26,7 @@ export function SystemAdministratorScreen({
   usbDriveStatus,
 }: Props): JSX.Element {
   return (
-    <Screen white>
+    <Screen>
       <SystemAdministratorScreenContents
         displayRemoveCardToLeavePrompt
         logger={logger}

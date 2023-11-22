@@ -15,6 +15,7 @@ import {
   P,
   Font,
   Icons,
+  FileInputButton,
 } from '@votingworks/ui';
 import {
   format,
@@ -33,7 +34,6 @@ import {
   CastVoteRecordFilePreprocessedData,
   InputEventFunction,
 } from '../config/types';
-import { FileInputButton } from './file_input_button';
 import { TIME_FORMAT } from '../config/globals';
 import {
   addCastVoteRecordFile,
@@ -55,8 +55,6 @@ const UsbImage = styled.img`
 const LabelText = styled.span`
   vertical-align: middle;
   text-transform: uppercase;
-  font-size: 0.7rem;
-  font-weight: 500;
 `;
 
 const Content = styled.div`

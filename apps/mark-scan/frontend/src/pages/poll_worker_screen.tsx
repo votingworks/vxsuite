@@ -246,7 +246,7 @@ export function PollWorkerScreen({
     stateMachineState !== 'blank_page_interpretation'
   ) {
     return (
-      <Screen white>
+      <Screen>
         <Main centerChild>
           <Text center>
             <H1
@@ -295,7 +295,7 @@ export function PollWorkerScreen({
 
     if (stateMachineState === 'waiting_for_ballot_data') {
       return (
-        <Screen white>
+        <Screen>
           <Main centerChild padded>
             <Prose id="audiofocus">
               <FullScreenIconWrapper align="center">
@@ -349,7 +349,7 @@ export function PollWorkerScreen({
   }
 
   return (
-    <Screen white>
+    <Screen>
       {!isLiveMode && <TestMode />}
       <Main padded>
         <Prose maxWidth={false}>

@@ -62,7 +62,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
   const settingsButton = <DisplaySettingsButton />;
 
   return (
-    <Screen navRight={!screenInfo.isPortrait}>
+    <Screen flexDirection={screenInfo.isPortrait ? 'column' : 'row'}>
       <Main flexColumn>
         <ContentHeader id="audiofocus">
           <H1>{appStrings.titleBmdReviewScreen()}</H1>

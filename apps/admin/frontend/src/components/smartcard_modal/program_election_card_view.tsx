@@ -97,7 +97,6 @@ export function ProgramElectionCardView({
               >
                 Election Manager Card
               </Button>{' '}
-              or{' '}
               <Button
                 disabled={!electionDefinition}
                 onPress={programPollWorkerCard}

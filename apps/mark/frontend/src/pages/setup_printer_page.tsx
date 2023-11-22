@@ -2,7 +2,7 @@ import { Main, Screen, Prose, H1, P } from '@votingworks/ui';
 
 export function SetupPrinterPage(): JSX.Element {
   return (
-    <Screen white>
+    <Screen>
       <Main padded centerChild>
         <Prose textCenter>
           <H1>No Printer Detected</H1>

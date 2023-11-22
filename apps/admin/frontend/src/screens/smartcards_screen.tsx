@@ -23,34 +23,35 @@ export function SmartcardsScreen(): JSX.Element {
 
   return (
     <NavigationScreen
-      flexRow
       title={
         smartcardType === 'election'
           ? 'Election Cards'
           : 'System Administrator Cards'
       }
     >
-      <Body>
-        <P>Insert a smartcard to:</P>
-        <ul>
-          <li>View card details.</li>
-          <li>
-            {smartcardType === 'election'
-              ? 'Create an Election Manager or Poll Worker card for this election.'
-              : 'Create a System Administrator card.'}
-          </li>
-        </ul>
-      </Body>
-      <div>
-        <LinkButton
-          to={routerPaths.smartcardsByType({
-            smartcardType: getOtherSmartcardType(smartcardType),
-          })}
-        >
-          {getOtherSmartcardType(smartcardType) === 'election'
-            ? 'Create Election Cards'
-            : 'Create System Administrator Cards'}
-        </LinkButton>
+      <div style={{ display: 'flex' }}>
+        <Body>
+          <P>Insert a smartcard to:</P>
+          <ul>
+            <li>View card details.</li>
+            <li>
+              {smartcardType === 'election'
+                ? 'Create an Election Manager or Poll Worker card for this election.'
+                : 'Create a System Administrator card.'}
+            </li>
+          </ul>
+        </Body>
+        <div>
+          <LinkButton
+            to={routerPaths.smartcardsByType({
+              smartcardType: getOtherSmartcardType(smartcardType),
+            })}
+          >
+            {getOtherSmartcardType(smartcardType) === 'election'
+              ? 'Create Election Cards'
+              : 'Create System Administrator Cards'}
+          </LinkButton>
+        </div>
       </div>
     </NavigationScreen>
   );

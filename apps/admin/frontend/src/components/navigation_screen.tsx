@@ -1,12 +1,15 @@
 import React, { useContext } from 'react';
 import _ from 'lodash';
-import styled from 'styled-components';
 
 import {
   Button,
+  MainHeader,
+  MainContent,
   Screen,
   SessionTimeLimitTimer,
   UsbControllerButton,
+  Main,
+  H1,
 } from '@votingworks/ui';
 import {
   BooleanEnvironmentVariableName,
@@ -16,21 +19,16 @@ import {
 } from '@votingworks/utils';
 
 import { DippedSmartCardAuth, Election } from '@votingworks/types';
+import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { ejectUsbDrive, logOut } from '../api';
-import { ScreenHeader } from './layout/screen_header';
-import { NavItem, Sidebar } from './layout/sidebar';
-import { MainContent } from './layout/main_content';
+import { NavItem, Sidebar } from './sidebar';
 import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 interface Props {
   children: React.ReactNode;
-  centerChild?: boolean;
-  flexColumn?: boolean;
-  flexRow?: boolean;
   title?: React.ReactNode;
-  titleCaption?: React.ReactNode;
 }
 
 const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
@@ -71,12 +69,6 @@ const ELECTION_MANAGER_NAV_ITEMS_NO_BALLOT_GENERATION: readonly NavItem[] =
 
 const ELECTION_MANAGER_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [];
 
-const ScreenBody = styled.div`
-  display: flex;
-  flex-grow: 1;
-  overflow: hidden;
-`;
-
 function getSysAdminNavItems(election?: Election) {
   if (!election) {
     return SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION;
@@ -112,55 +104,49 @@ function getNavItems(
   return [];
 }
 
-export function NavigationScreen({
-  children,
-  centerChild,
-  flexColumn,
-  flexRow,
-  title,
-  titleCaption,
-}: Props): JSX.Element {
+export const Header = styled(MainHeader)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const HeaderActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+export function NavigationScreen({ children, title }: Props): JSX.Element {
   const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   return (
-    <Screen>
-      <ScreenHeader
-        noBorder
-        title={title}
-        titleCaption={titleCaption}
-        actions={
-          <React.Fragment>
+    <Screen flexDirection="row">
+      <Sidebar navItems={getNavItems(auth, election)} />
+      <Main flexColumn>
+        <Header>
+          <H1>{title}</H1>
+          <HeaderActions>
             <SessionTimeLimitTimer authStatus={auth} />
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
-                <Button onPress={() => logOutMutation.mutate()}>
-                  Lock Machine
-                </Button>
                 <UsbControllerButton
                   usbDriveEject={() => ejectUsbDriveMutation.mutate()}
                   usbDriveStatus={usbDriveStatus}
                   usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
                 />
+                <Button onPress={() => logOutMutation.mutate()} icon="Lock">
+                  Lock Machine
+                </Button>
               </React.Fragment>
             )}
-          </React.Fragment>
-        }
-      />
-      <ScreenBody>
-        <Sidebar navItems={getNavItems(auth, election)} />
-        <MainContent
-          padded
-          centerChild={centerChild}
-          flexColumn={flexColumn}
-          flexRow={flexRow}
-        >
-          {children}
-        </MainContent>
-      </ScreenBody>
+          </HeaderActions>
+        </Header>
+        <MainContent>{children}</MainContent>
+      </Main>
     </Screen>
   );
 }

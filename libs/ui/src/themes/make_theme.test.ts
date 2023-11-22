@@ -1,6 +1,6 @@
 import { ColorMode, ColorString, SizeMode } from '@votingworks/types';
 
-import { TouchscreenPalette, makeTheme } from './make_theme';
+import { DesktopPalette, TouchscreenPalette, makeTheme } from './make_theme';
 
 test('defaults', () => {
   const theme = makeTheme({});
@@ -41,12 +41,21 @@ test('varies theme based on selected modes', () => {
 
 test('desktop theme', () => {
   const desktopTheme = makeTheme({
-    colorMode: 'contrastMedium',
+    colorMode: 'desktop',
     screenType: 'builtIn',
     sizeMode: 'desktop',
   });
 
-  expect<number>(desktopTheme.sizes.fontDefault).toEqual(16);
+  expect(desktopTheme.colors.background).toEqual(DesktopPalette.Gray0);
+  expect(desktopTheme.sizes.fontDefault).toEqual(16);
+
+  const lenovoDesktopTheme = makeTheme({
+    colorMode: 'contrastMedium',
+    screenType: 'lenovoThinkpad15',
+    sizeMode: 'desktop',
+  });
+
+  expect(lenovoDesktopTheme.sizes.fontDefault).toEqual(24);
 });
 
 test('varies sizes based on screen type', () => {

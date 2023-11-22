@@ -8,6 +8,8 @@ import {
   Button,
   SegmentedButton,
   RadioGroup,
+  MainHeader,
+  MainContent,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
@@ -19,13 +21,7 @@ import {
 import { useState } from 'react';
 import { LayoutOptions } from '@votingworks/hmpb-layout';
 import { getElection, updateElection, updateLayoutOptions } from './api';
-import {
-  Form,
-  FormActionsRow,
-  NestedTr,
-  ScreenContent,
-  ScreenHeader,
-} from './layout';
+import { Form, FormActionsRow, NestedTr } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
@@ -311,10 +307,10 @@ export function BallotsScreen(): JSX.Element | null {
       />
       <Route path={ballotsParamRoutes.root.path}>
         <ElectionNavScreen electionId={electionId}>
-          <ScreenHeader>
+          <MainHeader>
             <H1>Ballots</H1>
-          </ScreenHeader>
-          <ScreenContent>
+          </MainHeader>
+          <MainContent>
             <TabBar
               tabs={[
                 {
@@ -341,7 +337,7 @@ export function BallotsScreen(): JSX.Element | null {
                 to={ballotsParamRoutes.ballotStyles.path}
               />
             </Switch>
-          </ScreenContent>
+          </MainContent>
         </ElectionNavScreen>
       </Route>
     </Switch>

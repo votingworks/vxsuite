@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { Button, Font, Icons, P } from '@votingworks/ui';
+import { Button, FileInputButton, Icons, P } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 
 import { readFileAsyncAsString } from '@votingworks/utils';
@@ -13,7 +13,6 @@ import { readInitialAdminSetupPackageFromFile } from '../utils/initial_setup_pac
 import { InputEventFunction } from '../config/types';
 
 import { routerPaths } from '../router_paths';
-import { FileInputButton } from '../components/file_input_button';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure } from '../api';
@@ -94,54 +93,52 @@ export function UnconfiguredScreen(): JSX.Element {
 
   if (isUploading || isUploadingZip) {
     return (
-      <NavigationScreen centerChild>
+      <NavigationScreen>
         <Loading isFullscreen />
       </NavigationScreen>
     );
   }
 
   return (
-    <NavigationScreen centerChild title="Configure VxAdmin">
-      <Font align="center">
-        <P>How would you like to start?</P>
-        {configureError && (
-          <P>
-            <Icons.Danger color="danger" />{' '}
-            {(() => {
-              switch (configureError.type) {
-                case 'invalidElection':
-                  return 'Invalid Election Definition file.';
-                case 'invalidSystemSettings':
-                  return 'Invalid System Settings file.';
-                /* istanbul ignore next */
-                default:
-                  return throwIllegalValue(configureError);
-              }
-            })()}
-          </P>
-        )}
+    <NavigationScreen title="Configure VxAdmin">
+      <P>How would you like to start?</P>
+      {configureError && (
         <P>
-          <FileInputButton
-            accept=".json,application/json"
-            onChange={handleVxElectionFile}
-          >
-            Select Existing Election Definition File
-          </FileInputButton>
+          <Icons.Danger color="danger" />{' '}
+          {(() => {
+            switch (configureError.type) {
+              case 'invalidElection':
+                return 'Invalid Election Definition file.';
+              case 'invalidSystemSettings':
+                return 'Invalid System Settings file.';
+              /* istanbul ignore next */
+              default:
+                return throwIllegalValue(configureError);
+            }
+          })()}
         </P>
-        <P>
-          <FileInputButton
-            accept=".zip,application/zip"
-            onChange={handleSetupPackageFile}
-          >
-            Select Existing Setup Package Zip File
-          </FileInputButton>
-        </P>
-        <P>
-          <Button onPress={loadDemoElection}>
-            Load Demo Election Definition
-          </Button>
-        </P>
-      </Font>
+      )}
+      <P>
+        <FileInputButton
+          accept=".json,application/json"
+          onChange={handleVxElectionFile}
+        >
+          Select Existing Election Definition File
+        </FileInputButton>
+      </P>
+      <P>
+        <FileInputButton
+          accept=".zip,application/zip"
+          onChange={handleSetupPackageFile}
+        >
+          Select Existing Setup Package Zip File
+        </FileInputButton>
+      </P>
+      <P>
+        <Button onPress={loadDemoElection}>
+          Load Demo Election Definition
+        </Button>
+      </P>
     </NavigationScreen>
   );
 }

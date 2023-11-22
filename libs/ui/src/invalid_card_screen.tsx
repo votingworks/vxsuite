@@ -74,7 +74,7 @@ export function InvalidCardScreen({
   }
 
   return (
-    <Screen white>
+    <Screen>
       <Main centerChild padded>
         {graphic}
         <Prose textCenter themeDeprecated={fontSizeTheme.medium}>

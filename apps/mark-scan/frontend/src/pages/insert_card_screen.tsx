@@ -72,7 +72,7 @@ export function InsertCardScreen({
   })();
 
   return (
-    <Screen white>
+    <Screen>
       {!isLiveMode && <TestMode />}
       <Main centerChild>
         <Prose textCenter id="audiofocus">
