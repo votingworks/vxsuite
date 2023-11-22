@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import { Button } from './button';
 
@@ -101,11 +102,9 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   height: 100%;
 `;
 
-/**
- * Renders a theme-compatible and touch-friendly radio button input group.
- */
-export function RadioGroup<T extends RadioGroupValue>(
-  props: RadioGroupProps<T>
+export function RadioGroupWithRef<T extends RadioGroupValue>(
+  props: RadioGroupProps<T>,
+  ref: React.ForwardedRef<HTMLFieldSetElement>
 ): JSX.Element {
   const {
     disabled,
@@ -119,7 +118,7 @@ export function RadioGroup<T extends RadioGroupValue>(
   } = props;
 
   return (
-    <OuterContainer aria-label={label}>
+    <OuterContainer aria-label={label} ref={ref}>
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
       <OptionsContainer numColumns={numColumns || 1}>
         {options.map((option) => {
@@ -169,3 +168,17 @@ export function RadioGroup<T extends RadioGroupValue>(
     </OuterContainer>
   );
 }
+
+// Redeclare forwardRef so that it will work with our generic prop type
+// https://stackoverflow.com/a/58473012
+declare module 'react' {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  function forwardRef<T, P = {}>(
+    render: (props: P, ref: React.Ref<T>) => React.ReactNode | null
+  ): (props: P & React.RefAttributes<T>) => React.ReactNode | null;
+}
+
+/**
+ * Renders a theme-compatible and touch-friendly radio button input group.
+ */
+export const RadioGroup = React.forwardRef(RadioGroupWithRef);

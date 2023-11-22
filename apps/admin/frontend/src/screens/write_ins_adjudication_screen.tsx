@@ -231,7 +231,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
   const [newWriteInCandidateName, setNewWriteInCandidateName] =
     useState<string>();
   const nextButton = useRef<Button>(null);
-  const firstAdjudicationButton = useRef<Button>(null);
+  const firstAdjudicationControl = useRef<HTMLFieldSetElement>(null);
 
   if (
     !writeInQueueMetadataQuery.isSuccess ||
@@ -321,7 +321,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     setOffset((v) => v + 1);
     hideNewWriteInCandidateForm();
     nextButton.current?.blur();
-    firstAdjudicationButton.current?.focus();
+    // For some reason, focusing on the RadioGroup fieldset itself doesn't seem
+    // to work, we have to pick out an individual input
+    firstAdjudicationControl.current?.getElementsByTagName('input')[0]?.focus();
   }
   function focusNext() {
     setTimeout(() => {
@@ -468,6 +470,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           </ContestTitleContainer>
           <AdjudicationForm>
             <RadioGroup
+              ref={firstAdjudicationControl}
               label="Official Candidates"
               options={officialCandidates.map((candidate) => ({
                 label: candidate.name,
