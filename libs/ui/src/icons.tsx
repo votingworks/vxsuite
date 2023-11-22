@@ -32,6 +32,8 @@ import {
   faCircleQuestion,
   faLock,
   faEject,
+  faFileArrowUp,
+  faFileArrowDown,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -196,8 +198,16 @@ export const Icons = {
     return <FaIcon {...props} type={faEject} />;
   },
 
+  Export(props) {
+    return <FaIcon {...props} type={faFileArrowDown} />;
+  },
+
   Info(props) {
     return <FaIcon {...props} type={faInfoCircle} />;
+  },
+
+  Import(props) {
+    return <FaIcon {...props} type={faFileArrowUp} />;
   },
 
   Loading(props) {
