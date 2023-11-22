@@ -46,9 +46,7 @@ test('viewing and exporting reports', async ({ page }) => {
 
   await logInAsElectionManager(page, electionHash);
   await page.getByText('Tally').click();
-  await expect(
-    page.getByText('Cast Vote Record (CVR) Management')
-  ).toBeVisible();
+  await expect(page.getByText('Cast Vote Records (CVRs)')).toBeVisible();
 
   const electionDirectory = generateElectionBasedSubfolderName(
     election,
