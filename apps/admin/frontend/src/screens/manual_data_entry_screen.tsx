@@ -753,6 +753,7 @@ export function ManualDataEntryScreen(): JSX.Element {
           <LinkButton to={routerPaths.manualDataSummary}>Cancel</LinkButton>
           <Button
             variant="primary"
+            icon="Done"
             onPress={saveResults}
             disabled={
               !getManualResultsQuery.isSuccess ||

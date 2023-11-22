@@ -9,7 +9,6 @@ import {
   TD,
   LinkButton,
   P,
-  H4,
   Modal,
   Font,
   SearchSelect,
@@ -220,26 +219,41 @@ export function ManualDataSummaryScreen(): JSX.Element {
             Back to Tally
           </Button>
         </P>
-        <H4>
-          Total Manual Ballot Count:{' '}
-          {totalNumberBallotsEntered.toLocaleString()}
-        </H4>
-        <br />
+        <P
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'end',
+          }}
+        >
+          <Font weight="semiBold">
+            Total Manual Ballot Count:{' '}
+            {totalNumberBallotsEntered.toLocaleString()}
+          </Font>
+          {hasManualTally && (
+            <Button
+              icon="Delete"
+              color="danger"
+              onPress={() => setIsClearingAll(true)}
+            >
+              Remove All Manual Tallies
+            </Button>
+          )}
+        </P>
         <SummaryTableWrapper>
           <Table condensed data-testid="summary-data">
             <thead>
               <tr>
-                <TD as="th" style={{ width: '9rem' }}>
+                <TD as="th" style={{ width: '10rem' }}>
                   Ballot Style
                 </TD>
-                <TD as="th" style={{ width: '9rem' }}>
+                <TD as="th" style={{ width: '10rem' }}>
                   Precinct
                 </TD>
                 <TD as="th" style={{ width: '10rem' }}>
                   Voting Method
                 </TD>
-                <TD as="th" narrow />
-                <TD as="th" narrow />
+                <TD as="th" style={{ width: '10rem' }} />
                 <TD as="th" narrow nowrap>
                   Ballot Count
                 </TD>
@@ -264,13 +278,21 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
                     <TD>{votingMethodTitle}</TD>
                     <TD nowrap>
-                      <LinkButton to={routerPaths.manualDataEntry(metadata)}>
-                        Edit Tallies
+                      <LinkButton
+                        icon="Edit"
+                        fill="transparent"
+                        to={routerPaths.manualDataEntry(metadata)}
+                        style={{ marginRight: '0.5rem' }}
+                      >
+                        Edit
                       </LinkButton>
-                    </TD>
-                    <TD nowrap>
-                      <Button onPress={() => setManualTallyToRemove(metadata)}>
-                        Remove Tallies
+                      <Button
+                        icon="Delete"
+                        color="danger"
+                        fill="transparent"
+                        onPress={() => setManualTallyToRemove(metadata)}
+                      >
+                        Remove
                       </Button>
                     </TD>
                     <TD nowrap textAlign="center" data-testid="numBallots">
@@ -334,6 +356,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
                     selectedPrecinct &&
                     selectedVotingMethod ? (
                       <LinkButton
+                        icon="Add"
                         variant="primary"
                         to={routerPaths.manualDataEntry({
                           ballotStyleId: selectedBallotStyle.id,
@@ -344,27 +367,17 @@ export function ManualDataSummaryScreen(): JSX.Element {
                         Add Tallies
                       </LinkButton>
                     ) : (
-                      <LinkButton disabled>Add Tallies</LinkButton>
+                      <LinkButton icon="Add" disabled>
+                        Add Tallies
+                      </LinkButton>
                     )}
                   </TD>
-                  <TD />
                   <TD textAlign="center">-</TD>
                 </tr>
               </tfoot>
             )}
           </Table>
         </SummaryTableWrapper>
-        <br />
-        <P>
-          <Button
-            icon="Delete"
-            variant="danger"
-            disabled={!hasManualTally}
-            onPress={() => setIsClearingAll(true)}
-          >
-            Remove All Manual Tallies
-          </Button>
-        </P>
       </NavigationScreen>
       {isClearingAll && (
         <RemoveAllManualTalliesModal onClose={() => setIsClearingAll(false)} />
