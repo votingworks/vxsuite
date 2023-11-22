@@ -505,7 +505,7 @@ export function ManualDataEntryScreen(): JSX.Element {
     !getManualResultsQuery.isSuccess
   ) {
     return (
-      <NavigationScreen title="Manually Entered Results Form">
+      <NavigationScreen title="Manual Tally Form">
         <Loading isFullscreen />
       </NavigationScreen>
     );
@@ -527,7 +527,7 @@ export function ManualDataEntryScreen(): JSX.Element {
   );
 
   return (
-    <NavigationScreen title="Manually Entered Results Form">
+    <NavigationScreen title="Manual Tally Form">
       <P>
         <Font weight="bold">Ballot Style:</Font> {ballotStyleId} |{' '}
         <Font weight="bold">Precinct:</Font> {precinct.name} |{' '}
@@ -571,10 +571,10 @@ export function ManualDataEntryScreen(): JSX.Element {
                   <Icons.Checkbox color="success" />
                 )}{' '}
                 {contestValidationState === 'no-results'
-                  ? 'No results entered'
+                  ? 'No tallies entered'
                   : contestValidationState === 'invalid'
-                  ? 'Entered results do not match total ballots cast'
-                  : 'Entered results are valid'}
+                  ? 'Entered tallies do not match total ballots cast'
+                  : 'Entered tallies are valid'}
               </P>
               <Table condensed>
                 <tbody>
@@ -744,10 +744,10 @@ export function ManualDataEntryScreen(): JSX.Element {
             <Icons.Checkbox color="success" />
           )}{' '}
           {someContestHasInvalidResults
-            ? 'At least one contest above has invalid results entered'
+            ? 'At least one contest above has invalid tallies entered'
             : someContestHasNoResults
-            ? 'At least one contest above has no results entered'
-            : 'All entered contest results are valid'}
+            ? 'At least one contest above has no tallies entered'
+            : 'All entered contest tallies are valid'}
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <LinkButton to={routerPaths.manualDataSummary}>Cancel</LinkButton>
@@ -759,7 +759,7 @@ export function ManualDataEntryScreen(): JSX.Element {
               tempManualResults === getManualResultsQuery.data?.manualResults
             }
           >
-            Save Results
+            Save Tallies
           </Button>
         </div>
       </Footer>

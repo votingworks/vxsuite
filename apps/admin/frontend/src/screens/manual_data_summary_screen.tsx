@@ -84,12 +84,12 @@ function RemoveManualTallyModal({
 
   return (
     <Modal
-      title="Remove Manually Entered Results"
+      title="Remove Manual Tallies"
       content={
         <React.Fragment>
           <P>
-            Do you want to remove the manually entered results for the following
-            type of ballots cast?
+            Do you want to remove the manual tallies for the following type of
+            ballots cast?
           </P>
           <P>
             <Font weight="bold">Ballot Style:</Font> {identifier.ballotStyleId}
@@ -103,7 +103,7 @@ function RemoveManualTallyModal({
       actions={
         <React.Fragment>
           <Button icon="Delete" variant="danger" onPress={onConfirm}>
-            Remove Manually Entered Results
+            Remove Manual Tallies
           </Button>
           <Button onPress={onClose}>Cancel</Button>
         </React.Fragment>
@@ -206,7 +206,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
   if (!getManualTallyMetadataQuery.isSuccess) {
     return (
-      <NavigationScreen title="Manually Entered Results">
+      <NavigationScreen title="Manual Tally Summary">
         <Loading isFullscreen />
       </NavigationScreen>
     );
@@ -214,7 +214,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen title="Manually Entered Results Summary">
+      <NavigationScreen title="Manual Tally Summary">
         <P>
           <Button onPress={() => history.push(routerPaths.tally)}>
             Back to Tally
@@ -265,12 +265,12 @@ export function ManualDataSummaryScreen(): JSX.Element {
                     <TD>{votingMethodTitle}</TD>
                     <TD nowrap>
                       <LinkButton to={routerPaths.manualDataEntry(metadata)}>
-                        Edit Results
+                        Edit Tallies
                       </LinkButton>
                     </TD>
                     <TD nowrap>
                       <Button onPress={() => setManualTallyToRemove(metadata)}>
-                        Remove Results
+                        Remove Tallies
                       </Button>
                     </TD>
                     <TD nowrap textAlign="center" data-testid="numBallots">
@@ -341,10 +341,10 @@ export function ManualDataSummaryScreen(): JSX.Element {
                           votingMethod: selectedVotingMethod,
                         })}
                       >
-                        Add Results
+                        Add Tallies
                       </LinkButton>
                     ) : (
-                      <LinkButton disabled>Add Results</LinkButton>
+                      <LinkButton disabled>Add Tallies</LinkButton>
                     )}
                   </TD>
                   <TD />
@@ -362,7 +362,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
             disabled={!hasManualTally}
             onPress={() => setIsClearingAll(true)}
           >
-            Remove All Manually Entered Results
+            Remove All Manual Tallies
           </Button>
         </P>
       </NavigationScreen>

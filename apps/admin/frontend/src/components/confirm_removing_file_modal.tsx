@@ -57,7 +57,7 @@ export function ConfirmRemovingFileModal({
           <P>
             Do you want to remove the {fileList.length} loaded CVR{' '}
             {pluralize('export', fileList.length)}
-            {hasManualData && ' and the manually entered data'}?
+            {hasManualData && ' and all manual tallies'}?
           </P>
           <P>All reports will be unavailable without CVR data.</P>
         </React.Fragment>

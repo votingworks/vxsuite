@@ -53,23 +53,23 @@ test('displays manual tally metadata & links to manual data summary page', async
       apiMock,
     }
   );
-  await screen.findByRole('heading', { name: 'Manually Entered Results' });
-  expect(screen.getButton('Edit Manually Entered Results')).toBeEnabled();
-  expect(screen.getButton('Remove Manually Entered Results')).toBeEnabled();
+  await screen.findByRole('heading', { name: 'Manual Tallies' });
+  expect(screen.getButton('Edit Manual Tallies')).toBeEnabled();
+  expect(screen.getButton('Remove Manual Tallies')).toBeEnabled();
 
   const fileTable = screen.getByTestId('loaded-file-table');
   const manualResultsRow = within(fileTable)
-    .getByText('Manually Entered Results')
+    .getByText('Manual Tallies')
     .closest('tr')!;
 
   within(manualResultsRow).getByText('07/01/2022 12:00:00 PM');
   within(manualResultsRow).getByText('100');
-  within(manualResultsRow).getByText('Manually Entered Results');
+  within(manualResultsRow).getByText('Manual Tallies');
   within(manualResultsRow).getByText('Precinct 1, Precinct 2');
 
   within(screen.getByTestId('total-cvr-count')).getByText('100');
 
-  userEvent.click(screen.getButton('Edit Manually Entered Results'));
+  userEvent.click(screen.getButton('Edit Manual Tallies'));
   expect(history.location.pathname).toEqual('/tally/manual-data-summary');
 });
 
@@ -102,8 +102,8 @@ test('can delete manual data', async () => {
       apiMock,
     }
   );
-  await screen.findByRole('heading', { name: 'Manually Entered Results' });
-  userEvent.click(screen.getButton('Remove Manually Entered Results'));
+  await screen.findByRole('heading', { name: 'Manual Tallies' });
+  userEvent.click(screen.getButton('Remove Manual Tallies'));
 
   // allows canceling the action
   let modal = await screen.findByRole('alertdialog');
@@ -111,13 +111,11 @@ test('can delete manual data', async () => {
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   // confirming action causes mutation and refetch
-  userEvent.click(screen.getButton('Remove Manually Entered Results'));
+  userEvent.click(screen.getButton('Remove Manual Tallies'));
   modal = await screen.findByRole('alertdialog');
   apiMock.expectDeleteAllManualResults();
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(
-    within(modal).getButton('Remove All Manually Entered Results')
-  );
+  userEvent.click(within(modal).getButton('Remove All Manual Tallies'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
@@ -135,6 +133,6 @@ test('with no data loaded', async () => {
   await screen.findByText('No CVRs loaded.');
   expect(screen.getButton('Load CVRs')).toBeEnabled();
   expect(screen.getButton('Remove CVRs')).toBeDisabled();
-  expect(screen.getButton('Add Manually Entered Results')).toBeEnabled();
-  expect(screen.getButton('Remove Manually Entered Results')).toBeDisabled();
+  expect(screen.getButton('Add Manual Tallies')).toBeEnabled();
+  expect(screen.getButton('Remove Manual Tallies')).toBeDisabled();
 });
