@@ -55,8 +55,6 @@ const UsbImage = styled.img`
 const LabelText = styled.span`
   vertical-align: middle;
   text-transform: uppercase;
-  font-size: 0.7rem;
-  font-weight: 500;
 `;
 
 const Content = styled.div`
