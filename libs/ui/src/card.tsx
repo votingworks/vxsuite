@@ -1,7 +1,10 @@
+import { UiTheme } from '@votingworks/types';
 import React from 'react';
 import styled from 'styled-components';
 
 export type CardFooterAlign = 'left' | 'center' | 'right';
+
+export type CardColor = 'neutral' | 'primary' | 'warning' | 'danger';
 
 export interface CardProps {
   children?: React.ReactNode;
@@ -9,14 +12,47 @@ export interface CardProps {
   footer?: React.ReactNode;
   footerAlign?: CardFooterAlign;
   style?: React.CSSProperties;
+  color?: CardColor;
 }
 
-const StyledContainer = styled.div`
+function cardColors(
+  theme: UiTheme,
+  color?: CardColor
+): { background: string; border: string } {
+  const { colors } = theme;
+  if (!color) {
+    return {
+      background: 'none',
+      border: colors.outline,
+    };
+  }
+  return {
+    neutral: {
+      background: colors.containerLow,
+      border: colors.outline,
+    },
+    primary: {
+      background: colors.primaryContainer,
+      border: colors.primary,
+    },
+    warning: {
+      background: colors.warningContainer,
+      border: colors.warningAccent,
+    },
+    danger: {
+      background: colors.dangerContainer,
+      border: colors.dangerAccent,
+    },
+  }[color ?? 'neutral'];
+}
+
+const StyledContainer = styled.div<{ color?: CardColor }>`
+  background-color: ${(p) => cardColors(p.theme, p.color).background};
   border: ${(p) =>
       p.theme.sizeMode === 'desktop'
         ? p.theme.sizes.bordersRem.thin
         : p.theme.sizes.bordersRem.hairline}rem
-    solid ${(p) => p.theme.colors.outline};
+    solid ${(p) => cardColors(p.theme, p.color).border};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   overflow: hidden;
 `;
@@ -47,10 +83,10 @@ const StyledFooter = styled.div<StyledFooterProps>`
  * components.
  */
 export function Card(props: CardProps): JSX.Element {
-  const { children, className, footer, footerAlign, style } = props;
+  const { children, className, color, footer, footerAlign, style } = props;
 
   return (
-    <StyledContainer className={className} style={style}>
+    <StyledContainer color={color} className={className} style={style}>
       <StyledContent>{children}</StyledContent>
       {footer && (
         <StyledFooter footerAlign={footerAlign || 'left'}>
