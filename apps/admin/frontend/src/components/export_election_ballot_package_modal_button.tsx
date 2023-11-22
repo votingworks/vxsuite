@@ -82,7 +82,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case 'mounted': {
           actions = (
             <React.Fragment>
-              <Button onPress={saveBallotPackageToUsb} variant="primary">
+              <Button
+                icon="Export"
+                onPress={saveBallotPackageToUsb}
+                variant="primary"
+              >
                 Save
               </Button>
               <Button onPress={closeModal}>Cancel</Button>
@@ -157,7 +161,13 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button onPress={() => setIsModalOpen(true)}>Save Ballot Package</Button>
+      <Button
+        variant="primary"
+        icon="Export"
+        onPress={() => setIsModalOpen(true)}
+      >
+        Save Ballot Package
+      </Button>
       {isModalOpen && (
         <Modal
           title={title}
