@@ -3,7 +3,18 @@ import moment from 'moment';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { assert, find, throwIllegalValue, unique } from '@votingworks/basics';
-import { Button, Table, TD, LinkButton, H2, P, Icons } from '@votingworks/ui';
+import {
+  Button,
+  Table,
+  TD,
+  LinkButton,
+  H2,
+  P,
+  Icons,
+  Card,
+  H3,
+} from '@votingworks/ui';
+import styled from 'styled-components';
 import { ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
@@ -22,6 +33,14 @@ import {
 } from '../api';
 import { Loading } from '../components/loading';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
+
+const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+`;
 
 export function TallyScreen(): JSX.Element | null {
   const { electionDefinition, isOfficialResults, auth } =
@@ -121,39 +140,54 @@ export function TallyScreen(): JSX.Element | null {
   return (
     <React.Fragment>
       <NavigationScreen title="Tally">
-        <H2>Cast Vote Record (CVR) Management</H2>
-        {fileModeText && <P>{fileModeText}</P>}
         {isOfficialResults && (
-          <P>
+          <OfficialResultsCard>
+            <div>
+              <H3>
+                <Icons.Done color="success" /> Results Marked as Official
+              </H3>
+              <div>
+                Election results have been marked as official and may no longer
+                be edited.
+              </div>
+            </div>
             <Button
               disabled={!hasAnyFiles}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
               icon="Delete"
-              variant="danger"
+              color="danger"
             >
               Clear All Tallies and Results
             </Button>
-          </P>
+          </OfficialResultsCard>
         )}
+        <H2>Cast Vote Records (CVRs)</H2>
+        {!hasAnyFiles && <P>No CVRs loaded</P>}
+        {fileModeText && <P>{fileModeText}</P>}
 
-        <P>
+        <P style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Button
+            icon="Import"
             variant="primary"
             disabled={isOfficialResults}
             onPress={() => setIsImportCvrModalOpen(true)}
           >
             Load CVRs
-          </Button>{' '}
-          <Button
-            disabled={fileMode === 'unlocked' || isOfficialResults}
-            onPress={() =>
-              beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
-            }
-          >
-            Remove CVRs
           </Button>
+          {hasAnyFiles && (
+            <Button
+              icon="Delete"
+              color="danger"
+              disabled={isOfficialResults}
+              onPress={() =>
+                beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
+              }
+            >
+              Remove CVRs
+            </Button>
+          )}
         </P>
-        {hasAnyFiles ? (
+        {hasAnyFiles && (
           <Table data-testid="loaded-file-table">
             <tbody>
               <tr>
@@ -230,25 +264,26 @@ export function TallyScreen(): JSX.Element | null {
               </tr>
             </tbody>
           </Table>
-        ) : (
-          <P>
-            <Icons.Info /> No CVRs loaded.
-          </P>
         )}
         <H2>Manual Tallies</H2>
         <P>
           <LinkButton
+            icon={hasManualTally ? 'Edit' : 'Add'}
             to={routerPaths.manualDataSummary}
             disabled={isOfficialResults}
           >
             {hasManualTally ? 'Edit Manual Tallies' : 'Add Manual Tallies'}
           </LinkButton>{' '}
-          <Button
-            disabled={!hasManualTally || isOfficialResults}
-            onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
-          >
-            Remove Manual Tallies
-          </Button>
+          {hasManualTally && (
+            <Button
+              icon="Delete"
+              color="danger"
+              disabled={isOfficialResults}
+              onPress={() => setIsConfirmingRemoveAllManualTallies(true)}
+            >
+              Remove Manual Tallies
+            </Button>
+          )}
         </P>
       </NavigationScreen>
       {confirmingRemoveFileType && (

@@ -33,7 +33,13 @@ export function MarkResultsOfficialButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button disabled={!canMarkResultsOfficial} onPress={openModal}>
+      <Button
+        icon="Done"
+        color="primary"
+        fill="outlined"
+        disabled={!canMarkResultsOfficial}
+        onPress={openModal}
+      >
         {MARK_RESULTS_OFFICIAL_BUTTON_TEXT}
       </Button>
       {isModalOpen && (
@@ -53,7 +59,7 @@ export function MarkResultsOfficialButton(): JSX.Element {
           }
           actions={
             <React.Fragment>
-              <Button variant="primary" onPress={markOfficial}>
+              <Button icon="Done" variant="primary" onPress={markOfficial}>
                 Mark Election Results as Official
               </Button>
               <Button onPress={closeModal}>Cancel</Button>
