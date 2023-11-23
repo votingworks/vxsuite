@@ -8,8 +8,8 @@ import { Icons } from './icons';
  */
 export const LeftNav = styled.nav`
   background: ${(p) => p.theme.colors.inverseBackground};
-  padding: 1rem;
-  width: 15rem;
+  padding: 1rem 0.5rem 0.5rem;
+  width: 12rem;
   display: flex;
   flex-direction: column;
 `;
@@ -120,9 +120,15 @@ function LogoCircleWhiteOnPurple() {
  * An app name and logo link for the top of a LeftNav. Requires the logo image
  * to be in the app's /public/images directory.
  */
-export function AppLogo({ appName }: { appName: string }): JSX.Element {
+export function AppLogo({
+  appName,
+  className,
+}: {
+  appName: string;
+  className?: string;
+}): JSX.Element {
   return (
-    <LogoContainer>
+    <LogoContainer className={className}>
       <LogoCircleWhiteOnPurple />
       <Link to="/">{appName}</Link>
     </LogoContainer>
