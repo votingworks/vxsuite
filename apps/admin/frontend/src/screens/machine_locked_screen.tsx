@@ -1,4 +1,4 @@
-import { ElectionInfoBar, Main, Screen, H1, P } from '@votingworks/ui';
+import { ElectionInfoBar, Main, Screen, H1, H3 } from '@votingworks/ui';
 import { useContext } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
@@ -18,11 +18,11 @@ export function MachineLockedScreen(): JSX.Element {
         <div>
           <LockedImage src="/locked.svg" alt="Locked Icon" />
           <H1 align="center">VxAdmin is Locked</H1>
-          <P align="center">
+          <H3 style={{ fontWeight: 'normal' }}>
             {electionDefinition
               ? 'Insert System Administrator or Election Manager card to unlock.'
               : 'Insert System Administrator card to unlock.'}
-          </P>
+          </H3>
         </div>
       </Main>
       {electionDefinition && (

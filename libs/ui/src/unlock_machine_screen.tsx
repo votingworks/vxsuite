@@ -5,15 +5,13 @@ import { assert } from '@votingworks/basics';
 
 import { Screen } from './screen';
 import { Main } from './main';
-import { Prose } from './prose';
-import { fontSizeTheme } from './themes';
 import { Button } from './button';
 import { NumberPad } from './number_pad';
 import { SECURITY_PIN_LENGTH } from './globals';
 import { useNow } from './hooks/use_now';
 import { usePinEntry } from './hooks/use_pin_entry';
 import { Timer } from './timer';
-import { P } from './typography';
+import { H1, P } from './typography';
 import { Icons } from './icons';
 import { PinLength } from './utils/pin_length';
 
@@ -33,7 +31,7 @@ const NumberPadWrapper = styled.div`
 `;
 
 const EnteredCode = styled.div`
-  margin-top: 5px;
+  margin-top: 1rem;
   text-align: center;
   font-family: monospace;
   font-size: 1.5em;
@@ -87,23 +85,24 @@ export function UnlockMachineScreen({
     auth.lockedOutUntil && now < new Date(auth.lockedOutUntil)
   );
 
-  let primarySentence: JSX.Element = <P>Enter the card PIN to unlock.</P>;
+  const primarySentence: JSX.Element = <H1>Enter the card PIN</H1>;
+  let secondarySentence = null;
   if (auth.error) {
-    primarySentence = (
+    secondarySentence = (
       <P>
         <Icons.Danger color="danger" /> Error checking PIN. Please try again.
       </P>
     );
   } else if (isLockedOut) {
     assert(auth.lockedOutUntil !== undefined);
-    primarySentence = (
+    secondarySentence = (
       <P>
         <Icons.Warning color="warning" /> Card locked. Please try again in{' '}
         <Timer countDownTo={new Date(auth.lockedOutUntil)} />
       </P>
     );
   } else if (auth.wrongPinEnteredAt) {
-    primarySentence = (
+    secondarySentence = (
       <P>
         <Icons.Warning color="warning" /> Incorrect PIN. Please try again.
       </P>
@@ -113,23 +112,18 @@ export function UnlockMachineScreen({
   return (
     <Screen>
       <Main centerChild>
-        <Prose
-          textCenter
-          themeDeprecated={fontSizeTheme.medium}
-          maxWidth={false}
-        >
-          {primarySentence}
-          <EnteredCode>{pinEntry.display}</EnteredCode>
-          <NumberPadWrapper>
-            <NumberPad
-              disabled={isCheckingPin || isLockedOut}
-              onButtonPress={handleNumberEntry}
-              onBackspace={pinEntry.handleBackspace}
-              onClear={pinEntry.reset}
-            />
-            {!pinLength.isFixed && <Button onPress={handleEnter}>Enter</Button>}
-          </NumberPadWrapper>
-        </Prose>
+        {primarySentence}
+        {secondarySentence}
+        <EnteredCode>{pinEntry.display}</EnteredCode>
+        <NumberPadWrapper>
+          <NumberPad
+            disabled={isCheckingPin || isLockedOut}
+            onButtonPress={handleNumberEntry}
+            onBackspace={pinEntry.handleBackspace}
+            onClear={pinEntry.reset}
+          />
+          {!pinLength.isFixed && <Button onPress={handleEnter}>Enter</Button>}
+        </NumberPadWrapper>
       </Main>
     </Screen>
   );

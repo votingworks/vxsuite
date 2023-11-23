@@ -33,7 +33,14 @@ export function UnconfiguredElectionScreenWrapper({
 
   return (
     <NavigationScreen>
-      <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+        }}
+      >
         <UnconfiguredElectionScreen
           usbDriveStatus={usbDriveStatusQuery.data}
           isElectionManagerAuth={isElectionManagerAuth}
