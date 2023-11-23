@@ -23,11 +23,11 @@ export function RemoveElectionModal({ onClose }: Props): JSX.Element {
 
   return (
     <Modal
-      centerContent
+      title="Remove Election"
       content={
         <React.Fragment>
           <P>Do you want to remove the current election?</P>
-          <P>All data will be removed from this app.</P>
+          <P>All data will be deleted from this machine.</P>
         </React.Fragment>
       }
       onOverlayClick={onClose}

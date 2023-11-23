@@ -37,6 +37,10 @@ import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tal
 const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
   margin-bottom: 1rem;
 
+  h3 {
+    margin: 0;
+  }
+
   > div {
     display: flex;
     align-items: center;
@@ -152,22 +156,16 @@ export function TallyScreen(): JSX.Element | null {
       <NavigationScreen title="Tally">
         {isOfficialResults && (
           <OfficialResultsCard>
-            <div>
-              <H3>
-                <Icons.Done color="success" /> Results Marked as Official
-              </H3>
-              <div>
-                Election results have been marked as official and may no longer
-                be edited.
-              </div>
-            </div>
+            <H3>
+              <Icons.Done color="success" /> Election Results Marked as Official
+            </H3>
             <Button
               disabled={!hasAnyFiles}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
               icon="Delete"
               color="danger"
             >
-              Clear All Tallies and Results
+              Clear All Results
             </Button>
           </OfficialResultsCard>
         )}
