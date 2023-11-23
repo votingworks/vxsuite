@@ -78,7 +78,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     status: 'checking_pin',
     user: fakeElectionManagerUser(electionDefinition),
   });
-  await screen.findByText('Enter the card PIN to unlock.');
+  await screen.findByText('Enter the card PIN');
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('1'));
