@@ -52,6 +52,21 @@ const TestModeCallout = styled(Card).attrs({ color: 'warning' })`
   }
 `;
 
+// Because the VxCentralScan is such a long app name, we have to resize the app
+// name and logo image to fit in the left nav
+const CentralScanAppLogo = styled(AppLogo)`
+  margin-top: 0.25rem;
+
+  svg {
+    height: 2rem;
+    width: 2rem;
+  }
+
+  a {
+    font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
+  }
+`;
+
 export function NavigationScreen({ children, title }: Props): JSX.Element {
   const {
     electionDefinition,
@@ -71,7 +86,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
   return (
     <Screen flexDirection="row">
       <LeftNav>
-        <AppLogo appName="VxCentralScan" />
+        <CentralScanAppLogo appName="VxCentralScan" />
         {isElectionManagerAuth(auth) && electionDefinition && (
           <NavList>
             <NavListItem>
@@ -101,9 +116,9 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
       <Main flexColumn>
         <Header>
           <H1>{title}</H1>
-          {isTestMode && (
+          {isTestMode && isElectionManagerAuth(auth) && (
             <TestModeCallout>
-              <Icons.Warning color="warning" /> Machine is in Test Ballot Mode
+              <Icons.Warning color="warning" /> Test Ballot Mode
             </TestModeCallout>
           )}
           <HeaderActions>

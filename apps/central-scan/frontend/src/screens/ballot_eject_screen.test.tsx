@@ -60,7 +60,7 @@ test('says the sheet is unreadable if it is', async () => {
     'There was a problem reading the ballot. Remove ballot and reload in the scanner to try again.'
   );
   expect(screen.getByRole('button').textContent).toEqual(
-    'The ballot has been removed'
+    'Ballot has been removed'
   );
 
   expect(logger.log).toHaveBeenCalledTimes(1);
@@ -71,7 +71,7 @@ test('says the sheet is unreadable if it is', async () => {
       adjudicationTypes: 'BlankPage',
     })
   );
-  userEvent.click(screen.getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 });
 
@@ -183,7 +183,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
   );
 
   userEvent.click(screen.getByText('Remove to adjudicate'));
-  userEvent.click(screen.getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
@@ -303,7 +303,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
   );
 
   userEvent.click(screen.getByText('Remove to adjudicate'));
-  userEvent.click(screen.getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
@@ -430,7 +430,7 @@ test('says the ballot sheet is blank if it is', async () => {
   );
 
   userEvent.click(screen.getByText('Remove to adjudicate'));
-  userEvent.click(screen.getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
@@ -494,7 +494,7 @@ test('calls out official ballot sheets in test mode', async () => {
   screen.getByText('The last scanned ballot was not tabulated.');
   screen.getByText('Remove the official ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
-    'The ballot has been removed'
+    'Ballot has been removed'
   );
 
   expect(logger.log).toHaveBeenCalledTimes(1);
@@ -506,7 +506,7 @@ test('calls out official ballot sheets in test mode', async () => {
     })
   );
 
-  userEvent.click(screen.getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 });
 
@@ -565,7 +565,7 @@ test('calls out test ballot sheets in live mode', async () => {
   screen.getByText('The last scanned ballot was not tabulated.');
   screen.getByText('Remove the test ballot before continuing.');
   expect(screen.getByRole('button').textContent).toEqual(
-    'The ballot has been removed'
+    'Ballot has been removed'
   );
 
   expect(logger.log).toHaveBeenCalledTimes(1);
@@ -577,7 +577,7 @@ test('calls out test ballot sheets in live mode', async () => {
     })
   );
 
-  userEvent.click(screen.getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 });
 
@@ -633,6 +633,6 @@ test('shows invalid election screen when appropriate', async () => {
     })
   );
 
-  userEvent.click(screen.getByText('The ballot has been removed'));
+  userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 });

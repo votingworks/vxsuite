@@ -35,7 +35,7 @@ const AdjudicationHeader = styled(Header)`
 `;
 
 const AdjudicationExplanation = styled.div`
-  padding: 1rem 1.5rem;
+  padding: 1rem;
   flex: 1;
 `;
 
@@ -419,7 +419,7 @@ export function BallotEjectScreen({
               onPress={() => continueScanning({ forceAccept: false })}
               style={{ marginTop: '0.5rem', width: '100%' }}
             >
-              The ballot has been removed
+              Ballot has been removed
             </Button>
           )}
         </AdjudicationExplanation>
@@ -450,7 +450,7 @@ export function BallotEjectScreen({
                 variant="primary"
                 onPress={() => continueScanning({ forceAccept: false })}
               >
-                The ballot has been removed
+                Ballot has been removed
               </Button>
               <Button onPress={ResetBallotState}>Cancel</Button>
             </React.Fragment>
