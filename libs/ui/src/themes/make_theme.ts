@@ -386,7 +386,7 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     },
     fontDefault:
       screenType === 'lenovoThinkpad15'
-        ? 24 // VxAdmin, VxCentralScan
+        ? 30 // VxAdmin, VxCentralScan
         : 16, // VxDesign
     fontWeight: {
       light: 200,
