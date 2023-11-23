@@ -15,7 +15,7 @@ export async function enterPin(page: Page): Promise<void> {
   for (const digit of INTEGRATION_TEST_DEFAULT_PIN) {
     await page.getByRole('button', { name: digit }).click();
   }
-  await page.getByText('VxAdmin Unlocked').waitFor(); // avoid flaky auth from premature card removal
+  await page.getByText('Remove card to unlock VxAdmin').waitFor(); // avoid flaky auth from premature card removal
 }
 
 /**
