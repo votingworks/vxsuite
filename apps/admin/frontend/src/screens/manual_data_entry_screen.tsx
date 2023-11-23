@@ -49,7 +49,7 @@ const ContestsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 50%;
+  width: 60%;
   margin-bottom: 8rem; /* Make space for footer */
 `;
 
