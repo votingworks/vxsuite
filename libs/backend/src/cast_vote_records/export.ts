@@ -592,6 +592,9 @@ async function randomlyUpdateCreationTimestamps(
   exportDirectoryPathRelativeToUsbMountPoint: string,
   options: { subDirectoryNameToIgnore?: string } = {}
 ): Promise<void> {
+  // TEMPORARILY SHORT-CIRCUIT THIS CALL
+  return;
+
   const { usbMountPoint } = exportContext;
 
   const exportDirectoryPath = path.join(
