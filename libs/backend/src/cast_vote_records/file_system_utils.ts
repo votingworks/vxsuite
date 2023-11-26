@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { assert } from '@votingworks/basics';
+import { execFile } from '../exec';
 
 /**
  * Updates the creation timestamp of a directory and its children files (assuming no
@@ -28,10 +29,10 @@ export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
     return entry.name;
   });
   for (const fileName of fileNames) {
-    await fs.copyFile(
+    await execFile('cp', [
       path.join(directoryPath, fileName),
-      path.join(`${directoryPath}-temp`, fileName)
-    );
+      path.join(`${directoryPath}-temp`, fileName),
+    ]);
   }
   // In case the system loses power while deleting the original directory, mark the copied
   // directory as complete to facilitate recovery on reboot. On reboot, if we see a *-temp
