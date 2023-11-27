@@ -4,27 +4,30 @@ import path from 'path';
 import { extractErrorMessage } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
-import { CommandApdu, constructTlv } from '../src/apdu';
-import { getRequiredEnvVar } from '../src/env_vars';
+import { CommandApdu, constructTlv } from '../../src/apdu';
+import { getRequiredEnvVar } from '../../src/env_vars';
 import {
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   OPEN_FIPS_201_AID,
   PUK,
-} from '../src/java_card';
+} from '../../src/java_card';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
-} from '../src/piv';
-import { runCommand } from '../src/shell';
-import { waitForReadyCardStatus } from './utils';
+} from '../../src/piv';
+import { runCommand } from '../../src/shell';
+import { waitForReadyCardStatus } from '../utils';
 
-import { CARD_DOD_CERT, CommonAccessCard, DEFAULT_PIN } from '../src/cac';
+import { CARD_DOD_CERT, CommonAccessCard, DEFAULT_PIN } from '../../src/cac';
 
 const APPLET_PATH = path.join(
   __dirname,
-  '../applets/OpenFIPS201-v1.10.2-with-vx-mods.cap'
+  '../../applets/OpenFIPS201-v1.10.2-with-vx-mods.cap'
 );
-const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(__dirname, '../scripts/gp.jar');
+const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(
+  __dirname,
+  '../../scripts/gp.jar'
+);
 
 /**
  * CHANGE REFERENCE DATA ADMIN is an OpenFIPS201-specific extension of the PIV-standard CHANGE
@@ -284,7 +287,7 @@ export async function main(): Promise<void> {
     await runAppletConfigurationCommands();
     await createAndStoreCardVxCert(commonName);
     sectionLog('✅', 'Done!');
-    process.exit(0);
+    process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);

@@ -56,6 +56,7 @@ async function checkPin({ cardType }: CheckPinInput): Promise<void> {
 export async function main(args: readonly string[]): Promise<void> {
   try {
     await checkPin(parseCommandLineArgs(args));
+    process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
