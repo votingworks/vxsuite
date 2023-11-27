@@ -189,6 +189,38 @@ test('party selection', () => {
   expect(onChange).toHaveBeenNthCalledWith(2, { partyIds: ['0'] });
 });
 
+test('adjudication status selection', () => {
+  const { election } = electionTwoPartyPrimaryDefinition;
+  const onChange = jest.fn();
+
+  apiMock.expectGetScannerBatches([]);
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['adjudication-status']}
+    />,
+    {
+      apiMock,
+    }
+  );
+
+  // add adjudication status filter
+  userEvent.click(screen.getButton('Add Filter'));
+  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  userEvent.click(screen.getByText('Adjudication Status'));
+  expect(onChange).toHaveBeenNthCalledWith(1, { adjudicationFlags: [] });
+  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  screen.getByText('Blank Ballot');
+  screen.getByText('Has Overvote');
+  screen.getByText('Has Undervote');
+  screen.getByText('Has Write-In');
+  userEvent.click(screen.getByText('Blank Ballot'));
+  expect(onChange).toHaveBeenNthCalledWith(2, {
+    adjudicationFlags: ['isBlank'],
+  });
+});
+
 test('can cancel adding a filter', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = jest.fn();

@@ -1,4 +1,4 @@
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
+import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
   BallotCountReport,
   Button,
@@ -56,7 +56,7 @@ function Report({
   isOfficialResults: boolean;
   isTestMode: boolean;
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
-  filter: Tabulation.Filter;
+  filter: Admin.ReportingFilter;
   groupBy: Tabulation.GroupBy;
   generatedAtTime: Date;
 }): JSX.Element {
@@ -88,7 +88,7 @@ function Report({
 }
 
 export interface BallotCountReportViewerProps {
-  filter: Tabulation.Filter;
+  filter: Admin.ReportingFilter;
   groupBy: Tabulation.GroupBy;
   disabled: boolean;
   autoGenerateReport: boolean;

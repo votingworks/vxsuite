@@ -1,12 +1,8 @@
 import { P } from '@votingworks/ui';
 import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
-import {
-  isElectionManagerAuth,
-  isFilterEmpty,
-  isGroupByEmpty,
-} from '@votingworks/utils';
-import { Tabulation } from '@votingworks/types';
+import { isElectionManagerAuth, isGroupByEmpty } from '@votingworks/utils';
+import { Admin, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import {
@@ -17,7 +13,11 @@ import {
   GroupByEditor,
   GroupByType,
 } from '../../components/reporting/group_by_editor';
-import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
+import {
+  canonicalizeFilter,
+  canonicalizeGroupBy,
+  isFilterEmpty,
+} from '../../utils/reporting';
 import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
 import {
   ControlLabel,
@@ -33,10 +33,10 @@ export function BallotCountReportBuilder(): JSX.Element {
   assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
 
-  const [filter, setFilter] = useState<Tabulation.Filter>({});
+  const [filter, setFilter] = useState<Admin.ReportingFilter>({});
   const [groupBy, setGroupBy] = useState<Tabulation.GroupBy>({});
 
-  function updateFilter(newFilter: Tabulation.Filter) {
+  function updateFilter(newFilter: Admin.ReportingFilter) {
     setFilter(canonicalizeFilter(newFilter));
   }
 
@@ -50,6 +50,7 @@ export function BallotCountReportBuilder(): JSX.Element {
     'precinct',
     'scanner',
     'voting-method',
+    'adjudication-status',
   ];
   const allowedGroupBys: GroupByType[] = [
     'groupByBallotStyle',

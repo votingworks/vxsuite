@@ -67,6 +67,31 @@ test('batch filter', () => {
   );
 });
 
+test('adjudication status filter', () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+
+  const { unmount } = render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      filter={{ adjudicationFlags: ['isBlank'] }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    'Adjudication Status: Blank Ballot'
+  );
+  unmount();
+
+  render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      filter={{ adjudicationFlags: ['hasWriteIn', 'hasOvervote'] }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    'Adjudication Statuses: Has Write-In, Has Overvote'
+  );
+});
+
 test('complex filter', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   render(
