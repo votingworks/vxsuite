@@ -16,22 +16,33 @@ export const PreviewContainer = styled.div`
   margin-top: 0.5rem;
   padding: 0.5rem;
   background: ${(p) => p.theme.colors.container};
-  border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  /* Override the padding on the main container so that the preview runs to the
+   * side edges and bottom of the main container. */
+  left: -1rem;
+  width: calc(100% + 2rem);
+  margin-bottom: -1rem;
 `;
 
 export const PreviewReportPages = styled.div`
   section {
+    /* The report pages are rendered as HTML elements with fixed sizes, so we
+     * zoom them to make them more readable on the screen. */
+    zoom: 1.75;
     background: white;
     position: relative;
     box-shadow: 0 3px 10px rgb(0, 0, 0, 20%);
-    margin-top: 1rem;
-    margin-bottom: 2rem;
+    margin: 0.5rem;
     width: 8.5in;
     min-height: 11in;
     padding: 0.5in;
+
+    &:not(:last-child) {
+      margin-bottom: 2rem;
+    }
   }
 `;
 

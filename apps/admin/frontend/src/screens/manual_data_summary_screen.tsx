@@ -12,6 +12,7 @@ import {
   Modal,
   Font,
   SearchSelect,
+  Card,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import { BallotStyle, Election, Precinct } from '@votingworks/types';
@@ -47,6 +48,15 @@ function getAllPossibleManualTallyIdentifiers(
     )
   );
 }
+
+const AddTalliesCard = styled(Card).attrs({ color: 'neutral' })`
+  margin-bottom: 1rem;
+`;
+
+export const FieldName = styled.div`
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+  margin-bottom: 0.5rem;
+`;
 
 const SummaryTableWrapper = styled.div`
   tfoot td {
@@ -240,144 +250,163 @@ export function ManualDataSummaryScreen(): JSX.Element {
             </Button>
           )}
         </P>
-        <SummaryTableWrapper>
-          <Table condensed data-testid="summary-data">
-            <thead>
-              <tr>
-                <TD as="th" style={{ width: '10rem' }}>
-                  Ballot Style
-                </TD>
-                <TD as="th" style={{ width: '10rem' }}>
-                  Precinct
-                </TD>
-                <TD as="th" style={{ width: '10rem' }}>
-                  Voting Method
-                </TD>
-                <TD as="th" style={{ width: '10rem' }} />
-                <TD as="th" narrow nowrap>
-                  Ballot Count
-                </TD>
-              </tr>
-            </thead>
-            <tbody>
-              {manualTallyMetadataRecords.map((metadata) => {
-                const precinct = find(
-                  election.precincts,
-                  (p) => p.id === metadata.precinctId
-                );
-                const votingMethodTitle =
-                  metadata.votingMethod === 'absentee'
-                    ? 'Absentee'
-                    : 'Precinct';
-                return (
-                  <tr
-                    key={`${metadata.precinctId}-${metadata.ballotStyleId}-${metadata.votingMethod}`}
-                  >
-                    <TD>{metadata.ballotStyleId}</TD>
-                    <TD>{precinct.name}</TD>
-
-                    <TD>{votingMethodTitle}</TD>
-                    <TD nowrap>
-                      <LinkButton
-                        icon="Edit"
-                        fill="transparent"
-                        to={routerPaths.manualDataEntry(metadata)}
-                        style={{ marginRight: '0.5rem' }}
-                      >
-                        Edit
-                      </LinkButton>
-                      <Button
-                        icon="Delete"
-                        color="danger"
-                        fill="transparent"
-                        onPress={() => setManualTallyToRemove(metadata)}
-                      >
-                        Remove
-                      </Button>
-                    </TD>
-                    <TD nowrap textAlign="center" data-testid="numBallots">
-                      {metadata.ballotCount.toLocaleString()}
-                    </TD>
-                  </tr>
-                );
-              })}
-            </tbody>
-            {uncreatedManualTallyMetadata.length > 0 && (
-              <tfoot>
+        {uncreatedManualTallyMetadata.length > 0 && (
+          <AddTalliesCard color="neutral">
+            <div
+              style={{
+                display: 'flex',
+                gap: '1rem',
+              }}
+            >
+              <div style={{ flex: 1 }}>
+                <FieldName>Ballot Style</FieldName>
+                <SearchSelect
+                  id="selectBallotStyle"
+                  ariaLabel="Ballot Style"
+                  options={[
+                    ...selectableBallotStyles.map((bs) => ({
+                      label: bs.id,
+                      value: bs.id,
+                    })),
+                  ]}
+                  value={selectedBallotStyle?.id}
+                  onChange={handleBallotStyleSelect}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <FieldName>Precinct</FieldName>
+                <SearchSelect
+                  id="selectPrecinct"
+                  ariaLabel="Precinct"
+                  options={selectablePrecincts.map((p) => ({
+                    label: p.name,
+                    value: p.id,
+                  }))}
+                  value={selectedPrecinct?.id}
+                  onChange={handlePrecinctSelect}
+                  disabled={!selectedBallotStyle}
+                  style={{ width: '100%' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <FieldName>Voting Method</FieldName>
+                <SearchSelect
+                  id="selectBallotType"
+                  ariaLabel="Voting Method"
+                  options={selectableBallotTypes.map((bt) => ({
+                    label: bt === 'absentee' ? 'Absentee' : 'Precinct',
+                    value: bt,
+                  }))}
+                  value={selectedVotingMethod}
+                  onChange={handleBallotTypeSelect}
+                  disabled={!selectedPrecinct}
+                  style={{ width: '100%' }}
+                />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'end',
+                marginTop: '0.5rem',
+              }}
+            >
+              {selectedBallotStyle &&
+              selectedPrecinct &&
+              selectedVotingMethod ? (
+                <LinkButton
+                  disabled={
+                    !(
+                      selectedBallotStyle &&
+                      selectedPrecinct &&
+                      selectedVotingMethod
+                    )
+                  }
+                  icon="Add"
+                  variant="primary"
+                  to={routerPaths.manualDataEntry({
+                    ballotStyleId: selectedBallotStyle.id,
+                    precinctId: selectedPrecinct.id,
+                    votingMethod: selectedVotingMethod,
+                  })}
+                >
+                  Add Tallies
+                </LinkButton>
+              ) : (
+                <LinkButton icon="Add" disabled>
+                  Add Tallies
+                </LinkButton>
+              )}
+            </div>
+          </AddTalliesCard>
+        )}
+        {hasManualTally && (
+          <SummaryTableWrapper>
+            <Table condensed data-testid="summary-data">
+              <thead>
                 <tr>
-                  <TD>
-                    <SearchSelect
-                      id="selectBallotStyle"
-                      ariaLabel="Select Ballot Style"
-                      options={[
-                        ...selectableBallotStyles.map((bs) => ({
-                          label: bs.id,
-                          value: bs.id,
-                        })),
-                      ]}
-                      value={selectedBallotStyle?.id}
-                      onChange={handleBallotStyleSelect}
-                      placeholder="Select Ballot Style..."
-                      style={{ width: '100%' }}
-                    />
+                  <TD as="th" narrow nowrap>
+                    Ballot Style
                   </TD>
-                  <TD>
-                    <SearchSelect
-                      id="selectPrecinct"
-                      ariaLabel="Select Precinct"
-                      options={selectablePrecincts.map((p) => ({
-                        label: p.name,
-                        value: p.id,
-                      }))}
-                      value={selectedPrecinct?.id}
-                      onChange={handlePrecinctSelect}
-                      disabled={!selectedBallotStyle}
-                      placeholder="Select Precinct..."
-                      style={{ width: '100%' }}
-                    />
+                  <TD as="th" narrow nowrap>
+                    Precinct
                   </TD>
-                  <TD>
-                    <SearchSelect
-                      id="selectBallotType"
-                      ariaLabel="Select Voting Method"
-                      options={selectableBallotTypes.map((bt) => ({
-                        label: bt === 'absentee' ? 'Absentee' : 'Precinct',
-                        value: bt,
-                      }))}
-                      value={selectedVotingMethod}
-                      onChange={handleBallotTypeSelect}
-                      disabled={!selectedPrecinct}
-                      placeholder="Select Voting Method..."
-                      style={{ width: '100%' }}
-                    />
+                  <TD as="th" narrow nowrap>
+                    Voting Method
                   </TD>
-                  <TD nowrap>
-                    {selectedBallotStyle &&
-                    selectedPrecinct &&
-                    selectedVotingMethod ? (
-                      <LinkButton
-                        icon="Add"
-                        variant="primary"
-                        to={routerPaths.manualDataEntry({
-                          ballotStyleId: selectedBallotStyle.id,
-                          precinctId: selectedPrecinct.id,
-                          votingMethod: selectedVotingMethod,
-                        })}
-                      >
-                        Add Tallies
-                      </LinkButton>
-                    ) : (
-                      <LinkButton icon="Add" disabled>
-                        Add Tallies
-                      </LinkButton>
-                    )}
+                  <TD as="th" narrow nowrap />
+                  <TD as="th" narrow nowrap>
+                    Ballot Count
                   </TD>
-                  <TD textAlign="center">-</TD>
                 </tr>
-              </tfoot>
-            )}
-          </Table>
-        </SummaryTableWrapper>
+              </thead>
+              <tbody>
+                {manualTallyMetadataRecords.map((metadata) => {
+                  const precinct = find(
+                    election.precincts,
+                    (p) => p.id === metadata.precinctId
+                  );
+                  const votingMethodTitle =
+                    metadata.votingMethod === 'absentee'
+                      ? 'Absentee'
+                      : 'Precinct';
+                  return (
+                    <tr
+                      key={`${metadata.precinctId}-${metadata.ballotStyleId}-${metadata.votingMethod}`}
+                    >
+                      <TD>{metadata.ballotStyleId}</TD>
+                      <TD>{precinct.name}</TD>
+
+                      <TD>{votingMethodTitle}</TD>
+                      <TD nowrap>
+                        <LinkButton
+                          icon="Edit"
+                          fill="transparent"
+                          to={routerPaths.manualDataEntry(metadata)}
+                          style={{ marginRight: '0.5rem' }}
+                        >
+                          Edit
+                        </LinkButton>
+                        <Button
+                          icon="Delete"
+                          color="danger"
+                          fill="transparent"
+                          onPress={() => setManualTallyToRemove(metadata)}
+                        >
+                          Remove
+                        </Button>
+                      </TD>
+                      <TD nowrap textAlign="center" data-testid="numBallots">
+                        {metadata.ballotCount.toLocaleString()}
+                      </TD>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
+          </SummaryTableWrapper>
+        )}
       </NavigationScreen>
       {isClearingAll && (
         <RemoveAllManualTalliesModal onClose={() => setIsClearingAll(false)} />

@@ -89,11 +89,8 @@ const AdjudicationNav = styled.div`
   margin-top: auto;
   padding: 0.5rem;
 
-  /* Make previous/next buttons equal width */
   button {
     flex-wrap: nowrap;
-    flex-basis: 0;
-    flex-grow: 1;
   }
 `;
 
@@ -590,7 +587,8 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
               Previous
             </Button>
             <Caption weight="semiBold">
-              {format.count(offset + 1)} of {format.count(totalWriteIns)}
+              {format.count(offset + 1)}&nbsp;of&nbsp;
+              {format.count(totalWriteIns)}
             </Caption>
             <Button
               ref={nextButton}

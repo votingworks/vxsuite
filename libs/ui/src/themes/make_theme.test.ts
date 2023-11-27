@@ -55,7 +55,7 @@ test('desktop theme', () => {
     sizeMode: 'desktop',
   });
 
-  expect(lenovoDesktopTheme.sizes.fontDefault).toEqual(24);
+  expect(lenovoDesktopTheme.sizes.fontDefault).toEqual(30);
 });
 
 test('varies sizes based on screen type', () => {

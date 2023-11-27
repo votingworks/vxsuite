@@ -33,7 +33,7 @@ export const Main = styled('main')<Props>`
  * A header for the page that sticks to the top of Main.
  */
 export const MainHeader = styled.header`
-  padding: 1rem 1.5rem;
+  padding: 1rem;
   background: ${(p) => p.theme.colors.container};
   position: sticky;
   top: 0;
@@ -52,6 +52,6 @@ export const MainHeader = styled.header`
  */
 export const MainContent = styled.div`
   overflow: auto;
-  padding: 1rem 1.5rem;
+  padding: 1rem;
   flex-grow: 1;
 `;

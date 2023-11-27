@@ -427,7 +427,7 @@ test('clearing results', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   apiMock.expectGetManualResultsMetadata([]);
-  fireEvent.click(getByText('Clear All Tallies and Results'));
+  fireEvent.click(getByText('Clear All Results'));
   getByText(
     'Do you want to remove the 1 loaded CVR export and all manual tallies?'
   );
@@ -440,7 +440,7 @@ test('clearing results', async () => {
     expect(getByText('Add Manual Tallies').closest('button')).toBeEnabled();
   });
 
-  expect(queryByText('Clear All Tallies and Results')).not.toBeInTheDocument();
+  expect(queryByText('Clear All Results')).not.toBeInTheDocument();
 
   getByText('No CVRs loaded.');
 });

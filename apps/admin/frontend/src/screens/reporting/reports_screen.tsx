@@ -18,11 +18,21 @@ import { getCardCounts, getCastVoteRecordFileMode } from '../../api';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
 
 const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
+  margin-bottom: 1rem;
+
+  h3 {
+    margin: 0;
+  }
+
   > div {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
+`;
+
+const Section = styled.section`
+  margin-bottom: 2rem;
 `;
 
 export function ReportsScreen(): JSX.Element {
@@ -59,62 +69,61 @@ export function ReportsScreen(): JSX.Element {
       {ballotCountSummaryText}
       <OfficialResultsCard>
         {isOfficialResults ? (
-          <div>
-            <H3>
-              <Icons.Done color="success" /> Results Marked as Official
-            </H3>
-            <div>Election results have been marked as official.</div>
-          </div>
+          <H3>
+            <Icons.Done color="success" /> Election Results Marked as Official
+          </H3>
         ) : (
-          <div>
-            <H3>
-              <Icons.Info /> Results are Unofficial
-            </H3>
-            <div>Election results have not yet been marked as official.</div>
-          </div>
+          <H3>
+            <Icons.Info /> Election Results are Unofficial
+          </H3>
         )}
         <MarkResultsOfficialButton />
       </OfficialResultsCard>
-      <H2>{statusPrefix} Tally Reports</H2>
-      <P>
-        <LinkButton variant="primary" to={routerPaths.tallyFullReport}>
-          Full Election Tally Report
-        </LinkButton>
-      </P>
-      <P>
-        <LinkButton to={routerPaths.tallyAllPrecinctsReport}>
-          All Precincts Tally Report
-        </LinkButton>{' '}
-        <LinkButton to={routerPaths.tallySinglePrecinctReport}>
-          Single Precinct Tally Report
-        </LinkButton>
-      </P>
-      <P>
-        <LinkButton to={routerPaths.tallyReportBuilder}>
-          Tally Report Builder
-        </LinkButton>
-      </P>
-      <H2>{statusPrefix} Ballot Count Reports</H2>
+      <Section>
+        <H2>{statusPrefix} Tally Reports</H2>
+        <P>
+          <LinkButton variant="primary" to={routerPaths.tallyFullReport}>
+            Full Election Tally Report
+          </LinkButton>{' '}
+          <LinkButton to={routerPaths.tallyAllPrecinctsReport}>
+            All Precincts Tally Report
+          </LinkButton>{' '}
+          <LinkButton to={routerPaths.tallySinglePrecinctReport}>
+            Single Precinct Tally Report
+          </LinkButton>
+        </P>
+        <P>
+          <LinkButton to={routerPaths.tallyReportBuilder}>
+            Tally Report Builder
+          </LinkButton>
+        </P>
+      </Section>
 
-      <P>
-        <LinkButton to={routerPaths.ballotCountReportPrecinct}>
-          Precinct Ballot Count Report
-        </LinkButton>{' '}
-        <LinkButton to={routerPaths.ballotCountReportVotingMethod}>
-          Voting Method Ballot Count Report
-        </LinkButton>
-      </P>
-      <P>
-        <LinkButton to={routerPaths.ballotCountReportBuilder}>
-          Ballot Count Report Builder
-        </LinkButton>
-      </P>
-      <H2>Other Reports</H2>
-      <P>
-        <LinkButton to={routerPaths.tallyWriteInReport}>
-          {statusPrefix} Write-In Adjudication Report
-        </LinkButton>
-      </P>
+      <Section>
+        <H2>{statusPrefix} Ballot Count Reports</H2>
+        <P>
+          <LinkButton to={routerPaths.ballotCountReportPrecinct}>
+            Precinct Ballot Count Report
+          </LinkButton>{' '}
+          <LinkButton to={routerPaths.ballotCountReportVotingMethod}>
+            Voting Method Ballot Count Report
+          </LinkButton>
+        </P>
+        <P>
+          <LinkButton to={routerPaths.ballotCountReportBuilder}>
+            Ballot Count Report Builder
+          </LinkButton>
+        </P>
+      </Section>
+
+      <Section>
+        <H2>Other Reports</H2>
+        <P>
+          <LinkButton to={routerPaths.tallyWriteInReport}>
+            {statusPrefix} Write-In Adjudication Report
+          </LinkButton>
+        </P>
+      </Section>
     </NavigationScreen>
   );
 }

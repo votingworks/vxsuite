@@ -65,21 +65,21 @@ test('initial table without manual tallies & adding a manual tally', async () =>
 
   // adding a manual tally
   expect(screen.getButton('Add Tallies')).toBeDisabled();
-  expect(screen.getByLabelText('Select Voting Method')).toBeDisabled();
-  expect(screen.getByLabelText('Select Precinct')).toBeDisabled();
+  expect(screen.getByLabelText('Voting Method')).toBeDisabled();
+  expect(screen.getByLabelText('Precinct')).toBeDisabled();
 
-  userEvent.click(screen.getByLabelText('Select Ballot Style'));
+  userEvent.click(screen.getByLabelText('Ballot Style'));
   userEvent.click(screen.getByText('1M'));
 
   expect(screen.getButton('Add Tallies')).toBeDisabled();
-  expect(screen.getByLabelText('Select Voting Method')).toBeDisabled();
+  expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 
-  userEvent.click(screen.getByLabelText('Select Precinct'));
+  userEvent.click(screen.getByLabelText('Precinct'));
   userEvent.click(screen.getByText('Precinct 1'));
 
   expect(screen.getButton('Add Tallies')).toBeDisabled();
 
-  userEvent.click(screen.getByLabelText('Select Voting Method'));
+  userEvent.click(screen.getByLabelText('Voting Method'));
   const options = screen.getByText('Absentee').parentElement!;
   userEvent.click(within(options).getByText('Precinct'));
 
@@ -179,13 +179,9 @@ test('full table & clearing all data', async () => {
   expect(screen.getButton('Remove All Manual Tallies')).toBeEnabled();
 
   // adding row should be gone
-  expect(
-    screen.queryByLabelText('Select Ballot Style')
-  ).not.toBeInTheDocument();
-  expect(screen.queryByLabelText('Select Precinct')).not.toBeInTheDocument();
-  expect(
-    screen.queryByLabelText('Select Voting Method')
-  ).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Ballot Style')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Precinct')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Voting Method')).not.toBeInTheDocument();
   expect(screen.queryByText('Add Tallies')).not.toBeInTheDocument();
 
   // existing entries
@@ -201,7 +197,7 @@ test('full table & clearing all data', async () => {
   userEvent.click(within(modal).getButton('Remove All Manual Tallies'));
 
   await screen.findByText('Add Tallies');
-  screen.getByLabelText('Select Ballot Style');
-  screen.getByLabelText('Select Precinct');
-  screen.getByLabelText('Select Voting Method');
+  screen.getByLabelText('Ballot Style');
+  screen.getByLabelText('Precinct');
+  screen.getByLabelText('Voting Method');
 });
