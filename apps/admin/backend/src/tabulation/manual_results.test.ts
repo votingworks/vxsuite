@@ -30,6 +30,18 @@ test('isFilterCompatibleWithManualResults', () => {
       partyIds: ['0'],
     })
   ).toEqual(true);
+
+  expect(
+    isFilterCompatibleWithManualResults({
+      adjudicationFlags: [],
+    })
+  ).toEqual(true);
+
+  expect(
+    isFilterCompatibleWithManualResults({
+      adjudicationFlags: ['isBlank'],
+    })
+  ).toEqual(false);
 });
 
 describe('tabulateManualResults & tabulateManualBallotCounts', () => {

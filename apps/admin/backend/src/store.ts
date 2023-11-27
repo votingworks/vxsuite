@@ -75,6 +75,7 @@ import {
   WriteInAdjudicationActionInvalid,
   WriteInAdjudicationActionWriteInCandidate,
   CastVoteRecordAdjudicationFlags,
+  ReportingFilter,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -1213,7 +1214,7 @@ export class Store {
 
   private getTabulationFilterAsSql(
     electionId: Id,
-    filter: Tabulation.Filter
+    filter: ReportingFilter
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
@@ -1260,6 +1261,26 @@ export class Store {
         )}`
       );
       params.push(...filter.scannerIds);
+    }
+
+    if (filter.adjudicationFlags) {
+      const { adjudicationFlags: flags } = filter;
+
+      if (flags.includes('isBlank')) {
+        whereParts.push('cvrs.is_blank = 1');
+      }
+
+      if (flags.includes('hasOvervote')) {
+        whereParts.push('cvrs.has_overvote = 1');
+      }
+
+      if (flags.includes('hasUndervote')) {
+        whereParts.push('cvrs.has_undervote = 1');
+      }
+
+      if (flags.includes('hasWriteIn')) {
+        whereParts.push('cvrs.has_write_in = 1');
+      }
     }
 
     return [whereParts, params];
@@ -1385,12 +1406,10 @@ export class Store {
     electionId,
     filter = {},
     groupBy = {},
-    blankBallotsOnly = false,
   }: {
     electionId: Id;
-    filter?: Tabulation.Filter;
+    filter?: ReportingFilter;
     groupBy?: Tabulation.GroupBy;
-    blankBallotsOnly?: boolean;
   }): Generator<Tabulation.GroupOf<CardTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
@@ -1430,9 +1449,6 @@ export class Store {
       groupByParts.push('cvrs.ballot_type');
     }
 
-    if (blankBallotsOnly) {
-      whereParts.push('cvrs.is_blank = 1');
-    }
     for (const row of this.client.each(
       `
           select

@@ -385,6 +385,12 @@ export interface CastVoteRecordAdjudicationFlags {
 }
 
 /**
+ * Possible adjudication flags for a cast vote record, used in reporting.
+ */
+export type CastVoteRecordAdjudicationFlag =
+  keyof CastVoteRecordAdjudicationFlags;
+
+/**
  * Ballot mode.
  */
 export type BallotMode =
@@ -449,6 +455,14 @@ export type ManualResultsFilter = Omit<
   Tabulation.Filter,
   'scannerIds' | 'batchIds'
 >;
+
+/**
+ * Filter options in the reporting interfaces, which extends beyond core
+ * filters on CVR properties to include adjudication status.
+ */
+export type ReportingFilter = Tabulation.Filter & {
+  adjudicationFlags?: CastVoteRecordAdjudicationFlag[];
+};
 
 /**
  * A count of a specific kind of card. For representation of aggregate values

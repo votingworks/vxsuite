@@ -7,7 +7,7 @@ import {
   isGroupByEmpty,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { CardTally } from '../types';
+import { CardTally, ReportingFilter } from '../types';
 import { Store } from '../store';
 import { tabulateManualBallotCounts } from './manual_results';
 import { rootDebug } from '../util/debug';
@@ -47,20 +47,17 @@ export function tabulateScannedCardCounts({
   store,
   filter,
   groupBy,
-  blankBallotsOnly,
 }: {
   electionId: Id;
   store: Store;
-  filter?: Tabulation.Filter;
+  filter?: ReportingFilter;
   groupBy?: Tabulation.GroupBy;
-  blankBallotsOnly?: boolean;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
   debug('querying scanned card tallies');
   const cardTallies = store.getCardTallies({
     electionId,
     filter,
     groupBy,
-    blankBallotsOnly,
   });
 
   const cardCountsGroupMap: Tabulation.GroupMap<Tabulation.CardCounts> = {};
@@ -118,13 +115,11 @@ export function tabulateFullCardCounts({
   store,
   filter,
   groupBy,
-  blankBallotsOnly = false,
 }: {
   electionId: Id;
   store: Store;
-  filter?: Tabulation.Filter;
+  filter?: ReportingFilter;
   groupBy?: Tabulation.GroupBy;
-  blankBallotsOnly?: boolean;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
   debug('begin tabulating full card counts');
 
@@ -133,12 +128,7 @@ export function tabulateFullCardCounts({
     store,
     filter,
     groupBy,
-    blankBallotsOnly,
   });
-  if (blankBallotsOnly) {
-    debug('omitting manual ballot counts due to the blank ballots only filter');
-    return groupedScannedCardCounts;
-  }
 
   const tabulateManualBallotCountsResult = tabulateManualBallotCounts({
     electionId,

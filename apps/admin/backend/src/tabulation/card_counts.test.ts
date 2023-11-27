@@ -5,7 +5,6 @@ import {
   buildManualResultsFixture,
   groupMapToGroupList,
 } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
 import { Store } from '../store';
 import {
   MockCastVoteRecordFile,
@@ -15,6 +14,7 @@ import {
   tabulateFullCardCounts,
   tabulateScannedCardCounts,
 } from './card_counts';
+import { ReportingFilter } from '..';
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore();
@@ -380,58 +380,84 @@ test('tabulateFullCardCounts - blankBallots', () => {
   });
   store.setCurrentElectionId(electionId);
 
+  const cvrMetadata = {
+    ballotStyleId: '1M',
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    precinctId: 'precinct-1',
+    votingMethod: 'precinct',
+    card: { type: 'bmd' },
+  } as const;
+
   // add some mock cast vote records with one vote each
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
     {
-      ballotStyleId: '1M',
-      batchId: 'batch-1',
-      scannerId: 'scanner-1',
-      precinctId: 'precinct-1',
-      votingMethod: 'precinct',
-      votes: {}, // blank
-      card: { type: 'bmd' },
-      multiplier: 5,
+      ...cvrMetadata,
+      votes: { 'zoo-council-mammal': [] }, // blank, undervoted
+      multiplier: 1,
     },
     {
-      ballotStyleId: '1M',
-      batchId: 'batch-1',
-      scannerId: 'scanner-1',
-      precinctId: 'precinct-1',
-      votingMethod: 'absentee',
-      votes: { fishing: ['ban-fishing'] }, // not blank
-      card: { type: 'bmd' },
-      multiplier: 6,
+      ...cvrMetadata,
+      votes: { 'zoo-council-mammal': ['zebra'] }, // undervoted
+      multiplier: 2,
+    },
+    {
+      ...cvrMetadata,
+      votes: { 'zoo-council-mammal': ['zebra', 'lion', 'kangaroo'] }, // normal
+      multiplier: 3,
+    },
+    {
+      ...cvrMetadata,
+      votes: {
+        'zoo-council-mammal': ['zebra', 'lion', 'kangaroo', 'elephant'],
+      }, // overvoted
+      multiplier: 4,
+    },
+    {
+      ...cvrMetadata,
+      votes: { 'zoo-council-mammal': ['zebra', 'lion', 'write-in-0'] }, // write-in
+      multiplier: 5,
     },
   ];
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
-  const allBallotCounts = groupMapToGroupList(
-    tabulateFullCardCounts({
-      electionId,
-      store,
-    })
-  );
+  const testCases: Array<{
+    adjudicationFlags?: ReportingFilter['adjudicationFlags'];
+    expected: number;
+  }> = [
+    {
+      adjudicationFlags: [],
+      expected: 15,
+    },
+    {
+      adjudicationFlags: ['isBlank'],
+      expected: 1,
+    },
+    {
+      adjudicationFlags: ['hasUndervote'],
+      expected: 3,
+    },
+    {
+      adjudicationFlags: ['hasOvervote'],
+      expected: 4,
+    },
+    {
+      adjudicationFlags: ['hasWriteIn'],
+      expected: 5,
+    },
+  ];
 
-  expect(allBallotCounts).toEqual([
-    typedAs<Tabulation.CardCounts>({
-      bmd: 11,
-      hmpb: [],
-      manual: 0,
-    }),
-  ]);
+  for (const testCase of testCases) {
+    const [cardCounts] = groupMapToGroupList(
+      tabulateFullCardCounts({
+        electionId,
+        store,
+        filter: {
+          adjudicationFlags: testCase.adjudicationFlags,
+        },
+      })
+    );
 
-  const blankBallotCounts = groupMapToGroupList(
-    tabulateFullCardCounts({
-      electionId,
-      store,
-      blankBallotsOnly: true,
-    })
-  );
-
-  expect(blankBallotCounts).toEqual([
-    typedAs<Tabulation.CardCounts>({
-      bmd: 5,
-      hmpb: [],
-    }),
-  ]);
+    expect(cardCounts?.bmd).toEqual(testCase.expected);
+  }
 });

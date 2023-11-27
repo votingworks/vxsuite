@@ -62,6 +62,7 @@ import {
   WriteInAdjudicationContext,
   WriteInImageView,
   ConfigureError,
+  ReportingFilter,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -660,8 +661,7 @@ function buildApi({
     getCardCounts(
       input: {
         groupBy?: Tabulation.GroupBy;
-        filter?: Tabulation.Filter;
-        blankBallotsOnly?: boolean;
+        filter?: ReportingFilter;
       } = {}
     ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
