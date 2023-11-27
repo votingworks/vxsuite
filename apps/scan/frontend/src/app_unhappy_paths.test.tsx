@@ -102,7 +102,8 @@ test.each<{
       electionDefinition: undefined,
       precinctSelection: undefined,
     },
-    expectedHeadingWhenNoCard: 'VxScan is Not Configured',
+    expectedHeadingWhenNoCard:
+      'Insert Election Manager card to configure VxScan',
   },
 ])(
   'shows invalid card screen when invalid cards are inserted - $description',

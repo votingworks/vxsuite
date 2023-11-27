@@ -309,7 +309,7 @@ test('configuring election from usb ballot package works end to end', async () =
   mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   userEvent.click(screen.getByText('I am sure. Delete all election data.'));
   screen.getByText('Deleting election data');
-  await screen.findByText('Insert a USB drive containing a ballot package.');
+  await screen.findByText('Insert a USB drive containing a ballot package');
 });
 
 test('authentication works', async () => {

@@ -35,7 +35,9 @@ test('configure, open polls, and test contest scroll buttons', async ({
     electionHash,
   });
   await enterPin(page);
-  await page.getByText('VxMark is Not Configured').waitFor();
+  await page
+    .getByText('Insert a USB drive containing a ballot package')
+    .waitFor();
 
   usbHandler.insert(
     await mockBallotPackageFileTree(electionGeneralJson.toBallotPackage())

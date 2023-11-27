@@ -51,5 +51,7 @@ export async function forceReset(page: Page): Promise<void> {
       .click();
   }
   mockCardRemoval();
-  await page.getByText('VxMark is Not Configured').waitFor();
+  await page
+    .getByText('Insert a USB drive containing a ballot package')
+    .waitFor();
 }

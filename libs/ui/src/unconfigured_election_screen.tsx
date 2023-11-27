@@ -18,41 +18,58 @@ export function UnconfiguredElectionScreen({
   backendConfigError,
   machineName,
 }: UnconfiguredElectionScreenProps): JSX.Element {
-  const errorMessage = (() => {
+  const [errorMessageBig, errorMessageSmall] = (() => {
     if (!isElectionManagerAuth) {
-      return `Only election managers can configure ${machineName}.`;
+      return [
+        'Use the Election Manager card instead',
+        `Only election managers can configure ${machineName}.`,
+      ];
     }
 
     if (usbDriveStatus.status !== 'mounted') {
-      return 'Insert a USB drive containing a ballot package.';
+      return ['Insert a USB drive containing a ballot package', ''];
     }
 
     if (!backendConfigError) {
-      return undefined;
+      return [undefined, undefined];
     }
+
+    const bigMessage = `${machineName} is Not Configured`;
 
     switch (backendConfigError) {
       case 'no_ballot_package_on_usb_drive':
-        return 'No ballot package found on the inserted USB drive.';
+        return [
+          bigMessage,
+          'No ballot package found on the inserted USB drive.',
+        ];
       // The frontend should prevent auth_required_before_ballot_package_load
       // but we enforce it for redundancy
       case 'auth_required_before_ballot_package_load':
-        return 'Please insert an election manager card before configuring.';
+        return [
+          bigMessage,
+          'Please insert an election manager card before configuring.',
+        ];
       case 'ballot_package_authentication_error':
-        return 'Error authenticating ballot package. Try exporting it from VxAdmin again.';
+        return [
+          bigMessage,
+          'Error authenticating ballot package. Try exporting it from VxAdmin again.',
+        ];
       case 'election_hash_mismatch':
-        return 'The most recent ballot package found is for a different election.';
+        return [
+          bigMessage,
+          'The most recent ballot package found is for a different election.',
+        ];
       /* istanbul ignore next - compile time check for completeness */
       default:
         throwIllegalValue(backendConfigError);
     }
   })();
 
-  if (errorMessage) {
+  if (errorMessageBig) {
     return (
       <CenteredLargeProse>
-        <H1>{machineName} is Not Configured</H1>
-        <P>{errorMessage}</P>
+        <H1>{errorMessageBig}</H1>
+        <P>{errorMessageSmall}</P>
       </CenteredLargeProse>
     );
   }
