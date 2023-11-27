@@ -286,6 +286,7 @@ export async function main(): Promise<void> {
     await runAppletConfigurationCommands();
     await createAndStoreCardVxCert();
     sectionLog('✅', 'Done!');
+    process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
