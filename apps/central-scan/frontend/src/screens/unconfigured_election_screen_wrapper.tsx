@@ -23,10 +23,12 @@ export function UnconfiguredElectionScreenWrapper({
 
   const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
 
-  useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
-    if (newUsbDriveStatus.status === 'mounted') {
-      configureMutation.mutate();
-    }
+  useQueryChangeListener(usbDriveStatusQuery, {
+    onChange: (newUsbDriveStatus) => {
+      if (newUsbDriveStatus.status === 'mounted') {
+        configureMutation.mutate();
+      }
+    },
   });
 
   const error = configureMutation.data?.err();
