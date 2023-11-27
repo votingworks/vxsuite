@@ -38,14 +38,18 @@ export function VoterScreen({
   // we're in voter mode.
   const scanBallotMutation = scanBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
-  useQueryChangeListener(scannerStatusQuery, (newScannerStatus) => {
-    if (newScannerStatus.state === 'ready_to_scan') {
-      scanBallotMutation.mutate();
+  useQueryChangeListener(
+    scannerStatusQuery,
+    ({ state }) => state,
+    (newScannerState) => {
+      if (newScannerState === 'ready_to_scan') {
+        scanBallotMutation.mutate();
+      }
+      if (newScannerState === 'ready_to_accept') {
+        acceptBallotMutation.mutate();
+      }
     }
-    if (newScannerStatus.state === 'ready_to_accept') {
-      acceptBallotMutation.mutate();
-    }
-  });
+  );
 
   // Play sounds for scan result events
   const playSuccess = useSound('success');
@@ -53,19 +57,21 @@ export function VoterScreen({
   const playError = useSound('error');
   useQueryChangeListener(
     scannerStatusQuery,
-    (newScannerStatus, previousScannerStatus) => {
+    ({ state }) => state,
+    (newScannerState) => {
       if (isSoundMuted) return;
-      if (newScannerStatus.state === previousScannerStatus?.state) return;
-      switch (newScannerStatus.state) {
+      switch (newScannerState) {
         case 'accepted': {
           playSuccess();
           break;
         }
+
         case 'needs_review':
         case 'both_sides_have_paper': {
           playWarning();
           break;
         }
+
         case 'rejecting':
         case 'jammed':
         case 'double_sheet_jammed':
@@ -73,8 +79,26 @@ export function VoterScreen({
           playError();
           break;
         }
-        default: {
+
+        case 'connecting':
+        case 'disconnected':
+        case 'no_paper':
+        case 'ready_to_scan':
+        case 'scanning':
+        case 'returning_to_rescan':
+        case 'ready_to_accept':
+        case 'accepting':
+        case 'accepting_after_review':
+        case 'returning':
+        case 'returned':
+        case 'rejected':
+        case 'recovering_from_error': {
           // No sound
+          break;
+        }
+
+        default: {
+          throwIllegalValue(newScannerState);
         }
       }
     }

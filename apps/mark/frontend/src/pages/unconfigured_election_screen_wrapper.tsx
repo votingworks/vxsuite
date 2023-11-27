@@ -18,11 +18,15 @@ export function UnconfiguredElectionScreenWrapper(): JSX.Element {
   assert(usbDriveStatusQuery.isSuccess);
   const configure = configureBallotPackageFromUsb.useMutation();
 
-  useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
-    if (newUsbDriveStatus.status === 'mounted') {
-      configure.mutate();
+  useQueryChangeListener(
+    usbDriveStatusQuery,
+    ({ status }) => status,
+    (newUsbDriveStatus) => {
+      if (newUsbDriveStatus === 'mounted') {
+        configure.mutate();
+      }
     }
-  });
+  );
 
   const backendError = configure.data?.err();
   return (

@@ -135,6 +135,36 @@ describe('useQueryChangeListener', () => {
     changeHandler.assertComplete();
   });
 
+  test('allows selecting a subset of the data', () => {
+    const changeHandler =
+      mockFunction<(newData: number, previousData?: number) => void>(
+        'changeHandler'
+      );
+
+    changeHandler.expectCallWith(1, undefined).returns();
+    const { rerender } = renderHook(
+      (data) => {
+        const mockQuery = {
+          isSuccess: true,
+          data,
+        } as unknown as UseQueryResult<{ a: number; b: number }>;
+        return useQueryChangeListener(mockQuery, ({ a }) => a, changeHandler);
+      },
+      { initialProps: { a: 1, b: 2 } }
+    );
+
+    changeHandler.expectCallWith(2, 1).returns();
+    rerender({ a: 2, b: 2 });
+
+    // When selected values don't change, even if object identity changes, the changeHandler is not called
+    rerender({ a: 2, b: 2 });
+
+    changeHandler.expectCallWith(3, 2).returns();
+    rerender({ a: 3, b: 2 });
+
+    changeHandler.assertComplete();
+  });
+
   test('works with async changeHandler', () => {
     const changeHandler =
       mockFunction<(newData: string, previousData?: string) => Promise<void>>(
