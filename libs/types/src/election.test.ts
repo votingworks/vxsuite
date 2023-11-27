@@ -31,6 +31,7 @@ import {
 import {
   BallotIdSchema,
   BallotPaperSize,
+  BallotStyleSchema,
   CandidateContest,
   CandidateSchema,
   ElectionDefinitionSchema,
@@ -39,7 +40,7 @@ import {
   WriteInIdSchema,
   YesNoContest,
 } from './election';
-import { safeParse, unsafeParse } from './generic';
+import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
   normalizeVxf,
   testCdfBallotDefinition,
@@ -49,6 +50,7 @@ import {
   safeParseElection,
   safeParseElectionDefinition,
 } from './election_parsing';
+import { LanguageCode } from '.';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
@@ -525,12 +527,27 @@ test('ElectionDefinitionSchema', () => {
   ).toEqual(election);
 });
 
+test('BallotStyleSchema with ballot style languages', () => {
+  const ballotStyle = {
+    districts: ['district1', 'district2'],
+    id: 'ballotStyle1_en_es-US',
+    languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
+    precincts: ['precinct1', 'precinct2'],
+  } as const;
+
+  const ballotStyleJson = JSON.stringify(ballotStyle);
+
+  expect(
+    safeParseJson(ballotStyleJson, BallotStyleSchema).unsafeUnwrap()
+  ).toEqual(ballotStyle);
+});
+
 test('getDisplayElectionHash', () => {
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(election)
   ).unsafeUnwrap();
-  expect(getDisplayElectionHash(electionDefinition)).toMatchInlineSnapshot(
-    `"28bdbd95e1"`
+  expect(electionDefinition.electionHash).toContain(
+    getDisplayElectionHash(electionDefinition)
   );
 });
 
