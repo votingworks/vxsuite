@@ -243,7 +243,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     accentSecondary: Color.PRIMARY_GREEN_MEDIUM_CONTRAST,
     accentSuccess: Color.PRIMARY_GREEN_MEDIUM_CONTRAST,
     accentVxPurple: Color.VX_PURPLE_MEDIUM_CONTRAST,
-    accentWarning: Color.DANGER_MEDIUM_CONTRAST,
+    accentWarning: Color.GRAY_DARK,
     foreground: Color.GRAY_DARK,
     foregroundDisabled: Color.GRAY_DARK,
 
@@ -252,7 +252,7 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
       onBackground: TouchscreenPalette.Gray90,
       primary: TouchscreenPalette.Purple80,
       danger: TouchscreenPalette.Red80,
-      warningAccent: TouchscreenPalette.Orange80,
+      warningAccent: TouchscreenPalette.Gray90,
       successAccent: TouchscreenPalette.Green80,
     }),
   },
