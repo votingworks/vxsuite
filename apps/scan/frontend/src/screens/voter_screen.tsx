@@ -38,18 +38,14 @@ export function VoterScreen({
   // we're in voter mode.
   const scanBallotMutation = scanBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
-  useQueryChangeListener(
-    scannerStatusQuery,
-    ({ state }) => state,
-    (newScannerState) => {
-      if (newScannerState === 'ready_to_scan') {
-        scanBallotMutation.mutate();
-      }
-      if (newScannerState === 'ready_to_accept') {
-        acceptBallotMutation.mutate();
-      }
+  useQueryChangeListener(scannerStatusQuery, (newScannerStatus) => {
+    if (newScannerStatus.state === 'ready_to_scan') {
+      scanBallotMutation.mutate();
     }
-  );
+    if (newScannerStatus.state === 'ready_to_accept') {
+      acceptBallotMutation.mutate();
+    }
+  });
 
   // Play sounds for scan result events
   const playSuccess = useSound('success');

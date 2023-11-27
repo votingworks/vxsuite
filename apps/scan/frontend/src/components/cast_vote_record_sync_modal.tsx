@@ -42,16 +42,11 @@ export function CastVoteRecordSyncModal(): JSX.Element | null {
 
   const [modalState, setModalState] = useState<ModalState>('closed');
 
-  useQueryChangeListener(
-    usbDriveStatusQuery,
-    ({ doesUsbDriveRequireCastVoteRecordSync }) =>
-      doesUsbDriveRequireCastVoteRecordSync,
-    (doesUsbDriveRequireCastVoteRecordSync) => {
-      if (doesUsbDriveRequireCastVoteRecordSync) {
-        setModalState('prompt');
-      }
+  useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
+    if (newUsbDriveStatus.doesUsbDriveRequireCastVoteRecordSync) {
+      setModalState('prompt');
     }
-  );
+  });
 
   function syncCastVoteRecords() {
     setModalState('syncing');

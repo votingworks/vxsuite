@@ -24,15 +24,11 @@ export function UnconfiguredElectionScreenWrapper(
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
   // TODO move watching for USB drive to configure to the backend
-  useQueryChangeListener(
-    usbDriveStatusQuery,
-    ({ status }) => status,
-    (newUsbDriveStatus) => {
-      if (newUsbDriveStatus === 'mounted') {
-        configureMutation.mutate();
-      }
+  useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
+    if (newUsbDriveStatus.status === 'mounted') {
+      configureMutation.mutate();
     }
-  );
+  });
   const error = configureMutation.data?.err();
 
   if (!usbDriveStatusQuery.isSuccess) return null;
