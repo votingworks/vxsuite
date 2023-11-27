@@ -1,5 +1,5 @@
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
+import { Admin, DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import {
   GROUP_KEY_ROOT,
   buildManualResultsFixture,
@@ -14,7 +14,6 @@ import {
   tabulateFullCardCounts,
   tabulateScannedCardCounts,
 } from './card_counts';
-import { ReportingFilter } from '..';
 
 test('tabulateScannedCardCounts - grouping', () => {
   const store = Store.memoryStore();
@@ -422,7 +421,7 @@ test('tabulateFullCardCounts - blankBallots', () => {
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
   const testCases: Array<{
-    adjudicationFlags?: ReportingFilter['adjudicationFlags'];
+    adjudicationFlags?: Admin.ReportingFilter['adjudicationFlags'];
     expected: number;
   }> = [
     {

@@ -35,6 +35,7 @@ import {
   SystemSettings,
   safeParseSystemSettings,
   Tabulation,
+  Admin,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
@@ -75,7 +76,6 @@ import {
   WriteInAdjudicationActionInvalid,
   WriteInAdjudicationActionWriteInCandidate,
   CastVoteRecordAdjudicationFlags,
-  ReportingFilter,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -1214,7 +1214,7 @@ export class Store {
 
   private getTabulationFilterAsSql(
     electionId: Id,
-    filter: ReportingFilter
+    filter: Admin.ReportingFilter
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
@@ -1408,7 +1408,7 @@ export class Store {
     groupBy = {},
   }: {
     electionId: Id;
-    filter?: ReportingFilter;
+    filter?: Admin.ReportingFilter;
     groupBy?: Tabulation.GroupBy;
   }): Generator<Tabulation.GroupOf<CardTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(

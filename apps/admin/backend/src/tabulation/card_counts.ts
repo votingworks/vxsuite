@@ -1,4 +1,4 @@
-import { Id, Tabulation } from '@votingworks/types';
+import { Admin, Id, Tabulation } from '@votingworks/types';
 import {
   GROUP_KEY_ROOT,
   getEmptyCardCounts,
@@ -7,7 +7,7 @@ import {
   isGroupByEmpty,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { CardTally, ReportingFilter } from '../types';
+import { CardTally } from '../types';
 import { Store } from '../store';
 import { tabulateManualBallotCounts } from './manual_results';
 import { rootDebug } from '../util/debug';
@@ -50,7 +50,7 @@ export function tabulateScannedCardCounts({
 }: {
   electionId: Id;
   store: Store;
-  filter?: ReportingFilter;
+  filter?: Admin.ReportingFilter;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
   debug('querying scanned card tallies');
@@ -118,7 +118,7 @@ export function tabulateFullCardCounts({
 }: {
   electionId: Id;
   store: Store;
-  filter?: ReportingFilter;
+  filter?: Admin.ReportingFilter;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
   debug('begin tabulating full card counts');

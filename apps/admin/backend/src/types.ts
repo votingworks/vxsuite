@@ -14,6 +14,7 @@ import {
   Tabulation,
   ReadCastVoteRecordExportError,
   ReadCastVoteRecordError,
+  Admin,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -377,18 +378,10 @@ export interface CastVoteRecordVoteInfo {
 /**
  * Summary information about a cast vote record's adjudication status.
  */
-export interface CastVoteRecordAdjudicationFlags {
-  isBlank: boolean;
-  hasOvervote: boolean;
-  hasUndervote: boolean;
-  hasWriteIn: boolean;
-}
-
-/**
- * Possible adjudication flags for a cast vote record, used in reporting.
- */
-export type CastVoteRecordAdjudicationFlag =
-  keyof CastVoteRecordAdjudicationFlags;
+export type CastVoteRecordAdjudicationFlags = Record<
+  Admin.CastVoteRecordAdjudicationFlag,
+  boolean
+>;
 
 /**
  * Ballot mode.
@@ -455,14 +448,6 @@ export type ManualResultsFilter = Omit<
   Tabulation.Filter,
   'scannerIds' | 'batchIds'
 >;
-
-/**
- * Filter options in the reporting interfaces, which extends beyond core
- * filters on CVR properties to include adjudication status.
- */
-export type ReportingFilter = Tabulation.Filter & {
-  adjudicationFlags?: CastVoteRecordAdjudicationFlag[];
-};
 
 /**
  * A count of a specific kind of card. For representation of aggregate values
