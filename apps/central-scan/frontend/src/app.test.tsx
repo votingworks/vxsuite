@@ -340,7 +340,7 @@ test('authentication works', async () => {
     status: 'checking_pin',
     user: fakeElectionManagerUser(electionGeneralDefinition),
   });
-  await screen.findByText('Enter the card PIN to unlock.');
+  await screen.findByText('Enter the card PIN');
   mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -376,7 +376,7 @@ test('authentication works', async () => {
     status: 'checking_pin',
     user: fakeElectionManagerUser(electionGeneralDefinition),
   });
-  await screen.findByText('Enter the card PIN to unlock.');
+  await screen.findByText('Enter the card PIN');
   mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));
@@ -391,8 +391,7 @@ test('authentication works', async () => {
     user: fakeElectionManagerUser(electionGeneralDefinition),
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
-  await screen.findByText('Remove card to continue.');
-  screen.getByText('VxCentralScan Unlocked');
+  await screen.findByText('Remove card to unlock VxCentralScan');
 
   // Machine is unlocked when card removed
   setAuthStatus(mockApiClient, {

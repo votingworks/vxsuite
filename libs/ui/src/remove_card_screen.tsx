@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Screen } from './screen';
 import { Main } from './main';
-import { H1, P } from './typography';
+import { H1 } from './typography';
 
 const RemoveCardImage = styled.img`
   margin: 0 auto -1rem;
@@ -17,8 +17,7 @@ export function RemoveCardScreen({ productName }: Props): JSX.Element {
     <Screen>
       <Main centerChild>
         <RemoveCardImage aria-hidden src="/assets/remove-card.svg" alt="" />
-        <H1>{productName} Unlocked</H1>
-        <P>Remove card to continue.</P>
+        <H1>Remove card to unlock {productName}</H1>
       </Main>
     </Screen>
   );

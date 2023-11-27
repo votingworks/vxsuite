@@ -1,9 +1,8 @@
 import { BallotPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { CenteredLargeProse } from './centered_large_prose';
 import { LoadingAnimation } from './loading_animation';
-import { H1, P } from './typography';
+import { Font, H1, H3 } from './typography';
 
 export interface UnconfiguredElectionScreenProps {
   usbDriveStatus: UsbDriveStatus;
@@ -50,17 +49,17 @@ export function UnconfiguredElectionScreen({
 
   if (errorMessage) {
     return (
-      <CenteredLargeProse>
+      <Font align="center">
         <H1>{machineName} is Not Configured</H1>
-        <P>{errorMessage}</P>
-      </CenteredLargeProse>
+        <H3 style={{ fontWeight: 'normal' }}>{errorMessage}</H3>
+      </Font>
     );
   }
 
   return (
-    <CenteredLargeProse>
+    <Font align="center">
       <H1>Configuring {machineName} from USB drive…</H1>
       <LoadingAnimation />
-    </CenteredLargeProse>
+    </Font>
   );
 }

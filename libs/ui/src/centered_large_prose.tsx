@@ -6,6 +6,10 @@ interface CenteredLargeProseProps {
   children: React.ReactNode;
 }
 
+/**
+ * @deprecated
+ */
+/* istanbul ignore next */
 export function CenteredLargeProse({
   children,
 }: CenteredLargeProseProps): JSX.Element {

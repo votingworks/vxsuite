@@ -151,7 +151,7 @@ test('authentication works', async () => {
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
-  await screen.findByText('Enter the card PIN to unlock.');
+  await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('111111');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -184,7 +184,7 @@ test('authentication works', async () => {
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
-  await screen.findByText('Enter the card PIN to unlock.');
+  await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('123456');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));
@@ -201,7 +201,7 @@ test('authentication works', async () => {
     }),
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
-  await screen.findByText('Remove card to continue.');
+  await screen.findByText('Remove card to unlock VxAdmin');
 
   // Machine is unlocked when card removed
   apiMock.setAuthStatus({

@@ -11,11 +11,11 @@ import { methodUrl } from '@votingworks/grout';
  * Enters the PIN into the PIN pad.
  */
 export async function enterPin(page: Page): Promise<void> {
-  await page.getByText('Enter the card PIN to unlock.').waitFor();
+  await page.getByText('Enter the card PIN').waitFor();
   for (const digit of INTEGRATION_TEST_DEFAULT_PIN) {
     await page.getByRole('button', { name: digit }).click();
   }
-  await page.getByText('VxAdmin Unlocked').waitFor(); // avoid flaky auth from premature card removal
+  await page.getByText('Remove card to unlock VxAdmin').waitFor(); // avoid flaky auth from premature card removal
 }
 
 /**
