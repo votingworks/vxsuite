@@ -80,6 +80,7 @@ export function VoterScreen({
           break;
         }
 
+        // istanbul ignore next
         case 'connecting':
         case 'disconnected':
         case 'no_paper':
@@ -97,6 +98,7 @@ export function VoterScreen({
           break;
         }
 
+        // istanbul ignore next - compile time check for completeness
         default: {
           throwIllegalValue(newScannerState);
         }
