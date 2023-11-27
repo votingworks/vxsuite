@@ -43,6 +43,7 @@ import {
   CvrFileMode,
   ImportCastVoteRecordsError,
 } from './types';
+import { getCastVoteRecordAdjudicationFlags } from './util/cast_vote_records';
 
 /**
  * Validates that the fields in a cast vote record and the election definition correspond
@@ -285,6 +286,10 @@ export async function importCastVoteRecords(
       const votes = convertCastVoteRecordVotesToTabulationVotes(
         castVoteRecordCurrentSnapshot
       );
+      const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
+        votes,
+        electionDefinition
+      );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId as BallotId,
         cvr: {
@@ -299,6 +304,7 @@ export async function importCastVoteRecords(
         },
         cvrFileId: importId,
         electionId,
+        adjudicationFlags,
       });
       if (addCastVoteRecordResult.isErr()) {
         return err({

@@ -74,8 +74,8 @@ import {
   WriteInAdjudicationActionOfficialCandidate,
   WriteInAdjudicationActionInvalid,
   WriteInAdjudicationActionWriteInCandidate,
+  CastVoteRecordAdjudicationFlags,
 } from './types';
-import { isBlankSheet } from './tabulation/utils';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('store');
@@ -803,11 +803,13 @@ export class Store {
     cvrFileId,
     ballotId,
     cvr,
+    adjudicationFlags,
   }: {
     electionId: Id;
     cvrFileId: Id;
     ballotId: BallotId;
     cvr: Omit<Tabulation.CastVoteRecord, 'scannerId'>;
+    adjudicationFlags: CastVoteRecordAdjudicationFlags;
   }): Result<
     { cvrId: Id; isNew: boolean },
     {
@@ -878,9 +880,12 @@ export class Store {
           precinct_id,
           sheet_number,
           votes,
-          is_blank
+          is_blank,
+          has_overvote,
+          has_undervote,
+          has_write_in
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -892,7 +897,10 @@ export class Store {
         cvr.precinctId,
         cvrSheetNumber,
         serializedVotes,
-        asSqliteBool(isBlankSheet(cvr.votes))
+        asSqliteBool(adjudicationFlags.isBlank),
+        asSqliteBool(adjudicationFlags.hasOvervote),
+        asSqliteBool(adjudicationFlags.hasUndervote),
+        asSqliteBool(adjudicationFlags.hasWriteIn)
       );
     }
 

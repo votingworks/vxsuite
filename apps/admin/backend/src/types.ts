@@ -375,6 +375,16 @@ export interface CastVoteRecordVoteInfo {
 }
 
 /**
+ * Summary information about a cast vote record's adjudication status.
+ */
+export interface CastVoteRecordAdjudicationFlags {
+  isBlank: boolean;
+  hasOvervote: boolean;
+  hasUndervote: boolean;
+  hasWriteIn: boolean;
+}
+
+/**
  * Ballot mode.
  */
 export type BallotMode =

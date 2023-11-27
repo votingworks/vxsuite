@@ -7,7 +7,9 @@ import {
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { Buffer } from 'buffer';
+import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store';
+import { getCastVoteRecordAdjudicationFlags } from '../src/util/cast_vote_records';
 
 export type MockCastVoteRecordFile = Array<
   Tabulation.CastVoteRecord & { multiplier?: number }
@@ -65,6 +67,7 @@ export function addMockCvrFileToStore({
     scannerIds,
   });
 
+  const { electionDefinition } = assertDefined(store.getElection(electionId));
   const cvrIds = [];
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     for (let i = 0; i < (mockCastVoteRecord.multiplier ?? 1); i += 1) {
@@ -73,6 +76,10 @@ export function addMockCvrFileToStore({
         cvrFileId,
         ballotId: uuid() as BallotId,
         cvr: mockCastVoteRecord,
+        adjudicationFlags: getCastVoteRecordAdjudicationFlags(
+          mockCastVoteRecord.votes,
+          electionDefinition
+        ),
       });
 
       addCastVoteRecordResult.assertOk('failed to add mock cvr');
