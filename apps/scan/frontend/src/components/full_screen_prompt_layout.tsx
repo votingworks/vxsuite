@@ -29,8 +29,6 @@ const Body = styled.div`
 
 const ImageContainer = styled.div`
   align-items: center;
-  border-right: ${(p) => p.theme.sizes.bordersRem.thin}rem dotted
-    ${(p) => p.theme.colors.foreground};
   display: flex;
   flex-direction: column;
   justify-content: center;

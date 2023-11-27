@@ -182,57 +182,59 @@ export function PreviewDashboard({
                 <DisplaySettingsScreen />
               </Route>
               <Route path="/preview" exact>
-                <H1>Previews</H1>
-                <PreviewColumns>
-                  {previewables.map(({ componentName, previews }) => {
-                    return (
-                      <Prose key={componentName}>
-                        <H4>{componentName}</H4>
-                        <ul>
-                          {previews.map((preview) => (
-                            <li key={preview.previewName}>
-                              <Link to={getPreviewUrl(preview)}>
-                                {preview.previewName}
-                              </Link>
-                            </li>
+                <div style={{ height: '100%', overflow: 'auto' }}>
+                  <H1>Previews</H1>
+                  <PreviewColumns>
+                    {previewables.map(({ componentName, previews }) => {
+                      return (
+                        <Prose key={componentName}>
+                          <H4>{componentName}</H4>
+                          <ul>
+                            {previews.map((preview) => (
+                              <li key={preview.previewName}>
+                                <Link to={getPreviewUrl(preview)}>
+                                  {preview.previewName}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </Prose>
+                      );
+                    })}
+                  </PreviewColumns>
+                  <ConfigBox>
+                    <Select
+                      value={electionDefinition.electionHash}
+                      onChange={onElectionDefinitionSelected}
+                    >
+                      <optgroup label="Presets">
+                        {initialElectionDefinitions.map(
+                          ({ election, electionHash }) => (
+                            <option key={electionHash} value={electionHash}>
+                              {election.title}
+                            </option>
+                          )
+                        )}
+                      </optgroup>
+                      <optgroup label="Custom">
+                        {electionDefinitions
+                          .slice(initialElectionDefinitions.length)
+                          .map(({ election, electionHash }) => (
+                            <option key={electionHash} value={electionHash}>
+                              {election.title}
+                            </option>
                           ))}
-                        </ul>
-                      </Prose>
-                    );
-                  })}
-                </PreviewColumns>
-                <ConfigBox>
-                  <Select
-                    value={electionDefinition.electionHash}
-                    onChange={onElectionDefinitionSelected}
-                  >
-                    <optgroup label="Presets">
-                      {initialElectionDefinitions.map(
-                        ({ election, electionHash }) => (
-                          <option key={electionHash} value={electionHash}>
-                            {election.title}
-                          </option>
-                        )
-                      )}
-                    </optgroup>
-                    <optgroup label="Custom">
-                      {electionDefinitions
-                        .slice(initialElectionDefinitions.length)
-                        .map(({ election, electionHash }) => (
-                          <option key={electionHash} value={electionHash}>
-                            {election.title}
-                          </option>
-                        ))}
-                      <option value="custom">Load from file…</option>
-                    </optgroup>
-                  </Select>
-                  <input
-                    ref={electionDefinitionFileRef}
-                    style={{ display: 'none' }}
-                    type="file"
-                    onChange={onElectionDefinitionFileChosen}
-                  />
-                </ConfigBox>
+                        <option value="custom">Load from file…</option>
+                      </optgroup>
+                    </Select>
+                    <input
+                      ref={electionDefinitionFileRef}
+                      style={{ display: 'none' }}
+                      type="file"
+                      onChange={onElectionDefinitionFileChosen}
+                    />
+                  </ConfigBox>
+                </div>
               </Route>
               {previewables.map((previewable) =>
                 previewable.previews.map((preview) => (
