@@ -38,23 +38,24 @@ export function VoterScreen({
   // we're in voter mode.
   const scanBallotMutation = scanBallot.useMutation();
   const acceptBallotMutation = acceptBallot.useMutation();
-  useQueryChangeListener(scannerStatusQuery, (newScannerStatus) => {
-    if (newScannerStatus.state === 'ready_to_scan') {
-      scanBallotMutation.mutate();
-    }
-    if (newScannerStatus.state === 'ready_to_accept') {
-      acceptBallotMutation.mutate();
-    }
+  useQueryChangeListener(scannerStatusQuery, {
+    onChange: (newScannerStatus) => {
+      if (newScannerStatus.state === 'ready_to_scan') {
+        scanBallotMutation.mutate();
+      }
+      if (newScannerStatus.state === 'ready_to_accept') {
+        acceptBallotMutation.mutate();
+      }
+    },
   });
 
   // Play sounds for scan result events
   const playSuccess = useSound('success');
   const playWarning = useSound('warning');
   const playError = useSound('error');
-  useQueryChangeListener(
-    scannerStatusQuery,
-    ({ state }) => state,
-    (newScannerState) => {
+  useQueryChangeListener(scannerStatusQuery, {
+    select: ({ state }) => state,
+    onChange: (newScannerState) => {
       if (isSoundMuted) return;
       switch (newScannerState) {
         case 'accepted': {
@@ -99,8 +100,8 @@ export function VoterScreen({
           throwIllegalValue(newScannerState);
         }
       }
-    }
-  );
+    },
+  });
 
   if (!scannerStatusQuery.isSuccess) {
     return null;

@@ -52,45 +52,6 @@ export type UseChangeListenerDataSelector<Data, SelectedData> = (
 
 /**
  * Registers a handler that will be called whenever the result of a useQuery
- * hook changes (based on a deep equality check).
- *
- * Think of this like an event listener for events that are triggered outside of
- * the on-screen UI (e.g. similar to how we can put an onChange handler on, say,
- * a button, for a user event that is triggered in the UI).
- *
- * It can be combined with the refetchInterval option of useQuery to make the
- * query poll for new data regularly.
- *
- * Example use cases:
- * - Playing a sound when the scanner accepts a ballot
- * - Redirecting to a new URL when a background task is complete
- */
-export function useQueryChangeListener<Data>(
-  query: UseQueryResult<Data>,
-  changeHandler: UseChangeListenerChangeHandler<Data>
-): void;
-/**
- * Registers a handler that will be called whenever the result of a useQuery
- * hook changes (based on a deep equality check of selected data).
- *
- * Think of this like an event listener for events that are triggered outside of
- * the on-screen UI (e.g. similar to how we can put an onChange handler on, say,
- * a button, for a user event that is triggered in the UI).
- *
- * It can be combined with the refetchInterval option of useQuery to make the
- * query poll for new data regularly.
- *
- * Example use cases:
- * - Playing a sound when the scanner accepts a ballot
- * - Redirecting to a new URL when a background task is complete
- */
-export function useQueryChangeListener<Data, SelectedData>(
-  query: UseQueryResult<Data>,
-  select: UseChangeListenerDataSelector<Data, SelectedData>,
-  changeHandler: UseChangeListenerChangeHandler<SelectedData>
-): void;
-/**
- * Registers a handler that will be called whenever the result of a useQuery
  * hook changes (based on a deep equality check with an optional selector).
  *
  * Think of this like an event listener for events that are triggered outside of
@@ -106,18 +67,16 @@ export function useQueryChangeListener<Data, SelectedData>(
  */
 export function useQueryChangeListener<Data, SelectedData = Data>(
   query: UseQueryResult<Data>,
-  changeHandlerOrSelect:
-    | UseChangeListenerChangeHandler<Data>
-    | UseChangeListenerDataSelector<Data, SelectedData>,
-  changeHandlerOrUndefined?: UseChangeListenerChangeHandler<SelectedData>
+  options: {
+    select?: UseChangeListenerDataSelector<Data, SelectedData>;
+    onChange: UseChangeListenerChangeHandler<SelectedData>;
+  }
 ): void {
   const previousData = useRef<SelectedData>();
-  const [select, changeHandler]: [
-    UseChangeListenerDataSelector<Data, SelectedData>,
-    UseChangeListenerChangeHandler<SelectedData>,
-  ] = changeHandlerOrUndefined
-    ? [changeHandlerOrSelect as never, changeHandlerOrUndefined]
-    : [identity as never, changeHandlerOrSelect as never];
+  const { onChange } = options;
+  const select =
+    options.select ??
+    (identity as UseChangeListenerDataSelector<Data, SelectedData>);
 
   useEffect(() => {
     if (!query.isSuccess) {
@@ -126,8 +85,8 @@ export function useQueryChangeListener<Data, SelectedData = Data>(
 
     const selectedData = select(query.data);
     if (!deepEqual(previousData.current, selectedData)) {
-      void changeHandler(selectedData, previousData.current);
+      void onChange(selectedData, previousData.current);
       previousData.current = selectedData;
     }
-  }, [query.isSuccess, query.data, changeHandler, select]);
+  }, [query.isSuccess, query.data, select, onChange]);
 }
