@@ -1033,17 +1033,32 @@ test('renders DisplaySettingsManager', async () => {
   expect(mockOf(DisplaySettingsManager)).toBeCalled();
 });
 
-test('renders cast vote record sync modal', async () => {
+test('requires CVR sync if necessary', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted', {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
-
   renderApp();
+
   await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
       'Cast vote records (CVRs) need to be synced to the USB drive.'
   );
+
+  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
+  userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
+  const modal = await screen.findByRole('alertdialog');
+  await within(modal).findByText('Syncing CVRs');
+  await within(modal).findByText('Voters may continue casting ballots.');
+  apiMock.expectGetUsbDriveStatus('mounted');
+
+  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  screen.getByText('Insert Your Ballot');
+
+  await waitFor(() => apiMock.mockApiClient.assertComplete());
 });

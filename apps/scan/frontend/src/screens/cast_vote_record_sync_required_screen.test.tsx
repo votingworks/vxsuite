@@ -6,19 +6,33 @@ import {
   ApiMock,
   createApiMock,
   provideApi,
+  statusNoPaper,
 } from '../../test/helpers/mock_api_client';
 import { render } from '../../test/react_testing_library';
-import { CastVoteRecordSyncModal } from './cast_vote_record_sync_modal';
+import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
 
 let apiMock: ApiMock;
 
-function renderComponent() {
-  render(provideApi(apiMock, <CastVoteRecordSyncModal />));
+function renderComponent({
+  returnToVoterScreen = jest.fn(),
+}: {
+  returnToVoterScreen?: () => void;
+} = {}) {
+  render(
+    provideApi(
+      apiMock,
+      <CastVoteRecordSyncRequiredScreen
+        returnToVoterScreen={returnToVoterScreen}
+      />
+    )
+  );
 }
 
 beforeEach(() => {
   apiMock = createApiMock();
-  apiMock.expectGetUsbDriveStatus('no_drive');
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetConfig();
+  apiMock.expectGetScannerStatus(statusNoPaper);
 });
 
 afterEach(() => {
@@ -26,41 +40,29 @@ afterEach(() => {
 });
 
 test('CVR sync modal success case', async () => {
-  renderComponent();
-  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  const returnToVoterScreen = jest.fn();
+  renderComponent({ returnToVoterScreen });
 
-  apiMock.expectGetUsbDriveStatus('mounted', {
-    doesUsbDriveRequireCastVoteRecordSync: true,
-  });
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(
+  await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
       'Cast vote records (CVRs) need to be synced to the USB drive.'
   );
 
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
-  userEvent.click(within(modal).getByRole('button', { name: 'Sync CVRs' }));
+  userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
+  const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Syncing CVRs');
   await within(modal).findByText('Voters may continue casting ballots.');
-  apiMock.expectGetUsbDriveStatus('mounted');
 
   userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-
-  await waitFor(() => apiMock.mockApiClient.assertComplete());
+  expect(returnToVoterScreen).toHaveBeenCalledTimes(1);
 });
 
 test('CVR sync modal error case', async () => {
-  renderComponent();
-  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  const returnToVoterScreen = jest.fn();
+  renderComponent({ returnToVoterScreen });
 
-  apiMock.expectGetUsbDriveStatus('mounted', {
-    doesUsbDriveRequireCastVoteRecordSync: true,
-  });
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(
+  await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
       'Cast vote records (CVRs) need to be synced to the USB drive.'
   );
@@ -68,7 +70,14 @@ test('CVR sync modal error case', async () => {
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ mode: 'full_export' })
     .resolves(err({ type: 'file-system-error', message: '' }));
-  userEvent.click(within(modal).getByRole('button', { name: 'Sync CVRs' }));
+  userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
+  const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Syncing CVRs');
   await within(modal).findByText('Try inserting a different USB drive.');
+
+  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  expect(returnToVoterScreen).not.toHaveBeenCalled();
 });

@@ -42,7 +42,7 @@ import {
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { LiveCheckButton } from '../components/live_check_button';
-import { CastVoteRecordSyncReminderModal } from '../components/cast_vote_record_sync_modal';
+import { CastVoteRecordSyncRequiredModal } from './cast_vote_record_sync_required_screen';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -297,7 +297,7 @@ export function ElectionManagerScreen({
         (() => {
           if (doesUsbDriveRequireCastVoteRecordSync) {
             return (
-              <CastVoteRecordSyncReminderModal
+              <CastVoteRecordSyncRequiredModal
                 blockedAction="switch_to_test_mode"
                 closeModal={() => setIsConfirmingSwitchToTestMode(false)}
               />
@@ -336,7 +336,7 @@ export function ElectionManagerScreen({
           }
           if (doesUsbDriveRequireCastVoteRecordSync && !isTestMode) {
             return (
-              <CastVoteRecordSyncReminderModal
+              <CastVoteRecordSyncRequiredModal
                 blockedAction="delete_election_data"
                 closeModal={() => setIsConfirmingUnconfigure(false)}
               />
