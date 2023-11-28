@@ -18,7 +18,7 @@ type BlockedAction =
   | 'delete_election_data'
   | 'switch_to_test_mode';
 
-export const CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPTS: Record<
+const CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPTS: Record<
   BlockedAction | 'default',
   string
 > = {
