@@ -282,10 +282,12 @@ export async function importCastVoteRecords(
         return err({ ...validationResult.err(), index: castVoteRecordIndex });
       }
 
-      // Add an individual cast vote record to the import
       const votes = convertCastVoteRecordVotesToTabulationVotes(
         castVoteRecordCurrentSnapshot
       );
+      // Currently, we only support filtering on initial adjudication status,
+      // rather than post-adjudication status. As a result, we can just calculate
+      // now, during import.
       const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
         votes,
         electionDefinition
