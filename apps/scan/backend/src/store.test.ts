@@ -625,6 +625,7 @@ test('resetElectionSession', () => {
 
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
   store.setBallotCountWhenBallotBagLastReplaced(1500);
+  store.setExportDirectoryName('export-directory-name');
 
   store.addBatch();
   store.addBatch();
@@ -636,9 +637,12 @@ test('resetElectionSession', () => {
   ).toEqual(['Batch 1', 'Batch 2']);
 
   store.resetElectionSession();
+
   // resetElectionSession should reset election session state
   expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
+  expect(store.getExportDirectoryName()).toEqual(undefined);
+
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);
 
@@ -730,8 +734,10 @@ test('isContinuousExportOperationInProgress and setIsContinuousExportOperationIn
   const store = Store.memoryStore();
 
   expect(store.isContinuousExportOperationInProgress()).toEqual(false);
+
   store.setIsContinuousExportOperationInProgress(true);
   expect(store.isContinuousExportOperationInProgress()).toEqual(true);
+
   store.setIsContinuousExportOperationInProgress(false);
   expect(store.isContinuousExportOperationInProgress()).toEqual(false);
 });
@@ -743,10 +749,15 @@ test('getExportDirectoryName and setExportDirectoryName', () => {
   const exportDirectoryName2 = 'TEST__machine_SCAN-0001__2023-08-16_23-10-01';
 
   expect(store.getExportDirectoryName()).toEqual(undefined);
+
   store.setExportDirectoryName(exportDirectoryName1);
   expect(store.getExportDirectoryName()).toEqual(exportDirectoryName1);
+
   store.setExportDirectoryName(exportDirectoryName2);
   expect(store.getExportDirectoryName()).toEqual(exportDirectoryName2);
+
+  store.setExportDirectoryName(undefined);
+  expect(store.getExportDirectoryName()).toEqual(undefined);
 });
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {

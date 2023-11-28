@@ -274,6 +274,7 @@ test('switching mode when no ballots have been counted', async () => {
   // Switch from test mode to official mode
   apiMock.expectSetTestMode(false);
   apiMock.expectGetConfig({ isTestMode: false });
+  apiMock.expectGetPollsInfo();
   userEvent.click(officialBallotModeButton);
   const testBallotModeButton = await screen.findByRole('option', {
     name: 'Test Ballot Mode',
@@ -287,6 +288,7 @@ test('switching mode when no ballots have been counted', async () => {
   // Switch from official mode to test mode
   apiMock.expectSetTestMode(true);
   apiMock.expectGetConfig({ isTestMode: true });
+  apiMock.expectGetPollsInfo();
   userEvent.click(testBallotModeButton);
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
@@ -316,6 +318,7 @@ test('switching to official mode when ballots have been counted', async () => {
 
   apiMock.expectSetTestMode(false);
   apiMock.expectGetConfig({ isTestMode: false });
+  apiMock.expectGetPollsInfo();
   userEvent.click(officialBallotModeButton);
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
@@ -370,6 +373,7 @@ test('switching to test mode when ballots have been counted', async () => {
   );
   apiMock.expectSetTestMode(true);
   apiMock.expectGetConfig({ isTestMode: true });
+  apiMock.expectGetPollsInfo();
   userEvent.click(within(modal).getByRole('button', { name: 'Yes, Switch' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
@@ -445,6 +449,7 @@ test('machine *can* be switched to test mode if CVR sync is required but no ball
 
   apiMock.expectSetTestMode(true);
   apiMock.expectGetConfig({ isTestMode: true });
+  apiMock.expectGetPollsInfo();
   userEvent.click(testBallotModeButton);
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',

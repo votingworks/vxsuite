@@ -14,15 +14,19 @@ import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_requir
 let apiMock: ApiMock;
 
 function renderComponent({
-  returnToVoterScreen = jest.fn(),
+  setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn(),
 }: {
-  returnToVoterScreen?: () => void;
+  setShouldStayOnCastVoteRecordSyncRequiredScreen?: (
+    shouldStayOnCastVoteRecordSyncRequiredScreen: boolean
+  ) => void;
 } = {}) {
   render(
     provideApi(
       apiMock,
       <CastVoteRecordSyncRequiredScreen
-        returnToVoterScreen={returnToVoterScreen}
+        setShouldStayOnCastVoteRecordSyncRequiredScreen={
+          setShouldStayOnCastVoteRecordSyncRequiredScreen
+        }
       />
     )
   );
@@ -40,8 +44,8 @@ afterEach(() => {
 });
 
 test('CVR sync modal success case', async () => {
-  const returnToVoterScreen = jest.fn();
-  renderComponent({ returnToVoterScreen });
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  renderComponent({ setShouldStayOnCastVoteRecordSyncRequiredScreen });
 
   await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
@@ -51,16 +55,27 @@ test('CVR sync modal success case', async () => {
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
   userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
+  expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
+    1
+  );
+  expect(
+    setShouldStayOnCastVoteRecordSyncRequiredScreen
+  ).toHaveBeenNthCalledWith(1, true);
   await within(modal).findByText('Syncing CVRs');
   await within(modal).findByText('Voters may continue casting ballots.');
 
   userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
-  expect(returnToVoterScreen).toHaveBeenCalledTimes(1);
+  expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
+    2
+  );
+  expect(
+    setShouldStayOnCastVoteRecordSyncRequiredScreen
+  ).toHaveBeenNthCalledWith(2, false);
 });
 
 test('CVR sync modal error case', async () => {
-  const returnToVoterScreen = jest.fn();
-  renderComponent({ returnToVoterScreen });
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  renderComponent({ setShouldStayOnCastVoteRecordSyncRequiredScreen });
 
   await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
@@ -72,6 +87,12 @@ test('CVR sync modal error case', async () => {
     .resolves(err({ type: 'file-system-error', message: '' }));
   userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
+  expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
+    1
+  );
+  expect(
+    setShouldStayOnCastVoteRecordSyncRequiredScreen
+  ).toHaveBeenNthCalledWith(1, true);
   await within(modal).findByText('Syncing CVRs');
   await within(modal).findByText('Try inserting a different USB drive.');
 
@@ -79,5 +100,10 @@ test('CVR sync modal error case', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  expect(returnToVoterScreen).not.toHaveBeenCalled();
+  expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
+    2
+  );
+  expect(
+    setShouldStayOnCastVoteRecordSyncRequiredScreen
+  ).toHaveBeenNthCalledWith(2, false);
 });
