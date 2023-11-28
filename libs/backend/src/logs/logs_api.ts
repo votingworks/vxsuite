@@ -1,11 +1,11 @@
 import * as grout from '@votingworks/grout';
 import { UsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'fs/promises';
-import { copy as copyDirectory } from 'fs-extra';
 import { join } from 'path';
 import { err, ok } from '@votingworks/basics';
 
 import { Result } from '@votingworks/basics';
+import { execFile } from '../exec';
 
 /** type of return value from exporting logs */
 export type LogsResultType = Result<
@@ -47,7 +47,7 @@ function buildApi({
       const destinationDirectory = join(mountpoint, dirPath);
 
       try {
-        await copyDirectory(LOG_DIR, destinationDirectory);
+        await execFile('cp', ['-r', LOG_DIR, destinationDirectory]);
       } catch {
         return err('copy-failed');
       }

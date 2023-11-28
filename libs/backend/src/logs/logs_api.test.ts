@@ -2,9 +2,9 @@
 
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'fs/promises';
-import { copy as copyDirectory } from 'fs-extra';
 import { Stats } from 'fs';
 import { mockOf } from '@votingworks/test-utils';
+import { execFile } from '../exec';
 import { createLogsApi } from './logs_api';
 
 jest.mock('fs/promises', () => ({
@@ -12,7 +12,12 @@ jest.mock('fs/promises', () => ({
   stat: jest.fn().mockRejectedValue(new Error('not mocked yet')),
 }));
 
-jest.mock('fs-extra');
+jest.mock('../exec', (): typeof import('../exec') => ({
+  ...jest.requireActual('../exec'),
+  execFile: jest.fn(),
+}));
+
+const execFileMock = mockOf(execFile);
 
 test('exportLogsToUsb without logs directory', async () => {
   const mockUsbDrive = createMockUsbDrive();
@@ -62,7 +67,7 @@ test('exportLogsToUsb with unknown failure', async () => {
   mockStats.isDirectory = jest.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
 
-  mockOf(copyDirectory).mockImplementation(() => {
+  execFileMock.mockImplementationOnce(() => {
     throw new Error('boo');
   });
 
@@ -86,13 +91,14 @@ test('exportLogsToUsb works when all conditions are met', async () => {
   mockStats.isDirectory = jest.fn().mockReturnValue(true);
   mockOf(fs.stat).mockResolvedValueOnce(mockStats);
 
-  mockOf(copyDirectory).mockReturnValue();
+  execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
 
   expect((await api.exportLogsToUsb()).isOk()).toBeTruthy();
   expect(mockOf(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
 
-  expect(mockOf(copyDirectory)).toHaveBeenCalledWith(
+  expect(execFileMock).toHaveBeenCalledWith('cp', [
+    '-r',
     '/var/log/votingworks',
-    expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/')
-  );
+    expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
+  ]);
 });
