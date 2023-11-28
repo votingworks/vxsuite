@@ -458,7 +458,7 @@ test('election manager cannot auth onto machine with different election hash', a
   });
   await screen.findByText(
     'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Please insert a valid Election Manager or System Administrator card.'
+      'Use a valid Election Manager or System Administrator card.'
   );
 });
 

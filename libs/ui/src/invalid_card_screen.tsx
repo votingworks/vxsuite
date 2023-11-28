@@ -1,11 +1,11 @@
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 
 import { Main } from './main';
-import { Prose } from './prose';
 import { RotateCardImage } from './rotate_card_image';
 import { Screen } from './screen';
-import { fontSizeTheme } from './themes';
-import { H1, P } from './typography';
+import { FullScreenIconWrapper, Icons } from './icons';
+import { FullScreenMessage } from './full_screen_message';
+import { H3 } from './typography';
 
 type ReasonAndContext = Pick<
   DippedSmartCardAuth.LoggedOut | InsertedSmartCardAuth.LoggedOut,
@@ -24,7 +24,11 @@ export function InvalidCardScreen({
   const { cardJurisdiction, cardUserRole, machineJurisdiction, reason } =
     reasonAndContext;
 
-  let graphic: JSX.Element | null = null;
+  let graphic = (
+    <FullScreenIconWrapper>
+      <Icons.Warning color="warning" />
+    </FullScreenIconWrapper>
+  );
   let heading = 'Invalid Card';
   let errorDescription = '';
   let recommendedAction =
@@ -76,13 +80,11 @@ export function InvalidCardScreen({
   return (
     <Screen>
       <Main centerChild padded>
-        {graphic}
-        <Prose textCenter themeDeprecated={fontSizeTheme.medium}>
-          <H1>{heading}</H1>
-          <P>
+        <FullScreenMessage title={heading} image={graphic}>
+          <H3 style={{ fontWeight: 'normal' }}>
             {errorDescription} {recommendedAction}
-          </P>
-        </Prose>
+          </H3>
+        </FullScreenMessage>
       </Main>
     </Screen>
   );
