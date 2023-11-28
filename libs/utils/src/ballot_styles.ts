@@ -58,16 +58,16 @@ export function getBallotStyleGroups(
 
 /**
  * Returns a language-specific ballot style, for the given
- * {@link destinationBallotStyleLanguage}, that belongs to the same
+ * {@link targetBallotStyleLanguage}, that belongs to the same
  * language-agnostic ballot style group as the given
  * {@link sourceBallotStyleId}.
  */
 export function getRelatedBallotStyle(params: {
   ballotStyles: readonly BallotStyle[];
-  destinationBallotStyleLanguage: LanguageCode;
   sourceBallotStyleId: BallotStyleId;
+  targetBallotStyleLanguage: LanguageCode;
 }): Result<BallotStyle, string> {
-  const { ballotStyles, destinationBallotStyleLanguage, sourceBallotStyleId } =
+  const { ballotStyles, sourceBallotStyleId, targetBallotStyleLanguage } =
     params;
 
   const ballotStyleGroups = getBallotStyleGroups(ballotStyles);
@@ -79,7 +79,7 @@ export function getRelatedBallotStyle(params: {
   }
 
   const destinationBallotStyle = _.find(matchingGroup, (b) =>
-    _.isEqual(b.languages, [destinationBallotStyleLanguage])
+    _.isEqual(b.languages, [targetBallotStyleLanguage])
   );
   if (!destinationBallotStyle) {
     return err('destination ballot style not found');

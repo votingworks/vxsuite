@@ -115,16 +115,16 @@ describe('ballot style groups', () => {
     expect(
       getRelatedBallotStyle({
         ballotStyles,
-        destinationBallotStyleLanguage: LanguageCode.ENGLISH,
         sourceBallotStyleId: style1Spanish.id,
+        targetBallotStyleLanguage: LanguageCode.ENGLISH,
       }).unsafeUnwrap()
     ).toEqual(style1English);
 
     expect(
       getRelatedBallotStyle({
         ballotStyles,
-        destinationBallotStyleLanguage: LanguageCode.SPANISH,
         sourceBallotStyleId: style1English.id,
+        targetBallotStyleLanguage: LanguageCode.SPANISH,
       }).unsafeUnwrap()
     ).toEqual(style1Spanish);
   });
@@ -133,16 +133,16 @@ describe('ballot style groups', () => {
     expect(
       getRelatedBallotStyle({
         ballotStyles: [style1English],
-        destinationBallotStyleLanguage: LanguageCode.ENGLISH,
         sourceBallotStyleId: style2PurpleEnglish.id,
+        targetBallotStyleLanguage: LanguageCode.ENGLISH,
       }).err()
     ).toMatch('not found');
 
     expect(
       getRelatedBallotStyle({
         ballotStyles: [style1English],
-        destinationBallotStyleLanguage: LanguageCode.SPANISH,
         sourceBallotStyleId: style1English.id,
+        targetBallotStyleLanguage: LanguageCode.SPANISH,
       }).err()
     ).toMatch('not found');
   });
