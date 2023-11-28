@@ -1,9 +1,9 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { Tabulation } from '@votingworks/types';
+import { Dictionary, Tabulation } from '@votingworks/types';
 import { within } from '@testing-library/react';
 import { Optional } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
-import { BallotCountReport, Column } from './ballot_count_report';
+import { BallotCountReport } from './ballot_count_report';
 
 const mockScannerBatches: Tabulation.ScannerBatch[] = [
   {
@@ -33,9 +33,7 @@ function cc(
   };
 }
 
-type RowData = {
-  [T in Column]?: string;
-};
+type RowData = Dictionary<string>;
 
 /**
  * Parses on screen grid into an array of headers, an array of row text content keyed
@@ -44,13 +42,19 @@ type RowData = {
 function parseGrid({ expectFooter }: { expectFooter: boolean }) {
   const grid = screen.getByTestId('ballot-count-grid');
 
-  const columns = within(grid)
+  // strip header data test ids, e.g. 'header-ballot-count-bmd', down to
+  // the column id only, e.g. 'bmd', for brevity
+  const columnIds = within(grid)
     .getAllByTestId(/header-/)
     .map(
-      (cell) => cell.getAttribute('data-testid')?.replace('header-', '')
-    ) as Column[];
+      (cell) =>
+        cell
+          .getAttribute('data-testid')
+          ?.replace(/header-/, '')
+          ?.replace(/attribute-|ballot-count-|sheet-count-|filler-/, '')
+    ) as string[];
 
-  const width = columns.length;
+  const width = columnIds.length;
   const allCells = grid.childNodes;
   expect(allCells.length % width).toEqual(0);
 
@@ -62,28 +66,28 @@ function parseGrid({ expectFooter }: { expectFooter: boolean }) {
     const row: RowData = {};
     const cells = [...allCells].slice((i + 1) * width, (i + 2) * width);
     for (let j = 0; j < width; j += 1) {
-      const column = columns[j];
-      if (column === 'center-fill' || column === 'right-fill') continue;
-      row[column] = cells[j].textContent ?? undefined;
+      const columnId = columnIds[j];
+      if (columnId === 'center' || columnId === 'right') continue;
+      row[columnId] = cells[j].textContent ?? undefined;
     }
     rows.push(row);
   }
 
-  const FOOTER_COLUMNS: Column[] = ['manual', 'hmpb', 'bmd', 'total'];
+  const FOOTER_COLUMN_IDS: string[] = ['manual', 'hmpb', 'bmd', 'total'];
   let footer: Optional<RowData>;
   if (expectFooter) {
     screen.getByText(/Sum Total/);
     footer = {};
     const cells = [...allCells].slice((numRows - 1) * width, numRows * width);
     for (let j = 0; j < width; j += 1) {
-      const column = columns[j];
-      if (!FOOTER_COLUMNS.includes(column)) continue;
-      footer[column] = cells[j].textContent ?? undefined;
+      const columnId = columnIds[j];
+      if (!FOOTER_COLUMN_IDS.includes(columnId)) continue;
+      footer[columnId] = cells[j].textContent ?? undefined;
     }
   }
 
   return {
-    columns,
+    columns: columnIds,
     rows,
     footer,
   };
@@ -135,18 +139,18 @@ test('can render all attribute columns', () => {
     />
   );
 
-  const expectedColumns: Column[] = [
+  const expectedColumns = [
     'precinct',
     'ballot-style',
     'party',
     'voting-method',
     'scanner',
     'batch',
-    'center-fill',
+    'center',
     'bmd',
     'hmpb',
     'total',
-    'right-fill',
+    'right',
   ];
   const expectedRows: RowData[] = [
     {
@@ -249,15 +253,15 @@ test('shows manual counts', () => {
     />
   );
 
-  const expectedColumns: Column[] = [
+  const expectedColumns = [
     'precinct',
     'party',
-    'center-fill',
+    'center',
     'manual',
     'bmd',
     'hmpb',
     'total',
-    'right-fill',
+    'right',
   ];
   const expectedRows: RowData[] = [
     {
@@ -318,15 +322,15 @@ test('shows separate manual rows when group by is not compatible with manual res
     />
   );
 
-  const expectedColumns: Column[] = [
+  const expectedColumns = [
     'scanner',
     'batch',
-    'center-fill',
+    'center',
     'manual',
     'bmd',
     'hmpb',
     'total',
-    'right-fill',
+    'right',
   ];
   const expectedRows: RowData[] = [
     {
@@ -378,7 +382,7 @@ test('ungrouped case', () => {
   );
 
   const { columns, rows } = parseGrid({ expectFooter: false });
-  expect(columns).toEqual(['bmd', 'hmpb', 'total', 'right-fill']);
+  expect(columns).toEqual(['bmd', 'hmpb', 'total', 'right']);
   expect(rows).toEqual([
     {
       bmd: '10',
