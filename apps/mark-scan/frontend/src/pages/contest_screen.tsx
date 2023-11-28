@@ -4,6 +4,7 @@ import { ContestPage } from '@votingworks/mark-flow-ui';
 
 import { ContestId } from '@votingworks/types';
 import { BallotContext } from '../contexts/ballot_context';
+import { getIsPatDeviceConnected } from '../api';
 
 function getContestUrl(contestIndex: number) {
   return `/contests/${contestIndex}`;
@@ -21,9 +22,17 @@ function getStartPageUrl() {
   return '/';
 }
 
-export function ContestScreen(): JSX.Element {
+export function ContestScreen(): JSX.Element | null {
   const { contests, electionDefinition, precinctId, updateVote, votes } =
     React.useContext(BallotContext);
+
+  const getIsPatDeviceConnectedQuery = getIsPatDeviceConnected.useQuery();
+
+  if (!getIsPatDeviceConnectedQuery.isSuccess) {
+    return null;
+  }
+
+  const isPatDeviceConnected = getIsPatDeviceConnectedQuery.data;
 
   return (
     <ContestPage
@@ -35,6 +44,7 @@ export function ContestScreen(): JSX.Element {
       precinctId={precinctId}
       updateVote={updateVote}
       votes={votes}
+      moveFocusAfterUpdateVote={isPatDeviceConnected}
     />
   );
 }

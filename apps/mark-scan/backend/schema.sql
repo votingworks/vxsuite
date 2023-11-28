@@ -39,3 +39,7 @@ create table ui_string_audio_ids (
   data text not null, -- JSON blob - see libs/types/UiStringAudioIdsSchema
   foreign key (language_code) references languages(code)
 );
+
+create table hardware_config (
+  is_pat_device_connected integer
+);

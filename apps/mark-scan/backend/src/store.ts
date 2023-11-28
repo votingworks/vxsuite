@@ -313,4 +313,37 @@ export class Store {
       ballotsPrintedCount
     );
   }
+
+  createHardwareConfig(): void {
+    this.client.run('delete from hardware_config');
+    this.client.run(
+      'insert into hardware_config (is_pat_device_connected) values (?)',
+      0
+    );
+  }
+
+  /**
+   * Returns whether a PAT device is connected
+   */
+  getIsPatDeviceConnected(): boolean {
+    const hardwareConfigRow = this.client.one(
+      'select is_pat_device_connected as isPatDeviceConnected from hardware_config'
+    ) as { isPatDeviceConnected: number } | undefined;
+
+    if (!hardwareConfigRow) {
+      return false;
+    }
+
+    return Boolean(hardwareConfigRow.isPatDeviceConnected);
+  }
+
+  /**
+   * Sets whether a PAT device is connected
+   */
+  setIsPatDeviceConnected(isPatDeviceConnected: boolean): void {
+    this.client.run(
+      'update hardware_config set is_pat_device_connected = ?',
+      isPatDeviceConnected ? 1 : 0
+    );
+  }
 }

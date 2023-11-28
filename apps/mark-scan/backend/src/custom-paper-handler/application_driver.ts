@@ -161,6 +161,10 @@ export async function printBallot(
   );
 }
 
+function getBlankSheetFixturePath(): string {
+  return join(__dirname, 'fixtures', 'blank-sheet.jpg');
+}
+
 export async function scanAndSave(
   driver: PaperHandlerDriver
 ): Promise<SheetOf<string>> {
@@ -168,7 +172,6 @@ export async function scanAndSave(
   const pathOutFront = tmpNameSync({ postfix: '.jpeg' });
   // We can only print to one side from the thermal printer, but the interpret flow expects
   // a SheetOf 2 pages. Use an image of a blank sheet for the 2nd page.
-  const blankSheetFixturePath = join(__dirname, 'fixtures', 'blank-sheet.jpg');
   const status = await driver.getPaperHandlerStatus();
   // Scan can happen from loaded or parked state. If the paper is not loaded or parked
   // it means the voter may have taken the paper out of the infeed
@@ -178,7 +181,18 @@ export async function scanAndSave(
 
   await driver.scanAndSave(pathOutFront);
   debug('Scan successful');
-  return [pathOutFront, blankSheetFixturePath];
+  return [pathOutFront, getBlankSheetFixturePath()];
+}
+
+export function getSampleBallotFilepaths(): SheetOf<string> {
+  return [
+    join(
+      __dirname,
+      'fixtures',
+      'bmd-ballot-general-north-springfield-style-5.jpg'
+    ),
+    getBlankSheetFixturePath(),
+  ];
 }
 
 export async function loadAndParkPaper(

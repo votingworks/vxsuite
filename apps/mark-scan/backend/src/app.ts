@@ -155,6 +155,7 @@ export function buildApi(
           jurisdiction: authStatus.user.jurisdiction,
         });
         workspace.store.setSystemSettings(systemSettings);
+        workspace.store.createHardwareConfig();
 
         // automatically set precinct for single precinct elections
         if (electionDefinition.election.precincts.length === 1) {
@@ -201,6 +202,16 @@ export function buildApi(
       stateMachine.setAcceptingPaper();
     },
 
+    /**
+     * Returns whether a PAT device is connected.
+     */
+    getIsPatDeviceIsConnected(): boolean {
+      return workspace.store.getIsPatDeviceConnected();
+    },
+
+    /**
+     * Sets whether the voter has completed the PAT device calibration flow after a device a connected.
+     */
     setPatDeviceIsCalibrated(): void {
       assert(stateMachine, 'No state machine');
 
@@ -209,6 +220,19 @@ export function buildApi(
 
     printBallot(input: { pdfData: Buffer }): void {
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+        )
+      ) {
+        // Mock print behavior when no paper handler is connected.
+        // Skips the print state, sets the scanned ballot filepaths to
+        // a fixture for Sample General Election, North Springfield, ballot style 5,
+        // and continues to the interpretation state.
+        stateMachine?.setInterpretationFixture();
+        return;
+      }
 
       assert(stateMachine);
       void stateMachine.printBallot(input.pdfData);

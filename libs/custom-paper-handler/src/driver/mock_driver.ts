@@ -45,6 +45,8 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   readonly scannerConfig: ScannerConfig = getDefaultConfig();
   readonly webDevice: MinimalWebUsbDevice = mockMinimalWebUsbDevice();
 
+  statusRef: PaperHandlerStatus = defaultPaperHandlerStatus();
+
   connect(): Promise<void> {
     throw new Error('Method not implemented.');
   }
@@ -208,7 +210,11 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   getPaperHandlerStatus(): Promise<PaperHandlerStatus> {
-    return Promise.resolve(defaultPaperHandlerStatus());
+    return Promise.resolve(this.statusRef);
+  }
+
+  setPaperHandlerStatus(newStatus: Partial<PaperHandlerStatus>): void {
+    this.statusRef = { ...this.statusRef, ...newStatus };
   }
 
   handleGenericCommandWithAcknowledgement<T>(
@@ -259,7 +265,8 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     throw new Error('Method not implemented.');
   }
   presentPaper(): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    debug('No-op presentPaper called');
+    return Promise.resolve(true);
   }
   ejectBallotToRear(): Promise<boolean> {
     throw new Error('Method not implemented.');

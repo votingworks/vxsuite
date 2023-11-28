@@ -1,15 +1,22 @@
 /* istanbul ignore file - tested via Mark/Mark-Scan */
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
 import {
   CandidateVote,
   ContestId,
   ElectionDefinition,
+  OptionalVote,
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { Screen, LinkButton, useScreenInfo, appStrings } from '@votingworks/ui';
+import {
+  Screen,
+  LinkButton,
+  useScreenInfo,
+  appStrings,
+  Button,
+} from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import { Contest, ContestProps } from '../components/contest';
@@ -26,6 +33,9 @@ interface ContestPageProps {
   precinctId?: PrecinctId;
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
+  // Moves focus to the "Next" button after voter selects an option in a contest.
+  // This helps reduce repetitive action for accessibility device users.
+  moveFocusAfterUpdateVote?: boolean;
 }
 
 interface ContestParams {
@@ -46,6 +56,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     precinctId,
     updateVote,
     votes,
+    moveFocusAfterUpdateVote,
   } = props;
 
   const screenInfo = useScreenInfo();
@@ -92,15 +103,34 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     }
   })();
 
+  const nextContestButtonRef = useRef<Button>(null);
+  const handleOnPressNext = useCallback(() => {
+    const to = nextContest
+      ? getContestUrl(nextContestIndex)
+      : getReviewPageUrl();
+    history.push(to);
+  }, [getContestUrl, getReviewPageUrl, history, nextContest, nextContestIndex]);
+
   const nextContestButton = (
-    <LinkButton
+    <Button
       id="next"
       rightIcon="Next"
       variant={isVoteComplete ? 'primary' : 'neutral'}
-      to={nextContest ? getContestUrl(nextContestIndex) : getReviewPageUrl()}
+      onPress={handleOnPressNext}
+      ref={nextContestButtonRef}
     >
       {appStrings.buttonNext()}
-    </LinkButton>
+    </Button>
+  );
+
+  const handleUpdateVote: ContestProps['updateVote'] = useCallback(
+    (contestIdProp: ContestId, voteProp: OptionalVote) => {
+      if (moveFocusAfterUpdateVote) {
+        nextContestButtonRef?.current?.focus();
+      }
+      updateVote(contestIdProp, voteProp);
+    },
+    [moveFocusAfterUpdateVote, updateVote, nextContestButtonRef]
   );
 
   const previousContestButton = (
@@ -137,7 +167,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         election={electionDefinition.election}
         contest={contest}
         votes={votes}
-        updateVote={updateVote}
+        updateVote={handleUpdateVote}
       />
       <ButtonFooter>
         {isReviewMode ? (
