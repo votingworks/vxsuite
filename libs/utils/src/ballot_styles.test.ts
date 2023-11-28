@@ -61,6 +61,12 @@ describe('ballot style groups', () => {
     languages: [LanguageCode.SPANISH],
   });
 
+  const style2GreenEnglish = makeBallotStyle({
+    id: '2-G_en',
+    languages: [LanguageCode.ENGLISH],
+    partyId: 'green-party' as PartyId,
+  });
+
   const style2GreenEnglishMultiLanguage = makeBallotStyle({
     id: '2-G_en_es-US',
     languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
@@ -86,6 +92,7 @@ describe('ballot style groups', () => {
       getBallotStyleGroups([
         style1English,
         style1Spanish,
+        style2GreenEnglish,
         style2GreenEnglishMultiLanguage,
         style2GreenNonEnglishSingleLanguage,
         style2PurpleEnglish,
@@ -94,6 +101,7 @@ describe('ballot style groups', () => {
     ).toEqual({
       '1': [style1English, style1Spanish],
       '2-G': [
+        style2GreenEnglish,
         style2GreenEnglishMultiLanguage,
         style2GreenNonEnglishSingleLanguage,
       ],
@@ -106,6 +114,7 @@ describe('ballot style groups', () => {
     const ballotStyles = [
       style1English,
       style1Spanish,
+      style2GreenEnglish,
       style2GreenEnglishMultiLanguage,
       style2GreenNonEnglishSingleLanguage,
       style2PurpleEnglish,
@@ -152,6 +161,7 @@ describe('ballot style groups', () => {
       getDefaultLanguageBallotStyles([
         style1English,
         style1Spanish,
+        style2GreenEnglish,
         style2GreenEnglishMultiLanguage,
         style2GreenNonEnglishSingleLanguage,
         style2PurpleEnglish,
@@ -159,7 +169,7 @@ describe('ballot style groups', () => {
       ])
     ).toEqual([
       style1English,
-      style2GreenEnglishMultiLanguage,
+      style2GreenEnglish,
       style2PurpleEnglish,
       style3LegacySchema,
     ]);

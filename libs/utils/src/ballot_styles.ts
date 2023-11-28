@@ -89,7 +89,7 @@ export function getRelatedBallotStyle(params: {
 }
 
 /**
- * Returns only English-language ballot styles from the given list.
+ * Returns English-language-only ballot styles from the given list.
  *
  * The returned list will include all legacy language-agnostic ballot styles as
  * well, if included in the original list.
@@ -102,23 +102,18 @@ export function getDefaultLanguageBallotStyles(
   const defaultStyles = Object.values(ballotStyleGroups).map(
     (ballotStyleGroup) => {
       let englishBallotStyle: BallotStyle | undefined;
-      let englishMultiLanguageBallotStyle: BallotStyle | undefined;
       let legacyBallotStyle: BallotStyle | undefined;
 
       for (const ballotStyle of ballotStyleGroup) {
         if (_.isEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
           englishBallotStyle = ballotStyle;
-        } else if (ballotStyle.languages?.includes(LanguageCode.ENGLISH)) {
-          englishMultiLanguageBallotStyle = ballotStyle;
         } else if (!ballotStyle.languages) {
           legacyBallotStyle = ballotStyle;
         }
       }
 
       return assertDefined(
-        englishBallotStyle ||
-          englishMultiLanguageBallotStyle ||
-          legacyBallotStyle,
+        englishBallotStyle || legacyBallotStyle,
         'Expected at least one English language ballot style per ballot style group.'
       );
     }
