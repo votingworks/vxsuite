@@ -11,6 +11,7 @@ import {
   determinePartyId,
   format,
   getBallotCount,
+  getElectionSheetCount,
   getGroupKey,
   getHmpbBallotCount,
   getPartyById,
@@ -24,7 +25,7 @@ import { TallyReportMetadata } from './tally_report_metadata';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { getBatchLabel, getScannerLabel, prefixedTitle } from './utils';
 
-const ATTRIBUTE_COLUMNS = [
+export const ATTRIBUTE_COLUMNS = [
   'precinct',
   'ballot-style',
   'party',
@@ -52,7 +53,7 @@ interface SheetCountColumn {
 }
 
 // filler columns provide flex spacing in the grid
-const FILLER_COLUMNS = ['center', 'right'] as const;
+export const FILLER_COLUMNS = ['center', 'right'] as const;
 type FillerColumnId = (typeof FILLER_COLUMNS)[number];
 interface FillerColumn {
   type: 'filler';
@@ -84,7 +85,7 @@ function getColumnLabel(column: Column): string {
     case 'ballot-count':
       return COLUMN_LABELS[column.id];
     case 'sheet-count':
-      return `Sheet ${column.id}`;
+      return `Sheet ${column.id + 1}`;
     case 'filler':
       return '';
     // istanbul ignore next
@@ -112,8 +113,8 @@ function getColumnWidth(column: Column): string {
         default:
           throwIllegalValue(column);
       }
-      break;
     // istanbul ignore next
+    // eslint-disable-next-line no-fallthrough
     default:
       throwIllegalValue(column);
   }
@@ -156,7 +157,7 @@ const BallotCountGrid = styled.div<{
     const numColumns = columns.length;
     let css = ``;
     for (let i = 1; i <= numColumns; i += 1) {
-      css += `span:nth-child(${2 * numColumns}n + ${i}) { 
+      css += `span.striping:nth-child(${2 * numColumns}n + ${i}) { 
         background-color: #f5f5f5;
 
         @media print {
@@ -167,22 +168,31 @@ const BallotCountGrid = styled.div<{
     return css;
   }}
 
-  /* header */
-  span:nth-child(-n + ${({ columns }) => columns.length}) {
+  .bold {
     font-weight: 500;
-    background-color: white;
+  }
+
+  .italic {
+    font-style: italic;
+  }
+
+  .thicker-top-border {
+    border-top: 1.5px solid #ddd;
+  }
+
+  .thicker-bottom-border {
     border-bottom-width: 2px;
   }
 
-  /* footer */
-  span:nth-last-child(-n + ${({ columns }) => columns.length}) {
-    background-color: white;
+  .no-bottom-border {
     border-bottom: none;
-    font-weight: ${({ hasGroups }) => (hasGroups ? 500 : 400)};
-    border-top: ${({ hasGroups }) => (hasGroups ? '1.5px' : '0')} solid #ddd;
   }
 
-  .filler {
+  .thicker-left-border {
+    border-left-width: 1.5px !important;
+  }
+
+  .no-left-border {
     border-left: none !important;
   }
 
@@ -190,12 +200,19 @@ const BallotCountGrid = styled.div<{
     text-align: right;
   }
 
-  .sum-total {
+  .cell-text-overflow {
     position: relative;
     overflow-x: visible;
     text-overflow: unset;
   }
 `;
+
+const SUM_TOTAL_CLASSES = [
+  'cell-text-overflow',
+  'bold',
+  'thicker-top-border',
+  'no-bottom-border',
+];
 
 function getColumnKey(column: Column): string {
   return `${column.type}-${column.id}`;
@@ -218,6 +235,7 @@ function getFormattedCount(
       // sheet count case
       default:
         assert(typeof column.id === 'number');
+        // istanbul ignore next - trivial default value
         return cardCounts.hmpb[column.id] ?? 0;
     }
   })();
@@ -225,42 +243,106 @@ function getFormattedCount(
   return format.count(number);
 }
 
-function getCellClass(column: Column): Optional<string> {
-  switch (column.type) {
-    case 'attribute':
-      return undefined;
-    case 'filler':
-      switch (column.id) {
-        case 'center':
-          return 'filler';
-        case 'right':
-          return undefined;
-        // istanbul ignore next
-        default:
-          throwIllegalValue(column);
-      }
-      break;
-    case 'ballot-count':
-    case 'sheet-count':
-      return 'number';
-    // istanbul ignore next
-    default:
-      throwIllegalValue(column);
+type RowType = 'group-header' | 'header' | 'data' | 'footer';
+
+function isNumberColumn(column: Column): boolean {
+  return column.type === 'ballot-count' || column.type === 'sheet-count';
+}
+
+function getCellClass(
+  column: Column,
+  row: RowType,
+  showSheetCounts: boolean
+): Optional<string> {
+  const classes: string[] = [];
+
+  // center filler column is just for spacing, doesn't need border
+  if (column.type === 'filler' && column.id === 'center') {
+    classes.push('no-left-border');
   }
+
+  // special formatting for sheet count breakdown
+  if (showSheetCounts) {
+    // left border of sheet count area
+    if (column.type === 'sheet-count' && column.id === 0) {
+      classes.push('thicker-left-border');
+    }
+
+    // right border of sheet count area
+    if (column.id === 'total') {
+      classes.push('thicker-left-border');
+    }
+
+    // bold the headers and footers of first sheet count column
+    if (column.type === 'sheet-count' && column.id === 0 && row !== 'data') {
+      classes.push('bold');
+    }
+
+    // italicize subsequent sheet count columns
+    if (column.type === 'sheet-count' && column.id > 0) {
+      classes.push('italic');
+    }
+
+    if (row === 'group-header') {
+      // top border of sheet count area
+      if (column.type === 'sheet-count') {
+        classes.push('thicker-top-border');
+      }
+
+      // remove extra lines outside of sheet count area
+      if (column.type !== 'sheet-count' && column.id !== 'total') {
+        classes.push('no-left-border');
+      }
+      classes.push('no-bottom-border');
+    }
+  }
+
+  if (row === 'header') {
+    classes.push('thicker-bottom-border');
+    if (column.type !== 'sheet-count') {
+      classes.push('bold');
+    }
+  }
+
+  if (row === 'data') {
+    classes.push('striping');
+    if (isNumberColumn(column)) {
+      classes.push('number');
+    }
+  }
+
+  if (row === 'footer') {
+    classes.push('no-bottom-border');
+    classes.push('thicker-top-border');
+
+    if (column.type !== 'sheet-count') {
+      classes.push('bold');
+    }
+
+    // remove borders so "Sum Total" text appears to span multiple cells
+    if (column.type === 'attribute') {
+      classes.push('no-left-border');
+    }
+
+    if (isNumberColumn(column)) {
+      classes.push('number');
+    }
+  }
+
+  return classes.join(' ');
 }
 
 type BatchLookup = Record<string, Tabulation.ScannerBatch>;
 function getScannerId(
   cardCounts: Tabulation.GroupOf<Tabulation.CardCounts>,
   batchLookup: BatchLookup
-): Optional<string> {
+): string {
+  // asserts that the batchId is defined if the scannerId is not
   return (
     cardCounts.scannerId ??
     (cardCounts.batchId === Tabulation.MANUAL_BATCH_ID
       ? Tabulation.MANUAL_SCANNER_ID
-      : cardCounts.batchId
-      ? batchLookup[cardCounts.batchId].scannerId
-      : undefined)
+      : batchLookup[assertDefined(cardCounts.batchId)].scannerId)
   );
 }
 
@@ -295,16 +377,14 @@ function getCellContent({
             assertDefined(cardCounts.votingMethod)
           ];
         case 'scanner':
-          return getScannerLabel(
-            assertDefined(getScannerId(cardCounts, batchLookup))
-          );
+          return getScannerLabel(getScannerId(cardCounts, batchLookup));
         case 'batch':
           return getBatchLabel(assertDefined(cardCounts.batchId));
         // istanbul ignore next
         default:
           throwIllegalValue(column);
       }
-      break;
+    // eslint-disable-next-line no-fallthrough
     case 'filler':
       return '';
     case 'ballot-count':
@@ -316,16 +396,27 @@ function getCellContent({
   }
 }
 
+/**
+ * The table is a grid with a list of `<span>` elements as children, rather
+ * than row elements. In order to make this easier to test and style, the
+ * convention is that every "row" has the same number of cells, even if they
+ * are empty or appear to have span greater than 1.
+ *
+ * Using a grid rather than a table allows more powerful, content-responsive
+ * column widths.
+ */
 function BallotCountTable({
   electionDefinition,
   scannerBatches,
   cardCountsList,
   groupBy,
+  showSheetCounts,
 }: {
   electionDefinition: ElectionDefinition;
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
+  showSheetCounts: boolean;
 }): JSX.Element {
   const { election } = electionDefinition;
   const batchLookup: BatchLookup = {};
@@ -367,10 +458,22 @@ function BallotCountTable({
   if (hasNonZeroManualData) {
     columns.push({ type: 'ballot-count', id: 'manual' });
   }
-  columns.push({ type: 'ballot-count', id: 'bmd' });
-  columns.push({ type: 'ballot-count', id: 'hmpb' });
-  columns.push({ type: 'ballot-count', id: 'total' });
 
+  columns.push({ type: 'ballot-count', id: 'bmd' });
+
+  // we show the sheet counts if the flag is true even if it's a single-sheet
+  // election. it's the caller's responsibility to check the election definition
+  if (showSheetCounts) {
+    // istanbul ignore next - trivial default value
+    const sheetCount = getElectionSheetCount(election) ?? 1;
+    for (let i = 0; i < sheetCount; i += 1) {
+      columns.push({ type: 'sheet-count', id: i });
+    }
+  } else {
+    columns.push({ type: 'ballot-count', id: 'hmpb' });
+  }
+
+  columns.push({ type: 'ballot-count', id: 'total' });
   columns.push({ type: 'filler', id: 'right' });
 
   const totalCardCounts = combineCardCounts(cardCountsList);
@@ -381,17 +484,28 @@ function BallotCountTable({
       hasGroups={hasGroups}
       data-testid="ballot-count-grid"
     >
+      {/* Group Header */}
+      {showSheetCounts &&
+        columns.map((column) => (
+          <span
+            key={getColumnKey(column)}
+            className={getCellClass(column, 'group-header', showSheetCounts)}
+            data-testid={`group-header-${getColumnKey(column)}`}
+          >
+            {column.type === 'sheet-count' ? 'HMPB' : ''}
+          </span>
+        ))}
       {/* Header */}
       {columns.map((column) => (
         <span
           key={getColumnKey(column)}
-          className={getCellClass(column)}
+          className={`${getCellClass(column, 'header', showSheetCounts)}`}
           data-testid={`header-${getColumnKey(column)}`}
         >
           {getColumnLabel(column)}
         </span>
       ))}
-      {/* Body */}
+      {/* Data */}
       {cardCountsList.map((cardCounts) => {
         const rowKey = getGroupKey(cardCounts, groupBy);
         return (
@@ -401,7 +515,7 @@ function BallotCountTable({
               return (
                 <span
                   key={key}
-                  className={getCellClass(column)}
+                  className={getCellClass(column, 'data', showSheetCounts)}
                   data-testid={`data-${key}`}
                 >
                   {getCellContent({
@@ -419,27 +533,30 @@ function BallotCountTable({
       {/* Footer */}
       {hasGroups && (
         <React.Fragment>
-          <span className="sum-total">Sum Totals</span>
+          <span className={SUM_TOTAL_CLASSES.join(' ')}>Sum Totals</span>
           {/* eslint-disable-next-line array-callback-return */}
           {columns.slice(1).map((column) => {
             const key = getColumnKey(column);
             switch (column.type) {
-              case 'attribute':
-                // in the footer, attribute columns are empty filler
-                return <span key={key} className="filler" />;
               case 'ballot-count':
               case 'sheet-count':
                 return (
                   <span
                     key={key}
                     data-testid={`footer-${key}`}
-                    className={getCellClass(column)}
+                    className={getCellClass(column, 'footer', showSheetCounts)}
                   >
                     {getFormattedCount(totalCardCounts, column)}
                   </span>
                 );
+              case 'attribute':
               case 'filler':
-                return <span key={key} className={getCellClass(column)} />;
+                return (
+                  <span
+                    key={key}
+                    className={getCellClass(column, 'footer', showSheetCounts)}
+                  />
+                );
               // istanbul ignore next
               default:
                 throwIllegalValue(column);
@@ -460,6 +577,7 @@ export interface BallotCountReportProps {
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
+  showSheetCounts?: boolean;
   customFilter?: Admin.ReportingFilter;
   generatedAtTime?: Date;
 }
@@ -473,6 +591,7 @@ export function BallotCountReport({
   scannerBatches,
   cardCountsList,
   groupBy,
+  showSheetCounts,
   customFilter,
   generatedAtTime = new Date(),
 }: BallotCountReportProps): JSX.Element {
@@ -500,6 +619,7 @@ export function BallotCountReport({
             scannerBatches={scannerBatches}
             cardCountsList={cardCountsList}
             groupBy={groupBy}
+            showSheetCounts={showSheetCounts ?? false}
           />
         </ReportSection>
       </TallyReport>

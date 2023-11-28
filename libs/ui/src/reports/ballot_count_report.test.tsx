@@ -1,9 +1,54 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { Dictionary, Tabulation } from '@votingworks/types';
+import { Dictionary, GridLayout, Tabulation } from '@votingworks/types';
 import { within } from '@testing-library/react';
 import { Optional } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
-import { BallotCountReport } from './ballot_count_report';
+import {
+  ATTRIBUTE_COLUMNS,
+  BallotCountReport,
+  FILLER_COLUMNS,
+} from './ballot_count_report';
+
+const mockMultiSheetGridLayouts: GridLayout[] = [
+  {
+    ballotStyleId: 'any',
+    optionBoundsFromTargetMark: {
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+    },
+    gridPositions: [
+      {
+        type: 'option',
+        sheetNumber: 1,
+        side: 'front',
+        column: 0,
+        row: 0,
+        contestId: 'any',
+        optionId: 'any',
+      },
+      {
+        type: 'option',
+        sheetNumber: 2,
+        side: 'front',
+        column: 0,
+        row: 0,
+        contestId: 'any',
+        optionId: 'any',
+      },
+      {
+        type: 'option',
+        sheetNumber: 2,
+        side: 'back',
+        column: 0,
+        row: 0,
+        contestId: 'any',
+        optionId: 'any',
+      },
+    ],
+  },
+];
 
 const mockScannerBatches: Tabulation.ScannerBatch[] = [
   {
@@ -39,13 +84,19 @@ type RowData = Dictionary<string>;
  * Parses on screen grid into an array of headers, an array of row text content keyed
  * by column, and the footer if expected.
  */
-function parseGrid({ expectFooter }: { expectFooter: boolean }) {
+function parseGrid({
+  expectFooter,
+  expectGroupHeader,
+}: {
+  expectFooter: boolean;
+  expectGroupHeader?: boolean;
+}) {
   const grid = screen.getByTestId('ballot-count-grid');
 
   // strip header data test ids, e.g. 'header-ballot-count-bmd', down to
   // the column id only, e.g. 'bmd', for brevity
   const columnIds = within(grid)
-    .getAllByTestId(/header-/)
+    .getAllByTestId(/^header-/)
     .map(
       (cell) =>
         cell
@@ -59,12 +110,16 @@ function parseGrid({ expectFooter }: { expectFooter: boolean }) {
   expect(allCells.length % width).toEqual(0);
 
   const numRows = allCells.length / width;
-  const numDataRows = expectFooter ? numRows - 2 : numRows - 1;
+  const numHeaderRows = expectGroupHeader ? 2 : 1;
+  const numDataRows = numRows - numHeaderRows - (expectFooter ? 1 : 0);
 
   const rows: RowData[] = [];
   for (let i = 0; i < numDataRows; i += 1) {
     const row: RowData = {};
-    const cells = [...allCells].slice((i + 1) * width, (i + 2) * width);
+    const cells = [...allCells].slice(
+      (i + numHeaderRows) * width,
+      (i + numHeaderRows + 1) * width
+    );
     for (let j = 0; j < width; j += 1) {
       const columnId = columnIds[j];
       if (columnId === 'center' || columnId === 'right') continue;
@@ -73,7 +128,10 @@ function parseGrid({ expectFooter }: { expectFooter: boolean }) {
     rows.push(row);
   }
 
-  const FOOTER_COLUMN_IDS: string[] = ['manual', 'hmpb', 'bmd', 'total'];
+  const IGNORED_FOOTER_COLUMNS: string[] = [
+    ...ATTRIBUTE_COLUMNS,
+    ...FILLER_COLUMNS,
+  ];
   let footer: Optional<RowData>;
   if (expectFooter) {
     screen.getByText(/Sum Total/);
@@ -81,7 +139,7 @@ function parseGrid({ expectFooter }: { expectFooter: boolean }) {
     const cells = [...allCells].slice((numRows - 1) * width, numRows * width);
     for (let j = 0; j < width; j += 1) {
       const columnId = columnIds[j];
-      if (!FOOTER_COLUMN_IDS.includes(columnId)) continue;
+      if (IGNORED_FOOTER_COLUMNS.includes(columnId)) continue;
       footer[columnId] = cells[j].textContent ?? undefined;
     }
   }
@@ -289,6 +347,82 @@ test('shows manual counts', () => {
   };
 
   const { columns, rows, footer } = parseGrid({ expectFooter: true });
+  expect(columns).toEqual(expectedColumns);
+  expect(rows).toEqual(expectedRows);
+  expect(footer).toEqual(expectedFooter);
+});
+
+test('shows HMPB sheet counts', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  const precinctCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
+    {
+      ...cc(3, undefined, 12, 10),
+      precinctId: 'precinct-1',
+    },
+    {
+      ...cc(9, undefined, 11, 11),
+      precinctId: 'precinct-2',
+    },
+  ];
+
+  render(
+    <BallotCountReport
+      title="Full Election Ballot Count Report"
+      isOfficial={false}
+      isTest={false}
+      electionDefinition={{
+        ...electionDefinition,
+        election: {
+          ...electionDefinition.election,
+          gridLayouts: mockMultiSheetGridLayouts,
+        },
+      }}
+      scannerBatches={mockScannerBatches}
+      groupBy={{
+        groupByPrecinct: true,
+      }}
+      cardCountsList={precinctCardCountsList}
+      showSheetCounts
+    />
+  );
+
+  const expectedColumns = [
+    'precinct',
+    'center',
+    'bmd',
+    '0',
+    '1',
+    'total',
+    'right',
+  ];
+  const expectedRows: RowData[] = [
+    {
+      precinct: 'Precinct 1',
+      bmd: '3',
+      '0': '12',
+      '1': '10',
+      total: '15',
+    },
+    {
+      precinct: 'Precinct 2',
+      bmd: '9',
+      '0': '11',
+      '1': '11',
+      total: '20',
+    },
+  ];
+  const expectedFooter: RowData = {
+    bmd: '12',
+    '0': '23',
+    '1': '21',
+    total: '35',
+  };
+
+  const { columns, rows, footer } = parseGrid({
+    expectFooter: true,
+    expectGroupHeader: true,
+  });
   expect(columns).toEqual(expectedColumns);
   expect(rows).toEqual(expectedRows);
   expect(footer).toEqual(expectedFooter);

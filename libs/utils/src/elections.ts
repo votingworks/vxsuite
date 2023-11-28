@@ -1,9 +1,14 @@
+import { Optional, unique } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 
-/**
- * Determines if we can distinguish between voting methods for a given election.
- * See https://github.com/votingworks/vxsuite/issues/2631 for added context.
- */
-export function canDistinguishVotingMethods(election: Election): boolean {
-  return !election.gridLayouts;
+export function getElectionSheetCount(election: Election): Optional<number> {
+  if (!election.gridLayouts) {
+    return undefined;
+  }
+
+  return unique(
+    election.gridLayouts
+      .flatMap((gridLayout) => gridLayout.gridPositions)
+      .map(({ sheetNumber }) => sheetNumber)
+  ).length;
 }
