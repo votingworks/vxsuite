@@ -49,7 +49,7 @@ import {
 import { MachineConfig } from '../config/types';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
-import { CastVoteRecordSyncReminderModal } from '../components/cast_vote_record_sync_modal';
+import { CastVoteRecordSyncRequiredModal } from './cast_vote_record_sync_required_screen';
 import { printReport } from '../utils/print_report';
 import { ReprintReportButton } from '../components/reprint_report_button';
 import { getCurrentTime } from '../utils/get_current_time';
@@ -125,8 +125,8 @@ export function PollWorkerScreen({
     setIsShowingBallotsAlreadyScannedScreen,
   ] = useState(false);
   const [
-    isCastVoteRecordSyncReminderModalOpen,
-    setIsCastVoteRecordSyncReminderModalOpen,
+    isCastVoteRecordSyncRequiredModalOpen,
+    setIsCastVoteRecordSyncRequiredModalOpen,
   ] = useState(false);
   const needsToAttachPrinterToTransitionPolls = !printerInfo && !!window.kiosk;
   const { pollsState } = pollsInfo;
@@ -243,7 +243,7 @@ export function PollWorkerScreen({
 
   function closePolls() {
     if (usbDriveStatusQuery.data?.doesUsbDriveRequireCastVoteRecordSync) {
-      setIsCastVoteRecordSyncReminderModalOpen(true);
+      setIsCastVoteRecordSyncRequiredModalOpen(true);
       return;
     }
     return transitionPolls('close_polls');
@@ -325,10 +325,10 @@ export function PollWorkerScreen({
             <P>Attach printer to continue.</P>
           )}
         </CenteredLargeProse>
-        {isCastVoteRecordSyncReminderModalOpen && (
-          <CastVoteRecordSyncReminderModal
+        {isCastVoteRecordSyncRequiredModalOpen && (
+          <CastVoteRecordSyncRequiredModal
             blockedAction="close_polls"
-            closeModal={() => setIsCastVoteRecordSyncReminderModalOpen(false)}
+            closeModal={() => setIsCastVoteRecordSyncRequiredModalOpen(false)}
           />
         )}
       </ScreenMainCenterChild>
@@ -519,10 +519,10 @@ export function PollWorkerScreen({
     <ScreenMainCenterChild infoBarMode="pollworker">
       <H1>Poll Worker Actions</H1>
       {content}
-      {isCastVoteRecordSyncReminderModalOpen && (
-        <CastVoteRecordSyncReminderModal
+      {isCastVoteRecordSyncRequiredModalOpen && (
+        <CastVoteRecordSyncRequiredModal
           blockedAction="close_polls"
-          closeModal={() => setIsCastVoteRecordSyncReminderModalOpen(false)}
+          closeModal={() => setIsCastVoteRecordSyncRequiredModalOpen(false)}
         />
       )}
     </ScreenMainCenterChild>
