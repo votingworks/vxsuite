@@ -6,7 +6,6 @@ import {
   UnlockMachineScreen,
   SystemAdministratorScreenContents,
   ExportLogsButtonGroup,
-  useQueryChangeListener,
 } from '@votingworks/ui';
 import {
   Hardware,
@@ -97,16 +96,9 @@ export function AppRoot({
   });
 
   const [
-    isCastVoteRecordSyncRequiredScreenUp,
-    setIsCastVoteRecordSyncRequiredScreenUp,
+    shouldStayOnCastVoteRecordSyncRequiredScreen,
+    setShouldStayOnCastVoteRecordSyncRequiredScreen,
   ] = useState(false);
-  useQueryChangeListener(usbDriveStatusQuery, {
-    onChange: (newUsbDriveStatus) => {
-      if (newUsbDriveStatus.doesUsbDriveRequireCastVoteRecordSync) {
-        setIsCastVoteRecordSyncRequiredScreenUp(true);
-      }
-    },
-  });
 
   if (
     !(
@@ -316,11 +308,17 @@ export function AppRoot({
     );
   }
 
-  if (isCastVoteRecordSyncRequiredScreenUp) {
+  if (
+    usbDrive.doesUsbDriveRequireCastVoteRecordSync ||
+    // This ensures that we don't immediately transition away from the CVR sync success message.
+    // We can't rely on doesUsbDriveRequireCastVoteRecordSync because it becomes false as soon as
+    // the sync completes.
+    shouldStayOnCastVoteRecordSyncRequiredScreen
+  ) {
     return (
       <CastVoteRecordSyncRequiredScreen
-        returnToVoterScreen={() =>
-          setIsCastVoteRecordSyncRequiredScreenUp(false)
+        setShouldStayOnCastVoteRecordSyncRequiredScreen={
+          setShouldStayOnCastVoteRecordSyncRequiredScreen
         }
       />
     );
