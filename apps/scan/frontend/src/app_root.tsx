@@ -100,12 +100,10 @@ export function AppRoot({
     isCastVoteRecordSyncRequiredScreenUp,
     setIsCastVoteRecordSyncRequiredScreenUp,
   ] = useState(false);
-  useQueryChangeListener(usbDriveStatusQuery, {
-    onChange: (newUsbDriveStatus) => {
-      if (newUsbDriveStatus.doesUsbDriveRequireCastVoteRecordSync) {
-        setIsCastVoteRecordSyncRequiredScreenUp(true);
-      }
-    },
+  useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
+    if (newUsbDriveStatus.doesUsbDriveRequireCastVoteRecordSync) {
+      setIsCastVoteRecordSyncRequiredScreenUp(true);
+    }
   });
 
   if (
