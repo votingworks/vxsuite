@@ -69,7 +69,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
   // Default Unconfigured
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText(
+    'Insert an Election Manager card to configure VxMark'
+  );
 
   // ---------------
 
@@ -109,7 +111,9 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Remove card and expect not configured because precinct not selected
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText(
+    'Insert an Election Manager card to configure VxMark'
+  );
 
   // ---------------
 
@@ -327,7 +331,9 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Default Unconfigured
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText(
+    'Insert an Election Manager card to configure VxMark'
+  );
 
   // Insert System Administrator card works when unconfigured
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
@@ -342,7 +348,9 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   await screen.findByText('Election Definition is loaded.');
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Election Manager card to select a precinct.');
+  await screen.findByText(
+    'Insert an Election Manager card to configure VxMark'
+  );
 
   // Unconfigure with System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
@@ -363,9 +371,11 @@ test('MarkAndPrint end-to-end flow', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText(
+    'Insert an Election Manager card to configure VxMark'
+  );
 
   // Verify that machine was unconfigured even after election manager reauth
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('VxMark is Not Configured');
+  await screen.findByText('Insert a USB drive containing a ballot package');
 });
