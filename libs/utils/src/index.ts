@@ -1,6 +1,7 @@
 export * from './as_boolean';
 export * from './auth';
 export * from './ballot_package';
+export * from './ballot_styles';
 export * from './pins';
 export * from './cast_vote_records';
 export * from './compressed_tallies';

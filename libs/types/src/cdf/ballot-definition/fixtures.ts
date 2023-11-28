@@ -9,6 +9,7 @@ import {
   SelectionCaptureMethod,
   BallotSideType,
 } from '.';
+import { LanguageCode } from '../../language_code';
 import { BallotPaperSize, DistrictId, Election, PartyId } from '../../election';
 
 /**
@@ -122,19 +123,22 @@ export const testVxfElection: Election = {
   ballotStyles: [
     // Simulate a split precinct with two ballot styles for the same precinct
     {
-      id: 'ballot-style-1',
+      id: '1_en',
       precincts: ['precinct-1'],
       districts: ['district-1' as DistrictId],
+      languages: [LanguageCode.ENGLISH],
     },
     {
-      id: 'ballot-style-2',
+      id: '2_en',
       precincts: ['precinct-1'],
       districts: ['district-2' as DistrictId],
+      languages: [LanguageCode.ENGLISH],
     },
     {
-      id: 'ballot-style-3',
+      id: '3_en_es-US',
       precincts: ['precinct-2'],
       districts: ['district-1' as DistrictId, 'district-2' as DistrictId],
+      languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
     },
   ],
   ballotLayout: {
@@ -143,7 +147,7 @@ export const testVxfElection: Election = {
   },
   gridLayouts: [
     {
-      ballotStyleId: 'ballot-style-1',
+      ballotStyleId: '1_en',
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -205,7 +209,7 @@ export const testVxfElection: Election = {
       ],
     },
     {
-      ballotStyleId: 'ballot-style-2',
+      ballotStyleId: '2_en',
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -225,7 +229,7 @@ export const testVxfElection: Election = {
       ],
     },
     {
-      ballotStyleId: 'ballot-style-3',
+      ballotStyleId: '3_en_es-US',
       optionBoundsFromTargetMark: {
         bottom: 1,
         left: 1,
@@ -621,9 +625,10 @@ export const testCdfBallotDefinition: BallotDefinition = {
             {
               '@type': 'BallotDefinition.ExternalIdentifier',
               Type: IdentifierType.StateLevel,
-              Value: 'ballot-style-1',
+              Value: '1_en',
             },
           ],
+          Language: [LanguageCode.ENGLISH],
         },
         {
           '@type': 'BallotDefinition.BallotStyle',
@@ -668,9 +673,10 @@ export const testCdfBallotDefinition: BallotDefinition = {
             {
               '@type': 'BallotDefinition.ExternalIdentifier',
               Type: IdentifierType.StateLevel,
-              Value: 'ballot-style-2',
+              Value: '2_en',
             },
           ],
+          Language: [LanguageCode.ENGLISH],
         },
         {
           '@type': 'BallotDefinition.BallotStyle',
@@ -842,9 +848,10 @@ export const testCdfBallotDefinition: BallotDefinition = {
             {
               '@type': 'BallotDefinition.ExternalIdentifier',
               Type: IdentifierType.StateLevel,
-              Value: 'ballot-style-3',
+              Value: '3_en_es-US',
             },
           ],
+          Language: [LanguageCode.ENGLISH, LanguageCode.SPANISH],
         },
       ],
     },

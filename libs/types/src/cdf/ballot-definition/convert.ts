@@ -328,6 +328,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                 Value: ballotStyle.id,
               },
             ],
+            Language: ballotStyle.languages,
           })
         ),
       },
@@ -654,6 +655,7 @@ export function convertCdfBallotDefinitionToVxfElection(
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0] as Vxf.PartyId | undefined,
+        languages: ballotStyle.Language as LanguageCode[] | undefined,
       };
     }),
 

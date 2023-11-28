@@ -571,6 +571,11 @@ export interface BallotStyle {
   readonly GpUnitIds: readonly string[];
 
   /**
+   * For the written languages appearing on the ballot style.
+   */
+  readonly Language?: readonly string[];
+
+  /**
    * For associating a ballot style with ballot content, such as contests or headers.
    */
   readonly OrderedContent?: readonly OrderedContest[];
@@ -588,6 +593,7 @@ export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   '@type': z.literal('BallotDefinition.BallotStyle'),
   ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema)).min(1),
   GpUnitIds: z.array(z.string()).min(1),
+  Language: z.optional(z.array(z.string()).min(1)),
   OrderedContent: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OrderedContestSchema))),
   PartyIds: z.optional(z.array(z.string())),
 });

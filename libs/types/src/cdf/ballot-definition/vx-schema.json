@@ -257,6 +257,13 @@
           "minItems": 1,
           "type": "array"
         },
+        "Language": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
         "OrderedContent": {
           "items": {
             "$ref": "#/definitions/BallotDefinition.OrderedContest"

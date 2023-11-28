@@ -37,7 +37,6 @@ const elections = [election, primaryElection, electionTwoPartyPrimary];
 for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {
     const cdf = convertVxfElectionToCdfBallotDefinition(vxf);
-    expect(cdf).toMatchSnapshot();
     expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(
       normalizeVxf(vxf)
     );

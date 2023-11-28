@@ -21,6 +21,7 @@ import {
   Size,
   SizeSchema,
 } from './geometry';
+import { LanguageCode } from './language_code';
 
 // Generic
 export type Translations = Record<string, Record<string, string> | undefined>;
@@ -311,12 +312,14 @@ export interface BallotStyle {
   readonly precincts: readonly PrecinctId[];
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
+  readonly languages?: readonly LanguageCode[]; // TODO(kofi): Make required.
 }
 export const BallotStyleSchema: z.ZodSchema<BallotStyle> = z.object({
   id: BallotStyleIdSchema,
   precincts: z.array(PrecinctIdSchema),
   districts: z.array(DistrictIdSchema),
   partyId: PartyIdSchema.optional(),
+  languages: z.array(z.nativeEnum(LanguageCode)).optional(),
 });
 export const BallotStylesSchema = z
   .array(BallotStyleSchema)
