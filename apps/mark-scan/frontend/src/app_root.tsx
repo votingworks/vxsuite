@@ -10,7 +10,6 @@ import {
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 
-import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
 import { IdleTimerProvider } from 'react-idle-timer';
 import {
@@ -56,10 +55,7 @@ import {
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
 import { BallotContext } from './contexts/ballot_context';
-import {
-  handleGamepadButtonDown,
-  handleGamepadKeyboardEvent,
-} from './lib/gamepad';
+import { handleKeyboardEvent } from './lib/assistive_technology';
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
@@ -310,10 +306,10 @@ export function AppRoot({
       navigator.userAgent
     );
 
-    document.addEventListener('keydown', handleGamepadKeyboardEvent);
+    document.addEventListener('keydown', handleKeyboardEvent);
 
     return () => {
-      document.removeEventListener('keydown', handleGamepadKeyboardEvent);
+      document.removeEventListener('keydown', handleKeyboardEvent);
     };
   }, []);
 
@@ -520,26 +516,24 @@ export function AppRoot({
         }
 
         return (
-          <Gamepad onButtonDown={handleGamepadButtonDown}>
-            <BallotContext.Provider
-              value={{
-                machineConfig,
-                precinctId,
-                ballotStyleId,
-                contests,
-                electionDefinition: optionalElectionDefinition,
-                generateBallotId: randomBallotId,
-                isCardlessVoter: isCardlessVoterAuth(authStatus),
-                isLiveMode: !isTestMode,
-                endVoterSession,
-                resetBallot,
-                updateVote,
-                votes: votes ?? blankBallotVotes,
-              }}
-            >
-              {ballotContextProviderChild}
-            </BallotContext.Provider>
-          </Gamepad>
+          <BallotContext.Provider
+            value={{
+              machineConfig,
+              precinctId,
+              ballotStyleId,
+              contests,
+              electionDefinition: optionalElectionDefinition,
+              generateBallotId: randomBallotId,
+              isCardlessVoter: isCardlessVoterAuth(authStatus),
+              isLiveMode: !isTestMode,
+              endVoterSession,
+              resetBallot,
+              updateVote,
+              votes: votes ?? blankBallotVotes,
+            }}
+          >
+            {ballotContextProviderChild}
+          </BallotContext.Provider>
         );
       }
     }

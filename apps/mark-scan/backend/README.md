@@ -36,6 +36,17 @@ run `./backend/build/patinputd` in the background or a separate terminal. There
 are no build steps for this tool besides
 `cd apps/mark-scan/backend && pnpm build`.
 
+You may need to run the daemon with sudo in development.
+
+## Accessible Controller
+
+A daemon is needed to use the built in accessible controller.
+
+To build it, run `cargo build` from `apps/mark-scan/accessible-controller`. Then
+from `vxsuite` root run `./target/debug/controllerd`.
+
+You may need to run the daemon with sudo in development.
+
 ## Testing
 
 ```sh

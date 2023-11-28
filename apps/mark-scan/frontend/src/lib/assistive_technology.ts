@@ -1,4 +1,3 @@
-import { Button } from 'react-gamepad';
 import { mod } from '../utils/mod';
 
 export function getActiveElement(): HTMLElement {
@@ -62,50 +61,19 @@ function handleClick() {
   activeElement.click();
 }
 
-export function handleGamepadButtonDown(buttonName: Button): void {
-  switch (buttonName) {
-    case 'DPadUp':
-      handleArrowUp();
-      break;
-    case 'B':
-    case 'DPadDown':
-      handleArrowDown();
-      break;
-    case 'DPadLeft':
-      handleArrowLeft();
-      break;
-    case 'DPadRight':
-      handleArrowRight();
-      break;
-    case 'A':
-      handleClick();
-      break;
-    // no default
-  }
-}
-
-// Add Playwright tests if this solution will become permanent
-/* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */
-export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
+/* istanbul ignore next */
+export function handleKeyboardEvent(event: KeyboardEvent): void {
   switch (event.key) {
-    case 'ArrowUp':
-      handleArrowUp();
-      break;
-    case '[':
-    case 'ArrowDown':
-      handleArrowDown();
-      break;
     case 'ArrowLeft':
       handleArrowLeft();
       break;
     case 'ArrowRight':
       handleArrowRight();
       break;
-    case ']':
-      handleClick();
+    case 'ArrowUp':
+      handleArrowUp();
       break;
-    // Current PAT device support uses a USB switch that emulates keypresses 1 and 2.
-    // These signals are used to navigate DOM focus and select the focused element.
+    case 'ArrowDown':
     case '1':
       handleArrowDown();
       break;
@@ -114,7 +82,7 @@ export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
       break;
     case 'Enter':
       // Enter already acts like a click
-      // handleClick()
+      // handleClick();
       break;
     // no default
   }

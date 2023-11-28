@@ -7,9 +7,9 @@ import {
 } from '../diagnostic_screen_components';
 import { PatIntroductionStep } from './pat_introduction_step';
 import { IdentifyInputStep } from './identify_input_step';
-import { handleGamepadKeyboardEvent } from '../../lib/gamepad';
+import { handleKeyboardEvent } from '../../lib/assistive_technology';
 
-interface Props {
+export interface Props {
   onAllInputsIdentified: () => void;
   onExitCalibration: () => void;
 }
@@ -24,12 +24,12 @@ export function PatDeviceIdentificationPage({
     // During PAT identification the voter triggers PAT inputs to identify them. We don't
     // want PAT input to actually navigate focus or select elements as random navigate +
     // select events could accidentally exit PAT calibration early.
-    document.removeEventListener('keydown', handleGamepadKeyboardEvent);
+    document.removeEventListener('keydown', handleKeyboardEvent);
 
     // On cleanup, re-enable the listener once devices are identified and the user is prompted
     // to select the "Continue with Voting" button
     return () => {
-      document.addEventListener('keydown', handleGamepadKeyboardEvent);
+      document.addEventListener('keydown', handleKeyboardEvent);
     };
   }, []);
 
