@@ -68,6 +68,7 @@ interface Context {
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;
   scannedImagePaths?: SheetOf<string>;
+  isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
 }
 
@@ -269,12 +270,11 @@ function buildPatDeviceConnectionStatusObservable() {
   return ({
     devicePollingIntervalMs,
     patConnectionStatusReader,
-    workspace,
+    isPatDeviceConnected: oldConnectionStatus,
   }: Context) => {
     return timer(0, devicePollingIntervalMs).pipe(
       switchMap(async () => {
         try {
-          const oldConnectionStatus = workspace.store.getIsPatDeviceConnected();
           // Checks for a PAT device connected to the built-in PAT jack first. If no device found,
           // checks for a device connected through the Origin Swifty USB switch. We support the Swifty
           // for development only and should be open to deprecating support if the cost of maintaining
@@ -382,9 +382,21 @@ export function buildMachine(
       PAPER_JAM: 'voting_flow.jammed',
       JAMMED_STATUS_NO_PAPER: 'voting_flow.jam_physically_cleared',
       PAT_DEVICE_CONNECTED: {
+        // Performing the assign here ensures the PAT device observable will
+        // have an updated value for isPatDeviceConnected
+        actions: assign({
+          isPatDeviceConnected: true,
+        }),
         target: 'pat_device_connected',
       },
-      PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
+      PAT_DEVICE_DISCONNECTED: {
+        // Performing the assign here ensures the PAT device observable will
+        // have an updated value for isPatDeviceConnected
+        actions: assign({
+          isPatDeviceConnected: false,
+        }),
+        target: 'pat_device_disconnected',
+      },
       SET_INTERPRETATION_FIXTURE: {
         actions: assign({
           scannedImagePaths: getSampleBallotFilepaths(),
@@ -639,6 +651,7 @@ export function buildMachine(
               assign({
                 interpretation: undefined,
                 scannedImagePaths: undefined,
+                isPatDeviceConnected: false,
               });
             },
             after: {
@@ -655,6 +668,7 @@ export function buildMachine(
               assign({
                 interpretation: undefined,
                 scannedImagePaths: undefined,
+                isPatDeviceConnected: false,
               });
             },
             always: 'not_accepting_paper',
@@ -662,18 +676,9 @@ export function buildMachine(
         },
       },
       pat_device_disconnected: {
-        entry: (context) => {
-          const { store } = context.workspace;
-          store.setIsPatDeviceConnected(false);
-        },
         always: 'voting_flow.history',
       },
       pat_device_connected: {
-        entry: (context) => {
-          const { store } = context.workspace;
-          debug('Setting connection status to true');
-          store.setIsPatDeviceConnected(true);
-        },
         on: {
           VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
           PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
@@ -774,6 +779,7 @@ export async function getPaperHandlerStateMachine({
     auth,
     workspace,
     driver,
+    isPatDeviceConnected: false,
     patConnectionStatusReader,
     devicePollingIntervalMs,
     authPollingIntervalMs,

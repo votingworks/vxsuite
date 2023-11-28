@@ -23,6 +23,7 @@ import { Contest, ContestProps } from '../components/contest';
 import { ButtonFooter } from '../components/button_footer';
 import { DisplaySettingsButton } from '../components/display_settings_button';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
+import { VoteUpdateInteractionMethod } from '../config/types';
 
 interface ContestPageProps {
   contests: ContestsWithMsEitherNeither;
@@ -33,9 +34,6 @@ interface ContestPageProps {
   precinctId?: PrecinctId;
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
-  // Moves focus to the "Next" button after voter selects an option in a contest.
-  // This helps reduce repetitive action for accessibility device users.
-  moveFocusAfterUpdateVote?: boolean;
 }
 
 interface ContestParams {
@@ -56,7 +54,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     precinctId,
     updateVote,
     votes,
-    moveFocusAfterUpdateVote,
   } = props;
 
   const screenInfo = useScreenInfo();
@@ -103,34 +100,56 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     }
   })();
 
-  const nextContestButtonRef = useRef<Button>(null);
-  const handleOnPressNext = useCallback(() => {
-    const to = nextContest
-      ? getContestUrl(nextContestIndex)
-      : getReviewPageUrl();
-    history.push(to);
-  }, [getContestUrl, getReviewPageUrl, history, nextContest, nextContestIndex]);
-
+  const nextContestButtonRef = useRef<Button<never>>(null);
   const nextContestButton = (
-    <Button
+    <LinkButton
+      key={contest.id}
       id="next"
       rightIcon="Next"
       variant={isVoteComplete ? 'primary' : 'neutral'}
-      onPress={handleOnPressNext}
+      to={nextContest ? getContestUrl(nextContestIndex) : getReviewPageUrl()}
       ref={nextContestButtonRef}
     >
       {appStrings.buttonNext()}
-    </Button>
+    </LinkButton>
+  );
+
+  const reviewButtonRef = useRef<Button<never>>(null);
+  const reviewScreenButton = (
+    <LinkButton
+      rightIcon="Next"
+      variant={isVoteComplete ? 'primary' : 'neutral'}
+      to={getReviewPageUrl(contest.id)}
+      id="next"
+      ref={reviewButtonRef}
+    >
+      {appStrings.buttonReview()}
+    </LinkButton>
   );
 
   const handleUpdateVote: ContestProps['updateVote'] = useCallback(
-    (contestIdProp: ContestId, voteProp: OptionalVote) => {
-      if (moveFocusAfterUpdateVote) {
-        nextContestButtonRef?.current?.focus();
+    (
+      contestIdProp: ContestId,
+      voteProp: OptionalVote,
+      interactionMethod: VoteUpdateInteractionMethod
+    ) => {
+      const maxNumSelections = contest.type === 'candidate' ? contest.seats : 1;
+
+      if (
+        interactionMethod ===
+          VoteUpdateInteractionMethod.AssistiveTechnologyDevice &&
+        voteProp?.length === maxNumSelections
+      ) {
+        if (isReviewMode) {
+          reviewButtonRef?.current?.focus();
+        } else {
+          nextContestButtonRef?.current?.focus();
+        }
       }
-      updateVote(contestIdProp, voteProp);
+
+      updateVote(contestIdProp, voteProp, interactionMethod);
     },
-    [moveFocusAfterUpdateVote, updateVote, nextContestButtonRef]
+    [updateVote, isReviewMode, contest]
   );
 
   const previousContestButton = (
@@ -141,17 +160,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     >
       {/* TODO(kofi): Maybe something like "Previous" would translate better in this context? */}
       {appStrings.buttonBack()}
-    </LinkButton>
-  );
-
-  const reviewScreenButton = (
-    <LinkButton
-      rightIcon="Next"
-      variant={isVoteComplete ? 'primary' : 'neutral'}
-      to={getReviewPageUrl(contest.id)}
-      id="next"
-    >
-      {appStrings.buttonReview()}
     </LinkButton>
   );
 

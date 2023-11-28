@@ -33,13 +33,11 @@ afterEach(() => {
 it('accessible controller handling works', async () => {
   const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
-
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-
   render(
     <App
       hardware={hardware}
@@ -48,20 +46,16 @@ it('accessible controller handling works', async () => {
     />
   );
   await advanceTimersAndPromises();
-
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
     precinctId: '23',
   });
-
   await screen.findByText('Start Voting');
   screen.getByText(/Center Springfield/);
-
   // Go to First Contest
   userEvent.keyboard('[ArrowRight]');
   await screen.findByText(contest0.title);
-
   // Confirm first contest only has 1 seat
   expect(contest0.seats).toEqual(1);
 
@@ -72,7 +66,6 @@ it('accessible controller handling works', async () => {
   expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
   userEvent.keyboard('[ArrowUp]');
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
-
   // test the edge case of rolling over
   userEvent.keyboard('[ArrowUp]');
   expect(document.activeElement!.textContent).toEqual('Next');
@@ -81,7 +74,6 @@ it('accessible controller handling works', async () => {
 
   userEvent.keyboard('[ArrowRight]');
   await advanceTimersAndPromises();
-
   // go up first without focus, then down once, should be same as down once.
   userEvent.keyboard('[ArrowUp]');
   userEvent.keyboard('[ArrowDown]');
@@ -93,12 +85,18 @@ it('accessible controller handling works', async () => {
   userEvent.keyboard('[ArrowDown]');
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
 
-  // select and unselect
+  // select candidate
   userEvent.keyboard('2');
-  await screen.findByRole('option', {
+  const candidate0Option = await screen.findByRole('option', {
     name: new RegExp(contest0candidate0.name),
     selected: true,
   });
+
+  // Focus should have jumped to the "Next" button because we're using keyboard nav
+  expect(await screen.findByRole('button', { name: 'Next' })).toHaveFocus();
+
+  // Return focus to candidate so we can test unselect
+  candidate0Option.focus();
   userEvent.keyboard('2');
   await screen.findByRole('option', {
     name: new RegExp(contest0candidate0.name),
@@ -112,6 +110,5 @@ it('accessible controller handling works', async () => {
   userEvent.keyboard('[ArrowDown]'); // Okay button should still be selected
   userEvent.keyboard('[ArrowDown]'); // Okay button should still be selected
   expect(screen.getButton(/Okay/i)).toHaveFocus();
-
   await advanceTimersAndPromises();
 });

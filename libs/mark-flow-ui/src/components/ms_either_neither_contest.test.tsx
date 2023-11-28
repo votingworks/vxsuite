@@ -8,6 +8,7 @@ import {
 } from '../utils/ms_either_neither_contests';
 import { MsEitherNeitherContest } from './ms_either_neither_contest';
 import { render, screen, within } from '../../test/react_testing_library';
+import { VoteUpdateInteractionMethod } from '../config/types';
 
 const contests = mergeMsEitherNeitherContests(
   electionWithMsEitherNeither.contests
@@ -75,14 +76,18 @@ test('voting for either/neither', () => {
     .closest('button')!;
 
   userEvent.click(eitherButton);
-  expect(updateVote).toHaveBeenCalledWith(contest.eitherNeitherContestId, [
-    contest.eitherOption.id,
-  ]);
+  expect(updateVote).toHaveBeenCalledWith(
+    contest.eitherNeitherContestId,
+    [contest.eitherOption.id],
+    VoteUpdateInteractionMethod.Mouse
+  );
 
   userEvent.click(neitherButton);
-  expect(updateVote).toHaveBeenCalledWith(contest.eitherNeitherContestId, [
-    contest.neitherOption.id,
-  ]);
+  expect(updateVote).toHaveBeenCalledWith(
+    contest.eitherNeitherContestId,
+    [contest.neitherOption.id],
+    VoteUpdateInteractionMethod.Mouse
+  );
 });
 
 test.each([
@@ -130,7 +135,8 @@ test.each([
       contest.eitherNeitherContestId,
       eitherNeitherContestVote === contest.eitherOption.id
         ? []
-        : [contest.eitherOption.id]
+        : [contest.eitherOption.id],
+      VoteUpdateInteractionMethod.Mouse
     );
 
     userEvent.click(neitherButton);
@@ -138,7 +144,8 @@ test.each([
       contest.eitherNeitherContestId,
       eitherNeitherContestVote === contest.neitherOption.id
         ? []
-        : [contest.neitherOption.id]
+        : [contest.neitherOption.id],
+      VoteUpdateInteractionMethod.Mouse
     );
 
     userEvent.click(pickFirstButton);
@@ -146,7 +153,8 @@ test.each([
       contest.pickOneContestId,
       pickOneContestVote === contest.firstOption.id
         ? []
-        : [contest.firstOption.id]
+        : [contest.firstOption.id],
+      VoteUpdateInteractionMethod.Mouse
     );
 
     userEvent.click(pickSecondButton);
@@ -154,7 +162,8 @@ test.each([
       contest.pickOneContestId,
       pickOneContestVote === contest.secondOption.id
         ? []
-        : [contest.secondOption.id]
+        : [contest.secondOption.id],
+      VoteUpdateInteractionMethod.Mouse
     );
   }
 );

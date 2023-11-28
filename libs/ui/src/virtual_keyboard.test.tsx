@@ -1,4 +1,5 @@
 import userEvent from '@testing-library/user-event';
+import { buttonPressEventMatcher } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 import { VirtualKeyboard } from './virtual_keyboard';
 
@@ -24,7 +25,7 @@ test('fires key events', () => {
   for (const letter of text) {
     const keyName = specialCharKeyNames[letter] || letter;
     userEvent.click(screen.getButton(keyName));
-    expect(onKeyPress).lastCalledWith(letter);
+    expect(onKeyPress).lastCalledWith(letter, buttonPressEventMatcher());
   }
 
   expect(onBackspace).not.toHaveBeenCalled();
@@ -71,11 +72,11 @@ test('custom keymap', () => {
   );
 
   userEvent.click(screen.getButton('😅'));
-  expect(onKeyPress).lastCalledWith('😅');
+  expect(onKeyPress).lastCalledWith('😅', buttonPressEventMatcher());
 
   userEvent.click(screen.getButton('😂'));
-  expect(onKeyPress).lastCalledWith('😂');
+  expect(onKeyPress).lastCalledWith('😂', buttonPressEventMatcher());
 
   userEvent.click(screen.getButton('magic'));
-  expect(onKeyPress).lastCalledWith('✨');
+  expect(onKeyPress).lastCalledWith('✨', buttonPressEventMatcher());
 });

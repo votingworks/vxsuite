@@ -1,4 +1,6 @@
+import { SyntheticEvent } from 'react';
 import userEvent from '@testing-library/user-event';
+import { buttonPressEventMatcher } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 import { SegmentedButton, SegmentedButtonOption } from './segmented_button';
 import { makeTheme } from './themes/make_theme';
@@ -37,17 +39,26 @@ test('renders all provided options ', () => {
   userEvent.click(
     screen.getByRole('option', { name: 'Option A', selected: false })
   );
-  expect(onChange).toHaveBeenCalledWith<[TestOptionId]>('a');
+  expect(onChange).toHaveBeenCalledWith<[TestOptionId, SyntheticEvent]>(
+    'a',
+    buttonPressEventMatcher()
+  );
 
   userEvent.click(
     screen.getByRole('option', { name: 'Option B', selected: true })
   );
-  expect(onChange).toHaveBeenCalledWith<[TestOptionId]>('b');
+  expect(onChange).toHaveBeenCalledWith<[TestOptionId, SyntheticEvent]>(
+    'b',
+    buttonPressEventMatcher()
+  );
 
   userEvent.click(
     screen.getByRole('option', { name: 'Enable Option C', selected: false })
   );
-  expect(onChange).toHaveBeenCalledWith<[TestOptionId]>('c');
+  expect(onChange).toHaveBeenCalledWith<[TestOptionId, SyntheticEvent]>(
+    'c',
+    buttonPressEventMatcher()
+  );
 });
 
 test('optionally hides label', () => {

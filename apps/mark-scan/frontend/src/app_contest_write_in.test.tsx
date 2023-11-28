@@ -91,7 +91,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Advance to Single-Seat Contest with Write-In
   while (!screen.queryByText(singleSeatContestWithWriteIn.title)) {
-    fireEvent.click(screen.getByText('Next'));
+    fireEvent.click(await screen.findByText('Next'));
     advanceTimers();
   }
 

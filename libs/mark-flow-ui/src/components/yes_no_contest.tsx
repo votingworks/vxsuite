@@ -17,14 +17,15 @@ import {
   AudioOnly,
   electionStrings,
   appStrings,
+  ButtonPressEvent,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
 import { Optional } from '@votingworks/basics';
-import { UpdateVoteFunction } from '../config/types';
 
 import { ContestFooter, ChoicesGrid } from './contest_screen_layout';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
+import { UpdateVoteFunction, getInteractionMethod } from '../config/types';
 
 interface Props {
   breadcrumbs?: BreadcrumbMetadata;
@@ -54,12 +55,15 @@ export function YesNoContest({
     }
   }, [deselectedVote]);
 
-  function handleUpdateSelection(newVote: YesNoContestOptionId) {
+  function handleUpdateSelection(
+    event: ButtonPressEvent,
+    newVote: YesNoContestOptionId
+  ) {
     if ((vote as string[] | undefined)?.includes(newVote)) {
-      updateVote(contest.id, undefined);
+      updateVote(contest.id, undefined, getInteractionMethod(event));
       setDeselectedVote(newVote);
     } else {
-      updateVote(contest.id, [newVote]);
+      updateVote(contest.id, [newVote], getInteractionMethod(event));
     }
   }
 

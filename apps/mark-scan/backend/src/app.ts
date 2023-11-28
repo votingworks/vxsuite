@@ -155,7 +155,6 @@ export function buildApi(
           jurisdiction: authStatus.user.jurisdiction,
         });
         workspace.store.setSystemSettings(systemSettings);
-        workspace.store.createHardwareConfig();
 
         // automatically set precinct for single precinct elections
         if (electionDefinition.election.precincts.length === 1) {
@@ -200,13 +199,6 @@ export function buildApi(
       assert(stateMachine);
 
       stateMachine.setAcceptingPaper();
-    },
-
-    /**
-     * Returns whether a PAT device is connected.
-     */
-    getIsPatDeviceIsConnected(): boolean {
-      return workspace.store.getIsPatDeviceConnected();
     },
 
     /**

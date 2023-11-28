@@ -13,7 +13,7 @@ import { ContestScreen } from './contest_screen';
 const electionGeneral = electionGeneralDefinition.election;
 const firstContestTitle = electionGeneral.contests[0].title;
 
-it('Renders ContestScreen', () => {
+it('Renders ContestScreen', async () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
@@ -22,13 +22,13 @@ it('Renders ContestScreen', () => {
       ballotStyleId: electionGeneral.ballotStyles[0].id,
     }
   );
-  screen.getByRole('heading', { name: firstContestTitle });
+  await screen.findByRole('heading', { name: firstContestTitle });
   screen.getButton(/next/i);
   screen.getButton(/back/i);
   screen.getByRole('button', { name: 'Color/Size' });
 });
 
-it('Renders ContestScreen in Landscape orientation', () => {
+it('Renders ContestScreen in Landscape orientation', async () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
@@ -38,10 +38,10 @@ it('Renders ContestScreen in Landscape orientation', () => {
       machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
-  screen.getByRole('heading', { name: firstContestTitle });
+  await screen.findByRole('heading', { name: firstContestTitle });
 });
 
-it('Renders ContestScreen in Landscape orientation in Review Mode', () => {
+it('Renders ContestScreen in Landscape orientation in Review Mode', async () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
@@ -51,11 +51,11 @@ it('Renders ContestScreen in Landscape orientation in Review Mode', () => {
       machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
-  screen.getByRole('heading', { name: firstContestTitle });
+  await screen.findByRole('heading', { name: firstContestTitle });
   screen.getByText('Review');
 });
 
-it('renders display settings button', () => {
+it('renders display settings button', async () => {
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(
@@ -70,6 +70,6 @@ it('renders display settings button', () => {
 
   expect(history.location.pathname).toEqual('/contests/0');
 
-  userEvent.click(screen.getButton(/color.+size/i));
+  userEvent.click(await screen.findButton(/color.+size/i));
   expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });

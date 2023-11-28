@@ -126,7 +126,7 @@ test('Cardless Voting Flow', async () => {
   fireEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
-  fireEvent.click(screen.getByText(presidentContest.candidates[0].name));
+  fireEvent.click(await screen.findByText(presidentContest.candidates[0].name));
   fireEvent.click(screen.getByText('Next'));
 
   // Poll Worker inserts card and sees message that there are votes

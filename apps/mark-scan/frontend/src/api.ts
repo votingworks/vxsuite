@@ -149,18 +149,6 @@ export const getStateMachineState = {
   },
 } as const;
 
-export const getIsPatDeviceConnected = {
-  queryKey(): QueryKey {
-    return ['getIsPatDeviceConnected'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getIsPatDeviceIsConnected()
-    );
-  },
-} as const;
-
 export const checkPin = {
   useMutation() {
     const apiClient = useApiClient();

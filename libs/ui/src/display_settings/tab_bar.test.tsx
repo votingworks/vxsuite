@@ -1,4 +1,6 @@
 import userEvent from '@testing-library/user-event';
+import { SyntheticEvent } from 'react';
+import { buttonPressEventMatcher } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 import { TabBar } from './tab_bar';
 import { SettingsPaneId } from './types';
@@ -19,7 +21,8 @@ test('fires change event with settings pane id', () => {
 
   userEvent.click(screen.getByRole('tab', { name: 'Color', selected: false }));
 
-  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>(
-    'displaySettingsColor'
+  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId, SyntheticEvent]>(
+    'displaySettingsColor',
+    buttonPressEventMatcher()
   );
 });
