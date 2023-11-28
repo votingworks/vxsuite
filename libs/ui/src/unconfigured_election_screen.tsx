@@ -1,8 +1,9 @@
 import { BallotPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { LoadingAnimation } from './loading_animation';
-import { Font, H1, H3 } from './typography';
+import { FullScreenIconWrapper, Icons } from './icons';
+import { UsbDriveImage } from './usb_drive_image';
+import { FullScreenMessage } from './full_screen_message';
 
 export interface UnconfiguredElectionScreenProps {
   usbDriveStatus: UsbDriveStatus;
@@ -17,13 +18,18 @@ export function UnconfiguredElectionScreen({
   backendConfigError,
   machineName,
 }: UnconfiguredElectionScreenProps): JSX.Element {
+  if (usbDriveStatus.status !== 'mounted') {
+    return (
+      <FullScreenMessage
+        title="Insert a USB drive containing a ballot package"
+        image={<UsbDriveImage />}
+      />
+    );
+  }
+
   const errorMessage = (() => {
     if (!isElectionManagerAuth) {
       return `Only election managers can configure ${machineName}.`;
-    }
-
-    if (usbDriveStatus.status !== 'mounted') {
-      return 'Insert a USB drive containing a ballot package.';
     }
 
     if (!backendConfigError) {
@@ -49,17 +55,27 @@ export function UnconfiguredElectionScreen({
 
   if (errorMessage) {
     return (
-      <Font align="center">
-        <H1>{machineName} is Not Configured</H1>
-        <H3 style={{ fontWeight: 'normal' }}>{errorMessage}</H3>
-      </Font>
+      <FullScreenMessage
+        title={`Failed to configure ${machineName}`}
+        image={
+          <FullScreenIconWrapper>
+            <Icons.Warning color="warning" />
+          </FullScreenIconWrapper>
+        }
+      >
+        {errorMessage}
+      </FullScreenMessage>
     );
   }
 
   return (
-    <Font align="center">
-      <H1>Configuring {machineName} from USB drive…</H1>
-      <LoadingAnimation />
-    </Font>
+    <FullScreenMessage
+      title={`Configuring ${machineName} from USB drive…`}
+      image={
+        <FullScreenIconWrapper>
+          <Icons.Loading />
+        </FullScreenIconWrapper>
+      }
+    />
   );
 }

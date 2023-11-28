@@ -558,9 +558,5 @@ export function AppRoot({
     );
   }
 
-  return (
-    <UnconfiguredScreen
-      hasElectionDefinition={Boolean(optionalElectionDefinition)}
-    />
-  );
+  return <UnconfiguredScreen />;
 }
