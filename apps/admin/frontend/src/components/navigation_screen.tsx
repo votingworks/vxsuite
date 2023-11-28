@@ -10,6 +10,8 @@ import {
   UsbControllerButton,
   Main,
   H1,
+  Route,
+  Breadcrumbs,
 } from '@votingworks/ui';
 import {
   BooleanEnvironmentVariableName,
@@ -28,7 +30,8 @@ import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 interface Props {
   children: React.ReactNode;
-  title?: React.ReactNode;
+  title?: string;
+  parentRoutes?: Route[];
 }
 
 const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
@@ -108,6 +111,7 @@ export const Header = styled(MainHeader)`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-left: 0.75rem;
 `;
 
 export const HeaderActions = styled.div`
@@ -116,7 +120,11 @@ export const HeaderActions = styled.div`
   align-items: center;
 `;
 
-export function NavigationScreen({ children, title }: Props): JSX.Element {
+export function NavigationScreen({
+  children,
+  title,
+  parentRoutes,
+}: Props): JSX.Element {
   const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
   const logOutMutation = logOut.useMutation();
@@ -127,7 +135,19 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
       <Sidebar navItems={getNavItems(auth, election)} />
       <Main flexColumn>
         <Header>
-          <H1>{title}</H1>
+          <div>
+            {title && (
+              <React.Fragment>
+                {parentRoutes && (
+                  <Breadcrumbs
+                    currentTitle={title}
+                    parentRoutes={parentRoutes}
+                  />
+                )}
+                <H1>{title}</H1>
+              </React.Fragment>
+            )}
+          </div>
           <HeaderActions>
             <SessionTimeLimitTimer authStatus={auth} />
             {(isSystemAdministratorAuth(auth) ||

@@ -40,6 +40,9 @@ import {
   FileType,
 } from '../components/save_frontend_file_modal';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
+import { routerPaths } from '../router_paths';
+
+const TITLE = 'Precinct L&A Packages';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
@@ -62,7 +65,6 @@ const ButtonRow = styled.div`
   grid-auto-rows: 1fr;
   grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
   grid-template-columns: 1fr 1fr;
-  width: 80%;
 `;
 
 async function generateResultsForPrecinctTallyReport({
@@ -230,8 +232,6 @@ export function PrintTestDeckScreen(): JSX.Element {
     election,
     precinctId: precinctToSaveToPdf,
   });
-
-  const pageTitle = 'Precinct L&A Packages';
 
   const generatePrecinctIds = useCallback(
     (precinctId: PrecinctId) => {
@@ -421,7 +421,10 @@ export function PrintTestDeckScreen(): JSX.Element {
       {printIndex && (
         <PrintingModal election={election} printIndex={printIndex} />
       )}
-      <NavigationScreen title={pageTitle}>
+      <NavigationScreen
+        title={TITLE}
+        parentRoutes={[{ title: 'L&A', path: routerPaths.logicAndAccuracy }]}
+      >
         <P>
           Print the L&A Packages for all precincts, or for a specific precinct,
           by selecting a button below.

@@ -6,7 +6,7 @@ import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
 import {
   AllPrecinctsTallyReportScreen,
-  SCREEN_TITLE,
+  TITLE,
 } from './all_precincts_tally_report_screen';
 
 let logger: Logger;
@@ -101,7 +101,7 @@ test('displays report', async () => {
     },
   ];
 
-  screen.getByText(SCREEN_TITLE);
+  screen.getByText(TITLE);
   const reports = await screen.findAllByTestId(/tally-report/);
   expect(reports).toHaveLength(expectedReports.length);
   for (const [i, report] of reports.entries()) {

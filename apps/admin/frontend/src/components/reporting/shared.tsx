@@ -1,4 +1,4 @@
-import { Card, H3, H5, Icons, LinkButton, Loading, P } from '@votingworks/ui';
+import { Card, H3, H5, Icons, Loading, P } from '@votingworks/ui';
 import styled from 'styled-components';
 import { routerPaths } from '../../router_paths';
 
@@ -82,14 +82,6 @@ export function PreviewLoading(): JSX.Element {
   );
 }
 
-export function ReportBackButton(): JSX.Element {
-  return (
-    <LinkButton icon="Previous" to={routerPaths.reports}>
-      Back
-    </LinkButton>
-  );
-}
-
 export const WarningContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -112,3 +104,7 @@ export function ReportWarning({ text }: { text: string }): JSX.Element {
     </WarningContainer>
   );
 }
+
+export const reportParentRoutes = [
+  { title: 'Reports', path: routerPaths.reports },
+];

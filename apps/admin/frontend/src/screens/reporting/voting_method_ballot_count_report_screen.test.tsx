@@ -8,7 +8,7 @@ import { getMockCardCounts } from '../../../test/helpers/mock_results';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
 import {
-  SCREEN_TITLE,
+  TITLE,
   VotingMethodBallotCountReport,
 } from './voting_method_ballot_count_report_screen';
 
@@ -65,7 +65,7 @@ test('displays report (primary)', async () => {
     isOfficialResults: false,
   });
 
-  screen.getByText(SCREEN_TITLE);
+  screen.getByText(TITLE);
 
   const report = await screen.findByTestId('ballot-count-report');
   within(report).getByText('Unofficial Full Election Ballot Count Report');
@@ -112,7 +112,7 @@ test('displays report (general)', async () => {
     isOfficialResults: false,
   });
 
-  screen.getByText(SCREEN_TITLE);
+  screen.getByText(TITLE);
 
   const report = await screen.findByTestId('ballot-count-report');
   within(report).getByText('Unofficial Full Election Ballot Count Report');

@@ -1,6 +1,5 @@
 import { assert, find } from '@votingworks/basics';
 import React, { useContext, useMemo, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import {
@@ -27,6 +26,8 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
 import { deleteManualResults, getManualResultsMetadata } from '../api';
 import { Loading } from '../components/loading';
+
+const TITLE = 'Manual Tallies';
 
 export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
   'precinct',
@@ -127,7 +128,6 @@ export function ManualDataSummaryScreen(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const { election } = electionDefinition;
-  const history = useHistory();
 
   const getManualTallyMetadataQuery = getManualResultsMetadata.useQuery();
 
@@ -215,7 +215,7 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
   if (!getManualTallyMetadataQuery.isSuccess) {
     return (
-      <NavigationScreen title="Manual Tally Summary">
+      <NavigationScreen title={TITLE}>
         <Loading isFullscreen />
       </NavigationScreen>
     );
@@ -223,32 +223,15 @@ export function ManualDataSummaryScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen title="Manual Tally Summary">
+      <NavigationScreen
+        title={TITLE}
+        parentRoutes={[{ title: 'Tally', path: routerPaths.tally }]}
+      >
         <P>
-          <Button onPress={() => history.push(routerPaths.tally)}>
-            Back to Tally
-          </Button>
-        </P>
-        <P
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'end',
-          }}
-        >
           <Font weight="semiBold">
             Total Manual Ballot Count:{' '}
             {totalNumberBallotsEntered.toLocaleString()}
           </Font>
-          {hasManualTally && (
-            <Button
-              icon="Delete"
-              color="danger"
-              onPress={() => setIsClearingAll(true)}
-            >
-              Remove All Manual Tallies
-            </Button>
-          )}
         </P>
         {uncreatedManualTallyMetadata.length > 0 && (
           <AddTalliesCard color="neutral">
@@ -355,10 +338,10 @@ export function ManualDataSummaryScreen(): JSX.Element {
                   <TD as="th" narrow nowrap>
                     Voting Method
                   </TD>
-                  <TD as="th" narrow nowrap />
                   <TD as="th" narrow nowrap>
                     Ballot Count
                   </TD>
+                  <TD as="th" narrow nowrap />
                 </tr>
               </thead>
               <tbody>
@@ -379,6 +362,9 @@ export function ManualDataSummaryScreen(): JSX.Element {
                       <TD>{precinct.name}</TD>
 
                       <TD>{votingMethodTitle}</TD>
+                      <TD nowrap data-testid="numBallots">
+                        {metadata.ballotCount.toLocaleString()}
+                      </TD>
                       <TD nowrap>
                         <LinkButton
                           icon="Edit"
@@ -397,15 +383,29 @@ export function ManualDataSummaryScreen(): JSX.Element {
                           Remove
                         </Button>
                       </TD>
-                      <TD nowrap textAlign="center" data-testid="numBallots">
-                        {metadata.ballotCount.toLocaleString()}
-                      </TD>
                     </tr>
                   );
                 })}
               </tbody>
             </Table>
           </SummaryTableWrapper>
+        )}
+        {hasManualTally && (
+          <P
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              marginTop: '1rem',
+            }}
+          >
+            <Button
+              icon="Delete"
+              color="danger"
+              onPress={() => setIsClearingAll(true)}
+            >
+              Remove All Manual Tallies
+            </Button>
+          </P>
         )}
       </NavigationScreen>
       {isClearingAll && (

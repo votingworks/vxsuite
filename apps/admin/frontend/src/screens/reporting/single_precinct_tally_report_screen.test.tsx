@@ -6,7 +6,7 @@ import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
 import {
-  SCREEN_TITLE,
+  TITLE,
   SinglePrecinctTallyReportScreen,
 } from './single_precinct_tally_report_screen';
 
@@ -35,7 +35,7 @@ test('select precinct and view report', async () => {
     isOfficialResults: false,
   });
 
-  screen.getByText(SCREEN_TITLE);
+  screen.getByText(TITLE);
 
   // display precinct 1 report
   apiMock.expectGetResultsForTallyReports(
