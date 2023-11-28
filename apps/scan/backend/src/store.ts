@@ -657,6 +657,7 @@ export class Store {
       this.client.transaction(() => {
         this.resetPollsState();
         this.setBallotCountWhenBallotBagLastReplaced(0);
+        this.setExportDirectoryName(undefined);
       });
     }
     // delete batches, which will cascade delete sheets
@@ -941,16 +942,18 @@ export class Store {
   /**
    * Stores the name of the directory that we'll be continuously exporting to
    */
-  setExportDirectoryName(exportDirectoryName: string): void {
+  setExportDirectoryName(exportDirectoryName?: string): void {
     this.client.run('delete from export_directory_name');
-    this.client.run(
-      `
+    if (exportDirectoryName !== undefined) {
+      this.client.run(
+        `
       insert into export_directory_name (
         export_directory_name
       ) values (?)
       `,
-      exportDirectoryName
-    );
+        exportDirectoryName
+      );
+    }
   }
 
   getCastVoteRecordRootHash(): string {
