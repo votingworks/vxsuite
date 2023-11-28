@@ -139,3 +139,22 @@ test('write-in', () => {
     })
   );
 });
+
+test('multiple flags', () => {
+  expect(
+    getCastVoteRecordAdjudicationFlags(
+      mockVotes({
+        'zoo-council-mammal': ['write-in-0'],
+        fishing: ['yes', 'no'],
+      }),
+      electionDefinition
+    )
+  ).toEqual(
+    typedAs<CastVoteRecordAdjudicationFlags>({
+      isBlank: false,
+      hasUndervote: true,
+      hasOvervote: true,
+      hasWriteIn: true,
+    })
+  );
+});
