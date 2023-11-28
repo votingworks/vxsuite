@@ -1,4 +1,4 @@
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
+import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
   Optional,
   assert,
@@ -401,7 +401,7 @@ export interface BallotCountReportProps {
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
-  customFilter?: Tabulation.Filter;
+  customFilter?: Admin.ReportingFilter;
   generatedAtTime?: Date;
 }
 

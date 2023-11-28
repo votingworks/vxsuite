@@ -1,12 +1,14 @@
-import { Election, Tabulation } from '@votingworks/types';
+import { Admin, Election, Tabulation } from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { err, ok } from '@votingworks/basics';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 import {
   canonicalizeFilter,
   canonicalizeGroupBy,
+  generateBallotCountReportPdfFilename,
   generateTallyReportPdfFilename,
   generateTitleForReport,
+  isFilterEmpty,
 } from './reporting';
 
 const scannerBatches: ScannerBatch[] = [
@@ -32,7 +34,7 @@ const scannerBatches: ScannerBatch[] = [
 
 test('generateTitleForReport', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  const unsupportedFilters: Tabulation.Filter[] = [
+  const unsupportedFilters: Admin.ReportingFilter[] = [
     {
       precinctIds: ['precinct-1', 'precinct-2'],
     },
@@ -61,6 +63,10 @@ test('generateTitleForReport', () => {
       votingMethods: ['absentee'],
       partyIds: ['1'],
     },
+    {
+      votingMethods: ['absentee'],
+      adjudicationFlags: ['isBlank'],
+    },
   ];
 
   for (const filter of unsupportedFilters) {
@@ -69,7 +75,9 @@ test('generateTitleForReport', () => {
     ).toEqual(err('title-not-supported'));
   }
 
-  const supportedFilters: Array<[filter: Tabulation.Filter, title: string]> = [
+  const supportedFilters: Array<
+    [filter: Admin.ReportingFilter, title: string]
+  > = [
     [
       {
         precinctIds: ['precinct-1'],
@@ -189,15 +197,45 @@ test('generateTitleForReport', () => {
     ).toEqual(ok(title));
   }
 
-  // Ballot Count Report
-  expect(
-    generateTitleForReport({
-      filter: { precinctIds: ['precinct-1'] },
-      electionDefinition,
-      scannerBatches,
-      reportType: 'Ballot Count',
-    })
-  ).toEqual(ok('Precinct 1 Ballot Count Report'));
+  const ballotCountFilters: Array<
+    [filter: Admin.ReportingFilter, title: string]
+  > = [
+    [
+      {
+        adjudicationFlags: ['isBlank'],
+      },
+      'Blank Ballot Count Report',
+    ],
+    [
+      {
+        adjudicationFlags: ['hasOvervote'],
+      },
+      'Overvoted Ballot Count Report',
+    ],
+    [
+      {
+        adjudicationFlags: ['hasUndervote'],
+      },
+      'Undervoted Ballot Count Report',
+    ],
+    [
+      {
+        adjudicationFlags: ['hasWriteIn'],
+      },
+      'Write-In Ballot Count Report',
+    ],
+  ];
+
+  for (const [filter, title] of ballotCountFilters) {
+    expect(
+      generateTitleForReport({
+        filter,
+        electionDefinition,
+        scannerBatches,
+        reportType: 'Ballot Count',
+      })
+    ).toEqual(ok(title));
+  }
 });
 
 test('canonicalizeFilter', () => {
@@ -210,6 +248,7 @@ test('canonicalizeFilter', () => {
       scannerIds: [],
       votingMethods: [],
       partyIds: [],
+      adjudicationFlags: [],
     })
   ).toEqual({});
   expect(
@@ -220,6 +259,7 @@ test('canonicalizeFilter', () => {
       scannerIds: ['b', 'a'],
       votingMethods: ['precinct', 'absentee'],
       partyIds: ['b', 'a'],
+      adjudicationFlags: ['isBlank', 'hasOvervote'],
     })
   ).toEqual({
     precinctIds: ['a', 'b'],
@@ -228,6 +268,7 @@ test('canonicalizeFilter', () => {
     scannerIds: ['a', 'b'],
     votingMethods: ['absentee', 'precinct'],
     partyIds: ['a', 'b'],
+    adjudicationFlags: ['hasOvervote', 'isBlank'],
   });
 });
 
@@ -252,10 +293,71 @@ test('canonicalizeGroupBy', () => {
   expect(canonicalizeGroupBy(allTrueGroupBy)).toEqual(allTrueGroupBy);
 });
 
-test('generateReportPdfFilename', () => {
+test('generateBallotCountReportPdfFilename', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const testCases: Array<{
-    filter?: Tabulation.Filter;
+    filter?: Admin.ReportingFilter;
+    groupBy?: Tabulation.GroupBy;
+    expectedFilename: string;
+    isTestMode?: boolean;
+    isOfficialResults?: boolean;
+  }> = [
+    {
+      expectedFilename:
+        'unofficial-full-election-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: {
+        adjudicationFlags: ['isBlank'],
+      },
+      isTestMode: true,
+      expectedFilename:
+        'TEST-unofficial-blank-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: {
+        adjudicationFlags: ['hasOvervote'],
+      },
+      isTestMode: true,
+      expectedFilename:
+        'TEST-unofficial-overvoted-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: {
+        adjudicationFlags: ['hasUndervote'],
+      },
+      isTestMode: true,
+      expectedFilename:
+        'TEST-unofficial-undervoted-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: {
+        adjudicationFlags: ['hasWriteIn'],
+      },
+      isTestMode: true,
+      expectedFilename:
+        'TEST-unofficial-write-in-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+  ];
+
+  for (const testCase of testCases) {
+    expect(
+      generateBallotCountReportPdfFilename({
+        election,
+        filter: testCase.filter ?? {},
+        groupBy: testCase.groupBy ?? {},
+        isTestMode: testCase.isTestMode ?? false,
+        isOfficialResults: testCase.isOfficialResults ?? false,
+        time: new Date(2023, 11, 9, 15, 59, 32),
+      })
+    ).toEqual(testCase.expectedFilename);
+  }
+});
+
+test('generateTallyReportPdfFilename', () => {
+  const { election } = electionTwoPartyPrimaryDefinition;
+  const testCases: Array<{
+    filter?: Admin.ReportingFilter;
     groupBy?: Tabulation.GroupBy;
     expectedFilename: string;
     isTestMode?: boolean;
@@ -414,4 +516,10 @@ test('generateReportPdfFilename when too long', () => {
       time: new Date(2022, 4, 11, 15, 2, 3),
     })
   ).toEqual('unofficial-custom-tally-report__2022-05-11_15-02-03.pdf');
+});
+
+test('isFilterEmpty', () => {
+  expect(isFilterEmpty({})).toEqual(true);
+  expect(isFilterEmpty({ batchIds: [] })).toEqual(false);
+  expect(isFilterEmpty({ adjudicationFlags: [] })).toEqual(false);
 });

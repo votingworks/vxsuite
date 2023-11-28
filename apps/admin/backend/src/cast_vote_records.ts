@@ -43,6 +43,7 @@ import {
   CvrFileMode,
   ImportCastVoteRecordsError,
 } from './types';
+import { getCastVoteRecordAdjudicationFlags } from './util/cast_vote_records';
 
 /**
  * Validates that the fields in a cast vote record and the election definition correspond
@@ -281,9 +282,15 @@ export async function importCastVoteRecords(
         return err({ ...validationResult.err(), index: castVoteRecordIndex });
       }
 
-      // Add an individual cast vote record to the import
       const votes = convertCastVoteRecordVotesToTabulationVotes(
         castVoteRecordCurrentSnapshot
+      );
+      // Currently, we only support filtering on initial adjudication status,
+      // rather than post-adjudication status. As a result, we can just calculate
+      // now, during import.
+      const adjudicationFlags = getCastVoteRecordAdjudicationFlags(
+        votes,
+        electionDefinition
       );
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId as BallotId,
@@ -299,6 +306,7 @@ export async function importCastVoteRecords(
         },
         cvrFileId: importId,
         electionId,
+        adjudicationFlags,
       });
       if (addCastVoteRecordResult.isErr()) {
         return err({

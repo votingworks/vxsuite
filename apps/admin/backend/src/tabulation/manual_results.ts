@@ -1,4 +1,4 @@
-import { Election, Id, Tabulation } from '@votingworks/types';
+import { Admin, Election, Id, Tabulation } from '@votingworks/types';
 import {
   BallotStyleIdPartyIdLookup,
   combineManualElectionResults,
@@ -80,9 +80,13 @@ export function aggregateManualResults({
  * Type guard for filters to check if they are compatible with manual results.
  */
 export function isFilterCompatibleWithManualResults(
-  filter: Tabulation.Filter
+  filter: Admin.ReportingFilter
 ): filter is ManualResultsFilter {
-  return !filter.batchIds && !filter.scannerIds;
+  return (
+    !filter.batchIds &&
+    !filter.scannerIds &&
+    !(filter.adjudicationFlags && filter.adjudicationFlags.length > 0)
+  );
 }
 
 interface GetManualResultsError {
@@ -100,7 +104,7 @@ export function tabulateManualResults({
 }: {
   electionId: Id;
   store: Store;
-  filter?: Tabulation.Filter;
+  filter?: Admin.ReportingFilter;
   groupBy?: Tabulation.GroupBy;
 }): Result<Tabulation.ManualResultsGroupMap, GetManualResultsError> {
   if (!isFilterCompatibleWithManualResults(filter)) {
@@ -137,7 +141,7 @@ export function tabulateManualBallotCounts({
 }: {
   electionId: Id;
   store: Store;
-  filter?: Tabulation.Filter;
+  filter?: Admin.ReportingFilter;
   groupBy?: Tabulation.GroupBy;
 }): Result<Tabulation.ManualBallotCountsGroupMap, GetManualResultsError> {
   if (!isFilterCompatibleWithManualResults(filter)) {

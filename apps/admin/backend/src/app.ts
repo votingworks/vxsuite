@@ -1,5 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
+  Admin,
   BallotPackageFileName,
   CastVoteRecordExportFileName,
   ContestId,
@@ -660,8 +661,7 @@ function buildApi({
     getCardCounts(
       input: {
         groupBy?: Tabulation.GroupBy;
-        filter?: Tabulation.Filter;
-        blankBallotsOnly?: boolean;
+        filter?: Admin.ReportingFilter;
       } = {}
     ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);

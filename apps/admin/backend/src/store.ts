@@ -35,6 +35,7 @@ import {
   SystemSettings,
   safeParseSystemSettings,
   Tabulation,
+  Admin,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
@@ -74,8 +75,8 @@ import {
   WriteInAdjudicationActionOfficialCandidate,
   WriteInAdjudicationActionInvalid,
   WriteInAdjudicationActionWriteInCandidate,
+  CastVoteRecordAdjudicationFlags,
 } from './types';
-import { isBlankSheet } from './tabulation/utils';
 import { rootDebug } from './util/debug';
 
 const debug = rootDebug.extend('store');
@@ -803,11 +804,13 @@ export class Store {
     cvrFileId,
     ballotId,
     cvr,
+    adjudicationFlags,
   }: {
     electionId: Id;
     cvrFileId: Id;
     ballotId: BallotId;
     cvr: Omit<Tabulation.CastVoteRecord, 'scannerId'>;
+    adjudicationFlags: CastVoteRecordAdjudicationFlags;
   }): Result<
     { cvrId: Id; isNew: boolean },
     {
@@ -878,9 +881,12 @@ export class Store {
           precinct_id,
           sheet_number,
           votes,
-          is_blank
+          is_blank,
+          has_overvote,
+          has_undervote,
+          has_write_in
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
         cvrId,
@@ -892,7 +898,10 @@ export class Store {
         cvr.precinctId,
         cvrSheetNumber,
         serializedVotes,
-        asSqliteBool(isBlankSheet(cvr.votes))
+        asSqliteBool(adjudicationFlags.isBlank),
+        asSqliteBool(adjudicationFlags.hasOvervote),
+        asSqliteBool(adjudicationFlags.hasUndervote),
+        asSqliteBool(adjudicationFlags.hasWriteIn)
       );
     }
 
@@ -1205,7 +1214,7 @@ export class Store {
 
   private getTabulationFilterAsSql(
     electionId: Id,
-    filter: Tabulation.Filter
+    filter: Admin.ReportingFilter
   ): [whereParts: string[], params: Bindable[]] {
     const whereParts = ['cvrs.election_id = ?'];
     const params: Bindable[] = [electionId];
@@ -1252,6 +1261,26 @@ export class Store {
         )}`
       );
       params.push(...filter.scannerIds);
+    }
+
+    if (filter.adjudicationFlags) {
+      const { adjudicationFlags: flags } = filter;
+
+      if (flags.includes('isBlank')) {
+        whereParts.push('cvrs.is_blank = 1');
+      }
+
+      if (flags.includes('hasOvervote')) {
+        whereParts.push('cvrs.has_overvote = 1');
+      }
+
+      if (flags.includes('hasUndervote')) {
+        whereParts.push('cvrs.has_undervote = 1');
+      }
+
+      if (flags.includes('hasWriteIn')) {
+        whereParts.push('cvrs.has_write_in = 1');
+      }
     }
 
     return [whereParts, params];
@@ -1377,12 +1406,10 @@ export class Store {
     electionId,
     filter = {},
     groupBy = {},
-    blankBallotsOnly = false,
   }: {
     electionId: Id;
-    filter?: Tabulation.Filter;
+    filter?: Admin.ReportingFilter;
     groupBy?: Tabulation.GroupBy;
-    blankBallotsOnly?: boolean;
   }): Generator<Tabulation.GroupOf<CardTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       electionId,
@@ -1422,9 +1449,6 @@ export class Store {
       groupByParts.push('cvrs.ballot_type');
     }
 
-    if (blankBallotsOnly) {
-      whereParts.push('cvrs.is_blank = 1');
-    }
     for (const row of this.client.each(
       `
           select

@@ -14,6 +14,7 @@ import {
   Tabulation,
   ReadCastVoteRecordExportError,
   ReadCastVoteRecordError,
+  Admin,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -373,6 +374,14 @@ export interface CastVoteRecordVoteInfo {
   electionId: Id;
   votes: Tabulation.CastVoteRecord['votes'];
 }
+
+/**
+ * Summary information about a cast vote record's adjudication status.
+ */
+export type CastVoteRecordAdjudicationFlags = Record<
+  Admin.CastVoteRecordAdjudicationFlag,
+  boolean
+>;
 
 /**
  * Ballot mode.

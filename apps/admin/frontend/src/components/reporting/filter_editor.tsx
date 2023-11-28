@@ -4,7 +4,7 @@ import {
   typedAs,
   unique,
 } from '@votingworks/basics';
-import { Election, Tabulation } from '@votingworks/types';
+import { Admin, Election, Tabulation } from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { SearchSelect, SelectOption, Button } from '@votingworks/ui';
@@ -47,6 +47,7 @@ const FILTER_TYPES = [
   'scanner',
   'batch',
   'party',
+  'adjudication-status',
 ] as const;
 export type FilterType = (typeof FILTER_TYPES)[number];
 
@@ -64,6 +65,7 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   scanner: 'Scanner',
   batch: 'Batch',
   party: 'Party',
+  'adjudication-status': 'Adjudication Status',
 };
 
 function getFilterTypeOption(filterType: FilterType): SelectOption<FilterType> {
@@ -121,6 +123,13 @@ function generateOptionsForFilter({
         value: sb.batchId,
         label: `${sb.scannerId} • ${sb.batchId.slice(0, 8)}`,
       }));
+    case 'adjudication-status':
+      return Object.entries(Admin.ADJUDICATION_FLAG_LABELS).map(
+        ([value, label]) => ({
+          value,
+          label,
+        })
+      );
     /* istanbul ignore next - compile-time check for completeness */
     default:
       throwIllegalValue(filterType);
@@ -132,8 +141,8 @@ type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 function convertFilterRowsToTabulationFilter(
   rows: FilterRows
-): Tabulation.Filter {
-  const tabulationFilter: Writeable<Tabulation.Filter> = {};
+): Admin.ReportingFilter {
+  const tabulationFilter: Writeable<Admin.ReportingFilter> = {};
   for (const row of rows) {
     const { filterType, filterValues } = row;
     switch (filterType) {
@@ -156,6 +165,10 @@ function convertFilterRowsToTabulationFilter(
       case 'batch':
         tabulationFilter.batchIds = filterValues;
         break;
+      case 'adjudication-status':
+        tabulationFilter.adjudicationFlags =
+          filterValues as Admin.CastVoteRecordAdjudicationFlag[];
+        break;
       /* istanbul ignore next - compile-time check for completeness */
       default:
         throwIllegalValue(filterType);
@@ -166,7 +179,7 @@ function convertFilterRowsToTabulationFilter(
 }
 
 export interface FilterEditorProps {
-  onChange: (filter: Tabulation.Filter) => void;
+  onChange: (filter: Admin.ReportingFilter) => void;
   election: Election;
   allowedFilters: FilterType[];
 }

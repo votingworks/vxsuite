@@ -1,4 +1,4 @@
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
+import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 
 import { getPrecinctById } from '@votingworks/utils';
 
@@ -9,7 +9,7 @@ import { getBatchLabel, getScannerLabel } from './utils';
 
 interface Props {
   electionDefinition: ElectionDefinition;
-  filter: Tabulation.Filter;
+  filter: Admin.ReportingFilter;
 }
 
 const FilterDisplayRow = styled.p`
@@ -69,6 +69,16 @@ export function CustomFilterSummary({
             {pluralize('Batch', filter.batchIds.length)}:
           </Font>{' '}
           {filter.batchIds.map(getBatchLabel).join(', ')}
+        </FilterDisplayRow>
+      )}
+      {filter.adjudicationFlags && (
+        <FilterDisplayRow>
+          <Font weight="semiBold">
+            {pluralize('Adjudication Status', filter.adjudicationFlags.length)}:
+          </Font>{' '}
+          {filter.adjudicationFlags
+            .map((flag) => Admin.ADJUDICATION_FLAG_LABELS[flag])
+            .join(', ')}
         </FilterDisplayRow>
       )}
     </div>
