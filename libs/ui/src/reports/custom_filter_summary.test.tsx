@@ -88,7 +88,7 @@ test('adjudication status filter', () => {
     />
   );
   expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
-    'Adjudication Statuses: Has Write-In, Has Overvote'
+    'Adjudication Statuses: Write-In, Overvote'
   );
 });
 

@@ -212,9 +212,9 @@ test('adjudication status selection', () => {
   expect(onChange).toHaveBeenNthCalledWith(1, { adjudicationFlags: [] });
   userEvent.click(screen.getByLabelText('Select Filter Values'));
   screen.getByText('Blank Ballot');
-  screen.getByText('Has Overvote');
-  screen.getByText('Has Undervote');
-  screen.getByText('Has Write-In');
+  screen.getByText('Overvote');
+  screen.getByText('Undervote');
+  screen.getByText('Write-In');
   userEvent.click(screen.getByText('Blank Ballot'));
   expect(onChange).toHaveBeenNthCalledWith(2, {
     adjudicationFlags: ['isBlank'],

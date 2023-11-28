@@ -15,9 +15,9 @@ export const ADJUDICATION_FLAG_LABELS: Record<
   string
 > = {
   isBlank: 'Blank Ballot',
-  hasOvervote: 'Has Overvote',
-  hasUndervote: 'Has Undervote',
-  hasWriteIn: 'Has Write-In',
+  hasOvervote: 'Overvote',
+  hasUndervote: 'Undervote',
+  hasWriteIn: 'Write-In',
 };
 
 /**
