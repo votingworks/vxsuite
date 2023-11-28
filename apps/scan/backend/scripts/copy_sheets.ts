@@ -1,10 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
-import {
-  AcceptedSheet,
-  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
-} from '@votingworks/backend';
+import { AcceptedSheet } from '@votingworks/backend';
 import {
   assert,
   assertDefined,
@@ -69,11 +66,6 @@ function copySheet(store: Store, sheet: AcceptedSheet): void {
   ]);
 }
 
-function surfaceCastVoteRecordSyncModal(store: Store): void {
-  store.setIsContinuousExportOperationInProgress(true);
-  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
-}
-
 function copySheets({ targetSheetCount }: CopySheetsInput): void {
   const { store } = createWorkspace(assertDefined(SCAN_WORKSPACE));
 
@@ -108,13 +100,17 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
     copySheet(store, sheet);
   }
 
-  // Ensure that the user is forced to sync cast vote records to the now out-of-sync USB drive
-  surfaceCastVoteRecordSyncModal(store);
-
   const sheetOrSheets = numSheetsToCreate === 1 ? 'sheet' : 'sheets';
   console.log(
     `✅ Created ${numSheetsToCreate} new ${sheetOrSheets} by copying existing sheets, ` +
       `bringing total sheet count to ${targetSheetCount}`
+  );
+
+  // Ensure that we sync cast vote records to the now out-of-sync USB drive
+  store.setIsContinuousExportOperationInProgress(true);
+  console.log(
+    '🟡 Restart VxScan if already running ' +
+      'to surface the prompt to sync cast vote records to the now out-of-sync USB drive'
   );
 }
 
