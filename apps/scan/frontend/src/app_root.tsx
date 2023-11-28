@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   SetupCardReaderPage,
@@ -6,6 +6,7 @@ import {
   UnlockMachineScreen,
   SystemAdministratorScreenContents,
   ExportLogsButtonGroup,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 import {
   Hardware,
@@ -51,7 +52,7 @@ import {
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
 import { LiveCheckButton } from './components/live_check_button';
-import { CastVoteRecordSyncModal } from './components/cast_vote_record_sync_modal';
+import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
 
 export interface Props {
   hardware: Hardware;
@@ -93,6 +94,18 @@ export function AppRoot({
 
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
+  });
+
+  const [
+    isCastVoteRecordSyncRequiredScreenUp,
+    setIsCastVoteRecordSyncRequiredScreenUp,
+  ] = useState(false);
+  useQueryChangeListener(usbDriveStatusQuery, {
+    onChange: (newUsbDriveStatus) => {
+      if (newUsbDriveStatus.doesUsbDriveRequireCastVoteRecordSync) {
+        setIsCastVoteRecordSyncRequiredScreenUp(true);
+      }
+    },
   });
 
   if (
@@ -303,16 +316,23 @@ export function AppRoot({
     );
   }
 
-  return (
-    <React.Fragment>
-      <VoterScreen
-        electionDefinition={electionDefinition}
-        systemSettings={systemSettings}
-        isTestMode={isTestMode}
-        isSoundMuted={isSoundMuted}
-        batteryIsCharging={computer.batteryIsCharging}
+  if (isCastVoteRecordSyncRequiredScreenUp) {
+    return (
+      <CastVoteRecordSyncRequiredScreen
+        returnToVoterScreen={() =>
+          setIsCastVoteRecordSyncRequiredScreenUp(false)
+        }
       />
-      <CastVoteRecordSyncModal />
-    </React.Fragment>
+    );
+  }
+
+  return (
+    <VoterScreen
+      electionDefinition={electionDefinition}
+      systemSettings={systemSettings}
+      isTestMode={isTestMode}
+      isSoundMuted={isSoundMuted}
+      batteryIsCharging={computer.batteryIsCharging}
+    />
   );
 }
