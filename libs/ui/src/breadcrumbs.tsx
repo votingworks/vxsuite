@@ -11,7 +11,7 @@ export interface Route {
   path: string;
 }
 
-interface BreadcrumbsProps {
+export interface BreadcrumbsProps {
   currentTitle: string;
   parentRoutes: Route[];
   className?: string;
