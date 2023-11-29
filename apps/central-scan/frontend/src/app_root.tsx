@@ -338,9 +338,9 @@ export function AppRoot({
       <InvalidCardScreen
         reasonAndContext={authStatus}
         recommendedAction={
-          authStatus.reason === 'machine_not_configured'
-            ? 'Please insert an Election Manager card.'
-            : 'Please insert a valid Election Manager or System Administrator card.'
+          electionDefinition
+            ? 'Use a valid Election Manager or System Administrator card.'
+            : 'Use an Election Manager card.'
         }
       />
     );

@@ -1,4 +1,9 @@
-import { Main, Screen, CenteredLargeProse, H1, P } from '@votingworks/ui';
+import {
+  Screen,
+  InsertCardImage,
+  Main,
+  FullScreenMessage,
+} from '@votingworks/ui';
 
 /**
  * LoginPromptScreen prompts the user to log in when the machine is unconfigured
@@ -8,10 +13,10 @@ export function LoginPromptScreen(): JSX.Element {
   return (
     <Screen>
       <Main centerChild>
-        <CenteredLargeProse>
-          <H1>VxScan is Not Configured</H1>
-          <P>Insert Election Manager card to load an election definition.</P>
-        </CenteredLargeProse>
+        <FullScreenMessage
+          title="Insert an Election Manager card to configure VxScan"
+          image={<InsertCardImage />}
+        />
       </Main>
     </Screen>
   );

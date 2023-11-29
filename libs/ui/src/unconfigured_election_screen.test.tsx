@@ -13,8 +13,7 @@ test('UnconfiguredElectionScreen shows an error message when no USB drive is ins
     />
   );
 
-  await screen.findByText('VxScan is Not Configured');
-  await screen.findByText('Insert a USB drive containing a ballot package.');
+  await screen.findByText('Insert a USB drive containing a ballot package');
 });
 
 test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounted and no error message exists', async () => {
@@ -66,7 +65,8 @@ test.each([
       />
     );
 
-    await screen.findByText(expectedErrorMessage);
+    await screen.findByText('Failed to configure VxScan');
+    screen.getByText(expectedErrorMessage);
   }
 );
 

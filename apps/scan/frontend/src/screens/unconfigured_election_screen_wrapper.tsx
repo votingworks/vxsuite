@@ -1,8 +1,9 @@
 import {
   UnconfiguredElectionScreen,
   useQueryChangeListener,
+  Screen,
+  Main,
 } from '@votingworks/ui';
-import { ScreenMainCenterChild } from '../components/layout';
 import {
   configureFromBallotPackageOnUsbDrive,
   getUsbDriveStatus,
@@ -36,14 +37,16 @@ export function UnconfiguredElectionScreenWrapper(
   if (!usbDriveStatusQuery.isSuccess) return null;
 
   return (
-    <ScreenMainCenterChild>
-      <UnconfiguredElectionScreen
-        usbDriveStatus={usbDriveStatusQuery.data}
-        isElectionManagerAuth={isElectionManagerAuth}
-        backendConfigError={error}
-        machineName="VxScan"
-      />
-    </ScreenMainCenterChild>
+    <Screen>
+      <Main padded centerChild>
+        <UnconfiguredElectionScreen
+          usbDriveStatus={usbDriveStatusQuery.data}
+          isElectionManagerAuth={isElectionManagerAuth}
+          backendConfigError={error}
+          machineName="VxScan"
+        />
+      </Main>
+    </Screen>
   );
 }
 

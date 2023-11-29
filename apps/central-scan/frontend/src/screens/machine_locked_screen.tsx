@@ -1,5 +1,13 @@
-import { ElectionInfoBar, Font, H1, H3, Main, Screen } from '@votingworks/ui';
-import React, { useContext } from 'react';
+import {
+  ElectionInfoBar,
+  Font,
+  H1,
+  H3,
+  InsertCardImage,
+  Main,
+  Screen,
+} from '@votingworks/ui';
+import { useContext } from 'react';
 import styled from 'styled-components';
 
 import { AppContext } from '../contexts/app_context';
@@ -16,26 +24,22 @@ export function MachineLockedScreen(): JSX.Element {
   return (
     <Screen>
       <Main padded centerChild>
-        <div>
-          <LockedImage src="/locked.svg" alt="Locked Icon" />
+        {electionDefinition ? (
           <Font align="center">
-            {electionDefinition ? (
-              <React.Fragment>
-                <H1>VxCentralScan is Locked</H1>
-                <H3 style={{ fontWeight: 'normal' }}>
-                  Insert Election Manager card to unlock.
-                </H3>
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <H1>VxCentralScan is Not Configured</H1>
-                <H3 style={{ fontWeight: 'normal' }}>
-                  Insert Election Manager card to configure.
-                </H3>
-              </React.Fragment>
-            )}
+            <LockedImage src="/locked.svg" alt="Locked Icon" />
+            <H1>VxCentralScan is Locked</H1>
+            <H3 style={{ fontWeight: 'normal' }}>
+              Insert an Election Manager card to unlock.
+            </H3>
           </Font>
-        </div>
+        ) : (
+          <Font align="center">
+            <InsertCardImage />
+            <H1 align="center" style={{ maxWidth: '27rem' }}>
+              Insert an Election Manager card to configure VxCentralScan
+            </H1>
+          </Font>
+        )}
       </Main>
       {electionDefinition && (
         <ElectionInfoBar

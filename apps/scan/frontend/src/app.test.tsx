@@ -141,8 +141,10 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
-  await screen.findByText('VxScan is Not Configured');
-  await screen.findByText('Insert a USB drive containing a ballot package.');
+  await screen.findByText(
+    'Insert an Election Manager card to configure VxScan'
+  );
+  await screen.findByText('Insert a USB drive containing a ballot package');
 
   // Insert a USB with no ballot package
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -156,7 +158,7 @@ test('app can load and configure from a usb stick', async () => {
 
   // Remove the USB
   apiMock.expectGetUsbDriveStatus('no_drive');
-  await screen.findByText('Insert a USB drive containing a ballot package.');
+  await screen.findByText('Insert a USB drive containing a ballot package');
 
   // Insert a USB with a ballot package
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -376,7 +378,7 @@ test('election manager and poll worker configuration', async () => {
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
   await screen.findByText('Loading');
-  await screen.findByText('VxScan is Not Configured');
+  await screen.findByText('Insert a USB drive containing a ballot package');
 });
 
 const statusBallotCounted = scannerStatus({

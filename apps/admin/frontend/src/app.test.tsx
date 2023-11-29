@@ -600,7 +600,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
   await screen.findByText('Invalid Card');
   await screen.findByText(
     'This machine is unconfigured and cannot be unlocked with this card. ' +
-      'Please insert a System Administrator card.'
+      'Use a System Administrator card.'
   );
 });
 
@@ -623,7 +623,7 @@ test('election manager cannot auth onto machine with different election hash', a
   await screen.findByText(
     'The inserted Election Manager card is programmed for another election ' +
       'and cannot be used to unlock this machine. ' +
-      'Please insert a valid Election Manager or System Administrator card.'
+      'Use a valid Election Manager or System Administrator card.'
   );
 });
 

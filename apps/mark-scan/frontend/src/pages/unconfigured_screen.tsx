@@ -1,23 +1,18 @@
-import { Main, Screen, CenteredLargeProse, H1, P } from '@votingworks/ui';
+import {
+  Main,
+  Screen,
+  FullScreenMessage,
+  InsertCardImage,
+} from '@votingworks/ui';
 
-interface Props {
-  hasElectionDefinition: boolean;
-}
-
-export function UnconfiguredScreen({
-  hasElectionDefinition,
-}: Props): JSX.Element {
+export function UnconfiguredScreen(): JSX.Element {
   return (
     <Screen>
-      <Main centerChild>
-        <CenteredLargeProse>
-          <H1>VxMarkScan is Not Configured</H1>
-          {hasElectionDefinition ? (
-            <P>Insert Election Manager card to select a precinct.</P>
-          ) : (
-            <P>Insert Election Manager card to load an election definition.</P>
-          )}
-        </CenteredLargeProse>
+      <Main centerChild padded>
+        <FullScreenMessage
+          title="Insert an Election Manager card to configure VxMarkScan"
+          image={<InsertCardImage />}
+        />
       </Main>
     </Screen>
   );

@@ -270,8 +270,8 @@ test('configuring election from usb ballot package works end to end', async () =
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(
     electionGeneralDefinition,
-    'VxCentralScan is Not Configured',
-    'VxCentralScan is Not Configured'
+    'Insert an Election Manager card to configure VxCentralScan',
+    'Insert an Election Manager card to configure VxCentralScan'
   );
 
   // Insert USB drive
@@ -309,7 +309,7 @@ test('configuring election from usb ballot package works end to end', async () =
   mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   userEvent.click(screen.getByText('I am sure. Delete all election data.'));
   screen.getByText('Deleting election data');
-  await screen.findByText('Insert a USB drive containing a ballot package.');
+  await screen.findByText('Insert a USB drive containing a ballot package');
 });
 
 test('authentication works', async () => {
@@ -458,7 +458,7 @@ test('election manager cannot auth onto machine with different election hash', a
   });
   await screen.findByText(
     'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Please insert a valid Election Manager or System Administrator card.'
+      'Use a valid Election Manager or System Administrator card.'
   );
 });
 
