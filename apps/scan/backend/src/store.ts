@@ -659,6 +659,11 @@ export class Store {
         this.resetPollsState();
         this.setBallotCountWhenBallotBagLastReplaced(0);
 
+        // Delete batches, which will cascade delete sheets
+        this.client.run('delete from batches');
+        // Reset auto-incrementing key on "batches" table
+        this.client.run("delete from sqlite_sequence where name = 'batches'");
+
         // Reset all export-related metadata
         this.setExportDirectoryName(undefined);
         this.clearCastVoteRecordHashes();
@@ -666,11 +671,6 @@ export class Store {
         clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
       });
     }
-
-    // delete batches, which will cascade delete sheets
-    this.client.run('delete from batches');
-    // reset autoincrementing key on "batches" table
-    this.client.run("delete from sqlite_sequence where name = 'batches'");
   }
 
   getNextAdjudicationSheet(): BallotSheetInfo | undefined {

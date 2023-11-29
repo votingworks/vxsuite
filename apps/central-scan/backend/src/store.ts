@@ -672,13 +672,15 @@ export class Store {
       this.client.transaction(() => {
         this.setPollsState('polls_closed_initial');
         this.setBallotCountWhenBallotBagLastReplaced(0);
+
+        // Delete batches, which will cascade delete sheets
+        this.client.run('delete from batches');
+        // Reset auto-incrementing key on "batches" table
+        this.client.run("delete from sqlite_sequence where name = 'batches'");
+
         this.setScannerBackedUp(false);
       });
     }
-    // delete batches, which will cascade delete sheets
-    this.client.run('delete from batches');
-    // reset autoincrementing key on "batches" table
-    this.client.run("delete from sqlite_sequence where name = 'batches'");
   }
 
   getBallotImagePath(sheetId: string, side: Side): Optional<string> {
