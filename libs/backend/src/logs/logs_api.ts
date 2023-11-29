@@ -1,10 +1,9 @@
+import { err, ok, Result } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { UsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'fs/promises';
 import { join } from 'path';
-import { err, ok } from '@votingworks/basics';
 
-import { Result } from '@votingworks/basics';
 import { execFile } from '../exec';
 
 /** type of return value from exporting logs */
@@ -29,7 +28,7 @@ function buildApi({
         const sourceStatus = await fs.stat(LOG_DIR);
         logDirPathExistsAndIsDirectory = sourceStatus.isDirectory();
       } catch (e) {
-        // eslint-disable-line no-empty
+        // ignore
       }
 
       if (!logDirPathExistsAndIsDirectory) {
