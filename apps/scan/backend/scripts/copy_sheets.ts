@@ -6,6 +6,7 @@ import {
   assert,
   assertDefined,
   extractErrorMessage,
+  iter,
 } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
 
@@ -84,18 +85,11 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
     numSheetsToCreate,
     500 // A cap to limit how much data the script loads
   );
-  const sheetGenerator = store.forEachAcceptedSheet();
-  const sheets: AcceptedSheet[] = [];
-  let i = 0;
-  for (const sheet of sheetGenerator) {
-    sheets.push(sheet);
-    i += 1;
-    if (i === maxNumSheetsToReadForCopying) {
-      break;
-    }
-  }
+  const sheets = iter(store.forEachAcceptedSheet())
+    .take(maxNumSheetsToReadForCopying)
+    .toArray();
 
-  for (i = 0; i < numSheetsToCreate; i += 1) {
+  for (let i = 0; i < numSheetsToCreate; i += 1) {
     const sheet = sheets[i % sheets.length];
     copySheet(store, sheet);
   }
