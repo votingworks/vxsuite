@@ -1,10 +1,9 @@
-import { Card, H3, H5, Icons, Loading, P } from '@votingworks/ui';
+import { Card, H3, H5, Icons, Loading } from '@votingworks/ui';
 import styled from 'styled-components';
 import { routerPaths } from '../../router_paths';
 
 export const ExportActions = styled.div`
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: start;
   gap: 0.5rem;
@@ -13,7 +12,6 @@ export const ExportActions = styled.div`
 export const PreviewContainer = styled.div`
   position: relative;
   min-height: 11in;
-  margin-top: 0.5rem;
   padding: 0.5rem;
   background: ${(p) => p.theme.colors.container};
   display: flex;
@@ -83,24 +81,16 @@ export function PreviewLoading(): JSX.Element {
 }
 
 export const WarningContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: 0.5rem 0;
-
-  p {
-    margin-bottom: 0;
-  }
+  margin: 1rem 0;
 `;
 
-export function ReportWarning({ text }: { text: string }): JSX.Element {
+export function ReportWarning({ text }: { text: string }): JSX.Element | null {
+  if (!text) {
+    return null;
+  }
   return (
     <WarningContainer>
-      {text && (
-        <P>
-          <Icons.Warning /> {text}
-        </P>
-      )}
+      <Icons.Warning color="warning" /> {text}
     </WarningContainer>
   );
 }
