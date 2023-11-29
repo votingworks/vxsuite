@@ -8,6 +8,8 @@ import {
   getFileByName,
 } from '@votingworks/utils';
 import { BallotPackageFileName } from '@votingworks/types';
+import type { ConfigureError } from '@votingworks/admin-backend';
+import { Result, ok, err } from '@votingworks/basics';
 
 // InitialAdminSetupPackage models the zip file read in by VxAdmin when a system admin configures the machine.
 // It's the delivery method for the system settings file.
@@ -21,29 +23,37 @@ export interface InitialAdminSetupPackage {
 
 async function readInitialAdminSetupPackageFromBuffer(
   source: Buffer
-): Promise<InitialAdminSetupPackage> {
-  const zipfile = await openZip(source);
-  const entries = getEntries(zipfile);
+): Promise<Result<InitialAdminSetupPackage, ConfigureError>> {
+  let electionString: string;
+  let systemSettingsString: string;
 
-  const electionEntry = getFileByName(entries, BallotPackageFileName.ELECTION);
-  const electionString = await readTextEntry(electionEntry);
-
-  const systemSettingsEntry = getFileByName(
-    entries,
-    BallotPackageFileName.SYSTEM_SETTINGS
-  );
-  const systemSettingsString = await readTextEntry(systemSettingsEntry);
+  try {
+    const zipfile = await openZip(source);
+    const entries = getEntries(zipfile);
+    const electionEntry = getFileByName(
+      entries,
+      BallotPackageFileName.ELECTION
+    );
+    electionString = await readTextEntry(electionEntry);
+    const systemSettingsEntry = getFileByName(
+      entries,
+      BallotPackageFileName.SYSTEM_SETTINGS
+    );
+    systemSettingsString = await readTextEntry(systemSettingsEntry);
+  } catch (error) {
+    return err({ type: 'invalidZip', message: String(error) });
+  }
 
   // TODO(kofi): Import translation/audio files as well.
 
-  return {
+  return ok({
     electionString,
     systemSettingsString,
-  };
+  });
 }
 
 export async function readInitialAdminSetupPackageFromFile(
   file: File
-): Promise<InitialAdminSetupPackage> {
+): Promise<Result<InitialAdminSetupPackage, ConfigureError>> {
   return readInitialAdminSetupPackageFromBuffer(await readFile(file));
 }

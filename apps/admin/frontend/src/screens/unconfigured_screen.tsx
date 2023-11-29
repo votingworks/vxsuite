@@ -41,13 +41,10 @@ export function UnconfiguredScreen(): JSX.Element {
           electionData,
           systemSettingsData,
         });
-        if (result?.isErr()) {
+        if (result.isErr()) {
           setConfigureError(result.err());
           // eslint-disable-next-line no-console
-          console.error(
-            'configure failed in saveElectionToBackend',
-            result.err().message
-          );
+          console.error(result.err().message);
         }
         return result;
       } catch {
@@ -81,12 +78,17 @@ export function UnconfiguredScreen(): JSX.Element {
     const file = input.files && input.files[0];
 
     if (file) {
-      const initialSetupPackage =
-        await readInitialAdminSetupPackageFromFile(file);
-      await configureFromElectionPackage(
-        initialSetupPackage.electionString,
-        initialSetupPackage.systemSettingsString
-      );
+      const packageResult = await readInitialAdminSetupPackageFromFile(file);
+      if (packageResult.isErr()) {
+        setConfigureError(packageResult.err());
+        // eslint-disable-next-line no-console
+        console.error(packageResult.err().message);
+      } else {
+        await configureFromElectionPackage(
+          packageResult.ok().electionString,
+          packageResult.ok().systemSettingsString
+        );
+      }
     }
     setIsUploadingZip(false);
   };
@@ -107,6 +109,8 @@ export function UnconfiguredScreen(): JSX.Element {
           <Icons.Danger color="danger" />{' '}
           {(() => {
             switch (configureError.type) {
+              case 'invalidZip':
+                return 'Invalid election package zip file.';
               case 'invalidElection':
                 return 'Invalid Election Definition file.';
               case 'invalidSystemSettings':

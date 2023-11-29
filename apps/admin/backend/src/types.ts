@@ -33,6 +33,7 @@ export interface MachineConfig {
  * Errors that can occur when attempting to configure from an election package.
  */
 export type ConfigureError =
+  | { type: 'invalidZip'; message: string }
   | { type: 'invalidElection'; message: string }
   | { type: 'invalidSystemSettings'; message: string };
 
