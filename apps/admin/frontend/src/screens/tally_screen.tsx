@@ -33,20 +33,7 @@ import {
 } from '../api';
 import { Loading } from '../components/loading';
 import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tallies_modal';
-
-const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
-  margin-bottom: 1rem;
-
-  h3 {
-    margin: 0;
-  }
-
-  > div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-`;
+import { OfficialResultsCard } from '../components/official_results_card';
 
 const TestModeCard = styled(Card).attrs({ color: 'warning' })`
   margin-bottom: 1rem;
@@ -157,7 +144,8 @@ export function TallyScreen(): JSX.Element | null {
         {isOfficialResults && (
           <OfficialResultsCard>
             <H3>
-              <Icons.Done color="success" /> Election Results Marked as Official
+              <Icons.Done color="success" />
+              Election Results Marked as Official
             </H3>
             <Button
               disabled={!hasAnyFiles}
