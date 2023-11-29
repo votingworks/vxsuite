@@ -196,7 +196,7 @@ export const setPrecinctSelection = {
     return useMutation(apiClient.setPrecinctSelection, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
-        // changing the precinct selection after polls open will reset polls to closed
+        // Changing the precinct selection after polls open resets polls to closed
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
       },
     });
@@ -234,6 +234,8 @@ export const setTestMode = {
     return useMutation(apiClient.setTestMode, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
+        // Changing the mode after polls open resets polls to closed
+        await queryClient.invalidateQueries(getPollsInfo.queryKey());
       },
     });
   },

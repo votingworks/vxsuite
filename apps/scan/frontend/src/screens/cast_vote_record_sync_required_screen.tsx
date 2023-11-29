@@ -39,11 +39,13 @@ const CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPTS: Record<
 type ModalState = 'closed' | 'syncing' | 'success' | 'error';
 
 interface Props {
-  returnToVoterScreen: () => void;
+  setShouldStayOnCastVoteRecordSyncRequiredScreen: (
+    shouldStayOnCastVoteRecordSyncRequiredScreen: boolean
+  ) => void;
 }
 
 export function CastVoteRecordSyncRequiredScreen({
-  returnToVoterScreen,
+  setShouldStayOnCastVoteRecordSyncRequiredScreen,
 }: Props): JSX.Element {
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
@@ -51,6 +53,7 @@ export function CastVoteRecordSyncRequiredScreen({
   const [modalState, setModalState] = useState<ModalState>('closed');
 
   function syncCastVoteRecords() {
+    setShouldStayOnCastVoteRecordSyncRequiredScreen(true);
     setModalState('syncing');
     exportCastVoteRecordsToUsbDriveMutation.mutate(
       { mode: 'full_export' },
@@ -68,6 +71,7 @@ export function CastVoteRecordSyncRequiredScreen({
 
   function closeModal() {
     setModalState('closed');
+    setShouldStayOnCastVoteRecordSyncRequiredScreen(false);
   }
 
   const modal = (() => {
@@ -93,8 +97,8 @@ export function CastVoteRecordSyncRequiredScreen({
           <Modal
             title="CVR Sync Complete"
             content={<P>Voters may continue casting ballots.</P>}
-            actions={<Button onPress={returnToVoterScreen}>Close</Button>}
-            onOverlayClick={returnToVoterScreen}
+            actions={<Button onPress={closeModal}>Close</Button>}
+            onOverlayClick={closeModal}
           />
         );
       }

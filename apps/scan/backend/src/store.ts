@@ -38,6 +38,7 @@ import {
   RejectedSheet,
   Sheet,
   UiStringsStore,
+  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   createUiStringStore,
 } from '@votingworks/backend';
 import {
@@ -657,12 +658,19 @@ export class Store {
       this.client.transaction(() => {
         this.resetPollsState();
         this.setBallotCountWhenBallotBagLastReplaced(0);
+
+        // Delete batches, which will cascade delete sheets
+        this.client.run('delete from batches');
+        // Reset auto-incrementing key on "batches" table
+        this.client.run("delete from sqlite_sequence where name = 'batches'");
+
+        // Reset all export-related metadata
+        this.setExportDirectoryName(undefined);
+        this.clearCastVoteRecordHashes();
+        this.setIsContinuousExportOperationInProgress(false);
+        clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
       });
     }
-    // delete batches, which will cascade delete sheets
-    this.client.run('delete from batches');
-    // reset autoincrementing key on "batches" table
-    this.client.run("delete from sqlite_sequence where name = 'batches'");
   }
 
   getNextAdjudicationSheet(): BallotSheetInfo | undefined {
@@ -941,16 +949,18 @@ export class Store {
   /**
    * Stores the name of the directory that we'll be continuously exporting to
    */
-  setExportDirectoryName(exportDirectoryName: string): void {
+  setExportDirectoryName(exportDirectoryName?: string): void {
     this.client.run('delete from export_directory_name');
-    this.client.run(
-      `
+    if (exportDirectoryName !== undefined) {
+      this.client.run(
+        `
       insert into export_directory_name (
         export_directory_name
       ) values (?)
       `,
-      exportDirectoryName
-    );
+        exportDirectoryName
+      );
+    }
   }
 
   getCastVoteRecordRootHash(): string {
