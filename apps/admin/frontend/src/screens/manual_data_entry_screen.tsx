@@ -17,9 +17,9 @@ import {
   Icons,
   P,
   H3,
-  Font,
   Card,
   Caption,
+  LabelledText,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -56,7 +56,7 @@ const ContestsContainer = styled.div`
   flex-direction: column;
   gap: 1rem;
   width: 60%;
-  margin-bottom: 8rem; /* Make space for footer */
+  margin-bottom: 5rem; /* Make space for footer */
 `;
 
 const ContestData = styled(Card)`
@@ -534,13 +534,16 @@ export function ManualDataEntryScreen(): JSX.Element {
 
   return (
     <NavigationScreen title={TITLE} parentRoutes={PARENT_ROUTES}>
-      <P>
-        <Font weight="bold">Ballot Style:</Font> {ballotStyleId} |{' '}
-        <Font weight="bold">Precinct:</Font> {precinct.name} |{' '}
-        <Font weight="bold">Voting Method:</Font> {votingMethodTitle}
-      </P>
-      <P>Enter the number of votes for each contest option.</P>
       <ContestsContainer>
+        <Card color="neutral">
+          <div style={{ display: 'flex', gap: '2rem' }}>
+            <LabelledText label="Ballot Style">{ballotStyleId}</LabelledText>
+            <LabelledText label="Precinct">{precinct.name}</LabelledText>
+            <LabelledText label="Voting Method">
+              {votingMethodTitle}
+            </LabelledText>
+          </div>
+        </Card>
         {currentContests.map((contest) => {
           const contestWriteInCandidates = writeInCandidates.filter(
             ({ contestId }) => contestId === contest.id
