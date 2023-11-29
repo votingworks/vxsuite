@@ -106,7 +106,9 @@ test('happy path', async () => {
   await screen.findByText(
     'Test Unofficial Absentee Ballot Ballot Count Report'
   );
-  expect(screen.getByTestId('footer-total')).toHaveTextContent('10');
+  expect(screen.getByTestId('footer-ballot-count-total')).toHaveTextContent(
+    '10'
+  );
 
   // Change Report Parameters
   userEvent.click(screen.getByLabelText('Remove Absentee'));
@@ -133,9 +135,13 @@ test('happy path', async () => {
   await screen.findByText(
     'Test Unofficial Precinct Ballot Ballot Count Report'
   );
-  expect(screen.getByTestId('footer-total')).toHaveTextContent('20');
-  expect(screen.getByTestId('footer-bmd')).toHaveTextContent('20');
-  expect(screen.queryByTestId('footer-manual')).not.toBeInTheDocument();
+  expect(screen.getByTestId('footer-ballot-count-total')).toHaveTextContent(
+    '20'
+  );
+  expect(screen.getByTestId('footer-ballot-count-bmd')).toHaveTextContent('20');
+  expect(
+    screen.queryByTestId('footer-ballot-count-manual')
+  ).not.toBeInTheDocument();
 
   // Print Report
   userEvent.click(screen.getButton('Print Report'));
@@ -143,7 +149,9 @@ test('happy path', async () => {
     printResult.getByText(
       'Test Unofficial Precinct Ballot Ballot Count Report'
     );
-    expect(printResult.getByTestId('footer-total')).toHaveTextContent('20');
+    expect(
+      printResult.getByTestId('footer-ballot-count-total')
+    ).toHaveTextContent('20');
   });
 });
 

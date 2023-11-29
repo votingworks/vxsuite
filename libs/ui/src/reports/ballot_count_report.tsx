@@ -11,6 +11,7 @@ import {
   determinePartyId,
   format,
   getBallotCount,
+  getElectionSheetCount,
   getGroupKey,
   getHmpbBallotCount,
   getPartyById,
@@ -24,58 +25,100 @@ import { TallyReportMetadata } from './tally_report_metadata';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { getBatchLabel, getScannerLabel, prefixedTitle } from './utils';
 
-/**
- * Columns that may appear in a the ballot count report table.
- */
-const COLUMNS = [
+export const ATTRIBUTE_COLUMNS = [
   'precinct',
   'ballot-style',
   'party',
   'voting-method',
   'scanner',
   'batch',
-  'center-fill', // spacing between the attributes and the counts
-  'manual',
-  'bmd',
-  'hmpb',
-  'total',
-  'right-fill', // spacing to bring the total away from the right margin
 ] as const;
+type AttributeColumnId = (typeof ATTRIBUTE_COLUMNS)[number];
+interface AttributeColumn {
+  type: 'attribute';
+  id: AttributeColumnId;
+}
 
-export type Column = (typeof COLUMNS)[number];
+const BALLOT_COUNT_COLUMNS = ['manual', 'bmd', 'hmpb', 'total'] as const;
+type BallotCountColumnId = (typeof BALLOT_COUNT_COLUMNS)[number];
+interface BallotCountColumn {
+  type: 'ballot-count';
+  id: BallotCountColumnId;
+}
 
-const COLUMN_LABELS: Record<Column, string> = {
+interface SheetCountColumn {
+  type: 'sheet-count';
+  /* zero-based index of the sheet */
+  id: number;
+}
+
+// filler columns provide flex spacing in the grid
+export const FILLER_COLUMNS = ['center', 'right'] as const;
+type FillerColumnId = (typeof FILLER_COLUMNS)[number];
+interface FillerColumn {
+  type: 'filler';
+  id: FillerColumnId;
+}
+
+export type Column =
+  | AttributeColumn
+  | BallotCountColumn
+  | SheetCountColumn
+  | FillerColumn;
+
+const COLUMN_LABELS: Record<AttributeColumnId | BallotCountColumnId, string> = {
   precinct: 'Precinct',
   'ballot-style': 'Ballot Style',
   party: 'Party',
   'voting-method': 'Voting Method',
   scanner: 'Scanner ID',
   batch: 'Batch ID',
-  'center-fill': '',
   manual: 'Manual',
   bmd: 'BMD',
   hmpb: 'HMPB',
   total: 'Total',
-  'right-fill': '',
 };
 
-// minmax(0, max-content) = fit to content unless table is overflowing
-// max-content = fit to content
-// fr = expand to fit remaining space proportionally
-const COLUMN_WIDTHS: Record<Column, string> = {
-  precinct: 'minmax(0, max-content)',
-  'ballot-style': 'minmax(0, max-content)',
-  party: 'minmax(0, max-content)',
-  'voting-method': 'minmax(0, max-content)',
-  scanner: 'minmax(0, max-content)',
-  batch: 'minmax(0, max-content)',
-  'center-fill': '5fr',
-  manual: 'max-content',
-  bmd: 'max-content',
-  hmpb: 'max-content',
-  total: 'max-content',
-  'right-fill': '2fr',
-};
+function getColumnLabel(column: Column): string {
+  switch (column.type) {
+    case 'attribute':
+    case 'ballot-count':
+      return COLUMN_LABELS[column.id];
+    case 'sheet-count':
+      return `Sheet ${column.id + 1}`;
+    case 'filler':
+      return '';
+    // istanbul ignore next
+    default:
+      throwIllegalValue(column);
+  }
+}
+
+function getColumnWidth(column: Column): string {
+  switch (column.type) {
+    case 'attribute':
+      // fit to content unless table is overflowing
+      return 'minmax(0, max-content)';
+    case 'ballot-count':
+    case 'sheet-count':
+      // always fit content
+      return 'max-content';
+    case 'filler':
+      switch (column.id) {
+        case 'center':
+          return '5fr';
+        case 'right':
+          return '2fr';
+        // istanbul ignore next
+        default:
+          throwIllegalValue(column);
+      }
+    // istanbul ignore next
+    // eslint-disable-next-line no-fallthrough
+    default:
+      throwIllegalValue(column);
+  }
+}
 
 const BallotCountGrid = styled.div<{
   columns: Column[];
@@ -84,7 +127,7 @@ const BallotCountGrid = styled.div<{
   width: 7.5in;
   display: grid;
   grid-template-columns: ${({ columns }) =>
-    columns.map((c) => COLUMN_WIDTHS[c]).join(' ')};
+    columns.map((c) => getColumnWidth(c)).join(' ')};
   page-break-inside: auto;
   font-size: 14px;
 
@@ -114,7 +157,7 @@ const BallotCountGrid = styled.div<{
     const numColumns = columns.length;
     let css = ``;
     for (let i = 1; i <= numColumns; i += 1) {
-      css += `span:nth-child(${2 * numColumns}n + ${i}) { 
+      css += `span.striping:nth-child(${2 * numColumns}n + ${i}) { 
         background-color: #f5f5f5;
 
         @media print {
@@ -125,22 +168,31 @@ const BallotCountGrid = styled.div<{
     return css;
   }}
 
-  /* header */
-  span:nth-child(-n + ${({ columns }) => columns.length}) {
+  .bold {
     font-weight: 500;
-    background-color: white;
+  }
+
+  .italic {
+    font-style: italic;
+  }
+
+  .thicker-top-border {
+    border-top: 1.5px solid #ddd;
+  }
+
+  .thicker-bottom-border {
     border-bottom-width: 2px;
   }
 
-  /* footer */
-  span:nth-last-child(-n + ${({ columns }) => columns.length}) {
-    background-color: white;
+  .no-bottom-border {
     border-bottom: none;
-    font-weight: ${({ hasGroups }) => (hasGroups ? 500 : 400)};
-    border-top: ${({ hasGroups }) => (hasGroups ? '1.5px' : '0')} solid #ddd;
   }
 
-  .filler {
+  .thicker-left-border {
+    border-left-width: 1.5px !important;
+  }
+
+  .no-left-border {
     border-left: none !important;
   }
 
@@ -148,24 +200,30 @@ const BallotCountGrid = styled.div<{
     text-align: right;
   }
 
-  .sum-total {
+  .cell-text-overflow {
     position: relative;
     overflow-x: visible;
     text-overflow: unset;
   }
 `;
 
-type NumberColumn = Extract<
-  Column,
-  'manual' | 'scanned' | 'bmd' | 'hmpb' | 'total'
->;
+const SUM_TOTAL_CLASSES = [
+  'cell-text-overflow',
+  'bold',
+  'thicker-top-border',
+  'no-bottom-border',
+];
+
+function getColumnKey(column: Column): string {
+  return `${column.type}-${column.id}`;
+}
 
 function getFormattedCount(
   cardCounts: Tabulation.CardCounts,
-  column: NumberColumn
+  column: BallotCountColumn | SheetCountColumn
 ): string {
   const number = (() => {
-    switch (column) {
+    switch (column.id) {
       case 'manual':
         return cardCounts.manual ?? 0;
       case 'bmd':
@@ -174,52 +232,194 @@ function getFormattedCount(
         return getHmpbBallotCount(cardCounts);
       case 'total':
         return getBallotCount(cardCounts);
-      // istanbul ignore next - compile time check for completeness
+      // sheet count case
       default:
-        throwIllegalValue(column);
+        assert(typeof column.id === 'number');
+        // istanbul ignore next - trivial default value
+        return cardCounts.hmpb[column.id] ?? 0;
     }
   })();
 
   return format.count(number);
 }
 
-function getCellClass(column: Column): Optional<string> {
-  switch (column) {
-    case 'precinct':
-    case 'ballot-style':
-    case 'party':
-    case 'voting-method':
-    case 'scanner':
-    case 'batch':
-      return undefined;
-    case 'center-fill':
-      return 'filler';
-    case 'right-fill':
-      return undefined;
-    case 'manual':
-    case 'bmd':
-    case 'hmpb':
-    case 'total':
-      return 'number';
-    // istanbul ignore next - compile time check for completeness
+type RowType = 'group-header' | 'header' | 'data' | 'footer';
+
+function isNumberColumn(column: Column): boolean {
+  return column.type === 'ballot-count' || column.type === 'sheet-count';
+}
+
+function getCellClass(
+  column: Column,
+  row: RowType,
+  showSheetCounts: boolean
+): Optional<string> {
+  const classes: string[] = [];
+
+  // center filler column is just for spacing, doesn't need border
+  if (column.type === 'filler' && column.id === 'center') {
+    classes.push('no-left-border');
+  }
+
+  // special formatting for sheet count breakdown
+  if (showSheetCounts) {
+    // left border of sheet count area
+    if (column.type === 'sheet-count' && column.id === 0) {
+      classes.push('thicker-left-border');
+    }
+
+    // right border of sheet count area
+    if (column.id === 'total') {
+      classes.push('thicker-left-border');
+    }
+
+    // bold the headers and footers of first sheet count column
+    if (column.type === 'sheet-count' && column.id === 0 && row !== 'data') {
+      classes.push('bold');
+    }
+
+    // italicize subsequent sheet count columns
+    if (column.type === 'sheet-count' && column.id > 0) {
+      classes.push('italic');
+    }
+
+    if (row === 'group-header') {
+      // top border of sheet count area
+      if (column.type === 'sheet-count') {
+        classes.push('thicker-top-border');
+      }
+
+      // remove extra lines outside of sheet count area
+      if (column.type !== 'sheet-count' && column.id !== 'total') {
+        classes.push('no-left-border');
+      }
+      classes.push('no-bottom-border');
+    }
+  }
+
+  if (row === 'header') {
+    classes.push('thicker-bottom-border');
+    if (column.type !== 'sheet-count') {
+      classes.push('bold');
+    }
+  }
+
+  if (row === 'data') {
+    classes.push('striping');
+    if (isNumberColumn(column)) {
+      classes.push('number');
+    }
+  }
+
+  if (row === 'footer') {
+    classes.push('no-bottom-border');
+    classes.push('thicker-top-border');
+
+    if (column.type !== 'sheet-count') {
+      classes.push('bold');
+    }
+
+    // remove borders so "Sum Total" text appears to span multiple cells
+    if (column.type === 'attribute') {
+      classes.push('no-left-border');
+    }
+
+    if (isNumberColumn(column)) {
+      classes.push('number');
+    }
+  }
+
+  return classes.join(' ');
+}
+
+type BatchLookup = Record<string, Tabulation.ScannerBatch>;
+function getScannerId(
+  cardCounts: Tabulation.GroupOf<Tabulation.CardCounts>,
+  batchLookup: BatchLookup
+): string {
+  // asserts that the batchId is defined if the scannerId is not
+  return (
+    cardCounts.scannerId ??
+    (cardCounts.batchId === Tabulation.MANUAL_BATCH_ID
+      ? Tabulation.MANUAL_SCANNER_ID
+      : batchLookup[assertDefined(cardCounts.batchId)].scannerId)
+  );
+}
+
+function getCellContent({
+  column,
+  cardCounts,
+  electionDefinition,
+  batchLookup,
+}: {
+  column: Column;
+  cardCounts: Tabulation.GroupOf<Tabulation.CardCounts>;
+  electionDefinition: ElectionDefinition;
+  batchLookup: BatchLookup;
+}): string {
+  switch (column.type) {
+    case 'attribute':
+      switch (column.id) {
+        case 'precinct':
+          return getPrecinctById(
+            electionDefinition,
+            assertDefined(cardCounts.precinctId)
+          ).name;
+        case 'ballot-style':
+          return assertDefined(cardCounts.ballotStyleId);
+        case 'party':
+          return getPartyById(
+            electionDefinition,
+            assertDefined(determinePartyId(electionDefinition, cardCounts))
+          ).name;
+        case 'voting-method':
+          return Tabulation.VOTING_METHOD_LABELS[
+            assertDefined(cardCounts.votingMethod)
+          ];
+        case 'scanner':
+          return getScannerLabel(getScannerId(cardCounts, batchLookup));
+        case 'batch':
+          return getBatchLabel(assertDefined(cardCounts.batchId));
+        // istanbul ignore next
+        default:
+          throwIllegalValue(column);
+      }
+    // eslint-disable-next-line no-fallthrough
+    case 'filler':
+      return '';
+    case 'ballot-count':
+    case 'sheet-count':
+      return getFormattedCount(cardCounts, column);
+    // istanbul ignore next
     default:
       throwIllegalValue(column);
   }
 }
 
+/**
+ * The table is a grid with a list of `<span>` elements as children, rather
+ * than row elements. In order to make this easier to test and style, the
+ * convention is that every "row" has the same number of cells, even if they
+ * are empty or appear to have span greater than 1.
+ *
+ * Using a grid rather than a table allows more powerful, content-responsive
+ * column widths.
+ */
 function BallotCountTable({
   electionDefinition,
   scannerBatches,
   cardCountsList,
   groupBy,
+  showSheetCounts,
 }: {
   electionDefinition: ElectionDefinition;
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
+  showSheetCounts: boolean;
 }): JSX.Element {
   const { election } = electionDefinition;
-  const batchLookup: Record<string, Tabulation.ScannerBatch> = {};
+  const batchLookup: BatchLookup = {};
   for (const scannerBatch of scannerBatches) {
     batchLookup[scannerBatch.batchId] = scannerBatch;
   }
@@ -228,41 +428,53 @@ function BallotCountTable({
   const hasGroups = !isGroupByEmpty(groupBy);
 
   if (groupBy.groupByPrecinct) {
-    columns.push('precinct');
+    columns.push({ type: 'attribute', id: 'precinct' });
   }
   if (groupBy.groupByBallotStyle) {
-    columns.push('ballot-style');
+    columns.push({ type: 'attribute', id: 'ballot-style' });
   }
   if (
     election.type === 'primary' &&
     (groupBy.groupByParty || groupBy.groupByBallotStyle)
   ) {
-    columns.push('party');
+    columns.push({ type: 'attribute', id: 'party' });
   }
   if (groupBy.groupByVotingMethod) {
-    columns.push('voting-method');
+    columns.push({ type: 'attribute', id: 'voting-method' });
   }
   if (groupBy.groupByScanner || groupBy.groupByBatch) {
-    columns.push('scanner');
+    columns.push({ type: 'attribute', id: 'scanner' });
   }
   if (groupBy.groupByBatch) {
-    columns.push('batch');
+    columns.push({ type: 'attribute', id: 'batch' });
   }
 
   if (hasGroups) {
-    columns.push('center-fill');
+    columns.push({ type: 'filler', id: 'center' });
   }
 
   // always show manual counts if they exist
   const hasNonZeroManualData = cardCountsList.some((cc) => !!cc.manual);
   if (hasNonZeroManualData) {
-    columns.push('manual');
+    columns.push({ type: 'ballot-count', id: 'manual' });
   }
-  columns.push('bmd');
-  columns.push('hmpb');
-  columns.push('total');
 
-  columns.push('right-fill');
+  columns.push({ type: 'ballot-count', id: 'bmd' });
+
+  // we show the sheet counts if the flag is true even if it's a single-sheet
+  // election. it's the caller's responsibility to check the election definition
+  if (showSheetCounts) {
+    // istanbul ignore next - trivial default value
+    const sheetCount = getElectionSheetCount(election) ?? 1;
+    for (let i = 0; i < sheetCount; i += 1) {
+      columns.push({ type: 'sheet-count', id: i });
+    }
+  } else {
+    columns.push({ type: 'ballot-count', id: 'hmpb' });
+  }
+
+  columns.push({ type: 'ballot-count', id: 'total' });
+  columns.push({ type: 'filler', id: 'right' });
 
   const totalCardCounts = combineCardCounts(cardCountsList);
 
@@ -272,79 +484,46 @@ function BallotCountTable({
       hasGroups={hasGroups}
       data-testid="ballot-count-grid"
     >
+      {/* Group Header */}
+      {showSheetCounts &&
+        columns.map((column) => (
+          <span
+            key={getColumnKey(column)}
+            className={getCellClass(column, 'group-header', showSheetCounts)}
+            data-testid={`group-header-${getColumnKey(column)}`}
+          >
+            {column.type === 'sheet-count' ? 'HMPB' : ''}
+          </span>
+        ))}
       {/* Header */}
       {columns.map((column) => (
         <span
-          key={column}
-          className={getCellClass(column)}
-          data-testid={`header-${column}`}
+          key={getColumnKey(column)}
+          className={`${getCellClass(column, 'header', showSheetCounts)}`}
+          data-testid={`header-${getColumnKey(column)}`}
         >
-          {COLUMN_LABELS[column]}
+          {getColumnLabel(column)}
         </span>
       ))}
-      {/* Body */}
+      {/* Data */}
       {cardCountsList.map((cardCounts) => {
-        const partyId = determinePartyId(electionDefinition, cardCounts);
-        const scannerId =
-          cardCounts.scannerId ??
-          (cardCounts.batchId === Tabulation.MANUAL_BATCH_ID
-            ? Tabulation.MANUAL_SCANNER_ID
-            : cardCounts.batchId
-            ? batchLookup[cardCounts.batchId].scannerId
-            : undefined);
         const rowKey = getGroupKey(cardCounts, groupBy);
         return (
           <React.Fragment key={rowKey}>
             {columns.map((column) => {
-              let content = '';
-              switch (column) {
-                case 'precinct':
-                  content = getPrecinctById(
-                    electionDefinition,
-                    assertDefined(cardCounts.precinctId)
-                  ).name;
-                  break;
-                case 'ballot-style':
-                  content = assertDefined(cardCounts.ballotStyleId);
-                  break;
-                case 'party':
-                  content = getPartyById(
-                    electionDefinition,
-                    assertDefined(partyId)
-                  ).name;
-                  break;
-                case 'voting-method':
-                  content =
-                    Tabulation.VOTING_METHOD_LABELS[
-                      assertDefined(cardCounts.votingMethod)
-                    ];
-                  break;
-                case 'scanner':
-                  content = getScannerLabel(assertDefined(scannerId));
-                  break;
-                case 'batch':
-                  content = getBatchLabel(assertDefined(cardCounts.batchId));
-                  break;
-                case 'center-fill':
-                case 'right-fill':
-                  break;
-                case 'manual':
-                case 'bmd':
-                case 'hmpb':
-                case 'total':
-                  content = getFormattedCount(cardCounts, column);
-                  break;
-                // istanbul ignore next - compile time check for completeness
-                default:
-                  throwIllegalValue(column);
-              }
+              const key = getColumnKey(column);
               return (
                 <span
-                  key={column}
-                  className={getCellClass(column)}
-                  data-testid={`data-${column}`}
+                  key={key}
+                  className={getCellClass(column, 'data', showSheetCounts)}
+                  data-testid={`data-${key}`}
                 >
-                  {content}
+                  {getCellContent({
+                    column,
+                    cardCounts,
+                    electionDefinition,
+                    batchLookup,
+                  })}
                 </span>
               );
             })}
@@ -354,34 +533,31 @@ function BallotCountTable({
       {/* Footer */}
       {hasGroups && (
         <React.Fragment>
-          <span className="sum-total">Sum Totals</span>
+          <span className={SUM_TOTAL_CLASSES.join(' ')}>Sum Totals</span>
           {/* eslint-disable-next-line array-callback-return */}
           {columns.slice(1).map((column) => {
-            assert(column !== COLUMNS[0]);
-            switch (column) {
-              case 'ballot-style':
-              case 'party':
-              case 'voting-method':
-              case 'scanner':
-              case 'batch':
-              case 'center-fill':
-                return <span key={column} className="filler" />;
-              case 'manual':
-              case 'bmd':
-              case 'hmpb':
-              case 'total':
+            const key = getColumnKey(column);
+            switch (column.type) {
+              case 'ballot-count':
+              case 'sheet-count':
                 return (
                   <span
-                    key={column}
-                    data-testid={`footer-${column}`}
-                    className="number"
+                    key={key}
+                    data-testid={`footer-${key}`}
+                    className={getCellClass(column, 'footer', showSheetCounts)}
                   >
                     {getFormattedCount(totalCardCounts, column)}
                   </span>
                 );
-              case 'right-fill':
-                return <span key={column} />;
-              // istanbul ignore next - compile time check for completeness
+              case 'attribute':
+              case 'filler':
+                return (
+                  <span
+                    key={key}
+                    className={getCellClass(column, 'footer', showSheetCounts)}
+                  />
+                );
+              // istanbul ignore next
               default:
                 throwIllegalValue(column);
             }
@@ -401,6 +577,7 @@ export interface BallotCountReportProps {
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
+  showSheetCounts?: boolean;
   customFilter?: Admin.ReportingFilter;
   generatedAtTime?: Date;
 }
@@ -414,6 +591,7 @@ export function BallotCountReport({
   scannerBatches,
   cardCountsList,
   groupBy,
+  showSheetCounts,
   customFilter,
   generatedAtTime = new Date(),
 }: BallotCountReportProps): JSX.Element {
@@ -441,6 +619,7 @@ export function BallotCountReport({
             scannerBatches={scannerBatches}
             cardCountsList={cardCountsList}
             groupBy={groupBy}
+            showSheetCounts={showSheetCounts ?? false}
           />
         </ReportSection>
       </TallyReport>

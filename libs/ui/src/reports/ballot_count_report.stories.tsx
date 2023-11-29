@@ -3,7 +3,7 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { Tabulation } from '@votingworks/types';
+import { ElectionDefinition, GridLayout, Tabulation } from '@votingworks/types';
 import styled from 'styled-components';
 import {
   BallotCountReport,
@@ -81,6 +81,7 @@ const precinctReportArgs: BallotCountReportProps = {
     groupByPrecinct: true,
   },
   cardCountsList: precinctCardCountsList,
+  showSheetCounts: false,
 };
 
 export const PrecinctReport: Story = {
@@ -121,6 +122,7 @@ const primaryPrecinctReportArgs: BallotCountReportProps = {
     groupByParty: true,
   },
   cardCountsList: primaryPrecinctCardCountsList,
+  showSheetCounts: false,
 };
 
 export const PrimaryPrecinctReport: Story = {
@@ -150,6 +152,7 @@ const votingMethodReportArgs: BallotCountReportProps = {
     groupByVotingMethod: true,
   },
   cardCountsList: votingMethodCardCountsList,
+  showSheetCounts: false,
 };
 
 export const VotingMethodReport: Story = {
@@ -169,6 +172,7 @@ const noGroupsReportArgs: BallotCountReportProps = {
   scannerBatches: [],
   groupBy: {},
   cardCountsList: noGroupsCardCountsList,
+  showSheetCounts: false,
 };
 
 export const NoGroupsReport: Story = {
@@ -193,6 +197,7 @@ const singleGroupReportArgs: BallotCountReportProps = {
   ],
   groupBy: { groupByBatch: true },
   cardCountsList: singleGroupCardCountsList,
+  showSheetCounts: false,
 };
 
 export const SingleGroupReport: Story = {
@@ -286,6 +291,7 @@ const maxReportArgs: BallotCountReportProps = {
     groupByBallotStyle: true,
   },
   cardCountsList: maxCardCountsList,
+  showSheetCounts: false,
 };
 
 export const MaxReport: Story = {
@@ -293,3 +299,78 @@ export const MaxReport: Story = {
 };
 
 export default meta;
+
+const multiSheetPrecinctCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
+  electionWithMsEitherNeitherDefinition.election.precincts.map(
+    (precinct, index) => ({
+      ...cc(
+        index * 1,
+        index * 2,
+        index * 3,
+        Math.floor(index * 2.8),
+        Math.floor(index * 2.2)
+      ),
+      precinctId: precinct.id,
+    })
+  );
+
+const partialGridPosition = {
+  type: 'option',
+  side: 'front',
+  column: 0,
+  row: 0,
+  contestId: 'any',
+  optionId: 'any',
+} as const;
+
+const mockMultiSheetGridLayouts: GridLayout[] = [
+  {
+    ballotStyleId: 'any',
+    optionBoundsFromTargetMark: {
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+    },
+    gridPositions: [
+      {
+        ...partialGridPosition,
+        sheetNumber: 1,
+      },
+      {
+        ...partialGridPosition,
+        sheetNumber: 2,
+      },
+      {
+        ...partialGridPosition,
+        sheetNumber: 3,
+      },
+    ],
+  },
+];
+
+const multiSheetElectionDefinition: ElectionDefinition = {
+  ...electionWithMsEitherNeitherDefinition,
+  election: {
+    ...electionWithMsEitherNeitherDefinition.election,
+    gridLayouts: mockMultiSheetGridLayouts,
+  },
+};
+
+const multiSheetPrecinctReportArgs: BallotCountReportProps = {
+  title: 'Full Election Ballot Count Report',
+  isOfficial: true,
+  isTest: false,
+  testId: 'tally-report',
+  electionDefinition: multiSheetElectionDefinition,
+  scannerBatches: [],
+  groupBy: {
+    groupByPrecinct: true,
+  },
+  cardCountsList: multiSheetPrecinctCardCountsList,
+  showSheetCounts: true,
+};
+
+export const MultiSheetPrecinctReport: Story = {
+  args: multiSheetPrecinctReportArgs,
+};

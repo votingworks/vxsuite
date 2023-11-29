@@ -76,8 +76,12 @@ test('displays report (primary)', async () => {
   expect(within(report).getAllByText('Mammal')).toHaveLength(2);
   expect(within(report).getAllByText('Fish')).toHaveLength(2);
 
-  expect(within(report).getByTestId('footer-bmd')).toHaveTextContent('50');
-  expect(within(report).getByTestId('footer-total')).toHaveTextContent('50');
+  expect(
+    within(report).getByTestId('footer-ballot-count-bmd')
+  ).toHaveTextContent('50');
+  expect(
+    within(report).getByTestId('footer-ballot-count-total')
+  ).toHaveTextContent('50');
 });
 
 test('displays report (general)', async () => {
@@ -126,6 +130,10 @@ test('displays report (general)', async () => {
     within(report).getByText(precinct.name);
   }
 
-  expect(within(report).getByTestId('footer-bmd')).toHaveTextContent('50');
-  expect(within(report).getByTestId('footer-total')).toHaveTextContent('50');
+  expect(
+    within(report).getByTestId('footer-ballot-count-bmd')
+  ).toHaveTextContent('50');
+  expect(
+    within(report).getByTestId('footer-ballot-count-total')
+  ).toHaveTextContent('50');
 });

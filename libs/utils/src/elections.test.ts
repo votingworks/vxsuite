@@ -2,19 +2,65 @@ import {
   electionGeneralDefinition,
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
+import { getElectionSheetCount } from '.';
 
-import { canDistinguishVotingMethods } from './elections';
-
-test('returns true if gridLayouts is absent', () => {
+test('getElectionSheetCount', () => {
+  // election with no gridLayouts available
   expect(
-    canDistinguishVotingMethods(electionGeneralDefinition.election)
-  ).toBeTruthy();
-});
+    getElectionSheetCount(electionGeneralDefinition.election)
+  ).toBeUndefined();
 
-test('returns false if gridLayouts is present', () => {
+  // single page election
   expect(
-    canDistinguishVotingMethods(
+    getElectionSheetCount(
       electionGridLayoutNewHampshireAmherstFixtures.election
     )
-  ).toBeFalsy();
+  ).toEqual(1);
+
+  // multi-page election
+  expect(
+    getElectionSheetCount({
+      ...electionGridLayoutNewHampshireAmherstFixtures.election,
+      gridLayouts: [
+        {
+          ballotStyleId: 'any',
+          optionBoundsFromTargetMark: {
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+          },
+          gridPositions: [
+            {
+              type: 'option',
+              sheetNumber: 1,
+              side: 'front',
+              column: 0,
+              row: 0,
+              contestId: 'any',
+              optionId: 'any',
+            },
+            {
+              type: 'option',
+              sheetNumber: 2,
+              side: 'front',
+              column: 0,
+              row: 0,
+              contestId: 'any',
+              optionId: 'any',
+            },
+            {
+              type: 'option',
+              sheetNumber: 2,
+              side: 'back',
+              column: 0,
+              row: 0,
+              contestId: 'any',
+              optionId: 'any',
+            },
+          ],
+        },
+      ],
+    })
+  ).toEqual(2);
 });
