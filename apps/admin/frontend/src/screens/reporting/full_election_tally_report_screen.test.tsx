@@ -2,7 +2,10 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Logger, fakeLogger } from '@votingworks/logging';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
-import { FullElectionTallyReportScreen } from './full_election_tally_report_screen';
+import {
+  FullElectionTallyReportScreen,
+  TITLE,
+} from './full_election_tally_report_screen';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { routerPaths } from '../../router_paths';
 import { screen } from '../../../test/react_testing_library';
@@ -39,6 +42,12 @@ test('displays report', async () => {
     route: routerPaths.tallyFullReport,
     isOfficialResults: true,
   });
+
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
+    'href',
+    '/reports'
+  );
 
   await screen.findByTestId('tally-report');
   screen.getByText('Official Lincoln Municipal General Election Tally Report');

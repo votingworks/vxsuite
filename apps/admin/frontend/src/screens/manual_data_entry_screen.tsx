@@ -40,7 +40,11 @@ import {
 import { normalizeWriteInName } from '../utils/write_ins';
 import { Loading } from '../components/loading';
 
-const TITLE = 'Edit Tallies';
+export const TITLE = 'Edit Tallies';
+const PARENT_ROUTES = [
+  { title: 'Tally', path: routerPaths.tally },
+  { title: 'Manual Tallies', path: routerPaths.manualDataSummary },
+];
 
 const TallyInput = styled.input`
   width: 4em;
@@ -507,7 +511,7 @@ export function ManualDataEntryScreen(): JSX.Element {
     !getManualResultsQuery.isSuccess
   ) {
     return (
-      <NavigationScreen title={TITLE}>
+      <NavigationScreen title={TITLE} parentRoutes={PARENT_ROUTES}>
         <Loading isFullscreen />
       </NavigationScreen>
     );
@@ -529,13 +533,7 @@ export function ManualDataEntryScreen(): JSX.Element {
   );
 
   return (
-    <NavigationScreen
-      title={TITLE}
-      parentRoutes={[
-        { title: 'Tally', path: routerPaths.tally },
-        { title: 'Manual Tallies', path: routerPaths.manualDataSummary },
-      ]}
-    >
+    <NavigationScreen title={TITLE} parentRoutes={PARENT_ROUTES}>
       <P>
         <Font weight="bold">Ballot Style:</Font> {ballotStyleId} |{' '}
         <Font weight="bold">Precinct:</Font> {precinct.name} |{' '}

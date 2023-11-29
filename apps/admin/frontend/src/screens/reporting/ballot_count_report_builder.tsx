@@ -25,7 +25,7 @@ import {
   reportParentRoutes,
 } from '../../components/reporting/shared';
 
-const TITLE = 'Ballot Count Report Builder';
+export const TITLE = 'Ballot Count Report Builder';
 
 export function BallotCountReportBuilder(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);

@@ -27,7 +27,7 @@ import { RemoveAllManualTalliesModal } from '../components/remove_all_manual_tal
 import { deleteManualResults, getManualResultsMetadata } from '../api';
 import { Loading } from '../components/loading';
 
-const TITLE = 'Manual Tallies';
+export const TITLE = 'Manual Tallies';
 
 export const ALL_MANUAL_TALLY_BALLOT_TYPES: ManualResultsVotingMethod[] = [
   'precinct',

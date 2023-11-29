@@ -25,7 +25,7 @@ import {
 import { ExportReportPdfButton } from '../../components/reporting/export_report_pdf_button';
 import { generateReportFilename } from '../../utils/reporting';
 
-const TITLE = 'Write-In Adjudication Report';
+export const TITLE = 'Write-In Adjudication Report';
 
 export function TallyWriteInReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =

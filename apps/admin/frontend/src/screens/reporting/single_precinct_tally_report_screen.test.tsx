@@ -35,7 +35,11 @@ test('select precinct and view report', async () => {
     isOfficialResults: false,
   });
 
-  screen.getByText(TITLE);
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
+    'href',
+    '/reports'
+  );
 
   // display precinct 1 report
   apiMock.expectGetResultsForTallyReports(

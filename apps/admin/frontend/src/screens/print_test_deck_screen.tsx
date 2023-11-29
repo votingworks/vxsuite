@@ -42,7 +42,7 @@ import {
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 import { routerPaths } from '../router_paths';
 
-const TITLE = 'Precinct L&A Packages';
+export const TITLE = 'Precinct L&A Packages';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;

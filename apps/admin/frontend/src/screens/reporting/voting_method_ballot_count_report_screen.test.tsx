@@ -65,7 +65,11 @@ test('displays report (primary)', async () => {
     isOfficialResults: false,
   });
 
-  screen.getByText(TITLE);
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
+    'href',
+    '/reports'
+  );
 
   const report = await screen.findByTestId('ballot-count-report');
   within(report).getByText('Unofficial Full Election Ballot Count Report');
@@ -112,7 +116,7 @@ test('displays report (general)', async () => {
     isOfficialResults: false,
   });
 
-  screen.getByText(TITLE);
+  screen.getByRole('heading', { name: TITLE });
 
   const report = await screen.findByTestId('ballot-count-report');
   within(report).getByText('Unofficial Full Election Ballot Count Report');

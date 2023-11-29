@@ -6,7 +6,7 @@ import { NavigationScreen } from '../../components/navigation_screen';
 import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
 import { reportParentRoutes } from '../../components/reporting/shared';
 
-const TITLE = 'Full Election Tally Report';
+export const TITLE = 'Full Election Tally Report';
 
 export function FullElectionTallyReportScreen(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);

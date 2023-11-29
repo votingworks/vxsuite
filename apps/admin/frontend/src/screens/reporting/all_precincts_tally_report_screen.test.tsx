@@ -101,7 +101,12 @@ test('displays report', async () => {
     },
   ];
 
-  screen.getByText(TITLE);
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
+    'href',
+    '/reports'
+  );
+
   const reports = await screen.findAllByTestId(/tally-report/);
   expect(reports).toHaveLength(expectedReports.length);
   for (const [i, report] of reports.entries()) {
