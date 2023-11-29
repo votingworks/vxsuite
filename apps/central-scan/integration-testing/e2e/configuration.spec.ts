@@ -10,7 +10,9 @@ test.beforeEach(async ({ page }) => {
 
 test('configure + scan', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
-  await page.getByText('VxCentralScan is Not Configured').waitFor();
+  await page
+    .getByText(/Insert an Election Manager card to configure VxCentralScan/)
+    .waitFor();
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
 
   await logInAsElectionManager(page, electionDefinition.electionHash);

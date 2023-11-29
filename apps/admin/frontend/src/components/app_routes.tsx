@@ -80,9 +80,9 @@ export function AppRoutes(): JSX.Element {
       <InvalidCardScreen
         reasonAndContext={auth}
         recommendedAction={
-          auth.reason === 'machine_not_configured'
-            ? 'Please insert a System Administrator card.'
-            : 'Please insert a valid Election Manager or System Administrator card.'
+          electionDefinition
+            ? 'Use a valid Election Manager or System Administrator card.'
+            : 'Use a System Administrator card.'
         }
       />
     );

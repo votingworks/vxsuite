@@ -4,8 +4,8 @@ import { Main } from './main';
 import { H1 } from './typography';
 
 const RemoveCardImage = styled.img`
-  margin: 0 auto -1rem;
-  height: 30vw;
+  margin: 0;
+  height: 22vw;
 `;
 
 interface Props {

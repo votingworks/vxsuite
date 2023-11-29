@@ -29,13 +29,15 @@ test('configure, open polls, and test contest scroll buttons', async ({
 
   // Election Manager: configure
   await page
-    .getByText('Insert Election Manager card to load an election definition.')
+    .getByText('Insert an Election Manager card to configure VxMark')
     .waitFor();
   mockElectionManagerCardInsertion({
     electionHash,
   });
   await enterPin(page);
-  await page.getByText('VxMark is Not Configured').waitFor();
+  await page
+    .getByText('Insert a USB drive containing a ballot package')
+    .waitFor();
 
   usbHandler.insert(
     await mockBallotPackageFileTree(electionGeneralJson.toBallotPackage())
