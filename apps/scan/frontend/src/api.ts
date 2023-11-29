@@ -234,7 +234,6 @@ export const setTestMode = {
     return useMutation(apiClient.setTestMode, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
-        await queryClient.invalidateQueries(getPollsInfo.queryKey());
       },
     });
   },
