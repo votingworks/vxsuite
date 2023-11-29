@@ -38,6 +38,7 @@ import {
   RejectedSheet,
   Sheet,
   UiStringsStore,
+  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   createUiStringStore,
 } from '@votingworks/backend';
 import {
@@ -657,9 +658,15 @@ export class Store {
       this.client.transaction(() => {
         this.resetPollsState();
         this.setBallotCountWhenBallotBagLastReplaced(0);
+
+        // Reset all export-related metadata
         this.setExportDirectoryName(undefined);
+        this.clearCastVoteRecordHashes();
+        this.setIsContinuousExportOperationInProgress(false);
+        clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
       });
     }
+
     // delete batches, which will cascade delete sheets
     this.client.run('delete from batches');
     // reset autoincrementing key on "batches" table

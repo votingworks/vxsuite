@@ -626,6 +626,11 @@ test('resetElectionSession', () => {
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
   store.setBallotCountWhenBallotBagLastReplaced(1500);
   store.setExportDirectoryName('export-directory-name');
+  store.updateCastVoteRecordHashes(
+    '00000000-0000-0000-0000-000000000000',
+    sha256('')
+  );
+  store.setIsContinuousExportOperationInProgress(true);
 
   store.addBatch();
   store.addBatch();
@@ -641,7 +646,11 @@ test('resetElectionSession', () => {
   // resetElectionSession should reset election session state
   expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
+
+  // resetElectionSession should reset all export-related metadata
   expect(store.getExportDirectoryName()).toEqual(undefined);
+  expect(store.getCastVoteRecordRootHash()).toEqual('');
+  expect(store.isContinuousExportOperationInProgress()).toEqual(false);
 
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);
