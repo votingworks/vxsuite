@@ -1,6 +1,8 @@
 /**
  * Takes a dictionary and returns a dictionary with the same keys but values
  * remapped by a provided function.
+ *
+ * @deprecated Use `Map` instead.
  */
 export function mapObject<T, U>(
   object: Record<string, T>,

@@ -1,4 +1,10 @@
-import { assert, assertDefined, find, mapObject } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  iter,
+  mapObject,
+} from '@votingworks/basics';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -513,16 +519,18 @@ export function ManualDataEntryScreen(): JSX.Element {
 
   const writeInCandidates = getWriteInCandidatesQuery.data;
 
-  const contestValidationStates: Record<ContestId, ContestValidationState> = {};
-  for (const contest of currentContests) {
-    contestValidationStates[contest.id] = getContestValidationState(
-      tempManualResults.contestResults[contest.id]
-    );
-  }
-  const someContestHasInvalidResults = Object.values(
-    contestValidationStates
+  const contestValidationStates = currentContests.reduce(
+    (acc, contest) =>
+      acc.set(
+        contest.id,
+        getContestValidationState(tempManualResults.contestResults[contest.id])
+      ),
+    new Map<ContestId, ContestValidationState>()
+  );
+  const someContestHasInvalidResults = iter(
+    contestValidationStates.values()
   ).some((s) => s === 'invalid');
-  const someContestHasNoResults = Object.values(contestValidationStates).some(
+  const someContestHasNoResults = iter(contestValidationStates.values()).some(
     (s) => s === 'no-results'
   );
 
@@ -551,7 +559,9 @@ export function ManualDataEntryScreen(): JSX.Element {
                 ].map(({ name }) => normalizeWriteInName(name))
               : [];
 
-          const contestValidationState = contestValidationStates[contest.id];
+          const contestValidationState = contestValidationStates.get(
+            contest.id
+          );
 
           return (
             <ContestData key={contest.id}>

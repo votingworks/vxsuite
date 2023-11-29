@@ -209,19 +209,21 @@ export interface OfficialCandidateNameLookup {
 export function getOfficialCandidateNameLookup(
   election: Election
 ): OfficialCandidateNameLookup {
-  const lookupInternal: Record<ContestId, Record<CandidateId, string>> = {};
+  const lookupInternal = new Map<ContestId, Map<CandidateId, string>>();
   for (const contest of election.contests) {
     if (contest.type === 'candidate') {
-      const contestCandidateLookup: Record<CandidateId, string> = {};
+      const contestCandidateLookup = new Map<CandidateId, string>();
       for (const candidate of contest.candidates) {
-        contestCandidateLookup[candidate.id] = candidate.name;
+        contestCandidateLookup.set(candidate.id, candidate.name);
       }
-      lookupInternal[contest.id] = contestCandidateLookup;
+      lookupInternal.set(contest.id, contestCandidateLookup);
     }
   }
 
   function get(contestId: ContestId, candidateId: CandidateId): string {
-    return assertDefined(assertDefined(lookupInternal[contestId])[candidateId]);
+    return assertDefined(
+      assertDefined(lookupInternal.get(contestId)).get(candidateId)
+    );
   }
 
   return {
@@ -718,8 +720,8 @@ export type ContestResultsSummary = {
 } & (
   | {
       type: 'candidate';
-      officialOptionTallies?: Record<ContestOptionId, number>;
-      writeInOptionTallies?: Record<Id, { name: string; tally: number }>;
+      officialOptionTallies?: Map<ContestOptionId, number>;
+      writeInOptionTallies?: Map<Id, { name: string; tally: number }>;
     }
   | {
       type: 'yesno';
@@ -759,7 +761,7 @@ export function buildContestResultsFixture({
       contestResults.tallies
     )) {
       candidateTally.tally =
-        contestResultsSummary.officialOptionTallies?.[candidateId] ?? 0;
+        contestResultsSummary.officialOptionTallies?.get(candidateId) ?? 0;
     }
 
     // add write-in candidate option tallies if specified
@@ -779,7 +781,7 @@ export function buildContestResultsFixture({
   return contestResults;
 }
 
-export type ContestResultsSummaries = Record<ContestId, ContestResultsSummary>;
+export type ContestResultsSummaries = Map<ContestId, ContestResultsSummary>;
 
 function buildElectionContestResultsFixture({
   election,
@@ -793,7 +795,7 @@ function buildElectionContestResultsFixture({
   const electionContestResults: Tabulation.ElectionResults['contestResults'] =
     {};
   for (const contest of election.contests) {
-    const contestResultsSummary = contestResultsSummaries[contest.id];
+    const contestResultsSummary = contestResultsSummaries.get(contest.id);
     electionContestResults[contest.id] = contestResultsSummary
       ? buildContestResultsFixture({
           contest,
@@ -843,7 +845,7 @@ export function buildElectionResultsFixture({
 }: {
   election: Election;
   cardCounts: Tabulation.CardCounts;
-  contestResultsSummaries: Record<ContestId, ContestResultsSummary>;
+  contestResultsSummaries: Map<ContestId, ContestResultsSummary>;
   includeGenericWriteIn: boolean;
 }): Tabulation.ElectionResults {
   return {

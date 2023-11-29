@@ -3,9 +3,11 @@ import {
   AnyContest,
   BallotStyle,
   BallotStyleId,
+  ContestId,
   Election,
   ElectionDefinition,
   Party,
+  PartyId,
   Precinct,
   PrecinctId,
   Tabulation,
@@ -17,28 +19,28 @@ import {
  * subsequent lookups are O(1).
  */
 export function createElectionMetadataLookupFunction<T>(
-  buildLookupFn: (election: Election) => Record<string, T>
+  buildLookupFn: (election: Election) => Map<string, T>
 ): (electionDefinition: ElectionDefinition, key: string) => T {
-  const cachedLookups: Record<string, Record<string, T>> = {};
+  const cachedLookups = new Map<string, Map<string, T>>();
 
   return (electionDefinition: ElectionDefinition, key: string): T => {
-    const cachedLookup = cachedLookups[electionDefinition.electionHash];
+    const cachedLookup = cachedLookups.get(electionDefinition.electionHash);
     if (cachedLookup) {
-      return assertDefined(cachedLookup[key]);
+      return assertDefined(cachedLookup.get(key));
     }
 
     const lookup = buildLookupFn(electionDefinition.election);
-    cachedLookups[electionDefinition.electionHash] = lookup;
-    return assertDefined(lookup[key]);
+    cachedLookups.set(electionDefinition.electionHash, lookup);
+    return assertDefined(lookup.get(key));
   };
 }
 
 export const getPrecinctById = createElectionMetadataLookupFunction(
   (election) => {
     const { precincts } = election;
-    const precinctLookup: Record<string, Precinct> = {};
+    const precinctLookup = new Map<PrecinctId, Precinct>();
     for (const precinct of precincts) {
-      precinctLookup[precinct.id] = precinct;
+      precinctLookup.set(precinct.id, precinct);
     }
     return precinctLookup;
   }
@@ -46,9 +48,9 @@ export const getPrecinctById = createElectionMetadataLookupFunction(
 
 export const getPartyById = createElectionMetadataLookupFunction((election) => {
   const { parties } = election;
-  const partyLookup: Record<string, Party> = {};
+  const partyLookup = new Map<PartyId, Party>();
   for (const party of parties) {
-    partyLookup[party.id] = party;
+    partyLookup.set(party.id, party);
   }
   return partyLookup;
 });
@@ -56,9 +58,9 @@ export const getPartyById = createElectionMetadataLookupFunction((election) => {
 export const getContestById = createElectionMetadataLookupFunction(
   (election) => {
     const { contests } = election;
-    const lookup: Record<string, AnyContest> = {};
+    const lookup = new Map<ContestId, AnyContest>();
     for (const contest of contests) {
-      lookup[contest.id] = contest;
+      lookup.set(contest.id, contest);
     }
     return lookup;
   }
@@ -67,9 +69,9 @@ export const getContestById = createElectionMetadataLookupFunction(
 export const getBallotStyleById = createElectionMetadataLookupFunction(
   (election) => {
     const { ballotStyles } = election;
-    const lookup: Record<BallotStyleId, BallotStyle> = {};
+    const lookup = new Map<BallotStyleId, BallotStyle>();
     for (const ballotStyle of ballotStyles) {
-      lookup[ballotStyle.id] = ballotStyle;
+      lookup.set(ballotStyle.id, ballotStyle);
     }
     return lookup;
   }
@@ -78,15 +80,15 @@ export const getBallotStyleById = createElectionMetadataLookupFunction(
 export const getBallotStylesByPartyId = createElectionMetadataLookupFunction(
   (election) => {
     const { ballotStyles } = election;
-    const lookup: Record<string, BallotStyle[]> = {};
+    const lookup = new Map<string, BallotStyle[]>();
     for (const party of election.parties) {
-      lookup[party.id] = [];
+      lookup.set(party.id, []);
     }
 
     for (const ballotStyle of ballotStyles) {
       const { partyId } = ballotStyle;
       if (partyId) {
-        const partyBallotStyles = lookup[partyId];
+        const partyBallotStyles = lookup.get(partyId);
         assert(partyBallotStyles);
         partyBallotStyles.push(ballotStyle);
       }
@@ -98,15 +100,15 @@ export const getBallotStylesByPartyId = createElectionMetadataLookupFunction(
 export const getBallotStylesByPrecinctId = createElectionMetadataLookupFunction(
   (election) => {
     const { ballotStyles } = election;
-    const lookup: Record<PrecinctId, BallotStyle[]> = {};
+    const lookup = new Map<PrecinctId, BallotStyle[]>();
     for (const precinct of election.precincts) {
-      lookup[precinct.id] = [];
+      lookup.set(precinct.id, []);
     }
 
     for (const ballotStyle of ballotStyles) {
       const { precincts: precinctIds } = ballotStyle;
       for (const precinctId of precinctIds) {
-        const precinctBallotStyles = lookup[precinctId];
+        const precinctBallotStyles = lookup.get(precinctId);
         assert(precinctBallotStyles);
         precinctBallotStyles.push(ballotStyle);
       }

@@ -14,8 +14,9 @@ import {
   Tabulation,
   CandidateVote,
   ElectionDefinition,
+  getPrecinctById,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import type {
   CardCountsByParty,
   TallyReportResults,
@@ -93,9 +94,8 @@ export function generateTestDeckBallots({
   const ballots: TestDeckBallot[] = [];
 
   for (const currentPrecinctId of precincts) {
-    const precinct = find(
-      election.precincts,
-      (p) => p.id === currentPrecinctId
+    const precinct = assertDefined(
+      getPrecinctById({ election, precinctId: currentPrecinctId })
     );
     const precinctBallotStyles = election.ballotStyles.filter((bs) =>
       bs.precincts.includes(precinct.id)

@@ -6,7 +6,7 @@ import {
   getPrecinctById,
   PrecinctId,
 } from '@votingworks/types';
-import { assert, sleep } from '@votingworks/basics';
+import { assert, assertDefined, sleep } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   BmdPaperBallot,
@@ -375,13 +375,15 @@ export function PrintTestDeckScreen(): JSX.Element {
         return bmdPaperBallotsWithCallback;
       });
 
-      const allTallyReportResults: Record<string, TallyReportResults> = {};
+      const allTallyReportResults = new Map<string, TallyReportResults>();
       for (const precinctId of precinctIds) {
-        allTallyReportResults[precinctId] =
+        allTallyReportResults.set(
+          precinctId,
           await generateResultsForPrecinctTallyReport({
             electionDefinition,
             precinctId,
-          });
+          })
+        );
       }
 
       return printElementToPdfWhenReady((onAllRendered) => {
@@ -400,7 +402,7 @@ export function PrintTestDeckScreen(): JSX.Element {
               const callbacksForPrecinct = bmdPaperBallotsCallbacks[i];
               return renderLogicAndAccuracyPackageToPdfForSinglePrecinct(
                 precinctId,
-                allTallyReportResults[precinctId],
+                assertDefined(allTallyReportResults.get(precinctId)),
                 callbacksForPrecinct,
                 onRendered
               );

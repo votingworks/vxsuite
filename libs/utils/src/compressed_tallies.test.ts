@@ -42,11 +42,11 @@ describe('compressTally', () => {
       (c): c is CandidateContest =>
         c.type === 'candidate' && c.id === '775020876'
     );
-    const officialOptionTallies: Record<string, number> = {};
+    const officialOptionTallies = new Map<string, number>();
     for (const [idx, candidate] of presidentContest.candidates.entries()) {
-      officialOptionTallies[candidate.id] = idx * 2;
+      officialOptionTallies.set(candidate.id, idx * 2);
     }
-    officialOptionTallies[Tabulation.GENERIC_WRITE_IN_ID] = 5;
+    officialOptionTallies.set(Tabulation.GENERIC_WRITE_IN_ID, 5);
 
     const resultsWithPresidentTallies = buildElectionResultsFixture({
       election: electionEitherNeither,
@@ -54,15 +54,18 @@ describe('compressTally', () => {
         bmd: 20,
         hmpb: [],
       },
-      contestResultsSummaries: {
-        '775020876': {
-          type: 'candidate',
-          undervotes: 5,
-          overvotes: 4,
-          ballots: 20,
-          officialOptionTallies,
-        },
-      },
+      contestResultsSummaries: new Map([
+        [
+          '775020876',
+          {
+            type: 'candidate',
+            undervotes: 5,
+            overvotes: 4,
+            ballots: 20,
+            officialOptionTallies,
+          },
+        ],
+      ]),
       includeGenericWriteIn: true,
     });
     const compressedTally = compressTally(
@@ -87,16 +90,19 @@ describe('compressTally', () => {
         hmpb: [],
       },
       includeGenericWriteIn: true,
-      contestResultsSummaries: {
-        [yesNoContestId]: {
-          type: 'yesno',
-          ballots: 20,
-          undervotes: 1,
-          overvotes: 3,
-          yesTally: 7,
-          noTally: 9,
-        },
-      },
+      contestResultsSummaries: new Map([
+        [
+          yesNoContestId,
+          {
+            type: 'yesno',
+            ballots: 20,
+            undervotes: 1,
+            overvotes: 3,
+            yesTally: 7,
+            noTally: 9,
+          },
+        ],
+      ]),
     });
 
     const compressedTally = compressTally(
@@ -269,16 +275,19 @@ test('primary tally can compress and be read back and end with the original tall
   const expectedTally = buildElectionResultsFixture({
     election,
     cardCounts: EMPTY_CARD_COUNTS,
-    contestResultsSummaries: {
-      fishing: {
-        type: 'yesno',
-        ballots: 300,
-        undervotes: 3,
-        overvotes: 3,
-        yesTally: 100,
-        noTally: 196,
-      },
-    },
+    contestResultsSummaries: new Map([
+      [
+        'fishing',
+        {
+          type: 'yesno',
+          ballots: 300,
+          undervotes: 3,
+          overvotes: 3,
+          yesTally: 100,
+          noTally: 196,
+        },
+      ],
+    ]),
     includeGenericWriteIn: true,
   });
 

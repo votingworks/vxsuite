@@ -32,8 +32,8 @@ export function doesContestAppearOnPartyBallot(
 
 function buildBallotStyleContestIdsLookup(
   election: Election
-): Record<BallotStyleId, Set<ContestId>> {
-  const lookup: Record<BallotStyleId, Set<ContestId>> = {};
+): Map<BallotStyleId, Set<ContestId>> {
+  const lookup = new Map<BallotStyleId, Set<ContestId>>();
   for (const ballotStyle of election.ballotStyles) {
     const bsDistricts = new Set(ballotStyle.districts);
     const contestIds = election.contests
@@ -43,7 +43,7 @@ function buildBallotStyleContestIdsLookup(
           doesContestAppearOnPartyBallot(c, ballotStyle.partyId)
       )
       .map((c) => c.id);
-    lookup[ballotStyle.id] = new Set(contestIds);
+    lookup.set(ballotStyle.id, new Set(contestIds));
   }
   return lookup;
 }
@@ -54,21 +54,23 @@ export const getContestIdsForBallotStyle = createElectionMetadataLookupFunction(
 
 function buildPrecinctContestIdsLookup(
   election: Election
-): Record<PrecinctId, Set<ContestId>> {
-  const lookup: Record<PrecinctId, Set<ContestId>> = {};
+): Map<PrecinctId, Set<ContestId>> {
+  const lookup = new Map<PrecinctId, Set<ContestId>>();
   const ballotStyleContestIdsLookup =
     buildBallotStyleContestIdsLookup(election);
 
   for (const precinct of election.precincts) {
-    lookup[precinct.id] = new Set();
+    lookup.set(precinct.id, new Set());
   }
 
   // for each ballot style, add all its contests to its associated precincts' list of contests
   for (const ballotStyle of election.ballotStyles) {
-    const ballotStyleContestIds = ballotStyleContestIdsLookup[ballotStyle.id];
+    const ballotStyleContestIds = ballotStyleContestIdsLookup.get(
+      ballotStyle.id
+    );
     assert(ballotStyleContestIds);
     for (const associatedPrecinctId of ballotStyle.precincts) {
-      const associatedPrecinctContestIds = lookup[associatedPrecinctId];
+      const associatedPrecinctContestIds = lookup.get(associatedPrecinctId);
       assert(associatedPrecinctContestIds);
       for (const contestId of ballotStyleContestIds) {
         associatedPrecinctContestIds.add(contestId);

@@ -219,9 +219,9 @@ function BallotCountTable({
   groupBy: Tabulation.GroupBy;
 }): JSX.Element {
   const { election } = electionDefinition;
-  const batchLookup: Record<string, Tabulation.ScannerBatch> = {};
+  const batchLookup = new Map<string, Tabulation.ScannerBatch>();
   for (const scannerBatch of scannerBatches) {
-    batchLookup[scannerBatch.batchId] = scannerBatch;
+    batchLookup.set(scannerBatch.batchId, scannerBatch);
   }
 
   const columns: Column[] = [];
@@ -290,7 +290,7 @@ function BallotCountTable({
           (cardCounts.batchId === Tabulation.MANUAL_BATCH_ID
             ? Tabulation.MANUAL_SCANNER_ID
             : cardCounts.batchId
-            ? batchLookup[cardCounts.batchId].scannerId
+            ? batchLookup.get(cardCounts.batchId)?.scannerId
             : undefined);
         const rowKey = getGroupKey(cardCounts, groupBy);
         return (

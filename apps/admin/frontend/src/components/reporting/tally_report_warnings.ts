@@ -87,15 +87,9 @@ function getAllSameVoteContestIds({
     allElectionResults,
   });
 
-  const allSameVoteContestIds: ContestId[] = [];
-
-  for (const contestResults of Object.values(electionResults.contestResults)) {
-    if (contestHasAllSameVote(contestResults)) {
-      allSameVoteContestIds.push(contestResults.contestId);
-    }
-  }
-
-  return allSameVoteContestIds;
+  return Object.values(electionResults.contestResults)
+    .filter(contestHasAllSameVote)
+    .map((contestResults) => contestResults.contestId);
 }
 
 export function getTallyReportWarning({

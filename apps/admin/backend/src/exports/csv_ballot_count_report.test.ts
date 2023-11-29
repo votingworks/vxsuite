@@ -56,7 +56,7 @@ test('uses appropriate headers', async () => {
     manualResults: buildManualResultsFixture({
       election,
       ballotCount: 5,
-      contestResultsSummaries: {},
+      contestResultsSummaries: new Map(),
     }),
   });
 

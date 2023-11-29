@@ -64,11 +64,11 @@ function createSafeMockMethod(methodName: string): AnyMockFunction {
 export function createMockClient<Api extends AnyApi>(options?: {
   catchUnexpectedErrors: boolean;
 }): MockClient<Api> {
-  const mockMethods: Record<string, AnyMockFunction> = {};
+  const mockMethods = new Map<string, AnyMockFunction>();
 
   const mockHelpers: MockHelpers = {
     assertComplete(): void {
-      for (const mockMethod of Object.values(mockMethods)) {
+      for (const mockMethod of mockMethods.values()) {
         mockMethod.assertComplete();
       }
     },
@@ -84,10 +84,14 @@ export function createMockClient<Api extends AnyApi>(options?: {
         return Reflect.get(mockHelpers, methodName);
       }
 
-      mockMethods[methodName] ??= options?.catchUnexpectedErrors
-        ? createSafeMockMethod(methodName)
-        : mockFunction(methodName);
-      return mockMethods[methodName];
+      const method =
+        mockMethods.get(methodName) ?? options?.catchUnexpectedErrors
+          ? createSafeMockMethod(methodName)
+          : mockFunction(methodName);
+      if (!mockMethods.has(methodName)) {
+        mockMethods.set(methodName, method);
+      }
+      return method;
     },
   });
 }
