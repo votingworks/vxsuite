@@ -73,21 +73,26 @@ test('viewing and exporting reports', async ({ page }) => {
   await page.getByRole('button', { name: 'Close' }).click();
   await expect(page.getByTestId('total-cvr-count')).toHaveText('112');
 
-  await page.getByText('Reports', { exact: true }).click();
+  await page.getByRole('button', { name: 'Reports' }).click();
   await expect(page.getByText('Unofficial Tally Reports')).toBeVisible();
   await page.getByText('Full Election Tally Report').click();
 
   // Check Preview
   const reportTitles = [
-    'Unofficial Mammal Party Example Primary Election Tally Report',
-    'Unofficial Fish Party Example Primary Election Tally Report',
-    'Unofficial Example Primary Election Nonpartisan Contests Tally Report',
+    ['Unofficial Mammal Party Example Primary Election Tally Report', '56'],
+    ['Unofficial Fish Party Example Primary Election Tally Report', '56'],
+    [
+      'Unofficial Example Primary Election Nonpartisan Contests Tally Report',
+      '112',
+    ],
   ];
-  for (const title of reportTitles) {
-    await expect(page.getByText(title)).toBeVisible();
+  for (const [title, totalBallotCount] of reportTitles) {
+    const section = page.locator('section', { hasText: title });
+    await expect(section).toBeVisible();
+    await expect(section.getByTestId('total-ballot-count')).toHaveText(
+      totalBallotCount
+    );
   }
-  await expect(page.getByTestId('total-ballot-count').first()).toHaveText('56');
-  await expect(page.getByTestId('total-ballot-count').last()).toHaveText('112');
 
   // Check CSV Export
   await page.getByRole('button', { name: 'Export Report CSV' }).click();
@@ -107,7 +112,7 @@ test('viewing and exporting reports', async ({ page }) => {
   ).toMatchSnapshot();
 
   // Mark Official
-  await page.getByText('Reports', { exact: true }).click();
+  await page.getByRole('button', { name: 'Reports' }).click();
   await page
     .getByRole('button', { name: 'Mark Election Results as Official' })
     .click();
