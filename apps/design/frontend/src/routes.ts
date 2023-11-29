@@ -1,118 +1,114 @@
 import { Id } from '@votingworks/types';
-
-export interface Route {
-  readonly label: string;
-  readonly path: string;
-}
+import { Route } from '@votingworks/ui';
 
 export const routes = {
   root: {
-    label: 'Elections',
+    title: 'Elections',
     path: '/',
   },
   election: (id: string) => {
     const root = `/elections/${id}`;
     return {
       root: {
-        label: 'Election',
+        title: 'Election',
         path: root,
       },
       electionInfo: {
-        label: 'Election Info',
+        title: 'Election Info',
         path: `${root}/info`,
       },
       geography: {
         root: {
-          label: 'Geography',
+          title: 'Geography',
           path: `${root}/geography`,
         },
         districts: {
           root: {
-            label: 'Districts',
+            title: 'Districts',
             path: `${root}/geography/districts`,
           },
           addDistrict: {
-            label: 'Add District',
+            title: 'Add District',
             path: `${root}/geography/districts/add`,
           },
           editDistrict: (districtId: string) => ({
-            label: 'Edit District',
+            title: 'Edit District',
             path: `${root}/geography/districts/${districtId}`,
           }),
         },
         precincts: {
           root: {
-            label: 'Precincts',
+            title: 'Precincts',
             path: `${root}/geography/precincts`,
           },
           addPrecinct: {
-            label: 'Add Precinct',
+            title: 'Add Precinct',
             path: `${root}/geography/precincts/add`,
           },
           editPrecinct: (precinctId: string) => ({
-            label: 'Edit Precinct',
+            title: 'Edit Precinct',
             path: `${root}/geography/precincts/${precinctId}`,
           }),
         },
       },
       contests: {
         root: {
-          label: 'Contests',
+          title: 'Contests',
           path: `${root}/contests`,
         },
         contests: {
           root: {
-            label: 'Contests',
+            title: 'Contests',
             path: `${root}/contests/contests`,
           },
           addContest: {
-            label: 'Add Contest',
+            title: 'Add Contest',
             path: `${root}/contests/contests/add`,
           },
           editContest: (contestId: string) => ({
-            label: 'Edit Contest',
+            title: 'Edit Contest',
             path: `${root}/contests/contests/${contestId}`,
           }),
         },
         parties: {
           root: {
-            label: 'Parties',
+            title: 'Parties',
             path: `${root}/contests/parties`,
           },
           addParty: {
-            label: 'Add Party',
+            title: 'Add Party',
             path: `${root}/contests/parties/add`,
           },
           editParty: (partyId: string) => ({
-            label: 'Edit Party',
+            title: 'Edit Party',
             path: `${root}/contests/parties/${partyId}`,
           }),
         },
       },
       ballots: {
         root: {
-          label: 'Ballots',
+          title: 'Ballots',
           path: `${root}/ballots`,
         },
         ballotStyles: {
-          label: 'Ballot Styles',
+          title: 'Ballot Styles',
           path: `${root}/ballots/ballot-styles`,
         },
         ballotLayout: {
-          label: 'Ballot Layout',
+          title: 'Ballot Layout',
           path: `${root}/ballots/layout`,
         },
         viewBallot: (ballotStyleId: string, precinctId: string) => ({
-          label: 'View Ballot',
+          title: 'View Ballot',
           path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
         }),
       },
       tabulation: {
-        label: 'Tabulation',
+        title: 'Tabulation',
         path: `${root}/tabulation`,
       },
       export: {
-        label: 'Export',
+        title: 'Export',
         path: `${root}/export`,
       },
     };

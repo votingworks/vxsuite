@@ -1,12 +1,9 @@
-import { Button } from '@votingworks/ui';
+import { Button, Route } from '@votingworks/ui';
 import styled from 'styled-components';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Row } from './layout';
 
-interface Tab {
-  label: string;
-  path: string;
-}
+interface Tab extends Route {}
 
 interface TabBarProps {
   tabs: Tab[];
@@ -40,7 +37,7 @@ export function TabBar({ tabs }: TabBarProps): JSX.Element {
             role="tab"
             aria-selected={isActive}
           >
-            {tab.label}
+            {tab.title}
           </TabButton>
         );
       })}
