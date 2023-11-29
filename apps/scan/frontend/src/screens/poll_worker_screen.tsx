@@ -154,7 +154,6 @@ export function PollWorkerScreen({
   const lastPollsTransition: Optional<PollsTransition> =
     transitionPollsMutation.variables
       ? {
-          // eslint-disable-next-line vx/gts-spread-like-types
           ...transitionPollsMutation.variables,
           ballotCount: scannedBallotCount,
         }
