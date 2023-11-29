@@ -700,10 +700,12 @@ test('resetElectionSession', () => {
   store.setScannerBackedUp();
 
   store.resetElectionSession();
+
   // resetElectionSession should reset election session state
   expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
+
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);
 

@@ -1,4 +1,9 @@
-import { AcceptedSheet, RejectedSheet, Sheet } from '@votingworks/backend';
+import {
+  AcceptedSheet,
+  RejectedSheet,
+  Sheet,
+  doesUsbDriveRequireCastVoteRecordSync,
+} from '@votingworks/backend';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -24,6 +29,7 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
+import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 
@@ -613,7 +619,7 @@ test('getSheet', () => {
   expect(store.getSheet('non-existent-id')).toEqual(undefined);
 });
 
-test('resetElectionSession', () => {
+test('resetElectionSession', async () => {
   const dbFile = tmp.fileSync();
   const store = Store.fileStore(dbFile.name);
   store.setElectionAndJurisdiction({
@@ -622,12 +628,15 @@ test('resetElectionSession', () => {
         .electionData,
     jurisdiction,
   });
+  const mockUsbDrive = createMockUsbDrive();
+  mockUsbDrive.insertUsbDrive({});
+  const mockUsbDriveStatus = await mockUsbDrive.usbDrive.status();
 
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
   store.setBallotCountWhenBallotBagLastReplaced(1500);
 
   store.addBatch();
-  store.addBatch();
+  const batch2Id = store.addBatch();
   expect(
     store
       .getBatches()
@@ -635,12 +644,28 @@ test('resetElectionSession', () => {
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
 
+  store.addSheet(uuid(), batch2Id, testSheetWithFiles);
+  expect(Array.from(store.forEachSheet())).toHaveLength(1);
+
+  store.setExportDirectoryName('export-directory-name');
+  store.updateCastVoteRecordHashes(
+    '00000000-0000-0000-0000-000000000000',
+    sha256('')
+  );
+  store.setIsContinuousExportOperationInProgress(true);
+  expect(
+    await doesUsbDriveRequireCastVoteRecordSync(store, mockUsbDriveStatus)
+  ).toEqual(true);
+
   store.resetElectionSession();
+
   // resetElectionSession should reset election session state
   expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
+
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);
+  expect(Array.from(store.forEachSheet())).toHaveLength(0);
 
   // resetElectionSession should reset the autoincrement in the batch label
   store.addBatch();
@@ -651,6 +676,14 @@ test('resetElectionSession', () => {
       .map((batch) => batch.label)
       .sort((a, b) => a.localeCompare(b))
   ).toEqual(['Batch 1', 'Batch 2']);
+
+  // resetElectionSession should reset all export-related metadata
+  expect(store.getExportDirectoryName()).toEqual(undefined);
+  expect(store.getCastVoteRecordRootHash()).toEqual('');
+  expect(store.isContinuousExportOperationInProgress()).toEqual(false);
+  expect(
+    await doesUsbDriveRequireCastVoteRecordSync(store, mockUsbDriveStatus)
+  ).toEqual(false);
 });
 
 test('getBallotsCounted', () => {
@@ -730,8 +763,10 @@ test('isContinuousExportOperationInProgress and setIsContinuousExportOperationIn
   const store = Store.memoryStore();
 
   expect(store.isContinuousExportOperationInProgress()).toEqual(false);
+
   store.setIsContinuousExportOperationInProgress(true);
   expect(store.isContinuousExportOperationInProgress()).toEqual(true);
+
   store.setIsContinuousExportOperationInProgress(false);
   expect(store.isContinuousExportOperationInProgress()).toEqual(false);
 });
@@ -743,10 +778,15 @@ test('getExportDirectoryName and setExportDirectoryName', () => {
   const exportDirectoryName2 = 'TEST__machine_SCAN-0001__2023-08-16_23-10-01';
 
   expect(store.getExportDirectoryName()).toEqual(undefined);
+
   store.setExportDirectoryName(exportDirectoryName1);
   expect(store.getExportDirectoryName()).toEqual(exportDirectoryName1);
+
   store.setExportDirectoryName(exportDirectoryName2);
   expect(store.getExportDirectoryName()).toEqual(exportDirectoryName2);
+
+  store.setExportDirectoryName(undefined);
+  expect(store.getExportDirectoryName()).toEqual(undefined);
 });
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
