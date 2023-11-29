@@ -92,7 +92,9 @@ test('when auto-generation is on, it loads the preview automatically', async () 
   );
 
   await screen.findByText('Unofficial Full Election Ballot Count Report');
-  expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
+  expect(screen.getByTestId('footer-ballot-count-total')).toHaveTextContent(
+    '5'
+  );
 
   expect(
     screen.queryByRole('button', { name: 'Generate Report' })
@@ -135,7 +137,9 @@ test('when auto-generation is off, it requires a button press to load the report
 
   userEvent.click(screen.getButton('Generate Report'));
   await screen.findByText('Unofficial Full Election Ballot Count Report');
-  expect(screen.getByTestId('footer-total')).toHaveTextContent('5');
+  expect(screen.getByTestId('footer-ballot-count-total')).toHaveTextContent(
+    '5'
+  );
   expect(screen.getButton('Generate Report')).toBeDisabled();
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
     expect(screen.getButton(buttonLabel)).toBeEnabled();
@@ -206,7 +210,9 @@ test('printing report', async () => {
   await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
   await expectPrint((printResult) => {
     printResult.getByText('Unofficial Full Election Ballot Count Report');
-    expect(printResult.getByTestId('footer-total')).toHaveTextContent('5');
+    expect(
+      printResult.getByTestId('footer-ballot-count-total')
+    ).toHaveTextContent('5');
   });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.TallyReportPrinted,
@@ -344,7 +350,9 @@ test('exporting report PDF', async () => {
   expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
   await expectPrintToPdf((pdfResult) => {
     pdfResult.getByText('Unofficial Full Election Ballot Count Report');
-    expect(pdfResult.getByTestId('footer-total')).toHaveTextContent('5');
+    expect(
+      pdfResult.getByTestId('footer-ballot-count-total')
+    ).toHaveTextContent('5');
   });
 
   jest.useRealTimers();
