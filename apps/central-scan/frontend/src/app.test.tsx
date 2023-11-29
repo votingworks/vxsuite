@@ -113,8 +113,8 @@ export async function authenticateAsSystemAdministrator(
 
 export async function authenticateAsElectionManager(
   electionDefinition: ElectionDefinition,
-  lockScreenText: string | RegExp = 'VxCentralScan is Locked',
-  postAuthText: string | RegExp = 'Lock Machine'
+  lockScreenText = 'VxCentralScan is Locked',
+  postAuthText = 'Lock Machine'
 ): Promise<void> {
   // First verify that we're logged out
   await screen.findByText(lockScreenText);
@@ -270,8 +270,8 @@ test('configuring election from usb ballot package works end to end', async () =
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(
     electionGeneralDefinition,
-    /Insert an Election Manager card.*to configure VxCentralScan/,
-    /Insert an Election Manager card.*to configure VxCentralScan/
+    'Insert an Election Manager card to configure VxCentralScan',
+    'Insert an Election Manager card to configure VxCentralScan'
   );
 
   // Insert USB drive
