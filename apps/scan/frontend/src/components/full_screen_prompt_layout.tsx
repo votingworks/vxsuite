@@ -50,12 +50,15 @@ const Text = styled.div`
 `;
 
 const Footer = styled.div`
-  display: grid;
-  grid-gap: ${HORIZONTAL_PADDING_REM}rem;
-  grid-template-columns: 1fr 1fr;
-  justify-content: end;
+  display: flex;
+  gap: ${HORIZONTAL_PADDING_REM}rem;
+  justify-content: center;
   padding: 0 7.5vw 0.25rem;
   width: 100%;
+
+  > * {
+    flex-basis: 20rem;
+  }
 `;
 
 export function FullScreenPromptLayout(
