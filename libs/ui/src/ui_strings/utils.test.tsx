@@ -220,7 +220,7 @@ test('PrimaryElectionTitlePrefix - party-specific ballot', async () => {
     </H1>
   );
 
-  await screen.findByRole('heading', { name: 'Prefix: Lloro Si Quiero' });
+  await screen.findByRole('heading', { name: /Prefix: Lloro Si Quiero/ });
 });
 
 test('PrecinctSelectionName - non-party-specific ballot', async () => {

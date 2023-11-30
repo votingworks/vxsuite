@@ -319,6 +319,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelNumVotesUnused: () => (
+    <UiString uiStringKey="labelNumVotesUnused">
+      Number of unused votes:
+    </UiString>
+  ),
+
   labelSelected: () => (
     <UiString uiStringKey="labelSelected">Selected:</UiString>
   ),
@@ -397,6 +403,10 @@ export const appStrings = {
     <UiString uiStringKey="noteAskPollWorkerForHelp">
       Ask a poll worker if you need help.
     </UiString>
+  ),
+
+  noteBallotContestNoSelection: () => (
+    <UiString uiStringKey="noteBallotContestNoSelection">no selection</UiString>
   ),
 
   noteBmdBallotSheetLoaded: () => (
@@ -546,6 +556,14 @@ export const appStrings = {
     <UiString uiStringKey="titleBallotBagFull">Ballot Bag Full</UiString>
   ),
 
+  titleBallotId: () => (
+    <UiString uiStringKey="titleBallotId">Ballot ID</UiString>
+  ),
+
+  titleBallotStyle: () => (
+    <UiString uiStringKey="titleBallotStyle">Ballot Style</UiString>
+  ),
+
   titleBmdAskForHelpScreen: () => (
     <UiString uiStringKey="titleBmdAskForHelpScreen">
       Ask a Poll Worker for Help
@@ -616,6 +634,14 @@ export const appStrings = {
     <UiString uiStringKey="titleNoPowerDetected">No Power Detected</UiString>
   ),
 
+  titleOfficialBallot: () => (
+    <UiString uiStringKey="titleOfficialBallot">Official Ballot</UiString>
+  ),
+
+  titlePrecinct: () => (
+    <UiString uiStringKey="titlePrecinct">Precinct</UiString>
+  ),
+
   titleRemoveYourBallot: () => (
     <UiString uiStringKey="titleRemoveYourBallot">Remove Your Ballot</UiString>
   ),
@@ -668,6 +694,12 @@ export const appStrings = {
 
   titleScanningFailed: () => (
     <UiString uiStringKey="titleScanningFailed">Scanning Failed</UiString>
+  ),
+
+  titleUnofficialTestBallot: () => (
+    <UiString uiStringKey="titleUnofficialTestBallot">
+      Unofficial TEST Ballot
+    </UiString>
   ),
 
   warningBmdInactiveSession: () => (
