@@ -3,6 +3,7 @@ export * from './app_base';
 export * from './auth';
 export * from './big_metric';
 export * from './bmd_paper_ballot';
+export * from './breadcrumbs';
 export * from './button';
 export * from './button_bar';
 export * from './button_list';

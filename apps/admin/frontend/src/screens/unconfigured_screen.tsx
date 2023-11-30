@@ -101,7 +101,6 @@ export function UnconfiguredScreen(): JSX.Element {
 
   return (
     <NavigationScreen title="Configure VxAdmin">
-      <P>How would you like to start?</P>
       {configureError && (
         <P>
           <Icons.Danger color="danger" />{' '}

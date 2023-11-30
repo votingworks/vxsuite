@@ -5,7 +5,6 @@ import { LogEventId } from '@votingworks/logging';
 import {
   printElement,
   printElementToPdf,
-  P,
   WriteInAdjudicationReport,
 } from '@votingworks/ui';
 import { AppContext } from '../../contexts/app_context';
@@ -21,10 +20,12 @@ import {
   PreviewContainer,
   PreviewLoading,
   PreviewReportPages,
-  ReportBackButton,
+  reportParentRoutes,
 } from '../../components/reporting/shared';
 import { ExportReportPdfButton } from '../../components/reporting/export_report_pdf_button';
 import { generateReportFilename } from '../../utils/reporting';
+
+export const TITLE = 'Write-In Adjudication Report';
 
 export function TallyWriteInReportScreen(): JSX.Element {
   const { electionDefinition, isOfficialResults, auth, logger } =
@@ -91,10 +92,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
   });
 
   return (
-    <NavigationScreen title="Write-In Adjudication Report">
-      <P>
-        <ReportBackButton />
-      </P>
+    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes}>
       <ExportActions>
         <PrintButton disabled={!report} print={printReport} variant="primary">
           Print Report

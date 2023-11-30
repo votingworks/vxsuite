@@ -16,6 +16,7 @@ import { screen, waitFor } from '../../test/react_testing_library';
 import {
   ONE_SIDED_PAGE_PRINT_TIME_MS,
   PrintTestDeckScreen,
+  TITLE,
 } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -55,6 +56,12 @@ test('Saving L&A package for one precinct', () => {
     usbDriveStatus,
     apiMock,
   });
+
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'L&A' })).toHaveAttribute(
+    'href',
+    '/logic-and-accuracy'
+  );
 
   userEvent.click(screen.getByText('Save Precinct 1 to PDF'));
   screen.getByText('Save Logic & Accuracy Package');

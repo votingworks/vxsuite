@@ -6,15 +6,16 @@ import styled from 'styled-components';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
-import { ReportBackButton } from '../../components/reporting/shared';
+import { reportParentRoutes } from '../../components/reporting/shared';
 
-export const SCREEN_TITLE = 'Single Precinct Tally Report';
+export const TITLE = 'Single Precinct Tally Report';
 
 const SelectPrecinctContainer = styled.div`
   display: grid;
   grid-template-columns: min-content 30%;
   gap: 1rem;
   align-items: center;
+  margin-bottom: 1rem;
 
   p {
     white-space: nowrap;
@@ -31,10 +32,7 @@ export function SinglePrecinctTallyReportScreen(): JSX.Element {
   const [precinctId, setPrecinctId] = useState<string>();
 
   return (
-    <NavigationScreen title={SCREEN_TITLE}>
-      <P>
-        <ReportBackButton />
-      </P>
+    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes}>
       <SelectPrecinctContainer>
         <P>Select Precinct:</P>
         <SearchSelect

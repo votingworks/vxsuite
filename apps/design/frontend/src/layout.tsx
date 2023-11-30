@@ -1,8 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Icons, Table as UiTable } from '@votingworks/ui';
+import { Table as UiTable } from '@votingworks/ui';
 import styled from 'styled-components';
-import { Route } from './routes';
 
 export const Row = styled.div`
   display: flex;
@@ -73,21 +71,3 @@ export const NestedTr = styled.tr`
     padding-left: 3rem;
   }
 `;
-
-export function Breadcrumbs({ routes }: { routes: Route[] }): JSX.Element {
-  return (
-    <Row style={{ gap: '0.5rem', marginBottom: '0.75rem' }}>
-      {routes.map((route, index) => {
-        if (index === routes.length - 1) {
-          return route.label;
-        }
-        return (
-          <React.Fragment key={route.path}>
-            <Link to={route.path}>{route.label}</Link>
-            {index < routes.length - 1 && <Icons.RightChevron />}
-          </React.Fragment>
-        );
-      })}
-    </Row>
-  );
-}

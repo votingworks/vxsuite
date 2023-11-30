@@ -11,6 +11,7 @@ import {
   CheckboxGroup,
   MainContent,
   MainHeader,
+  Breadcrumbs,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -36,7 +37,6 @@ import {
   NestedTr,
   TableActionsRow,
   FormActionsRow,
-  Breadcrumbs,
   Row,
   Column,
   InputGroup,
@@ -258,17 +258,16 @@ function AddDistrictForm(): JSX.Element | null {
   }
 
   const { election } = getElectionQuery.data;
+  const { title } = geographyRoutes.districts.addDistrict;
 
   return (
     <React.Fragment>
       <MainHeader>
         <Breadcrumbs
-          routes={[
-            geographyRoutes.districts.root,
-            geographyRoutes.districts.addDistrict,
-          ]}
+          currentTitle={title}
+          parentRoutes={[geographyRoutes.districts.root]}
         />
-        <H1>Add District</H1>
+        <H1>{title}</H1>
       </MainHeader>
       <MainContent>
         <DistrictForm electionId={electionId} savedElection={election} />
@@ -289,17 +288,16 @@ function EditDistrictForm(): JSX.Element | null {
   }
 
   const { election, precincts } = getElectionQuery.data;
+  const { title } = geographyRoutes.districts.editDistrict(districtId);
 
   return (
     <React.Fragment>
       <MainHeader>
         <Breadcrumbs
-          routes={[
-            geographyRoutes.districts.root,
-            geographyRoutes.districts.editDistrict(districtId),
-          ]}
+          currentTitle={title}
+          parentRoutes={[geographyRoutes.districts.root]}
         />
-        <H1>Edit District</H1>
+        <H1>{title}</H1>
       </MainHeader>
       <MainContent>
         <DistrictForm
@@ -674,17 +672,16 @@ function AddPrecinctForm(): JSX.Element | null {
   }
 
   const { precincts, election } = getElectionQuery.data;
+  const { title } = geographyRoutes.precincts.addPrecinct;
 
   return (
     <React.Fragment>
       <MainHeader>
         <Breadcrumbs
-          routes={[
-            geographyRoutes.precincts.root,
-            geographyRoutes.precincts.addPrecinct,
-          ]}
+          currentTitle={title}
+          parentRoutes={[geographyRoutes.districts.root]}
         />
-        <H1>Add Precinct</H1>
+        <H1>{title}</H1>
       </MainHeader>
       <MainContent>
         <PrecinctForm
@@ -709,17 +706,16 @@ function EditPrecinctForm(): JSX.Element | null {
   }
 
   const { precincts, election } = getElectionQuery.data;
+  const { title } = geographyRoutes.precincts.editPrecinct(precinctId);
 
   return (
     <React.Fragment>
       <MainHeader>
         <Breadcrumbs
-          routes={[
-            geographyRoutes.precincts.root,
-            geographyRoutes.precincts.editPrecinct(precinctId),
-          ]}
+          currentTitle={title}
+          parentRoutes={[geographyRoutes.districts.root]}
         />
-        <H1>Edit Precinct</H1>
+        <H1>{title}</H1>
       </MainHeader>
       <MainContent>
         <PrecinctForm
