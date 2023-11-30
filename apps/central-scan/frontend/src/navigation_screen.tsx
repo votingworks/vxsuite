@@ -116,7 +116,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
       <Main flexColumn>
         <Header>
           <H1>{title}</H1>
-          {isTestMode && isElectionManagerAuth(auth) && (
+          {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
             <TestModeCallout>
               <Icons.Warning color="warning" /> Test Ballot Mode
             </TestModeCallout>
