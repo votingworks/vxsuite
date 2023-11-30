@@ -52,4 +52,7 @@ test('displays report', async () => {
   await screen.findByTestId('tally-report');
   screen.getByText('Official Lincoln Municipal General Election Tally Report');
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('11');
+
+  // for the full election tally report only, we display the "Certification Signatures" section
+  screen.getByText('Certification Signatures:');
 });

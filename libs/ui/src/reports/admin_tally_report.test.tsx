@@ -234,3 +234,23 @@ test('displays custom filter', () => {
   );
   screen.getByText(hasTextAcrossElements('Precinct: Precinct 1'));
 });
+
+test('displays signature lines', () => {
+  render(
+    <AdminTallyReport
+      title="Title"
+      isOfficial={false}
+      isTest={false}
+      subtitle="Subtitle"
+      electionDefinition={electionDefinition}
+      contests={election.contests}
+      scannedElectionResults={scannedElectionResults}
+      cardCountsOverride={{
+        bmd: 10000,
+        hmpb: [],
+      }}
+      includeSignatureLines
+    />
+  );
+  screen.getByText('Certification Signatures:');
+});

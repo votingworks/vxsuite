@@ -13,6 +13,7 @@ import { ContestResultsTable } from './contest_results_table';
 import { TallyReportCardCounts } from './tally_report_card_counts';
 import { CustomFilterSummary } from './custom_filter_summary';
 import { prefixedTitle } from './utils';
+import { CertificationSignatures } from './certification_signatures';
 
 export interface AdminTallyReportProps {
   title: string;
@@ -28,6 +29,7 @@ export interface AdminTallyReportProps {
   cardCountsOverride?: Tabulation.CardCounts;
   generatedAtTime?: Date;
   customFilter?: Tabulation.Filter;
+  includeSignatureLines?: boolean;
 }
 
 export function AdminTallyReport({
@@ -44,6 +46,7 @@ export function AdminTallyReport({
   cardCountsOverride,
   generatedAtTime = new Date(),
   customFilter,
+  includeSignatureLines,
 }: AdminTallyReportProps): JSX.Element {
   const { election } = electionDefinition;
   const cardCounts = cardCountsOverride ?? {
@@ -75,7 +78,7 @@ export function AdminTallyReport({
             generatedAtTime={generatedAtTime}
             election={election}
           />
-
+          {includeSignatureLines && <CertificationSignatures />}
           <TallyReportColumns>
             <TallyReportCardCounts cardCounts={cardCounts} />
             {contests.map((contest) => {
