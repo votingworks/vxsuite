@@ -169,8 +169,10 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
   render(<App apiClient={mockApiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
+  screen.getByText('Test Ballot Mode');
   userEvent.click(screen.getButton('Settings'));
 
+  screen.getByText('Test Ballot Mode');
   screen.getByText('Toggle to Official Ballot Mode');
 
   await waitFor(() => {
@@ -271,8 +273,9 @@ test('configuring election from usb ballot package works end to end', async () =
   await authenticateAsElectionManager(
     electionGeneralDefinition,
     'Insert an Election Manager card to configure VxCentralScan',
-    'Insert an Election Manager card to configure VxCentralScan'
+    'Insert a USB drive containing a ballot package'
   );
+  expect(screen.queryByText('Test Ballot Mode')).not.toBeInTheDocument();
 
   // Insert USB drive
   expectConfigureFromBallotPackageOnUsbDrive();
@@ -422,6 +425,7 @@ test('system administrator can log in and unconfigure machine', async () => {
 
   await authenticateAsSystemAdministrator();
 
+  expect(screen.queryByText('Test Ballot Mode')).not.toBeInTheDocument();
   screen.getButton('Reboot from USB');
   screen.getButton('Reboot to BIOS');
   const unconfigureMachineButton = screen.getButton('Unconfigure Machine');
