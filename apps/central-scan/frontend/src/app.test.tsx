@@ -17,7 +17,6 @@ import {
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
-  act,
   render,
   waitFor,
   within,
@@ -329,12 +328,14 @@ test('authentication works', async () => {
   await screen.findByText('VxCentralScan is Locked');
 
   // Disconnect card reader
-  act(() => {
-    hardware.setCardReaderConnected(false);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'no_card_reader',
   });
   await screen.findByText('Card Reader Not Detected');
-  act(() => {
-    hardware.setCardReaderConnected(true);
+  setAuthStatus(mockApiClient, {
+    status: 'logged_out',
+    reason: 'machine_locked',
   });
   await screen.findByText('VxCentralScan is Locked');
 

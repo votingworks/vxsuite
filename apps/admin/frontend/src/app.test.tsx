@@ -21,7 +21,6 @@ import {
   fireEvent,
   screen,
   waitFor,
-  act,
   within,
 } from '../test/react_testing_library';
 
@@ -132,16 +131,22 @@ test('configuring with a demo election definition', async () => {
 
 test('authentication works', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const { renderApp, hardware } = buildApp(apiMock);
+  const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
 
   await screen.findByText('VxAdmin is Locked');
 
   // Disconnect card reader
-  act(() => hardware.setCardReaderConnected(false));
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'no_card_reader',
+  });
   await screen.findByText('Card Reader Not Detected');
-  act(() => hardware.setCardReaderConnected(true));
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
   await screen.findByText('VxAdmin is Locked');
 
   // Insert an election manager card and enter the wrong PIN.

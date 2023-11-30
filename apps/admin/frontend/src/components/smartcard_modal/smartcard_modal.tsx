@@ -30,6 +30,7 @@ export function SmartcardModal(): JSX.Element | null {
   }, [cardStatus]);
 
   switch (cardStatus) {
+    case 'no_card_reader':
     case 'no_card':
     case 'unknown_error': {
       return null;

@@ -159,7 +159,7 @@ export class JavaCard implements Card {
     input: JavaCardConfig = constructJavaCardConfig()
   ) {
     this.cardProgrammingConfig = input.cardProgrammingConfig;
-    this.cardStatus = { status: 'no_card' };
+    this.cardStatus = { status: 'no_card_reader' };
     this.generateChallenge =
       input.generateChallengeOverride ??
       /* istanbul ignore next */ (() =>
@@ -169,9 +169,12 @@ export class JavaCard implements Card {
     this.cardReader = new CardReader({
       onReaderStatusChange: async (readerStatus) => {
         switch (readerStatus) {
-          case 'no_card':
-          case 'no_card_reader': {
+          case 'no_card': {
             this.cardStatus = { status: 'no_card' };
+            return;
+          }
+          case 'no_card_reader': {
+            this.cardStatus = { status: 'no_card_reader' };
             return;
           }
           case 'card_error': {

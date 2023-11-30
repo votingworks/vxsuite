@@ -73,7 +73,7 @@ export interface CardStatusReady<T = CardDetails> {
  * A sub-type of CardStatus
  */
 export interface CardStatusNotReady {
-  status: 'card_error' | 'no_card' | 'unknown_error';
+  status: 'card_error' | 'no_card_reader' | 'no_card' | 'unknown_error';
 }
 
 /**

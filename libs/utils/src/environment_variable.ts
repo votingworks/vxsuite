@@ -11,8 +11,6 @@ export enum BooleanEnvironmentVariableName {
   WRITE_IN_ADJUDICATION = 'REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION',
   // When enabled VxAdmin will generate 000000 as the PIN for any created smartcard.
   ALL_ZERO_SMARTCARD_PIN = 'REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION',
-  // When enabled the "You must connect a card reader" screens will not appear throughout all apps.
-  DISABLE_CARD_READER_CHECK = 'REACT_APP_VX_DISABLE_CARD_READER_CHECK',
   // Enables livecheck in VxScan.
   LIVECHECK = 'REACT_APP_VX_ENABLE_LIVECHECK',
   // Enables the React Query Devtools in development.
@@ -80,8 +78,6 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION;
     case BooleanEnvironmentVariableName.ALL_ZERO_SMARTCARD_PIN:
       return process.env.REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION;
-    case BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK:
-      return process.env.REACT_APP_VX_DISABLE_CARD_READER_CHECK;
     case BooleanEnvironmentVariableName.LIVECHECK:
       return process.env.REACT_APP_VX_ENABLE_LIVECHECK;
     case BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS:
@@ -137,12 +133,6 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: false,
         autoEnableInDevelopment: true,
-      };
-    case BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK:
-      return {
-        name,
-        allowInProduction: false,
-        autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.LIVECHECK:
       return {

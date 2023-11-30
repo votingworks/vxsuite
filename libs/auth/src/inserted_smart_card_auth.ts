@@ -360,6 +360,8 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       case 'check_card_reader': {
         switch (action.cardStatus.status) {
           // TODO: Consider an alternative screen on the frontend for unknown errors
+          case 'no_card_reader':
+            return { status: 'logged_out', reason: 'no_card_reader' };
           case 'no_card':
           case 'unknown_error': {
             return { status: 'logged_out', reason: 'no_card' };

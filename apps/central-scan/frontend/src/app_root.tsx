@@ -69,7 +69,7 @@ export function AppRoot({
     codeVersion: '',
   });
 
-  const { cardReader, batchScanner } = useDevices({
+  const { batchScanner } = useDevices({
     hardware,
     logger,
   });
@@ -322,7 +322,10 @@ export function AppRoot({
     auth: authStatus,
   };
 
-  if (!cardReader) {
+  if (
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'no_card_reader'
+  ) {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
   }
 

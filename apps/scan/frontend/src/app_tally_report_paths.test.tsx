@@ -51,7 +51,6 @@ function renderApp({
 }) {
   const hardware = MemoryHardware.build({
     connectPrinter,
-    connectCardReader: true,
     connectPrecinctScanner: true,
   });
   const logger = fakeLogger();

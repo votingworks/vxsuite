@@ -100,16 +100,12 @@ describe('Displays setup warning messages and errors screens', () => {
     await screen.findByText(insertCardScreenText);
 
     // Disconnect Card Reader
-    act(() => {
-      hardware.setCardReaderConnected(false);
-    });
+    apiMock.setAuthStatusLoggedOut('no_card_reader');
     await advanceTimersAndPromises();
     screen.getByText('Card Reader Not Detected');
 
     // Reconnect Card Reader
-    act(() => {
-      hardware.setCardReaderConnected(true);
-    });
+    apiMock.setAuthStatusLoggedOut();
     await advanceTimersAndPromises();
     screen.getByText(insertCardScreenText);
   });

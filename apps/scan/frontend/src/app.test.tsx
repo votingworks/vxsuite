@@ -60,7 +60,6 @@ let kiosk = fakeKiosk();
 function renderApp(props: Partial<AppProps> = {}) {
   const hardware = MemoryHardware.build({
     connectPrinter: true,
-    connectCardReader: true,
     connectPrecinctScanner: true,
   });
   const logger = fakeLogger();
@@ -117,8 +116,11 @@ test('shows setup card reader screen when there is no card reader', async () => 
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
-  const hardware = MemoryHardware.build({ connectCardReader: false });
-  renderApp({ hardware });
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'no_card_reader',
+  });
+  renderApp();
   await screen.findByText('Card Reader Not Detected');
 });
 

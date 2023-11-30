@@ -7,6 +7,7 @@ import {
 export interface LoggedOut {
   readonly status: 'logged_out';
   readonly reason:
+    | 'no_card_reader'
     | 'card_error'
     | 'invalid_user_on_card'
     | 'machine_locked'
@@ -39,7 +40,7 @@ interface ProgrammableCardReady {
 }
 
 interface ProgrammableCardNotReady {
-  status: 'card_error' | 'no_card' | 'unknown_error';
+  status: 'card_error' | 'no_card_reader' | 'no_card' | 'unknown_error';
 }
 
 export type ProgrammableCard = ProgrammableCardReady | ProgrammableCardNotReady;

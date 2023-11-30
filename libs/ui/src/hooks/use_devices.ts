@@ -1,16 +1,9 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  BooleanEnvironmentVariableName,
   Hardware,
   isAccessibleController,
   isBatchScanner,
-  isCardReader,
-  isFeatureFlagEnabled,
   isPrecinctScanner,
-  OmniKeyCardReaderDeviceName,
-  OmniKeyCardReaderManufacturer,
-  OmniKeyCardReaderProductId,
-  OmniKeyCardReaderVendorId,
 } from '@votingworks/utils';
 import { useEffect, useState } from 'react';
 import useInterval from 'use-interval';
@@ -33,27 +26,13 @@ export interface ComputerStatus {
 
 export interface Devices {
   computer: ComputerStatus;
-  cardReader?: KioskBrowser.Device;
   accessibleController?: KioskBrowser.Device;
   precinctScanner?: KioskBrowser.Device;
   batchScanner?: KioskBrowser.Device;
   printer?: KioskBrowser.PrinterInfo;
 }
 
-const fakeCardReader: Devices['cardReader'] = {
-  deviceAddress: 0,
-  deviceName: OmniKeyCardReaderDeviceName,
-  locationId: 0,
-  manufacturer: OmniKeyCardReaderManufacturer,
-  productId: OmniKeyCardReaderProductId,
-  serialNumber: '',
-  vendorId: OmniKeyCardReaderVendorId,
-};
-
 function getDeviceName(device: KioskBrowser.Device) {
-  if (isCardReader(device)) {
-    return `Card Reader (${device.deviceName})`;
-  }
   if (isAccessibleController(device)) {
     return `Accessible Controller (${device.deviceName})`;
   }
@@ -184,11 +163,6 @@ export function useDevices({ hardware, logger }: Props): Devices {
 
   return {
     computer,
-    cardReader: isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.DISABLE_CARD_READER_CHECK
-    )
-      ? fakeCardReader
-      : allDevices.find(isCardReader),
     accessibleController: allDevices.find(isAccessibleController),
     batchScanner: allDevices.find(isBatchScanner),
     precinctScanner: allDevices.find(isPrecinctScanner),

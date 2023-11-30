@@ -140,10 +140,12 @@ export function createApiMock() {
       });
     },
 
-    setAuthStatusLoggedOut() {
+    setAuthStatusLoggedOut(
+      reason: InsertedSmartCardAuth.LoggedOut['reason'] = 'no_card'
+    ) {
       setAuthStatus({
         status: 'logged_out',
-        reason: 'no_card',
+        reason,
       });
     },
 

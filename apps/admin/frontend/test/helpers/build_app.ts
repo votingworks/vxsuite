@@ -13,7 +13,6 @@ function mockRandomBallotId() {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApp(apiMock: ApiMock, converter?: ConverterClientType) {
   const hardware = MemoryHardware.build({
-    connectCardReader: true,
     connectPrinter: true,
   });
   const logger = fakeLogger();
