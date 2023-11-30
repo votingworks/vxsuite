@@ -123,24 +123,23 @@ export function UnconfiguredScreen(): JSX.Element {
       )}
       <P>
         <FileInputButton
-          accept=".json,application/json"
-          onChange={handleVxElectionFile}
+          accept=".zip,application/zip"
+          onChange={handleSetupPackageFile}
+          buttonProps={{ variant: 'primary' }}
         >
-          Select Existing Election Definition File
+          Select Election Package
         </FileInputButton>
       </P>
       <P>
         <FileInputButton
-          accept=".zip,application/zip"
-          onChange={handleSetupPackageFile}
+          accept=".json,application/json"
+          onChange={handleVxElectionFile}
         >
-          Select Existing Setup Package Zip File
+          Select Election Definition
         </FileInputButton>
       </P>
       <P>
-        <Button onPress={loadDemoElection}>
-          Load Demo Election Definition
-        </Button>
+        <Button onPress={loadDemoElection}>Load Demo Election</Button>
       </P>
     </NavigationScreen>
   );

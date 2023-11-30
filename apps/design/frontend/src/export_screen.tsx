@@ -60,7 +60,7 @@ export function ExportScreen(): JSX.Element {
             onPress={onPressExportSetupPackage}
             disabled={exportSetupPackageMutation.isLoading}
           >
-            Export Setup Package
+            Export Election Package
           </Button>
         </P>
       </MainContent>

@@ -92,7 +92,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
               <Button onPress={closeModal}>Cancel</Button>
             </React.Fragment>
           );
-          title = 'Save Ballot Package';
+          title = 'Save Election Package';
           mainContent = (
             <P>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />A
@@ -135,11 +135,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       } else {
         actions = <Button onPress={closeModal}>Close</Button>;
       }
-      title = 'Ballot Package Saved';
+      title = 'Election Package Saved';
       mainContent = (
         <P>
-          You may now eject the USB drive. Use the saved ballot package on this
-          USB drive to configure VxScan or VxCentralScan.
+          You may now eject the USB drive. Use the saved election package on
+          this USB drive to configure VxScan or VxCentralScan.
         </P>
       );
       break;
@@ -147,7 +147,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
 
     case 'error': {
       actions = <Button onPress={closeModal}>Close</Button>;
-      title = 'Failed to Save Ballot Package';
+      title = 'Failed to Save Election Package';
       mainContent = (
         <P>An error occurred: {ErrorMessages[saveState.error.type]}.</P>
       );
@@ -166,7 +166,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         icon="Export"
         onPress={() => setIsModalOpen(true)}
       >
-        Save Ballot Package
+        Save Election Package
       </Button>
       {isModalOpen && (
         <Modal

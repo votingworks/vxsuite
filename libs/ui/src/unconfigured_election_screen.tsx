@@ -21,7 +21,7 @@ export function UnconfiguredElectionScreen({
   if (usbDriveStatus.status !== 'mounted') {
     return (
       <FullScreenMessage
-        title="Insert a USB drive containing a ballot package"
+        title="Insert a USB drive containing an election package"
         image={<UsbDriveImage />}
       />
     );
@@ -38,15 +38,15 @@ export function UnconfiguredElectionScreen({
 
     switch (backendConfigError) {
       case 'no_ballot_package_on_usb_drive':
-        return 'No ballot package found on the inserted USB drive.';
+        return 'No election package found on the inserted USB drive.';
       // The frontend should prevent auth_required_before_ballot_package_load
       // but we enforce it for redundancy
       case 'auth_required_before_ballot_package_load':
         return 'Please insert an election manager card before configuring.';
       case 'ballot_package_authentication_error':
-        return 'Error authenticating ballot package. Try exporting it from VxAdmin again.';
+        return 'Error authenticating election package. Try exporting it from VxAdmin again.';
       case 'election_hash_mismatch':
-        return 'The most recent ballot package found is for a different election.';
+        return 'The most recent election package found is for a different election.';
       /* istanbul ignore next - compile time check for completeness */
       default:
         throwIllegalValue(backendConfigError);
