@@ -40,16 +40,16 @@ async function readInitialAdminSetupPackageFromBuffer(
       BallotPackageFileName.SYSTEM_SETTINGS
     );
     systemSettingsString = await readTextEntry(systemSettingsEntry);
+
+    // TODO(kofi): Import translation/audio files as well.
+
+    return ok({
+      electionString,
+      systemSettingsString,
+    });
   } catch (error) {
     return err({ type: 'invalidZip', message: String(error) });
   }
-
-  // TODO(kofi): Import translation/audio files as well.
-
-  return ok({
-    electionString,
-    systemSettingsString,
-  });
 }
 
 export async function readInitialAdminSetupPackageFromFile(
