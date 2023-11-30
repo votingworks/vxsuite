@@ -207,6 +207,18 @@ function isMinimalExport(exportOptions: ExportOptions): boolean {
   );
 }
 
+function shouldIncludeImagesInMinimalExport(
+  canonicalizedSheet: CanonicalizedSheet
+): boolean {
+  return (
+    canonicalizedSheet.type === 'hmpb' &&
+    canonicalizedSheet.interpretation.some(
+      ({ votes, unmarkedWriteIns }) =>
+        hasWriteIns(votes) || (unmarkedWriteIns && unmarkedWriteIns.length > 0)
+    )
+  );
+}
+
 /**
  * Returns the export directory path relative to the USB mount point. Creates a new export
  * directory if one hasn't been created yet or if we're performing a full export.
@@ -383,8 +395,7 @@ async function exportCastVoteRecordFilesToUsbDrive(
   const canonicalizedSheet = canonicalizeSheetResult.ok();
 
   const shouldIncludeImages = isMinimalExport(exportOptions)
-    ? canonicalizedSheet.type === 'hmpb' &&
-      canonicalizedSheet.interpretation.some(({ votes }) => hasWriteIns(votes))
+    ? shouldIncludeImagesInMinimalExport(canonicalizedSheet)
     : true;
 
   const castVoteRecordFilesToExport: ReadableFile[] = [];
