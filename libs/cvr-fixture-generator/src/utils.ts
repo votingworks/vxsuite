@@ -1,4 +1,4 @@
-import { assert, assertDefined } from '@votingworks/basics';
+import { IteratorPlus, assert, iter } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import {
   BallotPageLayout,
@@ -100,19 +100,11 @@ export function splitContestsByPage({
  * as from [[...A], [...B], [...C], [...D]] to [[[...A], [...B]], [[...C],[...D]]]
  */
 export function arrangeContestsBySheet(
-  contestsByPage: Contests[]
-): Array<SheetOf<Contests>> {
-  const contestsBySheet: Array<SheetOf<Contests>> = [];
-  const numSheets = Math.ceil(contestsByPage.length / 2);
-
-  for (let i = 0; i < numSheets; i += 1) {
-    contestsBySheet.push([
-      assertDefined(contestsByPage[i * 2]),
-      contestsByPage[i * 2 + 1] ?? [],
-    ]);
-  }
-
-  return contestsBySheet;
+  contestsByPage: Iterable<Contests>
+): IteratorPlus<SheetOf<Contests>> {
+  return iter(contestsByPage)
+    .chunks(2)
+    .map<SheetOf<Contests>>(([front, back = []]) => [front, back]);
 }
 
 /**
