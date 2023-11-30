@@ -76,6 +76,7 @@ import {
   WriteInAdjudicationActionInvalid,
   WriteInAdjudicationActionWriteInCandidate,
   CastVoteRecordAdjudicationFlags,
+  WriteInAdjudicationActionReset,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -2220,6 +2221,23 @@ export class Store {
           official_candidate_id = null,
           write_in_candidate_id = null,
           adjudicated_at = current_timestamp
+        where id = ?
+      `,
+      writeInId
+    );
+  }
+
+  resetWriteInRecordToPending({
+    writeInId,
+  }: WriteInAdjudicationActionReset): void {
+    this.client.run(
+      `
+        update write_ins
+        set
+          is_invalid = 0,
+          official_candidate_id = null,
+          write_in_candidate_id = null,
+          adjudicated_at = null
         where id = ?
       `,
       writeInId

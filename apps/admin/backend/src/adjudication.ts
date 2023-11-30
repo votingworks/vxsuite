@@ -63,6 +63,7 @@ async function logWriteInAdjudication({
   logger: Logger;
 }): Promise<void> {
   const { cvrId, contestId, optionId } = initialWriteInRecord;
+
   const formerStatusText = (() => {
     if (initialWriteInRecord.status === 'pending') {
       return 'unadjudicated';
@@ -90,6 +91,8 @@ async function logWriteInAdjudication({
         return `a vote for an official candidate (${adjudicationAction.candidateId})`;
       case 'write-in-candidate':
         return `a vote for a write-in candidate (${adjudicationAction.candidateId})`;
+      case 'reset':
+        return `unadjudicated`;
       /* c8 ignore start */
       default:
         throwIllegalValue(adjudicationAction, 'type');
@@ -113,9 +116,11 @@ async function logWriteInAdjudication({
       initialWriteInRecord.adjudicationType !== 'invalid'
         ? initialWriteInRecord.candidateId
         : undefined,
-    status: adjudicationAction.type,
+    status:
+      adjudicationAction.type === 'reset' ? 'pending' : adjudicationAction.type,
     candidateId:
-      adjudicationAction.type !== 'invalid'
+      adjudicationAction.type !== 'invalid' &&
+      adjudicationAction.type !== 'reset'
         ? adjudicationAction.candidateId
         : undefined,
   });
@@ -137,38 +142,43 @@ export async function adjudicateWriteIn(
   assert(initialWriteInRecord, 'write-in record does not exist');
 
   switch (adjudicationAction.type) {
+    case 'official-candidate':
+    case 'write-in-candidate':
+      if (adjudicationAction.type === 'official-candidate') {
+        store.setWriteInRecordOfficialCandidate(adjudicationAction);
+      } else {
+        store.setWriteInRecordUnofficialCandidate(adjudicationAction);
+      }
+      // ensure the vote does not appear as an undervote in tallies, which is
+      // only applicable to unmarked write-ins
+      adjudicateVote(
+        {
+          ...initialWriteInRecord,
+          isVote: true,
+        },
+        store
+      );
+      break;
     case 'invalid':
       store.setWriteInRecordInvalid(adjudicationAction);
+      // ensure the vote appears as an undervote in tallies
+      adjudicateVote(
+        {
+          ...initialWriteInRecord,
+          isVote: false,
+        },
+        store
+      );
       break;
-    case 'official-candidate':
-      store.setWriteInRecordOfficialCandidate(adjudicationAction);
-      break;
-    case 'write-in-candidate':
-      store.setWriteInRecordUnofficialCandidate(adjudicationAction);
+    case 'reset':
+      store.resetWriteInRecordToPending(adjudicationAction);
+      // ensure the vote appears as it originally was in tallies
+      store.deleteVoteAdjudication(initialWriteInRecord);
       break;
     /* c8 ignore start */
     default:
       throwIllegalValue(adjudicationAction, 'type');
     /* c8 ignore stop */
-  }
-
-  // ensure the vote's validity is reflected properly
-  if (adjudicationAction.type === 'invalid') {
-    adjudicateVote(
-      {
-        ...initialWriteInRecord,
-        isVote: false,
-      },
-      store
-    );
-  } else {
-    adjudicateVote(
-      {
-        ...initialWriteInRecord,
-        isVote: true,
-      },
-      store
-    );
   }
 
   // if we are switching away from a write-in candidate, we may have to clean

@@ -321,12 +321,21 @@ export interface WriteInAdjudicationActionInvalid {
 }
 
 /**
+ * Information necessary to reset a write-in to pending.
+ */
+export interface WriteInAdjudicationActionReset {
+  writeInId: Id;
+  type: 'reset';
+}
+
+/**
  * Information necessary to adjudicate a write-in.
  */
 export type WriteInAdjudicationAction =
   | WriteInAdjudicationActionOfficialCandidate
   | WriteInAdjudicationActionWriteInCandidate
-  | WriteInAdjudicationActionInvalid;
+  | WriteInAdjudicationActionInvalid
+  | WriteInAdjudicationActionReset;
 
 /**
  * Information necessary to display a write-in on the frontend.
