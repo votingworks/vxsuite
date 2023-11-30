@@ -6,7 +6,11 @@ import {
   getContests,
   vote,
 } from '@votingworks/types';
-import { expectPrintToPdf, PrintRenderResult } from '@votingworks/test-utils';
+import {
+  expectPrintToPdf,
+  hasTextAcrossElements,
+  PrintRenderResult,
+} from '@votingworks/test-utils';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -64,20 +68,14 @@ function expectPrintedVotes(
     pickOne: string;
   }
 ) {
-  const getByTextWithMarkup = withMarkup(printedElement.getAllByText);
-  // Because eitherNeitherContest and pickOneContest have the same title in the
-  // fixture we're using, we have to use their index to get the correct one.
-  const eitherNeitherContestReviewTitle = getByTextWithMarkup(
-    eitherNeitherContest.title
-  )[0];
-  expect(
-    eitherNeitherContestReviewTitle?.nextSibling?.textContent?.trim()
-  ).toEqual(expectedVotes.eitherNeither);
-  const pickOneContestReviewTitle = getByTextWithMarkup(
-    pickOneContest.title
-  )[1];
-  expect(pickOneContestReviewTitle?.nextSibling?.textContent?.trim()).toEqual(
-    expectedVotes.pickOne
+  const { eitherNeither, pickOne } = expectedVotes;
+  printedElement.getByText(
+    hasTextAcrossElements(
+      new RegExp(`${eitherNeitherContest.title}.?${eitherNeither}`)
+    )
+  );
+  printedElement.getByText(
+    hasTextAcrossElements(new RegExp(`${pickOneContest.title}.?${pickOne}`))
   );
 }
 
@@ -105,10 +103,13 @@ test('Renders Ballot with EitherNeither: blank', async () => {
   });
 
   await expectPrintToPdf((printedElement) => {
-    expectPrintedVotes(printedElement, {
-      eitherNeither: '[no selection]',
-      pickOne: '[no selection]',
-    });
+    expect(
+      printedElement.getAllByText(
+        hasTextAcrossElements(
+          new RegExp(`${eitherNeitherContest.title}.?[no selection]`)
+        )
+      )
+    ).toHaveLength(2);
   });
 });
 

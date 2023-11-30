@@ -1107,9 +1107,15 @@ House Bill 1796 - Flag Referendum
 `;
 
 exports[`L&A (logic and accuracy) flow 2`] = `
-.c15 {
+.c16 {
   font-size: 1em;
   font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.c6 {
+  font-size: 1em;
   line-height: 1.3;
   margin: 0;
 }
@@ -1168,7 +1174,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   margin-top: 0 !important;
 }
 
-.c12 {
+.c13 {
   font-size: 1em;
   line-height: 1.3;
   margin: 0;
@@ -1180,24 +1186,24 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   font-weight: 600;
 }
 
-.c12:not(:first-child) {
+.c13:not(:first-child) {
   margin-top: 1.25em;
 }
 
-.c12 + h1,
-.c12 + h2,
-.c12 + h3,
-.c12 + h4,
-.c12 + h5,
-.c12 + h6 {
+.c13 + h1,
+.c13 + h2,
+.c13 + h3,
+.c13 + h4,
+.c13 + h5,
+.c13 + h6 {
   margin-top: 0 !important;
 }
 
-.c8 {
+.c9 {
   white-space: nowrap;
 }
 
-.c7 > svg {
+.c8 > svg {
   display: block;
   width: 100%;
   height: auto;
@@ -1213,6 +1219,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
 
 .c0 {
   background: #fff;
+  color: #000;
   line-height: 1;
   font-family: 'Vx Roboto','Noto Emoji',sans-serif;
   font-size: 16px;
@@ -1250,7 +1257,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   max-width: 100%;
 }
 
-.c6 {
+.c7 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1270,12 +1277,12 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   padding: 0.25em;
 }
 
-.c6 > div:first-child {
+.c7 > div:first-child {
   margin-right: 0.25em;
   width: 1.1in;
 }
 
-.c6 > div:last-child {
+.c7 > div:last-child {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1285,7 +1292,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   flex: 1;
 }
 
-.c6 > div:last-child > div {
+.c7 > div:last-child > div {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -1302,33 +1309,33 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   font-size: 0.8em;
 }
 
-.c6 > div:last-child > div > div {
+.c7 > div:last-child > div > div {
   margin-bottom: 0.9375em;
 }
 
-.c6 > div:last-child > div > div:last-child {
+.c7 > div:last-child > div > div:last-child {
   margin-bottom: 0;
 }
 
-.c6 > div:last-child > div strong {
+.c7 > div:last-child > div strong {
   font-size: 1.25em;
   word-break: break-word;
 }
 
-.c9 {
+.c10 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
 
-.c10 {
+.c11 {
   -webkit-columns: 2;
   columns: 2;
   -webkit-column-gap: 2em;
   column-gap: 2em;
 }
 
-.c11 {
+.c12 {
   border-bottom: 0.01em solid #000;
   padding: 0.5em 0;
   -webkit-break-inside: avoid;
@@ -1336,15 +1343,15 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   page-break-inside: avoid;
 }
 
-.c13 {
+.c14 {
   font-weight: normal;
 }
 
-.c14 {
+.c15 {
   display: block;
 }
 
-.c14:not(:last-child) {
+.c15:not(:last-child) {
   margin-bottom: 0.125em;
 }
 
@@ -1421,29 +1428,53 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         <h4
           class="c3"
         >
-          Unofficial TEST Ballot
+          <span
+            class=""
+          >
+            Unofficial TEST Ballot
+          </span>
         </h4>
         <h5
           class="c4"
         >
-           
-          Mock General Election Choctaw 2020
+          <span
+            class=""
+          >
+            Mock General Election Choctaw 2020
+          </span>
         </h5>
         <p
           class="c5"
         >
-          August 26, 2020
+          <span
+            class=""
+          >
+            <span
+              class="c6"
+            >
+              August 26, 2020
+            </span>
+          </span>
           <br />
-          Choctaw County
-          , 
-          State of Mississippi
+          <span
+            class=""
+          >
+            Choctaw County
+          </span>
+          ,
+           
+          <span
+            class=""
+          >
+            State of Mississippi
+          </span>
         </p>
       </div>
       <div
-        class="c6"
+        class="c7"
       >
         <div
-          class="c7"
+          class="c8"
         >
           <svg
             height="128"
@@ -1466,15 +1497,27 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <div>
             <div>
               <div>
-                Precinct
+                <span
+                  class=""
+                >
+                  Precinct
+                </span>
               </div>
               <strong>
-                District 5
+                <span
+                  class=""
+                >
+                  District 5
+                </span>
               </strong>
             </div>
             <div>
               <div>
-                Ballot Style
+                <span
+                  class=""
+                >
+                  Ballot Style
+                </span>
               </div>
               <strong>
                 5
@@ -1482,10 +1525,14 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             </div>
             <div>
               <div>
-                Ballot ID
+                <span
+                  class=""
+                >
+                  Ballot ID
+                </span>
               </div>
               <strong
-                class="c8"
+                class="c9"
               >
                 Asdf1234Asdf12
               </strong>
@@ -1495,223 +1542,313 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       </div>
     </div>
     <div
-      class="c9"
+      class="c10"
     >
       <div
-        class="c10"
+        class="c11"
       >
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               President
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
               </span>
-               
-              / Democrat
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Democrat
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Senate 
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Mike Espy
               </span>
-               
-              / Democrat
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Democrat
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               1st Congressional District
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Antonia Eliason
               </span>
-               
-              / Democrat
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Democrat
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Supreme Court District 3(Northern) Position 3
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Josiah Dennis Coleman
               </span>
-               
-              / Nonpartisan
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Nonpartisan
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Election Commissioner 05
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Ouida A Loper
               </span>
-               
-              / Independent
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Independent
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               School Board 05
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Michael D Thomas
               </span>
-               
             </span>
-          </div>
+             
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 2
 House Concurrent Resolution No. 47
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 YES
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 YES
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 1
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 1
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 FOR Initiative Measure No. 65
               </span>
             </span>
-          </div>
+          </span>
         </div>
       </div>
     </div>
@@ -1738,29 +1875,53 @@ House Bill 1796 - Flag Referendum
         <h4
           class="c3"
         >
-          Unofficial TEST Ballot
+          <span
+            class=""
+          >
+            Unofficial TEST Ballot
+          </span>
         </h4>
         <h5
           class="c4"
         >
-           
-          Mock General Election Choctaw 2020
+          <span
+            class=""
+          >
+            Mock General Election Choctaw 2020
+          </span>
         </h5>
         <p
           class="c5"
         >
-          August 26, 2020
+          <span
+            class=""
+          >
+            <span
+              class="c6"
+            >
+              August 26, 2020
+            </span>
+          </span>
           <br />
-          Choctaw County
-          , 
-          State of Mississippi
+          <span
+            class=""
+          >
+            Choctaw County
+          </span>
+          ,
+           
+          <span
+            class=""
+          >
+            State of Mississippi
+          </span>
         </p>
       </div>
       <div
-        class="c6"
+        class="c7"
       >
         <div
-          class="c7"
+          class="c8"
         >
           <svg
             height="128"
@@ -1783,15 +1944,27 @@ House Bill 1796 - Flag Referendum
           <div>
             <div>
               <div>
-                Precinct
+                <span
+                  class=""
+                >
+                  Precinct
+                </span>
               </div>
               <strong>
-                District 5
+                <span
+                  class=""
+                >
+                  District 5
+                </span>
               </strong>
             </div>
             <div>
               <div>
-                Ballot Style
+                <span
+                  class=""
+                >
+                  Ballot Style
+                </span>
               </div>
               <strong>
                 5
@@ -1799,10 +1972,14 @@ House Bill 1796 - Flag Referendum
             </div>
             <div>
               <div>
-                Ballot ID
+                <span
+                  class=""
+                >
+                  Ballot ID
+                </span>
               </div>
               <strong
-                class="c8"
+                class="c9"
               >
                 Asdf1234Asdf12
               </strong>
@@ -1812,223 +1989,307 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="c9"
+      class="c10"
     >
       <div
-        class="c10"
+        class="c11"
       >
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               President
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
               </span>
-               
-              / Republican
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Republican
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Senate 
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Cindy Hyde-Smith
               </span>
-               
-              / Republican
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Republican
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               1st Congressional District
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Trent Kelly
               </span>
-               
-              / Republican
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Republican
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Supreme Court District 3(Northern) Position 3
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Percy L. Lynchard
               </span>
-               
-              / Nonpartisan
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Nonpartisan
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Election Commissioner 05
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Wayne McLeod
               </span>
-               
             </span>
-          </div>
+             
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               School Board 05
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
-              <span
-                class="c15"
-              >
-                WRITE-IN
-              </span>
-               
+              WRITE-IN
+            </span>
+             
+            <span
+              class=""
+            >
               (write-in)
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 2
 House Concurrent Resolution No. 47
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 NO
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 NO
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 1
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 1
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 FOR Alternative Measure 65 A
               </span>
             </span>
-          </div>
+          </span>
         </div>
       </div>
     </div>
@@ -2055,29 +2316,53 @@ House Bill 1796 - Flag Referendum
         <h4
           class="c3"
         >
-          Unofficial TEST Ballot
+          <span
+            class=""
+          >
+            Unofficial TEST Ballot
+          </span>
         </h4>
         <h5
           class="c4"
         >
-           
-          Mock General Election Choctaw 2020
+          <span
+            class=""
+          >
+            Mock General Election Choctaw 2020
+          </span>
         </h5>
         <p
           class="c5"
         >
-          August 26, 2020
+          <span
+            class=""
+          >
+            <span
+              class="c6"
+            >
+              August 26, 2020
+            </span>
+          </span>
           <br />
-          Choctaw County
-          , 
-          State of Mississippi
+          <span
+            class=""
+          >
+            Choctaw County
+          </span>
+          ,
+           
+          <span
+            class=""
+          >
+            State of Mississippi
+          </span>
         </p>
       </div>
       <div
-        class="c6"
+        class="c7"
       >
         <div
-          class="c7"
+          class="c8"
         >
           <svg
             height="128"
@@ -2100,15 +2385,27 @@ House Bill 1796 - Flag Referendum
           <div>
             <div>
               <div>
-                Precinct
+                <span
+                  class=""
+                >
+                  Precinct
+                </span>
               </div>
               <strong>
-                District 5
+                <span
+                  class=""
+                >
+                  District 5
+                </span>
               </strong>
             </div>
             <div>
               <div>
-                Ballot Style
+                <span
+                  class=""
+                >
+                  Ballot Style
+                </span>
               </div>
               <strong>
                 5
@@ -2116,10 +2413,14 @@ House Bill 1796 - Flag Referendum
             </div>
             <div>
               <div>
-                Ballot ID
+                <span
+                  class=""
+                >
+                  Ballot ID
+                </span>
               </div>
               <strong
-                class="c8"
+                class="c9"
               >
                 Asdf1234Asdf12
               </strong>
@@ -2129,223 +2430,295 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="c9"
+      class="c10"
     >
       <div
-        class="c10"
+        class="c11"
       >
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               President
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Presidential Electors for Phil Collins for President and Bill Parker for Vice President
               </span>
-               
-              / Independent
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Independent
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Senate 
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Jimmy Edwards
               </span>
-               
-              / Libertarian
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Libertarian
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               1st Congressional District
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
-              <span
-                class="c15"
-              >
-                WRITE-IN
-              </span>
-               
+              WRITE-IN
+            </span>
+             
+            <span
+              class=""
+            >
               (write-in)
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Supreme Court District 3(Northern) Position 3
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
-              <span
-                class="c15"
-              >
-                WRITE-IN
-              </span>
-               
+              WRITE-IN
+            </span>
+             
+            <span
+              class=""
+            >
               (write-in)
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Election Commissioner 05
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
-              <span
-                class="c15"
-              >
-                WRITE-IN
-              </span>
-               
+              WRITE-IN
+            </span>
+             
+            <span
+              class=""
+            >
               (write-in)
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               School Board 05
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Michael D Thomas
               </span>
-               
             </span>
-          </div>
+             
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 2
 House Concurrent Resolution No. 47
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 YES
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 YES
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 1
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 1
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 FOR Initiative Measure No. 65
               </span>
             </span>
-          </div>
+          </span>
         </div>
       </div>
     </div>
@@ -2372,29 +2745,53 @@ House Bill 1796 - Flag Referendum
         <h4
           class="c3"
         >
-          Unofficial TEST Ballot
+          <span
+            class=""
+          >
+            Unofficial TEST Ballot
+          </span>
         </h4>
         <h5
           class="c4"
         >
-           
-          Mock General Election Choctaw 2020
+          <span
+            class=""
+          >
+            Mock General Election Choctaw 2020
+          </span>
         </h5>
         <p
           class="c5"
         >
-          August 26, 2020
+          <span
+            class=""
+          >
+            <span
+              class="c6"
+            >
+              August 26, 2020
+            </span>
+          </span>
           <br />
-          Choctaw County
-          , 
-          State of Mississippi
+          <span
+            class=""
+          >
+            Choctaw County
+          </span>
+          ,
+           
+          <span
+            class=""
+          >
+            State of Mississippi
+          </span>
         </p>
       </div>
       <div
-        class="c6"
+        class="c7"
       >
         <div
-          class="c7"
+          class="c8"
         >
           <svg
             height="128"
@@ -2417,15 +2814,27 @@ House Bill 1796 - Flag Referendum
           <div>
             <div>
               <div>
-                Precinct
+                <span
+                  class=""
+                >
+                  Precinct
+                </span>
               </div>
               <strong>
-                District 5
+                <span
+                  class=""
+                >
+                  District 5
+                </span>
               </strong>
             </div>
             <div>
               <div>
-                Ballot Style
+                <span
+                  class=""
+                >
+                  Ballot Style
+                </span>
               </div>
               <strong>
                 5
@@ -2433,10 +2842,14 @@ House Bill 1796 - Flag Referendum
             </div>
             <div>
               <div>
-                Ballot ID
+                <span
+                  class=""
+                >
+                  Ballot ID
+                </span>
               </div>
               <strong
-                class="c8"
+                class="c9"
               >
                 Asdf1234Asdf12
               </strong>
@@ -2446,224 +2859,302 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="c9"
+      class="c10"
     >
       <div
-        class="c10"
+        class="c11"
       >
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               President
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
-              <span
-                class="c15"
-              >
-                WRITE-IN
-              </span>
-               
+              WRITE-IN
+            </span>
+             
+            <span
+              class=""
+            >
               (write-in)
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Senate 
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
-              <span
-                class="c15"
-              >
-                WRITE-IN
-              </span>
-               
+              WRITE-IN
+            </span>
+             
+            <span
+              class=""
+            >
               (write-in)
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               1st Congressional District
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Antonia Eliason
               </span>
-               
-              / Democrat
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Democrat
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Supreme Court District 3(Northern) Position 3
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Josiah Dennis Coleman
               </span>
-               
-              / Nonpartisan
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Nonpartisan
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Election Commissioner 05
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 Ouida A Loper
               </span>
-               
-              / Independent
             </span>
-          </div>
+             
+            (
+            <span
+              class=""
+            >
+              Independent
+            </span>
+            )
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               School Board 05
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
-              <span
-                class="c15"
-              >
-                WRITE-IN
-              </span>
-               
+              WRITE-IN
+            </span>
+             
+            <span
+              class=""
+            >
               (write-in)
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 2
 House Concurrent Resolution No. 47
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 NO
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 NO
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 1
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
               </span>
             </span>
-          </div>
+          </span>
         </div>
         <div
-          class="c11"
+          class="c12"
         >
-          <div>
-            <h6
-              class="c12 c13"
+          <h6
+            class="c13 c14"
+          >
+            <span
+              class=""
             >
               Ballot Measure 1
-            </h6>
+            </span>
+          </h6>
+          <span
+            class="c15"
+          >
             <span
-              class="c14"
+              class="c16"
             >
               <span
-                class="c15"
+                class=""
               >
                 FOR Alternative Measure 65 A
               </span>
             </span>
-          </div>
+          </span>
         </div>
       </div>
     </div>
