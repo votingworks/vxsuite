@@ -22,6 +22,7 @@ import {
   interpretedBmdPage,
   interpretedHmpb,
   interpretedHmpbPage1,
+  interpretedHmpbWithUnmarkedWriteIn,
   interpretedHmpbWithWriteIn,
 } from '../../test/fixtures/interpretations';
 import {
@@ -277,6 +278,35 @@ test.each<{
       'accepted HMPB with write-in on central scanner, minimal export',
     sheetGenerator: () =>
       newAcceptedSheet(interpretedHmpbWithWriteIn, sheet1Id),
+    exportOptions: { scannerType: 'central', isMinimalExport: true },
+    expectedDirectoryContents: [
+      CastVoteRecordExportFileName.METADATA,
+      `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
+      `${sheet1Id}/${sheet1Id}-front.jpg`,
+      `${sheet1Id}/${sheet1Id}-back.jpg`,
+      `${sheet1Id}/${sheet1Id}-front.layout.json`,
+      `${sheet1Id}/${sheet1Id}-back.layout.json`,
+    ],
+    expectedBallotImageField: [
+      {
+        '@type': 'CVR.ImageData',
+        Hash: anyCastVoteRecordHash,
+        Location: `file:${sheet1Id}-front.jpg`,
+        vxLayoutFileHash: expect.any(String),
+      },
+      {
+        '@type': 'CVR.ImageData',
+        Hash: anyCastVoteRecordHash,
+        Location: `file:${sheet1Id}-back.jpg`,
+        vxLayoutFileHash: expect.any(String),
+      },
+    ],
+  },
+  {
+    description:
+      'accepted HMPB with unmarked write-in on central scanner, minimal export',
+    sheetGenerator: () =>
+      newAcceptedSheet(interpretedHmpbWithUnmarkedWriteIn, sheet1Id),
     exportOptions: { scannerType: 'central', isMinimalExport: true },
     expectedDirectoryContents: [
       CastVoteRecordExportFileName.METADATA,
