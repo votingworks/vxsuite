@@ -105,12 +105,9 @@ test('displays correct contests for ballot style', async () => {
     '/tally'
   );
 
-  await screen.findByText('Enter the number of votes for each contest option.');
-  screen.getByText(
-    hasTextAcrossElements(
-      'Ballot Style: 1M | Precinct: Precinct 1 | Voting Method: Absentee'
-    )
-  );
+  await screen.findByText(hasTextAcrossElements('Ballot Style1M'));
+  screen.getByText(hasTextAcrossElements('PrecinctPrecinct 1'));
+  screen.getByText(hasTextAcrossElements('Voting MethodAbsentee'));
 
   // has sections for each of the expected contests and no more
   const expectedContests = getContests({
@@ -145,7 +142,7 @@ test('can edit counts, receive validation messages, and save', async () => {
     }
   );
 
-  await screen.findByText('Enter the number of votes for each contest option.');
+  await screen.findByText('1M');
 
   // Test that inputs behave as expected
   const testInputId = 'best-animal-mammal-numBallots-input';
@@ -256,7 +253,7 @@ test('loads pre-existing manual data to edit', async () => {
     }
   );
 
-  await screen.findByText('Enter the number of votes for each contest option.');
+  await screen.findByText('1M');
 
   // check one contest's data
   expect(
@@ -304,7 +301,7 @@ test('adding new write-in candidates', async () => {
     }
   );
 
-  await screen.findByText('Enter the number of votes for each contest option.');
+  await screen.findByText('1M');
 
   // best animal mammal contest shouldn't allow a write-in
   const bestAnimalMammal = screen
@@ -459,7 +456,7 @@ test('loads existing write-in candidates', async () => {
     }
   );
 
-  await screen.findByText('Enter the number of votes for each contest option.');
+  await screen.findByText('1M');
 
   // Adjudicated value should be in the form and not be removable
   await screen.findByText('Chimera (write-in)');

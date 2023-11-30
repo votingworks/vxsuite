@@ -38,6 +38,10 @@ const AdjudicationHeader = styled(Header)`
 const AdjudicationExplanation = styled.div`
   padding: 1rem;
   flex: 1;
+
+  button {
+    white-space: nowrap;
+  }
 `;
 
 const RectoVerso = styled.div`

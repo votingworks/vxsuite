@@ -6,7 +6,7 @@ import {
   isElectionManagerAuth,
   getBallotCount,
 } from '@votingworks/utils';
-import { LinkButton, H2, P, Font, Card, H3, Icons } from '@votingworks/ui';
+import { LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
@@ -16,20 +16,7 @@ import { NavigationScreen } from '../../components/navigation_screen';
 import { routerPaths } from '../../router_paths';
 import { getCardCounts, getCastVoteRecordFileMode } from '../../api';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
-
-const OfficialResultsCard = styled(Card).attrs({ color: 'neutral' })`
-  margin-bottom: 1rem;
-
-  h3 {
-    margin: 0;
-  }
-
-  > div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-`;
+import { OfficialResultsCard } from '../../components/official_results_card';
 
 const Section = styled.section`
   margin-bottom: 2rem;
@@ -70,11 +57,13 @@ export function ReportsScreen(): JSX.Element {
       <OfficialResultsCard>
         {isOfficialResults ? (
           <H3>
-            <Icons.Done color="success" /> Election Results Marked as Official
+            <Icons.Done color="success" />
+            Election Results Marked as Official
           </H3>
         ) : (
           <H3>
-            <Icons.Info /> Election Results are Unofficial
+            <Icons.Info />
+            Election Results are Unofficial
           </H3>
         )}
         <MarkResultsOfficialButton />
