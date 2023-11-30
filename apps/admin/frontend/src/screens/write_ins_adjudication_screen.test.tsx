@@ -282,6 +282,30 @@ describe('preventing double votes', () => {
   });
 });
 
+test('close button', async () => {
+  const contestId = 'best-animal-mammal';
+  const writeInId = 'id';
+
+  apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, 'id');
+  expectGetQueueMetadata({ total: 1, pending: 1, contestId });
+  apiMock.expectGetWriteInCandidates([], contestId);
+  apiMock.expectGetWriteInImageView(writeInId);
+  apiMock.expectGetWriteInAdjudicationContext(writeInId);
+
+  const history = createMemoryHistory();
+  history.push(`/write-ins/adjudication/${contestId}`);
+  renderScreen(contestId, {
+    electionDefinition,
+    apiMock,
+    history,
+  });
+
+  await screen.findByRole('heading', { name: 'Adjudicate Write-In' });
+  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await waitFor(() => expect(history.location.pathname).toEqual('/write-ins'));
+});
+
 test('ballot pagination', async () => {
   const contestId = 'zoo-council-mammal';
   const writeInIds = ['0', '1', '2'];
@@ -313,13 +337,12 @@ test('ballot pagination', async () => {
       expect(previousButton).not.toBeDisabled();
     }
 
-    const nextButton = await screen.findButton('Next');
     if (pageNumber === pageCount) {
-      expect(nextButton).toBeDisabled();
-      const doneButton = await screen.findButton('Back to All Write-Ins');
-      userEvent.click(doneButton);
+      const finishButton = await screen.findButton('Finish');
+      userEvent.click(finishButton);
       expect(history.location.pathname).toEqual('/write-ins');
     } else {
+      const nextButton = await screen.findButton('Next');
       expect(nextButton).not.toBeDisabled();
       userEvent.click(nextButton);
     }

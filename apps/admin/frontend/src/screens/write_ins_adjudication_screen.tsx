@@ -20,10 +20,10 @@ import {
   Loading,
   H1,
   RadioGroup,
+  H4,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
-import pluralize from 'pluralize';
 import { useQueryClient } from '@tanstack/react-query';
 import type {
   WriteInCandidateRecord,
@@ -50,13 +50,23 @@ import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
 } from '../components/adjudication_double_vote_alert_modal';
-import { Header, HeaderActions } from '../components/navigation_screen';
+import { HeaderActions } from '../components/navigation_screen';
 
-const AdjudicationHeader = styled(Header)`
-  position: static;
+const AdjudicationHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
   background: ${(p) => p.theme.colors.inverseBackground};
   color: ${(p) => p.theme.colors.onInverse};
-  border: none;
+
+  h1 {
+    margin: 0;
+  }
+
+  button {
+    padding: 0.5rem;
+  }
 `;
 
 const ContestTitleContainer = styled.div`
@@ -90,7 +100,11 @@ const AdjudicationNav = styled.div`
   padding: 0.5rem;
 
   button {
+    flex: 1;
     flex-wrap: nowrap;
+
+    /* Make sure the Next and Finish button are the same width */
+    min-width: 7rem;
   }
 `;
 
@@ -98,13 +112,11 @@ const BallotViews = styled.div`
   /* Since the edges of the ballot image are black, using a black background
    * creates the least noise. */
   background: black;
-  padding: 0 0.5rem;
-  width: 75vw;
+  flex: 1;
 `;
 
 const AdjudicationControls = styled.div`
   display: flex;
-  flex: 1;
   flex-direction: column;
 `;
 
@@ -255,8 +267,6 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
 
   const totalWriteIns = writeInQueueMetadataQuery.data[0].totalTally;
   const isLastAdjudication = offset >= totalWriteIns - 1;
-  const adjudicationsLeft = writeInQueueMetadataQuery.data[0].pendingTally;
-  const areAllWriteInsAdjudicated = adjudicationsLeft === 0;
 
   const officialCandidates = [...contest.candidates]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -405,27 +415,6 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
 
   return (
     <Screen>
-      <AdjudicationHeader>
-        <H1>Write-In Adjudication</H1>
-        <HeaderActions>
-          <span>
-            {areAllWriteInsAdjudicated
-              ? 'You have adjudicated all of the write-ins for this contest'
-              : `${format.count(adjudicationsLeft)} ${pluralize(
-                  'write-in',
-                  adjudicationsLeft
-                )} to adjudicate`}
-          </span>
-          <LinkButton
-            variant={
-              areAllWriteInsAdjudicated ? 'inversePrimary' : 'inverseNeutral'
-            }
-            to={routerPaths.writeIns}
-          >
-            Back to All Write-Ins
-          </LinkButton>
-        </HeaderActions>
-      </AdjudicationHeader>
       <Main flexRow data-testid={`transcribe:${currentWriteInId}`}>
         <BallotViews>
           {writeInImageView ? (
@@ -438,6 +427,17 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
           ) : null}
         </BallotViews>
         <AdjudicationControls>
+          <AdjudicationHeader>
+            <H4 as="h1">Adjudicate Write-In</H4>
+            <LinkButton
+              icon="X"
+              variant="inverseNeutral"
+              fill="transparent"
+              to={routerPaths.writeIns}
+            >
+              Close
+            </LinkButton>
+          </AdjudicationHeader>
           <AdjudicationMetadata>
             <span>
               Ballot ID:{' '}
@@ -586,21 +586,35 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             >
               Previous
             </Button>
-            <Caption weight="semiBold">
-              {format.count(offset + 1)}&nbsp;of&nbsp;
-              {format.count(totalWriteIns)}
+            <Caption weight="semiBold" style={{ whiteSpace: 'nowrap' }}>
+              {format.count(offset + 1)} of {format.count(totalWriteIns)}
             </Caption>
-            <Button
-              ref={nextButton}
-              variant={
-                currentWriteIn?.status === 'adjudicated' ? 'primary' : 'neutral'
-              }
-              rightIcon="Next"
-              disabled={isLastAdjudication}
-              onPress={goNext}
-            >
-              Next
-            </Button>
+            {isLastAdjudication ? (
+              <LinkButton
+                variant={
+                  currentWriteIn?.status === 'adjudicated'
+                    ? 'primary'
+                    : 'neutral'
+                }
+                to={routerPaths.writeIns}
+                icon="Done"
+              >
+                Finish
+              </LinkButton>
+            ) : (
+              <Button
+                ref={nextButton}
+                variant={
+                  currentWriteIn?.status === 'adjudicated'
+                    ? 'primary'
+                    : 'neutral'
+                }
+                rightIcon="Next"
+                onPress={goNext}
+              >
+                Next
+              </Button>
+            )}
           </AdjudicationNav>
         </AdjudicationControls>
         {doubleVoteAlert && (
