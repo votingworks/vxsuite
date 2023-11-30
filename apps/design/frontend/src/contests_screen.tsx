@@ -11,6 +11,7 @@ import {
   SearchSelect,
   MainContent,
   MainHeader,
+  Breadcrumbs,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -33,7 +34,6 @@ import {
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
 import {
-  Breadcrumbs,
   FieldName,
   Form,
   FormActionsRow,
@@ -555,17 +555,16 @@ function AddContestForm(): JSX.Element | null {
   }
 
   const { election } = getElectionQuery.data;
+  const { title } = contestRoutes.contests.addContest;
 
   return (
     <React.Fragment>
       <MainHeader>
         <Breadcrumbs
-          routes={[
-            contestRoutes.contests.root,
-            contestRoutes.contests.addContest,
-          ]}
+          currentTitle={title}
+          parentRoutes={[contestRoutes.contests.root]}
         />
-        <H1>Add Contest</H1>
+        <H1>{title}</H1>
       </MainHeader>
       <MainContent>
         <ContestForm electionId={electionId} savedElection={election} />
@@ -586,17 +585,16 @@ function EditContestForm(): JSX.Element | null {
   }
 
   const { election } = getElectionQuery.data;
+  const { title } = contestRoutes.contests.editContest(contestId);
 
   return (
     <React.Fragment>
       <MainHeader>
         <Breadcrumbs
-          routes={[
-            contestRoutes.contests.root,
-            contestRoutes.contests.editContest(contestId),
-          ]}
+          currentTitle={title}
+          parentRoutes={[contestRoutes.contests.root]}
         />
-        <H1>Edit Contest</H1>
+        <H1>{title}</H1>
       </MainHeader>
       <MainContent>
         <ContestForm
@@ -819,12 +817,13 @@ function AddPartyForm(): JSX.Element | null {
   }
 
   const { election } = getElectionQuery.data;
+  const { title } = partyRoutes.addParty;
 
   return (
     <React.Fragment>
       <MainHeader>
-        <Breadcrumbs routes={[partyRoutes.root, partyRoutes.addParty]} />
-        <H1>Add Party</H1>
+        <Breadcrumbs currentTitle={title} parentRoutes={[partyRoutes.root]} />
+        <H1>{title}</H1>
       </MainHeader>
       <MainContent>
         <PartyForm electionId={electionId} savedElection={election} />
@@ -845,14 +844,13 @@ function EditPartyForm(): JSX.Element | null {
   }
 
   const { election } = getElectionQuery.data;
+  const { title } = partyRoutes.editParty(partyId);
 
   return (
     <React.Fragment>
       <MainHeader>
-        <Breadcrumbs
-          routes={[partyRoutes.root, partyRoutes.editParty(partyId)]}
-        />
-        <H1>Edit Party</H1>
+        <Breadcrumbs currentTitle={title} parentRoutes={[partyRoutes.root]} />
+        <H1>{title}</H1>
       </MainHeader>
       <MainContent>
         <PartyForm

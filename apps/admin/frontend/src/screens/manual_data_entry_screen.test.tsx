@@ -7,7 +7,7 @@ import { buildManualResultsFixture } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { ManualDataEntryScreen } from './manual_data_entry_screen';
+import { ManualDataEntryScreen, TITLE } from './manual_data_entry_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
@@ -93,6 +93,16 @@ test('displays correct contests for ballot style', async () => {
       electionDefinition,
       apiMock,
     }
+  );
+
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'Manual Tallies' })).toHaveAttribute(
+    'href',
+    '/tally/manual-data-summary'
+  );
+  expect(screen.getByRole('link', { name: 'Tally' })).toHaveAttribute(
+    'href',
+    '/tally'
   );
 
   await screen.findByText('Enter the number of votes for each contest option.');

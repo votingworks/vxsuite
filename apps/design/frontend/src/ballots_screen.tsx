@@ -312,16 +312,7 @@ export function BallotsScreen(): JSX.Element | null {
           </MainHeader>
           <MainContent>
             <TabBar
-              tabs={[
-                {
-                  label: 'Ballot Styles',
-                  path: ballotsRoutes.ballotStyles.path,
-                },
-                {
-                  label: 'Ballot Layout',
-                  path: ballotsRoutes.ballotLayout.path,
-                },
-              ]}
+              tabs={[ballotsRoutes.ballotStyles, ballotsRoutes.ballotLayout]}
             />
             <Switch>
               <Route

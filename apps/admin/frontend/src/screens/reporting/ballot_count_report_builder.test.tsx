@@ -10,7 +10,7 @@ import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 import { getMockCardCounts } from '../../../test/helpers/mock_results';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
-import { BallotCountReportBuilder } from './ballot_count_report_builder';
+import { BallotCountReportBuilder, TITLE } from './ballot_count_report_builder';
 
 let apiMock: ApiMock;
 
@@ -58,6 +58,12 @@ test('happy path', async () => {
     electionDefinition,
     apiMock,
   });
+
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
+    'href',
+    '/reports'
+  );
 
   expect(screen.queryByText('Load Preview')).not.toBeInTheDocument();
   expect(screen.getButton('Print Report')).toBeDisabled();

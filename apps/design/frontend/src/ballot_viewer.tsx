@@ -10,7 +10,7 @@ import {
   Precinct,
 } from '@votingworks/types';
 import styled from 'styled-components';
-import { Button, H1, H3, P, RadioGroup } from '@votingworks/ui';
+import { Breadcrumbs, Button, H1, H3, P, RadioGroup } from '@votingworks/ui';
 import {
   AnyElement,
   Document,
@@ -29,7 +29,7 @@ import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { exportBallot } from './api';
 import { ElectionIdParams, routes } from './routes';
-import { Breadcrumbs, Column, FieldName as BaseFieldName } from './layout';
+import { Column, FieldName as BaseFieldName } from './layout';
 
 const FieldName = styled(BaseFieldName)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
@@ -315,17 +315,17 @@ export function BallotViewer({
     );
   }
 
+  const { title } = ballotRoutes.viewBallot(ballotStyle.id, precinct.id);
+
   return (
     <div style={{ display: 'flex', height: '100%', width: '100%' }}>
       <Controls>
         <section>
           <Breadcrumbs
-            routes={[
-              ballotRoutes.root,
-              ballotRoutes.viewBallot(ballotStyle.id, precinct.id),
-            ]}
+            currentTitle={title}
+            parentRoutes={[ballotRoutes.root]}
           />
-          <H1 style={{ marginTop: 0 }}>View Ballot</H1>
+          <H1 style={{ marginTop: 0 }}>{title}</H1>
           <Column style={{ gap: '1rem' }}>
             <div>
               <FieldName>Ballot Style</FieldName>

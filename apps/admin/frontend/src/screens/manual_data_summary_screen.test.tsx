@@ -8,6 +8,7 @@ import { screen, within } from '../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
   ManualDataSummaryScreen,
+  TITLE,
 } from './manual_data_summary_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -27,24 +28,6 @@ afterEach(() => {
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
 
-test('navigating back to tally page', async () => {
-  const history = createMemoryHistory();
-  apiMock.expectGetManualResultsMetadata([]);
-  renderInAppContext(
-    <Router history={history}>
-      <ManualDataSummaryScreen />
-    </Router>,
-    {
-      route: '/tally/manual-data-summary',
-      electionDefinition,
-      apiMock,
-    }
-  );
-  await screen.findByText('Total Manual Ballot Count: 0');
-  userEvent.click(screen.getButton('Back to Tally'));
-  expect(history.location.pathname).toEqual('/tally');
-});
-
 test('initial table without manual tallies & adding a manual tally', async () => {
   const history = createMemoryHistory();
   apiMock.expectGetManualResultsMetadata([]);
@@ -59,6 +42,13 @@ test('initial table without manual tallies & adding a manual tally', async () =>
     }
   );
   await screen.findByText('Total Manual Ballot Count: 0');
+
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'Tally' })).toHaveAttribute(
+    'href',
+    '/tally'
+  );
+
   expect(
     screen.queryByRole('button', { name: 'Remove All Manual Tallies' })
   ).not.toBeInTheDocument();

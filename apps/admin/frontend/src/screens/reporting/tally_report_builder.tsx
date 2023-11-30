@@ -14,12 +14,12 @@ import { GroupByEditor } from '../../components/reporting/group_by_editor';
 import { TallyReportViewer } from '../../components/reporting/tally_report_viewer';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 import {
-  ReportBackButton,
   ReportBuilderControls,
   ControlLabel,
+  reportParentRoutes,
 } from '../../components/reporting/shared';
 
-const SCREEN_TITLE = 'Tally Report Builder';
+const TITLE = 'Tally Report Builder';
 
 export function TallyReportBuilder(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -40,10 +40,7 @@ export function TallyReportBuilder(): JSX.Element {
 
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
   return (
-    <NavigationScreen title={SCREEN_TITLE}>
-      <P style={{ marginBottom: '1rem' }}>
-        <ReportBackButton />
-      </P>
+    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes}>
       <ReportBuilderControls>
         <div style={{ marginBottom: '1.5rem' }}>
           <ControlLabel>Filters</ControlLabel>

@@ -21,11 +21,11 @@ import {
 import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer';
 import {
   ControlLabel,
-  ReportBackButton,
   ReportBuilderControls,
+  reportParentRoutes,
 } from '../../components/reporting/shared';
 
-const SCREEN_TITLE = 'Ballot Count Report Builder';
+export const TITLE = 'Ballot Count Report Builder';
 
 export function BallotCountReportBuilder(): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
@@ -66,10 +66,7 @@ export function BallotCountReportBuilder(): JSX.Element {
 
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
   return (
-    <NavigationScreen title={SCREEN_TITLE}>
-      <P style={{ marginBottom: '1rem' }}>
-        <ReportBackButton />
-      </P>
+    <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes}>
       <ReportBuilderControls>
         <div style={{ marginBottom: '1.5rem' }}>
           <ControlLabel>Filters</ControlLabel>

@@ -9,7 +9,10 @@ import { fakeLogger, Logger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { TallyWriteInReportScreen } from './write_in_adjudication_report_screen';
+import {
+  TITLE,
+  TallyWriteInReportScreen,
+} from './write_in_adjudication_report_screen';
 import {
   screen,
   waitForElementToBeRemoved,
@@ -68,6 +71,12 @@ test('renders provided data', async () => {
     apiMock,
   });
 
+  screen.getByRole('heading', { name: TITLE });
+  expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
+    'href',
+    '/reports'
+  );
+
   const report = await screen.findByTestId('write-in-tally-report');
   within(report).getByText(
     'Unofficial General Election Write‑In Adjudication Report'
@@ -87,6 +96,5 @@ test('renders provided data', async () => {
   });
   await waitForElementToBeRemoved(screen.getByRole('alertdialog'));
 
-  expect(screen.getButton('Back')).toBeEnabled();
   expect(screen.getButton('Export Report PDF')).toBeEnabled();
 });

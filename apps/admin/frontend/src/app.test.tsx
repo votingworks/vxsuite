@@ -272,7 +272,7 @@ test('L&A (logic and accuracy) flow', async () => {
   advanceTimers(30);
 
   // Test printing full test deck tally
-  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(screen.getAllByText('L&A')[0]); // getByRole not working
   const fullTestDeckButton = screen
     .getByText('Print Full Test Deck Tally Report')
     .closest('button')!;
