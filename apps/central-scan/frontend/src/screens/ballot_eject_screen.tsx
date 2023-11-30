@@ -26,6 +26,7 @@ import { fetchNextBallotSheetToReview } from '../api/hmpb';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
 import { AppContext } from '../contexts/app_context';
 import { Header } from '../navigation_screen';
+import { getSystemSettings } from '../api';
 
 const AdjudicationHeader = styled(Header)`
   position: static;
@@ -86,6 +87,8 @@ export function BallotEjectScreen({
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
+
+  const systemSettingsQuery = getSystemSettings.useQuery();
 
   useEffect(() => {
     void (async () => {
@@ -223,9 +226,13 @@ export function BallotEjectScreen({
     userRole,
   ]);
 
-  if (!reviewInfo) {
+  if (!reviewInfo || !systemSettingsQuery.isSuccess) {
     return null;
   }
+
+  // TODO: since we use this flag here, in the central scanner, rename it to
+  // not be "precinct" specific
+  const { precinctScanDisallowCastingOvervotes } = systemSettingsQuery.data;
 
   let isOvervotedSheet = false;
   let isUndervotedSheet = false;
@@ -301,7 +308,8 @@ export function BallotEjectScreen({
   const allowBallotDuplication =
     !isInvalidTestModeSheet &&
     !isInvalidElectionHashSheet &&
-    !isUnreadableSheet;
+    !isUnreadableSheet &&
+    !(isOvervotedSheet && precinctScanDisallowCastingOvervotes);
 
   const backInterpretation = reviewInfo.interpreted.back.interpretation;
   const isBackIntentionallyLeftBlank =
@@ -400,8 +408,7 @@ export function BallotEjectScreen({
                 </LabelledText>
               </P>
             </React.Fragment>
-          ) : (
-            // Unreadable
+          ) : isUnreadableSheet ? (
             <React.Fragment>
               <P>
                 There was a problem reading the ballot. Remove ballot and reload
@@ -412,7 +419,7 @@ export function BallotEjectScreen({
                 ballot for the Resolution Board to review.
               </P>
             </React.Fragment>
-          )}
+          ) : null}
           {!allowBallotDuplication && (
             <Button
               variant="primary"

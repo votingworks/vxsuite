@@ -3,6 +3,7 @@ import {
   AdjudicationReason,
   BallotMetadata,
   BallotType,
+  DEFAULT_SYSTEM_SETTINGS,
   getDisplayElectionHash,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
@@ -20,6 +21,9 @@ let mockApiClient: MockApiClient;
 
 beforeEach(() => {
   mockApiClient = createMockApiClient();
+  mockApiClient.getSystemSettings
+    .expectCallWith()
+    .resolves(DEFAULT_SYSTEM_SETTINGS);
 });
 
 afterEach(() => {
@@ -632,6 +636,116 @@ test('shows invalid election screen when appropriate', async () => {
       adjudicationTypes: 'InvalidElectionHashPage, BlankPage',
     })
   );
+
+  userEvent.click(screen.getByText('Ballot has been removed'));
+  expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
+});
+
+test('does not allow tabulating the overvote if precinctScanDisallowCastingOvervotes is set', async () => {
+  mockApiClient.getSystemSettings.reset();
+  mockApiClient.getSystemSettings.expectCallWith().resolves({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    precinctScanDisallowCastingOvervotes: true,
+  });
+  const metadata: BallotMetadata = {
+    ballotStyleId: '1',
+    precinctId: '1',
+    ballotType: BallotType.Precinct,
+    electionHash: 'abcde',
+    isTestMode: false,
+  };
+  fetchMock.getOnce(
+    '/central-scanner/scan/hmpb/review/next-sheet',
+    typedAs<Scan.GetNextReviewSheetResponse>({
+      interpreted: {
+        id: 'mock-sheet-id',
+        front: {
+          image: { url: '/front/url' },
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            markInfo: {
+              ballotSize: { width: 1, height: 1 },
+              marks: [],
+            },
+            metadata: {
+              ...metadata,
+              pageNumber: 1,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: true,
+              enabledReasonInfos: [
+                {
+                  type: AdjudicationReason.Overvote,
+                  contestId: '1',
+                  optionIds: ['1', '2'],
+                  optionIndexes: [0, 1],
+                  expected: 1,
+                },
+              ],
+              ignoredReasonInfos: [],
+              enabledReasons: [AdjudicationReason.Overvote],
+            },
+            votes: {},
+            layout: {
+              pageSize: { width: 1, height: 1 },
+              metadata: {
+                ...metadata,
+                pageNumber: 1,
+              },
+              contests: [],
+            },
+          },
+        },
+        back: {
+          image: { url: '/back/url' },
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            markInfo: {
+              ballotSize: { width: 1, height: 1 },
+              marks: [],
+            },
+            metadata: {
+              ...metadata,
+              pageNumber: 2,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+              enabledReasons: [AdjudicationReason.Overvote],
+            },
+            votes: {},
+            layout: {
+              pageSize: { width: 1, height: 1 },
+              metadata: {
+                ...metadata,
+                pageNumber: 2,
+              },
+              contests: [],
+            },
+          },
+        },
+      },
+      layouts: {},
+      definitions: {},
+    })
+  );
+
+  const continueScanning = jest.fn();
+  const logger = fakeLogger();
+
+  renderInAppContext(
+    <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
+    { apiClient: mockApiClient, logger }
+  );
+
+  await screen.findByText('Overvote');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because an overvote was detected.'
+  );
+
+  expect(screen.queryByText('Tabulate as is')).not.toBeInTheDocument();
+  expect(screen.queryByText('Remove to adjudicate')).not.toBeInTheDocument();
 
   userEvent.click(screen.getByText('Ballot has been removed'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
