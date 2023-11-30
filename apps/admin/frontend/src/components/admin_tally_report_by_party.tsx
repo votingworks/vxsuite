@@ -27,6 +27,7 @@ export function AdminTallyReportByParty({
   testId,
   generatedAtTime,
   customFilter,
+  includeSignatureLines,
 }: {
   electionDefinition: ElectionDefinition;
   tallyReportResults: TallyReportResults;
@@ -37,6 +38,7 @@ export function AdminTallyReportByParty({
   testId: string;
   generatedAtTime: Date;
   customFilter?: Tabulation.Filter;
+  includeSignatureLines?: boolean;
 }): JSX.Element {
   const { election } = electionDefinition;
   const contests = tallyReportResults.contestIds.map((contestId) =>
@@ -59,6 +61,7 @@ export function AdminTallyReportByParty({
         subtitle={title ? election.title : undefined}
         generatedAtTime={generatedAtTime}
         customFilter={customFilter}
+        includeSignatureLines={includeSignatureLines}
       />
     );
   }
@@ -98,6 +101,7 @@ export function AdminTallyReportByParty({
         subtitle={title ? partyElectionTitle : undefined}
         cardCountsOverride={partyCardCounts}
         customFilter={customFilter}
+        includeSignatureLines={includeSignatureLines}
       />
     );
   }
@@ -121,6 +125,7 @@ export function AdminTallyReportByParty({
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         subtitle={title ? nonpartisanElectionTitle : undefined}
         customFilter={customFilter}
+        includeSignatureLines={includeSignatureLines}
       />
     );
   }

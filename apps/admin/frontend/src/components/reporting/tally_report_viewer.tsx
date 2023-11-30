@@ -12,6 +12,8 @@ import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
   isElectionManagerAuth,
+  isFilterEmpty,
+  isGroupByEmpty,
 } from '@votingworks/utils';
 import type {
   ScannerBatch,
@@ -55,6 +57,7 @@ function Reports({
   filterUsed,
   generatedAtTime,
   scannerBatches,
+  includeSignatureLines,
 }: {
   electionDefinition: ElectionDefinition;
   isOfficialResults: boolean;
@@ -63,6 +66,7 @@ function Reports({
   filterUsed: Tabulation.Filter;
   generatedAtTime: Date;
   scannerBatches: ScannerBatch[];
+  includeSignatureLines?: boolean;
 }): JSX.Element {
   const allReports: JSX.Element[] = [];
 
@@ -92,6 +96,7 @@ function Reports({
         isTest={isTestMode}
         generatedAtTime={generatedAtTime}
         customFilter={displayedFilter}
+        includeSignatureLines={includeSignatureLines}
       />
     );
   }
@@ -131,6 +136,7 @@ export function TallyReportViewer({
     !scannerBatchesQuery.isSuccess;
 
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
+  const isFullElectionReport = isFilterEmpty(filter) && isGroupByEmpty(groupBy);
 
   const reportResultsQuery = getResultsForTallyReports.useQuery(
     {
@@ -160,6 +166,7 @@ export function TallyReportViewer({
         isOfficialResults={isOfficialResults}
         isTestMode={isTestMode}
         scannerBatches={scannerBatchesQuery.data ?? []}
+        includeSignatureLines={isFullElectionReport}
       />
     );
   }, [
@@ -171,6 +178,7 @@ export function TallyReportViewer({
     isOfficialResults,
     isTestMode,
     scannerBatchesQuery.data,
+    isFullElectionReport,
   ]);
 
   async function generateReport() {

@@ -80,6 +80,8 @@ const batchReportArgs: AdminTallyReportProps = {
   electionDefinition,
   contests,
   scannedElectionResults,
+  customFilter: undefined,
+  includeSignatureLines: false,
 };
 
 export const BatchTallyReport: Story = {
@@ -127,6 +129,8 @@ const ballotStyleManualReportArgs: AdminTallyReportProps = {
   }),
   scannedElectionResults,
   manualElectionResults,
+  customFilter: undefined,
+  includeSignatureLines: false,
 };
 
 export const BallotStyleManualReport: Story = {
@@ -217,6 +221,8 @@ const fullElectionWriteInReportArgs: AdminTallyReportProps = {
       },
     },
   }),
+  customFilter: undefined,
+  includeSignatureLines: true,
 };
 
 export const FullElectionWriteInReport: Story = {
