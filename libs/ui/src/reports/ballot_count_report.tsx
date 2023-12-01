@@ -252,7 +252,7 @@ function isNumberColumn(column: Column): boolean {
 function getCellClass(
   column: Column,
   row: RowType,
-  showSheetCounts: boolean
+  includeSheetCounts: boolean
 ): Optional<string> {
   const classes: string[] = [];
 
@@ -262,7 +262,7 @@ function getCellClass(
   }
 
   // special formatting for sheet count breakdown
-  if (showSheetCounts) {
+  if (includeSheetCounts) {
     // left border of sheet count area
     if (column.type === 'sheet-count' && column.id === 0) {
       classes.push('thicker-left-border');
@@ -410,13 +410,13 @@ function BallotCountTable({
   scannerBatches,
   cardCountsList,
   groupBy,
-  showSheetCounts,
+  includeSheetCounts,
 }: {
   electionDefinition: ElectionDefinition;
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
-  showSheetCounts: boolean;
+  includeSheetCounts: boolean;
 }): JSX.Element {
   const { election } = electionDefinition;
   const batchLookup: BatchLookup = {};
@@ -463,7 +463,7 @@ function BallotCountTable({
 
   // we show the sheet counts if the flag is true even if it's a single-sheet
   // election. it's the caller's responsibility to check the election definition
-  if (showSheetCounts) {
+  if (includeSheetCounts) {
     // istanbul ignore next - trivial default value
     const sheetCount = getMaxSheetsPerBallot(election) ?? 1;
     for (let i = 0; i < sheetCount; i += 1) {
@@ -485,11 +485,11 @@ function BallotCountTable({
       data-testid="ballot-count-grid"
     >
       {/* Group Header */}
-      {showSheetCounts &&
+      {includeSheetCounts &&
         columns.map((column) => (
           <span
             key={getColumnKey(column)}
-            className={getCellClass(column, 'group-header', showSheetCounts)}
+            className={getCellClass(column, 'group-header', includeSheetCounts)}
             data-testid={`group-header-${getColumnKey(column)}`}
           >
             {column.type === 'sheet-count' ? 'HMPB' : ''}
@@ -499,7 +499,7 @@ function BallotCountTable({
       {columns.map((column) => (
         <span
           key={getColumnKey(column)}
-          className={`${getCellClass(column, 'header', showSheetCounts)}`}
+          className={`${getCellClass(column, 'header', includeSheetCounts)}`}
           data-testid={`header-${getColumnKey(column)}`}
         >
           {getColumnLabel(column)}
@@ -515,7 +515,7 @@ function BallotCountTable({
               return (
                 <span
                   key={key}
-                  className={getCellClass(column, 'data', showSheetCounts)}
+                  className={getCellClass(column, 'data', includeSheetCounts)}
                   data-testid={`data-${key}`}
                 >
                   {getCellContent({
@@ -544,7 +544,11 @@ function BallotCountTable({
                   <span
                     key={key}
                     data-testid={`footer-${key}`}
-                    className={getCellClass(column, 'footer', showSheetCounts)}
+                    className={getCellClass(
+                      column,
+                      'footer',
+                      includeSheetCounts
+                    )}
                   >
                     {getFormattedCount(totalCardCounts, column)}
                   </span>
@@ -554,7 +558,11 @@ function BallotCountTable({
                 return (
                   <span
                     key={key}
-                    className={getCellClass(column, 'footer', showSheetCounts)}
+                    className={getCellClass(
+                      column,
+                      'footer',
+                      includeSheetCounts
+                    )}
                   />
                 );
               // istanbul ignore next
@@ -577,7 +585,7 @@ export interface BallotCountReportProps {
   scannerBatches: Tabulation.ScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
-  showSheetCounts?: boolean;
+  includeSheetCounts?: boolean;
   customFilter?: Admin.ReportingFilter;
   generatedAtTime?: Date;
 }
@@ -591,7 +599,7 @@ export function BallotCountReport({
   scannerBatches,
   cardCountsList,
   groupBy,
-  showSheetCounts,
+  includeSheetCounts,
   customFilter,
   generatedAtTime = new Date(),
 }: BallotCountReportProps): JSX.Element {
@@ -619,7 +627,7 @@ export function BallotCountReport({
             scannerBatches={scannerBatches}
             cardCountsList={cardCountsList}
             groupBy={groupBy}
-            showSheetCounts={showSheetCounts ?? false}
+            includeSheetCounts={includeSheetCounts ?? false}
           />
         </ReportSection>
       </TallyReport>

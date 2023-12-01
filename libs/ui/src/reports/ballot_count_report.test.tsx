@@ -341,7 +341,7 @@ test('shows HMPB sheet counts', () => {
         groupByVotingMethod: true,
       }}
       cardCountsList={votingMethodCardCountsList}
-      showSheetCounts
+      includeSheetCounts
     />
   );
 
