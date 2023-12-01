@@ -2087,47 +2087,6 @@ export class Store {
     };
   }
 
-  getVoteAdjudication({
-    electionId,
-    cvrId,
-    contestId,
-    optionId,
-  }: Omit<VoteAdjudication, 'isVote'>): Optional<VoteAdjudication> {
-    const row = this.client.one(
-      `
-      select
-        election_id as electionId,
-        cvr_id as cvrId,
-        contest_id as contestId,
-        option_id as optionId,
-        is_vote as isVote
-      from vote_adjudications
-      where
-        election_id = ? and
-        cvr_id = ? and
-        contest_id = ? and
-        option_id = ?
-      `,
-      electionId,
-      cvrId,
-      contestId,
-      optionId
-    ) as Optional<{
-      electionId: Id;
-      cvrId: Id;
-      contestId: Id;
-      optionId: Id;
-      isVote: SqliteBool;
-    }>;
-
-    return row
-      ? {
-          ...row,
-          isVote: fromSqliteBool(row.isVote),
-        }
-      : undefined;
-  }
-
   deleteVoteAdjudication({
     electionId,
     cvrId,

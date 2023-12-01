@@ -17,6 +17,9 @@ export function adjudicateVote(
   voteAdjudication: Omit<VoteAdjudication, 'id'>,
   store: Store
 ): void {
+  // remove any existing adjudication records for the vote
+  store.deleteVoteAdjudication(voteAdjudication);
+
   const { votes } = store.getCastVoteRecordVoteInfo({
     electionId: voteAdjudication.electionId,
     cvrId: voteAdjudication.cvrId,
@@ -24,32 +27,16 @@ export function adjudicateVote(
 
   const contestVotes = votes[voteAdjudication.contestId];
 
-  const isScannedVote = contestVotes
+  const scannedIsVote = contestVotes
     ? contestVotes.includes(voteAdjudication.optionId)
     : /* c8 ignore next 1 */
       false;
 
-  const existingVoteAdjudication = store.getVoteAdjudication(voteAdjudication);
-
-  const existingIsVote = existingVoteAdjudication?.isVote ?? isScannedVote;
-
-  // if either the vote is scanned as the target status and has not been
-  // adjudicated, or it has already been adjudicated to the target status,
-  // do nothing
-  if (voteAdjudication.isVote === existingIsVote) {
+  // if the vote is already the target status, do nothing
+  if (voteAdjudication.isVote === scannedIsVote) {
     return;
   }
 
-  // if the vote is not the target status due to a prior adjudication, delete it
-  if (existingVoteAdjudication) {
-    assert(voteAdjudication.isVote !== existingVoteAdjudication.isVote);
-    assert(voteAdjudication.isVote === isScannedVote);
-    store.deleteVoteAdjudication(existingVoteAdjudication);
-    return;
-  }
-
-  // create an adjudication record to reflect the target status
-  assert(voteAdjudication.isVote !== isScannedVote);
   store.createVoteAdjudication(voteAdjudication);
 }
 
