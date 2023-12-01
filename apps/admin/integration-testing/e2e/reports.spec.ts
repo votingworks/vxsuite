@@ -39,7 +39,7 @@ test('viewing and exporting reports', async ({ page }) => {
   // load election definition as system administrator
   await logInAsSystemAdministrator(page);
   await page
-    .getByLabel('Select Existing Election Definition File')
+    .getByLabel('Select Election Definition')
     .setInputFiles(asFilePath(electionData));
   expect(page);
   await logOut(page);

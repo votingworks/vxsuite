@@ -87,7 +87,7 @@ test('configuring with a demo election definition', async () => {
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
-  await screen.findByText('Load Demo Election Definition');
+  await screen.findByText('Load Demo Election');
 
   // expecting configure and resulting refetch
   apiMock.expectConfigure(
@@ -96,7 +96,7 @@ test('configuring with a demo election definition', async () => {
   );
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  fireEvent.click(screen.getByText('Load Demo Election Definition'));
+  fireEvent.click(screen.getByText('Load Demo Election'));
 
   await screen.findByRole('heading', { name: 'Election' });
 
@@ -127,7 +127,7 @@ test('configuring with a demo election definition', async () => {
   await screen.findByText('Save logs on the inserted USB drive?');
 
   userEvent.click(screen.getByText('Election'));
-  await screen.findByText('Load Demo Election Definition');
+  await screen.findByText('Load Demo Election');
 });
 
 test('authentication works', async () => {
@@ -539,9 +539,7 @@ test('system administrator UI has expected nav when no election', async () => {
   );
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(
-    screen.getByRole('button', { name: 'Load Demo Election Definition' })
-  );
+  userEvent.click(screen.getByRole('button', { name: 'Load Demo Election' }));
   await waitFor(() =>
     expect(
       screen.queryByRole('heading', { name: 'Configure VxAdmin' })
