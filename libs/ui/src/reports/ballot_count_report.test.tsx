@@ -1,5 +1,8 @@
-import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { Dictionary, GridLayout, Tabulation } from '@votingworks/types';
+import {
+  electionFamousNames2021Fixtures,
+  electionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
+import { Dictionary, Tabulation } from '@votingworks/types';
 import { within } from '@testing-library/react';
 import { Optional } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library';
@@ -8,47 +11,6 @@ import {
   BallotCountReport,
   FILLER_COLUMNS,
 } from './ballot_count_report';
-
-const mockMultiSheetGridLayouts: GridLayout[] = [
-  {
-    ballotStyleId: 'any',
-    optionBoundsFromTargetMark: {
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-    },
-    gridPositions: [
-      {
-        type: 'option',
-        sheetNumber: 1,
-        side: 'front',
-        column: 0,
-        row: 0,
-        contestId: 'any',
-        optionId: 'any',
-      },
-      {
-        type: 'option',
-        sheetNumber: 2,
-        side: 'front',
-        column: 0,
-        row: 0,
-        contestId: 'any',
-        optionId: 'any',
-      },
-      {
-        type: 'option',
-        sheetNumber: 2,
-        side: 'back',
-        column: 0,
-        row: 0,
-        contestId: 'any',
-        optionId: 'any',
-      },
-    ],
-  },
-];
 
 const mockScannerBatches: Tabulation.ScannerBatch[] = [
   {
@@ -353,62 +315,61 @@ test('shows manual counts', () => {
 });
 
 test('shows HMPB sheet counts', () => {
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const electionDefinition =
+    electionFamousNames2021Fixtures.multiSheetElectionDefinition;
 
-  const precinctCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> = [
-    {
-      ...cc(3, undefined, 12, 10),
-      precinctId: 'precinct-1',
-    },
-    {
-      ...cc(9, undefined, 11, 11),
-      precinctId: 'precinct-2',
-    },
-  ];
+  const votingMethodCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
+    [
+      {
+        ...cc(3, undefined, 12, 10, 7),
+        votingMethod: 'absentee',
+      },
+      {
+        ...cc(9, undefined, 11, 11, 10),
+        votingMethod: 'precinct',
+      },
+    ];
 
   render(
     <BallotCountReport
       title="Full Election Ballot Count Report"
       isOfficial={false}
       isTest={false}
-      electionDefinition={{
-        ...electionDefinition,
-        election: {
-          ...electionDefinition.election,
-          gridLayouts: mockMultiSheetGridLayouts,
-        },
-      }}
+      electionDefinition={electionDefinition}
       scannerBatches={mockScannerBatches}
       groupBy={{
-        groupByPrecinct: true,
+        groupByVotingMethod: true,
       }}
-      cardCountsList={precinctCardCountsList}
+      cardCountsList={votingMethodCardCountsList}
       showSheetCounts
     />
   );
 
   const expectedColumns = [
-    'precinct',
+    'voting-method',
     'center',
     'bmd',
     '0',
     '1',
+    '2',
     'total',
     'right',
   ];
   const expectedRows: RowData[] = [
     {
-      precinct: 'Precinct 1',
+      'voting-method': 'Absentee',
       bmd: '3',
       '0': '12',
       '1': '10',
+      '2': '7',
       total: '15',
     },
     {
-      precinct: 'Precinct 2',
+      'voting-method': 'Precinct',
       bmd: '9',
       '0': '11',
       '1': '11',
+      '2': '10',
       total: '20',
     },
   ];
@@ -416,6 +377,7 @@ test('shows HMPB sheet counts', () => {
     bmd: '12',
     '0': '23',
     '1': '21',
+    '2': '17',
     total: '35',
   };
 
