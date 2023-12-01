@@ -727,6 +727,7 @@ function buildApi({
       path: string;
       filter?: Tabulation.Filter;
       groupBy?: Tabulation.GroupBy;
+      includeSheetCounts?: boolean;
     }): Promise<ExportDataResult> {
       debug('exporting ballot count report CSV file: %o', input);
       const exportFileResult = await exportFile({
@@ -735,6 +736,7 @@ function buildApi({
           store,
           filter: input.filter,
           groupBy: input.groupBy,
+          includeSheetCounts: input.includeSheetCounts,
         }),
       });
 

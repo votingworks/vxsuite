@@ -1,4 +1,7 @@
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
@@ -135,6 +138,7 @@ test('uses appropriate headers', async () => {
       store,
       filter: testCase.filter,
       groupBy: testCase.groupBy,
+      includeSheetCounts: false,
     });
     const fileContents = await streamToString(stream);
     const { headers, rows } = parseCsv(fileContents);
@@ -166,6 +170,7 @@ test('includes rows for empty but known result groups', async () => {
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
+    includeSheetCounts: false,
   });
   const fileContents = await streamToString(stream);
   const { rows } = parseCsv(fileContents);
@@ -188,6 +193,7 @@ test('does not include results groups when they are excluded by the filter', asy
   const byVotingMethodStream = generateBallotCountReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
+    includeSheetCounts: false,
   });
   const byVotingMethodFileContents = await streamToString(byVotingMethodStream);
   const { rows: byVotingMethodRows } = parseCsv(byVotingMethodFileContents);
@@ -203,6 +209,7 @@ test('does not include results groups when they are excluded by the filter', asy
     store,
     groupBy: { groupByVotingMethod: true },
     filter: { votingMethods: ['precinct'] },
+    includeSheetCounts: false,
   });
   const precinctFileContests = await streamToString(precinctStream);
   const { rows: precinctRows } = parseCsv(precinctFileContests);
@@ -229,9 +236,139 @@ test('excludes Manual column if no manual data exists', async () => {
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
+    includeSheetCounts: false,
   });
   const fileContents = await streamToString(stream);
   const { headers } = parseCsv(fileContents);
 
   expect(headers).not.toContain('Manual');
+});
+
+test('can include sheet counts', async () => {
+  const store = Store.memoryStore();
+  const electionDefinition =
+    electionFamousNames2021Fixtures.multiSheetElectionDefinition;
+  const { electionData } = electionDefinition;
+  const electionId = store.addElection({
+    electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+  });
+  store.setCurrentElectionId(electionId);
+
+  // add some mock cast vote records with one vote each
+  const mockCastVoteRecordAttributes = {
+    ballotStyleId: '1',
+    batchId: 'batch-1',
+    scannerId: 'scanner-1',
+    votingMethod: 'precinct',
+    votes: {},
+  } as const;
+
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ...mockCastVoteRecordAttributes,
+      precinctId: '20',
+      card: { type: 'bmd' },
+      multiplier: 3,
+    },
+    {
+      ...mockCastVoteRecordAttributes,
+      precinctId: '20',
+      card: { type: 'hmpb', sheetNumber: 1 },
+      multiplier: 12,
+    },
+    {
+      ...mockCastVoteRecordAttributes,
+      precinctId: '20',
+      card: { type: 'hmpb', sheetNumber: 2 },
+      multiplier: 10,
+    },
+    {
+      ...mockCastVoteRecordAttributes,
+      precinctId: '20',
+      card: { type: 'hmpb', sheetNumber: 3 },
+      multiplier: 7,
+    },
+    {
+      ...mockCastVoteRecordAttributes,
+      precinctId: '23',
+      card: { type: 'bmd' },
+      multiplier: 9,
+    },
+    {
+      ...mockCastVoteRecordAttributes,
+      precinctId: '23',
+      card: { type: 'hmpb', sheetNumber: 1 },
+      multiplier: 11,
+    },
+    {
+      ...mockCastVoteRecordAttributes,
+      precinctId: '23',
+      card: { type: 'hmpb', sheetNumber: 2 },
+      multiplier: 11,
+    },
+    {
+      ...mockCastVoteRecordAttributes,
+      precinctId: '23',
+      card: { type: 'hmpb', sheetNumber: 3 },
+      multiplier: 10,
+    },
+  ];
+  addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
+
+  const stream = generateBallotCountReportCsv({
+    store,
+    groupBy: { groupByPrecinct: true },
+    includeSheetCounts: true,
+  });
+  const fileContents = await streamToString(stream);
+  const { headers, rows } = parseCsv(fileContents);
+  expect(headers).toEqual([
+    'Precinct',
+    'Precinct ID',
+    'BMD',
+    'HMPB',
+    'HMPB Sheet 2',
+    'HMPB Sheet 3',
+    'Total',
+  ]);
+
+  expect(rows).toEqual([
+    {
+      BMD: '3',
+      HMPB: '12',
+      'HMPB Sheet 2': '10',
+      'HMPB Sheet 3': '7',
+      Precinct: 'West Lincoln',
+      'Precinct ID': '20',
+      Total: '15',
+    },
+    {
+      BMD: '0',
+      HMPB: '0',
+      'HMPB Sheet 2': '0',
+      'HMPB Sheet 3': '0',
+      Precinct: 'East Lincoln',
+      'Precinct ID': '21',
+      Total: '0',
+    },
+    {
+      BMD: '0',
+      HMPB: '0',
+      'HMPB Sheet 2': '0',
+      'HMPB Sheet 3': '0',
+      Precinct: 'South Lincoln',
+      'Precinct ID': '22',
+      Total: '0',
+    },
+    {
+      BMD: '9',
+      HMPB: '11',
+      'HMPB Sheet 2': '11',
+      'HMPB Sheet 3': '10',
+      Precinct: 'North Lincoln',
+      'Precinct ID': '23',
+      Total: '20',
+    },
+  ]);
 });

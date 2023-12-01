@@ -9,6 +9,7 @@ import { assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
   getBallotCount,
+  getMaxSheetsPerBallot,
   getHmpbBallotCount,
   groupMapToGroupList,
 } from '@votingworks/utils';
@@ -27,17 +28,29 @@ function generateHeaders({
   election,
   metadataStructure,
   hasManualTallies,
+  maxSheetsPerBallot,
 }: {
   election: Election;
   metadataStructure: CsvMetadataStructure;
   hasManualTallies: boolean;
+  maxSheetsPerBallot?: number;
 }): string[] {
   const headers = generateCsvMetadataHeaders({ election, metadataStructure });
 
   if (hasManualTallies) {
     headers.push('Manual');
   }
-  headers.push('BMD', 'HMPB', 'Total');
+
+  headers.push('BMD');
+
+  headers.push('HMPB');
+  if (maxSheetsPerBallot) {
+    for (let i = 2; i <= maxSheetsPerBallot; i += 1) {
+      headers.push(`HMPB Sheet ${i}`);
+    }
+  }
+
+  headers.push('Total');
 
   return headers;
 }
@@ -46,24 +59,39 @@ function buildRow({
   metadataValues,
   cardCounts,
   hasManualTallies,
+  maxSheetsPerBallot,
 }: {
   metadataValues: string[];
   cardCounts: Tabulation.CardCounts;
   hasManualTallies: boolean;
+  maxSheetsPerBallot?: number;
 }): string {
   const values: string[] = [...metadataValues];
 
   const counts: number[] = [];
-  /* c8 ignore next - trivial fallback case */
+  /* c8 ignore next - trivial fallthrough case */
   const manual = cardCounts.manual ?? 0;
   const { bmd } = cardCounts;
-  const hmpb = getHmpbBallotCount(cardCounts);
   const total = getBallotCount(cardCounts);
 
   if (hasManualTallies) {
     counts.push(manual);
   }
-  counts.push(bmd, hmpb, total);
+
+  counts.push(bmd);
+
+  if (maxSheetsPerBallot) {
+    for (let i = 0; i < maxSheetsPerBallot; i += 1) {
+      /* c8 ignore next - trivial fallthrough case */
+      const currentSheetCount = cardCounts.hmpb[i] ?? 0;
+      counts.push(currentSheetCount);
+    }
+  } else {
+    const hmpb = getHmpbBallotCount(cardCounts);
+    counts.push(hmpb);
+  }
+
+  counts.push(total);
 
   return stringify([[...values, ...counts.map((num) => num.toString())]]);
 }
@@ -75,6 +103,7 @@ function* generateDataRows({
   allCardCounts,
   metadataStructure,
   hasManualTallies,
+  maxSheetsPerBallot,
   store,
 }: {
   electionId: Id;
@@ -83,6 +112,7 @@ function* generateDataRows({
   allCardCounts: Tabulation.GroupList<Tabulation.CardCounts>;
   metadataStructure: CsvMetadataStructure;
   hasManualTallies: boolean;
+  maxSheetsPerBallot?: number;
   store: Store;
 }): Generator<string> {
   const batchLookup = generateBatchLookup(store, assertDefined(electionId));
@@ -103,6 +133,7 @@ function* generateDataRows({
       metadataValues,
       cardCounts,
       hasManualTallies,
+      maxSheetsPerBallot,
     });
   }
 }
@@ -119,10 +150,12 @@ export function generateBallotCountReportCsv({
   store,
   filter = {},
   groupBy = {},
+  includeSheetCounts,
 }: {
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
+  includeSheetCounts?: boolean;
 }): NodeJS.ReadableStream {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
@@ -144,11 +177,16 @@ export function generateBallotCountReportCsv({
   const hasManualTallies = // has any manual tallies for entire election, not just for this export
     store.getManualResultsMetadata({ electionId }).length > 0;
 
+  const maxSheetsPerBallot = includeSheetCounts
+    ? getMaxSheetsPerBallot(election)
+    : undefined;
+
   const headerRow = stringify([
     generateHeaders({
       election,
       metadataStructure,
       hasManualTallies,
+      maxSheetsPerBallot,
     }),
   ]);
 
@@ -162,6 +200,7 @@ export function generateBallotCountReportCsv({
       allCardCounts,
       metadataStructure,
       hasManualTallies,
+      maxSheetsPerBallot,
       store,
     })) {
       yield dataRow;
