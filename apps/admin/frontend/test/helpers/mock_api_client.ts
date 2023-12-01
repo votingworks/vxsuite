@@ -338,8 +338,10 @@ export function createApiMock(
       apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },
 
-    expectSaveBallotPackageToUsb(result: Result<void, ExportDataError> = ok()) {
-      apiClient.saveBallotPackageToUsb.expectCallWith().resolves(result);
+    expectSaveElectionPackageToUsb(
+      result: Result<void, ExportDataError> = ok()
+    ) {
+      apiClient.saveElectionPackageToUsb.expectCallWith().resolves(result);
     },
 
     expectExportTallyReportCsv({

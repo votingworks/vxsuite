@@ -2,7 +2,7 @@ import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  BallotPackageConfigurationError,
+  ElectionPackageConfigurationError,
   DEFAULT_SYSTEM_SETTINGS,
   ExportCastVoteRecordsToUsbDriveError,
   PrecinctSelection,
@@ -18,7 +18,7 @@ import express, { Application } from 'express';
 import {
   createUiStringsApi,
   createLogsApi,
-  readBallotPackageFromUsb,
+  readElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
@@ -135,25 +135,25 @@ export function buildApi(
       );
     },
 
-    async configureFromBallotPackageOnUsbDrive(): Promise<
-      Result<void, BallotPackageConfigurationError>
+    async configureFromElectionPackageOnUsbDrive(): Promise<
+      Result<void, ElectionPackageConfigurationError>
     > {
       assert(!store.getElectionDefinition(), 'Already configured');
 
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-      const ballotPackageResult = await readBallotPackageFromUsb(
+      const electionPackageResult = await readElectionPackageFromUsb(
         authStatus,
         usbDrive,
         logger
       );
-      if (ballotPackageResult.isErr()) {
-        return ballotPackageResult;
+      if (electionPackageResult.isErr()) {
+        return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const ballotPackage = ballotPackageResult.ok();
-      const { electionDefinition, systemSettings } = ballotPackage;
+      const electionPackage = electionPackageResult.ok();
+      const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
       let precinctSelection: SinglePrecinctSelection | undefined;
       if (electionDefinition.election.precincts.length === 1) {
@@ -173,7 +173,7 @@ export function buildApi(
         store.setSystemSettings(systemSettings);
 
         configureUiStrings({
-          ballotPackage,
+          electionPackage,
           logger,
           noAudio: true,
           store: workspace.store.getUiStringsStore(),

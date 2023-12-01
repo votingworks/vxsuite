@@ -172,11 +172,11 @@ export const deleteBatch = {
   },
 } as const;
 
-export const configureFromBallotPackageOnUsbDrive = {
+export const configureFromElectionPackageOnUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.configureFromBallotPackageOnUsbDrive, {
+    return useMutation(apiClient.configureFromElectionPackageOnUsbDrive, {
       async onSuccess() {
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());

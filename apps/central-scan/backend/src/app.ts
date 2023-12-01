@@ -6,11 +6,11 @@ import {
 import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
   createLogsApi,
-  readBallotPackageFromUsb,
+  readElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
 import {
-  BallotPackageConfigurationError,
+  ElectionPackageConfigurationError,
   BallotPageLayout,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -148,24 +148,24 @@ function buildApi({
       }
     },
 
-    async configureFromBallotPackageOnUsbDrive(): Promise<
-      Result<ElectionDefinition, BallotPackageConfigurationError>
+    async configureFromElectionPackageOnUsbDrive(): Promise<
+      Result<ElectionDefinition, ElectionPackageConfigurationError>
     > {
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
 
-      const ballotPackageResult = await readBallotPackageFromUsb(
+      const electionPackageResult = await readElectionPackageFromUsb(
         authStatus,
         usbDrive,
         logger
       );
-      if (ballotPackageResult.isErr()) {
-        return ballotPackageResult;
+      if (electionPackageResult.isErr()) {
+        return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const ballotPackage = ballotPackageResult.ok();
-      const { electionDefinition, systemSettings } = ballotPackage;
+      const electionPackage = electionPackageResult.ok();
+      const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
       importer.configure(electionDefinition, authStatus.user.jurisdiction);

@@ -13,13 +13,13 @@ import {
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
-  BALLOT_PACKAGE_FOLDER,
+  ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import { mockBallotPackageFileTree } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import {
@@ -54,7 +54,7 @@ let logger: Logger;
 
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
   const result = await createApp();
@@ -76,7 +76,7 @@ async function setUpUsbAndConfigureElection(
   electionDefinition: ElectionDefinition
 ) {
   mockUsbDrive.insertUsbDrive(
-    await mockBallotPackageFileTree({
+    await mockElectionPackageFileTree({
       electionDefinition,
       systemSettings: safeParseSystemSettings(
         systemSettings.asText()
@@ -84,7 +84,7 @@ async function setUpUsbAndConfigureElection(
     })
   );
 
-  const writeResult = await apiClient.configureBallotPackageFromUsb();
+  const writeResult = await apiClient.configureElectionPackageFromUsb();
   assert(writeResult.isOk());
 }
 
@@ -124,7 +124,7 @@ test('uses default machine config if not set', async () => {
   });
 });
 
-test('configureBallotPackageFromUsb reads to and writes from store', async () => {
+test('configureElectionPackageFromUsb reads to and writes from store', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
 
   mockElectionManagerAuth(electionDefinition);
@@ -157,7 +157,7 @@ test('unconfigureMachine deletes system settings and election definition', async
   expect(electionDefinitionResult).toBeNull();
 });
 
-test('configureBallotPackageFromUsb throws when no USB drive mounted', async () => {
+test('configureElectionPackageFromUsb throws when no USB drive mounted', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   mockElectionManagerAuth(electionDefinition);
 
@@ -165,14 +165,14 @@ test('configureBallotPackageFromUsb throws when no USB drive mounted', async () 
     .expectCallWith()
     .resolves({ status: 'no_drive' });
   await suppressingConsoleOutput(async () => {
-    await expect(apiClient.configureBallotPackageFromUsb()).rejects.toThrow(
+    await expect(apiClient.configureElectionPackageFromUsb()).rejects.toThrow(
       'No USB drive mounted'
     );
   });
 });
 
-test('configureBallotPackageFromUsb returns an error if ballot package parsing fails', async () => {
-  // Lack of auth will cause ballot package reading to throw
+test('configureElectionPackageFromUsb returns an error if election package parsing fails', async () => {
+  // Lack of auth will cause election package reading to throw
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_out',
@@ -182,15 +182,15 @@ test('configureBallotPackageFromUsb returns an error if ballot package parsing f
 
   mockUsbDrive.insertUsbDrive({
     'some-election': {
-      [BALLOT_PACKAGE_FOLDER]: {
-        'test-ballot-package.zip': Buffer.from("doesn't matter"),
+      [ELECTION_PACKAGE_FOLDER]: {
+        'test-election-package.zip': Buffer.from("doesn't matter"),
       },
     },
   });
 
-  const result = await apiClient.configureBallotPackageFromUsb();
+  const result = await apiClient.configureElectionPackageFromUsb();
   assert(result.isErr());
-  expect(result.err()).toEqual('auth_required_before_ballot_package_load');
+  expect(result.err()).toEqual('auth_required_before_election_package_load');
 });
 
 test('usbDrive', async () => {
@@ -220,7 +220,7 @@ async function configureMachine(
   mockElectionManagerAuth(electionDefinition);
 
   usbDrive.insertUsbDrive(
-    await mockBallotPackageFileTree({
+    await mockElectionPackageFileTree({
       electionDefinition,
       systemSettings: safeParseJson(
         systemSettings.asText(),
@@ -229,7 +229,7 @@ async function configureMachine(
     })
   );
 
-  const writeResult = await apiClient.configureBallotPackageFromUsb();
+  const writeResult = await apiClient.configureElectionPackageFromUsb();
   assert(writeResult.isOk());
 
   usbDrive.removeUsbDrive();

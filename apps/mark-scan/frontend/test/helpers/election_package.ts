@@ -19,7 +19,7 @@ export async function configureFromUsbThenRemove(
   electionDefinition: ElectionDefinition
 ): Promise<void> {
   // Insert USB
-  apiMock.expectConfigureBallotPackageFromUsb(electionDefinition);
+  apiMock.expectConfigureElectionPackageFromUsb(electionDefinition);
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   apiMock.expectGetElectionDefinition(electionDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
@@ -27,6 +27,5 @@ export async function configureFromUsbThenRemove(
 
   // Remove USB after configuration is done
   await screen.findByText('Election Definition is loaded.');
-
-  apiMock.setUsbDriveStatus({ status: 'no_drive' });
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('no_drive'));
 }

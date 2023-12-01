@@ -8,7 +8,7 @@ import {
   BallotPaperSize,
   SystemSettings,
   BallotType,
-  BallotPackageFileName,
+  ElectionPackageFileName,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, groupBy, ok, Result } from '@votingworks/basics';
@@ -221,7 +221,7 @@ function buildApi({ store }: { store: Store }) {
       return streamToBuffer(pdf);
     },
 
-    async exportSetupPackage(input: {
+    async exportElectionPackage(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
       const { election, layoutOptions, systemSettings } = store.getElection(
@@ -237,9 +237,12 @@ function buildApi({ store }: { store: Store }) {
       }).unsafeUnwrap();
 
       const zip = new JsZip();
-      zip.file(BallotPackageFileName.ELECTION, electionDefinition.electionData);
       zip.file(
-        BallotPackageFileName.SYSTEM_SETTINGS,
+        ElectionPackageFileName.ELECTION,
+        electionDefinition.electionData
+      );
+      zip.file(
+        ElectionPackageFileName.SYSTEM_SETTINGS,
         JSON.stringify(systemSettings, null, 2)
       );
 

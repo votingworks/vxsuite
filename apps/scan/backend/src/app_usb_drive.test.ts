@@ -18,7 +18,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 });
 

@@ -17,10 +17,10 @@ pnpm start
 The server will be available at http://localhost:3000/. You may find it easier
 to get to certain states from http://localhost:3000/preview.
 
-To set the election configuration you will need to load a ballot package from
+To set the election configuration you will need to load an election package from
 [election-manager](../election-manager). It should be on a USB drive located in
-the folder `ballot-packages`. There can only be one election ballot package in
-that folder. You'll need to run the application inside
+the folder `election-packages`. There can only be one election package in that
+folder. You'll need to run the application inside
 [`kiosk-browser`](https://github.com/votingworks/kiosk-browser).
 
 ## Testing

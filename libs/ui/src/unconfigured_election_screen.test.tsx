@@ -1,4 +1,4 @@
-import { BallotPackageConfigurationError } from '@votingworks/types';
+import { ElectionPackageConfigurationError } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library';
 
 import { UnconfiguredElectionScreen } from './unconfigured_election_screen';
@@ -13,7 +13,7 @@ test('UnconfiguredElectionScreen shows an error message when no USB drive is ins
     />
   );
 
-  await screen.findByText('Insert a USB drive containing a ballot package');
+  await screen.findByText('Insert a USB drive containing an election package');
 });
 
 test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounted and no error message exists', async () => {
@@ -30,28 +30,29 @@ test('UnconfiguredElectionScreen shows a loading screen when USB drive is mounte
 
 test.each([
   {
-    description: 'no ballot package on USB drive',
-    errorString: 'no_ballot_package_on_usb_drive',
-    expectedErrorMessage: 'No ballot package found on the inserted USB drive.',
+    description: 'no election package on USB drive',
+    errorString: 'no_election_package_on_usb_drive',
+    expectedErrorMessage:
+      'No election package found on the inserted USB drive.',
   },
   {
-    description: 'ballot package loading is attempted before authorization',
-    errorString: 'auth_required_before_ballot_package_load',
+    description: 'election package loading is attempted before authorization',
+    errorString: 'auth_required_before_election_package_load',
     expectedErrorMessage:
       'Please insert an election manager card before configuring.',
   },
   {
-    description: 'ballot package authentication errs',
-    errorString: 'ballot_package_authentication_error',
+    description: 'election package authentication errs',
+    errorString: 'election_package_authentication_error',
     expectedErrorMessage:
-      'Error authenticating ballot package. Try exporting it from VxAdmin again.',
+      'Error authenticating election package. Try exporting it from VxAdmin again.',
   },
   {
     description:
-      'election hash on authorized card does not match that on the most recent ballot package',
+      'election hash on authorized card does not match that on the most recent election package',
     errorString: 'election_hash_mismatch',
     expectedErrorMessage:
-      'The most recent ballot package found is for a different election.',
+      'The most recent election package found is for a different election.',
   },
 ])(
   'UnconfiguredElectionScreen shows an error when $description',
@@ -59,7 +60,7 @@ test.each([
     render(
       <UnconfiguredElectionScreen
         usbDriveStatus={mockUsbDriveStatus('mounted')}
-        backendConfigError={errorString as BallotPackageConfigurationError}
+        backendConfigError={errorString as ElectionPackageConfigurationError}
         isElectionManagerAuth
         machineName="VxScan"
       />

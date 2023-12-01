@@ -162,11 +162,11 @@ export const ejectUsbDrive = {
 
 export const uiStringsApi = createUiStringsApi(useApiClient);
 
-export const configureFromBallotPackageOnUsbDrive = {
+export const configureFromElectionPackageOnUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.configureFromBallotPackageOnUsbDrive, {
+    return useMutation(apiClient.configureFromElectionPackageOnUsbDrive, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);

@@ -79,8 +79,8 @@ test('configure and scan hmpb', async () => {
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, logger, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
+        electionPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(),
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
@@ -127,7 +127,7 @@ test('configure and scan hmpb', async () => {
 
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 });
 
@@ -195,8 +195,8 @@ test('ballot needs review - return', async () => {
       mockAuth,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+        electionPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(
             {
               ...DEFAULT_SYSTEM_SETTINGS,
               precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],

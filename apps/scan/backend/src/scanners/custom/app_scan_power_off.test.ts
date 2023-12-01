@@ -38,7 +38,7 @@ const needsReviewInterpretation: SheetInterpretation = {
 
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 });
 
@@ -193,8 +193,8 @@ test('scanner powered off while returning', async () => {
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+        electionPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(
             {
               ...DEFAULT_SYSTEM_SETTINGS,
               precinctScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
@@ -230,8 +230,8 @@ test('scanner powered off after returning', async () => {
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+        electionPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(
             {
               ...DEFAULT_SYSTEM_SETTINGS,
               precinctScanAdjudicationReasons: [AdjudicationReason.BlankBallot],

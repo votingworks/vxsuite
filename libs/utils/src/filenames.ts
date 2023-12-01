@@ -7,7 +7,7 @@ const SUBSECTION_SEPARATOR = '_';
 const WORD_SEPARATOR = '-';
 const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
 
-export const BALLOT_PACKAGE_FOLDER = 'ballot-packages';
+export const ELECTION_PACKAGE_FOLDER = 'election-packages';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
 export const SCANNER_BACKUPS_FOLDER = 'scanner-backups';
 export const TEST_FILE_PREFIX = 'TEST';
@@ -72,12 +72,12 @@ function generateElectionName(election: Election): string {
   return `${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}`;
 }
 
-/* Generate the name for a ballot export package */
-export function generateFilenameForBallotExportPackage(
+/* Generate the name for an election package */
+export function generateFilenameForElectionPackage(
   time: Date = new Date()
 ): string {
   const timeInformation = moment(time).format(TIME_FORMAT_STRING);
-  return `ballot-package${SECTION_SEPARATOR}${timeInformation}.zip`;
+  return `election-package${SECTION_SEPARATOR}${timeInformation}.zip`;
 }
 
 /* Generate the filename for final sems results export from election manager */

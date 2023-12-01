@@ -227,11 +227,11 @@ export const endCardlessVoterSession = {
 
 export const uiStringsApi = createUiStringsApi(useApiClient);
 
-export const configureBallotPackageFromUsb = {
+export const configureElectionPackageFromUsb = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(() => apiClient.configureBallotPackageFromUsb(), {
+    return useMutation(() => apiClient.configureElectionPackageFromUsb(), {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionDefinition.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());

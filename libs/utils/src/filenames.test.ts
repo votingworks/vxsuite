@@ -6,7 +6,7 @@ import {
 import { Election } from '@votingworks/types';
 import {
   generateElectionBasedSubfolderName,
-  generateFilenameForBallotExportPackage,
+  generateFilenameForElectionPackage,
   generateLogFilename,
   LogFileType,
   generateSemsFinalExportDefaultFilename,
@@ -63,8 +63,8 @@ describe('generateElectionBasedSubfolderName', () => {
 
 test('generates ballot export package name with zero padded time pieces', () => {
   const time = new Date(2019, 2, 1, 1, 9, 2);
-  expect(generateFilenameForBallotExportPackage(time)).toEqual(
-    'ballot-package__2019-03-01_01-09-02.zip'
+  expect(generateFilenameForElectionPackage(time)).toEqual(
+    'election-package__2019-03-01_01-09-02.zip'
   );
 });
 

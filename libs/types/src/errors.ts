@@ -1,10 +1,10 @@
 /**
- * Possible errors that can occur during ballot package configuration
+ * Possible errors that can occur during election package configuration
  */
-export type BallotPackageConfigurationError =
-  | 'no_ballot_package_on_usb_drive'
-  | 'auth_required_before_ballot_package_load'
-  | 'ballot_package_authentication_error'
+export type ElectionPackageConfigurationError =
+  | 'no_election_package_on_usb_drive'
+  | 'auth_required_before_election_package_load'
+  | 'election_package_authentication_error'
   | 'election_hash_mismatch';
 
 export type ExportDataError =

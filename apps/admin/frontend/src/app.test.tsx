@@ -461,7 +461,7 @@ test('can not view or print ballots', async () => {
 
   await apiMock.logOut();
   await apiMock.authenticateAsElectionManager(electionDefinition);
-  screen.getByText('Save Ballot Package');
+  screen.getByText('Save Election Package');
 });
 
 test('election manager UI has expected nav', async () => {

@@ -36,7 +36,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 });
 
@@ -139,8 +139,8 @@ test('insert second ballot while first ballot needs review', async () => {
     },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+        electionPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(
             {
               ...DEFAULT_SYSTEM_SETTINGS,
               precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],

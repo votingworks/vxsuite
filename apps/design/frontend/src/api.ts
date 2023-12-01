@@ -157,9 +157,9 @@ export const exportBallot = {
   },
 } as const;
 
-export const exportSetupPackage = {
+export const exportElectionPackage = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.exportSetupPackage);
+    return useMutation(apiClient.exportElectionPackage);
   },
 } as const;

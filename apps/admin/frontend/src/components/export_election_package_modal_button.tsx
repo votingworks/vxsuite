@@ -10,7 +10,7 @@ import type { ExportDataError } from '@votingworks/admin-backend';
 
 import {
   ejectUsbDrive,
-  saveBallotPackageToUsb as saveBallotPackageToUsbBase,
+  saveElectionPackageToUsb as saveElectionPackageToUsbBase,
 } from '../api';
 import { AppContext } from '../contexts/app_context';
 
@@ -33,12 +33,12 @@ const ErrorMessages: Record<ExportDataError['type'], string> = {
   'relative-file-path': 'Error reading from USB',
 };
 
-export function ExportElectionBallotPackageModalButton(): JSX.Element {
+export function ExportElectionPackageModalButton(): JSX.Element {
   const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
-  const saveBallotPackageToUsbMutation =
-    saveBallotPackageToUsbBase.useMutation();
+  const saveElectionPackageToUsbMutation =
+    saveElectionPackageToUsbBase.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   const [saveState, setSaveState] = useState<SaveState>({ state: 'unsaved' });
@@ -50,8 +50,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     setSaveState({ state: 'unsaved' });
   }
 
-  async function saveBallotPackageToUsb() {
-    const result = await saveBallotPackageToUsbMutation.mutateAsync();
+  async function saveElectionPackageToUsb() {
+    const result = await saveElectionPackageToUsbMutation.mutateAsync();
     if (result.isErr()) {
       setSaveState({ state: 'error', error: result.err() });
       return;
@@ -84,7 +84,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             <React.Fragment>
               <Button
                 icon="Export"
-                onPress={saveBallotPackageToUsb}
+                onPress={saveElectionPackageToUsb}
                 variant="primary"
               >
                 Save

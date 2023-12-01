@@ -5,7 +5,7 @@ import { renderHook, waitFor } from '../test/react_testing_library';
 import {
   ApiClient,
   ApiClientContext,
-  configureBallotPackageFromUsb,
+  configureElectionPackageFromUsb,
   createApiClient,
   uiStringsApi,
   unconfigureMachine,
@@ -14,7 +14,7 @@ import {
 const queryClient = new QueryClient();
 const mockBackendApi: ApiClient = {
   ...createApiClient(),
-  configureBallotPackageFromUsb: jest.fn(),
+  configureElectionPackageFromUsb: jest.fn(),
   unconfigureMachine: jest.fn(),
 };
 
@@ -37,15 +37,15 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
-test('configureBallotPackageFromUsb', async () => {
+test('configureElectionPackageFromUsb', async () => {
   jest
     .mocked(mockBackendApi)
-    .configureBallotPackageFromUsb.mockResolvedValueOnce(
+    .configureElectionPackageFromUsb.mockResolvedValueOnce(
       ok(electionGeneralDefinition)
     );
 
   const { result } = renderHook(
-    () => configureBallotPackageFromUsb.useMutation(),
+    () => configureElectionPackageFromUsb.useMutation(),
     { wrapper: QueryWrapper }
   );
 

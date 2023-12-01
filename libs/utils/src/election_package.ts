@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
 import {
-  BallotPackage,
-  BallotPackageFileName,
+  ElectionPackage,
+  ElectionPackageFileName,
   DEFAULT_SYSTEM_SETTINGS,
   UiStringAudioIdsPackage,
   UiStringAudioIdsPackageSchema,
@@ -24,15 +24,15 @@ import {
 } from './file_reading';
 import { extractCdfUiStrings } from './extract_cdf_ui_strings';
 
-export async function readBallotPackageFromBuffer(
+export async function readElectionPackageFromBuffer(
   source: Buffer
-): Promise<BallotPackage> {
+): Promise<ElectionPackage> {
   const zipfile = await openZip(source);
-  const zipName = 'ballot package';
+  const zipName = 'election package';
   const entries = getEntries(zipfile);
   const electionEntry = getFileByName(
     entries,
-    BallotPackageFileName.ELECTION,
+    ElectionPackageFileName.ELECTION,
     zipName
   );
 
@@ -42,7 +42,7 @@ export async function readBallotPackageFromBuffer(
 
   const systemSettingsEntry = maybeGetFileByName(
     entries,
-    BallotPackageFileName.SYSTEM_SETTINGS
+    ElectionPackageFileName.SYSTEM_SETTINGS
   );
   if (systemSettingsEntry) {
     systemSettingsData = await readTextEntry(systemSettingsEntry);
@@ -59,7 +59,7 @@ export async function readBallotPackageFromBuffer(
   const uiStrings: UiStringsPackage = {};
   const appStringsEntry = maybeGetFileByName(
     entries,
-    BallotPackageFileName.APP_STRINGS
+    ElectionPackageFileName.APP_STRINGS
   );
   if (appStringsEntry) {
     const appStrings = safeParseJson(
@@ -73,7 +73,7 @@ export async function readBallotPackageFromBuffer(
   // Extract non-CDF election strings:
   const vxElectionStringsEntry = maybeGetFileByName(
     entries,
-    BallotPackageFileName.VX_ELECTION_STRINGS
+    ElectionPackageFileName.VX_ELECTION_STRINGS
   );
   if (vxElectionStringsEntry) {
     const vxElectionStrings = safeParseJson(
@@ -94,7 +94,7 @@ export async function readBallotPackageFromBuffer(
   let uiStringAudioIds: UiStringAudioIdsPackage | undefined;
   const audioIdsEntry = maybeGetFileByName(
     entries,
-    BallotPackageFileName.UI_STRING_AUDIO_IDS
+    ElectionPackageFileName.UI_STRING_AUDIO_IDS
   );
   if (audioIdsEntry) {
     uiStringAudioIds = safeParseJson(
@@ -114,8 +114,8 @@ export async function readBallotPackageFromBuffer(
   };
 }
 
-export async function readBallotPackageFromFile(
+export async function readElectionPackageFromFile(
   file: File
-): Promise<BallotPackage> {
-  return readBallotPackageFromBuffer(await readFile(file));
+): Promise<ElectionPackage> {
+  return readElectionPackageFromBuffer(await readFile(file));
 }

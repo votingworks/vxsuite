@@ -1,7 +1,7 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
-  BallotPackageFileName,
+  ElectionPackageFileName,
   CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -34,9 +34,9 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { createReadStream, createWriteStream, promises as fs } from 'fs';
 import path, { join } from 'path';
 import {
-  BALLOT_PACKAGE_FOLDER,
+  ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
-  generateFilenameForBallotExportPackage,
+  generateFilenameForElectionPackage,
   groupMapToGroupList,
   isIntegrationTest,
 } from '@votingworks/utils';
@@ -214,8 +214,8 @@ function buildApi({
       }
     },
 
-    async saveBallotPackageToUsb(): Promise<Result<void, ExportDataError>> {
-      await logger.log(LogEventId.SaveBallotPackageInit, 'election_manager');
+    async saveElectionPackageToUsb(): Promise<Result<void, ExportDataError>> {
+      await logger.log(LogEventId.SaveElectionPackageInit, 'election_manager');
       const exporter = buildExporter(usbDrive);
 
       const electionRecord = getCurrentElectionRecord(workspace);
@@ -226,46 +226,46 @@ function buildApi({
 
       const tempDirectory = dirSync().name;
       try {
-        const ballotPackageFileName = generateFilenameForBallotExportPackage(
+        const electionPackageFileName = generateFilenameForElectionPackage(
           new Date()
         );
-        const tempDirectoryBallotPackageFilePath = join(
+        const tempDirectoryElectionPackageFilePath = join(
           tempDirectory,
-          ballotPackageFileName
+          electionPackageFileName
         );
 
-        const ballotPackageZipStream = new ZipStream();
-        const ballotPackageZipPromise = deferred<void>();
-        ballotPackageZipStream.on('error', ballotPackageZipPromise.reject);
-        ballotPackageZipStream.on('end', ballotPackageZipPromise.resolve);
-        ballotPackageZipStream.pipe(
-          createWriteStream(tempDirectoryBallotPackageFilePath)
+        const electionPackageZipStream = new ZipStream();
+        const electionPackageZipPromise = deferred<void>();
+        electionPackageZipStream.on('error', electionPackageZipPromise.reject);
+        electionPackageZipStream.on('end', electionPackageZipPromise.resolve);
+        electionPackageZipStream.pipe(
+          createWriteStream(tempDirectoryElectionPackageFilePath)
         );
-        await addFileToZipStream(ballotPackageZipStream, {
-          path: BallotPackageFileName.ELECTION,
+        await addFileToZipStream(electionPackageZipStream, {
+          path: ElectionPackageFileName.ELECTION,
           contents: electionDefinition.electionData,
         });
-        await addFileToZipStream(ballotPackageZipStream, {
-          path: BallotPackageFileName.SYSTEM_SETTINGS,
+        await addFileToZipStream(electionPackageZipStream, {
+          path: ElectionPackageFileName.SYSTEM_SETTINGS,
           contents: JSON.stringify(systemSettings, null, 2),
         });
 
         // TODO(kofi): Include translation/audio files in the package export.
 
-        ballotPackageZipStream.finish();
-        await ballotPackageZipPromise.promise;
+        electionPackageZipStream.finish();
+        await electionPackageZipPromise.promise;
 
-        const usbDriveBallotPackageDirectoryRelativePath = join(
+        const usbDriveElectionPackageDirectoryRelativePath = join(
           generateElectionBasedSubfolderName(election, electionHash),
-          BALLOT_PACKAGE_FOLDER
+          ELECTION_PACKAGE_FOLDER
         );
-        const exportBallotPackageResult = await exporter.exportDataToUsbDrive(
-          usbDriveBallotPackageDirectoryRelativePath,
-          ballotPackageFileName,
-          createReadStream(tempDirectoryBallotPackageFilePath)
+        const exportElectionPackageResult = await exporter.exportDataToUsbDrive(
+          usbDriveElectionPackageDirectoryRelativePath,
+          electionPackageFileName,
+          createReadStream(tempDirectoryElectionPackageFilePath)
         );
-        if (exportBallotPackageResult.isErr()) {
-          return exportBallotPackageResult;
+        if (exportElectionPackageResult.isErr()) {
+          return exportElectionPackageResult;
         }
 
         const signatureFile = await prepareSignatureFile({
@@ -273,10 +273,10 @@ function buildApi({
           // For protection against compromised/faulty USBs, we sign data as it exists on the
           // machine, not the USB, as a compromised/faulty USB could claim to have written the data
           // that we asked it to but actually have written something else.
-          filePath: tempDirectoryBallotPackageFilePath,
+          filePath: tempDirectoryElectionPackageFilePath,
         });
         const exportSignatureFileResult = await exporter.exportDataToUsbDrive(
-          usbDriveBallotPackageDirectoryRelativePath,
+          usbDriveElectionPackageDirectoryRelativePath,
           signatureFile.fileName,
           signatureFile.fileContents
         );
@@ -291,11 +291,11 @@ function buildApi({
       }
 
       await logger.log(
-        LogEventId.SaveBallotPackageComplete,
+        LogEventId.SaveElectionPackageComplete,
         'election_manager',
         {
           disposition: 'success',
-          message: 'Successfully saved ballot package.',
+          message: 'Successfully saved election package.',
         }
       );
       return ok();

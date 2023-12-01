@@ -7,23 +7,20 @@ import {
   readTextEntry,
   getFileByName,
 } from '@votingworks/utils';
-import { BallotPackageFileName } from '@votingworks/types';
+import { ElectionPackageFileName } from '@votingworks/types';
 import type { ConfigureError } from '@votingworks/admin-backend';
 import { Result, ok, err } from '@votingworks/basics';
 
-// InitialAdminSetupPackage models the zip file read in by VxAdmin when a system admin configures the machine.
-// It's the delivery method for the system settings file.
-// VxAdmin is the only machine to read system settings this way; other machines read system settings
-// in via the ballot package which is exported by Vx Therefore we need a different way for
-// VxAdmin to ingest system settings.
-export interface InitialAdminSetupPackage {
+// InitialAdminElectionPackage models the unsigned election package exported from
+// VxDesign and imported into VxAdmin.
+export interface InitialAdminElectionPackage {
   systemSettingsString: string;
   electionString: string;
 }
 
-async function readInitialAdminSetupPackageFromBuffer(
+async function readInitialAdminElectionPackageFromBuffer(
   source: Buffer
-): Promise<Result<InitialAdminSetupPackage, ConfigureError>> {
+): Promise<Result<InitialAdminElectionPackage, ConfigureError>> {
   let electionString: string;
   let systemSettingsString: string;
 
@@ -32,12 +29,12 @@ async function readInitialAdminSetupPackageFromBuffer(
     const entries = getEntries(zipfile);
     const electionEntry = getFileByName(
       entries,
-      BallotPackageFileName.ELECTION
+      ElectionPackageFileName.ELECTION
     );
     electionString = await readTextEntry(electionEntry);
     const systemSettingsEntry = getFileByName(
       entries,
-      BallotPackageFileName.SYSTEM_SETTINGS
+      ElectionPackageFileName.SYSTEM_SETTINGS
     );
     systemSettingsString = await readTextEntry(systemSettingsEntry);
 
@@ -52,8 +49,8 @@ async function readInitialAdminSetupPackageFromBuffer(
   }
 }
 
-export async function readInitialAdminSetupPackageFromFile(
+export async function readInitialAdminElectionPackageFromFile(
   file: File
-): Promise<Result<InitialAdminSetupPackage, ConfigureError>> {
-  return readInitialAdminSetupPackageFromBuffer(await readFile(file));
+): Promise<Result<InitialAdminElectionPackage, ConfigureError>> {
+  return readInitialAdminElectionPackageFromBuffer(await readFile(file));
 }

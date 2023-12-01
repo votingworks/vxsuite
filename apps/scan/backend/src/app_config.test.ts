@@ -28,7 +28,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   getCastVoteRecordExportDirectoryPaths,
-  mockBallotPackageFileTree,
+  mockElectionPackageFileTree,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -70,7 +70,7 @@ function mockLoggedOut(mockAuth: InsertedSmartCardAuthApi) {
 beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 });
 
@@ -101,42 +101,42 @@ test('uses default machine config if not set', async () => {
   });
 });
 
-test("fails to configure if there's no ballot package on the usb drive", async () => {
+test("fails to configure if there's no election package on the usb drive", async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
     mockElectionManager(mockAuth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive({});
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      err('no_ballot_package_on_usb_drive')
+    expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
+      err('no_election_package_on_usb_drive')
     );
 
     mockUsbDrive.insertUsbDrive({});
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      err('no_ballot_package_on_usb_drive')
+    expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
+      err('no_election_package_on_usb_drive')
     );
   });
 });
 
-test('fails to configure ballot package if logged out', async () => {
+test('fails to configure election package if logged out', async () => {
   await withApp({}, async ({ apiClient, mockAuth }) => {
     mockLoggedOut(mockAuth);
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
-      err('auth_required_before_ballot_package_load')
+    expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
+      err('auth_required_before_election_package_load')
     );
   });
 });
 
-test('fails to configure ballot package if election definition on card does not match that of the ballot package', async () => {
+test('fails to configure election package if election definition on card does not match that of the election package', async () => {
   await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(
       mockAuth,
       electionFamousNames2021Fixtures.electionDefinition
     );
     mockUsbDrive.insertUsbDrive(
-      await mockBallotPackageFileTree({
+      await mockElectionPackageFileTree({
         electionDefinition: electionGeneralDefinition,
       })
     );
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
+    expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
       err('election_hash_mismatch')
     );
   });
@@ -148,11 +148,11 @@ test("if there's only one precinct in the election, it's selected automatically 
   await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(mockAuth, electionDefinition);
     mockUsbDrive.insertUsbDrive(
-      await mockBallotPackageFileTree({
+      await mockElectionPackageFileTree({
         electionDefinition,
       })
     );
-    expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(
+    expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
       ok()
     );
     const config = await apiClient.getConfig();
