@@ -3,23 +3,23 @@ import {
   electionGeneralDefinition,
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
-import { getElectionSheetCount } from '.';
+import { getMaxSheetsPerBallot } from '.';
 
-test('getElectionSheetCount', () => {
+test('getMaxSheetsPerBallot', () => {
   // election with no gridLayouts available
   expect(
-    getElectionSheetCount(electionGeneralDefinition.election)
+    getMaxSheetsPerBallot(electionGeneralDefinition.election)
   ).toBeUndefined();
 
   // single page election
   expect(
-    getElectionSheetCount(
+    getMaxSheetsPerBallot(
       electionGridLayoutNewHampshireAmherstFixtures.election
     )
   ).toEqual(1);
 
   // multi-page election
   expect(
-    getElectionSheetCount(electionFamousNames2021Fixtures.multiSheetElection)
+    getMaxSheetsPerBallot(electionFamousNames2021Fixtures.multiSheetElection)
   ).toEqual(3);
 });

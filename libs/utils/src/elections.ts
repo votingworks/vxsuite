@@ -1,7 +1,7 @@
 import { Optional, unique } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 
-export function getElectionSheetCount(election: Election): Optional<number> {
+export function getMaxSheetsPerBallot(election: Election): Optional<number> {
   if (!election.gridLayouts) {
     return undefined;
   }

@@ -11,7 +11,7 @@ import {
   determinePartyId,
   format,
   getBallotCount,
-  getElectionSheetCount,
+  getMaxSheetsPerBallot,
   getGroupKey,
   getHmpbBallotCount,
   getPartyById,
@@ -465,7 +465,7 @@ function BallotCountTable({
   // election. it's the caller's responsibility to check the election definition
   if (showSheetCounts) {
     // istanbul ignore next - trivial default value
-    const sheetCount = getElectionSheetCount(election) ?? 1;
+    const sheetCount = getMaxSheetsPerBallot(election) ?? 1;
     for (let i = 0; i < sheetCount; i += 1) {
       columns.push({ type: 'sheet-count', id: i });
     }
