@@ -96,6 +96,11 @@ test('exportLogsToUsb works when all conditions are met', async () => {
   expect((await api.exportLogsToUsb()).isOk()).toBeTruthy();
   expect(mockOf(fs.stat)).toHaveBeenCalledWith('/var/log/votingworks');
 
+  expect(execFileMock).toHaveBeenCalledWith('mkdir', [
+    '-p',
+    '/media/usb-drive/logs/machine_TEST-MACHINE-ID',
+  ]);
+
   expect(execFileMock).toHaveBeenCalledWith('cp', [
     '-r',
     '/var/log/votingworks',
