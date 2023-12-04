@@ -160,7 +160,7 @@ export function AppRoot({
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
-  const { cardReader, accessibleController, computer } = devices;
+  const { accessibleController, computer } = devices;
 
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
@@ -331,7 +331,10 @@ export function AppRoot({
   const machineConfig = machineConfigQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
 
-  if (!cardReader) {
+  if (
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'no_card_reader'
+  ) {
     return <SetupCardReaderPage />;
   }
 

@@ -82,11 +82,7 @@ export function AppRoot({
     }
   }
 
-  const {
-    cardReader,
-    computer,
-    printer: printerInfo,
-  } = useDevices({
+  const { computer, printer: printerInfo } = useDevices({
     hardware,
     logger,
   });
@@ -128,7 +124,10 @@ export function AppRoot({
   const pollsInfo = pollsInfoQuery.data;
   const { pollsState } = pollsInfo;
 
-  if (!cardReader) {
+  if (
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'no_card_reader'
+  ) {
     return <SetupCardReaderPage />;
   }
 

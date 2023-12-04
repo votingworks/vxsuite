@@ -19,7 +19,6 @@ export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
   const screenReader = new AriaScreenReader(mockTts);
   const logger = fakeLogger();
   const hardware = MemoryHardware.build({
-    connectCardReader: true,
     connectPrinter: true,
     connectAccessibleController: true,
   });

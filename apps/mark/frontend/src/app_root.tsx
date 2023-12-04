@@ -157,12 +157,7 @@ export function AppRoot({
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
-  const {
-    cardReader,
-    printer: printerInfo,
-    accessibleController,
-    computer,
-  } = devices;
+  const { printer: printerInfo, accessibleController, computer } = devices;
   const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
@@ -376,7 +371,10 @@ export function AppRoot({
   const usbDriveStatus = usbDriveStatusQuery.data;
   const machineConfig = machineConfigQuery.data;
 
-  if (!cardReader) {
+  if (
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'no_card_reader'
+  ) {
     return <SetupCardReaderPage />;
   }
   if (

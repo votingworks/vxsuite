@@ -155,6 +155,20 @@ async function logInAsElectionManager(
   mockOf(mockLogger.log).mockClear();
 }
 
+test('no card reader', async () => {
+  const auth = new DippedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+
+  mockCardStatus({ status: 'no_card_reader' });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_out',
+    reason: 'no_card_reader',
+  });
+});
+
 test.each<{
   description: string;
   cardStatus: CardStatus;

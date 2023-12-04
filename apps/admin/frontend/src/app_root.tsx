@@ -27,7 +27,7 @@ export function AppRoot({
   logger,
   generateBallotId = randomBallotId,
 }: Props): JSX.Element | null {
-  const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
+  const { printer: printerInfo } = useDevices({ hardware, logger });
 
   const authStatusQuery = getAuthStatus.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
@@ -46,6 +46,10 @@ export function AppRoot({
     return null;
   }
 
+  const hasCardReaderAttached = !(
+    authStatusQuery.data.status === 'logged_out' &&
+    authStatusQuery.data.reason === 'no_card_reader'
+  );
   const usbDriveStatus = usbDriveStatusQuery.data;
 
   return (
@@ -61,7 +65,7 @@ export function AppRoot({
         generateBallotId,
         auth: authStatusQuery.data,
         machineConfig: getMachineConfigQuery.data,
-        hasCardReaderAttached: !!cardReader,
+        hasCardReaderAttached,
         hasPrinterAttached: !!printerInfo,
         logger,
       }}

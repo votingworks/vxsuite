@@ -6,7 +6,6 @@ import { App } from '../../src/app';
 export function buildStandardScanHardware(): MemoryHardware {
   return MemoryHardware.build({
     connectPrinter: true,
-    connectCardReader: true,
     connectPrecinctScanner: true,
   });
 }

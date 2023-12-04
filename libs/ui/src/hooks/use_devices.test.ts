@@ -9,10 +9,6 @@ import {
   FujitsuScannerVendorId,
   isFeatureFlagEnabled,
   MemoryHardware,
-  OmniKeyCardReaderDeviceName,
-  OmniKeyCardReaderManufacturer,
-  OmniKeyCardReaderProductId,
-  OmniKeyCardReaderVendorId,
 } from '@votingworks/utils';
 import { act, renderHook, waitFor } from '../../test/react_testing_library';
 import { BATTERY_POLLING_INTERVAL, Devices, useDevices } from './use_devices';
@@ -35,20 +31,9 @@ const emptyDevices: Devices = {
     batteryIsLow: false,
     batteryIsCharging: true,
   },
-  cardReader: undefined,
   accessibleController: undefined,
   batchScanner: undefined,
   precinctScanner: undefined,
-};
-
-const expectedCardReader: Devices['cardReader'] = {
-  deviceAddress: 0,
-  deviceName: OmniKeyCardReaderDeviceName,
-  locationId: 0,
-  manufacturer: OmniKeyCardReaderManufacturer,
-  productId: OmniKeyCardReaderProductId,
-  serialNumber: '',
-  vendorId: OmniKeyCardReaderVendorId,
 };
 
 test('can connect printer as expected', () => {
@@ -116,47 +101,6 @@ test('can connect printer as expected', () => {
     'system',
     expect.objectContaining({
       message: expect.stringContaining('Printer'),
-    })
-  );
-
-  // Prevent `act` warning.
-  unmount();
-});
-
-test('can connect card reader as expected', () => {
-  const hardware = new MemoryHardware();
-  const logger = fakeLogger();
-  const { result, rerender, unmount } = renderHook(() =>
-    useDevices({ hardware, logger })
-  );
-  expect(result.current).toEqual(emptyDevices);
-  expect(logger.log).toHaveBeenCalledTimes(0);
-
-  act(() => hardware.setCardReaderConnected(true));
-  rerender();
-  expect(result.current.cardReader).toEqual(expectedCardReader);
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.DeviceAttached,
-    'system',
-    expect.objectContaining({
-      message: expect.stringContaining('New Card Reader'),
-      productId: OmniKeyCardReaderProductId,
-      vendorId: OmniKeyCardReaderVendorId,
-    })
-  );
-
-  act(() => hardware.setCardReaderConnected(false));
-  rerender();
-  expect(result.current.cardReader).toBeUndefined();
-  expect(logger.log).toHaveBeenCalledTimes(2);
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.DeviceUnattached,
-    'system',
-    expect.objectContaining({
-      message: expect.stringContaining('Card Reader'),
-      productId: OmniKeyCardReaderProductId,
-      vendorId: OmniKeyCardReaderVendorId,
     })
   );
 
@@ -408,20 +352,5 @@ test('periodically polls for computer battery status', async () => {
     });
   });
 
-  unmount();
-});
-
-test('when card reader check is disabled, fake one returned even if no hardware detected.', () => {
-  const hardware = new MemoryHardware();
-  const logger = fakeLogger();
-  mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
-
-  const { result, unmount } = renderHook(() =>
-    useDevices({ hardware, logger })
-  );
-
-  expect(result.current.cardReader).toEqual(expectedCardReader);
-
-  // Prevent `act` warning.
   unmount();
 });

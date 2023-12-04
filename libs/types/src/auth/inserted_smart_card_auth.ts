@@ -9,6 +9,7 @@ import {
 export interface LoggedOut {
   readonly status: 'logged_out';
   readonly reason:
+    | 'no_card_reader'
     | 'card_error'
     | 'invalid_user_on_card'
     | 'machine_not_configured'

@@ -5,10 +5,6 @@ import {
   AccessibleControllerVendorId,
   BrotherHll5100DnProductId,
   BrotherHll5100DnVendorId,
-  OmniKeyCardReaderDeviceName,
-  OmniKeyCardReaderManufacturer,
-  OmniKeyCardReaderProductId,
-  OmniKeyCardReaderVendorId,
   FujitsuScannerVendorId,
   FujitsuFi7160ScannerProductId,
   isPrinter,
@@ -68,16 +64,6 @@ export class MemoryHardware implements Hardware {
 
   private printerIppAttributes = DEFAULT_PRINTER_IPP_ATTRIBUTES;
 
-  private readonly cardReader: Readonly<KioskBrowser.Device> = {
-    deviceAddress: 0,
-    deviceName: OmniKeyCardReaderDeviceName,
-    locationId: 0,
-    manufacturer: OmniKeyCardReaderManufacturer,
-    vendorId: OmniKeyCardReaderVendorId,
-    productId: OmniKeyCardReaderProductId,
-    serialNumber: '',
-  };
-
   private readonly batchScanner: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: 'Scanner',
@@ -101,13 +87,11 @@ export class MemoryHardware implements Hardware {
   static build({
     connectPrinter = false,
     connectAccessibleController = false,
-    connectCardReader = false,
     connectBatchScanner = false,
     connectPrecinctScanner = false,
   }: {
     connectPrinter?: boolean;
     connectAccessibleController?: boolean;
-    connectCardReader?: boolean;
     connectBatchScanner?: boolean;
     connectPrecinctScanner?: boolean;
   } = {}): MemoryHardware {
@@ -116,7 +100,6 @@ export class MemoryHardware implements Hardware {
     newMemoryHardware.setAccessibleControllerConnected(
       connectAccessibleController
     );
-    newMemoryHardware.setCardReaderConnected(connectCardReader);
     newMemoryHardware.setBatchScannerConnected(connectBatchScanner);
     newMemoryHardware.setPrecinctScannerConnected(connectPrecinctScanner);
     return newMemoryHardware;
@@ -126,7 +109,6 @@ export class MemoryHardware implements Hardware {
     return MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: true,
-      connectCardReader: true,
       connectBatchScanner: true,
       connectPrecinctScanner: true,
     });
@@ -136,7 +118,6 @@ export class MemoryHardware implements Hardware {
     return MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: false,
-      connectCardReader: true,
       connectBatchScanner: true,
       connectPrecinctScanner: true,
     });
@@ -197,13 +178,6 @@ export class MemoryHardware implements Hardware {
    */
   removeBattery(): void {
     this.batteryStatus = undefined;
-  }
-
-  /**
-   * Sets Card Reader connected
-   */
-  setCardReaderConnected(connected: boolean): void {
-    this.setDeviceConnected(this.cardReader, connected);
   }
 
   /**

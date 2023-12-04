@@ -1,6 +1,5 @@
 import { fakeDevice } from '@votingworks/test-utils';
 import { MemoryHardware } from './memory_hardware';
-import { OmniKeyCardReaderDeviceName } from './utils';
 
 it('has a standard config with all the typical hardware', async () => {
   const hardware = MemoryHardware.buildStandard();
@@ -11,7 +10,6 @@ it('has a standard config with all the typical hardware', async () => {
         new Set(Array.from(devices).map((device) => device.deviceName))
       ).toEqual(
         new Set([
-          OmniKeyCardReaderDeviceName,
           'USB Advanced Audio Device',
           'HL-L5100DN_series',
           'Scanner',
