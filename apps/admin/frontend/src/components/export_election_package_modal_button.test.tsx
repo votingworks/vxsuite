@@ -135,7 +135,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
   expect(queryAllByTestId('modal')).toHaveLength(1);
   expect(
     queryByText(
-      'You may now eject the USB drive. Use the saved election package on this USB drive to configure VxScan or VxCentralScan.'
+      'You may now eject the USB drive. Use the saved election package on this USB drive to configure VxSuite components.'
     )
   ).toBeInTheDocument();
 

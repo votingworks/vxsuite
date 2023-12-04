@@ -139,7 +139,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       mainContent = (
         <P>
           You may now eject the USB drive. Use the saved election package on
-          this USB drive to configure VxScan or VxCentralScan.
+          this USB drive to configure VxSuite components.
         </P>
       );
       break;
