@@ -5,7 +5,7 @@ import { renderHook, waitFor } from '../test/react_testing_library';
 import {
   ApiClient,
   ApiClientContext,
-  configureFromBallotPackageOnUsbDrive,
+  configureFromElectionPackageOnUsbDrive,
   createApiClient,
   unconfigureElection,
   uiStringsApi,
@@ -14,7 +14,7 @@ import {
 const queryClient = new QueryClient();
 const mockBackendApi: ApiClient = {
   ...createApiClient(),
-  configureFromBallotPackageOnUsbDrive: jest.fn(),
+  configureFromElectionPackageOnUsbDrive: jest.fn(),
   unconfigureElection: jest.fn(),
 };
 
@@ -37,13 +37,13 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
-test('configureFromBallotPackageOnUsbDrive', async () => {
+test('configureFromElectionPackageOnUsbDrive', async () => {
   jest
     .mocked(mockBackendApi)
-    .configureFromBallotPackageOnUsbDrive.mockResolvedValueOnce(ok());
+    .configureFromElectionPackageOnUsbDrive.mockResolvedValueOnce(ok());
 
   const { result } = renderHook(
-    () => configureFromBallotPackageOnUsbDrive.useMutation(),
+    () => configureFromElectionPackageOnUsbDrive.useMutation(),
     { wrapper: QueryWrapper }
   );
 

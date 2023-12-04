@@ -4,7 +4,7 @@ import {
   electionGeneralJson,
 } from '@votingworks/fixtures';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
-import { mockBallotPackageFileTree } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend';
 import assert from 'assert';
 import {
   mockCardRemoval,
@@ -36,11 +36,11 @@ test('configure, open polls, and test contest scroll buttons', async ({
   });
   await enterPin(page);
   await page
-    .getByText('Insert a USB drive containing a ballot package')
+    .getByText('Insert a USB drive containing an election package')
     .waitFor();
 
   usbHandler.insert(
-    await mockBallotPackageFileTree(electionGeneralJson.toBallotPackage())
+    await mockElectionPackageFileTree(electionGeneralJson.toElectionPackage())
   );
 
   // Election Manager: set precinct

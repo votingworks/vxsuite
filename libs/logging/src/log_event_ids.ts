@@ -53,8 +53,8 @@ export enum LogEventId {
   FileSaved = 'file-saved',
 
   // VxAdmin specific user action logs
-  SaveBallotPackageInit = 'save-ballot-package-init',
-  SaveBallotPackageComplete = 'save-ballot-package-complete',
+  SaveElectionPackageInit = 'save-election-package-init',
+  SaveElectionPackageComplete = 'save-election-package-complete',
   SmartCardProgramInit = 'smart-card-program-init',
   SmartCardProgramComplete = 'smart-card-program-complete',
   SmartCardUnprogramInit = 'smart-card-unprogram-init',
@@ -75,7 +75,7 @@ export enum LogEventId {
   TestDeckPrinted = 'test-deck-printed',
   TestDeckTallyReportPrinted = 'test-deck-tally-report-printed',
   TestDeckTallyReportSavedToPdf = 'test-deck-tally-report-saved-to-pdf',
-  InitialSetupPackageLoaded = 'initial-setup-zip-package-loaded',
+  InitialElectionPackageLoaded = 'initial-election-package-loaded',
   SystemSettingsSaveInitiated = 'system-settings-save-initiated',
   SystemSettingsSaved = 'system-settings-saved',
   SystemSettingsRetrieved = 'system-settings-retrieved',
@@ -89,8 +89,8 @@ export enum LogEventId {
   OverridingMarkThresholds = 'override-mark-threshold-init',
   OverrodeMarkThresholds = 'override-mark-thresholds-complete',
   SavedScanImageBackup = 'saved-scan-image-backup',
-  ConfigureFromBallotPackageInit = 'configure-from-ballot-package-init',
-  BallotPackageFilesReadFromUsb = 'ballot-package-files-read-from-usb',
+  ConfigureFromElectionPackageInit = 'configure-from-election-package-init',
+  ElectionPackageFilesReadFromUsb = 'election-package-files-read-from-usb',
   BallotConfiguredOnMachine = 'ballot-configure-machine-complete',
   ScannerConfigured = 'scanner-configure-complete',
   DeleteScanBatchInit = 'delete-cvr-batch-init',
@@ -114,7 +114,7 @@ export enum LogEventId {
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
   PowerDown = 'power-down-machine',
-  BallotPackageLoadedFromUsb = 'ballot-package-load-from-usb-complete',
+  ElectionPackageLoadedFromUsb = 'election-package-load-from-usb-complete',
 
   // Scanners, central and precinct
   ExportCastVoteRecordsInit = 'export-cast-vote-records-init',
@@ -332,18 +332,18 @@ const SaveToStorage: LogDetails = {
     'A piece of information is saved to storage, usually resulting from a user action for example a user loading CVR files results in those files being saved to storage.',
 };
 
-const SaveBallotPackageInit: LogDetails = {
-  eventId: LogEventId.SaveBallotPackageInit,
+const SaveElectionPackageInit: LogDetails = {
+  eventId: LogEventId.SaveElectionPackageInit,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'Saving the ballot package is initiated.',
-  defaultMessage: 'User initiated saving the ballot package...',
+  documentationMessage: 'Saving the election package is initiated.',
+  defaultMessage: 'User initiated saving the election package...',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
-const SaveBallotPackageComplete: LogDetails = {
-  eventId: LogEventId.SaveBallotPackageComplete,
+const SaveElectionPackageComplete: LogDetails = {
+  eventId: LogEventId.SaveElectionPackageComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'Saving the ballot package completed, success or failure is indicated by the disposition.',
+    'Saving the election package completed, success or failure is indicated by the disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
@@ -570,22 +570,23 @@ const SavedScanImageBackup: LogDetails = {
   ],
 };
 
-const ConfigureFromBallotPackageInit: LogDetails = {
-  eventId: LogEventId.ConfigureFromBallotPackageInit,
+const ConfigureFromElectionPackageInit: LogDetails = {
+  eventId: LogEventId.ConfigureFromElectionPackageInit,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User had initiated configuring the machine from a ballot package. The ballot package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.',
-  defaultMessage: 'Loading ballot package from USB and configuring machine...',
+    'User had initiated configuring the machine from an election package. The election package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.',
+  defaultMessage:
+    'Loading election package from USB and configuring machine...',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
     LogSource.VxScanFrontend,
   ],
 };
-const BallotPackageLoadedFromUsb: LogDetails = {
-  eventId: LogEventId.BallotPackageLoadedFromUsb,
+const ElectionPackageLoadedFromUsb: LogDetails = {
+  eventId: LogEventId.ElectionPackageLoadedFromUsb,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'The ballot package has been read from the USB drive. Success or failure indicated by disposition.',
+    'The election package has been read from the USB drive. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
     LogSource.VxScanFrontend,
@@ -605,17 +606,17 @@ const ScannerConfigured: LogDetails = {
   eventId: LogEventId.ScannerConfigured,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.',
+    'The final configuration steps for the scanner for the election package have completed. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
     LogSource.VxScanFrontend,
   ],
 };
-const BallotPackageFilesReadFromUsb: LogDetails = {
-  eventId: LogEventId.BallotPackageFilesReadFromUsb,
+const ElectionPackageFilesReadFromUsb: LogDetails = {
+  eventId: LogEventId.ElectionPackageFilesReadFromUsb,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'List of ballot packages read from usb and displayed to user to load to machine.',
+    'List of election packages read from usb and displayed to user to load to machine.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
     LogSource.VxScanFrontend,
@@ -905,10 +906,10 @@ const PaperHandlerStateChanged: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
 };
 
-const InitialSetupPackageLoaded: LogDetails = {
-  eventId: LogEventId.InitialSetupPackageLoaded,
+const InitialElectionPackageLoaded: LogDetails = {
+  eventId: LogEventId.InitialElectionPackageLoaded,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'User loaded VxAdmin initial setup package',
+  documentationMessage: 'User loaded VxAdmin initial election package',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
@@ -1015,10 +1016,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SaveToStorage;
     case LogEventId.LoadFromStorage:
       return LoadFromStorage;
-    case LogEventId.SaveBallotPackageInit:
-      return SaveBallotPackageInit;
-    case LogEventId.SaveBallotPackageComplete:
-      return SaveBallotPackageComplete;
+    case LogEventId.SaveElectionPackageInit:
+      return SaveElectionPackageInit;
+    case LogEventId.SaveElectionPackageComplete:
+      return SaveElectionPackageComplete;
     case LogEventId.FileSaved:
       return FileSaved;
     case LogEventId.SmartCardProgramInit:
@@ -1075,16 +1076,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return OverrodeMarkThresholds;
     case LogEventId.SavedScanImageBackup:
       return SavedScanImageBackup;
-    case LogEventId.ConfigureFromBallotPackageInit:
-      return ConfigureFromBallotPackageInit;
-    case LogEventId.BallotPackageLoadedFromUsb:
-      return BallotPackageLoadedFromUsb;
+    case LogEventId.ConfigureFromElectionPackageInit:
+      return ConfigureFromElectionPackageInit;
+    case LogEventId.ElectionPackageLoadedFromUsb:
+      return ElectionPackageLoadedFromUsb;
     case LogEventId.BallotConfiguredOnMachine:
       return BallotConfiguredOnMachine;
     case LogEventId.ScannerConfigured:
       return ScannerConfigured;
-    case LogEventId.BallotPackageFilesReadFromUsb:
-      return BallotPackageFilesReadFromUsb;
+    case LogEventId.ElectionPackageFilesReadFromUsb:
+      return ElectionPackageFilesReadFromUsb;
     case LogEventId.ExportCastVoteRecordsInit:
       return ExportCastVoteRecordsInit;
     case LogEventId.ExportCastVoteRecordsComplete:
@@ -1157,8 +1158,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerStateChanged;
     case LogEventId.PaperHandlerStateChanged:
       return PaperHandlerStateChanged;
-    case LogEventId.InitialSetupPackageLoaded:
-      return InitialSetupPackageLoaded;
+    case LogEventId.InitialElectionPackageLoaded:
+      return InitialElectionPackageLoaded;
     case LogEventId.SystemSettingsSaveInitiated:
       return SystemSettingsSaveInitiated;
     case LogEventId.SystemSettingsSaved:

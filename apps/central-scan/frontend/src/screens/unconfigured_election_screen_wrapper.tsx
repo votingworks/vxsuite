@@ -4,7 +4,7 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import {
-  configureFromBallotPackageOnUsbDrive,
+  configureFromElectionPackageOnUsbDrive,
   getUsbDriveStatus,
 } from '../api';
 import { NavigationScreen } from '../navigation_screen';
@@ -21,7 +21,8 @@ export function UnconfiguredElectionScreenWrapper({
   // this component until the USB drive query succeeds.
   assert(usbDriveStatusQuery.isSuccess);
 
-  const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
+  const configureMutation =
+    configureFromElectionPackageOnUsbDrive.useMutation();
 
   useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
     if (newUsbDriveStatus.status === 'mounted') {

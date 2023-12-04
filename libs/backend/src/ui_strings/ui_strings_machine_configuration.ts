@@ -1,26 +1,26 @@
 /* istanbul ignore file - tested via VxSuite apps. */
 
-import { BallotPackage, LanguageCode } from '@votingworks/types';
+import { ElectionPackage, LanguageCode } from '@votingworks/types';
 import { Logger } from '@votingworks/logging';
 import { UiStringsStore } from './ui_strings_store';
 
 /** Input for {@link configureUiStrings}. */
-export interface BallotPackageProcessorInput {
-  ballotPackage: BallotPackage;
+export interface ElectionPackageProcessorInput {
+  electionPackage: ElectionPackage;
   logger: Logger;
   noAudio?: boolean;
   store: UiStringsStore;
 }
 
-function loadStrings(input: BallotPackageProcessorInput): void {
-  const { ballotPackage, store } = input;
+function loadStrings(input: ElectionPackageProcessorInput): void {
+  const { electionPackage, store } = input;
 
-  if (!ballotPackage.uiStrings) {
+  if (!electionPackage.uiStrings) {
     return;
   }
 
   for (const languageCode of Object.values(LanguageCode)) {
-    const data = ballotPackage.uiStrings[languageCode];
+    const data = electionPackage.uiStrings[languageCode];
 
     if (data) {
       store.setUiStrings({ languageCode, data });
@@ -28,16 +28,16 @@ function loadStrings(input: BallotPackageProcessorInput): void {
   }
 }
 
-function loadAudioIds(input: BallotPackageProcessorInput): void {
-  const { ballotPackage, store } = input;
+function loadAudioIds(input: ElectionPackageProcessorInput): void {
+  const { electionPackage, store } = input;
 
-  if (!ballotPackage.uiStringAudioIds) {
+  if (!electionPackage.uiStringAudioIds) {
     return;
   }
 
   const configuredLanguages = store.getLanguages();
   for (const languageCode of configuredLanguages) {
-    const data = ballotPackage.uiStringAudioIds[languageCode];
+    const data = electionPackage.uiStringAudioIds[languageCode];
 
     if (data) {
       store.setUiStringAudioIds({ languageCode, data });
@@ -46,10 +46,10 @@ function loadAudioIds(input: BallotPackageProcessorInput): void {
 }
 
 /**
- * Loads data related to UI Strings from the given ballot package into the
+ * Loads data related to UI Strings from the given election package into the
  * provided store.
  */
-export function configureUiStrings(input: BallotPackageProcessorInput): void {
+export function configureUiStrings(input: ElectionPackageProcessorInput): void {
   loadStrings(input);
   loadAudioIds(input);
 

@@ -5,7 +5,7 @@ import {
   useQueryChangeListener,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { configureBallotPackageFromUsb, getUsbDriveStatus } from '../api';
+import { configureElectionPackageFromUsb, getUsbDriveStatus } from '../api';
 
 /**
  * UnconfiguredElectionScreenWrapper wraps the shared UnconfiguredElectionScreen component
@@ -17,7 +17,7 @@ export function UnconfiguredElectionScreenWrapper(): JSX.Element {
   // this component until the USB drive query succeeds.
   assert(usbDriveStatusQuery.isSuccess);
 
-  const configure = configureBallotPackageFromUsb.useMutation();
+  const configure = configureElectionPackageFromUsb.useMutation();
 
   useQueryChangeListener(usbDriveStatusQuery, (newUsbDriveStatus) => {
     if (newUsbDriveStatus.status === 'mounted') {

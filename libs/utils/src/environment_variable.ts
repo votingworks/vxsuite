@@ -33,8 +33,8 @@ export enum BooleanEnvironmentVariableName {
   // Skips election hash checks when scanning to allow using old fixtures in
   // development even as their respective election definitions change.
   SKIP_SCAN_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK',
-  // Skips authentication (i.e. signature verification) of ballot packages on import
-  SKIP_BALLOT_PACKAGE_AUTHENTICATION = 'REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION',
+  // Skips authentication (i.e. signature verification) of election packages on import
+  SKIP_ELECTION_PACKAGE_AUTHENTICATION = 'REACT_APP_VX_SKIP_ELECTION_PACKAGE_AUTHENTICATION',
   // Skips authentication (i.e. signature verification) of cast vote records on import
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
   // Excludes original snapshots in cast vote record reports, decreasing export size and
@@ -98,8 +98,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_CVR_ELECTION_HASH_CHECK;
     case BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK:
       return process.env.REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK;
-    case BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION:
-      return process.env.REACT_APP_VX_SKIP_BALLOT_PACKAGE_AUTHENTICATION;
+    case BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION:
+      return process.env.REACT_APP_VX_SKIP_ELECTION_PACKAGE_AUTHENTICATION;
     case BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION:
       return process.env.REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
     case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS:
@@ -192,7 +192,7 @@ export function getBooleanEnvVarConfig(
         allowInProduction: false,
         autoEnableInDevelopment: false,
       };
-    case BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION:
+    case BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION:
       return {
         name,
         allowInProduction: false,

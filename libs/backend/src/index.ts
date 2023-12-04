@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-export * from './ballot_package';
+export * from './election_package';
 export * from './cast_vote_records';
 export * from './exporter';
 export * from './list_directory';

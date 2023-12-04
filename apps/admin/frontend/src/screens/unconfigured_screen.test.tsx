@@ -41,15 +41,13 @@ test('handles an uploaded election package zip file', async () => {
     'systemSettings.json': systemSettings.asText(),
   });
   const file = new File([pkg], 'filepath.zip');
-  const zipInput = await screen.findByLabelText(
-    'Select Existing Setup Package Zip File'
-  );
+  const zipInput = await screen.findByLabelText('Select Election Package');
   userEvent.upload(zipInput, file);
 
   await screen.findByText('Loading');
   // election_manager (the parent component) handles advancing to the next screen so we
   // just need to test that loading is false and we rerender without the loading screen
-  await screen.findByLabelText('Select Existing Setup Package Zip File');
+  await screen.findByLabelText('Select Election Package');
 });
 
 test('handles an invalid election package zip file', async () => {
@@ -66,9 +64,7 @@ test('handles an invalid election package zip file', async () => {
     [pkgMissingSystemSettings],
     'filepath.zip'
   );
-  const zipInput = await screen.findByLabelText(
-    'Select Existing Setup Package Zip File'
-  );
+  const zipInput = await screen.findByLabelText('Select Election Package');
   await suppressingConsoleOutput(async () => {
     userEvent.upload(zipInput, zipMissingSystemSettings);
     await screen.findByText('Invalid election package zip file.');
@@ -86,9 +82,7 @@ test('handles a invalid election definition file', async () => {
     'systemSettings.json': systemSettings.asText(),
   });
   const zip = new File([pkg], 'filepath.zip');
-  const zipInput = await screen.findByLabelText(
-    'Select Existing Setup Package Zip File'
-  );
+  const zipInput = await screen.findByLabelText('Select Election Package');
   apiMock.apiClient.configure
     .expectCallWith({
       electionData: 'invalid election definition',
@@ -113,9 +107,7 @@ test('handles a invalid system settings file', async () => {
     'systemSettings.json': 'invalid system settings',
   });
   const zip = new File([pkg], 'filepath.zip');
-  const zipInput = await screen.findByLabelText(
-    'Select Existing Setup Package Zip File'
-  );
+  const zipInput = await screen.findByLabelText('Select Election Package');
   apiMock.apiClient.configure
     .expectCallWith({
       electionData: electionDefinition.electionData,
@@ -144,15 +136,13 @@ test('uploads default system settings if loading only an election.json file', as
   });
 
   const file = new File([electionDefinition.electionData], 'election.json');
-  const fileInput = await screen.findByLabelText(
-    'Select Existing Election Definition File'
-  );
+  const fileInput = await screen.findByLabelText('Select Election Definition');
   userEvent.upload(fileInput, file);
 
   await screen.findByText('Loading');
   // election_manager (the parent component) handles advancing to the next screen so we
   // just need to test that loading is false and we rerender without the loading screen
-  await screen.findByLabelText('Select Existing Election Definition File');
+  await screen.findByLabelText('Select Election Definition');
 });
 
 test('uploads default system settings if loading the default election', async () => {
@@ -168,12 +158,10 @@ test('uploads default system settings if loading the default election', async ()
     electionDefinition: 'NONE',
   });
 
-  const loadDemoButton = await screen.findByText(
-    'Load Demo Election Definition'
-  );
+  const loadDemoButton = await screen.findByText('Load Demo Election');
   userEvent.click(loadDemoButton);
 
   // election_manager (the parent component) handles advancing to the next screen so we
   // just need to test that loading is false and we rerender without the loading screen
-  await screen.findByLabelText('Select Existing Election Definition File');
+  await screen.findByLabelText('Select Election Definition');
 });

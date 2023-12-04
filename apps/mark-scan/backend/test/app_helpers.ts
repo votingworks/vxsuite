@@ -7,7 +7,7 @@ import { Application } from 'express';
 import { AddressInfo } from 'net';
 import { fakeLogger, Logger } from '@votingworks/logging';
 import tmp from 'tmp';
-import { mockBallotPackageFileTree } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
@@ -136,11 +136,11 @@ export async function configureApp(
     })
   );
   mockUsbDrive.insertUsbDrive(
-    await mockBallotPackageFileTree(
-      electionJson.toBallotPackage(systemSettings)
+    await mockElectionPackageFileTree(
+      electionJson.toElectionPackage(systemSettings)
     )
   );
-  const result = await apiClient.configureBallotPackageFromUsb();
+  const result = await apiClient.configureElectionPackageFromUsb();
   expect(result.isOk()).toEqual(true);
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
