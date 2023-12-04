@@ -37,7 +37,7 @@ export function UiString(props: UiStringProps): JSX.Element {
     );
   }
 
-  const { i18next, translationFunction } = languageContext;
+  const { currentLanguageCode, i18next, translationFunction } = languageContext;
 
   return (
     <Container data-audio-ids={'' /* TODO(kofi): fetch audio IDs */}>
@@ -46,6 +46,7 @@ export function UiString(props: UiStringProps): JSX.Element {
         count={pluralCount}
         i18n={i18next}
         parent={as}
+        tOptions={{ lng: currentLanguageCode }}
         t={translationFunction}
       >
         {children}

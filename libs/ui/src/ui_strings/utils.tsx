@@ -72,5 +72,7 @@ export function PrimaryElectionTitlePrefix(props: {
     return null;
   }
 
-  return electionStrings.partyFullName(party);
+  return (
+    <React.Fragment>{electionStrings.partyFullName(party)} </React.Fragment>
+  );
 }

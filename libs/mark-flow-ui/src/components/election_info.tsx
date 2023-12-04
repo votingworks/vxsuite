@@ -49,20 +49,14 @@ export function ElectionInfo({
 
   const screenInfo = useScreenInfo();
 
-  const partyPrimaryAdjective = (
+  const title = (
     <React.Fragment>
       {ballotStyleId && (
         <PrimaryElectionTitlePrefix
           ballotStyleId={ballotStyleId}
           election={election}
         />
-      )}{' '}
-    </React.Fragment>
-  );
-
-  const title = (
-    <React.Fragment>
-      {partyPrimaryAdjective}
+      )}
       {electionStrings.electionTitle(election)}
     </React.Fragment>
   );

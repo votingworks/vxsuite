@@ -15,9 +15,9 @@ import {
 } from '@votingworks/fixtures';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
-import { mockOf } from '@votingworks/test-utils';
+import { hasTextAcrossElements, mockOf } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library';
 import { BmdPaperBallot } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
@@ -104,12 +104,12 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
 
   screen.getByText('Joseph Barchi and Joseph Hallaren');
   screen.getByText('Chris Norberg');
-  within(
-    screen.getByText('Question A: Recovery of Property Damages').parentElement!
-  ).getByText('Yes');
-  within(
-    screen.getByText('Question B: Separation of Powers').parentElement!
-  ).getByText('No');
+  screen.getByText(
+    hasTextAcrossElements(/Question A: Recovery of Property Damages.?Yes/)
+  );
+  screen.getByText(
+    hasTextAcrossElements(/Question B: Separation of Powers.?No/)
+  );
 
   // Use a snapshot to avoid unintentional regressions to general layout
   expect(container).toMatchSnapshot();
@@ -126,11 +126,13 @@ test('BmdPaperBallot uses yes/no option labels if present', () => {
     },
   });
 
-  within(screen.getAllByText('Ballot Measure 1')[0].parentElement!).getByText(
-    'FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A'
+  screen.getByText(
+    hasTextAcrossElements(
+      /Ballot Measure 1.?FOR APPROVAL OF EITHER Initiative No. 12 OR Alternative Initiative No. 12 A/
+    )
   );
-  within(screen.getAllByText('Ballot Measure 1')[1].parentElement!).getByText(
-    'FOR Alternative Measure No. 12 A'
+  screen.getByText(
+    hasTextAcrossElements(/Ballot Measure 1.?FOR Alternative Measure No. 12 A/)
   );
 });
 
@@ -142,7 +144,7 @@ test('BmdPaperBallot renders when no votes', () => {
     votes: {},
   });
 
-  expect(screen.getAllByText('[no selection]')).toHaveLength(9);
+  expect(screen.getAllByText(/no selection/i)).toHaveLength(9);
 });
 
 test('BmdPaperBallot treats missing entries in the votes dict as undervotes', () => {
@@ -156,7 +158,7 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
     />
   );
 
-  expect(screen.getAllByText('[no selection]')).toHaveLength(9);
+  expect(screen.getAllByText(/no selection/i)).toHaveLength(9);
 });
 
 test('BmdPaperBallot renders when not in live mode', () => {
@@ -213,7 +215,7 @@ test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
     },
   });
 
-  screen.getByText('[no selection for 1 of 3 choices]');
+  screen.getByText(hasTextAcrossElements(/unused votes: 1/i));
 });
 
 test('BmdPaperBallot renders seal', () => {

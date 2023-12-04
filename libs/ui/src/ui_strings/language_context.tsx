@@ -3,11 +3,12 @@ import i18next, { i18n } from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
 
 import { LanguageCode } from '@votingworks/types';
-import { Optional } from '@votingworks/basics';
+import { Optional, assertDefined } from '@votingworks/basics';
 import { Screen } from '../screen';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 
 export interface LanguageContextInterface {
+  api: UiStringsReactQueryApi;
   availableLanguages: LanguageCode[];
   currentLanguageCode: LanguageCode;
   i18next: i18n;
@@ -18,7 +19,7 @@ export interface LanguageContextInterface {
 export const DEFAULT_LANGUAGE_CODE = LanguageCode.ENGLISH;
 export const DEFAULT_I18NEXT_NAMESPACE = 'translation';
 
-const LanguageContext =
+export const LanguageContext =
   React.createContext<Optional<LanguageContextInterface>>(undefined);
 
 export function useLanguageContext(): Optional<LanguageContextInterface> {
@@ -39,6 +40,30 @@ const i18nextInitPromise = i18next.use(initReactI18next).init({
   },
 });
 
+/**
+ * Loads UI Strings for the specified language from the backend, if available.
+ */
+export function UiStringsLoader(): React.ReactNode {
+  const context = assertDefined(
+    useLanguageContext(),
+    'LanguageContext required for UiStringsLoader'
+  );
+  const languageCode = context.currentLanguageCode;
+  const { data, isLoading } = context.api.getUiStrings.useQuery(languageCode);
+
+  React.useEffect(() => {
+    if (!languageCode || isLoading || !data) {
+      return;
+    }
+
+    i18next.addResourceBundle(languageCode, DEFAULT_I18NEXT_NAMESPACE, {
+      ...data,
+    });
+  }, [data, isLoading, languageCode]);
+
+  return null;
+}
+
 export interface LanguageContextProviderProps {
   api: UiStringsReactQueryApi;
   children: React.ReactNode;
@@ -56,7 +81,6 @@ export function LanguageContextProvider(
 
   const { t: translationFunction } = useTranslation();
 
-  const uiStringsQuery = api.getUiStrings.useQuery(currentLanguageCode);
   const availableLanguagesQuery = api.getAvailableLanguages.useQuery();
 
   React.useEffect(() => {
@@ -67,21 +91,6 @@ export function LanguageContextProvider(
 
     void waitForI18nextReady();
   }, []);
-
-  const uiStringsData = uiStringsQuery.data;
-  const isUiStringsLoading = uiStringsQuery.isLoading;
-
-  React.useEffect(() => {
-    if (isUiStringsLoading || !uiStringsData) {
-      return;
-    }
-
-    i18next.addResourceBundle(currentLanguageCode, DEFAULT_I18NEXT_NAMESPACE, {
-      ...uiStringsData,
-    });
-
-    void i18next.changeLanguage(currentLanguageCode);
-  }, [currentLanguageCode, isUiStringsLoading, uiStringsData]);
 
   if (!isI18nextReady || !availableLanguagesQuery.isSuccess) {
     // This state is too brief to warrant a loading screen which would only
@@ -95,6 +104,7 @@ export function LanguageContextProvider(
   return (
     <LanguageContext.Provider
       value={{
+        api,
         availableLanguages: availableLanguagesQuery.data,
         currentLanguageCode,
         i18next,
@@ -102,6 +112,7 @@ export function LanguageContextProvider(
         translationFunction,
       }}
     >
+      <UiStringsLoader />
       {children}
     </LanguageContext.Provider>
   );

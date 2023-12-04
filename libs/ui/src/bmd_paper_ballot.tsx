@@ -1,5 +1,4 @@
 import { fromByteArray } from 'base64-js';
-import { DateTime } from 'luxon';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -12,21 +11,16 @@ import {
   Election,
   ElectionDefinition,
   getBallotStyle,
-  getCandidatePartiesDescription,
   getContests,
-  getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
+  LanguageCode,
   OptionalYesNoVote,
   PrecinctId,
   VotesDict,
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
-import {
-  formatLongDate,
-  getSingleYesNoVote,
-  randomBallotId,
-} from '@votingworks/utils';
+import { getSingleYesNoVote, randomBallotId } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
 import { NoWrap } from './text';
@@ -35,9 +29,19 @@ import { Font, H4, H5, H6, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 import { Seal } from './seal';
+import {
+  electionStrings,
+  PrimaryElectionTitlePrefix,
+  appStrings,
+  LanguageOverride,
+  CandidatePartyList,
+  InEnglish,
+  NumberString,
+} from './ui_strings';
 
 const Ballot = styled.div`
   background: #fff;
+  color: #000;
   line-height: 1;
   font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
   font-size: 16px;
@@ -145,10 +149,83 @@ const VoteLine = styled.span`
   }
 `;
 
-function NoSelection({ prefix }: { prefix?: string }): JSX.Element {
+const SecondaryLanguageText = styled.span`
+  font-size: 0.75em;
+`;
+
+function DualLanguageText(props: {
+  children: React.ReactNode;
+  primaryLanguage: LanguageCode;
+  englishTextWrapper: React.JSXElementConstructor<{
+    children: React.ReactElement;
+  }>;
+}) {
+  const {
+    children,
+    primaryLanguage,
+    englishTextWrapper: EnglishTextWrapper,
+  } = props;
+
+  if (primaryLanguage === LanguageCode.ENGLISH) {
+    return children;
+  }
+
+  return (
+    <React.Fragment>
+      {children}
+      <EnglishTextWrapper>
+        <SecondaryLanguageText>
+          <InEnglish>{children}</InEnglish>
+        </SecondaryLanguageText>
+      </EnglishTextWrapper>
+    </React.Fragment>
+  );
+}
+
+function AdjacentText(props: { children: JSX.Element }) {
+  const { children } = props;
+
+  return <React.Fragment> {children}</React.Fragment>;
+}
+
+function AdjacentTextWithSeparator(props: { children: JSX.Element }) {
+  const { children } = props;
+
+  return <React.Fragment> | {children}</React.Fragment>;
+}
+
+function NewlineText(props: { children: JSX.Element }) {
+  const { children } = props;
+
+  return (
+    <React.Fragment>
+      <br />
+      {children}
+    </React.Fragment>
+  );
+}
+
+function ParenthesizedText(props: { children: JSX.Element }) {
+  const { children } = props;
+
+  return <React.Fragment> ({children})</React.Fragment>;
+}
+
+function NoSelection(props: {
+  primaryBallotLanguage: LanguageCode;
+}): JSX.Element {
+  const { primaryBallotLanguage } = props;
+
   return (
     <VoteLine>
-      <Font weight="light">{prefix}[no selection]</Font>
+      <Font weight="light">
+        <DualLanguageText
+          primaryLanguage={primaryBallotLanguage}
+          englishTextWrapper={AdjacentTextWithSeparator}
+        >
+          [{appStrings.noteBallotContestNoSelection()}]
+        </DualLanguageText>
+      </Font>
     </VoteLine>
   );
 }
@@ -156,33 +233,64 @@ function NoSelection({ prefix }: { prefix?: string }): JSX.Element {
 interface CandidateContestResultProps {
   contest: CandidateContest;
   election: Election;
+  primaryBallotLanguage: LanguageCode;
   vote?: CandidateVote;
 }
 
 function CandidateContestResult({
   contest,
   election,
+  primaryBallotLanguage,
   vote = [],
 }: CandidateContestResultProps): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
 
   return vote === undefined || vote.length === 0 ? (
-    <NoSelection />
+    <NoSelection primaryBallotLanguage={primaryBallotLanguage} />
   ) : (
     <React.Fragment>
       {vote.map((candidate) => (
         <VoteLine key={candidate.id}>
-          <Font weight="bold">{candidate.name}</Font>{' '}
-          {candidate.partyIds &&
-            candidate.partyIds.length > 0 &&
-            `/ ${getCandidatePartiesDescription(election, candidate)}`}
-          {candidate.isWriteIn && '(write-in)'}
+          <Font weight="bold">
+            {candidate.isWriteIn ? (
+              candidate.name
+            ) : (
+              <InEnglish>{electionStrings.candidateName(candidate)}</InEnglish>
+            )}
+          </Font>{' '}
+          {candidate.partyIds && candidate.partyIds.length > 0 && (
+            <DualLanguageText
+              primaryLanguage={primaryBallotLanguage}
+              englishTextWrapper={AdjacentText}
+            >
+              (
+              <CandidatePartyList
+                candidate={candidate}
+                electionParties={election.parties}
+              />
+              )
+            </DualLanguageText>
+          )}
+          {candidate.isWriteIn && (
+            <DualLanguageText
+              primaryLanguage={primaryBallotLanguage}
+              englishTextWrapper={AdjacentText}
+            >
+              {appStrings.labelWriteInParenthesized()}
+            </DualLanguageText>
+          )}
         </VoteLine>
       ))}
       {remainingChoices > 0 && (
         <VoteLine>
           <Font weight="light">
-            [no selection for {remainingChoices} of {contest.seats} choices]
+            <DualLanguageText
+              primaryLanguage={primaryBallotLanguage}
+              englishTextWrapper={NewlineText}
+            >
+              [{appStrings.labelNumVotesUnused()}{' '}
+              <NumberString value={remainingChoices} />]
+            </DualLanguageText>
           </Font>
         </VoteLine>
       )}
@@ -192,25 +300,36 @@ function CandidateContestResult({
 
 interface YesNoContestResultProps {
   contest: YesNoContest;
+  primaryBallotLanguage: LanguageCode;
   vote: OptionalYesNoVote;
 }
 
 function YesNoContestResult({
   contest,
+  primaryBallotLanguage,
   vote = [],
 }: YesNoContestResultProps): JSX.Element {
   const singleVote = getSingleYesNoVote(vote);
-  if (!singleVote) return <NoSelection />;
+  if (!singleVote) {
+    return <NoSelection primaryBallotLanguage={primaryBallotLanguage} />;
+  }
   const option =
     singleVote === contest.yesOption.id ? contest.yesOption : contest.noOption;
   return (
     <VoteLine>
-      <Font weight="bold">{option.label}</Font>
+      <Font weight="bold">
+        <DualLanguageText
+          primaryLanguage={primaryBallotLanguage}
+          englishTextWrapper={ParenthesizedText}
+        >
+          {electionStrings.contestOptionLabel(option)}
+        </DualLanguageText>
+      </Font>
     </VoteLine>
   );
 }
 
-interface Props {
+export interface BmdPaperBallotProps {
   ballotStyleId: BallotStyleId;
   electionDefinition: ElectionDefinition;
   generateBallotId?: () => string;
@@ -245,19 +364,17 @@ export function BmdPaperBallot({
   votes,
   onRendered,
   largeTopMargin,
-}: Props): JSX.Element {
+}: BmdPaperBallotProps): JSX.Element {
   const ballotId = generateBallotId();
   const {
     election,
-    election: { county, date, seal, state, title },
+    election: { county, seal },
     electionHash,
   } = electionDefinition;
-  const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({
-    ballotStyleId,
-    election,
-  });
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);
+  const primaryBallotLanguage =
+    ballotStyle.languages?.[0] || LanguageCode.ENGLISH;
   const contests = getContests({ ballotStyle, election });
   const precinct = getPrecinctById({ election, precinctId });
   assert(precinct);
@@ -277,64 +394,107 @@ export function BmdPaperBallot({
   }, [onRendered]);
 
   return withPrintTheme(
-    <Ballot aria-hidden>
-      <Header largeTopMargin={largeTopMargin} data-testid="header">
-        <Seal seal={seal} maxWidth="1in" style={{ margin: '0.25em 0' }} />
-        <div className="ballot-header-content">
-          <H4>{isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}</H4>
-          <H5>
-            {partyPrimaryAdjective} {title}
-          </H5>
-          <P>
-            {formatLongDate(DateTime.fromISO(date))}
-            <br />
-            {county.name}, {state}
-          </P>
-        </div>
-        <QrCodeContainer>
-          <QrCode value={fromByteArray(encodedBallot)} />
-          <div>
+    <LanguageOverride languageCode={primaryBallotLanguage}>
+      <Ballot aria-hidden>
+        <Header largeTopMargin={largeTopMargin} data-testid="header">
+          <Seal seal={seal} maxWidth="1in" style={{ margin: '0.25em 0' }} />
+          <div className="ballot-header-content">
+            <H4>
+              <DualLanguageText
+                primaryLanguage={primaryBallotLanguage}
+                englishTextWrapper={AdjacentTextWithSeparator}
+              >
+                {isLiveMode
+                  ? appStrings.titleOfficialBallot()
+                  : appStrings.titleUnofficialTestBallot()}
+              </DualLanguageText>
+            </H4>
+            <H5>
+              <DualLanguageText
+                primaryLanguage={primaryBallotLanguage}
+                englishTextWrapper={AdjacentTextWithSeparator}
+              >
+                <PrimaryElectionTitlePrefix
+                  ballotStyleId={ballotStyleId}
+                  election={election}
+                />
+                {electionStrings.electionTitle(election)}
+              </DualLanguageText>
+            </H5>
+            <P>
+              <DualLanguageText
+                primaryLanguage={primaryBallotLanguage}
+                englishTextWrapper={AdjacentTextWithSeparator}
+              >
+                {electionStrings.electionDate(election)}
+              </DualLanguageText>
+              <br />
+              {electionStrings.countyName(county)},{' '}
+              {electionStrings.stateName(election)}
+            </P>
+          </div>
+          <QrCodeContainer>
+            <QrCode value={fromByteArray(encodedBallot)} />
             <div>
               <div>
-                <div>Precinct</div>
-                <strong>{precinct.name}</strong>
-              </div>
-              <div>
-                <div>Ballot Style</div>
-                <strong>{ballotStyleId}</strong>
-              </div>
-              <div>
-                <div>Ballot ID</div>
-                <NoWrap as="strong">{ballotId}</NoWrap>
+                <div>
+                  <div>
+                    <InEnglish>{appStrings.titlePrecinct()}</InEnglish>
+                  </div>
+                  <strong>
+                    <InEnglish>
+                      {electionStrings.precinctName(precinct)}
+                    </InEnglish>
+                  </strong>
+                </div>
+                <div>
+                  <div>
+                    <InEnglish>{appStrings.titleBallotStyle()}</InEnglish>
+                  </div>
+                  <strong>{ballotStyleId}</strong>
+                </div>
+                <div>
+                  <div>
+                    <InEnglish>{appStrings.titleBallotId()}</InEnglish>
+                  </div>
+                  <NoWrap as="strong">{ballotId}</NoWrap>
+                </div>
               </div>
             </div>
-          </div>
-        </QrCodeContainer>
-      </Header>
-      <Content>
-        <BallotSelections>
-          {contests.map((contest) => (
-            <Contest key={contest.id}>
-              <div>
-                <ContestTitle>{contest.title}</ContestTitle>
+          </QrCodeContainer>
+        </Header>
+        <Content>
+          <BallotSelections>
+            {contests.map((contest) => (
+              <Contest key={contest.id}>
+                <ContestTitle>
+                  <DualLanguageText
+                    primaryLanguage={primaryBallotLanguage}
+                    englishTextWrapper={NewlineText}
+                  >
+                    {electionStrings.contestTitle(contest)}
+                  </DualLanguageText>
+                </ContestTitle>
                 {contest.type === 'candidate' && (
                   <CandidateContestResult
                     contest={contest}
                     election={election}
+                    primaryBallotLanguage={primaryBallotLanguage}
                     vote={votes[contest.id] as CandidateVote}
                   />
                 )}
                 {contest.type === 'yesno' && (
                   <YesNoContestResult
                     contest={contest}
+                    primaryBallotLanguage={primaryBallotLanguage}
                     vote={votes[contest.id] as YesNoVote}
                   />
                 )}
-              </div>
-            </Contest>
-          ))}
-        </BallotSelections>
-      </Content>
-    </Ballot>
+              </Contest>
+            ))}
+          </BallotSelections>
+        </Content>
+      </Ballot>
+    </LanguageOverride>
   );
 }
