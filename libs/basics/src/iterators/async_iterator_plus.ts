@@ -154,14 +154,17 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   }
 
   flatMap<U>(
-    fn: (value: T, index: number) => Iterable<U> | AsyncIterable<U>
+    fn: (
+      value: T,
+      index: number
+    ) => MaybePromise<Iterable<U> | AsyncIterable<U>>
   ): AsyncIteratorPlus<U> {
     const { iterable } = this;
     return new AsyncIteratorPlusImpl(
       (async function* gen() {
         let index = 0;
         for await (const value of iterable) {
-          yield* fn(value, index);
+          yield* await fn(value, index);
           index += 1;
         }
       })()

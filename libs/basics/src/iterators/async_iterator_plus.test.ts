@@ -330,6 +330,12 @@ test('flatMap', async () => {
       })
       .toArray()
   ).toEqual([1, 1, 2, 2, 3, 3]);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .flatMap((a) => Promise.resolve([a, a]))
+      .toArray()
+  ).toEqual([1, 1, 2, 2, 3, 3]);
 });
 
 test('last', async () => {
