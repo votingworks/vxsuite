@@ -209,3 +209,102 @@ export function* enumerateCharacterCodeEscapes(
     }
   }
 }
+
+/**
+ * Gets the name of a type without any type arguments.
+ *
+ * @example
+ *
+ * ```ts
+ * const type = checker.getTypeAtLocation(node);
+ * const typeName = getTypeName(type);
+ * ```
+ */
+export function getTypeName(type: ts.Type): string | undefined {
+  return (
+    // this seems to be for when the type is declared in the same file
+    type.getSymbol()?.getName() ??
+    // and this is for when it's imported
+    type.aliasSymbol?.getName()
+  );
+}
+
+function* allDeclaredTypes(
+  checker: ts.TypeChecker,
+  node: ts.TypeNode
+): Generator<ts.TypeNode> {
+  yield node;
+
+  switch (node.kind) {
+    // `type Foo = Bar;` – follow the type reference
+    case ts.SyntaxKind.TypeAliasDeclaration: {
+      const typeAliasDeclaration = node as unknown as ts.TypeAliasDeclaration;
+      yield* allDeclaredTypes(checker, typeAliasDeclaration.type);
+      break;
+    }
+
+    // `type Foo = Bar | Baz;` – follow each type in the union
+    case ts.SyntaxKind.UnionType: {
+      const unionType = node as ts.UnionTypeNode;
+      for (const type of unionType.types) {
+        yield* allDeclaredTypes(checker, type);
+      }
+      break;
+    }
+
+    default:
+      break;
+  }
+}
+
+/**
+ * Determines if `type` is a type with name `name`, or a union type that
+ * contains `name`.
+ *
+ * @example
+ *
+ * ```ts
+ * const type = checker.getTypeAtLocation(node);
+ * if (containsNamedType('Map', type)) {
+ *   // `type` is a `Map` or a union type that contains `Map`
+ * }
+ * ```
+ */
+export function containsNamedType(
+  checker: ts.TypeChecker,
+  name: string,
+  type: ts.Type
+): boolean {
+  const typeName = getTypeName(type);
+
+  if (typeName === name) {
+    return true;
+  }
+
+  if (type.aliasSymbol) {
+    const declarations = checker.getDeclaredTypeOfSymbol(type.aliasSymbol)
+      .aliasSymbol?.declarations;
+
+    if (declarations) {
+      for (const declaration of declarations) {
+        for (const declaredType of allDeclaredTypes(
+          checker,
+          declaration as unknown as ts.TypeNode
+        )) {
+          if (declaredType.kind === ts.SyntaxKind.TypeReference) {
+            const typeReference = declaredType as ts.TypeReferenceNode;
+            if (typeReference.typeName.getText() === name) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (type.isUnion()) {
+    return type.types.some((t) => containsNamedType(checker, name, t));
+  }
+
+  return false;
+}
