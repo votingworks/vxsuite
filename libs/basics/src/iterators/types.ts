@@ -404,7 +404,10 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * Maps elements to an async iterable of `U` and flattens the result.
    */
   flatMap<U>(
-    fn: (value: T, index: number) => Iterable<U> | AsyncIterable<U>
+    fn: (
+      value: T,
+      index: number
+    ) => MaybePromise<Iterable<U> | AsyncIterable<U>>
   ): AsyncIteratorPlus<U>;
 
   /**
