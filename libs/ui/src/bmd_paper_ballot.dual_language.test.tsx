@@ -68,27 +68,25 @@ interface MockUiStringOutput {
   subKey?: string;
 }
 
+function getMockUiStringPrefix(languageCode: LanguageCode) {
+  return `~${languageCode}~`;
+}
+
 function generateMockUiString(params: MockUiStringOutput) {
   const { key, languageCode, subKey } = params;
   const subKeyString = subKey ? `.${subKey}` : '';
 
-  return `[${languageCode}] ${key}${subKeyString}`;
+  return `${getMockUiStringPrefix(languageCode)} ${key}${subKeyString}`;
 }
 
 function expectDualLanguageString(
   params: Omit<MockUiStringOutput, 'languageCode'>
 ) {
   screen.getByText(
-    generateMockUiString({
-      ...params,
-      languageCode: LanguageCode.SPANISH,
-    })
+    generateMockUiString({ ...params, languageCode: LanguageCode.SPANISH })
   );
   screen.getByText(
-    generateMockUiString({
-      ...params,
-      languageCode: LanguageCode.ENGLISH,
-    })
+    generateMockUiString({ ...params, languageCode: LanguageCode.ENGLISH })
   );
 }
 
@@ -102,10 +100,7 @@ function expectSingleLanguageString(params: MockUiStringOutput) {
 
   expect(
     screen.queryByText(
-      generateMockUiString({
-        ...params,
-        languageCode: otherLanguage,
-      })
+      generateMockUiString({ ...params, languageCode: otherLanguage })
     )
   ).not.toBeInTheDocument();
 }
@@ -368,7 +363,7 @@ describe('English ballot style', () => {
     );
 
     expect(container).not.toHaveTextContent(
-      new RegExp(`\\[${LanguageCode.SPANISH}\\]`)
+      new RegExp(getMockUiStringPrefix(LanguageCode.SPANISH))
     );
   });
 
@@ -391,7 +386,7 @@ describe('English ballot style', () => {
     );
 
     expect(container).not.toHaveTextContent(
-      new RegExp(`\\[${LanguageCode.SPANISH}\\]`)
+      new RegExp(getMockUiStringPrefix(LanguageCode.SPANISH))
     );
   });
 });
