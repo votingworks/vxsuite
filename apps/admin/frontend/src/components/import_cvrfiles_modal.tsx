@@ -11,7 +11,6 @@ import {
   Button,
   ElectronFile,
   useExternalStateChangeListener,
-  WithScrollButtons,
   P,
   Font,
   Icons,
@@ -42,8 +41,25 @@ import {
   listCastVoteRecordFilesOnUsb,
 } from '../api';
 
-const CvrFileTable = styled(Table)`
-  margin-top: 20px;
+const CvrFileTableWrapper = styled.div`
+  background: ${(p) => p.theme.colors.containerLow};
+  position: relative;
+
+  /* Ensure that the last row is cut in half so it's clear you can scroll */
+  max-height: 22rem;
+  overflow-y: auto;
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+
+    thead tr {
+      position: sticky;
+      top: -1px; /* Cover up small gap */
+      z-index: 1;
+      background: ${(p) => p.theme.colors.containerHigh};
+    }
+  }
 `;
 
 const UsbImage = styled.img`
@@ -58,9 +74,6 @@ const LabelText = styled.span`
 `;
 
 const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-height: 100%;
   overflow: hidden;
 `;
 
@@ -464,8 +477,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
           <Content>
             <P>{instructionalText}</P>
             {fileTableRows.length > 0 && (
-              <WithScrollButtons>
-                <CvrFileTable>
+              <CvrFileTableWrapper>
+                <Table>
                   <thead>
                     <tr>
                       <th>Saved At</th>
@@ -476,8 +489,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
                     </tr>
                   </thead>
                   <tbody>{fileTableRows}</tbody>
-                </CvrFileTable>
-              </WithScrollButtons>
+                </Table>
+              </CvrFileTableWrapper>
             )}
           </Content>
         }
