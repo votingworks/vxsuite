@@ -19,7 +19,6 @@ import {
   LinkButton,
   Loading,
   H1,
-  RadioGroup,
   H4,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
@@ -141,8 +140,71 @@ const WriteInActionButton = styled(Button)`
 
 const SectionLabel = styled.div`
   font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-  margin-top: 1rem;
   margin-bottom: 0.5rem;
+
+  :not(:first-child) {
+    margin-top: 1rem;
+  }
+`;
+
+// styles closely imitate our RadioGroup buttons, but we don't use RadioGroup
+// because we need to be able to deselect options by clicking them again
+const CandidateStyledButton = styled(Button)`
+  border-color: ${(p) => p.theme.colors.outline};
+  border-width: ${(p) => p.theme.sizes.bordersRem.thin}rem;
+  flex-wrap: nowrap;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
+  justify-content: start;
+  padding-left: 0.5rem;
+  text-align: left;
+  width: 100%;
+
+  /* Increase contrast between selected/unselected options when disabled by
+   * removing the darkening filter for unselected options. */
+  &[disabled] {
+    ${(p) => p.color === 'neutral' && `filter: none;`}
+  }
+`;
+
+function CandidateButton({
+  candidate,
+  isSelected,
+  isSelectedStatusUpToDate,
+  onSelect,
+  onDeselect,
+}: {
+  candidate: Pick<Candidate, 'id' | 'name'>;
+  isSelected?: boolean;
+  isSelectedStatusUpToDate: boolean;
+  onSelect: () => void;
+  onDeselect: () => void;
+}) {
+  return (
+    <CandidateStyledButton
+      key={candidate.id}
+      onPress={() => {
+        if (!isSelectedStatusUpToDate) return;
+
+        if (!isSelected) {
+          onSelect();
+        } else {
+          onDeselect();
+        }
+      }}
+      color={isSelected ? 'primary' : 'neutral'}
+      fill={isSelected ? 'tinted' : 'outlined'}
+      icon={isSelected ? 'CircleDot' : 'Circle'}
+    >
+      {candidate.name}
+    </CandidateStyledButton>
+  );
+}
+
+const CandidateButtonList = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
 `;
 
 export function WriteInsAdjudicationScreen(): JSX.Element {
@@ -392,6 +454,13 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     });
     focusNext();
   }
+  function resetAdjudication(): void {
+    assert(currentWriteInId !== undefined);
+    adjudicateWriteInMutation.mutate({
+      writeInId: currentWriteInId,
+      type: 'reset',
+    });
+  }
 
   async function onAddWriteInCandidate() {
     assert(currentWriteInId !== undefined);
@@ -466,55 +535,52 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             </ContestTitle>
           </ContestTitleContainer>
           <AdjudicationForm>
-            <RadioGroup
-              ref={firstAdjudicationControl}
-              label="Official Candidates"
-              options={officialCandidates.map((candidate) => ({
-                label: candidate.name,
-                value: candidate.id,
-              }))}
-              value={
-                currentWriteIn &&
-                currentWriteIn.status === 'adjudicated' &&
-                currentWriteIn.adjudicationType === 'official-candidate'
-                  ? currentWriteIn.candidateId
-                  : undefined
-              }
-              onChange={(candidateId) => {
-                if (isWriteInAdjudicationContextFresh) {
-                  adjudicateAsOfficialCandidate(
-                    find(officialCandidates, (c) => c.id === candidateId)
-                  );
-                }
-              }}
-            />
-
+            <SectionLabel>Official Candidates</SectionLabel>
+            <CandidateButtonList>
+              {officialCandidates.map((candidate) => {
+                return (
+                  <CandidateButton
+                    key={candidate.id}
+                    candidate={candidate}
+                    isSelected={
+                      currentWriteIn &&
+                      currentWriteIn.status === 'adjudicated' &&
+                      currentWriteIn.adjudicationType ===
+                        'official-candidate' &&
+                      currentWriteIn.candidateId === candidate.id
+                    }
+                    isSelectedStatusUpToDate={isWriteInAdjudicationContextFresh}
+                    onSelect={() => adjudicateAsOfficialCandidate(candidate)}
+                    onDeselect={resetAdjudication}
+                  />
+                );
+              })}
+            </CandidateButtonList>
             <SectionLabel>Write-In Candidates</SectionLabel>
             {writeInCandidates.length > 0 && (
-              <RadioGroup
-                label="Write-In Candidates"
-                hideLabel
-                options={writeInCandidates.map((candidate) => ({
-                  label: candidate.name,
-                  value: candidate.id,
-                }))}
-                value={
-                  currentWriteIn &&
-                  currentWriteIn.status === 'adjudicated' &&
-                  currentWriteIn.adjudicationType === 'write-in-candidate'
-                    ? currentWriteIn.candidateId
-                    : undefined
-                }
-                onChange={(candidateId) => {
-                  if (isWriteInAdjudicationContextFresh) {
-                    adjudicateAsWriteInCandidate(
-                      find(writeInCandidates, (c) => c.id === candidateId)
-                    );
-                  }
-                }}
-              />
+              <CandidateButtonList>
+                {writeInCandidates.map((candidate) => {
+                  return (
+                    <CandidateButton
+                      key={candidate.id}
+                      candidate={candidate}
+                      isSelected={
+                        currentWriteIn &&
+                        currentWriteIn.status === 'adjudicated' &&
+                        currentWriteIn.adjudicationType ===
+                          'write-in-candidate' &&
+                        currentWriteIn.candidateId === candidate.id
+                      }
+                      isSelectedStatusUpToDate={
+                        isWriteInAdjudicationContextFresh
+                      }
+                      onSelect={() => adjudicateAsWriteInCandidate(candidate)}
+                      onDeselect={resetAdjudication}
+                    />
+                  );
+                })}
+              </CandidateButtonList>
             )}
-
             <div style={{ margin: '0.5rem 0' }}>
               {showNewWriteInCandidateForm ? (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -560,15 +626,15 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                 </WriteInActionButton>
               )}
             </div>
-
-            <div>
+            <div style={{ marginTop: '1rem' }}>
               <WriteInActionButton
                 onPress={() => {
-                  if (
-                    isWriteInAdjudicationContextFresh &&
-                    !currentWriteInMarkedInvalid
-                  ) {
+                  if (!isWriteInAdjudicationContextFresh) return;
+
+                  if (!currentWriteInMarkedInvalid) {
                     adjudicateAsInvalid();
+                  } else {
+                    resetAdjudication();
                   }
                 }}
                 variant={currentWriteInMarkedInvalid ? 'secondary' : 'neutral'}
