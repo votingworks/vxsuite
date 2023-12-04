@@ -24,11 +24,6 @@ import {
 import { LanguageCode } from './language_code';
 
 // Generic
-export type Translations = Record<string, Record<string, string> | undefined>;
-export const TranslationsSchema: z.ZodSchema<Translations> = z.record(
-  z.record(z.string())
-);
-
 function* findDuplicateIds<T extends { id: unknown }>(
   identifiables: Iterable<T>
 ): Generator<[number, T['id']]> {
