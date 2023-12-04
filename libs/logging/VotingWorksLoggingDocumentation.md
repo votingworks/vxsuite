@@ -426,3 +426,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)  
 **Description:** VxMarkScan encountered an error with the built-in PAT device port or the device itself  
 **Machines:** vx-mark-scan-backend
+### unknown-error
+**Type:** [application-status](#application-status)  
+**Description:** Machine encountered an unknown error.  
+**Machines:** vx-admin-frontend, vx-central-scan-frontend, vx-mark-frontend, vx-mark-scan-frontend, vx-scan-frontend

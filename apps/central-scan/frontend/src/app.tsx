@@ -40,6 +40,7 @@ export function App({
               <P>Please restart the machine.</P>
             </React.Fragment>
           }
+          logger={logger}
         >
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>

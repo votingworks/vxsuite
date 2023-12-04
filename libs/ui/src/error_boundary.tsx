@@ -1,10 +1,13 @@
 /* eslint-disable react/sort-comp */
 import React from 'react';
+import { LogEventId, Logger } from '@votingworks/logging';
+import { extractErrorMessage } from '@votingworks/basics';
 import { Screen } from './screen';
 import { Main } from './main';
 
 type Props = React.PropsWithChildren<{
   errorMessage: React.ReactNode | ((error: unknown) => React.ReactNode);
+  logger?: Logger;
 }>;
 
 interface State {
@@ -31,9 +34,19 @@ export class ErrorBoundary extends React.Component<Props, State> {
     return { error };
   }
 
-  componentDidCatch(error: unknown, errorInfo: React.ErrorInfo): void {
+  async componentDidCatch(
+    error: unknown,
+    errorInfo: React.ErrorInfo
+  ): Promise<void> {
+    const { logger } = this.props;
+
     // eslint-disable-next-line no-console
     console.error('Error boundary caught error:', error, errorInfo);
+
+    await logger?.log(LogEventId.UnknownError, 'system', {
+      errorMessage: extractErrorMessage(error),
+      errorStack: error instanceof Error ? error.stack : undefined,
+    });
   }
 
   // Catch unhandled promise rejections (e.g. from event handlers and other
@@ -43,22 +56,30 @@ export class ErrorBoundary extends React.Component<Props, State> {
   // should still be diligent about avoiding unhandled promise rejections at
   // the source.
   /* istanbul ignore next */
-  handleUnhandledRejection(event: PromiseRejectionEvent): void {
+  async handleUnhandledRejection(event: PromiseRejectionEvent): Promise<void> {
+    const { logger } = this.props;
+    const error: unknown = event.reason;
+
     // eslint-disable-next-line no-console
-    console.error(
-      'Error boundary caught unhandled promise rejection:',
-      event.reason
-    );
-    this.setState({ error: event.reason });
+    console.error('Error boundary caught unhandled promise rejection:', error);
+
+    await logger?.log(LogEventId.UnknownError, 'system', {
+      errorMessage: extractErrorMessage(error),
+      errorStack: error instanceof Error ? error.stack : undefined,
+    });
+
+    this.setState({ error });
   }
-  componentWillUnmount(): void {
-    window.removeEventListener(
+
+  componentDidMount(): void {
+    window.addEventListener(
       'unhandledrejection',
       this.handleUnhandledRejection
     );
   }
-  componentDidMount(): void {
-    window.addEventListener(
+
+  componentWillUnmount(): void {
+    window.removeEventListener(
       'unhandledrejection',
       this.handleUnhandledRejection
     );
