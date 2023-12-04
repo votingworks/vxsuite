@@ -46,12 +46,10 @@ export function AppRoot({
     return null;
   }
 
-  const hasCardReaderAttached =
-    !authStatusQuery.data ||
-    !(
-      authStatusQuery.data.status === 'logged_out' &&
-      authStatusQuery.data.reason === 'no_card_reader'
-    );
+  const hasCardReaderAttached = !(
+    authStatusQuery.data.status === 'logged_out' &&
+    authStatusQuery.data.reason === 'no_card_reader'
+  );
   const usbDriveStatus = usbDriveStatusQuery.data;
 
   return (
