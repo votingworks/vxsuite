@@ -1,4 +1,4 @@
-import { Optional, unique } from '@votingworks/basics';
+import { Optional } from '@votingworks/basics';
 import { Election } from '@votingworks/types';
 
 export function getMaxSheetsPerBallot(election: Election): Optional<number> {
@@ -6,9 +6,9 @@ export function getMaxSheetsPerBallot(election: Election): Optional<number> {
     return undefined;
   }
 
-  return unique(
-    election.gridLayouts
+  return Math.max(
+    ...election.gridLayouts
       .flatMap((gridLayout) => gridLayout.gridPositions)
       .map(({ sheetNumber }) => sheetNumber)
-  ).length;
+  );
 }
