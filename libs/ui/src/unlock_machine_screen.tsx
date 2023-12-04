@@ -22,7 +22,7 @@ const NumberPadWrapper = styled.div`
   font-size: 1em;
 
   > div {
-    width: 400px;
+    width: 12rem;
   }
 
   *:focus {
