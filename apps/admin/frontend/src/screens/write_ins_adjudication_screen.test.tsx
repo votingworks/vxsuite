@@ -201,7 +201,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getByLabelText('Fox'));
+    userEvent.click(screen.getButton('Fox'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a bubble selection marked for/);
   });
@@ -235,7 +235,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getByLabelText('Fox'));
+    userEvent.click(screen.getButton('Fox'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a write-in that has already been adjudicated for/);
   });
@@ -276,7 +276,7 @@ describe('preventing double votes', () => {
       name: /ballot with write-in/i,
     });
 
-    userEvent.click(screen.getByLabelText('Puma'));
+    userEvent.click(screen.getButton('Puma'));
     await screen.findByText('Possible Double Vote Detected');
     screen.getByText(/has a write-in that has already been adjudicated for/);
   });
@@ -349,9 +349,9 @@ test('ballot pagination', async () => {
   }
 });
 
-test('marking adjudications', async () => {
+describe('making adjudications', () => {
   const contestId = 'zoo-council-mammal';
-  const writeInIds = ['0', '1'];
+  const writeInId = '0';
   const mockWriteInCandidate: WriteInCandidateRecord = {
     id: 'lemur',
     name: 'Lemur',
@@ -359,13 +359,221 @@ test('marking adjudications', async () => {
     electionId: 'id',
   };
 
-  apiMock.expectGetWriteInAdjudicationQueue(writeInIds, contestId);
+  beforeEach(async () => {
+    apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
+    apiMock.expectGetFirstPendingWriteInId(contestId, '0');
+    apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
+    apiMock.expectGetWriteInImageView(writeInId);
+    apiMock.expectGetWriteInAdjudicationContext(writeInId);
+    expectGetQueueMetadata({ total: 2, pending: 2, contestId });
+
+    renderScreen(contestId, {
+      electionDefinition,
+      apiMock,
+    });
+
+    await screen.findByRole('img', { name: /ballot/i });
+  });
+
+  test('official candidate', async () => {
+    screen.getButton('Zebra');
+    screen.getButton('Lion');
+    screen.getButton('Kangaroo');
+    screen.getButton('Elephant');
+
+    apiMock.apiClient.adjudicateWriteIn
+      .expectCallWith({
+        writeInId,
+        type: 'official-candidate',
+        candidateId: 'zebra',
+      })
+      .resolves();
+    apiMock.expectGetWriteInAdjudicationContext(writeInId, {
+      writeIn: {
+        id: writeInId,
+        ...mockPartialWriteInIdentifier,
+        status: 'adjudicated',
+        adjudicationType: 'official-candidate',
+        candidateId: 'zebra',
+      },
+    });
+    apiMock.expectGetWriteInCandidates([], contestId);
+    expectGetQueueMetadata({ total: 2, pending: 1, contestId });
+
+    userEvent.click(screen.getButton('Zebra'));
+    await waitFor(async () =>
+      expect(await screen.findButton('Next')).toHaveFocus()
+    );
+
+    // clicking current selection should deselect it
+    apiMock.apiClient.adjudicateWriteIn
+      .expectCallWith({
+        writeInId,
+        type: 'reset',
+      })
+      .resolves();
+    apiMock.expectGetWriteInAdjudicationContext(writeInId, {
+      writeIn: {
+        id: writeInId,
+        ...mockPartialWriteInIdentifier,
+        status: 'pending',
+      },
+    });
+    apiMock.expectGetWriteInCandidates([], contestId);
+    expectGetQueueMetadata({ total: 2, pending: 2, contestId });
+
+    userEvent.click(screen.getButton('Zebra'));
+  });
+
+  test('existing write-in candidate', async () => {
+    screen.getButton('Lemur');
+
+    apiMock.apiClient.adjudicateWriteIn
+      .expectCallWith({
+        writeInId,
+        type: 'write-in-candidate',
+        candidateId: 'lemur',
+      })
+      .resolves();
+    apiMock.expectGetWriteInAdjudicationContext(writeInId, {
+      writeIn: {
+        id: writeInId,
+        ...mockPartialWriteInIdentifier,
+        status: 'adjudicated',
+        adjudicationType: 'write-in-candidate',
+        candidateId: 'lemur',
+      },
+    });
+    apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
+    expectGetQueueMetadata({ total: 2, pending: 1, contestId });
+
+    userEvent.click(screen.getButton('Lemur'));
+    await waitFor(async () =>
+      expect(await screen.findButton('Next')).toHaveFocus()
+    );
+
+    // clicking current selection should deselect it
+    apiMock.apiClient.adjudicateWriteIn
+      .expectCallWith({
+        writeInId,
+        type: 'reset',
+      })
+      .resolves();
+    apiMock.expectGetWriteInAdjudicationContext(writeInId, {
+      writeIn: {
+        id: writeInId,
+        ...mockPartialWriteInIdentifier,
+        status: 'pending',
+      },
+    });
+    apiMock.expectGetWriteInCandidates([], contestId);
+    expectGetQueueMetadata({ total: 2, pending: 2, contestId });
+
+    userEvent.click(screen.getButton('Lemur'));
+  });
+
+  test('new write-in candidate', async () => {
+    const mockNewWriteInCandidateRecord: WriteInCandidateRecord = {
+      id: 'fox',
+      contestId,
+      electionId: 'any',
+      name: 'Fox',
+    };
+
+    screen.getButton('Add new write-in candidate');
+
+    apiMock.apiClient.addWriteInCandidate
+      .expectCallWith({ contestId, name: 'Fox' })
+      .resolves(mockNewWriteInCandidateRecord);
+    apiMock.expectGetWriteInCandidates(
+      [mockWriteInCandidate, mockNewWriteInCandidateRecord],
+      contestId
+    );
+    apiMock.apiClient.adjudicateWriteIn
+      .expectCallWith({
+        writeInId,
+        type: 'write-in-candidate',
+        candidateId: 'fox',
+      })
+      .resolves();
+    apiMock.expectGetWriteInCandidates(
+      [mockWriteInCandidate, mockNewWriteInCandidateRecord],
+      contestId
+    );
+    apiMock.expectGetWriteInAdjudicationContext(writeInId, {
+      writeIn: {
+        id: writeInId,
+        ...mockPartialWriteInIdentifier,
+        status: 'adjudicated',
+        adjudicationType: 'write-in-candidate',
+        candidateId: 'fox',
+      },
+    });
+    expectGetQueueMetadata({ total: 2, pending: 1, contestId });
+    userEvent.click(screen.getButton('Add new write-in candidate'));
+    userEvent.type(await screen.findByPlaceholderText('Candidate Name'), 'Fox');
+    userEvent.click(await screen.findByText('Add'));
+
+    await screen.findButton('Fox');
+    await waitFor(async () =>
+      expect(await screen.findButton('Next')).toHaveFocus()
+    );
+  });
+
+  test('marking invalid', async () => {
+    apiMock.apiClient.adjudicateWriteIn
+      .expectCallWith({
+        writeInId,
+        type: 'invalid',
+      })
+      .resolves();
+    apiMock.expectGetWriteInAdjudicationContext(writeInId, {
+      writeIn: {
+        id: writeInId,
+        ...mockPartialWriteInIdentifier,
+        status: 'adjudicated',
+        adjudicationType: 'invalid',
+      },
+    });
+    apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
+    expectGetQueueMetadata({ total: 2, pending: 1, contestId });
+
+    userEvent.click(screen.getButton('Mark write-in invalid'));
+    await waitFor(async () =>
+      expect(await screen.findButton('Next')).toHaveFocus()
+    );
+
+    // clicking current selection should deselect it
+    apiMock.apiClient.adjudicateWriteIn
+      .expectCallWith({
+        writeInId,
+        type: 'reset',
+      })
+      .resolves();
+    apiMock.expectGetWriteInAdjudicationContext(writeInId, {
+      writeIn: {
+        id: writeInId,
+        ...mockPartialWriteInIdentifier,
+        status: 'pending',
+      },
+    });
+    apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
+    expectGetQueueMetadata({ total: 2, pending: 2, contestId });
+
+    userEvent.click(screen.getButton('Mark write-in invalid'));
+  });
+});
+
+test('new write-in candidate form, keyboard input', async () => {
+  const contestId = 'zoo-council-mammal';
+  const writeInId = '0';
+
+  apiMock.expectGetWriteInAdjudicationQueue([writeInId], contestId);
   apiMock.expectGetFirstPendingWriteInId(contestId, '0');
-  apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  apiMock.expectGetWriteInImageView(writeInIds[0]);
-  apiMock.expectGetWriteInImageView(writeInIds[1]); // expected image prefetch
-  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0]);
-  expectGetQueueMetadata({ total: 2, pending: 2, contestId });
+  apiMock.expectGetWriteInCandidates([], contestId);
+  apiMock.expectGetWriteInImageView(writeInId);
+  apiMock.expectGetWriteInAdjudicationContext(writeInId);
+  expectGetQueueMetadata({ total: 1, pending: 1, contestId });
 
   renderScreen(contestId, {
     electionDefinition,
@@ -373,139 +581,64 @@ test('marking adjudications', async () => {
   });
 
   await screen.findByRole('img', { name: /ballot/i });
-  screen.getByLabelText('Zebra');
-  screen.getByLabelText('Lion');
-  screen.getByLabelText('Kangaroo');
-  screen.getByLabelText('Elephant');
-  screen.getByLabelText('Lemur');
 
-  // adjudicate for official candidate
-  apiMock.apiClient.adjudicateWriteIn
-    .expectCallWith({
-      writeInId: writeInIds[0],
-      type: 'official-candidate',
-      candidateId: 'zebra',
-    })
-    .resolves();
-  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0], {
-    writeIn: {
-      id: writeInIds[0],
-      ...mockPartialWriteInIdentifier,
-      status: 'adjudicated',
-      adjudicationType: 'official-candidate',
-      candidateId: 'zebra',
-    },
-  });
-  apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  expectGetQueueMetadata({ total: 2, pending: 1, contestId });
+  userEvent.click(screen.getButton('Add new write-in candidate'));
+  const addButton = await screen.findButton('Add');
+  const nameInput = await screen.findByPlaceholderText('Candidate Name');
 
-  userEvent.click(screen.getByLabelText('Zebra'));
-  await waitFor(async () =>
-    expect(await screen.findButton('Next')).toHaveFocus()
-  );
+  // should be disabled when empty, pressing enter should be no-op
+  expect(addButton).toBeDisabled();
+  userEvent.keyboard('{enter}');
+  expect(addButton).toBeInTheDocument();
 
-  // clicking current selection should be no-op
-  userEvent.click(screen.getByLabelText('Zebra'));
-  apiMock.assertComplete();
+  // should be disabled when name taken, pressing enter should be no-op
+  userEvent.type(nameInput, 'Zebra');
+  expect(addButton).toBeDisabled();
+  userEvent.keyboard('{enter}');
+  expect(addButton).toBeInTheDocument();
 
-  // adjudicate for existing write-in candidate
-  apiMock.apiClient.adjudicateWriteIn
-    .expectCallWith({
-      writeInId: writeInIds[0],
-      type: 'write-in-candidate',
-      candidateId: 'lemur',
-    })
-    .resolves();
-  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0], {
-    writeIn: {
-      id: writeInIds[0],
-      ...mockPartialWriteInIdentifier,
-      status: 'adjudicated',
-      adjudicationType: 'write-in-candidate',
-      candidateId: 'lemur',
-    },
-  });
-  apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  expectGetQueueMetadata({ total: 2, pending: 1, contestId });
+  // should be enabled with a new name
+  userEvent.keyboard('{backspace>5}');
+  userEvent.keyboard('Lemur');
+  expect(addButton).not.toBeDisabled();
 
-  userEvent.click(screen.getByLabelText('Lemur'));
-  await waitFor(async () =>
-    expect(await screen.findButton('Next')).toHaveFocus()
-  );
-
-  // clicking current selection should be no-op
-  userEvent.click(screen.getByLabelText('Lemur'));
-  apiMock.assertComplete();
-
-  // adjudicate for a new write-in-candidate
+  // confirm add with {enter}
   const mockNewWriteInCandidateRecord: WriteInCandidateRecord = {
-    id: 'dh',
+    id: 'lemur',
     contestId,
-    electionId: 'any',
-    name: 'Dark Helmet',
+    electionId: 'id',
+    name: 'Lemur',
   };
   apiMock.apiClient.addWriteInCandidate
-    .expectCallWith({ contestId, name: 'Dark Helmet' })
+    .expectCallWith({ contestId, name: 'Lemur' })
     .resolves(mockNewWriteInCandidateRecord);
+  apiMock.expectGetWriteInCandidates(
+    [mockNewWriteInCandidateRecord],
+    contestId
+  );
   apiMock.apiClient.adjudicateWriteIn
     .expectCallWith({
-      writeInId: writeInIds[0],
+      writeInId,
       type: 'write-in-candidate',
-      candidateId: 'dh',
+      candidateId: 'lemur',
     })
     .resolves();
   apiMock.expectGetWriteInCandidates(
-    [mockWriteInCandidate, mockNewWriteInCandidateRecord],
+    [mockNewWriteInCandidateRecord],
     contestId
   );
-  apiMock.expectGetWriteInCandidates(
-    [mockWriteInCandidate, mockNewWriteInCandidateRecord],
-    contestId
-  );
-  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0], {
+  apiMock.expectGetWriteInAdjudicationContext(writeInId, {
     writeIn: {
-      id: writeInIds[0],
+      id: writeInId,
       ...mockPartialWriteInIdentifier,
       status: 'adjudicated',
       adjudicationType: 'write-in-candidate',
-      candidateId: 'dh',
+      candidateId: 'lemur',
     },
   });
-  expectGetQueueMetadata({ total: 2, pending: 1, contestId });
-  userEvent.click(await screen.findButton(/Add New Write-In Candidate/i));
-  userEvent.type(
-    await screen.findByPlaceholderText('Candidate Name'),
-    'Dark Helmet'
-  );
-  userEvent.click(await screen.findByText('Add'));
-
-  await screen.findButton('Dark Helmet');
-  await waitFor(async () =>
-    expect(await screen.findButton('Next')).toHaveFocus()
-  );
-
-  // adjudicate as invalid
-  apiMock.apiClient.adjudicateWriteIn
-    .expectCallWith({
-      writeInId: writeInIds[0],
-      type: 'invalid',
-    })
-    .resolves();
-  apiMock.expectGetWriteInAdjudicationContext(writeInIds[0], {
-    writeIn: {
-      id: writeInIds[0],
-      ...mockPartialWriteInIdentifier,
-      status: 'adjudicated',
-      adjudicationType: 'invalid',
-    },
-  });
-  apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
-  expectGetQueueMetadata({ total: 2, pending: 1, contestId });
-  userEvent.click(await screen.findButton(/Mark Write-In Invalid/i));
-  await waitFor(async () =>
-    expect(await screen.findButton('Next')).toHaveFocus()
-  );
-  expect(screen.queryByText('Dark Helmet')).not.toBeInTheDocument();
+  expectGetQueueMetadata({ total: 1, pending: 0, contestId });
+  userEvent.keyboard('{enter}');
+  await screen.findByText('Add new write-in candidate');
 });
 
 test('jumping to first pending write-in', async () => {
