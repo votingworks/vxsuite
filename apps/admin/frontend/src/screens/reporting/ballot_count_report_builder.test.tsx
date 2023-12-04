@@ -174,7 +174,7 @@ test('does not show party options for non-primary elections', () => {
   expect(screen.queryByText('Load Preview')).not.toBeInTheDocument();
 
   // no group by
-  expect(screen.queryByLabelText('Report By Party')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Party')).not.toBeInTheDocument();
 
   // no filter
   userEvent.click(screen.getByText('Add Filter'));
@@ -182,4 +182,18 @@ test('does not show party options for non-primary elections', () => {
   expect(
     within(screen.getByTestId('filter-editor')).queryByText('Party')
   ).not.toBeInTheDocument();
+});
+
+test('shows sheet option for multi-sheet elections', () => {
+  const { multiSheetElectionDefinition: electionDefinition } =
+    electionFamousNames2021Fixtures;
+
+  apiMock.expectGetCastVoteRecordFileMode('test');
+  apiMock.expectGetScannerBatches([]);
+  renderInAppContext(<BallotCountReportBuilder />, {
+    electionDefinition,
+    apiMock,
+  });
+
+  screen.getByRole('checkbox', { name: 'Sheet', checked: false });
 });

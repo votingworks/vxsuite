@@ -61,6 +61,7 @@ test('disabled shows disabled buttons and no preview', () => {
       disabled
       filter={{}}
       groupBy={{}}
+      includeSheetCounts={false}
       autoGenerateReport={false}
     />,
     { apiMock, electionDefinition }
@@ -86,6 +87,7 @@ test('when auto-generation is on, it loads the preview automatically', async () 
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
+      includeSheetCounts={false}
       autoGenerateReport
     />,
     { apiMock, electionDefinition }
@@ -114,6 +116,7 @@ test('when auto-generation is off, it requires a button press to load the report
       groupBy={{
         groupByVotingMethod: true,
       }}
+      includeSheetCounts={false}
       autoGenerateReport={false}
     />,
     { apiMock, electionDefinition }
@@ -161,6 +164,7 @@ test('shows no results warning when no results', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByBatch: true }}
+      includeSheetCounts={false}
       autoGenerateReport
     />,
     { apiMock, electionDefinition }
@@ -195,6 +199,7 @@ test('printing report', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
+      includeSheetCounts={false}
       autoGenerateReport
     />,
     { apiMock, electionDefinition, logger }
@@ -242,6 +247,7 @@ test('print failure logging', async () => {
       disabled={false}
       filter={{}}
       groupBy={{ groupByVotingMethod: true }}
+      includeSheetCounts={false}
       autoGenerateReport
     />,
     { apiMock, electionDefinition, logger }
@@ -287,6 +293,7 @@ test('displays custom filter rather than specific title when necessary', async (
       disabled={false}
       filter={filter}
       groupBy={{}}
+      includeSheetCounts={false}
       autoGenerateReport
     />,
     { apiMock, electionDefinition }
@@ -322,6 +329,7 @@ test('exporting report PDF', async () => {
       groupBy={{
         groupByVotingMethod: true,
       }}
+      includeSheetCounts={false}
       autoGenerateReport
     />,
     {

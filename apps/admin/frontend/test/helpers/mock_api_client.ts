@@ -362,13 +362,20 @@ export function createApiMock(
       path,
       filter,
       groupBy,
+      includeSheetCounts,
     }: {
       path: string;
       filter?: Tabulation.Filter;
       groupBy?: Tabulation.GroupBy;
+      includeSheetCounts?: boolean;
     }) {
       apiClient.exportBallotCountReportCsv
-        .expectCallWith({ path, groupBy, filter })
+        .expectCallWith({
+          path,
+          groupBy,
+          filter,
+          includeSheetCounts: Boolean(includeSheetCounts),
+        })
         .resolves(ok([]));
     },
 

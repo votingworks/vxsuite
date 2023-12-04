@@ -21,6 +21,7 @@ export function PrecinctBallotCountReport(): JSX.Element {
           groupByPrecinct: true,
           groupByParty: electionDefinition.election.type === 'primary',
         }}
+        includeSheetCounts={false}
         disabled={false}
         autoGenerateReport
       />

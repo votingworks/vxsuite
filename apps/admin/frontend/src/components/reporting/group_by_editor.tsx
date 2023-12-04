@@ -1,28 +1,53 @@
 import { Tabulation } from '@votingworks/types';
 import { CheckboxGroup } from '@votingworks/ui';
 
-export type GroupByType = keyof Tabulation.GroupBy;
+export type GroupByEditorOption =
+  | keyof Tabulation.GroupBy
+  | 'includeSheetCounts';
 
-const GROUPING_LABEL: Record<GroupByType, string> = {
+const GROUPING_LABEL: Record<GroupByEditorOption, string> = {
   groupByParty: 'Party',
   groupByPrecinct: 'Precinct',
   groupByBallotStyle: 'Ballot Style',
   groupByVotingMethod: 'Voting Method',
   groupByBatch: 'Batch',
   groupByScanner: 'Scanner',
+  includeSheetCounts: 'Sheet',
 };
 
 export interface GroupByEditorProps {
   groupBy: Tabulation.GroupBy;
+  includeSheetCounts?: boolean;
   setGroupBy: (groupBy: Tabulation.GroupBy) => void;
-  allowedGroupings: GroupByType[];
+  setIncludeSheetCounts?: (includeSheetCounts: boolean) => void;
+  allowedOptions: GroupByEditorOption[];
 }
 
 export function GroupByEditor({
   groupBy,
+  includeSheetCounts,
   setGroupBy,
-  allowedGroupings,
+  setIncludeSheetCounts,
+  allowedOptions: allowedGroupings,
 }: GroupByEditorProps): JSX.Element {
+  const checkboxValues = Object.keys(groupBy).filter(
+    (grouping) => groupBy[grouping as keyof Tabulation.GroupBy]
+  );
+  if (includeSheetCounts) {
+    checkboxValues.push('includeSheetCounts');
+  }
+
+  function onChange(newCheckboxValues: string[]): void {
+    setGroupBy(
+      Object.fromEntries(
+        newCheckboxValues
+          .filter((v) => v !== 'includeSheetCounts')
+          .map((grouping) => [grouping, true])
+      )
+    );
+    setIncludeSheetCounts?.(newCheckboxValues.includes('includeSheetCounts'));
+  }
+
   return (
     <CheckboxGroup
       hideLabel
@@ -32,16 +57,8 @@ export function GroupByEditor({
         value: grouping,
         label: GROUPING_LABEL[grouping],
       }))}
-      value={
-        Object.keys(groupBy).filter(
-          (grouping) => groupBy[grouping as GroupByType]
-        ) as GroupByType[]
-      }
-      onChange={(value) =>
-        setGroupBy(
-          Object.fromEntries(value.map((grouping) => [grouping, true]))
-        )
-      }
+      value={checkboxValues}
+      onChange={onChange}
     />
   );
 }
