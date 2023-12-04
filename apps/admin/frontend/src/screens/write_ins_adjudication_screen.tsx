@@ -151,10 +151,7 @@ const SectionLabel = styled.div`
 // because we need to be able to deselect options by clicking them again
 const CandidateStyledButton = styled(Button)`
   border-color: ${(p) => p.theme.colors.outline};
-  border-width: ${(p) =>
-    p.theme.sizeMode === 'desktop'
-      ? p.theme.sizes.bordersRem.thin
-      : p.theme.sizes.bordersRem.hairline}rem;
+  border-width: ${(p) => p.theme.sizes.bordersRem.thin}rem;
   flex-wrap: nowrap;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
@@ -204,10 +201,10 @@ function CandidateButton({
 }
 
 const CandidateButtonList = styled.div`
-  display: grid;
+  display: flex;
+  flex-direction: column;
   align-items: stretch;
-  grid-gap: 0.5rem;
-  grid-template-columns: 1fr;
+  gap: 0.5rem;
 `;
 
 export function WriteInsAdjudicationScreen(): JSX.Element {
@@ -629,7 +626,6 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                 </WriteInActionButton>
               )}
             </div>
-
             <div style={{ marginTop: '1rem' }}>
               <WriteInActionButton
                 onPress={() => {

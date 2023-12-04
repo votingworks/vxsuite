@@ -130,12 +130,19 @@ export async function adjudicateWriteIn(
 
   switch (adjudicationAction.type) {
     case 'official-candidate':
+      store.setWriteInRecordOfficialCandidate(adjudicationAction);
+      // ensure the vote does not appear as an undervote in tallies, which is
+      // only applicable to unmarked write-ins
+      adjudicateVote(
+        {
+          ...initialWriteInRecord,
+          isVote: true,
+        },
+        store
+      );
+      break;
     case 'write-in-candidate':
-      if (adjudicationAction.type === 'official-candidate') {
-        store.setWriteInRecordOfficialCandidate(adjudicationAction);
-      } else {
-        store.setWriteInRecordUnofficialCandidate(adjudicationAction);
-      }
+      store.setWriteInRecordUnofficialCandidate(adjudicationAction);
       // ensure the vote does not appear as an undervote in tallies, which is
       // only applicable to unmarked write-ins
       adjudicateVote(
