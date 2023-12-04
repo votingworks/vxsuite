@@ -199,17 +199,17 @@ test('getSystemSettings returns default system settings when there is no current
   expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
 
-test('saveBallotPackageToUsb', async () => {
+test('saveElectionPackageToUsb', async () => {
   const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   mockUsbDrive.insertUsbDrive({});
-  const response = await apiClient.saveBallotPackageToUsb();
+  const response = await apiClient.saveElectionPackageToUsb();
   expect(response).toEqual(ok());
 });
 
-test('saveBallotPackageToUsb when no USB drive', async () => {
+test('saveElectionPackageToUsb when no USB drive', async () => {
   const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
@@ -217,7 +217,7 @@ test('saveBallotPackageToUsb when no USB drive', async () => {
   mockUsbDrive.usbDrive.status
     .expectCallWith()
     .resolves({ status: 'no_drive' });
-  const response = await apiClient.saveBallotPackageToUsb();
+  const response = await apiClient.saveElectionPackageToUsb();
   expect(response).toEqual(
     err({ type: 'missing-usb-drive', message: 'No USB drive found' })
   );

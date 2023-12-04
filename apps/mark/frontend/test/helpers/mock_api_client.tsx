@@ -8,7 +8,7 @@ import type {
 } from '@votingworks/mark-backend';
 import { QueryClientProvider } from '@tanstack/react-query';
 import {
-  BallotPackageConfigurationError,
+  ElectionPackageConfigurationError,
   BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -173,26 +173,26 @@ export function createApiMock() {
       mockApiClient.unconfigureMachine.expectCallWith().resolves();
     },
 
-    expectConfigureBallotPackageFromUsb(
+    expectConfigureElectionPackageFromUsb(
       electionDefinition: ElectionDefinition
     ): void {
       const result: Result<
         ElectionDefinition,
-        BallotPackageConfigurationError
+        ElectionPackageConfigurationError
       > = ok(electionDefinition);
-      mockApiClient.configureBallotPackageFromUsb
+      mockApiClient.configureElectionPackageFromUsb
         .expectCallWith()
         .resolves(result);
     },
 
-    expectConfigureBallotPackageFromUsbError(
-      error: BallotPackageConfigurationError
+    expectConfigureElectionPackageFromUsbError(
+      error: ElectionPackageConfigurationError
     ): void {
       const result: Result<
         ElectionDefinition,
-        BallotPackageConfigurationError
+        ElectionPackageConfigurationError
       > = err(error);
-      mockApiClient.configureBallotPackageFromUsb
+      mockApiClient.configureElectionPackageFromUsb
         .expectCallWith()
         .resolves(result);
     },

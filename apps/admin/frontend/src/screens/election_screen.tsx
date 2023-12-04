@@ -13,7 +13,7 @@ import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { RemoveElectionModal } from '../components/remove_election_modal';
-import { ExportElectionBallotPackageModalButton } from '../components/export_election_ballot_package_modal_button';
+import { ExportElectionPackageModalButton } from '../components/export_election_package_modal_button';
 
 const ElectionCard = styled(Card).attrs({ color: 'neutral' })`
   margin: 1rem 0;
@@ -66,11 +66,11 @@ export function ElectionScreen(): JSX.Element {
         {isElectionManagerAuth(auth) && (
           <React.Fragment>
             <P>
-              Save the Ballot Package to USB to configure VxCentralScan or
-              VxScan.
+              Save the election package to the USB drive to configure
+              VxCentralScan or VxScan.
             </P>
             <P>
-              <ExportElectionBallotPackageModalButton />
+              <ExportElectionPackageModalButton />
             </P>
           </React.Fragment>
         )}

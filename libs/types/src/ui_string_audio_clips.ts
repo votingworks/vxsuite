@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { LanguageCode } from './language_code';
 
 /**
- * A single audio clip record in the audio clips JSONL file in a ballot package.
+ * A single audio clip record in the audio clips JSONL file in an election package.
  */
 export interface UiStringAudioClip {
   dataBase64: string;
@@ -12,7 +12,7 @@ export interface UiStringAudioClip {
 }
 
 /**
- * A single audio clip record in the audio clips JSONL file in a ballot package.
+ * A single audio clip record in the audio clips JSONL file in an election package.
  */
 export const UiStringAudioClipSchema: z.ZodType<UiStringAudioClip> = z.object({
   dataBase64: z.string(),
@@ -21,6 +21,6 @@ export const UiStringAudioClipSchema: z.ZodType<UiStringAudioClip> = z.object({
 });
 
 /**
- * Audio clip records from the audio clips JSONL file in a ballot package.
+ * Audio clip records from the audio clips JSONL file in an election package.
  */
 export type UiStringAudioClips = readonly UiStringAudioClip[];

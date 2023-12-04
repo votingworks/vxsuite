@@ -55,7 +55,7 @@ beforeAll(() => {
 
 beforeEach(async () => {
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
   const result = await createApp();

@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 export * as Admin from './admin';
 export * from './auth';
-export * from './ballot_package';
+export * from './election_package';
 export * from './byte';
 export * from './hmpb';
 export * from './cast_vote_records';

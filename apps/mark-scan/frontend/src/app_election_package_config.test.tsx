@@ -18,7 +18,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('renders an error if ballot package config endpoint returns an error', async () => {
+test('renders an error if election package config endpoint returns an error', async () => {
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
@@ -36,13 +36,13 @@ test('renders an error if ballot package config endpoint returns an error', asyn
     />
   );
 
-  apiMock.expectConfigureBallotPackageFromUsbError('election_hash_mismatch');
+  apiMock.expectConfigureElectionPackageFromUsbError('election_hash_mismatch');
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   await screen.findByText('Configuring VxMarkScan from USB drive…');
   await screen.findByText(
-    'The most recent ballot package found is for a different election.'
+    'The most recent election package found is for a different election.'
   );
 });

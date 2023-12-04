@@ -2,8 +2,8 @@ import { zipFile } from '@votingworks/test-utils';
 import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { assertDefined, typedAs } from '@votingworks/basics';
 import {
-  BallotPackage,
-  BallotPackageFileName,
+  ElectionPackage,
+  ElectionPackageFileName,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionStringKey,
   LanguageCode,
@@ -13,21 +13,19 @@ import {
   safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
-import { readBallotPackageFromFile } from './ballot_package';
+import { readElectionPackageFromFile } from './election_package';
 import { extractCdfUiStrings } from './extract_cdf_ui_strings';
 
-test('readBallotPackageFromFile reads a ballot package without system settings from a file', async () => {
+test('readElectionPackageFromFile reads an election package without system settings from a file', async () => {
   const pkg = await zipFile({
-    [BallotPackageFileName.ELECTION]:
+    [ElectionPackageFileName.ELECTION]:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
         .electionData,
   });
   expect(
-    await readBallotPackageFromFile(
-      new File([pkg], 'election-ballot-package.zip')
-    )
+    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
   ).toEqual(
-    typedAs<BallotPackage>({
+    typedAs<ElectionPackage>({
       electionDefinition:
         electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -36,21 +34,19 @@ test('readBallotPackageFromFile reads a ballot package without system settings f
   );
 });
 
-test('readBallotPackageFromFile reads a ballot package with system settings from a file', async () => {
+test('readElectionPackageFromFile reads an election package with system settings from a file', async () => {
   const pkg = await zipFile({
-    [BallotPackageFileName.ELECTION]:
+    [ElectionPackageFileName.ELECTION]:
       electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
         .electionData,
-    [BallotPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
       typedAs<SystemSettings>(DEFAULT_SYSTEM_SETTINGS)
     ),
   });
   expect(
-    await readBallotPackageFromFile(
-      new File([pkg], 'election-ballot-package.zip')
-    )
+    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
   ).toEqual(
-    typedAs<BallotPackage>({
+    typedAs<ElectionPackage>({
       electionDefinition:
         electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -59,7 +55,7 @@ test('readBallotPackageFromFile reads a ballot package with system settings from
   );
 });
 
-test('readBallotPackageFromFile loads available ui strings', async () => {
+test('readElectionPackageFromFile loads available ui strings', async () => {
   const appStrings: UiStringsPackage = {
     [LanguageCode.ENGLISH]: {
       foo: 'bar',
@@ -74,8 +70,8 @@ test('readBallotPackageFromFile loads available ui strings', async () => {
   const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
 
   const pkg = await zipFile({
-    [BallotPackageFileName.ELECTION]: testCdfElectionData,
-    [BallotPackageFileName.APP_STRINGS]: JSON.stringify(appStrings),
+    [ElectionPackageFileName.ELECTION]: testCdfElectionData,
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify(appStrings),
   });
 
   const expectedElectionStrings = extractCdfUiStrings(testCdfBallotDefinition);
@@ -90,10 +86,8 @@ test('readBallotPackageFromFile loads available ui strings', async () => {
   };
 
   expect(
-    await readBallotPackageFromFile(
-      new File([pkg], 'election-ballot-package.zip')
-    )
-  ).toEqual<BallotPackage>({
+    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
+  ).toEqual<ElectionPackage>({
     electionDefinition:
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -101,7 +95,7 @@ test('readBallotPackageFromFile loads available ui strings', async () => {
   });
 });
 
-test('readBallotPackageFromFile loads vx election strings', async () => {
+test('readElectionPackageFromFile loads vx election strings', async () => {
   const vxElectionStrings: UiStringsPackage = {
     [LanguageCode.ENGLISH]: {
       [ElectionStringKey.ELECTION_DATE]: 'The Day The Earth Stood Still',
@@ -114,8 +108,8 @@ test('readBallotPackageFromFile loads vx election strings', async () => {
 
   const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
   const pkg = await zipFile({
-    [BallotPackageFileName.ELECTION]: testCdfElectionData,
-    [BallotPackageFileName.VX_ELECTION_STRINGS]:
+    [ElectionPackageFileName.ELECTION]: testCdfElectionData,
+    [ElectionPackageFileName.VX_ELECTION_STRINGS]:
       JSON.stringify(vxElectionStrings),
   });
 
@@ -131,10 +125,8 @@ test('readBallotPackageFromFile loads vx election strings', async () => {
   };
 
   expect(
-    await readBallotPackageFromFile(
-      new File([pkg], 'election-ballot-package.zip')
-    )
-  ).toEqual<BallotPackage>({
+    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
+  ).toEqual<ElectionPackage>({
     electionDefinition:
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -142,7 +134,7 @@ test('readBallotPackageFromFile loads vx election strings', async () => {
   });
 });
 
-test('readBallotPackageFromFile loads UI string audio IDs', async () => {
+test('readElectionPackageFromFile loads UI string audio IDs', async () => {
   const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
   const { electionData } = electionDefinition;
 
@@ -158,8 +150,8 @@ test('readBallotPackageFromFile loads UI string audio IDs', async () => {
   };
 
   const pkg = await zipFile({
-    [BallotPackageFileName.ELECTION]: electionData,
-    [BallotPackageFileName.UI_STRING_AUDIO_IDS]: JSON.stringify(audioIds),
+    [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.UI_STRING_AUDIO_IDS]: JSON.stringify(audioIds),
   });
 
   const expectedAudioIds: UiStringAudioIdsPackage = {
@@ -172,10 +164,8 @@ test('readBallotPackageFromFile loads UI string audio IDs', async () => {
   };
 
   expect(
-    await readBallotPackageFromFile(
-      new File([pkg], 'election-ballot-package.zip')
-    )
-  ).toEqual<BallotPackage>({
+    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
+  ).toEqual<ElectionPackage>({
     electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: {},
@@ -183,25 +173,23 @@ test('readBallotPackageFromFile loads UI string audio IDs', async () => {
   });
 });
 
-test('readBallotPackageFromFile throws when an election.json is not present', async () => {
+test('readElectionPackageFromFile throws when an election.json is not present', async () => {
   const pkg = await zipFile({});
   await expect(
-    readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
+    readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
   ).rejects.toThrowError(
-    "ballot package does not have a file called 'election.json'"
+    "election package does not have a file called 'election.json'"
   );
 });
 
-test('readBallotPackageFromFile throws when given an invalid zip file', async () => {
+test('readElectionPackageFromFile throws when given an invalid zip file', async () => {
   await expect(
-    readBallotPackageFromFile(
-      new File(['not-a-zip'], 'election-ballot-package.zip')
-    )
+    readElectionPackageFromFile(new File(['not-a-zip'], 'election-package.zip'))
   ).rejects.toThrowError();
 });
 
-test('readBallotPackageFromFile throws when the file cannot be read', async () => {
+test('readElectionPackageFromFile throws when the file cannot be read', async () => {
   await expect(
-    readBallotPackageFromFile({} as unknown as File)
+    readElectionPackageFromFile({} as unknown as File)
   ).rejects.toThrowError();
 });

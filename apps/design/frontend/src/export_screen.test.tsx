@@ -36,21 +36,21 @@ function renderScreen() {
   );
 }
 
-test('export setup package', async () => {
+test('export election package', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Export' });
 
-  apiMock.exportSetupPackage.expectCallWith({ electionId }).resolves({
+  apiMock.exportElectionPackage.expectCallWith({ electionId }).resolves({
     zipContents: Buffer.from('fake-zip-contents'),
     electionHash: '1234567890abcdef',
   });
 
-  screen.getButton('Export Setup Package').click();
+  screen.getButton('Export Election Package').click();
 
   await waitFor(() => {
     expect(fileDownloadMock).toHaveBeenCalledWith(
       Buffer.from('fake-zip-contents'),
-      'setup-package-1234567890.zip'
+      'election-package-1234567890.zip'
     );
   });
 });

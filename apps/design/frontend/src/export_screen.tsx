@@ -2,14 +2,14 @@ import { H1, P, Button, MainContent, MainHeader } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { getDisplayElectionHash } from '@votingworks/types';
-import { exportAllBallots, exportSetupPackage } from './api';
+import { exportAllBallots, exportElectionPackage } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 
 export function ExportScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
   const exportAllBallotsMutation = exportAllBallots.useMutation();
-  const exportSetupPackageMutation = exportSetupPackage.useMutation();
+  const exportElectionPackageMutation = exportElectionPackage.useMutation();
 
   function onPressExportAllBallots() {
     exportAllBallotsMutation.mutate(
@@ -25,14 +25,14 @@ export function ExportScreen(): JSX.Element {
     );
   }
 
-  function onPressExportSetupPackage() {
-    exportSetupPackageMutation.mutate(
+  function onPressExportElectionPackage() {
+    exportElectionPackageMutation.mutate(
       { electionId },
       {
         onSuccess: ({ zipContents, electionHash }) => {
           fileDownload(
             zipContents,
-            `setup-package-${getDisplayElectionHash({ electionHash })}.zip`
+            `election-package-${getDisplayElectionHash({ electionHash })}.zip`
           );
         },
       }
@@ -57,10 +57,10 @@ export function ExportScreen(): JSX.Element {
         <P>
           <Button
             variant="primary"
-            onPress={onPressExportSetupPackage}
-            disabled={exportSetupPackageMutation.isLoading}
+            onPress={onPressExportElectionPackage}
+            disabled={exportElectionPackageMutation.isLoading}
           >
-            Export Setup Package
+            Export Election Package
           </Button>
         </P>
       </MainContent>

@@ -20,7 +20,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  BallotPackageConfigurationError,
+  ElectionPackageConfigurationError,
   SheetInterpretation,
   getDisplayElectionHash,
 } from '@votingworks/types';
@@ -144,27 +144,29 @@ test('app can load and configure from a usb stick', async () => {
   await screen.findByText(
     'Insert an Election Manager card to configure VxScan'
   );
-  await screen.findByText('Insert a USB drive containing a ballot package');
+  await screen.findByText('Insert a USB drive containing an election package');
 
-  // Insert a USB with no ballot package
+  // Insert a USB with no election package
   apiMock.expectGetUsbDriveStatus('mounted');
-  apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
+  apiMock.mockApiClient.configureFromElectionPackageOnUsbDrive
     .expectCallWith()
-    .resolves(err('no_ballot_package_on_usb_drive'));
+    .resolves(err('no_election_package_on_usb_drive'));
   apiMock.expectGetConfig({
     electionDefinition: undefined,
   });
-  await screen.findByText('No ballot package found on the inserted USB drive.');
+  await screen.findByText(
+    'No election package found on the inserted USB drive.'
+  );
 
   // Remove the USB
   apiMock.expectGetUsbDriveStatus('no_drive');
-  await screen.findByText('Insert a USB drive containing a ballot package');
+  await screen.findByText('Insert a USB drive containing an election package');
 
-  // Insert a USB with a ballot package
+  // Insert a USB with an election package
   apiMock.expectGetUsbDriveStatus('mounted');
   const { promise: configurePromise, resolve: configureResolve } =
-    deferred<Result<void, BallotPackageConfigurationError>>();
-  apiMock.mockApiClient.configureFromBallotPackageOnUsbDrive
+    deferred<Result<void, ElectionPackageConfigurationError>>();
+  apiMock.mockApiClient.configureFromElectionPackageOnUsbDrive
     .expectCallWith()
     .returns(configurePromise);
   apiMock.expectGetConfig({ electionDefinition: electionGeneralDefinition });
@@ -379,7 +381,7 @@ test('election manager and poll worker configuration', async () => {
   );
   userEvent.click(await screen.findByText('Yes, Delete All'));
   await screen.findByText('Loading');
-  await screen.findByText('Insert a USB drive containing a ballot package');
+  await screen.findByText('Insert a USB drive containing an election package');
 });
 
 const statusBallotCounted = scannerStatus({

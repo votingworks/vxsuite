@@ -29,7 +29,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 });
 
@@ -102,8 +102,8 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       // Ballot should be rejected when configured for the wrong precinct
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
+        electionPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(),
         precinctId: '22',
       });
 
@@ -139,8 +139,8 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       // Configure for the proper precinct and verify the ballot scans
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        ballotPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(),
+        electionPackage:
+          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(),
         precinctId: 'town-id-00701-precinct-id-',
       });
 

@@ -5,12 +5,12 @@ import {
   PrecinctId,
 } from './election';
 import { SystemSettings } from './system_settings';
-import { BallotPackageMetadata } from './ballot_package_metadata';
+import { ElectionPackageMetadata } from './election_package_metadata';
 import { UiStringAudioClips } from './ui_string_audio_clips';
 import { UiStringAudioIdsPackage } from './ui_string_audio_ids';
 import { UiStringsPackage } from './ui_string_translations';
 
-export enum BallotPackageFileName {
+export enum ElectionPackageFileName {
   APP_STRINGS = 'appStrings.json',
   AUDIO_CLIPS = 'audioClips.jsonl',
   ELECTION = 'election.json',
@@ -20,9 +20,9 @@ export enum BallotPackageFileName {
   VX_ELECTION_STRINGS = 'vxElectionStrings.json',
 }
 
-export interface BallotPackage {
+export interface ElectionPackage {
   electionDefinition: ElectionDefinition;
-  metadata?: BallotPackageMetadata; // TODO(kofi): Make required
+  metadata?: ElectionPackageMetadata; // TODO(kofi): Make required
   // TODO(kevin) once all machines support system settings, make systemSettings required
   systemSettings?: SystemSettings;
   uiStringAudioClips?: UiStringAudioClips; // TODO(kofi): Make required

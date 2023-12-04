@@ -33,10 +33,7 @@ export function LogicAndAccuracyScreen(): JSX.Element {
 
   return renderScreen(
     <React.Fragment>
-      <P>
-        Print the following reports and ballot packages in preparation for L&A
-        testing.
-      </P>
+      <P>Print the following documents in preparation for L&A testing.</P>
       <ol>
         <H4 as="h2">
           <li>Unofficial Full Election Tally Report</li>

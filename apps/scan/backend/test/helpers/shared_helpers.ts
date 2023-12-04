@@ -1,6 +1,6 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ok } from '@votingworks/basics';
-import { mockBallotPackageFileTree } from '@votingworks/backend';
+import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
@@ -9,7 +9,7 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import {
-  BallotPackage,
+  ElectionPackage,
   PrecinctId,
   PrecinctScannerState,
 } from '@votingworks/types';
@@ -61,11 +61,11 @@ export async function configureApp(
   mockAuth: InsertedSmartCardAuthApi,
   mockUsbDrive: MockUsbDrive,
   {
-    ballotPackage = electionFamousNames2021Fixtures.electionJson.toBallotPackage(),
+    electionPackage = electionFamousNames2021Fixtures.electionJson.toElectionPackage(),
     precinctId,
     testMode = false,
   }: {
-    ballotPackage?: BallotPackage;
+    electionPackage?: ElectionPackage;
     precinctId?: PrecinctId;
     testMode?: boolean;
   } = {}
@@ -73,14 +73,18 @@ export async function configureApp(
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakeElectionManagerUser(ballotPackage.electionDefinition),
+      user: fakeElectionManagerUser(electionPackage.electionDefinition),
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
 
-  mockUsbDrive.insertUsbDrive(await mockBallotPackageFileTree(ballotPackage));
+  mockUsbDrive.insertUsbDrive(
+    await mockElectionPackageFileTree(electionPackage)
+  );
 
-  expect(await apiClient.configureFromBallotPackageOnUsbDrive()).toEqual(ok());
+  expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
+    ok()
+  );
 
   await apiClient.setPrecinctSelection({
     precinctSelection: precinctId

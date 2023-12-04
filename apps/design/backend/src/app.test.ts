@@ -197,7 +197,7 @@ test('Update layout options', async () => {
   });
 });
 
-test('Export setup package', async () => {
+test('Export election package', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.electionDefinition;
   const mockSystemSettings: SystemSettings = {
@@ -220,7 +220,7 @@ test('Export setup package', async () => {
   });
   const { election: appElection } = await apiClient.getElection({ electionId });
 
-  const { zipContents, electionHash } = await apiClient.exportSetupPackage({
+  const { zipContents, electionHash } = await apiClient.exportElectionPackage({
     electionId,
   });
   const zip = await JsZip.loadAsync(zipContents);
@@ -338,8 +338,10 @@ test('Export all ballots', async () => {
     });
   }
 
-  const setupPackageResult = await apiClient.exportSetupPackage({ electionId });
-  expect(electionHash).toEqual(setupPackageResult.electionHash);
+  const electionPackageResult = await apiClient.exportElectionPackage({
+    electionId,
+  });
+  expect(electionHash).toEqual(electionPackageResult.electionHash);
 });
 
 describe('Ballot style generation', () => {

@@ -185,7 +185,7 @@ export function generateBallotPageLayouts(
 
 /**
  * Generates a base set of CVRs for a given election that obtains maximum coverage of all the ballot metadata (precincts, scanners, etc.) and all possible votes on each contest.
- * @param options.ballotPackage Ballot package containing the election data to generate CVRs for
+ * @param options.electionPackage Election package containing the election data to generate CVRs for
  * @param options.scannerIds Scanners to include in the output CVRs
  * @param options.testMode Generate CVRs for test ballots or live ballots
  * @returns Array of generated {@link CVR.CVR}

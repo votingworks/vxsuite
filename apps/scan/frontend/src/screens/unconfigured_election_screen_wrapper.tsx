@@ -5,7 +5,7 @@ import {
   Main,
 } from '@votingworks/ui';
 import {
-  configureFromBallotPackageOnUsbDrive,
+  configureFromElectionPackageOnUsbDrive,
   getUsbDriveStatus,
 } from '../api';
 
@@ -23,7 +23,8 @@ export function UnconfiguredElectionScreenWrapper(
   const { isElectionManagerAuth } = props;
 
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  const configureMutation = configureFromBallotPackageOnUsbDrive.useMutation();
+  const configureMutation =
+    configureFromElectionPackageOnUsbDrive.useMutation();
   // TODO move watching for USB drive to configure to the backend
   useQueryChangeListener(usbDriveStatusQuery, {
     onChange: (newUsbDriveStatus) => {

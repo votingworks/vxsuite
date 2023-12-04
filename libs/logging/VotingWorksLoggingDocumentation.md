@@ -122,13 +122,13 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.  
 **Machines:** All
-### save-ballot-package-init
+### save-election-package-init
 **Type:** [user-action](#user-action)  
-**Description:** Saving the ballot package is initiated.  
+**Description:** Saving the election package is initiated.  
 **Machines:** vx-admin-frontend
-### save-ballot-package-complete
+### save-election-package-complete
 **Type:** [user-action](#user-action)  
-**Description:** Saving the ballot package completed, success or failure is indicated by the disposition.  
+**Description:** Saving the election package completed, success or failure is indicated by the disposition.  
 **Machines:** vx-admin-frontend
 ### smart-card-program-init
 **Type:** [user-action](#user-action)  
@@ -210,9 +210,9 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User attempted to save the test deck tally report as PDF. Success or failure indicated by subsequent FileSaved log disposition.  
 **Machines:** vx-admin-frontend
-### initial-setup-zip-package-loaded
+### initial-election-package-loaded
 **Type:** [user-action](#user-action)  
-**Description:** User loaded VxAdmin initial setup package  
+**Description:** User loaded VxAdmin initial election package  
 **Machines:** vx-admin-frontend
 ### system-settings-save-initiated
 **Type:** [application-status](#application-status)  
@@ -258,13 +258,13 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User saved a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.  
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
-### configure-from-ballot-package-init
+### configure-from-election-package-init
 **Type:** [user-action](#user-action)  
-**Description:** User had initiated configuring the machine from a ballot package. The ballot package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.  
+**Description:** User had initiated configuring the machine from an election package. The election package will be loaded from the USB drive, each ballot will be configured, the scanner will be configured, and then the election configuration will be complete.  
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
-### ballot-package-files-read-from-usb
+### election-package-files-read-from-usb
 **Type:** [user-action](#user-action)  
-**Description:** List of ballot packages read from usb and displayed to user to load to machine.  
+**Description:** List of election packages read from usb and displayed to user to load to machine.  
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### ballot-configure-machine-complete
 **Type:** [user-action](#user-action)  
@@ -272,7 +272,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### scanner-configure-complete
 **Type:** [user-action](#user-action)  
-**Description:** The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.  
+**Description:** The final configuration steps for the scanner for the election package have completed. Success or failure indicated by disposition.  
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### delete-cvr-batch-init
 **Type:** [user-action](#user-action)  
@@ -358,9 +358,9 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has triggered the machine to power down.  
 **Machines:** All
-### ballot-package-load-from-usb-complete
+### election-package-load-from-usb-complete
 **Type:** [user-action](#user-action)  
-**Description:** The ballot package has been read from the USB drive. Success or failure indicated by disposition.  
+**Description:** The election package has been read from the USB drive. Success or failure indicated by disposition.  
 **Machines:** vx-central-scan-frontend, vx-scan-frontend
 ### export-cast-vote-records-init
 **Type:** [user-action](#user-action)  

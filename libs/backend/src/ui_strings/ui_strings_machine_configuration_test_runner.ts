@@ -1,7 +1,7 @@
 /* istanbul ignore file - test util */
 
 import {
-  BallotPackage,
+  ElectionPackage,
   ExtendedElectionDefinition,
   LanguageCode,
   UiStringAudioIdsPackage,
@@ -11,7 +11,7 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { extractCdfUiStrings } from '@votingworks/utils';
 import { Result, assertDefined } from '@votingworks/basics';
 import { UiStringsStore } from './ui_strings_store';
-import { mockBallotPackageFileTree } from '../ballot_package/test_utils';
+import { mockElectionPackageFileTree } from '../election_package/test_utils';
 
 type MockUsbDriveLike = Pick<MockUsbDrive, 'insertUsbDrive'>;
 
@@ -25,7 +25,7 @@ export interface UiStringConfigTestContext {
 
 /**
  * Tests the loading of strings translations and audio into the store when
- * configuring a machine from a USB ballot package.
+ * configuring a machine from a USB election package.
  */
 export function runUiStringMachineConfigurationTests(
   context: UiStringConfigTestContext
@@ -37,9 +37,9 @@ export function runUiStringMachineConfigurationTests(
     assertDefined(cdfElection)
   );
 
-  async function doTestConfigure(usbBallotPackage: BallotPackage) {
+  async function doTestConfigure(usbElectionPackage: ElectionPackage) {
     getMockUsbDrive().insertUsbDrive(
-      await mockBallotPackageFileTree(usbBallotPackage)
+      await mockElectionPackageFileTree(usbElectionPackage)
     );
 
     const result = await runConfigureMachine();

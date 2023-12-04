@@ -8,7 +8,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { readFileAsyncAsString } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import type { ConfigureError } from '@votingworks/admin-backend';
-import { readInitialAdminSetupPackageFromFile } from '../utils/initial_setup_package';
+import { readInitialAdminElectionPackageFromFile } from '../utils/initial_election_package';
 
 import { InputEventFunction } from '../config/types';
 
@@ -72,13 +72,13 @@ export function UnconfiguredScreen(): JSX.Element {
     setIsUploading(false);
   };
 
-  const handleSetupPackageFile: InputEventFunction = async (event) => {
+  const handleElectionPackageFile: InputEventFunction = async (event) => {
     setIsUploadingZip(true);
     const input = event.currentTarget;
     const file = input.files && input.files[0];
 
     if (file) {
-      const packageResult = await readInitialAdminSetupPackageFromFile(file);
+      const packageResult = await readInitialAdminElectionPackageFromFile(file);
       if (packageResult.isErr()) {
         setConfigureError(packageResult.err());
         // eslint-disable-next-line no-console
@@ -123,24 +123,23 @@ export function UnconfiguredScreen(): JSX.Element {
       )}
       <P>
         <FileInputButton
-          accept=".json,application/json"
-          onChange={handleVxElectionFile}
+          accept=".zip,application/zip"
+          onChange={handleElectionPackageFile}
+          buttonProps={{ variant: 'primary' }}
         >
-          Select Existing Election Definition File
+          Select Election Package
         </FileInputButton>
       </P>
       <P>
         <FileInputButton
-          accept=".zip,application/zip"
-          onChange={handleSetupPackageFile}
+          accept=".json,application/json"
+          onChange={handleVxElectionFile}
         >
-          Select Existing Setup Package Zip File
+          Select Election Definition
         </FileInputButton>
       </P>
       <P>
-        <Button onPress={loadDemoElection}>
-          Load Demo Election Definition
-        </Button>
+        <Button onPress={loadDemoElection}>Load Demo Election</Button>
       </P>
     </NavigationScreen>
   );

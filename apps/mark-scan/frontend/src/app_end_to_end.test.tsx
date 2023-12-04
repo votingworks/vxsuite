@@ -23,7 +23,7 @@ import {
   voterContests,
 } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-import { configureFromUsbThenRemove } from '../test/helpers/ballot_package';
+import { configureFromUsbThenRemove } from '../test/helpers/election_package';
 import { getMockInterpretation } from '../test/helpers/interpretation';
 
 let apiMock: ApiMock;
@@ -386,5 +386,5 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Verify that machine was unconfigured even after election manager reauth
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
-  await screen.findByText('Insert a USB drive containing a ballot package');
+  await screen.findByText('Insert a USB drive containing an election package');
 });

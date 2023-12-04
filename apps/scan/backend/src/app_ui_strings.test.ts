@@ -63,11 +63,11 @@ runUiStringApiTests({
   store: store.getUiStringsStore(),
 });
 
-describe('configureFromBallotPackageOnUsbDrive', () => {
+describe('configureFromElectionPackageOnUsbDrive', () => {
   beforeEach(() => {
     mockFeatureFlagger.resetFeatureFlags();
     mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+      BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
     );
 
     mockAuth.getAuthStatus.mockImplementation(() =>
@@ -96,7 +96,7 @@ describe('configureFromBallotPackageOnUsbDrive', () => {
   runUiStringMachineConfigurationTests({
     electionPackage,
     getMockUsbDrive: () => mockUsbDrive,
-    runConfigureMachine: () => api.configureFromBallotPackageOnUsbDrive(),
+    runConfigureMachine: () => api.configureFromElectionPackageOnUsbDrive(),
     store: store.getUiStringsStore(),
   });
 });

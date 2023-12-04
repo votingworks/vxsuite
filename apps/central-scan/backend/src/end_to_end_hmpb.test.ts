@@ -2,7 +2,7 @@ import getPort from 'get-port';
 import {
   getCastVoteRecordExportDirectoryPaths,
   isTestReport,
-  mockBallotPackageFileTree,
+  mockElectionPackageFileTree,
   readCastVoteRecordExport,
 } from '@votingworks/backend';
 import {
@@ -140,12 +140,12 @@ test('going through the whole process works', async () => {
   );
 
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
   mockUsbDrive.insertUsbDrive(
-    await mockBallotPackageFileTree(
-      electionGridLayoutNewHampshireAmherstFixtures.electionJson.toBallotPackage(
+    await mockElectionPackageFileTree(
+      electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(
         {
           ...DEFAULT_SYSTEM_SETTINGS,
           markThresholds: {
@@ -157,7 +157,7 @@ test('going through the whole process works', async () => {
     )
   );
   const configureResult =
-    await apiClient.configureFromBallotPackageOnUsbDrive();
+    await apiClient.configureFromElectionPackageOnUsbDrive();
   expect(configureResult.err()).toBeUndefined();
   expect(configureResult.isOk()).toEqual(true);
   expect(configureResult.ok()).toEqual(electionDefinition);

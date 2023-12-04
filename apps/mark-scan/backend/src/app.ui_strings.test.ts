@@ -55,14 +55,14 @@ runUiStringApiTests({
   store: store.getUiStringsStore(),
 });
 
-describe('configureBallotPackageFromUsb', () => {
+describe('configureElectionPackageFromUsb', () => {
   let mockUsbDrive: MockUsbDrive;
   let api: Api;
 
   beforeEach(() => {
     mockFeatureFlagger.resetFeatureFlags();
     mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+      BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
     );
 
     mockUsbDrive = createMockUsbDrive();
@@ -86,7 +86,7 @@ describe('configureBallotPackageFromUsb', () => {
   runUiStringMachineConfigurationTests({
     electionPackage,
     getMockUsbDrive: () => mockUsbDrive,
-    runConfigureMachine: () => api.configureBallotPackageFromUsb(),
+    runConfigureMachine: () => api.configureElectionPackageFromUsb(),
     store: store.getUiStringsStore(),
   });
 });

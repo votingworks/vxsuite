@@ -10,7 +10,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
 import {
-  BallotPackageConfigurationError,
+  ElectionPackageConfigurationError,
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
@@ -29,7 +29,7 @@ import {
 
 import {
   createUiStringsApi,
-  readBallotPackageFromUsb,
+  readElectionPackageFromUsb,
   configureUiStrings,
 } from '@votingworks/backend';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
@@ -123,24 +123,24 @@ export function buildApi(
       workspace.store.reset();
     },
 
-    async configureBallotPackageFromUsb(): Promise<
-      Result<ElectionDefinition, BallotPackageConfigurationError>
+    async configureElectionPackageFromUsb(): Promise<
+      Result<ElectionDefinition, ElectionPackageConfigurationError>
     > {
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
 
-      const ballotPackageResult = await readBallotPackageFromUsb(
+      const electionPackageResult = await readElectionPackageFromUsb(
         authStatus,
         usbDrive,
         logger
       );
-      if (ballotPackageResult.isErr()) {
-        return ballotPackageResult;
+      if (electionPackageResult.isErr()) {
+        return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const ballotPackage = ballotPackageResult.ok();
-      const { electionDefinition, systemSettings } = ballotPackage;
+      const electionPackage = electionPackageResult.ok();
+      const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
       workspace.store.withTransaction(() => {
@@ -160,13 +160,13 @@ export function buildApi(
         }
 
         configureUiStrings({
-          ballotPackage,
+          electionPackage,
           logger,
           store: workspace.store.getUiStringsStore(),
         });
       });
 
-      await logger.log(LogEventId.BallotPackageLoadedFromUsb, 'system', {
+      await logger.log(LogEventId.ElectionPackageLoadedFromUsb, 'system', {
         disposition: 'success',
       });
 

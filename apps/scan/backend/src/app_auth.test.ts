@@ -26,8 +26,10 @@ const systemSettings: SystemSettings = {
     startingCardLockoutDurationSeconds: 15,
   },
 };
-const ballotPackage =
-  electionFamousNames2021Fixtures.electionJson.toBallotPackage(systemSettings);
+const electionPackage =
+  electionFamousNames2021Fixtures.electionJson.toElectionPackage(
+    systemSettings
+  );
 
 beforeAll(() => {
   expect(systemSettings.auth).not.toEqual(DEFAULT_SYSTEM_SETTINGS.auth);
@@ -44,13 +46,13 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_BALLOT_PACKAGE_AUTHENTICATION
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 });
 
 test('getAuthStatus', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive, { ballotPackage });
+    await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
     mockOf(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from configureApp
 
     await apiClient.getAuthStatus();
@@ -65,7 +67,7 @@ test('getAuthStatus', async () => {
 
 test('checkPin', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive, { ballotPackage });
+    await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
 
     await apiClient.checkPin({ pin: '123456' });
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
@@ -79,7 +81,7 @@ test('checkPin', async () => {
 
 test('logOut', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive, { ballotPackage });
+    await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
 
     await apiClient.logOut();
     expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
@@ -93,7 +95,7 @@ test('logOut', async () => {
 
 test('updateSessionExpiry', async () => {
   await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive, { ballotPackage });
+    await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
 
     await apiClient.updateSessionExpiry({
       sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),

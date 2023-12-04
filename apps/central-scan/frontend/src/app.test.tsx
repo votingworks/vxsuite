@@ -84,8 +84,8 @@ afterEach(() => {
   expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
-function expectConfigureFromBallotPackageOnUsbDrive() {
-  mockApiClient.configureFromBallotPackageOnUsbDrive
+function expectConfigureFromElectionPackageOnUsbDrive() {
+  mockApiClient.configureFromElectionPackageOnUsbDrive
     .expectCallWith()
     .resolves(ok(electionGeneralDefinition));
   mockApiClient.getSystemSettings
@@ -264,7 +264,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 });
 
-test('configuring election from usb ballot package works end to end', async () => {
+test('configuring election from usb election package works end to end', async () => {
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.getElectionDefinition.expectCallWith().resolves(null);
 
@@ -273,12 +273,12 @@ test('configuring election from usb ballot package works end to end', async () =
   await authenticateAsElectionManager(
     electionGeneralDefinition,
     'Insert an Election Manager card to configure VxCentralScan',
-    'Insert a USB drive containing a ballot package'
+    'Insert a USB drive containing an election package'
   );
   expect(screen.queryByText('Test Ballot Mode')).not.toBeInTheDocument();
 
   // Insert USB drive
-  expectConfigureFromBallotPackageOnUsbDrive();
+  expectConfigureFromElectionPackageOnUsbDrive();
   setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('mounted'));
 
   await screen.findByText('No ballots have been scanned');
@@ -312,7 +312,7 @@ test('configuring election from usb ballot package works end to end', async () =
   mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   userEvent.click(screen.getByText('I am sure. Delete all election data.'));
   screen.getByText('Deleting election data');
-  await screen.findByText('Insert a USB drive containing a ballot package');
+  await screen.findByText('Insert a USB drive containing an election package');
 });
 
 test('authentication works', async () => {

@@ -386,7 +386,7 @@ export function AppRoot({
       return <UnconfiguredElectionScreenWrapper />;
     }
 
-    // We prevent mismatch in {ballot package, auth} election hash at configuration time,
+    // We prevent mismatch in {election package, auth} election hash at configuration time,
     // but mismatch may still occur if the user removes the matching card and inserts another
     // card with a mismatched election hash
     if (
