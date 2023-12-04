@@ -11,7 +11,7 @@ export const NumberPadContainer = styled.div`
   > button {
     display: flex;
     justify-content: center;
-    margin: 2px;
+    margin: 0.125rem;
     width: 26%;
   }
 `;
