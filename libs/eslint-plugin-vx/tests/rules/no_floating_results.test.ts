@@ -84,5 +84,20 @@ void rand()
       options: [{ ignoreVoid: false }],
       errors: [{ line: 9, messageId: 'floating' }],
     },
+    {
+      code: `
+declare module '@votingworks/types' {
+  export interface Result<T, E> {}
+}
+
+import { Result } from '@votingworks/types';
+
+type CustomResult<T> = Result<T, CustomError>;
+
+declare function rand(): CustomResult<number>;
+rand();
+        `,
+      errors: [{ line: 11, messageId: 'floatingVoid' }],
+    },
   ],
 });
