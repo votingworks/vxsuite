@@ -143,6 +143,7 @@ export function App({
               <P>Ask a poll worker to restart the ballot marking device.</P>
             </Prose>
           }
+          logger={logger}
         >
           <FocusManager
             screenReader={screenReader}

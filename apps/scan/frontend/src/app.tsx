@@ -72,6 +72,7 @@ export function App({
               </CenteredLargeProse>
             </React.Fragment>
           }
+          logger={logger}
         >
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>

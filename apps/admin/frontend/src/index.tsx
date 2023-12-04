@@ -10,6 +10,7 @@ import {
 } from '@votingworks/utils';
 import { AppBase, ErrorBoundary, H1, P } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
+import { LogSource, Logger } from '@votingworks/logging';
 import { App } from './app';
 import { ApiClientContext, createApiClient, createQueryClient } from './api';
 
@@ -22,6 +23,7 @@ const queryClient = createQueryClient();
 const rootElement = document.getElementById('root');
 assert(rootElement);
 const root = createRoot(rootElement);
+const logger = new Logger(LogSource.VxAdminFrontend, window.kiosk);
 
 root.render(
   <React.StrictMode>
@@ -41,10 +43,11 @@ root.render(
             <P>Please restart the machine.</P>
           </React.Fragment>
         }
+        logger={logger}
       >
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
-            <App />
+            <App logger={logger} />
             {isFeatureFlagEnabled(
               BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
             ) && (
