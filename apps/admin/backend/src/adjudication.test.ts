@@ -238,4 +238,14 @@ test('adjudicateWriteIn', async () => {
       status: 'invalid',
     }
   );
+
+  await adjudicateWriteIn({ writeInId, type: 'reset' }, store, logger);
+  expectVotes({ 'zoo-council-mammal': ['write-in-0'] });
+  expectWriteInRecord({
+    status: 'pending',
+  });
+  expectLog(`User adjudicated a write-in from invalid to unadjudicated.`, {
+    previousStatus: 'invalid',
+    status: 'pending',
+  });
 });
