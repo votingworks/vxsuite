@@ -207,12 +207,13 @@ export async function generateResultsFromTestDeckBallots({
   }
 
   assert(election.type === 'primary');
-  const cardCountsByParty: CardCountsByParty = {};
+  const cardCountsByParty: CardCountsByParty = new Map();
   for (const testDeckBallot of testDeckBallots) {
     const partyId = ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId];
-    const partyCardCounts = cardCountsByParty[partyId] ?? getEmptyCardCounts();
+    const partyCardCounts =
+      cardCountsByParty.get(partyId) ?? getEmptyCardCounts();
     partyCardCounts.bmd += 1;
-    cardCountsByParty[partyId] = partyCardCounts;
+    cardCountsByParty.set(partyId, partyCardCounts);
   }
 
   return {

@@ -32,17 +32,17 @@ type CsvMetadataAttribute = (typeof CSV_METADATA_ATTRIBUTES)[number];
  * Labels for compound metadata filter columns, such as in the case where a
  * report filters on multiple precincts or multiple ballot styles.
  */
-export const CSV_METADATA_ATTRIBUTE_MULTI_LABEL: Record<
+export const CSV_METADATA_ATTRIBUTE_MULTI_LABEL = new Map<
   CsvMetadataAttribute,
   string
-> = {
-  precinct: 'Precincts',
-  party: 'Parties',
-  ballotStyle: 'Ballot Styles',
-  votingMethod: 'Voting Methods',
-  scanner: 'Scanners',
-  batch: 'Batches',
-};
+>([
+  ['precinct', 'Precincts'],
+  ['party', 'Parties'],
+  ['ballotStyle', 'Ballot Styles'],
+  ['votingMethod', 'Voting Methods'],
+  ['scanner', 'Scanners'],
+  ['batch', 'Batches'],
+]);
 
 /**
  * Separator between values in compound metadata filter columns.
@@ -177,7 +177,9 @@ export function generateCsvMetadataHeaders({
 
   for (const attribute of CSV_METADATA_ATTRIBUTES) {
     if (metadataStructure[attribute] === 'multi') {
-      headers.push(`Included ${CSV_METADATA_ATTRIBUTE_MULTI_LABEL[attribute]}`);
+      headers.push(
+        `Included ${CSV_METADATA_ATTRIBUTE_MULTI_LABEL.get(attribute)}`
+      );
     }
   }
 
@@ -259,7 +261,7 @@ export function getCsvMetadataRowValues({
       if (batchId === Tabulation.MANUAL_BATCH_ID) {
         return Tabulation.MANUAL_SCANNER_ID;
       }
-      return assertDefined(batchLookup[batchId]).scannerId;
+      return assertDefined(batchLookup.get(batchId)).scannerId;
     })();
     values.push(scannerId);
   }
@@ -323,9 +325,9 @@ export function generateBatchLookup(
   electionId: Id
 ): ScannerBatchLookup {
   const batches = store.getScannerBatches(electionId);
-  const lookup: ScannerBatchLookup = {};
+  const lookup: ScannerBatchLookup = new Map();
   for (const batch of batches) {
-    lookup[batch.batchId] = batch;
+    lookup.set(batch.batchId, batch);
   }
   return lookup;
 }

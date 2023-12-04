@@ -1,5 +1,4 @@
 import { Tabulation } from '@votingworks/types';
-import { mapObject } from '@votingworks/basics';
 import { getGroupKey, getGroupSpecifierFromGroupKey } from './tabulation';
 
 export function mergeTabulationGroupMaps<T, U, V>(
@@ -7,12 +6,10 @@ export function mergeTabulationGroupMaps<T, U, V>(
   groupedU: Tabulation.GroupMap<U>,
   merge: (t?: T, u?: U) => V
 ): Tabulation.GroupMap<V> {
-  const merged: Tabulation.GroupMap<V> = {};
-  const allGroupKeys = [
-    ...new Set([...Object.keys(groupedT), ...Object.keys(groupedU)]),
-  ];
+  const merged: Tabulation.GroupMap<V> = new Map();
+  const allGroupKeys = [...new Set([...groupedT.keys(), ...groupedU.keys()])];
   for (const groupKey of allGroupKeys) {
-    merged[groupKey] = merge(groupedT[groupKey], groupedU[groupKey]);
+    merged.set(groupKey, merge(groupedT.get(groupKey), groupedU.get(groupKey)));
   }
   return merged;
 }
@@ -22,11 +19,11 @@ export function mergeTabulationGroupMaps<T, U, V>(
  * The map format is better for tabulation operations while the list format is easier
  * preferable for most consumers.
  */
-export function groupMapToGroupList<T>(
+export function groupMapToGroupList<T extends object>(
   groupMap: Tabulation.GroupMap<T>
 ): Tabulation.GroupList<T> {
   const list: Tabulation.GroupList<T> = [];
-  for (const [groupKey, group] of Object.entries(groupMap)) {
+  for (const [groupKey, group] of groupMap) {
     list.push({
       ...getGroupSpecifierFromGroupKey(groupKey),
       // eslint-disable-next-line vx/gts-spread-like-types
@@ -55,22 +52,30 @@ export function groupMapToGroupList<T>(
  *
  * Merged Group 2: { precinctId: 'B' }
  */
-export function coalesceGroupsAcrossParty<U, V>(
+export function coalesceGroupsAcrossParty<U, V extends object>(
   partySeparatedGroups: Tabulation.GroupList<U>,
   groupBy: Tabulation.GroupBy,
   mergeGroups: (partyGroups: Tabulation.GroupList<U>) => V
 ): Tabulation.GroupList<V> {
-  const groupsAcrossParty: Tabulation.GroupMap<Tabulation.GroupList<U>> = {};
+  const groupsAcrossParty: Tabulation.GroupMap<Tabulation.GroupList<U>> =
+    new Map();
   for (const group of partySeparatedGroups) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { partyId, ...rest } = group;
     const groupKey = getGroupKey(rest, { ...groupBy, groupByParty: false });
 
-    groupsAcrossParty[groupKey] = [
-      ...(groupsAcrossParty[groupKey] ?? []),
+    groupsAcrossParty.set(groupKey, [
+      ...(groupsAcrossParty.get(groupKey) ?? []),
       group,
-    ];
+    ]);
   }
 
-  return groupMapToGroupList(mapObject(groupsAcrossParty, mergeGroups));
+  return groupMapToGroupList(
+    new Map(
+      Array.from(groupsAcrossParty).map(([groupKey, group]) => [
+        groupKey,
+        mergeGroups(group),
+      ])
+    )
+  );
 }

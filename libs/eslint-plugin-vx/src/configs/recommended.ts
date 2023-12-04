@@ -76,6 +76,7 @@ export = {
     'vx/no-assert-truthiness': 'error',
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
     'vx/no-import-workspace-subfolders': 'error',
+    'vx/no-record-as-map': 'error',
 
     // Disallow awaiting a value that is not Thenable which often indicates an error.
     '@typescript-eslint/await-thenable': 'error',

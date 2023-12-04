@@ -162,16 +162,13 @@ export async function tabulateTallyReportResults({
         : undefined;
 
       // maintain split for card counts
-      const cardCountsByParty: CardCountsByParty = reportsByParty.reduce(
-        (ccByParty, partyTallyReportResults) => {
-          assert(partyTallyReportResults.partyId !== undefined);
-          return {
-            ...ccByParty,
-            [partyTallyReportResults.partyId]:
-              partyTallyReportResults.cardCounts,
-          };
-        },
-        {}
+      const cardCountsByParty = reportsByParty.reduce<CardCountsByParty>(
+        (ccByParty, partyTallyReportResults) =>
+          ccByParty.set(
+            assertDefined(partyTallyReportResults.partyId),
+            partyTallyReportResults.cardCounts
+          ),
+        new Map()
       );
       return {
         hasPartySplits: true,

@@ -118,10 +118,10 @@ describe('getTallyReportWarning', () => {
       const tallyReport: TallyReportResults = {
         hasPartySplits: true,
         contestIds: [],
-        cardCountsByParty: {
-          '0': getEmptyCardCounts(),
-          '1': getEmptyCardCounts(),
-        },
+        cardCountsByParty: new Map([
+          ['0', getEmptyCardCounts()],
+          ['1', getEmptyCardCounts()],
+        ]),
         scannedResults: buildElectionResultsFixture({
           election,
           cardCounts: {

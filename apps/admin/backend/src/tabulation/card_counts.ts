@@ -60,7 +60,8 @@ export function tabulateScannedCardCounts({
     groupBy,
   });
 
-  const cardCountsGroupMap: Tabulation.GroupMap<Tabulation.CardCounts> = {};
+  const cardCountsGroupMap: Tabulation.GroupMap<Tabulation.CardCounts> =
+    new Map();
 
   // optimized special case, when the results do not need to be grouped
   if (!groupBy || isGroupByEmpty(groupBy)) {
@@ -72,7 +73,7 @@ export function tabulateScannedCardCounts({
         cardTally,
       });
     }
-    cardCountsGroupMap[GROUP_KEY_ROOT] = cardCounts;
+    cardCountsGroupMap.set(GROUP_KEY_ROOT, cardCounts);
     return cardCountsGroupMap;
   }
 
@@ -85,8 +86,10 @@ export function tabulateScannedCardCounts({
       filter,
     });
     for (const expectedGroup of expectedGroups) {
-      cardCountsGroupMap[getGroupKey(expectedGroup, groupBy)] =
-        getEmptyCardCounts();
+      cardCountsGroupMap.set(
+        getGroupKey(expectedGroup, groupBy),
+        getEmptyCardCounts()
+      );
     }
   }
 
@@ -94,13 +97,16 @@ export function tabulateScannedCardCounts({
     debug('combining card tallies into grouped card counts');
     const groupKey = getGroupKey(cardTally, groupBy);
 
-    const existingCardCounts = cardCountsGroupMap[groupKey];
+    const existingCardCounts = cardCountsGroupMap.get(groupKey);
     const cardCounts = existingCardCounts ?? getEmptyCardCounts();
 
-    cardCountsGroupMap[groupKey] = addCardTallyToCardCounts({
-      cardCounts,
-      cardTally,
-    });
+    cardCountsGroupMap.set(
+      groupKey,
+      addCardTallyToCardCounts({
+        cardCounts,
+        cardTally,
+      })
+    );
   }
 
   return cardCountsGroupMap;

@@ -101,7 +101,7 @@ test('getEmptyElectionResult', () => {
 
   // has results for all contests
   for (const contest of election.contests) {
-    expect(emptyElectionResult.contestResults[contest.id]).toBeDefined();
+    expect(emptyElectionResult.contestResults.get(contest.id)).toBeDefined();
   }
 
   // check an empty yes-no contest
@@ -109,7 +109,7 @@ test('getEmptyElectionResult', () => {
     election.contests,
     (c): c is YesNoContest => c.id === 'fishing'
   );
-  expect(emptyElectionResult.contestResults[fishingContest.id]).toEqual({
+  expect(emptyElectionResult.contestResults.get(fishingContest.id)).toEqual({
     contestId: fishingContest.id,
     contestType: 'yesno',
     yesOptionId: fishingContest.yesOption.id,
@@ -127,7 +127,7 @@ test('getEmptyElectionResult', () => {
     (c) => c.id === 'zoo-council-mammal'
   );
   expect(
-    emptyElectionResult.contestResults[zooCouncilMammalContest.id]
+    emptyElectionResult.contestResults.get(zooCouncilMammalContest.id)
   ).toEqual({
     contestId: 'zoo-council-mammal',
     contestType: 'candidate',
@@ -176,7 +176,7 @@ test('getEmptyElectionResults without generic write-in', () => {
     (c) => c.id === 'zoo-council-mammal'
   );
   expect(
-    emptyElectionResult.contestResults[zooCouncilMammalContest.id]!
+    emptyElectionResult.contestResults.get(zooCouncilMammalContest.id)!
   ).toEqual({
     contestId: 'zoo-council-mammal',
     contestType: 'candidate',
@@ -218,12 +218,12 @@ test('getEmptyManualElectionResults', () => {
   const emptyElectionResults = getEmptyElectionResults(election, false);
 
   expect(emptyManualElectionResults.ballotCount).toEqual(0);
-  expect(emptyManualElectionResults.contestResults['fishing']).toEqual(
-    emptyElectionResults.contestResults['fishing']
+  expect(emptyManualElectionResults.contestResults.get('fishing')).toEqual(
+    emptyElectionResults.contestResults.get('fishing')
   );
   expect(
-    emptyManualElectionResults.contestResults['zoo-council-mammal']
-  ).toEqual(emptyElectionResults.contestResults['zoo-council-mammal']);
+    emptyManualElectionResults.contestResults.get('zoo-council-mammal')
+  ).toEqual(emptyElectionResults.contestResults.get('zoo-council-mammal'));
 });
 
 test('buildElectionResultsFixture', () => {
@@ -234,40 +234,55 @@ test('buildElectionResultsFixture', () => {
     bmd: 5,
     hmpb: [5],
   };
-  const contestResultsSummaries: ContestResultsSummaries = {
-    'zoo-council-mammal': {
-      type: 'candidate',
-      ballots: 10,
-      overvotes: 1,
-      undervotes: 0,
-      officialOptionTallies: {
-        elephant: 2,
-        kangaroo: 3,
-        lion: 4,
+  const contestResultsSummaries: ContestResultsSummaries = new Map([
+    [
+      'zoo-council-mammal',
+      {
+        type: 'candidate',
+        ballots: 10,
+        overvotes: 1,
+        undervotes: 0,
+        officialOptionTallies: new Map([
+          ['elephant', 2],
+          ['kangaroo', 3],
+          ['lion', 4],
+        ]),
       },
-    },
-    'aquarium-council-fish': {
-      type: 'candidate',
-      ballots: 10,
-      writeInOptionTallies: {
-        somebody: {
-          name: 'Somebody',
-          tally: 10,
-        },
+    ],
+    [
+      'aquarium-council-fish',
+      {
+        type: 'candidate',
+        ballots: 10,
+        writeInOptionTallies: new Map([
+          [
+            'somebody',
+            {
+              name: 'Somebody',
+              tally: 10,
+            },
+          ],
+        ]),
       },
-    },
-    fishing: {
-      type: 'yesno',
-      ballots: 10,
-      yesTally: 4,
-      noTally: 6,
-    },
-    'new-zoo-pick': {
-      type: 'yesno',
-      ballots: 0,
-      overvotes: 10,
-    },
-  };
+    ],
+    [
+      'fishing',
+      {
+        type: 'yesno',
+        ballots: 10,
+        yesTally: 4,
+        noTally: 6,
+      },
+    ],
+    [
+      'new-zoo-pick',
+      {
+        type: 'yesno',
+        ballots: 0,
+        overvotes: 10,
+      },
+    ],
+  ]);
 
   // test entirety of one fixture to verify completeness
   const electionResultsFixtureWithoutGenericWriteIn =
@@ -435,11 +450,13 @@ test('buildElectionResultsFixture', () => {
     includeGenericWriteIn: true,
   });
   const zooCouncilMammalWithGenericWriteIn =
-    electionResultsFixtureWithGenericWriteIn.contestResults[
+    electionResultsFixtureWithGenericWriteIn.contestResults.get(
       'zoo-council-mammal'
-    ] as Tabulation.CandidateContestResults;
+    ) as Tabulation.CandidateContestResults;
   expect(
-    zooCouncilMammalWithGenericWriteIn.tallies[Tabulation.GENERIC_WRITE_IN_ID]
+    zooCouncilMammalWithGenericWriteIn.tallies.get(
+      Tabulation.GENERIC_WRITE_IN_ID
+    )
   ).toBeDefined();
 
   // check that manual results fixture matches the regular election fixture
@@ -642,7 +659,7 @@ describe('tabulateCastVoteRecords', () => {
     // empty election
     const emptyResults = await tabulateCastVoteRecords({ cvrs: [], election });
     expect(Object.values(emptyResults)).toHaveLength(1);
-    expect(emptyResults[GROUP_KEY_ROOT]).toEqual(
+    expect(emptyResults.get(GROUP_KEY_ROOT)).toEqual(
       getEmptyElectionResults(election)
     );
 
@@ -707,7 +724,7 @@ describe('tabulateCastVoteRecords', () => {
         ],
         election,
       })
-    )[GROUP_KEY_ROOT];
+    ).get(GROUP_KEY_ROOT);
 
     assert(electionResult);
     expect(electionResult).toEqual(

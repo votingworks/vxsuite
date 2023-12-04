@@ -6,21 +6,10 @@ import {
   TSESTree,
 } from '@typescript-eslint/utils';
 import * as ts from 'typescript';
-import { createRule } from '../util';
+import { containsNamedType, createRule } from '../util';
 
 interface Options {
   ignoreVoid?: boolean;
-}
-
-function isResultType(checker: ts.TypeChecker, node: ts.Node): boolean {
-  // TODO: consider the actual declaration location?
-  const type = checker.getTypeAtLocation(node);
-  const typeName =
-    // this seems to be for when the type is declared in the same file
-    type.getSymbol()?.getName() ??
-    // and this is for when it's imported
-    type.aliasSymbol?.getName();
-  return typeName === 'Result';
 }
 
 function isUnhandledResult(
@@ -53,7 +42,10 @@ function isUnhandledResult(
   }
 
   // Check the type. At this point it can't be unhandled if it isn't a Result
-  return isResultType(checker, parserServices.esTreeNodeToTSNodeMap.get(node));
+  const type = checker.getTypeAtLocation(
+    parserServices.esTreeNodeToTSNodeMap.get(node)
+  );
+  return containsNamedType('Result', type);
 }
 
 const rule: TSESLint.RuleModule<

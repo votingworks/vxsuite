@@ -36,7 +36,7 @@ export type CandidateTally = Candidate & {
 export type CandidateContestResults = ContestResultsBase & {
   readonly contestType: 'candidate';
   readonly votesAllowed: number;
-  readonly tallies: Record<CandidateId, CandidateTally>;
+  readonly tallies: Map<CandidateId, CandidateTally>;
 };
 
 /**
@@ -135,7 +135,7 @@ export interface CardCounts {
  * some cast vote record attributes.
  */
 export interface ElectionResults {
-  readonly contestResults: Record<ContestId, ContestResults>;
+  readonly contestResults: Map<ContestId, ContestResults>;
   readonly cardCounts: CardCounts;
 }
 
@@ -145,7 +145,7 @@ export type GroupKey = string;
  * metadata about the group, defined in `libs/utils`. The consumer can convert the
  * {@link GroupMap} to a {@link GroupList}.
  */
-export type GroupMap<T> = Record<GroupKey, T>;
+export type GroupMap<T> = Map<GroupKey, T>;
 
 export type GroupOf<T> = T & GroupSpecifier;
 /**
@@ -161,7 +161,7 @@ export type ElectionResultsGroupList = GroupList<ElectionResults>;
  * Simplified representation of votes on a scanned ballot for tabulation
  * purposes.
  */
-export type Votes = Record<ContestId, ContestOptionId[]>;
+export type Votes = Map<ContestId, ContestOptionId[]>;
 
 export type CastVoteRecord = {
   readonly votes: Votes;
@@ -191,14 +191,14 @@ export interface ContestWriteInSummary {
   totalTally: number;
   pendingTally: number;
   invalidTally: number;
-  candidateTallies: Record<Id, CandidateTally>;
+  candidateTallies: Map<Id, CandidateTally>;
 }
 
 /**
  * All write-in summaries for an election, keyed by contest ID.
  */
 export interface ElectionWriteInSummary {
-  contestWriteInSummaries: Record<ContestId, ContestWriteInSummary>;
+  contestWriteInSummaries: Map<ContestId, ContestWriteInSummary>;
 }
 
 /** ID for an unadjudicated write-in */

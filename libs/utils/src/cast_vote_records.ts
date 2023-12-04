@@ -40,7 +40,7 @@ export function getCurrentSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
 export function convertCastVoteRecordVotesToTabulationVotes(
   cvrSnapshot: CVR.CVRSnapshot
 ): Tabulation.Votes {
-  const votes: Record<string, string[]> = {};
+  const votes = new Map<string, string[]>();
   for (const cvrContest of cvrSnapshot.CVRContest) {
     const contestSelectionIds: string[] = [];
     for (const cvrContestSelection of cvrContest.CVRContestSelection) {
@@ -55,7 +55,7 @@ export function convertCastVoteRecordVotesToTabulationVotes(
       }
     }
 
-    votes[cvrContest.ContestId] = contestSelectionIds;
+    votes.set(cvrContest.ContestId, contestSelectionIds);
   }
 
   return votes;

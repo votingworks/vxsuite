@@ -1,6 +1,20 @@
 {
-  "extends": ["plugin:vx/react"],
+  "extends": [
+    "plugin:vx/react"
+  ],
   "rules": {
     "vx/gts-jsdoc": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "test/*",
+        "src/**/*.test.{ts,tsx}"
+      ],
+      "rules": {
+        // Allow `Record` to be used in tests.
+        "vx/no-record-as-map": "off"
+      }
+    }
+  ]
 }

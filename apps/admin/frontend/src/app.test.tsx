@@ -329,7 +329,7 @@ test('marking results as official', async () => {
     getSimpleMockTallyResults({
       election,
       scannedBallotCount: 100,
-      cardCountsByParty: {},
+      cardCountsByParty: new Map(),
     }),
   ]);
   apiMock.expectGetScannerBatches([]);

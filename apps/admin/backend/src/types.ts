@@ -60,7 +60,7 @@ export interface ScannerBatch extends Tabulation.ScannerBatch {
 /**
  * Lookup dictionary for batches, necessary to make many operations efficient.
  */
-export type ScannerBatchLookup = Record<string, ScannerBatch>;
+export type ScannerBatchLookup = Map<string, ScannerBatch>;
 
 /**
  * An election definition and associated DB metadata.
@@ -379,10 +379,9 @@ export interface CastVoteRecordVoteInfo {
 /**
  * Summary information about a cast vote record's adjudication status.
  */
-export type CastVoteRecordAdjudicationFlags = Record<
-  Admin.CastVoteRecordAdjudicationFlag,
-  boolean
->;
+export type CastVoteRecordAdjudicationFlags = {
+  [P in Admin.CastVoteRecordAdjudicationFlag]: boolean;
+};
 
 /**
  * Ballot mode.
@@ -462,7 +461,7 @@ export interface CardTally {
 /**
  * For primary reports, we need card counts split by party.
  */
-export type CardCountsByParty = Record<string, Tabulation.CardCounts>;
+export type CardCountsByParty = Map<string, Tabulation.CardCounts>;
 
 interface TallyReportResultsBase {
   contestIds: ContestId[];

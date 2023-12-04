@@ -135,7 +135,7 @@ describe('convertCastVoteRecordVotesToTabulationVotes', () => {
           },
         ],
       })
-    ).toEqual({ mayor: ['frodo', 'gandalf'] });
+    ).toEqual(new Map([['mayor', ['frodo', 'gandalf']]]));
   });
 });
 

@@ -222,13 +222,13 @@ type TempCandidateContestResults = Omit<
   'ballots' | 'overvotes' | 'undervotes' | 'tallies'
 > &
   TempContestResultsMetadata & {
-    tallies: Record<CandidateId, TempCandidateTally>;
+    tallies: Map<CandidateId, TempCandidateTally>;
   };
 
 type TempContestResults = TempYesNoContestResults | TempCandidateContestResults;
 
 interface TempManualResults {
-  readonly contestResults: Record<ContestId, TempContestResults>;
+  readonly contestResults: Map<ContestId, TempContestResults>;
 }
 
 interface TempWriteInCandidate {
@@ -277,12 +277,14 @@ function convertManualResults(
   tempManualResults: TempManualResults
 ): Tabulation.ManualElectionResults {
   const convertedContestResults: Tabulation.ManualElectionResults['contestResults'] =
-    {};
+    new Map();
   for (const [contestId, tempContestResults] of Object.entries(
     tempManualResults.contestResults
   )) {
-    convertedContestResults[contestId] =
-      convertContestResults(tempContestResults);
+    convertedContestResults.set(
+      contestId,
+      convertContestResults(tempContestResults)
+    );
   }
   return {
     contestResults: convertedContestResults,
@@ -410,7 +412,9 @@ export function ManualDataEntryScreen(): JSX.Element {
     event: React.FormEvent<HTMLInputElement>,
     candidateName?: string
   ) {
-    const contestResults = tempManualResults.contestResults[contestId];
+    const contestResults = assertDefined(
+      tempManualResults.contestResults.get(contestId)
+    );
     const stringValue = event.currentTarget.value;
     // eslint-disable-next-line vx/gts-safe-number-parse
     const numericalValue = Number(stringValue);
@@ -457,7 +461,7 @@ export function ManualDataEntryScreen(): JSX.Element {
       default: {
         assert(contestResults.contestType === 'candidate');
         assert(newContestResults.contestType === 'candidate');
-        const candidateTally = contestResults.tallies[dataKey];
+        const candidateTally = contestResults.tallies.get(dataKey);
         const newCandidateTally: TempCandidateTally = candidateTally
           ? {
               ...candidateTally,
@@ -497,9 +501,9 @@ export function ManualDataEntryScreen(): JSX.Element {
     setTempWriteInCandidates(tempWriteInCandidates.filter((c) => c.id !== id));
 
     // remove temp candidate from contest
-    const contestResults = tempManualResults.contestResults[contestId];
-    assert(contestResults.contestType === 'candidate');
-    delete contestResults?.tallies[id];
+    const contestResults = tempManualResults.contestResults.get(contestId);
+    assert(contestResults?.contestType === 'candidate');
+    contestResults?.tallies.delete(id);
 
     updateManualResultsWithNewContestResults(contestResults);
   }
@@ -519,10 +523,13 @@ export function ManualDataEntryScreen(): JSX.Element {
 
   const writeInCandidates = getWriteInCandidatesQuery.data;
 
-  const contestValidationStates: Record<ContestId, ContestValidationState> = {};
+  const contestValidationStates = new Map<ContestId, ContestValidationState>();
   for (const contest of currentContests) {
-    contestValidationStates[contest.id] = getContestValidationState(
-      tempManualResults.contestResults[contest.id]
+    contestValidationStates.set(
+      contest.id,
+      getContestValidationState(
+        assertDefined(tempManualResults.contestResults.get(contest.id))
+      )
     );
   }
   const someContestHasInvalidResults = Object.values(
@@ -560,7 +567,9 @@ export function ManualDataEntryScreen(): JSX.Element {
                 ].map(({ name }) => normalizeWriteInName(name))
               : [];
 
-          const contestValidationState = contestValidationStates[contest.id];
+          const contestValidationState = contestValidationStates.get(
+            contest.id
+          );
 
           return (
             <ContestData key={contest.id}>

@@ -43,7 +43,7 @@ function getAllWriteInRows({
   const writeInCandidateTallies: Tabulation.CandidateTally[] = [];
   const otherWriteInTallies: Tabulation.CandidateTally[] = [];
 
-  for (const candidateTally of Object.values(combinedContestResults.tallies)) {
+  for (const candidateTally of combinedContestResults.tallies.values()) {
     if (candidateTally.isWriteIn) {
       if (isNonCandidateWriteInTally(candidateTally)) {
         otherWriteInTallies.push(candidateTally);
@@ -61,8 +61,9 @@ function getAllWriteInRows({
     rows.push({
       ...candidateTally,
       scannedTally:
-        scannedContestResults.tallies[candidateTally.id]?.tally ?? 0,
-      manualTally: manualContestResults?.tallies[candidateTally.id]?.tally ?? 0,
+        scannedContestResults.tallies.get(candidateTally.id)?.tally ?? 0,
+      manualTally:
+        manualContestResults?.tallies.get(candidateTally.id)?.tally ?? 0,
     });
   }
 
@@ -76,8 +77,8 @@ function getInsignificantWriteInCount({
   contestResults: Tabulation.CandidateContestResults;
   significantWriteInCandidateIds: CandidateId[];
 }): number {
-  return Object.values(contestResults.tallies).reduce(
-    (aggregateCount: number, candidateTally: Tabulation.CandidateTally) => {
+  return Array.from(contestResults.tallies.values()).reduce(
+    (aggregateCount, candidateTally) => {
       if (
         candidateTally.isWriteIn &&
         !isNonCandidateWriteInTally(candidateTally) &&
@@ -102,12 +103,10 @@ function getAggregatedWriteInRows({
   scannedContestResults: Tabulation.CandidateContestResults;
   manualContestResults?: Tabulation.CandidateContestResults;
 }): TallyReportCandidateRow[] {
-  const candidateTalliesDescending = Object.values(
-    combinedContestResults.tallies
+  const candidateTalliesDescending = Array.from(
+    combinedContestResults.tallies.values()
   )
-    .sort((a: Tabulation.CandidateTally, b: Tabulation.CandidateTally) => {
-      return -(a.tally - b.tally); // sort by descending vote tally
-    })
+    .sort((a, b) => -(a.tally - b.tally) /* sort by descending vote tally */)
     .filter((candidateTally) => !isNonCandidateWriteInTally(candidateTally));
 
   // The least number of votes for someone is winning the race. Notes:
@@ -147,8 +146,8 @@ function getAggregatedWriteInRows({
     hasSomeWriteInRow = true;
     rows.push({
       ...addWriteInLabelToName(candidate),
-      scannedTally: scannedContestResults.tallies[candidate.id]?.tally ?? 0,
-      manualTally: manualContestResults?.tallies[candidate.id]?.tally ?? 0,
+      scannedTally: scannedContestResults.tallies.get(candidate.id)?.tally ?? 0,
+      manualTally: manualContestResults?.tallies.get(candidate.id)?.tally ?? 0,
     });
   }
 
@@ -183,8 +182,8 @@ function getAggregatedWriteInRows({
   }
 
   // separately include pending or generic write-ins
-  const nonCandidateWriteInTallies = Object.values(
-    scannedContestResults.tallies
+  const nonCandidateWriteInTallies = Array.from(
+    scannedContestResults.tallies.values()
   )
     .filter(isNonCandidateWriteInTally)
     .filter((ct) => ct.tally > 0);
@@ -234,9 +233,10 @@ export function getTallyReportCandidateRows({
   for (const candidate of contest.candidates) {
     rows.push({
       ...candidate,
-      scannedTally: assertDefined(scannedContestResults.tallies[candidate.id])
-        .tally,
-      manualTally: manualContestResults?.tallies[candidate.id]?.tally ?? 0,
+      scannedTally: assertDefined(
+        scannedContestResults.tallies.get(candidate.id)
+      ).tally,
+      manualTally: manualContestResults?.tallies.get(candidate.id)?.tally ?? 0,
     });
   }
 

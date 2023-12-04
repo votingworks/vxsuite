@@ -6,6 +6,7 @@ export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPri
 export * as electionTwoPartyPrimaryFixtures from './data/electionTwoPartyPrimary';
 export * as electionPrimaryPrecinctSplitsFixtures from './data/electionPrimaryPrecinctSplits/election.json';
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
+export * as electionWithJavaScriptIds from './data/electionWithJavaScriptIds';
 export * as sampleBallotImages from './data/sample-ballot-images';
 export {
   electionDefinition as electionGeneralDefinition,

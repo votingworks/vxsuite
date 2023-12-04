@@ -1,10 +1,12 @@
-import { TallyReportResults } from '@votingworks/admin-backend';
+import {
+  CardCountsByParty,
+  TallyReportResults,
+} from '@votingworks/admin-backend';
 import { Election, Tabulation } from '@votingworks/types';
 import {
   ContestResultsSummaries,
   buildElectionResultsFixture,
 } from '@votingworks/utils';
-import { mapObject } from '@votingworks/basics';
 
 /**
  * To quickly mock data for tally reports. Simply takes the top-level ballot count and
@@ -57,7 +59,7 @@ export function getSimpleMockTallyResults({
   election: Election;
   scannedBallotCount: number;
   manualBallotCount?: number;
-  cardCountsByParty?: Record<string, number | Tabulation.CardCounts>;
+  cardCountsByParty?: CardCountsByParty;
   contestIds?: string[];
 }): TallyReportResults {
   const scannedResults = getSimpleMockElectionResults(
@@ -76,15 +78,7 @@ export function getSimpleMockTallyResults({
       manualResults,
       contestIds,
       hasPartySplits: true,
-      cardCountsByParty: mapObject(cardCountsByParty, (count) => {
-        if (typeof count === 'number') {
-          return {
-            bmd: count,
-            hmpb: [],
-          };
-        }
-        return count;
-      }),
+      cardCountsByParty,
     };
   }
 

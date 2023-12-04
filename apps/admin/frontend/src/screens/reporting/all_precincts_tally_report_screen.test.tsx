@@ -37,10 +37,10 @@ test('displays report', async () => {
         ...getSimpleMockTallyResults({
           election,
           scannedBallotCount: 25,
-          cardCountsByParty: {
-            '0': 20,
-            '1': 5,
-          },
+          cardCountsByParty: new Map([
+            ['0', { bmd: 20, hmpb: [] }],
+            ['1', { bmd: 5, hmpb: [] }],
+          ]),
         }),
       },
       {
@@ -48,10 +48,10 @@ test('displays report', async () => {
         ...getSimpleMockTallyResults({
           election,
           scannedBallotCount: 40,
-          cardCountsByParty: {
-            '0': 30,
-            '1': 10,
-          },
+          cardCountsByParty: new Map([
+            ['0', { bmd: 30, hmpb: [] }],
+            ['1', { bmd: 10, hmpb: [] }],
+          ]),
         }),
       },
     ]

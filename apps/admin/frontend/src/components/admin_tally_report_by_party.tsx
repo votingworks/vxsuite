@@ -77,7 +77,7 @@ export function AdminTallyReportByParty({
     if (!partyId) continue; // non-partisan contests handled separately
 
     const partyCardCounts =
-      tallyReportResults.cardCountsByParty[partyId] ?? getEmptyCardCounts();
+      tallyReportResults.cardCountsByParty.get(partyId) ?? getEmptyCardCounts();
 
     const party = find(election.parties, (p) => p.id === partyId);
     const partyElectionTitle = `${party.fullName} ${election.title}`;

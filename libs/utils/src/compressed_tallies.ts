@@ -23,7 +23,7 @@ export function compressTally(
   return election.contests.map((contest) => {
     switch (contest.type) {
       case 'yesno': {
-        const contestResults = results.contestResults[contest.id];
+        const contestResults = results.contestResults.get(contest.id);
         assert(contestResults?.contestType === 'yesno');
         return typedAs<YesNoContestCompressedTally>([
           contestResults?.undervotes ?? 0, // undervotes
@@ -35,16 +35,17 @@ export function compressTally(
       }
 
       case 'candidate': {
-        const contestResults = results.contestResults[contest.id];
+        const contestResults = results.contestResults.get(contest.id);
         assert(contestResults?.contestType === 'candidate');
         return typedAs<CandidateContestCompressedTally>([
           contestResults?.undervotes ?? 0, // undervotes
           contestResults?.overvotes ?? 0, // overvotes
           contestResults?.ballots ?? 0, // ballotsCast
           ...contest.candidates.map(
-            (candidate) => contestResults?.tallies[candidate.id]?.tally ?? 0
+            (candidate) => contestResults?.tallies.get(candidate.id)?.tally ?? 0
           ),
-          contestResults?.tallies[Tabulation.GENERIC_WRITE_IN_ID]?.tally ?? 0, // writeIns
+          contestResults?.tallies.get(Tabulation.GENERIC_WRITE_IN_ID)?.tally ??
+            0, // writeIns
         ]);
       }
 
@@ -83,7 +84,7 @@ function getContestTalliesForCompressedContest(
         compressedContest
       );
       const candidateTallies: Tabulation.CandidateContestResults['tallies'] =
-        {};
+        new Map();
       for (const [candidateIdx, candidate] of contest.candidates.entries()) {
         const tally = tallyByCandidate[candidateIdx];
         assert(
@@ -94,19 +95,19 @@ function getContestTalliesForCompressedContest(
             tallyByCandidate
           )} (full tally: ${JSON.stringify(compressedContest)})`
         );
-        candidateTallies[candidate.id] = {
+        candidateTallies.set(candidate.id, {
           ...candidate,
           tally,
-        };
+        });
       }
       if (contest.allowWriteIns) {
         // write ins will be the last thing in the array after the metadata (3 items) and all candidates
         const writeInTally = tallyByCandidate.pop();
         assert(writeInTally !== undefined);
-        candidateTallies[Tabulation.GENERIC_WRITE_IN_ID] = {
+        candidateTallies.set(Tabulation.GENERIC_WRITE_IN_ID, {
           ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
           tally: writeInTally,
-        };
+        });
       }
       return {
         contestId: contest.id,
@@ -134,7 +135,8 @@ export function readCompressedTally(
   serializedTally: CompressedTally,
   cardCounts: Tabulation.CardCounts
 ): Tabulation.ElectionResults {
-  const allContestResults: Tabulation.ElectionResults['contestResults'] = {};
+  const allContestResults: Tabulation.ElectionResults['contestResults'] =
+    new Map();
   for (const [contestIdx, contest] of election.contests.entries()) {
     const serializedContestTally = serializedTally[contestIdx];
     assert(serializedContestTally);
@@ -142,7 +144,7 @@ export function readCompressedTally(
       contest,
       serializedContestTally
     );
-    allContestResults[contest.id] = contestResults;
+    allContestResults.set(contest.id, contestResults);
   }
 
   return {

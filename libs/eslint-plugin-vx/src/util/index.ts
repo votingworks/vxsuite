@@ -209,3 +209,56 @@ export function* enumerateCharacterCodeEscapes(
     }
   }
 }
+
+/**
+ * Gets the name of a type without any type arguments.
+ *
+ * @example
+ *
+ * ```ts
+ * const type = checker.getTypeAtLocation(node);
+ * const typeName = getTypeName(type);
+ * ```
+ */
+export function getTypeName(type: ts.Type): string | undefined {
+  return (
+    // this seems to be for when the type is declared in the same file
+    type.getSymbol()?.getName() ??
+    // and this is for when it's imported
+    type.aliasSymbol?.getName()
+  );
+}
+
+/**
+ * Determines if `type` is a type with name `name`, or a union type that
+ * contains `name`.
+ *
+ * @example
+ *
+ * ```ts
+ * const type = checker.getTypeAtLocation(node);
+ * if (containsNamedType('Map', type)) {
+ *   // `type` is a `Map` or a union type that contains `Map`
+ * }
+ * ```
+ */
+export function containsNamedType(name: string, type: ts.Type): boolean {
+  if (type.isUnion()) {
+    return type.types.some((t) => containsNamedType(name, t));
+  }
+
+  return getTypeName(type) === name;
+}
+
+/**
+ * Determines whether `type` is a string or a union type that contains a string,
+ * i.e. is the type allowed to have an arbitrary string value.
+ */
+export function containsArbitraryStringType(type: ts.Type): boolean {
+  if (type.isUnion()) {
+    return type.types.some(containsArbitraryStringType);
+  }
+
+  // eslint-disable-next-line no-bitwise
+  return (type.flags & ts.TypeFlags.String) !== 0;
+}

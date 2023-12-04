@@ -23,23 +23,30 @@ test('getTallyReportRows - no aggregation', () => {
     contestResultsSummary: {
       type: 'candidate',
       ballots: 50,
-      officialOptionTallies: {
-        zebra: 40,
-      },
-      writeInOptionTallies: {
-        'write-in-1': {
-          name: 'Write-In 1',
-          tally: 5,
-        },
-        'write-in-2': {
-          name: 'Write-In 2',
-          tally: 5,
-        },
-        [Tabulation.PENDING_WRITE_IN_ID]: {
-          ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
-          tally: 1,
-        },
-      },
+      officialOptionTallies: new Map([['zebra', 40]]),
+      writeInOptionTallies: new Map([
+        [
+          'write-in-1',
+          {
+            name: 'Write-In 1',
+            tally: 5,
+          },
+        ],
+        [
+          'write-in-2',
+          {
+            name: 'Write-In 2',
+            tally: 5,
+          },
+        ],
+        [
+          Tabulation.PENDING_WRITE_IN_ID,
+          {
+            ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
+            tally: 1,
+          },
+        ],
+      ]),
     },
   }) as Tabulation.CandidateContestResults;
 
@@ -49,20 +56,26 @@ test('getTallyReportRows - no aggregation', () => {
     contestResultsSummary: {
       type: 'candidate',
       ballots: 50,
-      officialOptionTallies: {
-        zebra: 20,
-        lion: 20,
-      },
-      writeInOptionTallies: {
-        'write-in-1': {
-          name: 'Write-In 1',
-          tally: 5,
-        },
-        'write-in-3': {
-          name: 'Write-In 3',
-          tally: 5,
-        },
-      },
+      officialOptionTallies: new Map([
+        ['zebra', 20],
+        ['lion', 20],
+      ]),
+      writeInOptionTallies: new Map([
+        [
+          'write-in-1',
+          {
+            name: 'Write-In 1',
+            tally: 5,
+          },
+        ],
+        [
+          'write-in-3',
+          {
+            name: 'Write-In 3',
+            tally: 5,
+          },
+        ],
+      ]),
     },
   }) as Tabulation.CandidateContestResults;
 
@@ -108,18 +121,21 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
       contestResultsSummary: {
         type: 'candidate',
         ballots: 100,
-        officialOptionTallies: {
-          zebra: 50,
-          lion: 15,
-          kangaroo: 10,
-          elephant: 5,
-        },
-        writeInOptionTallies: {
-          [Tabulation.PENDING_WRITE_IN_ID]: {
-            ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
-            tally: 30,
-          },
-        },
+        officialOptionTallies: new Map([
+          ['zebra', 50],
+          ['lion', 15],
+          ['kangaroo', 10],
+          ['elephant', 5],
+        ]),
+        writeInOptionTallies: new Map([
+          [
+            Tabulation.PENDING_WRITE_IN_ID,
+            {
+              ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
+              tally: 30,
+            },
+          ],
+        ]),
       },
     }) as Tabulation.CandidateContestResults;
 
@@ -129,30 +145,42 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
       contestResultsSummary: {
         type: 'candidate',
         ballots: 100,
-        officialOptionTallies: {
-          zebra: 50,
-          lion: 15,
-          kangaroo: 10,
-          elephant: 5,
-        },
-        writeInOptionTallies: {
-          'write-in-1': {
-            name: 'Write-In 1',
-            tally: 15,
-          },
-          'write-in-2': {
-            name: 'Write-In 2',
-            tally: 3,
-          },
-          'write-in-3': {
-            name: 'Write-In 3',
-            tally: 2,
-          },
-          [Tabulation.PENDING_WRITE_IN_ID]: {
-            ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
-            tally: 10,
-          },
-        },
+        officialOptionTallies: new Map([
+          ['zebra', 50],
+          ['lion', 15],
+          ['kangaroo', 10],
+          ['elephant', 5],
+        ]),
+        writeInOptionTallies: new Map([
+          [
+            'write-in-1',
+            {
+              name: 'Write-In 1',
+              tally: 15,
+            },
+          ],
+          [
+            'write-in-2',
+            {
+              name: 'Write-In 2',
+              tally: 3,
+            },
+          ],
+          [
+            'write-in-3',
+            {
+              name: 'Write-In 3',
+              tally: 2,
+            },
+          ],
+          [
+            Tabulation.PENDING_WRITE_IN_ID,
+            {
+              ...Tabulation.PENDING_WRITE_IN_CANDIDATE,
+              tally: 10,
+            },
+          ],
+        ]),
       },
     }) as Tabulation.CandidateContestResults;
 
@@ -162,26 +190,35 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
       contestResultsSummary: {
         type: 'candidate',
         ballots: 100,
-        officialOptionTallies: {
-          zebra: 50,
-          lion: 15,
-          kangaroo: 10,
-          elephant: 5,
-        },
-        writeInOptionTallies: {
-          'write-in-1': {
-            name: 'Write-In 1',
-            tally: 25,
-          },
-          'write-in-2': {
-            name: 'Write-In 2',
-            tally: 3,
-          },
-          'write-in-3': {
-            name: 'Write-In 3',
-            tally: 2,
-          },
-        },
+        officialOptionTallies: new Map([
+          ['zebra', 50],
+          ['lion', 15],
+          ['kangaroo', 10],
+          ['elephant', 5],
+        ]),
+        writeInOptionTallies: new Map([
+          [
+            'write-in-1',
+            {
+              name: 'Write-In 1',
+              tally: 25,
+            },
+          ],
+          [
+            'write-in-2',
+            {
+              name: 'Write-In 2',
+              tally: 3,
+            },
+          ],
+          [
+            'write-in-3',
+            {
+              name: 'Write-In 3',
+              tally: 2,
+            },
+          ],
+        ]),
       },
       includeGenericWriteIn: false,
     }) as Tabulation.CandidateContestResults;
@@ -192,18 +229,21 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
       contestResultsSummary: {
         type: 'candidate',
         ballots: 50,
-        officialOptionTallies: {
-          zebra: 10,
-          lion: 5,
-          kangaroo: 5,
-          elephant: 0,
-        },
-        writeInOptionTallies: {
-          'write-in-4': {
-            name: 'Write-In 4',
-            tally: 30,
-          },
-        },
+        officialOptionTallies: new Map([
+          ['zebra', 10],
+          ['lion', 5],
+          ['kangaroo', 5],
+          ['elephant', 0],
+        ]),
+        writeInOptionTallies: new Map([
+          [
+            'write-in-4',
+            {
+              name: 'Write-In 4',
+              tally: 30,
+            },
+          ],
+        ]),
       },
       includeGenericWriteIn: false,
     }) as Tabulation.CandidateContestResults;
@@ -287,18 +327,21 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
           contestResultsSummary: {
             type: 'candidate',
             ballots: 100,
-            officialOptionTallies: {
-              zebra: 50,
-              lion: 25,
-              kangaroo: 15,
-              elephant: 5,
-            },
-            writeInOptionTallies: {
-              'write-in-1': {
-                name: 'Write-In 1',
-                tally: 5,
-              },
-            },
+            officialOptionTallies: new Map([
+              ['zebra', 50],
+              ['lion', 25],
+              ['kangaroo', 15],
+              ['elephant', 5],
+            ]),
+            writeInOptionTallies: new Map([
+              [
+                'write-in-1',
+                {
+                  name: 'Write-In 1',
+                  tally: 5,
+                },
+              ],
+            ]),
           },
         }) as Tabulation.CandidateContestResults,
         aggregateInsignificantWriteIns: true,
@@ -336,15 +379,16 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
           contestResultsSummary: {
             type: 'candidate',
             ballots: 100,
-            officialOptionTallies: {
-              official: 70,
-            },
-            writeInOptionTallies: {
-              'write-in-1': {
-                name: 'Write-In 1',
-                tally: 30,
-              },
-            },
+            officialOptionTallies: new Map([['official', 70]]),
+            writeInOptionTallies: new Map([
+              [
+                'write-in-1',
+                {
+                  name: 'Write-In 1',
+                  tally: 30,
+                },
+              ],
+            ]),
           },
         }) as Tabulation.CandidateContestResults,
         aggregateInsignificantWriteIns: true,
@@ -364,12 +408,12 @@ describe('getTallyReportRows - aggregating insignificant write-ins', () => {
           contestResultsSummary: {
             type: 'candidate',
             ballots: 100,
-            officialOptionTallies: {
-              zebra: 70,
-              lion: 15,
-              kangaroo: 10,
-              elephant: 5,
-            },
+            officialOptionTallies: new Map([
+              ['zebra', 70],
+              ['lion', 15],
+              ['kangaroo', 10],
+              ['elephant', 5],
+            ]),
           },
         }) as Tabulation.CandidateContestResults,
         aggregateInsignificantWriteIns: true,

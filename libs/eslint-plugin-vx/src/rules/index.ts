@@ -31,8 +31,9 @@ import noFloatingVoids from './no_floating_results';
 import noImportSubfolders from './no_import_workspace_subfolders';
 import noJestToBe from './no_jest_to_be';
 import noReactHookMutationDependency from './no_react_hook_mutation_dependency';
+import noRecordAsMap from './no_record_as_map';
 
-const rules: Record<string, Rule.RuleModule> = {
+const rules: { [key: string]: Rule.RuleModule } = {
   'gts-array-type-style': gtsArrayTypeStyle,
   'gts-constants': gtsConstants,
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
@@ -65,6 +66,7 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-import-workspace-subfolders': noImportSubfolders,
   'no-jest-to-be': noJestToBe,
   'no-react-hook-mutation-dependency': noReactHookMutationDependency,
-} as unknown as Record<string, Rule.RuleModule>;
+  'no-record-as-map': noRecordAsMap,
+} as unknown as { [key: string]: Rule.RuleModule };
 
 export default rules;

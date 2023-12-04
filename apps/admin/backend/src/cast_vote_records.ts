@@ -12,6 +12,7 @@ import {
   assert,
   assertDefined,
   err,
+  iter,
   ok,
   Result,
   throwIllegalValue,
@@ -160,9 +161,9 @@ export async function listCastVoteRecordExportsOnUsbDrive(
       }
       const metadata = metadataResult.ok();
       castVoteRecordExportSummaries.push({
-        cvrCount: metadata.castVoteRecordReportMetadata.vxBatch
+        cvrCount: iter(metadata.castVoteRecordReportMetadata.vxBatch)
           .map((batch) => batch.NumberSheets)
-          .reduce((sum, n) => sum + n, 0),
+          .sum(),
         exportTimestamp: new Date(
           metadata.castVoteRecordReportMetadata.GeneratedDate
         ),

@@ -2,10 +2,12 @@
   "extends": ["plugin:vx/recommended"],
   "overrides": [
     {
-      "files": ["test/*"],
+      "files": ["test/*", "src/**/*.test.ts"],
       "rules": {
         // Disable JSDOC rule as code is self-documenting.
-        "vx/gts-jsdoc": "off"
+        "vx/gts-jsdoc": "off",
+        // Allow `Record` to be used in tests.
+        "vx/no-record-as-map": "off"
       }
     }
   ],

@@ -87,14 +87,23 @@ test('primary election, full election report with manual results', () => {
         election,
         scannedBallotCount: 25,
         manualBallotCount: 1,
-        cardCountsByParty: {
-          '0': {
-            bmd: 15,
-            hmpb: [],
-            manual: 1,
-          },
-          '1': 10,
-        },
+        cardCountsByParty: new Map([
+          [
+            '0',
+            {
+              bmd: 15,
+              hmpb: [],
+              manual: 1,
+            },
+          ],
+          [
+            '1',
+            {
+              bmd: 10,
+              hmpb: [],
+            },
+          ],
+        ]),
       })}
     />
   );
@@ -156,9 +165,7 @@ test('primary election, party report', () => {
       tallyReportResults={getSimpleMockTallyResults({
         election,
         scannedBallotCount: 10,
-        cardCountsByParty: {
-          '0': 10,
-        },
+        cardCountsByParty: new Map([['0', { bmd: 10, hmpb: [] }]]),
         contestIds: election.contests
           .filter((c) => c.type === 'yesno' || c.partyId === '0')
           .map((c) => c.id),

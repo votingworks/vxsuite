@@ -39,21 +39,21 @@ export function getEmptyCandidateContestResults(
   contest: CandidateContest,
   includeGenericWriteInIfAllowed?: boolean
 ): Tabulation.CandidateContestResults {
-  const tallies: Tabulation.CandidateContestResults['tallies'] = {};
+  const tallies: Tabulation.CandidateContestResults['tallies'] = new Map();
 
   for (const candidate of contest.candidates) {
-    tallies[candidate.id] = {
+    tallies.set(candidate.id, {
       id: candidate.id,
       name: candidate.name,
       tally: 0,
-    };
+    });
   }
 
   if (contest.allowWriteIns && includeGenericWriteInIfAllowed) {
-    tallies[Tabulation.GENERIC_WRITE_IN_ID] = {
+    tallies.set(Tabulation.GENERIC_WRITE_IN_ID, {
       ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
       tally: 0,
-    };
+    });
   }
 
   return {
@@ -82,15 +82,18 @@ export function getEmptyElectionResults(
   election: Election,
   includeGenericWriteInIfAllowed = true
 ): Tabulation.ElectionResults {
-  const contestResults: Tabulation.ElectionResults['contestResults'] = {};
+  const contestResults: Tabulation.ElectionResults['contestResults'] =
+    new Map();
   for (const contest of election.contests) {
-    contestResults[contest.id] =
+    contestResults.set(
+      contest.id,
       contest.type === 'yesno'
         ? getEmptyYesNoContestResults(contest)
         : getEmptyCandidateContestResults(
             contest,
             includeGenericWriteInIfAllowed
-          );
+          )
+    );
   }
 
   return {
@@ -108,12 +111,15 @@ export function getEmptyElectionResults(
 export function getEmptyManualElectionResults(
   election: Election
 ): Tabulation.ManualElectionResults {
-  const contestResults: Tabulation.ElectionResults['contestResults'] = {};
+  const contestResults: Tabulation.ElectionResults['contestResults'] =
+    new Map();
   for (const contest of election.contests) {
-    contestResults[contest.id] =
+    contestResults.set(
+      contest.id,
       contest.type === 'yesno'
         ? getEmptyYesNoContestResults(contest)
-        : getEmptyCandidateContestResults(contest, false);
+        : getEmptyCandidateContestResults(contest, false)
+    );
   }
 
   return {
@@ -138,9 +144,9 @@ function addCastVoteRecordToElectionResult(
       (cardCounts.hmpb[cvr.card.sheetNumber - 1] ?? 0) + 1;
   }
 
-  for (const [contestId, optionIds] of Object.entries(cvr.votes)) {
+  for (const [contestId, optionIds] of cvr.votes) {
     const contestResult = assertDefined(
-      electionResult.contestResults[contestId]
+      electionResult.contestResults.get(contestId)
     );
 
     contestResult.ballots += 1;
@@ -170,11 +176,13 @@ function addCastVoteRecordToElectionResult(
       for (const optionId of optionIds) {
         if (optionId.startsWith('write-in-')) {
           const genericWriteInTally = assertDefined(
-            contestResult.tallies[Tabulation.GENERIC_WRITE_IN_ID]
+            contestResult.tallies.get(Tabulation.GENERIC_WRITE_IN_ID)
           );
           genericWriteInTally.tally += 1;
         } else {
-          const candidateTally = assertDefined(contestResult.tallies[optionId]);
+          const candidateTally = assertDefined(
+            contestResult.tallies.get(optionId)
+          );
           candidateTally.tally += 1;
         }
       }
@@ -184,7 +192,7 @@ function addCastVoteRecordToElectionResult(
   return electionResult;
 }
 
-export type BallotStyleIdPartyIdLookup = Record<BallotStyleId, PartyId>;
+export type BallotStyleIdPartyIdLookup = Map<BallotStyleId, PartyId>;
 
 /**
  * Creates a dictionary with keys of ballot style ids and values of their
@@ -193,10 +201,10 @@ export type BallotStyleIdPartyIdLookup = Record<BallotStyleId, PartyId>;
 export function getBallotStyleIdPartyIdLookup(
   election: Election
 ): BallotStyleIdPartyIdLookup {
-  const lookup: BallotStyleIdPartyIdLookup = {};
+  const lookup: BallotStyleIdPartyIdLookup = new Map();
   for (const ballotStyle of election.ballotStyles) {
     if (ballotStyle.partyId) {
-      lookup[ballotStyle.id] = ballotStyle.partyId;
+      lookup.set(ballotStyle.id, ballotStyle.partyId);
     }
   }
   return lookup;
@@ -209,19 +217,21 @@ export interface OfficialCandidateNameLookup {
 export function getOfficialCandidateNameLookup(
   election: Election
 ): OfficialCandidateNameLookup {
-  const lookupInternal: Record<ContestId, Record<CandidateId, string>> = {};
+  const lookupInternal = new Map<ContestId, Map<CandidateId, string>>();
   for (const contest of election.contests) {
     if (contest.type === 'candidate') {
-      const contestCandidateLookup: Record<CandidateId, string> = {};
+      const contestCandidateLookup = new Map<CandidateId, string>();
       for (const candidate of contest.candidates) {
-        contestCandidateLookup[candidate.id] = candidate.name;
+        contestCandidateLookup.set(candidate.id, candidate.name);
       }
-      lookupInternal[contest.id] = contestCandidateLookup;
+      lookupInternal.set(contest.id, contestCandidateLookup);
     }
   }
 
   function get(contestId: ContestId, candidateId: CandidateId): string {
-    return assertDefined(assertDefined(lookupInternal[contestId])[candidateId]);
+    return assertDefined(
+      assertDefined(lookupInternal.get(contestId)).get(candidateId)
+    );
   }
 
   return {
@@ -400,7 +410,7 @@ export async function tabulateCastVoteRecords({
   groupBy?: Tabulation.GroupBy;
   expectedGroups?: Tabulation.GroupSpecifier[];
 }): Promise<Tabulation.ElectionResultsGroupMap> {
-  const groupedElectionResults: Tabulation.ElectionResultsGroupMap = {};
+  const groupedElectionResults: Tabulation.ElectionResultsGroupMap = new Map();
 
   // Optimized special case, when the results do not need to be grouped.
   if (!groupBy || isGroupByEmpty(groupBy)) {
@@ -415,7 +425,7 @@ export async function tabulateCastVoteRecords({
         await yieldToEventLoop();
       }
     }
-    groupedElectionResults[GROUP_KEY_ROOT] = electionResults;
+    groupedElectionResults.set(GROUP_KEY_ROOT, electionResults);
     return groupedElectionResults;
   }
 
@@ -424,7 +434,7 @@ export async function tabulateCastVoteRecords({
   // Doing so before tabulation allows us to control insertion order.
   for (const groupSpecifier of expectedGroups ?? []) {
     const groupKey = getGroupKey(groupSpecifier, groupBy);
-    groupedElectionResults[groupKey] = getEmptyElectionResults(election);
+    groupedElectionResults.set(groupKey, getEmptyElectionResults(election));
   }
 
   // general case, grouping results by specified group by clause
@@ -432,7 +442,7 @@ export async function tabulateCastVoteRecords({
   for (const cvr of cvrs) {
     const groupSpecifier = getCastVoteRecordGroupSpecifier(cvr, groupBy);
     const groupKey = getGroupKey(groupSpecifier, groupBy);
-    const existingElectionResult = groupedElectionResults[groupKey];
+    const existingElectionResult = groupedElectionResults.get(groupKey);
     if (expectedGroups) {
       assert(existingElectionResult);
       addCastVoteRecordToElectionResult(existingElectionResult, cvr);
@@ -442,7 +452,7 @@ export async function tabulateCastVoteRecords({
       const electionResult: Tabulation.ElectionResults =
         getEmptyElectionResults(election);
       addCastVoteRecordToElectionResult(electionResult, cvr);
-      groupedElectionResults[groupKey] = electionResult;
+      groupedElectionResults.set(groupKey, electionResult);
     }
 
     i += 1;
@@ -535,14 +545,15 @@ export function combineCandidateContestResults({
     combinedContestResults.undervotes += contestResults.undervotes;
     combinedContestResults.ballots += contestResults.ballots;
 
-    for (const candidateTally of Object.values(contestResults.tallies)) {
-      const combinedCandidateTally =
-        combinedContestResults.tallies[candidateTally.id];
+    for (const candidateTally of contestResults.tallies.values()) {
+      const combinedCandidateTally = combinedContestResults.tallies.get(
+        candidateTally.id
+      );
 
       if (!combinedCandidateTally) {
-        combinedContestResults.tallies[candidateTally.id] = {
+        combinedContestResults.tallies.set(candidateTally.id, {
           ...candidateTally,
-        };
+        });
       } else {
         combinedCandidateTally.tally += candidateTally.tally;
       }
@@ -590,18 +601,23 @@ function combineElectionContestResults({
   >;
 }): Tabulation.ElectionResults['contestResults'] {
   const combinedElectionContestResults: Tabulation.ElectionResults['contestResults'] =
-    {};
+    new Map();
 
   for (const contest of election.contests) {
-    combinedElectionContestResults[contest.id] = combineContestResults({
-      contest,
-      allContestResults: allElectionContestResults
-        .map((electionContestResults) => electionContestResults[contest.id])
-        .filter(
-          (contestResults): contestResults is Tabulation.ContestResults =>
-            contestResults !== undefined
-        ),
-    });
+    combinedElectionContestResults.set(
+      contest.id,
+      combineContestResults({
+        contest,
+        allContestResults: allElectionContestResults
+          .map((electionContestResults) =>
+            electionContestResults.get(contest.id)
+          )
+          .filter(
+            (contestResults): contestResults is Tabulation.ContestResults =>
+              contestResults !== undefined
+          ),
+      })
+    );
   }
 
   return combinedElectionContestResults;
@@ -718,8 +734,8 @@ export type ContestResultsSummary = {
 } & (
   | {
       type: 'candidate';
-      officialOptionTallies?: Record<ContestOptionId, number>;
-      writeInOptionTallies?: Record<Id, { name: string; tally: number }>;
+      officialOptionTallies?: Map<ContestOptionId, number>;
+      writeInOptionTallies?: Map<Id, { name: string; tally: number }>;
     }
   | {
       type: 'yesno';
@@ -755,23 +771,22 @@ export function buildContestResultsFixture({
     assert(contestResultsSummary.type === 'candidate');
     assert(contestResults.contestType === 'candidate');
     // add official candidate vote counts to existing option tallies
-    for (const [candidateId, candidateTally] of Object.entries(
-      contestResults.tallies
-    )) {
+    for (const [candidateId, candidateTally] of contestResults.tallies) {
       candidateTally.tally =
-        contestResultsSummary.officialOptionTallies?.[candidateId] ?? 0;
+        contestResultsSummary.officialOptionTallies?.get(candidateId) ?? 0;
     }
 
     // add write-in candidate option tallies if specified
     if (contestResultsSummary.writeInOptionTallies) {
-      for (const [candidateId, candidateTally] of Object.entries(
-        contestResultsSummary.writeInOptionTallies
-      )) {
-        contestResults.tallies[candidateId] = {
+      for (const [
+        candidateId,
+        candidateTally,
+      ] of contestResultsSummary.writeInOptionTallies) {
+        contestResults.tallies.set(candidateId, {
           id: candidateId,
           ...candidateTally,
           isWriteIn: true,
-        };
+        });
       }
     }
   }
@@ -779,7 +794,7 @@ export function buildContestResultsFixture({
   return contestResults;
 }
 
-export type ContestResultsSummaries = Record<ContestId, ContestResultsSummary>;
+export type ContestResultsSummaries = Map<ContestId, ContestResultsSummary>;
 
 function buildElectionContestResultsFixture({
   election,
@@ -791,18 +806,21 @@ function buildElectionContestResultsFixture({
   includeGenericWriteIn: boolean;
 }): Tabulation.ElectionResults['contestResults'] {
   const electionContestResults: Tabulation.ElectionResults['contestResults'] =
-    {};
+    new Map();
   for (const contest of election.contests) {
-    const contestResultsSummary = contestResultsSummaries[contest.id];
-    electionContestResults[contest.id] = contestResultsSummary
-      ? buildContestResultsFixture({
-          contest,
-          contestResultsSummary,
-          includeGenericWriteIn,
-        })
-      : contest.type === 'yesno'
-      ? getEmptyYesNoContestResults(contest)
-      : getEmptyCandidateContestResults(contest, includeGenericWriteIn);
+    const contestResultsSummary = contestResultsSummaries.get(contest.id);
+    electionContestResults.set(
+      contest.id,
+      contestResultsSummary
+        ? buildContestResultsFixture({
+            contest,
+            contestResultsSummary,
+            includeGenericWriteIn,
+          })
+        : contest.type === 'yesno'
+        ? getEmptyYesNoContestResults(contest)
+        : getEmptyCandidateContestResults(contest, includeGenericWriteIn)
+    );
   }
 
   return electionContestResults;
@@ -843,7 +861,7 @@ export function buildElectionResultsFixture({
 }: {
   election: Election;
   cardCounts: Tabulation.CardCounts;
-  contestResultsSummaries: Record<ContestId, ContestResultsSummary>;
+  contestResultsSummaries: Map<ContestId, ContestResultsSummary>;
   includeGenericWriteIn: boolean;
 }): Tabulation.ElectionResults {
   return {
@@ -864,36 +882,36 @@ export function mergeWriteInTallies<
   T extends Pick<Tabulation.ElectionResults, 'contestResults'>,
 >(anyResults: T): T {
   const newElectionContestResults: Tabulation.ManualElectionResults['contestResults'] =
-    {};
+    new Map();
 
-  for (const contestResults of Object.values(anyResults.contestResults)) {
+  for (const contestResults of anyResults.contestResults.values()) {
     if (contestResults.contestType === 'yesno') {
-      newElectionContestResults[contestResults.contestId] = contestResults;
+      newElectionContestResults.set(contestResults.contestId, contestResults);
       continue;
     }
 
-    const newTallies: Tabulation.CandidateContestResults['tallies'] = {};
+    const newTallies: Tabulation.CandidateContestResults['tallies'] = new Map();
 
     let writeInTally = 0;
-    for (const candidateTally of Object.values(contestResults.tallies)) {
+    for (const candidateTally of contestResults.tallies.values()) {
       if (!candidateTally.isWriteIn) {
-        newTallies[candidateTally.id] = candidateTally;
+        newTallies.set(candidateTally.id, candidateTally);
       } else {
         writeInTally += candidateTally.tally;
       }
     }
 
     if (writeInTally > 0) {
-      newTallies[Tabulation.GENERIC_WRITE_IN_ID] = {
+      newTallies.set(Tabulation.GENERIC_WRITE_IN_ID, {
         ...Tabulation.GENERIC_WRITE_IN_CANDIDATE,
         tally: writeInTally,
-      };
+      });
     }
 
-    newElectionContestResults[contestResults.contestId] = {
+    newElectionContestResults.set(contestResults.contestId, {
       ...contestResults,
       tallies: newTallies,
-    };
+    });
   }
 
   return {
