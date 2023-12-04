@@ -137,6 +137,9 @@ export enum LogEventId {
 
   // VxMarkScan logs
   PatDeviceError = 'pat-device-error',
+
+  // All machines
+  UnknownError = 'unknown-error',
 }
 
 export interface LogDetails {
@@ -945,6 +948,19 @@ const PatDeviceError: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
 };
 
+const UnknownError: LogDetails = {
+  eventId: LogEventId.UnknownError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'Machine encountered an unknown error.',
+  restrictInDocumentationToApps: [
+    LogSource.VxAdminFrontend,
+    LogSource.VxCentralScanFrontend,
+    LogSource.VxMarkFrontend,
+    LogSource.VxMarkScanFrontend,
+    LogSource.VxScanFrontend,
+  ],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1153,6 +1169,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return WriteInAdjudicated;
     case LogEventId.PatDeviceError:
       return PatDeviceError;
+    case LogEventId.UnknownError:
+      return UnknownError;
 
     /* istanbul ignore next - compile time check for completeness */
     default:
