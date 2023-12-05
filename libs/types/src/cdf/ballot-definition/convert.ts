@@ -5,8 +5,10 @@ import {
   err,
   find,
   groupBy,
+  iter,
   naturals,
   ok,
+  Optional,
   Result,
   throwIllegalValue,
   unique,
@@ -49,14 +51,15 @@ export function convertVxfElectionToCdfBallotDefinition(
   const stateId = vxfElection.state.toLowerCase().replaceAll(' ', '-');
   const electionDate = dateString(new Date(vxfElection.date));
 
-  const precinctSplits: Record<
+  const precinctSplits = new Map<
     Vxf.PrecinctId,
-    | Array<{
+    Optional<
+      Array<{
         split: Cdf.ReportingUnit;
         ballotStyles: Vxf.BallotStyle[];
       }>
-    | undefined
-  > = Object.fromEntries(
+    >
+  >(
     vxfElection.precincts.map((precinct) => {
       const precinctBallotStyles = vxfElection.ballotStyles.filter(
         (ballotStyle) => ballotStyle.precincts.includes(precinct.id)
@@ -94,9 +97,9 @@ export function convertVxfElectionToCdfBallotDefinition(
 
   function precinctsOrSplitsForBallotStyle(ballotStyle: Vxf.BallotStyle): Id[] {
     return ballotStyle.precincts.map((precinctId) => {
-      const splits = precinctSplits[precinctId];
+      const splits = precinctSplits.get(precinctId);
       return splits !== undefined
-        ? // If the precinct has splits, only use the split correponding to this ballot style
+        ? // If the precinct has splits, only use the split corresponding to this ballot style
           find(splits, (split) =>
             split.ballotStyles.some((bs) => bs.id === ballotStyle.id)
           ).split['@id']
@@ -384,12 +387,12 @@ export function convertVxfElectionToCdfBallotDefinition(
           '@id': precinct.id,
           Name: text(precinct.name),
           Type: Cdf.ReportingUnitType.Precinct,
-          ComposingGpUnitIds: precinctSplits[precinct.id]?.map(
-            ({ split }) => split['@id']
-          ),
+          ComposingGpUnitIds: precinctSplits
+            .get(precinct.id)
+            ?.map(({ split }) => split['@id']),
         })
       ),
-      ...Object.values(precinctSplits).flatMap(
+      ...iter(precinctSplits.values()).flatMap(
         (splits) => splits?.map(({ split }) => split) ?? []
       ),
     ],

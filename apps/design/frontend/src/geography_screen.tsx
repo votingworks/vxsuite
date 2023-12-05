@@ -322,7 +322,7 @@ function PrecinctsTab(): JSX.Element | null {
 
   const { precincts, election } = getElectionQuery.data;
 
-  const districtIdToName = Object.fromEntries(
+  const districtIdToName = new Map(
     election.districts.map((district) => [district.id, district.name])
   );
 
@@ -359,7 +359,7 @@ function PrecinctsTab(): JSX.Element | null {
                   <TD>
                     {'districtIds' in precinct &&
                       precinct.districtIds
-                        .map((districtId) => districtIdToName[districtId])
+                        .map((districtId) => districtIdToName.get(districtId))
                         .join(', ')}
                   </TD>
                   <TD>
@@ -384,7 +384,7 @@ function PrecinctsTab(): JSX.Element | null {
                   <TD>{split.id}</TD>
                   <TD>
                     {split.districtIds
-                      .map((districtId) => districtIdToName[districtId])
+                      .map((districtId) => districtIdToName.get(districtId))
                       .join(', ')}
                   </TD>
                   <TD />

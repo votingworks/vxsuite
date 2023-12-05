@@ -74,12 +74,10 @@ function ContestsTab(): JSX.Element | null {
     return matchesDistrict && matchesParty;
   });
 
-  const districtIdToName = Object.fromEntries(
+  const districtIdToName = new Map(
     districts.map((district) => [district.id, district.name])
   );
-  const partyIdToName = Object.fromEntries(
-    parties.map((party) => [party.id, party.name])
-  );
+  const partyIdToName = new Map(parties.map((party) => [party.id, party.name]));
 
   return (
     <TabPanel>
@@ -160,12 +158,12 @@ function ContestsTab(): JSX.Element | null {
                 <tr key={contest.id}>
                   <TD>{contest.title}</TD>
                   <TD>{contest.id}</TD>
-                  <TD nowrap>{districtIdToName[contest.districtId]}</TD>
+                  <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
                   {election.type === 'primary' && (
                     <TD nowrap>
                       {contest.type === 'candidate' &&
                         contest.partyId !== undefined &&
-                        partyIdToName[contest.partyId]}
+                        partyIdToName.get(contest.partyId)}
                     </TD>
                   )}
                   <TD nowrap>
