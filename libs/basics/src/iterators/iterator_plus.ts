@@ -124,7 +124,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
-  every(predicate: (item: T) => boolean): boolean {
+  every(predicate: (item: T) => unknown): boolean {
     for (const it of this.iterable) {
       if (!predicate(it)) {
         return false;
@@ -134,8 +134,8 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   }
 
   filter<U extends T>(fn: (value: T) => value is U): IteratorPlus<U>;
-  filter(fn: (value: T) => boolean): IteratorPlus<T>;
-  filter(fn: (value: T) => boolean): IteratorPlus<T> {
+  filter(fn: (value: T) => unknown): IteratorPlus<T>;
+  filter(fn: (value: T) => unknown): IteratorPlus<T> {
     const { iterable } = this;
     return new IteratorPlusImpl(
       (function* gen() {
@@ -148,7 +148,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
-  find(predicate: (item: T) => boolean): T | undefined {
+  find(predicate: (item: T) => unknown): T | undefined {
     for (const it of this.iterable) {
       if (predicate(it)) {
         return it;
@@ -218,7 +218,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return min;
   }
 
-  partition(predicate: (item: T) => boolean): [T[], T[]] {
+  partition(predicate: (item: T) => unknown): [T[], T[]] {
     const left = Array.of<T>();
     const right = Array.of<T>();
     for (const value of this.iterable) {
@@ -259,7 +259,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
-  some(predicate: (item: T) => boolean): boolean {
+  some(predicate: (item: T) => unknown): boolean {
     for (const it of this.iterable) {
       if (predicate(it)) {
         return true;

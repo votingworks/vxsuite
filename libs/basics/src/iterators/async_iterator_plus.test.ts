@@ -33,6 +33,13 @@ test('filter', async () => {
       .filter((n) => n % 2 === 0)
       .toArray()
   ).toEqual([2, 4]);
+  expect(
+    await iter(naturals())
+      .async()
+      .take(5)
+      .filter((n) => n % 2)
+      .toArray()
+  ).toEqual([1, 3, 5]);
 });
 
 test('count', async () => {
@@ -360,6 +367,11 @@ test('find', async () => {
       .async()
       .find((a) => a === 2)
   ).toEqual(2);
+  expect(
+    await iter([0, 1, 2])
+      .async()
+      .find((a) => a)
+  ).toEqual(1);
 });
 
 test('some', async () => {
@@ -377,6 +389,16 @@ test('some', async () => {
     await iter([1, 2, 3])
       .async()
       .some((a) => a === 2)
+  ).toEqual(true);
+  expect(
+    await iter([0])
+      .async()
+      .some((a) => a)
+  ).toEqual(false);
+  expect(
+    await iter([1])
+      .async()
+      .some((a) => a)
   ).toEqual(true);
 });
 
@@ -396,6 +418,16 @@ test('every', async () => {
       .async()
       .every((a) => a === 2)
   ).toEqual(false);
+  expect(
+    await iter([0, 1, 2])
+      .async()
+      .every((a) => a)
+  ).toEqual(false);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .every((a) => a)
+  ).toEqual(true);
 });
 
 test('min', async () => {
@@ -485,6 +517,11 @@ test('partition', async () => {
       .async()
       .partition((a) => a % 2 === 0)
   ).toEqual([[2], [1, 3]]);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .partition((a) => a % 2)
+  ).toEqual([[1, 3], [2]]);
 });
 
 test('windows', async () => {
