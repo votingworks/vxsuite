@@ -34,6 +34,7 @@ export function buildMockInsertedSmartCardAuth(): jest.Mocked<InsertedSmartCardA
     logOut: jest.fn(),
     updateSessionExpiry: jest.fn(),
     startCardlessVoterSession: jest.fn(),
+    updateCardlessVoterBallotStyle: jest.fn(),
     endCardlessVoterSession: jest.fn(),
     readCardData: jest.fn(),
     readCardDataAsString: jest.fn(),
