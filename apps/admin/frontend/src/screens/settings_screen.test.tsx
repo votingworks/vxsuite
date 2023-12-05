@@ -9,6 +9,8 @@ import {
   ElectionManagerLoggedIn,
   SystemAdministratorLoggedIn,
 } from '@votingworks/types/src/auth/dipped_smart_card_auth';
+import { mockUsbDriveStatus } from '@votingworks/ui';
+import { ok } from '@votingworks/basics';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 
 import {
@@ -69,6 +71,21 @@ describe('as System Admin', () => {
 
     // Rebooting to BIOS is tested in libs/ui/src/reboot_to_bios_button.test.tsx
     screen.getByText('Reboot to BIOS');
+  });
+
+  test('Exporting logs', async () => {
+    renderInAppContext(<SettingsScreen />, {
+      apiMock,
+      auth,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    });
+
+    apiMock.apiClient.exportLogsToUsb.expectCallWith().resolves(ok());
+
+    // Log saving is tested fully in src/components/export_logs_modal.test.tsx
+    userEvent.click(screen.getByText('Save Log File'));
+    await screen.findByText('Save logs on the inserted USB drive?');
+    userEvent.click(screen.getByText('Save'));
   });
 });
 
