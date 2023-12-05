@@ -41,12 +41,16 @@ function buildApi({
         return err('no-usb-drive');
       }
 
-      const mountpoint = status.mountPoint;
+      const machineNamePath = join(
+        status.mountPoint,
+        `/logs/machine_${machineId}`
+      );
+
       const dateString = new Date().toISOString().replaceAll(':', '-');
-      const dirPath = `/logs/machine_${machineId}/${dateString}`;
-      const destinationDirectory = join(mountpoint, dirPath);
+      const destinationDirectory = join(machineNamePath, dateString);
 
       try {
+        await execFile('mkdir', ['-p', machineNamePath]);
         await execFile('cp', ['-r', LOG_DIR, destinationDirectory]);
       } catch {
         return err('copy-failed');
