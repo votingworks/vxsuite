@@ -211,6 +211,20 @@ export const startCardlessVoterSession = {
   },
 } as const;
 
+export const updateCardlessVoterBallotStyle = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateCardlessVoterBallotStyle, {
+      async onSuccess() {
+        // Because we poll auth status with high frequency, this invalidation isn't strictly
+        // necessary
+        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const endCardlessVoterSession = {
   useMutation() {
     const apiClient = useApiClient();
