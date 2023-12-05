@@ -29,6 +29,14 @@ export function isPlainObject(
   );
 }
 
+export function isMap(value: unknown): value is Map<unknown, unknown> {
+  return value instanceof Map;
+}
+
+export function isSet(value: unknown): value is Set<unknown> {
+  return value instanceof Set;
+}
+
 export function isFunction(
   value: unknown
 ): value is (...args: unknown[]) => unknown {

@@ -38,6 +38,21 @@ test('JSON serialization/deserialization', () => {
   expectToBePreservedExactly([]);
   expectToBePreservedExactly([1, 2, 3]);
   expectToBePreservedExactly([1, true, null, 'a']);
+  // Basic maps
+  expectToBePreservedExactly(new Map());
+  expectToBePreservedExactly(new Map([['a', 1]]));
+  expectToBePreservedExactly(
+    new Map([
+      ['a', 1],
+      ['b', 2],
+    ])
+  );
+  expectToBePreservedExactly(new Map([['a', new Map([['b', 2]])]]));
+  // Basic sets
+  expectToBePreservedExactly(new Set());
+  expectToBePreservedExactly(new Set([1]));
+  expectToBePreservedExactly(new Set([1, 2]));
+  expectToBePreservedExactly(new Set([new Set([1, 2])]));
   // Nested data
   expectToBePreservedExactly({
     name: 'John',
