@@ -32,6 +32,11 @@ const ButtonGrid = styled.div`
   @media (orientation: landscape) {
     grid-template-columns: 1fr 1fr 1fr;
   }
+
+  button {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
 `;
 
 /**

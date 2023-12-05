@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
-import { Icons } from '../icons';
 
 export interface TabBarProps<Id extends string = string> {
   activePaneId?: Id;
@@ -24,28 +23,15 @@ const Container = styled.div`
   padding: 0.25rem 0.5rem 0.75rem;
 `;
 
-const IconContainer = styled.span`
-  /* stylelint-disable no-empty-source */
-`;
+const TabButton = styled(Button)<{ active?: boolean }>`
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 
-interface TabLabelContainerProps {
-  active?: boolean;
-}
-
-const TabLabelContainer = styled.span<TabLabelContainerProps>`
-  align-items: center;
-  display: flex;
-  gap: 1rem;
-  text-align: left;
-
-  & ${IconContainer} {
-    opacity: ${(p) => (p.active ? 1 : 0)};
-    transition: opacity 100ms ease-out;
+  svg {
+    margin-left: auto;
+    opacity: ${(p) => !p.active && '0'};
   }
-`;
-
-const TabLabel = styled.span`
-  flex-grow: 1;
 `;
 
 /**
@@ -64,22 +50,18 @@ export function TabBar<Id extends string = string>(
       role="tablist"
     >
       {tabs.map(({ label, paneId }) => (
-        <Button
+        <TabButton
           aria-controls={paneId}
           aria-selected={activePaneId === paneId}
           key={paneId}
-          onPress={onChange}
+          onPress={() => onChange(paneId)}
           role="tab"
-          value={paneId}
           variant={activePaneId === paneId ? 'primary' : 'neutral'}
+          rightIcon="RightChevron"
+          active={activePaneId === paneId}
         >
-          <TabLabelContainer active={activePaneId === paneId}>
-            <TabLabel>{label}</TabLabel>
-            <IconContainer>
-              <Icons.RightChevron />
-            </IconContainer>
-          </TabLabelContainer>
-        </Button>
+          {label}
+        </TabButton>
       ))}
     </Container>
   );
