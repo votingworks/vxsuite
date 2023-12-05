@@ -24,6 +24,12 @@ test('filter', () => {
       .filter((n) => n % 2 === 0)
       .toArray()
   ).toEqual([2, 4]);
+  expect(
+    naturals()
+      .take(5)
+      .filter((n) => n % 2)
+      .toArray()
+  ).toEqual([1, 3, 5]);
 });
 
 test('count', () => {
@@ -258,18 +264,23 @@ test('find', () => {
   expect(iter([]).find(() => true)).toEqual(undefined);
   expect(iter([1]).find(() => true)).toEqual(1);
   expect(iter([1, 2, 3]).find((a) => a === 2)).toEqual(2);
+  expect(iter([0, 1, 2]).find((a) => a)).toEqual(1);
 });
 
 test('some', () => {
   expect(iter([]).some(() => true)).toEqual(false);
   expect(iter([1]).some(() => true)).toEqual(true);
   expect(iter([1, 2, 3]).some((a) => a === 2)).toEqual(true);
+  expect(iter([0]).some((a) => a)).toEqual(false);
+  expect(iter([1]).some((a) => a)).toEqual(true);
 });
 
 test('every', () => {
   expect(iter([]).every(() => true)).toEqual(true);
   expect(iter([1]).every(() => true)).toEqual(true);
   expect(iter([1, 2, 3]).every((a) => a === 2)).toEqual(false);
+  expect(iter([0, 1, 2]).every((a) => a)).toEqual(false);
+  expect(iter([1, 2, 3]).every((a) => a)).toEqual(true);
 });
 
 test('min', () => {
@@ -326,6 +337,7 @@ test('partition', () => {
   expect(iter([1]).partition(() => true)).toEqual([[1], []]);
   expect(iter([1, 2, 3]).partition(() => true)).toEqual([[1, 2, 3], []]);
   expect(iter([1, 2, 3]).partition((a) => a % 2 === 0)).toEqual([[2], [1, 3]]);
+  expect(iter([1, 2, 3]).partition((a) => a % 2)).toEqual([[1, 3], [2]]);
 });
 
 test('windows', () => {

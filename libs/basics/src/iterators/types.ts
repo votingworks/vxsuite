@@ -56,7 +56,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * Determines if all elements satisfy `predicate`. Consumes the contained
    * iterable.
    */
-  every(predicate: (item: T) => boolean): boolean;
+  every(predicate: (item: T) => unknown): boolean;
 
   /**
    * Filters elements by applying `predicate` to each element.
@@ -66,13 +66,13 @@ export interface IteratorPlus<T> extends Iterable<T> {
   /**
    * Filters elements by applying `predicate` to each element.
    */
-  filter(fn: (value: T) => boolean): IteratorPlus<T>;
+  filter(fn: (value: T) => unknown): IteratorPlus<T>;
 
   /**
    * Finds an element that satisfies `predicate`. Consumes the contained
    * iterable until a matching element is found.
    */
-  find(predicate: (item: T) => boolean): T | undefined;
+  find(predicate: (item: T) => unknown): T | undefined;
 
   /**
    * Returns the first element of `this` or `undefined` if `this` is empty.
@@ -126,7 +126,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * placed in the first group, and the rest are placed in the second group.
    * Consumes the entire contained iterable. Element order is preserved.
    */
-  partition(predicate: (item: T) => boolean): [T[], T[]];
+  partition(predicate: (item: T) => unknown): [T[], T[]];
 
   /**
    * Yields elements in reverse order. Consumes the entire contained iterable.
@@ -142,7 +142,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * Determines whether any element satisfies `predicate`. Consumes the
    * contained iterable until a matching element is found.
    */
-  some(predicate: (item: T) => boolean): boolean;
+  some(predicate: (item: T) => unknown): boolean;
 
   /**
    * Sums elements from `this`. Consumes the entire contained iterable.
@@ -382,18 +382,18 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * Determines if all elements satisfy `predicate`. Consumes the contained
    * iterable.
    */
-  every(predicate: (item: T) => MaybePromise<boolean>): Promise<boolean>;
+  every(predicate: (item: T) => MaybePromise<unknown>): Promise<boolean>;
 
   /**
    * Filters elements from `iterable` by applying `predicate` to each element.
    */
-  filter(fn: (value: T) => MaybePromise<boolean>): AsyncIteratorPlus<T>;
+  filter(fn: (value: T) => MaybePromise<unknown>): AsyncIteratorPlus<T>;
 
   /**
    * Finds an element that satisfies `predicate`. Consumes the contained
    * iterable until a matching element is found.
    */
-  find(predicate: (item: T) => MaybePromise<boolean>): Promise<T | undefined>;
+  find(predicate: (item: T) => MaybePromise<unknown>): Promise<T | undefined>;
 
   /**
    * Returns the first element of `this` or `undefined` if `this` is empty.
@@ -442,7 +442,7 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * placed in the first group, and the rest are placed in the second group.
    * Consumes the entire contained iterable. Element order is preserved.
    */
-  partition(predicate: (item: T) => boolean): Promise<[T[], T[]]>;
+  partition(predicate: (item: T) => unknown): Promise<[T[], T[]]>;
 
   /**
    * Yields elements in reverse order. Consumes the entire contained iterable.
@@ -458,7 +458,7 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * Determines whether any element satisfies `predicate`. Consumes the
    * contained iterable until a matching element is found.
    */
-  some(predicate: (item: T) => MaybePromise<boolean>): Promise<boolean>;
+  some(predicate: (item: T) => MaybePromise<unknown>): Promise<boolean>;
 
   /**
    * Sums elements from `this`. Consumes the entire contained iterable.

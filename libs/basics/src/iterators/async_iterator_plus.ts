@@ -115,7 +115,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     ) as AsyncIteratorPlus<[number, T]>;
   }
 
-  async every(predicate: (item: T) => MaybePromise<boolean>): Promise<boolean> {
+  async every(predicate: (item: T) => MaybePromise<unknown>): Promise<boolean> {
     for await (const it of this.iterable) {
       if (!(await predicate(it))) {
         return false;
@@ -124,7 +124,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return true;
   }
 
-  filter(fn: (value: T) => MaybePromise<boolean>): AsyncIteratorPlus<T> {
+  filter(fn: (value: T) => MaybePromise<unknown>): AsyncIteratorPlus<T> {
     const { iterable } = this;
     return new AsyncIteratorPlusImpl(
       (async function* gen() {
@@ -138,7 +138,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   }
 
   async find(
-    predicate: (item: T) => MaybePromise<boolean>
+    predicate: (item: T) => MaybePromise<unknown>
   ): Promise<T | undefined> {
     for await (const it of this.iterable) {
       if (await predicate(it)) {
@@ -218,7 +218,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return min;
   }
 
-  async partition(predicate: (item: T) => boolean): Promise<[T[], T[]]> {
+  async partition(predicate: (item: T) => unknown): Promise<[T[], T[]]> {
     const left = [];
     const right = [];
     for await (const it of this.iterable) {
@@ -243,7 +243,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     ) as AsyncIteratorPlus<T>;
   }
 
-  async some(predicate: (item: T) => MaybePromise<boolean>): Promise<boolean> {
+  async some(predicate: (item: T) => MaybePromise<unknown>): Promise<boolean> {
     for await (const it of this.iterable) {
       if (await predicate(it)) {
         return true;
