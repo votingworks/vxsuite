@@ -5,15 +5,9 @@ import {
 import { fakeKiosk } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
-import { QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import {
-  act,
-  fireEvent,
-  screen,
-  within,
-} from '../../test/react_testing_library';
+import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election } from '../../test/helpers/election';
 
@@ -25,8 +19,11 @@ import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
 } from '../utils/ScreenReader';
-import { ApiClientContext, createQueryClient } from '../api';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
@@ -44,24 +41,23 @@ afterEach(() => {
 
 function renderScreen(props: Partial<AdminScreenProps> = {}) {
   return render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        <AdminScreen
-          ballotsPrintedCount={0}
-          electionDefinition={asElectionDefinition(election)}
-          isTestMode
-          unconfigure={jest.fn()}
-          machineConfig={fakeMachineConfig({
-            codeVersion: 'test', // Override default
-          })}
-          screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
-          pollsState="polls_open"
-          logger={fakeLogger()}
-          usbDriveStatus={mockUsbDriveStatus('mounted')}
-          {...props}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    provideApi(
+      apiMock,
+      <AdminScreen
+        ballotsPrintedCount={0}
+        electionDefinition={asElectionDefinition(election)}
+        isTestMode
+        unconfigure={jest.fn()}
+        machineConfig={fakeMachineConfig({
+          codeVersion: 'test', // Override default
+        })}
+        screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+        pollsState="polls_open"
+        logger={fakeLogger()}
+        usbDriveStatus={mockUsbDriveStatus('mounted')}
+        {...props}
+      />
+    )
   );
 }
 
@@ -76,20 +72,20 @@ test('renders date and time settings modal', async () => {
   await screen.findByText(startDate);
 
   // Open Modal and change date
-  fireEvent.click(screen.getByText('Update Date and Time'));
+  userEvent.click(screen.getButton('Set Date and Time'));
 
-  within(screen.getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM');
+  within(screen.getByTestId('modal')).getByText(startDate);
 
   const selectYear = screen.getByTestId('selectYear');
   const optionYear =
     within(selectYear).getByText<HTMLOptionElement>('2025').value;
-  fireEvent.change(selectYear, { target: { value: optionYear } });
+  userEvent.selectOptions(selectYear, optionYear);
 
   // Save Date and Timezone
   apiMock.expectLogOut();
   // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
-    fireEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
+    userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
   });
   expect(window.kiosk?.setClock).toHaveBeenCalledWith({
     isoDatetime: '2025-10-31T00:00:00.000+00:00',
@@ -122,7 +118,7 @@ test('precinct selection disabled if single precinct election', async () => {
       electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition,
   });
 
-  await screen.findByText('Election Manager Actions');
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
   expect(screen.getByTestId('selectPrecinct')).toBeDisabled();
   screen.getByText(
     'Precinct cannot be changed because there is only one precinct configured for this election.'
