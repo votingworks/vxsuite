@@ -1,8 +1,14 @@
 import React from 'react';
 
 import { Logger } from '@votingworks/logging';
-import { Screen, SystemAdministratorScreenContents } from '@votingworks/ui';
+import {
+  H3,
+  Main,
+  Screen,
+  SystemAdministratorScreenContents,
+} from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { logOut } from '../api';
 
 const resetPollsToPausedText =
   'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';
@@ -25,24 +31,29 @@ export function SystemAdministratorScreen({
   resetPollsToPaused,
   usbDriveStatus,
 }: Props): JSX.Element {
+  const logOutMutation = logOut.useMutation();
   return (
     <Screen>
-      <SystemAdministratorScreenContents
-        displayRemoveCardToLeavePrompt
-        logger={logger}
-        resetPollsToPausedText={resetPollsToPausedText}
-        resetPollsToPaused={resetPollsToPaused}
-        primaryText={
-          <React.Fragment>
-            To adjust settings for the current election,
-            <br />
-            please insert an Election Manager or Poll Worker card.
-          </React.Fragment>
-        }
-        unconfigureMachine={unconfigureMachine}
-        isMachineConfigured={isMachineConfigured}
-        usbDriveStatus={usbDriveStatus}
-      />
+      <Main padded>
+        <H3 as="h1">System Administrator</H3>
+        <SystemAdministratorScreenContents
+          displayRemoveCardToLeavePrompt
+          logger={logger}
+          resetPollsToPausedText={resetPollsToPausedText}
+          resetPollsToPaused={resetPollsToPaused}
+          primaryText={
+            <React.Fragment>
+              To adjust settings for the current election,
+              <br />
+              please insert an Election Manager or Poll Worker card.
+            </React.Fragment>
+          }
+          unconfigureMachine={unconfigureMachine}
+          isMachineConfigured={isMachineConfigured}
+          usbDriveStatus={usbDriveStatus}
+          logOut={() => logOutMutation.mutate()}
+        />
+      </Main>
     </Screen>
   );
 }

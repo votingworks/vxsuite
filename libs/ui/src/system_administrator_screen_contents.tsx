@@ -5,7 +5,6 @@ import { isVxDev } from '@votingworks/utils';
 import styled from 'styled-components';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
-import { Main } from './main';
 import { RebootFromUsbButton } from './reboot_from_usb_button';
 import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
@@ -55,7 +54,7 @@ export function SystemAdministratorScreenContents({
   additionalButtons,
 }: Props): JSX.Element {
   return (
-    <Main padded>
+    <React.Fragment>
       <P>{primaryText}</P>
       {displayRemoveCardToLeavePrompt && (
         <P>Remove the System Administrator card to leave this screen.</P>
@@ -81,6 +80,6 @@ export function SystemAdministratorScreenContents({
           <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
         )}
       </ButtonGrid>
-    </Main>
+    </React.Fragment>
   );
 }
