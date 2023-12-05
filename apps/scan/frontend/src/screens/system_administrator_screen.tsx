@@ -77,7 +77,6 @@ export function SystemAdministratorScreen({
           }
           isMachineConfigured={Boolean(electionDefinition)}
           logOut={() => logOutMutation.mutate()}
-          usbDriveStatus={usbDrive}
           additionalButtons={additionalButtons}
         />
       </Main>

@@ -3,7 +3,6 @@ import {
   CurrentDateAndTime,
   H2,
   P,
-  RebootFromUsbButton,
   RebootToBiosButton,
   SetClockButton,
 } from '@votingworks/ui';
@@ -20,7 +19,7 @@ import { logOut } from '../api';
 import { LiveCheckButton } from '../components/live_check_button';
 
 export function SettingsScreen(): JSX.Element {
-  const { auth, logger, usbDriveStatus } = useContext(AppContext);
+  const { auth, logger } = useContext(AppContext);
   const logOutMutation = logOut.useMutation();
 
   return (
@@ -39,13 +38,7 @@ export function SettingsScreen(): JSX.Element {
           <H2>USB Formatting</H2>
           <FormatUsbButton />
           <H2>Software Update</H2>
-          <P>
-            <RebootFromUsbButton
-              logger={logger}
-              usbDriveStatus={usbDriveStatus}
-            />{' '}
-            <RebootToBiosButton logger={logger} />
-          </P>
+          <RebootToBiosButton logger={logger} />
         </React.Fragment>
       )}
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (

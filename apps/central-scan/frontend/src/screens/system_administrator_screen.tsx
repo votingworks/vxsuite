@@ -4,7 +4,6 @@ import {
   Icons,
   UnconfigureMachineButton,
   PowerDownButton,
-  RebootFromUsbButton,
   RebootToBiosButton,
   CurrentDateAndTime,
   SetClockButton,
@@ -15,7 +14,7 @@ import { AppContext } from '../contexts/app_context';
 import { logOut, unconfigure } from '../api';
 
 export function SystemAdministratorScreen(): JSX.Element {
-  const { electionDefinition, logger, usbDriveStatus } = useContext(AppContext);
+  const { electionDefinition, logger } = useContext(AppContext);
   const unconfigureMutation = unconfigure.useMutation();
   const logOutMutation = logOut.useMutation();
 
@@ -41,10 +40,6 @@ export function SystemAdministratorScreen(): JSX.Element {
       <H2>Machine</H2>
       <PowerDownButton logger={logger} userRole="system_administrator" />
       <H2>Software Update</H2>
-      <RebootFromUsbButton
-        usbDriveStatus={usbDriveStatus}
-        logger={logger}
-      />{' '}
       <RebootToBiosButton logger={logger} />
       <H2>Date and Time</H2>
       <P>

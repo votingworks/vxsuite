@@ -62,18 +62,6 @@ describe('as System Admin', () => {
     });
   });
 
-  test('Rebooting from USB', async () => {
-    renderInAppContext(<SettingsScreen />, { apiMock, auth });
-
-    screen.getByRole('heading', { name: 'Software Update' });
-
-    // Rebooting from USB is tested fully in libs/ui/src/reboot_from_usb_button.test.tsx
-    userEvent.click(screen.getByRole('button', { name: 'Reboot from USB' }));
-    const modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'No USB Drive Detected' });
-    userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
-  });
-
   test('Rebooting to BIOS', () => {
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
 
