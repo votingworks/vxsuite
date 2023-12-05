@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ExportLogsButtonGroup,
+  ExportLogsButton,
   Main,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
@@ -43,7 +43,7 @@ export function SystemAdministratorScreen({
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
         <LiveCheckButton />
       ) : undefined}
-      <ExportLogsButtonGroup
+      <ExportLogsButton
         usbDriveStatus={usbDrive}
         auth={authStatus}
         logger={logger}

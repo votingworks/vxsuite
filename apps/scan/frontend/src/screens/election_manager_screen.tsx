@@ -10,7 +10,7 @@ import {
   ChangePrecinctButton,
   P,
   TabbedSection,
-  ExportLogsButtonRow,
+  ExportLogsButton,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -19,7 +19,6 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  LogFileType,
 } from '@votingworks/utils';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
@@ -51,7 +50,7 @@ export interface ElectionManagerScreenProps {
   scannerStatus: PrecinctScannerStatus;
   usbDrive: UsbDriveStatus;
   logger: Logger;
-  doExportLogs: (lft: LogFileType) => Promise<LogsResultType>;
+  doExportLogs: () => Promise<LogsResultType>;
 }
 
 export function ElectionManagerScreen({
@@ -191,12 +190,14 @@ export function ElectionManagerScreen({
       <P>
         <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
       </P>
-      <ExportLogsButtonRow
-        usbDriveStatus={usbDrive}
-        auth={authStatus}
-        logger={logger}
-        onExportLogs={doExportLogs}
-      />
+      <P>
+        <ExportLogsButton
+          usbDriveStatus={usbDrive}
+          auth={authStatus}
+          logger={logger}
+          onExportLogs={doExportLogs}
+        />
+      </P>
     </React.Fragment>
   );
 

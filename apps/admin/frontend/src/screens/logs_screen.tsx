@@ -1,7 +1,7 @@
 import { useContext } from 'react';
-import { ExportLogsButtonRow } from '@votingworks/ui';
 import { err } from '@votingworks/basics';
 import type { LogsResultType } from '@votingworks/backend';
+import { ExportLogsButton } from '@votingworks/ui';
 import { exportLogsToUsb } from '../api';
 
 import { AppContext } from '../contexts/app_context';
@@ -22,7 +22,7 @@ export function LogsScreen(): JSX.Element {
 
   return (
     <NavigationScreen title="Logs">
-      <ExportLogsButtonRow
+      <ExportLogsButton
         usbDriveStatus={usbDriveStatus}
         auth={auth}
         logger={logger}
