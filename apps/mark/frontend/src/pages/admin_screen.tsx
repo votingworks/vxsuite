@@ -7,14 +7,12 @@ import {
   CurrentDateAndTime,
   ElectionInfoBar,
   Main,
-  Prose,
   Screen,
   SegmentedButton,
   SetClockButton,
   TestMode,
   UsbControllerButton,
   Caption,
-  Font,
   Icons,
   H3,
   H6,
@@ -77,107 +75,100 @@ export function AdminScreen({
     <Screen>
       {election && isTestMode && <TestMode />}
       <Main padded>
-        <Prose>
-          <H3 as="h1">
-            VxMark{' '}
-            <Font weight="light" noWrap>
-              Election Manager Actions
-            </Font>
-          </H3>
-          <Caption weight="bold">
-            <Icons.Info /> Remove card when finished.
+        <H3 as="h1">Election Manager Settings</H3>
+        <Caption weight="bold">
+          <Icons.Info /> Remove card when finished.
+        </Caption>
+        {election && (
+          <React.Fragment>
+            <H6 as="h2">Stats</H6>
+            <P>
+              Ballots Printed: <strong>{ballotsPrintedCount}</strong>
+            </P>
+            <H6 as="h2">
+              <label htmlFor="selectPrecinct">Precinct</label>
+            </H6>
+            <P>
+              <ChangePrecinctButton
+                appPrecinctSelection={appPrecinct}
+                updatePrecinctSelection={async (newPrecinctSelection) => {
+                  try {
+                    await setPrecinctSelectionMutation.mutateAsync({
+                      precinctSelection: newPrecinctSelection,
+                    });
+                  } catch (error) {
+                    // Handled by default query client error handling
+                  }
+                }}
+                election={election}
+                mode={
+                  pollsState === 'polls_closed_final' ||
+                  election.precincts.length === 1
+                    ? 'disabled'
+                    : 'default'
+                }
+                logger={logger}
+              />
+              <br />
+              <Caption>
+                Changing the precinct will reset the Ballots Printed count.
+              </Caption>
+              {election.precincts.length === 1 && (
+                <React.Fragment>
+                  <br />
+                  <Caption>
+                    Precinct cannot be changed because there is only one
+                    precinct configured for this election.
+                  </Caption>
+                </React.Fragment>
+              )}
+            </P>
+            <H6 as="h2">Test Ballot Mode</H6>
+            <P>
+              <SegmentedButton
+                label="Test Ballot Mode"
+                hideLabel
+                onChange={() =>
+                  setTestModeMutation.mutate({ isTestMode: !isTestMode })
+                }
+                options={[
+                  { id: 'test', label: 'Test Ballot Mode' },
+                  { id: 'official', label: 'Official Ballot Mode' },
+                ]}
+                selectedOptionId={isTestMode ? 'test' : 'official'}
+              />
+              <br />
+              <Caption>
+                Switching the mode will reset the Ballots Printed count.
+              </Caption>
+            </P>
+          </React.Fragment>
+        )}
+        <H6 as="h2">Date and Time</H6>
+        <P>
+          <Caption>
+            <CurrentDateAndTime />
           </Caption>
-          {election && (
-            <React.Fragment>
-              <H6 as="h2">Stats</H6>
-              <P>
-                Ballots Printed: <strong>{ballotsPrintedCount}</strong>
-              </P>
-              <H6 as="h2">
-                <label htmlFor="selectPrecinct">Precinct</label>
-              </H6>
-              <P>
-                <ChangePrecinctButton
-                  appPrecinctSelection={appPrecinct}
-                  updatePrecinctSelection={async (newPrecinctSelection) => {
-                    try {
-                      await setPrecinctSelectionMutation.mutateAsync({
-                        precinctSelection: newPrecinctSelection,
-                      });
-                    } catch (error) {
-                      // Handled by default query client error handling
-                    }
-                  }}
-                  election={election}
-                  mode={
-                    pollsState === 'polls_closed_final' ||
-                    election.precincts.length === 1
-                      ? 'disabled'
-                      : 'default'
-                  }
-                  logger={logger}
-                />
-                <br />
-                <Caption>
-                  Changing the precinct will reset the Ballots Printed count.
-                </Caption>
-                {election.precincts.length === 1 && (
-                  <React.Fragment>
-                    <br />
-                    <Caption>
-                      Precinct cannot be changed because there is only one
-                      precinct configured for this election.
-                    </Caption>
-                  </React.Fragment>
-                )}
-              </P>
-              <H6 as="h2">Test Ballot Mode</H6>
-              <P>
-                <SegmentedButton
-                  label="Test Ballot Mode"
-                  hideLabel
-                  onChange={() =>
-                    setTestModeMutation.mutate({ isTestMode: !isTestMode })
-                  }
-                  options={[
-                    { id: 'test', label: 'Test Ballot Mode' },
-                    { id: 'official', label: 'Official Ballot Mode' },
-                  ]}
-                  selectedOptionId={isTestMode ? 'test' : 'official'}
-                />
-                <br />
-                <Caption>
-                  Switching the mode will reset the Ballots Printed count.
-                </Caption>
-              </P>
-            </React.Fragment>
-          )}
-          <H6 as="h2">Current Date and Time</H6>
-          <P>
-            <Caption>
-              <CurrentDateAndTime />
-            </Caption>
-          </P>
-          <P>
-            <SetClockButton logOut={() => logOutMutation.mutate()}>
-              Update Date and Time
-            </SetClockButton>
-          </P>
-          <H6 as="h2">Configuration</H6>
-          <P>
-            <Icons.Checkbox color="success" /> Election Definition is loaded.
-          </P>
-          <Button variant="danger" icon="Delete" onPress={unconfigure}>
-            Unconfigure Machine
-          </Button>
-          <H6 as="h2">USB</H6>
-          <UsbControllerButton
-            primary
-            usbDriveStatus={usbDriveStatus}
-            usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-            usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
-          />
-        </Prose>
+        </P>
+        <P>
+          <SetClockButton logOut={() => logOutMutation.mutate()}>
+            Set Date and Time
+          </SetClockButton>
+        </P>
+        <H6 as="h2">Configuration</H6>
+        <P>
+          <Icons.Checkbox color="success" /> Election Definition is loaded.
+        </P>
+        <Button variant="danger" icon="Delete" onPress={unconfigure}>
+          Unconfigure Machine
+        </Button>
+        <H6 as="h2">USB</H6>
+        <UsbControllerButton
+          primary
+          usbDriveStatus={usbDriveStatus}
+          usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+          usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
+        />
       </Main>
       {election && (
         <ElectionInfoBar

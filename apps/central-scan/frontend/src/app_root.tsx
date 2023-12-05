@@ -17,13 +17,6 @@ import {
   SetupCardReaderPage,
   useDevices,
   H1,
-  P,
-  PowerDownButton,
-  RebootFromUsbButton,
-  RebootToBiosButton,
-  UnconfigureMachineButton,
-  H2,
-  Icons,
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
@@ -44,10 +37,9 @@ import {
   getElectionDefinition,
   getTestMode,
   getUsbDriveStatus,
-  unconfigure,
 } from './api';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
-import { NavigationScreen } from './navigation_screen';
+import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 
 export interface AppRootProps {
   hardware: Hardware;
@@ -86,8 +78,6 @@ export function AppRoot({
   const isTestMode = getTestModeQuery.data ?? false;
 
   const electionDefinitionQuery = getElectionDefinition.useQuery();
-  const unconfigureMutation = unconfigure.useMutation();
-  const unconfigureMutate = unconfigureMutation.mutate;
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
@@ -188,10 +178,6 @@ export function AppRoot({
       console.log('failed updateStatus()', error); // eslint-disable-line no-console
     }
   }, [setStatus]);
-
-  const systemAdministratorUnconfigure = useCallback(() => {
-    unconfigureMutate({ ignoreBackupRequirement: true });
-  }, [unconfigureMutate]);
 
   const scanBatch = useCallback(async () => {
     setIsScanning(true);
@@ -368,27 +354,7 @@ export function AppRoot({
   if (isSystemAdministratorAuth(authStatus)) {
     return (
       <AppContext.Provider value={currentContext}>
-        <NavigationScreen title="System Administrator">
-          <H2>Election</H2>
-          <P>
-            <Icons.Info /> To adjust settings for the current election, please
-            insert an Election Manager card.
-          </P>
-          <UnconfigureMachineButton
-            unconfigureMachine={() =>
-              Promise.resolve(systemAdministratorUnconfigure())
-            }
-            isMachineConfigured={Boolean(electionDefinition)}
-          />
-          <H2>Machine</H2>
-          <PowerDownButton logger={logger} userRole="system_administrator" />
-          <H2>Software Update</H2>
-          <RebootFromUsbButton
-            usbDriveStatus={usbDriveStatus}
-            logger={logger}
-          />{' '}
-          <RebootToBiosButton logger={logger} />
-        </NavigationScreen>
+        <SystemAdministratorScreen />
       </AppContext.Provider>
     );
   }

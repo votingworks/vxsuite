@@ -129,11 +129,11 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
-  userEvent.click(screen.getByRole('button', { name: 'Update Date and Time' }));
+  userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
 
   // Open modal
   const modal = screen.getByRole('alertdialog');
-  within(modal).getByText('Sat, Oct 31, 2020, 12:00 AM');
+  within(modal).getByText('Sat, Oct 31, 2020, 12:00 AM UTC');
 
   // Change date
   const selectYear = screen.getByTestId('selectYear');

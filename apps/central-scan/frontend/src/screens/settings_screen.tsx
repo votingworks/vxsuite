@@ -3,6 +3,7 @@ import { assert, err } from '@votingworks/basics';
 import type { LogsResultType } from '@votingworks/backend';
 import {
   Button,
+  CurrentDateAndTime,
   ExportLogsButtonRow,
   H2,
   Icons,
@@ -168,9 +169,12 @@ export function SettingsScreen({
       </ButtonRow>
 
       <H2>Date and Time</H2>
+      <P>
+        <CurrentDateAndTime />
+      </P>
       <ButtonRow>
         <SetClockButton logOut={() => logOutMutation.mutate()}>
-          Update Date and Time
+          Set Date and Time
         </SetClockButton>
       </ButtonRow>
       {!canUnconfigure && !isTestMode && (

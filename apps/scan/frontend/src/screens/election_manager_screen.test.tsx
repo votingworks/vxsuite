@@ -77,12 +77,12 @@ test('renders date and time settings modal', async () => {
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
-  const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
-
   // Open Modal and change date
-  userEvent.click(await screen.findByText(startDate));
+  userEvent.click(await screen.findButton('Set Date and Time'));
 
-  within(screen.getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM');
+  within(screen.getByTestId('modal')).getByText(
+    'Sat, Oct 31, 2020, 12:00 AM UTC'
+  );
 
   const selectYear = screen.getByTestId('selectYear');
   const optionYear =
@@ -100,9 +100,6 @@ test('renders date and time settings modal', async () => {
     // eslint-disable-next-line vx/gts-identifiers
     IANAZone: 'UTC',
   });
-
-  // Date is reset to system time after save to kiosk-browser
-  screen.getByText(startDate);
 });
 
 test('option to set precinct if more than one', async () => {
