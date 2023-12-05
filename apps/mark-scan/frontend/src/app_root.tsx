@@ -36,6 +36,7 @@ import {
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
+  useBallotStyleManager,
   useDisplaySettingsManager,
 } from '@votingworks/mark-flow-ui';
 import type { ElectionState } from '@votingworks/mark-scan-backend';
@@ -50,6 +51,7 @@ import {
   getUsbDriveStatus,
   setPollsState,
   startCardlessVoterSession,
+  updateCardlessVoterBallotStyle,
   unconfigureMachine,
 } from './api';
 
@@ -318,6 +320,13 @@ export function AppRoot({
   }, []);
 
   useDisplaySettingsManager({ authStatus, votes });
+
+  useBallotStyleManager({
+    currentBallotStyleId: ballotStyleId,
+    electionDefinition: optionalElectionDefinition,
+    updateCardlessVoterBallotStyle:
+      updateCardlessVoterBallotStyle.useMutation().mutate,
+  });
 
   if (
     !machineConfigQuery.isSuccess ||

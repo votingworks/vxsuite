@@ -37,6 +37,7 @@ import {
   mergeMsEitherNeitherContests,
   CastBallotPage,
   useDisplaySettingsManager,
+  useBallotStyleManager,
 } from '@votingworks/mark-flow-ui';
 import type { ElectionState } from '@votingworks/mark-backend';
 import {
@@ -51,6 +52,7 @@ import {
   setPollsState,
   startCardlessVoterSession,
   unconfigureMachine,
+  updateCardlessVoterBallotStyle,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -360,6 +362,13 @@ export function AppRoot({
   }, []);
 
   useDisplaySettingsManager({ authStatus, votes });
+
+  useBallotStyleManager({
+    currentBallotStyleId: ballotStyleId,
+    electionDefinition: optionalElectionDefinition,
+    updateCardlessVoterBallotStyle:
+      updateCardlessVoterBallotStyle.useMutation().mutate,
+  });
 
   if (
     !machineConfigQuery.isSuccess ||

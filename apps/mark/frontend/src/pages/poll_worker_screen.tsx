@@ -40,6 +40,7 @@ import {
   getPollsStateName,
   getPollsTransitionAction,
   getPollTransitionsFromState,
+  getDefaultLanguageBallotStyles,
 } from '@votingworks/utils';
 
 import type { MachineConfig } from '@votingworks/mark-backend';
@@ -183,7 +184,7 @@ export function PollWorkerScreen({
     );
 
   const precinctBallotStyles = selectedCardlessVoterPrecinctId
-    ? election.ballotStyles.filter((bs) =>
+    ? getDefaultLanguageBallotStyles(election.ballotStyles).filter((bs) =>
         bs.precincts.includes(selectedCardlessVoterPrecinctId)
       )
     : [];
@@ -360,7 +361,6 @@ export function PollWorkerScreen({
                     {precinctBallotStyles.map((ballotStyle) => (
                       <Button
                         key={ballotStyle.id}
-                        aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
                         onPress={() =>
                           activateCardlessVoterSession(
                             selectedCardlessVoterPrecinctId,

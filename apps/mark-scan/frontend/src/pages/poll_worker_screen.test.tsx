@@ -2,11 +2,16 @@ import {
   asElectionDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  InsertedSmartCardAuth,
+  LanguageCode,
+} from '@votingworks/types';
 
 import {
   BooleanEnvironmentVariableName,
   MemoryHardware,
+  generateBallotStyleId,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -215,4 +220,36 @@ test('renders a warning screen when hardware check is off', async () => {
   });
 
   await screen.findByText('Hardware Check Disabled');
+});
+
+test('displays only default English ballot styles', async () => {
+  const baseElection = electionGeneralDefinition.election;
+
+  const ballotLanguages = [LanguageCode.ENGLISH, LanguageCode.SPANISH];
+  const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map((l) => ({
+    ...baseElection.ballotStyles[0],
+    id: generateBallotStyleId({ ballotStyleIndex: 1, languages: [l] }),
+    languages: [l],
+  }));
+
+  const electionDefinition: ElectionDefinition = {
+    ...electionGeneralDefinition,
+    election: {
+      ...baseElection,
+      ballotStyles: [ballotStyleEnglish, ballotStyleSpanish],
+    },
+  };
+  renderScreen({
+    pollsState: 'polls_open',
+    machineConfig: fakeMachineConfig(),
+    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    electionDefinition,
+  });
+
+  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
+
+  screen.getButton(ballotStyleEnglish.id);
+  expect(
+    screen.queryByRole('button', { name: ballotStyleSpanish.id })
+  ).not.toBeInTheDocument();
 });

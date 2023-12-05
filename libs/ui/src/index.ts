@@ -25,6 +25,7 @@ export * from './hooks/ui_strings_api';
 export * from './hooks/use_autocomplete';
 export * from './hooks/use_cancelable_promise';
 export * from './hooks/use_change_listener';
+export * from './hooks/use_current_language';
 export * from './hooks/use_current_theme';
 export * from './hooks/use_devices';
 export * from './hooks/use_lock';
