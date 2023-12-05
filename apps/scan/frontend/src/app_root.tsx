@@ -1,19 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import {
   SetupCardReaderPage,
   useDevices,
   UnlockMachineScreen,
-  SystemAdministratorScreenContents,
-  ExportLogsButtonGroup,
 } from '@votingworks/ui';
 import {
   Hardware,
   isSystemAdministratorAuth,
   isElectionManagerAuth,
   isPollWorkerAuth,
-  isFeatureFlagEnabled,
-  BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 
@@ -27,7 +23,6 @@ import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
 import { PollWorkerScreen } from './screens/poll_worker_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
-import { ScreenMainCenterChild } from './components/layout';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
 import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import {
@@ -44,14 +39,12 @@ import {
   getPollsInfo,
   getScannerStatus,
   getUsbDriveStatus,
-  transitionPolls,
-  unconfigureElection,
   exportLogsToUsb,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
-import { LiveCheckButton } from './components/live_check_button';
 import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
+import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 
 export interface Props {
   hardware: Hardware;
@@ -70,8 +63,6 @@ export function AppRoot({
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
-  const transitionPollsMutation = transitionPolls.useMutation();
-  const unconfigureMutation = unconfigureElection.useMutation();
   const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
 
   async function doExportLogs(): Promise<LogsResultType> {
@@ -170,47 +161,15 @@ export function AppRoot({
   }
 
   if (isSystemAdministratorAuth(authStatus)) {
-    const additionalButtons = (
-      <React.Fragment>
-        {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
-          <LiveCheckButton />
-        ) : undefined}
-        <ExportLogsButtonGroup
-          usbDriveStatus={usbDrive}
-          auth={authStatus}
-          logger={logger}
-          onExportLogs={doExportLogs}
-        />
-      </React.Fragment>
-    );
     return (
-      <ScreenMainCenterChild>
-        <SystemAdministratorScreenContents
-          displayRemoveCardToLeavePrompt
-          logger={logger}
-          primaryText={
-            <React.Fragment>
-              To adjust settings for the current election,
-              <br />
-              please insert an Election Manager or Poll Worker card.
-            </React.Fragment>
-          }
-          unconfigureMachine={() => unconfigureMutation.mutateAsync()}
-          resetPollsToPausedText="The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved."
-          resetPollsToPaused={
-            pollsState === 'polls_closed_final'
-              ? () =>
-                  transitionPollsMutation.mutateAsync({
-                    type: 'pause_voting',
-                    time: Date.now(),
-                  })
-              : undefined
-          }
-          isMachineConfigured={Boolean(electionDefinition)}
-          usbDriveStatus={usbDrive}
-          additionalButtons={additionalButtons}
-        />
-      </ScreenMainCenterChild>
+      <SystemAdministratorScreen
+        authStatus={authStatus}
+        doExportLogs={doExportLogs}
+        electionDefinition={electionDefinition}
+        pollsState={pollsState}
+        logger={logger}
+        usbDrive={usbDrive}
+      />
     );
   }
 

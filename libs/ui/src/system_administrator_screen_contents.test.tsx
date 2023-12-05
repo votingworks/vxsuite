@@ -74,6 +74,7 @@ test.each(renderTestCases)(
         unconfigureMachine={unconfigureMachine}
         isMachineConfigured
         usbDriveStatus={mockUsbDriveStatus('mounted')}
+        logOut={jest.fn()}
       />
     );
 
@@ -119,6 +120,7 @@ test('Quit button makes expected call', () => {
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
       usbDriveStatus={mockUsbDriveStatus('mounted')}
+      logOut={jest.fn()}
     />
   );
 
@@ -138,6 +140,7 @@ test('Quit button does nothing when kiosk is undefined', () => {
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
       usbDriveStatus={mockUsbDriveStatus('mounted')}
+      logOut={jest.fn()}
     />
   );
 
@@ -152,6 +155,7 @@ test('Reset Polls to Paused button not rendered if not specified', () => {
       unconfigureMachine={jest.fn()}
       isMachineConfigured
       usbDriveStatus={mockUsbDriveStatus('mounted')}
+      logOut={jest.fn()}
     />
   );
 
@@ -170,8 +174,28 @@ test('Reset Polls to Paused rendered if callback and flag specified', () => {
       resetPollsToPausedText="Reset Polls to Paused Text"
       resetPollsToPaused={jest.fn()}
       usbDriveStatus={mockUsbDriveStatus('mounted')}
+      logOut={jest.fn()}
     />
   );
 
   screen.getByRole('button', { name: 'Reset Polls to Paused' });
+});
+
+test('Set Date and Time button', () => {
+  const logOut = jest.fn();
+  render(
+    <SystemAdministratorScreenContents
+      logger={fakeLogger()}
+      primaryText="Primary Text"
+      unconfigureMachine={jest.fn()}
+      isMachineConfigured
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
+      logOut={logOut}
+    />
+  );
+
+  userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
+  screen.getByRole('heading', { name: 'Set Date and Time' });
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  expect(logOut).toBeCalledTimes(1);
 });

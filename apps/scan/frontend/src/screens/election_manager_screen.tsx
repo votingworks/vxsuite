@@ -3,7 +3,6 @@ import type { LogsResultType } from '@votingworks/backend';
 import { ElectionDefinition } from '@votingworks/types';
 import {
   Button,
-  CurrentDateAndTime,
   Loading,
   Modal,
   SegmentedButton,
@@ -11,7 +10,6 @@ import {
   ChangePrecinctButton,
   P,
   TabbedSection,
-  H1,
   ExportLogsButtonRow,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
@@ -183,10 +181,7 @@ export function ElectionManagerScreen({
   const dateTimeButton = (
     <P>
       <SetClockButton logOut={() => logOutMutation.mutate()}>
-        <span role="img" aria-label="Clock">
-          🕓
-        </span>{' '}
-        <CurrentDateAndTime />
+        Set Date and Time
       </SetClockButton>
     </P>
   );
@@ -249,10 +244,8 @@ export function ElectionManagerScreen({
     <Screen
       infoBarMode="admin"
       ballotCountOverride={scannerStatus.ballotsCounted}
+      title="Election Manager Settings"
     >
-      <H1 as="h1" align="center">
-        Election Manager Settings
-      </H1>
       <TabbedSection
         ariaLabel="Election Manager Settings"
         tabs={[

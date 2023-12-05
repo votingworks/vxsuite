@@ -171,7 +171,7 @@ describe('Displays setup warning messages and errors screens', () => {
     apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
 
     // expect to see election manager screen
-    await screen.findByText('Election Manager Actions');
+    await screen.findByRole('heading', { name: 'Election Manager Settings' });
   });
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {

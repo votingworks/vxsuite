@@ -27,6 +27,7 @@ export interface ScreenProps {
   isLiveMode?: boolean;
   infoBarMode?: InfoBarMode;
   padded?: boolean;
+  title?: string;
 }
 
 export type CenteredScreenProps = Omit<ScreenProps, 'centered' | 'padded'>;
@@ -39,6 +40,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     infoBarMode,
     isLiveMode = true,
     padded,
+    title,
   } = props;
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
@@ -64,6 +66,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
       {!isLiveMode && <TestMode />}
       <ScreenHeader
         ballotCount={electionDefinition ? ballotCount : undefined}
+        title={title}
       />
       <Main
         padded={padded}

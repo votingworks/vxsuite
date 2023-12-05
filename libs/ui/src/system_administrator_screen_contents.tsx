@@ -5,14 +5,13 @@ import { isVxDev } from '@votingworks/utils';
 import styled from 'styled-components';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
-import { Main } from './main';
-import { Prose } from './prose';
 import { RebootFromUsbButton } from './reboot_from_usb_button';
 import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 import { P } from './typography';
 import { PowerDownButton } from './power_down_button';
+import { SetClockButton } from './set_clock';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
@@ -22,6 +21,7 @@ interface Props {
   resetPollsToPausedText?: string;
   resetPollsToPaused?: () => Promise<void>;
   isMachineConfigured: boolean;
+  logOut: () => void;
   usbDriveStatus: UsbDriveStatus;
   additionalButtons?: React.ReactNode;
 }
@@ -49,40 +49,37 @@ export function SystemAdministratorScreenContents({
   resetPollsToPausedText,
   resetPollsToPaused,
   isMachineConfigured,
+  logOut,
   usbDriveStatus,
   additionalButtons,
 }: Props): JSX.Element {
   return (
-    <Main padded centerChild>
-      <Prose textCenter>
-        <P>{primaryText}</P>
-        {displayRemoveCardToLeavePrompt && (
-          <P>Remove the System Administrator card to leave this screen.</P>
-        )}
-        <ButtonGrid>
-          {resetPollsToPausedText && (
-            <ResetPollsToPausedButton
-              resetPollsToPausedText={resetPollsToPausedText}
-              resetPollsToPaused={resetPollsToPaused}
-              logger={logger}
-            />
-          )}
-          <RebootFromUsbButton
-            usbDriveStatus={usbDriveStatus}
+    <React.Fragment>
+      <P>{primaryText}</P>
+      {displayRemoveCardToLeavePrompt && (
+        <P>Remove the System Administrator card to leave this screen.</P>
+      )}
+      <ButtonGrid>
+        {resetPollsToPausedText && (
+          <ResetPollsToPausedButton
+            resetPollsToPausedText={resetPollsToPausedText}
+            resetPollsToPaused={resetPollsToPaused}
             logger={logger}
           />
-          <RebootToBiosButton logger={logger} />
-          <PowerDownButton logger={logger} userRole="system_administrator" />
-          <UnconfigureMachineButton
-            unconfigureMachine={unconfigureMachine}
-            isMachineConfigured={isMachineConfigured}
-          />
-          {additionalButtons}
-          {isVxDev() && (
-            <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
-          )}
-        </ButtonGrid>
-      </Prose>
-    </Main>
+        )}
+        <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
+        <RebootFromUsbButton usbDriveStatus={usbDriveStatus} logger={logger} />
+        <RebootToBiosButton logger={logger} />
+        <PowerDownButton logger={logger} userRole="system_administrator" />
+        <UnconfigureMachineButton
+          unconfigureMachine={unconfigureMachine}
+          isMachineConfigured={isMachineConfigured}
+        />
+        {additionalButtons}
+        {isVxDev() && (
+          <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
+        )}
+      </ButtonGrid>
+    </React.Fragment>
   );
 }

@@ -1,10 +1,12 @@
 import styled from 'styled-components';
 
+import { H1 } from '@votingworks/ui';
 import { ScannedBallotCount } from './scanned_ballot_count';
 import { DisplaySettingsButton } from './display_settings_button';
 
 interface ScreenHeaderProps {
   ballotCount?: number;
+  title?: string;
 }
 
 const Container = styled.div`
@@ -12,10 +14,11 @@ const Container = styled.div`
   gap: 0.25rem;
   padding: 0.25rem;
   justify-content: space-between;
+  align-items: center;
 `;
 
 export function ScreenHeader(props: ScreenHeaderProps): JSX.Element | null {
-  const { ballotCount } = props;
+  const { ballotCount, title } = props;
 
   return (
     <Container>
@@ -24,6 +27,7 @@ export function ScreenHeader(props: ScreenHeaderProps): JSX.Element | null {
           <ScannedBallotCount count={ballotCount} />
         )}
       </div>
+      {title && <H1 style={{ margin: 0 }}>{title}</H1>}
       <DisplaySettingsButton />
     </Container>
   );

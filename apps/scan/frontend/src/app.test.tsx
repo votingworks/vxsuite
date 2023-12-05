@@ -937,6 +937,17 @@ test('system administrator can reset polls to paused', async () => {
   await screen.findByText('Polls Paused');
 });
 
+test('system administrator can set date and time', async () => {
+  apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetPollsInfo();
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.authenticateAsSystemAdministrator();
+  renderApp();
+
+  await screen.findByRole('button', { name: 'Set Date and Time' });
+});
+
 test('election manager cannot auth onto machine with different election hash', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
