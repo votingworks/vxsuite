@@ -6,15 +6,18 @@ import {
   PowerDownButton,
   RebootFromUsbButton,
   RebootToBiosButton,
+  CurrentDateAndTime,
+  SetClockButton,
 } from '@votingworks/ui';
 import { useContext } from 'react';
 import { NavigationScreen } from '../navigation_screen';
 import { AppContext } from '../contexts/app_context';
-import { unconfigure } from '../api';
+import { logOut, unconfigure } from '../api';
 
 export function SystemAdministratorScreen(): JSX.Element {
   const { electionDefinition, logger, usbDriveStatus } = useContext(AppContext);
   const unconfigureMutation = unconfigure.useMutation();
+  const logOutMutation = logOut.useMutation();
 
   return (
     <NavigationScreen title="System Administrator">
@@ -43,6 +46,13 @@ export function SystemAdministratorScreen(): JSX.Element {
         logger={logger}
       />{' '}
       <RebootToBiosButton logger={logger} />
+      <H2>Date and Time</H2>
+      <P>
+        <CurrentDateAndTime />
+      </P>
+      <SetClockButton logOut={() => logOutMutation.mutate()}>
+        Set Date and Time
+      </SetClockButton>
     </NavigationScreen>
   );
 }
