@@ -5,9 +5,11 @@ import {
   isArray,
   isBoolean,
   isFunction,
+  isMap,
   isNumber,
   isObject,
   isPlainObject,
+  isSet,
   isString,
 } from './util';
 
@@ -121,6 +123,20 @@ const bufferTagger: Tagger<Buffer, string> = {
   deserialize: (value) => Buffer.from(value, 'base64'),
 };
 
+const mapTagger: Tagger<Map<unknown, unknown>, Array<[unknown, unknown]>> = {
+  tag: 'Map',
+  shouldTag: isMap,
+  serialize: (value) => Array.from(value.entries()),
+  deserialize: (value) => new Map(value),
+};
+
+const setTagger: Tagger<Set<unknown>, unknown[]> = {
+  tag: 'Set',
+  shouldTag: isSet,
+  serialize: (value) => Array.from(value.values()),
+  deserialize: (value) => new Set(value),
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const taggers: Array<Tagger<any, any>> = [
   undefinedTagger,
@@ -129,6 +145,8 @@ const taggers: Array<Tagger<any, any>> = [
   errorTagger,
   resultTagger,
   bufferTagger,
+  mapTagger,
+  setTagger,
 ];
 
 function tagValueIfNeeded(value: unknown): TaggedValue | unknown {
