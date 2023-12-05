@@ -1,7 +1,8 @@
 import { Scan } from '@votingworks/api';
 import { AdjudicationStatus } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { screen } from '../../test/react_testing_library';
+import userEvent from '@testing-library/user-event';
+import { screen, waitFor } from '../../test/react_testing_library';
 import {
   ScanBallotsScreen,
   ScanBallotsScreenProps,
@@ -98,4 +99,55 @@ test('shows whether a batch is scanning', () => {
   for (const deleteButton of screen.getAllButtons('Delete')) {
     expect(deleteButton).toBeDisabled();
   }
+  expect(screen.getButton('Delete All Batches')).toBeDisabled();
+});
+
+test('Delete All Batches button is disabled when canUnconfigure is false', () => {
+  const status: Scan.GetScanStatusResponse = {
+    canUnconfigure: false,
+    batches: [
+      {
+        id: 'a',
+        batchNumber: 1,
+        label: 'Batch 1',
+        count: 3,
+        startedAt: new Date(0).toISOString(),
+      },
+    ],
+    adjudication: noneLeftAdjudicationStatus,
+  };
+  renderScreen({ status });
+
+  expect(screen.getButton('Delete All Batches')).toBeDisabled();
+});
+
+test('Delete All Batches button', async () => {
+  const status: Scan.GetScanStatusResponse = {
+    canUnconfigure: true,
+    batches: [
+      {
+        id: 'a',
+        batchNumber: 1,
+        label: 'Batch 1',
+        count: 3,
+        startedAt: new Date(0).toISOString(),
+      },
+    ],
+    adjudication: noneLeftAdjudicationStatus,
+  };
+  renderScreen({ status });
+
+  // initial button
+  userEvent.click(screen.getButton('Delete All Batches'));
+
+  // confirmation
+  mockApiClient.clearBallotData.expectCallWith().resolves();
+  screen.getByText('Delete All Scanned Batches?');
+  userEvent.click(screen.getButton('Yes, Delete All Batches'));
+
+  // progress message
+  await screen.findByText('Deleting ballot data');
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
 });

@@ -43,60 +43,31 @@ test('clicking "Save Backup" shows progress', async () => {
   screen.getByText('Save Backup');
 });
 
-test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled when canUnconfigure is falsy', () => {
+test('Unconfigure Machine button is disabled when canUnconfigure is falsy', () => {
   renderScreen({
     canUnconfigure: false,
   });
 
-  expect(
-    screen.getButton('Delete Election Data from VxCentralScan')
-  ).toBeDisabled();
-
-  expect(screen.getButton('Delete Ballot Data')).toBeDisabled();
+  expect(screen.getButton('Unconfigure Machine')).toBeDisabled();
 });
 
-test('clicking "Delete Election Data from VxCentralScan" calls backend', async () => {
+test('clicking "Unconfigure Machine" calls backend', async () => {
   const history = createMemoryHistory({ initialEntries: ['/admin'] });
   renderScreen({ canUnconfigure: true }, history);
 
   // initial button
-  userEvent.click(screen.getButton('Delete Election Data from VxCentralScan'));
+  userEvent.click(screen.getButton('Unconfigure Machine'));
 
-  // first confirmation
-  screen.getByText('Delete all election data?');
-  userEvent.click(await screen.findButton('Yes, Delete Election Data'));
-
-  // second confirmation
+  // confirmation
   mockApiClient.unconfigure
     .expectCallWith({ ignoreBackupRequirement: false })
     .resolves();
   mockApiClient.ejectUsbDrive.expectCallWith().resolves();
-  screen.getByText('Are you sure?');
-  userEvent.click(
-    await screen.findButton('I am sure. Delete all election data.')
-  );
+  screen.getByText('Delete all election data?');
+  userEvent.click(await screen.findButton('Yes, Delete Election Data'));
 
   // progress message
-  await screen.findByText('Deleting election data');
-
-  // we are redirected to the dashboard
-  expect(history.location.pathname).toEqual('/');
-});
-
-test('clicking "Delete Ballot Data" calls backend', async () => {
-  const history = createMemoryHistory({ initialEntries: ['/admin'] });
-  renderScreen({ canUnconfigure: true }, history);
-
-  // initial button
-  userEvent.click(screen.getButton('Delete Ballot Data'));
-
-  // confirmation
-  mockApiClient.clearBallotData.expectCallWith().resolves();
-  screen.getByText('Delete All Scanned Ballot Data?');
-  userEvent.click(await screen.findButton('Yes, Delete Ballot Data'));
-
-  // progress message
-  await screen.findByText('Deleting ballot data');
+  await screen.findByText('Unconfiguring machine');
 
   // we are redirected to the dashboard
   expect(history.location.pathname).toEqual('/');
