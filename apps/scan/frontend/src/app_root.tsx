@@ -6,6 +6,7 @@ import {
   UnlockMachineScreen,
   SystemAdministratorScreenContents,
   ExportLogsButtonGroup,
+  Main,
 } from '@votingworks/ui';
 import {
   Hardware,
@@ -27,7 +28,7 @@ import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
 import { PollWorkerScreen } from './screens/poll_worker_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
-import { ScreenMainCenterChild } from './components/layout';
+import { Screen } from './components/layout';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
 import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import {
@@ -47,6 +48,7 @@ import {
   transitionPolls,
   unconfigureElection,
   exportLogsToUsb,
+  logOut,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
@@ -73,6 +75,7 @@ export function AppRoot({
   const transitionPollsMutation = transitionPolls.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
+  const logOutMutation = logOut.useMutation();
 
   async function doExportLogs(): Promise<LogsResultType> {
     try {
@@ -184,33 +187,35 @@ export function AppRoot({
       </React.Fragment>
     );
     return (
-      <ScreenMainCenterChild>
-        <SystemAdministratorScreenContents
-          displayRemoveCardToLeavePrompt
-          logger={logger}
-          primaryText={
-            <React.Fragment>
-              To adjust settings for the current election,
-              <br />
-              please insert an Election Manager or Poll Worker card.
-            </React.Fragment>
-          }
-          unconfigureMachine={() => unconfigureMutation.mutateAsync()}
-          resetPollsToPausedText="The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved."
-          resetPollsToPaused={
-            pollsState === 'polls_closed_final'
-              ? () =>
-                  transitionPollsMutation.mutateAsync({
-                    type: 'pause_voting',
-                    time: Date.now(),
-                  })
-              : undefined
-          }
-          isMachineConfigured={Boolean(electionDefinition)}
-          usbDriveStatus={usbDrive}
-          additionalButtons={additionalButtons}
-        />
-      </ScreenMainCenterChild>
+      <Screen title="System Administrator">
+        <Main padded>
+          <SystemAdministratorScreenContents
+            displayRemoveCardToLeavePrompt
+            logger={logger}
+            primaryText={
+              <React.Fragment>
+                To adjust settings for the current election, insert an Election
+                Manager or Poll Worker card.
+              </React.Fragment>
+            }
+            unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+            resetPollsToPausedText="The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved."
+            resetPollsToPaused={
+              pollsState === 'polls_closed_final'
+                ? () =>
+                    transitionPollsMutation.mutateAsync({
+                      type: 'pause_voting',
+                      time: Date.now(),
+                    })
+                : undefined
+            }
+            isMachineConfigured={Boolean(electionDefinition)}
+            logOut={() => logOutMutation.mutate()}
+            usbDriveStatus={usbDrive}
+            additionalButtons={additionalButtons}
+          />
+        </Main>
+      </Screen>
     );
   }
 
