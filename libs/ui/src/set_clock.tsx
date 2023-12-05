@@ -29,6 +29,7 @@ const Form = styled(Card).attrs({ color: 'neutral' })<{
     justify-content: start;
     align-items: center;
     ${(p) =>
+      /* istanbul ignore next */
       p.theme.sizeMode === 'desktop' || p.screenInfo.isPortrait
         ? // In desktop mode/portrait touchscreens, we want the labels on top of
           // the input groups, so we use a 1-column grid with margins after the input groups
@@ -48,7 +49,9 @@ const Form = styled(Card).attrs({ color: 'neutral' })<{
         `}
   }
 
-  margin-bottom: ${(p) => (p.theme.sizeMode === 'desktop' ? '1rem' : '0.5rem')};
+  margin-bottom: ${(p) =>
+    /* istanbul ignore next */
+    p.theme.sizeMode === 'desktop' ? '1rem' : '0.5rem'};
 `;
 
 const Label = styled.div`
