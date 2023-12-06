@@ -9,6 +9,8 @@ import {
   ElectionManagerLoggedIn,
   SystemAdministratorLoggedIn,
 } from '@votingworks/types/src/auth/dipped_smart_card_auth';
+import { mockUsbDriveStatus } from '@votingworks/ui';
+import { ok } from '@votingworks/basics';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 
 import {
@@ -62,18 +64,6 @@ describe('as System Admin', () => {
     });
   });
 
-  test('Rebooting from USB', async () => {
-    renderInAppContext(<SettingsScreen />, { apiMock, auth });
-
-    screen.getByRole('heading', { name: 'Software Update' });
-
-    // Rebooting from USB is tested fully in libs/ui/src/reboot_from_usb_button.test.tsx
-    userEvent.click(screen.getByRole('button', { name: 'Reboot from USB' }));
-    const modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'No USB Drive Detected' });
-    userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
-  });
-
   test('Rebooting to BIOS', () => {
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
 
@@ -81,6 +71,21 @@ describe('as System Admin', () => {
 
     // Rebooting to BIOS is tested in libs/ui/src/reboot_to_bios_button.test.tsx
     screen.getByText('Reboot to BIOS');
+  });
+
+  test('Exporting logs', async () => {
+    renderInAppContext(<SettingsScreen />, {
+      apiMock,
+      auth,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    });
+
+    apiMock.apiClient.exportLogsToUsb.expectCallWith().resolves(ok());
+
+    // Log saving is tested fully in src/components/export_logs_modal.test.tsx
+    userEvent.click(screen.getByText('Save Log File'));
+    await screen.findByText('Save logs on the inserted USB drive?');
+    userEvent.click(screen.getByText('Save'));
   });
 });
 

@@ -427,7 +427,6 @@ test('system administrator can log in and unconfigure machine', async () => {
   await authenticateAsSystemAdministrator();
 
   expect(screen.queryByText('Test Ballot Mode')).not.toBeInTheDocument();
-  screen.getButton('Reboot from USB');
   screen.getButton('Reboot to BIOS');
   const unconfigureMachineButton = screen.getButton('Unconfigure Machine');
 

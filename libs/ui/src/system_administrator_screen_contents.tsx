@@ -3,9 +3,7 @@ import { Logger } from '@votingworks/logging';
 import { isVxDev } from '@votingworks/utils';
 
 import styled from 'styled-components';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
-import { RebootFromUsbButton } from './reboot_from_usb_button';
 import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
@@ -22,7 +20,6 @@ interface Props {
   resetPollsToPaused?: () => Promise<void>;
   isMachineConfigured: boolean;
   logOut: () => void;
-  usbDriveStatus: UsbDriveStatus;
   additionalButtons?: React.ReactNode;
 }
 
@@ -50,7 +47,6 @@ export function SystemAdministratorScreenContents({
   resetPollsToPaused,
   isMachineConfigured,
   logOut,
-  usbDriveStatus,
   additionalButtons,
 }: Props): JSX.Element {
   return (
@@ -68,7 +64,6 @@ export function SystemAdministratorScreenContents({
           />
         )}
         <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
-        <RebootFromUsbButton usbDriveStatus={usbDriveStatus} logger={logger} />
         <RebootToBiosButton logger={logger} />
         <PowerDownButton logger={logger} userRole="system_administrator" />
         <UnconfigureMachineButton

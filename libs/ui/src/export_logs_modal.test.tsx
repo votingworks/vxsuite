@@ -3,7 +3,6 @@ import {
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { LogFileType } from '@votingworks/utils';
 
 import { err, ok } from '@votingworks/basics';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
@@ -11,11 +10,7 @@ import userEvent from '@testing-library/user-event';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { act, render, screen } from '../test/react_testing_library';
-import {
-  ExportLogsButton,
-  ExportLogsButtonGroup,
-  ExportLogsButtonRow,
-} from './export_logs_modal';
+import { ExportLogsButton } from './export_logs_modal';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
 const systemAdministratorAuthStatus: DippedSmartCardAuth.SystemAdministratorLoggedIn =
@@ -41,7 +36,6 @@ test('renders no log file found when usb is mounted but no log file on machine',
 
   render(
     <ExportLogsButton
-      logFileType={LogFileType.Raw}
       usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={logger}
       auth={electionManagerAuthStatus}
@@ -68,7 +62,6 @@ test('render no usb found screen when there is not a mounted usb drive', async (
   for (const status of usbStatuses) {
     const { unmount } = render(
       <ExportLogsButton
-        logFileType={LogFileType.Raw}
         usbDriveStatus={status}
         logger={fakeLogger()}
         onExportLogs={onExportLogs}
@@ -96,7 +89,6 @@ test('successful save raw logs flow', async () => {
 
   render(
     <ExportLogsButton
-      logFileType={LogFileType.Raw}
       usbDriveStatus={mockUsbDriveStatus('mounted')}
       logger={logger}
       auth={electionManagerAuthStatus}
@@ -115,7 +107,7 @@ test('successful save raw logs flow', async () => {
   userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
-  expect(onExportLogs).toHaveBeenCalledWith(LogFileType.Raw);
+  expect(onExportLogs).toHaveBeenCalled();
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
     'election_manager',
@@ -124,40 +116,4 @@ test('successful save raw logs flow', async () => {
       fileType: 'logs',
     })
   );
-});
-
-test('button row renders both buttons', () => {
-  const onExportLogs = jest.fn().mockResolvedValue(err('no-log-directory'));
-
-  render(
-    <ExportLogsButtonRow
-      usbDriveStatus={mockUsbDriveStatus('mounted')}
-      logger={fakeLogger()}
-      auth={electionManagerAuthStatus}
-      onExportLogs={onExportLogs}
-    />
-  );
-
-  expect(screen.getButton('Save Log File')).toBeEnabled();
-
-  // CDF button is disabled for now
-  expect(screen.getButton('Save CDF Log File')).toBeDisabled();
-});
-
-test('button group renders both buttons', () => {
-  const onExportLogs = jest.fn().mockResolvedValue(err('no-log-directory'));
-
-  render(
-    <ExportLogsButtonGroup
-      usbDriveStatus={mockUsbDriveStatus('mounted')}
-      logger={fakeLogger()}
-      auth={electionManagerAuthStatus}
-      onExportLogs={onExportLogs}
-    />
-  );
-
-  expect(screen.getButton('Save Log File')).toBeEnabled();
-
-  // without an election definition, CDF button should be disabled
-  expect(screen.getButton('Save CDF Log File')).toBeDisabled();
 });

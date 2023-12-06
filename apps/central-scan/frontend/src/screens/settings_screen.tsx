@@ -4,7 +4,7 @@ import type { LogsResultType } from '@votingworks/backend';
 import {
   Button,
   CurrentDateAndTime,
-  ExportLogsButtonRow,
+  ExportLogsButton,
   H2,
   Icons,
   Loading,
@@ -160,7 +160,7 @@ export function SettingsScreen({
 
       <H2>Logs</H2>
       <ButtonRow>
-        <ExportLogsButtonRow
+        <ExportLogsButton
           usbDriveStatus={usbDriveStatus}
           auth={auth}
           logger={logger}

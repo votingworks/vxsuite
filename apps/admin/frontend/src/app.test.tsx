@@ -99,8 +99,8 @@ test('configuring with a demo election definition', async () => {
 
   await screen.findByRole('heading', { name: 'Election' });
 
-  // You can view the Logs screen and save log files
-  fireEvent.click(screen.getByText('Logs'));
+  // You can view the Settings screen and save log files
+  fireEvent.click(screen.getByText('Settings'));
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No USB Drive Detected');
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -119,8 +119,8 @@ test('configuring with a demo election definition', async () => {
 
   await screen.findByText('Configure VxAdmin');
 
-  // You can view the Logs screen and save log files when there is no election.
-  fireEvent.click(screen.getByText('Logs'));
+  // You can view the Settings screen and save log files when there is no election.
+  fireEvent.click(screen.getByText('Settings'));
   await screen.findByText('Save Log File');
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('Save logs on the inserted USB drive?');
@@ -512,8 +512,6 @@ test('system administrator UI has expected nav', async () => {
   await screen.findByRole('heading', { name: 'Election Cards' });
   userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
-  userEvent.click(screen.getButton('Logs'));
-  await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 });
 
@@ -528,8 +526,6 @@ test('system administrator UI has expected nav when no election', async () => {
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
-  userEvent.click(screen.getButton('Logs'));
-  await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
