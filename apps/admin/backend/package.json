@@ -48,7 +48,6 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "better-sqlite3": "8.2.0",
     "compression": "^1.7.4",
     "csv-stringify": "^6.4.0",
     "debug": "4.3.4",
@@ -66,7 +65,6 @@
   },
   "devDependencies": {
     "@jest/types": "^29.6.1",
-    "@types/better-sqlite3": "7.6.3",
     "@types/compression": "^1.7.2",
     "@types/debug": "4.1.8",
     "@types/express": "4.17.14",
