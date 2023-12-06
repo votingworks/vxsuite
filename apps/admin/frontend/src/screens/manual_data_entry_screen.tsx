@@ -95,21 +95,8 @@ const ContestData = styled(Card)`
   background: ${(p) => p.theme.colors.background};
 
   h3 {
-    margin-top: 0;
-    margin-bottom: 0.5em;
-
-    & + p {
-      margin-top: -0.8em;
-      margin-bottom: 0.25em;
-    }
-
-    & + table {
-      margin-top: -0.5em;
-    }
-  }
-
-  p:first-child {
-    margin-bottom: 0;
+    margin-top: 0 !important;
+    margin-bottom: 0.25rem;
   }
 `;
 
@@ -598,13 +585,8 @@ function ManualResultsDataEntryScreenForm({
 
             return (
               <ContestData key={contest.id}>
-                <P>
-                  <Caption>{getContestDistrictName(election, contest)}</Caption>
-                </P>
-
-                <div>
-                  <H3>{contest.title}</H3>
-                </div>
+                <Caption>{getContestDistrictName(election, contest)}</Caption>
+                <H3>{contest.title}</H3>
                 <P>
                   {contestValidationState === 'no-results' ? (
                     <Icons.Info />

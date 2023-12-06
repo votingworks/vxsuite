@@ -4,7 +4,7 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
 import userEvent from '@testing-library/user-event';
-import { screen, within } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import {
   ALL_MANUAL_TALLY_BALLOT_TYPES,
   ManualDataSummaryScreen,
@@ -142,6 +142,9 @@ test('delete an existing tally', async () => {
   });
   apiMock.expectGetManualResultsMetadata([]);
   userEvent.click(screen.getButton('Remove Manual Tallies'));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
 });
 
 test('full table & clearing all data', async () => {

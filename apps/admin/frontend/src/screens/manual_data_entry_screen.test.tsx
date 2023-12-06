@@ -5,7 +5,8 @@ import { getBallotStyle, getContests } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { screen, within } from '../../test/react_testing_library';
+import { createMemoryHistory } from 'history';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ManualDataEntryScreen, TITLE } from './manual_data_entry_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -95,17 +96,11 @@ test('displays correct contests for ballot style', async () => {
     }
   );
 
-  screen.getByRole('heading', { name: TITLE });
-  expect(screen.getByRole('link', { name: 'Manual Tallies' })).toHaveAttribute(
-    'href',
-    '/tally/manual-data-summary'
-  );
-  expect(screen.getByRole('link', { name: 'Tally' })).toHaveAttribute(
-    'href',
-    '/tally'
-  );
+  await screen.findByRole('heading', { name: TITLE });
+  screen.getByRole('button', { name: 'Close' });
+  screen.getByRole('button', { name: 'Cancel' });
 
-  await screen.findByText(hasTextAcrossElements('Ballot Style1M'));
+  screen.getByText(hasTextAcrossElements('Ballot Style1M'));
   screen.getByText(hasTextAcrossElements('PrecinctPrecinct 1'));
   screen.getByText(hasTextAcrossElements('Voting MethodAbsentee'));
 
@@ -120,8 +115,6 @@ test('displays correct contests for ballot style', async () => {
   expect(screen.getAllByTestId(/-numBallots-input/)).toHaveLength(
     expectedContests.length
   );
-
-  // check either-neither contest titles - adds party or either-neither
 });
 
 test('can edit counts, receive validation messages, and save', async () => {
@@ -159,20 +152,21 @@ test('can edit counts, receive validation messages, and save', async () => {
   expect(screen.getByTestId(testInputId).closest('input')!.value).toEqual('');
 
   // Initial validation shows that results are empty
-  const bestAnimalTable = screen.getByTestId(testInputId).closest('table')!
-    .parentElement!;
-  within(bestAnimalTable).getByText('No tallies entered');
-  screen.getByText('At least one contest above has no tallies entered');
+  const bestAnimalContest = screen
+    .getByRole('heading', { name: 'Best Animal' })
+    .closest('div')!;
+  within(bestAnimalContest).getByText('No tallies entered');
+  screen.getByText('At least one contest has no tallies entered');
 
   // while tallies are incomplete, we should get validation warning
   userEvent.type(
     screen.getByTestId('best-animal-mammal-numBallots-input'),
     '10'
   );
-  within(bestAnimalTable).getByText(
+  within(bestAnimalContest).getByText(
     'Entered tallies do not match total ballots cast'
   );
-  screen.getByText('At least one contest above has invalid tallies entered');
+  screen.getByText('At least one contest has invalid tallies entered');
 
   // finish entering tallies for current contest
   userEvent.type(screen.getByTestId('best-animal-mammal-overvotes-input'), '1');
@@ -185,7 +179,7 @@ test('can edit counts, receive validation messages, and save', async () => {
   userEvent.type(screen.getByTestId('best-animal-mammal-fox-input'), '2');
 
   // validation should be successful
-  within(bestAnimalTable).getByText('Entered tallies are valid');
+  within(bestAnimalContest).getByText('Entered tallies are valid');
 
   // fill out the rest of the form with valid tallies, covering yes no contests
   const resultsToEnter: Array<[string, string, string]> = [
@@ -228,6 +222,12 @@ test('can edit counts, receive validation messages, and save', async () => {
     votingMethod: 'absentee',
     manualResults: mockValidResults,
   });
+  apiMock.expectGetManualResults({
+    ballotStyleId: '1M',
+    votingMethod: 'absentee',
+    precinctId: 'precinct-1',
+  });
+  apiMock.expectGetWriteInCandidates([]);
   userEvent.click(screen.getButton('Save Tallies'));
 });
 
@@ -284,6 +284,9 @@ test('loads pre-existing manual data to edit', async () => {
 });
 
 test('adding new write-in candidates', async () => {
+  const history = createMemoryHistory({
+    initialEntries: ['/tally/manual-data-entry/1M/precinct/precinct-1'],
+  });
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults({
     ballotStyleId: '1M',
@@ -295,9 +298,9 @@ test('adding new write-in candidates', async () => {
       <ManualDataEntryScreen />
     </Route>,
     {
-      route: '/tally/manual-data-entry/1M/precinct/precinct-1',
       electionDefinition,
       apiMock,
+      history,
     }
   );
 
@@ -305,16 +308,16 @@ test('adding new write-in candidates', async () => {
 
   // best animal mammal contest shouldn't allow a write-in
   const bestAnimalMammal = screen
-    .getByTestId('best-animal-mammal-numBallots-input')
-    .closest('table')!;
+    .getByRole('heading', { name: 'Best Animal' })
+    .closest('div')!;
   expect(
     within(bestAnimalMammal).queryByText('Add Write-In Candidate')
   ).not.toBeInTheDocument();
 
   // zoo council mammal contest should allow write-ins
   const zooCouncilMammal = screen
-    .getByTestId('zoo-council-mammal-numBallots-input')
-    .closest('table')!.parentElement!;
+    .getByRole('heading', { name: 'Zoo Council' })
+    .closest('div')!;
   userEvent.click(within(zooCouncilMammal).getButton('Add Write-In Candidate'));
   // Original button should have been replaced
   expect(
@@ -406,7 +409,16 @@ test('adding new write-in candidates', async () => {
       },
     }),
   });
+  apiMock.expectGetWriteInCandidates([]);
+  apiMock.expectGetManualResults({
+    ballotStyleId: '1M',
+    votingMethod: 'precinct',
+    precinctId: 'precinct-1',
+  });
   userEvent.click(screen.getButton('Save Tallies'));
+  await waitFor(() =>
+    expect(history.location.pathname).toEqual('/tally/manual-data-summary')
+  );
 });
 
 test('loads existing write-in candidates', async () => {
