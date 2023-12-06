@@ -5,7 +5,7 @@ import {
   iter,
   mapObject,
 } from '@votingworks/basics';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -32,6 +32,10 @@ import {
   getEmptyManualElectionResults,
 } from '@votingworks/utils';
 
+import type {
+  ManualResultsRecord,
+  WriteInCandidateRecord,
+} from '@votingworks/admin-backend';
 import { ManualDataEntryScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
@@ -315,7 +319,13 @@ function getContestValidationState(
   return enteredVotes === expectedVotes ? 'valid' : 'invalid';
 }
 
-export function ManualDataEntryScreen(): JSX.Element | null {
+function ManualResultsDataEntryScreenForm({
+  savedWriteInCandidates,
+  savedManualResults,
+}: {
+  savedWriteInCandidates: WriteInCandidateRecord[];
+  savedManualResults: ManualResultsRecord | null;
+}): JSX.Element {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
@@ -331,37 +341,33 @@ export function ManualDataEntryScreen(): JSX.Element | null {
     votingMethod === 'absentee' ? 'Absentee' : 'Precinct';
   const history = useHistory();
 
-  const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
   const setManualTallyMutation = setManualResults.useMutation();
-  const getManualResultsQuery = getManualResults.useQuery({
-    precinctId,
-    ballotStyleId,
-    votingMethod,
-  });
 
-  const [tempManualResults, setTempManualResults] = useState<TempManualResults>(
-    getEmptyManualElectionResults(election)
-  );
-  useEffect(() => {
-    if (getManualResultsQuery.data) {
-      setTempManualResults(getManualResultsQuery.data.manualResults);
-    }
-  }, [getManualResultsQuery.data]);
+  const initialManualResults =
+    savedManualResults?.manualResults ||
+    getEmptyManualElectionResults(election);
+  const [tempManualResults, setTempManualResults] =
+    useState<TempManualResults>(initialManualResults);
 
   const [tempWriteInCandidates, setTempWriteInCandidates] = useState<
     TempWriteInCandidate[]
   >([]);
 
   function saveResults() {
-    setManualTallyMutation.mutate({
-      precinctId,
-      ballotStyleId,
-      votingMethod,
-      // replace temporary tally values with the numeric values we'll save
-      manualResults: convertManualResults(tempManualResults),
-    });
-
-    history.push(routerPaths.manualDataSummary);
+    setManualTallyMutation.mutate(
+      {
+        precinctId,
+        ballotStyleId,
+        votingMethod,
+        // replace temporary tally values with the numeric values we'll save
+        manualResults: convertManualResults(tempManualResults),
+      },
+      {
+        onSuccess: () => {
+          history.push(routerPaths.manualDataSummary);
+        },
+      }
+    );
   }
 
   function updateManualResultsWithNewContestResults(
@@ -501,15 +507,6 @@ export function ManualDataEntryScreen(): JSX.Element | null {
 
   const currentContests = getContests({ election, ballotStyle });
 
-  if (
-    !getWriteInCandidatesQuery.isSuccess ||
-    !getManualResultsQuery.isSuccess
-  ) {
-    return null;
-  }
-
-  const writeInCandidates = getWriteInCandidatesQuery.data;
-
   const contestValidationStates: Record<ContestId, ContestValidationState> = {};
   for (const contest of currentContests) {
     contestValidationStates[contest.id] = getContestValidationState(
@@ -571,11 +568,7 @@ export function ManualDataEntryScreen(): JSX.Element | null {
                 variant="primary"
                 icon="Done"
                 onPress={saveResults}
-                disabled={
-                  !getManualResultsQuery.isSuccess ||
-                  tempManualResults ===
-                    getManualResultsQuery.data?.manualResults
-                }
+                disabled={setManualTallyMutation.isLoading}
               >
                 Save Tallies
               </Button>
@@ -586,7 +579,7 @@ export function ManualDataEntryScreen(): JSX.Element | null {
       <TaskContent>
         <ContestsContainer>
           {currentContests.map((contest, i) => {
-            const contestWriteInCandidates = writeInCandidates.filter(
+            const contestWriteInCandidates = savedWriteInCandidates.filter(
               ({ contestId }) => contestId === contest.id
             );
             const contestTempWriteInCandidates = tempWriteInCandidates.filter(
@@ -798,5 +791,30 @@ export function ManualDataEntryScreen(): JSX.Element | null {
         </ContestsContainer>
       </TaskContent>
     </TaskScreen>
+  );
+}
+
+export function ManualDataEntryScreen(): JSX.Element | null {
+  const { precinctId, ballotStyleId, votingMethod } =
+    useParams<ManualDataEntryScreenProps>();
+  const getWriteInCandidatesQuery = getWriteInCandidates.useQuery();
+  const getManualResultsQuery = getManualResults.useQuery({
+    precinctId,
+    ballotStyleId,
+    votingMethod,
+  });
+
+  if (
+    !getWriteInCandidatesQuery.isSuccess ||
+    !getManualResultsQuery.isSuccess
+  ) {
+    return null;
+  }
+
+  return (
+    <ManualResultsDataEntryScreenForm
+      savedWriteInCandidates={getWriteInCandidatesQuery.data}
+      savedManualResults={getManualResultsQuery.data}
+    />
   );
 }
