@@ -462,7 +462,7 @@ test('renders buttons for saving logs', async () => {
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
   userEvent.click(screen.getByText('Save Log File'));
   userEvent.click(screen.getByText('Save'));

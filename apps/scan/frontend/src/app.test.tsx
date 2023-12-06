@@ -484,7 +484,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Settings');
 
-  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
   userEvent.click(await screen.findByText('Save CVRs'));
   await screen.findByText('No USB Drive Detected');

@@ -270,7 +270,7 @@ export function ElectionManagerScreen({
           },
           {
             paneId: 'managerSettingsData',
-            label: 'Election Data',
+            label: 'CVRs and Logs',
             content: <React.Fragment>{dataExportButtons}</React.Fragment>,
           },
           {
