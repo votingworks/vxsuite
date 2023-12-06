@@ -17,8 +17,6 @@ import {
 } from '@votingworks/types';
 import {
   Button,
-  Table,
-  TD,
   LinkButton,
   Icons,
   P,
@@ -27,6 +25,7 @@ import {
   Caption,
   LabelledText,
   H1,
+  Font,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -108,16 +107,6 @@ const ContestData = styled(Card)`
   p:first-child {
     margin-bottom: 0;
   }
-
-  tbody tr:first-child {
-    border-top: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
-      ${(p) => p.theme.colors.outline};
-  }
-
-  tfoot td {
-    border-bottom: unset;
-    padding-top: 0.5em;
-  }
 `;
 
 const TallyInput = styled.input`
@@ -125,27 +114,19 @@ const TallyInput = styled.input`
   text-align: center;
 `;
 
-function ContestDataRow({
-  label,
-  onRemove,
-  children,
-  testId,
-}: {
-  label: string | React.ReactNode;
-  onRemove?: VoidFunction;
-  children: React.ReactNode;
-  testId: string;
-}) {
-  return (
-    <tr data-testid={testId}>
-      <TD narrow>{children}</TD>
-      <TD>{label}</TD>
-      <TD textAlign="right">
-        {onRemove && <Button onPress={onRemove}>Remove</Button>}
-      </TD>
-    </tr>
-  );
-}
+const ContestDataRow = styled.div`
+  border-top: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+    ${(p) => p.theme.colors.outline};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+
+  &:last-child {
+    border-bottom: ${(p) => p.theme.sizes.bordersRem.thin}rem solid
+      ${(p) => p.theme.colors.outline};
+  }
+`;
 
 function AddWriteInRow({
   addWriteInCandidate,
@@ -166,51 +147,44 @@ function AddWriteInRow({
 
   if (isAddingWriteIn) {
     return (
-      <tr>
-        <TD narrow textAlign="center">
-          <Button
-            variant="primary"
-            onPress={onAdd}
-            disabled={
-              writeInName.length === 0 ||
-              disallowedCandidateNames.includes(
-                normalizeWriteInName(writeInName)
-              )
+      <ContestDataRow>
+        <input
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+          defaultValue=""
+          data-testid={`${contestId}-write-in-input`}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setWriteInName(e.target.value)
+          }
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              onAdd();
             }
-          >
-            Add
-          </Button>
-        </TD>
-        <TD>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <input
-              defaultValue=""
-              data-testid={`${contestId}-write-in-input`}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setWriteInName(e.target.value)
-              }
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  onAdd();
-                }
-              }}
-              style={{ flexGrow: 1 }}
-            />
-            <Button onPress={() => setIsAddingWriteIn(false)}>Cancel</Button>
-          </div>
-        </TD>
-      </tr>
+          }}
+          style={{ flexGrow: 1 }}
+        />
+        <Button
+          icon="Add"
+          variant="primary"
+          onPress={onAdd}
+          disabled={
+            writeInName.length === 0 ||
+            disallowedCandidateNames.includes(normalizeWriteInName(writeInName))
+          }
+        >
+          Add
+        </Button>
+        <Button onPress={() => setIsAddingWriteIn(false)}>Cancel</Button>
+      </ContestDataRow>
     );
   }
 
   return (
-    <tr>
-      <TD colSpan={3}>
-        <Button onPress={() => setIsAddingWriteIn(true)}>
-          Add Write-In Candidate
-        </Button>
-      </TD>
-    </tr>
+    <ContestDataRow>
+      <Button icon="Add" onPress={() => setIsAddingWriteIn(true)}>
+        Add Write-In Candidate
+      </Button>
+    </ContestDataRow>
   );
 }
 
@@ -611,7 +585,7 @@ export function ManualDataEntryScreen(): JSX.Element | null {
       </TaskControls>
       <TaskContent>
         <ContestsContainer>
-          {currentContests.map((contest) => {
+          {currentContests.map((contest, i) => {
             const contestWriteInCandidates = writeInCandidates.filter(
               ({ contestId }) => contestId === contest.id
             );
@@ -652,165 +626,172 @@ export function ManualDataEntryScreen(): JSX.Element | null {
                     ? 'Entered tallies do not match total ballots cast'
                     : 'Entered tallies are valid'}
                 </P>
-                <Table condensed>
-                  <tbody>
-                    <ContestDataRow
-                      label={<P weight="bold">Total Ballots Cast</P>}
-                      testId={`${contest.id}-numBallots`}
-                    >
-                      <TallyInput
-                        name={`${contest.id}-numBallots`}
-                        data-testid={`${contest.id}-numBallots-input`}
-                        value={getValueForInput(contest.id, 'numBallots')}
-                        onChange={(e) =>
-                          updateContestData(contest.id, 'numBallots', e)
-                        }
-                      />
-                    </ContestDataRow>
-                    <ContestDataRow
-                      label={<P>undervotes</P>}
-                      testId={`${contest.id}-undervotes`}
-                    >
-                      <TallyInput
-                        name={`${contest.id}-undervotes`}
-                        data-testid={`${contest.id}-undervotes-input`}
-                        value={getValueForInput(contest.id, 'undervotes')}
-                        onChange={(e) =>
-                          updateContestData(contest.id, 'undervotes', e)
-                        }
-                      />
-                    </ContestDataRow>
-                    <ContestDataRow
-                      label={<P>overvotes</P>}
-                      testId={`${contest.id}-overvotes`}
-                    >
-                      <TallyInput
-                        name={`${contest.id}-overvotes`}
-                        data-testid={`${contest.id}-overvotes-input`}
-                        value={getValueForInput(contest.id, 'overvotes')}
-                        onChange={(e) =>
-                          updateContestData(contest.id, 'overvotes', e)
-                        }
-                      />
-                    </ContestDataRow>
-                    {contest.type === 'candidate' && (
-                      <React.Fragment>
-                        {contest.candidates
-                          .filter((c) => !c.isWriteIn)
-                          .map((candidate) => (
-                            <ContestDataRow
-                              key={candidate.id}
-                              label={candidate.name}
-                              testId={`${contest.id}-${candidate.id}`}
-                            >
-                              <TallyInput
-                                name={`${contest.id}-${candidate.id}`}
-                                data-testid={`${contest.id}-${candidate.id}-input`}
-                                value={getValueForInput(
-                                  contest.id,
-                                  candidate.id
-                                )}
-                                onChange={(e) =>
-                                  updateContestData(contest.id, candidate.id, e)
-                                }
-                              />
-                            </ContestDataRow>
-                          ))}
-                        {contestWriteInCandidates.map((candidate) => (
-                          <ContestDataRow
-                            key={candidate.id}
-                            label={`${candidate.name} (write-in)`}
-                            testId={`${contest.id}-${candidate.id}`}
-                          >
-                            <TallyInput
-                              name={`${contest.id}-${candidate.id}`}
-                              data-testid={`${contest.id}-${candidate.id}-input`}
-                              value={getValueForInput(contest.id, candidate.id)}
-                              onChange={(e) =>
-                                updateContestData(
-                                  contest.id,
-                                  candidate.id,
-                                  e,
-                                  candidate.name
-                                )
-                              }
-                            />
-                          </ContestDataRow>
-                        ))}
-                        {contestTempWriteInCandidates.map((candidate) => (
-                          <ContestDataRow
-                            key={candidate.id}
-                            label={`${candidate.name} (write-in)`}
-                            testId={`${contest.id}-${candidate.id}`}
-                            onRemove={() => {
-                              removeTempWriteInCandidate(
-                                candidate.id,
-                                contest.id
-                              );
-                            }}
-                          >
-                            <TallyInput
-                              name={`${contest.id}-${candidate.id}`}
-                              data-testid={`${contest.id}-${candidate.id}-input`}
-                              value={getValueForInput(contest.id, candidate.id)}
-                              onChange={(e) =>
-                                updateContestData(
-                                  contest.id,
-                                  candidate.id,
-                                  e,
-                                  candidate.name
-                                )
-                              }
-                            />
-                          </ContestDataRow>
-                        ))}
-                      </React.Fragment>
-                    )}
-                    {contest.type === 'yesno' && (
-                      <React.Fragment>
+                <ContestDataRow data-testid={`${contest.id}-numBallots`}>
+                  <TallyInput
+                    autoFocus={i === 0}
+                    id={`${contest.id}-numBallots`}
+                    data-testid={`${contest.id}-numBallots-input`}
+                    value={getValueForInput(contest.id, 'numBallots')}
+                    onChange={(e) =>
+                      updateContestData(contest.id, 'numBallots', e)
+                    }
+                  />
+                  <label htmlFor={`${contest.id}-numBallots`}>
+                    <Font weight="bold">Total Ballots Cast</Font>
+                  </label>
+                </ContestDataRow>
+                <ContestDataRow data-testid={`${contest.id}-undervotes`}>
+                  <TallyInput
+                    id={`${contest.id}-undervotes`}
+                    data-testid={`${contest.id}-undervotes-input`}
+                    value={getValueForInput(contest.id, 'undervotes')}
+                    onChange={(e) =>
+                      updateContestData(contest.id, 'undervotes', e)
+                    }
+                  />
+                  <label htmlFor={`${contest.id}-undervotes`}>undervotes</label>
+                </ContestDataRow>
+                <ContestDataRow data-testid={`${contest.id}-overvotes`}>
+                  <TallyInput
+                    id={`${contest.id}-overvotes`}
+                    data-testid={`${contest.id}-overvotes-input`}
+                    value={getValueForInput(contest.id, 'overvotes')}
+                    onChange={(e) =>
+                      updateContestData(contest.id, 'overvotes', e)
+                    }
+                  />
+                  <label htmlFor={`${contest.id}-overvotes`}>overvotes</label>
+                </ContestDataRow>
+                {contest.type === 'candidate' && (
+                  <React.Fragment>
+                    {contest.candidates
+                      .filter((c) => !c.isWriteIn)
+                      .map((candidate) => (
                         <ContestDataRow
-                          label="Yes"
-                          testId={`${contest.id}-${contest.yesOption.id}`}
+                          key={candidate.id}
+                          data-testid={`${contest.id}-${candidate.id}`}
                         >
                           <TallyInput
-                            name={`${contest.id}-yes`}
-                            data-testid={`${contest.id}-${contest.yesOption.id}-input`}
-                            value={getValueForInput(contest.id, 'yesTally')}
+                            id={`${contest.id}-${candidate.id}`}
+                            data-testid={`${contest.id}-${candidate.id}-input`}
+                            value={getValueForInput(contest.id, candidate.id)}
                             onChange={(e) =>
-                              updateContestData(contest.id, 'yesTally', e)
+                              updateContestData(contest.id, candidate.id, e)
                             }
                           />
+                          <label htmlFor={`${contest.id}-${candidate.id}`}>
+                            {candidate.name}
+                          </label>
                         </ContestDataRow>
-                        <ContestDataRow
-                          label="No"
-                          testId={`${contest.id}-${contest.noOption.id}`}
+                      ))}
+                    {contestWriteInCandidates.map((candidate) => (
+                      <ContestDataRow
+                        key={candidate.id}
+                        data-testid={`${contest.id}-${candidate.id}`}
+                      >
+                        <TallyInput
+                          id={`${contest.id}-${candidate.id}`}
+                          data-testid={`${contest.id}-${candidate.id}-input`}
+                          value={getValueForInput(contest.id, candidate.id)}
+                          onChange={(e) =>
+                            updateContestData(
+                              contest.id,
+                              candidate.id,
+                              e,
+                              candidate.name
+                            )
+                          }
+                        />
+                        <label htmlFor={`${contest.id}-${candidate.id}`}>
+                          {candidate.name} (write-in)
+                        </label>
+                      </ContestDataRow>
+                    ))}
+                    {contestTempWriteInCandidates.map((candidate) => (
+                      <ContestDataRow
+                        key={candidate.id}
+                        data-testid={`${contest.id}-${candidate.id}`}
+                      >
+                        <TallyInput
+                          autoFocus
+                          id={`${contest.id}-${candidate.id}`}
+                          data-testid={`${contest.id}-${candidate.id}-input`}
+                          value={getValueForInput(contest.id, candidate.id)}
+                          onChange={(e) =>
+                            updateContestData(
+                              contest.id,
+                              candidate.id,
+                              e,
+                              candidate.name
+                            )
+                          }
+                        />
+                        <label htmlFor={`${contest.id}-${candidate.id}`}>
+                          {candidate.name} (write-in)
+                        </label>
+                        <Button
+                          icon="X"
+                          variant="danger"
+                          fill="transparent"
+                          onPress={() => {
+                            removeTempWriteInCandidate(
+                              candidate.id,
+                              contest.id
+                            );
+                          }}
+                          style={{ marginLeft: 'auto' }}
                         >
-                          <TallyInput
-                            name={`${contest.id}-no`}
-                            data-testid={`${contest.id}-${contest.noOption.id}-input`}
-                            value={getValueForInput(contest.id, 'noTally')}
-                            onChange={(e) =>
-                              updateContestData(contest.id, 'noTally', e)
-                            }
-                          />
-                        </ContestDataRow>
-                      </React.Fragment>
-                    )}
-                  </tbody>
-                  <tfoot>
-                    {contest.type === 'candidate' && contest.allowWriteIns && (
-                      <AddWriteInRow
-                        addWriteInCandidate={(name) =>
-                          addTempWriteInCandidate(name, contest.id)
-                        }
-                        contestId={contest.id}
-                        disallowedCandidateNames={
-                          disallowedNewWriteInCandidateNames
+                          Remove
+                        </Button>
+                      </ContestDataRow>
+                    ))}
+                  </React.Fragment>
+                )}
+                {contest.type === 'yesno' && (
+                  <React.Fragment>
+                    <ContestDataRow
+                      data-testid={`${contest.id}-${contest.yesOption.id}`}
+                    >
+                      <TallyInput
+                        name={`${contest.id}-yes`}
+                        data-testid={`${contest.id}-${contest.yesOption.id}-input`}
+                        value={getValueForInput(contest.id, 'yesTally')}
+                        onChange={(e) =>
+                          updateContestData(contest.id, 'yesTally', e)
                         }
                       />
-                    )}
-                  </tfoot>
-                </Table>
+                      <label htmlFor={`${contest.id}-yes`}>
+                        {contest.yesOption.label}
+                      </label>
+                    </ContestDataRow>
+                    <ContestDataRow
+                      data-testid={`${contest.id}-${contest.noOption.id}`}
+                    >
+                      <TallyInput
+                        id={`${contest.id}-no`}
+                        data-testid={`${contest.id}-${contest.noOption.id}-input`}
+                        value={getValueForInput(contest.id, 'noTally')}
+                        onChange={(e) =>
+                          updateContestData(contest.id, 'noTally', e)
+                        }
+                      />
+                      <label htmlFor={`${contest.id}-no`}>
+                        {contest.noOption.label}
+                      </label>
+                    </ContestDataRow>
+                  </React.Fragment>
+                )}
+                {contest.type === 'candidate' && contest.allowWriteIns && (
+                  <AddWriteInRow
+                    addWriteInCandidate={(name) =>
+                      addTempWriteInCandidate(name, contest.id)
+                    }
+                    contestId={contest.id}
+                    disallowedCandidateNames={
+                      disallowedNewWriteInCandidateNames
+                    }
+                  />
+                )}
               </ContestData>
             );
           })}
