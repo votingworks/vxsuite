@@ -260,6 +260,29 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     });
   }
 
+  async updateCardlessVoterBallotStyle(input: {
+    ballotStyleId: BallotStyleId;
+  }): Promise<void> {
+    assert(this.config.allowCardlessVoterSessions);
+    assert(this.cardlessVoterUser);
+
+    const previousBallotStyleId = this.cardlessVoterUser.ballotStyleId;
+    if (previousBallotStyleId === input.ballotStyleId) {
+      return;
+    }
+
+    this.cardlessVoterUser = { ...this.cardlessVoterUser, ...input };
+
+    await this.logger.log(
+      LogEventId.AuthVoterSessionUpdated,
+      'cardless_voter',
+      {
+        disposition: LogDispositionStandardTypes.Success,
+        message: `Cardless voter ballot style updated from ${previousBallotStyleId} to ${input.ballotStyleId}.`,
+      }
+    );
+  }
+
   async endCardlessVoterSession(): Promise<void> {
     assert(this.config.allowCardlessVoterSessions);
 

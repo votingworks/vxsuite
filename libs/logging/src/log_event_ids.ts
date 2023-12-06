@@ -25,6 +25,7 @@ export enum LogEventId {
   // Auth logs
   AuthPinEntry = 'auth-pin-entry',
   AuthLogin = 'auth-login',
+  AuthVoterSessionUpdated = 'auth-voter-session-updated',
   AuthLogout = 'auth-logout',
 
   // USB related logs
@@ -203,6 +204,13 @@ const AuthLoginEvent: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'A user logged in (or failed to log in). An optional reason key may be provided for failures.',
+};
+
+const AuthVoterSessionUpdatedEvent: LogDetails = {
+  eventId: LogEventId.AuthVoterSessionUpdated,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Session parameters for a logged in voter were updated.',
 };
 
 const AuthLogoutEvent: LogDetails = {
@@ -966,6 +974,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return AuthPinEntryEvent;
     case LogEventId.AuthLogin:
       return AuthLoginEvent;
+    case LogEventId.AuthVoterSessionUpdated:
+      return AuthVoterSessionUpdatedEvent;
     case LogEventId.AuthLogout:
       return AuthLogoutEvent;
     case LogEventId.UsbDriveEjectInit:

@@ -2,9 +2,17 @@ import {
   asElectionDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  InsertedSmartCardAuth,
+  LanguageCode,
+} from '@votingworks/types';
 
-import { singlePrecinctSelectionFor, MemoryHardware } from '@votingworks/utils';
+import {
+  singlePrecinctSelectionFor,
+  MemoryHardware,
+  generateBallotStyleId,
+} from '@votingworks/utils';
 import {
   fakePollWorkerUser,
   fakeSessionExpiresAt,
@@ -162,4 +170,36 @@ test('can toggle between vote activation and "other actions" during polls open',
   // switch back
   userEvent.click(screen.getByText('Back to Ballot Style Selection'));
   screen.getByText('Select Voter’s Ballot Style');
+});
+
+test('displays only default English ballot styles', async () => {
+  const baseElection = electionGeneralDefinition.election;
+
+  const ballotLanguages = [LanguageCode.ENGLISH, LanguageCode.SPANISH];
+  const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map((l) => ({
+    ...baseElection.ballotStyles[0],
+    id: generateBallotStyleId({ ballotStyleIndex: 1, languages: [l] }),
+    languages: [l],
+  }));
+
+  const electionDefinition: ElectionDefinition = {
+    ...electionGeneralDefinition,
+    election: {
+      ...baseElection,
+      ballotStyles: [ballotStyleEnglish, ballotStyleSpanish],
+    },
+  };
+  renderScreen({
+    pollsState: 'polls_open',
+    machineConfig: fakeMachineConfig(),
+    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    electionDefinition,
+  });
+
+  await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
+
+  screen.getButton(ballotStyleEnglish.id);
+  expect(
+    screen.queryByRole('button', { name: ballotStyleSpanish.id })
+  ).not.toBeInTheDocument();
 });

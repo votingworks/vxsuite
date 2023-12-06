@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { DateTime } from 'luxon';
 import { z } from 'zod';
-import { err, ok } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
@@ -1365,3 +1365,83 @@ test.each<{
     });
   }
 );
+
+describe('updateCardlessVoterBallotStyle', () => {
+  function newApi() {
+    return new InsertedSmartCardAuth({
+      card: mockCard,
+      config: { ...defaultConfig, allowCardlessVoterSessions: true },
+      logger: mockLogger,
+    });
+  }
+
+  test("fails when there's no existing voter session", async () => {
+    const api = newApi();
+
+    await expect(() =>
+      api.updateCardlessVoterBallotStyle({ ballotStyleId: '1_en' })
+    ).rejects.toThrow();
+  });
+
+  test('updates existing session ballot style', async () => {
+    const api = newApi();
+
+    await logInAsPollWorker(api);
+
+    await api.startCardlessVoterSession(defaultMachineState, {
+      ballotStyleId: '1_en',
+      precinctId: 'precinct1',
+    });
+
+    mockCardStatus({ status: 'no_card' });
+
+    const initialStatus = await api.getAuthStatus(defaultMachineState);
+    assert(
+      initialStatus.status === 'logged_in' &&
+        initialStatus.user.role === 'cardless_voter'
+    );
+    expect(initialStatus.user).toEqual(
+      expect.objectContaining({ ballotStyleId: '1_en' })
+    );
+
+    mockOf(mockLogger.log).mockClear();
+
+    await api.updateCardlessVoterBallotStyle({ ballotStyleId: '1_es-US' });
+
+    const updatedStatus = await api.getAuthStatus(defaultMachineState);
+    expect(updatedStatus).toEqual({
+      ...initialStatus,
+      user: { ...initialStatus.user, ballotStyleId: '1_es-US' },
+    });
+
+    expect(mockLogger.log).toHaveBeenCalledWith(
+      LogEventId.AuthVoterSessionUpdated,
+      'cardless_voter',
+      {
+        disposition: LogDispositionStandardTypes.Success,
+        message: expect.stringMatching(/updated .* 1_en .* 1_es-US/),
+      }
+    );
+  });
+
+  test('is a no-op for unchanged ballot style ID', async () => {
+    const api = newApi();
+
+    await logInAsPollWorker(api);
+    await api.startCardlessVoterSession(defaultMachineState, {
+      ballotStyleId: '1_en',
+      precinctId: 'precinct1',
+    });
+    mockCardStatus({ status: 'no_card' });
+
+    const initialStatus = await api.getAuthStatus(defaultMachineState);
+
+    mockOf(mockLogger.log).mockClear();
+    await api.updateCardlessVoterBallotStyle({ ballotStyleId: '1_en' });
+
+    const updatedStatus = await api.getAuthStatus(defaultMachineState);
+    expect(updatedStatus).toEqual(initialStatus);
+
+    expect(mockLogger.log).not.toHaveBeenCalled();
+  });
+});

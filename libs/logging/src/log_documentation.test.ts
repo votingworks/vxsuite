@@ -26,7 +26,7 @@ describe('test cdf documentation generation', () => {
     expect(structuredData.DeviceModel).toEqual('VxAdmin 1.0');
     expect(structuredData.GeneratedDate).toEqual('2020-07-24T00:00:00.000Z');
     expect(structuredData.EventTypeDescription).toHaveLength(5);
-    expect(structuredData.EventIdDescription).toHaveLength(47);
+    expect(structuredData.EventIdDescription).toHaveLength(48);
     // Make sure VxAdminFrontend specific logs are included.
     expect(structuredData.EventIdDescription).toContainEqual(
       expect.objectContaining({
@@ -64,7 +64,7 @@ describe('test cdf documentation generation', () => {
     expect(structuredData.DeviceModel).toEqual('VxCentralScan');
     expect(structuredData.GeneratedDate).toEqual('2020-07-24T00:00:00.000Z');
     expect(structuredData.EventTypeDescription).toHaveLength(5);
-    expect(structuredData.EventIdDescription).toHaveLength(58);
+    expect(structuredData.EventIdDescription).toHaveLength(59);
     // Make sure VxCentralScanApp specific logs are included.
     expect(structuredData.EventIdDescription).toContainEqual(
       expect.objectContaining({
@@ -87,7 +87,7 @@ describe('test cdf documentation generation', () => {
 });
 
 describe('test markdown documentation generation', () => {
-  test('generated documentation is up to date you need to run `pnpx esbuild-runner --cache scripts/generate_documentation.ts` if this fails', () => {
+  test('generated documentation is up to date you need to run `pnpm build:generate-docs` if this fails', () => {
     const generatedFileContent = generateMarkdownDocumentationContent();
     const currentDocumentationContent = fs.readFileSync(
       'VotingWorksLoggingDocumentation.md'

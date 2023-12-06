@@ -50,6 +50,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** A user logged in (or failed to log in). An optional reason key may be provided for failures.  
 **Machines:** All
+### auth-voter-session-updated
+**Type:** [user-action](#user-action)  
+**Description:** Session parameters for a logged in voter were updated.  
+**Machines:** All
 ### auth-logout
 **Type:** [user-action](#user-action)  
 **Description:** A user logged out (or failed to log out).  

@@ -37,6 +37,9 @@ export interface InsertedSmartCardAuthApi {
     machineState: InsertedSmartCardAuthMachineState,
     input: { ballotStyleId: BallotStyleId; precinctId: PrecinctId }
   ): Promise<void>;
+  updateCardlessVoterBallotStyle(input: {
+    ballotStyleId: BallotStyleId;
+  }): Promise<void>;
   endCardlessVoterSession(
     machineState: InsertedSmartCardAuthMachineState
   ): Promise<void>;

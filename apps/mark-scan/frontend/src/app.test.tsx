@@ -1,9 +1,13 @@
+import React from 'react';
 import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { useDisplaySettingsManager } from '@votingworks/mark-flow-ui';
+import {
+  useBallotStyleManager,
+  useDisplaySettingsManager,
+} from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, screen, waitFor } from '../test/react_testing_library';
 import { fakeTts } from '../test/helpers/fake_tts';
@@ -18,6 +22,7 @@ jest.mock(
   '@votingworks/mark-flow-ui',
   (): typeof import('@votingworks/mark-flow-ui') => ({
     ...jest.requireActual('@votingworks/mark-flow-ui'),
+    useBallotStyleManager: jest.fn(),
     useDisplaySettingsManager: jest.fn(),
   })
 );
@@ -130,6 +135,39 @@ it('uses display settings management hook', async () => {
   await advanceTimersAndPromises();
 
   expect(mockOf(useDisplaySettingsManager)).toBeCalled();
+});
+
+it('uses ballot style management hook', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState();
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '1_en',
+    precinctId: electionGeneralDefinition.election.precincts[0].id,
+  });
+  apiMock.mockApiClient.updateCardlessVoterBallotStyle
+    .expectRepeatedCallsWith({
+      ballotStyleId: '1_es-US',
+    })
+    .resolves();
+
+  mockOf(useBallotStyleManager).mockImplementation((params) =>
+    React.useEffect(() => {
+      params.updateCardlessVoterBallotStyle({ ballotStyleId: '1_es-US' });
+    }, [params])
+  );
+
+  buildApp(apiMock).renderApp();
+
+  await advanceTimersAndPromises();
+
+  expect(mockOf(useBallotStyleManager)).toBeCalledWith(
+    expect.objectContaining({
+      currentBallotStyleId: '1_en',
+      electionDefinition: electionGeneralDefinition,
+    })
+  );
 });
 
 // This test is only really here to provide coverage for the default value for

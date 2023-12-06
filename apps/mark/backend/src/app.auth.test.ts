@@ -202,3 +202,15 @@ test('endCardlessVoterSession before election definition has been configured', a
     DEFAULT_SYSTEM_SETTINGS.auth
   );
 });
+
+test('updateCardlessVoterBallotStyle', async () => {
+  const { apiClient, mockAuth, mockUsbDrive } = createApp();
+  await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
+
+  await apiClient.updateCardlessVoterBallotStyle({ ballotStyleId: '2_es-US' });
+
+  expect(mockAuth.updateCardlessVoterBallotStyle).toHaveBeenCalledTimes(1);
+  expect(mockAuth.updateCardlessVoterBallotStyle).toHaveBeenLastCalledWith({
+    ballotStyleId: '2_es-US',
+  });
+});

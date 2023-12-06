@@ -138,7 +138,17 @@ describe('ballot style groups', () => {
     ).toEqual(style1Spanish);
   });
 
-  test('getRelatedBallotStyle source group not found', () => {
+  test('getRelatedBallotStyle handles legacy styles', () => {
+    expect(
+      getRelatedBallotStyle({
+        ballotStyles: [style1English, style1Spanish, style3LegacySchema],
+        sourceBallotStyleId: style3LegacySchema.id,
+        targetBallotStyleLanguage: LanguageCode.SPANISH,
+      }).unsafeUnwrap()
+    ).toEqual(style3LegacySchema);
+  });
+
+  test('getRelatedBallotStyle source style not found', () => {
     expect(
       getRelatedBallotStyle({
         ballotStyles: [style1English],
@@ -146,7 +156,9 @@ describe('ballot style groups', () => {
         targetBallotStyleLanguage: LanguageCode.ENGLISH,
       }).err()
     ).toMatch('not found');
+  });
 
+  test('getRelatedBallotStyle target style not found', () => {
     expect(
       getRelatedBallotStyle({
         ballotStyles: [style1English],

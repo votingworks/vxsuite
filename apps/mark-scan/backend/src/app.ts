@@ -107,6 +107,12 @@ export function buildApi(
       );
     },
 
+    updateCardlessVoterBallotStyle(input: { ballotStyleId: BallotStyleId }) {
+      return auth.updateCardlessVoterBallotStyle({
+        ballotStyleId: input.ballotStyleId,
+      });
+    },
+
     endCardlessVoterSession() {
       return auth.endCardlessVoterSession(constructAuthMachineState(workspace));
     },

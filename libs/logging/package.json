@@ -13,6 +13,7 @@
   "scripts": {
     "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
+    "build:generate-docs": "pnpx esbuild-runner --cache ./scripts/generate_documentation.ts",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
@@ -28,6 +29,9 @@
     ],
     "*.+(js|jsx|ts|tsx)": [
       "eslint --quiet --fix"
+    ],
+    "log_event_ids.ts": [
+      "pnpm build:generate_docs"
     ],
     "package.json": [
       "sort-package-json"

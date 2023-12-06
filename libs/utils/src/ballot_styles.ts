@@ -70,13 +70,22 @@ export function getRelatedBallotStyle(params: {
   const { ballotStyles, sourceBallotStyleId, targetBallotStyleLanguage } =
     params;
 
+  const sourceBallotStyle = _.find(
+    ballotStyles,
+    (b) => b.id === sourceBallotStyleId
+  );
+  if (!sourceBallotStyle) {
+    return err(`ballot style not found: ${sourceBallotStyleId}`);
+  }
+
+  // For legacy language-agnostic ballot styles, return the same ballot style:
+  if (_.isEmpty(sourceBallotStyle.languages)) {
+    return ok(sourceBallotStyle);
+  }
+
   const ballotStyleGroups = getBallotStyleGroups(ballotStyles);
   const groupId = extractBallotStyleGroupId(sourceBallotStyleId);
-
-  const matchingGroup = ballotStyleGroups[groupId];
-  if (!matchingGroup) {
-    return err('source ballot style group not found');
-  }
+  const matchingGroup = assertDefined(ballotStyleGroups[groupId]);
 
   const destinationBallotStyle = _.find(matchingGroup, (b) =>
     _.isEqual(b.languages, [targetBallotStyleLanguage])
