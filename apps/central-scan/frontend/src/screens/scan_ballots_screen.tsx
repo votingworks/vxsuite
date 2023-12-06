@@ -4,6 +4,7 @@ import { Scan } from '@votingworks/api';
 import { Button, Font, Icons, P, TD, Table } from '@votingworks/ui';
 import { BatchInfo } from '@votingworks/types';
 import styled from 'styled-components';
+import { iter } from '@votingworks/basics';
 import { DeleteBatchModal } from '../components/delete_batch_modal';
 import { NavigationScreen } from '../navigation_screen';
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -49,7 +50,9 @@ export function ScanBallotsScreen({
 }: ScanBallotsScreenProps): JSX.Element {
   const { batches } = status;
   const batchCount = batches.length;
-  const ballotCount = batches.reduce((result, b) => result + b.count, 0);
+  const ballotCount = iter(batches)
+    .map((b) => b.count)
+    .sum();
 
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState<BatchInfo>();
   let exportButtonTitle;

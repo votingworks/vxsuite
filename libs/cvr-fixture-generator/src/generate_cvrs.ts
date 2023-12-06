@@ -90,10 +90,10 @@ function getVoteConfigurations(
   optionsForEachContest: ReadonlyMap<ContestId, readonly Vote[]>
 ): VotesDict[] {
   // Find the contest with the most vote combinations generated to determine the number of vote combinations to generate.
-  const numOptionsToProduce = [...optionsForEachContest.values()].reduce(
-    (prev, options) => Math.max(prev, options.length),
-    0
-  );
+  const numOptionsToProduce =
+    iter(optionsForEachContest.values())
+      .map((options) => options.length)
+      .max() ?? 0;
   const voteOptions: VotesDict[] = [];
   for (let i = 0; i < numOptionsToProduce; i += 1) {
     const voteOption: VotesDict = {};

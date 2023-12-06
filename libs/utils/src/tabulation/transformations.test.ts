@@ -1,4 +1,5 @@
 import { Tabulation } from '@votingworks/types';
+import { iter } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
   groupMapToGroupList,
@@ -105,10 +106,9 @@ test('coalesceGroupsAcrossParty', () => {
     { groupByPrecinct: true },
     (partyBallotCounts) => {
       return {
-        ballotCount: partyBallotCounts.reduce(
-          (sum, { ballotCount }) => sum + ballotCount,
-          0
-        ),
+        ballotCount: iter(partyBallotCounts)
+          .map(({ ballotCount }) => ballotCount)
+          .sum(),
       };
     }
   );

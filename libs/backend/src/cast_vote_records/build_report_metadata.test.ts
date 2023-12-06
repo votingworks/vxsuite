@@ -1,4 +1,4 @@
-import { assert, find } from '@votingworks/basics';
+import { assert, find, iter } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { CandidateContest, CVR, YesNoContest } from '@votingworks/types';
 import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
@@ -110,9 +110,9 @@ test('builds well-formed cast vote record report', () => {
     (contest): contest is CandidateContest => contest.type === 'candidate'
   );
   expect(ReportElection.Candidate?.length).toEqual(
-    candidateContests
+    iter(candidateContests)
       .map((contest) => contest.candidates.length)
-      .reduce((prev, cur) => prev + cur, 0)
+      .sum()
   );
   for (const candidate of candidateContests.flatMap(
     (contest) => contest.candidates

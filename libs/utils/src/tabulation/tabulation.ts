@@ -1,4 +1,9 @@
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   AnyContest,
   BallotStyleId,
@@ -488,7 +493,9 @@ export function getScannedBallotCount(
 export function getSheetCount(cardCounts: Tabulation.CardCounts): number {
   return (
     cardCounts.bmd +
-    cardCounts.hmpb.reduce((acc: number, count) => acc + (count ?? 0), 0)
+    iter(cardCounts.hmpb)
+      .map((c) => c ?? 0)
+      .sum()
   );
 }
 
@@ -618,10 +625,9 @@ export function combineManualElectionResults({
   election: Election;
   allManualResults: Tabulation.ManualElectionResults[];
 }): Tabulation.ManualElectionResults {
-  const ballotCount = allManualResults.reduce(
-    (count, results) => count + results.ballotCount,
-    0
-  );
+  const ballotCount = iter(allManualResults)
+    .map((results) => results.ballotCount)
+    .sum();
 
   const electionContestResults = combineElectionContestResults({
     election,

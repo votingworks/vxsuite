@@ -1,3 +1,5 @@
+import { iter } from '@votingworks/basics';
+
 /**
  * Minimal information about a bubble position.
  */
@@ -11,14 +13,14 @@ export interface Bubble {
  */
 export function asciiBubbleGrid(bubbles: Iterable<Bubble>): string {
   const allBubbles = [...bubbles];
-  const maxColumn = allBubbles.reduce(
-    (max, bubble) => Math.max(max, bubble.column),
-    0
-  );
-  const maxRow = allBubbles.reduce(
-    (max, bubble) => Math.max(max, bubble.row),
-    0
-  );
+  const maxColumn =
+    iter(allBubbles)
+      .map((bubble) => bubble.column)
+      .max() ?? 0;
+  const maxRow =
+    iter(allBubbles)
+      .map((bubble) => bubble.row)
+      .max() ?? 0;
 
   let result = '';
   for (let row = 0; row <= maxRow; row += 1) {

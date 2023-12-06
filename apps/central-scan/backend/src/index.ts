@@ -3,6 +3,7 @@ import fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import { isIntegrationTest } from '@votingworks/utils';
+import { iter } from '@votingworks/basics';
 import { MOCK_SCANNER_FILES, NODE_ENV } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
 import { BatchScanner } from './fujitsu_scanner';
@@ -43,10 +44,9 @@ function getScanner(): BatchScanner | undefined {
   const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
   if (!mockScannerFiles) return undefined;
   process.stdout.write(
-    `Using mock scanner that scans ${mockScannerFiles.reduce(
-      (count, sheets) => count + sheets.length,
-      0
-    )} sheet(s) in ${mockScannerFiles.length} batch(es) repeatedly.\n`
+    `Using mock scanner that scans ${iter(mockScannerFiles)
+      .map((sheets) => sheets.length)
+      .sum()} sheet(s) in ${mockScannerFiles.length} batch(es) repeatedly.\n`
   );
   return new LoopScanner(mockScannerFiles);
 }

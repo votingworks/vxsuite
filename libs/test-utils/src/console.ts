@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { MaybePromise, Optional, assert } from '@votingworks/basics';
+import { MaybePromise, Optional, assert, iter } from '@votingworks/basics';
 
 const capturedCallCountsByTest = new Map<
   string,
@@ -25,10 +25,10 @@ function printLinesInBox(lines: string[], out: NodeJS.WritableStream) {
   const boxBottomLeft = '└';
   const boxBottomRight = '┘';
 
-  const longestLine = lines.reduce(
-    (longest, line) => Math.max(longest, stripAnsi(line).length),
-    0
-  );
+  const longestLine =
+    iter(lines)
+      .map((line) => stripAnsi(line).length)
+      .max() ?? 0;
 
   const boxTop = `${boxTopLeft}${boxTopAndBottom.repeat(
     longestLine + 2

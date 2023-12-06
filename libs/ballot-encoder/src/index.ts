@@ -21,7 +21,7 @@ import {
   YesNoContest,
   YesNoVote,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import {
   BitReader,
   BitWriter,
@@ -284,10 +284,9 @@ function encodeBallotVotesInto(
 
         if (contest.allowWriteIns) {
           // write write-in data
-          const writeInCount = choices.reduce(
-            (count, choice) => count + (choice.isWriteIn ? 1 : 0),
-            0
-          );
+          const writeInCount = iter(choices)
+            .filter((choice) => choice.isWriteIn)
+            .count();
           const nonWriteInCount = choices.length - writeInCount;
           const maximumWriteIns = Math.max(0, contest.seats - nonWriteInCount);
 

@@ -225,10 +225,9 @@ function buildCVRCandidateContest({
     );
   }
 
-  const numWriteIns = vote.reduce(
-    (count, choice) => count + (choice.isWriteIn ? 1 : 0),
-    0
-  );
+  const numWriteIns = iter(vote)
+    .filter((choice) => choice.isWriteIn)
+    .count();
 
   // Write-ins on hand-marked paper ballots are have Id's indexed according to
   // their position on the ballot. For machine-marked ballots the Id's are not
