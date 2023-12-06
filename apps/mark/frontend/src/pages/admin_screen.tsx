@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 
 import {
   P,
-  Button,
   ChangePrecinctButton,
   CurrentDateAndTime,
   ElectionInfoBar,
@@ -16,6 +15,7 @@ import {
   Icons,
   H3,
   H6,
+  UnconfigureMachineButton,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -159,9 +159,10 @@ export function AdminScreen({
         <P>
           <Icons.Checkbox color="success" /> Election Definition is loaded.
         </P>
-        <Button variant="danger" icon="Delete" onPress={unconfigure}>
-          Unconfigure Machine
-        </Button>
+        <UnconfigureMachineButton
+          isMachineConfigured
+          unconfigureMachine={unconfigure}
+        />
         <H6 as="h2">USB</H6>
         <UsbControllerButton
           primary

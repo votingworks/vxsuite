@@ -114,9 +114,9 @@ test('configuring with a demo election definition', async () => {
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
-  fireEvent.click(screen.getByText('Remove Election'));
+  fireEvent.click(screen.getByText('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
-  fireEvent.click(within(modal).getButton('Remove Election'));
+  fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
 
   await screen.findByText('Configure VxAdmin');
 
@@ -381,9 +381,9 @@ test('removing election resets cvr and manual data files', async () => {
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetMachineConfig();
   fireEvent.click(screen.getButton('Election'));
-  fireEvent.click(screen.getByText('Remove Election'));
+  fireEvent.click(screen.getButton('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
-  fireEvent.click(within(modal).getButton('Remove Election'));
+  fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
   await screen.findByText('Configure VxAdmin');
 });
 
@@ -548,10 +548,10 @@ test('system administrator UI has expected nav when no election', async () => {
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  userEvent.click(screen.getByText('Remove Election'));
+  userEvent.click(screen.getButton('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
-    within(modal).getByRole('button', { name: 'Remove Election' })
+    within(modal).getByRole('button', { name: 'Yes, Delete Election Data' })
   );
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()

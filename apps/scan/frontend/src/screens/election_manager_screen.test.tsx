@@ -129,29 +129,7 @@ test('no option to change precinct if there is only one precinct', async () => {
   expect(screen.queryByTestId('selectPrecinct')).not.toBeInTheDocument();
 });
 
-test('unconfigure does not eject a usb drive that is not mounted', async () => {
-  apiMock.expectGetConfig();
-  renderScreen({
-    scannerStatus: statusNoPaper,
-    usbDrive: mockUsbDriveStatus('no_drive'),
-  });
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  userEvent.click(screen.getByRole('tab', { name: /data/i }));
-
-  apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
-  apiMock.expectGetConfig({ electionDefinition: undefined });
-  apiMock.expectGetPollsInfo();
-  userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
-  userEvent.click(screen.getByText('Yes, Delete All'));
-  // No call to apiClient.ejectUsbDrive should have occurred, which is confirmed
-  // by apiMock.mockApiClient.assertComplete
-  await waitFor(() => {
-    apiMock.mockApiClient.assertComplete();
-  });
-});
-
-test('unconfigure ejects a usb drive when it is mounted', async () => {
+test('unconfigure ejects a usb drive', async () => {
   apiMock.expectGetConfig();
   renderScreen({
     scannerStatus: statusNoPaper,
@@ -159,14 +137,14 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
   apiMock.expectGetConfig({ electionDefinition: undefined });
   apiMock.expectGetPollsInfo();
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Delete All Election Data from VxScan'));
-  userEvent.click(screen.getByText('Yes, Delete All'));
+  userEvent.click(screen.getButton('Unconfigure Machine'));
+  userEvent.click(screen.getButton('Yes, Delete Election Data'));
   await waitFor(() => {
     apiMock.mockApiClient.assertComplete();
   });
@@ -403,25 +381,16 @@ test('machine cannot be switched to test mode if CVR sync is required and ballot
 
   userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
-  await screen.findByRole('option', {
-    name: 'Test Ballot Mode',
-    selected: false,
-  });
-  const officialBallotModeButton = screen.getByRole('option', {
-    name: 'Official Ballot Mode',
-    selected: true,
-  });
-
-  userEvent.click(officialBallotModeButton);
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(
-    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can switch to test mode. ' +
+  screen.getByText(
+    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can modify the machine configuration. ' +
       'Remove your election manager card to sync.'
   );
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
+  expect(
+    screen.getByRole('option', {
+      name: 'Test Ballot Mode',
+      selected: false,
+    })
+  ).toBeDisabled();
 });
 
 test('machine *can* be switched to test mode if CVR sync is required but no ballots have been counted', async () => {
@@ -435,27 +404,12 @@ test('machine *can* be switched to test mode if CVR sync is required but no ball
 
   userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
-  const testBallotModeButton = await screen.findByRole('option', {
-    name: 'Test Ballot Mode',
-    selected: false,
-  });
-  screen.getByRole('option', {
-    name: 'Official Ballot Mode',
-    selected: true,
-  });
-
-  apiMock.expectSetTestMode(true);
-  apiMock.expectGetConfig({ isTestMode: true });
-  apiMock.expectGetPollsInfo();
-  userEvent.click(testBallotModeButton);
-  await screen.findByRole('option', {
-    name: 'Test Ballot Mode',
-    selected: true,
-  });
-  screen.getByRole('option', {
-    name: 'Official Ballot Mode',
-    selected: false,
-  });
+  expect(
+    await screen.findByRole('option', {
+      name: 'Test Ballot Mode',
+      selected: false,
+    })
+  ).toBeEnabled();
 });
 
 test('machine cannot be unconfigured if CVR sync is required and not in test mode', async () => {
@@ -467,22 +421,17 @@ test('machine cannot be unconfigured if CVR sync is required and not in test mod
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Election Data' }));
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
-  userEvent.click(
-    await screen.findByRole('button', {
-      name: 'Delete All Election Data from VxScan',
-    })
-  );
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(
-    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can delete election data. ' +
+  screen.getByText(
+    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can modify the machine configuration. ' +
       'Remove your election manager card to sync.'
   );
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
+  expect(
+    screen.getByRole('button', {
+      name: 'Unconfigure Machine',
+    })
+  ).toBeDisabled();
 });
 
 test('machine *can* be unconfigured if CVR sync is required but in test mode', async () => {
@@ -494,17 +443,13 @@ test('machine *can* be unconfigured if CVR sync is required but in test mode', a
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Election Data' }));
+  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
-  userEvent.click(
-    await screen.findByRole('button', {
-      name: 'Delete All Election Data from VxScan',
+  expect(
+    screen.getByRole('button', {
+      name: 'Unconfigure Machine',
     })
-  );
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText(
-    'Do you want to remove all election information and data from this machine?'
-  );
+  ).toBeEnabled();
 });
 
 test('renders buttons for saving logs', async () => {
@@ -517,7 +462,7 @@ test('renders buttons for saving logs', async () => {
   });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
   userEvent.click(screen.getByText('Save Log File'));
   userEvent.click(screen.getByText('Save'));

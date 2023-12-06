@@ -293,13 +293,8 @@ test('configuring election from usb election package works end to end', async ()
 
   userEvent.click(screen.getButton('Settings'));
   screen.getByRole('heading', { name: 'Settings' });
-  expect(
-    screen.getButton('Delete Election Data from VxCentralScan')
-  ).toBeEnabled();
-  userEvent.click(screen.getByText('Delete Election Data from VxCentralScan'));
+  userEvent.click(screen.getButton('Unconfigure Machine'));
   await screen.findByText('Delete all election data?');
-  userEvent.click(screen.getByText('Yes, Delete Election Data'));
-  screen.getByText('Are you sure?');
 
   mockApiClient.unconfigure
     .expectCallWith({ ignoreBackupRequirement: false })
@@ -310,8 +305,9 @@ test('configuring election from usb election package works end to end', async ()
     .resolves(DEFAULT_SYSTEM_SETTINGS);
   mockApiClient.getTestMode.expectCallWith().resolves(true);
   mockApiClient.ejectUsbDrive.expectCallWith().resolves();
-  userEvent.click(screen.getByText('I am sure. Delete all election data.'));
-  screen.getByText('Deleting election data');
+
+  userEvent.click(screen.getButton('Yes, Delete Election Data'));
+  screen.getByText('Unconfiguring machine');
   await screen.findByText('Insert a USB drive containing an election package');
 });
 
