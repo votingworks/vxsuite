@@ -2952,6 +2952,9 @@ importers:
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
+      lodash:
+        specifier: ^4.17.20
+        version: 4.17.21
       micromatch:
         specifier: ^4.0.5
         version: 4.0.5
@@ -2986,6 +2989,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/lodash':
+        specifier: ^4.14.168
+        version: 4.14.191
       '@types/lodash.set':
         specifier: ^4.3.7
         version: 4.3.7

@@ -28,6 +28,23 @@ function loadStrings(input: ElectionPackageProcessorInput): void {
   }
 }
 
+function loadAudioClips(input: ElectionPackageProcessorInput): void {
+  const { electionPackage, store } = input;
+
+  if (!electionPackage.uiStringAudioClips) {
+    return;
+  }
+
+  const configuredLanguages = new Set(store.getLanguages());
+  for (const clip of electionPackage.uiStringAudioClips) {
+    if (!configuredLanguages.has(clip.languageCode)) {
+      continue;
+    }
+
+    store.setAudioClip(clip);
+  }
+}
+
 function loadAudioIds(input: ElectionPackageProcessorInput): void {
   const { electionPackage, store } = input;
 
@@ -51,8 +68,6 @@ function loadAudioIds(input: ElectionPackageProcessorInput): void {
  */
 export function configureUiStrings(input: ElectionPackageProcessorInput): void {
   loadStrings(input);
+  loadAudioClips(input);
   loadAudioIds(input);
-
-  // TODO(kofi):
-  //   loadAudioClips(input);
 }

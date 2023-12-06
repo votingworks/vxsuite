@@ -1,9 +1,12 @@
 /* istanbul ignore file - test util */
 
+import _ from 'lodash';
+
 import {
   ElectionPackage,
   ExtendedElectionDefinition,
   LanguageCode,
+  UiStringAudioClips,
   UiStringAudioIdsPackage,
   UiStringsPackage,
 } from '@votingworks/types';
@@ -110,5 +113,74 @@ export function runUiStringMachineConfigurationTests(
 
     expect(store.getUiStringAudioIds(LanguageCode.ENGLISH)).toBeNull();
     expect(store.getUiStringAudioIds(LanguageCode.SPANISH)).toBeNull();
+  });
+
+  test('loads UI string audio clips', async () => {
+    const uiStrings: UiStringsPackage = {
+      [LanguageCode.ENGLISH]: { foo: 'bar' },
+      [LanguageCode.SPANISH]: { foo: 'bar_es' },
+    };
+
+    const audioClipsEnglish: UiStringAudioClips = [
+      { dataBase64: 'ABC==', id: 'en1', languageCode: LanguageCode.ENGLISH },
+      { dataBase64: 'BAC==', id: 'en2', languageCode: LanguageCode.ENGLISH },
+      { dataBase64: 'CAB==', id: 'dupeId', languageCode: LanguageCode.ENGLISH },
+    ];
+    const audioClipsSpanish: UiStringAudioClips = [
+      { dataBase64: 'DEF==', id: 'es1', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'EDF==', id: 'es2', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'FED==', id: 'dupeId', languageCode: LanguageCode.SPANISH },
+    ];
+    const audioClipsUnconfiguredLang: UiStringAudioClips = [
+      {
+        dataBase64: '123==',
+        id: 'dupeId',
+        languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+      },
+    ];
+
+    await doTestConfigure({
+      electionDefinition,
+      uiStrings,
+      uiStringAudioClips: [
+        ...audioClipsEnglish,
+        ...audioClipsSpanish,
+        ...audioClipsUnconfiguredLang,
+      ],
+    });
+
+    function getSortedClips(input: {
+      audioIds: string[];
+      languageCode: LanguageCode;
+    }) {
+      return _.sortBy(store.getAudioClips(input), 'id');
+    }
+
+    expect(
+      getSortedClips({
+        audioIds: ['en2', 'dupeId'],
+        languageCode: LanguageCode.ENGLISH,
+      })
+    ).toEqual([
+      { dataBase64: 'CAB==', id: 'dupeId', languageCode: LanguageCode.ENGLISH },
+      { dataBase64: 'BAC==', id: 'en2', languageCode: LanguageCode.ENGLISH },
+    ]);
+
+    expect(
+      getSortedClips({
+        audioIds: ['es1', 'dupeId'],
+        languageCode: LanguageCode.SPANISH,
+      })
+    ).toEqual([
+      { dataBase64: 'FED==', id: 'dupeId', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'DEF==', id: 'es1', languageCode: LanguageCode.SPANISH },
+    ]);
+
+    expect(
+      getSortedClips({
+        audioIds: ['dupeId'],
+        languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+      })
+    ).toEqual([]);
   });
 }

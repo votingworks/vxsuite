@@ -27,6 +27,11 @@ export function runUiStringMachineDeconfigurationTests(
       languageCode: LanguageCode.ENGLISH,
       data: { foo: ['123', 'abc'] },
     });
+    store.setAudioClip({
+      dataBase64: 'ABC==',
+      id: 'abc',
+      languageCode: LanguageCode.ENGLISH,
+    });
 
     await runUnconfigureMachine();
 
@@ -34,5 +39,11 @@ export function runUiStringMachineDeconfigurationTests(
     expect(store.getUiStrings(LanguageCode.ENGLISH)).toBeNull();
     expect(store.getUiStrings(LanguageCode.SPANISH)).toBeNull();
     expect(store.getUiStringAudioIds(LanguageCode.ENGLISH)).toBeNull();
+    expect(
+      store.getAudioClips({
+        audioIds: ['abc'],
+        languageCode: LanguageCode.ENGLISH,
+      })
+    ).toEqual([]);
   });
 }

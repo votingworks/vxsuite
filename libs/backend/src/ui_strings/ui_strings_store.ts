@@ -7,6 +7,9 @@ import {
   LanguageCodeSchema,
   safeParse,
   safeParseJson,
+  UiStringAudioClip,
+  UiStringAudioClips,
+  UiStringAudioClipSchema,
   UiStringAudioIds,
   UiStringAudioIdsSchema,
   UiStringTranslations,
@@ -15,14 +18,20 @@ import {
 
 /** Store interface for UI String API endpoints. */
 export interface UiStringsStore {
-  // TODO(kofi): Fill out.
   addLanguage(code: LanguageCode): void;
 
   getLanguages(): LanguageCode[];
 
   getUiStrings(languageCode: LanguageCode): UiStringTranslations | null;
 
+  getAudioClips(input: {
+    languageCode: LanguageCode;
+    audioIds: string[];
+  }): UiStringAudioClips;
+
   getUiStringAudioIds(languageCode: LanguageCode): UiStringAudioIds | null;
+
+  setAudioClip(input: UiStringAudioClip): void;
 
   setUiStringAudioIds(input: {
     languageCode: LanguageCode;
@@ -42,6 +51,29 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
       dbClient.run(
         'insert or ignore into languages (code) values (?)',
         languageCode
+      );
+    },
+
+    getAudioClips(input) {
+      const { audioIds, languageCode } = input;
+
+      const rows = dbClient.all(
+        `
+        select
+          id,
+          language_code as languageCode,
+          data_base64 as dataBase64
+        from audio_clips
+        where
+          language_code = ?
+          and id in (${audioIds.map(() => '?').join(', ')})
+      `,
+        languageCode,
+        ...audioIds
+      ) as Array<{ id: string; dataBase64: string; languageCode: string }>;
+
+      return rows.map((row) =>
+        safeParse(UiStringAudioClipSchema, row).unsafeUnwrap()
       );
     },
 
@@ -91,6 +123,24 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
       }
 
       return safeParseJson(row.data, UiStringAudioIdsSchema).unsafeUnwrap();
+    },
+
+    setAudioClip(input) {
+      const { dataBase64, id, languageCode } = input;
+
+      dbClient.run(
+        `
+          insert or replace into audio_clips (
+            id,
+            language_code,
+            data_base64
+          ) values
+            (?, ?, ?)
+        `,
+        id,
+        languageCode,
+        dataBase64
+      );
     },
 
     setUiStrings(input) {

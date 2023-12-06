@@ -12,6 +12,7 @@ import {
   UiStringsPackage,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
+  UiStringAudioClips,
 } from '@votingworks/types';
 import { readElectionPackageFromFile } from './election_package';
 import { extractCdfUiStrings } from './extract_cdf_ui_strings';
@@ -30,6 +31,7 @@ test('readElectionPackageFromFile reads an election package without system setti
         electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: {},
+      uiStringAudioClips: [],
     })
   );
 });
@@ -51,6 +53,7 @@ test('readElectionPackageFromFile reads an election package with system settings
         electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: {},
+      uiStringAudioClips: [],
     })
   );
 });
@@ -92,6 +95,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: expectedUiStrings,
+    uiStringAudioClips: [],
   });
 });
 
@@ -131,6 +135,7 @@ test('readElectionPackageFromFile loads vx election strings', async () => {
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: expectedUiStrings,
+    uiStringAudioClips: [],
   });
 });
 
@@ -170,6 +175,33 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: {},
     uiStringAudioIds: expectedAudioIds,
+    uiStringAudioClips: [],
+  });
+});
+
+test('readElectionPackageFromFile loads UI string audio clips', async () => {
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionData } = electionDefinition;
+
+  const audioClips: UiStringAudioClips = [
+    { dataBase64: 'AABC==', id: 'a1b2c3', languageCode: LanguageCode.ENGLISH },
+    { dataBase64: 'DDEF==', id: 'd1e2f3', languageCode: LanguageCode.SPANISH },
+  ];
+
+  const pkg = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.AUDIO_CLIPS]: audioClips
+      .map((clip) => JSON.stringify(clip))
+      .join('\n'),
+  });
+
+  expect(
+    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
+  ).toEqual<ElectionPackage>({
+    electionDefinition,
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    uiStrings: {},
+    uiStringAudioClips: audioClips,
   });
 });
 

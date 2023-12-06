@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import readline from 'readline';
 
 import {
   ElectionPackage,
@@ -11,6 +12,8 @@ import {
   safeParseElectionDefinitionExtended,
   safeParseJson,
   safeParseSystemSettings,
+  UiStringAudioClipSchema,
+  UiStringAudioClip,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import 'fast-text-encoding';
@@ -20,6 +23,7 @@ import {
   readFile,
   openZip,
   getEntries,
+  getEntryStream,
   readTextEntry,
 } from './file_reading';
 import { extractCdfUiStrings } from './extract_cdf_ui_strings';
@@ -103,7 +107,26 @@ export async function readElectionPackageFromBuffer(
     ).unsafeUnwrap();
   }
 
-  // TODO(kofi): Load metadata and audio clips from zip file.
+  // UI String Clips:
+
+  const uiStringAudioClips: UiStringAudioClip[] = [];
+  const audioClipsEntry = maybeGetFileByName(
+    entries,
+    ElectionPackageFileName.AUDIO_CLIPS
+  );
+  if (audioClipsEntry) {
+    const audioClipsFileLines = readline.createInterface(
+      getEntryStream(audioClipsEntry)
+    );
+
+    for await (const line of audioClipsFileLines) {
+      uiStringAudioClips.push(
+        safeParseJson(line, UiStringAudioClipSchema).unsafeUnwrap()
+      );
+    }
+  }
+
+  // TODO(kofi): Load metadata file from zip package.
   // TODO(kofi): Verify package version matches machine build version.
 
   return {
@@ -111,6 +134,7 @@ export async function readElectionPackageFromBuffer(
     systemSettings: safeParseSystemSettings(systemSettingsData).unsafeUnwrap(),
     uiStrings,
     uiStringAudioIds,
+    uiStringAudioClips,
   };
 }
 

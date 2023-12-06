@@ -61,7 +61,7 @@ function LanguagePicker(): React.ReactNode {
 }
 
 const uiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
-  getAudioClipsBase64: () => Promise.reject(new Error('not yet implemented')),
+  getAudioClips: () => Promise.reject(new Error('not yet implemented')),
   getAvailableLanguages: () =>
     Promise.resolve([
       LanguageCode.ENGLISH,
