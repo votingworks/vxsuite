@@ -55,6 +55,7 @@ export default defineConfig((env) => {
         { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'path', replacement: require.resolve('path/') },
+        { find: 'util', replacement: require.resolve('util/'), },
 
         // Create aliases for all workspace packages, i.e.
         //
