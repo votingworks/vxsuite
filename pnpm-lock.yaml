@@ -606,8 +606,8 @@ importers:
         specifier: 1.0.6
         version: 1.0.6(debug@4.3.4)
       resolve:
-        specifier: ^1.22.0
-        version: 1.22.1
+        specifier: 1.18.1
+        version: 1.18.1
 
   apps/admin/integration-testing:
     dependencies:
@@ -5758,7 +5758,7 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
       debug: 4.3.4(supports-color@5.5.0)
       lodash.debounce: 4.0.8
-      resolve: 1.22.4
+      resolve: 1.18.1
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
@@ -5774,7 +5774,7 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
       debug: 4.3.4(supports-color@5.5.0)
       lodash.debounce: 4.0.8
-      resolve: 1.22.4
+      resolve: 1.18.1
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7989,7 +7989,7 @@ packages:
       pirates: 4.0.4
       recast: 0.19.1
       regenerator-runtime: 0.13.9
-      resolve: 1.22.1
+      resolve: 1.18.1
       source-map-support: 0.5.21
       tmp: 0.2.1
     transitivePeerDependencies:
@@ -8004,7 +8004,7 @@ packages:
       '@codemod/parser': 1.2.1
       is-ci-cli: 2.2.0
       recast: 0.19.1
-      resolve: 1.22.4
+      resolve: 1.18.1
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -14711,7 +14711,7 @@ packages:
       is-glob: 4.0.3
       minimatch: 3.1.2
       object.values: 1.1.5
-      resolve: 1.22.1
+      resolve: 1.22.4
       tsconfig-paths: 3.14.1
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
@@ -14742,7 +14742,7 @@ packages:
       is-glob: 4.0.3
       minimatch: 3.1.2
       object.values: 1.1.6
-      resolve: 1.22.1
+      resolve: 1.22.4
       semver: 6.3.0
       tsconfig-paths: 3.14.1
     transitivePeerDependencies:
@@ -16657,17 +16657,12 @@ packages:
     resolution: {integrity: sha512-RRjxlvLDkD1YJwDbroBHMb+cukurkDWNyHx7D3oNB5x9rb5ogcksMC5wHCadcXoo67gVr/+3GFySh3134zi6rw==}
     dependencies:
       has: 1.0.3
+    dev: true
 
   /is-core-module@2.13.0:
     resolution: {integrity: sha512-Z7dk6Qo8pOCp3l4tsX2C5ZVas4V+UxwQodwZhLopL91TX8UyyHEXafPcyoeeWuLrwzHcr3igO78wNLwHJHsMCQ==}
     dependencies:
       has: 1.0.3
-
-  /is-core-module@2.9.0:
-    resolution: {integrity: sha512-+5FPy5PnwmO3lvfMb0AsoPaBG+5KHUI0wYFXOtYPnVVVspTFUuMZNfNaNVRt3FZadstu2c8x23vykRW/NBoU6A==}
-    dependencies:
-      has: 1.0.3
-    dev: false
 
   /is-data-descriptor@0.1.4:
     resolution: {integrity: sha512-+w9D5ulSoBNlmw9OHn3U2v51SyoCd0he+bB3xMl62oijhrspxowjU+AIcDY0N3iEJbUEkB15IlMASQsxYigvXg==}
@@ -18711,7 +18706,7 @@ packages:
     resolution: {integrity: sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==}
     dependencies:
       hosted-git-info: 2.8.9
-      resolve: 1.22.4
+      resolve: 1.18.1
       semver: 5.7.2
       validate-npm-package-license: 3.0.4
     dev: true
@@ -19822,7 +19817,7 @@ packages:
       estree-to-babel: 3.2.1
       neo-async: 2.6.2
       node-dir: 0.1.17
-      resolve: 1.22.4
+      resolve: 1.18.1
       strip-indent: 3.0.0
     transitivePeerDependencies:
       - supports-color
@@ -20451,17 +20446,17 @@ packages:
   /resolve@1.18.1:
     resolution: {integrity: sha512-lDfCPaMKfOJXjy0dPayzPdF1phampNWr3qFCjAu+rw/qbQmr5jWH5xN2hwh9QKfw9E5v4hwV7A+jrCmL8yjjqA==}
     dependencies:
-      is-core-module: 2.9.0
+      is-core-module: 2.13.0
       path-parse: 1.0.7
-    dev: false
 
   /resolve@1.22.1:
     resolution: {integrity: sha512-nBpuuYuY5jFsli/JIs1oldw6fOQCBioohqWZg/2hiaOybXOft4lonv85uDOKXdf8rhyK159cxU5cDcK/NKk8zw==}
     hasBin: true
     dependencies:
-      is-core-module: 2.11.0
+      is-core-module: 2.13.0
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
+    dev: true
 
   /resolve@1.22.4:
     resolution: {integrity: sha512-PXNdCiPqDqeUou+w1C2eTQbNfxKSuMxqTCuvlmmMsk1NWHL5fRrhY6Pl0qEYYc6+QqGClco1Qj8XnjPego4wfg==}
