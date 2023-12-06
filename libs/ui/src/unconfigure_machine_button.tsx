@@ -4,7 +4,7 @@ import { sleep } from '@votingworks/basics';
 import { Button } from './button';
 import { Loading } from './loading';
 import { Modal } from './modal';
-import { H2, P } from './typography';
+import { Font, H2, P } from './typography';
 
 interface Props {
   unconfigureMachine: () => Promise<void>;
@@ -55,25 +55,35 @@ export function UnconfigureMachineButton({
 
   return (
     <React.Fragment>
-      <Button onPress={openConfirmationModal} disabled={!isMachineConfigured}>
+      <Button
+        color="danger"
+        icon="Delete"
+        onPress={openConfirmationModal}
+        disabled={!isMachineConfigured}
+      >
         Unconfigure Machine
       </Button>
       {isConfirmationModalOpen && (
         <Modal
           content={
             isUnconfiguringMachine ? (
-              <Loading>Deleting election data</Loading>
+              <Loading>Unconfiguring machine</Loading>
             ) : (
               <React.Fragment>
                 <H2 as="h1">Delete all election data?</H2>
                 <P>
-                  This will delete the election configuration and any
-                  election-specific data on this machine.
+                  This will delete the{' '}
+                  <Font weight="bold">election configuration</Font> and{' '}
+                  <Font weight="bold">any election-specific data</Font> on this
+                  machine.
                 </P>
               </React.Fragment>
             )
           }
           actions={
+            // We intentionally use different language here ("delete election
+            // data" instead of "unconfigure machine") to confuse users a tiny
+            // bit so they will pause and think
             !isUnconfiguringMachine && (
               <React.Fragment>
                 <Button

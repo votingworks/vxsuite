@@ -357,20 +357,8 @@ test('election manager and poll worker configuration', async () => {
   // Confirm we can't unconfigure just by changing precinct
   expect(await screen.findByTestId('selectPrecinct')).toBeDisabled();
 
-  userEvent.click(screen.getByRole('tab', { name: /data/i }));
-
-  userEvent.click(
-    await screen.findByText('Delete All Election Data from VxScan')
-  );
-  await screen.findByText(
-    'Do you want to remove all election information and data from this machine?'
-  );
+  userEvent.click(await screen.findByText('Unconfigure Machine'));
   userEvent.click(await screen.findByText('Cancel'));
-  expect(
-    screen.queryByText(
-      'Do you want to remove all election information and data from this machine?'
-    )
-  ).toBeNull();
 
   // Actually unconfigure
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
@@ -378,11 +366,8 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.expectGetUsbDriveStatus('ejected');
-  userEvent.click(
-    await screen.findByText('Delete All Election Data from VxScan')
-  );
-  userEvent.click(await screen.findByText('Yes, Delete All'));
-  await screen.findByText('Loading');
+  userEvent.click(await screen.findByText('Unconfigure Machine'));
+  userEvent.click(await screen.findByText('Yes, Delete Election Data'));
   await screen.findByText('Insert a USB drive containing an election package');
 });
 
@@ -499,7 +484,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Settings');
 
-  userEvent.click(screen.getByRole('tab', { name: /data/i }));
+  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
   userEvent.click(await screen.findByText('Save CVRs'));
   await screen.findByText('No USB Drive Detected');

@@ -13,10 +13,7 @@ import { exportCastVoteRecordsToUsbDrive } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { ScreenMainCenterChild } from '../components/layout';
 
-type BlockedAction =
-  | 'close_polls'
-  | 'delete_election_data'
-  | 'switch_to_test_mode';
+type BlockedAction = 'close_polls';
 
 const CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPTS: Record<
   BlockedAction | 'default',
@@ -28,12 +25,6 @@ const CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPTS: Record<
   close_polls:
     'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can close polls. ' +
     'Remove your poll worker card to sync.',
-  delete_election_data:
-    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can delete election data. ' +
-    'Remove your election manager card to sync.',
-  switch_to_test_mode:
-    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can switch to test mode. ' +
-    'Remove your election manager card to sync.',
 };
 
 type ModalState = 'closed' | 'syncing' | 'success' | 'error';

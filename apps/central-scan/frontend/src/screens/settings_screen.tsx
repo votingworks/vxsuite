@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { assert, err } from '@votingworks/basics';
 import type { LogsResultType } from '@votingworks/backend';
 import {
@@ -11,6 +11,7 @@ import {
   Modal,
   P,
   SetClockButton,
+  UnconfigureMachineButton,
   userReadableMessageFromExportError,
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
@@ -21,7 +22,6 @@ import { AppContext } from '../contexts/app_context';
 import {
   logOut,
   unconfigure,
-  clearBallotData,
   exportCastVoteRecordsToUsbDrive,
   ejectUsbDrive,
   exportLogsToUsb,
@@ -49,7 +49,6 @@ export function SettingsScreen({
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
-  const clearBallotDataMutation = clearBallotData.useMutation();
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
 
@@ -63,38 +62,14 @@ export function SettingsScreen({
     }
   }
 
-  function redirectToDashboard() {
-    history.replace('/');
-  }
-
-  const [unconfigureFlowState, setUnconfigureFlowState] = useState<
-    'initial-confirmation' | 'double-confirmation' | 'unconfiguring'
-  >();
-  function resetUnconfigureFlow() {
-    setUnconfigureFlowState(undefined);
-  }
-  function doUnconfigure() {
-    setUnconfigureFlowState('unconfiguring');
-    ejectUsbDriveMutation.mutate();
-    unconfigureMutation.mutate(
-      { ignoreBackupRequirement: false },
-      {
-        onSuccess: redirectToDashboard,
-      }
-    );
-  }
-
-  const [deleteBallotDataFlowState, setDeleteBallotDataFlowState] = useState<
-    'confirmation' | 'deleting'
-  >();
-  function resetDeleteBallotDataFlow() {
-    setDeleteBallotDataFlowState(undefined);
-  }
-  function deleteBallotData() {
-    setDeleteBallotDataFlowState('deleting');
-    clearBallotDataMutation.mutate(undefined, {
-      onSuccess: redirectToDashboard,
-    });
+  async function unconfigureMachine() {
+    try {
+      await ejectUsbDriveMutation.mutateAsync();
+      await unconfigureMutation.mutateAsync({ ignoreBackupRequirement: false });
+      history.replace('/');
+    } catch (e) {
+      // Handled by default query client error handling
+    }
   }
 
   const [isBackingUp, setIsBackingUp] = useState(false);
@@ -126,24 +101,10 @@ export function SettingsScreen({
         />
       </ButtonRow>
       <ButtonRow>
-        <Button
-          icon="Delete"
-          color="danger"
-          disabled={!canUnconfigure}
-          onPress={() => setDeleteBallotDataFlowState('confirmation')}
-        >
-          Delete Ballot Data
-        </Button>
-      </ButtonRow>
-      <ButtonRow>
-        <Button
-          icon="Delete"
-          color="danger"
-          disabled={!canUnconfigure}
-          onPress={() => setUnconfigureFlowState('initial-confirmation')}
-        >
-          Delete Election Data from VxCentralScan
-        </Button>{' '}
+        <UnconfigureMachineButton
+          isMachineConfigured={canUnconfigure}
+          unconfigureMachine={unconfigureMachine}
+        />
       </ButtonRow>
 
       <H2>Backup</H2>
@@ -182,82 +143,6 @@ export function SettingsScreen({
           <Icons.Warning color="warning" /> You must &quot;Save Backup&quot;
           before you may delete election data.
         </P>
-      )}
-      {deleteBallotDataFlowState === 'confirmation' && (
-        <Modal
-          title="Delete All Scanned Ballot Data?"
-          content={
-            <P>
-              This will permanently delete all scanned ballot data and reset the
-              scanner to only be configured with the current election.
-            </P>
-          }
-          actions={
-            <React.Fragment>
-              <Button variant="danger" icon="Delete" onPress={deleteBallotData}>
-                Yes, Delete Ballot Data
-              </Button>
-              <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={resetDeleteBallotDataFlow}
-        />
-      )}
-      {unconfigureFlowState === 'initial-confirmation' && (
-        <Modal
-          title="Delete all election data?"
-          content={
-            <React.Fragment>
-              <P>
-                This will delete the election configuration and all the scanned
-                ballot data from VxCentralScan.
-              </P>
-              {usbDriveStatus.status === 'mounted' && (
-                <P>It will also eject the USB drive.</P>
-              )}
-            </React.Fragment>
-          }
-          actions={
-            <React.Fragment>
-              <Button
-                variant="danger"
-                icon="Delete"
-                onPress={() => setUnconfigureFlowState('double-confirmation')}
-              >
-                Yes, Delete Election Data
-              </Button>
-              <Button onPress={resetUnconfigureFlow}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={resetUnconfigureFlow}
-        />
-      )}
-      {unconfigureFlowState === 'double-confirmation' && (
-        <Modal
-          title="Are you sure?"
-          content={<P>This cannot be undone.</P>}
-          actions={
-            <React.Fragment>
-              <Button variant="danger" icon="Delete" onPress={doUnconfigure}>
-                I am sure. Delete all election data.
-              </Button>
-              <Button onPress={resetUnconfigureFlow}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={resetUnconfigureFlow}
-        />
-      )}
-      {unconfigureFlowState === 'unconfiguring' && (
-        <Modal
-          centerContent
-          content={<Loading>Deleting election data</Loading>}
-        />
-      )}
-      {deleteBallotDataFlowState === 'deleting' && (
-        <Modal
-          centerContent
-          content={<Loading>Deleting ballot data</Loading>}
-        />
       )}
       {isBackingUp && (
         <Modal centerContent content={<Loading>Saving backup</Loading>} />

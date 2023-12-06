@@ -74,13 +74,11 @@ test('backend fails to unconfigure', async () => {
   renderApp();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
-  userEvent.click(await screen.findByRole('tab', { name: /data/i }));
+  userEvent.click(await screen.findByRole('tab', { name: 'Configuration' }));
 
   await suppressingConsoleOutput(async () => {
-    userEvent.click(
-      await screen.findByText('Delete All Election Data from VxScan')
-    );
-    userEvent.click(await screen.findByText('Yes, Delete All'));
+    userEvent.click(await screen.findByText('Unconfigure Machine'));
+    userEvent.click(await screen.findByText('Yes, Delete Election Data'));
 
     await screen.findByText('Something went wrong');
   });

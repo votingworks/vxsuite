@@ -3,7 +3,6 @@ import type { LogsResultType } from '@votingworks/backend';
 import { ElectionDefinition } from '@votingworks/types';
 import {
   Button,
-  Loading,
   Modal,
   SegmentedButton,
   SetClockButton,
@@ -11,6 +10,8 @@ import {
   P,
   TabbedSection,
   ExportLogsButton,
+  UnconfigureMachineButton,
+  Icons,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -39,7 +40,6 @@ import {
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { LiveCheckButton } from '../components/live_check_button';
-import { CastVoteRecordSyncRequiredModal } from './cast_vote_record_sync_required_screen';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -79,9 +79,6 @@ export function ElectionManagerScreen({
 
   const [isExportingResults, setIsExportingResults] = useState(false);
 
-  const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
-  const [isUnconfiguring, setIsUnconfiguring] = useState(false);
-
   if (
     !configQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
@@ -98,9 +95,9 @@ export function ElectionManagerScreen({
   const { pollsState } = pollsInfoQuery.data;
   const authStatus = authStatusQuery.data;
 
-  const doesUsbDriveRequireCastVoteRecordSync = Boolean(
-    usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync
-  );
+  const isCvrSyncRequired =
+    Boolean(usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync) &&
+    !isTestMode;
 
   function switchMode() {
     setTestModeMutation.mutate(
@@ -113,18 +110,14 @@ export function ElectionManagerScreen({
     );
   }
 
-  function unconfigure() {
-    setIsUnconfiguring(true);
-    // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
-    // TODO move this to the backend?
-    if (usbDrive.status === 'mounted') {
-      ejectUsbDriveMutation.mutate(undefined, {
-        onSuccess() {
-          unconfigureMutation.mutate();
-        },
-      });
-    } else {
-      unconfigureMutation.mutate();
+  async function unconfigureMachine() {
+    try {
+      // If there is a mounted usb, eject it so that it doesn't auto reconfigure the machine.
+      // TODO move this to the backend?
+      await ejectUsbDriveMutation.mutateAsync();
+      await unconfigureMutation.mutateAsync();
+    } catch (error) {
+      // Handled by default query client error handling
     }
   }
 
@@ -158,7 +151,10 @@ export function ElectionManagerScreen({
   const ballotMode = (
     <P>
       <SegmentedButton
-        disabled={setTestModeMutation.isLoading}
+        disabled={
+          setTestModeMutation.isLoading ||
+          (isCvrSyncRequired && scannerStatus.ballotsCounted > 0)
+        }
         label="Ballot Mode:"
         hideLabel
         onChange={() => {
@@ -235,11 +231,21 @@ export function ElectionManagerScreen({
 
   const unconfigureElectionButton = (
     <P>
-      <Button onPress={() => setIsConfirmingUnconfigure(true)}>
-        Delete All Election Data from VxScan
-      </Button>
+      <UnconfigureMachineButton
+        // TODO rename isMachineConfigured -> disabled to be clearer
+        isMachineConfigured={!isCvrSyncRequired}
+        unconfigureMachine={unconfigureMachine}
+      />
     </P>
   );
+
+  const cvrSyncRequiredWarning = isCvrSyncRequired ? (
+    <P>
+      <Icons.Warning color="warning" /> Cast vote records (CVRs) need to be
+      synced to the inserted USB drive before you can modify the machine
+      configuration. Remove your election manager card to sync.
+    </P>
+  ) : null;
 
   return (
     <Screen
@@ -255,20 +261,17 @@ export function ElectionManagerScreen({
             label: 'Configuration',
             content: (
               <React.Fragment>
+                {cvrSyncRequiredWarning}
                 {changePrecinctButton}
                 {ballotMode}
+                {unconfigureElectionButton}
               </React.Fragment>
             ),
           },
           {
             paneId: 'managerSettingsData',
-            label: 'Election Data',
-            content: (
-              <React.Fragment>
-                {dataExportButtons}
-                {unconfigureElectionButton}
-              </React.Fragment>
-            ),
+            label: 'CVRs and Logs',
+            content: <React.Fragment>{dataExportButtons}</React.Fragment>,
           },
           {
             paneId: 'managerSettingsSystem',
@@ -289,14 +292,6 @@ export function ElectionManagerScreen({
 
       {isConfirmingSwitchToTestMode &&
         (() => {
-          if (doesUsbDriveRequireCastVoteRecordSync) {
-            return (
-              <CastVoteRecordSyncRequiredModal
-                blockedAction="switch_to_test_mode"
-                closeModal={() => setIsConfirmingSwitchToTestMode(false)}
-              />
-            );
-          }
           return (
             <Modal
               title="Switch to Test Mode?"
@@ -319,43 +314,6 @@ export function ElectionManagerScreen({
                 </React.Fragment>
               }
               onOverlayClick={() => setIsConfirmingSwitchToTestMode(false)}
-            />
-          );
-        })()}
-
-      {isConfirmingUnconfigure &&
-        (() => {
-          if (isUnconfiguring) {
-            return <Modal content={<Loading />} />;
-          }
-          if (doesUsbDriveRequireCastVoteRecordSync && !isTestMode) {
-            return (
-              <CastVoteRecordSyncRequiredModal
-                blockedAction="delete_election_data"
-                closeModal={() => setIsConfirmingUnconfigure(false)}
-              />
-            );
-          }
-          return (
-            <Modal
-              title="Delete All Election Data?"
-              content={
-                <P>
-                  Do you want to remove all election information and data from
-                  this machine?
-                </P>
-              }
-              actions={
-                <React.Fragment>
-                  <Button onPress={unconfigure} variant="danger" icon="Delete">
-                    Yes, Delete All
-                  </Button>
-                  <Button onPress={() => setIsConfirmingUnconfigure(false)}>
-                    Cancel
-                  </Button>
-                </React.Fragment>
-              }
-              onOverlayClick={() => setIsConfirmingUnconfigure(false)}
             />
           );
         })()}

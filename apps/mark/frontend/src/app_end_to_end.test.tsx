@@ -328,6 +328,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
   userEvent.click(screen.getByText('Unconfigure Machine'));
+  userEvent.click(screen.getButton('Yes, Delete Election Data'));
 
   // Default Unconfigured
   apiMock.setAuthStatusLoggedOut();
@@ -354,9 +355,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Unconfigure with System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  userEvent.click(
-    await screen.findByRole('button', { name: 'Unconfigure Machine' })
-  );
+  userEvent.click(await screen.findByText('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
