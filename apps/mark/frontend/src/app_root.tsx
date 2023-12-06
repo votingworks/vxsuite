@@ -412,7 +412,6 @@ export function AppRoot({
         resetPollsToPaused={
           pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
         }
-        usbDriveStatus={usbDriveStatus}
       />
     );
   }

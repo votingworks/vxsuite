@@ -27,7 +27,6 @@ import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
-import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
@@ -98,9 +97,6 @@ export function AppRoutes(): JSX.Element {
             <Route exact path={routerPaths.settings}>
               <SettingsScreen />
             </Route>
-            <Route exact path={routerPaths.logs}>
-              <LogsScreen />
-            </Route>
             <Redirect to={routerPaths.election} />
           </Switch>
           <SmartcardModal />
@@ -129,9 +125,6 @@ export function AppRoutes(): JSX.Element {
           </Route>
           <Route exact path={routerPaths.settings}>
             <SettingsScreen />
-          </Route>
-          <Route exact path={routerPaths.logs}>
-            <LogsScreen />
           </Route>
           <Redirect to={routerPaths.election} />
         </Switch>

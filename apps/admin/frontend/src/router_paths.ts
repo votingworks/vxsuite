@@ -36,6 +36,5 @@ export const routerPaths = {
   }: WriteInsAdjudicationScreenProps): string =>
     `/write-ins/adjudication/${contestId}`,
   settings: '/settings',
-  logs: '/logs',
   system: '/system',
 } as const;

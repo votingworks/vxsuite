@@ -313,7 +313,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Insert System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  await screen.findByText('Reboot from USB');
+  await screen.findByText('System Administrator');
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------
@@ -337,7 +337,7 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Insert System Administrator card works when unconfigured
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
-  await screen.findByText('Reboot from USB');
+  await screen.findByText('System Administrator');
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  LogFileType,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -21,9 +20,8 @@ import { P } from './typography';
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
   auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus;
-  logFileType: LogFileType;
   logger: Logger;
-  onExportLogs: (lft: LogFileType) => Promise<LogsResultType>;
+  onExportLogs: () => Promise<LogsResultType>;
   onClose: () => void;
 }
 
@@ -37,7 +35,6 @@ enum ModalState {
 export function ExportLogsModal({
   usbDriveStatus,
   auth,
-  logFileType,
   logger,
   onClose,
   onExportLogs,
@@ -51,22 +48,20 @@ export function ExportLogsModal({
   async function exportLogs() {
     setCurrentState(ModalState.Saving);
 
-    if (logFileType === LogFileType.Raw) {
-      const result = await onExportLogs(logFileType);
-      await logger.log(LogEventId.FileSaved, userRole, {
-        disposition: result.isOk() ? 'success' : 'failure',
-        message: result.isOk()
-          ? 'Sucessfully saved logs on the usb drive.'
-          : `Failed to save logs to usb drive: ${result.err()}`,
-        fileType: 'logs',
-      });
+    const result = await onExportLogs();
+    await logger.log(LogEventId.FileSaved, userRole, {
+      disposition: result.isOk() ? 'success' : 'failure',
+      message: result.isOk()
+        ? 'Sucessfully saved logs on the usb drive.'
+        : `Failed to save logs to usb drive: ${result.err()}`,
+      fileType: 'logs',
+    });
 
-      if (result.isErr()) {
-        setErrorMessage(result.err());
-        setCurrentState(ModalState.Error);
-      } else {
-        setCurrentState(ModalState.Done);
-      }
+    if (result.isErr()) {
+      setErrorMessage(result.err());
+      setCurrentState(ModalState.Error);
+    } else {
+      setCurrentState(ModalState.Done);
     }
   }
 
@@ -154,57 +149,15 @@ export function ExportLogsModal({
 
 export type ExportLogsButtonProps = Omit<ExportLogsModalProps, 'onClose'>;
 
-export function ExportLogsButton({
-  logFileType,
-  ...rest
-}: ExportLogsButtonProps): JSX.Element {
+export function ExportLogsButton(props: ExportLogsButtonProps): JSX.Element {
   const [isShowingModal, setIsShowingModal] = useState(false);
 
   return (
     <React.Fragment>
-      <Button
-        onPress={() => setIsShowingModal(true)}
-        disabled={logFileType === 'cdf'}
-      >
-        {logFileType === 'raw' ? 'Save Log File' : 'Save CDF Log File'}
-      </Button>
+      <Button onPress={() => setIsShowingModal(true)}>Save Log File</Button>
       {isShowingModal && (
-        <ExportLogsModal
-          logFileType={logFileType}
-          {...rest}
-          onClose={() => setIsShowingModal(false)}
-        />
+        <ExportLogsModal {...props} onClose={() => setIsShowingModal(false)} />
       )}
-    </React.Fragment>
-  );
-}
-
-export type ExportLogsButtonRowProps = Omit<
-  ExportLogsButtonProps,
-  'logFileType'
->;
-
-export function ExportLogsButtonRow(
-  sharedProps: ExportLogsButtonRowProps
-): JSX.Element {
-  return (
-    <P>
-      <ExportLogsButton logFileType={LogFileType.Raw} {...sharedProps} />{' '}
-      <ExportLogsButton logFileType={LogFileType.Cdf} {...sharedProps} />
-    </P>
-  );
-}
-
-/*
- * Renders raw and CDF log export buttons without formatting
- */
-export function ExportLogsButtonGroup(
-  sharedProps: ExportLogsButtonRowProps
-): JSX.Element {
-  return (
-    <React.Fragment>
-      <ExportLogsButton logFileType={LogFileType.Raw} {...sharedProps} />
-      <ExportLogsButton logFileType={LogFileType.Cdf} {...sharedProps} />
     </React.Fragment>
   );
 }
