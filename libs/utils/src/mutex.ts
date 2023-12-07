@@ -1,4 +1,4 @@
-import { deferred, Optional } from '@votingworks/basics';
+import { assertDefined, deferred, Optional } from '@votingworks/basics';
 
 interface LockResult<T> {
   value: T;
@@ -6,17 +6,19 @@ interface LockResult<T> {
 }
 
 /**
- * A mutual exclusion lock, useful for protecting shared data. Holds a value
- * that can be accessed while the lock is held. Note that nothing guarantees
- * that the value is not referenced elsewhere or mutated while the lock is held.
- * This just makes it easier to do the right thing, especially when using
- * `withLock`.
+ * A mutual exclusion lock, useful for protecting shared data. Holds an optional
+ * value that can be accessed while the lock is held. Note that nothing
+ * guarantees that the value is not referenced elsewhere or mutated while the
+ * lock is held. This just makes it easier to do the right thing, especially
+ * when using `withLock`.
  */
-export class Mutex<T> {
+export class Mutex<T = void> {
   private locked = false;
   private readonly asyncQueue: Array<() => void> = [];
 
-  constructor(private readonly value: T) {}
+  constructor();
+  constructor(value: T);
+  constructor(private readonly value?: T) {}
 
   /**
    * Attempts to acquire the lock. If the lock is already acquired, returns
@@ -29,17 +31,27 @@ export class Mutex<T> {
     }
 
     this.locked = true;
+    const { value } = this;
     let unlockCalled = false;
 
     return {
-      value: this.value,
+      get value(): T {
+        if (unlockCalled) {
+          throw new Error('value accessed after unlock');
+        }
+
+        return value as T;
+      },
+
       unlock: () => {
         if (unlockCalled) {
           throw new Error('unlock called more than once');
         }
         unlockCalled = true;
         this.locked = false;
-        for (const resolve of this.asyncQueue) {
+
+        while (!this.locked && this.asyncQueue.length > 0) {
+          const resolve = assertDefined(this.asyncQueue.shift());
           resolve();
         }
       },
