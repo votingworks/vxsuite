@@ -204,6 +204,10 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return this.min((a, b) => compareFn(b, a));
   }
 
+  maxBy(fn: (item: T) => number): T | undefined {
+    return this.minBy((item) => -fn(item));
+  }
+
   min(): T extends number ? T | undefined : unknown;
   min(compareFn?: (a: T, b: T) => number): T | undefined;
   min(
@@ -216,6 +220,19 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
       }
     }
     return min;
+  }
+
+  minBy(fn: (item: T) => number): T | undefined {
+    let min: number | undefined;
+    let minItem: T | undefined;
+    for (const it of this.iterable) {
+      const value = fn(it);
+      if (min === undefined || value < min) {
+        min = value;
+        minItem = it;
+      }
+    }
+    return minItem;
   }
 
   partition(predicate: (item: T) => unknown): [T[], T[]] {

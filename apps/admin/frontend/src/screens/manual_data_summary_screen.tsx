@@ -1,4 +1,4 @@
-import { assert, find } from '@votingworks/basics';
+import { assert, find, iter } from '@votingworks/basics';
 import React, { useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -145,9 +145,9 @@ export function ManualDataSummaryScreen(): JSX.Element {
     );
   }, [getManualTallyMetadataQuery.data]);
   const hasManualTally = manualTallyMetadataRecords.length > 0;
-  const totalNumberBallotsEntered = manualTallyMetadataRecords
+  const totalNumberBallotsEntered = iter(manualTallyMetadataRecords)
     .map(({ ballotCount }) => ballotCount)
-    .reduce((total, current) => total + current, 0);
+    .sum();
 
   const [isClearingAll, setIsClearingAll] = useState(false);
 

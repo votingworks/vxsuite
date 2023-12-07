@@ -109,6 +109,13 @@ export interface IteratorPlus<T> extends Iterable<T> {
   max(compareFn: (a: T, b: T) => number): T | undefined;
 
   /**
+   * Returns the element of `this` whose return value from `fn` is the maximum.
+   * Returns `undefined` if `this` is empty. Comparison happens using `>` on the
+   * return values of `fn`. Consumes the entire contained iterable.
+   */
+  maxBy(fn: (item: T) => number): T | undefined;
+
+  /**
    * Returns the minimum element of `this` or `undefined` if `this` is empty.
    * Consumes the entire contained iterable.
    */
@@ -120,6 +127,13 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * iterable.
    */
   min(compareFn: (a: T, b: T) => number): T | undefined;
+
+  /**
+   * Returns the element of `this` whose return value from `fn` is the minimum.
+   * Returns `undefined` if `this` is empty. Comparison happens using `<` on the
+   * return values of `fn`. Consumes the entire contained iterable.
+   */
+  minBy(fn: (item: T) => number): T | undefined;
 
   /**
    * Partitions elements into two groups. Elements that satisfy `predicate` are
@@ -431,11 +445,25 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   max(compareFn?: (a: T, b: T) => MaybePromise<number>): Promise<T | undefined>;
 
   /**
+   * Returns the element of `this` whose return value from `fn` is the maximum.
+   * Returns `undefined` if `this` is empty. Comparison happens using `>` on the
+   * return values of `fn`. Consumes the entire contained iterable.
+   */
+  maxBy(fn: (item: T) => MaybePromise<number>): Promise<T | undefined>;
+
+  /**
    * Returns the minimum element of `this` or `undefined` if `this` is empty.
    * Comparison happens using `compareFn` if provided, otherwise using `>` and
    * `<`. Consumes the entire contained iterable.
    */
   min(compareFn?: (a: T, b: T) => MaybePromise<number>): Promise<T | undefined>;
+
+  /**
+   * Returns the element of `this` whose return value from `fn` is the minimum.
+   * Returns `undefined` if `this` is empty. Comparison happens using `<` on the
+   * return values of `fn`. Consumes the entire contained iterable.
+   */
+  minBy(fn: (item: T) => MaybePromise<number>): Promise<T | undefined>;
 
   /**
    * Partitions elements into two groups. Elements that satisfy `predicate` are

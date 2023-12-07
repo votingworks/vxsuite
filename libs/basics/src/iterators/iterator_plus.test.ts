@@ -302,6 +302,14 @@ test('min', () => {
   typedAs<number | undefined>(iter(['a']).min());
 });
 
+test('minBy', () => {
+  expect(iter([]).minBy(() => 0)).toEqual(undefined);
+  expect(iter([1]).minBy(() => 0)).toEqual(1);
+  expect(iter([1, 1, 1]).minBy(() => 0)).toEqual(1);
+  expect(iter([1, 2, 3]).minBy((a) => a)).toEqual(1);
+  expect(iter([{ t: 1 }, { t: 2 }]).minBy((a) => a.t)).toEqual({ t: 1 });
+});
+
 test('max', () => {
   expect(iter([]).max()).toEqual(undefined);
   expect(iter([1]).max()).toEqual(1);
@@ -316,6 +324,14 @@ test('max', () => {
       expect(iter(arr).max()).toEqual(Math.max(...arr));
     })
   );
+});
+
+test('maxBy', () => {
+  expect(iter([]).maxBy(() => 0)).toEqual(undefined);
+  expect(iter([1]).maxBy(() => 0)).toEqual(1);
+  expect(iter([1, 1, 1]).maxBy(() => 0)).toEqual(1);
+  expect(iter([1, 2, 3]).maxBy((a) => a)).toEqual(3);
+  expect(iter([{ t: 1 }, { t: 2 }]).maxBy((a) => a.t)).toEqual({ t: 2 });
 });
 
 test('sum', () => {

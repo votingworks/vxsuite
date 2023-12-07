@@ -1,4 +1,10 @@
-import { assert, assertDefined, find, mapObject } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  iter,
+  mapObject,
+} from '@votingworks/basics';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -310,10 +316,9 @@ function getContestValidationState(
     contestResults.undervotes +
     (contestResults.contestType === 'yesno'
       ? contestResults.yesTally + contestResults.noTally
-      : Object.values(contestResults.tallies).reduce(
-          (acc, cur) => acc + cur.tally,
-          0
-        ));
+      : iter(Object.values(contestResults.tallies))
+          .map(({ tally }) => tally)
+          .sum());
 
   if (expectedVotes === 0 && enteredVotes === 0) return 'no-results';
 

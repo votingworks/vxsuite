@@ -1,5 +1,12 @@
 import { join } from 'path';
-import { Result, assert, err, ok } from '@votingworks/basics';
+import {
+  Result,
+  assert,
+  assertDefined,
+  err,
+  iter,
+  ok,
+} from '@votingworks/basics';
 import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
@@ -78,22 +85,13 @@ async function getMostRecentElectionPackageFilepath(
     return err('no_election_package_on_usb_drive');
   }
 
-  const electionPackageFilesWithStats = await Promise.all(
-    electionPackageFilePaths.map(async (filePath) => {
-      return {
-        filePath,
-        // Get file stats so we can sort by creation time
-        ...(await fs.lstat(filePath)),
-      };
-    })
+  const mostRecentElectionPackageFilePath = assertDefined(
+    await iter(electionPackageFilePaths)
+      .async()
+      .maxBy(async (filePath) => (await fs.lstat(filePath)).ctime.getTime())
   );
 
-  const [mostRecentElectionPackageFile] = [
-    ...electionPackageFilesWithStats,
-  ].sort((a, b) => b.ctime.getTime() - a.ctime.getTime());
-  assert(mostRecentElectionPackageFile);
-
-  return ok(mostRecentElectionPackageFile.filePath);
+  return ok(mostRecentElectionPackageFilePath);
 }
 
 /**

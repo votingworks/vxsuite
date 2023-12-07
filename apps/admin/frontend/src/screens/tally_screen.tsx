@@ -2,7 +2,13 @@ import React, { useContext, useState } from 'react';
 import moment from 'moment';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
-import { assert, find, throwIllegalValue, unique } from '@votingworks/basics';
+import {
+  assert,
+  find,
+  iter,
+  throwIllegalValue,
+  unique,
+} from '@votingworks/basics';
 import {
   Button,
   Table,
@@ -114,24 +120,16 @@ export function TallyScreen(): JSX.Element | null {
 
   const manualTallyMetadata = manualTallyMetadataQuery.data;
   const hasManualTally = manualTallyMetadata.length > 0;
-  const manualTallyTotalBallotCount = manualTallyMetadata.reduce(
-    (acc, metadata) => acc + metadata.ballotCount,
-    0
-  );
+  const manualTallyTotalBallotCount = iter(manualTallyMetadata)
+    .map(({ ballotCount }) => ballotCount)
+    .sum();
   const manualTallyPrecinctIds = unique(
     manualTallyMetadata.map((metadata) => metadata.precinctId)
   );
-  const manualTallyFirstAdded = manualTallyMetadata.reduce(
-    (firstAdded, metadata) => {
-      const currentTallyAdded = new Date(metadata.createdAt);
-      if (currentTallyAdded.valueOf() < firstAdded.valueOf()) {
-        return currentTallyAdded;
-      }
-
-      return firstAdded;
-    },
-    new Date()
-  );
+  const manualTallyFirstAdded =
+    iter(manualTallyMetadata)
+      .map((metadata) => new Date(metadata.createdAt))
+      .minBy((d) => d.valueOf()) ?? new Date();
 
   const castVoteRecordFileList = castVoteRecordFilesQuery.data;
   const hasAnyFiles = castVoteRecordFileList.length > 0 || hasManualTally;
@@ -261,10 +259,9 @@ export function TallyScreen(): JSX.Element | null {
                   </TD>
                   <TD as="th" narrow data-testid="total-cvr-count">
                     {format.count(
-                      castVoteRecordFileList.reduce(
-                        (prev, curr) => prev + curr.numCvrsImported,
-                        0
-                      ) + manualTallyTotalBallotCount
+                      iter(castVoteRecordFileList)
+                        .map((record) => record.numCvrsImported)
+                        .sum() + manualTallyTotalBallotCount
                     )}
                   </TD>
                   <TD />

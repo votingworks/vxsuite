@@ -453,6 +453,49 @@ test('min', async () => {
   );
 });
 
+test('minBy', async () => {
+  expect(
+    await iter([])
+      .async()
+      .minBy(() => 0)
+  ).toEqual(undefined);
+  expect(
+    await iter([1])
+      .async()
+      .minBy(() => 0)
+  ).toEqual(1);
+  expect(
+    await iter([1, 1, 1])
+      .async()
+      .minBy(() => 0)
+  ).toEqual(1);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .minBy(() => 0)
+  ).toEqual(1);
+  expect(
+    await iter([{ t: 1 }, { t: 2 }])
+      .async()
+      .minBy((a) => a.t)
+  ).toEqual({ t: 1 });
+  expect(
+    await iter([{ t: 1 }, { t: 2 }])
+      .async()
+      .minBy((a) => -a.t)
+  ).toEqual({ t: 2 });
+
+  await fc.assert(
+    fc.asyncProperty(fc.array(fc.integer(), { minLength: 1 }), async (arr) => {
+      expect(
+        await iter(arr)
+          .async()
+          .minBy((a) => a)
+      ).toEqual(Math.min(...arr));
+    })
+  );
+});
+
 test('max', async () => {
   expect(await iter([]).async().max()).toEqual(undefined);
   expect(await iter([1]).async().max()).toEqual(1);
@@ -474,6 +517,34 @@ test('max', async () => {
       expect(await iter(arr).async().max()).toEqual(Math.max(...arr));
     })
   );
+});
+
+test('maxBy', async () => {
+  expect(
+    await iter([])
+      .async()
+      .maxBy(() => 0)
+  ).toEqual(undefined);
+  expect(
+    await iter([1])
+      .async()
+      .maxBy(() => 0)
+  ).toEqual(1);
+  expect(
+    await iter([1, 1, 1])
+      .async()
+      .maxBy(() => 0)
+  ).toEqual(1);
+  expect(
+    await iter([1, 2, 3])
+      .async()
+      .maxBy((a) => a)
+  ).toEqual(3);
+  expect(
+    await iter([{ t: 1 }, { t: 2 }])
+      .async()
+      .maxBy((a) => a.t)
+  ).toEqual({ t: 2 });
 });
 
 test('sum', async () => {

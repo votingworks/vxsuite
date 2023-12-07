@@ -203,6 +203,10 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return this.min((a, b) => compareFn(b, a));
   }
 
+  maxBy(fn: (item: T) => MaybePromise<number>): Promise<T | undefined> {
+    return this.minBy(async (item) => -(await fn(item)));
+  }
+
   min(): Promise<T extends number ? T | undefined : unknown>;
   min(compareFn: (a: T, b: T) => MaybePromise<number>): Promise<T | undefined>;
   async min(
@@ -216,6 +220,19 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
       }
     }
     return min;
+  }
+
+  async minBy(fn: (item: T) => MaybePromise<number>): Promise<T | undefined> {
+    let min: number | undefined;
+    let minItem: T | undefined;
+    for await (const it of this.iterable) {
+      const value = await fn(it);
+      if (min === undefined || value < min) {
+        min = value;
+        minItem = it;
+      }
+    }
+    return minItem;
   }
 
   async partition(predicate: (item: T) => unknown): Promise<[T[], T[]]> {

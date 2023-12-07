@@ -4,7 +4,7 @@ import {
   CandidateId,
   Tabulation,
 } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { combineCandidateContestResults } from './tabulation';
 
 type TallyReportCandidateRow = Candidate & {
@@ -76,19 +76,15 @@ function getInsignificantWriteInCount({
   contestResults: Tabulation.CandidateContestResults;
   significantWriteInCandidateIds: CandidateId[];
 }): number {
-  return Object.values(contestResults.tallies).reduce(
-    (aggregateCount: number, candidateTally: Tabulation.CandidateTally) => {
-      if (
+  return iter(Object.values(contestResults.tallies))
+    .filter(
+      (candidateTally) =>
         candidateTally.isWriteIn &&
         !isNonCandidateWriteInTally(candidateTally) &&
         !significantWriteInCandidateIds.includes(candidateTally.id)
-      ) {
-        return aggregateCount + candidateTally.tally;
-      }
-      return aggregateCount;
-    },
-    0
-  );
+    )
+    .map((candidateTally) => candidateTally.tally)
+    .sum();
 }
 
 function getAggregatedWriteInRows({
