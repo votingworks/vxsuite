@@ -28,10 +28,8 @@ export function createUiStringsApi(context: UiStringsApiContext): UiStringsApi {
       return store.getUiStringAudioIds(input.languageCode);
     },
 
-    getAudioClipsBase64(input) {
-      throw new Error(
-        `Not yet implemented. Requested language code: ${input.languageCode} | audioIds: ${input.audioIds}`
-      );
+    getAudioClips(input) {
+      return store.getAudioClips(input);
     },
   };
 }

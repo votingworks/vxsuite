@@ -130,7 +130,7 @@ const queryClient = new QueryClient({
 });
 
 const uiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
-  getAudioClipsBase64: () => Promise.resolve({}),
+  getAudioClips: () => Promise.resolve([]),
   getAvailableLanguages: () => Promise.resolve(ballotLanguages),
   getUiStringAudioIds: () => Promise.resolve(null),
   getUiStrings: ({ languageCode }) =>

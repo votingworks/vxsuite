@@ -15,7 +15,7 @@ function QueryWrapper(props: { children: React.ReactNode }) {
 }
 
 const mockApiClient: jest.Mocked<UiStringsApiClient> = {
-  getAudioClipsBase64: jest.fn(),
+  getAudioClips: jest.fn(),
   getAvailableLanguages: jest.fn(),
   getUiStringAudioIds: jest.fn(),
   getUiStrings: jest.fn(),

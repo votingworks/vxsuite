@@ -41,7 +41,7 @@ export function newTestContext(
   }
 
   const mockBackendApi: jest.Mocked<UiStringsApiClient> = {
-    getAudioClipsBase64: jest.fn(),
+    getAudioClips: jest.fn(),
     getAvailableLanguages: jest.fn(),
     getUiStringAudioIds: jest.fn(),
     getUiStrings: jest.fn(),

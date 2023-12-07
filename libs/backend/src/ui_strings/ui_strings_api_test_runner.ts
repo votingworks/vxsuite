@@ -1,6 +1,10 @@
 /* istanbul ignore file - test util */
 
-import { LanguageCode, UiStringsApi } from '@votingworks/types';
+import {
+  LanguageCode,
+  UiStringAudioClips,
+  UiStringsApi,
+} from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
 
 /** Shared tests for the {@link UiStringsApi} and underlying store. */
@@ -98,12 +102,33 @@ export function runUiStringApiTests(params: {
     ).toBeNull();
   });
 
-  test('getAudioClipsBase64 throws not-yet-implemented error', () => {
-    expect(() =>
-      api.getAudioClipsBase64({
-        languageCode: LanguageCode.ENGLISH,
-        audioIds: ['abc123', 'd1e2f3'],
+  test('getAudioClipsBase64', () => {
+    store.addLanguage(LanguageCode.SPANISH);
+
+    expect(
+      api.getAudioClips({
+        languageCode: LanguageCode.SPANISH,
+        audioIds: ['es1'],
       })
-    ).toThrow(/not yet implemented/i);
+    ).toEqual([]);
+
+    const clips: UiStringAudioClips = [
+      { dataBase64: 'ABC==', id: 'es1', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'BAC==', id: 'es2', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'CAB==', id: 'es3', languageCode: LanguageCode.SPANISH },
+    ];
+    for (const clip of clips) {
+      store.setAudioClip(clip);
+    }
+
+    expect(
+      api.getAudioClips({
+        languageCode: LanguageCode.SPANISH,
+        audioIds: ['es1', 'es3', 'missingClipId'],
+      })
+    ).toEqual([
+      { dataBase64: 'ABC==', id: 'es1', languageCode: LanguageCode.SPANISH },
+      { dataBase64: 'CAB==', id: 'es3', languageCode: LanguageCode.SPANISH },
+    ]);
   });
 }

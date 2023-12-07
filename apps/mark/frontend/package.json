@@ -83,7 +83,8 @@
     "resolve": "1.18.1",
     "setimmediate": "^1.0.5",
     "styled-components": "^5.3.11",
-    "use-interval": "1.4.0"
+    "use-interval": "1.4.0",
+    "util": "^0.12.4"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.17.0",

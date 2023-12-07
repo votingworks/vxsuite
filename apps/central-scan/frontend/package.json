@@ -76,6 +76,7 @@
     "setimmediate": "^1.0.5",
     "styled-components": "^5.3.11",
     "use-interval": "1.4.0",
+    "util": "^0.12.4",
     "zod": "3.14.4"
   },
   "devDependencies": {

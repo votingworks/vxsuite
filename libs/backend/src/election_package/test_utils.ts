@@ -39,7 +39,9 @@ export function createElectionPackageZipArchive(
   if (electionPackage.uiStringAudioClips) {
     jsZip.file(
       ElectionPackageFileName.AUDIO_CLIPS,
-      JSON.stringify(electionPackage.uiStringAudioClips, null, 2)
+      electionPackage.uiStringAudioClips
+        .map((clip) => JSON.stringify(clip))
+        .join('\n')
     );
   }
   return jsZip.generateAsync({ type: 'nodebuffer' });
