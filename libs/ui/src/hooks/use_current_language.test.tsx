@@ -18,7 +18,7 @@ test('returns default language when rendered without context', () => {
 
 test('returns current language when rendered within context', async () => {
   const api = createUiStringsApi(() => ({
-    getAudioClipsBase64: jest.fn(),
+    getAudioClips: jest.fn(),
     getAvailableLanguages: jest.fn().mockResolvedValue([]),
     getUiStringAudioIds: jest.fn(),
     getUiStrings: jest.fn().mockResolvedValue(null),
