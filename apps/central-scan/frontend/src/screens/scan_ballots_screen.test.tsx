@@ -102,7 +102,7 @@ test('shows whether a batch is scanning', () => {
   expect(screen.getButton('Delete All Batches')).toBeDisabled();
 });
 
-test('Delete All Batches button is disabled when canUnconfigure is false', () => {
+test('Delete All Batches is not allowed when canUnconfigure is false', () => {
   const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
@@ -118,7 +118,10 @@ test('Delete All Batches button is disabled when canUnconfigure is false', () =>
   };
   renderScreen({ status });
 
-  expect(screen.getButton('Delete All Batches')).toBeDisabled();
+  userEvent.click(screen.getButton('Delete All Batches'));
+  screen.getByRole('heading', { name: 'Backup Required' });
+  userEvent.click(screen.getButton('Close'));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
 test('Delete All Batches button', async () => {

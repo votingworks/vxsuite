@@ -13,10 +13,10 @@ exports[`renders ButtonBar 1`] = `
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
+  -webkit-box-pack: end;
+  -webkit-justify-content: flex-end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
   border-top: 0.06rem solid #222222;
   padding: 0.5rem max(7.2px,1rem);
   gap: max(7.2px,0.5rem);
@@ -54,8 +54,6 @@ exports[`renders ButtonBar 1`] = `
     -webkit-flex-grow: initial;
     -ms-flex-positive: initial;
     flex-grow: initial;
-    margin: auto;
-    min-width: 33.333%;
   }
 }
 

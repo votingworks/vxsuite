@@ -177,7 +177,7 @@ export function ScanBallotsScreen({
               <Button
                 icon="Delete"
                 color="danger"
-                disabled={isScanning || !status.canUnconfigure}
+                disabled={isScanning}
                 onPress={() => setDeleteBallotDataFlowState('confirmation')}
               >
                 Delete All Batches
@@ -200,21 +200,44 @@ export function ScanBallotsScreen({
       {isExportingCvrs && (
         <ExportResultsModal onClose={() => setIsExportingCvrs(false)} />
       )}
-      {deleteBallotDataFlowState === 'confirmation' && (
-        <Modal
-          title="Delete All Scanned Batches?"
-          content={<P>This will permanently delete all scanned ballot data.</P>}
-          actions={
-            <React.Fragment>
-              <Button variant="danger" icon="Delete" onPress={deleteBallotData}>
-                Yes, Delete All Batches
-              </Button>
-              <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={resetDeleteBallotDataFlow}
-        />
-      )}
+      {deleteBallotDataFlowState === 'confirmation' &&
+        (status.canUnconfigure ? (
+          <Modal
+            title="Delete All Scanned Batches?"
+            content={
+              <P>This will permanently delete all scanned ballot data.</P>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  variant="danger"
+                  icon="Delete"
+                  onPress={deleteBallotData}
+                >
+                  Yes, Delete All Batches
+                </Button>
+                <Button onPress={resetDeleteBallotDataFlow}>Cancel</Button>
+              </React.Fragment>
+            }
+            onOverlayClick={resetDeleteBallotDataFlow}
+          />
+        ) : (
+          <Modal
+            title={
+              <span>
+                <Icons.Warning color="warning" /> Backup Required
+              </span>
+            }
+            content={
+              <P>
+                Before deleting all batches, go to the Settings screen and save
+                a backup.
+              </P>
+            }
+            actions={<Button onPress={resetDeleteBallotDataFlow}>Close</Button>}
+            onOverlayClick={resetDeleteBallotDataFlow}
+          />
+        ))}
       {deleteBallotDataFlowState === 'deleting' && (
         <Modal
           centerContent

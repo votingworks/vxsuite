@@ -106,6 +106,12 @@ export function SettingsScreen({
           unconfigureMachine={unconfigureMachine}
         />
       </ButtonRow>
+      {!canUnconfigure && (
+        <P>
+          <Icons.Warning color="warning" /> You must &quot;Save Backup&quot;
+          before you may unconfigure this machine.
+        </P>
+      )}
 
       <H2>Backup</H2>
       {backupError && (
@@ -138,12 +144,6 @@ export function SettingsScreen({
           Set Date and Time
         </SetClockButton>
       </ButtonRow>
-      {!canUnconfigure && !isTestMode && (
-        <P>
-          <Icons.Warning color="warning" /> You must &quot;Save Backup&quot;
-          before you may delete election data.
-        </P>
-      )}
       {isBackingUp && (
         <Modal centerContent content={<Loading>Saving backup</Loading>} />
       )}
