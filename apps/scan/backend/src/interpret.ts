@@ -3,12 +3,12 @@ import {
   AdjudicationReasonInfo,
   PageInterpretationWithFiles,
   SheetInterpretation,
+  SheetInterpretationWithPages,
   SheetOf,
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { ok, Result } from '@votingworks/basics';
 import {
-  SheetInterpretationWithPages,
   interpretSheetAndSaveImages,
   InterpreterOptions,
 } from '@votingworks/ballot-interpreter';

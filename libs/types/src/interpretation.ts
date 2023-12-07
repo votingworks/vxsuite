@@ -26,7 +26,7 @@ import {
   Iso8601Timestamp,
   Iso8601TimestampSchema,
 } from './generic';
-import { BallotPageLayout, BallotPageLayoutSchema } from './hmpb';
+import { BallotPageLayout, BallotPageLayoutSchema, SheetOf } from './hmpb';
 
 export interface BlankPage {
   type: 'BlankPage';
@@ -201,3 +201,12 @@ export type SheetInterpretation =
       type: 'NeedsReviewSheet';
       reasons: AdjudicationReasonInfo[];
     };
+
+/**
+ * An interpretation for one ballot sheet that includes both the interpretation
+ * result for the sheet as a whole and the individual page (i.e. front and back)
+ * interpretations.
+ */
+export type SheetInterpretationWithPages = SheetInterpretation & {
+  pages: SheetOf<PageInterpretationWithFiles>;
+};

@@ -19,7 +19,13 @@ import {
 } from '@votingworks/custom-scanner';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
-import { Id, mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
+import {
+  Id,
+  mapSheet,
+  SheetInterpretation,
+  SheetInterpretationWithPages,
+  SheetOf,
+} from '@votingworks/types';
 import { createImageData } from 'canvas';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
@@ -36,7 +42,6 @@ import {
   StateNodeConfig,
   TransitionConfig,
 } from 'xstate';
-import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
