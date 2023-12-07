@@ -39,7 +39,6 @@ import {
 import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
-import { Mutex } from '@votingworks/utils';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import { Store } from '../../store';
 import {
@@ -371,13 +370,8 @@ function storeInterpretedSheet(
   return addedSheetId;
 }
 
-/**
- * A mutex to ensure that continuous export operations happen sequentially and do not interleave
- */
-const continuousExportMutex = new Mutex(0);
-
 async function recordAcceptedSheet(
-  store: Store,
+  { continuousExportMutex, store }: Workspace,
   usbDrive: UsbDrive,
   { interpretation }: Context
 ) {
@@ -410,7 +404,7 @@ async function recordAcceptedSheet(
 }
 
 async function recordRejectedSheet(
-  store: Store,
+  { continuousExportMutex, store }: Workspace,
   usbDrive: UsbDrive,
   { interpretation }: Context
 ) {
@@ -598,8 +592,7 @@ function buildMachine({
       initial: 'starting',
       states: {
         starting: {
-          entry: (context) =>
-            recordRejectedSheet(workspace.store, usbDrive, context),
+          entry: (context) => recordRejectedSheet(workspace, usbDrive, context),
           invoke: {
             src: reject,
             // Calling `reject` tells the Custom scanner to eject the ballot
@@ -925,8 +918,7 @@ function buildMachine({
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) =>
-            recordAcceptedSheet(workspace.store, usbDrive, context),
+          entry: (context) => recordAcceptedSheet(workspace, usbDrive, context),
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
