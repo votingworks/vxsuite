@@ -359,10 +359,18 @@ export const primaryElectionFixtures = (() => {
 
   function makePartyFixtures(partyLabel: string, ballotStyle: BallotStyle) {
     const precinctId = assertDefined(ballotStyle.precincts[0]);
+    const otherPrecinctId = assertDefined(ballotStyle.precincts[1]);
+    assert(precinctId !== otherPrecinctId);
     const { document: ballot, gridLayout } = find(
       ballots,
       (b) =>
         b.precinctId === precinctId &&
+        b.gridLayout.ballotStyleId === ballotStyle.id
+    );
+    const { document: otherPrecinctBlankBallot } = find(
+      ballots,
+      (b) =>
+        b.precinctId === otherPrecinctId &&
         b.gridLayout.ballotStyleId === ballotStyle.id
     );
 
@@ -401,6 +409,10 @@ export const primaryElectionFixtures = (() => {
       primaryElectionDir,
       `${partyLabel}-marked-ballot.pdf`
     );
+    const otherPrecinctBlankBallotPath = join(
+      primaryElectionDir,
+      `${partyLabel}-other-precinct-blank-ballot.pdf`
+    );
 
     return {
       partyLabel,
@@ -411,6 +423,8 @@ export const primaryElectionFixtures = (() => {
       votes,
       blankBallotPath,
       markedBallotPath,
+      otherPrecinctBlankBallot,
+      otherPrecinctBlankBallotPath,
     };
   }
 

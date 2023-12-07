@@ -109,10 +109,12 @@ async function generatePrimaryElectionFixtures() {
   );
 
   for (const partyFixtures of [mammalParty, fishParty]) {
-    const { partyLabel, blankBallot, markedBallot } = partyFixtures;
+    const { partyLabel, blankBallot, markedBallot, otherPrecinctBlankBallot } =
+      partyFixtures;
     const ballots = {
       [`${partyLabel}-blank-ballot`]: blankBallot,
       [`${partyLabel}-marked-ballot`]: markedBallot,
+      [`${partyLabel}-other-precinct-blank-ballot`]: otherPrecinctBlankBallot,
     } as const;
     for (const [label, document] of Object.entries(ballots)) {
       await generateBallotFixture(primaryElectionDir, label, document);
