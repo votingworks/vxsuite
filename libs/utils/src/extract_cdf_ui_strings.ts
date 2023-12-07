@@ -135,8 +135,7 @@ const extractorFns: Record<
   },
 
   [ElectionStringKey.COUNTY_NAME](cdfElection, uiStrings) {
-    const county = _.find(
-      cdfElection.GpUnit,
+    const county = cdfElection.GpUnit.find(
       (gpUnit) => gpUnit.Type === BallotDefinition.ReportingUnitType.County
     );
 
@@ -214,8 +213,7 @@ const extractorFns: Record<
   },
 
   [ElectionStringKey.STATE_NAME](cdfElection, uiStrings) {
-    const state = _.find(
-      cdfElection.GpUnit,
+    const state = cdfElection.GpUnit.find(
       (gpUnit) => gpUnit.Type === BallotDefinition.ReportingUnitType.State
     );
 
