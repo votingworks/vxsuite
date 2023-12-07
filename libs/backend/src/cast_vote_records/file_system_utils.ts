@@ -29,11 +29,14 @@ export async function updateCreationTimestampOfDirectoryAndChildrenFiles(
     return entry.name;
   });
   for (const fileName of fileNames) {
+    // Use execFile instead of fs.copyFile because fs.copyFile has issues in prod when the source
+    // and destination paths are both on a USB drive
     await execFile('cp', [
       path.join(directoryPath, fileName),
       path.join(`${directoryPath}-temp`, fileName),
     ]);
   }
+
   // In case the system loses power while deleting the original directory, mark the copied
   // directory as complete to facilitate recovery on reboot. On reboot, if we see a *-temp
   // directory, we can safely delete it, and if we see a *-temp-complete directory, we can safely

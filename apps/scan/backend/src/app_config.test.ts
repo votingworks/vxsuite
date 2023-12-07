@@ -163,12 +163,30 @@ test("if there's only one precinct in the election, it's selected automatically 
   });
 });
 
-test('continuous CVR export', async () => {
+test('continuous CVR export, including polls closing', async () => {
   await withApp(
     {},
     async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+
+      // Don't wait for continuous export to USB drive in between scans and polls closing so that
+      // we can verify that the continuous export mutex prevents continuous export operations from
+      // interleaving
+      await scanBallot(mockScanner, apiClient, workspace.store, 0, {
+        waitForContinuousExportToUsbDrive: false,
+      });
+      await scanBallot(mockScanner, apiClient, workspace.store, 1, {
+        waitForContinuousExportToUsbDrive: false,
+      });
+      await scanBallot(mockScanner, apiClient, workspace.store, 2, {
+        waitForContinuousExportToUsbDrive: false,
+      });
+
+      expect(
+        await apiClient.exportCastVoteRecordsToUsbDrive({
+          mode: 'polls_closing',
+        })
+      ).toEqual(ok());
 
       const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
         mockUsbDrive.usbDrive
@@ -177,40 +195,49 @@ test('continuous CVR export', async () => {
       const exportDirectoryPath = exportDirectoryPaths[0];
       expect(exportDirectoryPath).toMatch(/TEST__machine_000__*/);
 
-      const { castVoteRecordIterator } = (
+      const { castVoteRecordExportMetadata, castVoteRecordIterator } = (
         await readCastVoteRecordExport(exportDirectoryPath)
       ).unsafeUnwrap();
+
+      expect(castVoteRecordExportMetadata.arePollsClosed).toEqual(true);
+      expect(
+        castVoteRecordExportMetadata.castVoteRecordReportMetadata.vxBatch[0]
+          .NumberSheets
+      ).toEqual(3);
+
       const castVoteRecords: CVR.CVR[] = (
         await castVoteRecordIterator.toArray()
       ).map(
         (castVoteRecordResult) =>
           castVoteRecordResult.unsafeUnwrap().castVoteRecord
       );
-      expect(castVoteRecords).toHaveLength(1);
-      const castVoteRecord = castVoteRecords[0];
-      const tabulationVotes = convertCastVoteRecordVotesToTabulationVotes(
-        assertDefined(getCurrentSnapshot(castVoteRecord))
-      );
-      expect(tabulationVotes).toMatchObject({
-        attorney: ['john-snow'],
-        'board-of-alderman': [
-          'helen-keller',
-          'steve-jobs',
-          'nikola-tesla',
-          'vincent-van-gogh',
-        ],
-        'chief-of-police': ['natalie-portman'],
-        'city-council': [
-          'marie-curie',
-          'indiana-jones',
-          'mona-lisa',
-          'jackie-chan',
-        ],
-        controller: ['winston-churchill'],
-        mayor: ['sherlock-holmes'],
-        'parks-and-recreation-director': ['charles-darwin'],
-        'public-works-director': ['benjamin-franklin'],
-      });
+      expect(castVoteRecords).toHaveLength(3);
+
+      for (const castVoteRecord of castVoteRecords) {
+        const tabulationVotes = convertCastVoteRecordVotesToTabulationVotes(
+          assertDefined(getCurrentSnapshot(castVoteRecord))
+        );
+        expect(tabulationVotes).toEqual({
+          attorney: ['john-snow'],
+          'board-of-alderman': [
+            'helen-keller',
+            'steve-jobs',
+            'nikola-tesla',
+            'vincent-van-gogh',
+          ],
+          'chief-of-police': ['natalie-portman'],
+          'city-council': [
+            'marie-curie',
+            'indiana-jones',
+            'mona-lisa',
+            'jackie-chan',
+          ],
+          controller: ['winston-churchill'],
+          mayor: ['sherlock-holmes'],
+          'parks-and-recreation-director': ['charles-darwin'],
+          'public-works-director': ['benjamin-franklin'],
+        });
+      }
     }
   );
 });
@@ -220,8 +247,16 @@ test('continuous CVR export, including polls closing, followed by a full export'
     {},
     async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      await scanBallot(mockScanner, apiClient, workspace.store, 0);
-      await scanBallot(mockScanner, apiClient, workspace.store, 1);
+
+      // Don't wait for continuous export to USB drive in between scans and polls closing so that
+      // we can verify that the continuous export mutex prevents continuous export operations from
+      // interleaving
+      await scanBallot(mockScanner, apiClient, workspace.store, 0, {
+        waitForContinuousExportToUsbDrive: false,
+      });
+      await scanBallot(mockScanner, apiClient, workspace.store, 1, {
+        waitForContinuousExportToUsbDrive: false,
+      });
 
       expect(
         await apiClient.exportCastVoteRecordsToUsbDrive({
@@ -234,6 +269,26 @@ test('continuous CVR export, including polls closing, followed by a full export'
           mode: 'full_export',
         })
       ).toEqual(ok());
+
+      // Expect two export directories, one from continuous export and one from the subsequent full
+      // export. Each should contain two CVRs.
+      const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+        mockUsbDrive.usbDrive
+      );
+      expect(exportDirectoryPaths).toHaveLength(2);
+
+      for (const exportDirectoryPath of exportDirectoryPaths) {
+        const { castVoteRecordIterator } = (
+          await readCastVoteRecordExport(exportDirectoryPath)
+        ).unsafeUnwrap();
+        const castVoteRecords: CVR.CVR[] = (
+          await castVoteRecordIterator.toArray()
+        ).map(
+          (castVoteRecordResult) =>
+            castVoteRecordResult.unsafeUnwrap().castVoteRecord
+        );
+        expect(castVoteRecords).toHaveLength(2);
+      }
     }
   );
 });
@@ -243,6 +298,7 @@ test('CVR resync', async () => {
     {},
     async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+
       await scanBallot(mockScanner, apiClient, workspace.store, 0);
 
       // When a CVR resync is required, the CVR resync modal appears on the "insert your ballot"
