@@ -39,6 +39,7 @@ import {
 import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
+import { Mutex } from '@votingworks/utils';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import { Store } from '../../store';
 import {
@@ -370,6 +371,11 @@ function storeInterpretedSheet(
   return addedSheetId;
 }
 
+/**
+ * A mutex to ensure that continuous export operations happen sequentially and do not interleave
+ */
+const continuousExportMutex = new Mutex(0);
+
 async function recordAcceptedSheet(
   store: Store,
   usbDrive: UsbDrive,
@@ -389,14 +395,17 @@ async function recordAcceptedSheet(
     // Gets reset to false within exportCastVoteRecordsToUsbDrive
     store.setIsContinuousExportOperationInProgress(true);
   });
-  (
-    await exportCastVoteRecordsToUsbDrive(
+
+  const exportResult = await continuousExportMutex.withLock(() =>
+    exportCastVoteRecordsToUsbDrive(
       store,
       usbDrive,
       [assertDefined(store.getSheet(sheetId))],
       { scannerType: 'precinct' }
     )
-  ).unsafeUnwrap();
+  );
+  exportResult.unsafeUnwrap();
+
   debug('Stored accepted sheet: %s', sheetId);
 }
 
@@ -418,14 +427,17 @@ async function recordRejectedSheet(
     // Gets reset to false within exportCastVoteRecordsToUsbDrive
     store.setIsContinuousExportOperationInProgress(true);
   });
-  (
-    await exportCastVoteRecordsToUsbDrive(
+
+  const exportResult = await continuousExportMutex.withLock(() =>
+    exportCastVoteRecordsToUsbDrive(
       store,
       usbDrive,
       [assertDefined(store.getSheet(sheetId))],
       { scannerType: 'precinct' }
     )
-  ).unsafeUnwrap();
+  );
+  exportResult.unsafeUnwrap();
+
   debug('Stored rejected sheet: %s', sheetId);
 }
 
