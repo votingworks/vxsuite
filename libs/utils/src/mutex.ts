@@ -1,4 +1,4 @@
-import { assertDefined, deferred, Optional } from '@votingworks/basics';
+import { deferred, Optional } from '@votingworks/basics';
 
 interface LockResult<T> {
   value: T;
@@ -50,10 +50,8 @@ export class Mutex<T = void> {
         unlockCalled = true;
         this.locked = false;
 
-        while (!this.locked && this.asyncQueue.length > 0) {
-          const resolve = assertDefined(this.asyncQueue.shift());
-          resolve();
-        }
+        const resolve = this.asyncQueue.shift();
+        resolve?.();
       },
     };
   }
@@ -63,8 +61,9 @@ export class Mutex<T = void> {
    * an unlock function once it is acquired.
    */
   async asyncLock(): Promise<LockResult<T>> {
-    const { promise, resolve } = deferred<void>();
-
+    // This loop exists because an `unlock` might be called immediately before
+    // a call to the synchronous `lock` method. In that case, we won't be able
+    // to acquire the lock, so we need to wait for the next `unlock` call.
     for (;;) {
       const unlock = this.lock();
 
@@ -72,6 +71,7 @@ export class Mutex<T = void> {
         return unlock;
       }
 
+      const { promise, resolve } = deferred<void>();
       this.asyncQueue.push(resolve);
       await promise;
     }
