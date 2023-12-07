@@ -55,6 +55,7 @@
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
+    "@yornaath/batshit": "^0.9.0",
     "base64-js": "1.5.1",
     "debug": "4.3.4",
     "deep-eql": "4.1.3",
