@@ -9,16 +9,17 @@ import {
 } from '@votingworks/types';
 import { find, throwIllegalValue } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
-import { type ScoredContestOption } from './legacy_adapter';
 
 /**
  * Enumerates all the reasons a series of contests might need adjudication.
  */
 export function getAllPossibleAdjudicationReasons(
   contests: Contests,
-  allScoredContestOptions: Array<
-    Pick<ScoredContestOption, 'option' | 'markStatus' | 'writeInAreaStatus'>
-  >
+  allScoredContestOptions: Array<{
+    option: ContestOption;
+    markStatus: MarkStatus;
+    writeInAreaStatus: WriteInAreaStatus;
+  }>
 ): AdjudicationReasonInfo[] {
   if (contests.length === 0) return [];
 
