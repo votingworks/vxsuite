@@ -78,12 +78,14 @@ function RemoveManualTallyModal({
   const deleteManualTallyMutation = deleteManualResults.useMutation();
 
   function onConfirm() {
-    deleteManualTallyMutation.mutate({
-      ballotStyleId: identifier.ballotStyleId,
-      precinctId: identifier.precinctId,
-      votingMethod: identifier.votingMethod,
-    });
-    onClose();
+    deleteManualTallyMutation.mutate(
+      {
+        ballotStyleId: identifier.ballotStyleId,
+        precinctId: identifier.precinctId,
+        votingMethod: identifier.votingMethod,
+      },
+      { onSuccess: onClose }
+    );
   }
   const precinct = find(
     election.precincts,
@@ -112,7 +114,12 @@ function RemoveManualTallyModal({
       }
       actions={
         <React.Fragment>
-          <Button icon="Delete" variant="danger" onPress={onConfirm}>
+          <Button
+            icon="Delete"
+            variant="danger"
+            onPress={onConfirm}
+            disabled={deleteManualTallyMutation.isLoading}
+          >
             Remove Manual Tallies
           </Button>
           <Button onPress={onClose}>Cancel</Button>

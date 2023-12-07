@@ -13,8 +13,7 @@ export function RemoveAllManualTalliesModal({
   const deleteAllManualTalliesMutation = deleteAllManualResults.useMutation();
 
   function onConfirm() {
-    deleteAllManualTalliesMutation.mutate();
-    onClose();
+    deleteAllManualTalliesMutation.mutate(undefined, { onSuccess: onClose });
   }
   return (
     <Modal
@@ -26,7 +25,12 @@ export function RemoveAllManualTalliesModal({
       }
       actions={
         <React.Fragment>
-          <Button icon="Delete" variant="danger" onPress={onConfirm}>
+          <Button
+            icon="Delete"
+            variant="danger"
+            onPress={onConfirm}
+            disabled={deleteAllManualTalliesMutation.isLoading}
+          >
             Remove All Manual Tallies
           </Button>
           <Button onPress={onClose}>Cancel</Button>
