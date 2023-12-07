@@ -61,7 +61,9 @@ const StyledButton = styled(Button)`
   flex-wrap: nowrap;
   font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
   justify-content: start;
-  padding-left: 0.5rem;
+  padding-left: ${(p) =>
+    /* istanbul ignore next */
+    p.theme.sizeMode === 'touchExtraLarge' && '0.25rem'};
   text-align: left;
   width: 100%;
 
@@ -96,7 +98,9 @@ interface OptionsContainerProps {
 const OptionsContainer = styled.span<OptionsContainerProps>`
   align-items: stretch;
   display: grid;
-  grid-gap: 0.5rem;
+  grid-gap: ${(p) =>
+    /* istanbul ignore next */
+    p.theme.sizeMode === 'touchExtraLarge' ? '0.25rem' : '0.5rem'};
   grid-template-columns: ${(p) =>
     Array.from({ length: p.numColumns }).fill('1fr').join(' ')};
   height: 100%;
