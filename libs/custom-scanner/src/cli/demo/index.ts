@@ -51,6 +51,7 @@ function readlines(prompt = '> '): AsyncIterableIterator<string> {
 export async function main(): Promise<number> {
   const { stdout, stderr } = process;
   let scanner: Optional<CustomScanner>;
+  let doubleSheetDetection: DoubleSheetDetectOpt = DoubleSheetDetectOpt.Level1;
 
   process.on('SIGINT', async () => {
     await scanner?.disconnect();
@@ -82,7 +83,7 @@ export async function main(): Promise<number> {
     'firmware - Print the firmware version',
     'hardware - Print the hardware version ',
     'status - Print the current scanner status',
-    'scan - Scan a sheet, double sheet prevention will be disabled optionally give a second parameter 1-4 to enable double sheet prevention at the given level',
+    'scan - Scan a sheet',
     'reset - Reset the hardware, you will need to call reconnect after issuing this command.',
     'connect - Calls connect on the scanner',
     'disconnect - Calls disconnect on the scanner',
@@ -91,6 +92,7 @@ export async function main(): Promise<number> {
     'retract - Retracts the paper',
     'load - Loads paper',
     'autoscan - Continuously watch for paper and scan and eject everything',
+    'double-sheet N - Change double sheet detection level. 0 is disabled. Default: 0.',
     '',
     chalk.bold('Enter a command: '),
   ].join('\n');
@@ -128,28 +130,34 @@ export async function main(): Promise<number> {
         break;
       }
 
-      case 'scan 0':
-      case 'scan 1':
-      case 'scan 2':
-      case 'scan 3':
-      case 'scan 4':
+      case 'double-sheet 0': {
+        doubleSheetDetection = DoubleSheetDetectOpt.DetectOff;
+        break;
+      }
+      case 'double-sheet 1': {
+        doubleSheetDetection = DoubleSheetDetectOpt.Level1;
+        break;
+      }
+      case 'double-sheet 2': {
+        doubleSheetDetection = DoubleSheetDetectOpt.Level2;
+        break;
+      }
+      case 'double-sheet 3': {
+        doubleSheetDetection = DoubleSheetDetectOpt.Level3;
+        break;
+      }
+      case 'double-sheet 4': {
+        doubleSheetDetection = DoubleSheetDetectOpt.Level4;
+        break;
+      }
+
       case 'scan': {
-        let doubleSheetValue = DoubleSheetDetectOpt.DetectOff;
-        if (line === 'scan 1') {
-          doubleSheetValue = DoubleSheetDetectOpt.Level1;
-        } else if (line === 'scan 2') {
-          doubleSheetValue = DoubleSheetDetectOpt.Level2;
-        } else if (line === 'scan 3') {
-          doubleSheetValue = DoubleSheetDetectOpt.Level3;
-        } else if (line === 'scan 4') {
-          doubleSheetValue = DoubleSheetDetectOpt.Level4;
-        }
         const scanParameters: ScanParameters = {
           wantedScanSide: ScanSide.A_AND_B,
           formStandingAfterScan: FormStanding.HOLD_TICKET,
           resolution: ImageResolution.RESOLUTION_200_DPI,
           imageColorDepth: ImageColorDepthType.Grey8bpp,
-          doubleSheetDetection: doubleSheetValue,
+          doubleSheetDetection,
         };
         const scanResult = await scanner.scan(scanParameters);
 
@@ -184,11 +192,20 @@ export async function main(): Promise<number> {
       }
 
       case 'autoscan': {
+        const scanParameters: ScanParameters = {
+          wantedScanSide: ScanSide.A_AND_B,
+          formStandingAfterScan: FormStanding.HOLD_TICKET,
+          resolution: ImageResolution.RESOLUTION_200_DPI,
+          imageColorDepth: ImageColorDepthType.Grey8bpp,
+          doubleSheetDetection,
+        };
         let ballotsScanned = 0;
         writeOutput('Waiting for paper...');
         const watcher = watchStatus(scanner);
+        let waitForEmptySheet = false;
         for await (const statusResult of watcher) {
           if (!statusResult.isOk()) {
+            await sleep(500);
             continue;
           }
           const scannerStatus = statusResult.ok();
@@ -205,18 +222,19 @@ export async function main(): Promise<number> {
             scannerStatus.sensorOutputCenterRight ===
               SensorStatus.PaperPresent &&
             scannerStatus.sensorOutputRightRight === SensorStatus.PaperPresent;
+          if (waitForEmptySheet && !frontHasPaper && !backHasPaper) {
+            waitForEmptySheet = false;
+            continue;
+          } else if (waitForEmptySheet) {
+            continue;
+          }
           if (frontHasPaper && !backHasPaper) {
-            const scanParameters: ScanParameters = {
-              wantedScanSide: ScanSide.A_AND_B,
-              formStandingAfterScan: FormStanding.HOLD_TICKET,
-              resolution: ImageResolution.RESOLUTION_200_DPI,
-              imageColorDepth: ImageColorDepthType.Grey8bpp,
-              doubleSheetDetection: DoubleSheetDetectOpt.DetectOff,
-            };
             const scanResult = await scanner.scan(scanParameters);
 
             if (scanResult.isErr()) {
               writeOutput(`Scan failed: ${inspect(scanResult.err())}`, stderr);
+              waitForEmptySheet = true;
+              continue;
             } else {
               const [sideA, sideB] = scanResult.ok();
 
