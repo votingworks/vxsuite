@@ -51,7 +51,7 @@ import {
 } from '@votingworks/utils';
 import makeDebug from 'debug';
 import {
-  interpret as interpretNhHmpbBallotSheet,
+  interpret as interpretHmpbBallotSheetRust,
   BallotPageTimingMarkMetadataFront,
   Geometry,
   InterpretedBallotCard,
@@ -392,7 +392,7 @@ function convertContestLayouts(
   });
 }
 
-function convertNextInterpretedBallotPage(
+function convertInterpretedBallotPage(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
   interpretedBallotCard: InterpretedBallotCard,
@@ -456,9 +456,10 @@ function convertNextInterpretedBallotPage(
 }
 
 /**
- * Converts the result of the NH interpreter to the legacy interpreter result format.
+ * Converts the result of the Rust interpreter to the result format used by the
+ * rest of VxSuite.
  */
-export async function convertNhInterpretResultToLegacyResult(
+export async function convertRustInterpretResult(
   options: InterpreterOptions,
   nextResult: NextInterpretResult,
   sheet: SheetOf<string>
@@ -478,13 +479,13 @@ export async function convertNhInterpretResultToLegacyResult(
 
   const ballotCard = nextResult.ok();
   const currentResult: OkType<InterpretResult> = [
-    convertNextInterpretedBallotPage(
+    convertInterpretedBallotPage(
       options.electionDefinition,
       options,
       ballotCard,
       'front'
     ),
-    convertNextInterpretedBallotPage(
+    convertInterpretedBallotPage(
       options.electionDefinition,
       options,
       ballotCard,
@@ -563,157 +564,155 @@ function validateInterpretResults(
 }
 
 /**
- * Interpret a NH HMPB ballot sheet.
+ * Interpret a HMPB sheet and convert the result from the Rust
+ * interpreter's result format to the result format used by the rest of VxSuite.
  */
-async function interpretAndConvertNhHmpbResult(
-  electionDefinition: ElectionDefinition,
+async function interpretHmpb(
   sheet: SheetOf<string>,
   options: InterpreterOptions
 ): Promise<SheetOf<InterpretFileResult>> {
-  const result = interpretNhHmpbBallotSheet(electionDefinition, sheet, {
+  const { electionDefinition, precinctSelection, testMode } = options;
+  const result = interpretHmpbBallotSheetRust(electionDefinition, sheet, {
     scoreWriteIns: shouldScoreWriteIns(options),
   });
 
   return validateInterpretResults(
-    (
-      await convertNhInterpretResultToLegacyResult(options, result, sheet)
-    ).unsafeUnwrap(),
+    (await convertRustInterpretResult(options, result, sheet)).unsafeUnwrap(),
     {
       electionHash: electionDefinition.electionHash,
-      precinctSelection: options.precinctSelection,
-      testMode: options.testMode,
+      precinctSelection,
+      testMode,
     }
   );
+}
+
+/**
+ * Interpret a BMD ballot sheet and convert the result into the result format
+ * used by the rest of VxSuite.
+ */
+async function interpretBmdBallot(
+  sheet: SheetOf<string>,
+  options: InterpreterOptions
+): Promise<SheetOf<InterpretFileResult>> {
+  const { electionDefinition, precinctSelection, testMode } = options;
+  const ballotImages = await mapSheet(sheet, (ballotImagePath) =>
+    loadImageData(ballotImagePath)
+  );
+  const interpretResult = await interpretVxBmdBallotSheet(
+    electionDefinition,
+    ballotImages
+  );
+
+  if (interpretResult.isErr()) {
+    const error = interpretResult.err();
+    if (error.type === 'mismatched-election') {
+      return [
+        {
+          interpretation: {
+            type: 'InvalidElectionHashPage',
+            expectedElectionHash: error.expectedElectionHash,
+            actualElectionHash: error.actualElectionHash,
+          },
+          normalizedImage: ballotImages[0],
+        },
+        {
+          interpretation: {
+            type: 'InvalidElectionHashPage',
+            expectedElectionHash: error.expectedElectionHash,
+            actualElectionHash: error.actualElectionHash,
+          },
+          normalizedImage: ballotImages[1],
+        },
+      ];
+    }
+
+    const [frontReason, backReason] = error.source;
+    switch (error.type) {
+      case 'votes-not-found':
+        return [
+          {
+            interpretation: {
+              type: 'BlankPage',
+            },
+            normalizedImage: ballotImages[0],
+          },
+          {
+            interpretation: {
+              type: 'BlankPage',
+            },
+            normalizedImage: ballotImages[1],
+          },
+        ];
+
+      case 'multiple-qr-codes':
+        return [
+          {
+            interpretation: {
+              type: 'UnreadablePage',
+              reason: JSON.stringify(frontReason),
+            },
+            normalizedImage: ballotImages[0],
+          },
+          {
+            interpretation: {
+              type: 'UnreadablePage',
+              reason: JSON.stringify(backReason),
+            },
+            normalizedImage: ballotImages[1],
+          },
+        ];
+
+      /* istanbul ignore next - compile-time check */
+      default:
+        throwIllegalValue(error, 'type');
+    }
+  }
+
+  const { ballot, summaryBallotImage, blankPageImage } = interpretResult.ok();
+
+  const front: InterpretFileResult = {
+    interpretation: {
+      type: 'InterpretedBmdPage',
+      ballotId: ballot.ballotId,
+      metadata: {
+        electionHash: ballot.electionHash,
+        ballotType: BallotType.Precinct,
+        ballotStyleId: ballot.ballotStyleId,
+        precinctId: ballot.precinctId,
+        isTestMode: ballot.isTestMode,
+      },
+      votes: ballot.votes,
+    },
+    normalizedImage: summaryBallotImage,
+  };
+  const back: InterpretFileResult = {
+    interpretation: {
+      type: 'BlankPage',
+    },
+    normalizedImage: blankPageImage,
+  };
+
+  return validateInterpretResults([front, back], {
+    electionHash: electionDefinition.electionHash,
+    precinctSelection,
+    testMode,
+  });
 }
 
 /**
  * Interpret a sheet of ballot images.
  */
 export async function interpretSheet(
-  {
-    electionDefinition,
-    precinctSelection,
-    testMode,
-    adjudicationReasons,
-    markThresholds,
-  }: InterpreterOptions,
+  options: InterpreterOptions,
   sheet: SheetOf<string>
 ): Promise<SheetOf<InterpretFileResult>> {
   const timer = time(debug, `interpretSheet: ${sheet.join(', ')}`);
 
   try {
-    if (electionDefinition.election.gridLayouts) {
-      return await interpretAndConvertNhHmpbResult(electionDefinition, sheet, {
-        electionDefinition,
-        precinctSelection,
-        testMode,
-        adjudicationReasons,
-        markThresholds,
-      });
+    if (options.electionDefinition.election.gridLayouts) {
+      return await interpretHmpb(sheet, options);
     }
-
-    const ballotImages = await mapSheet(sheet, (ballotImagePath) =>
-      loadImageData(ballotImagePath)
-    );
-    const interpretResult = await interpretVxBmdBallotSheet(
-      electionDefinition,
-      ballotImages
-    );
-
-    if (interpretResult.isErr()) {
-      const error = interpretResult.err();
-      if (error.type === 'mismatched-election') {
-        return [
-          {
-            interpretation: {
-              type: 'InvalidElectionHashPage',
-              expectedElectionHash: error.expectedElectionHash,
-              actualElectionHash: error.actualElectionHash,
-            },
-            normalizedImage: ballotImages[0],
-          },
-          {
-            interpretation: {
-              type: 'InvalidElectionHashPage',
-              expectedElectionHash: error.expectedElectionHash,
-              actualElectionHash: error.actualElectionHash,
-            },
-            normalizedImage: ballotImages[1],
-          },
-        ];
-      }
-
-      const [frontReason, backReason] = error.source;
-      switch (error.type) {
-        case 'votes-not-found':
-          return [
-            {
-              interpretation: {
-                type: 'BlankPage',
-              },
-              normalizedImage: ballotImages[0],
-            },
-            {
-              interpretation: {
-                type: 'BlankPage',
-              },
-              normalizedImage: ballotImages[1],
-            },
-          ];
-
-        case 'multiple-qr-codes':
-          return [
-            {
-              interpretation: {
-                type: 'UnreadablePage',
-                reason: JSON.stringify(frontReason),
-              },
-              normalizedImage: ballotImages[0],
-            },
-            {
-              interpretation: {
-                type: 'UnreadablePage',
-                reason: JSON.stringify(backReason),
-              },
-              normalizedImage: ballotImages[1],
-            },
-          ];
-
-        /* istanbul ignore next - compile-time check */
-        default:
-          throwIllegalValue(error, 'type');
-      }
-    }
-
-    const { ballot, summaryBallotImage, blankPageImage } = interpretResult.ok();
-
-    const front: InterpretFileResult = {
-      interpretation: {
-        type: 'InterpretedBmdPage',
-        ballotId: ballot.ballotId,
-        metadata: {
-          electionHash: ballot.electionHash,
-          ballotType: BallotType.Precinct,
-          ballotStyleId: ballot.ballotStyleId,
-          precinctId: ballot.precinctId,
-          isTestMode: ballot.isTestMode,
-        },
-        votes: ballot.votes,
-      },
-      normalizedImage: summaryBallotImage,
-    };
-    const back: InterpretFileResult = {
-      interpretation: {
-        type: 'BlankPage',
-      },
-      normalizedImage: blankPageImage,
-    };
-
-    return validateInterpretResults([front, back], {
-      electionHash: electionDefinition.electionHash,
-      precinctSelection,
-      testMode,
-    });
+    return await interpretBmdBallot(sheet, options);
   } finally {
     timer.end();
   }
