@@ -984,7 +984,7 @@ test('change in USB drive status clears doesUsbDriveRequireCastVoteRecordSync ca
   expect(getElectionDefinitionSpy).toHaveBeenCalledTimes(1);
 });
 
-test('cast vote record export clears doesUsbDriveRequireCastVoteRecordSync cache', async () => {
+test('full cast vote record export on precinct scanner clears doesUsbDriveRequireCastVoteRecordSync cache', async () => {
   mockUsbDrive.insertUsbDrive({});
   let usbDriveStatus = await mockUsbDrive.usbDrive.status();
   mockPrecinctScannerStore.setElectionDefinition(electionDefinition);
@@ -1034,6 +1034,22 @@ test('cast vote record export clears doesUsbDriveRequireCastVoteRecordSync cache
       mockUsbDrive.usbDrive,
       [sheet],
       { scannerType: 'precinct' }
+    )
+  ).toEqual(ok());
+
+  expect(
+    await doesUsbDriveRequireCastVoteRecordSync(
+      mockPrecinctScannerStore,
+      usbDriveStatus
+    )
+  ).toEqual(true);
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet],
+      { scannerType: 'precinct', isFullExport: true }
     )
   ).toEqual(ok());
 
