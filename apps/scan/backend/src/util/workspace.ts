@@ -1,5 +1,6 @@
 import { emptyDirSync, ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'path';
+import { Mutex } from '@votingworks/utils';
 import { Store } from '../store';
 
 export interface Workspace {
@@ -27,6 +28,11 @@ export interface Workspace {
    * The store associated with the workspace.
    */
   readonly store: Store;
+
+  /**
+   * A mutex to ensure that continuous export operations happen sequentially and do not interleave.
+   */
+  readonly continuousExportMutex: Mutex;
 
   /**
    * Zero out the data in the workspace, but leave the configuration.
@@ -65,6 +71,7 @@ export function createWorkspace(
     scannedImagesPath,
     uploadsPath,
     store,
+    continuousExportMutex: new Mutex(),
     resetElectionSession() {
       store.resetElectionSession();
       emptyDirSync(ballotImagesPath);

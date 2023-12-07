@@ -426,7 +426,7 @@ function storeInterpretedSheet(
 }
 
 async function recordAcceptedSheet(
-  store: Store,
+  { continuousExportMutex, store }: Workspace,
   usbDrive: UsbDrive,
   { interpretation }: Context
 ) {
@@ -444,19 +444,22 @@ async function recordAcceptedSheet(
     // Gets reset to false within exportCastVoteRecordsToUsbDrive
     store.setIsContinuousExportOperationInProgress(true);
   });
-  (
-    await exportCastVoteRecordsToUsbDrive(
+
+  const exportResult = await continuousExportMutex.withLock(() =>
+    exportCastVoteRecordsToUsbDrive(
       store,
       usbDrive,
       [assertDefined(store.getSheet(sheetId))],
       { scannerType: 'precinct' }
     )
-  ).unsafeUnwrap();
+  );
+  exportResult.unsafeUnwrap();
+
   debug('Stored accepted sheet: %s', sheetId);
 }
 
 async function recordRejectedSheet(
-  store: Store,
+  { continuousExportMutex, store }: Workspace,
   usbDrive: UsbDrive,
   { interpretation }: Context
 ) {
@@ -473,14 +476,17 @@ async function recordRejectedSheet(
     // Gets reset to false within exportCastVoteRecordsToUsbDrive
     store.setIsContinuousExportOperationInProgress(true);
   });
-  (
-    await exportCastVoteRecordsToUsbDrive(
+
+  const exportResult = await continuousExportMutex.withLock(() =>
+    exportCastVoteRecordsToUsbDrive(
       store,
       usbDrive,
       [assertDefined(store.getSheet(sheetId))],
       { scannerType: 'precinct' }
     )
-  ).unsafeUnwrap();
+  );
+  exportResult.unsafeUnwrap();
+
   debug('Stored rejected sheet: %s', sheetId);
 }
 
@@ -641,8 +647,7 @@ function buildMachine({
       initial: 'starting',
       states: {
         starting: {
-          entry: (context) =>
-            recordRejectedSheet(workspace.store, usbDrive, context),
+          entry: (context) => recordRejectedSheet(workspace, usbDrive, context),
           invoke: {
             src: reject,
             // Calling `reject` tells the Custom scanner to eject the ballot
@@ -968,8 +973,7 @@ function buildMachine({
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) =>
-            recordAcceptedSheet(workspace.store, usbDrive, context),
+          entry: (context) => recordAcceptedSheet(workspace, usbDrive, context),
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },

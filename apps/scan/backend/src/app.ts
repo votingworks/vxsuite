@@ -309,23 +309,28 @@ export function buildApi(
             ? 'Marking cast vote record export as complete on polls close...'
             : 'Exporting cast vote records...',
       });
+
+      // Use the continuous export mutex to ensure that any pending continuous export
+      // operations finish first
       let exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError>;
       switch (input.mode) {
         case 'full_export': {
-          exportResult = await exportCastVoteRecordsToUsbDrive(
-            store,
-            usbDrive,
-            store.forEachSheet(),
-            { scannerType: 'precinct', isFullExport: true }
+          exportResult = await workspace.continuousExportMutex.withLock(() =>
+            exportCastVoteRecordsToUsbDrive(
+              store,
+              usbDrive,
+              store.forEachSheet(),
+              { scannerType: 'precinct', isFullExport: true }
+            )
           );
           break;
         }
         case 'polls_closing': {
-          exportResult = await exportCastVoteRecordsToUsbDrive(
-            store,
-            usbDrive,
-            [],
-            { scannerType: 'precinct', arePollsClosing: true }
+          exportResult = await workspace.continuousExportMutex.withLock(() =>
+            exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
+              scannerType: 'precinct',
+              arePollsClosing: true,
+            })
           );
           break;
         }
@@ -335,6 +340,7 @@ export function buildApi(
         }
         /* c8 ignore stop */
       }
+
       if (exportResult.isErr()) {
         await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
           disposition: 'failure',

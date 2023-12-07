@@ -195,6 +195,7 @@ export class Store {
    */
   reset(): void {
     this.client.reset();
+    clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   }
 
   /**

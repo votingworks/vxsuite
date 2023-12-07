@@ -790,8 +790,13 @@ export async function exportCastVoteRecordsToUsbDrive(
    */
   if (scannerStore.scannerType === 'precinct') {
     scannerStore.setIsContinuousExportOperationInProgress(false);
+    if (
+      exportOptions.scannerType === 'precinct' &&
+      exportOptions.isFullExport
+    ) {
+      clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+    }
   }
-  clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
 
   return ok();
 }
