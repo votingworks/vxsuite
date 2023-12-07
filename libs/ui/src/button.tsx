@@ -294,9 +294,18 @@ function disabledStyles(p: ThemedStyledButtonProps): CSSObject {
     };
   }
 
+  const backgroundColor = isInverse(color)
+    ? colors.foreground
+    : colors.background;
+  const foregroundColor = isInverse(color)
+    ? colors.background
+    : colors.foreground;
+
   return {
+    backgroundColor,
     borderStyle: 'dashed',
-    borderColor: 'currentColor',
+    color: foregroundColor,
+    borderColor: foregroundColor,
   };
 }
 
