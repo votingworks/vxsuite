@@ -11,7 +11,6 @@ import {
   FormMovement,
   FormStanding,
   ImageColorDepthType,
-  ImageFromScanner,
   ImageResolution,
   openScanner,
   ScannerStatus,
@@ -291,71 +290,17 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   debug('Scan result: %o', scanResult);
   const images = scanResult.unsafeUnwrap();
 
-  /**
-   *
-   */
-  function trimBlackFromTopAndBottomOfImage(
-    image: ImageFromScanner
-  ): ImageFromScanner {
-    const { imageBuffer, imageWidth, imageHeight } = image;
-    const channelCount = imageBuffer.length / (imageWidth * imageHeight);
-
-    let indexOfFirstNonBlackValue = 0;
-
-    for (let i = 0; i < imageBuffer.length; i += 1) {
-      if (imageBuffer[i] !== 0) {
-        indexOfFirstNonBlackValue = i;
-        break;
-      }
-    }
-
-    let indexOfLastNonBlackValue = imageBuffer.length - 1;
-
-    for (let i = imageBuffer.length - 1; i >= 0; i -= 1) {
-      if (imageBuffer[i] !== 0) {
-        indexOfLastNonBlackValue = i;
-        break;
-      }
-    }
-
-    const offsetPerRow = imageWidth * channelCount;
-    const indexOfFirstNonBlackRow = Math.floor(
-      indexOfFirstNonBlackValue / offsetPerRow
-    );
-    const indexOfLastNonBlackRow = Math.floor(
-      indexOfLastNonBlackValue / offsetPerRow
-    );
-    debug(
-      'Trimming black from top and bottom of image (keeping y=%d..%d)',
-      indexOfFirstNonBlackRow,
-      indexOfLastNonBlackRow
-    );
-
-    const trimmed: ImageFromScanner = {
-      ...image,
-      imageBuffer: imageBuffer.slice(
-        indexOfFirstNonBlackRow * offsetPerRow,
-        (indexOfLastNonBlackRow + 1) * offsetPerRow
-      ),
-      imageHeight: image.imageBuffer.length / offsetPerRow,
-    };
-    debug('Trimmed image: %O', trimmed);
-    return trimmed;
-  }
-
   // FIXME: we should be able to use the image format directly, but the
   // rest of the system expects file paths instead of image buffers.
   const sheetPrefix = uuid();
   return await mapSheet(images, async (image, side) => {
-    const trimmedImage = trimBlackFromTopAndBottomOfImage(image);
-
     const { scannedImagesPath } = workspace;
     const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
     const imageData = toRgba(
       createImageData(
-        Uint8ClampedArray.from(trimmedImage.imageBuffer),
-        trimmedImage.imageWidth,
-        trimmedImage.imageHeight
+        Uint8ClampedArray.from(image.imageBuffer),
+        image.imageWidth,
+        image.imageHeight
       )
     ).assertOk('convert to RGBA');
     await writeImageData(path, imageData);
