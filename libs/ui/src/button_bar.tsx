@@ -4,7 +4,7 @@ export const ButtonBar = styled('div')`
   display: flex;
   flex-wrap: wrap-reverse;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.outline};
   padding: 0.5rem max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 1rem);
@@ -22,8 +22,6 @@ export const ButtonBar = styled('div')`
   & > *:only-child {
     @media (min-width: 480px) {
       flex-grow: initial;
-      margin: auto;
-      min-width: 33.333%;
     }
   }
 `;
