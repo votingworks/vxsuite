@@ -8,10 +8,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { Button, Modal, P, UsbControllerButton } from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
 
-import {
-  ejectUsbDrive,
-  saveElectionPackageToUsb as saveElectionPackageToUsbBase,
-} from '../api';
+import { ejectUsbDrive, saveElectionPackageToUsb } from '../api';
 import { AppContext } from '../contexts/app_context';
 
 const UsbImage = styled.img`
@@ -22,7 +19,6 @@ const UsbImage = styled.img`
 
 type SaveState =
   | { state: 'unsaved' }
-  | { state: 'saving' }
   | { state: 'saved' }
   | { state: 'error'; error: ExportDataError };
 
@@ -38,7 +34,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const saveElectionPackageToUsbMutation =
-    saveElectionPackageToUsbBase.useMutation();
+    saveElectionPackageToUsb.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   const [saveState, setSaveState] = useState<SaveState>({ state: 'unsaved' });
@@ -50,13 +46,16 @@ export function ExportElectionPackageModalButton(): JSX.Element {
     setSaveState({ state: 'unsaved' });
   }
 
-  async function saveElectionPackageToUsb() {
-    const result = await saveElectionPackageToUsbMutation.mutateAsync();
-    if (result.isErr()) {
-      setSaveState({ state: 'error', error: result.err() });
-      return;
-    }
-    setSaveState({ state: 'saved' });
+  function saveElectionPackage() {
+    saveElectionPackageToUsbMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result.isErr()) {
+          setSaveState({ state: 'error', error: result.err() });
+        } else {
+          setSaveState({ state: 'saved' });
+        }
+      },
+    });
   }
 
   let title = '';
@@ -74,8 +73,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           mainContent = (
             <P>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              Please insert a USB drive in order to save the ballot
-              configuration.
+              Please insert a USB drive in order to save the election package.
             </P>
           );
           break;
@@ -84,8 +82,9 @@ export function ExportElectionPackageModalButton(): JSX.Element {
             <React.Fragment>
               <Button
                 icon="Export"
-                onPress={saveElectionPackageToUsb}
+                onPress={saveElectionPackage}
                 variant="primary"
+                loading={saveElectionPackageToUsbMutation.isLoading}
               >
                 Save
               </Button>
@@ -107,17 +106,6 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           throwIllegalValue(usbDriveStatus, 'status');
       }
       break;
-
-    case 'saving': {
-      actions = (
-        <Button onPress={closeModal} disabled>
-          Cancel
-        </Button>
-      );
-      title = 'Saving…';
-      mainContent = <P>Closing zip file.</P>;
-      break;
-    }
 
     case 'saved': {
       if (usbDriveStatus.status !== 'ejected') {
