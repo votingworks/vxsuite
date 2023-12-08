@@ -14,6 +14,7 @@ use crate::debug::ImageDebugWriter;
 use crate::election::BallotStyleId;
 use crate::election::Election;
 use crate::election::MetadataEncoding;
+use crate::election::PrecinctId;
 use crate::geometry::PixelUnit;
 use crate::geometry::Rect;
 use crate::geometry::Size;
@@ -24,8 +25,8 @@ use crate::layout::build_interpreted_page_layout;
 use crate::layout::InterpretedContestLayout;
 use crate::qr_code;
 use crate::qr_code_metadata::decode_metadata_bits;
-use crate::qr_code_metadata::BallotPageQrCodeMetadataError;
 use crate::qr_code_metadata::infer_missing_page_metadata;
+use crate::qr_code_metadata::BallotPageQrCodeMetadataError;
 use crate::scoring::score_bubble_marks_from_grid_layout;
 use crate::scoring::score_write_in_areas;
 use crate::scoring::ScoredBubbleMarks;
@@ -119,6 +120,23 @@ pub enum Error {
         label: String,
         error: BallotPageQrCodeMetadataError,
     },
+    #[error("mismatched precincts: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
+    #[serde(rename_all = "camelCase")]
+    MismatchedPrecincts {
+        side_a: PrecinctId,
+        side_b: PrecinctId,
+    },
+    #[error("mismatched ballot styles: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}")]
+    #[serde(rename_all = "camelCase")]
+    MismatchedBallotStyles {
+        side_a: BallotStyleId,
+        side_b: BallotStyleId,
+    },
+    #[error(
+        "non-consecutive page numbers: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
+    )]
+    #[serde(rename_all = "camelCase")]
+    NonConsecutivePageNumbers { side_a: u8, side_b: u8 },
     #[error(
         "mismatched ballot card geometries: {SIDE_A_LABEL}: {side_a:?}, {SIDE_B_LABEL}: {side_b:?}"
     )]
@@ -405,6 +423,29 @@ pub fn interpret_ballot_card(
                     normalize_orientation(&geometry, grid, image, orientation, debug)
                 },
             );
+
+            if side_a_metadata.precinct_id != side_b_metadata.precinct_id {
+                return Err(Error::MismatchedPrecincts {
+                    side_a: side_a_metadata.precinct_id,
+                    side_b: side_b_metadata.precinct_id,
+                });
+            }
+            if side_a_metadata.ballot_style_id != side_b_metadata.ballot_style_id {
+                return Err(Error::MismatchedBallotStyles {
+                    side_a: side_a_metadata.ballot_style_id,
+                    side_b: side_b_metadata.ballot_style_id,
+                });
+            }
+            if side_a_metadata
+                .page_number
+                .abs_diff(side_b_metadata.page_number)
+                != 1
+            {
+                return Err(Error::NonConsecutivePageNumbers {
+                    side_a: side_a_metadata.page_number,
+                    side_b: side_b_metadata.page_number,
+                });
+            }
 
             let (side_a, side_b) = (
                 (

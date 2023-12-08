@@ -1,5 +1,8 @@
 import { assert, iter } from '@votingworks/basics';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import {
   famousNamesFixtures,
   primaryElectionFixtures,
@@ -332,4 +335,87 @@ describe('HMPB - primary election', () => {
       ).toEqual(sortVotesDict(votes));
     });
   }
+
+  test('Mismatched precincts on front and back', async () => {
+    const precinct1Paths = await ballotPdfToPageImages(
+      mammalParty.blankBallotPath
+    );
+    const precinct2Paths = await ballotPdfToPageImages(
+      mammalParty.otherPrecinctBlankBallotPath
+    );
+    expect(precinct1Paths.length).toEqual(2);
+    expect(precinct2Paths.length).toEqual(2);
+    const [frontPath] = precinct1Paths;
+    const [, backPath] = precinct2Paths;
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      [frontPath, backPath] as [string, string]
+    );
+
+    assert(frontResult.interpretation.type === 'UnreadablePage');
+    expect(frontResult.interpretation.reason).toEqual('mismatchedPrecincts');
+    assert(backResult.interpretation.type === 'UnreadablePage');
+    expect(backResult.interpretation.reason).toEqual('mismatchedPrecincts');
+  });
+
+  test('Mismatched ballot styles on front and back', async () => {
+    const ballotStyle1Paths = await ballotPdfToPageImages(
+      mammalParty.blankBallotPath
+    );
+    const ballotStyle2Paths = await ballotPdfToPageImages(
+      fishParty.blankBallotPath
+    );
+    expect(ballotStyle1Paths.length).toEqual(2);
+    expect(ballotStyle2Paths.length).toEqual(2);
+    const [frontPath] = ballotStyle1Paths;
+    const [, backPath] = ballotStyle2Paths;
+
+    const [frontResult, backResult] = await interpretSheet(
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      },
+      [frontPath, backPath] as [string, string]
+    );
+
+    assert(frontResult.interpretation.type === 'UnreadablePage');
+    expect(frontResult.interpretation.reason).toEqual('mismatchedBallotStyles');
+    assert(backResult.interpretation.type === 'UnreadablePage');
+    expect(backResult.interpretation.reason).toEqual('mismatchedBallotStyles');
+  });
+});
+
+test('Non-consecutive page numbers', async () => {
+  const { electionDefinition, blankBallotPath } = generalElectionFixtures[0]!;
+  const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+  assert(ballotImagePaths.length > 2);
+  const [frontPath, , backPath] = ballotImagePaths;
+
+  const [frontResult, backResult] = await interpretSheet(
+    {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    },
+    [frontPath, backPath] as [string, string]
+  );
+
+  assert(frontResult.interpretation.type === 'UnreadablePage');
+  expect(frontResult.interpretation.reason).toEqual(
+    'nonConsecutivePageNumbers'
+  );
+  assert(backResult.interpretation.type === 'UnreadablePage');
+  expect(backResult.interpretation.reason).toEqual('nonConsecutivePageNumbers');
 });
