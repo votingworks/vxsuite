@@ -74,14 +74,16 @@ export async function forceLogOutAndResetElectionDefinition(
   await logInAsSystemAdministrator(page);
   await page.getByRole('button', { name: 'Election', exact: true }).click();
 
-  const removeElectionButton = page.getByRole('button', {
-    name: 'Remove Election',
+  const unconfigureMachineButton = page.getByRole('button', {
+    name: 'Unconfigure Machine',
   });
 
-  if (await removeElectionButton.isVisible()) {
-    await removeElectionButton.click();
+  if (await unconfigureMachineButton.isVisible()) {
+    await unconfigureMachineButton.click();
     const modal = page.getByRole('alertdialog');
-    await modal.getByRole('button', { name: 'Remove Election' }).click();
+    await modal
+      .getByRole('button', { name: 'Yes, Delete Election Data' })
+      .click();
   }
 
   await forceLogOut(page);
