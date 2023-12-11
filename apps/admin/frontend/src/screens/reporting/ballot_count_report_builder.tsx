@@ -1,7 +1,11 @@
 import { P } from '@votingworks/ui';
 import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
-import { isElectionManagerAuth, isGroupByEmpty } from '@votingworks/utils';
+import {
+  getMaxSheetsPerBallot,
+  isElectionManagerAuth,
+  isGroupByEmpty,
+} from '@votingworks/utils';
 import { Admin, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
@@ -11,7 +15,7 @@ import {
 } from '../../components/reporting/filter_editor';
 import {
   GroupByEditor,
-  GroupByType,
+  GroupByEditorOption,
 } from '../../components/reporting/group_by_editor';
 import {
   canonicalizeFilter,
@@ -35,6 +39,7 @@ export function BallotCountReportBuilder(): JSX.Element {
 
   const [filter, setFilter] = useState<Admin.ReportingFilter>({});
   const [groupBy, setGroupBy] = useState<Tabulation.GroupBy>({});
+  const [includeSheetCounts, setIncludeSheetCounts] = useState<boolean>(false);
 
   function updateFilter(newFilter: Admin.ReportingFilter) {
     setFilter(canonicalizeFilter(newFilter));
@@ -52,7 +57,7 @@ export function BallotCountReportBuilder(): JSX.Element {
     'voting-method',
     'adjudication-status',
   ];
-  const allowedGroupBys: GroupByType[] = [
+  const allowedGroupBys: GroupByEditorOption[] = [
     'groupByBallotStyle',
     'groupByBatch',
     'groupByPrecinct',
@@ -62,6 +67,10 @@ export function BallotCountReportBuilder(): JSX.Element {
   if (electionDefinition.election.type === 'primary') {
     allowedFilters.push('party');
     allowedGroupBys.push('groupByParty');
+  }
+  const maxSheetsPerBallot = getMaxSheetsPerBallot(election);
+  if (maxSheetsPerBallot && maxSheetsPerBallot > 1) {
+    allowedGroupBys.push('includeSheetCounts');
   }
 
   const hasMadeSelections = !isFilterEmpty(filter) || !isGroupByEmpty(groupBy);
@@ -79,17 +88,20 @@ export function BallotCountReportBuilder(): JSX.Element {
         </div>
         <div>
           <ControlLabel>Report By</ControlLabel>
-          <P>Organize the results into multiple reports</P>
+          <P>Organize the ballot counts into multiple groups</P>
           <GroupByEditor
             groupBy={groupBy}
             setGroupBy={updateGroupBy}
-            allowedGroupings={allowedGroupBys}
+            includeSheetCounts={includeSheetCounts}
+            setIncludeSheetCounts={setIncludeSheetCounts}
+            allowedOptions={allowedGroupBys}
           />
         </div>
       </ReportBuilderControls>
       <BallotCountReportViewer
         filter={filter}
         groupBy={groupBy}
+        includeSheetCounts={includeSheetCounts}
         disabled={!hasMadeSelections}
         autoGenerateReport={false}
       />

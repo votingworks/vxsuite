@@ -63,7 +63,7 @@ export function TallyReportBuilder(): JSX.Element {
           <GroupByEditor
             groupBy={groupBy}
             setGroupBy={updateGroupBy}
-            allowedGroupings={[
+            allowedOptions={[
               'groupByBallotStyle',
               'groupByBatch',
               'groupByPrecinct',

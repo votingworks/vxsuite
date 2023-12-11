@@ -21,6 +21,7 @@ export function VotingMethodBallotCountReport(): JSX.Element {
           groupByVotingMethod: true,
           groupByParty: electionDefinition.election.type === 'primary',
         }}
+        includeSheetCounts={false}
         disabled={false}
         autoGenerateReport
       />

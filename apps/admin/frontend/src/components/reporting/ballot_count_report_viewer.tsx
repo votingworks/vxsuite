@@ -49,6 +49,7 @@ function Report({
   cardCountsList,
   filter,
   groupBy,
+  includeSheetCounts,
   generatedAtTime,
 }: {
   electionDefinition: ElectionDefinition;
@@ -58,6 +59,7 @@ function Report({
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   filter: Admin.ReportingFilter;
   groupBy: Tabulation.GroupBy;
+  includeSheetCounts: boolean;
   generatedAtTime: Date;
 }): JSX.Element {
   const titleGeneration = generateTitleForReport({
@@ -82,6 +84,7 @@ function Report({
       scannerBatches={scannerBatches}
       generatedAtTime={generatedAtTime}
       groupBy={groupBy}
+      includeSheetCounts={includeSheetCounts}
       cardCountsList={cardCountsList}
     />
   );
@@ -90,6 +93,7 @@ function Report({
 export interface BallotCountReportViewerProps {
   filter: Admin.ReportingFilter;
   groupBy: Tabulation.GroupBy;
+  includeSheetCounts: boolean;
   disabled: boolean;
   autoGenerateReport: boolean;
 }
@@ -97,6 +101,7 @@ export interface BallotCountReportViewerProps {
 export function BallotCountReportViewer({
   filter,
   groupBy,
+  includeSheetCounts,
   disabled: disabledFromProps,
   autoGenerateReport,
 }: BallotCountReportViewerProps): JSX.Element {
@@ -146,6 +151,7 @@ export function BallotCountReportViewer({
         electionDefinition={assertDefined(electionDefinition)}
         filter={filter}
         groupBy={groupBy}
+        includeSheetCounts={includeSheetCounts}
         cardCountsList={cardCountsQuery.data}
         generatedAtTime={new Date(cardCountsQuery.dataUpdatedAt)}
         isOfficialResults={isOfficialResults}
@@ -160,6 +166,7 @@ export function BallotCountReportViewer({
     electionDefinition,
     filter,
     groupBy,
+    includeSheetCounts,
     isOfficialResults,
     isTestMode,
     scannerBatchesQuery.data,
@@ -244,6 +251,7 @@ export function BallotCountReportViewer({
         <ExportBallotCountReportCsvButton
           filter={filter}
           groupBy={groupBy}
+          includeSheetCounts={includeSheetCounts}
           disabled={disableActionButtons}
         />
         {!autoGenerateReport && (

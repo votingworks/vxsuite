@@ -6,6 +6,7 @@ import { renderInAppContext } from '../../../test/render_in_app_context';
 
 test('GroupByEditor', () => {
   const setGroupBy = jest.fn();
+  const setIncludeSheetCounts = jest.fn();
   const groupBy: Tabulation.GroupBy = {
     groupByPrecinct: true,
     groupByParty: true,
@@ -15,13 +16,16 @@ test('GroupByEditor', () => {
     <GroupByEditor
       groupBy={groupBy}
       setGroupBy={setGroupBy}
-      allowedGroupings={[
+      includeSheetCounts
+      setIncludeSheetCounts={setIncludeSheetCounts}
+      allowedOptions={[
         'groupByBallotStyle',
         'groupByBatch',
         'groupByParty',
         'groupByPrecinct',
         'groupByScanner',
         'groupByVotingMethod',
+        'includeSheetCounts',
       ]}
     />
   );
@@ -33,6 +37,7 @@ test('GroupByEditor', () => {
     ['Scanner', false],
     ['Batch', false],
     ['Party', true],
+    ['Sheet', true],
   ];
 
   for (const [label, checked] of items) {
@@ -48,4 +53,9 @@ test('GroupByEditor', () => {
     ...groupBy,
     groupByBallotStyle: true,
   });
+  expect(setIncludeSheetCounts).toHaveBeenCalledWith(true);
+
+  userEvent.click(screen.getByText('Sheet'));
+  expect(setGroupBy).toHaveBeenCalledWith(groupBy);
+  expect(setIncludeSheetCounts).toHaveBeenCalledWith(false);
 });

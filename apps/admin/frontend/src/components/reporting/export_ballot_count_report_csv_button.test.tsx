@@ -29,7 +29,11 @@ test('calls mutation in happy path', async () => {
   };
 
   renderInAppContext(
-    <ExportBallotCountReportCsvButton filter={filter} groupBy={groupBy} />,
+    <ExportBallotCountReportCsvButton
+      filter={filter}
+      groupBy={groupBy}
+      includeSheetCounts={false}
+    />,
     {
       apiMock,
       usbDriveStatus: mockUsbDriveStatus('mounted'),
@@ -59,7 +63,12 @@ test('calls mutation in happy path', async () => {
 
 test('disabled by disabled prop', () => {
   renderInAppContext(
-    <ExportBallotCountReportCsvButton disabled filter={{}} groupBy={{}} />,
+    <ExportBallotCountReportCsvButton
+      disabled
+      filter={{}}
+      groupBy={{}}
+      includeSheetCounts={false}
+    />,
     { apiMock }
   );
 

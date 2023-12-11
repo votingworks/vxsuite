@@ -81,7 +81,7 @@ const precinctReportArgs: BallotCountReportProps = {
     groupByPrecinct: true,
   },
   cardCountsList: precinctCardCountsList,
-  showSheetCounts: false,
+  includeSheetCounts: false,
 };
 
 export const PrecinctReport: Story = {
@@ -122,7 +122,7 @@ const primaryPrecinctReportArgs: BallotCountReportProps = {
     groupByParty: true,
   },
   cardCountsList: primaryPrecinctCardCountsList,
-  showSheetCounts: false,
+  includeSheetCounts: false,
 };
 
 export const PrimaryPrecinctReport: Story = {
@@ -152,7 +152,7 @@ const votingMethodReportArgs: BallotCountReportProps = {
     groupByVotingMethod: true,
   },
   cardCountsList: votingMethodCardCountsList,
-  showSheetCounts: false,
+  includeSheetCounts: false,
 };
 
 export const VotingMethodReport: Story = {
@@ -172,7 +172,7 @@ const noGroupsReportArgs: BallotCountReportProps = {
   scannerBatches: [],
   groupBy: {},
   cardCountsList: noGroupsCardCountsList,
-  showSheetCounts: false,
+  includeSheetCounts: false,
 };
 
 export const NoGroupsReport: Story = {
@@ -197,7 +197,7 @@ const singleGroupReportArgs: BallotCountReportProps = {
   ],
   groupBy: { groupByBatch: true },
   cardCountsList: singleGroupCardCountsList,
-  showSheetCounts: false,
+  includeSheetCounts: false,
 };
 
 export const SingleGroupReport: Story = {
@@ -291,7 +291,7 @@ const maxReportArgs: BallotCountReportProps = {
     groupByBallotStyle: true,
   },
   cardCountsList: maxCardCountsList,
-  showSheetCounts: false,
+  includeSheetCounts: false,
 };
 
 export const MaxReport: Story = {
@@ -368,7 +368,7 @@ const multiSheetPrecinctReportArgs: BallotCountReportProps = {
     groupByPrecinct: true,
   },
   cardCountsList: multiSheetPrecinctCardCountsList,
-  showSheetCounts: true,
+  includeSheetCounts: true,
 };
 
 export const MultiSheetPrecinctReport: Story = {
