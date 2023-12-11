@@ -45,8 +45,6 @@ import { routerPaths } from '../router_paths';
 export const TITLE = 'Precinct L&A Packages';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
-export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
-export const LAST_PRINT_JOB_SLEEP_MS = 5000;
 
 interface PrecinctTallyReportProps {
   electionDefinition: ElectionDefinition;
