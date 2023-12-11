@@ -30,11 +30,7 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import {
-  InsertedSmartCardAuthApi,
-  InsertedSmartCardAuthMachineState,
-  LiveCheck,
-} from '@votingworks/auth';
+import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   PrecinctScannerStateMachine,
@@ -43,23 +39,10 @@ import {
   PollsTransition,
   PrecinctScannerPollsInfo,
 } from './types';
+import { constructAuthMachineState } from './util/construct_auth_machine_state';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { getScannerResults } from './util/results';
-
-function constructAuthMachineState(
-  workspace: Workspace
-): InsertedSmartCardAuthMachineState {
-  const electionDefinition = workspace.store.getElectionDefinition();
-  const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings =
-    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-  return {
-    ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction,
-  };
-}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -73,7 +56,7 @@ export function buildApi(
 
   async function getUserRole() {
     const authStatus = await auth.getAuthStatus(
-      constructAuthMachineState(workspace)
+      constructAuthMachineState(workspace.store)
     );
     if (authStatus.status === 'logged_in') {
       return authStatus.user.role;
@@ -85,20 +68,20 @@ export function buildApi(
     getMachineConfig,
 
     getAuthStatus() {
-      return auth.getAuthStatus(constructAuthMachineState(workspace));
+      return auth.getAuthStatus(constructAuthMachineState(workspace.store));
     },
 
     checkPin(input: { pin: string }) {
-      return auth.checkPin(constructAuthMachineState(workspace), input);
+      return auth.checkPin(constructAuthMachineState(workspace.store), input);
     },
 
     logOut() {
-      return auth.logOut(constructAuthMachineState(workspace));
+      return auth.logOut(constructAuthMachineState(workspace.store));
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
       return auth.updateSessionExpiry(
-        constructAuthMachineState(workspace),
+        constructAuthMachineState(workspace.store),
         input
       );
     },
@@ -128,7 +111,7 @@ export function buildApi(
 
     async ejectUsbDrive(): Promise<void> {
       const authStatus = await auth.getAuthStatus(
-        constructAuthMachineState(workspace)
+        constructAuthMachineState(workspace.store)
       );
       return usbDrive.eject(
         authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown'
@@ -141,7 +124,7 @@ export function buildApi(
       assert(!store.getElectionDefinition(), 'Already configured');
 
       const authStatus = await auth.getAuthStatus(
-        constructAuthMachineState(workspace)
+        constructAuthMachineState(workspace.store)
       );
       const electionPackageResult = await readElectionPackageFromUsb(
         authStatus,
