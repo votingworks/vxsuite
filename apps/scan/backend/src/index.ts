@@ -4,6 +4,16 @@ import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import fs from 'fs';
 import { detectUsbDrive } from '@votingworks/usb-drive';
+import {
+  InsertedSmartCardAuth,
+  JavaCard,
+  MockFileCard,
+} from '@votingworks/auth';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  isIntegrationTest,
+} from '@votingworks/utils';
 import { NODE_ENV, SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
@@ -55,6 +65,15 @@ async function resolveWorkspace(): Promise<Workspace> {
 }
 
 async function main(): Promise<number> {
+  const auth = new InsertedSmartCardAuth({
+    card:
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
+      isIntegrationTest()
+        ? new MockFileCard()
+        : new JavaCard(),
+    config: {},
+    logger,
+  });
   const workspace = await resolveWorkspace();
   const usbDrive = detectUsbDrive(logger);
 
@@ -67,6 +86,7 @@ async function main(): Promise<number> {
     });
 
   server.start({
+    auth,
     precinctScannerStateMachine,
     workspace,
     usbDrive,
