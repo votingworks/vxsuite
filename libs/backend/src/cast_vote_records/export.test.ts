@@ -822,7 +822,9 @@ test.each<{
       mockPrecinctScannerStore.setBallotsCounted(1);
       const usbDriveStatus = await mockUsbDrive.usbDrive.status();
       assert(usbDriveStatus.status === 'mounted');
-      mockPrecinctScannerStore.setIsContinuousExportOperationInProgress(true);
+      mockPrecinctScannerStore.addPendingContinuousExportOperation(
+        'abcd1234-0000-0000-0000-000000000000'
+      );
     },
     shouldUsbDriveRequireCastVoteRecordSync: true,
   },
