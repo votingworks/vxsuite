@@ -18,6 +18,7 @@ import {
   getPrecinctById,
   sanitizeStringForFilename,
   isFilterEmpty as isTabulationFilterEmpty,
+  getDistrictById,
 } from '@votingworks/utils';
 import moment from 'moment';
 import type { ScannerBatch } from '@votingworks/admin-backend';
@@ -31,7 +32,11 @@ const VOTING_METHOD_LABELS: Record<Tabulation.VotingMethod, string> = {
 const FAT_FILENAME_CHAR_LIMIT = 255;
 
 export function isFilterEmpty(filter: Admin.FrontendReportingFilter): boolean {
-  return isTabulationFilterEmpty(filter) && !filter.adjudicationFlags;
+  return (
+    isTabulationFilterEmpty(filter) &&
+    !filter.adjudicationFlags &&
+    !filter.districtIds
+  );
 }
 
 /**
@@ -45,7 +50,8 @@ function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
       (filter.batchIds && filter.batchIds.length > 1) ||
       (filter.scannerIds && filter.scannerIds.length > 1) ||
       (filter.votingMethods && filter.votingMethods.length > 1) ||
-      (filter.adjudicationFlags && filter.adjudicationFlags.length > 1)
+      (filter.adjudicationFlags && filter.adjudicationFlags.length > 1) ||
+      (filter.districtIds && filter.districtIds.length > 1)
   );
 }
 
@@ -60,7 +66,8 @@ function getFilterRank(filter: Admin.FrontendReportingFilter): number {
     (filter.scannerIds?.[0] ? 1 : 0) +
     (filter.votingMethods?.[0] ? 1 : 0) +
     (filter.partyIds?.[0] ? 1 : 0) +
-    (filter.adjudicationFlags?.[0] ? 1 : 0)
+    (filter.adjudicationFlags?.[0] ? 1 : 0) +
+    (filter.districtIds?.[0] ? 1 : 0)
   );
 }
 
@@ -95,6 +102,7 @@ export function generateTitleForReport({
   const scannerId = filter.scannerIds?.[0];
   const partyId = filter.partyIds?.[0];
   const adjudicationFlag = filter.adjudicationFlags?.[0];
+  const districtId = filter.districtIds?.[0];
 
   const reportRank = getFilterRank(filter);
 
@@ -170,6 +178,14 @@ export function generateTitleForReport({
           throwIllegalValue(adjudicationFlag);
       }
     }
+
+    if (districtId) {
+      return ok(
+        `${
+          getDistrictById(electionDefinition, districtId).name
+        } ${reportType} Report`
+      );
+    }
   }
 
   if (reportRank === 2) {
@@ -235,6 +251,14 @@ export function generateTitleForReport({
 
     // Other Combinations
 
+    if (votingMethod && districtId) {
+      return ok(
+        `${getDistrictById(electionDefinition, districtId).name} ${
+          VOTING_METHOD_LABELS[votingMethod]
+        } Ballot ${reportType} Report`
+      );
+    }
+
     if (scannerId && batchId) {
       if (batchId === Tabulation.MANUAL_BATCH_ID) {
         return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
@@ -287,6 +311,10 @@ export function canonicalizeFilter(
       filter.adjudicationFlags && filter.adjudicationFlags.length > 0
         ? [...filter.adjudicationFlags].sort()
         : undefined,
+    districtIds:
+      filter.districtIds && filter.districtIds.length > 0
+        ? [...filter.districtIds].sort()
+        : undefined,
   };
 }
 
@@ -338,6 +366,7 @@ function generateReportFilenameFilterPrefix({
   const scannerId = filter.scannerIds?.[0];
   const batchId = filter.batchIds?.[0];
   const adjudicationFlag = filter.adjudicationFlags?.[0];
+  const districtId = filter.districtIds?.[0];
 
   if (ballotStyleId) {
     filterPrefixes.push(`ballot-style-${ballotStyleId}`);
@@ -350,6 +379,18 @@ function generateReportFilenameFilterPrefix({
     ).name;
     filterPrefixes.push(
       sanitizeStringForFilename(precinctName, {
+        replaceInvalidCharsWith: WORD_SEPARATOR,
+      })
+    );
+  }
+
+  if (districtId) {
+    const districtName = find(
+      election.districts,
+      (d) => d.id === districtId
+    ).name;
+    filterPrefixes.push(
+      sanitizeStringForFilename(districtName, {
         replaceInvalidCharsWith: WORD_SEPARATOR,
       })
     );
