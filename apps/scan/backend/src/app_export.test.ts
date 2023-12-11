@@ -162,6 +162,56 @@ test('continuous CVR export, including polls closing, followed by a full export'
   );
 });
 
+test('continuous CVR export with a mode switch in between', async () => {
+  await withApp(
+    {},
+    async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+
+      // Don't wait for continuous export to USB drive in between scans and polls closing so that
+      // we can verify that the continuous export mutex prevents continuous export operations from
+      // interleaving
+      await scanBallot(mockScanner, apiClient, workspace.store, 0, {
+        waitForContinuousExportToUsbDrive: false,
+      });
+      await scanBallot(mockScanner, apiClient, workspace.store, 1, {
+        waitForContinuousExportToUsbDrive: false,
+      });
+
+      await apiClient.setTestMode({ isTestMode: false });
+      await apiClient.setTestMode({ isTestMode: true });
+      await apiClient.transitionPolls({ type: 'open_polls', time: Date.now() });
+
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+
+      // Expect two export directories, one from before the mode switch and one from after
+      const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+        mockUsbDrive.usbDrive
+      );
+      expect(exportDirectoryPaths).toHaveLength(2);
+
+      for (const [i, exportDirectoryPath] of exportDirectoryPaths.entries()) {
+        const { castVoteRecordIterator } = (
+          await readCastVoteRecordExport(exportDirectoryPath)
+        ).unsafeUnwrap();
+        const castVoteRecords: CVR.CVR[] = (
+          await castVoteRecordIterator.toArray()
+        ).map(
+          (castVoteRecordResult) =>
+            castVoteRecordResult.unsafeUnwrap().castVoteRecord
+        );
+        if (i === 0) {
+          // Directory before mode switch
+          expect(castVoteRecords).toHaveLength(2);
+        } else {
+          // Directory before mode switch
+          expect(castVoteRecords).toHaveLength(1);
+        }
+      }
+    }
+  );
+});
+
 test('CVR resync', async () => {
   await withApp(
     {},
