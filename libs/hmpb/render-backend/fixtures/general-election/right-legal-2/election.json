@@ -1,5 +1,6 @@
 {
   "@type": "BallotDefinition.BallotDefinition",
+  "Office": [],
   "Election": [
     {
       "@type": "BallotDefinition.Election",
