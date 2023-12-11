@@ -15,6 +15,7 @@ import {
 } from './write_ins';
 import { tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
+import { assertIsBackendFilter } from '../util/filters';
 
 const debug = rootDebug.extend('tabulation');
 
@@ -32,6 +33,7 @@ export function tabulateCastVoteRecords({
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
+  assertIsBackendFilter(filter);
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));

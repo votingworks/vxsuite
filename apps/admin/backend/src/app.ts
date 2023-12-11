@@ -85,6 +85,7 @@ import {
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
 import { adjudicateWriteIn } from './adjudication';
+import { convertFrontendFilter as convertFrontendFileUtil } from './util/filters';
 
 const debug = rootDebug.extend('app');
 
@@ -150,6 +151,18 @@ function buildApi({
     }
     /* c8 ignore next 2 - trivial fallback case */
     return undefined;
+  }
+
+  function convertFrontendFilter(
+    filter?: Admin.FrontendReportingFilter
+  ): Optional<Admin.ReportingFilter> {
+    if (!filter) return undefined;
+
+    const electionId = loadCurrentElectionIdOrThrow(workspace);
+    const {
+      electionDefinition: { election },
+    } = assertDefined(store.getElection(electionId));
+    return convertFrontendFileUtil(filter, election);
   }
 
   return grout.createApi({
@@ -660,7 +673,7 @@ function buildApi({
     getCardCounts(
       input: {
         groupBy?: Tabulation.GroupBy;
-        filter?: Admin.ReportingFilter;
+        filter?: Admin.FrontendReportingFilter;
       } = {}
     ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
@@ -668,14 +681,15 @@ function buildApi({
         tabulateFullCardCounts({
           electionId,
           store,
-          ...input,
+          groupBy: input.groupBy,
+          filter: convertFrontendFilter(input.filter),
         })
       );
     },
 
     async getResultsForTallyReports(
       input: {
-        filter?: Tabulation.Filter;
+        filter?: Admin.FrontendReportingFilter;
         groupBy?: Tabulation.GroupBy;
       } = {}
     ): Promise<Tabulation.GroupList<TallyReportResults>> {
@@ -683,7 +697,7 @@ function buildApi({
       return tabulateTallyReportResults({
         electionId,
         store,
-        filter: input.filter,
+        filter: convertFrontendFilter(input.filter),
         groupBy: input.groupBy,
       });
     },
@@ -694,7 +708,7 @@ function buildApi({
 
     async exportTallyReportCsv(input: {
       path: string;
-      filter?: Tabulation.Filter;
+      filter?: Admin.FrontendReportingFilter;
       groupBy?: Tabulation.GroupBy;
     }): Promise<ExportDataResult> {
       debug('exporting tally report CSV file: %o', input);
@@ -702,7 +716,7 @@ function buildApi({
         path: input.path,
         data: await generateTallyReportCsv({
           store,
-          filter: input.filter,
+          filter: convertFrontendFilter(input.filter),
           groupBy: input.groupBy,
         }),
       });
@@ -724,7 +738,7 @@ function buildApi({
 
     async exportBallotCountReportCsv(input: {
       path: string;
-      filter?: Tabulation.Filter;
+      filter?: Admin.FrontendReportingFilter;
       groupBy?: Tabulation.GroupBy;
       includeSheetCounts?: boolean;
     }): Promise<ExportDataResult> {
@@ -733,7 +747,7 @@ function buildApi({
         path: input.path,
         data: generateBallotCountReportCsv({
           store,
-          filter: input.filter,
+          filter: convertFrontendFilter(input.filter),
           groupBy: input.groupBy,
           includeSheetCounts: input.includeSheetCounts,
         }),
