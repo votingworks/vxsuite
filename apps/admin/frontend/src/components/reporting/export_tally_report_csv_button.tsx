@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { Tabulation } from '@votingworks/types';
+import { Admin, Tabulation } from '@votingworks/types';
 import path from 'path';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import { AppContext } from '../../contexts/app_context';
@@ -17,7 +17,7 @@ export function ExportTallyReportCsvButton({
   groupBy,
   disabled,
 }: {
-  filter: Tabulation.Filter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   disabled?: boolean;
 }): JSX.Element {

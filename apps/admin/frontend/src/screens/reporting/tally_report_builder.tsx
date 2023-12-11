@@ -6,7 +6,7 @@ import {
   isFilterEmpty,
   isGroupByEmpty,
 } from '@votingworks/utils';
-import { Tabulation } from '@votingworks/types';
+import { Admin, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
 import { FilterEditor } from '../../components/reporting/filter_editor';
@@ -27,10 +27,10 @@ export function TallyReportBuilder(): JSX.Element {
   assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
 
-  const [filter, setFilter] = useState<Tabulation.Filter>({});
+  const [filter, setFilter] = useState<Admin.FrontendReportingFilter>({});
   const [groupBy, setGroupBy] = useState<Tabulation.GroupBy>({});
 
-  function updateFilter(newFilter: Tabulation.Filter) {
+  function updateFilter(newFilter: Admin.FrontendReportingFilter) {
     setFilter(canonicalizeFilter(newFilter));
   }
 
@@ -54,6 +54,7 @@ export function TallyReportBuilder(): JSX.Element {
               'precinct',
               'scanner',
               'voting-method',
+              'district',
             ]} // omits party
           />
         </div>

@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { Tabulation } from '@votingworks/types';
+import { Admin, Tabulation } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
@@ -21,7 +21,7 @@ test('calls mutation in happy path', async () => {
   jest.useFakeTimers();
   jest.setSystemTime(new Date('2021-01-01T00:00:00Z'));
 
-  const filter: Tabulation.Filter = {
+  const filter: Admin.FrontendReportingFilter = {
     votingMethods: ['absentee'],
   };
   const groupBy: Tabulation.GroupBy = {

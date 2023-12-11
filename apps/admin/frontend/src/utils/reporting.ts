@@ -30,14 +30,14 @@ const VOTING_METHOD_LABELS: Record<Tabulation.VotingMethod, string> = {
 
 const FAT_FILENAME_CHAR_LIMIT = 255;
 
-export function isFilterEmpty(filter: Admin.ReportingFilter): boolean {
+export function isFilterEmpty(filter: Admin.FrontendReportingFilter): boolean {
   return isTabulationFilterEmpty(filter) && !filter.adjudicationFlags;
 }
 
 /**
  * Checks whether the report has any filters which have multiple values selected.
  */
-function isCompoundFilter(filter: Admin.ReportingFilter): boolean {
+function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
   return Boolean(
     (filter.partyIds && filter.partyIds.length > 1) ||
       (filter.ballotStyleIds && filter.ballotStyleIds.length > 1) ||
@@ -52,7 +52,7 @@ function isCompoundFilter(filter: Admin.ReportingFilter): boolean {
 /**
  * Returns the number of dimensions being filtered on.
  */
-function getFilterRank(filter: Admin.ReportingFilter): number {
+function getFilterRank(filter: Admin.FrontendReportingFilter): number {
   return (
     (filter.ballotStyleIds?.[0] ? 1 : 0) +
     (filter.precinctIds?.[0] ? 1 : 0) +
@@ -79,7 +79,7 @@ export function generateTitleForReport({
   scannerBatches,
   reportType = 'Tally',
 }: {
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   electionDefinition: ElectionDefinition;
   scannerBatches: ScannerBatch[];
   reportType?: 'Tally' | 'Ballot Count';
@@ -256,8 +256,8 @@ export function generateTitleForReport({
  * - sorts filter values alphabetically
  */
 export function canonicalizeFilter(
-  filter: Admin.ReportingFilter
-): Admin.ReportingFilter {
+  filter: Admin.FrontendReportingFilter
+): Admin.FrontendReportingFilter {
   return {
     ballotStyleIds:
       filter.ballotStyleIds && filter.ballotStyleIds.length > 0
@@ -313,7 +313,7 @@ function generateReportFilenameFilterPrefix({
   filter,
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
 }): string {
   if (isCompoundFilter(filter)) {
     return 'custom';
@@ -438,7 +438,7 @@ export function generateReportFilename({
   time,
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;
@@ -515,7 +515,7 @@ export function generateTallyReportPdfFilename({
   time = new Date(),
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;
@@ -543,7 +543,7 @@ export function generateTallyReportCsvFilename({
   time = new Date(),
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;
@@ -570,7 +570,7 @@ export function generateBallotCountReportPdfFilename({
   time = new Date(),
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;
@@ -597,7 +597,7 @@ export function generateBallotCountReportCsvFilename({
   time = new Date(),
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;

@@ -34,7 +34,7 @@ const scannerBatches: ScannerBatch[] = [
 
 test('generateTitleForReport', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  const unsupportedFilters: Admin.ReportingFilter[] = [
+  const unsupportedFilters: Admin.FrontendReportingFilter[] = [
     {
       precinctIds: ['precinct-1', 'precinct-2'],
     },
@@ -76,7 +76,7 @@ test('generateTitleForReport', () => {
   }
 
   const supportedFilters: Array<
-    [filter: Admin.ReportingFilter, title: string]
+    [filter: Admin.FrontendReportingFilter, title: string]
   > = [
     [
       {
@@ -198,7 +198,7 @@ test('generateTitleForReport', () => {
   }
 
   const ballotCountFilters: Array<
-    [filter: Admin.ReportingFilter, title: string]
+    [filter: Admin.FrontendReportingFilter, title: string]
   > = [
     [
       {
@@ -296,7 +296,7 @@ test('canonicalizeGroupBy', () => {
 test('generateBallotCountReportPdfFilename', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const testCases: Array<{
-    filter?: Admin.ReportingFilter;
+    filter?: Admin.FrontendReportingFilter;
     groupBy?: Tabulation.GroupBy;
     expectedFilename: string;
     isTestMode?: boolean;
@@ -357,7 +357,7 @@ test('generateBallotCountReportPdfFilename', () => {
 test('generateTallyReportPdfFilename', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const testCases: Array<{
-    filter?: Admin.ReportingFilter;
+    filter?: Admin.FrontendReportingFilter;
     groupBy?: Tabulation.GroupBy;
     expectedFilename: string;
     isTestMode?: boolean;
