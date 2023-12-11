@@ -9,6 +9,7 @@ import {
   ButtonColor,
   ButtonFill,
   LabelButton,
+  LoadingButton,
 } from './button';
 import { makeTheme } from './themes/make_theme';
 import { Icons } from './icons';
@@ -237,7 +238,11 @@ describe('Button', () => {
       </Button>
     );
     const button = screen.getButton('Add');
-    expect(button.getElementsByTagName('svg')).toHaveLength(1);
+    const icons = button.getElementsByTagName('svg');
+    expect(icons).toHaveLength(1);
+    const [icon] = icons;
+    expect(icon).toHaveAttribute('data-icon', 'circle-plus');
+    expect(button.firstChild).toEqual(icon);
   });
 
   test('with icon name', () => {
@@ -247,7 +252,11 @@ describe('Button', () => {
       </Button>
     );
     const button = screen.getButton('Add');
-    expect(button.getElementsByTagName('svg')).toHaveLength(1);
+    const icons = button.getElementsByTagName('svg');
+    expect(icons).toHaveLength(1);
+    const [icon] = icons;
+    expect(icon).toHaveAttribute('data-icon', 'circle-plus');
+    expect(button.firstChild).toEqual(icon);
   });
 
   test('with rightIcon component', () => {
@@ -257,7 +266,11 @@ describe('Button', () => {
       </Button>
     );
     const button = screen.getButton('Add');
-    expect(button.getElementsByTagName('svg')).toHaveLength(1);
+    const icons = button.getElementsByTagName('svg');
+    expect(icons).toHaveLength(1);
+    const [icon] = icons;
+    expect(icon).toHaveAttribute('data-icon', 'circle-plus');
+    expect(button.lastChild).toEqual(icon);
   });
 
   test('with rightIcon name', () => {
@@ -267,7 +280,11 @@ describe('Button', () => {
       </Button>
     );
     const button = screen.getButton('Add');
-    expect(button.getElementsByTagName('svg')).toHaveLength(1);
+    const icons = button.getElementsByTagName('svg');
+    expect(icons).toHaveLength(1);
+    const [icon] = icons;
+    expect(icon).toHaveAttribute('data-icon', 'circle-plus');
+    expect(button.lastChild).toEqual(icon);
   });
 
   test('focus()/blur() API', () => {
@@ -335,5 +352,18 @@ describe('Button', () => {
     expect(screen.getByText('I am a label').tagName.toLowerCase()).toEqual(
       'label'
     );
+  });
+});
+
+describe('LoadingButton', () => {
+  test('is disabled and shows spinner', () => {
+    render(<LoadingButton>Saving...</LoadingButton>);
+    const button = screen.getButton('Saving...');
+    expect(button).toBeDisabled();
+    const icons = button.getElementsByTagName('svg');
+    expect(icons).toHaveLength(1);
+    const [icon] = icons;
+    expect(icon).toHaveAttribute('data-icon', 'spinner');
+    expect(button.firstChild).toEqual(icon);
   });
 });

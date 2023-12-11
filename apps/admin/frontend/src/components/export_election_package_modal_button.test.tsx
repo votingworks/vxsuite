@@ -1,8 +1,9 @@
 import { fakeLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { err } from '@votingworks/basics';
+import { Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import type { ExportDataError } from '@votingworks/admin-backend';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportElectionPackageModalButton } from './export_election_package_modal_button';
@@ -55,7 +56,7 @@ test.each<{
   }
 );
 
-test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
+test('Modal renders export confirmation screen when usb detected', async () => {
   const logger = fakeLogger();
   renderInAppContext(<ExportElectionPackageModalButton />, {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
@@ -71,14 +72,27 @@ test('Modal renders export confirmation screen when usb detected and manual link
     /A zip archive will automatically be saved to the default location on the mounted USB drive./
   );
 
-  apiMock.expectSaveElectionPackageToUsb();
-  const saveButton = within(modal).getButton('Save');
-  userEvent.click(saveButton);
-  await waitFor(() => expect(saveButton).toBeDisabled());
+  const { promise, resolve } = deferred<Result<void, ExportDataError>>();
+  apiMock.apiClient.saveElectionPackageToUsb.expectCallWith().returns(promise);
+  userEvent.click(within(modal).getButton('Save'));
+  expect(await within(modal).findButton('Saving...')).toBeDisabled();
+  // Clicking outside the modal should not close it while the save is in progress.
+  userEvent.click(modal.parentElement!);
+  screen.getByRole('alertdialog');
+  resolve(ok());
   await within(modal).findByText('Election Package Saved');
 
-  userEvent.click(within(modal).getButton('Close'));
-  expect(screen.queryAllByTestId('modal')).toHaveLength(0);
+  screen.getByText(
+    'You may now eject the USB drive. Use the saved election package on this USB drive to configure VxSuite components.'
+  );
+
+  apiMock.expectEjectUsbDrive();
+  userEvent.click(screen.getButton('Eject USB'));
+
+  userEvent.click(screen.getButton('Close'));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
 });
 
 test('Modal renders error message appropriately', async () => {
@@ -100,32 +114,6 @@ test('Modal renders error message appropriately', async () => {
     name: 'Failed to Save Election Package',
   });
   screen.getByText(/An error occurred: No USB drive detected/);
-
-  userEvent.click(screen.getButton('Close'));
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-});
-
-test('Modal renders renders loading message while rendering ballots appropriately', async () => {
-  renderInAppContext(<ExportElectionPackageModalButton />, {
-    apiMock,
-    usbDriveStatus: mockUsbDriveStatus('mounted'),
-  });
-  userEvent.click(screen.getButton('Save Election Package'));
-  await screen.findByRole('heading', { name: 'Save Election Package' });
-
-  apiMock.expectSaveElectionPackageToUsb();
-  userEvent.click(screen.getButton('Save'));
-
-  await screen.findByText('Election Package Saved');
-
-  screen.getByText(
-    'You may now eject the USB drive. Use the saved election package on this USB drive to configure VxSuite components.'
-  );
-
-  apiMock.expectEjectUsbDrive();
-  userEvent.click(screen.getButton('Eject USB'));
 
   userEvent.click(screen.getButton('Close'));
   await waitFor(() =>

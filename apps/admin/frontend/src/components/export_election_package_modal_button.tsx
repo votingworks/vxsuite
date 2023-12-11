@@ -5,7 +5,13 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Button, Modal, P, UsbControllerButton } from '@votingworks/ui';
+import {
+  Button,
+  LoadingButton,
+  Modal,
+  P,
+  UsbControllerButton,
+} from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
 
 import { ejectUsbDrive, saveElectionPackageToUsb } from '../api';
@@ -42,6 +48,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   function closeModal() {
+    if (saveElectionPackageToUsbMutation.isLoading) return;
     setIsModalOpen(false);
     setSaveState({ state: 'unsaved' });
   }
@@ -80,15 +87,23 @@ export function ExportElectionPackageModalButton(): JSX.Element {
         case 'mounted': {
           actions = (
             <React.Fragment>
+              {saveElectionPackageToUsbMutation.isLoading ? (
+                <LoadingButton variant="primary">Saving...</LoadingButton>
+              ) : (
+                <Button
+                  icon="Export"
+                  onPress={saveElectionPackage}
+                  variant="primary"
+                >
+                  Save
+                </Button>
+              )}
               <Button
-                icon="Export"
-                onPress={saveElectionPackage}
-                variant="primary"
-                loading={saveElectionPackageToUsbMutation.isLoading}
+                onPress={closeModal}
+                disabled={saveElectionPackageToUsbMutation.isLoading}
               >
-                Save
+                Cancel
               </Button>
-              <Button onPress={closeModal}>Cancel</Button>
             </React.Fragment>
           );
           title = 'Save Election Package';
