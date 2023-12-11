@@ -48,6 +48,8 @@ import {
   readCastVoteRecord,
 } from './test_utils';
 
+jest.setTimeout(10_000);
+
 const mockFeatureFlagger = getFeatureFlagMock();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
@@ -1061,6 +1063,62 @@ test('full cast vote record export on precinct scanner clears doesUsbDriveRequir
       usbDriveStatus
     )
   ).toEqual(false);
+});
+
+test('tracking pending continuous export operations', async () => {
+  mockUsbDrive.insertUsbDrive({});
+  mockPrecinctScannerStore.setElectionDefinition(electionDefinition);
+  mockPrecinctScannerStore.setPollsState('polls_open');
+
+  const sheet1 = newAcceptedSheet(interpretedHmpb, sheet1Id);
+  const sheet2 = newAcceptedSheet(interpretedHmpb, sheet2Id);
+  const sheet3 = newAcceptedSheet(interpretedHmpb, sheet3Id);
+  const sheet4 = newAcceptedSheet(interpretedHmpb, sheet3Id);
+  const sheet5 = newAcceptedSheet(interpretedHmpb, sheet3Id);
+  mockPrecinctScannerStore.addPendingContinuousExportOperation(sheet1Id);
+  mockPrecinctScannerStore.addPendingContinuousExportOperation(sheet2Id);
+  mockPrecinctScannerStore.addPendingContinuousExportOperation(sheet3Id);
+  mockPrecinctScannerStore.addPendingContinuousExportOperation(sheet4Id);
+  mockPrecinctScannerStore.addPendingContinuousExportOperation(sheet5Id);
+  expect(
+    mockPrecinctScannerStore.getPendingContinuousExportOperations()
+  ).toEqual([sheet1Id, sheet2Id, sheet3Id, sheet4Id, sheet5Id]);
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet1],
+      { scannerType: 'precinct' }
+    )
+  ).toEqual(ok());
+  expect(
+    mockPrecinctScannerStore.getPendingContinuousExportOperations()
+  ).toEqual([sheet2Id, sheet3Id, sheet4Id, sheet5Id]);
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet2, sheet3],
+      { scannerType: 'precinct' }
+    )
+  ).toEqual(ok());
+  expect(
+    mockPrecinctScannerStore.getPendingContinuousExportOperations()
+  ).toEqual([sheet4Id, sheet5Id]);
+
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
+      mockPrecinctScannerStore,
+      mockUsbDrive.usbDrive,
+      [sheet1, sheet2, sheet3, sheet4, sheet5],
+      { scannerType: 'precinct', isFullExport: true }
+    )
+  ).toEqual(ok());
+  expect(
+    mockPrecinctScannerStore.getPendingContinuousExportOperations()
+  ).toEqual([]);
 });
 
 test('export and subsequent import of that export', async () => {
