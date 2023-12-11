@@ -37,7 +37,7 @@ function parseCommandLineArgs(args: readonly string[]): CopySheetsInput {
   return { targetSheetCount };
 }
 
-function copySheet(store: Store, sheet: AcceptedSheet): void {
+function copySheet(store: Store, sheet: AcceptedSheet): string {
   const newSheetId = uuid();
   const newSheet: AcceptedSheet = {
     ...sheet,
@@ -65,6 +65,7 @@ function copySheet(store: Store, sheet: AcceptedSheet): void {
       interpretation: newSheet.interpretation[1],
     },
   ]);
+  return newSheetId;
 }
 
 function copySheets({ targetSheetCount }: CopySheetsInput): void {
@@ -89,9 +90,11 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
     .take(maxNumSheetsToReadForCopying)
     .toArray();
 
+  const newSheetIds: string[] = [];
   for (let i = 0; i < numSheetsToCreate; i += 1) {
     const sheet = sheets[i % sheets.length];
-    copySheet(store, sheet);
+    const newSheetId = copySheet(store, sheet);
+    newSheetIds.push(newSheetId);
   }
 
   const sheetOrSheets = numSheetsToCreate === 1 ? 'sheet' : 'sheets';
@@ -101,7 +104,9 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
   );
 
   // Ensure that we sync cast vote records to the now out-of-sync USB drive
-  store.setIsContinuousExportOperationInProgress(true);
+  for (const newSheetId of newSheetIds) {
+    store.addPendingContinuousExportOperation(newSheetId);
+  }
   console.log(
     '🟡 Restart VxScan if already running ' +
       'to surface the prompt to sync cast vote records to the now out-of-sync USB drive'
