@@ -202,7 +202,6 @@ export class Store {
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
-      where deleted_at is null
     `) as Array<{
         id: Id;
         electionData: string;
@@ -231,7 +230,7 @@ export class Store {
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults
       from elections
-      where deleted_at is null AND id = ?
+      where id = ?
     `,
       electionId
     ) as
@@ -260,9 +259,10 @@ export class Store {
    */
   deleteElection(id: Id): void {
     this.client.run(
-      'update elections set deleted_at = current_timestamp where id = ?',
+      'update settings set current_election_id = null where current_election_id = ?',
       id
     );
+    this.client.run('delete from elections where id = ?', id);
   }
 
   /**
@@ -272,7 +272,7 @@ export class Store {
     const election = this.client.one(
       `
         select id from elections
-        where id = ? and deleted_at is null
+        where id = ?
       `,
       electionId
     ) as { id: Id } | undefined;
