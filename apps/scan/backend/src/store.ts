@@ -46,12 +46,7 @@ import {
   getCastVoteRecordRootHash,
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
-import {
-  SqliteBool,
-  asSqliteBool,
-  fromSqliteBool,
-  getPollsTransitionDestinationState,
-} from '@votingworks/utils';
+import { getPollsTransitionDestinationState } from '@votingworks/utils';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { rootDebug } from './util/debug';
 import { PollsTransition } from './types';
@@ -667,8 +662,8 @@ export class Store {
 
         // Reset all export-related metadata
         this.setExportDirectoryName(undefined);
+        this.deleteAllPendingContinuousExportOperations();
         this.clearCastVoteRecordHashes();
-        this.setIsContinuousExportOperationInProgress(false);
         clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
       });
     }
@@ -905,33 +900,6 @@ export class Store {
     return safeParseSystemSettings(result.data).unsafeUnwrap();
   }
 
-  isContinuousExportOperationInProgress(): boolean {
-    const row = this.client.one(
-      `
-      select
-        is_continuous_export_operation_in_progress as isContinuousExportOperationInProgress
-      from is_continuous_export_operation_in_progress
-      `
-    ) as { isContinuousExportOperationInProgress: SqliteBool } | undefined;
-    return row
-      ? fromSqliteBool(row.isContinuousExportOperationInProgress)
-      : false;
-  }
-
-  setIsContinuousExportOperationInProgress(
-    isContinuousExportOperationInProgress: boolean
-  ): void {
-    this.client.run('delete from is_continuous_export_operation_in_progress');
-    this.client.run(
-      `
-      insert into is_continuous_export_operation_in_progress (
-        is_continuous_export_operation_in_progress
-      ) values (?)
-      `,
-      asSqliteBool(isContinuousExportOperationInProgress)
-    );
-  }
-
   /**
    * Gets the name of the directory that we're continuously exporting to, e.g.
    * TEST__machine_SCAN-0001__2023-08-16_17-02-24. Returns undefined if not yet set.
@@ -962,6 +930,42 @@ export class Store {
         exportDirectoryName
       );
     }
+  }
+
+  getPendingContinuousExportOperations(): string[] {
+    const rows = this.client.all(
+      `
+      select
+        sheet_id as sheetId
+      from pending_continuous_export_operations
+      `
+    ) as Array<{ sheetId: string }>;
+    return rows.map((row) => row.sheetId);
+  }
+
+  addPendingContinuousExportOperation(sheetId: string): void {
+    this.client.run(
+      `
+      insert or replace into pending_continuous_export_operations (
+        sheet_id
+      ) values (?)
+      `,
+      sheetId
+    );
+  }
+
+  deletePendingContinuousExportOperation(sheetId: string): void {
+    this.client.run(
+      `
+      delete from pending_continuous_export_operations
+      where sheet_id = ?
+      `,
+      sheetId
+    );
+  }
+
+  deleteAllPendingContinuousExportOperations(): void {
+    this.client.run('delete from pending_continuous_export_operations');
   }
 
   getCastVoteRecordRootHash(): string {
