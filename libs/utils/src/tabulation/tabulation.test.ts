@@ -975,7 +975,12 @@ describe('tabulateCastVoteRecords', () => {
 
   test('with expected groups', async () => {
     const resultsByMethodAndPrecinct = await tabulateCastVoteRecords({
-      cvrs: cvrs.slice(0, 1),
+      cvrs: [
+        cvrs.find(
+          (cvr) =>
+            cvr.precinctId === 'precinct-1' && cvr.votingMethod === 'precinct'
+        )!,
+      ],
       election,
       groupBy: {
         groupByVotingMethod: true,
