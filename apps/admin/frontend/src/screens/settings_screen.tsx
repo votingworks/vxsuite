@@ -45,15 +45,15 @@ export function SettingsScreen(): JSX.Element {
           Set Date and Time
         </SetClockButton>
       </P>
+      <H2>Logs</H2>
+      <ExportLogsButton
+        usbDriveStatus={usbDriveStatus}
+        auth={auth}
+        logger={logger}
+        onExportLogs={doExportLogs}
+      />
       {isSystemAdministratorAuth(auth) && (
         <React.Fragment>
-          <H2>Logs</H2>
-          <ExportLogsButton
-            usbDriveStatus={usbDriveStatus}
-            auth={auth}
-            logger={logger}
-            onExportLogs={doExportLogs}
-          />
           <H2>USB Formatting</H2>
           <FormatUsbButton />
           <H2>Software Update</H2>
