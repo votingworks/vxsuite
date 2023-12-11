@@ -1,7 +1,7 @@
 import React from 'react';
 import styled, { css, useTheme } from 'styled-components';
 
-import { Button } from './button';
+import { Button, ButtonProps } from './button';
 
 /** Props for {@link SegmentedButton}. */
 export interface SegmentedButtonProps<T extends SegmentedButtonOptionId> {
@@ -73,6 +73,26 @@ const OptionsContainer = styled.span<OptionsContainerProps>`
   ${(p) => p.theme.colorMode === 'desktop' && desktopStyles}
 `;
 
+type OptionButtonProps<T extends SegmentedButtonOptionId> = ButtonProps<T> & {
+  selected: boolean;
+};
+
+const optionButtonTouchStyles = css<OptionButtonProps<SegmentedButtonOptionId>>`
+  &[disabled] {
+    background-color: ${(p) =>
+      p.selected ? p.theme.colors.primary : undefined};
+    color: ${(p) => (p.selected ? p.theme.colors.onPrimary : undefined)};
+  }
+`;
+
+// TODO(kofi): Worth extracting a shared OptionButton or ToggleButton for cases
+// like this (e.g. segmented button, checkbox button, radio button, etc).
+const OptionButton = styled(Button)<OptionButtonProps<SegmentedButtonOptionId>>`
+  ${(p) => p.theme.colorMode !== 'desktop' && optionButtonTouchStyles}
+` as unknown as new <T extends SegmentedButtonOptionId>() => React.Component<
+  OptionButtonProps<T>
+>;
+
 /**
  * Renders a list of options as labelled buttons, where only one option can be
  * selected at a time.
@@ -111,13 +131,14 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
         {options.map((o) => {
           const isSelected = o.id === selectedOptionId;
           return (
-            <Button
+            <OptionButton
               aria-label={o.ariaLabel}
               aria-selected={o.id === selectedOptionId}
               disabled={disabled}
               key={o.id}
               onPress={onChange}
               role="option"
+              selected={o.id === selectedOptionId}
               value={o.id}
               variant={isSelected ? 'primary' : 'neutral'}
               fill={
@@ -129,7 +150,7 @@ export function SegmentedButton<T extends SegmentedButtonOptionId>(
               }
             >
               {o.label}
-            </Button>
+            </OptionButton>
           );
         })}
       </OptionsContainer>
