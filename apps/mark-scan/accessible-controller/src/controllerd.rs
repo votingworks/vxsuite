@@ -1,7 +1,10 @@
-use serialport;
-use std::{fmt::Display, io, time::Duration, thread};
+use serialport::{self, SerialPort};
+use std::{fmt::Display, io, thread, time::Duration};
 use uinput::{event::keyboard, Device};
 
+const UINPUT_PATH: &str = "/dev/uinput";
+const DEVICE_PATH: &str = "/dev/ttyACM1";
+const DEVICE_BAUD_RATE: u32 = 9600;
 const EXPECTED_PACKET_LEGNTH: usize = 7;
 
 #[derive(Debug, thiserror::Error)]
@@ -28,6 +31,7 @@ impl Display for ButtonError {
 }
 
 enum CommandId {
+    Echo = 0x10,
     ButtonStatus = 0x30,
 }
 
@@ -36,6 +40,7 @@ impl TryFrom<u8> for CommandId {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
+            0x10 => Ok(CommandId::Echo),
             0x30 => Ok(CommandId::ButtonStatus),
             _ => Err(ParseError::InvalidCommand(value)),
         }
@@ -91,17 +96,18 @@ impl TryFrom<u8> for Action {
         match value {
             0x00 => Ok(Action::Released),
             0x01 => Ok(Action::Pressed),
-            _ => Err(ParseError::InvalidAction(value))
+            _ => Err(ParseError::InvalidAction(value)),
         }
     }
 }
 
 fn send_key(device: &mut Device, key: keyboard::Key) -> () {
-    if device.click(&key).is_err() {
-        eprintln!("Error clicking key");
+    let keypress_result = device.click(&key);
+    match keypress_result {
+        Ok(_) => device.synchronize().unwrap(),
+        // We want the user to be able to retry a button press so we just log the error and continue
+        Err(error) => eprintln!("Error sending keypress event: {:?}", error),
     }
-
-    device.synchronize().unwrap();
 }
 
 fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), ParseError> {
@@ -127,50 +133,82 @@ fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), ParseError> {
     let button: Button = data[3].try_into()?;
     let action: Action = data[4].try_into()?;
     match action {
-        Action::Pressed => {
-            match button {
-                Button::Select => {
-                    send_key(device, keyboard::Key::Enter);
-                }
-                Button::Left => {
-                    send_key(device, keyboard::Key::Left);
-                }
-                Button::Right => {
-                    send_key(device, keyboard::Key::Right);
-                }
-                Button::Up => {
-                    send_key(device, keyboard::Key::Up);
-                }
-                Button::Down => {
-                    send_key(device, keyboard::Key::Down);
-                }
-                _ => {
-                    println!("Unhandled button {:#02x}", data[3]);
-                }
+        Action::Pressed => match button {
+            Button::Select => {
+                send_key(device, keyboard::Key::Enter);
             }
-        }
+            Button::Left => {
+                send_key(device, keyboard::Key::Left);
+            }
+            Button::Right => {
+                send_key(device, keyboard::Key::Right);
+            }
+            Button::Up => {
+                send_key(device, keyboard::Key::Up);
+            }
+            Button::Down => {
+                send_key(device, keyboard::Key::Down);
+            }
+            Button::Help => {
+                send_key(device, keyboard::Key::Q);
+            }
+            _ => {
+                println!("Unhandled button {:#02x}", data[3]);
+            }
+        },
         Action::Released => {
             // Button release is a no-op since we already sent the keypress event
-            println!("Received no-op RELEASED action");
             return Ok(());
         }
     }
     Ok(())
 }
 
+fn validate_connection(port: &mut Box<dyn SerialPort>) {
+    let echo_command: Vec<u8> = vec![
+        CommandId::Echo as u8,
+        0x00,
+        0x05,
+        0x01,
+        0x02,
+        0x03,
+        0x04,
+        0x05,
+        0xfc,
+        0xbd,
+    ];
+    match port.write(&echo_command) {
+        Ok(_) => println!("Echo command sent"),
+        Err(error) => eprintln!("{:?}", error),
+    }
+
+    let mut serial_buf: Vec<u8> = vec![0; 1000];
+
+    match port.read(serial_buf.as_mut_slice()) {
+        Ok(size) => {
+            let echo_response = &serial_buf[..size];
+            if echo_command != echo_response {
+                panic!(
+                    "Recieved different response from echo command: {:x?}",
+                    echo_response
+                )
+            }
+        }
+        Err(e) => eprintln!("Error reading echo response: {:?}", e),
+    }
+}
+
 fn main() {
     // Open the serial port
-    let port_path = "/dev/ttyACM1";
-    let baud_rate = 9600;
-    let port = serialport::new(port_path, baud_rate)
+    let port = serialport::new(DEVICE_PATH, DEVICE_BAUD_RATE)
         .timeout(Duration::from_millis(10))
         .open();
 
-    println!("Opened serial port");
+    println!("Opened controller serial port at {DEVICE_PATH}");
 
-    let mut device = uinput::open("/dev/uinput")
+    let mut device = uinput::open(UINPUT_PATH)
         .unwrap()
-        .name("Virtual device")
+        .name("Accessible Controller Daemon Virtual Device")
         .unwrap()
         .event(uinput::event::Keyboard::All)
         .unwrap()
@@ -184,40 +222,26 @@ fn main() {
     match port {
         Ok(mut port) => {
             let mut serial_buf: Vec<u8> = vec![0; 1000];
-            println!("Receiving data on {} at {} baud:", &port_path, &baud_rate);
+
+            validate_connection(&mut port);
+
+            println!(
+                "Receiving data on {} at {} baud:",
+                &DEVICE_PATH, &DEVICE_BAUD_RATE
+            );
+
             loop {
                 match port.read(serial_buf.as_mut_slice()) {
-                    Ok(t) => handle_command(&mut device, &serial_buf[..t]).unwrap(),
+                    Ok(size) => handle_command(&mut device, &serial_buf[..size]).unwrap(),
+                    // Timeout error just means no event was sent in the current polling period
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                     Err(e) => eprintln!("{:?}", e),
                 }
             }
         }
         Err(e) => {
-            eprintln!("Failed to open \"{}\". Error: {}", port_path, e);
+            eprintln!("Failed to open \"{}\". Error: {}", DEVICE_PATH, e);
             ::std::process::exit(1);
         }
     }
-    /*
-    // Read data from the serial port
-    let mut buffer = vec![0; 1000];
-    loop {
-        match port.read(buffer.as_mut_slice()) {
-            Ok(_) => {
-                if !buffer.is_empty() {
-                    println!("Received data of byte length {}", buffer.len());
-                    if let Err(e) = handle_command(&mut device, &buffer) {
-                        eprintln!("Error from handling command {e}");
-                    }
-
-                    buffer.clear();
-                }
-            }
-            Err(e) => {
-                println!("Error reading from serial port: {e}");
-                break;
-            }
-        }
-    }
-    */
 }
