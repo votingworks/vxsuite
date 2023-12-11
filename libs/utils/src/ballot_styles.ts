@@ -70,8 +70,7 @@ export function getRelatedBallotStyle(params: {
   const { ballotStyles, sourceBallotStyleId, targetBallotStyleLanguage } =
     params;
 
-  const sourceBallotStyle = _.find(
-    ballotStyles,
+  const sourceBallotStyle = ballotStyles.find(
     (b) => b.id === sourceBallotStyleId
   );
   if (!sourceBallotStyle) {
@@ -87,7 +86,7 @@ export function getRelatedBallotStyle(params: {
   const groupId = extractBallotStyleGroupId(sourceBallotStyleId);
   const matchingGroup = assertDefined(ballotStyleGroups[groupId]);
 
-  const destinationBallotStyle = _.find(matchingGroup, (b) =>
+  const destinationBallotStyle = matchingGroup.find((b) =>
     _.isEqual(b.languages, [targetBallotStyleLanguage])
   );
   if (!destinationBallotStyle) {
