@@ -391,8 +391,8 @@ async function recordAcceptedSheet(
       store.adjudicateSheet(sheetId);
     }
 
-    // Gets reset to false within exportCastVoteRecordsToUsbDrive
-    store.setIsContinuousExportOperationInProgress(true);
+    // Marked as complete within exportCastVoteRecordsToUsbDrive
+    store.addPendingContinuousExportOperation(sheetId);
   });
 
   const exportResult = await continuousExportMutex.withLock(() =>
@@ -423,8 +423,8 @@ async function recordRejectedSheet(
     // ballot wasn't counted.
     store.deleteSheet(sheetId);
 
-    // Gets reset to false within exportCastVoteRecordsToUsbDrive
-    store.setIsContinuousExportOperationInProgress(true);
+    // Marked as complete within exportCastVoteRecordsToUsbDrive
+    store.addPendingContinuousExportOperation(sheetId);
   });
 
   const exportResult = await continuousExportMutex.withLock(() =>
