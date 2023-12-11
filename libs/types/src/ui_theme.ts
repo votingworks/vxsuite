@@ -63,13 +63,29 @@ export type ColorString = string;
 
 export interface LegacyColorTheme {
   readonly background: ColorString;
+
+  /** @deprecated */
   readonly accentDanger: ColorString;
+
+  /** @deprecated */
   readonly accentPrimary: ColorString;
+
+  /** @deprecated */
   readonly accentSecondary: ColorString;
+
+  /** @deprecated */
   readonly accentSuccess: ColorString;
+
+  /** @deprecated */
   readonly accentVxPurple: ColorString;
+
+  /** @deprecated */
   readonly accentWarning: ColorString;
+
+  /** @deprecated use {@link ColorTheme.onBackground} */
   readonly foreground: ColorString;
+
+  /** @deprecated use {@link ColorTheme.onBackgroundMuted} */
   readonly foregroundDisabled: ColorString;
 }
 

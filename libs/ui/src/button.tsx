@@ -295,11 +295,11 @@ function disabledStyles(p: ThemedStyledButtonProps): CSSObject {
   }
 
   const backgroundColor = isInverse(color)
-    ? colors.foreground
+    ? colors.onBackground
     : colors.background;
   const foregroundColor = isInverse(color)
     ? colors.background
-    : colors.foreground;
+    : colors.onBackground;
 
   return {
     backgroundColor,
