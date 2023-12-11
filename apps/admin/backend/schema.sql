@@ -3,8 +3,7 @@ create table elections (
   election_data text not null,
   system_settings_data text not null,
   is_official_results boolean not null default false,
-  created_at timestamp not null default current_timestamp,
-  deleted_at timestamp
+  created_at timestamp not null default current_timestamp
 );
 
 create table precincts(

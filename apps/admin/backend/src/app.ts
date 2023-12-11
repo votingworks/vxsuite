@@ -353,7 +353,6 @@ function buildApi({
 
     async unconfigure(): Promise<void> {
       store.deleteElection(loadCurrentElectionIdOrThrow(workspace));
-      store.setCurrentElectionId();
       await logger.log(
         LogEventId.ElectionUnconfigured,
         assertDefined(await getUserRole()),
