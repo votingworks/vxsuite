@@ -14,8 +14,9 @@ import {
   Tabulation,
   CandidateVote,
   ElectionDefinition,
+  District,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, unique } from '@votingworks/basics';
 import type {
   CardCountsByParty,
   TallyReportResults,
@@ -221,4 +222,14 @@ export async function generateResultsFromTestDeckBallots({
     hasPartySplits: true,
     cardCountsByParty,
   };
+}
+
+/**
+ * Returns all districts that have some ballot style associated with them.
+ */
+export function getValidDistricts(election: Election): District[] {
+  const ids = unique(election.ballotStyles.flatMap((bs) => bs.districts));
+  return ids.map((id) =>
+    find(election.districts, (district) => district.id === id)
+  );
 }

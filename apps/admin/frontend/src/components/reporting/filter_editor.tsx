@@ -10,7 +10,10 @@ import styled from 'styled-components';
 import { SearchSelect, SelectOption, Button } from '@votingworks/ui';
 import type { ScannerBatch } from '@votingworks/admin-backend';
 import { getScannerBatches } from '../../api';
-import { getPartiesWithPrimaryElections } from '../../utils/election';
+import {
+  getPartiesWithPrimaryElections,
+  getValidDistricts,
+} from '../../utils/election';
 
 const FilterEditorContainer = styled.div`
   width: 100%;
@@ -48,6 +51,7 @@ const FILTER_TYPES = [
   'batch',
   'party',
   'adjudication-status',
+  'district',
 ] as const;
 export type FilterType = (typeof FILTER_TYPES)[number];
 
@@ -66,6 +70,7 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   batch: 'Batch',
   party: 'Party',
   'adjudication-status': 'Adjudication Status',
+  district: 'District',
 };
 
 function getFilterTypeOption(filterType: FilterType): SelectOption<FilterType> {
@@ -130,6 +135,11 @@ function generateOptionsForFilter({
           label,
         })
       );
+    case 'district':
+      return getValidDistricts(election).map((district) => ({
+        value: district.id,
+        label: district.name,
+      }));
     /* istanbul ignore next - compile-time check for completeness */
     default:
       throwIllegalValue(filterType);
@@ -141,33 +151,35 @@ type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 function convertFilterRowsToTabulationFilter(
   rows: FilterRows
-): Admin.ReportingFilter {
-  const tabulationFilter: Writeable<Admin.ReportingFilter> = {};
+): Admin.FrontendReportingFilter {
+  const filter: Writeable<Admin.FrontendReportingFilter> = {};
   for (const row of rows) {
     const { filterType, filterValues } = row;
     switch (filterType) {
       case 'precinct':
-        tabulationFilter.precinctIds = filterValues;
+        filter.precinctIds = filterValues;
         break;
       case 'voting-method':
-        tabulationFilter.votingMethods =
-          filterValues as Tabulation.VotingMethod[];
+        filter.votingMethods = filterValues as Tabulation.VotingMethod[];
         break;
       case 'ballot-style':
-        tabulationFilter.ballotStyleIds = filterValues;
+        filter.ballotStyleIds = filterValues;
         break;
       case 'party':
-        tabulationFilter.partyIds = filterValues;
+        filter.partyIds = filterValues;
         break;
       case 'scanner':
-        tabulationFilter.scannerIds = filterValues;
+        filter.scannerIds = filterValues;
         break;
       case 'batch':
-        tabulationFilter.batchIds = filterValues;
+        filter.batchIds = filterValues;
         break;
       case 'adjudication-status':
-        tabulationFilter.adjudicationFlags =
+        filter.adjudicationFlags =
           filterValues as Admin.CastVoteRecordAdjudicationFlag[];
+        break;
+      case 'district':
+        filter.districtIds = filterValues;
         break;
       /* istanbul ignore next - compile-time check for completeness */
       default:
@@ -175,11 +187,11 @@ function convertFilterRowsToTabulationFilter(
     }
   }
 
-  return tabulationFilter;
+  return filter;
 }
 
 export interface FilterEditorProps {
-  onChange: (filter: Admin.ReportingFilter) => void;
+  onChange: (filter: Admin.FrontendReportingFilter) => void;
   election: Election;
   allowedFilters: FilterType[];
 }
