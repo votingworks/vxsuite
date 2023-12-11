@@ -519,3 +519,21 @@ export const LabelButton = styled.label`
     ${(p) => css(activeStyles(p))}
   }
 `;
+
+/**
+ * A disabled button that shows a loading spinner. Swap this button out for a
+ * submit button while a form or async action is submitting. Don't forget to add
+ * the variant or other styles from the original button.
+ *
+ * Example usage:
+ *  {someMutation.isLoading ? (
+ *    <LoadingButton variant="primary">Saving...</LoadingButton>
+ *  ) : (
+ *    <Button variant="primary" onPress={someMutation.mutate}>Save</Button>
+ *  )}
+ */
+export function LoadingButton(
+  props: Omit<ButtonProps, 'disabled' | 'onPress' | 'icon'>
+): JSX.Element {
+  return <Button {...props} onPress={() => {}} disabled icon="Loading" />;
+}
