@@ -1,4 +1,9 @@
-import { Contests, ElectionDefinition, Tabulation } from '@votingworks/types';
+import {
+  Admin,
+  Contests,
+  ElectionDefinition,
+  Tabulation,
+} from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
 import {
@@ -28,7 +33,7 @@ export interface AdminTallyReportProps {
   manualElectionResults?: Tabulation.ManualElectionResults;
   cardCountsOverride?: Tabulation.CardCounts;
   generatedAtTime?: Date;
-  customFilter?: Tabulation.Filter;
+  customFilter?: Admin.FrontendReportingFilter;
   includeSignatureLines?: boolean;
 }
 
