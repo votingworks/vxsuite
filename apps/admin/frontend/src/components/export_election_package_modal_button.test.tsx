@@ -1,14 +1,10 @@
 import { fakeLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { err } from '@votingworks/basics';
+import { Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import {
-  fireEvent,
-  screen,
-  waitFor,
-  within,
-} from '../../test/react_testing_library';
+import type { ExportDataError } from '@votingworks/admin-backend';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportElectionPackageModalButton } from './export_election_package_modal_button';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -26,15 +22,12 @@ afterEach(() => {
 });
 
 test('Button renders properly when not clicked', () => {
-  const { queryByTestId } = renderInAppContext(
-    <ExportElectionPackageModalButton />,
-    {
-      apiMock,
-    }
-  );
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+  });
 
   screen.getButton('Save Election Package');
-  expect(queryByTestId('modal')).toBeNull();
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
 test.each<{
@@ -46,27 +39,24 @@ test.each<{
 ])(
   'Modal renders insert usb screen appropriately for status $usbStatus',
   async ({ usbStatus }) => {
-    const { getByText, queryAllByText, queryAllByAltText, queryAllByTestId } =
-      renderInAppContext(<ExportElectionPackageModalButton />, {
-        usbDriveStatus: mockUsbDriveStatus(usbStatus),
-        apiMock,
-      });
-    fireEvent.click(getByText('Save Election Package'));
-    await waitFor(() => getByText('No USB Drive Detected'));
-    expect(queryAllByAltText('Insert USB Image')).toHaveLength(1);
-    expect(queryAllByTestId('modal')).toHaveLength(1);
-    expect(
-      queryAllByText(
-        'Please insert a USB drive in order to save the ballot configuration.'
-      )
-    ).toHaveLength(1);
+    renderInAppContext(<ExportElectionPackageModalButton />, {
+      usbDriveStatus: mockUsbDriveStatus(usbStatus),
+      apiMock,
+    });
+    userEvent.click(screen.getButton('Save Election Package'));
+    await waitFor(() => screen.getByText('No USB Drive Detected'));
+    screen.getByText(
+      'Please insert a USB drive in order to save the election package.'
+    );
 
-    fireEvent.click(getByText('Cancel'));
-    expect(queryAllByTestId('modal')).toHaveLength(0);
+    userEvent.click(screen.getButton('Cancel'));
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
   }
 );
 
-test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
+test('Modal renders export confirmation screen when usb detected', async () => {
   const logger = fakeLogger();
   renderInAppContext(<ExportElectionPackageModalButton />, {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
@@ -78,71 +68,55 @@ test('Modal renders export confirmation screen when usb detected and manual link
   );
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Election Package');
-  within(modal).getByAltText('Insert USB Image');
   within(modal).getByText(
     /A zip archive will automatically be saved to the default location on the mounted USB drive./
   );
 
-  apiMock.expectSaveElectionPackageToUsb();
+  const { promise, resolve } = deferred<Result<void, ExportDataError>>();
+  apiMock.apiClient.saveElectionPackageToUsb.expectCallWith().returns(promise);
   userEvent.click(within(modal).getButton('Save'));
+  expect(await within(modal).findButton('Saving...')).toBeDisabled();
+  // Clicking outside the modal should not close it while the save is in progress.
+  userEvent.click(modal.parentElement!);
+  screen.getByRole('alertdialog');
+  resolve(ok());
   await within(modal).findByText('Election Package Saved');
 
-  fireEvent.click(within(modal).getByText('Close'));
-  expect(screen.queryAllByTestId('modal')).toHaveLength(0);
+  screen.getByText(
+    'You may now eject the USB drive. Use the saved election package on this USB drive to configure VxSuite components.'
+  );
+
+  apiMock.expectEjectUsbDrive();
+  userEvent.click(screen.getButton('Eject USB'));
+
+  userEvent.click(screen.getButton('Close'));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
 });
 
 test('Modal renders error message appropriately', async () => {
   const logger = fakeLogger();
-  const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
-    <ExportElectionPackageModalButton />,
-    {
-      apiMock,
-      usbDriveStatus: mockUsbDriveStatus('mounted'),
-      logger,
-    }
-  );
-  fireEvent.click(getByText('Save Election Package'));
-  await waitFor(() => getByText('Save'));
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+    logger,
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  await screen.findByRole('heading', { name: 'Save Election Package' });
 
   apiMock.expectSaveElectionPackageToUsb(
     err({ type: 'missing-usb-drive', message: '' })
   );
   userEvent.click(screen.getButton('Save'));
 
-  await waitFor(() => getByText('Failed to Save Election Package'));
-  expect(queryAllByTestId('modal')).toHaveLength(1);
-  expect(
-    queryAllByText(/An error occurred: No USB drive detected/)
-  ).toHaveLength(1);
+  await screen.findByRole('heading', {
+    name: 'Failed to Save Election Package',
+  });
+  screen.getByText(/An error occurred: No USB drive detected/);
 
-  fireEvent.click(getByText('Close'));
-  expect(queryAllByTestId('modal')).toHaveLength(0);
-});
-
-test('Modal renders renders loading message while rendering ballots appropriately', async () => {
-  const { queryAllByTestId, getByText, queryByText, getByRole } =
-    renderInAppContext(<ExportElectionPackageModalButton />, {
-      apiMock,
-      usbDriveStatus: mockUsbDriveStatus('mounted'),
-    });
-  fireEvent.click(getByText('Save Election Package'));
-  await waitFor(() => getByText('Save'));
-  apiMock.expectSaveElectionPackageToUsb();
-  userEvent.click(getByRole('button', { name: /Save/ }));
-
-  await screen.findByText('Election Package Saved');
-
-  expect(queryAllByTestId('modal')).toHaveLength(1);
-  expect(
-    queryByText(
-      'You may now eject the USB drive. Use the saved election package on this USB drive to configure VxSuite components.'
-    )
-  ).toBeInTheDocument();
-
-  apiMock.expectEjectUsbDrive();
-  expect(queryByText('Eject USB')).toBeInTheDocument();
-  fireEvent.click(getByText('Eject USB'));
-
-  fireEvent.click(getByText('Close'));
-  expect(queryAllByTestId('modal')).toHaveLength(0);
+  userEvent.click(screen.getButton('Close'));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
 });
