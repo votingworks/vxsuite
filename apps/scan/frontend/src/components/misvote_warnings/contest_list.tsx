@@ -20,7 +20,7 @@ export interface ContestListProps {
 
 const Container = styled.div`
   border: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.outline};
   border-radius: 0.1rem;
   padding: 0.25rem 0.5rem 0.5rem;
 `;

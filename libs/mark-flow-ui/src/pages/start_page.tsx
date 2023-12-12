@@ -43,7 +43,7 @@ const StartVotingButton = styled(Button)`
 const Footer = styled.div`
   align-items: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.outline};
   display: flex;
   gap: 1rem;
   justify-content: center;

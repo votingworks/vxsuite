@@ -42,7 +42,7 @@ const Divider = styled.div`
   justify-content: center;
 
   &::before {
-    background: ${(p) => p.theme.colors.foreground};
+    background: ${(p) => p.theme.colors.onBackground};
     width: ${(p) => p.theme.sizes.bordersRem.medium}rem;
     content: '';
   }
