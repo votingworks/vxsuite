@@ -388,6 +388,11 @@ export enum JobStatus {
  */
 export enum FormMovement {
   /**
+   * Stop the motors
+   */
+  STOP = 0,
+
+  /**
    * Load paper
    */
   LOAD_PAPER = 1,
