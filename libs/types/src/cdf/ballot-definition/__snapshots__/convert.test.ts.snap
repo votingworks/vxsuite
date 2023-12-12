@@ -83,6 +83,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
           ],
           "ElectionDistrictId": "D",
           "Name": "TITLE",
+          "OfficeIds": undefined,
           "PrimaryPartyIds": undefined,
           "VotesAllowed": 1,
         },
@@ -234,6 +235,7 @@ exports[`round trip conversion for election fixture: ELECTION 1`] = `
   ],
   "Issuer": "VotingWorks",
   "IssuerAbbreviation": "VX",
+  "Office": [],
   "Party": [
     {
       "@id": "PARTY",
@@ -572,6 +574,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
           ],
           "ElectionDistrictId": "district-1",
           "Name": "Best Animal",
+          "OfficeIds": undefined,
           "PrimaryPartyIds": [
             "0",
           ],
@@ -614,6 +617,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
           ],
           "ElectionDistrictId": "district-1",
           "Name": "Best Animal",
+          "OfficeIds": undefined,
           "PrimaryPartyIds": [
             "1",
           ],
@@ -691,6 +695,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
           ],
           "ElectionDistrictId": "district-1",
           "Name": "Zoo Council",
+          "OfficeIds": undefined,
           "PrimaryPartyIds": [
             "0",
           ],
@@ -763,6 +768,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
           ],
           "ElectionDistrictId": "district-1",
           "Name": "Zoo Council",
+          "OfficeIds": undefined,
           "PrimaryPartyIds": [
             "1",
           ],
@@ -933,6 +939,7 @@ exports[`round trip conversion for election fixture: Example Primary Election - 
   ],
   "Issuer": "VotingWorks",
   "IssuerAbbreviation": "VX",
+  "Office": [],
   "Party": [
     {
       "@id": "0",
@@ -1127,6 +1134,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           ],
           "ElectionDistrictId": "D",
           "Name": "TITLE",
+          "OfficeIds": undefined,
           "PrimaryPartyIds": [
             "DEM",
           ],
@@ -1157,6 +1165,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
           ],
           "ElectionDistrictId": "D",
           "Name": "TITLE",
+          "OfficeIds": undefined,
           "PrimaryPartyIds": [
             "REP",
           ],
@@ -1310,6 +1319,7 @@ exports[`round trip conversion for election fixture: Primary Election 1`] = `
   ],
   "Issuer": "VotingWorks",
   "IssuerAbbreviation": "VX",
+  "Office": [],
   "Party": [
     {
       "@id": "DEM",
