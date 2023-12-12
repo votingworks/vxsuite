@@ -808,6 +808,20 @@ test('move motor never retries on non-job errors', async () => {
   );
 });
 
+test('move motor with stop movement short-circuits', async () => {
+  const { onFormMovementRequest, onJobCreateRequest } = makeProtocolListeners();
+
+  onJobCreateRequest.mockReturnValueOnce(ok({ jobId: 0x01 }));
+
+  const scanner = await scannerWithListeners({
+    onFormMovementRequest,
+    onJobCreateRequest,
+  });
+
+  expect(await scanner.move(FormMovement.STOP)).toEqual(ok());
+  expect(onFormMovementRequest).not.toHaveBeenCalled();
+});
+
 test('resetHardware', async () => {
   const scanner = await scannerWithListeners({
     onHardwareResetRequest() {

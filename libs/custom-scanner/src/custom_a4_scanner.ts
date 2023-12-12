@@ -247,6 +247,13 @@ export class CustomA4Scanner implements CustomScanner {
         this.withRetries(async () => {
           (await this.createJobInternal()).okOrElse(fail);
 
+          // To stop the motors, the createJobInternal call above is sufficient, as it ends the
+          // current job, if any, before creating a new one. This in and of itself stops the
+          // motors.
+          if (movement === FormMovement.STOP) {
+            return ok();
+          }
+
           return await this.channelMutex.withLock((channel) =>
             formMove(channel, ONLY_VALID_JOB_ID, movement)
           );
