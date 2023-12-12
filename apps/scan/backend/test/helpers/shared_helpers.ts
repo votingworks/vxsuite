@@ -107,7 +107,7 @@ export async function waitForContinuousExportToUsbDrive(
   store: Store
 ): Promise<void> {
   await waitForExpect(
-    () => expect(store.isContinuousExportOperationInProgress()).toEqual(false),
+    () => expect(store.getPendingContinuousExportOperations()).toEqual([]),
     10000,
     250
   );

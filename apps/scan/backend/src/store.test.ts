@@ -648,11 +648,13 @@ test('resetElectionSession', async () => {
   expect(Array.from(store.forEachSheet())).toHaveLength(1);
 
   store.setExportDirectoryName('export-directory-name');
+  store.addPendingContinuousExportOperation(
+    'abcd1234-0000-0000-0000-000000000000'
+  );
   store.updateCastVoteRecordHashes(
-    '00000000-0000-0000-0000-000000000000',
+    'abcd1234-0000-0000-0000-000000000000',
     sha256('')
   );
-  store.setIsContinuousExportOperationInProgress(true);
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(store, mockUsbDriveStatus)
   ).toEqual(true);
@@ -679,8 +681,8 @@ test('resetElectionSession', async () => {
 
   // resetElectionSession should reset all export-related metadata
   expect(store.getExportDirectoryName()).toEqual(undefined);
+  expect(store.getPendingContinuousExportOperations()).toEqual([]);
   expect(store.getCastVoteRecordRootHash()).toEqual('');
-  expect(store.isContinuousExportOperationInProgress()).toEqual(false);
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(store, mockUsbDriveStatus)
   ).toEqual(false);
@@ -759,18 +761,6 @@ test('getBallotsCounted', () => {
   expect(store.getBallotsCounted()).toEqual(1);
 });
 
-test('isContinuousExportOperationInProgress and setIsContinuousExportOperationInProgress', () => {
-  const store = Store.memoryStore();
-
-  expect(store.isContinuousExportOperationInProgress()).toEqual(false);
-
-  store.setIsContinuousExportOperationInProgress(true);
-  expect(store.isContinuousExportOperationInProgress()).toEqual(true);
-
-  store.setIsContinuousExportOperationInProgress(false);
-  expect(store.isContinuousExportOperationInProgress()).toEqual(false);
-});
-
 test('getExportDirectoryName and setExportDirectoryName', () => {
   const store = Store.memoryStore();
 
@@ -788,6 +778,65 @@ test('getExportDirectoryName and setExportDirectoryName', () => {
   store.setExportDirectoryName(undefined);
   expect(store.getExportDirectoryName()).toEqual(undefined);
 });
+
+test(
+  'getPendingContinuousExportOperations, addPendingContinuousExportOperation, ' +
+    'deletePendingContinuousExportOperation, and deleteAllPendingContinuousExportOperations',
+  () => {
+    const store = Store.memoryStore();
+
+    expect(store.getPendingContinuousExportOperations()).toEqual([]);
+
+    store.addPendingContinuousExportOperation(
+      'abcd1234-0000-0000-0000-000000000000'
+    );
+    expect(store.getPendingContinuousExportOperations()).toEqual([
+      'abcd1234-0000-0000-0000-000000000000',
+    ]);
+
+    store.addPendingContinuousExportOperation(
+      'abcd2345-0000-0000-0000-000000000000'
+    );
+    store.addPendingContinuousExportOperation(
+      'abcd3456-0000-0000-0000-000000000000'
+    );
+    expect(store.getPendingContinuousExportOperations()).toEqual([
+      'abcd1234-0000-0000-0000-000000000000',
+      'abcd2345-0000-0000-0000-000000000000',
+      'abcd3456-0000-0000-0000-000000000000',
+    ]);
+
+    // Add a record that's already been added
+    store.addPendingContinuousExportOperation(
+      'abcd1234-0000-0000-0000-000000000000'
+    );
+    expect(store.getPendingContinuousExportOperations()).toEqual([
+      'abcd2345-0000-0000-0000-000000000000',
+      'abcd3456-0000-0000-0000-000000000000',
+      'abcd1234-0000-0000-0000-000000000000',
+    ]);
+
+    store.deletePendingContinuousExportOperation(
+      'abcd1234-0000-0000-0000-000000000000'
+    );
+    expect(store.getPendingContinuousExportOperations()).toEqual([
+      'abcd2345-0000-0000-0000-000000000000',
+      'abcd3456-0000-0000-0000-000000000000',
+    ]);
+
+    // Delete a non-existent record
+    store.deletePendingContinuousExportOperation(
+      'abcd4567-0000-0000-0000-000000000000'
+    );
+    expect(store.getPendingContinuousExportOperations()).toEqual([
+      'abcd2345-0000-0000-0000-000000000000',
+      'abcd3456-0000-0000-0000-000000000000',
+    ]);
+
+    store.deleteAllPendingContinuousExportOperations();
+    expect(store.getPendingContinuousExportOperations()).toEqual([]);
+  }
+);
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
   const store = Store.memoryStore();

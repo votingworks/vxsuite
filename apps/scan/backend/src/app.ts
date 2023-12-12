@@ -234,8 +234,12 @@ export function buildApi(
       store.setIsUltrasonicDisabled(input.isUltrasonicDisabled);
     },
 
-    setTestMode(input: { isTestMode: boolean }): void {
-      workspace.resetElectionSession();
+    async setTestMode(input: { isTestMode: boolean }): Promise<void> {
+      // Use the continuous export mutex to ensure that any pending continuous export operations
+      // finish first
+      await workspace.continuousExportMutex.withLock(() =>
+        workspace.resetElectionSession()
+      );
       store.setTestMode(input.isTestMode);
     },
 

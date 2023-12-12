@@ -81,7 +81,7 @@ export class Mutex<T = void> {
    * Acquires the lock or waits until it is available, then runs the given
    * function and releases the lock automatically.
    */
-  async withLock<U>(fn: (value: T) => Promise<U>): Promise<U> {
+  async withLock<U>(fn: (value: T) => U | Promise<U>): Promise<U> {
     const { value, unlock } = await this.asyncLock();
     try {
       return await fn(value);

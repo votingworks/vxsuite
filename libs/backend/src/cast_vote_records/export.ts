@@ -86,14 +86,13 @@ export interface CentralScannerStore extends ScannerStoreBase {
 export interface PrecinctScannerStore extends ScannerStoreBase {
   scannerType: 'precinct';
 
+  deleteAllPendingContinuousExportOperations(): void;
+  deletePendingContinuousExportOperation(sheetId: string): void;
   getBallotsCounted(): number;
   getExportDirectoryName(): string | undefined;
+  getPendingContinuousExportOperations(): string[];
   getPollsState(): PollsState;
-  isContinuousExportOperationInProgress(): boolean;
   setExportDirectoryName(exportDirectoryName: string): void;
-  setIsContinuousExportOperationInProgress(
-    isContinuousExportOperationInProgress: boolean
-  ): void;
 }
 
 /**
@@ -687,12 +686,14 @@ export async function exportCastVoteRecordsToUsbDrive(
     exportOptions.scannerType === 'precinct' && !exportOptions.isFullExport;
 
   const castVoteRecordHashes: { [castVoteRecordId: string]: string } = {};
+  const sheetIds: string[] = [];
   for (const sheet of sheets) {
     assert(
       !(isMinimalExport(exportOptions) && sheet.type === 'rejected'),
       'Encountered an unexpected rejected sheet while performing a minimal export. ' +
         'Minimal exports should only include accepted sheets.'
     );
+    sheetIds.push(sheet.id);
 
     // Randomly decide whether to shuffle creation timestamps before or after cast vote record
     // creation. If we always did one or the other, the last voter's cast vote record would be
@@ -782,19 +783,21 @@ export async function exportCastVoteRecordsToUsbDrive(
     return exportSignatureFileResult;
   }
 
-  /**
-   * Perform the scanner store update before clearing the cache for
-   * {@link doesUsbDriveRequireCastVoteRecordSync} because
-   * {@link doesUsbDriveRequireCastVoteRecordSync} considers the state modified by the scanner
-   * store update
-   */
   if (scannerStore.scannerType === 'precinct') {
-    scannerStore.setIsContinuousExportOperationInProgress(false);
-    if (
-      exportOptions.scannerType === 'precinct' &&
-      exportOptions.isFullExport
-    ) {
+    assert(exportOptions.scannerType === 'precinct');
+    if (exportOptions.isFullExport) {
+      /**
+       * Perform the scanner store update before clearing the cache for
+       * {@link doesUsbDriveRequireCastVoteRecordSync} because
+       * {@link doesUsbDriveRequireCastVoteRecordSync} considers the state modified by the scanner
+       * store update
+       */
+      scannerStore.deleteAllPendingContinuousExportOperations();
       clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+    } else {
+      for (const sheetId of sheetIds) {
+        scannerStore.deletePendingContinuousExportOperation(sheetId);
+      }
     }
   }
 
@@ -847,7 +850,7 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     }
 
     // A previous export operation may have failed midway
-    if (scannerStore.isContinuousExportOperationInProgress()) {
+    if (scannerStore.getPendingContinuousExportOperations().length > 0) {
       return true;
     }
 
