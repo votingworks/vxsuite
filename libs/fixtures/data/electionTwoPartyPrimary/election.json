@@ -56,7 +56,8 @@
           "partyIds": ["0"]
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "termDescription": "For three years"
     },
     {
       "id": "best-animal-fish",
@@ -77,7 +78,8 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": false
+      "allowWriteIns": false,
+      "termDescription": "For three years"
     },
     {
       "id": "zoo-council-mammal",
@@ -108,7 +110,8 @@
           "partyIds": ["0"]
         }
       ],
-      "allowWriteIns": true
+      "allowWriteIns": true,
+      "termDescription": "For three years"
     },
     {
       "id": "aquarium-council-fish",
@@ -139,7 +142,8 @@
           "partyIds": ["1"]
         }
       ],
-      "allowWriteIns": true
+      "allowWriteIns": true,
+      "termDescription": "For three years"
     },
     {
       "id": "new-zoo-either",

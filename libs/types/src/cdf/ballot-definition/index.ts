@@ -345,6 +345,11 @@ export interface BallotDefinition {
   readonly IssuerAbbreviation: string;
 
   /**
+   * For associating offices with the definition.
+   */
+  readonly Office?: readonly Office[];
+
+  /**
    * For associating parties with the definition.
    */
   readonly Party: readonly Party[];
@@ -392,6 +397,7 @@ export const BallotDefinitionSchema: z.ZodSchema<BallotDefinition> = z.object({
   Header: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => HeaderSchema))),
   Issuer: z.string(),
   IssuerAbbreviation: z.string(),
+  Office: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => OfficeSchema))),
   Party: z.array(z.lazy(/* istanbul ignore next */ () => PartySchema)),
   vxSeal: z.string(),
   SequenceEnd: integerSchema,
@@ -719,6 +725,11 @@ export interface CandidateContest {
   readonly Name: string;
 
   /**
+   * For associating office descriptions.
+   */
+  readonly OfficeIds?: readonly string[];
+
+  /**
    * For associating parties with the contest.
    */
   readonly PrimaryPartyIds?: readonly string[];
@@ -739,6 +750,7 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = z.object({
   ContestOption: z.array(z.lazy(/* istanbul ignore next */ () => CandidateOptionSchema)).min(1),
   ElectionDistrictId: z.string(),
   Name: z.string(),
+  OfficeIds: z.optional(z.array(z.string())),
   PrimaryPartyIds: z.optional(z.array(z.string())),
   VotesAllowed: integerSchema,
 });
@@ -1046,6 +1058,39 @@ export const LanguageStringSchema: z.ZodSchema<LanguageString> = z.object({
   '@type': z.literal('BallotDefinition.LanguageString'),
   Content: z.string(),
   Language: z.string(),
+});
+
+/**
+ * For defining an office and information associated with a contest and/or a district. BallotDefinition includes Office. CandidateContest and RetentionContest reference Office.
+ * 
+ * Office includes Term for defining details about the term of an office such as start/end dates and the type of term. OfficeGroup is included from BallotDefinition to assign a name to a grouping of office definitions.
+ * 
+ * Office includes an optional ElectionDistrict reference to a GpUnit for the purpose of identifying the geographical scope of the office. For example, for an office for a state senate seat, ElectionDistrict would include a reference to the GpUnit defined for the district associated with that office.
+ */
+export interface Office {
+  readonly '@id': string;
+
+  readonly '@type': 'BallotDefinition.Office';
+
+  /**
+   * Name of the office; can appear on the ballot.
+   */
+  readonly Name: InternationalizedText;
+
+  /**
+   * For including office term-related information.
+   */
+  readonly Term: Term;
+}
+
+/**
+ * Schema for {@link Office}.
+ */
+export const OfficeSchema: z.ZodSchema<Office> = z.object({
+  '@id': z.string(),
+  '@type': z.literal('BallotDefinition.Office'),
+  Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
+  Term: z.lazy(/* istanbul ignore next */ () => TermSchema),
 });
 
 /**
@@ -1364,6 +1409,26 @@ export const ShapeSchema: z.ZodSchema<Shape> = z.object({
   ShapeType: z.lazy(/* istanbul ignore next */ () => ShapeTypeSchema),
   StrokeColor: z.optional(z.lazy(/* istanbul ignore next */ () => HtmlColorStringSchema)),
   StrokeWidth: z.optional(z.number()),
+});
+
+/**
+ * For describing information about an office term. Term is included by Office.
+ */
+export interface Term {
+  readonly '@type': 'BallotDefinition.Term';
+
+  /**
+   * For use as needed and compatibility with the VIP schema.
+   */
+  readonly Label: string;
+}
+
+/**
+ * Schema for {@link Term}.
+ */
+export const TermSchema: z.ZodSchema<Term> = z.object({
+  '@type': z.literal('BallotDefinition.Term'),
+  Label: z.string(),
 });
 
 /**

@@ -67,6 +67,7 @@ test('candidate contest with only scanned results', () => {
   );
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
   within(bestAnimalFish).getByText('Best Animal');
+  within(bestAnimalFish).getByText('For three years');
   within(bestAnimalFish).getByText(/20 ballots cast/);
   within(bestAnimalFish).getByText(/1 overvote/);
   within(bestAnimalFish).getByText(/2 undervotes/);
@@ -88,6 +89,7 @@ test('candidate contest with manual results', () => {
   );
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
   within(bestAnimalFish).getByText('Best Animal');
+  within(bestAnimalFish).getByText('For three years');
   within(bestAnimalFish).getByText(hasTextAcrossElements('Ballots Cast201535'));
   within(bestAnimalFish).getByText(hasTextAcrossElements('Overvotes134'));
   within(bestAnimalFish).getByText(hasTextAcrossElements('Undervotes246'));
@@ -241,14 +243,16 @@ test('uses write-in adjudication aggregation', () => {
   within(fishing).getByText(hasTextAcrossElements('Other Write-In20'));
 });
 
-test('shows term description if it exists', () => {
+test('doesnt show term description if none given', () => {
   render(
     <ContestResultsTable
       election={election}
-      contest={{ ...candidateContest, termDescription: 'For three years' }}
+      contest={{ ...candidateContest, termDescription: undefined }}
       scannedContestResults={candidateContestScannedResults}
     />
   );
   const bestAnimalFish = screen.getByTestId('results-table-best-animal-fish');
-  within(bestAnimalFish).getByText('For three years');
+  expect(
+    within(bestAnimalFish).queryByText('For three years')
+  ).not.toBeInTheDocument();
 });
