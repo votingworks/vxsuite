@@ -516,7 +516,7 @@ test("scannerStatusToEvent's cases are exhaustive and can all be reached", () =>
           sensorVoidPrintHead: 0xff,
         };
 
-        // First, ensure that scannerStatusToEvent's cases are exhaustive. We'll now that they are
+        // First, ensure that scannerStatusToEvent's cases are exhaustive. We'll know that they are
         // if this line never throws.
         const event = scannerStatusToEvent(scannerStatus);
 
