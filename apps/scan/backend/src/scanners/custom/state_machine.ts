@@ -111,6 +111,7 @@ export type Event = ScannerStatusEvent | CommandEvent;
 
 export interface Delays {
   DELAY_PAPER_STATUS_POLLING_INTERVAL: number;
+  DELAY_PAPER_STATUS_POLLING_INTERVAL_DURING_ACCEPT: number;
   DELAY_PAPER_STATUS_POLLING_TIMEOUT: number;
   DELAY_SCANNING_TIMEOUT: number;
   DELAY_ACCEPTING_TIMEOUT: number;
@@ -126,6 +127,10 @@ export interface Delays {
 const defaultDelays: Delays = {
   // Time between calls to get paper status from the scanner.
   DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
+  // Time between calls to get paper status from the scanner during ballot accept. We poll at a
+  // higher rate during accept to ensure that we quickly catch edge cases like quick insertions of
+  // a second ballot.
+  DELAY_PAPER_STATUS_POLLING_INTERVAL_DURING_ACCEPT: 250,
   // How long to wait for a single paper status call to return before giving up.
   DELAY_PAPER_STATUS_POLLING_TIMEOUT: 2_000,
   // How long to attempt scanning before giving up and disconnecting and
@@ -361,25 +366,33 @@ async function interpretSheet(
 async function accept({ client }: Context) {
   assert(client);
   debug('Accepting');
-  const acceptResult = await client.move(FormMovement.EJECT_PAPER_FORWARD);
-  debug('Accept result: %o', acceptResult);
-  return acceptResult.unsafeUnwrap();
-}
-
-async function stopAccept({ client }: Context) {
-  assert(client);
-  debug('Stopping Accept');
-  const stopResult = await client.move(FormMovement.LOAD_PAPER);
-  debug('Stop Accept result: %o', stopResult);
-  return stopResult.unsafeUnwrap();
+  const result = await client.move(FormMovement.EJECT_PAPER_FORWARD);
+  debug('Accept result: %o', result);
+  return result.unsafeUnwrap();
 }
 
 async function reject({ client }: Context) {
   assert(client);
   debug('Rejecting');
-  const rejectResult = await client.move(FormMovement.RETRACT_PAPER_BACKWARD);
-  debug('Reject result: %o', rejectResult);
-  return rejectResult.unsafeUnwrap();
+  const result = await client.move(FormMovement.RETRACT_PAPER_BACKWARD);
+  debug('Reject result: %o', result);
+  return result.unsafeUnwrap();
+}
+
+async function finishAccept({ client }: Context) {
+  assert(client);
+  debug('Finishing accept');
+  const result = await client.move(FormMovement.STOP);
+  debug('Finish accept result: %o', result);
+  return result.unsafeUnwrap();
+}
+
+async function finishAcceptAndLoadPaper({ client }: Context) {
+  assert(client);
+  debug('Finishing accept and loading paper');
+  const result = await client.move(FormMovement.LOAD_PAPER);
+  debug('Finish accept and load paper result: %o', result);
+  return result.unsafeUnwrap();
 }
 
 function storeInterpretedSheet(
@@ -488,16 +501,20 @@ function buildMachine({
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
 
-  const pollPaperStatus: InvokeConfig<Context, Event> = {
-    src: buildPaperStatusObserver(
-      delays.DELAY_PAPER_STATUS_POLLING_INTERVAL,
-      delays.DELAY_PAPER_STATUS_POLLING_TIMEOUT
-    ),
-    onError: {
-      target: '#error',
-      actions: assign({ error: (_, event) => event.data }),
-    },
-  };
+  function pollPaperStatus(
+    pollingInterval: number = delays.DELAY_PAPER_STATUS_POLLING_INTERVAL
+  ): InvokeConfig<Context, Event> {
+    return {
+      src: buildPaperStatusObserver(
+        pollingInterval,
+        delays.DELAY_PAPER_STATUS_POLLING_TIMEOUT
+      ),
+      onError: {
+        target: '#error',
+        actions: assign({ error: (_, event) => event.data }),
+      },
+    };
+  }
 
   const acceptingState: StateNodeConfig<
     Context,
@@ -521,13 +538,15 @@ function buildMachine({
         },
       },
       checking_completed: {
-        invoke: pollPaperStatus,
+        invoke: pollPaperStatus(
+          delays.DELAY_PAPER_STATUS_POLLING_INTERVAL_DURING_ACCEPT
+        ),
         on: {
-          SCANNER_NO_PAPER: '#accepted',
+          SCANNER_NO_PAPER: 'finish_accept',
           // If there's a paper in front, that means the ballot in back did get
           // dropped but somebody quickly inserted a new ballot in front, so we
           // should count the first ballot as accepted.
-          SCANNER_READY_TO_SCAN: 'stop_accept',
+          SCANNER_READY_TO_SCAN: 'finish_accept_and_load_paper',
           // Sometimes the accept command will complete successfully even though
           // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
           // a bit to see if it gets dropped.
@@ -535,7 +554,7 @@ function buildMachine({
           // Sometimes the accept command will complete successfully even though
           // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
           // a bit to see if it gets dropped.
-          SCANNER_BOTH_SIDES_HAVE_PAPER: 'stop_accept',
+          SCANNER_BOTH_SIDES_HAVE_PAPER: 'finish_accept_and_load_paper',
         },
         // If the paper eventually didn't get dropped, reject it.
         after: {
@@ -547,11 +566,20 @@ function buildMachine({
           },
         },
       },
+      finish_accept: {
+        invoke: {
+          // This stops the rollers once the ballot has cleared the scanner, as an additional
+          // safeguard against accidental intake of a second ballot without tabulation
+          src: finishAccept,
+          onDone: '#accepted',
+          onError: '#error',
+        },
+      },
       // This occurs when paper is seen while the ballot is being accepted.
-      stop_accept: {
+      finish_accept_and_load_paper: {
         invoke: {
           // Stop the accept action by triggering the load paper command.
-          src: stopAccept,
+          src: finishAcceptAndLoadPaper,
           // The first ballot will get deposited as the second ballot is loaded slightly from the load paper command.
           // Mark the first ballot as accepted and then the state of where the second ballot is will be appropriately handled.
           onDone: '#accepted',
@@ -631,7 +659,7 @@ function buildMachine({
           },
         },
         checking_completed: {
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             // Our expected end state is that the ballot is returned to the
             // voter and held in front, i.e. "ready to scan".
@@ -736,7 +764,7 @@ function buildMachine({
         },
         checking_initial_paper_status: {
           id: 'checking_initial_paper_status',
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_JAM_CLEARED: 'jam_cleared',
@@ -769,7 +797,7 @@ function buildMachine({
         checking_paper_status_after_scan: {
           entry: [clearLastScan, clearError],
           id: 'checking_paper_status_after_scan',
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_BOTH_SIDES_HAVE_PAPER: {
@@ -785,7 +813,7 @@ function buildMachine({
         no_paper: {
           id: 'no_paper',
           entry: [clearError, clearLastScan],
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCANNER_NO_PAPER: doNothing,
             SCANNER_READY_TO_SCAN: 'ready_to_scan',
@@ -795,7 +823,7 @@ function buildMachine({
         ready_to_scan: {
           id: 'ready_to_scan',
           entry: [clearError, clearLastScan],
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCAN: 'scanning',
             SCANNER_NO_PAPER: 'no_paper',
@@ -853,7 +881,7 @@ function buildMachine({
               },
             },
             checking_scanning_completed: {
-              invoke: pollPaperStatus,
+              invoke: pollPaperStatus(),
               on: {
                 SCANNER_READY_TO_EJECT: '#interpreting',
               },
@@ -862,7 +890,7 @@ function buildMachine({
               after: { DELAY_JAM_WHEN_SCANNING: 'route_paper_jam' },
             },
             route_paper_jam: {
-              invoke: pollPaperStatus,
+              invoke: pollPaperStatus(),
               on: {
                 SCANNER_JAM: '#internal_jam',
                 SCANNER_JAM_DOUBLE_SHEET: '#double_sheet',
@@ -936,7 +964,7 @@ function buildMachine({
         },
         ready_to_accept: {
           id: 'ready_to_accept',
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             ACCEPT: 'accepting',
             SCANNER_READY_TO_EJECT: doNothing,
@@ -946,7 +974,7 @@ function buildMachine({
         accepted: {
           id: 'accepted',
           entry: (context) => recordAcceptedSheet(workspace, usbDrive, context),
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
           states: {
@@ -970,7 +998,7 @@ function buildMachine({
         },
         needs_review: {
           id: 'needs_review',
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             ACCEPT: 'accepting_after_review',
             RETURN: 'returning',
@@ -985,7 +1013,7 @@ function buildMachine({
         returning: { id: 'returning', ...rejectingState('#returned') },
         returned: {
           id: 'returned',
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_NO_PAPER: 'no_paper',
@@ -998,7 +1026,7 @@ function buildMachine({
         // Paper has been rejected and is held in the front, waiting for removal.
         rejected: {
           id: 'rejected',
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_NO_PAPER: 'no_paper',
@@ -1008,7 +1036,7 @@ function buildMachine({
         // to reset the hardware in order to clear the jam when done.
         internal_jam: {
           id: 'internal_jam',
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_JAM: doNothing,
@@ -1020,7 +1048,7 @@ function buildMachine({
         },
         double_sheet: {
           id: 'double_sheet',
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_JAM: doNothing,
@@ -1047,7 +1075,7 @@ function buildMachine({
               },
             },
             checking_complete: {
-              invoke: pollPaperStatus,
+              invoke: pollPaperStatus(),
               on: {
                 SCANNER_NO_PAPER: '#no_paper',
                 SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
@@ -1070,7 +1098,7 @@ function buildMachine({
         },
         both_sides_have_paper_while_scanning: {
           entry: clearError,
-          invoke: pollPaperStatus,
+          invoke: pollPaperStatus(),
           on: {
             SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
             // Sometimes we get a no_paper blip when removing the front paper quickly
