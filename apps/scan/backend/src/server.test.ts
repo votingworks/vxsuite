@@ -5,8 +5,8 @@ import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { start } from './server';
-import { PrecinctScannerStateMachine } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
+import { createPrecinctScannerStateMachineMock } from '../test/helpers/custom_helpers';
 
 jest.mock('./app');
 jest.mock('@votingworks/logging');
@@ -23,16 +23,6 @@ beforeEach(() => {
 afterEach(() => {
   workspace.reset();
 });
-
-function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {
-  return {
-    status: jest.fn(),
-    scan: jest.fn(),
-    accept: jest.fn(),
-    return: jest.fn(),
-    supportsUltrasonic: jest.fn(),
-  };
-}
 
 test('start passes the state machine and workspace to `buildApp`', async () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();

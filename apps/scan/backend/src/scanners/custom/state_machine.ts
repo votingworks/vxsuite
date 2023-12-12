@@ -1353,5 +1353,9 @@ export function createPrecinctScannerStateMachine({
     supportsUltrasonic: () => {
       return true;
     },
+
+    stop: () => {
+      machineService.stop();
+    },
   };
 }

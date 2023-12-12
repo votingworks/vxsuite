@@ -69,6 +69,9 @@ export interface PrecinctScannerStateMachine {
   scan: () => void;
   accept: () => void;
   return: () => void;
+
+  // Stop the state machine and release any resources it is using.
+  stop: () => void;
 }
 
 export interface PollsTransition {
