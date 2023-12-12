@@ -30,6 +30,10 @@ function dateTimeString(date: Date) {
   return `${isoString.split('.')[0]}Z`;
 }
 
+function officeId(contestId: Vxf.ContestId): string {
+  return `office-${contestId}`;
+}
+
 export function convertVxfElectionToCdfBallotDefinition(
   vxfElection: Vxf.Election
 ): Cdf.BallotDefinition {
@@ -214,8 +218,29 @@ export function convertVxfElectionToCdfBallotDefinition(
     );
   }
 
+  // In order to include contest term descriptions in the CDF, we need to
+  // create Office objects, since that's where Terms are defined.
+  const offices = vxfElection.contests
+    .filter(
+      (contest): contest is Vxf.CandidateContest =>
+        contest.type === 'candidate' && contest.termDescription !== undefined
+    )
+    .map(
+      (contest): Cdf.Office => ({
+        '@type': 'BallotDefinition.Office',
+        '@id': officeId(contest.id),
+        Name: text(contest.title), // Not used, but required
+        Term: {
+          '@type': 'BallotDefinition.Term',
+          Label: assertDefined(contest.termDescription),
+        },
+      })
+    );
+
   return {
     '@type': 'BallotDefinition.BallotDefinition',
+
+    Office: offices,
 
     Election: [
       {
@@ -275,6 +300,9 @@ export function convertVxfElectionToCdfBallotDefinition(
                 ],
                 PrimaryPartyIds: contest.partyId
                   ? [contest.partyId]
+                  : undefined,
+                OfficeIds: contest.termDescription
+                  ? [officeId(contest.id)]
                   : undefined,
               };
 
@@ -449,6 +477,10 @@ export function convertCdfBallotDefinitionToVxfElection(
   const election = cdfBallotDefinition.Election[0];
   const gpUnits = cdfBallotDefinition.GpUnit;
   const ballotFormat = cdfBallotDefinition.BallotFormat[0];
+  const offices =
+    cdfBallotDefinition.Office ??
+    /* istanbul ignore next */
+    [];
 
   const state = find(
     gpUnits,
@@ -578,6 +610,9 @@ export function convertCdfBallotDefinitionToVxfElection(
             partyId: contest.PrimaryPartyIds
               ? (contest.PrimaryPartyIds[0] as Vxf.PartyId)
               : undefined,
+            termDescription: offices.find(
+              (office) => office['@id'] === officeId(contest['@id'])
+            )?.Term.Label,
           };
         }
         case 'BallotDefinition.BallotMeasureContest': {

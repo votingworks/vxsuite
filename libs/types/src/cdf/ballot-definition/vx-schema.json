@@ -63,6 +63,13 @@
         "IssuerAbbreviation": {
           "type": "string"
         },
+        "Office": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.Office"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
         "Party": {
           "items": {
             "oneOf": [
@@ -357,6 +364,15 @@
         "Name": {
           "type": "string"
         },
+        "OfficeIds": {
+          "items": {
+            "type": "string",
+            "refTypes": ["BallotDefinition.Office"]
+          },
+          "minItems": 0,
+          "maxItems": 1,
+          "type": "array"
+        },
         "PrimaryPartyIds": {
           "items": {
             "type": "string",
@@ -624,6 +640,26 @@
       "enum": ["in", "mm", "pc", "pt"],
       "type": "string"
     },
+    "BallotDefinition.Office": {
+      "required": ["@id", "@type", "Name", "Term"],
+      "additionalProperties": false,
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "enum": ["BallotDefinition.Office"],
+          "type": "string"
+        },
+        "Name": {
+          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
+        },
+        "Term": {
+          "$ref": "#/definitions/BallotDefinition.Term"
+        }
+      },
+      "type": "object"
+    },
     "BallotDefinition.OptionPosition": {
       "required": ["@type", "H", "NumberVotes", "Side", "W", "X", "Y", "Sheet"],
       "additionalProperties": false,
@@ -887,6 +923,20 @@
     "BallotDefinition.ShapeType": {
       "enum": ["ellipse", "rectangle"],
       "type": "string"
+    },
+    "BallotDefinition.Term": {
+      "required": ["@type", "Label"],
+      "additionalProperties": false,
+      "properties": {
+        "@type": {
+          "enum": ["BallotDefinition.Term"],
+          "type": "string"
+        },
+        "Label": {
+          "type": "string"
+        }
+      },
+      "type": "object"
     },
     "BallotDefinition.WriteInPosition": {
       "required": ["@type", "H", "Side", "W", "X", "Y"],

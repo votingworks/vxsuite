@@ -25,6 +25,12 @@ export const singlePrecinctElectionDefinition = asElectionDefinition(
 
 export * as systemSettings from '../systemSettings.json';
 
+// To regenerate the cast vote records:
+// 1. rm -rf data/electionTwoPartyPrimary/castVoteRecords/generated
+// 2. cd libs/cvr-fixture-generator
+// 3. ./bin/generate
+//    --election-definition ../fixtures/data/electionTwoPartyPrimary/election.json
+//    --output-path ../fixtures/data/electionTwoPartyPrimary/castVoteRecords/generated
 export const castVoteRecordExport = {
   asDirectoryPath: () =>
     path.join(castVoteRecords.asDirectoryPath(), 'generated'),

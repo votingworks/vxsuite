@@ -68,6 +68,7 @@ export const testVxfElection: Election = {
           partyIds: ['party-2' as PartyId],
         },
       ],
+      termDescription: '1 year',
     },
     {
       id: 'contest-2',
@@ -301,6 +302,27 @@ export const testVxfElection: Election = {
 export const testCdfBallotDefinition: BallotDefinition = {
   '@type': 'BallotDefinition.BallotDefinition',
 
+  Office: [
+    {
+      '@type': 'BallotDefinition.Office',
+      '@id': 'office-contest-1',
+      Name: {
+        '@type': 'BallotDefinition.InternationalizedText',
+        Text: [
+          {
+            '@type': 'BallotDefinition.LanguageString',
+            Language: 'en',
+            Content: 'Mayor',
+          },
+        ],
+      },
+      Term: {
+        '@type': 'BallotDefinition.Term',
+        Label: '1 year',
+      },
+    },
+  ],
+
   Election: [
     {
       '@type': 'BallotDefinition.Election',
@@ -400,6 +422,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
               IsWriteIn: true,
             },
           ],
+          OfficeIds: ['office-contest-1'],
         },
         {
           '@type': 'BallotDefinition.BallotMeasureContest',
