@@ -1,10 +1,8 @@
 import { assert } from '@votingworks/basics';
 import {
-  Color,
   ColorMode,
   ColorPalette,
   ColorTheme,
-  LegacyColorTheme,
   ScreenType,
   SizeMode,
   SizeTheme,
@@ -161,9 +159,7 @@ type TouchscreenColorTheme = Pick<
  * specified in this function.
  *
  */
-function expandToFullColorTheme(
-  theme: TouchscreenColorTheme
-): Omit<ColorTheme, keyof Omit<LegacyColorTheme, 'background'>> {
+function expandToFullColorTheme(theme: TouchscreenColorTheme): ColorTheme {
   return {
     background: theme.background,
     onBackground: theme.onBackground,
@@ -199,94 +195,43 @@ function expandToFullColorTheme(
 }
 
 export const colorThemes: Record<ColorMode, ColorTheme> = {
-  contrastHighLight: {
-    accentDanger: Color.BLACK,
-    accentPrimary: Color.BLACK,
-    accentSecondary: Color.BLACK,
-    accentSuccess: Color.BLACK,
-    accentVxPurple: Color.BLACK,
-    accentWarning: Color.BLACK,
-    foreground: Color.BLACK,
-    foregroundDisabled: Color.OFF_BLACK,
+  contrastHighLight: expandToFullColorTheme({
+    background: TouchscreenPalette.Gray0,
+    onBackground: TouchscreenPalette.Gray100,
+    primary: TouchscreenPalette.Gray100,
+    danger: TouchscreenPalette.Gray100,
+    warningAccent: TouchscreenPalette.Gray100,
+    successAccent: TouchscreenPalette.Gray100,
+  }),
 
-    ...expandToFullColorTheme({
-      background: TouchscreenPalette.Gray0,
-      onBackground: TouchscreenPalette.Gray100,
-      primary: TouchscreenPalette.Gray100,
-      danger: TouchscreenPalette.Gray100,
-      warningAccent: TouchscreenPalette.Gray100,
-      successAccent: TouchscreenPalette.Gray100,
-    }),
-  },
-  contrastHighDark: {
-    accentDanger: Color.WHITE,
-    accentPrimary: Color.WHITE,
-    accentSecondary: Color.WHITE,
-    accentSuccess: Color.WHITE,
-    accentVxPurple: Color.WHITE,
-    accentWarning: Color.WHITE,
-    foreground: Color.WHITE,
-    foregroundDisabled: Color.OFF_WHITE,
+  contrastHighDark: expandToFullColorTheme({
+    background: TouchscreenPalette.Gray100,
+    onBackground: TouchscreenPalette.Gray0,
+    primary: TouchscreenPalette.Gray0,
+    danger: TouchscreenPalette.Gray0,
+    warningAccent: TouchscreenPalette.Gray0,
+    successAccent: TouchscreenPalette.Gray0,
+  }),
 
-    ...expandToFullColorTheme({
-      background: TouchscreenPalette.Gray100,
-      onBackground: TouchscreenPalette.Gray0,
-      primary: TouchscreenPalette.Gray0,
-      danger: TouchscreenPalette.Gray0,
-      warningAccent: TouchscreenPalette.Gray0,
-      successAccent: TouchscreenPalette.Gray0,
-    }),
-  },
-  contrastMedium: {
-    accentDanger: Color.DANGER_MEDIUM_CONTRAST,
-    accentPrimary: Color.PRIMARY_BLUE_MEDIUM_CONTRAST,
-    accentSecondary: Color.PRIMARY_GREEN_MEDIUM_CONTRAST,
-    accentSuccess: Color.PRIMARY_GREEN_MEDIUM_CONTRAST,
-    accentVxPurple: Color.VX_PURPLE_MEDIUM_CONTRAST,
-    accentWarning: Color.GRAY_DARK,
-    foreground: Color.GRAY_DARK,
-    foregroundDisabled: Color.GRAY_DARK,
+  contrastMedium: expandToFullColorTheme({
+    background: TouchscreenPalette.Gray5,
+    onBackground: TouchscreenPalette.Gray90,
+    primary: TouchscreenPalette.Purple80,
+    danger: TouchscreenPalette.Red80,
+    warningAccent: TouchscreenPalette.Gray90,
+    successAccent: TouchscreenPalette.Green80,
+  }),
 
-    ...expandToFullColorTheme({
-      background: TouchscreenPalette.Gray5,
-      onBackground: TouchscreenPalette.Gray90,
-      primary: TouchscreenPalette.Purple80,
-      danger: TouchscreenPalette.Red80,
-      warningAccent: TouchscreenPalette.Gray90,
-      successAccent: TouchscreenPalette.Green80,
-    }),
-  },
-  contrastLow: {
-    accentDanger: Color.DANGER_LOW_CONTRAST,
-    accentPrimary: Color.PRIMARY_BLUE_LOW_CONTRAST,
-    accentSecondary: Color.PRIMARY_GREEN_LOW_CONTRAST,
-    accentSuccess: Color.PRIMARY_GREEN_LOW_CONTRAST,
-    accentVxPurple: Color.VX_PURPLE_LOW_CONTRAST,
-    accentWarning: Color.WARNING_LOW_CONTRAST,
-    foreground: Color.GRAY_LIGHT,
-    foregroundDisabled: Color.GRAY_LIGHT,
-
-    ...expandToFullColorTheme({
-      background: TouchscreenPalette.Gray90,
-      onBackground: TouchscreenPalette.Gray50,
-      primary: TouchscreenPalette.Purple50,
-      danger: TouchscreenPalette.Red50,
-      warningAccent: TouchscreenPalette.Orange50,
-      successAccent: TouchscreenPalette.Green50,
-    }),
-  },
+  contrastLow: expandToFullColorTheme({
+    background: TouchscreenPalette.Gray90,
+    onBackground: TouchscreenPalette.Gray50,
+    primary: TouchscreenPalette.Purple50,
+    danger: TouchscreenPalette.Red50,
+    warningAccent: TouchscreenPalette.Orange50,
+    successAccent: TouchscreenPalette.Green50,
+  }),
 
   desktop: {
-    accentDanger: Color.DANGER_LOW_CONTRAST,
-    accentPrimary: Color.PRIMARY_BLUE_LOW_CONTRAST,
-    accentSecondary: Color.PRIMARY_GREEN_LOW_CONTRAST,
-    accentSuccess: Color.PRIMARY_GREEN_LOW_CONTRAST,
-    accentVxPurple: Color.VX_PURPLE_LOW_CONTRAST,
-    accentWarning: Color.WARNING_LOW_CONTRAST,
-
-    foreground: DesktopPalette.Gray100,
-    foregroundDisabled: DesktopPalette.Gray70,
-
     background: DesktopPalette.Gray0,
     onBackground: DesktopPalette.Gray95,
     onBackgroundMuted: DesktopPalette.Gray70,
