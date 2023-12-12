@@ -40,6 +40,7 @@ import {
   waitForStatus,
 } from './shared_helpers';
 import { Store } from '../../src/store';
+import { PrecinctScannerStateMachine } from '../../src';
 
 export async function withApp(
   {
@@ -128,6 +129,7 @@ export async function withApp(
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });
+    precinctScannerMachine.stop();
     workspace.reset();
   }
 }
@@ -247,4 +249,15 @@ export async function scanBallot(
   if (options.waitForContinuousExportToUsbDrive ?? true) {
     await waitForContinuousExportToUsbDrive(store);
   }
+}
+
+export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {
+  return {
+    status: jest.fn(),
+    scan: jest.fn(),
+    accept: jest.fn(),
+    return: jest.fn(),
+    supportsUltrasonic: jest.fn(),
+    stop: jest.fn(),
+  };
 }

@@ -24,6 +24,7 @@ import {
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace } from './util/workspace';
+import { createPrecinctScannerStateMachineMock } from '../test/helpers/custom_helpers';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -49,13 +50,7 @@ afterEach(() => {
 runUiStringApiTests({
   api: buildApi(
     mockAuth,
-    {
-      accept: jest.fn(),
-      return: jest.fn(),
-      scan: jest.fn(),
-      status: jest.fn(),
-      supportsUltrasonic: jest.fn(),
-    },
+    createPrecinctScannerStateMachineMock(),
     workspace,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -81,13 +76,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
 
   const api = buildApi(
     mockAuth,
-    {
-      accept: jest.fn(),
-      return: jest.fn(),
-      scan: jest.fn(),
-      status: jest.fn(),
-      supportsUltrasonic: jest.fn(),
-    },
+    createPrecinctScannerStateMachineMock(),
     workspace,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -104,13 +93,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
 describe('unconfigureElection', () => {
   const api = buildApi(
     mockAuth,
-    {
-      accept: jest.fn(),
-      return: jest.fn(),
-      scan: jest.fn(),
-      status: jest.fn(),
-      supportsUltrasonic: jest.fn(),
-    },
+    createPrecinctScannerStateMachineMock(),
     workspace,
     mockUsbDrive.usbDrive,
     fakeLogger()
