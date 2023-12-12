@@ -51,9 +51,6 @@ export function SystemAdministratorScreen(): JSX.Element {
         }}
         isMachineConfigured={Boolean(electionDefinition)}
       />
-      <H2>Software Update</H2>
-      <RebootToBiosButton logger={logger} />{' '}
-      <PowerDownButton logger={logger} userRole="system_administrator" />
       <H2>Logs</H2>
       <ExportLogsButton
         usbDriveStatus={usbDriveStatus}
@@ -68,6 +65,9 @@ export function SystemAdministratorScreen(): JSX.Element {
       <SetClockButton logOut={() => logOutMutation.mutate()}>
         Set Date and Time
       </SetClockButton>
+      <H2>Software Update</H2>
+      <RebootToBiosButton logger={logger} />{' '}
+      <PowerDownButton logger={logger} userRole="system_administrator" />
     </NavigationScreen>
   );
 }
