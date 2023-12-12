@@ -189,10 +189,6 @@ export function generateBallotStyles(
               )
               .map((contest) => contest.partyId)
           );
-          assert(
-            partyIds.length > 0,
-            'Primary elections cannot have ballot styles with no partisan contests'
-          );
           const parties = election.parties.filter((party) =>
             partyIds.includes(party.id)
           );
