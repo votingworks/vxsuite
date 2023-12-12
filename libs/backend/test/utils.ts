@@ -114,15 +114,26 @@ export class MockPrecinctScannerStore
 
   private ballotsCounted: number;
   private exportDirectoryName?: string;
-  private isContinuousExportOperationInProgressValue: boolean;
+  private pendingContinuousExportOperations: string[];
   private pollsState: PollsState;
 
   constructor() {
     super();
     this.ballotsCounted = 0;
     this.exportDirectoryName = undefined;
-    this.isContinuousExportOperationInProgressValue = false;
+    this.pendingContinuousExportOperations = [];
     this.pollsState = 'polls_closed_initial';
+  }
+
+  deleteAllPendingContinuousExportOperations(): void {
+    this.pendingContinuousExportOperations = [];
+  }
+
+  deletePendingContinuousExportOperation(sheetIdToDelete: string): void {
+    this.pendingContinuousExportOperations =
+      this.pendingContinuousExportOperations.filter(
+        (sheetId) => sheetId !== sheetIdToDelete
+      );
   }
 
   getBallotsCounted(): number {
@@ -133,28 +144,25 @@ export class MockPrecinctScannerStore
     return this.exportDirectoryName;
   }
 
-  getPollsState(): PollsState {
-    return this.pollsState;
+  getPendingContinuousExportOperations(): string[] {
+    return this.pendingContinuousExportOperations;
   }
 
-  isContinuousExportOperationInProgress(): boolean {
-    return this.isContinuousExportOperationInProgressValue;
+  getPollsState(): PollsState {
+    return this.pollsState;
   }
 
   setExportDirectoryName(exportDirectoryName: string): void {
     this.exportDirectoryName = exportDirectoryName;
   }
 
-  setIsContinuousExportOperationInProgress(
-    isContinuousExportOperationInProgress: boolean
-  ): void {
-    this.isContinuousExportOperationInProgressValue =
-      isContinuousExportOperationInProgress;
-  }
-
   //
   // Methods to facilitate testing, beyond the ScannerStore interface
   //
+
+  addPendingContinuousExportOperation(sheetId: string): void {
+    this.pendingContinuousExportOperations.push(sheetId);
+  }
 
   setBallotsCounted(ballotsCounted: number): void {
     this.ballotsCounted = ballotsCounted;

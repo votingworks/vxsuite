@@ -59,16 +59,14 @@ create table system_settings (
   data text not null -- JSON blob
 );
 
-create table is_continuous_export_operation_in_progress (
-  -- Enforce singleton table
-  id integer primary key check (id = 1),
-  is_continuous_export_operation_in_progress boolean not null
-);
-
 create table export_directory_name (
   -- Enforce singleton table
   id integer primary key check (id = 1),
   export_directory_name text not null
+);
+
+create table pending_continuous_export_operations (
+  sheet_id text primary key check (length(sheet_id) = 36)
 );
 
 create table cvr_hashes (
