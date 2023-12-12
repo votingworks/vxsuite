@@ -36,6 +36,13 @@ export function SettingsScreen(): JSX.Element {
 
   return (
     <NavigationScreen title="Settings">
+      <H2>Logs</H2>
+      <ExportLogsButton
+        usbDriveStatus={usbDriveStatus}
+        auth={auth}
+        logger={logger}
+        onExportLogs={doExportLogs}
+      />
       <H2>Date and Time</H2>
       <P>
         <CurrentDateAndTime />
@@ -47,13 +54,6 @@ export function SettingsScreen(): JSX.Element {
       </P>
       {isSystemAdministratorAuth(auth) && (
         <React.Fragment>
-          <H2>Logs</H2>
-          <ExportLogsButton
-            usbDriveStatus={usbDriveStatus}
-            auth={auth}
-            logger={logger}
-            onExportLogs={doExportLogs}
-          />
           <H2>USB Formatting</H2>
           <FormatUsbButton />
           <H2>Software Update</H2>

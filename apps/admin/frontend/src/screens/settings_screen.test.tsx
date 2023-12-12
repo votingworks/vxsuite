@@ -83,9 +83,13 @@ describe('as System Admin', () => {
     apiMock.apiClient.exportLogsToUsb.expectCallWith().resolves(ok());
 
     // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-    userEvent.click(screen.getByText('Save Log File'));
+    userEvent.click(screen.getButton('Save Log File'));
     await screen.findByText('Save logs on the inserted USB drive?');
-    userEvent.click(screen.getByText('Save'));
+    userEvent.click(screen.getButton('Save'));
+    userEvent.click(await screen.findButton('Close'));
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
   });
 });
 
@@ -112,5 +116,24 @@ describe('as Election Manager', () => {
     expect(
       screen.queryByRole('heading', { name: 'USB Formatting' })
     ).not.toBeInTheDocument();
+  });
+
+  test('Exporting logs', async () => {
+    renderInAppContext(<SettingsScreen />, {
+      apiMock,
+      auth,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    });
+
+    apiMock.apiClient.exportLogsToUsb.expectCallWith().resolves(ok());
+
+    // Log saving is tested fully in src/components/export_logs_modal.test.tsx
+    userEvent.click(screen.getButton('Save Log File'));
+    await screen.findByText('Save logs on the inserted USB drive?');
+    userEvent.click(screen.getButton('Save'));
+    userEvent.click(await screen.findButton('Close'));
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
   });
 });

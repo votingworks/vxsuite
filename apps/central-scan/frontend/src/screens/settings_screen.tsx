@@ -51,7 +51,6 @@ export function SettingsScreen({
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-
   const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
 
   async function doExportLogs(): Promise<LogsResultType> {
