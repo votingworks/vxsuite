@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 const portraitStyles = css`
   align-items: stretch;
   border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.outline};
   gap: 0.5rem;
   justify-content: right;
   min-height: 4.5rem;
@@ -19,7 +19,7 @@ const portraitStyles = css`
 
 const landscapeStyles = css`
   border-left: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.outline};
   flex-direction: column;
   gap: 1rem;
   justify-content: center;

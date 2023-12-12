@@ -1,7 +1,6 @@
 import { Meta } from '@storybook/react';
 
 import {
-  Color,
   Election,
   ElectionStringKey,
   LanguageCode,
@@ -30,6 +29,7 @@ import {
   generateCandidateVotes,
   generateYesNoVote,
 } from './bmd_paper_ballot_test_utils';
+import { TouchscreenPalette } from './themes/make_theme';
 
 const ballotLanguages = [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED];
 const election: Election = {
@@ -176,7 +176,7 @@ const meta: Meta<typeof Component> = {
   parameters: {
     backgrounds: {
       default: 'gray',
-      values: [{ name: 'gray', value: Color.GRAY_LIGHT }],
+      values: [{ name: 'gray', value: TouchscreenPalette.Gray50 }],
     },
   },
 };

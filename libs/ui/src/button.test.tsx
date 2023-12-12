@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, ColorMode, SizeMode } from '@votingworks/types';
+import { ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library';
@@ -160,17 +160,19 @@ describe('Button', () => {
   });
 
   test('variant danger', () => {
+    const theme = makeTheme({
+      colorMode: 'contrastMedium',
+      sizeMode: 'touchMedium',
+    });
     render(
       <Button onPress={jest.fn()} variant="danger">
         I’m a dangerous button!
-      </Button>
+      </Button>,
+      { vxTheme: theme }
     );
     const button = screen.getButton('I’m a dangerous button!');
-    expect(button).toHaveStyleRule(
-      'background-color',
-      Color.DANGER_MEDIUM_CONTRAST
-    );
-    expect(button).toHaveStyleRule('color', Color.OFF_WHITE);
+    expect(button).toHaveStyleRule('background-color', theme.colors.danger);
+    expect(button).toHaveStyleRule('color', theme.colors.onDanger);
   });
 
   test('disabled button', () => {

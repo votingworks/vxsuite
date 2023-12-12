@@ -38,59 +38,10 @@ export function isTouchSizeMode(sizeMode: SizeMode): sizeMode is TouchSizeMode {
   return TOUCH_SIZE_MODES.includes(sizeMode as any);
 }
 
-/** VX CSS color definitions. */
-export enum Color {
-  BLACK = '#000000',
-  DANGER_LOW_CONTRAST = '#ff3d3d',
-  DANGER_MEDIUM_CONTRAST = '#820b0b',
-  GRAY_DARK = '#222222',
-  GRAY_LIGHT = '#8a8a8a',
-  GRAY_MEDIUM = '#424242',
-  OFF_BLACK = '#080808',
-  OFF_WHITE = '#fafafa',
-  PRIMARY_BLUE_LOW_CONTRAST = '#5b8eb5',
-  PRIMARY_BLUE_MEDIUM_CONTRAST = '#00437d',
-  PRIMARY_GREEN_LOW_CONTRAST = '#509a52',
-  PRIMARY_GREEN_MEDIUM_CONTRAST = '#1c4c19',
-  VX_PURPLE_LOW_CONTRAST = '#a977b5',
-  VX_PURPLE_MEDIUM_CONTRAST = '#593460',
-  WARNING_LOW_CONTRAST = '#bc7c10',
-  WARNING_MEDIUM_CONTRAST = '#5c3600',
-  WHITE = '#ffffff',
-}
-
 export type ColorString = string;
 
-export interface LegacyColorTheme {
-  readonly background: ColorString;
-
-  /** @deprecated */
-  readonly accentDanger: ColorString;
-
-  /** @deprecated */
-  readonly accentPrimary: ColorString;
-
-  /** @deprecated */
-  readonly accentSecondary: ColorString;
-
-  /** @deprecated */
-  readonly accentSuccess: ColorString;
-
-  /** @deprecated */
-  readonly accentVxPurple: ColorString;
-
-  /** @deprecated */
-  readonly accentWarning: ColorString;
-
-  /** @deprecated use {@link ColorTheme.onBackground} */
-  readonly foreground: ColorString;
-
-  /** @deprecated use {@link ColorTheme.onBackgroundMuted} */
-  readonly foregroundDisabled: ColorString;
-}
-
 /** CSS color values for various UI features. */
-export interface ColorTheme extends LegacyColorTheme {
+export interface ColorTheme {
   readonly background: ColorString;
   readonly onBackground: ColorString;
   readonly onBackgroundMuted: ColorString;

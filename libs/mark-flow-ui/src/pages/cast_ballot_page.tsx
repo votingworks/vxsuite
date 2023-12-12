@@ -41,7 +41,7 @@ const ListItem = styled.li`
 
 const InstructionImageContainer = styled.div`
   border-right: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
-    ${(p) => p.theme.colors.foreground};
+    ${(p) => p.theme.colors.outline};
   display: flex;
   justify-content: center;
   padding: 1rem 1rem 0 0;
