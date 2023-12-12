@@ -1,3 +1,4 @@
+import * as fc from 'fast-check';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -5,19 +6,23 @@ import {
   SheetInterpretation,
 } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
-import { err, ok, sleep, typedAs } from '@votingworks/basics';
+import { assertDefined, err, ok, sleep, typedAs } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireAmherstFixtures,
 } from '@votingworks/fixtures';
 import { Logger } from '@votingworks/logging';
-import { ErrorCode, mocks } from '@votingworks/custom-scanner';
+import { ErrorCode, ScannerStatus, mocks } from '@votingworks/custom-scanner';
 import {
   BooleanEnvironmentVariableName,
   getEmptyElectionResults,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { MAX_FAILED_SCAN_ATTEMPTS } from './state_machine';
+import {
+  MAX_FAILED_SCAN_ATTEMPTS,
+  ScannerStatusEvent,
+  scannerStatusToEvent,
+} from './state_machine';
 import {
   configureApp,
   expectStatus,
@@ -453,4 +458,81 @@ test('scanning time out', async () => {
       );
     }
   );
+});
+
+test("scannerStatusToEvent's cases are exhaustive and can all be reached", () => {
+  const eventCounts: Map<ScannerStatusEvent['type'], number> = new Map();
+  eventCounts.set('SCANNER_BOTH_SIDES_HAVE_PAPER', 0);
+  eventCounts.set('SCANNER_NO_PAPER', 0);
+  eventCounts.set('SCANNER_READY_TO_EJECT', 0);
+  eventCounts.set('SCANNER_READY_TO_SCAN', 0);
+
+  fc.assert(
+    fc.property(
+      fc.integer({ min: 0, max: 1 }), // min and max are both inclusive
+      fc.integer({ min: 0, max: 1 }),
+      fc.integer({ min: 0, max: 1 }),
+      fc.integer({ min: 0, max: 1 }),
+      fc.integer({ min: 0, max: 1 }),
+      fc.integer({ min: 0, max: 1 }),
+      fc.integer({ min: 0, max: 1 }),
+      fc.integer({ min: 0, max: 1 }),
+      (
+        sensorInputLeftLeft,
+        sensorInputCenterLeft,
+        sensorInputCenterRight,
+        sensorInputRightRight,
+        sensorOutputLeftLeft,
+        sensorOutputCenterLeft,
+        sensorOutputCenterRight,
+        sensorOutputRightRight
+      ) => {
+        const scannerStatus: ScannerStatus = {
+          sensorInputLeftLeft,
+          sensorInputCenterLeft,
+          sensorInputCenterRight,
+          sensorInputRightRight,
+          sensorOutputLeftLeft,
+          sensorOutputCenterLeft,
+          sensorOutputCenterRight,
+          sensorOutputRightRight,
+
+          isDoubleSheet: false,
+          isExternalCoverCloseSensor: false,
+          isJamPaperHeldBack: false,
+          isLoadingPaper: false,
+          isMotorOn: false,
+          isPaperJam: false,
+          isPrintHeadReady: false,
+          isScanCanceled: false,
+          isScanInProgress: false,
+          isScannerCoverOpen: false,
+          isTicketLoaded: false,
+          isTicketOnEnterA4: false,
+          isTicketOnEnterCenter: false,
+          isTicketOnExit: false,
+          sensorInternalInputLeft: 0xff,
+          sensorInternalInputRight: 0xff,
+          sensorVoidPrintHead: 0xff,
+        };
+
+        // First, ensure that scannerStatusToEvent's cases are exhaustive. We'll now that they are
+        // if this line never throws.
+        const event = scannerStatusToEvent(scannerStatus);
+
+        const eventCount = assertDefined(
+          eventCounts.get(event.type),
+          `Unexpected event type: ${event.type}`
+        );
+        eventCounts.set(event.type, eventCount + 1);
+      }
+    ),
+    { numRuns: 1000 }
+  );
+
+  // Second, ensure that scannerStatusToEvent's cases can in fact all be reached
+  expect(eventCounts.get('SCANNER_BOTH_SIDES_HAVE_PAPER')).toBeGreaterThan(0);
+  expect(eventCounts.get('SCANNER_NO_PAPER')).toBeGreaterThan(0);
+  expect(eventCounts.get('SCANNER_READY_TO_EJECT')).toBeGreaterThan(0);
+  expect(eventCounts.get('SCANNER_READY_TO_SCAN')).toBeGreaterThan(0);
 });

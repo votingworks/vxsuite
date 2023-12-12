@@ -95,7 +95,7 @@ function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
   return xassign<Context, any>(arg);
 }
 
-type ScannerStatusEvent =
+export type ScannerStatusEvent =
   | { type: 'SCANNER_NO_PAPER' }
   | { type: 'SCANNER_READY_TO_SCAN' }
   | { type: 'SCANNER_READY_TO_EJECT' }
@@ -178,7 +178,7 @@ async function closeCustomClient({ client }: Context) {
   debug('Custom scanner client closed');
 }
 
-function scannerStatusToEvent(
+export function scannerStatusToEvent(
   scannerStatus: ScannerStatus
 ): ScannerStatusEvent {
   const allFrontSensorsDetectPaper =
@@ -192,22 +192,21 @@ function scannerStatusToEvent(
     scannerStatus.sensorInputCenterRight === SensorStatus.PaperPresent ||
     scannerStatus.sensorInputRightRight === SensorStatus.PaperPresent;
 
+  // sensorOutputLeftLeft and sensorOutputRightRight exist past the back rollers. For reasons
+  // described below, we intentionally ignore the signal from them.
   const someBackSensorsUnderRollersDetectPaper =
     scannerStatus.sensorOutputCenterLeft === SensorStatus.PaperPresent ||
     scannerStatus.sensorOutputCenterRight === SensorStatus.PaperPresent;
-  const someBackSensorsPastRollersDetectPaper =
-    scannerStatus.sensorOutputLeftLeft === SensorStatus.PaperPresent ||
-    scannerStatus.sensorOutputRightRight === SensorStatus.PaperPresent;
-  const someBackSensorsDetectPaper =
-    someBackSensorsUnderRollersDetectPaper ||
-    someBackSensorsPastRollersDetectPaper;
 
   if (scannerStatus.isScannerCoverOpen) {
     return { type: 'SCANNER_DISCONNECTED' };
   }
 
   if (scannerStatus.isPaperJam || scannerStatus.isJamPaperHeldBack) {
-    if (!someFrontSensorsDetectPaper && !someBackSensorsDetectPaper) {
+    if (
+      !someFrontSensorsDetectPaper &&
+      !someBackSensorsUnderRollersDetectPaper
+    ) {
       return { type: 'SCANNER_JAM_CLEARED' };
     }
 
@@ -235,9 +234,15 @@ function scannerStatusToEvent(
     return { type: 'SCANNER_READY_TO_EJECT' };
   }
 
-  // The above conditions make it such that this condition is equivalent to:
-  // someFrontSensorsDetectPaper && someBackSensorsUnderRollersDetectPaper
-  return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
+  if (someFrontSensorsDetectPaper && someBackSensorsUnderRollersDetectPaper) {
+    return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
+  }
+
+  throw new Error(
+    `scannerStatusToEvent cases are non-exhaustive (scannerStatus = ${JSON.stringify(
+      scannerStatus
+    )})`
+  );
 }
 
 function scannerStatusErrorToEvent(error: ErrorCode): ScannerStatusEvent {
