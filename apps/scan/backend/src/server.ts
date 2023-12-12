@@ -1,23 +1,13 @@
-import {
-  InsertedSmartCardAuth,
-  InsertedSmartCardAuthApi,
-  JavaCard,
-  MockFileCard,
-} from '@votingworks/auth';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  isIntegrationTest,
-} from '@votingworks/utils';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { LogEventId, LogSource, Logger } from '@votingworks/logging';
+import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { PrecinctScannerStateMachine } from './types';
 import { Workspace } from './util/workspace';
 
 export interface StartOptions {
-  auth?: InsertedSmartCardAuthApi;
+  auth: InsertedSmartCardAuthApi;
   logger?: Logger;
   port?: number | string;
   precinctScannerStateMachine: PrecinctScannerStateMachine;
@@ -35,27 +25,13 @@ export function start({
   usbDrive,
   workspace,
 }: StartOptions): void {
-  /* c8 ignore start */
-  const resolvedAuth =
-    auth ??
-    new InsertedSmartCardAuth({
-      card:
-        isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||
-        isIntegrationTest()
-          ? new MockFileCard()
-          : new JavaCard(),
-      config: {},
-      logger,
-    });
-  /* c8 ignore stop */
-
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
 
   // Clear any cached data
   workspace.clearUploads();
 
   const app = buildApp(
-    resolvedAuth,
+    auth,
     precinctScannerStateMachine,
     workspace,
     resolvedUsbDrive,
