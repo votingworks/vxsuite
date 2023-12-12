@@ -983,6 +983,8 @@ function buildMachine({
                 SCANNER_READY_TO_SCAN: doNothing,
                 SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
                 SCANNER_JAM: doNothing,
+                SCANNER_JAM_DOUBLE_SHEET: doNothing,
+                SCANNER_JAM_CLEARED: doNothing,
                 SCANNER_READY_TO_EJECT: doNothing,
               },
               after: {
