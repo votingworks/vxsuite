@@ -91,7 +91,7 @@ function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
   return xassign<Context, any>(arg);
 }
 
-type ScannerStatusEvent =
+export type ScannerStatusEvent =
   | { type: 'SCANNER_NO_PAPER' }
   | { type: 'SCANNER_READY_TO_SCAN' }
   | { type: 'SCANNER_READY_TO_EJECT' }
@@ -174,49 +174,71 @@ async function closeCustomClient({ client }: Context) {
   debug('Custom scanner client closed');
 }
 
-function scannerStatusToEvent(
+export function scannerStatusToEvent(
   scannerStatus: ScannerStatus
 ): ScannerStatusEvent {
-  const frontHasPaper =
+  const allFrontSensorsDetectPaper =
     scannerStatus.sensorInputLeftLeft === SensorStatus.PaperPresent &&
     scannerStatus.sensorInputCenterLeft === SensorStatus.PaperPresent &&
     scannerStatus.sensorInputCenterRight === SensorStatus.PaperPresent &&
     scannerStatus.sensorInputRightRight === SensorStatus.PaperPresent;
-  const backHasPaper =
-    scannerStatus.sensorOutputLeftLeft === SensorStatus.PaperPresent &&
-    scannerStatus.sensorOutputCenterLeft === SensorStatus.PaperPresent &&
-    scannerStatus.sensorOutputCenterRight === SensorStatus.PaperPresent &&
-    scannerStatus.sensorOutputRightRight === SensorStatus.PaperPresent;
+  const someFrontSensorsDetectPaper =
+    scannerStatus.sensorInputLeftLeft === SensorStatus.PaperPresent ||
+    scannerStatus.sensorInputCenterLeft === SensorStatus.PaperPresent ||
+    scannerStatus.sensorInputCenterRight === SensorStatus.PaperPresent ||
+    scannerStatus.sensorInputRightRight === SensorStatus.PaperPresent;
+
+  // sensorOutputLeftLeft and sensorOutputRightRight exist past the back rollers. For reasons
+  // described below, we intentionally ignore the signal from them.
+  const someBackSensorsUnderRollersDetectPaper =
+    scannerStatus.sensorOutputCenterLeft === SensorStatus.PaperPresent ||
+    scannerStatus.sensorOutputCenterRight === SensorStatus.PaperPresent;
 
   if (scannerStatus.isScannerCoverOpen) {
     return { type: 'SCANNER_DISCONNECTED' };
   }
 
   if (scannerStatus.isPaperJam || scannerStatus.isJamPaperHeldBack) {
-    if (!frontHasPaper && !backHasPaper) {
+    if (
+      !someFrontSensorsDetectPaper &&
+      !someBackSensorsUnderRollersDetectPaper
+    ) {
       return { type: 'SCANNER_JAM_CLEARED' };
     }
 
     if (scannerStatus.isDoubleSheet) {
       return { type: 'SCANNER_JAM_DOUBLE_SHEET' };
     }
+
     return { type: 'SCANNER_JAM' };
   }
 
-  if (!frontHasPaper && !backHasPaper) {
+  // Paper past the back rollers but caught on, say, the emergency ballot bag should not be
+  // considered still in the scanner. Continuing to spin the rollers won't clear the paper. Rather,
+  // scanning the next ballot will.
+  if (!allFrontSensorsDetectPaper && !someBackSensorsUnderRollersDetectPaper) {
     return { type: 'SCANNER_NO_PAPER' };
   }
 
-  if (frontHasPaper && !backHasPaper) {
+  // Wait for all and not just some of the front sensors to detect paper before scanning to ensure
+  // proper alignment
+  if (allFrontSensorsDetectPaper && !someBackSensorsUnderRollersDetectPaper) {
     return { type: 'SCANNER_READY_TO_SCAN' };
   }
 
-  if (!frontHasPaper && backHasPaper) {
+  if (!someFrontSensorsDetectPaper && someBackSensorsUnderRollersDetectPaper) {
     return { type: 'SCANNER_READY_TO_EJECT' };
   }
 
-  // If we get here frontHasPaper and backHasPaper are true
-  return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
+  if (someFrontSensorsDetectPaper && someBackSensorsUnderRollersDetectPaper) {
+    return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
+  }
+
+  throw new Error(
+    `scannerStatusToEvent cases are non-exhaustive (scannerStatus = ${JSON.stringify(
+      scannerStatus
+    )})`
+  );
 }
 
 function scannerStatusErrorToEvent(error: ErrorCode): ScannerStatusEvent {
