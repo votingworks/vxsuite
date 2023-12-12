@@ -1,6 +1,6 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { PrecinctScannerState } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import {
@@ -131,7 +131,25 @@ export async function getCurrentAppFlowState({
     case 'ready_to_accept':
       return 'ballot:waiting_to_accept';
 
-    default:
+    case 'ready_to_scan':
       return 'ballot:waiting_to_scan';
+
+    case 'connecting':
+    case 'no_paper':
+    case 'returning_to_rescan':
+    case 'needs_review':
+    case 'returning':
+    case 'returned':
+    case 'rejecting':
+    case 'rejected':
+    case 'jammed':
+    case 'both_sides_have_paper':
+    case 'recovering_from_error':
+    case 'double_sheet_jammed':
+    case 'unrecoverable_error':
+      return 'unknown';
+
+    default:
+      throwIllegalValue(precinctScannerState);
   }
 }

@@ -9,6 +9,29 @@ import {
 } from '@votingworks/types';
 import { PrecinctScannerState } from '@votingworks/types/src/precinct_scanner';
 
+export type AppFlowState =
+  | 'ballot:accepted'
+  | 'ballot:accepting'
+  | 'ballot:scanning'
+  | 'ballot:waiting_to_accept'
+  | 'ballot:waiting_to_scan'
+  | 'card_error'
+  | 'cast_vote_record_sync_required'
+  | 'insert_usb_drive'
+  | 'invalid_card'
+  | 'login_prompt'
+  | 'logged_in:election_manager'
+  | 'logged_in:poll_worker'
+  | 'logged_in:system_administrator'
+  | 'polls_not_open'
+  | 'replace_ballot_bag'
+  | 'setup_card_reader'
+  | 'setup_scanner'
+  | 'unconfigured:election'
+  | 'unconfigured:precinct'
+  | 'unknown'
+  | 'unlock_machine';
+
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;
@@ -66,7 +89,6 @@ export interface PrecinctScannerStateMachine {
   // The commands are non-blocking and do not return a result. They just send an
   // event to the machine. The effects of the event (or any error) will show up
   // in the status.
-  scan: () => void;
   accept: () => void;
   return: () => void;
 

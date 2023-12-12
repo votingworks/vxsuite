@@ -44,6 +44,7 @@ import {
 } from 'xstate';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import { Store } from '../../store';
 import {
@@ -53,6 +54,7 @@ import {
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
+import { getCurrentAppFlowState } from '../../app_flow';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -82,7 +84,9 @@ type InterpretationResult = SheetInterpretationWithPages & { sheetId: Id };
 
 interface Context {
   client?: CustomScanner;
+  auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
+  usbDrive: UsbDrive;
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
   error?: Error | ErrorCode;
@@ -488,12 +492,14 @@ const doNothing: TransitionConfig<Context, Event> = { target: undefined };
 
 function buildMachine({
   createCustomClient = defaultCreateCustomClient,
+  auth,
   workspace,
   interpret,
   usbDrive,
   delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
+  auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   interpret: InterpretFn;
   usbDrive: UsbDrive;
@@ -515,6 +521,37 @@ function buildMachine({
       },
     };
   }
+
+  const doScanWhenReady: InvokeConfig<Context, Event> = {
+    src: (context) =>
+      buildPaperStatusObserver(
+        delays.DELAY_PAPER_STATUS_POLLING_INTERVAL,
+        delays.DELAY_PAPER_STATUS_POLLING_TIMEOUT
+      )(context).pipe(
+        switchMap(async (event) => {
+          if (event.type === 'SCANNER_READY_TO_SCAN') {
+            const flowState = await getCurrentAppFlowState({
+              auth,
+              store: workspace.store,
+              usbDrive,
+              // NOTE: we only ever call `doScanWhenReady` when the scanner is
+              // ready to scan, so we can assume that the scanner is ready to
+              // scan.
+              precinctScannerState: 'ready_to_scan',
+            });
+            if (flowState === 'ballot:waiting_to_scan') {
+              return { type: 'SCAN' };
+            }
+          }
+
+          return event;
+        })
+      ),
+    onError: {
+      target: '#error',
+      actions: assign({ error: (_, event) => event.data }),
+    },
+  };
 
   const acceptingState: StateNodeConfig<
     Context,
@@ -689,7 +726,7 @@ function buildMachine({
       id: 'precinct_scanner',
       initial: 'connecting',
       strict: true,
-      context: { workspace },
+      context: { auth, workspace, usbDrive },
       on: {
         SCANNER_DISCONNECTED: 'disconnected',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper_while_scanning',
@@ -823,7 +860,7 @@ function buildMachine({
         ready_to_scan: {
           id: 'ready_to_scan',
           entry: [clearError, clearLastScan],
-          invoke: pollPaperStatus(),
+          invoke: doScanWhenReady,
           on: {
             SCAN: 'scanning',
             SCANNER_NO_PAPER: 'no_paper',
@@ -1267,6 +1304,7 @@ function errorToString(error: NonNullable<Context['error']>) {
  */
 export function createPrecinctScannerStateMachine({
   createCustomClient,
+  auth,
   workspace,
   interpret = defaultInterpret,
   logger,
@@ -1274,6 +1312,7 @@ export function createPrecinctScannerStateMachine({
   delays = {},
 }: {
   createCustomClient?: CreateCustomClient;
+  auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   interpret?: InterpretFn;
   logger: Logger;
@@ -1282,6 +1321,7 @@ export function createPrecinctScannerStateMachine({
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
+    auth,
     workspace,
     interpret,
     usbDrive,
@@ -1388,10 +1428,6 @@ export function createPrecinctScannerStateMachine({
         interpretation: interpretationResult,
         error: errorDetails,
       };
-    },
-
-    scan: () => {
-      machineService.send('SCAN');
     },
 
     accept: () => {

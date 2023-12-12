@@ -4,8 +4,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
-import { ok, typedAs } from '@votingworks/basics';
-import { mocks } from '@votingworks/custom-scanner';
+import { err, ok, typedAs } from '@votingworks/basics';
+import { ErrorCode, mocks } from '@votingworks/custom-scanner';
 import waitForExpect from 'wait-for-expect';
 import {
   BooleanEnvironmentVariableName,
@@ -47,10 +47,7 @@ test('insert second ballot before first ballot accept', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
-      await apiClient.scanBallot();
       await expectStatus(apiClient, { state: 'scanning' });
 
       mockScanner.getStatus.mockResolvedValue(
@@ -94,10 +91,8 @@ test('insert second ballot while first ballot is accepting', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await apiClient.scanBallot();
+
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -149,10 +144,8 @@ test('insert second ballot while first ballot needs review', async () => {
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.overvoteHmpb());
-      await apiClient.scanBallot();
+
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       mockScanner.getStatus.mockResolvedValue(
@@ -193,11 +186,13 @@ test('double sheet on scan', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
+      mockScanner.scan.mockImplementation(() => {
+        mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_DOUBLE_SHEET));
+        return Promise.resolve(err(ErrorCode.PaperJam));
+      });
 
-      await apiClient.scanBallot();
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_DOUBLE_SHEET));
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+
       await waitForStatus(apiClient, {
         state: 'double_sheet_jammed',
       });

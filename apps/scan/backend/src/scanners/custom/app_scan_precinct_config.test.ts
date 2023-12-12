@@ -43,16 +43,13 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
         testMode: true,
       });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
         reason: 'invalid_precinct',
       };
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await apiClient.scanBallot();
+
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -83,11 +80,8 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
         type: 'ValidSheet',
       };
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await apiClient.scanBallot();
+
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: validInterpretation,
@@ -107,16 +101,13 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
         precinctId: '22',
       });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
         reason: 'invalid_precinct',
       };
 
       simulateScan(mockScanner, await ballotImages.completeHmpb());
-      await apiClient.scanBallot();
+
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -148,11 +139,8 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
         type: 'ValidSheet',
       };
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.completeHmpb());
-      await apiClient.scanBallot();
+
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: validInterpretation,

@@ -30,3 +30,5 @@ export const SCAN_WORKSPACE =
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
+
+export const BALLOT_BAG_CAPACITY = 7000;

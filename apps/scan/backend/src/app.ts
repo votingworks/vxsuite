@@ -365,11 +365,6 @@ export function buildApi(
       };
     },
 
-    scanBallot(): void {
-      assert(store.getPollsState() === 'polls_open');
-      machine.scan();
-    },
-
     acceptBallot(): void {
       machine.accept();
     },

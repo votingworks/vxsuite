@@ -52,11 +52,14 @@ test('jam on scan', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
+      mockScanner.scan.mockImplementation(() => {
+        mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_INTERNAL_JAM));
+        // Returns an intentionally broken value to trigger a reconnect.
+        return Promise.resolve(ok()) as ReturnType<typeof mockScanner.scan>;
+      });
 
-      await apiClient.scanBallot();
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_INTERNAL_JAM));
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+
       await waitForStatus(apiClient, {
         state: 'recovering_from_error',
         error: 'client_error',
@@ -81,11 +84,7 @@ test('jam on accept', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await apiClient.scanBallot();
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -128,11 +127,7 @@ test('jam on return', async () => {
           ),
       });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
-      await apiClient.scanBallot();
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();
@@ -158,11 +153,7 @@ test('jam on reject', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.wrongElection());
-      await apiClient.scanBallot();
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
