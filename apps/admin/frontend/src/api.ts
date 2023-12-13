@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import isEqual from 'lodash.isequal';
 import React from 'react';
 import type { Api } from '@votingworks/admin-backend';
 import {
@@ -65,7 +65,7 @@ export const getAuthStatus = {
         }
 
         // Prevent infinite re-renders of the app tree:
-        const isUnchanged = _.isEqual(oldData, newData);
+        const isUnchanged = isEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
     });
@@ -158,7 +158,7 @@ export const getUsbDriveStatus = {
         }
 
         // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = _.isEqual(oldData, newData);
+        const isUnchanged = isEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
     });

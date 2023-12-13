@@ -1,6 +1,6 @@
 // TODO(kofi): Remove once extractors are implemented.
 
-import _ from 'lodash';
+import setWith from 'lodash.setwith';
 
 import {
   BallotDefinition,
@@ -40,7 +40,7 @@ function setInternationalizedUiStrings(params: {
     }
 
     const valuePath = [languageCode, stringKey].flat();
-    _.setWith(uiStrings, valuePath, value.Content, Object);
+    setWith(uiStrings, valuePath, value.Content, Object);
   }
 }
 
@@ -56,7 +56,7 @@ function setStaticUiString(params: {
   const { stringKey, uiStrings, value } = params;
 
   const valuePath = [LanguageCode.ENGLISH, stringKey].flat();
-  _.setWith(uiStrings, valuePath, value, Object);
+  setWith(uiStrings, valuePath, value, Object);
 }
 
 const extractorFns: Record<

@@ -1,7 +1,5 @@
 /* istanbul ignore file - test util */
 
-import _ from 'lodash';
-
 import {
   ElectionPackage,
   ExtendedElectionDefinition,
@@ -153,7 +151,9 @@ export function runUiStringMachineConfigurationTests(
       audioIds: string[];
       languageCode: LanguageCode;
     }) {
-      return _.sortBy(store.getAudioClips(input), 'id');
+      return [...store.getAudioClips(input)].sort((a, b) =>
+        a.id.localeCompare(b.id)
+      );
     }
 
     expect(
