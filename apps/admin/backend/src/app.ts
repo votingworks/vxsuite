@@ -85,7 +85,7 @@ import {
 } from './cast_vote_records';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
 import { adjudicateWriteIn } from './adjudication';
-import { convertFrontendFilter as convertFrontendFileUtil } from './util/filters';
+import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 
 const debug = rootDebug.extend('app');
 
@@ -162,7 +162,7 @@ function buildApi({
     const {
       electionDefinition: { election },
     } = assertDefined(store.getElection(electionId));
-    return convertFrontendFileUtil(filter, election);
+    return convertFrontendFilterUtil(filter, election);
   }
 
   return grout.createApi({
