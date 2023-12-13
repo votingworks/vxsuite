@@ -38,12 +38,14 @@ import {
   Form,
   FormActionsRow,
   InputGroup,
+  Row,
   TableActionsRow,
 } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
+import { nextId } from './utils';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -387,24 +389,6 @@ function ContestForm({
                 You haven&apos;t added any candidates to this contest yet.
               </P>
             )}
-            <TableActionsRow>
-              <Button
-                icon="Add"
-                onPress={() =>
-                  setContest({
-                    ...contest,
-                    candidates: [
-                      ...contest.candidates,
-                      createBlankCandidate(
-                        `candidate-${contest.candidates.length + 1}`
-                      ),
-                    ],
-                  })
-                }
-              >
-                Add Candidate
-              </Button>
-            </TableActionsRow>
             {contest.candidates.length > 0 && (
               <Table>
                 <thead>
@@ -503,6 +487,27 @@ function ContestForm({
                 </tbody>
               </Table>
             )}
+            <Row style={{ marginTop: '0.5rem' }}>
+              <Button
+                icon="Add"
+                onPress={() =>
+                  setContest({
+                    ...contest,
+                    candidates: [
+                      ...contest.candidates,
+                      createBlankCandidate(
+                        nextId(
+                          `${contest.id}-candidate-`,
+                          contest.candidates.map((c) => c.id)
+                        )
+                      ),
+                    ],
+                  })
+                }
+              >
+                Add Candidate
+              </Button>
+            </Row>
           </div>
         </React.Fragment>
       )}
@@ -682,7 +687,12 @@ function PartyForm({
   const savedParties = savedElection.parties;
   const savedParty = partyId
     ? find(savedParties, (p) => p.id === partyId)
-    : createBlankParty(`party-${savedParties.length + 1}`);
+    : createBlankParty(
+        nextId(
+          'party-',
+          savedParties.map((p) => p.id)
+        )
+      );
   const [party, setParty] = useState<Party>(savedParty);
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();

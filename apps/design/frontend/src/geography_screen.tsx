@@ -27,7 +27,7 @@ import {
   Id,
   PrecinctId,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, iter } from '@votingworks/basics';
 import type { Precinct } from '@votingworks/design-backend';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -43,7 +43,7 @@ import {
   FieldName,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
-import { hasSplits } from './utils';
+import { hasSplits, nextId } from './utils';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -124,7 +124,12 @@ function DistrictForm({
   const savedDistricts = savedElection.districts;
   const savedDistrict = districtId
     ? find(savedDistricts, (d) => d.id === districtId)
-    : createBlankDistrict(`district-${savedDistricts.length + 1}`);
+    : createBlankDistrict(
+        nextId(
+          'district-',
+          savedDistricts.map((d) => d.id)
+        )
+      );
   const [district, setDistrict] = useState<District>(savedDistrict);
   const updateElectionMutation = updateElection.useMutation();
   const updatePrecinctsMutation = updatePrecincts.useMutation();
@@ -420,7 +425,12 @@ function PrecinctForm({
 }): JSX.Element {
   const savedPrecinct = precinctId
     ? find(savedPrecincts, (p) => p.id === precinctId)
-    : createBlankPrecinct(`precinct-${savedPrecincts.length + 1}`);
+    : createBlankPrecinct(
+        nextId(
+          'precinct-',
+          savedPrecincts.map((p) => p.id)
+        )
+      );
   const [precinct, setPrecinct] = useState<Precinct>(savedPrecinct);
   const updatePrecinctsMutation = updatePrecincts.useMutation();
   const history = useHistory();
@@ -446,14 +456,19 @@ function PrecinctForm({
   function onAddSplitPress() {
     if (hasSplits(precinct)) {
       const { id, name, splits } = precinct;
+      const nextSplitId = nextId(
+        `${id}-split-`,
+        splits.map((split) => split.id)
+      );
+      const nextSplitNum = iter(nextSplitId.split('-')).last();
       setPrecinct({
         id,
         name,
         splits: [
           ...splits,
           {
-            id: `${id}-split-${splits.length + 1}`,
-            name: `${name} - Split ${splits.length + 1}`,
+            id: nextSplitId,
+            name: `${name} - Split ${nextSplitNum}`,
             districtIds: [],
           },
         ],
