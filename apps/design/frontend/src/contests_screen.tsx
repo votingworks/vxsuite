@@ -45,7 +45,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
-import { nextId } from './utils';
+import { nextId, replaceAtIndex } from './utils';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -413,10 +413,13 @@ function ContestForm({
                           onChange={(e) =>
                             setContest({
                               ...contest,
-                              candidates: contest.candidates.map((c) =>
-                                c.id === candidate.id
-                                  ? { ...candidate, name: e.target.value }
-                                  : c
+                              candidates: replaceAtIndex(
+                                contest.candidates,
+                                index,
+                                {
+                                  ...candidate,
+                                  name: e.target.value,
+                                }
                               ),
                             })
                           }
@@ -429,10 +432,10 @@ function ContestForm({
                           onChange={(e) =>
                             setContest({
                               ...contest,
-                              candidates: contest.candidates.map((c) =>
-                                c.id === candidate.id
-                                  ? { ...candidate, id: e.target.value }
-                                  : c
+                              candidates: replaceAtIndex(
+                                contest.candidates,
+                                index,
+                                { ...candidate, id: e.target.value }
                               ),
                             })
                           }
@@ -455,13 +458,13 @@ function ContestForm({
                           onChange={(value) =>
                             setContest({
                               ...contest,
-                              candidates: contest.candidates.map((c) =>
-                                c.id === candidate.id
-                                  ? {
-                                      ...candidate,
-                                      partyIds: value ? [value] : undefined,
-                                    }
-                                  : c
+                              candidates: replaceAtIndex(
+                                contest.candidates,
+                                index,
+                                {
+                                  ...candidate,
+                                  partyIds: value ? [value] : undefined,
+                                }
                               ),
                             })
                           }
@@ -474,7 +477,7 @@ function ContestForm({
                             setContest({
                               ...contest,
                               candidates: contest.candidates.filter(
-                                (c) => c.id !== candidate.id
+                                (_, i) => i !== index
                               ),
                             })
                           }

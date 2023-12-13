@@ -43,7 +43,7 @@ import {
   FieldName,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
-import { hasSplits, nextId } from './utils';
+import { hasSplits, nextId, replaceAtIndex } from './utils';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -494,10 +494,10 @@ function PrecinctForm({
     }
   }
 
-  function onRemoveSplitPress(id: PrecinctId) {
+  function onRemoveSplitPress(index: number) {
     assert(hasSplits(precinct));
     const { splits, ...rest } = precinct;
-    const newSplits = splits.filter((split) => split.id !== id);
+    const newSplits = splits.filter((_, i) => i !== index);
     if (newSplits.length > 1) {
       setPrecinct({
         ...rest,
@@ -560,11 +560,10 @@ function PrecinctForm({
                         onChange={(e) =>
                           setPrecinct({
                             ...precinct,
-                            splits: precinct.splits.map((s) =>
-                              s.id === split.id
-                                ? { ...s, name: e.target.value }
-                                : s
-                            ),
+                            splits: replaceAtIndex(precinct.splits, index, {
+                              ...split,
+                              name: e.target.value,
+                            }),
                           })
                         }
                       />
@@ -576,11 +575,10 @@ function PrecinctForm({
                         onChange={(e) =>
                           setPrecinct({
                             ...precinct,
-                            splits: precinct.splits.map((s) =>
-                              s.id === split.id
-                                ? { ...s, id: e.target.value }
-                                : s
-                            ),
+                            splits: replaceAtIndex(precinct.splits, index, {
+                              ...split,
+                              id: e.target.value,
+                            }),
                           })
                         }
                       />
@@ -595,18 +593,14 @@ function PrecinctForm({
                       onChange={(districtIds) =>
                         setPrecinct({
                           ...precinct,
-                          splits: precinct.splits.map((s) =>
-                            s.id === split.id
-                              ? {
-                                  ...s,
-                                  districtIds: districtIds as DistrictId[],
-                                }
-                              : s
-                          ),
+                          splits: replaceAtIndex(precinct.splits, index, {
+                            ...split,
+                            districtIds: districtIds as DistrictId[],
+                          }),
                         })
                       }
                     />
-                    <Button onPress={() => onRemoveSplitPress(split.id)}>
+                    <Button onPress={() => onRemoveSplitPress(index)}>
                       Remove Split
                     </Button>
                   </Column>
