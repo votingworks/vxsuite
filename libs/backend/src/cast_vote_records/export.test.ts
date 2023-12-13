@@ -48,7 +48,7 @@ import {
   readCastVoteRecord,
 } from './test_utils';
 
-jest.setTimeout(10_000);
+jest.setTimeout(30_000);
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

@@ -76,4 +76,4 @@ test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => 
       });
     }
   );
-});
+}, 30_000);

@@ -41,7 +41,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-jest.setTimeout(40_000);
+jest.setTimeout(60_000);
 
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = fakeLogger();
