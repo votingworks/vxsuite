@@ -93,6 +93,20 @@ test('fails with circular references', async () => {
   const arr: unknown[] = [];
   arr.push(arr);
   await expect(asString(arr)).rejects.toThrowError();
+
+  const cleverCycle = {
+    toJSON() {
+      return this;
+    },
+  } as const;
+
+  await expect(asString(cleverCycle)).rejects.toThrowError();
+});
+
+test('does not fail with multiple copies of the same object that are not cycles', async () => {
+  const obj: { a: number; b?: unknown } = { a: 1 };
+  const arr: unknown[] = [obj, obj];
+  expect(await asString(arr)).toEqual('[{"a":1},{"a":1}]');
 });
 
 test('fails with non-serializable objects', async () => {
@@ -106,10 +120,32 @@ test('fails with non-serializable objects', async () => {
 
 test('generates correct JSON', async () => {
   await fc.assert(
-    fc.asyncProperty(fc.jsonObject(), fc.boolean(), async (input, compact) => {
+    fc.asyncProperty(fc.jsonValue(), fc.boolean(), async (input, compact) => {
       expect(
         JSON.parse(
           await asString(input as JsonStreamInput<unknown>, { compact })
+        )
+      ).toEqual(JSON.parse(JSON.stringify(input)));
+    })
+  );
+});
+
+test('delegates to toJSON', async () => {
+  class Foo {
+    toJSON() {
+      return 1;
+    }
+  }
+  expect(await asString(new Foo())).toEqual('1');
+  await fc.assert(
+    fc.asyncProperty(fc.jsonValue(), fc.boolean(), async (input, delegated) => {
+      expect(
+        JSON.parse(
+          await asString(
+            (delegated
+              ? { toJSON: () => input }
+              : input) as JsonStreamInput<unknown>
+          )
         )
       ).toEqual(JSON.parse(JSON.stringify(input)));
     })
