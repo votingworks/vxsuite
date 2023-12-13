@@ -8,7 +8,7 @@ export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
  * Given a prefix and a list of existing IDs, returns the next ID of the format
  * `${prefix}${n}` that does not already exist. Increments `n` starting at 1.
  */
-export function nextId(prefix: string, existingIds?: string[]): string {
+export function nextId(prefix: string, existingIds?: Iterable<string>): string {
   let n = 1;
   const existingIdsSet = new Set(existingIds);
   while (existingIdsSet.has(`${prefix}${n}`)) {
