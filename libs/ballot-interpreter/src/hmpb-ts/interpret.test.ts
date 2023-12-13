@@ -1,5 +1,5 @@
 import { assertDefined, iter, ok, unique } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Election, ElectionDefinition, SheetOf } from '@votingworks/types';
 import { interpret } from './interpret';
 
@@ -9,7 +9,7 @@ test('interpret exists', () => {
 
 test('interpret with bad election data', () => {
   const electionDefinition: ElectionDefinition = {
-    ...electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+    ...electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
     election: { bad: 'election' } as unknown as Election,
   };
 
@@ -19,7 +19,8 @@ test('interpret with bad election data', () => {
 });
 
 test('interpret with bad ballot image paths', () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
 
   expect(() => interpret(electionDefinition, ['a', 'b'])).toThrowError(
     'failed to load ballot card images: a, b'
@@ -27,10 +28,11 @@ test('interpret with bad ballot image paths', () => {
 });
 
 test('interpret `ImageData` objects', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const ballotImages: SheetOf<ImageData> = [
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData(),
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData(),
   ];
 
   const result = interpret(electionDefinition, ballotImages);
@@ -41,9 +43,9 @@ test('interpret `ImageData` objects', async () => {
   expect(front.normalizedImage).toBeDefined();
   expect(back.normalizedImage).toBeDefined();
   const frontImageData =
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData();
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData();
   const backImageData =
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData();
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData();
   // While we would usually expect a normalized image to differ from the
   // original more significantly, in this case their dimensions are basically
   // identical due to minimal cropping and no scaling, which makes for a basic test.
@@ -360,10 +362,11 @@ test('interpret `ImageData` objects', async () => {
 });
 
 test('interpret images from paths', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const ballotImagePaths: SheetOf<string> = [
-    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath(),
-    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath(),
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
   ];
 
   const result = interpret(electionDefinition, ballotImagePaths);
@@ -374,9 +377,9 @@ test('interpret images from paths', async () => {
   expect(front.normalizedImage).toBeDefined();
   expect(back.normalizedImage).toBeDefined();
   const frontImageData =
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData();
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData();
   const backImageData =
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData();
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData();
   // While we would usually expect a normalized image to differ from the
   // original more significantly, in this case their dimensions are basically
   // identical due to minimal cropping and no scaling, which makes for a basic test.
@@ -697,10 +700,11 @@ test('interpret images from paths', async () => {
 });
 
 test('score write in areas', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const ballotImages: SheetOf<ImageData> = [
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData(),
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData(),
   ];
 
   const result = interpret(electionDefinition, ballotImages, {
@@ -715,10 +719,11 @@ test('score write in areas', async () => {
 });
 
 test('interpret with grainy timing marks', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const ballotImages: SheetOf<ImageData> = [
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedGrainyTimingMarksFront.asImageData(),
-    await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedGrainyTimingMarksBack.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedGrainyTimingMarksFront.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedGrainyTimingMarksBack.asImageData(),
   ];
 
   const result = interpret(electionDefinition, ballotImages);

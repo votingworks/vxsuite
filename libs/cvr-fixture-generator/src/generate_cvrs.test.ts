@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import { CVR, getBallotStyle, getContests } from '@votingworks/types';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
@@ -9,7 +9,7 @@ import { IMAGE_URI_REGEX } from './utils';
 
 test('produces well-formed cast vote records with all contests in HMPB (gridlayouts) case', async () => {
   const { election, electionDefinition } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   for await (const cvr of generateCvrs({
     electionDefinition,
     scannerIds: ['scanner-1'],
@@ -182,7 +182,7 @@ test('can include ballot image references for write-ins (gridLayouts)', async ()
     testMode: false,
     scannerIds: ['scanner-1'],
     electionDefinition:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
   })) {
     let cvrHasWriteIn = false;
     const selectionPositions = cvr.CVRSnapshot[0]!.CVRContest.flatMap(

@@ -1,4 +1,4 @@
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   expectPrint,
   fakeKiosk,
@@ -40,7 +40,8 @@ afterAll(() => {
 });
 
 test('renders provided data', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetElectionWriteInSummary({
     contestWriteInSummaries: {

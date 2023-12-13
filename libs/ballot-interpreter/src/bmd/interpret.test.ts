@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { assert, err, typedAs } from '@votingworks/basics';
@@ -86,7 +86,7 @@ test('mismatched election', async () => {
     await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
   ];
   const result = await interpret(
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
     card
   );
   expect(result).toEqual(
@@ -94,7 +94,7 @@ test('mismatched election', async () => {
       typedAs<InterpretError>({
         type: 'mismatched-election',
         expectedElectionHash: sliceElectionHash(
-          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+          electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
             .electionHash
         ),
         actualElectionHash: sliceElectionHash(

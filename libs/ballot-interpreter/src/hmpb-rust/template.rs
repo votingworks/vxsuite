@@ -135,7 +135,8 @@ mod test {
 
     #[test]
     fn test_find_template_grid_and_bubbles() {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/amherst");
+        let fixture_path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/nh-test-ballot");
         let template_front_path = fixture_path.join("template-front.jpeg");
         let template_back_path = fixture_path.join("template-back.jpeg");
         let side_a_image = image::open(template_front_path).unwrap().to_luma8();

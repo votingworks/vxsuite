@@ -1,5 +1,5 @@
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -17,13 +17,13 @@ import { withApp } from '../test/helpers/setup_app';
 const jurisdiction = TEST_JURISDICTION;
 
 const frontImagePath =
-  electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath();
+  electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath();
 const backImagePath =
-  electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
+  electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
     electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: '12',
@@ -107,7 +107,8 @@ test('getElectionDefinition', async () => {
 });
 
 test('unconfigure', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
 
   await withApp(async ({ apiClient, importer, store, logger }) => {
     importer.configure(electionDefinition, jurisdiction);
@@ -140,7 +141,8 @@ test('unconfigure', async () => {
 });
 
 test('unconfigure w/ ignoreBackupRequirement', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
 
   await withApp(async ({ apiClient, importer, store }) => {
     importer.configure(electionDefinition, jurisdiction);
@@ -159,7 +161,8 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
 });
 
 test('clearing scanning data', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
 
   await withApp(async ({ apiClient, importer, store, logger }) => {
     importer.configure(electionDefinition, jurisdiction);
@@ -201,7 +204,8 @@ test('clearing scanning data', async () => {
 });
 
 test('getting / setting test mode', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   await withApp(async ({ apiClient, importer, store }) => {
     importer.configure(electionDefinition, jurisdiction);
 

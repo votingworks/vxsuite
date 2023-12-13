@@ -1,5 +1,5 @@
 export { asElectionDefinition } from './util';
-export * as electionGridLayoutNewHampshireAmherstFixtures from './data/electionGridLayoutNewHampshireAmherst';
+export * as electionGridLayoutNewHampshireTestBallotFixtures from './data/electionGridLayoutNewHampshireTestBallot';
 export * as electionGridLayoutNewHampshireHudsonFixtures from './data/electionGridLayoutNewHampshireHudson';
 export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021';
 export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPrimary';

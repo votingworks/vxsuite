@@ -1,6 +1,6 @@
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { SheetInterpretation } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -103,7 +103,7 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
       // Ballot should be rejected when configured for the wrong precinct
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(),
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
         precinctId: '22',
       });
 
@@ -140,7 +140,7 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
       // Configure for the proper precinct and verify the ballot scans
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(),
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
         precinctId: 'town-id-00701-precinct-id-',
       });
 

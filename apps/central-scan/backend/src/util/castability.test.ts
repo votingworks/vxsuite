@@ -8,7 +8,7 @@ import {
   UnreadablePage,
   unsafeParse,
 } from '@votingworks/types';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Castability, checkSheetCastability } from './castability';
 
 const metadata: BallotMetadata = {
@@ -16,7 +16,7 @@ const metadata: BallotMetadata = {
   precinctId: '6522',
   ballotType: BallotType.Precinct,
   electionHash:
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
       .electionHash,
   isTestMode: false,
 };

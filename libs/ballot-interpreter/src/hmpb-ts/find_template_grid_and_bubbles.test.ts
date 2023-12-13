@@ -1,6 +1,6 @@
 import { err, typedAs } from '@votingworks/basics';
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { SheetOf } from '@votingworks/types';
@@ -9,8 +9,8 @@ import { TimingMarkGrid } from './types';
 
 test('find layout from template images', async () => {
   const ballotImages: SheetOf<ImageData> = [
-    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImageData(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.templateFront.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData(),
   ];
 
   const [front, back] = findTemplateGridAndBubbles(ballotImages).unsafeUnwrap();

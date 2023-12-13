@@ -3,7 +3,7 @@ import fs from 'fs';
 import set from 'lodash.set';
 import path from 'path';
 import { assertDefined, err } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { CastVoteRecordExportFileName, CVR } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -32,7 +32,8 @@ beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
 });
 
-const { castVoteRecordExport } = electionGridLayoutNewHampshireAmherstFixtures;
+const { castVoteRecordExport } =
+  electionGridLayoutNewHampshireTestBallotFixtures;
 
 test('successful import', async () => {
   const exportDirectoryPath = castVoteRecordExport.asDirectoryPath();

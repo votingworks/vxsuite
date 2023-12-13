@@ -1,7 +1,7 @@
 import test from '@playwright/test';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { logInAsElectionManager, forceReset } from './helpers';
 
 test.beforeEach(async ({ page }) => {
@@ -13,13 +13,14 @@ test('configure + scan', async ({ page }) => {
   await page
     .getByText(/Insert an Election Manager card to configure VxCentralScan/)
     .waitFor();
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
 
   await logInAsElectionManager(page, electionDefinition.electionHash);
 
   usbHandler.insert(
     await mockElectionPackageFileTree(
-      electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage()
+      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage()
     )
   );
   await page.getByText('No ballots have been scanned').waitFor();

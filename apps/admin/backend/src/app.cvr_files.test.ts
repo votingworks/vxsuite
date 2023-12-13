@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import set from 'lodash.set';
 import { assert, err, ok } from '@votingworks/basics';
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -72,7 +72,7 @@ afterEach(() => {
 });
 
 const { electionDefinition, castVoteRecordExport } =
-  electionGridLayoutNewHampshireAmherstFixtures;
+  electionGridLayoutNewHampshireTestBallotFixtures;
 
 async function getOfficialReportPath(): Promise<string> {
   return await modifyCastVoteRecordExport(

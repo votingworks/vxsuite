@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
 import { CVR, CastVoteRecordExportFileName } from '@votingworks/types';
@@ -18,8 +18,8 @@ import { IMAGE_URI_REGEX } from '../../utils';
 
 jest.setTimeout(30_000);
 
-const electionDefinitionPathAmherst =
-  electionGridLayoutNewHampshireAmherstFixtures.electionJson.asFilePath();
+const electionDefinitionPathNhTestBallot =
+  electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
 
 async function run(
   args: string[]
@@ -96,7 +96,7 @@ test('missing output path', async () => {
 });
 
 test('generate with defaults', async () => {
-  const electionDefinitionPath = electionDefinitionPathAmherst;
+  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
   const outputDirectory = dirSync();
 
   expect(
@@ -119,7 +119,7 @@ test('generate with defaults', async () => {
 });
 
 test('generate with custom number of records below the suggested number', async () => {
-  const electionDefinitionPath = electionDefinitionPathAmherst;
+  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
   const outputDirectory = dirSync();
 
   expect(
@@ -144,7 +144,7 @@ test('generate with custom number of records below the suggested number', async 
 });
 
 test('generate with custom number of records above the suggested number', async () => {
-  const electionDefinitionPath = electionDefinitionPathAmherst;
+  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
   const outputDirectory = dirSync();
 
   expect(
@@ -174,7 +174,7 @@ test('generate with custom number of records above the suggested number', async 
 });
 
 test('generate live mode CVRs', async () => {
-  const electionDefinitionPath = electionDefinitionPathAmherst;
+  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
   const outputDirectory = dirSync();
 
   await run([
@@ -193,7 +193,7 @@ test('generate live mode CVRs', async () => {
 });
 
 test('generate test mode CVRs', async () => {
-  const electionDefinitionPath = electionDefinitionPathAmherst;
+  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
   const outputDirectory = dirSync();
 
   await run([
@@ -213,7 +213,7 @@ test('generate test mode CVRs', async () => {
 });
 
 test('specifying scanner ids', async () => {
-  const electionDefinitionPath = electionDefinitionPathAmherst;
+  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
   const outputDirectory = dirSync();
 
   await run([
@@ -234,7 +234,7 @@ test('specifying scanner ids', async () => {
 });
 
 test('including ballot images', async () => {
-  const electionDefinitionPath = electionDefinitionPathAmherst;
+  const electionDefinitionPath = electionDefinitionPathNhTestBallot;
   const outputDirectory = dirSync();
 
   await run([

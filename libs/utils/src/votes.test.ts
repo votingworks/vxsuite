@@ -1,6 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionGeneral,
   electionWithMsEitherNeither,
 } from '@votingworks/fixtures';
@@ -172,7 +172,7 @@ test('markInfoToVotesDict candidate', () => {
 });
 
 test('markInfoToVotesDict yesno', () => {
-  const { election } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { election } = electionGridLayoutNewHampshireTestBallotFixtures;
   const yesnoContest = find(
     election.contests,
     (c): c is YesNoContest => c.type === 'yesno'

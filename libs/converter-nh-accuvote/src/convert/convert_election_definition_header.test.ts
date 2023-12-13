@@ -1,5 +1,5 @@
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -169,12 +169,12 @@ test('missing PrecinctID', () => {
 });
 
 test('multi-party endorsement', () => {
-  const amherstBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText()
+  const nhTestBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText()
   );
 
   expect(
-    convertElectionDefinitionHeader(amherstBallotCardDefinition).unsafeUnwrap()
+    convertElectionDefinitionHeader(nhTestBallotCardDefinition).unsafeUnwrap()
       .election.contests
   ).toEqual(
     expect.arrayContaining([
@@ -199,12 +199,12 @@ test('multi-party endorsement', () => {
 });
 
 test('missing Party on multi-party endorsement', () => {
-  const amherstBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText()
+  const nhTestBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText()
   );
 
   const sheriffElement = Array.from(
-    amherstBallotCardDefinition.getElementsByTagName('Candidates')
+    nhTestBallotCardDefinition.getElementsByTagName('Candidates')
   ).find((candidates) => {
     const officeName = candidates
       .getElementsByTagName('OfficeName')[0]!
@@ -224,7 +224,7 @@ test('missing Party on multi-party endorsement', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      amherstBallotCardDefinition
+      nhTestBallotCardDefinition
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -237,13 +237,13 @@ test('missing Party on multi-party endorsement', () => {
 });
 
 test('constitutional questions become yesno contests', async () => {
-  const amherstBallotCardDefinition = readFixtureBallotCardDefinition(
-    electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImageData(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImageData()
+  const nhTestBallotCardDefinition = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.templateFront.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
   );
   const converted = convertElectionDefinitionHeader(
-    amherstBallotCardDefinition.definition
+    nhTestBallotCardDefinition.definition
   ).unsafeUnwrap();
 
   expect(converted.election.contests.filter((c) => c.type === 'yesno')).toEqual(

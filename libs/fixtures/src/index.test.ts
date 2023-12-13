@@ -12,7 +12,7 @@ test('has various election definitions', () => {
       "electionGeneral",
       "electionGeneralDefinition",
       "electionGeneralJson",
-      "electionGridLayoutNewHampshireAmherstFixtures",
+      "electionGridLayoutNewHampshireTestBallotFixtures",
       "electionGridLayoutNewHampshireHudsonFixtures",
       "electionMultiPartyPrimaryFixtures",
       "electionPrimaryPrecinctSplitsFixtures",

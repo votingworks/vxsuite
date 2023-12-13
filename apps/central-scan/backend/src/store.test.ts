@@ -19,7 +19,7 @@ import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { sha256 } from 'js-sha256';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
@@ -28,7 +28,7 @@ import { Store } from './store';
 jest.setTimeout(20000);
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+const { electionDefinition } = electionGridLayoutNewHampshireTestBallotFixtures;
 const { election, electionData, electionHash } = electionDefinition;
 
 test('get/set election', () => {
@@ -527,7 +527,7 @@ test('iterating over sheets', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
   });

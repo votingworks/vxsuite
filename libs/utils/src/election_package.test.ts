@@ -1,5 +1,5 @@
 import { zipFile } from '@votingworks/test-utils';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { assertDefined, typedAs } from '@votingworks/basics';
 import {
   ElectionPackage,
@@ -20,7 +20,7 @@ import { extractCdfUiStrings } from './extract_cdf_ui_strings';
 test('readElectionPackageFromFile reads an election package without system settings from a file', async () => {
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
   });
   expect(
@@ -28,7 +28,7 @@ test('readElectionPackageFromFile reads an election package without system setti
   ).toEqual(
     typedAs<ElectionPackage>({
       electionDefinition:
-        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: {},
       uiStringAudioClips: [],
@@ -39,7 +39,7 @@ test('readElectionPackageFromFile reads an election package without system setti
 test('readElectionPackageFromFile reads an election package with system settings from a file', async () => {
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
       typedAs<SystemSettings>(DEFAULT_SYSTEM_SETTINGS)
@@ -50,7 +50,7 @@ test('readElectionPackageFromFile reads an election package with system settings
   ).toEqual(
     typedAs<ElectionPackage>({
       electionDefinition:
-        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: {},
       uiStringAudioClips: [],
@@ -140,7 +140,8 @@ test('readElectionPackageFromFile loads vx election strings', async () => {
 });
 
 test('readElectionPackageFromFile loads UI string audio IDs', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { electionData } = electionDefinition;
 
   const audioIds: UiStringAudioIdsPackage = {
@@ -180,7 +181,8 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
 });
 
 test('readElectionPackageFromFile loads UI string audio clips', async () => {
-  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { electionData } = electionDefinition;
 
   const audioClips: UiStringAudioClips = [
