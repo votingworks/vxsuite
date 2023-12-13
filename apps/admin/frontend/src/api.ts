@@ -650,6 +650,13 @@ export const exportBallotCountReportCsv = {
   },
 } as const;
 
+export const exportCdfElectionResultsReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportCdfElectionResultsReport);
+  },
+} as const;
+
 export const saveElectionPackageToUsb = {
   useMutation() {
     const apiClient = useApiClient();

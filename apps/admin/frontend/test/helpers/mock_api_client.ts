@@ -380,11 +380,10 @@ export function createApiMock(
         .resolves(ok([]));
     },
 
-    deprecatedExpectGetCardCounts(
-      groupBy: Tabulation.GroupBy,
-      result: Array<Tabulation.GroupOf<Tabulation.CardCounts>>
-    ) {
-      apiClient.getCardCounts.expectCallWith({ groupBy }).resolves(result);
+    expectExportCdfElectionResultsReport({ path }: { path: string }) {
+      apiClient.exportCdfElectionResultsReport
+        .expectCallWith({ path })
+        .resolves(ok([]));
     },
 
     expectGetCardCounts(
