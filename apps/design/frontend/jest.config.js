@@ -5,13 +5,15 @@ const shared = require('../../../jest.config.shared');
  */
 module.exports = {
   ...shared,
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/index.tsx',
+  ],
   coverageThreshold: {
-    /* Experimental package, don't enforce coverage yet */
     global: {
-      statements: 0,
-      branches: 0,
-      functions: 0,
-      lines: 0,
+      branches: -152,
+      lines: -344,
     },
   },
   setupFiles: ['react-app-polyfill/jsdom'],
