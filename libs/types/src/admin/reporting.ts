@@ -21,9 +21,18 @@ export const ADJUDICATION_FLAG_LABELS: Record<
 };
 
 /**
- * Filter options in the reporting interfaces, which extends beyond core
- * filters on CVR properties to include adjudication status.
+ * Features of cast vote records that VxAdmin can filter on, which extends beyond
+ * features that the tabulation code can group on, e.g. adjudication flags.
  */
 export type ReportingFilter = Tabulation.Filter & {
   adjudicationFlags?: CastVoteRecordAdjudicationFlag[];
+};
+
+/**
+ * Features of cast vote records that the VxAdmin allows filtering on, which
+ * includes features that converted to other, lower-level filters on the
+ * backend, e.g. district.
+ */
+export type FrontendReportingFilter = ReportingFilter & {
+  districtIds?: string[];
 };

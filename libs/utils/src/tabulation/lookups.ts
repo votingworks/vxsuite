@@ -3,6 +3,7 @@ import {
   AnyContest,
   BallotStyle,
   BallotStyleId,
+  District,
   Election,
   ElectionDefinition,
   Party,
@@ -41,6 +42,17 @@ export const getPrecinctById = createElectionMetadataLookupFunction(
       precinctLookup[precinct.id] = precinct;
     }
     return precinctLookup;
+  }
+);
+
+export const getDistrictById = createElectionMetadataLookupFunction(
+  (election) => {
+    const { districts } = election;
+    const districtLookup: Record<string, District> = {};
+    for (const district of districts) {
+      districtLookup[district.id] = district;
+    }
+    return districtLookup;
   }
 );
 

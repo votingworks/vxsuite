@@ -37,11 +37,11 @@ export function BallotCountReportBuilder(): JSX.Element {
   assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
 
-  const [filter, setFilter] = useState<Admin.ReportingFilter>({});
+  const [filter, setFilter] = useState<Admin.FrontendReportingFilter>({});
   const [groupBy, setGroupBy] = useState<Tabulation.GroupBy>({});
   const [includeSheetCounts, setIncludeSheetCounts] = useState<boolean>(false);
 
-  function updateFilter(newFilter: Admin.ReportingFilter) {
+  function updateFilter(newFilter: Admin.FrontendReportingFilter) {
     setFilter(canonicalizeFilter(newFilter));
   }
 
@@ -56,6 +56,7 @@ export function BallotCountReportBuilder(): JSX.Element {
     'scanner',
     'voting-method',
     'adjudication-status',
+    'district',
   ];
   const allowedGroupBys: GroupByEditorOption[] = [
     'groupByBallotStyle',

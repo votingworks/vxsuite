@@ -1,6 +1,6 @@
 import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 
-import { getPrecinctById } from '@votingworks/utils';
+import { getDistrictById, getPrecinctById } from '@votingworks/utils';
 
 import pluralize from 'pluralize';
 import styled from 'styled-components';
@@ -9,7 +9,7 @@ import { getBatchLabel, getScannerLabel } from './utils';
 
 interface Props {
   electionDefinition: ElectionDefinition;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
 }
 
 const FilterDisplayRow = styled.p`
@@ -78,6 +78,19 @@ export function CustomFilterSummary({
           </Font>{' '}
           {filter.adjudicationFlags
             .map((flag) => Admin.ADJUDICATION_FLAG_LABELS[flag])
+            .join(', ')}
+        </FilterDisplayRow>
+      )}
+      {filter.districtIds && (
+        <FilterDisplayRow>
+          <Font weight="semiBold">
+            {pluralize('District', filter.districtIds.length)}:
+          </Font>{' '}
+          {filter.districtIds
+            .map(
+              (districtId) =>
+                getDistrictById(electionDefinition, districtId).name
+            )
             .join(', ')}
         </FilterDisplayRow>
       )}

@@ -34,7 +34,7 @@ const scannerBatches: ScannerBatch[] = [
 
 test('generateTitleForReport', () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  const unsupportedFilters: Admin.ReportingFilter[] = [
+  const unsupportedFilters: Admin.FrontendReportingFilter[] = [
     {
       precinctIds: ['precinct-1', 'precinct-2'],
     },
@@ -76,7 +76,7 @@ test('generateTitleForReport', () => {
   }
 
   const supportedFilters: Array<
-    [filter: Admin.ReportingFilter, title: string]
+    [filter: Admin.FrontendReportingFilter, title: string]
   > = [
     [
       {
@@ -172,6 +172,19 @@ test('generateTitleForReport', () => {
     ],
     [
       {
+        districtIds: ['district-1'],
+      },
+      'District 1 Tally Report',
+    ],
+    [
+      {
+        districtIds: ['district-1'],
+        votingMethods: ['absentee'],
+      },
+      'District 1 Absentee Ballot Tally Report',
+    ],
+    [
+      {
         batchIds: [Tabulation.MANUAL_BATCH_ID],
       },
       'Manual Batch Tally Report',
@@ -198,7 +211,7 @@ test('generateTitleForReport', () => {
   }
 
   const ballotCountFilters: Array<
-    [filter: Admin.ReportingFilter, title: string]
+    [filter: Admin.FrontendReportingFilter, title: string]
   > = [
     [
       {
@@ -249,6 +262,7 @@ test('canonicalizeFilter', () => {
       votingMethods: [],
       partyIds: [],
       adjudicationFlags: [],
+      districtIds: [],
     })
   ).toEqual({});
   expect(
@@ -260,6 +274,7 @@ test('canonicalizeFilter', () => {
       votingMethods: ['precinct', 'absentee'],
       partyIds: ['b', 'a'],
       adjudicationFlags: ['isBlank', 'hasOvervote'],
+      districtIds: ['district-2', 'district-1'],
     })
   ).toEqual({
     precinctIds: ['a', 'b'],
@@ -269,6 +284,7 @@ test('canonicalizeFilter', () => {
     votingMethods: ['absentee', 'precinct'],
     partyIds: ['a', 'b'],
     adjudicationFlags: ['hasOvervote', 'isBlank'],
+    districtIds: ['district-1', 'district-2'],
   });
 });
 
@@ -296,7 +312,7 @@ test('canonicalizeGroupBy', () => {
 test('generateBallotCountReportPdfFilename', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const testCases: Array<{
-    filter?: Admin.ReportingFilter;
+    filter?: Admin.FrontendReportingFilter;
     groupBy?: Tabulation.GroupBy;
     expectedFilename: string;
     isTestMode?: boolean;
@@ -357,7 +373,7 @@ test('generateBallotCountReportPdfFilename', () => {
 test('generateTallyReportPdfFilename', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const testCases: Array<{
-    filter?: Admin.ReportingFilter;
+    filter?: Admin.FrontendReportingFilter;
     groupBy?: Tabulation.GroupBy;
     expectedFilename: string;
     isTestMode?: boolean;
@@ -475,6 +491,15 @@ test('generateTallyReportPdfFilename', () => {
       expectedFilename:
         'TEST-unofficial-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
     },
+    {
+      filter: {
+        districtIds: ['district-1'],
+        votingMethods: ['absentee'],
+      },
+      isTestMode: true,
+      expectedFilename:
+        'TEST-unofficial-district-1-absentee-ballots-tally-report__2023-12-09_15-59-32.pdf',
+    },
   ];
 
   for (const testCase of testCases) {
@@ -522,4 +547,5 @@ test('isFilterEmpty', () => {
   expect(isFilterEmpty({})).toEqual(true);
   expect(isFilterEmpty({ batchIds: [] })).toEqual(false);
   expect(isFilterEmpty({ adjudicationFlags: [] })).toEqual(false);
+  expect(isFilterEmpty({ districtIds: [] })).toEqual(false);
 });

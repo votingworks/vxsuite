@@ -1,4 +1,4 @@
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
+import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
   Button,
   H6,
@@ -63,7 +63,7 @@ function Reports({
   isOfficialResults: boolean;
   isTestMode: boolean;
   allTallyReportResults: Tabulation.GroupList<TallyReportResults>;
-  filterUsed: Tabulation.Filter;
+  filterUsed: Admin.FrontendReportingFilter;
   generatedAtTime: Date;
   scannerBatches: ScannerBatch[];
   includeSignatureLines?: boolean;
@@ -105,7 +105,7 @@ function Reports({
 }
 
 export interface TallyReportViewerProps {
-  filter: Tabulation.Filter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   disabled: boolean;
   autoGenerateReport: boolean;

@@ -221,6 +221,34 @@ test('adjudication status selection', () => {
   });
 });
 
+test('district filter', () => {
+  const { election } = electionTwoPartyPrimaryDefinition;
+  const onChange = jest.fn();
+
+  apiMock.expectGetScannerBatches([]);
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['district']}
+    />,
+    {
+      apiMock,
+    }
+  );
+
+  // add adjudication status filter
+  userEvent.click(screen.getButton('Add Filter'));
+  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  userEvent.click(screen.getByText('District'));
+  expect(onChange).toHaveBeenNthCalledWith(1, { districtIds: [] });
+  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  userEvent.click(screen.getByText('District 1'));
+  expect(onChange).toHaveBeenNthCalledWith(2, {
+    districtIds: ['district-1'],
+  });
+});
+
 test('can cancel adding a filter', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = jest.fn();

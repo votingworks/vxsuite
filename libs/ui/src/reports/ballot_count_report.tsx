@@ -586,7 +586,7 @@ export interface BallotCountReportProps {
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
   includeSheetCounts?: boolean;
-  customFilter?: Admin.ReportingFilter;
+  customFilter?: Admin.FrontendReportingFilter;
   generatedAtTime?: Date;
 }
 

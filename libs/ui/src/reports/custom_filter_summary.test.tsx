@@ -92,6 +92,19 @@ test('adjudication status filter', () => {
   );
 });
 
+test('district filter', () => {
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      filter={{ districtIds: ['district-1'] }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    'District: City of Lincoln'
+  );
+});
+
 test('complex filter', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   render(

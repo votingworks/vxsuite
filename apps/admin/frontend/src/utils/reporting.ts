@@ -18,6 +18,7 @@ import {
   getPrecinctById,
   sanitizeStringForFilename,
   isFilterEmpty as isTabulationFilterEmpty,
+  getDistrictById,
 } from '@votingworks/utils';
 import moment from 'moment';
 import type { ScannerBatch } from '@votingworks/admin-backend';
@@ -30,14 +31,18 @@ const VOTING_METHOD_LABELS: Record<Tabulation.VotingMethod, string> = {
 
 const FAT_FILENAME_CHAR_LIMIT = 255;
 
-export function isFilterEmpty(filter: Admin.ReportingFilter): boolean {
-  return isTabulationFilterEmpty(filter) && !filter.adjudicationFlags;
+export function isFilterEmpty(filter: Admin.FrontendReportingFilter): boolean {
+  return (
+    isTabulationFilterEmpty(filter) &&
+    !filter.adjudicationFlags &&
+    !filter.districtIds
+  );
 }
 
 /**
  * Checks whether the report has any filters which have multiple values selected.
  */
-function isCompoundFilter(filter: Admin.ReportingFilter): boolean {
+function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
   return Boolean(
     (filter.partyIds && filter.partyIds.length > 1) ||
       (filter.ballotStyleIds && filter.ballotStyleIds.length > 1) ||
@@ -45,14 +50,15 @@ function isCompoundFilter(filter: Admin.ReportingFilter): boolean {
       (filter.batchIds && filter.batchIds.length > 1) ||
       (filter.scannerIds && filter.scannerIds.length > 1) ||
       (filter.votingMethods && filter.votingMethods.length > 1) ||
-      (filter.adjudicationFlags && filter.adjudicationFlags.length > 1)
+      (filter.adjudicationFlags && filter.adjudicationFlags.length > 1) ||
+      (filter.districtIds && filter.districtIds.length > 1)
   );
 }
 
 /**
  * Returns the number of dimensions being filtered on.
  */
-function getFilterRank(filter: Admin.ReportingFilter): number {
+function getFilterRank(filter: Admin.FrontendReportingFilter): number {
   return (
     (filter.ballotStyleIds?.[0] ? 1 : 0) +
     (filter.precinctIds?.[0] ? 1 : 0) +
@@ -60,7 +66,8 @@ function getFilterRank(filter: Admin.ReportingFilter): number {
     (filter.scannerIds?.[0] ? 1 : 0) +
     (filter.votingMethods?.[0] ? 1 : 0) +
     (filter.partyIds?.[0] ? 1 : 0) +
-    (filter.adjudicationFlags?.[0] ? 1 : 0)
+    (filter.adjudicationFlags?.[0] ? 1 : 0) +
+    (filter.districtIds?.[0] ? 1 : 0)
   );
 }
 
@@ -79,7 +86,7 @@ export function generateTitleForReport({
   scannerBatches,
   reportType = 'Tally',
 }: {
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   electionDefinition: ElectionDefinition;
   scannerBatches: ScannerBatch[];
   reportType?: 'Tally' | 'Ballot Count';
@@ -95,6 +102,7 @@ export function generateTitleForReport({
   const scannerId = filter.scannerIds?.[0];
   const partyId = filter.partyIds?.[0];
   const adjudicationFlag = filter.adjudicationFlags?.[0];
+  const districtId = filter.districtIds?.[0];
 
   const reportRank = getFilterRank(filter);
 
@@ -170,6 +178,14 @@ export function generateTitleForReport({
           throwIllegalValue(adjudicationFlag);
       }
     }
+
+    if (districtId) {
+      return ok(
+        `${
+          getDistrictById(electionDefinition, districtId).name
+        } ${reportType} Report`
+      );
+    }
   }
 
   if (reportRank === 2) {
@@ -235,6 +251,14 @@ export function generateTitleForReport({
 
     // Other Combinations
 
+    if (votingMethod && districtId) {
+      return ok(
+        `${getDistrictById(electionDefinition, districtId).name} ${
+          VOTING_METHOD_LABELS[votingMethod]
+        } Ballot ${reportType} Report`
+      );
+    }
+
     if (scannerId && batchId) {
       if (batchId === Tabulation.MANUAL_BATCH_ID) {
         return ok(`${MANUAL_BATCH_REPORT_LABEL} ${reportType} Report`);
@@ -256,8 +280,8 @@ export function generateTitleForReport({
  * - sorts filter values alphabetically
  */
 export function canonicalizeFilter(
-  filter: Admin.ReportingFilter
-): Admin.ReportingFilter {
+  filter: Admin.FrontendReportingFilter
+): Admin.FrontendReportingFilter {
   return {
     ballotStyleIds:
       filter.ballotStyleIds && filter.ballotStyleIds.length > 0
@@ -287,6 +311,10 @@ export function canonicalizeFilter(
       filter.adjudicationFlags && filter.adjudicationFlags.length > 0
         ? [...filter.adjudicationFlags].sort()
         : undefined,
+    districtIds:
+      filter.districtIds && filter.districtIds.length > 0
+        ? [...filter.districtIds].sort()
+        : undefined,
   };
 }
 
@@ -313,7 +341,7 @@ function generateReportFilenameFilterPrefix({
   filter,
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
 }): string {
   if (isCompoundFilter(filter)) {
     return 'custom';
@@ -338,6 +366,7 @@ function generateReportFilenameFilterPrefix({
   const scannerId = filter.scannerIds?.[0];
   const batchId = filter.batchIds?.[0];
   const adjudicationFlag = filter.adjudicationFlags?.[0];
+  const districtId = filter.districtIds?.[0];
 
   if (ballotStyleId) {
     filterPrefixes.push(`ballot-style-${ballotStyleId}`);
@@ -350,6 +379,18 @@ function generateReportFilenameFilterPrefix({
     ).name;
     filterPrefixes.push(
       sanitizeStringForFilename(precinctName, {
+        replaceInvalidCharsWith: WORD_SEPARATOR,
+      })
+    );
+  }
+
+  if (districtId) {
+    const districtName = find(
+      election.districts,
+      (d) => d.id === districtId
+    ).name;
+    filterPrefixes.push(
+      sanitizeStringForFilename(districtName, {
         replaceInvalidCharsWith: WORD_SEPARATOR,
       })
     );
@@ -438,7 +479,7 @@ export function generateReportFilename({
   time,
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;
@@ -515,7 +556,7 @@ export function generateTallyReportPdfFilename({
   time = new Date(),
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;
@@ -543,7 +584,7 @@ export function generateTallyReportCsvFilename({
   time = new Date(),
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;
@@ -570,7 +611,7 @@ export function generateBallotCountReportPdfFilename({
   time = new Date(),
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;
@@ -597,7 +638,7 @@ export function generateBallotCountReportCsvFilename({
   time = new Date(),
 }: {
   election: Election;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   isTestMode: boolean;
   isOfficialResults: boolean;

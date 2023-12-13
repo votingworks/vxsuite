@@ -1,4 +1,4 @@
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
+import { Admin, ElectionDefinition } from '@votingworks/types';
 import React from 'react';
 
 import { find, unique } from '@votingworks/basics';
@@ -37,7 +37,7 @@ export function AdminTallyReportByParty({
   isForLogicAndAccuracyTesting?: boolean;
   testId: string;
   generatedAtTime: Date;
-  customFilter?: Tabulation.Filter;
+  customFilter?: Admin.FrontendReportingFilter;
   includeSignatureLines?: boolean;
 }): JSX.Element {
   const { election } = electionDefinition;

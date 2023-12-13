@@ -13,7 +13,7 @@ import {
 } from '@votingworks/test-utils';
 import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
-import { Tabulation } from '@votingworks/types';
+import { Admin } from '@votingworks/types';
 import { act } from 'react-dom/test-utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
@@ -285,7 +285,7 @@ test('print failure logging', async () => {
 test('displays custom filter rather than specific title when necessary', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { election } = electionDefinition;
-  const filter: Tabulation.Filter = {
+  const filter: Admin.FrontendReportingFilter = {
     ballotStyleIds: ['1'],
     precinctIds: ['23'],
     votingMethods: ['absentee'],

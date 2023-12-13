@@ -57,7 +57,7 @@ function Report({
   isOfficialResults: boolean;
   isTestMode: boolean;
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   includeSheetCounts: boolean;
   generatedAtTime: Date;
@@ -91,7 +91,7 @@ function Report({
 }
 
 export interface BallotCountReportViewerProps {
-  filter: Admin.ReportingFilter;
+  filter: Admin.FrontendReportingFilter;
   groupBy: Tabulation.GroupBy;
   includeSheetCounts: boolean;
   disabled: boolean;

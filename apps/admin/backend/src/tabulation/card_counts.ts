@@ -11,6 +11,7 @@ import { CardTally } from '../types';
 import { Store } from '../store';
 import { tabulateManualBallotCounts } from './manual_results';
 import { rootDebug } from '../util/debug';
+import { assertIsBackendFilter } from '../util/filters';
 
 const debug = rootDebug.extend('card-counts');
 
@@ -53,6 +54,7 @@ export function tabulateScannedCardCounts({
   filter?: Admin.ReportingFilter;
   groupBy?: Tabulation.GroupBy;
 }): Tabulation.GroupMap<Tabulation.CardCounts> {
+  assertIsBackendFilter(filter);
   debug('querying scanned card tallies');
   const cardTallies = store.getCardTallies({
     electionId,

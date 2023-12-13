@@ -23,6 +23,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
+  Admin,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
@@ -350,7 +351,7 @@ export function createApiMock(
       groupBy,
     }: {
       path: string;
-      filter?: Tabulation.Filter;
+      filter?: Admin.FrontendReportingFilter;
       groupBy?: Tabulation.GroupBy;
     }) {
       apiClient.exportTallyReportCsv
@@ -365,7 +366,7 @@ export function createApiMock(
       includeSheetCounts,
     }: {
       path: string;
-      filter?: Tabulation.Filter;
+      filter?: Admin.FrontendReportingFilter;
       groupBy?: Tabulation.GroupBy;
       includeSheetCounts?: boolean;
     }) {
@@ -388,7 +389,7 @@ export function createApiMock(
 
     expectGetCardCounts(
       input: {
-        filter?: Tabulation.Filter;
+        filter?: Admin.FrontendReportingFilter;
         groupBy?: Tabulation.GroupBy;
       },
       results: Array<Tabulation.GroupOf<Tabulation.CardCounts>>,
@@ -416,7 +417,7 @@ export function createApiMock(
 
     expectGetResultsForTallyReports(
       input: {
-        filter?: Tabulation.Filter;
+        filter?: Admin.FrontendReportingFilter;
         groupBy?: Tabulation.GroupBy;
       },
       results: Tabulation.GroupList<TallyReportResults>,
