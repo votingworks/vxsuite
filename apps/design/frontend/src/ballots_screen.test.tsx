@@ -125,9 +125,6 @@ test('Ballot layout tab', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Ballots' });
 
-  apiMock.getElection
-    .expectCallWith({ electionId })
-    .resolves(generalElectionRecord);
   userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
 
   const paperSizeRadioGroup = screen.getByRole('radiogroup', {

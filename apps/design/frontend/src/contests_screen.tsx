@@ -38,12 +38,14 @@ import {
   Form,
   FormActionsRow,
   InputGroup,
+  Row,
   TableActionsRow,
 } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
+import { nextId, replaceAtIndex } from './utils';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -228,17 +230,31 @@ function ContestForm({
   electionId: Id;
   contestId?: ContestId;
   savedElection: Election;
-}): JSX.Element {
+}): JSX.Element | null {
   const savedContests = savedElection.contests;
   const savedContest = contestId
-    ? find(savedContests, (c) => c.id === contestId)
-    : createBlankCandidateContest(`contest-${savedContests.length + 1}`);
-  const [contest, setContest] = useState<AnyContest>(savedContest);
+    ? savedContests.find((c) => c.id === contestId)
+    : createBlankCandidateContest(
+        nextId(
+          'contest-',
+          savedContests.map((c) => c.id)
+        )
+      );
+  const [contest, setContest] = useState<AnyContest | undefined>(savedContest);
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
 
+  // If the contest ID is edited in the form and then saved, the component may
+  // re-render before we can redirect, and the contest ID in the URL won't match
+  // any contest in the election. Since we're about to redirect back to the
+  // contests list, we can just return null.
+  if (!contest) {
+    return null;
+  }
+
   function onSavePress() {
+    assert(contest !== undefined);
     const newContests = contestId
       ? savedContests.map((c) => (c.id === contestId ? contest : c))
       : [...savedContests, contest];
@@ -290,7 +306,19 @@ function ContestForm({
         <input
           type="text"
           value={contest.id}
-          onChange={(e) => setContest({ ...contest, id: e.target.value })}
+          onChange={(e) => {
+            const newId = e.target.value;
+            if (contest.type === 'yesno') {
+              setContest({
+                ...contest,
+                id: newId,
+                yesOption: { ...contest.yesOption, id: `${newId}-option-yes` },
+                noOption: { ...contest.noOption, id: `${newId}-option-no` },
+              });
+            } else {
+              setContest({ ...contest, id: newId });
+            }
+          }}
         />
       </InputGroup>
       <InputGroup label="District">
@@ -331,6 +359,7 @@ function ContestForm({
           {savedElection.type === 'primary' && (
             <InputGroup label="Party">
               <SearchSelect
+                ariaLabel="Party"
                 options={[
                   { value: '' as PartyId, label: 'No Party Affiliation' },
                   ...savedElection.parties.map((party) => ({
@@ -351,7 +380,9 @@ function ContestForm({
           <InputGroup label="Seats">
             <input
               type="number"
-              value={contest.seats}
+              // If user clears input, valueAsNumber will be NaN, so we convert
+              // back to empty string to avoid NaN warning
+              value={Number.isNaN(contest.seats) ? '' : contest.seats}
               onChange={(e) =>
                 setContest({ ...contest, seats: e.target.valueAsNumber })
               }
@@ -363,7 +394,7 @@ function ContestForm({
           <InputGroup label="Term">
             <input
               type="text"
-              value={contest.termDescription}
+              value={contest.termDescription ?? ''}
               onChange={(e) =>
                 setContest({ ...contest, termDescription: e.target.value })
               }
@@ -387,24 +418,6 @@ function ContestForm({
                 You haven&apos;t added any candidates to this contest yet.
               </P>
             )}
-            <TableActionsRow>
-              <Button
-                icon="Add"
-                onPress={() =>
-                  setContest({
-                    ...contest,
-                    candidates: [
-                      ...contest.candidates,
-                      createBlankCandidate(
-                        `candidate-${contest.candidates.length + 1}`
-                      ),
-                    ],
-                  })
-                }
-              >
-                Add Candidate
-              </Button>
-            </TableActionsRow>
             {contest.candidates.length > 0 && (
               <Table>
                 <thead>
@@ -422,6 +435,7 @@ function ContestForm({
                     <tr key={`candidate-${index}`}>
                       <TD>
                         <input
+                          aria-label={`Candidate ${index + 1} Name`}
                           type="text"
                           value={candidate.name}
                           // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -429,10 +443,13 @@ function ContestForm({
                           onChange={(e) =>
                             setContest({
                               ...contest,
-                              candidates: contest.candidates.map((c) =>
-                                c.id === candidate.id
-                                  ? { ...candidate, name: e.target.value }
-                                  : c
+                              candidates: replaceAtIndex(
+                                contest.candidates,
+                                index,
+                                {
+                                  ...candidate,
+                                  name: e.target.value,
+                                }
                               ),
                             })
                           }
@@ -440,15 +457,16 @@ function ContestForm({
                       </TD>
                       <TD>
                         <input
+                          aria-label={`Candidate ${index + 1} ID`}
                           type="text"
                           value={candidate.id}
                           onChange={(e) =>
                             setContest({
                               ...contest,
-                              candidates: contest.candidates.map((c) =>
-                                c.id === candidate.id
-                                  ? { ...candidate, id: e.target.value }
-                                  : c
+                              candidates: replaceAtIndex(
+                                contest.candidates,
+                                index,
+                                { ...candidate, id: e.target.value }
                               ),
                             })
                           }
@@ -456,6 +474,7 @@ function ContestForm({
                       </TD>
                       <TD>
                         <SearchSelect
+                          ariaLabel={`Candidate ${index + 1} Party`}
                           options={[
                             {
                               value: '' as PartyId,
@@ -471,13 +490,13 @@ function ContestForm({
                           onChange={(value) =>
                             setContest({
                               ...contest,
-                              candidates: contest.candidates.map((c) =>
-                                c.id === candidate.id
-                                  ? {
-                                      ...candidate,
-                                      partyIds: value ? [value] : undefined,
-                                    }
-                                  : c
+                              candidates: replaceAtIndex(
+                                contest.candidates,
+                                index,
+                                {
+                                  ...candidate,
+                                  partyIds: value ? [value] : undefined,
+                                }
                               ),
                             })
                           }
@@ -486,16 +505,19 @@ function ContestForm({
                       </TD>
                       <TD>
                         <Button
+                          icon="Delete"
+                          variant="danger"
+                          fill="transparent"
                           onPress={() =>
                             setContest({
                               ...contest,
                               candidates: contest.candidates.filter(
-                                (c) => c.id !== candidate.id
+                                (_, i) => i !== index
                               ),
                             })
                           }
                         >
-                          Remove Candidate
+                          Remove
                         </Button>
                       </TD>
                     </tr>
@@ -503,6 +525,27 @@ function ContestForm({
                 </tbody>
               </Table>
             )}
+            <Row style={{ marginTop: '0.5rem' }}>
+              <Button
+                icon="Add"
+                onPress={() =>
+                  setContest({
+                    ...contest,
+                    candidates: [
+                      ...contest.candidates,
+                      createBlankCandidate(
+                        nextId(
+                          `${contest.id}-candidate-`,
+                          contest.candidates.map((c) => c.id)
+                        )
+                      ),
+                    ],
+                  })
+                }
+              >
+                Add Candidate
+              </Button>
+            </Row>
           </div>
         </React.Fragment>
       )}
@@ -682,7 +725,12 @@ function PartyForm({
   const savedParties = savedElection.parties;
   const savedParty = partyId
     ? find(savedParties, (p) => p.id === partyId)
-    : createBlankParty(`party-${savedParties.length + 1}`);
+    : createBlankParty(
+        nextId(
+          'party-',
+          savedParties.map((p) => p.id)
+        )
+      );
   const [party, setParty] = useState<Party>(savedParty);
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();

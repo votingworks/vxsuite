@@ -22,7 +22,7 @@ export function NavScreen({
 }): JSX.Element {
   return (
     <Screen flexDirection="row">
-      <LeftNav>
+      <LeftNav style={{ width: '14rem' }}>
         <AppLogo appName="VxDesign" />
         {navContent}
       </LeftNav>
