@@ -230,17 +230,31 @@ function ContestForm({
   electionId: Id;
   contestId?: ContestId;
   savedElection: Election;
-}): JSX.Element {
+}): JSX.Element | null {
   const savedContests = savedElection.contests;
   const savedContest = contestId
-    ? find(savedContests, (c) => c.id === contestId)
-    : createBlankCandidateContest(`contest-${savedContests.length + 1}`);
-  const [contest, setContest] = useState<AnyContest>(savedContest);
+    ? savedContests.find((c) => c.id === contestId)
+    : createBlankCandidateContest(
+        nextId(
+          'contest-',
+          savedContests.map((c) => c.id)
+        )
+      );
+  const [contest, setContest] = useState<AnyContest | undefined>(savedContest);
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
 
+  // If the contest ID is edited in the form and then saved, the component may
+  // re-render before we can redirect, and the contest ID in the URL won't match
+  // any contest in the election. Since we're about to redirect back to the
+  // contests list, we can just return null.
+  if (!contest) {
+    return null;
+  }
+
   function onSavePress() {
+    assert(contest !== undefined);
     const newContests = contestId
       ? savedContests.map((c) => (c.id === contestId ? contest : c))
       : [...savedContests, contest];
@@ -292,7 +306,19 @@ function ContestForm({
         <input
           type="text"
           value={contest.id}
-          onChange={(e) => setContest({ ...contest, id: e.target.value })}
+          onChange={(e) => {
+            const newId = e.target.value;
+            if (contest.type === 'yesno') {
+              setContest({
+                ...contest,
+                id: newId,
+                yesOption: { ...contest.yesOption, id: `${newId}-option-yes` },
+                noOption: { ...contest.noOption, id: `${newId}-option-no` },
+              });
+            } else {
+              setContest({ ...contest, id: newId });
+            }
+          }}
         />
       </InputGroup>
       <InputGroup label="District">
@@ -333,6 +359,7 @@ function ContestForm({
           {savedElection.type === 'primary' && (
             <InputGroup label="Party">
               <SearchSelect
+                ariaLabel="Party"
                 options={[
                   { value: '' as PartyId, label: 'No Party Affiliation' },
                   ...savedElection.parties.map((party) => ({
@@ -353,7 +380,9 @@ function ContestForm({
           <InputGroup label="Seats">
             <input
               type="number"
-              value={contest.seats}
+              // If user clears input, valueAsNumber will be NaN, so we convert
+              // back to empty string to avoid NaN warning
+              value={Number.isNaN(contest.seats) ? '' : contest.seats}
               onChange={(e) =>
                 setContest({ ...contest, seats: e.target.valueAsNumber })
               }
@@ -365,7 +394,7 @@ function ContestForm({
           <InputGroup label="Term">
             <input
               type="text"
-              value={contest.termDescription}
+              value={contest.termDescription ?? ''}
               onChange={(e) =>
                 setContest({ ...contest, termDescription: e.target.value })
               }
@@ -406,6 +435,7 @@ function ContestForm({
                     <tr key={`candidate-${index}`}>
                       <TD>
                         <input
+                          aria-label={`Candidate ${index + 1} Name`}
                           type="text"
                           value={candidate.name}
                           // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -427,6 +457,7 @@ function ContestForm({
                       </TD>
                       <TD>
                         <input
+                          aria-label={`Candidate ${index + 1} ID`}
                           type="text"
                           value={candidate.id}
                           onChange={(e) =>
@@ -443,6 +474,7 @@ function ContestForm({
                       </TD>
                       <TD>
                         <SearchSelect
+                          ariaLabel={`Candidate ${index + 1} Party`}
                           options={[
                             {
                               value: '' as PartyId,
@@ -473,6 +505,9 @@ function ContestForm({
                       </TD>
                       <TD>
                         <Button
+                          icon="Delete"
+                          variant="danger"
+                          fill="transparent"
                           onPress={() =>
                             setContest({
                               ...contest,
@@ -482,7 +517,7 @@ function ContestForm({
                             })
                           }
                         >
-                          Remove Candidate
+                          Remove
                         </Button>
                       </TD>
                     </tr>
