@@ -64,6 +64,12 @@ test.each<{
       machineId,
       electionHash: isMachineConfiguredForAnElection ? electionHash : undefined,
     });
-    expect(qrCodeValue).toHaveLength(expectedQrCodeValueLength);
+    expect([
+      expectedQrCodeValueLength,
+      // There's a slight chance that the base64-encoded signature within the QR code value is 92
+      // characters long instead of 96. (The length of a base64-encoded string is always a multiple
+      // of 4.)
+      expectedQrCodeValueLength - 4,
+    ]).toContain(qrCodeValue.length);
   }
 );
