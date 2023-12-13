@@ -60,12 +60,24 @@ export async function* jsonStream<T>(
   input: JsonStreamInput<T>,
   { compact = true }: JsonStreamOptions = {}
 ): AsyncGenerator<string> {
-  const visitedObjects = new WeakSet();
-
   async function* jsonStreamInternal(
     value: unknown,
-    indentLevel = 0
+    indentLevel: number,
+    ancestorObjects: ReadonlySet<unknown>
   ): AsyncGenerator<string> {
+    if (ancestorObjects.has(value)) {
+      throw new Error('circular reference');
+    }
+
+    if (typeof (value as { toJSON?: () => unknown })?.toJSON === 'function') {
+      const nextAncestorObjects = new Set(ancestorObjects).add(value);
+      return yield* jsonStreamInternal(
+        (value as { toJSON(): unknown }).toJSON(),
+        indentLevel,
+        nextAncestorObjects
+      );
+    }
+
     if (value === null) {
       yield 'null';
     } else if (
@@ -75,11 +87,7 @@ export async function* jsonStream<T>(
     ) {
       yield JSON.stringify(value);
     } else if (isIterable(value)) {
-      if (visitedObjects.has(value)) {
-        throw new Error('circular reference');
-      }
-      visitedObjects.add(value);
-
+      const nextAncestorObjects = new Set(ancestorObjects).add(value);
       const indentString = compact ? '' : `\n${' '.repeat(indentLevel * 2)}`;
       const nextLevel = indentLevel + 1;
       const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
@@ -92,18 +100,14 @@ export async function* jsonStream<T>(
           hasEntries = true;
         }
         yield nextIndentString;
-        yield* jsonStreamInternal(entry, nextLevel);
+        yield* jsonStreamInternal(entry, nextLevel, nextAncestorObjects);
       }
       if (hasEntries) {
         yield indentString;
       }
       yield ']';
     } else if (typeof value === 'object') {
-      if (visitedObjects.has(value)) {
-        throw new Error('circular reference');
-      }
-      visitedObjects.add(value);
-
+      const nextAncestorObjects = new Set(ancestorObjects).add(value);
       const indentString = compact ? '' : `\n${' '.repeat(indentLevel * 2)}`;
       const nextLevel = indentLevel + 1;
       const nextIndentString = compact ? '' : `\n${' '.repeat(nextLevel * 2)}`;
@@ -120,9 +124,9 @@ export async function* jsonStream<T>(
           hasEntries = true;
         }
         yield nextIndentString;
-        yield* jsonStreamInternal(key, nextLevel);
+        yield* jsonStreamInternal(key, nextLevel, nextAncestorObjects);
         yield compact ? ':' : ': ';
-        yield* jsonStreamInternal(val, nextLevel);
+        yield* jsonStreamInternal(val, nextLevel, nextAncestorObjects);
       }
       if (hasEntries) {
         yield indentString;
@@ -133,5 +137,5 @@ export async function* jsonStream<T>(
     }
   }
 
-  yield* jsonStreamInternal(input);
+  yield* jsonStreamInternal(input, 0, new Set());
 }
