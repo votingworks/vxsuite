@@ -110,7 +110,7 @@ function ElectionInfoForm({
           disabled={!isEditing}
         />
       </InputGroup>
-      <InputGroup label="County">
+      <InputGroup label="Jurisdiction">
         <input
           type="text"
           value={electionInfo.county.name}

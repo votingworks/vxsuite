@@ -69,9 +69,9 @@ test('newly created election starts in edit mode', async () => {
   expect(stateInput).toHaveValue('');
   expect(stateInput).toBeEnabled();
 
-  const countyInput = screen.getByLabelText('County');
-  expect(countyInput).toHaveValue('');
-  expect(countyInput).toBeEnabled();
+  const jurisdictionInput = screen.getByLabelText('Jurisdiction');
+  expect(jurisdictionInput).toHaveValue('');
+  expect(jurisdictionInput).toBeEnabled();
 
   const sealInput = screen.getByText('Seal').parentElement!;
   expect(within(sealInput).queryByRole('img')).not.toBeInTheDocument();
@@ -110,9 +110,9 @@ test('edit and save election', async () => {
   expect(stateInput).toHaveValue(election.state);
   expect(stateInput).toBeDisabled();
 
-  const countyInput = screen.getByLabelText('County');
-  expect(countyInput).toHaveValue(election.county.name);
-  expect(countyInput).toBeDisabled();
+  const jurisdictionInput = screen.getByLabelText('Jurisdiction');
+  expect(jurisdictionInput).toHaveValue(election.county.name);
+  expect(jurisdictionInput).toBeDisabled();
 
   const sealInput = screen.getByText('Seal').parentElement!;
   expect(within(sealInput).getByRole('img')).toHaveAttribute(
@@ -141,9 +141,9 @@ test('edit and save election', async () => {
   userEvent.type(stateInput, 'New State');
   expect(stateInput).toHaveValue('New State');
 
-  userEvent.clear(countyInput);
-  userEvent.type(countyInput, 'New County');
-  expect(countyInput).toHaveValue('New County');
+  userEvent.clear(jurisdictionInput);
+  userEvent.type(jurisdictionInput, 'New County');
+  expect(jurisdictionInput).toHaveValue('New County');
 
   userEvent.upload(
     within(sealInput).getByLabelText('Upload Seal Image'),
