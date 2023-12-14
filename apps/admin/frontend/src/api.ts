@@ -14,6 +14,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -446,6 +447,22 @@ export const getElectionWriteInSummary = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
       apiClient.getElectionWriteInSummary()
+    );
+  },
+} as const;
+
+export const listPotentialElectionPackagesOnUsbDrive = {
+  // Refetch if USB drive status changes
+  queryKey(usbDriveStatus: UsbDriveStatus): QueryKey {
+    return ['listPotentialElectionPackagesOnUsbDrive', usbDriveStatus];
+  },
+  useQuery(usbDriveStatus: UsbDriveStatus) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(usbDriveStatus),
+      () => apiClient.listPotentialElectionPackagesOnUsbDrive(),
+      // Don't reuse stale data (e.g. from the last mounted USB drive)
+      { staleTime: 0 }
     );
   },
 } as const;
