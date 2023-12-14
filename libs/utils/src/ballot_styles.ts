@@ -78,10 +78,7 @@ export function getRelatedBallotStyle(params: {
   }
 
   // For legacy language-agnostic ballot styles, return the same ballot style:
-  if (
-    !sourceBallotStyle.languages ||
-    sourceBallotStyle.languages.length === 0
-  ) {
+  if (iter(sourceBallotStyle.languages).isEmpty()) {
     return ok(sourceBallotStyle);
   }
 

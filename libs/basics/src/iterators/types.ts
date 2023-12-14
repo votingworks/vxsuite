@@ -54,7 +54,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
 
   /**
    * Determines if all elements satisfy `predicate`. Consumes the contained
-   * iterable.
+   * iterable until a non-matching element is found.
    */
   every(predicate: (item: T) => unknown): boolean;
 
@@ -83,6 +83,11 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * Maps elements to an iterable of `U` and flattens the result.
    */
   flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IteratorPlus<U>;
+
+  /**
+   * Determines whether there are no elements in `this`.
+   */
+  isEmpty(): boolean;
 
   /**
    * Returns the last element of `this` or `undefined` if `this` is empty.
@@ -394,7 +399,7 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
 
   /**
    * Determines if all elements satisfy `predicate`. Consumes the contained
-   * iterable.
+   * iterable until a non-matching element is found.
    */
   every(predicate: (item: T) => MaybePromise<unknown>): Promise<boolean>;
 
@@ -423,6 +428,11 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
       index: number
     ) => MaybePromise<Iterable<U> | AsyncIterable<U>>
   ): AsyncIteratorPlus<U>;
+
+  /**
+   * Determines whether there are no elements in `this`.
+   */
+  isEmpty(): Promise<boolean>;
 
   /**
    * Returns the last element of `this` or `undefined` if `this` is empty.

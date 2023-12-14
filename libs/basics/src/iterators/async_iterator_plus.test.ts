@@ -345,6 +345,14 @@ test('flatMap', async () => {
   ).toEqual([1, 1, 2, 2, 3, 3]);
 });
 
+test('isEmpty', async () => {
+  expect(await iter(null).async().isEmpty()).toEqual(true);
+  expect(await iter(undefined).async().isEmpty()).toEqual(true);
+  expect(await iter([]).async().isEmpty()).toEqual(true);
+  expect(await iter([1]).async().isEmpty()).toEqual(false);
+  expect(await iter([1, 2, 3]).async().isEmpty()).toEqual(false);
+});
+
 test('last', async () => {
   expect(await iter([]).async().last()).toEqual(undefined);
   expect(await iter([1]).async().last()).toEqual(1);
