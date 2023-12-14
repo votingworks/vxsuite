@@ -17,7 +17,6 @@ import {
   getContestVoteOptionsForCandidateContest,
   getContestVoteOptionsForYesNoContest,
   getSingleYesNoVote,
-  getWriteInCount,
   hasWriteIns,
   normalizeWriteInId,
 } from './votes';
@@ -227,49 +226,6 @@ test('markInfoToVotesDict yesno', () => {
   ).toEqual({
     [yesnoContest.id]: [yesnoContest.yesOption.id, yesnoContest.noOption.id],
   });
-});
-
-test('getWriteInCount', () => {
-  expect(getWriteInCount({ fishing: ['ban-fishing'] })).toEqual(0);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'zebra',
-          name: 'Zebra',
-        },
-      ],
-    })
-  ).toEqual(0);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-    })
-  ).toEqual(1);
-  expect(
-    getWriteInCount({
-      council: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-      board: [
-        {
-          id: 'write-in-0',
-          name: 'Write In #0',
-          isWriteIn: true,
-        },
-      ],
-    })
-  ).toEqual(2);
 });
 
 test('hasWriteIns', () => {

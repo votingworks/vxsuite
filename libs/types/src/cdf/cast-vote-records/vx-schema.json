@@ -329,10 +329,6 @@
         },
         "Type": {
           "$ref": "#/definitions/CVR.CVRType"
-        },
-        "vxWriteIns": {
-          "description": "Records the total number of write-ins in the CVR as currently modified or adjudicated, per VVSG 2.0 1.1.5-D.4. The number of write-ins per contest is indicated separately by `CVRContest.WriteIns`.",
-          "type": "integer"
         }
       },
       "type": "object"
