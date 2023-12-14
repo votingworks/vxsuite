@@ -189,7 +189,6 @@ export async function main(
       ballotIdPrefix ? `${ballotIdPrefix}-${ballotId}` : ballotId.toString()
     );
 
-    // clone deep so jsonStream util will not detect circular references
     castVoteRecords.push(newCastVoteRecord);
     ballotId += 1;
   }
