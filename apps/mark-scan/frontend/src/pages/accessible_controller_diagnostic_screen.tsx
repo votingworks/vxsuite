@@ -7,6 +7,13 @@ import {
   DiagnosticScreenHeader,
   StepContainer,
 } from './diagnostic_screen_components';
+import {
+  AriaScreenReader,
+  KioskTextToSpeech,
+  SpeechSynthesisTextToSpeech,
+} from '../utils/ScreenReader';
+import { getUsEnglishVoice } from '../utils/voices';
+import { memoize } from '../utils/memoize';
 
 type ButtonName = 'Up' | 'Down' | 'Left' | 'Right' | 'Select';
 
@@ -155,13 +162,19 @@ function AccessibleControllerButtonDiagnostic({
 }
 
 interface AccessibleControllerSoundDiagnosticProps {
-  screenReader: ScreenReader;
+  screenReader?: ScreenReader;
   onSuccess: () => void;
   onFailure: (message: string) => void;
 }
 
 function AccessibleControllerSoundDiagnostic({
-  screenReader,
+  // TODO(kofi): Replace screen reader functionality with pre-generated audio.
+  screenReader = new AriaScreenReader(
+    /* istanbul ignore next */
+    window.kiosk
+      ? new KioskTextToSpeech()
+      : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
+  ),
   onSuccess,
   onFailure,
 }: AccessibleControllerSoundDiagnosticProps) {
@@ -220,7 +233,7 @@ export type AccessibleControllerDiagnosticResults =
 export interface AccessibleControllerDiagnosticProps {
   onComplete: (results: AccessibleControllerDiagnosticResults) => void;
   onCancel: () => void;
-  screenReader: ScreenReader;
+  screenReader?: ScreenReader;
 }
 
 export function AccessibleControllerDiagnosticScreen({
