@@ -184,6 +184,9 @@ export const unconfigureElection = {
         await queryClient.invalidateQueries(getConfig.queryKey());
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
+
+        // If doesUsbDriveRequireCastVoteRecordSync was true, unconfiguring resets it back to false
+        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
       },
     });
   },
@@ -196,6 +199,7 @@ export const setPrecinctSelection = {
     return useMutation(apiClient.setPrecinctSelection, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
+
         // Changing the precinct selection after polls open resets polls to closed
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
       },
@@ -233,7 +237,14 @@ export const setTestMode = {
     const queryClient = useQueryClient();
     return useMutation(apiClient.setTestMode, {
       async onSuccess() {
+        // If doesUsbDriveRequireCastVoteRecordSync was true, switching from test mode to official
+        // mode resets it back to false. To avoid a flicker of the warning prompting you to sync
+        // CVRs before you can switch from official mode to test mode, we invalidate this query
+        // first.
+        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+
         await queryClient.invalidateQueries(getConfig.queryKey());
+
         // Changing the mode after polls open resets polls to closed
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
       },
