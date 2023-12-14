@@ -32,7 +32,7 @@ function asInternationalizedText(
   };
 }
 
-function getParties(election: Election): ResultsReporting.Party[] {
+function buildParties(election: Election): ResultsReporting.Party[] {
   return election.parties.map((party) => ({
     '@type': 'ElectionResults.Party',
     '@id': party.id,
@@ -47,7 +47,7 @@ function getElectionType(election: Election): ResultsReporting.ElectionType {
     : ResultsReporting.ElectionType.Primary;
 }
 
-function getOfficialCandidates(
+function buildOfficialCandidates(
   election: Election
 ): ResultsReporting.Candidate[] {
   const candidates = election.contests
@@ -71,7 +71,7 @@ const PENDING_WRITE_IN_CANDIDATE: ResultsReporting.Candidate = {
   BallotName: asInternationalizedText(Tabulation.GENERIC_WRITE_IN_NAME),
 };
 
-function getWriteInCandidates(
+function buildWriteInCandidates(
   writeInCandidates: WriteInCandidateRecord[]
 ): ResultsReporting.Candidate[] {
   return [
@@ -84,7 +84,7 @@ function getWriteInCandidates(
   ];
 }
 
-function getBallotMeasureContest(
+function buildBallotMeasureContest(
   contest: YesNoContest,
   results: Tabulation.YesNoContestResults
 ): ResultsReporting.BallotMeasureContest {
@@ -132,7 +132,7 @@ function getBallotMeasureContest(
   };
 }
 
-function getCandidateContest(
+function buildCandidateContest(
   contest: CandidateContest,
   results: Tabulation.CandidateContestResults
 ): ResultsReporting.CandidateContest {
@@ -170,7 +170,7 @@ type ReportContest =
   | ResultsReporting.BallotMeasureContest
   | ResultsReporting.CandidateContest;
 
-function getContests(
+function buildContests(
   election: Election,
   electionResults: Tabulation.ElectionResults
 ): ReportContest[] {
@@ -181,10 +181,10 @@ function getContests(
     assert(contestResults);
     if (contest.type === 'yesno') {
       assert(contestResults.contestType === 'yesno');
-      reportContests.push(getBallotMeasureContest(contest, contestResults));
+      reportContests.push(buildBallotMeasureContest(contest, contestResults));
     } else {
       assert(contestResults.contestType === 'candidate');
-      reportContests.push(getCandidateContest(contest, contestResults));
+      reportContests.push(buildCandidateContest(contest, contestResults));
     }
   }
 
@@ -194,7 +194,7 @@ function getContests(
 /**
  *
  */
-export function getElectionResultsReport({
+export function buildElectionResultsReport({
   election,
   electionResults,
   writeInCandidates,
@@ -225,7 +225,7 @@ export function getElectionResultsReport({
     Status: isOfficialResults
       ? ResultsReporting.ResultsStatus.Certified
       : ResultsReporting.ResultsStatus.UnofficialComplete,
-    Party: getParties(election),
+    Party: buildParties(election),
     Election: [
       {
         '@type': 'ElectionResults.Election',
@@ -243,10 +243,10 @@ export function getElectionResultsReport({
           },
         ],
         Candidate: [
-          ...getOfficialCandidates(election),
-          ...getWriteInCandidates(writeInCandidates),
+          ...buildOfficialCandidates(election),
+          ...buildWriteInCandidates(writeInCandidates),
         ],
-        Contest: getContests(election, electionResults),
+        Contest: buildContests(election, electionResults),
       },
     ],
     GpUnit: [
