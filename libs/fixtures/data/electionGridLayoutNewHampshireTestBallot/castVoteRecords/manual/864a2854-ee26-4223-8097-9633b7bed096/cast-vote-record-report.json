@@ -1048,8 +1048,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 7
+          ]
         },
         {
           "@id": "864a2854-ee26-4223-8097-9633b7bed096-original",

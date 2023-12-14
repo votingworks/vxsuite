@@ -866,8 +866,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 1
+          ]
         },
         {
           "@id": "05b4f778-4a9c-477f-bb7d-40ca98c280e9-original",
@@ -1842,8 +1841,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "0603e8df-6aa4-413c-b5cc-f2dadad9c441-original",
@@ -2792,8 +2790,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "12ee4c7c-fe40-4492-94ca-75bcf6db9f18-original",
@@ -3716,8 +3713,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "12effe84-6be5-481b-b70d-5a5df4b049e7-original",
@@ -4745,8 +4741,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "1d8eb82c-43bb-454d-a85b-1ffaf65c2b72-original",
@@ -5709,8 +5704,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "22c0ab78-020b-4535-b231-5b5177581265-original",
@@ -6714,8 +6708,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 2
+          ]
         },
         {
           "@id": "30950612-8e0b-4934-a7b9-5e2190724afe-original",
@@ -7821,8 +7814,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "32e0764e-e0b1-4275-b5bd-e6e9f1b504fc-original",
@@ -8844,8 +8836,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 1
+          ]
         },
         {
           "@id": "346698d4-e4fa-4f9f-956d-2e86a0150673-original",
@@ -9807,8 +9798,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "381da8b3-cb46-4f1e-8511-814d892a05f3-original",
@@ -10779,8 +10769,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 1
+          ]
         },
         {
           "@id": "3cb39cd0-6357-42ca-841a-b7c750d327b9-original",
@@ -11782,8 +11771,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "40ce9cdc-42c3-4932-bb2d-46aa782629e8-original",
@@ -12901,8 +12889,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "4483d72e-ea62-4698-b8f7-e24911a72a5b-original",
@@ -13901,8 +13888,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 3
+          ]
         },
         {
           "@id": "4653ca16-0f5c-4968-8390-f6297f2c278c-original",
@@ -15011,8 +14997,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 2
+          ]
         },
         {
           "@id": "46f9490e-5717-4c56-92e5-37c1f1a971c2-original",
@@ -16104,8 +16089,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "4b12014e-60c5-447c-bfde-98855d1feaea-original",
@@ -17054,8 +17038,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "4c7a63dc-3f16-434d-87bf-7ac31bd6caa0-original",
@@ -18004,8 +17987,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "524a09ad-b366-4d3f-8399-763ea31bf357-original",
@@ -19059,8 +19041,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "53884725-3c74-49ba-86b9-932e1177ec10-original",
@@ -20048,8 +20029,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "55a65b48-69ce-4b44-a582-736b492bb10c-original",
@@ -21180,8 +21160,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "5dc43750-a2aa-4d46-ad1c-7a0e2cb4e2c1-original",
@@ -22143,8 +22122,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "6162d02a-cf37-4997-aae8-241ea7d7594f-original",
@@ -23249,8 +23227,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "62385dba-db90-442a-b089-fb41d1f42eea-original",
@@ -24238,8 +24215,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "672353df-27cb-4e5a-8b6a-de0b90f8a28d-original",
@@ -25227,8 +25203,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "6e229f1d-676e-4ced-bb8f-523793391001-original",
@@ -26359,8 +26334,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "7527d2a4-1cde-4f8f-ae08-7f95de165192-original",
@@ -27322,8 +27296,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "759fee43-9f63-4550-ba2d-eec22fa6fb0d-original",
@@ -28457,8 +28430,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 2
+          ]
         },
         {
           "@id": "7a5f1429-a94b-44a8-80fc-c290b217e632-original",
@@ -29512,8 +29484,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "7c29afa2-8b91-49c6-8292-db47d2d8a34c-original",
@@ -30502,8 +30473,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "7cd12878-7c65-4d81-8cc6-45a4238df0a8-original",
@@ -31474,8 +31444,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 1
+          ]
         },
         {
           "@id": "7cd316f5-9775-49a2-a8ac-3da46c30add3-original",
@@ -32411,8 +32380,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "8978016e-2585-49bc-9bfb-2852a473a11d-original",
@@ -33466,8 +33434,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "8c5ea5a3-9d17-4895-96b4-ab803d39bd3f-original",
@@ -34430,8 +34397,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "8d50bac9-d511-48b3-9e1f-af9c7d85b7a8-original",
@@ -35562,8 +35528,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "8e6a152e-7986-4ff1-b52d-a89d52d240f6-original",
@@ -36681,8 +36646,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "913c814b-f170-4427-8049-76d322b3eee3-original",
@@ -37627,8 +37591,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 1
+          ]
         },
         {
           "@id": "97c8dd4a-52ec-4d16-a843-5a5bdf22d6f3-original",
@@ -38708,8 +38671,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "99b486dd-9507-4c82-87c8-67bba43b4e1b-original",
@@ -39814,8 +39776,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "a7cbd4bb-9ca8-4001-ab5e-f0f5eb30d360-original",
@@ -40738,8 +40699,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "b2e14c74-c514-4c3a-bd92-22d29210648b-original",
@@ -41715,8 +41675,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "c336275b-921b-4d25-9463-ddaf6b1f2210-original",
@@ -42834,8 +42793,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "c59ef524-893f-4cf8-8678-14103f1286de-original",
@@ -43850,8 +43808,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "c8b3565d-d8e2-4b13-9ada-10aba6e25327-original",
@@ -44887,8 +44844,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 1
+          ]
         },
         {
           "@id": "cd113cfc-2393-4cf1-889d-7bfca2b17cad-original",
@@ -45811,8 +45767,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "d9c7eaae-79f8-4c8a-b2d2-f47b5768fd3a-original",
@@ -46860,8 +46815,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 1
+          ]
         },
         {
           "@id": "e61e3d7a-a060-41a2-b14e-c7bffd0a6960-original",
@@ -47784,8 +47738,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "ee64f4eb-9ea3-48a3-a50d-6ef5f91251da-original",
@@ -48721,8 +48674,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 0
+          ]
         },
         {
           "@id": "f1a1a561-52ee-4750-82f7-88cef012b451-original",
@@ -49861,8 +49813,7 @@
                 }
               ]
             }
-          ],
-          "vxWriteIns": 1
+          ]
         },
         {
           "@id": "f55cca96-7b2f-47b2-8457-092db1e17e20-original",
@@ -50862,8 +50813,7 @@
               "Status": ["undervoted", "not-indicated"],
               "CVRContestSelection": []
             }
-          ],
-          "vxWriteIns": 3
+          ]
         },
         {
           "@id": "fc7db095-ce91-4d6c-8a05-53b2930ec583-original",
