@@ -1,5 +1,5 @@
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -118,7 +118,7 @@ async function getCurrentReport(
 
 it('exports results and metadata accurately', async () => {
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();
