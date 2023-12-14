@@ -151,10 +151,7 @@ export function ElectionManagerScreen({
   const ballotMode = (
     <P>
       <SegmentedButton
-        disabled={
-          setTestModeMutation.isLoading ||
-          (isCvrSyncRequired && scannerStatus.ballotsCounted > 0)
-        }
+        disabled={setTestModeMutation.isLoading || isCvrSyncRequired}
         label="Ballot Mode:"
         hideLabel
         onChange={() => {

@@ -370,7 +370,7 @@ test('switching to test mode when ballots have been counted', async () => {
   ).toEqual('false');
 });
 
-test('machine cannot be switched to test mode if CVR sync is required and ballots have been counted', async () => {
+test('machine cannot be switched to test mode if CVR sync is required', async () => {
   apiMock.mockApiClient.getUsbDriveStatus.reset();
   apiMock.expectGetUsbDriveStatus('mounted', {
     doesUsbDriveRequireCastVoteRecordSync: true,
@@ -393,26 +393,42 @@ test('machine cannot be switched to test mode if CVR sync is required and ballot
   ).toBeDisabled();
 });
 
-test('machine *can* be switched to test mode if CVR sync is required but no ballots have been counted', async () => {
+test('machine *can* be switched to official mode, even if CVR sync is required', async () => {
   apiMock.mockApiClient.getUsbDriveStatus.reset();
   apiMock.expectGetUsbDriveStatus('mounted', {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
-  apiMock.expectGetConfig({ isTestMode: false });
-  renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
+  apiMock.expectGetConfig({ isTestMode: true });
+  renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 1 } });
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
-  expect(
-    await screen.findByRole('option', {
-      name: 'Test Ballot Mode',
-      selected: false,
-    })
-  ).toBeEnabled();
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: true,
+  });
+  const officialBallotModeButton = screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: false,
+  });
+
+  apiMock.expectSetTestMode(false);
+  apiMock.expectGetConfig({ isTestMode: false });
+  apiMock.expectGetPollsInfo();
+  apiMock.expectGetUsbDriveStatus('mounted');
+  userEvent.click(officialBallotModeButton);
+  await screen.findByRole('option', {
+    name: 'Test Ballot Mode',
+    selected: false,
+  });
+  screen.getByRole('option', {
+    name: 'Official Ballot Mode',
+    selected: true,
+  });
 });
 
-test('machine cannot be unconfigured if CVR sync is required and not in test mode', async () => {
+test('machine cannot be unconfigured if CVR sync is required and in official mode', async () => {
   apiMock.mockApiClient.getUsbDriveStatus.reset();
   apiMock.expectGetUsbDriveStatus('mounted', {
     doesUsbDriveRequireCastVoteRecordSync: true,
