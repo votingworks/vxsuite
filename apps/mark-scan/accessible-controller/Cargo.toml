@@ -1,0 +1,15 @@
+[package]
+name = "controllerd"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "controllerd"
+path = "src/controllerd.rs"
+
+[dependencies]
+crc16 = "0.4.0"
+num_enum = "0.7.1"
+serialport = "4.2.2"
+thiserror = "1.0.50"
+uinput = "0.1.3"
