@@ -115,7 +115,6 @@ const castVoteRecordReport: CastVoteRecordReport = {
               WriteIns: 0,
             },
           ],
-          vxWriteIns: 0,
         },
       ],
       BallotSheetId: '1',

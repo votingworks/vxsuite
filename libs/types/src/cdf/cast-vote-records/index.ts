@@ -875,11 +875,6 @@ export interface CVRSnapshot {
    * The type of the snapshot, e.g., original.
    */
   readonly Type: CVRType;
-
-  /**
-   * Records the total number of write-ins in the CVR as currently modified or adjudicated, per VVSG 2.0 1.1.5-D.4. The number of write-ins per contest is indicated separately by `CVRContest.WriteIns`.
-   */
-  readonly vxWriteIns?: integer;
 }
 
 /**
@@ -893,7 +888,6 @@ export const CVRSnapshotSchema: z.ZodSchema<CVRSnapshot> = z.object({
   OtherStatus: z.optional(z.string()),
   Status: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => CVRStatusSchema))),
   Type: z.lazy(/* istanbul ignore next */ () => CVRTypeSchema),
-  vxWriteIns: z.optional(integerSchema),
 });
 
 /**
