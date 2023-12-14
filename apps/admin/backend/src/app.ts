@@ -86,6 +86,8 @@ import {
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
 import { adjudicateWriteIn } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
+import { buildElectionResultsReport } from './util/cdf_results';
+import { tabulateElectionResults } from './tabulation/full_results';
 
 const debug = rootDebug.extend('app');
 
@@ -761,6 +763,63 @@ function buildApi({
           message: `${
             exportFileResult.isOk() ? 'Saved' : 'Failed to save'
           } ballot count report CSV file to ${input.path} on the USB drive.`,
+          filename: input.path,
+        }
+      );
+
+      return exportFileResult;
+    },
+
+    async exportCdfElectionResultsReport(input: {
+      path: string;
+    }): Promise<ExportDataResult> {
+      const electionId = loadCurrentElectionIdOrThrow(workspace);
+      const electionRecord = store.getElection(electionId);
+      assert(electionRecord);
+      const {
+        isOfficialResults,
+        electionDefinition: { election },
+      } = electionRecord;
+
+      const isTestMode =
+        store.getCurrentCvrFileModeForElection(electionId) === 'test';
+      const writeInCandidates = store.getWriteInCandidates({ electionId });
+
+      const electionResults = groupMapToGroupList(
+        await tabulateElectionResults({
+          electionId,
+          store,
+          includeWriteInAdjudicationResults: true,
+          includeManualResults: true,
+        })
+      )[0];
+      assert(electionResults);
+
+      debug('exporting CDF election results report JSON file: %o', input);
+      const exportFileResult = await exportFile({
+        path: input.path,
+        data: JSON.stringify(
+          buildElectionResultsReport({
+            election,
+            electionResults,
+            isOfficialResults,
+            isTestMode,
+            writeInCandidates,
+            machineConfig: getMachineConfig(),
+          })
+        ),
+      });
+
+      await logger.log(
+        LogEventId.FileSaved,
+        assertDefined(await getUserRole()),
+        {
+          disposition: exportFileResult.isOk() ? 'success' : 'failure',
+          message: `${
+            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
+          } CDF election results report JSON file to ${
+            input.path
+          } on the USB drive.`,
           filename: input.path,
         }
       );

@@ -23,7 +23,8 @@
     "pre-commit": "lint-staged",
     "cdf:ballot-definition:build-schema": "cdf-schema-builder data/cdf/ballot-definition/nist-schema.xsd src/cdf/ballot-definition/vx-schema.json > src/cdf/ballot-definition/index.ts",
     "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/nist-schema.xsd src/cdf/cast-vote-records/vx-schema.json > src/cdf/cast-vote-records/index.ts",
-    "cdf:logging:build-schema": "cdf-schema-builder data/cdf/election-event-logging/nist-schema.xsd data/cdf/election-event-logging/nist-schema.json > src/cdf/election-event-logging/index.ts"
+    "cdf:logging:build-schema": "cdf-schema-builder data/cdf/election-event-logging/nist-schema.xsd data/cdf/election-event-logging/nist-schema.json > src/cdf/election-event-logging/index.ts",
+    "cdf:err:build-schema": "cdf-schema-builder data/cdf/election-results-reporting/nist-schema.xsd data/cdf/election-results-reporting/nist-schema.json > src/cdf/election-results-reporting/index.ts"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [

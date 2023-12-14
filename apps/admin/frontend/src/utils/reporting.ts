@@ -655,3 +655,28 @@ export function generateBallotCountReportCsvFilename({
     time,
   });
 }
+
+export function generateCdfElectionResultsReportFilename({
+  isTestMode,
+  isOfficialResults,
+  time,
+}: {
+  isTestMode: boolean;
+  isOfficialResults: boolean;
+  time?: Date;
+}): string {
+  const descriptionParts: string[] = [];
+
+  if (isTestMode) {
+    descriptionParts.push(TEST_FILE_PREFIX);
+  }
+
+  const officiality = isOfficialResults ? 'official' : 'unofficial';
+  descriptionParts.push(officiality);
+
+  descriptionParts.push('cdf-election-results-report');
+  const description = descriptionParts.join(WORD_SEPARATOR);
+  const timestamp = moment(time).format(TIME_FORMAT_STRING);
+
+  return `${description}${SECTION_SEPARATOR}${timestamp}.json`;
+}

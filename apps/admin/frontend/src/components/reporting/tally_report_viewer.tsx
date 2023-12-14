@@ -48,6 +48,7 @@ import {
   getTallyReportWarning,
   getTallyReportWarningText,
 } from './tally_report_warnings';
+import { ExportCdfElectionResultsReportButton } from './export_cdf_election_results_report_button';
 
 function Reports({
   electionDefinition,
@@ -261,6 +262,11 @@ export function TallyReportViewer({
           groupBy={groupBy}
           disabled={disableActionButtons}
         />
+        {isFullElectionReport && (
+          <ExportCdfElectionResultsReportButton
+            disabled={disableActionButtons}
+          />
+        )}
         {!autoGenerateReport && (
           <GenerateButtonWrapper>
             <Button
