@@ -37,6 +37,10 @@ export function ReportsScreen(): JSX.Element {
     ? getBallotCount(cardCountsQuery.data[0])
     : 0;
 
+  const electionHasWriteInContest = electionDefinition.election.contests.some(
+    (c) => c.type === 'candidate' && c.allowWriteIns
+  );
+
   const ballotCountSummaryText = cardCountsQuery.isSuccess ? (
     <P>
       <Font weight="bold">
@@ -104,15 +108,16 @@ export function ReportsScreen(): JSX.Element {
           </LinkButton>
         </P>
       </Section>
-
-      <Section>
-        <H2>Other Reports</H2>
-        <P>
-          <LinkButton to={routerPaths.tallyWriteInReport}>
-            {statusPrefix} Write-In Adjudication Report
-          </LinkButton>
-        </P>
-      </Section>
+      {electionHasWriteInContest && (
+        <Section>
+          <H2>Other Reports</H2>
+          <P>
+            <LinkButton to={routerPaths.tallyWriteInReport}>
+              {statusPrefix} Write-In Adjudication Report
+            </LinkButton>
+          </P>
+        </Section>
+      )}
     </NavigationScreen>
   );
 }
