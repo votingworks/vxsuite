@@ -264,14 +264,15 @@ async function getMostRecentElectionPackageFilepath(
 }
 
 /**
- * readElectionPackageFromUsb validates desired auth and USB state and returns the election package
- * from a USB drive if possible, or an error if not possible.
+ * readSignedElectionPackageFromUsb validates desired auth and USB state and
+ * returns the election package from a USB drive if possible, or an error if not
+ * possible.
  * @param authStatus AuthStatus representing an inserted card
  * @param usbDrive UsbDrive representing status of an inserted USB drive
  * @param logger A Logger instance
  * @returns Result<ElectionPackage, ElectionPackageConfigurationError> intended to be consumed by an API handler
  */
-export async function readElectionPackageFromUsb(
+export async function readSignedElectionPackageFromUsb(
   authStatus: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus,
   usbDrive: UsbDrive,
   logger: Logger

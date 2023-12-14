@@ -47,7 +47,7 @@ import {
 } from './test_utils';
 import {
   readElectionPackageFromFile,
-  readElectionPackageFromUsb,
+  readSignedElectionPackageFromUsb,
 } from './election_package_io';
 
 const mockFeatureFlagger = getFeatureFlagMock();
@@ -357,7 +357,7 @@ test('readElectionPackageFromUsb can read an election package from usb', async (
     })
   );
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -394,7 +394,7 @@ test("readElectionPackageFromUsb uses default system settings when system settin
     })
   );
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -419,7 +419,7 @@ test('errors if logged-out auth is passed', async () => {
 
   const logger = fakeLogger();
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     logger
@@ -449,7 +449,7 @@ test('errors if election hash on provided auth is different than election packag
     })
   );
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -471,7 +471,7 @@ test('errors if there is no election package on usb drive', async () => {
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.insertUsbDrive({});
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -498,7 +498,11 @@ test('errors if a user is authenticated but is not an election manager', async (
   );
 
   await expect(
-    readElectionPackageFromUsb(authStatus, mockUsbDrive.usbDrive, fakeLogger())
+    readSignedElectionPackageFromUsb(
+      authStatus,
+      mockUsbDrive.usbDrive,
+      fakeLogger()
+    )
   ).rejects.toThrow(
     'Only election managers may configure an election package.'
   );
@@ -549,7 +553,7 @@ test('configures using the most recently created election package for an electio
     )
   );
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -615,7 +619,7 @@ test('configures using the most recently created election package across electio
     ),
   ]);
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -665,7 +669,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
     )
   );
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -697,7 +701,7 @@ test('readElectionPackageFromUsb returns error result if election package authen
     )
   );
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
@@ -729,7 +733,7 @@ test('readElectionPackageFromUsb ignores election package authentication errors 
     )
   );
 
-  const electionPackageResult = await readElectionPackageFromUsb(
+  const electionPackageResult = await readSignedElectionPackageFromUsb(
     authStatus,
     mockUsbDrive.usbDrive,
     fakeLogger()
