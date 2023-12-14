@@ -7,11 +7,17 @@ use imageproc::drawing::{
 };
 use log::debug;
 use rusttype::{Font, Scale};
+use types_rs::ballot_card::Geometry;
+use types_rs::election::GridPosition;
+use types_rs::geometry::{PixelPosition, PixelUnit, Rect, Segment, SubGridUnit, SubPixelUnit};
+
+fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
+    imageproc::rect::Rect::at(rect.left(), rect.top())
+        .of_size(rect.width(), rect.height())
+        .to_owned()
+}
 
 use crate::{
-    ballot_card::Geometry,
-    election::GridPosition,
-    geometry::{PixelPosition, PixelUnit, Rect, Segment, SubGridUnit, SubPixelUnit},
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
@@ -27,7 +33,7 @@ pub fn draw_qr_code_debug_image_mut(
     detection_areas: &[Rect],
 ) {
     for detection_area in detection_areas {
-        draw_hollow_rect_mut(canvas, (*detection_area).into(), ORANGE);
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(detection_area), ORANGE);
     }
 
     match qr_code {
@@ -36,7 +42,11 @@ pub fn draw_qr_code_debug_image_mut(
             let font = monospace_font();
             let fg = WHITE_RGB;
             let bg = DARK_GREEN;
-            draw_hollow_rect_mut(canvas, qr_code.bounds().into(), DARK_GREEN);
+            draw_hollow_rect_mut(
+                canvas,
+                imageproc_rect_from_rect(&qr_code.bounds()),
+                DARK_GREEN,
+            );
             draw_text_with_background_mut(
                 canvas,
                 &format!("QR code: {:x?}", qr_code.bytes()),
@@ -55,7 +65,7 @@ pub fn draw_qr_code_debug_image_mut(
                 scale,
                 &font,
                 fg,
-                bg
+                bg,
             );
             draw_text_with_background_mut(
                 canvas,
@@ -65,7 +75,7 @@ pub fn draw_qr_code_debug_image_mut(
                 scale,
                 &font,
                 fg,
-                bg
+                bg,
             );
         }
         None => {
@@ -84,7 +94,11 @@ pub fn draw_qr_code_debug_image_mut(
 
 pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rect]) {
     for (i, rect) in contour_rects.iter().enumerate() {
-        draw_hollow_rect_mut(canvas, (*rect).into(), RAINBOW[i % RAINBOW.len()]);
+        draw_hollow_rect_mut(
+            canvas,
+            imageproc_rect_from_rect(rect),
+            RAINBOW[i % RAINBOW.len()],
+        );
     }
 }
 
@@ -95,11 +109,19 @@ pub fn draw_candidate_timing_marks_debug_image_mut(
     candidate_timing_marks: &[Rect],
 ) {
     for (i, rect) in contour_rects.iter().enumerate() {
-        draw_hollow_rect_mut(canvas, (*rect).into(), RAINBOW[i % RAINBOW.len()]);
+        draw_hollow_rect_mut(
+            canvas,
+            imageproc_rect_from_rect(rect),
+            RAINBOW[i % RAINBOW.len()],
+        );
     }
 
     for (i, rect) in candidate_timing_marks.iter().enumerate() {
-        draw_filled_rect_mut(canvas, (*rect).into(), RAINBOW[i % RAINBOW.len()]);
+        draw_filled_rect_mut(
+            canvas,
+            imageproc_rect_from_rect(rect),
+            RAINBOW[i % RAINBOW.len()],
+        );
     }
 }
 
@@ -192,7 +214,7 @@ pub fn draw_timing_mark_debug_image_mut(
         let center = rect.center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, (*rect).into(), GREEN);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), GREEN);
         draw_text_mut(
             canvas,
             DARK_GREEN,
@@ -208,7 +230,7 @@ pub fn draw_timing_mark_debug_image_mut(
         let center = rect.center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, (*rect).into(), BLUE);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), BLUE);
         draw_text_mut(
             canvas,
             DARK_BLUE,
@@ -224,7 +246,7 @@ pub fn draw_timing_mark_debug_image_mut(
         let center = rect.center();
         let text = format!("{i}");
         let (_, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, (*rect).into(), RED);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), RED);
         draw_text_mut(
             canvas,
             DARK_RED,
@@ -240,7 +262,7 @@ pub fn draw_timing_mark_debug_image_mut(
         let center = rect.center();
         let text = format!("{i}");
         let (text_width, text_height) = text_size(scale, font, text.as_str());
-        draw_filled_rect_mut(canvas, (*rect).into(), CYAN);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), CYAN);
         draw_text_mut(
             canvas,
             DARK_CYAN,
@@ -255,19 +277,19 @@ pub fn draw_timing_mark_debug_image_mut(
     }
 
     if let Some(top_left_corner) = partial_timing_marks.top_left_rect {
-        draw_filled_rect_mut(canvas, top_left_corner.into(), PINK);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(&top_left_corner), PINK);
     }
 
     if let Some(top_right_corner) = partial_timing_marks.top_right_rect {
-        draw_filled_rect_mut(canvas, top_right_corner.into(), PINK);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(&top_right_corner), PINK);
     }
 
     if let Some(bottom_left_corner) = partial_timing_marks.bottom_left_rect {
-        draw_filled_rect_mut(canvas, bottom_left_corner.into(), PINK);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(&bottom_left_corner), PINK);
     }
 
     if let Some(bottom_right_corner) = partial_timing_marks.bottom_right_rect {
-        draw_filled_rect_mut(canvas, bottom_right_corner.into(), PINK);
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(&bottom_right_corner), PINK);
     }
 
     draw_cross_mut(
@@ -529,12 +551,12 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
 
             draw_hollow_rect_mut(
                 canvas,
-                scored_bubble_mark.expected_bounds.into(),
+                imageproc_rect_from_rect(&scored_bubble_mark.expected_bounds),
                 original_bubble_color,
             );
             draw_hollow_rect_mut(
                 canvas,
-                scored_bubble_mark.matched_bounds.into(),
+                imageproc_rect_from_rect(&scored_bubble_mark.matched_bounds),
                 matched_bubble_color,
             );
         }
@@ -590,7 +612,11 @@ pub fn draw_scored_write_in_areas(
             WHITE_RGB,
         );
 
-        draw_hollow_rect_mut(canvas, scored_write_in_area.bounds.into(), DARK_GREEN);
+        draw_hollow_rect_mut(
+            canvas,
+            imageproc_rect_from_rect(&scored_write_in_area.bounds),
+            DARK_GREEN,
+        );
     }
 }
 

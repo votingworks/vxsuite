@@ -4,11 +4,8 @@ use image::{
 };
 use logging_timer::time;
 use serde::Serialize;
-
-use crate::{
-    election::UnitIntervalValue,
-    geometry::{PixelUnit, Size, SubPixelUnit},
-};
+use types_rs::election::UnitIntervalValue;
+use types_rs::geometry::{PixelUnit, Size, SubPixelUnit};
 
 pub const WHITE: Luma<u8> = Luma([255]);
 pub const BLACK: Luma<u8> = Luma([0]);

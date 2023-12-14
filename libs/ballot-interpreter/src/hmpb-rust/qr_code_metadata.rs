@@ -1,11 +1,9 @@
 use bitter::{BigEndianReader, BitReader};
 use image::EncodableLayout;
 use serde::Serialize;
+use types_rs::election::{BallotStyleId, Election, PrecinctId};
 
-use crate::{
-    election::{BallotStyleId, Election, PrecinctId},
-    qr_code,
-};
+use crate::qr_code;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub enum BallotType {
@@ -115,7 +113,10 @@ const fn bit_size(n: u32) -> u32 {
 mod test {
     use std::{fs::File, io::BufReader, path::PathBuf};
 
-    use proptest::{proptest, strategy::{Strategy, Just}, prop_oneof};
+    use proptest::{
+        prop_oneof, proptest,
+        strategy::{Just, Strategy},
+    };
 
     use super::*;
 
@@ -143,7 +144,11 @@ mod test {
     }
 
     fn arbitrary_ballot_type() -> impl Strategy<Value = BallotType> {
-        prop_oneof![Just(BallotType::Precinct), Just(BallotType::Absentee), Just(BallotType::Provisional)]
+        prop_oneof![
+            Just(BallotType::Precinct),
+            Just(BallotType::Absentee),
+            Just(BallotType::Provisional)
+        ]
     }
 
     proptest! {

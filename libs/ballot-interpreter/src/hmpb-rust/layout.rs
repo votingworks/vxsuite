@@ -1,12 +1,9 @@
 use itertools::Itertools;
 use serde::Serialize;
+use types_rs::election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId};
+use types_rs::geometry::{GridUnit, Point, Rect, SubGridUnit};
 
-use crate::{
-    ballot_card::BallotSide,
-    election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId},
-    geometry::{GridUnit, Point, Rect, SubGridUnit},
-    timing_marks::TimingMarkGrid,
-};
+use crate::{ballot_card::BallotSide, timing_marks::TimingMarkGrid};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

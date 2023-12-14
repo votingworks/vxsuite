@@ -7,16 +7,16 @@ use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
+use types_rs::election::UnitIntervalValue;
+use types_rs::geometry::{
+    find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
+    PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
+};
 
 use crate::{
     ballot_card::{Geometry, Orientation},
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
-    election::UnitIntervalValue,
-    geometry::{
-        find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
-        PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
-    },
     image_utils::{expand_image, match_template, WHITE},
     interpret::Error,
     qr_code_metadata::BallotPageQrCodeMetadata,

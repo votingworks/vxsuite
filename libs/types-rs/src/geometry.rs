@@ -207,12 +207,6 @@ impl Rect {
     }
 }
 
-impl From<Rect> for imageproc::rect::Rect {
-    fn from(r: Rect) -> Self {
-        Self::at(r.left, r.top).of_size(r.width, r.height)
-    }
-}
-
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Size<T> {
     pub width: T,

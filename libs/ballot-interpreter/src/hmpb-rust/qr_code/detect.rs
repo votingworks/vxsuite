@@ -1,11 +1,11 @@
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use image::{DynamicImage, GenericImageView, GrayImage};
 use serde::Serialize;
+use types_rs::geometry::{PixelUnit, Point, Rect, Size};
 
 use crate::{
     ballot_card::Orientation,
     debug::{self, ImageDebugWriter},
-    geometry::{PixelUnit, Point, Rect, Size},
 };
 
 use super::{rqrr, zbar};
@@ -192,11 +192,7 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
     };
 
     debug.write("qr_code", |canvas| {
-        debug::draw_qr_code_debug_image_mut(
-            canvas,
-            detect_result.as_ref().ok(),
-            &detection_areas,
-        );
+        debug::draw_qr_code_debug_image_mut(canvas, detect_result.as_ref().ok(), &detection_areas);
     });
 
     detect_result.map(|qr_code| {
@@ -217,8 +213,9 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
 #[cfg(test)]
 mod test {
     use std::path::PathBuf;
+    use types_rs::geometry::Rect;
 
-    use crate::{ballot_card::Orientation, geometry::Rect};
+    use crate::ballot_card::Orientation;
 
     use super::*;
 
