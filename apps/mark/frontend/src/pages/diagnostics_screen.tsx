@@ -23,7 +23,6 @@ import {
   AccessibleControllerDiagnosticScreen,
   AccessibleControllerDiagnosticResults,
 } from './accessible_controller_diagnostic_screen';
-import { ScreenReader } from '../config/types';
 
 const ButtonAndTimestamp = styled.div`
   display: flex;
@@ -260,14 +259,12 @@ function AccessibleControllerStatus({
 export interface DiagnosticsScreenProps {
   hardware: Hardware;
   devices: Devices;
-  screenReader: ScreenReader;
   onBackButtonPress: () => void;
 }
 
 export function DiagnosticsScreen({
   hardware,
   devices,
-  screenReader,
   onBackButtonPress,
 }: DiagnosticsScreenProps): JSX.Element {
   // Since we show full-screen alerts for specific hardware states, there are
@@ -317,7 +314,6 @@ export function DiagnosticsScreen({
       </Route>
       <Route path="/accessible-controller">
         <AccessibleControllerDiagnosticScreen
-          screenReader={screenReader}
           onComplete={(results) => {
             setAccessibleControllerDiagnosticResults(results);
             history.push('/');

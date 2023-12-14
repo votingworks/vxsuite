@@ -30,7 +30,6 @@ export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
         reload={reload}
         logger={logger}
         apiClient={apiMock.mockApiClient}
-        screenReader={screenReader}
       />
     );
   }

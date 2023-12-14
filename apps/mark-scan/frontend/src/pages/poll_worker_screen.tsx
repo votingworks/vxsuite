@@ -49,7 +49,6 @@ import {
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import styled from 'styled-components';
 import { find, throwIllegalValue } from '@votingworks/basics';
-import { ScreenReader } from '../config/types';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
@@ -160,7 +159,6 @@ export interface PollworkerScreenProps {
   machineConfig: MachineConfig;
   hardware: Hardware;
   devices: Devices;
-  screenReader: ScreenReader;
   reload: () => void;
   precinctSelection: PrecinctSelection;
 }
@@ -176,7 +174,6 @@ export function PollWorkerScreen({
   machineConfig,
   hardware,
   devices,
-  screenReader,
   hasVotes,
   reload,
   precinctSelection,
@@ -343,7 +340,6 @@ export function PollWorkerScreen({
       <DiagnosticsScreen
         hardware={hardware}
         devices={devices}
-        screenReader={screenReader}
         onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
       />
     );

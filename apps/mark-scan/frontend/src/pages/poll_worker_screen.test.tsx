@@ -26,8 +26,6 @@ import { render } from '../../test/test_utils';
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
-import { AriaScreenReader } from '../utils/ScreenReader';
-import { fakeTts } from '../../test/helpers/fake_tts';
 import { ApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
@@ -78,7 +76,6 @@ function renderScreen(
           machineConfig={fakeMachineConfig()}
           hardware={MemoryHardware.buildStandard()}
           devices={fakeDevices()}
-          screenReader={new AriaScreenReader(fakeTts())}
           reload={jest.fn()}
           precinctSelection={singlePrecinctSelectionFor(
             electionDefinition.election.precincts[0].id

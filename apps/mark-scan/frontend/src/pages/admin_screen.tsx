@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import {
   P,
@@ -25,7 +25,6 @@ import {
 import { Logger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { ScreenReader } from '../config/types';
 import {
   ejectUsbDrive,
   logOut,
@@ -40,7 +39,6 @@ export interface AdminScreenProps {
   isTestMode: boolean;
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
-  screenReader: ScreenReader;
   pollsState: PollsState;
   logger: Logger;
   usbDriveStatus: UsbDriveStatus;
@@ -53,7 +51,6 @@ export function AdminScreen({
   isTestMode,
   unconfigure,
   machineConfig,
-  screenReader,
   pollsState,
   logger,
   usbDriveStatus,
@@ -63,13 +60,6 @@ export function AdminScreen({
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
-
-  // Disable the audiotrack when in admin mode
-  useEffect(() => {
-    const initialMuted = screenReader.isMuted();
-    screenReader.mute();
-    return () => screenReader.toggleMuted(initialMuted);
-  }, [screenReader]);
 
   return (
     <Screen>
