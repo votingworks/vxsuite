@@ -54,7 +54,7 @@ import {
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
-import { getCurrentAppFlowState } from '../../app_flow';
+import { isReadyToScan } from '../../app_flow';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -530,7 +530,7 @@ function buildMachine({
       )(context).pipe(
         switchMap(async (event) => {
           if (event.type === 'SCANNER_READY_TO_SCAN') {
-            const flowState = await getCurrentAppFlowState({
+            const readyToScan = await isReadyToScan({
               auth,
               store: workspace.store,
               usbDrive,
@@ -539,7 +539,7 @@ function buildMachine({
               // scan.
               precinctScannerState: 'ready_to_scan',
             });
-            if (flowState === 'ballot:waiting_to_scan') {
+            if (readyToScan) {
               return { type: 'SCAN' };
             }
           }

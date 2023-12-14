@@ -1,6 +1,6 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { PrecinctScannerState } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import {
@@ -11,9 +11,14 @@ import {
 import { BALLOT_BAG_CAPACITY } from './globals';
 import { Store } from './store';
 import { constructAuthMachineState } from './util/construct_auth_machine_state';
-import { AppFlowState } from './types';
 
-export async function getCurrentAppFlowState({
+/**
+ * Determines whether the VxScan is ready to scan. There are circumstances when
+ * there is a ballot inserted into the machine, but VxScan is not able to accept
+ * it. For example, when the ballot bag is full, or when a user has logged in
+ * with a smartcard.
+ */
+export async function isReadyToScan({
   auth,
   store,
   usbDrive,
@@ -23,13 +28,13 @@ export async function getCurrentAppFlowState({
   store: Store;
   usbDrive: UsbDrive;
   precinctScannerState: PrecinctScannerState;
-}): Promise<AppFlowState> {
+}): Promise<boolean> {
   const authStatus = await auth.getAuthStatus(constructAuthMachineState(store));
   if (
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'no_card_reader'
   ) {
-    return 'setup_card_reader';
+    return false;
   }
 
   const electionDefinition = store.getElectionDefinition();
@@ -39,56 +44,56 @@ export async function getCurrentAppFlowState({
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'no_card'
   ) {
-    return 'login_prompt';
+    return false;
   }
 
   if (
     authStatus.status === 'logged_out' &&
     authStatus.reason === 'card_error'
   ) {
-    return 'card_error';
+    return false;
   }
 
   if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
-    return 'invalid_card';
+    return false;
   }
 
   if (
     authStatus.status === 'checking_pin' &&
     authStatus.user.role === 'system_administrator'
   ) {
-    return 'unlock_machine';
+    return false;
   }
 
   if (isSystemAdministratorAuth(authStatus)) {
-    return 'logged_in:system_administrator';
+    return false;
   }
 
   if (precinctScannerState === 'disconnected') {
-    return 'setup_scanner';
+    return false;
   }
 
   if (authStatus.status === 'checking_pin') {
-    return 'unlock_machine';
+    return false;
   }
 
   if (!electionDefinition) {
-    return 'unconfigured:election';
+    return false;
   }
 
   if (isElectionManagerAuth(authStatus)) {
-    return 'logged_in:election_manager';
+    return false;
   }
 
   const precinctSelection = store.getPrecinctSelection();
 
   if (!precinctSelection) {
-    return 'unconfigured:precinct';
+    return false;
   }
 
   const usbDriveStatus = await usbDrive.status();
   if (usbDriveStatus.status !== 'mounted') {
-    return 'insert_usb_drive';
+    return false;
   }
 
   const ballotCountWhenBallotBagLastReplaced =
@@ -98,11 +103,11 @@ export async function getCurrentAppFlowState({
     ballotsCounted >=
     ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
   if (needsToReplaceBallotBag && precinctScannerState !== 'accepted') {
-    return 'replace_ballot_bag';
+    return false;
   }
 
   if (isPollWorkerAuth(authStatus)) {
-    return 'logged_in:poll_worker';
+    return false;
   }
 
   // When no card is inserted, we're in "voter" mode
@@ -110,46 +115,12 @@ export async function getCurrentAppFlowState({
 
   const pollsState = store.getPollsState();
   if (pollsState !== 'polls_open') {
-    return 'polls_not_open';
+    return false;
   }
 
   if (await doesUsbDriveRequireCastVoteRecordSync(store, usbDriveStatus)) {
-    return 'cast_vote_record_sync_required';
+    return false;
   }
 
-  switch (precinctScannerState) {
-    case 'accepted':
-      return 'ballot:accepted';
-
-    case 'accepting':
-    case 'accepting_after_review':
-      return 'ballot:accepting';
-
-    case 'scanning':
-      return 'ballot:scanning';
-
-    case 'ready_to_accept':
-      return 'ballot:waiting_to_accept';
-
-    case 'ready_to_scan':
-      return 'ballot:waiting_to_scan';
-
-    case 'connecting':
-    case 'no_paper':
-    case 'returning_to_rescan':
-    case 'needs_review':
-    case 'returning':
-    case 'returned':
-    case 'rejecting':
-    case 'rejected':
-    case 'jammed':
-    case 'both_sides_have_paper':
-    case 'recovering_from_error':
-    case 'double_sheet_jammed':
-    case 'unrecoverable_error':
-      return 'unknown';
-
-    default:
-      throwIllegalValue(precinctScannerState);
-  }
+  return precinctScannerState === 'ready_to_scan';
 }

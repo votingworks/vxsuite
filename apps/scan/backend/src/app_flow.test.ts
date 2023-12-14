@@ -1,4 +1,3 @@
-import { typedAs } from '@votingworks/basics';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
@@ -12,8 +11,7 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { PrecinctScannerState, TEST_JURISDICTION } from '@votingworks/types';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
-import { getCurrentAppFlowState } from './app_flow';
-import { AppFlowState } from '.';
+import { isReadyToScan } from './app_flow';
 import { Store } from './store';
 import { BALLOT_BAG_CAPACITY } from './globals';
 
@@ -37,13 +35,13 @@ test('setup_card_reader', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('setup_card_reader'));
+  ).toEqual(false);
 });
 
 test('login_prompt', async () => {
@@ -52,13 +50,13 @@ test('login_prompt', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('login_prompt'));
+  ).toEqual(false);
 });
 
 test('card_error', async () => {
@@ -72,13 +70,13 @@ test('card_error', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('card_error'));
+  ).toEqual(false);
 });
 
 test('unlock_machine (system_administrator)', async () => {
@@ -92,13 +90,13 @@ test('unlock_machine (system_administrator)', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('unlock_machine'));
+  ).toEqual(false);
 });
 
 test('logged_in:system_administrator', async () => {
@@ -113,13 +111,13 @@ test('logged_in:system_administrator', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('logged_in:system_administrator'));
+  ).toEqual(false);
 });
 
 test('setup_scanner', async () => {
@@ -133,13 +131,13 @@ test('setup_scanner', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'disconnected',
     })
-  ).toEqual(typedAs<AppFlowState>('setup_scanner'));
+  ).toEqual(false);
 });
 
 test('unlock_machine (election_manager)', async () => {
@@ -162,13 +160,13 @@ test('unlock_machine (election_manager)', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('unlock_machine'));
+  ).toEqual(false);
 });
 
 test('unlock_machine (poll_worker)', async () => {
@@ -191,13 +189,13 @@ test('unlock_machine (poll_worker)', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('unlock_machine'));
+  ).toEqual(false);
 });
 
 test('unconfigured:election (election_manager)', async () => {
@@ -216,13 +214,13 @@ test('unconfigured:election (election_manager)', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('unconfigured:election'));
+  ).toEqual(false);
 });
 
 test('unconfigured:election (poll_worker)', async () => {
@@ -241,13 +239,13 @@ test('unconfigured:election (poll_worker)', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('unconfigured:election'));
+  ).toEqual(false);
 });
 
 test('logged_in:election_manager', async () => {
@@ -270,13 +268,13 @@ test('logged_in:election_manager', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('logged_in:election_manager'));
+  ).toEqual(false);
 });
 
 test('unconfigured:precinct', async () => {
@@ -299,13 +297,13 @@ test('unconfigured:precinct', async () => {
   });
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('unconfigured:precinct'));
+  ).toEqual(false);
 });
 
 test('insert_usb_drive', async () => {
@@ -331,13 +329,13 @@ test('insert_usb_drive', async () => {
   mockUsbDrive.removeUsbDrive();
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('insert_usb_drive'));
+  ).toEqual(false);
 });
 
 test('replace_ballot_bag', async () => {
@@ -365,13 +363,13 @@ test('replace_ballot_bag', async () => {
   jest.spyOn(store, 'getBallotsCounted').mockReturnValue(BALLOT_BAG_CAPACITY);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('replace_ballot_bag'));
+  ).toEqual(false);
 });
 
 test('logged_in:poll_worker', async () => {
@@ -397,13 +395,13 @@ test('logged_in:poll_worker', async () => {
   mockUsbDrive.insertUsbDrive({});
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('logged_in:poll_worker'));
+  ).toEqual(false);
 });
 
 test('polls_not_open', async () => {
@@ -420,13 +418,13 @@ test('polls_not_open', async () => {
   mockUsbDrive.insertUsbDrive({});
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('polls_not_open'));
+  ).toEqual(false);
 });
 
 test('cast_vote_record_sync_required', async () => {
@@ -446,13 +444,13 @@ test('cast_vote_record_sync_required', async () => {
   doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(true);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'no_paper',
     })
-  ).toEqual(typedAs<AppFlowState>('cast_vote_record_sync_required'));
+  ).toEqual(false);
 });
 
 test('ballot:accepted', async () => {
@@ -472,13 +470,13 @@ test('ballot:accepted', async () => {
   doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'accepted',
     })
-  ).toEqual(typedAs<AppFlowState>('ballot:accepted'));
+  ).toEqual(false);
 });
 
 test('ballot:accepting (no review)', async () => {
@@ -498,13 +496,13 @@ test('ballot:accepting (no review)', async () => {
   doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'accepting',
     })
-  ).toEqual(typedAs<AppFlowState>('ballot:accepting'));
+  ).toEqual(false);
 });
 
 test('ballot:accepting (with review)', async () => {
@@ -524,13 +522,13 @@ test('ballot:accepting (with review)', async () => {
   doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'accepting_after_review',
     })
-  ).toEqual(typedAs<AppFlowState>('ballot:accepting'));
+  ).toEqual(false);
 });
 
 test('ballot:scanning', async () => {
@@ -550,13 +548,13 @@ test('ballot:scanning', async () => {
   doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'scanning',
     })
-  ).toEqual(typedAs<AppFlowState>('ballot:scanning'));
+  ).toEqual(false);
 });
 
 test('ballot:waiting_to_accept', async () => {
@@ -576,13 +574,13 @@ test('ballot:waiting_to_accept', async () => {
   doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'ready_to_accept',
     })
-  ).toEqual(typedAs<AppFlowState>('ballot:waiting_to_accept'));
+  ).toEqual(false);
 });
 
 test('ballot:waiting_to_scan', async () => {
@@ -602,13 +600,13 @@ test('ballot:waiting_to_scan', async () => {
   doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState: 'ready_to_scan',
     })
-  ).toEqual(typedAs<AppFlowState>('ballot:waiting_to_scan'));
+  ).toEqual(true);
 });
 
 test.each([
@@ -642,11 +640,11 @@ test.each([
   doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
 
   expect(
-    await getCurrentAppFlowState({
+    await isReadyToScan({
       auth,
       store,
       usbDrive: mockUsbDrive.usbDrive,
       precinctScannerState,
     })
-  ).toEqual(typedAs<AppFlowState>('unknown'));
+  ).toEqual(false);
 });
