@@ -9,6 +9,7 @@ import {
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
+  Button,
   CenteredLargeProse,
   ErrorBoundary,
   FullScreenIconWrapper,
@@ -18,7 +19,7 @@ import {
   UiStringsContextProvider,
 } from '@votingworks/ui';
 import { PrecinctReportDestination } from '@votingworks/types';
-import { Optional } from '@votingworks/basics';
+import { assertDefined, Optional } from '@votingworks/basics';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import {
   ApiClient,
@@ -69,6 +70,14 @@ export function App({
               <CenteredLargeProse>
                 <H1>Something went wrong</H1>
                 <P>Ask a poll worker to restart the scanner.</P>
+                <P>
+                  <Button
+                    onPress={() => assertDefined(window.kiosk).reboot()}
+                    variant="primary"
+                  >
+                    Restart
+                  </Button>
+                </P>
               </CenteredLargeProse>
             </React.Fragment>
           }

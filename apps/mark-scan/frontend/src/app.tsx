@@ -1,10 +1,12 @@
 import { BrowserRouter } from 'react-router-dom';
 
+import { assertDefined } from '@votingworks/basics';
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   AppBase,
+  Button,
   ErrorBoundary,
   H1,
   P,
@@ -61,6 +63,14 @@ export function App({
             <Text center>
               <H1>Something went wrong</H1>
               <P>Ask a poll worker to restart the ballot marking device.</P>
+              <P>
+                <Button
+                  onPress={() => assertDefined(window.kiosk).reboot()}
+                  variant="primary"
+                >
+                  Restart
+                </Button>
+              </P>
             </Text>
           }
           logger={logger}
