@@ -81,8 +81,8 @@ export function ElectionScreen(): JSX.Element {
       {isElectionManagerAuth(auth) && (
         <React.Fragment>
           <P>
-            Save the election package to the USB drive to configure
-            VxCentralScan or VxScan.
+            Save the election package to the USB drive to configure VxSuite
+            components.
           </P>
           <P>
             <ExportElectionPackageModalButton />
