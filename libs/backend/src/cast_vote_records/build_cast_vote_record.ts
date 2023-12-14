@@ -30,7 +30,6 @@ import {
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
   getContestById,
   getMarkStatus,
-  getWriteInCount,
 } from '@votingworks/utils';
 
 import {
@@ -557,7 +556,6 @@ export function buildCastVoteRecord({
       election,
     });
     assert(ballotStyle);
-    const writeInCount = getWriteInCount(interpretation.votes);
 
     return {
       ...cvrMetadata,
@@ -575,7 +573,6 @@ export function buildCastVoteRecord({
             },
             electionOptionPositionMap,
           }),
-          vxWriteIns: writeInCount,
         },
       ],
       BallotImage: images?.map(buildCvrImageData),
@@ -597,10 +594,6 @@ export function buildCastVoteRecord({
       interpretations[1].metadata.pageNumber
     ) / 2
   ).toString();
-
-  const writeInCount =
-    getWriteInCount(interpretations[0].votes) +
-    getWriteInCount(interpretations[1].votes);
 
   const modifiedSnapshot: CVR.CVRSnapshot = {
     '@type': 'CVR.CVRSnapshot',
@@ -628,7 +621,6 @@ export function buildCastVoteRecord({
         electionOptionPositionMap,
       }),
     ],
-    vxWriteIns: writeInCount,
   };
 
   // CVR for hand-marked paper ballots, has both "original" snapshot with

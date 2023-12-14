@@ -666,18 +666,6 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
       vxLayoutFileHash: 'd',
     },
   ]);
-
-  // total write-in count is included
-  expect(castVoteRecord.CVRSnapshot).toMatchObject(
-    expect.arrayContaining([
-      expect.objectContaining(
-        typedAs<Partial<CVR.CVRSnapshot>>({
-          Type: CVR.CVRType.Modified,
-          vxWriteIns: 1,
-        })
-      ),
-    ])
-  );
 });
 
 test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
@@ -738,8 +726,6 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
     castVoteRecord.CVRSnapshot,
     (snapshot) => snapshot.Type === CVR.CVRType.Modified
   );
-
-  expect(modifiedSnapshot.vxWriteIns).toEqual(0);
 
   const cvrFishCouncilContest = find(
     modifiedSnapshot.CVRContest,
