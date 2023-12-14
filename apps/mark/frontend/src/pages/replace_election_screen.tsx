@@ -14,8 +14,6 @@ import { formatLongDate } from '@votingworks/utils';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
-import { useEffect } from 'react';
-import { ScreenReader } from '../config/types';
 
 export interface ReplaceElectionScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -23,7 +21,6 @@ export interface ReplaceElectionScreenProps {
   authElectionHash: string;
   electionDefinition: ElectionDefinition;
   machineConfig: MachineConfig;
-  screenReader: ScreenReader;
   isLoading: boolean;
   isError: boolean;
 }
@@ -34,17 +31,10 @@ export function ReplaceElectionScreen({
   authElectionHash,
   electionDefinition,
   machineConfig,
-  screenReader,
   isLoading,
   isError,
 }: ReplaceElectionScreenProps): JSX.Element {
   const { election, electionHash } = electionDefinition;
-
-  useEffect(() => {
-    const muted = screenReader.isMuted();
-    screenReader.mute();
-    return () => screenReader.toggleMuted(muted);
-  }, [screenReader]);
 
   if (isLoading) {
     return (

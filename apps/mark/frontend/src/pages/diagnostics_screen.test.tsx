@@ -1,15 +1,23 @@
 import userEvent from '@testing-library/user-event';
-import { fakeMarkerInfo } from '@votingworks/test-utils';
+import { fakeMarkerInfo, mockOf } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { MemoryRouter } from 'react-router-dom';
-import { render, screen, waitFor } from '../../test/react_testing_library';
+import { DateTime } from 'luxon';
+import { render, screen } from '../../test/react_testing_library';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
 } from './diagnostics_screen';
 import { fakeDevices } from '../../test/helpers/fake_devices';
-import { AriaScreenReader } from '../utils/ScreenReader';
-import { fakeTts } from '../../test/helpers/fake_tts';
+import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
+
+jest.mock(
+  './accessible_controller_diagnostic_screen',
+  (): typeof import('./accessible_controller_diagnostic_screen') => ({
+    ...jest.requireActual('./accessible_controller_diagnostic_screen'),
+    AccessibleControllerDiagnosticScreen: jest.fn(),
+  })
+);
 
 function expectToHaveSuccessIcon(element: HTMLElement) {
   const [icon] = element.getElementsByTagName('svg');
@@ -26,7 +34,6 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
       <DiagnosticsScreen
         hardware={MemoryHardware.buildStandard()}
         devices={fakeDevices()}
-        screenReader={new AriaScreenReader(fakeTts())}
         onBackButtonPress={jest.fn()}
         {...props}
       />
@@ -194,43 +201,43 @@ describe('System Diagnostics screen: Printer section', () => {
 });
 
 describe('System Diagnostics screen: Accessible Controller section', () => {
-  it('shows the connection status, has a button to open test, and shows test results', async () => {
-    const mockTts = fakeTts();
-    const screenReader = new AriaScreenReader(mockTts);
-    const { unmount } = renderScreen({ screenReader });
+  it('shows the connection status, has a button to open test, and shows test results', () => {
+    mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => {
+      const { onCancel, onComplete } = props;
+
+      function pass() {
+        onComplete({ completedAt: DateTime.now(), passed: true });
+      }
+
+      return (
+        <div>
+          <button data-testid="mockPass" onClick={pass} type="button" />
+          <button data-testid="mockCancel" onClick={onCancel} type="button" />
+        </div>
+      );
+    });
+
+    const { unmount } = renderScreen();
 
     const connectionText = screen.getByText('Accessible controller connected.');
     expectToHaveSuccessIcon(connectionText);
 
+    expect(screen.queryByTestId('mockPass')).not.toBeInTheDocument();
+
     userEvent.click(screen.getByText('Start Accessible Controller Test'));
 
     // Execute happy path so we can get a test result
-    // We have to wrap key presses in act to avoid a warning. This may be due
-    // to the fact that the keyDown listener is attached to the document
-    // instead of a React component.
-    await screen.findByText('Press the up button.');
-    userEvent.keyboard('{ArrowUp}');
-    await screen.findByText('Press the down button.');
-    userEvent.keyboard('{ArrowDown}');
-    await screen.findByText('Press the left button.');
-    userEvent.keyboard('{ArrowLeft}');
-    await screen.findByText('Press the right button.');
-    userEvent.keyboard('{ArrowRight}');
-    await screen.findByText('Press the select button.');
-    userEvent.keyboard('{Enter}');
-    await screen.findByText('Confirm sound is working.');
-    userEvent.keyboard('{ArrowRight}');
-    await waitFor(() => expect(mockTts.speak).toHaveBeenCalled());
-    userEvent.keyboard('{Enter}');
+    userEvent.click(screen.getByTestId('mockPass'));
 
     const testResultText = screen.getByText('Test passed.');
     expectToHaveSuccessIcon(testResultText);
     screen.getByText('Last tested at 11:23 AM');
+    expect(screen.queryByTestId('mockPass')).not.toBeInTheDocument();
 
     // Bonus test - if we start a new test and cancel it, last results should still be shown
     jest.setSystemTime(new Date());
     userEvent.click(screen.getButton('Start Accessible Controller Test'));
-    userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
+    userEvent.click(screen.getByTestId('mockCancel'));
 
     screen.getByText('Test passed.');
     screen.getByText('Last tested at 11:23 AM');
@@ -254,15 +261,26 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     unmount();
   });
 
-  it('shows failed test results', async () => {
+  it('shows failed test results', () => {
+    mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => (
+      <button
+        data-testid="mockFail"
+        onClick={() =>
+          props.onComplete({
+            completedAt: DateTime.now(),
+            message: 'Up button is not working.',
+            passed: false,
+          })
+        }
+        type="button"
+      />
+    ));
+
     const { unmount } = renderScreen();
 
     userEvent.click(screen.getByText('Start Accessible Controller Test'));
 
-    await screen.findByText('Press the up button.');
-    userEvent.click(
-      screen.getByRole('button', { name: 'Up Button is Not Working' })
-    );
+    userEvent.click(screen.getByTestId('mockFail'));
 
     const testResultText = screen.getByText(
       'Test failed: Up button is not working.'

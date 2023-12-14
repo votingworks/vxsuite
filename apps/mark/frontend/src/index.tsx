@@ -36,7 +36,7 @@ const root = createRoot(rootElement);
 
 root.render(
   <React.Fragment>
-    <App enableStringTranslation screenReader={screenReader} />
+    <App enableStringTranslation />
     <DevDock />
   </React.Fragment>
 );

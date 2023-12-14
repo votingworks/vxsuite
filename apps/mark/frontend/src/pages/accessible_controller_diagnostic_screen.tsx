@@ -3,6 +3,13 @@ import { Button, Font, H1, Main, P, Prose, Screen } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { ScreenReader } from '../config/types';
+import {
+  AriaScreenReader,
+  KioskTextToSpeech,
+  SpeechSynthesisTextToSpeech,
+} from '../utils/ScreenReader';
+import { memoize } from '../utils/memoize';
+import { getUsEnglishVoice } from '../utils/voices';
 
 type ButtonName = 'Up' | 'Down' | 'Left' | 'Right' | 'Select';
 
@@ -168,13 +175,19 @@ function AccessibleControllerButtonDiagnostic({
 }
 
 interface AccessibleControllerSoundDiagnosticProps {
-  screenReader: ScreenReader;
+  screenReader?: ScreenReader;
   onSuccess: () => void;
   onFailure: (message: string) => void;
 }
 
 function AccessibleControllerSoundDiagnostic({
-  screenReader,
+  // TODO(kofi): Replace screen reader functionality with pre-generated audio.
+  screenReader = new AriaScreenReader(
+    /* istanbul ignore next */
+    window.kiosk
+      ? new KioskTextToSpeech()
+      : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
+  ),
   onSuccess,
   onFailure,
 }: AccessibleControllerSoundDiagnosticProps) {
@@ -233,7 +246,7 @@ export type AccessibleControllerDiagnosticResults =
 export interface AccessibleControllerDiagnosticProps {
   onComplete: (results: AccessibleControllerDiagnosticResults) => void;
   onCancel: () => void;
-  screenReader: ScreenReader;
+  screenReader?: ScreenReader;
 }
 
 export function AccessibleControllerDiagnosticScreen({

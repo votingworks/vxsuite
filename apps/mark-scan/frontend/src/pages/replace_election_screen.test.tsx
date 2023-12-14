@@ -11,8 +11,6 @@ import {
   ReplaceElectionScreen,
   ReplaceElectionScreenProps,
 } from './replace_election_screen';
-import { AriaScreenReader } from '../utils/ScreenReader';
-import { fakeTts } from '../../test/helpers/fake_tts';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiClientContext, createQueryClient } from '../api';
 
@@ -21,7 +19,6 @@ const authElectionHash = electionTwoPartyPrimaryDefinition.electionHash.slice(
   0,
   10
 );
-const screenReader = new AriaScreenReader(fakeTts());
 
 let apiMock: ApiMock;
 
@@ -43,7 +40,6 @@ function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
           authElectionHash={authElectionHash}
           electionDefinition={machineElectionDefinition}
           machineConfig={fakeMachineConfig()}
-          screenReader={screenReader}
           isLoading={false}
           isError={false}
           {...props}

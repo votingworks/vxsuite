@@ -69,7 +69,6 @@ import { SetupPrinterPage } from './pages/setup_printer_page';
 import { SetupPowerPage } from './pages/setup_power_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { WrongElectionScreen } from './pages/wrong_election_screen';
-import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
@@ -82,7 +81,6 @@ export interface VotingState {
 
 export interface Props {
   hardware: Hardware;
-  screenReader: ScreenReader;
   reload: VoidFunction;
   logger: Logger;
 }
@@ -141,7 +139,6 @@ function votingStateReducer(
 
 export function AppRoot({
   hardware,
-  screenReader,
   reload,
   logger,
 }: Props): JSX.Element | null {
@@ -440,7 +437,6 @@ export function AppRoot({
           authElectionHash={authStatus.user.electionHash}
           electionDefinition={optionalElectionDefinition}
           machineConfig={machineConfig}
-          screenReader={screenReader}
           isLoading={unconfigureMachineMutation.isLoading}
           isError={unconfigureMachineMutation.isError}
         />
@@ -455,7 +451,6 @@ export function AppRoot({
         isTestMode={isTestMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
-        screenReader={screenReader}
         pollsState={pollsState}
         logger={logger}
         usbDriveStatus={usbDriveStatus}
@@ -487,7 +482,6 @@ export function AppRoot({
           machineConfig={machineConfig}
           hardware={hardware}
           devices={devices}
-          screenReader={screenReader}
           hasVotes={!!votes}
           reload={reload}
         />

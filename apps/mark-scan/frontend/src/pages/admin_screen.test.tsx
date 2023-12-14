@@ -16,10 +16,6 @@ import { advanceTimers } from '../../test/helpers/timers';
 import { AdminScreen, AdminScreenProps } from './admin_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import {
-  AriaScreenReader,
-  SpeechSynthesisTextToSpeech,
-} from '../utils/ScreenReader';
-import {
   ApiMock,
   createApiMock,
   provideApi,
@@ -51,7 +47,6 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
         machineConfig={fakeMachineConfig({
           codeVersion: 'test', // Override default
         })}
-        screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
         pollsState="polls_open"
         logger={fakeLogger()}
         usbDriveStatus={mockUsbDriveStatus('mounted')}

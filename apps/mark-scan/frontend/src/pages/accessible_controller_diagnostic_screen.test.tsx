@@ -181,4 +181,15 @@ describe('Accessible Controller Diagnostic Screen', () => {
     expect(onCancel).toHaveBeenCalled();
     expect(onComplete).not.toHaveBeenCalled();
   });
+
+  it('renders with default screen reader', async () => {
+    render(
+      <AccessibleControllerDiagnosticScreen
+        onComplete={jest.fn()}
+        onCancel={jest.fn()}
+      />
+    );
+
+    await passUntilStep(6);
+  });
 });

@@ -9,12 +9,10 @@ import {
   useDisplaySettingsManager,
 } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, screen, waitFor } from '../test/react_testing_library';
-import { fakeTts } from '../test/helpers/fake_tts';
+import { screen } from '../test/react_testing_library';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { render } from '../test/test_utils';
 import { App } from './app';
-import { AriaScreenReader } from './utils/ScreenReader';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { buildApp } from '../test/helpers/build_app';
 
@@ -92,35 +90,6 @@ it('prevents context menus from appearing', async () => {
   }
 
   await advanceTimersAndPromises();
-});
-
-it('changes screen reader settings based on keyboard inputs', async () => {
-  const mockTts = fakeTts();
-  apiMock.expectGetMachineConfig();
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
-  apiMock.expectGetElectionState();
-  const screenReader = new AriaScreenReader(mockTts);
-  jest.spyOn(screenReader, 'toggle');
-  jest.spyOn(screenReader, 'changeVolume');
-
-  render(<App screenReader={screenReader} apiClient={apiMock.mockApiClient} />);
-
-  await advanceTimersAndPromises();
-
-  // check that 'r' toggles the screen reader
-  expect(screenReader.toggle).toHaveBeenCalledTimes(0);
-  fireEvent.keyDown(screen.getByRole('main'), { key: 'r' });
-  await waitFor(() => {
-    expect(screenReader.toggle).toHaveBeenCalledTimes(1);
-  });
-
-  // check that 'F17' changes volume
-  expect(screenReader.changeVolume).toHaveBeenCalledTimes(0);
-  fireEvent.keyDown(screen.getByRole('main'), { key: 'F17' });
-  await waitFor(() => {
-    expect(screenReader.changeVolume).toHaveBeenCalledTimes(1);
-  });
 });
 
 it('uses display settings management hook', async () => {
