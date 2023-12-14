@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { SpeechSynthesisTextToSpeech } from './speech_synthesis_text_to_speech';
 import { KioskTextToSpeech } from './kiosk_text_to_speech';
 import { AriaScreenReader } from './aria_screen_reader';

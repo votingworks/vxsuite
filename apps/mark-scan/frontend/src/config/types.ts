@@ -117,21 +117,6 @@ export interface TextToSpeech {
  */
 export interface ScreenReader {
   /**
-   * Call this with an event target when a focus event occurs. Resolves when speaking is done.
-   */
-  onFocus(target?: EventTarget): Promise<void>;
-
-  /**
-   * Call this with an event target when a click event occurs. Resolves when speaking is done.
-   */
-  onClick(target?: EventTarget): Promise<void>;
-
-  /**
-   * Call this when a page load occurs. Resolves when speaking is done.
-   */
-  onPageLoad(): Promise<void>;
-
-  /**
    * Enables the screen reader and announces the change. Resolves when speaking
    * is done.
    */
@@ -173,21 +158,6 @@ export interface ScreenReader {
    * Directly triggers speech of text. Resolves when speaking is done.
    */
   speak(text: string, options?: SpeakOptions): Promise<void>;
-
-  /**
-   * Directly triggers speech of an element. Resolves when speaking is done.
-   */
-  speakNode(element: Element, options?: SpeakOptions): Promise<void>;
-
-  /**
-   * Directly triggers speech of an event target. Resolves when speaking is done.
-   */
-  speakEventTarget(target?: EventTarget, options?: SpeakOptions): Promise<void>;
-
-  /**
-   * Changes the current volume setting either up or down.
-   */
-  changeVolume(): void;
 }
 
 export interface VoiceSelector {
