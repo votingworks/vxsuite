@@ -12,29 +12,25 @@ path = "src/hmpb-rust/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.0.29", features = ["cargo"] }
-image = "0.24.5"
-imageproc = "0.23.0"
-log = "0.4.17"
-logging_timer = "1.1.0"
-pretty_env_logger = "0.4.0"
-rayon = "1.5.3"
-rusttype = "0.9.3"
-serde = { version = "1.0.150", features = ["derive"] }
-serde_json = "1.0.89"
-itertools = "0.10.5"
-rqrr = "0.6.0"
-bitter = "0.6.1"
-hex = "0.4.3"
-zbar-rust = "0.0.21"
-base64 = "0.21.4"
-thiserror = "1.0.50"
+clap = { workspace = true }
+image = { workspace = true }
+imageproc = { workspace = true }
+log = { workspace = true }
+logging_timer = { workspace = true }
+neon = { workspace = true }
+pretty_env_logger = { workspace = true }
+rayon = { workspace = true }
+rusttype = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+itertools = { workspace = true }
+rqrr = { workspace = true }
+bitter = { workspace = true }
+hex = { workspace = true }
+zbar-rust = { workspace = true }
+base64 = { workspace = true }
+thiserror = { workspace = true }
 
 [dev-dependencies]
-proptest = "1.0.0"
-tempfile = "3.3.0"
-
-[dependencies.neon]
-version = "0.10"
-default-features = false
-features = ["napi-6"]
+proptest = { workspace = true }
+tempfile = { workspace = true }
