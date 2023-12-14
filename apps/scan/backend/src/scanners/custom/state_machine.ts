@@ -506,6 +506,7 @@ function buildMachine({
   delayOverrides: Partial<Delays>;
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
+  const { store } = workspace;
 
   function pollPaperStatus(
     pollingInterval: number = delays.DELAY_PAPER_STATUS_POLLING_INTERVAL
@@ -521,37 +522,6 @@ function buildMachine({
       },
     };
   }
-
-  const doScanWhenReady: InvokeConfig<Context, Event> = {
-    src: (context) =>
-      buildPaperStatusObserver(
-        delays.DELAY_PAPER_STATUS_POLLING_INTERVAL,
-        delays.DELAY_PAPER_STATUS_POLLING_TIMEOUT
-      )(context).pipe(
-        switchMap(async (event) => {
-          if (event.type === 'SCANNER_READY_TO_SCAN') {
-            const readyToScan = await isReadyToScan({
-              auth,
-              store: workspace.store,
-              usbDrive,
-              // NOTE: we only ever call `doScanWhenReady` when the scanner is
-              // ready to scan, so we can assume that the scanner is ready to
-              // scan.
-              precinctScannerState: 'ready_to_scan',
-            });
-            if (readyToScan) {
-              return { type: 'SCAN' };
-            }
-          }
-
-          return event;
-        })
-      ),
-    onError: {
-      target: '#error',
-      actions: assign({ error: (_, event) => event.data }),
-    },
-  };
 
   const acceptingState: StateNodeConfig<
     Context,
@@ -860,11 +830,25 @@ function buildMachine({
         ready_to_scan: {
           id: 'ready_to_scan',
           entry: [clearError, clearLastScan],
-          invoke: doScanWhenReady,
+          invoke: pollPaperStatus(),
           on: {
             SCAN: 'scanning',
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_SCAN: doNothing,
+            SCANNER_READY_TO_SCAN: 'check_ready_to_scan',
+          },
+        },
+        check_ready_to_scan: {
+          invoke: {
+            src: async () => isReadyToScan({ auth, store, usbDrive }),
+            onDone: [
+              {
+                target: 'scanning',
+                cond: (_context, event) => event.data,
+              },
+              {
+                target: 'ready_to_scan',
+              },
+            ],
           },
         },
         scanning: {

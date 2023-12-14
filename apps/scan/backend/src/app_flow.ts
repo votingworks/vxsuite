@@ -1,7 +1,6 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
-import { PrecinctScannerState } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import {
   isElectionManagerAuth,
@@ -22,12 +21,10 @@ export async function isReadyToScan({
   auth,
   store,
   usbDrive,
-  precinctScannerState,
 }: {
   auth: InsertedSmartCardAuthApi;
   store: Store;
   usbDrive: UsbDrive;
-  precinctScannerState: PrecinctScannerState;
 }): Promise<boolean> {
   const authStatus = await auth.getAuthStatus(constructAuthMachineState(store));
   if (
@@ -69,10 +66,6 @@ export async function isReadyToScan({
     return false;
   }
 
-  if (precinctScannerState === 'disconnected') {
-    return false;
-  }
-
   if (authStatus.status === 'checking_pin') {
     return false;
   }
@@ -102,7 +95,7 @@ export async function isReadyToScan({
   const needsToReplaceBallotBag =
     ballotsCounted >=
     ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
-  if (needsToReplaceBallotBag && precinctScannerState !== 'accepted') {
+  if (needsToReplaceBallotBag) {
     return false;
   }
 
@@ -122,5 +115,5 @@ export async function isReadyToScan({
     return false;
   }
 
-  return precinctScannerState === 'ready_to_scan';
+  return true;
 }
