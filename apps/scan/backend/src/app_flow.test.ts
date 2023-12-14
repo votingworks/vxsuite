@@ -8,7 +8,7 @@ import {
   fakeSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { PrecinctScannerState, TEST_JURISDICTION } from '@votingworks/types';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
@@ -128,9 +128,7 @@ test('setup_scanner', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -150,15 +148,11 @@ test('unlock_machine (election_manager)', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   const electionManagerUser = fakeElectionManagerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -183,15 +177,11 @@ test('unlock_machine (poll_worker)', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   const pollWorkerUser = fakePollWorkerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -216,9 +206,7 @@ test('unconfigured:election (election_manager)', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   const electionManagerUser = fakeElectionManagerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -243,9 +231,7 @@ test('unconfigured:election (poll_worker)', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   const pollWorkerUser = fakePollWorkerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -269,15 +255,11 @@ test('logged_in:election_manager', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
   const electionManagerUser = fakeElectionManagerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -302,15 +284,11 @@ test('unconfigured:precinct', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
   const pollWorkerUser = fakePollWorkerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -335,15 +313,11 @@ test('insert_usb_drive', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
   const pollWorkerUser = fakePollWorkerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -371,15 +345,11 @@ test('replace_ballot_bag', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
   const pollWorkerUser = fakePollWorkerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -409,15 +379,11 @@ test('logged_in:poll_worker', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
   const pollWorkerUser = fakePollWorkerUser({
-    electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionHash,
+    electionHash: electionGeneralDefinition.electionHash,
   });
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -446,9 +412,7 @@ test('polls_not_open', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -471,9 +435,7 @@ test('cast_vote_record_sync_required', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -499,9 +461,7 @@ test('ballot:accepted', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -527,9 +487,7 @@ test('ballot:accepting (no review)', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -555,9 +513,7 @@ test('ballot:accepting (with review)', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -583,9 +539,7 @@ test('ballot:scanning', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -611,9 +565,7 @@ test('ballot:waiting_to_accept', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -639,9 +591,7 @@ test('ballot:waiting_to_scan', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
@@ -681,9 +631,7 @@ test.each([
   const mockUsbDrive = createMockUsbDrive();
 
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
-        .electionData,
+    electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
   });
 
