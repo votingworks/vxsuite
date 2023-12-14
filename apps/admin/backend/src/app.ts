@@ -86,7 +86,7 @@ import {
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report';
 import { adjudicateWriteIn } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
-import { getElectionResultsReport } from './util/err_cdf';
+import { getElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 
 const debug = rootDebug.extend('app');
