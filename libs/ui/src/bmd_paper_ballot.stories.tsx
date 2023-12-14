@@ -13,7 +13,6 @@ import { generateBallotStyleId } from '@votingworks/utils';
 import styled from 'styled-components';
 import { electionGeneral } from '@votingworks/fixtures';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import _ from 'lodash';
 import { find } from '@votingworks/basics';
 import {
   BmdPaperBallot as Component,
@@ -51,12 +50,12 @@ const TEST_UI_STRINGS: UiStringsPackage = {
     [ElectionStringKey.COUNTY_NAME]: {
       franklin: '富兰克林县',
     },
-    [ElectionStringKey.CONTEST_OPTION_LABEL]: _(election.contests)
-      .filter((contest): contest is YesNoContest => contest.type === 'yesno')
-      .flatMap((contest) => [contest.yesOption, contest.noOption])
-      .keyBy((option) => option.id)
-      .mapValues((option) => (option.id.endsWith('no') ? '不' : '是'))
-      .value(),
+    [ElectionStringKey.CONTEST_OPTION_LABEL]: Object.fromEntries(
+      election.contests
+        .filter((contest): contest is YesNoContest => contest.type === 'yesno')
+        .flatMap((contest) => [contest.yesOption, contest.noOption])
+        .map((option) => [option.id, option.id.endsWith('no') ? '不' : '是'])
+    ),
     [ElectionStringKey.CONTEST_TITLE]: {
       '102': '措施 102：车辆减排计划',
       'city-council': '市议会',
@@ -117,12 +116,12 @@ const initialArgs: BmdPaperBallotProps = {
   isLiveMode: true,
   onRendered: () => undefined,
   precinctId: election.precincts[0].id,
-  votes: _(election.contests)
-    .keyBy((c) => c.id)
-    .mapValues((c) =>
-      c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c)
-    )
-    .value(),
+  votes: Object.fromEntries(
+    election.contests.map((c) => [
+      c.id,
+      c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
+    ])
+  ),
 };
 
 const queryClient = new QueryClient({
@@ -191,9 +190,11 @@ export function BmdPaperBallot(props: BmdPaperBallotProps): JSX.Element {
     (b) => b.id === ballotStyleId
   );
 
-  const filteredVotes = _.pick(
-    votes,
-    getContests({ ballotStyle, election }).map((c) => c.id)
+  const contests = getContests({ ballotStyle, election });
+  const filteredVotes = Object.fromEntries(
+    Object.entries(votes).filter(([contestId]) =>
+      contests.some((c) => c.id === contestId)
+    )
   );
 
   return <Component {...props} votes={filteredVotes} />;

@@ -1,6 +1,6 @@
 import type { Api } from '@votingworks/mark-backend';
 import React from 'react';
-import isEqual from 'lodash.isequal';
+import { deepEqual } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -52,7 +52,7 @@ export const getUsbDriveStatus = {
         }
 
         // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = isEqual(oldData, newData);
+        const isUnchanged = deepEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
     });

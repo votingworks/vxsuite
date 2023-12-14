@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import merge from 'lodash.merge';
 import readline from 'readline';
 
 import {
@@ -71,7 +71,7 @@ export async function readElectionPackageFromBuffer(
       UiStringsPackageSchema
     ).unsafeUnwrap();
 
-    _.merge(uiStrings, appStrings);
+    merge(uiStrings, appStrings);
   }
 
   // Extract non-CDF election strings:
@@ -85,12 +85,12 @@ export async function readElectionPackageFromBuffer(
       UiStringsPackageSchema
     ).unsafeUnwrap();
 
-    _.merge(uiStrings, vxElectionStrings);
+    merge(uiStrings, vxElectionStrings);
   }
 
   if (cdfElection) {
     const electionStrings = extractCdfUiStrings(cdfElection);
-    _.merge(uiStrings, electionStrings);
+    merge(uiStrings, electionStrings);
   }
 
   // UI String Audio IDs:

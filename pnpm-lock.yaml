@@ -388,9 +388,6 @@ importers:
       jsdom:
         specifier: 20.0.1
         version: 20.0.1(canvas@2.9.1)
-      lodash:
-        specifier: ^4.17.20
-        version: 4.17.21
       moment:
         specifier: 2.29.1
         version: 2.29.1
@@ -494,9 +491,6 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
-      '@types/lodash':
-        specifier: ^4.14.168
-        version: 4.14.191
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -714,9 +708,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      deep-eql:
-        specifier: 4.1.3
-        version: 4.1.3
       dotenv:
         specifier: 16.3.1
         version: 16.3.1
@@ -751,9 +742,6 @@ importers:
       '@types/debug':
         specifier: 4.1.8
         version: 4.1.8
-      '@types/deep-eql':
-        specifier: workspace:*
-        version: link:../../../libs/@types/deep-eql
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
@@ -871,9 +859,6 @@ importers:
       js-file-download:
         specifier: 0.4.12
         version: 0.4.12
-      lodash:
-        specifier: ^4.17.20
-        version: 4.17.21
       moment:
         specifier: 2.29.1
         version: 2.29.1
@@ -941,9 +926,6 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
-      '@types/lodash':
-        specifier: ^4.14.168
-        version: 4.14.191
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -1662,9 +1644,6 @@ importers:
       http-proxy-middleware:
         specifier: 1.0.6
         version: 1.0.6(debug@4.3.4)
-      lodash.isequal:
-        specifier: ^4.5.0
-        version: 4.5.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1741,9 +1720,6 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
-      '@types/lodash.isequal':
-        specifier: ^4.5.6
-        version: 4.5.6
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -2067,9 +2043,6 @@ importers:
       http-proxy-middleware:
         specifier: 1.0.6
         version: 1.0.6(debug@4.3.4)
-      lodash.isequal:
-        specifier: ^4.5.0
-        version: 4.5.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -2146,9 +2119,6 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../../../libs/@types/kiosk-browser
-      '@types/lodash.isequal':
-        specifier: ^4.5.6
-        version: 4.5.6
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -2922,9 +2892,6 @@ importers:
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
-      lodash:
-        specifier: ^4.17.20
-        version: 4.17.21
       micromatch:
         specifier: ^4.0.5
         version: 4.0.5
@@ -2959,9 +2926,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
-      '@types/lodash':
-        specifier: ^4.14.168
-        version: 4.14.191
       '@types/lodash.set':
         specifier: ^4.3.7
         version: 4.3.7
@@ -3200,8 +3164,8 @@ importers:
         version: 0.12.4
     devDependencies:
       '@types/deep-eql':
-        specifier: workspace:*
-        version: link:../@types/deep-eql
+        specifier: ^4.0.2
+        version: 4.0.2
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -3587,9 +3551,6 @@ importers:
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
-      lodash.clonedeep:
-        specifier: ^4.5.0
-        version: 4.5.0
       uuid:
         specifier: 9.0.1
         version: 9.0.1
@@ -3600,9 +3561,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
-      '@types/lodash.clonedeep':
-        specifier: ^4.5.7
-        version: 4.5.7
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -4469,9 +4427,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      deep-eql:
-        specifier: 4.1.3
-        version: 4.1.3
       dompurify:
         specifier: ^2.0.12
         version: 2.3.8
@@ -4533,9 +4488,6 @@ importers:
       '@types/debug':
         specifier: 4.1.8
         version: 4.1.8
-      '@types/deep-eql':
-        specifier: workspace:*
-        version: link:../@types/deep-eql
       '@types/dompurify':
         specifier: ^2.0.3
         version: 2.3.3
@@ -4551,9 +4503,6 @@ importers:
       '@types/lodash.camelcase':
         specifier: ^4.3.6
         version: 4.3.6
-      '@types/lodash.clonedeep':
-        specifier: ^4.5.7
-        version: 4.5.7
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -4635,9 +4584,6 @@ importers:
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
-      lodash.clonedeep:
-        specifier: ^4.5.0
-        version: 4.5.0
       lorem-ipsum:
         specifier: ^2.0.8
         version: 2.0.8
@@ -4851,9 +4797,6 @@ importers:
       chalk:
         specifier: 4.1.2
         version: 4.1.2
-      deep-eql:
-        specifier: 4.1.3
-        version: 4.1.3
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
@@ -4870,9 +4813,6 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
     devDependencies:
-      '@types/deep-eql':
-        specifier: workspace:*
-        version: link:../@types/deep-eql
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -5051,9 +4991,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      deep-eql:
-        specifier: 4.1.3
-        version: 4.1.3
       dompurify:
         specifier: ^2.0.12
         version: 2.3.8
@@ -5063,9 +5000,12 @@ importers:
       i18next-parser:
         specifier: ^7.9.0
         version: 7.9.0
-      lodash:
-        specifier: ^4.17.20
-        version: 4.17.21
+      lodash.sample:
+        specifier: ^4.2.1
+        version: 4.2.1
+      lodash.samplesize:
+        specifier: ^4.2.0
+        version: 4.2.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -5124,9 +5064,6 @@ importers:
       '@types/debug':
         specifier: 4.1.8
         version: 4.1.8
-      '@types/deep-eql':
-        specifier: workspace:*
-        version: link:../@types/deep-eql
       '@types/dompurify':
         specifier: ^2.0.3
         version: 2.3.3
@@ -5142,9 +5079,12 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../@types/kiosk-browser
-      '@types/lodash':
-        specifier: ^4.14.168
-        version: 4.14.191
+      '@types/lodash.sample':
+        specifier: ^4.2.9
+        version: 4.2.9
+      '@types/lodash.samplesize':
+        specifier: ^4.2.9
+        version: 4.2.9
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -5356,9 +5296,12 @@ importers:
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
-      lodash:
-        specifier: ^4.17.20
-        version: 4.17.21
+      lodash.merge:
+        specifier: ^4.6.2
+        version: 4.6.2
+      lodash.setwith:
+        specifier: ^4.3.2
+        version: 4.3.2
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -5393,9 +5336,12 @@ importers:
       '@types/kiosk-browser':
         specifier: workspace:*
         version: link:../@types/kiosk-browser
-      '@types/lodash':
-        specifier: ^4.14.168
-        version: 4.14.191
+      '@types/lodash.merge':
+        specifier: ^4.6.9
+        version: 4.6.9
+      '@types/lodash.setwith':
+        specifier: ^4.3.9
+        version: 4.3.9
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -10794,6 +10740,10 @@ packages:
       '@types/ms': 0.7.31
     dev: true
 
+  /@types/deep-eql@4.0.2:
+    resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
+    dev: true
+
   /@types/detect-port@1.3.2:
     resolution: {integrity: sha512-xxgAGA2SAU4111QefXPSp5eGbDm/hW6zhvYl9IeEPZEry9F4d66QAHm5qpUXjb6IsevZV/7emAEx5MhP6O192g==}
     dev: true
@@ -10981,20 +10931,32 @@ packages:
       '@types/lodash': 4.14.191
     dev: true
 
-  /@types/lodash.clonedeep@4.5.7:
-    resolution: {integrity: sha512-ccNqkPptFIXrpVqUECi60/DFxjNKsfoQxSQsgcBJCX/fuX1wgyQieojkcWH/KpE3xzLoWN/2k+ZeGqIN3paSvw==}
+  /@types/lodash.merge@4.6.9:
+    resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true
 
-  /@types/lodash.isequal@4.5.6:
-    resolution: {integrity: sha512-Ww4UGSe3DmtvLLJm2F16hDwEQSv7U0Rr8SujLUA2wHI2D2dm8kPu6Et+/y303LfjTIwSBKXB/YTUcAKpem/XEg==}
+  /@types/lodash.sample@4.2.9:
+    resolution: {integrity: sha512-sKxUUQ/+257F0lM6zmozoD0KvsD8C8rvaSNOfL0gRhvgZIs3/Iwe0yJdqZN0wIfEiGw8eyO0Cgzg5NJbCzc78g==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
+  /@types/lodash.samplesize@4.2.9:
+    resolution: {integrity: sha512-z193XZXQsZ7nUlj6hai6kCDulX9/XDNdCC6XJvGI1cgWcdyo7iNGPxZjSaH/fDG273uo8xjP+c/tMslQvyu8Sg==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true
 
   /@types/lodash.set@4.3.7:
     resolution: {integrity: sha512-bS5Wkg/nrT82YUfkNYPSccFrNZRL+irl7Yt4iM6OTSQ0VZJED2oUIVm15NkNtUAQ8SRhCe+axqERUV6MJgkeEg==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
+  /@types/lodash.setwith@4.3.9:
+    resolution: {integrity: sha512-OQIdB68rvZH6imlOrdVl2svq7mtTSsRaZhDTWIi4vF8TC/ZGMF8FYum9A6Sfa320ACzvqScvpc/7yjjI3iPDHg==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true
@@ -15266,6 +15228,7 @@ packages:
 
   /figgy-pudding@3.5.2:
     resolution: {integrity: sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw==}
+    deprecated: This module is no longer supported.
 
   /file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
@@ -17921,9 +17884,6 @@ packages:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
     dev: false
 
-  /lodash.clonedeep@4.5.0:
-    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
-
   /lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
     dev: true
@@ -17954,9 +17914,21 @@ packages:
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
+  /lodash.sample@4.2.1:
+    resolution: {integrity: sha512-odCZufa8jYDBZQ+JOSePWRs+iApPdvIp3qAiKc9F22RdSCMLuUu60Jvgs2M6qMisKAeBZoumAkqDiGr9HDym/Q==}
+    dev: false
+
+  /lodash.samplesize@4.2.0:
+    resolution: {integrity: sha512-1ZhKV7/nuISuaQdxfCqrs4HHxXIYN+0Z4f7NMQn2PHkxFZJGavJQ1j/paxyJnLJmN2ZamNN6SMepneV+dCgQTA==}
+    dev: false
+
   /lodash.set@4.3.2:
     resolution: {integrity: sha512-4hNPN5jlm/N/HLMCO43v8BXKq9Z7QdAGc/VGrRD61w8gN9g/6jF9A4L1pbUgBLCffi0w9VsXfTOij5x8iTyFvg==}
     dev: true
+
+  /lodash.setwith@4.3.2:
+    resolution: {integrity: sha512-Cv2pndcuNDaqDMJ0gbLm5qNG5jyfsL6f8+f5PfZVVNhQCv+y+P5gAKkCdZbtiQlux7nsnWF7UmZd8JEFIo/4tg==}
+    dev: false
 
   /lodash.sortby@4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}

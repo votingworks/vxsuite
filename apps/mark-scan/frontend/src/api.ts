@@ -13,7 +13,7 @@ import {
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   createUiStringsApi,
 } from '@votingworks/ui';
-import isEqual from 'lodash.isequal';
+import { deepEqual } from '@votingworks/basics';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
   STATE_MACHINE_POLLING_INTERVAL_MS,
@@ -55,7 +55,7 @@ export const getUsbDriveStatus = {
         }
 
         // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = isEqual(oldData, newData);
+        const isUnchanged = deepEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
     });

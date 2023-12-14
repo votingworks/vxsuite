@@ -98,16 +98,21 @@ describe('ballot style groups', () => {
         style2PurpleEnglish,
         style3LegacySchema,
       ])
-    ).toEqual({
-      '1': [style1English, style1Spanish],
-      '2-G': [
-        style2GreenEnglish,
-        style2GreenEnglishMultiLanguage,
-        style2GreenNonEnglishSingleLanguage,
-      ],
-      '2-P': [style2PurpleEnglish],
-      'ballot-style-3': [style3LegacySchema],
-    });
+    ).toEqual(
+      new Map([
+        ['1', new Set([style1English, style1Spanish])],
+        [
+          '2-G',
+          new Set([
+            style2GreenEnglish,
+            style2GreenEnglishMultiLanguage,
+            style2GreenNonEnglishSingleLanguage,
+          ]),
+        ],
+        ['2-P', new Set([style2PurpleEnglish])],
+        ['ballot-style-3', new Set([style3LegacySchema])],
+      ])
+    );
   });
 
   test('getRelatedBallotStyle', () => {

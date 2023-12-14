@@ -1,12 +1,17 @@
-import _ from 'lodash';
-
+import {
+  Result,
+  assertDefined,
+  err,
+  deepEqual,
+  iter,
+  ok,
+} from '@votingworks/basics';
 import {
   BallotStyle,
   BallotStyleId,
   LanguageCode,
   Party,
 } from '@votingworks/types';
-import { Result, assertDefined, err, ok } from '@votingworks/basics';
 
 const ID_LANGUAGES_SEPARATOR = '_';
 const GROUP_ID_PARTS_SEPARATOR = '-';
@@ -15,14 +20,9 @@ function generateBallotStyleGroupId(params: {
   ballotStyleIndex: number;
   party?: Party;
 }): BallotStyleId {
-  // const idParts = [`ballot-style`, params.ballotStyleIndex];
-  const idParts: Array<string | number> = [params.ballotStyleIndex];
-
-  if (params.party) {
-    idParts.push(params.party.abbrev);
-  }
-
-  return idParts.join(GROUP_ID_PARTS_SEPARATOR);
+  return params.party
+    ? `${params.ballotStyleIndex}${GROUP_ID_PARTS_SEPARATOR}${params.party.abbrev}`
+    : params.ballotStyleIndex.toString();
 }
 
 /**
@@ -52,8 +52,8 @@ function extractBallotStyleGroupId(
  */
 export function getBallotStyleGroups(
   ballotStyles: readonly BallotStyle[]
-): Record<BallotStyleId, BallotStyle[]> {
-  return _.groupBy(ballotStyles, (b) => extractBallotStyleGroupId(b.id));
+): Map<BallotStyleId, Set<BallotStyle>> {
+  return iter(ballotStyles).toMap((b) => extractBallotStyleGroupId(b.id));
 }
 
 /**
@@ -78,16 +78,19 @@ export function getRelatedBallotStyle(params: {
   }
 
   // For legacy language-agnostic ballot styles, return the same ballot style:
-  if (_.isEmpty(sourceBallotStyle.languages)) {
+  if (
+    !sourceBallotStyle.languages ||
+    sourceBallotStyle.languages.length === 0
+  ) {
     return ok(sourceBallotStyle);
   }
 
   const ballotStyleGroups = getBallotStyleGroups(ballotStyles);
   const groupId = extractBallotStyleGroupId(sourceBallotStyleId);
-  const matchingGroup = assertDefined(ballotStyleGroups[groupId]);
+  const matchingGroup = assertDefined(ballotStyleGroups.get(groupId));
 
-  const destinationBallotStyle = matchingGroup.find((b) =>
-    _.isEqual(b.languages, [targetBallotStyleLanguage])
+  const destinationBallotStyle = iter(matchingGroup).find((b) =>
+    deepEqual(b.languages, [targetBallotStyleLanguage])
   );
   if (!destinationBallotStyle) {
     return err('destination ballot style not found');
@@ -107,13 +110,13 @@ export function getDefaultLanguageBallotStyles(
 ): BallotStyle[] {
   const ballotStyleGroups = getBallotStyleGroups(ballotStyles);
 
-  const defaultStyles = Object.values(ballotStyleGroups).map(
-    (ballotStyleGroup) => {
+  return iter(ballotStyleGroups.values())
+    .map((ballotStyleGroup) => {
       let englishBallotStyle: BallotStyle | undefined;
       let legacyBallotStyle: BallotStyle | undefined;
 
       for (const ballotStyle of ballotStyleGroup) {
-        if (_.isEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
+        if (deepEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
           englishBallotStyle = ballotStyle;
         } else if (!ballotStyle.languages) {
           legacyBallotStyle = ballotStyle;
@@ -124,8 +127,7 @@ export function getDefaultLanguageBallotStyles(
         englishBallotStyle || legacyBallotStyle,
         'Expected at least one English language ballot style per ballot style group.'
       );
-    }
-  );
-
-  return _.sortBy(defaultStyles, 'id');
+    })
+    .toArray()
+    .sort((a, b) => a.id.localeCompare(b.id));
 }

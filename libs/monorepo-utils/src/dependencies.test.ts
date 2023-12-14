@@ -83,7 +83,6 @@ test('findAllMonorepoDependencies yields all dependencies', () => {
 
   // simple dependencies
   expect([...findAllMonorepoDependencies(pkgs, basicsPkg)]).toEqual([
-    pkgs.get('@types/deep-eql')!,
     pkgs.get('eslint-plugin-vx')!,
   ]);
 

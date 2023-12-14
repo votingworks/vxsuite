@@ -1,6 +1,5 @@
 import { LanguageCode, UiStringsPackage } from '@votingworks/types';
 import { act } from 'react-dom/test-utils';
-import _ from 'lodash';
 import {
   render as renderWithoutContext,
   screen,
@@ -34,7 +33,7 @@ test('LanguageOverride overrides current active language', async () => {
 
   render(
     <LanguageOverride languageCode={LanguageCode.SPANISH}>
-      <Button onPress={_.noop}>{appStrings.buttonOkay()}</Button>
+      <Button onPress={() => {}}>{appStrings.buttonOkay()}</Button>
     </LanguageOverride>
   );
 
@@ -55,7 +54,7 @@ test('LanguageOverride is no-op when parent context is missing', async () => {
 
   renderWithoutContext(
     <LanguageOverride languageCode={LanguageCode.SPANISH}>
-      <Button onPress={_.noop}>{appStrings.buttonOkay()}</Button>
+      <Button onPress={() => {}}>{appStrings.buttonOkay()}</Button>
     </LanguageOverride>
   );
 
@@ -73,7 +72,7 @@ test('InEnglish forces English translation', async () => {
 
   render(
     <InEnglish>
-      <Button onPress={_.noop}>{appStrings.buttonOkay()}</Button>
+      <Button onPress={() => {}}>{appStrings.buttonOkay()}</Button>
     </InEnglish>
   );
 

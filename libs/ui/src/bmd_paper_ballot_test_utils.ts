@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import sample from 'lodash.sample';
+import sampleSize from 'lodash.samplesize';
 
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -10,14 +11,14 @@ import {
 
 export function generateCandidateVotes(contest: CandidateContest): Vote {
   if (contest.seats === 1) {
-    return _.sampleSize(contest.candidates, 1);
+    return sampleSize(contest.candidates, 1);
   }
 
   const votes: Candidate[] = [];
 
   // Leave room for write-in candidate and undervote:
   const numRegularCandidates = contest.seats - 2;
-  votes.push(..._.sampleSize(contest.candidates, numRegularCandidates));
+  votes.push(...sampleSize(contest.candidates, numRegularCandidates));
 
   votes.push({
     id: 'write-in',
@@ -34,5 +35,5 @@ export function generateYesNoVote(c: YesNoContest): Vote {
     return [] as Vote;
   }
 
-  return [assertDefined(_.sample([c.yesOption.id, c.noOption.id]))] as Vote;
+  return [assertDefined(sample([c.yesOption.id, c.noOption.id]))] as Vote;
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import { Trans } from 'react-i18next';
 import styled from 'styled-components';
 
@@ -24,7 +23,8 @@ export function UiString(props: UiStringProps): JSX.Element {
   const languageContext = useLanguageContext();
 
   const i18nKey =
-    uiStringKey && _.compact([uiStringKey, uiStringSubKey]).join('.');
+    uiStringKey &&
+    (uiStringSubKey ? `${uiStringKey}.${uiStringSubKey}` : uiStringKey);
 
   if (!languageContext) {
     // Enable tests to run without the need for a UiStringContext:

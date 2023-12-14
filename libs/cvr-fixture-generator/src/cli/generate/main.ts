@@ -12,7 +12,6 @@ import * as fs from 'fs';
 import yargs from 'yargs/yargs';
 import { writeImageData, createImageData } from '@votingworks/image-utils';
 import { basename, join, parse } from 'path';
-import cloneDeep from 'lodash.clonedeep';
 import {
   computeCastVoteRecordRootHashFromScratch,
   prepareSignatureFile,
@@ -190,8 +189,7 @@ export async function main(
       ballotIdPrefix ? `${ballotIdPrefix}-${ballotId}` : ballotId.toString()
     );
 
-    // clone deep so jsonStream util will not detect circular references
-    castVoteRecords.push(cloneDeep(newCastVoteRecord));
+    castVoteRecords.push(newCastVoteRecord);
     ballotId += 1;
   }
 

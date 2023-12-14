@@ -1,5 +1,5 @@
 import React from 'react';
-import _ from 'lodash';
+import { deepEqual } from '@votingworks/basics';
 import type { Api } from '@votingworks/central-scan-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
@@ -53,7 +53,7 @@ export const getUsbDriveStatus = {
         }
 
         // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = _.isEqual(oldData, newData);
+        const isUnchanged = deepEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
     });

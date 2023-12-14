@@ -12,7 +12,6 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 
 import { mockOf } from '@votingworks/test-utils';
 import { generateBallotStyleId } from '@votingworks/utils';
-import _ from 'lodash';
 import { assertDefined, find } from '@votingworks/basics';
 import { BmdPaperBallot } from './bmd_paper_ballot';
 import { newTestContext as newUiStringsTestContext } from '../test/ui_strings/test_utils';
@@ -144,7 +143,7 @@ describe('non-English ballot style', () => {
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
-        onRendered={_.noop}
+        onRendered={() => {}}
       />
     );
 
@@ -190,7 +189,7 @@ describe('non-English ballot style', () => {
             { id: 'write-in', name: 'PRINCESS FIONA', isWriteIn: true },
           ],
         }}
-        onRendered={_.noop}
+        onRendered={() => {}}
       />
     );
 
@@ -240,7 +239,7 @@ describe('non-English ballot style', () => {
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
-        onRendered={_.noop}
+        onRendered={() => {}}
       />
     );
 
@@ -268,7 +267,7 @@ describe('non-English ballot style', () => {
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{ [contest.id]: [contest.yesOption.id] }}
-        onRendered={_.noop}
+        onRendered={() => {}}
       />
     );
 
@@ -305,7 +304,7 @@ describe('non-English ballot style', () => {
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
-        onRendered={_.noop}
+        onRendered={() => {}}
       />
     );
 
@@ -333,12 +332,12 @@ describe('English ballot style', () => {
   const contests = getContests({ ballotStyle: englishBallotStyle, election });
 
   test('all votes filled in', async () => {
-    const votes: VotesDict = _(contests)
-      .keyBy((c) => c.id)
-      .mapValues((c) =>
-        c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c)
-      )
-      .value();
+    const votes: VotesDict = Object.fromEntries(
+      contests.map((c) => [
+        c.id,
+        c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
+      ])
+    );
 
     const { container } = render(
       <BmdPaperBallot
@@ -347,7 +346,7 @@ describe('English ballot style', () => {
         isLiveMode
         precinctId={englishBallotStyle.precincts[0]}
         votes={votes}
-        onRendered={_.noop}
+        onRendered={() => {}}
       />
     );
 
@@ -375,7 +374,7 @@ describe('English ballot style', () => {
         isLiveMode
         precinctId={englishBallotStyle.precincts[0]}
         votes={{}}
-        onRendered={_.noop}
+        onRendered={() => {}}
       />
     );
 

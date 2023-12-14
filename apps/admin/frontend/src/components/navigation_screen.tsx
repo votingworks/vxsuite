@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import _ from 'lodash';
 
 import {
   Button,
@@ -45,16 +44,16 @@ const SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [
   { label: 'Settings', routerPath: routerPaths.settings },
 ];
 
-const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = _.compact([
+const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
   { label: 'Tally', routerPath: routerPaths.tally },
-  isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION
-  ) && { label: 'Write-Ins', routerPath: routerPaths.writeIns },
+  ...(isFeatureFlagEnabled(BooleanEnvironmentVariableName.WRITE_IN_ADJUDICATION)
+    ? [{ label: 'Write-Ins', routerPath: routerPaths.writeIns }]
+    : []),
   { label: 'Reports', routerPath: routerPaths.reports },
   { label: 'Settings', routerPath: routerPaths.settings },
-]);
+];
 
 const NO_BALLOT_GENERATION_HIDDEN_PATHS: ReadonlySet<string> = new Set([
   routerPaths.logicAndAccuracy,
