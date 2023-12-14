@@ -487,6 +487,7 @@ const Container = styled.div`
   }
   /* Slide the dock down when open */
   transition: top 0.15s ease-out;
+  aria-hidden: true;
 `;
 
 const Content = styled.div`
