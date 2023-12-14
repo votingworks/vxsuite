@@ -1,6 +1,6 @@
 import { zipFile } from '@votingworks/test-utils';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { assertDefined, typedAs } from '@votingworks/basics';
+import { assertDefined, err, typedAs } from '@votingworks/basics';
 import {
   ElectionPackage,
   ElectionPackageFileName,
@@ -14,8 +14,17 @@ import {
   testCdfBallotDefinition,
   UiStringAudioClips,
 } from '@votingworks/types';
+import { tmpNameSync } from 'tmp';
+import { writeFileSync } from 'fs';
+import { Buffer } from 'buffer';
 import { readElectionPackageFromFile } from './election_package';
 import { extractCdfUiStrings } from './extract_cdf_ui_strings';
+
+function saveTmpFile(contents: Buffer) {
+  const tmpFile = tmpNameSync();
+  writeFileSync(tmpFile, contents);
+  return tmpFile;
+}
 
 test('readElectionPackageFromFile reads an election package without system settings from a file', async () => {
   const pkg = await zipFile({
@@ -23,9 +32,8 @@ test('readElectionPackageFromFile reads an election package without system setti
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
   });
-  expect(
-    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
-  ).toEqual(
+  const file = saveTmpFile(pkg);
+  expect((await readElectionPackageFromFile(file)).unsafeUnwrap()).toEqual(
     typedAs<ElectionPackage>({
       electionDefinition:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
@@ -45,9 +53,8 @@ test('readElectionPackageFromFile reads an election package with system settings
       typedAs<SystemSettings>(DEFAULT_SYSTEM_SETTINGS)
     ),
   });
-  expect(
-    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
-  ).toEqual(
+  const file = saveTmpFile(pkg);
+  expect((await readElectionPackageFromFile(file)).unsafeUnwrap()).toEqual(
     typedAs<ElectionPackage>({
       electionDefinition:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
@@ -76,6 +83,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
     [ElectionPackageFileName.ELECTION]: testCdfElectionData,
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify(appStrings),
   });
+  const file = saveTmpFile(pkg);
 
   const expectedElectionStrings = extractCdfUiStrings(testCdfBallotDefinition);
   const expectedUiStrings: UiStringsPackage = {
@@ -89,7 +97,7 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
   };
 
   expect(
-    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ElectionPackage>({
     electionDefinition:
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
@@ -116,6 +124,7 @@ test('readElectionPackageFromFile loads vx election strings', async () => {
     [ElectionPackageFileName.VX_ELECTION_STRINGS]:
       JSON.stringify(vxElectionStrings),
   });
+  const file = saveTmpFile(pkg);
 
   const expectedCdfStrings = extractCdfUiStrings(testCdfBallotDefinition);
   const expectedUiStrings: UiStringsPackage = {
@@ -129,7 +138,7 @@ test('readElectionPackageFromFile loads vx election strings', async () => {
   };
 
   expect(
-    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ElectionPackage>({
     electionDefinition:
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
@@ -159,6 +168,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.UI_STRING_AUDIO_IDS]: JSON.stringify(audioIds),
   });
+  const file = saveTmpFile(pkg);
 
   const expectedAudioIds: UiStringAudioIdsPackage = {
     [LanguageCode.ENGLISH]: {
@@ -170,7 +180,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
   };
 
   expect(
-    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ElectionPackage>({
     electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -196,9 +206,10 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
       .map((clip) => JSON.stringify(clip))
       .join('\n'),
   });
+  const file = saveTmpFile(pkg);
 
   expect(
-    await readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ElectionPackage>({
     electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
@@ -207,23 +218,56 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
   });
 });
 
-test('readElectionPackageFromFile throws when an election.json is not present', async () => {
+test('readElectionPackageFromFile errors when an election.json is not present', async () => {
   const pkg = await zipFile({});
-  await expect(
-    readElectionPackageFromFile(new File([pkg], 'election-package.zip'))
-  ).rejects.toThrowError(
-    "election package does not have a file called 'election.json'"
+  const file = saveTmpFile(pkg);
+  expect(await readElectionPackageFromFile(file)).toEqual(
+    err({
+      type: 'invalid-zip',
+      message:
+        "Error: election package does not have a file called 'election.json'",
+    })
   );
 });
 
-test('readElectionPackageFromFile throws when given an invalid zip file', async () => {
-  await expect(
-    readElectionPackageFromFile(new File(['not-a-zip'], 'election-package.zip'))
-  ).rejects.toThrowError();
+test('readElectionPackageFromFile errors throws when given an invalid zip file', async () => {
+  const file = saveTmpFile(Buffer.from('not a zip file'));
+  expect(await readElectionPackageFromFile(file)).toEqual(
+    err({
+      type: 'invalid-zip',
+      message:
+        "Error: Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html",
+    })
+  );
 });
 
-test('readElectionPackageFromFile throws when the file cannot be read', async () => {
-  await expect(
-    readElectionPackageFromFile({} as unknown as File)
-  ).rejects.toThrowError();
+test('readElectionPackageFromFile errors when given an invalid election', async () => {
+  const pkg = await zipFile({
+    [ElectionPackageFileName.ELECTION]: 'not a valid election',
+  });
+  const file = saveTmpFile(pkg);
+
+  expect(await readElectionPackageFromFile(file)).toEqual(
+    err({
+      type: 'invalid-election',
+      message: 'Unexpected token o in JSON at position 1',
+    })
+  );
+});
+
+test('readElectionPackageFromFile errors when given invalid system settings', async () => {
+  const pkg = await zipFile({
+    [ElectionPackageFileName.ELECTION]:
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+        .electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: 'not a valid system settings',
+  });
+  const file = saveTmpFile(pkg);
+
+  expect(await readElectionPackageFromFile(file)).toEqual(
+    err({
+      type: 'invalid-system-settings',
+      message: 'Unexpected token o in JSON at position 1',
+    })
+  );
 });
