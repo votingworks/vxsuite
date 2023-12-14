@@ -20,9 +20,11 @@ import {
 } from '@votingworks/utils';
 import {
   fakeElectionManagerUser,
+  fakePollWorkerUser,
   fakeSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
+import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import {
   MAX_FAILED_SCAN_ATTEMPTS,
   ScannerStatusEvent,
@@ -38,6 +40,7 @@ import {
   simulateScan,
   withApp,
 } from '../../../test/helpers/custom_helpers';
+import { BALLOT_BAG_CAPACITY } from '../../globals';
 
 jest.setTimeout(20_000);
 
@@ -49,6 +52,15 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
   };
 });
+
+jest.mock('@votingworks/backend', () => ({
+  ...jest.requireActual('@votingworks/backend'),
+  doesUsbDriveRequireCastVoteRecordSync: jest.fn(),
+}));
+
+const doesUsbDriveRequireCastVoteRecordSyncMock = mockOf(
+  doesUsbDriveRequireCastVoteRecordSync
+);
 
 /**
  * Basic checks for logging. We don't try to be exhaustive here because paper
@@ -515,7 +527,7 @@ test('scanning paused when election manager card is inserted', async () => {
     {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       const electionPackage =
-        electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage();
+        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage,
       });
@@ -550,6 +562,95 @@ test('scanning paused when election manager card is inserted', async () => {
         interpretation: {
           type: 'ValidSheet',
         },
+      });
+    }
+  );
+});
+
+test('scanning paused when poll worker card is inserted', async () => {
+  await withApp(
+    {},
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+      const electionPackage =
+        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage,
+      });
+
+      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+        Promise.resolve({
+          status: 'logged_in',
+          user: fakePollWorkerUser(electionPackage.electionDefinition),
+          sessionExpiresAt: fakeSessionExpiresAt(),
+        })
+      );
+
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      simulateScan(mockScanner, await ballotImages.completeHmpb());
+
+      // we don't scan because the poll worker card is inserted
+      await waitForStatus(apiClient, {
+        state: 'ready_to_scan',
+      });
+
+      // remove the card
+      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+        Promise.resolve({
+          status: 'logged_out',
+          reason: 'no_card',
+        })
+      );
+
+      // now we can scan
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation: {
+          type: 'ValidSheet',
+        },
+      });
+    }
+  );
+});
+
+test('scanning paused when ballot bag needs replacement', async () => {
+  await withApp(
+    {},
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, workspace }) => {
+      const electionPackage =
+        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage,
+      });
+
+      workspace.store.setBallotCountWhenBallotBagLastReplaced(0);
+      jest
+        .spyOn(workspace.store, 'getBallotsCounted')
+        .mockReturnValue(BALLOT_BAG_CAPACITY);
+
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      simulateScan(mockScanner, await ballotImages.completeHmpb());
+
+      // we don't scan because the ballot bag needs replacement
+      await waitForStatus(apiClient, {
+        state: 'ready_to_scan',
+        ballotsCounted: BALLOT_BAG_CAPACITY,
+      });
+
+      // replace the ballot bag
+      workspace.store.setBallotCountWhenBallotBagLastReplaced(
+        BALLOT_BAG_CAPACITY
+      );
+
+      // ensure CVRs appear synced
+      doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
+
+      // now we can scan
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation: {
+          type: 'ValidSheet',
+        },
+        ballotsCounted: BALLOT_BAG_CAPACITY,
       });
     }
   );
