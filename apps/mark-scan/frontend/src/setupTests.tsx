@@ -32,8 +32,6 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
 });
 
 beforeEach(() => {
-  // react-gamepad calls this function which does not exist in JSDOM
-  globalThis.navigator.getGamepads = jest.fn(() => []);
   globalThis.print = jest.fn(() => {
     throw new Error('globalThis.print() should never be called');
   });
