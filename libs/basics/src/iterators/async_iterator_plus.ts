@@ -171,6 +171,11 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     ) as AsyncIteratorPlus<U>;
   }
 
+  async isEmpty(): Promise<boolean> {
+    /* istanbul ignore next - `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined */
+    return (await this.iterable[Symbol.asyncIterator]().next()).done ?? true;
+  }
+
   async last(): Promise<T | undefined> {
     let lastElement: T | undefined;
     for await (const it of this.iterable) {

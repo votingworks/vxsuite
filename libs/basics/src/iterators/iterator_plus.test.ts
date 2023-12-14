@@ -254,6 +254,14 @@ test('flatMap', () => {
   ).toEqual([1, 1, 2, 2, 3, 3]);
 });
 
+test('isEmpty', () => {
+  expect(iter(null).isEmpty()).toEqual(true);
+  expect(iter(undefined).isEmpty()).toEqual(true);
+  expect(iter([]).isEmpty()).toEqual(true);
+  expect(iter([1]).isEmpty()).toEqual(false);
+  expect(iter([1, 2, 3]).isEmpty()).toEqual(false);
+});
+
 test('last', () => {
   expect(iter([]).last()).toEqual(undefined);
   expect(iter([1]).last()).toEqual(1);
