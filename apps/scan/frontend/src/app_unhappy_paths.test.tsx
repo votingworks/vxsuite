@@ -1,6 +1,10 @@
 /* eslint-disable no-console */
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { expectPrint, suppressingConsoleOutput } from '@votingworks/test-utils';
+import {
+  expectPrint,
+  fakeKiosk,
+  suppressingConsoleOutput,
+} from '@votingworks/test-utils';
 
 import userEvent from '@testing-library/user-event';
 
@@ -41,6 +45,7 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.removeCard(); // Set a default auth state of no card inserted.
+  window.kiosk = fakeKiosk();
 });
 
 afterEach(() => {
@@ -58,6 +63,8 @@ test('when backend does not respond shows error screen', async () => {
     renderApp();
     await screen.findByText('Something went wrong');
     expect(console.error).toHaveBeenCalled();
+    userEvent.click(await screen.findButton('Restart'));
+    expect(window.kiosk?.reboot).toHaveBeenCalledTimes(1);
   });
 });
 
