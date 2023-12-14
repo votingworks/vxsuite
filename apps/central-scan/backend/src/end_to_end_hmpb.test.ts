@@ -7,7 +7,7 @@ import {
 } from '@votingworks/backend';
 import {
   asElectionDefinition,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import {
   CVR,
@@ -119,7 +119,7 @@ const jurisdiction = TEST_JURISDICTION;
 
 test('going through the whole process works', async () => {
   const { election, electionDefinition } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
@@ -145,7 +145,7 @@ test('going through the whole process works', async () => {
 
   mockUsbDrive.insertUsbDrive(
     await mockElectionPackageFileTree(
-      electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(
+      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
         {
           ...DEFAULT_SYSTEM_SETTINGS,
           markThresholds: {
@@ -176,8 +176,8 @@ test('going through the whole process works', async () => {
 
     // scan some sample ballots
     nextSession.sheet([
-      electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath(),
-      electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath(),
+      electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
+      electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
     ]);
 
     nextSession.end();

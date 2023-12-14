@@ -1,4 +1,4 @@
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -48,7 +48,7 @@ beforeEach(() => {
   workspace = createWorkspace(dirSync().name);
   workspace.store.setElectionAndJurisdiction({
     electionData:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
   });
@@ -73,13 +73,13 @@ afterEach(async () => {
 });
 
 const frontImagePath =
-  electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath();
+  electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath();
 const backImagePath =
-  electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath();
+  electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
     electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: '12',
@@ -241,7 +241,7 @@ test('get next sheet', async () => {
 test('get next sheet layouts', async () => {
   const metadata: BallotMetadata = {
     electionHash:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: 'card-number-3',

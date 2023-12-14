@@ -1,7 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
   electionGeneralDefinition,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import { getMaxSheetsPerBallot } from '.';
 
@@ -14,7 +14,7 @@ test('getMaxSheetsPerBallot', () => {
   // single page election
   expect(
     getMaxSheetsPerBallot(
-      electionGridLayoutNewHampshireAmherstFixtures.election
+      electionGridLayoutNewHampshireTestBallotFixtures.election
     )
   ).toEqual(1);
 

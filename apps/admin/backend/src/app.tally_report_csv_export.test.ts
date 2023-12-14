@@ -1,5 +1,5 @@
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -162,7 +162,7 @@ it('logs failure if export fails for some reason', async () => {
 
 it('incorporates wia and manual data (grouping by voting method)', async () => {
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();

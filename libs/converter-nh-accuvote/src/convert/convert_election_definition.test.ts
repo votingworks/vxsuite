@@ -1,6 +1,6 @@
 import { Result, typedAs } from '@votingworks/basics';
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -70,20 +70,20 @@ test('mismatched ballot image size', async () => {
 });
 
 test('constitutional question ovals get placed on the grid correctly', async () => {
-  const amherstBallotCardDefinition = readFixtureBallotCardDefinition(
-    electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImageData(),
-    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImageData()
+  const nhTestBallotCardDefinition = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.templateFront.asImageData(),
+    await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
   );
   const converted = convertElectionDefinition(
-    amherstBallotCardDefinition
+    nhTestBallotCardDefinition
   ).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(
   //   require('path').join(
   //     __dirname,
-  //     '../../../fixtures/data/electionGridLayoutNewHampshireAmherst/election.json'
+  //     '../../../fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json'
   //   ),
   //   JSON.stringify(converted.election, null, 2),
   //   'utf8'
@@ -155,6 +155,6 @@ test('constitutional question ovals get placed on the grid correctly', async () 
   }
 
   expect(converted.election).toMatchObject(
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition.election
+    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition.election
   );
 });

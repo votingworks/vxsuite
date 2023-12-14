@@ -1,5 +1,5 @@
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -289,7 +289,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const logger = fakeLogger();
 
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
   const electionId = store.addElection({
     electionData: electionDefinition.electionData,
@@ -695,7 +695,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const store = Store.memoryStore();
   const logger = fakeLogger();
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { election, electionData } = electionDefinition;
   const electionId = store.addElection({
     electionData,

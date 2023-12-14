@@ -6,28 +6,7 @@ test('has various election definitions', () => {
       .filter(([, value]) => typeof value !== 'function')
       .map(([key]) => key)
       .sort()
-  ).toMatchInlineSnapshot(`
-    [
-      "electionFamousNames2021Fixtures",
-      "electionGeneral",
-      "electionGeneralDefinition",
-      "electionGeneralJson",
-      "electionGridLayoutNewHampshireAmherstFixtures",
-      "electionGridLayoutNewHampshireHudsonFixtures",
-      "electionMultiPartyPrimaryFixtures",
-      "electionPrimaryPrecinctSplitsFixtures",
-      "electionTwoPartyPrimary",
-      "electionTwoPartyPrimaryDefinition",
-      "electionTwoPartyPrimaryFixtures",
-      "electionWithMsEitherNeither",
-      "electionWithMsEitherNeitherDefinition",
-      "electionWithMsEitherNeitherFixtures",
-      "multiPartyPrimaryElection",
-      "multiPartyPrimaryElectionDefinition",
-      "sampleBallotImages",
-      "systemSettings",
-    ]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('asElectionDefinition', () => {

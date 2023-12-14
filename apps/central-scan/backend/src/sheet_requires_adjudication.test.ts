@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotIdSchema,
@@ -18,7 +18,7 @@ const metadata: BallotMetadata = {
   ballotStyleId: '12',
   ballotType: BallotType.Precinct,
   electionHash:
-    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+    electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
       .electionHash,
   isTestMode: false,
   precinctId: '23',

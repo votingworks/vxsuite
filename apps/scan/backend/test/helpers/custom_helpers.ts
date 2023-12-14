@@ -15,7 +15,7 @@ import {
 } from '@votingworks/custom-scanner';
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
@@ -159,8 +159,8 @@ function customSheetOfImagesFromScannerFromBallotImageData(
 export const ballotImages = {
   completeHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
-      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImageData(),
-      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImageData(),
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData(),
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData(),
     ]),
   completeBmd: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
@@ -169,13 +169,13 @@ export const ballotImages = {
     ]),
   overvoteHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
-      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteFront.asImageData(),
-      await electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteBack.asImageData(),
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteFront.asImageData(),
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteBack.asImageData(),
     ]),
   unmarkedHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
-      await electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedFront.asImageData(),
-      await electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedBack.asImageData(),
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanUnmarkedFront.asImageData(),
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanUnmarkedBack.asImageData(),
     ]),
   wrongElection: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([

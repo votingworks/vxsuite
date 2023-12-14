@@ -1,6 +1,6 @@
 import { assert, unique } from '@votingworks/basics';
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import {
@@ -19,7 +19,7 @@ import { join } from 'path';
 import { interpretSheet } from './interpret';
 
 describe('NH HMPB interpretation', () => {
-  const fixtures = electionGridLayoutNewHampshireAmherstFixtures;
+  const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
   const { electionDefinition } = fixtures;
   const hmpbFront = fixtures.scanMarkedFront.asFilePath();
   const hmpbBack = fixtures.scanMarkedBack.asFilePath();
@@ -265,7 +265,7 @@ test('blank sheet of paper', async () => {
   const interpretationWithImages = await interpretSheet(
     {
       electionDefinition:
-        electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
       precinctSelection: ALL_PRECINCTS_SELECTION,
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,

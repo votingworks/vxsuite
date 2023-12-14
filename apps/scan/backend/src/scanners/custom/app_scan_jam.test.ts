@@ -9,7 +9,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   configureApp,
   waitForStatus,
@@ -120,7 +120,7 @@ test('jam on return', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
             {
               ...DEFAULT_SYSTEM_SETTINGS,
               precinctScanAdjudicationReasons: [AdjudicationReason.BlankBallot],

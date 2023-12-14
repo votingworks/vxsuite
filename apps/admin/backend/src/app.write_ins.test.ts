@@ -1,4 +1,4 @@
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { assert, find, typedAs } from '@votingworks/basics';
 import { toDataUrl, loadImage, toImageData } from '@votingworks/image-utils';
 import { join } from 'path';
@@ -48,7 +48,7 @@ afterEach(() => {
 test('getWriteInAdjudicationQueue', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   (
@@ -90,7 +90,7 @@ test('getWriteInAdjudicationQueue', async () => {
 test('getWriteInAdjudicationQueueMetadata', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   (
@@ -128,7 +128,7 @@ test('getWriteInAdjudicationQueueMetadata', async () => {
 test('getWriteInAdjudicationContext', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, manualCastVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   const reportDirectoryPath = manualCastVoteRecordExport.asDirectoryPath();
@@ -241,7 +241,7 @@ test('getWriteInAdjudicationContext', async () => {
 test('getWriteInImageView', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, manualCastVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   const reportDirectoryPath = manualCastVoteRecordExport.asDirectoryPath();
@@ -340,7 +340,7 @@ test('getWriteInImageView', async () => {
 test('getFirstPendingWriteInId', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   await configureMachine(apiClient, auth, electionDefinition);
 
   (
@@ -390,7 +390,7 @@ test('getFirstPendingWriteInId', async () => {
 test('handling unmarked write-ins', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
   await configureMachine(apiClient, auth, electionDefinition);
   mockElectionManagerAuth(auth, electionDefinition.electionHash);
@@ -548,7 +548,7 @@ test('handling unmarked write-ins', async () => {
 test('adjudicating write-ins changes their status and is reflected in tallies', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
   await configureMachine(apiClient, auth, electionDefinition);
   (

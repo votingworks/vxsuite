@@ -1,5 +1,5 @@
 import {
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -87,7 +87,7 @@ test('card counts', async () => {
 
 test('election write-in adjudication summary', async () => {
   const { electionDefinition, castVoteRecordExport } =
-    electionGridLayoutNewHampshireAmherstFixtures;
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
 
   const { apiClient, auth } = buildTestEnvironment();

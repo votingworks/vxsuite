@@ -1,7 +1,7 @@
 import { typedAs } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -20,12 +20,12 @@ if (process.env.CI) {
 
 const ballotImages = {
   overvoteBallot: [
-    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteFront.asFilePath(),
-    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteBack.asFilePath(),
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteFront.asFilePath(),
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteBack.asFilePath(),
   ],
   normalBallot: [
-    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath(),
-    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath(),
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
+    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
   ],
   bmdBallot: [
     electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
@@ -59,7 +59,7 @@ test('treats BMD ballot with one blank side as valid', async () => {
 test('NH interpreter of overvote yields a sheet that needs to be reviewed', async () => {
   const result = await interpret('foo-sheet-id', ballotImages.overvoteBallot, {
     electionDefinition:
-      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,
     testMode: true,
@@ -75,7 +75,7 @@ test.each([true, false])(
     const sheet = (
       await interpret('foo-sheet-id', ballotImages.normalBallot, {
         electionDefinition:
-          electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
+          electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
         precinctSelection: ALL_PRECINCTS_SELECTION,
         ballotImagesPath,
         testMode,

@@ -9,7 +9,7 @@ import waitForExpect from 'wait-for-expect';
 import { assertDefined, err, ok, sleep, typedAs } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import { Logger } from '@votingworks/logging';
 import { ErrorCode, ScannerStatus, mocks } from '@votingworks/custom-scanner';
@@ -85,7 +85,7 @@ test('configure and scan hmpb', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, logger, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(),
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
@@ -201,7 +201,7 @@ test('ballot needs review - return', async () => {
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
-          electionGridLayoutNewHampshireAmherstFixtures.electionJson.toElectionPackage(
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
             {
               ...DEFAULT_SYSTEM_SETTINGS,
               precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
@@ -248,7 +248,7 @@ test('ballot needs review - return', async () => {
       expect(results).toHaveLength(1);
       expect(results[0]).toEqual(
         getEmptyElectionResults(
-          electionGridLayoutNewHampshireAmherstFixtures.election
+          electionGridLayoutNewHampshireTestBallotFixtures.election
         )
       );
 

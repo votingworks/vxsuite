@@ -14,7 +14,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMockScanner } from '../test/util/mocks';
 import { Api, buildCentralScannerApp } from './app';
@@ -56,7 +56,7 @@ afterEach(() => {
 });
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
+const { electionDefinition } = electionGridLayoutNewHampshireTestBallotFixtures;
 const { electionData, electionHash } = electionDefinition;
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
