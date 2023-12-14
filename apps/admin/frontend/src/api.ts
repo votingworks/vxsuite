@@ -1,5 +1,5 @@
-import isEqual from 'lodash.isequal';
 import React from 'react';
+import { deepEqual } from '@votingworks/basics';
 import type { Api } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
@@ -65,7 +65,7 @@ export const getAuthStatus = {
         }
 
         // Prevent infinite re-renders of the app tree:
-        const isUnchanged = isEqual(oldData, newData);
+        const isUnchanged = deepEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
     });
@@ -158,7 +158,7 @@ export const getUsbDriveStatus = {
         }
 
         // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = isEqual(oldData, newData);
+        const isUnchanged = deepEqual(oldData, newData);
         return isUnchanged ? oldData : newData;
       },
     });

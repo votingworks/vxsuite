@@ -1,7 +1,6 @@
 import { inspect } from 'util';
-import deepEqual from 'deep-eql';
 import { diff } from 'jest-diff';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, deepEqual } from '@votingworks/basics';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFunc = (...args: any[]) => any;

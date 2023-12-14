@@ -1,12 +1,17 @@
-import isEqual from 'lodash.isequal';
-
+import {
+  Result,
+  assertDefined,
+  err,
+  deepEqual,
+  iter,
+  ok,
+} from '@votingworks/basics';
 import {
   BallotStyle,
   BallotStyleId,
   LanguageCode,
   Party,
 } from '@votingworks/types';
-import { Result, assertDefined, err, iter, ok } from '@votingworks/basics';
 
 const ID_LANGUAGES_SEPARATOR = '_';
 const GROUP_ID_PARTS_SEPARATOR = '-';
@@ -85,7 +90,7 @@ export function getRelatedBallotStyle(params: {
   const matchingGroup = assertDefined(ballotStyleGroups.get(groupId));
 
   const destinationBallotStyle = iter(matchingGroup).find((b) =>
-    isEqual(b.languages, [targetBallotStyleLanguage])
+    deepEqual(b.languages, [targetBallotStyleLanguage])
   );
   if (!destinationBallotStyle) {
     return err('destination ballot style not found');
@@ -111,7 +116,7 @@ export function getDefaultLanguageBallotStyles(
       let legacyBallotStyle: BallotStyle | undefined;
 
       for (const ballotStyle of ballotStyleGroup) {
-        if (isEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
+        if (deepEqual(ballotStyle.languages, [LanguageCode.ENGLISH])) {
           englishBallotStyle = ballotStyle;
         } else if (!ballotStyle.languages) {
           legacyBallotStyle = ballotStyle;

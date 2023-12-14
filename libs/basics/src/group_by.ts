@@ -1,8 +1,8 @@
-import deepEqual from 'deep-eql';
+import { deepEqual } from './equality';
 
 /**
- * Groups items by a key function. Uses deepEqual to compare keys in order to support
- * complex key types. For simpler key types, a Map would suffice.
+ * Groups items by a key function. Uses deepEqual to compare keys in order to
+ * support complex key types. For simpler key types, a Map would suffice.
  */
 export function groupBy<T, K>(
   items: T[],
