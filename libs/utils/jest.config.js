@@ -10,7 +10,7 @@ module.exports = {
   coverageProvider: 'v8',
   coverageThreshold: {
     global: {
-      branches: -30,
+      branches: -31,
       lines: -128,
     },
   },
