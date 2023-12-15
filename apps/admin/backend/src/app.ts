@@ -362,7 +362,7 @@ function buildApi({
     }): Promise<Result<{ electionId: Id }, ElectionPackageError>> {
       // A check for defense-in-depth
       assert(
-        NODE_ENV === 'production'
+        NODE_ENV === 'production' && !isIntegrationTest()
           ? isMatch(input.electionFilePath, REAL_USB_DRIVE_GLOB_PATTERN)
           : true,
         'Can only import election packages from removable media in production'
