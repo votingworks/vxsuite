@@ -2,19 +2,23 @@ import { assert, err, ok } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryFixtures,
   electionGeneral,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 
 import {
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
+  ElectionPackageFileName,
   safeParseElectionDefinition,
 } from '@votingworks/types';
+import { zipFile } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
   mockSystemAdministratorAuth,
+  saveTmpFile,
 } from '../test/app';
 
 beforeEach(() => {
@@ -53,31 +57,48 @@ test('managing the current election', async () => {
 
   expect(await apiClient.getCurrentElectionMetadata()).toBeNull();
 
-  // try configuring with malformed election data
+  // try configuring with a malformed election package
   const badConfigureResult = await apiClient.configure({
-    electionData: '{}',
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionFilePath: saveTmpFile('{}'),
   });
   assert(badConfigureResult.isErr());
-  expect(badConfigureResult.err().type).toEqual('invalidElection');
+  expect(badConfigureResult.err().type).toEqual('invalid-zip');
+
+  // try configuring with malformed election data
+  const badElectionPackage = await zipFile({
+    [ElectionPackageFileName.ELECTION]: '{}',
+  });
+  const badElectionConfigureResult = await apiClient.configure({
+    electionFilePath: saveTmpFile(badElectionPackage),
+  });
+  assert(badElectionConfigureResult.isErr());
+  expect(badElectionConfigureResult.err().type).toEqual('invalid-election');
 
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { electionData, electionHash } = electionDefinition;
+  const { electionHash } = electionDefinition;
 
+  const badSystemSettingsPackage = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: '{}',
+  });
   // try configuring with malformed system settings data
   const badSystemSettingsConfigureResult = await apiClient.configure({
-    electionData,
-    systemSettingsData: '{}',
+    electionFilePath: saveTmpFile(badSystemSettingsPackage),
   });
   assert(badSystemSettingsConfigureResult.isErr());
   expect(badSystemSettingsConfigureResult.err().type).toEqual(
-    'invalidSystemSettings'
+    'invalid-system-settings'
   );
 
   // configure with well-formed data
+  const goodPackage = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+      DEFAULT_SYSTEM_SETTINGS
+    ),
+  });
   const configureResult = await apiClient.configure({
-    electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionFilePath: saveTmpFile(goodPackage),
   });
   assert(configureResult.isOk());
   const { electionId } = configureResult.ok();
@@ -128,14 +149,23 @@ test('managing the current election', async () => {
   expect(await apiClient.getCurrentElectionMetadata()).toBeNull();
 
   // confirm we can reconfigure on same app instance
-  void (await apiClient.configure({
-    electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-  }));
+  await configureMachine(apiClient, auth, electionDefinition);
   expect(await apiClient.getCurrentElectionMetadata()).toMatchObject({
     isOfficialResults: false,
     electionDefinition,
   });
+});
+
+test('configuring with an election.json file', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+
+  mockSystemAdministratorAuth(auth);
+
+  const electionDefinition = electionGeneralDefinition;
+  const configureResult = await apiClient.configure({
+    electionFilePath: saveTmpFile(electionDefinition.electionData, '.json'),
+  });
+  expect(configureResult).toEqual(ok(expect.anything()));
 });
 
 test('configuring with a CDF election', async () => {
@@ -146,11 +176,13 @@ test('configuring with a CDF election', async () => {
   const { electionData, electionHash } = safeParseElectionDefinition(
     JSON.stringify(convertVxfElectionToCdfBallotDefinition(electionGeneral))
   ).unsafeUnwrap();
+  const electionPackage = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionData,
+  });
 
   // configure with well-formed election data
   const configureResult = await apiClient.configure({
-    electionData,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionFilePath: saveTmpFile(electionPackage),
   });
   assert(configureResult.isOk());
   configureResult.ok();
