@@ -684,16 +684,20 @@ test('detecting invalid sheet with incompatible interpretation types', async () 
 });
 
 test('central scanner minimal export does not allow rejected sheets', async () => {
-  await expect(
-    exportCastVoteRecordsToUsbDrive(
+  expect(
+    await exportCastVoteRecordsToUsbDrive(
       mockCentralScannerStore,
       mockUsbDrive.usbDrive,
       [newRejectedSheet()],
       { scannerType: 'central', isMinimalExport: true }
     )
-  ).rejects.toThrow(
-    'Encountered an unexpected rejected sheet while performing a minimal export. ' +
-      'Minimal exports should only include accepted sheets.'
+  ).toEqual(
+    err({
+      type: 'other-error',
+      errorMessage:
+        'Encountered an unexpected rejected sheet while performing a minimal export. ' +
+        'Minimal exports should only include accepted sheets.',
+    })
   );
 });
 
