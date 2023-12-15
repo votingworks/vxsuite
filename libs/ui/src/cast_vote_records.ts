@@ -64,6 +64,9 @@ export function userReadableMessageFromExportError(
         }
       })();
     }
+    case 'other-error': {
+      return error.errorMessage;
+    }
     /* istanbul ignore next: Compile-time check for completeness */
     default: {
       throwIllegalValue(error, 'type');
