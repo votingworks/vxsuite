@@ -189,6 +189,9 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
+      micromatch:
+        specifier: ^4.0.5
+        version: 4.0.5
       multer:
         specifier: ^1.4.5-lts.1
         version: 1.4.5-lts.1
@@ -229,6 +232,9 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
+      '@types/micromatch':
+        specifier: ^4.0.2
+        version: 4.0.2
       '@types/multer':
         specifier: ^1.4.7
         version: 1.4.7

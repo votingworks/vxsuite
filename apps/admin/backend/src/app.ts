@@ -1,3 +1,4 @@
+import { isMatch } from 'micromatch';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
@@ -96,6 +97,7 @@ import { adjudicateWriteIn } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
+import { NODE_ENV, REAL_USB_DRIVE_GLOB_PATTERN } from './globals';
 
 const debug = rootDebug.extend('app');
 
@@ -358,8 +360,15 @@ function buildApi({
     async configure(input: {
       electionFilePath: string;
     }): Promise<Result<{ electionId: Id }, ElectionPackageError>> {
-      let electionPackage: ElectionPackage;
+      // A check for defense-in-depth
+      assert(
+        NODE_ENV === 'production'
+          ? isMatch(input.electionFilePath, REAL_USB_DRIVE_GLOB_PATTERN)
+          : true,
+        'Can only import election packages from removable media in production'
+      );
 
+      let electionPackage: ElectionPackage;
       if (input.electionFilePath.endsWith('.json')) {
         const electionDefinitionResult = safeParseElectionDefinition(
           await fs.readFile(input.electionFilePath, 'utf8')

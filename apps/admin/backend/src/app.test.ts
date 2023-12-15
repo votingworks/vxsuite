@@ -13,7 +13,7 @@ import {
   ElectionPackageFileName,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { zipFile } from '@votingworks/test-utils';
+import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -22,7 +22,17 @@ import {
   saveTmpFile,
 } from '../test/app';
 
+let mockNodeEnv: 'production' | 'test' = 'test';
+
+jest.mock('./globals', (): typeof import('./globals') => ({
+  ...jest.requireActual('./globals'),
+  get NODE_ENV(): 'production' | 'test' {
+    return mockNodeEnv;
+  },
+}));
+
 beforeEach(() => {
+  mockNodeEnv = 'test';
   jest.restoreAllMocks();
 });
 
@@ -208,6 +218,24 @@ test('configuring with a CDF election', async () => {
   );
   expect(currentElectionMetadata?.electionDefinition.electionHash).toEqual(
     electionHash
+  );
+});
+
+test('configuring with an election not from removable media in prod errs', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  mockNodeEnv = 'production';
+
+  mockSystemAdministratorAuth(auth);
+
+  await suppressingConsoleOutput(
+    async () =>
+      await expect(() =>
+        apiClient.configure({
+          electionFilePath: '/media/../tmp/nope',
+        })
+      ).rejects.toThrow(
+        'Can only import election packages from removable media in production'
+      )
   );
 });
 
