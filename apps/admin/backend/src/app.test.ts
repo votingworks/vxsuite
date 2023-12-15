@@ -5,6 +5,7 @@ import {
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
+import { Buffer } from 'buffer';
 
 import {
   convertVxfElectionToCdfBallotDefinition,
@@ -166,6 +167,11 @@ test('configuring with an election.json file', async () => {
     electionFilePath: saveTmpFile(electionDefinition.electionData, '.json'),
   });
   expect(configureResult).toEqual(ok(expect.anything()));
+
+  const badConfigureResult = await apiClient.configure({
+    electionFilePath: saveTmpFile('bad json file', '.json'),
+  });
+  expect(badConfigureResult).toMatchObject(err({ type: 'invalid-election' }));
 });
 
 test('configuring with a CDF election', async () => {
@@ -229,6 +235,43 @@ test('getSystemSettings returns default system settings when there is no current
 
   const systemSettingsResult = await apiClient.getSystemSettings();
   expect(systemSettingsResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
+});
+
+test('listPotentialElectionPackagesOnUsbDrive', async () => {
+  const { apiClient, mockUsbDrive } = buildTestEnvironment();
+
+  mockUsbDrive.removeUsbDrive();
+  expect(await apiClient.listPotentialElectionPackagesOnUsbDrive()).toEqual(
+    err({ type: 'no-usb-drive' })
+  );
+
+  mockUsbDrive.insertUsbDrive({});
+  expect(await apiClient.listPotentialElectionPackagesOnUsbDrive()).toEqual(
+    ok([])
+  );
+
+  const fileContents = Buffer.from('doesnt matter');
+  mockUsbDrive.insertUsbDrive({
+    'election-package-1.zip': fileContents,
+    'some-other-file.txt': fileContents,
+    'election-package-2.zip': fileContents,
+  });
+  expect(
+    await apiClient.listPotentialElectionPackagesOnUsbDrive()
+  ).toMatchObject(
+    ok([
+      {
+        name: 'election-package-2.zip',
+        path: expect.stringMatching(/\/election-package-2.zip/),
+        ctime: expect.anything(),
+      },
+      {
+        name: 'election-package-1.zip',
+        path: expect.stringMatching(/\/election-package-1.zip/),
+        ctime: expect.anything(),
+      },
+    ])
+  );
 });
 
 test('saveElectionPackageToUsb', async () => {
