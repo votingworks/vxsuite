@@ -46,6 +46,10 @@ export function getEntries(zipfile: JsZip): JSZipObject[] {
   return Object.values(zipfile.files);
 }
 
+export function getEntryStream(entry: JSZipObject): NodeJS.ReadableStream {
+  return entry.nodeStream();
+}
+
 export async function readEntry(entry: JSZipObject): Promise<Buffer> {
   return entry.async('nodebuffer');
 }

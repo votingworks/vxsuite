@@ -15,6 +15,7 @@ import type {
   WriteInImageView,
   ExportDataError,
 } from '@votingworks/admin-backend';
+import { FileSystemEntry, FileSystemEntryType } from '@votingworks/backend';
 import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
@@ -165,12 +166,30 @@ export function createApiMock(
       );
     },
 
-    expectConfigure(
-      electionData: string,
-      systemSettingsData: string = JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
+    expectListPotentialElectionPackagesOnUsbDrive(
+      electionPackages: Array<Partial<FileSystemEntry>> = []
     ) {
+      apiClient.listPotentialElectionPackagesOnUsbDrive
+        .expectCallWith()
+        .resolves(
+          ok(
+            electionPackages.map((entry) => ({
+              name: 'Test Election Package',
+              path: 'package.zip',
+              type: FileSystemEntryType.File,
+              size: 1,
+              mtime: new Date(),
+              atime: new Date(),
+              ctime: new Date(),
+              ...entry,
+            }))
+          )
+        );
+    },
+
+    expectConfigure(electionFilePath: string) {
       apiClient.configure
-        .expectCallWith({ electionData, systemSettingsData })
+        .expectCallWith({ electionFilePath })
         .resolves(ok({ electionId: 'anything' }));
     },
 

@@ -6,7 +6,7 @@ import {
 import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
   createLogsApi,
-  readElectionPackageFromUsb,
+  readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
 import {
@@ -155,7 +155,7 @@ function buildApi({
         constructAuthMachineState(workspace)
       );
 
-      const electionPackageResult = await readElectionPackageFromUsb(
+      const electionPackageResult = await readSignedElectionPackageFromUsb(
         authStatus,
         usbDrive,
         logger

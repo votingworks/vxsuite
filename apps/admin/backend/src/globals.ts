@@ -32,7 +32,10 @@ export const ADMIN_WORKSPACE =
 // eslint-disable-next-line vx/gts-safe-number-parse
 export const PORT = Number(process.env.PORT || 3004);
 
-const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
+/**
+ * A glob pattern for USB drives (real and not dev mock)
+ */
+export const REAL_USB_DRIVE_GLOB_PATTERN = '/media/**/*';
 
 const DEFAULT_ALLOWED_EXPORT_PATTERNS =
   NODE_ENV === 'production'

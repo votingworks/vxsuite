@@ -192,6 +192,9 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
+      micromatch:
+        specifier: ^4.0.5
+        version: 4.0.5
       multer:
         specifier: ^1.4.5-lts.1
         version: 1.4.5-lts.1
@@ -235,6 +238,9 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
+      '@types/micromatch':
+        specifier: ^4.0.2
+        version: 4.0.2
       '@types/multer':
         specifier: ^1.4.7
         version: 1.4.7
@@ -2955,6 +2961,9 @@ importers:
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
+      lodash.merge:
+        specifier: ^4.6.2
+        version: 4.6.2
       micromatch:
         specifier: ^4.0.5
         version: 4.0.5
@@ -2989,6 +2998,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/lodash.merge':
+        specifier: ^4.6.9
+        version: 4.6.9
       '@types/lodash.set':
         specifier: ^4.3.7
         version: 4.3.7
@@ -5383,6 +5395,9 @@ importers:
       lodash:
         specifier: ^4.17.20
         version: 4.17.21
+      lodash.setwith:
+        specifier: ^4.3.2
+        version: 4.3.2
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -5420,6 +5435,9 @@ importers:
       '@types/lodash':
         specifier: ^4.14.168
         version: 4.14.191
+      '@types/lodash.setwith':
+        specifier: ^4.3.9
+        version: 4.3.9
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -11017,8 +11035,20 @@ packages:
       '@types/lodash': 4.14.191
     dev: true
 
+  /@types/lodash.merge@4.6.9:
+    resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
   /@types/lodash.set@4.3.7:
     resolution: {integrity: sha512-bS5Wkg/nrT82YUfkNYPSccFrNZRL+irl7Yt4iM6OTSQ0VZJED2oUIVm15NkNtUAQ8SRhCe+axqERUV6MJgkeEg==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
+  /@types/lodash.setwith@4.3.9:
+    resolution: {integrity: sha512-OQIdB68rvZH6imlOrdVl2svq7mtTSsRaZhDTWIi4vF8TC/ZGMF8FYum9A6Sfa320ACzvqScvpc/7yjjI3iPDHg==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true
@@ -15280,6 +15310,7 @@ packages:
 
   /figgy-pudding@3.5.2:
     resolution: {integrity: sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw==}
+    deprecated: This module is no longer supported.
 
   /file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
@@ -17986,6 +18017,10 @@ packages:
   /lodash.set@4.3.2:
     resolution: {integrity: sha512-4hNPN5jlm/N/HLMCO43v8BXKq9Z7QdAGc/VGrRD61w8gN9g/6jF9A4L1pbUgBLCffi0w9VsXfTOij5x8iTyFvg==}
     dev: true
+
+  /lodash.setwith@4.3.2:
+    resolution: {integrity: sha512-Cv2pndcuNDaqDMJ0gbLm5qNG5jyfsL6f8+f5PfZVVNhQCv+y+P5gAKkCdZbtiQlux7nsnWF7UmZd8JEFIo/4tg==}
+    dev: false
 
   /lodash.sortby@4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}
