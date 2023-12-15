@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 
 import { createInterface } from 'readline';
-import { readFileSync } from 'fs';
 import { assert } from '@votingworks/basics';
 import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { join } from 'path';
 import { LogSource, Logger } from '@votingworks/logging';
+import { ONE_MEGABYTE, readFile } from '@votingworks/backend';
 import { createWorkspace } from '../../util/workspace';
 import { MARK_SCAN_WORKSPACE } from '../../globals';
 import {
@@ -38,18 +38,20 @@ function printUsage() {
   console.log(`Valid commands: ${JSON.stringify(commandList)}`);
 }
 
-function printBallotFixture(stateMachine: PaperHandlerStateMachine) {
-  const pdfData = readFileSync(pathToPdfData, { encoding: null });
+async function printBallotFixture(stateMachine: PaperHandlerStateMachine) {
+  const pdfData = (
+    await readFile(pathToPdfData, { maxSize: ONE_MEGABYTE })
+  ).unsafeUnwrap();
   stateMachine.printBallot(pdfData);
 }
 
-function handleCommand(
+async function handleCommand(
   stateMachine: PaperHandlerStateMachine,
   command: Command
 ) {
   assert(stateMachine);
   if (command === Command.PrintBallotFixture) {
-    printBallotFixture(stateMachine);
+    await printBallotFixture(stateMachine);
     console.log('TODO');
   } else {
     throw new Error(`Unhandled command: ${command}`);
@@ -119,7 +121,7 @@ export async function main(): Promise<number> {
       continue;
     }
 
-    handleCommand(stateMachine, commandString as Command);
+    await handleCommand(stateMachine, commandString as Command);
   }
 
   return 0;

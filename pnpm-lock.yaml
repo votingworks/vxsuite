@@ -2730,6 +2730,9 @@ importers:
 
   libs/auth:
     dependencies:
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics

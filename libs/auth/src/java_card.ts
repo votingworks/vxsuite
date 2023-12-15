@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import { sha256 } from 'js-sha256';
 import { v4 as uuid } from 'uuid';
+import { ONE_MEGABYTE, readFile } from '@votingworks/backend';
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import {
   Byte,
@@ -277,7 +278,9 @@ export class JavaCard implements Card {
       pin
     );
     const vxAdminCertAuthorityCertDetails = await parseCert(
-      await fs.readFile(vxAdminCertAuthorityCertPath)
+      (
+        await readFile(vxAdminCertAuthorityCertPath, { maxSize: ONE_MEGABYTE })
+      ).unsafeUnwrap()
     );
     assert(vxAdminCertAuthorityCertDetails.component === 'admin');
     assert(user.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction);

@@ -30,7 +30,6 @@ import {
 import { assert, assertDefined, Optional } from '@votingworks/basics';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
-import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -40,6 +39,7 @@ import {
   getCastVoteRecordRootHash,
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
+import { createHash } from 'crypto';
 import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 import { normalizeAndJoin } from './util/path';
 
@@ -142,8 +142,10 @@ export class Store {
    * Gets the sha256 digest of the current schema file.
    */
   static getSchemaDigest(): string {
-    const schemaSql = fs.readFileSync(SchemaPath, 'utf-8');
-    return sha256(schemaSql);
+    const file = fs.createReadStream(SchemaPath);
+    const hash = createHash('sha256');
+    file.pipe(hash);
+    return hash.digest('hex');
   }
 
   /**
