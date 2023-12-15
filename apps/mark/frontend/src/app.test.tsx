@@ -1,4 +1,8 @@
-import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
+import {
+  fakeKiosk,
+  mockOf,
+  suppressingConsoleOutput,
+} from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
@@ -27,6 +31,7 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
+  window.kiosk = fakeKiosk();
 });
 
 afterEach(() => {
@@ -46,6 +51,8 @@ it('will throw an error when using default api', async () => {
   await suppressingConsoleOutput(async () => {
     render(<App hardware={hardware} />);
     await screen.findByText('Something went wrong');
+    userEvent.click(await screen.findButton('Restart'));
+    expect(window.kiosk?.reboot).toHaveBeenCalledTimes(1);
   });
 });
 
