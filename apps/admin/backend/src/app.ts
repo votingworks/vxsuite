@@ -1,3 +1,4 @@
+import { isMatch } from 'micromatch';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
@@ -7,10 +8,10 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   Id,
   safeParseElectionDefinition,
-  safeParseSystemSettings,
   SystemSettings,
   Tabulation,
   TEST_JURISDICTION,
+  ElectionPackage,
 } from '@votingworks/types';
 import {
   assert,
@@ -42,7 +43,16 @@ import {
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import ZipStream from 'zip-stream';
-import { ExportDataError, createLogsApi } from '@votingworks/backend';
+import {
+  ElectionPackageError,
+  ExportDataError,
+  FileSystemEntry,
+  FileSystemEntryType,
+  ListDirectoryOnUsbDriveError,
+  createLogsApi,
+  listDirectoryOnUsbDrive,
+  readElectionPackageFromFile,
+} from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   CastVoteRecordFileRecord,
@@ -62,7 +72,6 @@ import {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
-  ConfigureError,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -88,6 +97,7 @@ import { adjudicateWriteIn } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
+import { NODE_ENV, REAL_USB_DRIVE_GLOB_PATTERN } from './globals';
 
 const debug = rootDebug.extend('app');
 
@@ -325,35 +335,68 @@ function buildApi({
       return store.getSystemSettings(electionId);
     },
 
+    async listPotentialElectionPackagesOnUsbDrive(): Promise<
+      Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>
+    > {
+      const usbDriveEntriesResult = await listDirectoryOnUsbDrive(usbDrive, '');
+      if (usbDriveEntriesResult.isErr()) {
+        return usbDriveEntriesResult;
+      }
+
+      return ok(
+        usbDriveEntriesResult
+          .ok()
+          .filter(
+            (entry) =>
+              entry.type === FileSystemEntryType.File &&
+              entry.name.endsWith('.zip')
+          )
+          // Most recent first
+          .sort((a, b) => b.ctime.getTime() - a.ctime.getTime())
+      );
+    },
+
     // `configure` and `unconfigure` handle changes to the election definition
     async configure(input: {
-      electionData: string;
-      systemSettingsData: string;
-    }): Promise<Result<{ electionId: Id }, ConfigureError>> {
-      const electionDefinitionParseResult = safeParseElectionDefinition(
-        input.electionData
+      electionFilePath: string;
+    }): Promise<Result<{ electionId: Id }, ElectionPackageError>> {
+      // A check for defense-in-depth
+      assert(
+        NODE_ENV === 'production' && !isIntegrationTest()
+          ? isMatch(input.electionFilePath, REAL_USB_DRIVE_GLOB_PATTERN)
+          : true,
+        'Can only import election packages from removable media in production'
       );
-      if (electionDefinitionParseResult.isErr()) {
-        return err({
-          type: 'invalidElection',
-          message: electionDefinitionParseResult.err().message,
-        });
-      }
-      const electionDefinition = electionDefinitionParseResult.ok();
 
-      const systemSettingsParseResult = safeParseSystemSettings(
-        input.systemSettingsData
-      );
-      if (systemSettingsParseResult.isErr()) {
-        return err({
-          type: 'invalidSystemSettings',
-          message: systemSettingsParseResult.err().message,
-        });
+      let electionPackage: ElectionPackage;
+      if (input.electionFilePath.endsWith('.json')) {
+        const electionDefinitionResult = safeParseElectionDefinition(
+          await fs.readFile(input.electionFilePath, 'utf8')
+        );
+        if (electionDefinitionResult.isErr()) {
+          return err({
+            type: 'invalid-election',
+            message: electionDefinitionResult.err().toString(),
+          });
+        }
+        electionPackage = {
+          electionDefinition: electionDefinitionResult.ok(),
+          systemSettings: DEFAULT_SYSTEM_SETTINGS,
+        };
+      } else {
+        const electionPackageResult = await readElectionPackageFromFile(
+          input.electionFilePath
+        );
+        if (electionPackageResult.isErr()) {
+          return electionPackageResult;
+        }
+        electionPackage = electionPackageResult.ok();
       }
 
+      const { electionDefinition, systemSettings } = electionPackage;
       const electionId = store.addElection({
         electionData: electionDefinition.electionData,
-        systemSettingsData: input.systemSettingsData,
+        systemSettingsData: JSON.stringify(systemSettings),
       });
       store.setCurrentElectionId(electionId);
       await logger.log(

@@ -29,7 +29,7 @@ import {
 
 import {
   createUiStringsApi,
-  readElectionPackageFromUsb,
+  readSignedElectionPackageFromUsb,
   configureUiStrings,
 } from '@votingworks/backend';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
@@ -136,7 +136,7 @@ export function buildApi(
         constructAuthMachineState(workspace)
       );
 
-      const electionPackageResult = await readElectionPackageFromUsb(
+      const electionPackageResult = await readSignedElectionPackageFromUsb(
         authStatus,
         usbDrive,
         logger

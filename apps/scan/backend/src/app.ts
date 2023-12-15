@@ -18,7 +18,7 @@ import express, { Application } from 'express';
 import {
   createUiStringsApi,
   createLogsApi,
-  readElectionPackageFromUsb,
+  readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
@@ -143,7 +143,7 @@ export function buildApi(
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace)
       );
-      const electionPackageResult = await readElectionPackageFromUsb(
+      const electionPackageResult = await readSignedElectionPackageFromUsb(
         authStatus,
         usbDrive,
         logger

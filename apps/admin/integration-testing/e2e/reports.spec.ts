@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test';
-import { tmpNameSync } from 'tmp';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   SCANNER_RESULTS_FOLDER,
@@ -9,9 +8,11 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { readFileSync, readdirSync, writeFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { assertDefined } from '@votingworks/basics';
+import { zipFile } from '@votingworks/test-utils';
+import { ElectionPackageFileName } from '@votingworks/types';
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
@@ -23,25 +24,27 @@ test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
 });
 
-function asFilePath(data: string): string {
-  const filePath = tmpNameSync();
-  writeFileSync(filePath, data);
-  return filePath;
-}
-
 test('viewing and exporting reports', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election, electionHash, electionData } = electionDefinition;
+  const electionPackage = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionData,
+  });
+  const electionPackageFileName = 'election-package.zip';
 
   await page.goto('/');
 
   // load election definition as system administrator
   await logInAsSystemAdministrator(page);
-  await page
-    .getByLabel('Select Election Definition')
-    .setInputFiles(asFilePath(electionData));
-  expect(page);
+  usbHandler.insert({
+    [electionPackageFileName]: electionPackage,
+  });
+
+  await page.getByText(electionPackageFileName).click();
+  await expect(
+    page.getByRole('heading', { name: election.title })
+  ).toBeVisible();
   await logOut(page);
 
   await logInAsElectionManager(page, electionHash);

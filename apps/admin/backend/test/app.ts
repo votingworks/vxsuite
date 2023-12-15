@@ -7,23 +7,26 @@ import {
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
   mockOf,
+  zipFile,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
   ElectionDefinition,
+  ElectionPackageFileName,
   SystemSettings,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
 import { AddressInfo } from 'net';
 import { Buffer } from 'buffer';
-import tmp from 'tmp';
+import tmp, { tmpNameSync } from 'tmp';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { writeFileSync } from 'fs';
 import { Api } from '../src';
 import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
@@ -85,6 +88,16 @@ export function mockElectionManagerAuth(
   });
 }
 
+export function saveTmpFile(
+  contents: string | Buffer,
+  extension?: string
+): string {
+  const tmpFilePath = tmpNameSync({ postfix: extension });
+  writeFileSync(tmpFilePath, contents);
+  deleteTmpFileAfterTestSuiteCompletes(tmpFilePath);
+  return tmpFilePath;
+}
+
 // For now, returns electionId for client calls that still need it
 export async function configureMachine(
   apiClient: grout.Client<Api>,
@@ -93,12 +106,13 @@ export async function configureMachine(
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<string> {
   mockSystemAdministratorAuth(auth);
-  const { electionData } = electionDefinition;
+  const electionPackage = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
+  });
+  const electionFilePath = saveTmpFile(electionPackage);
   const { electionId } = (
-    await apiClient.configure({
-      electionData,
-      systemSettingsData: JSON.stringify(systemSettings),
-    })
+    await apiClient.configure({ electionFilePath })
   ).unsafeUnwrap();
   return electionId;
 }
