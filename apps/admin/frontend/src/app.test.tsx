@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
+  electionGeneral,
   electionGridLayoutNewHampshireHudsonFixtures,
   electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
@@ -78,8 +79,11 @@ afterEach(() => {
 });
 
 const electionPackage = {
-  name: 'election-package.zip',
-  path: '/election-package.zip',
+  file: {
+    name: 'election-package.zip',
+    path: '/election-package.zip',
+  },
+  election: electionGeneral,
 } as const;
 
 test('configuring with an election definition', async () => {
@@ -95,11 +99,11 @@ test('configuring with an election definition', async () => {
   await screen.findByRole('heading', { name: 'Election' });
 
   // expecting configure and resulting refetch
-  apiMock.expectConfigure(electionPackage.path);
+  apiMock.expectConfigure(electionPackage.file.path);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
 
-  userEvent.click(screen.getByText(electionPackage.name));
+  userEvent.click(screen.getByText(electionPackage.file.name));
   await screen.findAllByText(electionDefinition.election.title);
 
   // You can view the Settings screen and save log files
@@ -541,10 +545,10 @@ test('system administrator UI has expected nav when no election', async () => {
   userEvent.click(screen.getButton('Election'));
   await screen.findByRole('heading', { name: 'Election' });
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  apiMock.expectConfigure(electionPackage.path);
+  apiMock.expectConfigure(electionPackage.file.path);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(screen.getByText(electionPackage.name));
+  userEvent.click(screen.getByText(electionPackage.file.name));
   await screen.findAllByText(electionDefinition.election.title);
   screen.getByText('Smartcards');
 

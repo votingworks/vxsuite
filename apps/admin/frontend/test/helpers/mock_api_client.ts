@@ -28,6 +28,7 @@ import {
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
+  Election,
   ElectionDefinition,
   Id,
   Rect,
@@ -168,21 +169,27 @@ export function createApiMock(
     },
 
     expectListPotentialElectionPackagesOnUsbDrive(
-      electionPackages: Array<Partial<FileSystemEntry>> = []
+      electionPackages: Array<{
+        file: Partial<FileSystemEntry>;
+        election: Election;
+      }> = []
     ) {
       apiClient.listPotentialElectionPackagesOnUsbDrive
         .expectCallWith()
         .resolves(
           ok(
             electionPackages.map((entry) => ({
-              name: 'Test Election Package',
-              path: 'package.zip',
-              type: FileSystemEntryType.File,
-              size: 1,
-              mtime: new Date(),
-              atime: new Date(),
-              ctime: new Date(),
-              ...entry,
+              file: {
+                name: 'Test Election Package',
+                path: 'package.zip',
+                type: FileSystemEntryType.File,
+                size: 1,
+                mtime: new Date(),
+                atime: new Date(),
+                ctime: new Date(),
+                ...entry.file,
+              },
+              election: entry.election,
             }))
           )
         );

@@ -297,7 +297,6 @@ export async function readSignedElectionPackageFromUsb(
   );
 
   const filepathResult = await getMostRecentElectionPackageFilepath(usbDrive);
-  console.log('filepathResult', filepathResult);
   if (filepathResult.isErr()) {
     return filepathResult;
   }

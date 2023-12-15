@@ -3,6 +3,8 @@ import {
   electionTwoPartyPrimaryFixtures,
   electionGeneral,
   electionGeneralDefinition,
+  electionGeneralJson,
+  electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { Buffer } from 'buffer';
@@ -14,6 +16,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { zipFile } from '@votingworks/test-utils';
+import { createElectionPackageZipArchive } from '@votingworks/backend';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -250,25 +253,34 @@ test('listPotentialElectionPackagesOnUsbDrive', async () => {
     ok([])
   );
 
-  const fileContents = Buffer.from('doesnt matter');
   mockUsbDrive.insertUsbDrive({
-    'election-package-1.zip': fileContents,
-    'some-other-file.txt': fileContents,
-    'election-package-2.zip': fileContents,
+    'election-package-1.zip': await createElectionPackageZipArchive(
+      electionGeneralJson.toElectionPackage()
+    ),
+    'some-other-file.txt': Buffer.from('doesnt matter'),
+    'election-package-2.zip': await createElectionPackageZipArchive(
+      electionFamousNames2021Fixtures.electionJson.toElectionPackage()
+    ),
   });
   expect(
     await apiClient.listPotentialElectionPackagesOnUsbDrive()
   ).toMatchObject(
     ok([
       {
-        name: 'election-package-2.zip',
-        path: expect.stringMatching(/\/election-package-2.zip/),
-        ctime: expect.anything(),
+        file: {
+          name: 'election-package-2.zip',
+          path: expect.stringMatching(/\/election-package-2.zip/),
+          ctime: expect.anything(),
+        },
+        election: electionFamousNames2021Fixtures.election,
       },
       {
-        name: 'election-package-1.zip',
-        path: expect.stringMatching(/\/election-package-1.zip/),
-        ctime: expect.anything(),
+        file: {
+          name: 'election-package-1.zip',
+          path: expect.stringMatching(/\/election-package-1.zip/),
+          ctime: expect.anything(),
+        },
+        election: electionGeneral,
       },
     ])
   );

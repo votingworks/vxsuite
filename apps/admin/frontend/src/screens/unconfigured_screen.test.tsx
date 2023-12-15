@@ -2,6 +2,10 @@ import userEvent from '@testing-library/user-event';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { err } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import {
+  electionFamousNames2021Fixtures,
+  electionGeneral,
+} from '@votingworks/fixtures';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 
@@ -46,14 +50,20 @@ test('handles no election packages on USB drive', async () => {
 test('configures from election packages on USB drive', async () => {
   const electionPackages = [
     {
-      path: '/election-package-1.zip',
-      name: 'election-package-1.zip',
-      ctime: new Date('2023-01-01T00:00:00.000Z'),
+      file: {
+        path: '/election-package-1.zip',
+        name: 'election-package-1.zip',
+        ctime: new Date('2023-01-01T00:00:00.000Z'),
+      },
+      election: electionGeneral,
     },
     {
-      path: '/election-package-2.zip',
-      name: 'election-package-2.zip',
-      ctime: new Date('2023-01-01T01:00:00.000Z'),
+      file: {
+        path: '/election-package-2.zip',
+        name: 'election-package-2.zip',
+        ctime: new Date('2023-01-01T01:00:00.000Z'),
+      },
+      election: electionFamousNames2021Fixtures.election,
     },
   ];
   apiMock.expectListPotentialElectionPackagesOnUsbDrive(electionPackages);
@@ -71,19 +81,27 @@ test('configures from election packages on USB drive', async () => {
     within(rows[0])
       .getAllByRole('columnheader')
       .map((th) => th.textContent)
-  ).toEqual(['File Name', 'Created At']);
+  ).toEqual(['File Name', 'Created At', 'Election']);
   expect(
     within(rows[1])
       .getAllByRole('cell')
       .map((td) => td.textContent)
-  ).toEqual(['election-package-1.zip', '01/01/2023 12:00:00 AM']);
+  ).toEqual([
+    'election-package-1.zip',
+    '01/01/2023 12:00:00 AM',
+    'General ElectionFranklin County, State of HamiltonNov 3, 2020',
+  ]);
   expect(
     within(rows[2])
       .getAllByRole('cell')
       .map((td) => td.textContent)
-  ).toEqual(['election-package-2.zip', '01/01/2023 01:00:00 AM']);
+  ).toEqual([
+    'election-package-2.zip',
+    '01/01/2023 01:00:00 AM',
+    'Lincoln Municipal General ElectionFranklin County, State of HamiltonJun 6, 2021',
+  ]);
 
-  apiMock.expectConfigure(electionPackages[0].path);
+  apiMock.expectConfigure(electionPackages[0].file.path);
   userEvent.click(screen.getByText('election-package-1.zip'));
   await waitFor(() => apiMock.assertComplete());
 });
@@ -112,8 +130,11 @@ test('configures from selected file', async () => {
 test('shows configuration error', async () => {
   apiMock.expectListPotentialElectionPackagesOnUsbDrive([
     {
-      path: '/election-package.zip',
-      name: 'election-package.zip',
+      file: {
+        path: '/election-package.zip',
+        name: 'election-package.zip',
+      },
+      election: electionGeneral,
     },
   ]);
   renderInAppContext(<UnconfiguredScreen />, {
