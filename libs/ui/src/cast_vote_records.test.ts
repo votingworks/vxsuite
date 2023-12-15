@@ -87,6 +87,13 @@ test.each<{
     expectedMessage:
       'Encountered an invalid sheet with non-consecutive page numbers: front = 1, back = 3.',
   },
+  {
+    error: {
+      type: 'other-error',
+      errorMessage: 'Something went wrong.',
+    },
+    expectedMessage: 'Something went wrong.',
+  },
 ])('userReadableMessageFromExportError', ({ error, expectedMessage }) => {
   expect(userReadableMessageFromExportError(error)).toEqual(expectedMessage);
 });
