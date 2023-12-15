@@ -11,12 +11,14 @@ import {
   Tabulation,
   TEST_JURISDICTION,
   ElectionPackage,
+  Election,
 } from '@votingworks/types';
 import {
   assert,
   assertDefined,
   deferred,
   err,
+  iter,
   ok,
   Optional,
   Result,
@@ -334,24 +336,49 @@ function buildApi({
     },
 
     async listPotentialElectionPackagesOnUsbDrive(): Promise<
-      Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>
+      Result<
+        Array<{
+          file: FileSystemEntry;
+          election: Election;
+        }>,
+        ListDirectoryOnUsbDriveError
+      >
     > {
       const usbDriveEntriesResult = await listDirectoryOnUsbDrive(usbDrive, '');
       if (usbDriveEntriesResult.isErr()) {
         return usbDriveEntriesResult;
       }
 
-      return ok(
-        usbDriveEntriesResult
-          .ok()
+      const usbDriveEntries = usbDriveEntriesResult.ok();
+      const electionPackageEntries = (
+        await iter(usbDriveEntries)
+          .async()
           .filter(
-            (entry) =>
-              entry.type === FileSystemEntryType.File &&
-              entry.name.endsWith('.zip')
+            (file) =>
+              file.type === FileSystemEntryType.File &&
+              file.name.endsWith('.zip')
           )
-          // Most recent first
-          .sort((a, b) => b.ctime.getTime() - a.ctime.getTime())
-      );
+          .flatMap(async (file) => {
+            const readElectionPackageResult = await readElectionPackageFromFile(
+              file.path
+            );
+
+            if (readElectionPackageResult.isErr()) {
+              return [];
+            }
+
+            const electionPackage = readElectionPackageResult.ok();
+            return [
+              { file, election: electionPackage.electionDefinition.election },
+            ];
+          })
+          .toArray()
+      )
+        // Most recent first
+        .sort(
+          ({ file: a }, { file: b }) => b.ctime.getTime() - a.ctime.getTime()
+        );
+      return ok(electionPackageEntries);
     },
 
     // `configure` and `unconfigure` handle changes to the election definition

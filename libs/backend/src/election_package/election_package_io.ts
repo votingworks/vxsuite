@@ -193,7 +193,8 @@ export async function readElectionPackageFromFile(
   return readElectionPackageFromBuffer(fileContents);
 }
 
-async function getMostRecentElectionPackageFilepath(
+/** nothing */
+export async function getMostRecentElectionPackageFilepath(
   usbDrive: UsbDrive
 ): Promise<Result<string, ElectionPackageConfigurationError>> {
   const usbDriveStatus = await usbDrive.status();
@@ -296,6 +297,7 @@ export async function readSignedElectionPackageFromUsb(
   );
 
   const filepathResult = await getMostRecentElectionPackageFilepath(usbDrive);
+  console.log('filepathResult', filepathResult);
   if (filepathResult.isErr()) {
     return filepathResult;
   }

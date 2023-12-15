@@ -12,11 +12,13 @@ import {
 } from '@votingworks/ui';
 import type { FileSystemEntry } from '@votingworks/backend';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { Election } from '@votingworks/types';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
 import { AppContext } from '../contexts/app_context';
 import { TIME_FORMAT } from '../config/globals';
+import { ElectionCard } from '../components/election_card';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -33,7 +35,10 @@ const ButtonRow = styled.tr`
 function SelectElectionPackage({
   potentialElectionPackageFiles,
 }: {
-  potentialElectionPackageFiles: FileSystemEntry[];
+  potentialElectionPackageFiles: Array<{
+    file: FileSystemEntry;
+    election: Election;
+  }>;
 }): JSX.Element {
   const configureMutation = configure.useMutation();
 
@@ -88,10 +93,11 @@ function SelectElectionPackage({
               <tr>
                 <th>File Name</th>
                 <th>Created At</th>
+                <th>Election</th>
               </tr>
             </thead>
             <tbody>
-              {potentialElectionPackageFiles.map((file) => (
+              {potentialElectionPackageFiles.map(({ file, election }) => (
                 <ButtonRow
                   key={file.name}
                   aria-disabled={configureMutation.isLoading}
@@ -102,6 +108,9 @@ function SelectElectionPackage({
                 >
                   <td>{file.name}</td>
                   <td>{moment(file.ctime).format(TIME_FORMAT)}</td>
+                  <td>
+                    <ElectionCard election={election} />
+                  </td>
                 </ButtonRow>
               ))}
             </tbody>

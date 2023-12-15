@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import styled from 'styled-components';
 
 import {
   format,
@@ -8,14 +7,7 @@ import {
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
-import {
-  Card,
-  Font,
-  H2,
-  P,
-  Seal,
-  UnconfigureMachineButton,
-} from '@votingworks/ui';
+import { Font, P, UnconfigureMachineButton } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '../contexts/app_context';
 
@@ -23,17 +15,7 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { ExportElectionPackageModalButton } from '../components/export_election_package_modal_button';
 import { unconfigure } from '../api';
 import { routerPaths } from '../router_paths';
-
-const ElectionCard = styled(Card).attrs({ color: 'neutral' })`
-  margin: 1rem 0;
-
-  > div {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    padding: 1rem;
-  }
-`;
+import { ElectionCard } from '../components/election_card';
 
 export function ElectionScreen(): JSX.Element {
   const { electionDefinition, configuredAt, auth } = useContext(AppContext);
@@ -61,17 +43,7 @@ export function ElectionScreen(): JSX.Element {
         </Font>
         .
       </P>
-      <ElectionCard>
-        <Seal seal={election.seal} maxWidth="7rem" />
-        <div>
-          <H2 as="h3">{election.title}</H2>
-          <P>
-            {election.county.name}, {election.state}
-            <br />
-            {format.localeDate(new Date(election.date))}
-          </P>
-        </div>
-      </ElectionCard>
+      <ElectionCard election={election} />
       {isSystemAdministratorAuth(auth) && (
         <UnconfigureMachineButton
           isMachineConfigured
