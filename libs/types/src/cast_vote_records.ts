@@ -135,7 +135,8 @@ export type SheetValidationError = {
  */
 export type ExportCastVoteRecordsToUsbDriveError =
   | { type: ExportDataError }
-  | SheetValidationError;
+  | SheetValidationError
+  | { type: 'other-error'; errorMessage: string };
 
 /**
  * An error encountered while reading a cast vote record export's metadata file

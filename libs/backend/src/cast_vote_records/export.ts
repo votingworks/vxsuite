@@ -13,6 +13,7 @@ import {
   assert,
   assertDefined,
   err,
+  extractErrorMessage,
   ok,
   Result,
   throwIllegalValue,
@@ -660,11 +661,7 @@ async function randomlyUpdateCreationTimestamps(
 // Top-level functions
 //
 
-/**
- * Exports cast vote records from a scanner to a USB drive. Supports both continuous and batch
- * export use cases.
- */
-export async function exportCastVoteRecordsToUsbDrive(
+async function exportCastVoteRecordsToUsbDriveUnwrapped(
   scannerStore: ScannerStore,
   usbDrive: UsbDrive,
   sheets: Iterable<Sheet>,
@@ -829,6 +826,34 @@ export async function exportCastVoteRecordsToUsbDrive(
   }
 
   return ok();
+}
+
+/**
+ * Exports cast vote records from a scanner to a USB drive. Supports both continuous and batch
+ * export use cases.
+ */
+export async function exportCastVoteRecordsToUsbDrive(
+  scannerStore: ScannerStore,
+  usbDrive: UsbDrive,
+  sheets: Iterable<Sheet>,
+  exportOptions: ExportOptions
+): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
+  try {
+    return await exportCastVoteRecordsToUsbDriveUnwrapped(
+      scannerStore,
+      usbDrive,
+      sheets,
+      exportOptions
+    );
+  } catch (error) {
+    // TODO: Better categorize these errors. Known error categories include errors due to USB drive
+    // removal mid-write and USB drive corruption. Assertions meant to catch developer mistakes
+    // should meanwhile still throw.
+    return err({
+      type: 'other-error',
+      errorMessage: extractErrorMessage(error),
+    });
+  }
 }
 
 /**
