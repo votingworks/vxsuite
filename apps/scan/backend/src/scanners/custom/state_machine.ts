@@ -572,7 +572,11 @@ function buildMachine({
           // safeguard against accidental intake of a second ballot without tabulation
           src: finishAccept,
           onDone: '#accepted',
-          onError: '#error',
+          // The ballot has already cleared the scanner by this point, and stopping the rollers
+          // isn't strictly necessary. So we should not interrupt the transition to the accepted
+          // state and subsequent counting of the ballot if stopping the rollers fails. The rollers
+          // will still stop of their own accord in ~1.3s.
+          onError: '#accepted',
         },
       },
       // This occurs when paper is seen while the ballot is being accepted.
