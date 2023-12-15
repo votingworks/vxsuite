@@ -212,7 +212,7 @@ function buildApi({
     },
     /* c8 ignore stop */
 
-    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
+    getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDrive.status();
     },
 
