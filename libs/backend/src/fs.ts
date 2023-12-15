@@ -1,4 +1,10 @@
-import { Result, assert, err, ok } from '@votingworks/basics';
+import {
+  Result,
+  assert,
+  err,
+  isNonExistentFileOrDirectoryError,
+  ok,
+} from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fs from 'fs';
 import { promisify } from 'util';
@@ -113,7 +119,7 @@ export async function readFile(
     });
 
     input.on('error', (error) => {
-      if ((error as { code?: string }).code === 'ENOENT') {
+      if (isNonExistentFileOrDirectoryError(error)) {
         resolve(
           err({
             type: 'file-not-found',

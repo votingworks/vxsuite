@@ -1,4 +1,9 @@
-import { err, ok, Result } from '@votingworks/basics';
+import {
+  err,
+  isNonExistentFileOrDirectoryError,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import { mkdir, writeFile } from 'fs/promises';
 import { any } from 'micromatch';
 import { isAbsolute, join, normalize, parse } from 'path';
@@ -206,11 +211,7 @@ export class Exporter {
     try {
       return lstatSync(path).isSymbolicLink();
     } catch (error) {
-      if (
-        error &&
-        'code' in (error as { code?: string }) &&
-        (error as { code: string }).code === 'ENOENT'
-      ) {
+      if (isNonExistentFileOrDirectoryError(error)) {
         return false;
       }
 
