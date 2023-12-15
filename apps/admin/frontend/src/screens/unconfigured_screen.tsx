@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-
+import styled from 'styled-components';
+import moment from 'moment';
 import {
   Button,
   Card,
@@ -9,18 +10,13 @@ import {
   Table,
   UsbDriveImage,
 } from '@votingworks/ui';
-
-import { format } from '@votingworks/utils';
-import styled from 'styled-components';
 import type { FileSystemEntry } from '@votingworks/backend';
-
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { useHistory } from 'react-router-dom';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api';
 import { AppContext } from '../contexts/app_context';
-import { routerPaths } from '../router_paths';
+import { TIME_FORMAT } from '../config/globals';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -40,21 +36,6 @@ function SelectElectionPackage({
   potentialElectionPackageFiles: FileSystemEntry[];
 }): JSX.Element {
   const configureMutation = configure.useMutation();
-  const history = useHistory();
-
-  function configureAndRedirect(electionFilePath: string) {
-    if (configureMutation.isLoading) return;
-    configureMutation.mutate(
-      { electionFilePath },
-      {
-        onSuccess(result) {
-          if (result.isOk()) {
-            history.push(routerPaths.election);
-          }
-        },
-      }
-    );
-  }
 
   async function onSelectOtherFile() {
     const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
@@ -64,7 +45,7 @@ function SelectElectionPackage({
     if (dialogResult.canceled) return;
     const selectedPath = dialogResult.filePaths[0];
     if (selectedPath) {
-      configureAndRedirect(selectedPath);
+      configureMutation.mutate({ electionFilePath: selectedPath });
     }
   }
 
@@ -114,10 +95,13 @@ function SelectElectionPackage({
                 <ButtonRow
                   key={file.name}
                   aria-disabled={configureMutation.isLoading}
-                  onClick={() => configureAndRedirect(file.path)}
+                  onClick={() => {
+                    if (configureMutation.isLoading) return;
+                    configureMutation.mutate({ electionFilePath: file.path });
+                  }}
                 >
                   <td>{file.name}</td>
-                  <td>{format.localeLongDateAndTime(file.ctime)}</td>
+                  <td>{moment(file.ctime).format(TIME_FORMAT)}</td>
                 </ButtonRow>
               ))}
             </tbody>

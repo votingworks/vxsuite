@@ -1,14 +1,9 @@
-import {
-  electionFamousNames2021Fixtures,
-  electionTwoPartyPrimaryFixtures,
-  systemSettings,
-} from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { fakeKiosk } from '@votingworks/test-utils';
 import { err } from '@votingworks/basics';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { screen } from '../../test/react_testing_library';
+import { screen, waitFor, within } from '../../test/react_testing_library';
 
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { UnconfiguredScreen } from './unconfigured_screen';
@@ -23,145 +18,141 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('handles an uploaded election package zip file', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-
-  apiMock.expectConfigure(
-    electionDefinition.electionData,
-    systemSettings.asText()
-  );
-
+test('prompts user to insert USB drive', async () => {
+  apiMock.apiClient.listPotentialElectionPackagesOnUsbDrive
+    .expectCallWith()
+    .resolves(err({ type: 'no-usb-drive' }));
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
-    electionDefinition: 'NONE',
+    usbDriveStatus: mockUsbDriveStatus('no_drive'),
   });
 
-  const pkg = await zipFile({
-    'election.json': electionDefinition.electionData,
-    'systemSettings.json': systemSettings.asText(),
-  });
-  const file = new File([pkg], 'filepath.zip');
-  const zipInput = await screen.findByLabelText('Select Election Package');
-  userEvent.upload(zipInput, file);
-
-  await screen.findByText('Loading');
-  // election_manager (the parent component) handles advancing to the next screen so we
-  // just need to test that loading is false and we rerender without the loading screen
-  await screen.findByLabelText('Select Election Package');
+  await screen.findByRole('heading', { name: 'Election' });
+  screen.getByText('Insert a USB drive containing an election package');
 });
 
-test('handles an invalid election package zip file', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+test('handles no election packages on USB drive', async () => {
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
-    electionDefinition: 'NONE',
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  const pkgMissingSystemSettings = await zipFile({
-    'election.json': electionDefinition.electionData,
-  });
-  const zipMissingSystemSettings = new File(
-    [pkgMissingSystemSettings],
-    'filepath.zip'
-  );
-  const zipInput = await screen.findByLabelText('Select Election Package');
-  await suppressingConsoleOutput(async () => {
-    userEvent.upload(zipInput, zipMissingSystemSettings);
-    await screen.findByText('Invalid election package zip file.');
-  });
+  await screen.findByRole('heading', { name: 'Election' });
+  screen.getByText('No election packages found on the inserted USB drive.');
+  screen.getButton('Select Other File...');
 });
 
-test('handles a invalid election definition file', async () => {
+test('configures from election packages on USB drive', async () => {
+  const electionPackages = [
+    {
+      path: '/election-package-1.zip',
+      name: 'election-package-1.zip',
+      ctime: new Date('2023-01-01T00:00:00.000Z'),
+    },
+    {
+      path: '/election-package-2.zip',
+      name: 'election-package-2.zip',
+      ctime: new Date('2023-01-01T01:00:00.000Z'),
+    },
+  ];
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive(electionPackages);
+
   renderInAppContext(<UnconfiguredScreen />, {
     apiMock,
-    electionDefinition: 'NONE',
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  const pkg = await zipFile({
-    'election.json': 'invalid election definition',
-    'systemSettings.json': systemSettings.asText(),
+  await screen.findByRole('heading', { name: 'Election' });
+  screen.getByText('Select an election package to configure VxAdmin');
+  const rows = screen.getAllByRole('row');
+  expect(rows).toHaveLength(3);
+  expect(
+    within(rows[0])
+      .getAllByRole('columnheader')
+      .map((th) => th.textContent)
+  ).toEqual(['File Name', 'Created At']);
+  expect(
+    within(rows[1])
+      .getAllByRole('cell')
+      .map((td) => td.textContent)
+  ).toEqual(['election-package-1.zip', '01/01/2023 12:00:00 AM']);
+  expect(
+    within(rows[2])
+      .getAllByRole('cell')
+      .map((td) => td.textContent)
+  ).toEqual(['election-package-2.zip', '01/01/2023 01:00:00 AM']);
+
+  apiMock.expectConfigure(electionPackages[0].path);
+  userEvent.click(screen.getByText('election-package-1.zip'));
+  await waitFor(() => apiMock.assertComplete());
+});
+
+test('configures from selected file', async () => {
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+  mockKiosk.showOpenDialog.mockResolvedValueOnce({
+    canceled: false,
+    filePaths: ['/path/to/election-package.zip'],
   });
-  const zip = new File([pkg], 'filepath.zip');
-  const zipInput = await screen.findByLabelText('Select Election Package');
+
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+
+  await screen.findByRole('heading', { name: 'Election' });
+
+  apiMock.expectConfigure('/path/to/election-package.zip');
+  userEvent.click(screen.getButton('Select Other File...'));
+  await waitFor(() => apiMock.assertComplete());
+});
+
+test('shows configuration error', async () => {
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([
+    {
+      path: '/election-package.zip',
+      name: 'election-package.zip',
+    },
+  ]);
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+
+  await screen.findByRole('heading', { name: 'Election' });
+
   apiMock.apiClient.configure
-    .expectCallWith({
-      electionData: 'invalid election definition',
-      systemSettingsData: systemSettings.asText(),
-    })
-    .resolves(err({ type: 'invalidElection', message: 'Could not parse' }));
-  await suppressingConsoleOutput(async () => {
-    userEvent.upload(zipInput, zip);
-    await screen.findByText('Invalid Election Definition file.');
-  });
-});
-
-test('handles a invalid system settings file', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  renderInAppContext(<UnconfiguredScreen />, {
-    apiMock,
-    electionDefinition: 'NONE',
-  });
-
-  const pkg = await zipFile({
-    'election.json': electionDefinition.electionData,
-    'systemSettings.json': 'invalid system settings',
-  });
-  const zip = new File([pkg], 'filepath.zip');
-  const zipInput = await screen.findByLabelText('Select Election Package');
-  apiMock.apiClient.configure
-    .expectCallWith({
-      electionData: electionDefinition.electionData,
-      systemSettingsData: 'invalid system settings',
-    })
+    .expectCallWith({ electionFilePath: '/election-package.zip' })
     .resolves(
-      err({ type: 'invalidSystemSettings', message: 'Could not parse' })
+      err({
+        type: 'invalid-zip',
+        message: 'Bad zip',
+      })
     );
-  await suppressingConsoleOutput(async () => {
-    userEvent.upload(zipInput, zip);
-    await screen.findByText('Invalid System Settings file.');
-  });
-});
+  userEvent.click(screen.getByText('election-package.zip'));
+  await screen.findByText('Invalid election package zip file.');
 
-test('uploads default system settings if loading only an election.json file', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  apiMock.apiClient.configure
+    .expectCallWith({ electionFilePath: '/election-package.zip' })
+    .resolves(
+      err({
+        type: 'invalid-election',
+        message: 'Bad election',
+      })
+    );
+  userEvent.click(screen.getByText('election-package.zip'));
+  await screen.findByText('Invalid election definition file.');
 
-  apiMock.expectConfigure(
-    electionDefinition.electionData,
-    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
-  );
-
-  renderInAppContext(<UnconfiguredScreen />, {
-    apiMock,
-    electionDefinition: 'NONE',
-  });
-
-  const file = new File([electionDefinition.electionData], 'election.json');
-  const fileInput = await screen.findByLabelText('Select Election Definition');
-  userEvent.upload(fileInput, file);
-
-  await screen.findByText('Loading');
-  // election_manager (the parent component) handles advancing to the next screen so we
-  // just need to test that loading is false and we rerender without the loading screen
-  await screen.findByLabelText('Select Election Definition');
-});
-
-test('uploads default system settings if loading the default election', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-
-  apiMock.expectConfigure(
-    electionDefinition.electionData,
-    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
-  );
-
-  renderInAppContext(<UnconfiguredScreen />, {
-    apiMock,
-    electionDefinition: 'NONE',
-  });
-
-  const loadDemoButton = await screen.findByText('Load Demo Election');
-  userEvent.click(loadDemoButton);
-
-  // election_manager (the parent component) handles advancing to the next screen so we
-  // just need to test that loading is false and we rerender without the loading screen
-  await screen.findByLabelText('Select Election Definition');
+  apiMock.apiClient.configure
+    .expectCallWith({ electionFilePath: '/election-package.zip' })
+    .resolves(
+      err({
+        type: 'invalid-system-settings',
+        message: 'Bad system settings',
+      })
+    );
+  userEvent.click(screen.getByText('election-package.zip'));
+  await screen.findByText('Invalid system settings file.');
 });

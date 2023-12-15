@@ -157,6 +157,7 @@ test('Smartcard modal displays card details', async () => {
 
 test('Smartcard modal displays card details when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
@@ -195,7 +196,7 @@ test('Smartcard modal displays card details when no election definition on machi
     },
   ];
 
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  await screen.findByRole('heading', { name: 'Election' });
 
   for (const testCase of testCases) {
     const {
@@ -251,7 +252,7 @@ test('Smartcard modal displays card details when no election definition on machi
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+    await screen.findByRole('heading', { name: 'Election' });
   }
 });
 
@@ -427,10 +428,11 @@ test('Programming system administrator smartcards', async () => {
 
 test('Programming smartcards when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  await screen.findByRole('heading', { name: 'Election' });
 
   apiMock.setAuthStatus({
     status: 'logged_in',
@@ -461,7 +463,7 @@ test('Programming smartcards when no election definition on machine', async () =
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  await screen.findByRole('heading', { name: 'Election' });
 });
 
 test('Resetting smartcard PINs', async () => {
@@ -540,11 +542,12 @@ test('Resetting smartcard PINs', async () => {
 
 test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
   const { renderApp } = buildApp(apiMock);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.expectGetCurrentElectionMetadata(null);
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  await screen.findByRole('heading', { name: 'Election' });
 
   apiMock.setAuthStatus({
     status: 'logged_in',
@@ -576,9 +579,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  // For some reason, finding by role doesn't work here, though 'Configure VxAdmin' is present in a
-  // heading
-  await screen.findByText('Configure VxAdmin');
+  await screen.findByText('Select an election package to configure VxAdmin');
 });
 
 test('Unprogramming smartcards', async () => {

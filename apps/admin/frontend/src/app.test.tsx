@@ -16,7 +16,6 @@ import {
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { LogEventId } from '@votingworks/logging';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   fireEvent,
   screen,
@@ -78,26 +77,30 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('configuring with a demo election definition', async () => {
+const electionPackage = {
+  name: 'election-package.zip',
+  path: '/election-package.zip',
+} as const;
+
+test('configuring with an election definition', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([electionPackage]);
 
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
-  await screen.findByText('Load Demo Election');
-
-  // expecting configure and resulting refetch
-  apiMock.expectConfigure(
-    electionDefinition.electionData,
-    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
-  );
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  fireEvent.click(screen.getByText('Load Demo Election'));
 
   await screen.findByRole('heading', { name: 'Election' });
+
+  // expecting configure and resulting refetch
+  apiMock.expectConfigure(electionPackage.path);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+
+  userEvent.click(screen.getByText(electionPackage.name));
+  await screen.findAllByText(electionDefinition.election.title);
 
   // You can view the Settings screen and save log files
   fireEvent.click(screen.getByText('Settings'));
@@ -117,16 +120,17 @@ test('configuring with a demo election definition', async () => {
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
 
-  await screen.findByText('Configure VxAdmin');
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  await screen.findByText('Select an election package to configure VxAdmin');
+  await screen.findByText(
+    'No election packages found on the inserted USB drive.'
+  );
 
   // You can view the Settings screen and save log files when there is no election.
   fireEvent.click(screen.getByText('Settings'));
   await screen.findByText('Save Log File');
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('Save logs on the inserted USB drive?');
-
-  userEvent.click(screen.getByText('Election'));
-  await screen.findByText('Load Demo Election');
 });
 
 test('authentication works', async () => {
@@ -381,6 +385,7 @@ test('removing election resets cvr and manual data files', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   // expect all data to be refetched on unconfigure
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.expectUnconfigure();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata(null);
@@ -389,7 +394,7 @@ test('removing election resets cvr and manual data files', async () => {
   fireEvent.click(screen.getButton('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getButton('Yes, Delete Election Data'));
-  await screen.findByText('Configure VxAdmin');
+  await screen.findByText('Select an election package to configure VxAdmin');
 });
 
 test('clearing results', async () => {
@@ -518,12 +523,13 @@ test('system administrator UI has expected nav', async () => {
 test('system administrator UI has expected nav when no election', async () => {
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata(null);
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([electionPackage]);
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
 
   userEvent.click(screen.getButton('Election'));
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  await screen.findByRole('heading', { name: 'Election' });
   userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
   screen.getByRole('button', { name: 'Lock Machine' });
@@ -531,24 +537,19 @@ test('system administrator UI has expected nav when no election', async () => {
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 
   // Configure with an election definition and verify that previously hidden tabs appear
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([electionPackage]);
   userEvent.click(screen.getButton('Election'));
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  await screen.findByRole('heading', { name: 'Election' });
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  apiMock.expectConfigure(
-    electionDefinition.electionData,
-    JSON.stringify(DEFAULT_SYSTEM_SETTINGS)
-  );
+  apiMock.expectConfigure(electionPackage.path);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(screen.getByRole('button', { name: 'Load Demo Election' }));
-  await waitFor(() =>
-    expect(
-      screen.queryByRole('heading', { name: 'Configure VxAdmin' })
-    ).not.toBeInTheDocument()
-  );
+  userEvent.click(screen.getByText(electionPackage.name));
+  await screen.findAllByText(electionDefinition.election.title);
   screen.getByText('Smartcards');
 
   // Remove the election definition and verify that those same tabs disappear
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
   apiMock.expectUnconfigure();
   apiMock.expectGetCurrentElectionMetadata(null);
   apiMock.expectGetMachineConfig();
@@ -654,7 +655,9 @@ test('primary election flow', async () => {
 
 test('usb formatting flows', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetCurrentElectionMetadata();
+  apiMock.expectGetCurrentElectionMetadata({
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+  });
   renderApp();
 
   await apiMock.authenticateAsSystemAdministrator();
