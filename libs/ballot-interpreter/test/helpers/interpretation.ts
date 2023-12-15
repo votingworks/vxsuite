@@ -1,3 +1,4 @@
+import { ONE_MEGABYTE, readFile } from '@votingworks/backend';
 import { assertDefined, iter, unique } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb-render-backend';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
@@ -9,12 +10,13 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import { tmpNameSync } from 'tmp';
-import { readFile } from 'fs/promises';
 
 export async function ballotPdfToPageImages(
   pdfFile: string
 ): Promise<string[]> {
-  const pdfContents = await readFile(pdfFile);
+  const pdfContents = (
+    await readFile(pdfFile, { maxSize: 10 * ONE_MEGABYTE })
+  ).unsafeUnwrap();
   const pdfImages = pdfToImages(pdfContents, { scale: 200 / 72 });
   return await iter(pdfImages)
     .map(async ({ page }) => {

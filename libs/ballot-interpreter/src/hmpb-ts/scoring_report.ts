@@ -5,7 +5,8 @@ import {
   SheetOf,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { mkdir, readFile, readdir } from 'fs/promises';
+import { ONE_MEGABYTE, readFile } from '@votingworks/backend';
+import { mkdir, readdir } from 'fs/promises';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
 import { basename, join } from 'path';
 import { createCanvas } from 'canvas';
@@ -220,7 +221,12 @@ export async function main(args: string[]): Promise<void> {
   }
 
   const electionDefinition = safeParseElectionDefinition(
-    await readFile(electionPath, 'utf8')
+    (
+      await readFile(electionPath, {
+        encoding: 'utf8',
+        maxSize: 10 * ONE_MEGABYTE,
+      })
+    ).unsafeUnwrap()
   ).unsafeUnwrap();
 
   const ballotImagePaths = (await readdir(inputDir))

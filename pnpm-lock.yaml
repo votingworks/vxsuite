@@ -2660,8 +2660,6 @@ importers:
         specifier: 2.3.9
         version: 2.3.9
 
-  libs/@types/deep-eql: {}
-
   libs/@types/jsfeat: {}
 
   libs/@types/kiosk-browser:
@@ -3047,6 +3045,9 @@ importers:
 
   libs/ballot-interpreter:
     dependencies:
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../ballot-encoder
