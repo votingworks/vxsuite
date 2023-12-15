@@ -92,6 +92,7 @@ export * from './graphics';
 export * from './types';
 export * from './unconfigured_election_screen';
 export * from './usb_drive';
+export * from './usb_drive_image';
 export * from './power_down_button';
 export * from './verify_ballot_image';
 export * from './virtual_keyboard';

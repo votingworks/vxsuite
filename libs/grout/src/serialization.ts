@@ -71,7 +71,8 @@ const undefinedTagger: Tagger<undefined, 'undefined'> = {
 
 const dateTagger: Tagger<Date, string> = {
   tag: 'Date',
-  shouldTag: (value): value is Date => value instanceof Date,
+  shouldTag: (value): value is Date =>
+    Object.prototype.toString.call(value) === '[object Date]',
   serialize: (value) => value.toISOString(),
   deserialize: (value) => new Date(value),
 };
