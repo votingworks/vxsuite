@@ -261,6 +261,7 @@ test('listPotentialElectionPackagesOnUsbDrive', async () => {
     'election-package-2.zip': await createElectionPackageZipArchive(
       electionFamousNames2021Fixtures.electionJson.toElectionPackage()
     ),
+    'broken-election-package.zip': Buffer.from('not a zip file'),
   });
   expect(
     await apiClient.listPotentialElectionPackagesOnUsbDrive()
