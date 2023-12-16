@@ -349,7 +349,9 @@ function buildApi({
           .filter(
             (entry) =>
               entry.type === FileSystemEntryType.File &&
-              entry.name.endsWith('.zip')
+              entry.name.endsWith('.zip') &&
+              !entry.name.startsWith('.') &&
+              !entry.name.startsWith('_')
           )
           // Most recent first
           .sort((a, b) => b.ctime.getTime() - a.ctime.getTime())
