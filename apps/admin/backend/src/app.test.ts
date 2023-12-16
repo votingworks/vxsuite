@@ -283,6 +283,9 @@ test('listPotentialElectionPackagesOnUsbDrive', async () => {
     'election-package-1.zip': fileContents,
     'some-other-file.txt': fileContents,
     'election-package-2.zip': fileContents,
+    '_election-package-1.zip': fileContents,
+    '._election-package-2.zip': fileContents,
+    '.election-package-3.zip': fileContents,
   });
   expect(
     await apiClient.listPotentialElectionPackagesOnUsbDrive()
