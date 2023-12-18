@@ -601,18 +601,17 @@
         "Type": "other",
         "Name": "NH"
       }
-    ],
-    "vxBatch": [
-      {
-        "@type": "CVR.vxBatch",
-        "@id": "378f6a69-62d3-4184-a1a7-3a5d90083e21",
-        "BatchLabel": "Batch 1",
-        "SequenceId": 1,
-        "StartTime": "2023-05-08T10:47:25.000-07:00",
-        "NumberSheets": 1,
-        "CreatingDeviceId": "000"
-      }
     ]
   },
-  "castVoteRecordRootHash": ""
+  "castVoteRecordRootHash": "",
+  "batchManifest": [
+    {
+      "id": "378f6a69-62d3-4184-a1a7-3a5d90083e21",
+      "label": "Batch 1",
+      "batchNumber": 1,
+      "startTime": "2023-05-08T10:47:25.000-07:00",
+      "sheetCount": 1,
+      "scannerId": "000"
+    }
+  ]
 }
