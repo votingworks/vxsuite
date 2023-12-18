@@ -317,12 +317,12 @@ fn main() {
                 match port.read(serial_buf.as_mut_slice()) {
                     Ok(size) => match handle_command(&mut device, &serial_buf[..size]) {
                         Ok(_) => (),
-                        Err(e) => match e {
-                            CommandError::UnsupportedButton(_) => {
-                                println!("[warn] {e}")
-                            }
-                            _ => panic!("Error handling command: {e}"),
-                        },
+                        Err(e) if matches!(e, CommandError::UnsupportedButton(_)) => {
+                            println!("[warn] {e}")
+                        }
+                        Err(e) => {
+                            panic!("Error handling command: {e}")
+                        }
                     },
                     // Timeout error just means no event was sent in the current polling period
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
