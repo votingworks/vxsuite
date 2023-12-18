@@ -1683,12 +1683,20 @@ function layOutBallotHelper({
     },
     gridLayout: {
       ballotStyleId: ballotStyle.id,
-      optionBoundsFromTargetMark: {
-        bottom: 1,
-        left: 1,
-        right: 9,
-        top: 1,
-      },
+      optionBoundsFromTargetMark:
+        bubblePosition === 'left'
+          ? {
+              bottom: 1,
+              left: 1,
+              right: 9,
+              top: 1,
+            }
+          : {
+              bottom: 1,
+              left: 9,
+              right: 1,
+              top: 1,
+            },
       gridPositions,
     },
   };
