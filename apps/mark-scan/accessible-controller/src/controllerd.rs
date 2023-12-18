@@ -321,7 +321,7 @@ fn main() {
                             println!("[warn] {e}")
                         }
                         Err(e) => {
-                            panic!("Error handling command: {e}")
+                            eprintln!("Unexpected error handling command: {e}")
                         }
                     },
                     // Timeout error just means no event was sent in the current polling period
@@ -331,8 +331,7 @@ fn main() {
             }
         }
         Err(e) => {
-            eprintln!(r#"Failed to open "{DEVICE_PATH}". Error: {e}"#);
-            ::std::process::exit(1);
+            panic!(r#"Failed to open "{DEVICE_PATH}". Error: {e}"#);
         }
     }
 }
