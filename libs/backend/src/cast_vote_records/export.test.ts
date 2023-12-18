@@ -511,6 +511,14 @@ test('precinct scanner continuous export', async () => {
     await readCastVoteRecordExportMetadata(exportDirectoryPath)
   ).unsafeUnwrap();
   expect(metadata.arePollsClosed).toEqual(true);
+
+  // confirm batch manifest was properly included
+  expect(metadata.batchManifest).toHaveLength(1);
+  expect(metadata.batchManifest[0]).toMatchObject({
+    id: batch1.id,
+    label: batch1.label,
+    startTime: batch1.startedAt,
+  });
 });
 
 test('precinct scanner full export', async () => {

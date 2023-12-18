@@ -51,7 +51,10 @@ import {
   buildCastVoteRecord as baseBuildCastVoteRecord,
   CvrImageDataInput,
 } from './build_cast_vote_record';
-import { buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata } from './build_report_metadata';
+import {
+  buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata,
+  buildBatchManifest,
+} from './build_report_metadata';
 import { CanonicalizedSheet, canonicalizeSheet } from './canonicalize';
 import { updateCreationTimestampOfDirectoryAndChildrenFiles } from './file_system_utils';
 import { readCastVoteRecordExportMetadata } from './import';
@@ -540,6 +543,12 @@ async function exportMetadataFileToUsbDrive(
     castVoteRecordReportMetadata:
       buildCastVoteRecordReportMetadata(exportContext),
     castVoteRecordRootHash,
+    batchManifest: buildBatchManifest({
+      batchInfo: exportContext.scannerState.batches.map((batch) => ({
+        ...batch,
+        scannerId: VX_MACHINE_ID,
+      })),
+    }),
   };
   const metadataFileContents = JSON.stringify(metadata);
 

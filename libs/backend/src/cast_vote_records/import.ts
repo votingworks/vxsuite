@@ -274,9 +274,7 @@ export async function readCastVoteRecordExport(
   const castVoteRecordExportMetadata = metadataResult.ok();
 
   const batchIds = new Set(
-    castVoteRecordExportMetadata.castVoteRecordReportMetadata.vxBatch.map(
-      (batch) => batch['@id']
-    )
+    castVoteRecordExportMetadata.batchManifest.map((batch) => batch.id)
   );
   const castVoteRecordIterator = iter(
     castVoteRecordGenerator(exportDirectoryPath, batchIds)

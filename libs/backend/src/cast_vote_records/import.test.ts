@@ -45,6 +45,15 @@ test('successful import', async () => {
     arePollsClosed: true,
     castVoteRecordReportMetadata: expect.any(Object),
     castVoteRecordRootHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+    batchManifest: expect.arrayContaining([
+      expect.objectContaining({
+        id: '9822c71014',
+        label: '9822c71014',
+        scannerId: 'VX-00-000',
+        sheetCount: 184,
+        startTime: expect.anything(),
+      }),
+    ]),
   });
 
   let encounteredReferencedImageFiles = false;
@@ -341,7 +350,6 @@ test.each<{
         CVR.ReportType.Other,
       ],
       Version: CVR.CastVoteRecordVersion.v1_0_0,
-      vxBatch: [],
     },
     expectedResult: true,
   },
@@ -356,7 +364,6 @@ test.each<{
       ReportingDevice: [],
       ReportType: [CVR.ReportType.OriginatingDeviceExport],
       Version: CVR.CastVoteRecordVersion.v1_0_0,
-      vxBatch: [],
     },
     expectedResult: false,
   },
@@ -370,7 +377,6 @@ test.each<{
       ReportGeneratingDeviceIds: [],
       ReportingDevice: [],
       Version: CVR.CastVoteRecordVersion.v1_0_0,
-      vxBatch: [],
     },
     expectedResult: false,
   },
