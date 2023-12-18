@@ -3,7 +3,11 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
-import { CVR, CastVoteRecordExportFileName } from '@votingworks/types';
+import {
+  CVR,
+  CastVoteRecordBatchMetadata,
+  CastVoteRecordExportFileName,
+} from '@votingworks/types';
 import fs from 'fs/promises';
 import { join, resolve } from 'path';
 import { dirSync } from 'tmp';
@@ -45,6 +49,7 @@ async function readAndValidateCastVoteRecordExport(
 ): Promise<{
   castVoteRecordReportMetadata: CVR.CastVoteRecordReport;
   castVoteRecords: CVR.CVR[];
+  batchManifest: CastVoteRecordBatchMetadata[];
 }> {
   const readResult = await readCastVoteRecordExport(exportDirectoryPath);
   assert(readResult.isOk());
@@ -57,6 +62,7 @@ async function readAndValidateCastVoteRecordExport(
     castVoteRecordReportMetadata:
       castVoteRecordExportMetadata.castVoteRecordReportMetadata,
     castVoteRecords,
+    batchManifest: castVoteRecordExportMetadata.batchManifest,
   };
 }
 
@@ -109,10 +115,29 @@ test('generate with defaults', async () => {
     stderr: '',
   });
 
-  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
-    outputDirectory.name
-  );
+  const { castVoteRecords, batchManifest } =
+    await readAndValidateCastVoteRecordExport(outputDirectory.name);
   expect(castVoteRecords).toHaveLength(184);
+
+  const DEFAULT_BATCH_ID = '9822c71014';
+  expect(
+    castVoteRecords.every(
+      (cvr) =>
+        cvr.CreatingDeviceId === 'VX-00-000' && cvr.BatchId === DEFAULT_BATCH_ID
+    )
+  ).toBeTruthy();
+  expect(batchManifest).toMatchObject(
+    expect.arrayContaining([
+      expect.objectContaining({
+        batchNumber: 1,
+        id: DEFAULT_BATCH_ID,
+        label: DEFAULT_BATCH_ID,
+        scannerId: 'VX-00-000',
+        sheetCount: 184,
+        startTime: expect.anything(),
+      }),
+    ])
+  );
 });
 
 test('generate with custom number of records below the suggested number', async () => {
@@ -219,15 +244,35 @@ test('specifying scanner ids', async () => {
     '--outputPath',
     outputDirectory.name,
     '--scannerIds',
-    'scanner1,scanner2',
+    'scanner-1',
+    'scanner-2',
   ]);
 
-  const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
-    outputDirectory.name
-  );
+  const { castVoteRecords, batchManifest } =
+    await readAndValidateCastVoteRecordExport(outputDirectory.name);
   for (const castVoteRecord of castVoteRecords) {
-    expect(castVoteRecord.CreatingDeviceId).toMatch(/scanner[12]/);
+    expect(castVoteRecord.CreatingDeviceId).toMatch(/^scanner-[12]$/);
   }
+  expect(batchManifest).toMatchObject(
+    expect.arrayContaining([
+      expect.objectContaining({
+        batchNumber: 1,
+        id: '8802613d7c',
+        label: '8802613d7c',
+        scannerId: 'scanner-1',
+        sheetCount: 184,
+        startTime: expect.anything(),
+      }),
+      expect.objectContaining({
+        batchNumber: 1,
+        id: 'd1d85ebf06',
+        label: 'd1d85ebf06',
+        scannerId: 'scanner-2',
+        sheetCount: 184,
+        startTime: expect.anything(),
+      }),
+    ])
+  );
 });
 
 test('including ballot images', async () => {
