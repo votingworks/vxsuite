@@ -66,7 +66,6 @@ export interface PrecinctScannerStateMachine {
   // The commands are non-blocking and do not return a result. They just send an
   // event to the machine. The effects of the event (or any error) will show up
   // in the status.
-  scan: () => void;
   accept: () => void;
   return: () => void;
 

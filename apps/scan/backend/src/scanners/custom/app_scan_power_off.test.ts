@@ -63,11 +63,7 @@ test('scanner powered off while scanning', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await apiClient.scanBallot();
       mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
       await waitForStatus(apiClient, { state: 'disconnected' });
 
@@ -86,11 +82,7 @@ test('scanner powered off while accepting', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await apiClient.scanBallot();
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -122,11 +114,7 @@ test('scanner powered off after accepting', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await apiClient.scanBallot();
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -168,11 +156,7 @@ test('scanner powered off while rejecting', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.wrongElection());
-      await apiClient.scanBallot();
       await waitForStatus(apiClient, {
         state: 'rejecting',
         interpretation,
@@ -202,11 +186,7 @@ test('scanner powered off while returning', async () => {
           ),
       });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
-      await apiClient.scanBallot();
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();
@@ -239,11 +219,7 @@ test('scanner powered off after returning', async () => {
           ),
       });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, { state: 'ready_to_scan' });
-
       simulateScan(mockScanner, await ballotImages.unmarkedHmpb());
-      await apiClient.scanBallot();
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();

@@ -44,6 +44,7 @@ import {
 } from 'xstate';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import { Store } from '../../store';
 import {
@@ -53,6 +54,7 @@ import {
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
+import { isReadyToScan } from '../../app_flow';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -82,7 +84,9 @@ type InterpretationResult = SheetInterpretationWithPages & { sheetId: Id };
 
 interface Context {
   client?: CustomScanner;
+  auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
+  usbDrive: UsbDrive;
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
   error?: Error | ErrorCode;
@@ -488,18 +492,21 @@ const doNothing: TransitionConfig<Context, Event> = { target: undefined };
 
 function buildMachine({
   createCustomClient = defaultCreateCustomClient,
+  auth,
   workspace,
   interpret,
   usbDrive,
   delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
+  auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   interpret: InterpretFn;
   usbDrive: UsbDrive;
   delayOverrides: Partial<Delays>;
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
+  const { store } = workspace;
 
   function pollPaperStatus(
     pollingInterval: number = delays.DELAY_PAPER_STATUS_POLLING_INTERVAL
@@ -693,7 +700,7 @@ function buildMachine({
       id: 'precinct_scanner',
       initial: 'connecting',
       strict: true,
-      context: { workspace },
+      context: { auth, workspace, usbDrive },
       on: {
         SCANNER_DISCONNECTED: 'disconnected',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper_while_scanning',
@@ -811,7 +818,7 @@ function buildMachine({
               target: 'returning_to_rescan',
             },
             // We can automatically start scanning the next ballot
-            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_READY_TO_SCAN: 'hardware_ready_to_scan',
           },
         },
         no_paper: {
@@ -820,18 +827,32 @@ function buildMachine({
           invoke: pollPaperStatus(),
           on: {
             SCANNER_NO_PAPER: doNothing,
-            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_READY_TO_SCAN: 'hardware_ready_to_scan',
             SCANNER_BOTH_SIDES_HAVE_PAPER: 'jam',
           },
         },
-        ready_to_scan: {
-          id: 'ready_to_scan',
+        hardware_ready_to_scan: {
+          id: 'hardware_ready_to_scan',
           entry: [clearError, clearLastScan],
           invoke: pollPaperStatus(),
           on: {
             SCAN: 'scanning',
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_SCAN: doNothing,
+            SCANNER_READY_TO_SCAN: 'check_app_ready_to_scan',
+          },
+        },
+        check_app_ready_to_scan: {
+          invoke: {
+            src: async () => isReadyToScan({ auth, store, usbDrive }),
+            onDone: [
+              {
+                target: 'scanning',
+                cond: (_context, event) => event.data,
+              },
+              {
+                target: 'hardware_ready_to_scan',
+              },
+            ],
           },
         },
         scanning: {
@@ -1086,7 +1107,7 @@ function buildMachine({
                 SCANNER_NO_PAPER: '#no_paper',
                 SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
                 SCANNER_JAM: doNothing,
-                SCANNER_READY_TO_SCAN: '#ready_to_scan',
+                SCANNER_READY_TO_SCAN: '#hardware_ready_to_scan',
               },
               after: {
                 DELAY_WAIT_FOR_JAM_CLEARED: '#internal_jam',
@@ -1271,6 +1292,7 @@ function errorToString(error: NonNullable<Context['error']>) {
  */
 export function createPrecinctScannerStateMachine({
   createCustomClient,
+  auth,
   workspace,
   interpret = defaultInterpret,
   logger,
@@ -1278,6 +1300,7 @@ export function createPrecinctScannerStateMachine({
   delays = {},
 }: {
   createCustomClient?: CreateCustomClient;
+  auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   interpret?: InterpretFn;
   logger: Logger;
@@ -1286,6 +1309,7 @@ export function createPrecinctScannerStateMachine({
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
+    auth,
     workspace,
     interpret,
     usbDrive,
@@ -1313,8 +1337,8 @@ export function createPrecinctScannerStateMachine({
             return 'disconnected';
           case state.matches('no_paper'):
             return 'no_paper';
-          case state.matches('ready_to_scan'):
-            return 'ready_to_scan';
+          case state.matches('hardware_ready_to_scan'):
+            return 'hardware_ready_to_scan';
           case state.matches('scanning'):
             return 'scanning';
           case state.matches('interpreting'):
@@ -1392,10 +1416,6 @@ export function createPrecinctScannerStateMachine({
         interpretation: interpretationResult,
         error: errorDetails,
       };
-    },
-
-    scan: () => {
-      machineService.send('SCAN');
     },
 
     accept: () => {

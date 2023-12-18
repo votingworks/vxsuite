@@ -80,6 +80,7 @@ async function main(): Promise<number> {
   const precinctScannerStateMachine =
     customStateMachine.createPrecinctScannerStateMachine({
       createCustomClient: customScanner.openScanner,
+      auth,
       workspace,
       logger,
       usbDrive,

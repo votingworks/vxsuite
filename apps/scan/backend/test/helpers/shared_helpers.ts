@@ -96,6 +96,13 @@ export async function configureApp(
     type: 'open_polls',
     time: Date.now(),
   });
+
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_out',
+      reason: 'no_card',
+    })
+  );
 }
 
 /**

@@ -81,6 +81,7 @@ export async function withApp(
     return ok(mockScanner);
   }
   const precinctScannerMachine = createPrecinctScannerStateMachine({
+    auth: mockAuth,
     createCustomClient,
     workspace,
     interpret,
@@ -225,14 +226,10 @@ export async function scanBallot(
   options: { waitForContinuousExportToUsbDrive?: boolean } = {}
 ): Promise<void> {
   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-  await waitForStatus(apiClient, {
-    state: 'ready_to_scan',
-    ballotsCounted: initialBallotsCounted,
+  mockScanner.scan.mockImplementation(async () => {
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
+    return ok(await ballotImages.completeBmd());
   });
-
-  mockScanner.scan.mockResolvedValueOnce(ok(await ballotImages.completeBmd()));
-  await apiClient.scanBallot();
-  mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
   await waitForStatus(apiClient, {
     state: 'ready_to_accept',
     ballotsCounted: initialBallotsCounted,
@@ -254,7 +251,6 @@ export async function scanBallot(
 export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {
   return {
     status: jest.fn(),
-    scan: jest.fn(),
     accept: jest.fn(),
     return: jest.fn(),
     supportsUltrasonic: jest.fn(),

@@ -1,7 +1,7 @@
 import { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { useQueryChangeListener } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { acceptBallot, getScannerStatus, scanBallot } from '../api';
+import { acceptBallot, getScannerStatus } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 import { useSound } from '../utils/use_sound';
 import { InsertBallotScreen } from './insert_ballot_screen';
@@ -33,16 +33,12 @@ export function VoterScreen({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
 
-  // The scan service waits to receive a command to scan or accept a ballot. The
-  // frontend controls when this happens so that ensure we're only scanning when
-  // we're in voter mode.
-  const scanBallotMutation = scanBallot.useMutation();
+  // The backend waits to receive a command accept a ballot. The frontend
+  // controls when this happens for now. In the future, we should move this to
+  // the backend.
   const acceptBallotMutation = acceptBallot.useMutation();
   useQueryChangeListener(scannerStatusQuery, {
     onChange: (newScannerStatus) => {
-      if (newScannerStatus.state === 'ready_to_scan') {
-        scanBallotMutation.mutate();
-      }
       if (newScannerStatus.state === 'ready_to_accept') {
         acceptBallotMutation.mutate();
       }
@@ -81,7 +77,7 @@ export function VoterScreen({
         case 'connecting':
         case 'disconnected':
         case 'no_paper':
-        case 'ready_to_scan':
+        case 'hardware_ready_to_scan':
         case 'scanning':
         case 'returning_to_rescan':
         case 'ready_to_accept':
@@ -120,7 +116,7 @@ export function VoterScreen({
           showNoChargerWarning={!batteryIsCharging}
         />
       );
-    case 'ready_to_scan':
+    case 'hardware_ready_to_scan':
     case 'scanning':
     case 'ready_to_accept':
     case 'accepting':
