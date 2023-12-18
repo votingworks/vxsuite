@@ -5,12 +5,12 @@ use imageproc::contrast::otsu_level;
 use logging_timer::time;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
+use types_rs::election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue};
+use types_rs::geometry::{PixelPosition, PixelUnit, Point, Rect, SubGridUnit, SubPixelUnit};
 
 use crate::{
     ballot_card::BallotSide,
     debug::{self, ImageDebugWriter},
-    election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue},
-    geometry::{PixelPosition, PixelUnit, Point, Rect, SubGridUnit, SubPixelUnit},
     image_utils::{diff, ratio, BLACK, WHITE},
     timing_marks::TimingMarkGrid,
 };

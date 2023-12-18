@@ -1,8 +1,7 @@
 use neon::types::JsObject;
 use neon::{prelude::*, result::Throw};
 use std::path::PathBuf;
-
-use crate::election::Election;
+use types_rs::election::Election;
 
 use super::image_data::ImageData;
 use super::serialization::from_js;

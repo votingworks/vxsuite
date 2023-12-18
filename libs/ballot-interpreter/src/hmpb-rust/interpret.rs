@@ -5,19 +5,14 @@ use image::GrayImage;
 use imageproc::contrast::otsu_level;
 use logging_timer::time;
 use serde::Serialize;
+use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
+use types_rs::geometry::{PixelUnit, Rect, Size};
 
 use crate::ballot_card::get_matching_paper_info_for_image_size;
 use crate::ballot_card::BallotSide;
 use crate::ballot_card::Geometry;
 use crate::ballot_card::PaperInfo;
 use crate::debug::ImageDebugWriter;
-use crate::election::BallotStyleId;
-use crate::election::Election;
-use crate::election::MetadataEncoding;
-use crate::election::PrecinctId;
-use crate::geometry::PixelUnit;
-use crate::geometry::Rect;
-use crate::geometry::Size;
 use crate::image_utils::find_scanned_document_inset;
 use crate::image_utils::maybe_resize_image_to_fit;
 use crate::image_utils::Inset;
@@ -378,27 +373,36 @@ pub fn interpret_ballot_card(
 
             // If one side has a detected QR code and the other doesn't, we can
             // infer the missing metadata from the detected metadata.
-            let (side_a_qr_code_result, side_b_qr_code_result) = match (side_a_qr_code_result, side_b_qr_code_result) {
-                (Err(Error::InvalidQrCodeMetadata { .. }), Ok((side_b_metadata, side_b_orientation))) => {
-                    let side_a_metadata = infer_missing_page_metadata(&side_b_metadata);
-                    let side_a_orientation = side_b_orientation;
+            let (side_a_qr_code_result, side_b_qr_code_result) =
+                match (side_a_qr_code_result, side_b_qr_code_result) {
+                    (
+                        Err(Error::InvalidQrCodeMetadata { .. }),
+                        Ok((side_b_metadata, side_b_orientation)),
+                    ) => {
+                        let side_a_metadata = infer_missing_page_metadata(&side_b_metadata);
+                        let side_a_orientation = side_b_orientation;
 
+                        (
+                            Ok((side_a_metadata, side_a_orientation)),
+                            Ok((side_b_metadata, side_b_orientation)),
+                        )
+                    }
                     (
                         Ok((side_a_metadata, side_a_orientation)),
-                        Ok((side_b_metadata, side_b_orientation)),
-                    )
-                }
-                (Ok((side_a_metadata, side_a_orientation)), Err(Error::InvalidQrCodeMetadata { .. })) => {
-                    let side_b_metadata = infer_missing_page_metadata(&side_a_metadata);
-                    let side_b_orientation = side_a_orientation;
+                        Err(Error::InvalidQrCodeMetadata { .. }),
+                    ) => {
+                        let side_b_metadata = infer_missing_page_metadata(&side_a_metadata);
+                        let side_b_orientation = side_a_orientation;
 
-                    (
-                        Ok((side_a_metadata, side_a_orientation)),
-                        Ok((side_b_metadata, side_b_orientation)),
-                    )
-                }
-                (side_a_qr_code_result, side_b_qr_code_result) => (side_a_qr_code_result, side_b_qr_code_result),
-            };
+                        (
+                            Ok((side_a_metadata, side_a_orientation)),
+                            Ok((side_b_metadata, side_b_orientation)),
+                        )
+                    }
+                    (side_a_qr_code_result, side_b_qr_code_result) => {
+                        (side_a_qr_code_result, side_b_qr_code_result)
+                    }
+                };
 
             let (side_a_metadata, side_a_orientation) = side_a_qr_code_result?;
             let (side_b_metadata, side_b_orientation) = side_b_qr_code_result?;
@@ -684,7 +688,8 @@ mod test {
 
     #[test]
     fn test_inferred_missing_metadata_from_one_side() {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+        let fixture_path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
         let election_path = fixture_path.join("election-vxf.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();

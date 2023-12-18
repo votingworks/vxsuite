@@ -4,8 +4,9 @@ use std::{
 };
 
 use serde::Serialize;
+use types_rs::geometry::Rect;
 
-use crate::{ballot_card::Geometry, geometry::Rect};
+use crate::ballot_card::Geometry;
 
 /// Expected number of metadata bits encoded in the bottom row of a ballot card.
 pub const METADATA_BITS: usize = 32;

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     ballot_card::BallotSide,
     geometry::{GridUnit, SubGridRect},
-    types::idtype,
+    idtype::idtype,
 };
 
 idtype!(ContestId);

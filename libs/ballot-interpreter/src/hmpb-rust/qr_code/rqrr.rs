@@ -1,7 +1,6 @@
 use image::GrayImage;
 use rqrr::PreparedImage;
-
-use crate::geometry::{PixelUnit, Point, Rect};
+use types_rs::geometry::{PixelUnit, Point, Rect};
 
 use super::detect::{get_detection_areas, DetectedQrCode, Detector, Error, Result};
 

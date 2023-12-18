@@ -1,13 +1,15 @@
-use std::{cmp::Ordering, fmt::Debug, hash::Hash, io};
+use std::{cmp::Ordering, io};
 
 use image::GrayImage;
 use logging_timer::time;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+use types_rs::geometry::PixelUnit;
 
-use crate::{
-    geometry::{GridUnit, Inch, PixelPosition, PixelUnit, Rect, Size, SubPixelUnit},
-    interpret::ResizeStrategy,
-};
+pub use types_rs::ballot_card::*;
+
+use crate::interpret::ResizeStrategy;
+
+use types_rs::geometry::{GridUnit, Inch, PixelPosition, Rect, Size, SubPixelUnit};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub enum BallotPaperSize {
@@ -46,14 +48,6 @@ pub struct Geometry {
     pub content_area: Rect,
     pub timing_mark_size: Size<SubPixelUnit>,
     pub grid_size: Size<GridUnit>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
-pub enum BallotSide {
-    #[serde(rename = "front")]
-    Front,
-    #[serde(rename = "back")]
-    Back,
 }
 
 /// Expected PPI for scanned ballot cards.
@@ -323,30 +317,5 @@ mod tests {
     fn test_load_bubble_template() {
         assert!(load_ballot_scan_bubble_image().is_some());
         assert!(load_ballot_template_bubble_image().is_some());
-    }
-
-    #[test]
-    fn test_ballot_side_deserialize() {
-        assert_eq!(
-            serde_json::from_str::<BallotSide>(r#""front""#).unwrap(),
-            BallotSide::Front
-        );
-        assert_eq!(
-            serde_json::from_str::<BallotSide>(r#""back""#).unwrap(),
-            BallotSide::Back
-        );
-        assert!(serde_json::from_str::<BallotSide>(r#""foo""#).is_err());
-    }
-
-    #[test]
-    fn test_ballot_side_serialize() {
-        assert_eq!(
-            serde_json::to_string(&BallotSide::Front).unwrap(),
-            r#""front""#
-        );
-        assert_eq!(
-            serde_json::to_string(&BallotSide::Back).unwrap(),
-            r#""back""#
-        );
     }
 }

@@ -1,0 +1,14 @@
+{
+  "name": "@votingworks/types-rs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared types for VotingWorks Rust projects",
+  "license": "AGPL-3.0",
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "scripts": {
+    "build": "cargo build",
+    "lint": "cargo clippy",
+    "test": "cargo test"
+  },
+  "packageManager": "pnpm@8.1.0"
+}

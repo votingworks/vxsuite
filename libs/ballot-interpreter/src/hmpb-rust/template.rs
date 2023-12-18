@@ -1,9 +1,9 @@
 use image::GrayImage;
 use serde::Serialize;
+use types_rs::geometry::{GridUnit, Point};
 
 use crate::ballot_card::{load_ballot_template_bubble_image, PaperInfo};
 use crate::debug::ImageDebugWriter;
-use crate::geometry::{GridUnit, Point};
 use crate::interpret::{prepare_ballot_card_images, BallotCard, ResizeStrategy};
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_marks::{

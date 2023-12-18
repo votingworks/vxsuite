@@ -1,7 +1,6 @@
 use image::{EncodableLayout, GrayImage};
+use types_rs::geometry::{PixelUnit, Point, Rect};
 use zbar_rust::{ZBarImageScanResult, ZBarImageScanner, ZBarSymbolType};
-
-use crate::geometry::{PixelUnit, Point, Rect};
 
 use super::detect::{get_detection_areas, DetectedQrCode, DetectionArea, Detector, Error, Result};
 
