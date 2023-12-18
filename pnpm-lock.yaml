@@ -1674,9 +1674,6 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
-      react-gamepad:
-        specifier: ^1.0.3
-        version: 1.0.3(react@18.2.0)
       react-idle-timer:
         specifier: ^5.7.2
         version: 5.7.2(react-dom@18.2.0)(react@18.2.0)
@@ -1738,9 +1735,6 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.7
         version: 18.2.7
-      '@types/react-gamepad':
-        specifier: ^1.0.3
-        version: 1.0.3
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
