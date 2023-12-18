@@ -7,9 +7,10 @@ use imageproc::drawing::{
 };
 use log::debug;
 use rusttype::{Font, Scale};
-use types_rs::ballot_card::Geometry;
 use types_rs::election::GridPosition;
 use types_rs::geometry::{PixelPosition, PixelUnit, Rect, Segment, SubGridUnit, SubPixelUnit};
+
+use crate::ballot_card::Geometry;
 
 fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top())
