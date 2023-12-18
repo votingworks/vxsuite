@@ -3,6 +3,7 @@ import {
   AnyContest,
   BatchInfo,
   CandidateContest,
+  CastVoteRecordBatchMetadata,
   CVR,
   Election,
   YesNoContest,
@@ -165,7 +166,6 @@ export function buildCastVoteRecordReportMetadata({
   scannerIds,
   reportTypes,
   isTestMode,
-  batchInfo,
   generatedDate = new Date(),
 }: BuildCastVoteRecordReportMetadataParams): CastVoteRecordReportMetadata {
   // TODO: pull from ballot definition once it exists. For now, the scope
@@ -219,15 +219,24 @@ export function buildCastVoteRecordReportMetadata({
         Name: `${election.state}`,
       },
     ],
-    vxBatch: batchInfo.map((batch) => ({
-      '@type': 'CVR.vxBatch',
-      '@id': batch.id,
-      BatchLabel: batch.label,
-      SequenceId: batch.batchNumber,
-      StartTime: batch.startedAt,
-      EndTime: batch.endedAt,
-      NumberSheets: batch.count,
-      CreatingDeviceId: generatingDeviceId,
-    })),
   };
+}
+
+/**
+ * Build that batch manifest that is included in the cast vote record export metadata file.
+ */
+export function buildBatchManifest({
+  batchInfo,
+}: {
+  batchInfo: Array<BatchInfo & { scannerId: string }>;
+}): CastVoteRecordBatchMetadata[] {
+  return batchInfo.map((batch) => ({
+    id: batch.id,
+    label: batch.label,
+    batchNumber: batch.batchNumber,
+    startTime: batch.startedAt,
+    endTime: batch.endedAt,
+    sheetCount: batch.count,
+    scannerId: batch.scannerId,
+  }));
 }

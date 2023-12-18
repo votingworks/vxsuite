@@ -1,7 +1,10 @@
 import { assert, find, iter } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { CandidateContest, CVR, YesNoContest } from '@votingworks/types';
-import { buildCastVoteRecordReportMetadata } from './build_report_metadata';
+import {
+  buildBatchManifest,
+  buildCastVoteRecordReportMetadata,
+} from './build_report_metadata';
 
 const { election } = electionTwoPartyPrimaryDefinition;
 
@@ -40,17 +43,6 @@ test('builds well-formed cast vote record report', () => {
       '@id': scannerId,
       SerialNumber: scannerId,
       Manufacturer: 'VotingWorks',
-    },
-  ]);
-  expect(report.vxBatch).toMatchObject([
-    {
-      '@id': 'batch-1',
-      BatchLabel: 'Batch 1',
-      SequenceId: 1,
-      StartTime: new Date(1989, 11, 13).toISOString(),
-      EndTime: new Date(1989, 11, 14).toISOString(),
-      NumberSheets: 2,
-      CreatingDeviceId: scannerId,
     },
   ]);
 
@@ -253,4 +245,32 @@ test('still includes the generating device id in the device list if it is not th
       }),
     ])
   );
+});
+
+test('buildBatchManifest', () => {
+  expect(
+    buildBatchManifest({
+      batchInfo: [
+        {
+          id: 'batch-1',
+          batchNumber: 1,
+          label: 'Batch 1',
+          startedAt: new Date(1989, 11, 13).toISOString(),
+          endedAt: new Date(1989, 11, 14).toISOString(),
+          count: 2,
+          scannerId,
+        },
+      ],
+    })
+  ).toEqual([
+    {
+      id: 'batch-1',
+      label: 'Batch 1',
+      batchNumber: 1,
+      startTime: new Date(1989, 11, 13).toISOString(),
+      endTime: new Date(1989, 11, 14).toISOString(),
+      sheetCount: 2,
+      scannerId,
+    },
+  ]);
 });
