@@ -814,7 +814,7 @@ function buildMachine({
               target: 'returning_to_rescan',
             },
             // We can automatically start scanning the next ballot
-            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_READY_TO_SCAN: 'hardware_ready_to_scan',
           },
         },
         no_paper: {
@@ -823,21 +823,21 @@ function buildMachine({
           invoke: pollPaperStatus(),
           on: {
             SCANNER_NO_PAPER: doNothing,
-            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_READY_TO_SCAN: 'hardware_ready_to_scan',
             SCANNER_BOTH_SIDES_HAVE_PAPER: 'jam',
           },
         },
-        ready_to_scan: {
-          id: 'ready_to_scan',
+        hardware_ready_to_scan: {
+          id: 'hardware_ready_to_scan',
           entry: [clearError, clearLastScan],
           invoke: pollPaperStatus(),
           on: {
             SCAN: 'scanning',
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_SCAN: 'check_ready_to_scan',
+            SCANNER_READY_TO_SCAN: 'check_app_ready_to_scan',
           },
         },
-        check_ready_to_scan: {
+        check_app_ready_to_scan: {
           invoke: {
             src: async () => isReadyToScan({ auth, store, usbDrive }),
             onDone: [
@@ -846,7 +846,7 @@ function buildMachine({
                 cond: (_context, event) => event.data,
               },
               {
-                target: 'ready_to_scan',
+                target: 'hardware_ready_to_scan',
               },
             ],
           },
@@ -1103,7 +1103,7 @@ function buildMachine({
                 SCANNER_NO_PAPER: '#no_paper',
                 SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
                 SCANNER_JAM: doNothing,
-                SCANNER_READY_TO_SCAN: '#ready_to_scan',
+                SCANNER_READY_TO_SCAN: '#hardware_ready_to_scan',
               },
               after: {
                 DELAY_WAIT_FOR_JAM_CLEARED: '#internal_jam',
@@ -1333,8 +1333,8 @@ export function createPrecinctScannerStateMachine({
             return 'disconnected';
           case state.matches('no_paper'):
             return 'no_paper';
-          case state.matches('ready_to_scan'):
-            return 'ready_to_scan';
+          case state.matches('hardware_ready_to_scan'):
+            return 'hardware_ready_to_scan';
           case state.matches('scanning'):
             return 'scanning';
           case state.matches('interpreting'):

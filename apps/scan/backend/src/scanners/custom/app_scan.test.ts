@@ -545,7 +545,7 @@ test('scanning paused when election manager card is inserted', async () => {
 
       // we don't scan because the election manager card is inserted
       await waitForStatus(apiClient, {
-        state: 'ready_to_scan',
+        state: 'hardware_ready_to_scan',
       });
 
       // remove the card
@@ -590,7 +590,7 @@ test('scanning paused when poll worker card is inserted', async () => {
 
       // we don't scan because the poll worker card is inserted
       await waitForStatus(apiClient, {
-        state: 'ready_to_scan',
+        state: 'hardware_ready_to_scan',
       });
 
       // remove the card
@@ -632,7 +632,7 @@ test('scanning paused when ballot bag needs replacement', async () => {
 
       // we don't scan because the ballot bag needs replacement
       await waitForStatus(apiClient, {
-        state: 'ready_to_scan',
+        state: 'hardware_ready_to_scan',
         ballotsCounted: BALLOT_BAG_CAPACITY,
       });
 

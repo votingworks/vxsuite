@@ -2,7 +2,7 @@ export const PRECINCT_SCANNER_STATES = [
   'connecting',
   'disconnected',
   'no_paper',
-  'ready_to_scan',
+  'hardware_ready_to_scan',
   'scanning',
   'returning_to_rescan',
   'ready_to_accept',

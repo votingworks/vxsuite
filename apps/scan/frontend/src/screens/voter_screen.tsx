@@ -77,7 +77,7 @@ export function VoterScreen({
         case 'connecting':
         case 'disconnected':
         case 'no_paper':
-        case 'ready_to_scan':
+        case 'hardware_ready_to_scan':
         case 'scanning':
         case 'returning_to_rescan':
         case 'ready_to_accept':
@@ -116,7 +116,7 @@ export function VoterScreen({
           showNoChargerWarning={!batteryIsCharging}
         />
       );
-    case 'ready_to_scan':
+    case 'hardware_ready_to_scan':
     case 'scanning':
     case 'ready_to_accept':
     case 'accepting':
