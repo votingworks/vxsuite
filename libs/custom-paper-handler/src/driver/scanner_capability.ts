@@ -1,3 +1,4 @@
+import { integers } from '@votingworks/basics';
 import {
   PaperMovementAfterScan,
   Resolution,
@@ -135,12 +136,11 @@ export function parseScannerCapability(data: DataView): ScannerCapability {
 
   // Parses capability block starting at the current byte
   function parseOptions<T>(decoder: Decoder<T>): T[] {
-    const options: T[] = [];
     const numOptions = data.getUint8(byteIndex + 1);
-    for (let i = 0; i < numOptions; i += 1) {
-      options.push(decode(data.getUint8(byteIndex + 2 + i), decoder));
-    }
-    return options;
+    return integers()
+      .take(numOptions)
+      .map((i) => decode(data.getUint8(byteIndex + 2 + i), decoder))
+      .toArray();
   }
 
   while (byteIndex < data.byteLength) {

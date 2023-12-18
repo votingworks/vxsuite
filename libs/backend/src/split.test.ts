@@ -250,7 +250,6 @@ test('split works like POSIX split', async () => {
       async ({ size, data }) => {
         // run split and collect outputs
         const streamOutputs: WritableStream[] = [];
-        const fileOutputs: string[] = [];
 
         await split(Readable.from(data), {
           size,
@@ -269,14 +268,12 @@ test('split works like POSIX split', async () => {
           { input: data.join('') }
         );
 
-        for (const file of readdirSync(tmpDir.name).sort()) {
-          fileOutputs.push(readFileSync(join(tmpDir.name, file), 'utf-8'));
-        }
+        const fileOutputs = iter(readdirSync(tmpDir.name).sort()).map((file) =>
+          readFileSync(join(tmpDir.name, file), 'utf-8')
+        );
 
         // compare outputs
-        for (const [fileOutput, output] of iter(fileOutputs).zip(
-          streamOutputs
-        )) {
+        for (const [fileOutput, output] of fileOutputs.zip(streamOutputs)) {
           expect(fileOutput).toEqual(output.toString());
         }
       }

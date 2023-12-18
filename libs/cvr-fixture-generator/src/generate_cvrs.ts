@@ -307,7 +307,7 @@ export function* generateCvrs({
               for (const [
                 sheetIndex,
                 sheetContests,
-              ] of contestsBySheet.entries()) {
+              ] of contestsBySheet.enumerate()) {
                 const [frontContests, backContests] = sheetContests;
                 const frontVotes = filterVotesByContests(votes, frontContests);
                 const backVotes = filterVotesByContests(votes, backContests);

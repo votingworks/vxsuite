@@ -2,6 +2,7 @@ import fs from 'fs';
 import { sha256 } from 'js-sha256';
 import path from 'path';
 import { dirSync } from 'tmp';
+import { iter } from '@votingworks/basics';
 import { Client } from '@votingworks/db';
 import { CastVoteRecordExportFileName } from '@votingworks/types';
 
@@ -88,11 +89,7 @@ const expectedCastVoteRecordRootHash =
 test('readableFileFromData', async () => {
   const readableFile = readableFileFromData('1', 'a');
   expect(readableFile.fileName).toEqual('1');
-  const chunks = [];
-  for await (const chunk of readableFile.open()) {
-    chunks.push(chunk);
-  }
-  expect(chunks.join('')).toEqual('a');
+  expect((await iter(readableFile.open()).toArray()).join('')).toEqual('a');
   expect(await readableFile.computeSha256Hash()).toEqual(sha256('a'));
 });
 
@@ -100,11 +97,7 @@ test('readableFileFromDisk', async () => {
   fs.writeFileSync(path.join(tempDirectoryPath, '1'), 'a');
   const readableFile = readableFileFromDisk(path.join(tempDirectoryPath, '1'));
   expect(readableFile.fileName).toEqual('1');
-  const chunks = [];
-  for await (const chunk of readableFile.open()) {
-    chunks.push(chunk);
-  }
-  expect(chunks.join('')).toEqual('a');
+  expect((await iter(readableFile.open()).toArray()).join('')).toEqual('a');
   expect(await readableFile.computeSha256Hash()).toEqual(sha256('a'));
 });
 

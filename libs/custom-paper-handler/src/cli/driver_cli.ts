@@ -3,7 +3,7 @@
 import { createInterface } from 'readline';
 import { pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
-import { assert, sleep } from '@votingworks/basics';
+import { assert, iter, sleep } from '@votingworks/basics';
 import { exit } from 'process';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -48,19 +48,14 @@ async function flushTransferInGeneric(driver: PaperHandlerDriverInterface) {
   await driver.clearGenericInBuffer();
 }
 
+async function getOnlyPageFromPdf(pdf: Buffer): Promise<ImageData> {
+  const first = await iter(pdfToImages(pdf, { scale: 200 / 72 })).first();
+  assert(first?.pageCount === 1);
+  return first.page;
+}
+
 async function outputSampleBallotPdfWidth() {
-  const pages: ImageData[] = [];
-  for await (const { page, pageCount } of pdfToImages(
-    Buffer.from(ballotFixture),
-    {
-      scale: 200 / 72,
-    }
-  )) {
-    assert(pageCount === 1);
-    pages.push(page);
-  }
-  const page = pages[0];
-  assert(page, 'No page');
+  const page = await getOnlyPageFromPdf(Buffer.from(ballotFixture));
   console.log(`First page of sample ballot is ${page.width} dots`);
 }
 
@@ -76,18 +71,7 @@ async function scan(driver: PaperHandlerDriverInterface): Promise<void> {
  */
 async function printBallot(driver: PaperHandlerDriverInterface): Promise<void> {
   console.time('pdf to image');
-  const pages: ImageData[] = [];
-  for await (const { page, pageCount } of pdfToImages(
-    Buffer.from(ballotFixture),
-    {
-      scale: 200 / 72,
-    }
-  )) {
-    assert(pageCount === 1);
-    pages.push(page);
-  }
-  const page = pages[0];
-  assert(page);
+  const page = await getOnlyPageFromPdf(Buffer.from(ballotFixture));
   console.timeEnd('pdf to image');
   console.time('image to binary');
   // For prototype we expect image to have the same number of dots as the printer width.

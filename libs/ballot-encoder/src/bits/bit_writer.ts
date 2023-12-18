@@ -1,7 +1,8 @@
+import { iter } from '@votingworks/basics';
 import { BitCursor } from './bit_cursor';
 import { Encoding, Utf8Encoding } from './encoding';
 import { Uint1, Uint8, Uint8Size } from './types';
-import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils';
+import { makeMasks, sizeof, toUint8 } from './utils';
 
 /**
  * Writes structured data into a `Uint8Array`. Data is written in little-endian
@@ -240,18 +241,21 @@ export class BitWriter {
     }
     // eslint-disable-next-line no-console
     console.log(
-      inGroupsOf(
-        8,
-        inGroupsOf(
-          Uint8Size,
-          Array.from(this.toUint8Array())
-            .map((n) => n.toString(2).padStart(Uint8Size, '0'))
-            .join('')
-            .slice(0, this.cursor.combinedBitOffset)
-            .split('')
-        )
+      iter(
+        Array.from(this.toUint8Array())
+          .map((n) => n.toString(2).padStart(Uint8Size, '0'))
+          .join('')
+          .slice(0, this.cursor.combinedBitOffset)
+          .split('')
       )
-        .map((row) => row.map((cell) => cell.join('')).join(' '))
+        // group bits into bytes
+        .chunks(Uint8Size)
+        .map((bits) => bits.join(''))
+        // group bytes into rows
+        .chunks(8)
+        .map((row) => row.join(' '))
+        .toArray()
+        // join rows into a string
         .join('\n')
     );
     return this;

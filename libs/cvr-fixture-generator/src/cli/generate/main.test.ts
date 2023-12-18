@@ -50,12 +50,9 @@ async function readAndValidateCastVoteRecordExport(
   assert(readResult.isOk());
   const { castVoteRecordExportMetadata, castVoteRecordIterator } =
     readResult.ok();
-  const castVoteRecords: CVR.CVR[] = [];
-  for await (const castVoteRecordResult of castVoteRecordIterator) {
-    assert(castVoteRecordResult.isOk());
-    const { castVoteRecord } = castVoteRecordResult.ok();
-    castVoteRecords.push(castVoteRecord);
-  }
+  const castVoteRecords = await castVoteRecordIterator
+    .map((cvrResult) => cvrResult.unsafeUnwrap().castVoteRecord)
+    .toArray();
   return {
     castVoteRecordReportMetadata:
       castVoteRecordExportMetadata.castVoteRecordReportMetadata,

@@ -1,3 +1,4 @@
+import { integers } from '@votingworks/basics';
 import {
   AnyContest,
   BatchInfo,
@@ -21,23 +22,20 @@ export type CastVoteRecordReportMetadata = Omit<
   'CVR'
 >;
 
-function buildWriteInCandidateSelections(
+function* buildWriteInCandidateSelections(
   contest: CandidateContest
-): CVR.CandidateSelection[] {
+): Generator<CVR.CandidateSelection> {
   if (!contest.allowWriteIns) {
-    return [];
+    return;
   }
 
-  const writeInSelections: CVR.CandidateSelection[] = [];
-  for (let i = 0; i < contest.seats; i += 1) {
-    writeInSelections.push({
+  for (const i of integers().take(contest.seats)) {
+    yield {
       '@type': 'CVR.CandidateSelection',
       '@id': `write-in-${i}`,
       IsWriteIn: true,
-    });
+    };
   }
-
-  return writeInSelections;
 }
 
 function buildCandidateContest(

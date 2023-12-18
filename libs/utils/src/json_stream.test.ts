@@ -1,4 +1,4 @@
-import { integers } from '@votingworks/basics';
+import { integers, iter } from '@votingworks/basics';
 import * as fc from 'fast-check';
 import { jsonStream, JsonStreamInput, JsonStreamOptions } from './json_stream';
 
@@ -6,11 +6,7 @@ async function asString<T>(
   input: JsonStreamInput<T>,
   options?: JsonStreamOptions
 ) {
-  const output = [];
-  for await (const chunk of jsonStream<T>(input, options)) {
-    output.push(chunk);
-  }
-  return output.join('');
+  return (await iter(jsonStream<T>(input, options)).toArray()).join('');
 }
 
 test('number', async () => {

@@ -1,4 +1,5 @@
-import { assert } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
+import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { BitArray, bitArrayToByte, Uint8Max } from './bits';
 import { DEVICE_MAX_WIDTH_DOTS } from './driver/constants';
 import { PaperHandlerBitmap } from './driver/coders';
@@ -188,13 +189,11 @@ export function chunkBinaryBitmap(
       continue;
     }
 
-    const chunks: number[] = [];
+    const chunks = iter(chunkOrderBits)
+      .chunks(BITS_PER_BYTE)
+      .map((bits) => bits as BitArray)
+      .map(bitArrayToByte);
 
-    for (let i = 0; i < chunkOrderBits.length / 8; i += 1) {
-      chunks.push(
-        bitArrayToByte(chunkOrderBits.slice(i * 8, i * 8 + 8) as BitArray)
-      );
-    }
     paperHandlerBitmaps.push({
       data: new Uint8Array(chunks),
       width: binaryBitmap.width,
@@ -207,15 +206,13 @@ export function chunkBinaryBitmap(
 export function getBlackChunk(width: number): PaperHandlerBitmapExt {
   return {
     width,
-    // eslint-disable-next-line vx/gts-no-array-constructor
-    data: new Uint8Array(Array(width * 3).fill(Uint8Max)),
+    data: new Uint8Array(width * 3).fill(Uint8Max),
   };
 }
 
 export function getWhiteChunk(width: number): PaperHandlerBitmapExt {
   return {
     width,
-    // eslint-disable-next-line vx/gts-no-array-constructor
-    data: new Uint8Array(Array(width * 3).fill(0)),
+    data: new Uint8Array(width * 3).fill(0),
   };
 }
