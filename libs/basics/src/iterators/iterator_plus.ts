@@ -175,6 +175,30 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
+  groupBy(predicate: (a: T, b: T) => boolean): IteratorPlus<T[]> {
+    const { iterable } = this;
+    return new IteratorPlusImpl(
+      (function* gen() {
+        let group: T[] = [];
+        let previous: T | undefined;
+        let isFirst = true;
+        for (const value of iterable) {
+          if (isFirst || predicate(previous as T, value)) {
+            group.push(value);
+          } else {
+            yield group;
+            group = [value];
+          }
+          previous = value;
+          isFirst = false;
+        }
+        if (group.length > 0) {
+          yield group;
+        }
+      })()
+    );
+  }
+
   isEmpty(): boolean {
     /* istanbul ignore next - `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined */
     return this.iterable[Symbol.iterator]().next().done ?? true;

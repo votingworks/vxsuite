@@ -171,6 +171,32 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     ) as AsyncIteratorPlus<U>;
   }
 
+  groupBy(
+    predicate: (a: T, b: T) => MaybePromise<boolean>
+  ): AsyncIteratorPlus<T[]> {
+    const { iterable } = this;
+    return new AsyncIteratorPlusImpl(
+      (async function* gen() {
+        let group: T[] = [];
+        let previous: T | undefined;
+        let isFirst = true;
+        for await (const value of iterable) {
+          if (isFirst || (await predicate(previous as T, value))) {
+            group.push(value);
+          } else {
+            yield group;
+            group = [value];
+          }
+          previous = value;
+          isFirst = false;
+        }
+        if (group.length > 0) {
+          yield group;
+        }
+      })()
+    ) as AsyncIteratorPlus<T[]>;
+  }
+
   async isEmpty(): Promise<boolean> {
     /* istanbul ignore next - `done` is typed as `{ done?: false } | { done: true }`, but in practice is never undefined */
     return (await this.iterable[Symbol.asyncIterator]().next()).done ?? true;

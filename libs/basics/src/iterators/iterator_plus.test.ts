@@ -254,6 +254,53 @@ test('flatMap', () => {
   ).toEqual([1, 1, 2, 2, 3, 3]);
 });
 
+test('groupBy', () => {
+  expect(
+    iter([])
+      .groupBy(() => true)
+      .toArray()
+  ).toEqual([]);
+  expect(
+    iter([1, 1, 1, 3, 3, 2, 2, 2])
+      .groupBy((a, b) => a === b)
+      .toArray()
+  ).toEqual([
+    [1, 1, 1],
+    [3, 3],
+    [2, 2, 2],
+  ]);
+  expect(
+    iter([1, 1, 2, 3, 2, 3, 2, 3, 4])
+      .groupBy((a, b) => a <= b)
+      .toArray()
+  ).toEqual([
+    [1, 1, 2, 3],
+    [2, 3],
+    [2, 3, 4],
+  ]);
+
+  fc.assert(
+    fc.property(
+      fc.nat({ max: 100 }).chain((n) =>
+        fc.tuple(
+          // make `n` values to group
+          fc.array(fc.anything(), { minLength: n, maxLength: n }),
+          // decide how to group them randomly
+          fc.array(fc.boolean(), { minLength: n, maxLength: n })
+        )
+      ),
+      fc.array(fc.integer()),
+      ([values, groupByReturnValues]) => {
+        const groups = iter(values)
+          .groupBy(() => groupByReturnValues.shift() ?? false)
+          .toArray();
+        // flattening the groups should give us the original list
+        expect(groups.flat()).toEqual(values);
+      }
+    )
+  );
+});
+
 test('isEmpty', () => {
   expect(iter(null).isEmpty()).toEqual(true);
   expect(iter(undefined).isEmpty()).toEqual(true);

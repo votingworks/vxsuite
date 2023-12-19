@@ -85,6 +85,27 @@ export interface IteratorPlus<T> extends Iterable<T> {
   flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IteratorPlus<U>;
 
   /**
+   * Returns an iterator that produces non-overlapping runs of elements from
+   * `this` using `predicate` to separate runs.
+   *
+   * @example
+   *
+   * ```ts
+   * const input = [1, 1, 2, 3, 3, 4, 5, 5, 5];
+   * const groups = iter(input).groupBy((a, b) => a === b);
+   *
+   * expect(groups.toArray()).toEqual([
+   *   [1, 1],
+   *   [2],
+   *   [3, 3],
+   *   [4],
+   *   [5, 5, 5],
+   * ]);
+   * ```
+   */
+  groupBy(predicate: (a: T, b: T) => boolean): IteratorPlus<T[]>;
+
+  /**
    * Determines whether there are no elements in `this`.
    */
   isEmpty(): boolean;
@@ -428,6 +449,30 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
       index: number
     ) => MaybePromise<Iterable<U> | AsyncIterable<U>>
   ): AsyncIteratorPlus<U>;
+
+  /**
+   * Returns an iterator that produces non-overlapping runs of elements from
+   * `this` using `predicate` to separate runs.
+   *
+   * @example
+   *
+   * ```ts
+   * const input = promptUserForNumbers();
+   * const groups = iter(input).groupBy((a, b) => a === b);
+   *
+   * // user types 1↩️ 1↩️ 2↩️ 3↩️ 3↩️ 4↩️ 5↩️ 5↩️ 5↩️ ↩ ️
+   * expect(await groups.toArray()).toEqual([
+   *   [1, 1],
+   *   [2],
+   *   [3, 3],
+   *   [4],
+   *   [5, 5, 5],
+   * ]);
+   * ```
+   */
+  groupBy(
+    predicate: (a: T, b: T) => MaybePromise<boolean>
+  ): AsyncIteratorPlus<T[]>;
 
   /**
    * Determines whether there are no elements in `this`.
