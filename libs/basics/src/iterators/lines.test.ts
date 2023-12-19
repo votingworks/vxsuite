@@ -1,5 +1,7 @@
 import { Buffer } from 'buffer';
 import fc from 'fast-check';
+import { createReadStream } from 'fs';
+import { readFile } from 'fs/promises';
 import { iter } from './iter';
 import { lines } from './lines';
 
@@ -8,7 +10,7 @@ test('lines (sync)', () => {
   expect(lines('a').toArray()).toEqual(['a']);
   expect(lines('a\nb').toArray()).toEqual(['a', 'b']);
   expect(lines(Buffer.from('a\nb')).toArray()).toEqual(['a', 'b']);
-  expect(lines({ toString: () => 'a\nb' }).toArray()).toEqual(['a', 'b']);
+  expect(lines([{ toString: () => 'a\nb' }]).toArray()).toEqual(['a', 'b']);
   expect(lines(iter([])).toArray()).toEqual([]);
   expect(lines(iter([''])).toArray()).toEqual(['']);
   expect(lines(iter(['\n'])).toArray()).toEqual(['', '']);
@@ -108,6 +110,11 @@ test('lines (async)', async () => {
       })()
     ).toArray()
   ).toEqual(['abc', 'de']);
+
+  const input = createReadStream(__filename);
+  expect((await lines(input).toArray()).join('\n')).toEqual(
+    await readFile(__filename, 'utf8')
+  );
 
   // check that the lines are the same as joining then splitting
   await fc.assert(

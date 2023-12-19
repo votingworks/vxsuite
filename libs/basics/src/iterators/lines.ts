@@ -115,7 +115,7 @@ export function lines(
  * ```
  */
 export function lines(
-  iterable: ToString | Iterable<ToString>
+  iterable: string | Buffer | Iterable<ToString>
 ): IteratorPlus<string>;
 
 /**
@@ -124,13 +124,11 @@ export function lines(
  * may not include a newline.
  */
 export function lines(
-  iterable: ToString | Iterable<ToString> | AsyncIterable<ToString>
+  iterable: string | Buffer | Iterable<ToString> | AsyncIterable<ToString>
 ): IteratorPlus<string> | AsyncIteratorPlus<string> {
   return typeof iterable === 'string' || Buffer.isBuffer(iterable)
     ? linesSync([iterable.toString()])
     : Symbol.iterator in iterable
     ? linesSync(iterable)
-    : Symbol.asyncIterator in iterable
-    ? linesAsync(iterable)
-    : linesSync([iterable.toString()]);
+    : linesAsync(iterable);
 }
