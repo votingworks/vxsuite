@@ -16,6 +16,7 @@ export * from './display_settings';
 export * from './error_boundary';
 export * from './election_info_bar';
 export * from './file_input_button';
+export * from './fonts/roboto';
 export * from './fonts/font_family';
 export * from './full_screen_message';
 export * from './global_styles';

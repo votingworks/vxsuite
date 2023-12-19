@@ -1,4 +1,4 @@
-import 'normalize.css';
+// import 'normalize.css';
 import { createGlobalStyle, css } from 'styled-components';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 

@@ -286,7 +286,7 @@ interface SizeThemeParams {
 
 /** PPI calculation functions by screen type: */
 const devicePixelsPerInch: Record<ScreenType, () => number> = {
-  builtIn: () => window.devicePixelRatio * PIXELS_PER_INCH_WEB,
+  builtIn: () => 2.5 * PIXELS_PER_INCH_WEB,
   elo13: () => SCREEN_WIDTH_PIXELS_ELO_13 / SCREEN_WIDTH_INCHES_ELO_13,
   elo15: () => SCREEN_WIDTH_PIXELS_ELO_15 / SCREEN_WIDTH_INCHES_ELO_15,
   lenovoThinkpad15: () =>

@@ -28,6 +28,7 @@
     { "path": "../../../libs/hmpb/render-backend/tsconfig.build.json" },
     { "path": "../../../libs/image-utils/tsconfig.build.json" },
     { "path": "../../../libs/types/tsconfig.build.json" },
+    { "path": "../../../libs/ui/tsconfig.build.json" },
     { "path": "../../../libs/utils/tsconfig.build.json" }
   ]
 }
