@@ -1,5 +1,6 @@
 import { Rect } from '@votingworks/types';
 import { createImageData } from 'canvas';
+import { lines } from '@votingworks/basics';
 import { int } from '../src';
 import { getImageChannelCount } from '../src/image_data';
 
@@ -87,11 +88,11 @@ export function makeImageData(
   decodePixel: (char: string, x: int, y: int) => number,
   channelCount: 1 | 4
 ): ImageData {
-  const rows = description
-    .split('\n')
+  const rows = lines(description)
     .map((row) => row.trim())
     .filter(Boolean)
-    .map((row) => row.split(''));
+    .map((row) => row.split(''))
+    .toArray();
   const height = rows.length;
   let width = 0;
   for (const row of rows) {

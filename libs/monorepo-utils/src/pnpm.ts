@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, lines } from '@votingworks/basics';
 import { execFileSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { isAbsolute, join, relative } from 'path';
@@ -105,10 +105,10 @@ export function getWorkspacePackagePaths(root: string): string[] {
     ['recursive', 'list', '--depth=-1', '--porcelain'],
     { cwd: absoluteRootPath, encoding: 'utf-8' }
   );
-  return stdout
-    .split('\n')
+  return lines(stdout)
     .map((line) => relative(absoluteRootPath, line))
-    .filter((line) => line.length > 0);
+    .filter((line) => line.length > 0)
+    .toArray();
 }
 
 /**

@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { existsSync } from 'fs';
 import path from 'path';
-import { extractErrorMessage } from '@votingworks/basics';
+import { extractErrorMessage, lines } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
 import { CommandApdu, constructTlv } from '../../src/apdu';
@@ -240,20 +240,16 @@ async function runAppletConfigurationCommands(): Promise<void> {
       OPEN_FIPS_201_AID,
       '--mode',
       'enc',
-      ...apduStrings.map((apduString) => ['-s', apduString]).flat(),
+      ...apduStrings.flatMap((apduString) => ['-s', apduString]),
     ])
   );
-  const apduLines = output
-    .toString('utf-8')
-    .split('\n')
-    .filter((line) => line.startsWith('A>>') || line.startsWith('A<<'));
-  const successCount = apduLines.filter(
-    (line) => line.startsWith('A<<') && line.endsWith('9000')
-  ).length;
+  const successCount = lines(output.toString('utf-8'))
+    .filter((line) => line.startsWith('A<<') && line.endsWith('9000'))
+    .count();
   // Applet selection and establishment of GlobalPlatform Secure Channel
   const baselineApduCount = 3;
   if (successCount !== baselineApduCount + apdus.length) {
-    console.error(apduLines.join('\n'));
+    console.error(output.toString('utf-8'));
     throw new Error(
       'Not all applet configuration commands returned 90 00 success status word'
     );
