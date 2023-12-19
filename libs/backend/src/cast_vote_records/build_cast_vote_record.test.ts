@@ -7,6 +7,7 @@ import {
   CVR,
   unsafeParse,
 } from '@votingworks/types';
+import { getCastVoteRecordBallotType } from '@votingworks/utils';
 import {
   fishCouncilContest,
   fishingContest,
@@ -19,7 +20,6 @@ import {
 import {
   buildCastVoteRecord,
   buildCVRContestsFromVotes,
-  toCdfBallotType,
   getOptionPosition,
   combineImageAndLayoutHashes,
   getImageHash,
@@ -28,18 +28,6 @@ import {
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
-
-test('toCdfBallotType', () => {
-  expect(toCdfBallotType(BallotType.Absentee)).toEqual(
-    CVR.vxBallotType.Absentee
-  );
-  expect(toCdfBallotType(BallotType.Precinct)).toEqual(
-    CVR.vxBallotType.Precinct
-  );
-  expect(toCdfBallotType(BallotType.Provisional)).toEqual(
-    CVR.vxBallotType.Provisional
-  );
-});
 
 const mammalCouncilContest = find(
   election.contests,
@@ -468,8 +456,10 @@ test('buildCastVoteRecord - BMD ballot', () => {
     BatchId: batchId,
     BatchSequenceId: undefined,
     UniqueId: castVoteRecordId,
-    vxBallotType: CVR.vxBallotType.Precinct,
   });
+  expect(getCastVoteRecordBallotType(castVoteRecord)).toEqual(
+    BallotType.Precinct
+  );
 
   expect(castVoteRecord.CurrentSnapshotId).toEqual(
     `${castVoteRecordId}-original`
@@ -555,9 +545,11 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       BatchId: batchId,
       BatchSequenceId: indexInBatch,
       UniqueId: castVoteRecordId,
-      vxBallotType: CVR.vxBallotType.Precinct,
       BallotSheetId: '1',
     });
+    expect(getCastVoteRecordBallotType(castVoteRecord)).toEqual(
+      BallotType.Precinct
+    );
 
     expect(castVoteRecord.CVRSnapshot).toHaveLength(2);
     expect(castVoteRecord.CurrentSnapshotId).toEqual('1234-modified');

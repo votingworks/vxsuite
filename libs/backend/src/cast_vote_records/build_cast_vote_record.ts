@@ -29,6 +29,7 @@ import {
 } from '@votingworks/types';
 import {
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
+  buildCVRSnapshotBallotStyleMetadata,
   getContestById,
   getMarkStatus,
 } from '@votingworks/utils';
@@ -37,23 +38,6 @@ import {
   ContestOptionPositionMap,
   ElectionOptionPositionMap,
 } from './option_map';
-
-/**
- * Converts from the ballot type enumeration to CVR ballot type.
- */
-export function toCdfBallotType(ballotType: BallotType): CVR.vxBallotType {
-  switch (ballotType) {
-    case BallotType.Absentee:
-      return CVR.vxBallotType.Absentee;
-    case BallotType.Provisional:
-      return CVR.vxBallotType.Provisional;
-    case BallotType.Precinct:
-      return CVR.vxBallotType.Precinct;
-    // istanbul ignore next
-    default:
-      throwIllegalValue(ballotType);
-  }
-}
 
 /**
  * The input to {@link buildCvrImageData}
@@ -467,12 +451,14 @@ function buildOriginalSnapshot({
   definiteMarkThreshold,
   election,
   electionOptionPositionMap,
+  ballotType,
 }: {
   castVoteRecordId: string;
   marks: BallotMark[];
   definiteMarkThreshold: number;
   election: Election;
   electionOptionPositionMap?: ElectionOptionPositionMap;
+  ballotType: BallotType;
 }): CVR.CVRSnapshot {
   const marksByContest = iter(marks).toMap((mark) => mark.contestId);
 
@@ -480,6 +466,7 @@ function buildOriginalSnapshot({
     '@id': `${castVoteRecordId}-original`,
     '@type': 'CVR.CVRSnapshot',
     Type: CVR.CVRType.Original,
+    ...buildCVRSnapshotBallotStyleMetadata(ballotType),
     CVRContest: [...marksByContest.entries()].map(
       ([contestId, contestMarks]) => ({
         '@type': 'CVR.CVRContest',
@@ -580,7 +567,6 @@ export function buildCastVoteRecord({
     BatchId: batchId, // VVSG 2.0 1.1.5-G.6
     BatchSequenceId: indexInBatch, // VVSG 2.0 1.1.5-G.7
     UniqueId: castVoteRecordId,
-    vxBallotType: toCdfBallotType(ballotMetadata.ballotType),
   };
 
   // CVR for machine-marked ballot, only has "original" snapshot because the
@@ -602,6 +588,7 @@ export function buildCastVoteRecord({
           '@type': 'CVR.CVRSnapshot',
           '@id': `${castVoteRecordId}-original`,
           Type: CVR.CVRType.Original,
+          ...buildCVRSnapshotBallotStyleMetadata(ballotMetadata.ballotType),
           CVRContest: buildCVRContestsFromVotes({
             votes: interpretation.votes,
             electionDefinition,
@@ -636,6 +623,7 @@ export function buildCastVoteRecord({
     '@type': 'CVR.CVRSnapshot',
     '@id': `${castVoteRecordId}-modified`,
     Type: CVR.CVRType.Modified,
+    ...buildCVRSnapshotBallotStyleMetadata(ballotMetadata.ballotType),
     CVRContest: [
       ...buildCVRContestsFromVotes({
         votes: interpretations[0].votes,
@@ -679,6 +667,7 @@ export function buildCastVoteRecord({
             definiteMarkThreshold,
             election,
             electionOptionPositionMap,
+            ballotType: ballotMetadata.ballotType,
           }),
         ],
     BallotImage: images?.map(buildCvrImageData),

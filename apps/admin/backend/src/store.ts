@@ -21,7 +21,6 @@ import {
   BallotStyleId,
   ContestId,
   ContestOptionId,
-  CVR,
   DistrictId,
   Election,
   Id,
@@ -36,6 +35,7 @@ import {
   safeParseSystemSettings,
   Tabulation,
   Admin,
+  BallotType,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
@@ -865,7 +865,7 @@ export class Store {
       | {
           id: Id;
           ballotStyleId: string;
-          ballotType: CVR.vxBallotType;
+          ballotType: BallotType;
           batchId: string;
           precinctId: string;
           sheetNumber: number | null;
