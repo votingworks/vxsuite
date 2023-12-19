@@ -25,7 +25,11 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { allContestOptions, hasWriteIns } from '@votingworks/utils';
+import {
+  allContestOptions,
+  buildCVRSnapshotBallotStyleMetadata,
+  hasWriteIns,
+} from '@votingworks/utils';
 import {
   arrangeContestsBySheet,
   filterVotesByContests,
@@ -212,10 +216,7 @@ export function* generateCvrs({
       ballotStyle,
       election,
     });
-    for (const ballotType of [
-      CVR.vxBallotType.Absentee,
-      CVR.vxBallotType.Precinct,
-    ]) {
+    for (const ballotType of [BallotType.Absentee, BallotType.Precinct]) {
       for (const precinctId of precinctIds) {
         const ballotPageLayouts = bmdBallots
           ? []
@@ -223,10 +224,7 @@ export function* generateCvrs({
               ballotStyleId,
               precinctId,
               electionHash: electionDefinition.electionHash,
-              ballotType:
-                ballotType === CVR.vxBallotType.Absentee
-                  ? BallotType.Absentee
-                  : BallotType.Precinct,
+              ballotType,
               isTestMode: testMode,
             });
         if (ballotPageLayouts.length > 2) {
@@ -275,7 +273,6 @@ export function* generateCvrs({
                 CreatingDeviceId: scannerId,
                 ElectionId: electionDefinition.electionHash,
                 BatchId: batchId,
-                vxBallotType: ballotType,
                 CurrentSnapshotId: `${castVoteRecordId}-modified`,
                 UniqueId: ballotIdPrefix
                   ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
@@ -284,6 +281,7 @@ export function* generateCvrs({
                   {
                     '@type': 'CVR.CVRSnapshot',
                     '@id': `${castVoteRecordId}-modified`,
+                    ...buildCVRSnapshotBallotStyleMetadata(ballotType),
                     Type: CVR.CVRType.Modified,
                     CVRContest: buildCVRContestsFromVotes({
                       electionDefinition,
@@ -335,7 +333,6 @@ export function* generateCvrs({
                   CreatingDeviceId: scannerId,
                   ElectionId: electionDefinition.electionHash,
                   BatchId: batchId,
-                  vxBallotType: ballotType,
                   CurrentSnapshotId: `${castVoteRecordId}-modified`,
                   UniqueId: ballotIdPrefix
                     ? `${ballotIdPrefix}-${castVoteRecordId.toString()}`
@@ -346,6 +343,7 @@ export function* generateCvrs({
                       '@type': 'CVR.CVRSnapshot',
                       '@id': `${castVoteRecordId}-modified`,
                       Type: CVR.CVRType.Modified,
+                      ...buildCVRSnapshotBallotStyleMetadata(ballotType),
                       CVRContest: [
                         ...buildCVRContestsFromVotes({
                           electionDefinition,
