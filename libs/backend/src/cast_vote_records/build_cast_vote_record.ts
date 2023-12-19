@@ -1,4 +1,5 @@
 import {
+  Optional,
   assert,
   assertDefined,
   find,
@@ -65,6 +66,43 @@ export interface CvrImageDataInput {
 }
 
 /**
+ * Separator between the image and layout hashes within the single CDF hash field.
+ */
+export const HASH_SEPARATOR = '-';
+
+/**
+ * Because the CDF for cast vote records only allows one hash per image, but we
+ * have two files (image file + layout file), we concatenate the hash to fit in
+ * the file format.
+ */
+export function combineImageAndLayoutHashes(
+  imageHash: string,
+  layoutFileHash?: string
+): string {
+  return layoutFileHash
+    ? `${imageHash}${HASH_SEPARATOR}${layoutFileHash}`
+    : imageHash;
+}
+
+/**
+ * Given CVR image data, extracts the image hash from the report's hash field,
+ * which may also contain a layout hash.
+ */
+export function getImageHash(imageData: CVR.ImageData): string {
+  const multiHash = assertDefined(imageData.Hash).Value;
+  return assertDefined(multiHash.split(HASH_SEPARATOR)[0]);
+}
+
+/**
+ * Given CVR image data, extracts the layout hash from the report's hash field,
+ * if it exists.
+ */
+export function getLayoutHash(imageData: CVR.ImageData): Optional<string> {
+  const multiHash = assertDefined(imageData.Hash).Value;
+  return multiHash.split(HASH_SEPARATOR)[1];
+}
+
+/**
  * Builds a cast vote record image data object
  */
 export function buildCvrImageData({
@@ -77,10 +115,9 @@ export function buildCvrImageData({
     Hash: {
       '@type': 'CVR.Hash',
       Type: CVR.HashType.Sha256,
-      Value: imageHash,
+      Value: combineImageAndLayoutHashes(imageHash, layoutFileHash),
     },
     Location: `file:${imageRelativePath}`,
-    vxLayoutFileHash: layoutFileHash,
   };
 }
 

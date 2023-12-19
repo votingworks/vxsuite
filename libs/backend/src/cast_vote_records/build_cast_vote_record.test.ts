@@ -21,6 +21,9 @@ import {
   buildCVRContestsFromVotes,
   toCdfBallotType,
   getOptionPosition,
+  combineImageAndLayoutHashes,
+  getImageHash,
+  getLayoutHash,
 } from './build_cast_vote_record';
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
@@ -380,10 +383,9 @@ describe('buildCVRContestsFromVotes', () => {
                 WriteInImage: expect.objectContaining({
                   Hash: expect.objectContaining({
                     Type: CVR.HashType.Sha256,
-                    Value: 'a',
+                    Value: 'a-b',
                   }),
                   Location: 'file:ballot-images/image',
-                  vxLayoutFileHash: 'b',
                 }),
               }),
             }),
@@ -514,20 +516,18 @@ test('buildCastVoteRecord - BMD ballot images', () => {
       Hash: {
         '@type': 'CVR.Hash',
         Type: CVR.HashType.Sha256,
-        Value: 'a',
+        Value: 'a-b',
       },
       Location: 'file:ballot-images/front.jpg',
-      vxLayoutFileHash: 'b',
     },
     {
       '@type': 'CVR.ImageData',
       Hash: {
         '@type': 'CVR.Hash',
         Type: CVR.HashType.Sha256,
-        Value: 'c',
+        Value: 'c-d',
       },
       Location: 'file:ballot-images/back.jpg',
-      vxLayoutFileHash: 'd',
     },
   ]);
 });
@@ -650,20 +650,18 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
       Hash: {
         '@type': 'CVR.Hash',
         Type: CVR.HashType.Sha256,
-        Value: 'a',
+        Value: 'a-b',
       },
       Location: 'file:ballot-images/front.jpg',
-      vxLayoutFileHash: 'b',
     },
     {
       '@type': 'CVR.ImageData',
       Hash: {
         '@type': 'CVR.Hash',
         Type: CVR.HashType.Sha256,
-        Value: 'c',
+        Value: 'c-d',
       },
       Location: 'file:ballot-images/back.jpg',
-      vxLayoutFileHash: 'd',
     },
   ]);
 });
@@ -700,10 +698,9 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
     Hash: {
       '@type': 'CVR.Hash',
       Type: CVR.HashType.Sha256,
-      Value: 'a',
+      Value: 'a-b',
     },
     Location: 'file:ballot-images/front.jpg',
-    vxLayoutFileHash: 'b',
   };
 
   const expectedBackImageData: CVR.ImageData = {
@@ -711,10 +708,9 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
     Hash: {
       '@type': 'CVR.Hash',
       Type: CVR.HashType.Sha256,
-      Value: 'c',
+      Value: 'c-d',
     },
     Location: 'file:ballot-images/back.jpg',
-    vxLayoutFileHash: 'd',
   };
 
   expect(castVoteRecord.BallotImage).toEqual([
@@ -763,4 +759,34 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
       ],
     })
   );
+});
+
+describe('hash manipulation', () => {
+  expect(combineImageAndLayoutHashes('image')).toEqual('image');
+  expect(combineImageAndLayoutHashes('image', 'layout')).toEqual(
+    'image-layout'
+  );
+
+  const imageDataWithLayoutHash: CVR.ImageData = {
+    '@type': 'CVR.ImageData',
+    Hash: {
+      '@type': 'CVR.Hash',
+      Type: CVR.HashType.Sha256,
+      Value: 'image-layout',
+    },
+  };
+  const imageDataWithoutLayoutHash: CVR.ImageData = {
+    '@type': 'CVR.ImageData',
+    Hash: {
+      '@type': 'CVR.Hash',
+      Type: CVR.HashType.Sha256,
+      Value: 'image',
+    },
+  };
+
+  expect(getImageHash(imageDataWithLayoutHash)).toEqual('image');
+  expect(getImageHash(imageDataWithoutLayoutHash)).toEqual('image');
+
+  expect(getLayoutHash(imageDataWithLayoutHash)).toEqual('layout');
+  expect(getLayoutHash(imageDataWithoutLayoutHash)).toBeUndefined();
 });

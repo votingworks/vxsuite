@@ -17,6 +17,7 @@ import {
   CastVoteRecordExportModifications,
   modifyCastVoteRecordExport,
 } from './test_utils';
+import { getImageHash } from './build_cast_vote_record';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -287,11 +288,16 @@ test.each<{
     expectedErrorSubType: 'invalid-ballot-image-field',
   },
   {
-    description: 'invalid ballot image field, undefined first layout file hash',
+    description:
+      'invalid ballot image field, first hash value does not include layout hash',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
-          ? set(castVoteRecord, 'BallotImage[0].vxLayoutFileHash', '')
+          ? set(
+              castVoteRecord,
+              'BallotImage[0].Hash.Value',
+              getImageHash(castVoteRecord.BallotImage[0]!)
+            )
           : castVoteRecord,
       numCastVoteRecordsToKeep: 10,
     },
@@ -299,11 +305,15 @@ test.each<{
   },
   {
     description:
-      'invalid ballot image field, undefined second layout file hash',
+      'invalid ballot image field, second hash value does not include layout hash',
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
-          ? set(castVoteRecord, 'BallotImage[1].vxLayoutFileHash', '')
+          ? set(
+              castVoteRecord,
+              'BallotImage[1].Hash.Value',
+              getImageHash(castVoteRecord.BallotImage[1]!)
+            )
           : castVoteRecord,
       numCastVoteRecordsToKeep: 10,
     },

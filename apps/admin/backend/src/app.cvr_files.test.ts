@@ -27,6 +27,9 @@ import { Client } from '@votingworks/grout';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   CastVoteRecordExportModifications,
+  combineImageAndLayoutHashes,
+  getImageHash,
+  getLayoutHash,
   modifyCastVoteRecordExport,
 } from '@votingworks/backend';
 import { MockFileTree } from '@votingworks/usb-drive';
@@ -118,7 +121,7 @@ test('happy path - mock election flow', async () => {
 
   // insert a USB drive
   const testExportDirectoryName = 'TEST__machine_0000__2022-09-24_18-00-00';
-  const testExportTimestamp = '2023-12-18T21:39:36.592Z';
+  const testExportTimestamp = '2023-12-19T18:29:19.088Z';
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
@@ -766,7 +769,14 @@ test.each<{
     modifications: {
       castVoteRecordModifier: (castVoteRecord) =>
         castVoteRecord.BallotImage
-          ? set(castVoteRecord, 'BallotImage[0].Hash.Value', 'incorrect-hash')
+          ? set(
+              castVoteRecord,
+              'BallotImage[0].Hash.Value',
+              combineImageAndLayoutHashes(
+                'badhash',
+                getLayoutHash(castVoteRecord.BallotImage[0]!)
+              )
+            )
           : castVoteRecord,
       numCastVoteRecordsToKeep: 10,
     },
@@ -779,8 +789,11 @@ test.each<{
         castVoteRecord.BallotImage
           ? set(
               castVoteRecord,
-              'BallotImage[0].vxLayoutFileHash',
-              'incorrect-hash'
+              'BallotImage[0].Hash.Value',
+              combineImageAndLayoutHashes(
+                getImageHash(castVoteRecord.BallotImage[0]!),
+                'badhash'
+              )
             )
           : castVoteRecord,
       numCastVoteRecordsToKeep: 10,

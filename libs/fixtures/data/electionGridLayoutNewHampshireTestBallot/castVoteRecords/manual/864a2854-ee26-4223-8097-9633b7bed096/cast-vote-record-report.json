@@ -655,10 +655,9 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
                           },
-                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg",
-                          "vxLayoutFileHash": "be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
                       }
                     }
@@ -735,10 +734,9 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
                           },
-                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg",
-                          "vxLayoutFileHash": "be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
                       }
                     }
@@ -806,10 +804,9 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
                           },
-                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg",
-                          "vxLayoutFileHash": "be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
                       }
                     }
@@ -833,10 +830,9 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
                           },
-                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg",
-                          "vxLayoutFileHash": "be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
                       }
                     }
@@ -869,10 +865,9 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
                           },
-                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg",
-                          "vxLayoutFileHash": "be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
                       }
                     }
@@ -993,10 +988,9 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c"
+                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
                           },
-                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg",
-                          "vxLayoutFileHash": "8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
+                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
                         }
                       }
                     }
@@ -1029,10 +1023,9 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c"
+                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
                           },
-                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg",
-                          "vxLayoutFileHash": "8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
+                          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
                         }
                       }
                     }
@@ -1824,20 +1817,18 @@
           "Hash": {
             "@type": "CVR.Hash",
             "Type": "sha-256",
-            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68"
+            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
           },
-          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg",
-          "vxLayoutFileHash": "be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
         },
         {
           "@type": "CVR.ImageData",
           "Hash": {
             "@type": "CVR.Hash",
             "Type": "sha-256",
-            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c"
+            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
           },
-          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg",
-          "vxLayoutFileHash": "8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
+          "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
         }
       ]
     }
