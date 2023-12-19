@@ -10,10 +10,13 @@ import {
 } from '@votingworks/hmpb-render-backend';
 import {
   AdjudicationReason,
+  BallotPaperSize,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
 } from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { loadImageData, toRgba } from '@votingworks/image-utils';
+import { createCanvas } from 'canvas';
 import {
   sortVotesDict,
   ballotPdfToPageImages,
@@ -248,6 +251,55 @@ for (const {
           isTestMode: false,
           ballotType: BallotType.Absentee,
         });
+
+        // Snapshot the ballot images with write-in crops drawn on them
+        // We want to cover different bubble positions and densities, but to
+        // save time we don't test across paper sizes.
+        if (paperSize === BallotPaperSize.Letter) {
+          for (const [pageImagePath, interpretation] of iter(
+            sheetImagePaths
+          ).zip([frontResult.interpretation, backResult.interpretation])) {
+            // Skip pages without write-ins
+            if (
+              !interpretation.layout.contests.some((contest) =>
+                contest.options.some(
+                  (option) =>
+                    option.definition?.type === 'candidate' &&
+                    option.definition.isWriteIn
+                )
+              )
+            ) {
+              continue;
+            }
+            const ballotImage = await loadImageData(pageImagePath);
+            const canvas = createCanvas(ballotImage.width, ballotImage.height);
+            const context = canvas.getContext('2d');
+            context.imageSmoothingEnabled = false;
+            context.putImageData(toRgba(ballotImage).unsafeUnwrap(), 0, 0);
+            context.strokeStyle = 'blue';
+            context.lineWidth = 2;
+
+            for (const contest of interpretation.layout.contests) {
+              for (const option of contest.options) {
+                if (
+                  option.definition?.type === 'candidate' &&
+                  option.definition.isWriteIn
+                ) {
+                  const { bounds } = option;
+                  context.strokeRect(
+                    bounds.x,
+                    bounds.y,
+                    bounds.width,
+                    bounds.height
+                  );
+                }
+              }
+            }
+
+            const writeInImage = canvas.toBuffer('image/png');
+            expect(writeInImage).toMatchImageSnapshot();
+          }
+        }
       }
     });
   });

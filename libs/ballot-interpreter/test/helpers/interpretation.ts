@@ -18,7 +18,8 @@ export async function ballotPdfToPageImages(
   const pdfImages = pdfToImages(pdfContents, { scale: 200 / 72 });
   return await iter(pdfImages)
     .map(async ({ page }) => {
-      const path = tmpNameSync({ postfix: '.jpg' });
+      // We need PNGs for jest-image-snapshot to work
+      const path = tmpNameSync({ postfix: '.png' });
       await writeImageData(path, page);
       return path;
     })

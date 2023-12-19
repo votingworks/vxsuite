@@ -11,6 +11,7 @@ module.exports = {
       lines: -7,
     },
   },
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   watchPathIgnorePatterns: [
     ...shared.watchPathIgnorePatterns,
     '<rootDir>/benchmarks',
