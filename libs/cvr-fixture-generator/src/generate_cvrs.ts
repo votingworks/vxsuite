@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import {
   buildCVRContestsFromVotes,
   buildCvrImageData,
+  combineImageAndLayoutHashes,
 } from '@votingworks/backend';
 import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -412,7 +413,6 @@ export function populateImageAndLayoutFileHashes(
 
   // Cast readonly values as mutable values so that we can override them
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  (assertDefined(ballotImage.Hash).Value as string) = imageHash;
-  // eslint-disable-next-line no-param-reassign
-  (ballotImage.vxLayoutFileHash as string) = layoutFileHash;
+  (assertDefined(ballotImage.Hash).Value as string) =
+    combineImageAndLayoutHashes(imageHash, layoutFileHash);
 }
