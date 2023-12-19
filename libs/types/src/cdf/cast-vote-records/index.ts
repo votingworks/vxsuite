@@ -1456,11 +1456,6 @@ export interface ImageData {
    * A pointer to the location of the image file.
    */
   readonly Location?: Uri;
-
-  /**
-   * The hash of the VotingWorks layout file corresponding to this image.
-   */
-  readonly vxLayoutFileHash?: string;
 }
 
 /**
@@ -1471,7 +1466,6 @@ export const ImageDataSchema: z.ZodSchema<ImageData> = z.object({
   Hash: z.optional(z.lazy(/* istanbul ignore next */ () => HashSchema)),
   Image: z.optional(z.lazy(/* istanbul ignore next */ () => ImageSchema)),
   Location: z.optional(UriSchema),
-  vxLayoutFileHash: z.optional(z.string()),
 });
 
 /**

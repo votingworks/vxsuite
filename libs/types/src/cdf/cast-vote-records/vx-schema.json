@@ -843,10 +843,6 @@
         "Location": {
           "type": "string",
           "format": "uri"
-        },
-        "vxLayoutFileHash": {
-          "description": "The hash of the VotingWorks layout file corresponding to this image.",
-          "type": "string"
         }
       },
       "type": "object"
