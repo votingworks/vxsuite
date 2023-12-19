@@ -1,4 +1,4 @@
-import { assert, deferredQueue } from '@votingworks/basics';
+import { assert, deferredQueue, lines } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';
@@ -9,7 +9,6 @@ import {
 } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { streamExecFile } from './exec';
-import { StreamLines } from './util/stream_lines';
 
 const debug = makeDebug('scan:scanner');
 
@@ -118,7 +117,6 @@ export class FujitsuScanner implements BatchScanner {
       debug
     );
 
-    const scannedFiles: string[] = [];
     const results = deferredQueue<Promise<SheetOf<string> | undefined>>();
     let done = false;
     const scanimage = streamExecFile('scanimage', args);
@@ -133,36 +131,45 @@ export class FujitsuScanner implements BatchScanner {
     );
 
     assert(scanimage.stdout);
-    new StreamLines(scanimage.stdout).on('line', (line: string) => {
-      const path = line.trim();
-      void this.logger.log(
-        LogEventId.FujitsuScanImageScanned,
-        'system',
-        {
-          message: `scanimage [pid=${scanimage.pid}] reported a scanned file: ${path}`,
-          disposition: 'success',
-        },
-        debug
-      );
-
-      scannedFiles.push(path);
-      if (scannedFiles.length % 2 === 0) {
-        const [frontPath, backPath] = scannedFiles.slice(-2);
-        results.resolve(Promise.resolve([frontPath, backPath]));
-      }
-    });
+    void lines(scanimage.stdout)
+      .map((line) => line.trim())
+      // filter out any blank lines, including any trailing ones
+      .filter((line) => line.length > 0)
+      .map((path) => {
+        void this.logger.log(
+          LogEventId.FujitsuScanImageScanned,
+          'system',
+          {
+            message: `scanimage [pid=${scanimage.pid}] reported a scanned file: ${path}`,
+            disposition: 'success',
+          },
+          debug
+        );
+        return path;
+      })
+      // pair up front and back of ballot
+      .chunks(2)
+      .map((paths) => {
+        assert(paths.length === 2, 'expected front and back of ballot');
+        return results.resolve(Promise.resolve(paths));
+      })
+      // for the side effects above, the result is unused
+      .count();
 
     assert(scanimage.stderr);
-    new StreamLines(scanimage.stderr).on('line', (line: string) => {
-      void this.logger.log(
-        LogEventId.FujitsuScanMessage,
-        'system',
-        {
-          message: `scanimage [pid=${scanimage.pid}] msg: ${line.trim()}`,
-        },
-        debug
-      );
-    });
+    void lines(scanimage.stderr)
+      .map((line) =>
+        this.logger.log(
+          LogEventId.FujitsuScanMessage,
+          'system',
+          {
+            message: `scanimage [pid=${scanimage.pid}] msg: ${line.trim()}`,
+          },
+          debug
+        )
+      )
+      // for the side effects above, the result is unused
+      .count();
 
     scanimage.once('exit', (code) => {
       done = true;
