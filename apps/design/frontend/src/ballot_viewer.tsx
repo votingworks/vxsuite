@@ -57,13 +57,11 @@ function SvgAnyElement({ element }: { element: AnyElement }) {
 }
 
 interface DebugFlags {
-  // eslint-disable-next-line react/no-unused-prop-types
   showGridLines: boolean;
-  // eslint-disable-next-line react/no-unused-prop-types
   showWriteInOptionBoxes: boolean;
 }
 
-interface DebugInfo extends DebugFlags {
+interface DebugInfo {
   gridLayout: GridLayout;
   grid: GridDimensions;
   pageNumber: number;
@@ -185,7 +183,7 @@ function PageObject({
   width: number;
   height: number;
   page: Page;
-  debugInfo: DebugInfo;
+  debugInfo: DebugInfo & DebugFlags;
 }) {
   return (
     <SvgPage {...{ x, y, width, height, ...page }}>
@@ -209,7 +207,7 @@ function DocumentSvg({
 }: {
   dimensions: { width: number; height: number };
   document: Document;
-  debugInfo: Omit<DebugInfo, 'pageNumber'>;
+  debugInfo: Omit<DebugInfo, 'pageNumber'> & DebugFlags;
 }) {
   const [zoom, setZoom] = useState(0.8);
   const [panOffset, setPanOffset] = useState({ x: -30, y: -30 });
@@ -320,6 +318,72 @@ const DebugPanel = styled.div`
   border-radius: 0.25rem;
   gap: 0.5rem;
 `;
+
+function DebugPanelToggleButton({
+  debugFlags,
+  setDebugFlags,
+  showDebugPanel,
+  setShowDebugPanel,
+}: {
+  debugFlags: DebugFlags;
+  setDebugFlags: (debugFlags: DebugFlags) => void;
+  showDebugPanel: boolean;
+  setShowDebugPanel: (showDebugPanel: boolean) => void;
+}) {
+  return (
+    <DebugPanelWrapper>
+      {showDebugPanel ? (
+        <DebugPanel>
+          <Row
+            style={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <FieldName>Debug</FieldName>
+            <Button
+              fill="transparent"
+              onPress={() => setShowDebugPanel(false)}
+              icon="X"
+            />
+          </Row>
+          <Column style={{ gap: '0.5rem' }}>
+            <label style={{ cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={debugFlags.showGridLines}
+                onChange={() => {
+                  setDebugFlags({
+                    ...debugFlags,
+                    showGridLines: !debugFlags.showGridLines,
+                  });
+                }}
+              />{' '}
+              Show grid lines
+            </label>
+            <label style={{ cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={debugFlags.showWriteInOptionBoxes}
+                onChange={() =>
+                  setDebugFlags({
+                    ...debugFlags,
+                    showWriteInOptionBoxes: !debugFlags.showWriteInOptionBoxes,
+                  })
+                }
+              />{' '}
+              Show write-in crop boxes
+            </label>
+          </Column>
+        </DebugPanel>
+      ) : (
+        <Button onPress={() => setShowDebugPanel(true)} fill="transparent">
+          Debug
+        </Button>
+      )}
+    </DebugPanelWrapper>
+  );
+}
 
 const ErrorMessage = styled.div`
   color: red;
@@ -511,58 +575,12 @@ export function BallotViewer({
             }}
           />
         )}
-        <DebugPanelWrapper>
-          {showDebugPanel ? (
-            <DebugPanel>
-              <Row
-                style={{
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <FieldName>Debug</FieldName>
-                <Button
-                  fill="transparent"
-                  onPress={() => setShowDebugPanel(false)}
-                  icon="X"
-                />
-              </Row>
-              <Column style={{ gap: '0.5rem' }}>
-                <label style={{ cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={debugFlags.showGridLines}
-                    onChange={() => {
-                      setDebugFlags({
-                        ...debugFlags,
-                        showGridLines: !debugFlags.showGridLines,
-                      });
-                    }}
-                  />{' '}
-                  Show grid lines
-                </label>
-                <label style={{ cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={debugFlags.showWriteInOptionBoxes}
-                    onChange={() =>
-                      setDebugFlags({
-                        ...debugFlags,
-                        showWriteInOptionBoxes:
-                          !debugFlags.showWriteInOptionBoxes,
-                      })
-                    }
-                  />{' '}
-                  Show write-in crop boxes
-                </label>
-              </Column>
-            </DebugPanel>
-          ) : (
-            <Button onPress={() => setShowDebugPanel(true)} fill="transparent">
-              Debug
-            </Button>
-          )}
-        </DebugPanelWrapper>
+        <DebugPanelToggleButton
+          debugFlags={debugFlags}
+          setDebugFlags={setDebugFlags}
+          showDebugPanel={showDebugPanel}
+          setShowDebugPanel={setShowDebugPanel}
+        />
       </Canvas>
     </div>
   );
