@@ -8,7 +8,8 @@
     {
       "files": [
         "src/cdf/cast-vote-records/*.ts",
-        "src/cdf_cast_vote_records.ts"
+        "src/cdf_cast_vote_records.ts",
+        "src/cast_vote_records.ts"
       ],
       "rules": {
         // Allow for variable naming to include CVR

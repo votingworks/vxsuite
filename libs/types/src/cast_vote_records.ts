@@ -6,43 +6,25 @@ import {
   CVRSchema,
 } from './cdf/cast-vote-records';
 import {
-  BallotId,
   BallotStyle,
-  BallotStyleId,
   BallotType,
+  BallotTypeSchema,
   ElectionDefinition,
   HmpbBallotPageMetadata,
   Precinct,
-  PrecinctId,
 } from './election';
 import { ExportDataError } from './errors';
-import {
-  Dictionary,
-  Iso8601Timestamp,
-  Iso8601TimestampSchema,
-} from './generic';
+import { Iso8601Timestamp, Iso8601TimestampSchema } from './generic';
 import { SheetOf } from './hmpb';
 import { PageInterpretation } from './interpretation';
 
-/**
- * Legacy type, slightly different than the CDF ballot type.
- */
-export type CastVoteRecordBallotType = 'absentee' | 'provisional' | 'precinct';
-
-/**
- * Legacy cast vote record type, currently used by tally code.
- */
-export interface CastVoteRecord
-  extends Dictionary<string | readonly string[] | boolean> {
-  readonly _precinctId: PrecinctId;
-  readonly _ballotId?: BallotId;
-  readonly _ballotStyleId: BallotStyleId;
-  readonly _ballotType: CastVoteRecordBallotType;
-  readonly _batchId: string;
-  readonly _batchLabel: string;
-  readonly _testBallot: boolean;
-  readonly _scannerId: string;
+export interface CVRSnapshotOtherStatus {
+  ballotType: BallotType;
 }
+export const CVRSnapshotOtherStatusSchema: z.ZodSchema<CVRSnapshotOtherStatus> =
+  z.object({
+    ballotType: BallotTypeSchema,
+  });
 
 export enum CastVoteRecordExportFileName {
   CAST_VOTE_RECORD_REPORT = 'cast-vote-record-report.json',
