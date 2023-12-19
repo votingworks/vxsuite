@@ -1,14 +1,17 @@
 import fs from 'fs';
 import path from 'path';
 import { dirSync } from 'tmp';
-import { CVR } from '@votingworks/types';
+import { BallotType, CVR } from '@votingworks/types';
 
 import {
+  buildCVRSnapshotBallotStyleMetadata,
   convertCastVoteRecordVotesToTabulationVotes,
+  getCastVoteRecordBallotType,
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
   getWriteInsFromCastVoteRecord,
   isBmdWriteIn,
+  isCastVoteRecordWriteInValid,
 } from './cast_vote_records';
 
 const mockCastVoteRecord: CVR.CVR = {
@@ -20,7 +23,6 @@ const mockCastVoteRecord: CVR.CVR = {
   CurrentSnapshotId: '0',
   ElectionId: '0',
   UniqueId: '0',
-  vxBallotType: CVR.vxBallotType.Precinct,
   BallotImage: [
     { '@type': 'CVR.ImageData', Location: 'front.jpg' },
     { '@type': 'CVR.ImageData', Location: 'back.jpg' },
@@ -457,4 +459,96 @@ test('getExportedCastVoteRecordIds', async () => {
   const castVoteRecordIds =
     await getExportedCastVoteRecordIds(exportDirectoryPath);
   expect([...castVoteRecordIds].sort()).toEqual(['1', '2', '3']);
+});
+
+test('isCastVoteRecordWriteInValid', () => {
+  expect(
+    isCastVoteRecordWriteInValid({
+      contestId: 'contest-0',
+      optionId: 'option-0',
+    })
+  ).toBeFalsy();
+  expect(
+    isCastVoteRecordWriteInValid({
+      contestId: 'contest-0',
+      optionId: 'option-0',
+      side: 'front',
+    })
+  ).toBeTruthy();
+  expect(
+    isCastVoteRecordWriteInValid({
+      contestId: 'contest-0',
+      optionId: 'option-0',
+      text: 'Mr. Magic',
+    })
+  ).toBeTruthy();
+});
+
+test('buildCVRSnapshotBallotStyleMetadata', () => {
+  expect(buildCVRSnapshotBallotStyleMetadata(BallotType.Precinct)).toEqual({
+    Status: [CVR.CVRStatus.Other],
+    OtherStatus: '{"ballotType":"precinct"}',
+  });
+});
+
+test('getCastVoteRecordBallotType', () => {
+  const snapshot: CVR.CVRSnapshot = {
+    '@type': 'CVR.CVRSnapshot',
+    '@id': '0',
+    Type: CVR.CVRType.Modified,
+    CVRContest: [],
+  };
+
+  const cvr: CVR.CVR = {
+    '@type': 'CVR.CVR',
+    BallotStyleId: '0',
+    BallotStyleUnitId: '0',
+    BatchId: '0',
+    CreatingDeviceId: '0',
+    CurrentSnapshotId: '0',
+    ElectionId: '0',
+    UniqueId: '0',
+    BallotImage: [
+      { '@type': 'CVR.ImageData', Location: 'front.jpg' },
+      { '@type': 'CVR.ImageData', Location: 'back.jpg' },
+    ],
+    CVRSnapshot: [],
+  };
+
+  function buildMockCvr(
+    otherStatus?: string,
+    status = [CVR.CVRStatus.Other]
+  ): CVR.CVR {
+    return {
+      ...cvr,
+      CVRSnapshot: [
+        {
+          ...snapshot,
+          Status: status,
+          OtherStatus: otherStatus,
+        },
+      ],
+    };
+  }
+
+  // missing snapshot
+  expect(getCastVoteRecordBallotType(cvr)).toBeUndefined();
+  // "Status" undefined
+  expect(
+    getCastVoteRecordBallotType(buildMockCvr('{}', undefined))
+  ).toBeUndefined();
+  // "Status" doesn't include "Other"
+  expect(getCastVoteRecordBallotType(buildMockCvr('{}', []))).toBeUndefined();
+  // "Status" includes "Other" but "OtherStatus" is undefined
+  expect(getCastVoteRecordBallotType(buildMockCvr(undefined))).toBeUndefined();
+  // bad JSON
+  expect(getCastVoteRecordBallotType(buildMockCvr('{sdfasd'))).toBeUndefined();
+  // bad schema
+  expect(
+    getCastVoteRecordBallotType(buildMockCvr('{"ballotType":"early"}'))
+  ).toBeUndefined();
+
+  expect(
+    getCastVoteRecordBallotType(buildMockCvr('{"ballotType":"precinct"}'))
+  ).toEqual(BallotType.Precinct);
 });
