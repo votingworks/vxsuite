@@ -1,4 +1,4 @@
-import { integers, iter } from '@votingworks/basics';
+import { integers, iter, typedAs } from '@votingworks/basics';
 import * as fc from 'fast-check';
 import { jsonStream, JsonStreamInput, JsonStreamOptions } from './json_stream';
 
@@ -78,6 +78,64 @@ test('iterable', async () => {
 test('async iterable', async () => {
   expect(await asString(integers({ from: 1, through: 3 }).async())).toEqual(
     '[1,2,3]'
+  );
+});
+
+test('allows iterables instead of arrays at any nesting level', async () => {
+  interface Movie {
+    title: string;
+    actors: Actor[];
+  }
+
+  interface Actor {
+    name: string;
+    awards?: string[];
+  }
+
+  expect(
+    JSON.parse(
+      await asString<Movie[]>([
+        {
+          title: 'The Matrix',
+          actors: (function* actors() {
+            yield {
+              name: 'Keanu Reeves',
+              awards: ['MTV Movie & TV Award for Best Male Performance'],
+            };
+            yield {
+              name: 'Laurence Fishburne',
+              awards: iter(['MTV Movie & TV Award for Best Fight']),
+            };
+            yield {
+              name: 'Carrie-Anne Moss',
+              awards: (async function* awards() {
+                yield await Promise.resolve('Empire Award for Best Newcomer');
+              })(),
+            };
+          })(),
+        },
+      ])
+    )
+  ).toEqual(
+    typedAs<Movie[]>([
+      {
+        title: 'The Matrix',
+        actors: [
+          {
+            name: 'Keanu Reeves',
+            awards: ['MTV Movie & TV Award for Best Male Performance'],
+          },
+          {
+            name: 'Laurence Fishburne',
+            awards: ['MTV Movie & TV Award for Best Fight'],
+          },
+          {
+            name: 'Carrie-Anne Moss',
+            awards: ['Empire Award for Best Newcomer'],
+          },
+        ],
+      },
+    ])
   );
 });
 
