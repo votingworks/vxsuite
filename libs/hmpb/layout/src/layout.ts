@@ -2,6 +2,7 @@ import {
   assert,
   assertDefined,
   iter,
+  lines,
   ok,
   range,
   Result,
@@ -73,7 +74,7 @@ function textWidth(text: string, fontStyle: FontStyle): number {
 
 function wrapLine(line: string, fontStyle: FontStyle, width: number): string[] {
   const words = line.split(' ');
-  const lines: string[] = [];
+  const results: string[] = [];
   let currentLine = '';
   for (const word of words) {
     const extendedLine =
@@ -81,16 +82,18 @@ function wrapLine(line: string, fontStyle: FontStyle, width: number): string[] {
     if (textWidth(extendedLine, fontStyle) <= width) {
       currentLine = extendedLine;
     } else {
-      lines.push(currentLine);
+      results.push(currentLine);
       currentLine = word;
     }
   }
-  lines.push(currentLine);
-  return lines;
+  results.push(currentLine);
+  return results;
 }
 
 function textWrap(text: string, fontStyle: FontStyle, width: number): string[] {
-  return text.split('\n').flatMap((line) => wrapLine(line, fontStyle, width));
+  return lines(text)
+    .flatMap((line) => wrapLine(line, fontStyle, width))
+    .toArray();
 }
 
 function textHeight(textLines: string[], fontStyle: FontStyle): number {
@@ -117,18 +120,18 @@ function TextBlock({
   let heightUsed = 0;
 
   for (const { text, fontStyle } of textGroups) {
-    const lines = textWrap(text, fontStyle, width);
+    const wrappedText = textWrap(text, fontStyle, width);
     textBoxes.push({
       type: 'TextBox',
       x: 0,
       y: heightUsed,
       width,
-      height: textHeight(lines, fontStyle) + fontStyle.lineHeight / 4,
-      textLines: lines,
+      height: textHeight(wrappedText, fontStyle) + fontStyle.lineHeight / 4,
+      textLines: wrappedText,
       ...fontStyle,
       align,
     });
-    heightUsed += textHeight(lines, fontStyle) + fontStyle.lineHeight / 4;
+    heightUsed += textHeight(wrappedText, fontStyle) + fontStyle.lineHeight / 4;
   }
 
   return {
