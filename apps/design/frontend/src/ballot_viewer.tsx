@@ -7,10 +7,12 @@ import {
   BallotType,
   Election,
   getPartyForBallotStyle,
+  GridLayout,
+  GridPositionWriteIn,
   Precinct,
 } from '@votingworks/types';
 import styled from 'styled-components';
-import { Breadcrumbs, Button, H1, H3, P, RadioGroup } from '@votingworks/ui';
+import { Breadcrumbs, Button, H1, H3, RadioGroup } from '@votingworks/ui';
 import {
   AnyElement,
   Document,
@@ -29,7 +31,7 @@ import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { exportBallot } from './api';
 import { ElectionIdParams, routes } from './routes';
-import { Column, FieldName as BaseFieldName } from './layout';
+import { Column, FieldName as BaseFieldName, Row } from './layout';
 
 const FieldName = styled(BaseFieldName)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
@@ -52,6 +54,17 @@ function SvgAnyElement({ element }: { element: AnyElement }) {
     default:
       throwIllegalValue(element);
   }
+}
+
+interface DebugFlags {
+  showGridLines: boolean;
+  showWriteInOptionBoxes: boolean;
+}
+
+interface DebugInfo {
+  gridLayout: GridLayout;
+  grid: GridDimensions;
+  pageNumber: number;
 }
 
 function GridLines({
@@ -97,6 +110,64 @@ function GridLines({
   );
 }
 
+function WriteInOptionBoxes({
+  gridLayout,
+  grid,
+  pageNumber,
+  width,
+  height,
+}: DebugInfo & { width: number; height: number }) {
+  const { optionBoundsFromTargetMark, gridPositions } = gridLayout;
+  const xScale = width / (grid.columns + 1);
+  const yScale = height / (grid.rows + 1);
+  const sheetNumber = Math.floor((pageNumber + 1) / 2);
+  const side = pageNumber % 2 === 1 ? 'front' : 'back';
+  const pageMarginGridUnits = 1;
+  return (
+    <g>
+      {gridPositions
+        .filter(
+          (gridPosition): gridPosition is GridPositionWriteIn =>
+            gridPosition.sheetNumber === sheetNumber &&
+            gridPosition.side === side &&
+            gridPosition.type === 'write-in'
+        )
+        .map((gridPosition) => {
+          return (
+            <rect
+              key={gridPosition.contestId + gridPosition.writeInIndex}
+              x={
+                (gridPosition.column -
+                  optionBoundsFromTargetMark.left +
+                  pageMarginGridUnits) *
+                xScale
+              }
+              y={
+                (gridPosition.row -
+                  optionBoundsFromTargetMark.top +
+                  pageMarginGridUnits) *
+                yScale
+              }
+              width={
+                (optionBoundsFromTargetMark.right +
+                  optionBoundsFromTargetMark.left) *
+                xScale
+              }
+              height={
+                (optionBoundsFromTargetMark.bottom +
+                  optionBoundsFromTargetMark.top) *
+                yScale
+              }
+              fill="none"
+              stroke="blue"
+              strokeWidth={0.5}
+            />
+          );
+        })}
+    </g>
+  );
+}
+
 const PAGE_GAP = 50;
 
 function PageObject({
@@ -105,21 +176,26 @@ function PageObject({
   width,
   height,
   page,
-  grid,
+  debugInfo,
 }: {
   x: number;
   y: number;
   width: number;
   height: number;
   page: Page;
-  grid?: GridDimensions;
+  debugInfo: DebugInfo & DebugFlags;
 }) {
   return (
     <SvgPage {...{ x, y, width, height, ...page }}>
       {page.children.map((element, index) => (
         <SvgAnyElement key={index} element={element} />
       ))}
-      {grid && <GridLines {...{ grid, width, height }} />}
+      {debugInfo.showGridLines && (
+        <GridLines {...{ ...debugInfo, width, height }} />
+      )}
+      {debugInfo.showWriteInOptionBoxes && (
+        <WriteInOptionBoxes {...{ ...debugInfo, width, height }} />
+      )}
     </SvgPage>
   );
 }
@@ -127,11 +203,11 @@ function PageObject({
 function DocumentSvg({
   dimensions,
   document,
-  grid,
+  debugInfo,
 }: {
   dimensions: { width: number; height: number };
   document: Document;
-  grid?: GridDimensions;
+  debugInfo: Omit<DebugInfo, 'pageNumber'> & DebugFlags;
 }) {
   const [zoom, setZoom] = useState(0.8);
   const [panOffset, setPanOffset] = useState({ x: -30, y: -30 });
@@ -151,10 +227,10 @@ function DocumentSvg({
           width={width}
           height={height}
           page={page}
-          grid={grid}
+          debugInfo={{ ...debugInfo, pageNumber: index + 1 }}
         />
       )),
-    [width, height, pages, grid]
+    [width, height, pages, debugInfo]
   );
   return (
     <svg
@@ -224,6 +300,91 @@ const Canvas = styled.div`
   background: ${({ theme }) => theme.colors.container};
 `;
 
+const DebugPanelWrapper = styled.div`
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.75rem;
+
+  button {
+    padding: 0.25rem 0.5rem;
+  }
+`;
+
+const DebugPanel = styled.div`
+  background: ${({ theme }) => theme.colors.containerLow};
+  color: ${({ theme }) => theme.colors.onBackgroundMuted};
+  border: 1px solid ${({ theme }) => theme.colors.outline};
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  gap: 0.5rem;
+`;
+
+function DebugPanelToggleButton({
+  debugFlags,
+  setDebugFlags,
+  showDebugPanel,
+  setShowDebugPanel,
+}: {
+  debugFlags: DebugFlags;
+  setDebugFlags: (debugFlags: DebugFlags) => void;
+  showDebugPanel: boolean;
+  setShowDebugPanel: (showDebugPanel: boolean) => void;
+}) {
+  return (
+    <DebugPanelWrapper>
+      {showDebugPanel ? (
+        <DebugPanel>
+          <Row
+            style={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <FieldName>Debug</FieldName>
+            <Button
+              fill="transparent"
+              onPress={() => setShowDebugPanel(false)}
+              icon="X"
+            />
+          </Row>
+          <Column style={{ gap: '0.5rem' }}>
+            <label style={{ cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={debugFlags.showGridLines}
+                onChange={() => {
+                  setDebugFlags({
+                    ...debugFlags,
+                    showGridLines: !debugFlags.showGridLines,
+                  });
+                }}
+              />{' '}
+              Show grid lines
+            </label>
+            <label style={{ cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={debugFlags.showWriteInOptionBoxes}
+                onChange={() =>
+                  setDebugFlags({
+                    ...debugFlags,
+                    showWriteInOptionBoxes: !debugFlags.showWriteInOptionBoxes,
+                  })
+                }
+              />{' '}
+              Show write-in crop boxes
+            </label>
+          </Column>
+        </DebugPanel>
+      ) : (
+        <Button onPress={() => setShowDebugPanel(true)} fill="transparent">
+          Debug
+        </Button>
+      )}
+    </DebugPanelWrapper>
+  );
+}
+
 const ErrorMessage = styled.div`
   color: red;
   display: flex;
@@ -256,7 +417,11 @@ export function BallotViewer({
   const { electionId } = useParams<ElectionIdParams>();
   const ballotRoutes = routes.election(electionId).ballots;
   const exportBallotMutation = exportBallot.useMutation();
-  const [showGridLines, setShowGridLines] = useState(false);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [debugFlags, setDebugFlags] = useState<DebugFlags>({
+    showGridLines: false,
+    showWriteInOptionBoxes: false,
+  });
   const [ballotType, setBallotType] = useState<BallotType>(BallotType.Precinct);
   const [ballotMode, setBallotMode] = useState<BallotMode>('official');
 
@@ -384,32 +549,18 @@ export function BallotViewer({
               <div>
                 {grid.columns} columns x {grid.rows} rows
               </div>
-              <div style={{ marginTop: '0.25rem' }}>
-                <label style={{ cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={showGridLines}
-                    onChange={() => setShowGridLines(!showGridLines)}
-                  />{' '}
-                  Show grid lines
-                </label>
-              </div>
             </div>
           </Column>
-          <P />
         </section>
-        <div style={{ flexGrow: 1 }} />
-        <section>
+        <section style={{ marginTop: 'auto' }}>
           <H3>Export</H3>
-          <P>
-            <Button
-              color="inverseNeutral"
-              onPress={onExportPress}
-              disabled={exportBallotMutation.isLoading}
-            >
-              Export PDF
-            </Button>
-          </P>
+          <Button
+            color="inverseNeutral"
+            onPress={onExportPress}
+            disabled={exportBallotMutation.isLoading}
+          >
+            Export PDF
+          </Button>
         </section>
       </Controls>
       <Canvas ref={measureRef}>
@@ -417,9 +568,19 @@ export function BallotViewer({
           <DocumentSvg
             dimensions={dimensions}
             document={ballotResult.ok().document}
-            grid={showGridLines ? grid : undefined}
+            debugInfo={{
+              ...debugFlags,
+              gridLayout: ballotResult.ok().gridLayout,
+              grid,
+            }}
           />
         )}
+        <DebugPanelToggleButton
+          debugFlags={debugFlags}
+          setDebugFlags={setDebugFlags}
+          showDebugPanel={showDebugPanel}
+          setShowDebugPanel={setShowDebugPanel}
+        />
       </Canvas>
     </div>
   );
