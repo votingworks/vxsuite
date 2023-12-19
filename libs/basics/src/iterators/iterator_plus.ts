@@ -148,6 +148,24 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
+  filterMap<U extends NonNullable<unknown>>(
+    fn: (value: T, index: number) => U | null | undefined
+  ): IteratorPlus<U> {
+    const { iterable } = this;
+    return new IteratorPlusImpl(
+      (function* gen() {
+        let index = 0;
+        for (const value of iterable) {
+          const result = fn(value, index);
+          if (result !== null && result !== undefined) {
+            yield result;
+          }
+          index += 1;
+        }
+      })()
+    );
+  }
+
   find(predicate: (item: T) => unknown): T | undefined {
     for (const it of this.iterable) {
       if (predicate(it)) {

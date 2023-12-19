@@ -42,6 +42,36 @@ test('filter', async () => {
   ).toEqual([1, 3, 5]);
 });
 
+test('filterMap', async () => {
+  expect(await iter([]).async().filterMap(Boolean).toArray()).toEqual([]);
+  expect(
+    await iter([0, 1, ''])
+      .async()
+      .filterMap((n) => (typeof n === 'number' ? n * 2 : undefined))
+      .toArray()
+  ).toEqual([0, 2]);
+
+  const numbersAsWords = ['one', 'two', 'three', 'four', 'five'];
+  async function getNumberAsWord(n: number): Promise<string | undefined> {
+    return Promise.resolve(numbersAsWords[n - 1]);
+  }
+
+  expect(
+    await naturals()
+      .async()
+      .take(5)
+      .filterMap(async (n) => (n % 2 === 0 ? getNumberAsWord(n) : undefined))
+      .toArray()
+  ).toEqual(['two', 'four']);
+  expect(
+    await naturals()
+      .async()
+      .take(5)
+      .filterMap(async (n) => (n % 2 ? getNumberAsWord(n) : undefined))
+      .toArray()
+  ).toEqual(['one', 'three', 'five']);
+});
+
 test('count', async () => {
   expect(await iter([]).async().count()).toEqual(0);
   expect(await iter([0, 1, '']).async().count()).toEqual(3);

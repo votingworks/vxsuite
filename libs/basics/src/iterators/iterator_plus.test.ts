@@ -32,6 +32,33 @@ test('filter', () => {
   ).toEqual([1, 3, 5]);
 });
 
+test('filterMap', () => {
+  expect(iter([]).filterMap(Boolean).toArray()).toEqual([]);
+  expect(
+    iter([0, 1, ''])
+      .filterMap((n) => (typeof n === 'number' ? n * 2 : undefined))
+      .toArray()
+  ).toEqual([0, 2]);
+
+  const numbersAsWords = ['one', 'two', 'three', 'four', 'five'];
+  function getNumberAsWord(n: number): string | undefined {
+    return numbersAsWords[n - 1];
+  }
+
+  expect(
+    naturals()
+      .take(5)
+      .filterMap((n) => (n % 2 === 0 ? getNumberAsWord(n) : undefined))
+      .toArray()
+  ).toEqual(['two', 'four']);
+  expect(
+    naturals()
+      .take(5)
+      .filterMap((n) => (n % 2 ? getNumberAsWord(n) : undefined))
+      .toArray()
+  ).toEqual(['one', 'three', 'five']);
+});
+
 test('count', () => {
   expect(iter([]).count()).toEqual(0);
   expect(iter([0, 1, '']).count()).toEqual(3);

@@ -69,6 +69,22 @@ export interface IteratorPlus<T> extends Iterable<T> {
   filter(fn: (value: T) => unknown): IteratorPlus<T>;
 
   /**
+   * Filters and maps elements from `iterable` by applying `fn` to each element,
+   * treating nullish return values as elements to be filtered out.
+   *
+   * @example
+   *
+   * ```ts
+   * const a = ["1", "two", "NaN", "four", "5"];
+   * const iter = iter(a).filterMap((s) => safeParseInt(s).ok());
+   * expect(iter.toArray()).toEqual([1, 5]);
+   * ```
+   */
+  filterMap<U extends NonNullable<unknown>>(
+    fn: (value: T, index: number) => U | null | undefined
+  ): IteratorPlus<U>;
+
+  /**
    * Finds an element that satisfies `predicate`. Consumes the contained
    * iterable until a matching element is found.
    */
@@ -428,6 +444,32 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * Filters elements from `iterable` by applying `predicate` to each element.
    */
   filter(fn: (value: T) => MaybePromise<unknown>): AsyncIteratorPlus<T>;
+
+  /**
+   * Filters and maps elements from `iterable` by applying `fn` to each element,
+   * treating nullish return values as elements to be filtered out.
+   *
+   * @example
+   *
+   * ```ts
+   * const input = fs.createReadStream('.env', { encoding: 'utf8' });
+   * const envLines = lines(input)
+   *   // This could be separate `.filter` and `.map` calls, but we want to log
+   *   // errors with the right line number.
+   *   .filterMap((line, index) => {
+   *     const parsed = parseLine(line);
+   *     if (parsed.isErr()) {
+   *       console.error(`error parsing line ${index + 1}:`, parsed.err());
+   *       return null;
+   *     }
+   *     return parsed.ok();
+   *   })
+   *   .toArray();
+   * ```
+   */
+  filterMap<U extends NonNullable<unknown>>(
+    fn: (value: T, index: number) => MaybePromise<U | null | undefined>
+  ): AsyncIteratorPlus<U>;
 
   /**
    * Finds an element that satisfies `predicate`. Consumes the contained

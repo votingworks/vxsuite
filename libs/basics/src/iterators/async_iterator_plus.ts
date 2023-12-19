@@ -137,6 +137,24 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     ) as AsyncIteratorPlus<T>;
   }
 
+  filterMap<U extends NonNullable<unknown>>(
+    fn: (value: T, index: number) => MaybePromise<U | null | undefined>
+  ): AsyncIteratorPlus<U> {
+    const { iterable } = this;
+    return new AsyncIteratorPlusImpl(
+      (async function* gen() {
+        let index = 0;
+        for await (const value of iterable) {
+          const mapped = await fn(value, index);
+          if (mapped !== null && mapped !== undefined) {
+            yield mapped;
+          }
+          index += 1;
+        }
+      })()
+    ) as AsyncIteratorPlus<U>;
+  }
+
   async find(
     predicate: (item: T) => MaybePromise<unknown>
   ): Promise<T | undefined> {
