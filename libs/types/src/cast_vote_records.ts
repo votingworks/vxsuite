@@ -16,7 +16,11 @@ import {
   PrecinctId,
 } from './election';
 import { ExportDataError } from './errors';
-import { Dictionary } from './generic';
+import {
+  Dictionary,
+  Iso8601Timestamp,
+  Iso8601TimestampSchema,
+} from './generic';
 import { SheetOf } from './hmpb';
 import { PageInterpretation } from './interpretation';
 
@@ -46,6 +50,39 @@ export enum CastVoteRecordExportFileName {
   REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
 }
 
+export interface CastVoteRecordBatchMetadata {
+  readonly id: string;
+  readonly label: string;
+
+  /**
+   * The ordinal number of the batch in the tabulator's sequence of batches in a given election.
+   */
+  readonly batchNumber: number;
+
+  /**
+   * The start time of the batch. On a precinct scanner, the start time is when the polls are opened or voting is resumed. On a central scanner, the start time is when the user initiates scanning a batch.
+   */
+  readonly startTime: Iso8601Timestamp;
+  /**
+   * The end time of the batch. On a precinct scanner, the end time is when the polls are closed or voting is paused. On a central scanner, the end time is when a batch scan is complete
+   */
+  readonly endTime?: Iso8601Timestamp;
+
+  readonly sheetCount: number;
+  readonly scannerId: string;
+}
+
+export const CastVoteRecordBatchMetadataSchema: z.ZodSchema<CastVoteRecordBatchMetadata> =
+  z.object({
+    id: z.string(),
+    label: z.string(),
+    batchNumber: z.number().positive(),
+    startTime: Iso8601TimestampSchema,
+    endTime: Iso8601TimestampSchema.optional(),
+    sheetCount: z.number(),
+    scannerId: z.string(),
+  });
+
 /**
  * Metadata stored in the top-level metadata file for a cast vote record export
  */
@@ -55,6 +92,7 @@ export interface CastVoteRecordExportMetadata {
   castVoteRecordReportMetadata: CastVoteRecordReport;
   /** A hash of all cast vote record files in an export */
   castVoteRecordRootHash: string;
+  batchManifest: CastVoteRecordBatchMetadata[];
 }
 
 export const CastVoteRecordExportMetadataSchema: z.ZodSchema<CastVoteRecordExportMetadata> =
@@ -62,6 +100,7 @@ export const CastVoteRecordExportMetadataSchema: z.ZodSchema<CastVoteRecordExpor
     arePollsClosed: z.boolean().optional(),
     castVoteRecordReportMetadata: CastVoteRecordReportSchema,
     castVoteRecordRootHash: z.string(),
+    batchManifest: z.array(CastVoteRecordBatchMetadataSchema),
   });
 
 /**

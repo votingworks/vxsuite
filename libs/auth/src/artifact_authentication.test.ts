@@ -71,6 +71,7 @@ beforeEach(() => {
     arePollsClosed: true,
     castVoteRecordReportMetadata: {} as unknown as CVR.CastVoteRecordReport,
     castVoteRecordRootHash: expectedCastVoteRecordRootHash,
+    batchManifest: [],
   };
   fs.writeFileSync(
     path.join(

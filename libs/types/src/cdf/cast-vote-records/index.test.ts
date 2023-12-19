@@ -58,18 +58,6 @@ const castVoteRecordReport: CastVoteRecordReport = {
       Type: ReportingUnitType.Precinct,
     },
   ],
-  vxBatch: [
-    {
-      '@type': 'CVR.vxBatch',
-      '@id': 'uuid',
-      BatchLabel: 'Batch 1',
-      SequenceId: 1,
-      StartTime: '2022-01-10T13:00:00.000Z',
-      EndTime: '2022-01-10T13:00:00.000Z',
-      NumberSheets: 1,
-      CreatingDeviceId: 'SC-01-000',
-    },
-  ],
   CVR: [
     {
       '@type': 'CVR.CVR',

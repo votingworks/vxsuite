@@ -14,4 +14,5 @@ module.exports = {
       lines: 95,
     },
   },
+  prettierPath: null,
 };

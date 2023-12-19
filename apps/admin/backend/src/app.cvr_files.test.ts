@@ -118,7 +118,7 @@ test('happy path - mock election flow', async () => {
 
   // insert a USB drive
   const testExportDirectoryName = 'TEST__machine_0000__2022-09-24_18-00-00';
-  const testExportTimestamp = '2023-10-09T00:39:35.210Z';
+  const testExportTimestamp = '2023-12-18T21:39:36.592Z';
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
@@ -208,7 +208,7 @@ test('happy path - mock election flow', async () => {
 
   // now try loading official CVR files, as if after L&A
   const officialExportDirectoryName = 'machine_0000__2022-09-24_18-00-00';
-  const officialExportTimestamp = '2023-10-09T00:39:35.210Z';
+  const officialExportTimestamp = testExportTimestamp;
   const officialReportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
     {

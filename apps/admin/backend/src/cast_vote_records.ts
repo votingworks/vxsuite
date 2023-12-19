@@ -161,8 +161,8 @@ export async function listCastVoteRecordExportsOnUsbDrive(
       }
       const metadata = metadataResult.ok();
       castVoteRecordExportSummaries.push({
-        cvrCount: iter(metadata.castVoteRecordReportMetadata.vxBatch)
-          .map((batch) => batch.NumberSheets)
+        cvrCount: iter(metadata.batchManifest)
+          .map((batch) => batch.sheetCount)
           .sum(),
         exportTimestamp: new Date(
           metadata.castVoteRecordReportMetadata.GeneratedDate
@@ -198,7 +198,8 @@ export async function importCastVoteRecords(
   }
   const { castVoteRecordExportMetadata, castVoteRecordIterator } =
     readResult.ok();
-  const { castVoteRecordReportMetadata } = castVoteRecordExportMetadata;
+  const { castVoteRecordReportMetadata, batchManifest } =
+    castVoteRecordExportMetadata;
 
   const exportDirectoryName = path.basename(exportDirectoryPath);
   // Hashing the export metadata, which includes a root hash of all the individual cast vote
@@ -234,14 +235,14 @@ export async function importCastVoteRecords(
 
   return await store.withTransaction(async () => {
     const scannerIds = new Set<string>();
-    for (const vxBatch of castVoteRecordReportMetadata.vxBatch) {
+    for (const batch of batchManifest) {
       store.addScannerBatch({
-        batchId: vxBatch['@id'],
+        batchId: batch.id,
         electionId,
-        label: vxBatch.BatchLabel,
-        scannerId: vxBatch.CreatingDeviceId,
+        label: batch.label,
+        scannerId: batch.scannerId,
       });
-      scannerIds.add(vxBatch.CreatingDeviceId);
+      scannerIds.add(batch.scannerId);
     }
 
     // Create a top-level record for the import

@@ -69,10 +69,9 @@ test('continuous CVR export, including polls closing', async () => {
       ).unsafeUnwrap();
 
       expect(castVoteRecordExportMetadata.arePollsClosed).toEqual(true);
-      expect(
-        castVoteRecordExportMetadata.castVoteRecordReportMetadata.vxBatch[0]
-          .NumberSheets
-      ).toEqual(3);
+      expect(castVoteRecordExportMetadata.batchManifest[0].sheetCount).toEqual(
+        3
+      );
 
       const castVoteRecords: CVR.CVR[] = (
         await castVoteRecordIterator.toArray()

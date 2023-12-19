@@ -1117,11 +1117,6 @@ export interface CastVoteRecordReport {
    * The version of the CVR specification being used (1.0).
    */
   readonly Version: CastVoteRecordVersion;
-
-  /**
-   * List of scanner batches with metadata.
-   */
-  readonly vxBatch: readonly vxBatch[];
 }
 
 /**
@@ -1140,7 +1135,6 @@ export const CastVoteRecordReportSchema: z.ZodSchema<CastVoteRecordReport> = z.o
   ReportType: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => ReportTypeSchema))),
   ReportingDevice: z.array(z.lazy(/* istanbul ignore next */ () => ReportingDeviceSchema)).min(1),
   Version: z.lazy(/* istanbul ignore next */ () => CastVoteRecordVersionSchema),
-  vxBatch: z.array(z.lazy(/* istanbul ignore next */ () => vxBatchSchema)),
 });
 
 /**
@@ -1658,58 +1652,5 @@ export const SelectionPositionSchema: z.ZodSchema<SelectionPosition> = z.object(
   Position: z.optional(integerSchema),
   Rank: z.optional(integerSchema),
   Status: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => PositionStatusSchema))),
-});
-
-/**
- * Entity containing metadata about a scanned batch. Cast vote records link to batches via CVR::BatchId.
- */
-export interface vxBatch {
-  readonly '@id': string;
-
-  readonly '@type': 'CVR.vxBatch';
-
-  /**
-   * A human readable label for the batch.
-   */
-  readonly BatchLabel: string;
-
-  /**
-   * The ordinal number of the batch in the tabulator's sequence of batches in a given election.
-   */
-  readonly SequenceId: integer;
-
-  /**
-   * The start time of the batch. On a precinct scanner, the start time is when the polls are opened or voting is resumed. On a central scanner, the start time is when the user initiates scanning a batch.
-   */
-  readonly StartTime: DateTime;
-
-  /**
-   * The end time of the batch. On a precinct scanner, the end time is when the polls are closed or voting is paused. On a central scanner, the end time is when a batch scan is complete
-   */
-  readonly EndTime?: DateTime;
-
-  /**
-   * The number of sheets included in a batch.
-   */
-  readonly NumberSheets: integer;
-
-  /**
-   * The tabulator that created the batch.
-   */
-  readonly CreatingDeviceId: string;
-}
-
-/**
- * Schema for {@link vxBatch}.
- */
-export const vxBatchSchema: z.ZodSchema<vxBatch> = z.object({
-  '@id': z.string(),
-  '@type': z.literal('CVR.vxBatch'),
-  BatchLabel: z.string(),
-  SequenceId: integerSchema,
-  StartTime: DateTimeSchema,
-  EndTime: z.optional(DateTimeSchema),
-  NumberSheets: integerSchema,
-  CreatingDeviceId: z.string(),
 });
 

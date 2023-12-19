@@ -1,5 +1,6 @@
 import {
   BallotType,
+  BatchInfo,
   CVR,
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
@@ -7,7 +8,10 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
-import { buildCastVoteRecordReportMetadata } from '@votingworks/backend';
+import {
+  buildCastVoteRecordReportMetadata,
+  buildBatchManifest,
+} from '@votingworks/backend';
 import * as fs from 'fs';
 import yargs from 'yargs/yargs';
 import { writeImageData, createImageData } from '@votingworks/image-utils';
@@ -194,6 +198,16 @@ export async function main(
   }
 
   const { election, electionHash } = electionDefinition;
+  const batchInfo: Array<BatchInfo & { scannerId: string }> = scannerIds.map(
+    (scannerId) => ({
+      id: getBatchIdForScannerId(scannerId),
+      batchNumber: 1,
+      label: getBatchIdForScannerId(scannerId),
+      startedAt: new Date().toISOString(),
+      count: castVoteRecords.length / scannerIds.length,
+      scannerId,
+    })
+  );
   const reportMetadata = buildCastVoteRecordReportMetadata({
     election,
     electionId: electionHash,
@@ -201,13 +215,7 @@ export async function main(
     scannerIds,
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
     isTestMode: testMode,
-    batchInfo: scannerIds.map((scannerId) => ({
-      id: getBatchIdForScannerId(scannerId),
-      batchNumber: 1,
-      label: getBatchIdForScannerId(scannerId),
-      startedAt: new Date().toISOString(),
-      count: castVoteRecords.length / scannerIds.length,
-    })),
+    batchInfo,
   });
 
   // make the parent folder if it does not exist
@@ -279,6 +287,7 @@ export async function main(
     castVoteRecordReportMetadata: reportMetadata,
     castVoteRecordRootHash:
       await computeCastVoteRecordRootHashFromScratch(outputPath),
+    batchManifest: buildBatchManifest({ batchInfo }),
   };
   const metadataFileContents = JSON.stringify(castVoteRecordExportMetadata);
   fs.writeFileSync(
