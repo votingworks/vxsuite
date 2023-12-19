@@ -512,7 +512,6 @@ test('precinct scanner continuous export', async () => {
   ).unsafeUnwrap();
   expect(metadata.arePollsClosed).toEqual(true);
 
-  // confirm batch manifest was properly included
   expect(metadata.batchManifest).toHaveLength(1);
   expect(metadata.batchManifest[0]).toMatchObject({
     id: batch1.id,
