@@ -43,6 +43,7 @@ import {
   referencedImageFile,
   referencedLayoutFile,
 } from './referenced_files';
+import { getImageHash, getLayoutHash } from './build_cast_vote_record';
 
 interface CastVoteRecordAndReferencedFiles {
   castVoteRecord: CVR.CVR;
@@ -180,8 +181,8 @@ async function* castVoteRecordGenerator(
         return;
       }
       const imageHashes: SheetOf<string> = [
-        castVoteRecord.BallotImage[0].Hash.Value,
-        castVoteRecord.BallotImage[1].Hash.Value,
+        getImageHash(castVoteRecord.BallotImage[0]),
+        getImageHash(castVoteRecord.BallotImage[1]),
       ];
       const imageRelativePaths: SheetOf<string> = [
         castVoteRecord.BallotImage[0].Location.replace('file:', ''),
@@ -199,18 +200,17 @@ async function* castVoteRecordGenerator(
           referencedImageFile({ expectedFileHash, filePath })
       );
 
+      const layoutFileHash1 = getLayoutHash(castVoteRecord.BallotImage[0]);
+      const layoutFileHash2 = getLayoutHash(castVoteRecord.BallotImage[1]);
       let layoutFiles: SheetOf<ReferencedFile<BallotPageLayout>> | undefined;
       if (isHandMarkedPaperBallot) {
-        if (
-          !castVoteRecord.BallotImage[0].vxLayoutFileHash ||
-          !castVoteRecord.BallotImage[1].vxLayoutFileHash
-        ) {
+        if (!layoutFileHash1 || !layoutFileHash2) {
           yield wrapError({ subType: 'invalid-ballot-image-field' });
           return;
         }
         const layoutFileHashes: SheetOf<string> = [
-          castVoteRecord.BallotImage[0].vxLayoutFileHash,
-          castVoteRecord.BallotImage[1].vxLayoutFileHash,
+          layoutFileHash1,
+          layoutFileHash2,
         ];
         const layoutFilePaths: SheetOf<string> = mapSheet(
           imagePaths,

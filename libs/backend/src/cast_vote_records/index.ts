@@ -2,6 +2,9 @@
 export {
   buildCVRContestsFromVotes,
   buildCvrImageData,
+  combineImageAndLayoutHashes,
+  getImageHash,
+  getLayoutHash,
 } from './build_cast_vote_record';
 export {
   buildCastVoteRecordReportMetadata,
