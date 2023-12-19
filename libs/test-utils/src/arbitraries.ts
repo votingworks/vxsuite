@@ -13,7 +13,6 @@ import {
   Candidate,
   CandidateContest,
   CandidateId,
-  CastVoteRecord,
   ContestId,
   Contests,
   County,
@@ -445,52 +444,4 @@ export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinition> 
       electionData,
       electionHash: sha256(electionData),
     }));
-}
-
-/**
- * Builds valid cast-vote records. To build multiple for a single election,
- * you may find it easier to use {@link arbitraryCastVoteRecords}.
- */
-export function arbitraryCastVoteRecord({
-  election = arbitraryElection(),
-  testBallot = fc.boolean(),
-}: {
-  election?: fc.Arbitrary<Election>;
-  testBallot?: fc.Arbitrary<boolean>;
-} = {}): fc.Arbitrary<CastVoteRecord> {
-  return election.chain((e) =>
-    fc.record({
-      _precinctId: fc.constantFrom(...e.precincts.map(({ id }) => id)),
-      _ballotId: arbitraryOptional(arbitraryBallotId()),
-      _ballotStyleId: fc.constantFrom(...e.ballotStyles.map(({ id }) => id)),
-      _ballotType: fc.constantFrom('absentee', 'provisional', 'precinct'),
-      _batchId: arbitraryId(),
-      _batchLabel: fc.string({ minLength: 1 }),
-      _testBallot: testBallot,
-      _scannerId: arbitraryId(),
-    })
-  );
-}
-
-/**
- * Builds valid cast-vote record lists given an election and test/live setting.
- */
-export function arbitraryCastVoteRecords({
-  election,
-  testBallot,
-  minLength,
-  maxLength,
-}: {
-  election: Election;
-  testBallot: boolean;
-  minLength?: number;
-  maxLength?: number;
-}): fc.Arbitrary<CastVoteRecord[]> {
-  return fc.array(
-    arbitraryCastVoteRecord({
-      election: fc.constant(election),
-      testBallot: fc.constant(testBallot),
-    }),
-    { minLength, maxLength }
-  );
 }
