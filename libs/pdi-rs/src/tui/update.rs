@@ -39,6 +39,10 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
                 }
             }
         }
+
+        if let Ok(error) = scanner.wait_for_error(Duration::from_millis(1)) {
+            app.log(format!("⚠️ Scanner error: {:?}", error));
+        }
     }
 
     if event::poll(Duration::from_millis(50))? {
