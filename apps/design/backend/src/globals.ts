@@ -1,3 +1,4 @@
+import { assertDefined } from '@votingworks/basics';
 import { unsafeParse } from '@votingworks/types';
 import { join } from 'path';
 import { z } from 'zod';
@@ -30,3 +31,9 @@ export const WORKSPACE =
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
+
+export const ASSETS_DIRECTORY_NAME = 'assets';
+export const ASSETS_DIRECTORY_PATH = join(
+  assertDefined(WORKSPACE),
+  ASSETS_DIRECTORY_NAME
+);

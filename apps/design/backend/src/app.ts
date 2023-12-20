@@ -8,7 +8,6 @@ import {
   BallotPaperSize,
   SystemSettings,
   BallotType,
-  ElectionPackageFileName,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, groupBy, ok, Result } from '@votingworks/basics';
@@ -20,7 +19,8 @@ import {
 } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
-import { ElectionRecord, Precinct, Store } from './store';
+import { ASSETS_DIRECTORY_PATH } from './globals';
+import { BackgroundTask, ElectionRecord, Precinct, Store } from './store';
 
 export function createBlankElection(): Election {
   return {
@@ -221,35 +221,22 @@ function buildApi({ store }: { store: Store }) {
       return streamToBuffer(pdf);
     },
 
-    async exportElectionPackage(input: {
-      electionId: Id;
-    }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions, systemSettings } = store.getElection(
-        input.electionId
-      );
-      const { electionDefinition } = layOutAllBallotStyles({
-        election,
-        // Ballot type and ballot mode shouldn't change the election definition, so
-        // it doesn't matter what we pass here
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-        layoutOptions,
-      }).unsafeUnwrap();
+    getElectionPackage({ electionId }: { electionId: Id }): {
+      filePath?: string;
+      task?: BackgroundTask;
+    } {
+      return store.getElectionPackage(electionId);
+    },
 
-      const zip = new JsZip();
-      zip.file(
-        ElectionPackageFileName.ELECTION,
-        electionDefinition.electionData
+    exportElectionPackage({ electionId }: { electionId: Id }): void {
+      const electionPackageTaskId = store.createBackgroundTask(
+        'generate_election_package',
+        { electionId }
       );
-      zip.file(
-        ElectionPackageFileName.SYSTEM_SETTINGS,
-        JSON.stringify(systemSettings, null, 2)
-      );
-
-      return {
-        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        electionHash: electionDefinition.electionHash,
-      };
+      store.setElectionPackageTaskId({
+        electionId,
+        electionPackageTaskId,
+      });
     },
   });
 }
@@ -259,5 +246,6 @@ export function buildApp({ store }: { store: Store }): Application {
   const app: Application = express();
   const api = buildApi({ store });
   app.use('/api', grout.buildRouter(api, express));
+  app.use(express.static(ASSETS_DIRECTORY_PATH));
   return app;
 }

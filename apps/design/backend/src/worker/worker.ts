@@ -1,15 +1,7 @@
 import { extractErrorMessage, sleep } from '@votingworks/basics';
 
-import { BackgroundTask, Store } from '../store';
-
-async function processBackgroundTask(
-  _store: Store, // eslint-disable-line @typescript-eslint/no-unused-vars
-  _task: BackgroundTask // eslint-disable-line @typescript-eslint/no-unused-vars
-): Promise<void> {
-  // Simulate a long-running operation
-  // TODO(arsalan): Implement actual processing logic
-  await sleep(3000);
-}
+import { Store } from '../store';
+import { processBackgroundTask } from './tasks';
 
 async function processBackgroundTasks(store: Store): Promise<void> {
   // eslint-disable-next-line no-constant-condition

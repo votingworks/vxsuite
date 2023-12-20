@@ -4,7 +4,11 @@ create table elections (
   system_settings_data text not null,
   precinct_data text not null,
   layout_options_data text not null,
-  created_at timestamp not null default current_timestamp
+  created_at timestamp not null default current_timestamp,
+  election_package_file_path text,
+  election_package_task_id text,
+  foreign key (election_package_task_id) references background_tasks(id)
+    on delete set null
 );
 
 create table background_tasks (

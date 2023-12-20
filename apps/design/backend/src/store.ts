@@ -77,9 +77,11 @@ export interface BallotStyle {
   partyId?: PartyId;
 }
 
+export type TaskName = 'generate_election_package';
+
 export interface BackgroundTask {
   id: Id;
-  taskName: string;
+  taskName: TaskName;
   payload: string;
   createdAt: Date;
   startedAt?: Date;
@@ -114,7 +116,7 @@ function backgroundTaskRowToBackgroundTask(
 ): BackgroundTask {
   return {
     id: row.id,
-    taskName: row.taskName,
+    taskName: row.taskName as TaskName,
     payload: row.payload,
     createdAt: new Date(row.createdAt),
     startedAt: row.startedAt ? new Date(row.startedAt) : undefined,
@@ -405,6 +407,67 @@ export class Store {
     );
   }
 
+  getElectionPackage(electionId: Id): {
+    filePath?: string;
+    task?: BackgroundTask;
+  } {
+    const electionPackage = this.client.one(
+      `
+      select
+        election_package_file_path as filePath,
+        election_package_task_id as taskId
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as Optional<{
+      filePath: string | null;
+      taskId: string | null;
+    }>;
+    return {
+      filePath: electionPackage?.filePath ?? undefined,
+      task: electionPackage?.taskId
+        ? this.getBackgroundTask(electionPackage.taskId)
+        : undefined,
+    };
+  }
+
+  setElectionPackageFilePath({
+    electionId,
+    electionPackageFilePath,
+  }: {
+    electionId: Id;
+    electionPackageFilePath?: string;
+  }): void {
+    this.client.run(
+      `
+      update elections
+      set election_package_file_path = ?
+      where id = ?
+      `,
+      electionPackageFilePath ?? null,
+      electionId
+    );
+  }
+
+  setElectionPackageTaskId({
+    electionId,
+    electionPackageTaskId,
+  }: {
+    electionId: Id;
+    electionPackageTaskId?: Id;
+  }): void {
+    this.client.run(
+      `
+      update elections
+      set election_package_task_id = ?
+      where id = ?
+      `,
+      electionPackageTaskId ?? null,
+      electionId
+    );
+  }
+
   //
   // Language and audio management
   //
@@ -498,7 +561,7 @@ export class Store {
     return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
   }
 
-  createBackgroundTask(taskName: string, payload: unknown): Id {
+  createBackgroundTask(taskName: TaskName, payload: unknown): Id {
     const taskId = uuid();
     this.client.run(
       `

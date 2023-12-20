@@ -160,9 +160,33 @@ export const exportBallot = {
   },
 } as const;
 
+export const getElectionPackage = {
+  queryKey(electionId: Id): QueryKey {
+    return ['getElectionPackage', electionId];
+  },
+  useQuery(electionId: Id) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(electionId),
+      () => apiClient.getElectionPackage({ electionId }),
+      {
+        refetchInterval: (result) =>
+          result?.task && !result.task.completedAt ? 1000 : 0,
+      }
+    );
+  },
+} as const;
+
 export const exportElectionPackage = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.exportElectionPackage);
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.exportElectionPackage, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getElectionPackage.queryKey(electionId)
+        );
+      },
+    });
   },
 } as const;
