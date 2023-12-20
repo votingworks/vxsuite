@@ -5,7 +5,7 @@ use std::ffi::{c_char, c_int, c_long, c_uint, c_void};
 #[allow(non_camel_case_types, dead_code)]
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub(crate) enum pdiscan_errors {
+pub enum pdiscan_errors {
     PDISCAN_ERR_ENUM_LBOUND = -1,
     // No error; the function completed successfully.
     PDISCAN_ERR_NONE,
