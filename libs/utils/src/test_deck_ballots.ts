@@ -1,4 +1,4 @@
-import { assert, assertDefined, find } from '@votingworks/basics';
+import { assert, assertDefined, find, iter } from '@votingworks/basics';
 import {
   AnyContest,
   WriteInCandidate,
@@ -103,6 +103,48 @@ export function generateTestDeckBallots({
           precinctId: currentPrecinctId,
           markingMethod,
           votes,
+        });
+      }
+
+      if (markingMethod === 'hand') {
+        // Overvoted ballot
+        // Generates a minimally overvoted ballot - a single overvote in the
+        // first contest where an overvote is possible. Does not overvote
+        // candidate contests where you must select a write-in to overvote. See
+        // discussion: https://github.com/votingworks/vxsuite/issues/1711.
+        const overvoteContest = contests.find(
+          (contest) =>
+            contest.type === 'yesno' ||
+            contest.candidates.length > contest.seats
+        );
+        if (overvoteContest) {
+          ballots.push({
+            ballotStyleId: ballotStyle.id,
+            precinctId: currentPrecinctId,
+            markingMethod,
+            votes: {
+              [overvoteContest.id]:
+                overvoteContest.type === 'yesno'
+                  ? [overvoteContest.yesOption.id, overvoteContest.noOption.id]
+                  : iter(overvoteContest.candidates)
+                      .take(overvoteContest.seats + 1)
+                      .toArray(),
+            },
+          });
+        }
+
+        // Blank ballot x2
+        ballots.push({
+          ballotStyleId: ballotStyle.id,
+          precinctId: currentPrecinctId,
+          markingMethod,
+          votes: {},
+        });
+        ballots.push({
+          ballotStyleId: ballotStyle.id,
+          precinctId: currentPrecinctId,
+          markingMethod,
+          votes: {},
         });
       }
     }

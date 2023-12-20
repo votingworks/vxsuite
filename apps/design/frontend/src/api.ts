@@ -166,3 +166,10 @@ export const exportElectionPackage = {
     return useMutation(apiClient.exportElectionPackage);
   },
 } as const;
+
+export const exportTestDecks = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportTestDecks);
+  },
+} as const;
