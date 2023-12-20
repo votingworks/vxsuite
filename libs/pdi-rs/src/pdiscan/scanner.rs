@@ -59,7 +59,15 @@ extern "C" fn scanning_error_callback(
     extra_info: *mut c_char,
     user_data: *mut c_void,
 ) {
-    println!("scanning_error_callback: {:?}", scanning_error);
+    let scanner_mutex_guard = unsafe { SCANNER.lock().unwrap() };
+    let scanner = match scanner_mutex_guard.deref() {
+        Some(scanner) => scanner,
+        None => {
+            return;
+        }
+    };
+
+    scanner.scanning_error_callback(scanning_error);
 }
 
 #[derive(Clone)]
@@ -286,8 +294,10 @@ fn set_long_tag_value(
 pub struct Scanner {
     inner: RefCell<ScannerInner>,
     settings: Settings,
-    tx: Sender<ScanDocument>,
-    rx: Receiver<ScanDocument>,
+    scan_tx: Sender<ScanDocument>,
+    scan_rx: Receiver<ScanDocument>,
+    error_tx: Sender<pdiscan_errors>,
+    error_rx: Receiver<pdiscan_errors>,
 }
 
 #[derive(Debug)]
@@ -404,7 +414,8 @@ impl Scanner {
             settings.duplex_mode as i64,
         )?;
 
-        let (tx, rx) = mpsc::channel();
+        let (scan_tx, scan_rx) = mpsc::channel();
+        let (error_tx, error_rx) = mpsc::channel();
         let scanner = Self {
             inner: RefCell::new(ScannerInner {
                 scanning_handle,
@@ -413,8 +424,10 @@ impl Scanner {
                 eject_delay: Duration::from_millis(0),
             }),
             settings,
-            tx,
-            rx,
+            scan_tx,
+            scan_rx,
+            error_tx,
+            error_rx,
         };
 
         #[allow(clippy::arc_with_non_send_sync)]
@@ -495,7 +508,7 @@ impl Scanner {
                 Error::new(
                     ErrorType::InvalidParam,
                     "invalid color depth",
-                    format!("color depth value from scanner is invalid: {}", e),
+                    format!("color depth value from scanner is invalid: {e}"),
                     "",
                     file!(),
                     line!() as i64,
@@ -527,7 +540,7 @@ impl Scanner {
             Error::new(
                 ErrorType::InvalidParam,
                 "invalid duplex mode",
-                format!("duplex mode value from scanner is invalid: {}", e),
+                format!("duplex mode value from scanner is invalid: {e}"),
                 "",
                 file!(),
                 line!() as i64,
@@ -648,11 +661,24 @@ impl Scanner {
     }
 
     pub fn wait_for_document(&self, timeout: Duration) -> Result<ScanDocument> {
-        self.rx.recv_timeout(timeout).map_err(|e| {
+        self.scan_rx.recv_timeout(timeout).map_err(|e| {
             Error::new(
                 ErrorType::AbortScan,
                 "error waiting for document",
-                format!("error waiting for document: {}", e),
+                format!("error waiting for document: {e}"),
+                "",
+                file!(),
+                line!() as i64,
+            )
+        })
+    }
+
+    pub fn wait_for_error(&self, timeout: Duration) -> Result<pdiscan_errors> {
+        self.error_rx.recv_timeout(timeout).map_err(|e| {
+            Error::new(
+                ErrorType::AbortScan,
+                "error waiting for error",
+                format!("error waiting for error: {e}"),
                 "",
                 file!(),
                 line!() as i64,
@@ -706,8 +732,14 @@ impl Scanner {
     }
 
     fn page_end_callback(&self, scan_document: ScanDocument) {
-        if let Err(e) = self.tx.send(scan_document) {
-            eprintln!("error sending scan document to channel: {}", e);
+        if let Err(e) = self.scan_tx.send(scan_document) {
+            eprintln!("error sending scan document to channel: {e}");
+        }
+    }
+
+    fn scanning_error_callback(&self, scanning_error: pdiscan_errors) {
+        if let Err(e) = self.error_tx.send(scanning_error) {
+            eprintln!("error sending scanning error to channel: {e}");
         }
     }
 
