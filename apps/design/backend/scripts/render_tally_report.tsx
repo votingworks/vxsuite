@@ -12,6 +12,44 @@ import { safeParseElectionDefinition } from '@votingworks/types';
 import { readFileSync } from 'fs';
 import { ServerStyleSheet } from 'styled-components';
 import { chromium } from 'playwright';
+import { join } from 'path';
+import { readFile } from 'fs/promises';
+import { getType } from 'mime';
+import { Optional } from '@votingworks/basics';
+
+// hardcoded to VxAdmin's public directory for now
+const PUBLIC_DIR = join(__dirname, '../../../admin/frontend/public');
+
+function getPublicPath(relativeUrl: string): Optional<string> {
+  const publicPath = join(PUBLIC_DIR, relativeUrl);
+
+  // trailing '/' is important and prevents path traversal
+  if (!publicPath.startsWith(`${PUBLIC_DIR}/`)) {
+    return;
+  }
+
+  return publicPath;
+}
+
+async function getPublicFileAsDataUrl(
+  relativeUrl: string
+): Promise<Optional<string>> {
+  const publicPath = getPublicPath(relativeUrl);
+
+  if (!publicPath) {
+    return;
+  }
+
+  const mimeType = getType(publicPath);
+
+  if (!mimeType) {
+    return;
+  }
+
+  return `data:${mimeType};base64,${(await readFile(publicPath)).toString(
+    'base64'
+  )}`;
+}
 
 async function renderTallyReport(
   electionPath: string,
@@ -65,8 +103,37 @@ async function renderTallyReport(
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
+
+  page.on('console', (msg) => {
+    console.log(msg);
+  });
+
   await page.setContent(tallyReportHtml);
   await page.getByText('Tally Report').waitFor();
+  const images = page.locator('//img');
+
+  for (const img of await images.all()) {
+    const src = await img.getAttribute('src');
+
+    if (!src || !src.startsWith('/')) {
+      console.log(`Skipping ${src} because it is not a public file`);
+      continue;
+    }
+
+    const dataUrl = await getPublicFileAsDataUrl(src);
+
+    if (!dataUrl) {
+      console.log(`Skipping ${src} because it is not a public file`);
+      continue;
+    }
+
+    await img.evaluate((element: HTMLImageElement, newSrc: string) => {
+      // eslint-disable-next-line no-param-reassign
+      element.src = newSrc;
+      console.log(element.src);
+    }, dataUrl);
+  }
+
   await page.pdf({
     path: outputPath,
     format: 'letter',
