@@ -14,6 +14,7 @@ import {
   Page,
   SvgImageProps,
   PPI,
+  SvgBubble,
 } from '@votingworks/hmpb-layout';
 import { join } from 'path';
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
@@ -62,6 +63,8 @@ function AnyElement(props: AnyElement): JSX.Element {
         </SvgRectangle>
       );
     }
+    case 'Bubble':
+      return <SvgBubble {...props} />;
     case 'TextBox':
       return <SvgTextBox {...props} />;
     case 'Image':

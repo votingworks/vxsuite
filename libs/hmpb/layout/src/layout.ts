@@ -32,6 +32,7 @@ import {
 import makeDebug from 'debug';
 import {
   AnyElement,
+  Bubble,
   Document,
   Page,
   Rectangle,
@@ -255,7 +256,7 @@ export interface PixelPoint {
   y: number;
 }
 
-export function gridPosition(
+export function gridPoint(
   { row, column }: GridPoint,
   m: Measurements
 ): PixelPoint {
@@ -281,22 +282,24 @@ function xToColumn(x: number, m: Measurements): number {
   return Math.round((x / m.COLUMN_GAP) * 10) / 10;
 }
 
-export function Bubble({
+export function OptionBubble({
   row,
   column,
   isFilled,
+  gridPosition,
   m,
 }: {
   row: number;
   column: number;
   isFilled: boolean;
+  gridPosition: GridPosition;
   m: Measurements;
-}): Rectangle {
+}): Bubble {
   const bubbleWidth = 0.2 * PPI;
   const bubbleHeight = 0.13 * PPI;
-  const center = gridPosition({ row, column }, m);
+  const center = gridPoint({ row, column }, m);
   return {
-    type: 'Rectangle',
+    type: 'Bubble',
     x: center.x - bubbleWidth / 2,
     y: center.y - bubbleHeight / 2,
     width: bubbleWidth,
@@ -305,6 +308,7 @@ export function Bubble({
     stroke: 'black',
     strokeWidth: 0.5,
     fill: isFilled ? 'black' : 'none',
+    gridPosition,
   };
 }
 
@@ -319,7 +323,7 @@ function TimingMark({
 }): Rectangle {
   const markWidth = 0.1875 * PPI;
   const markHeight = 0.0625 * PPI;
-  const center = gridPosition({ row, column }, m);
+  const center = gridPoint({ row, column }, m);
   return {
     type: 'Rectangle',
     x: center.x - markWidth / 2,
@@ -408,12 +412,12 @@ function HeaderAndInstructions({
 
   const header: Rectangle = {
     type: 'Rectangle',
-    ...gridPosition({ row: 0, column: 0 }, m),
+    ...gridPoint({ row: 0, column: 0 }, m),
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.HEADER_ROW_HEIGHT, m),
     children: [
       TextBlock({
-        ...gridPosition(
+        ...gridPoint(
           { row: m.HEADER_ROW_HEIGHT / 15, column: sealRowHeight + 1.5 },
           m
         ),
@@ -438,7 +442,7 @@ function HeaderAndInstructions({
       }),
       {
         type: 'Image',
-        ...gridPosition(
+        ...gridPoint(
           {
             row: (m.HEADER_ROW_HEIGHT - 0.25 - sealRowHeight) / 2,
             column: 0.5,
@@ -454,7 +458,7 @@ function HeaderAndInstructions({
 
   const instructions: Rectangle = {
     type: 'Rectangle',
-    ...gridPosition({ row: m.HEADER_ROW_HEIGHT, column: 0 }, m),
+    ...gridPoint({ row: m.HEADER_ROW_HEIGHT, column: 0 }, m),
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT, m),
     stroke: 'black',
@@ -464,13 +468,13 @@ function HeaderAndInstructions({
       // Thicker top border
       {
         type: 'Rectangle',
-        ...gridPosition({ row: 0, column: 0 }, m),
+        ...gridPoint({ row: 0, column: 0 }, m),
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
         height: 2,
         fill: 'black',
       },
       TextBlock({
-        ...gridPosition({ row: 0.25, column: 0.5 }, m),
+        ...gridPoint({ row: 0.25, column: 0.5 }, m),
         width: gridWidth(7, m),
         textGroups: [
           {
@@ -492,7 +496,7 @@ function HeaderAndInstructions({
       }),
       {
         type: 'Image',
-        ...gridPosition(
+        ...gridPoint(
           { row: (m.INSTRUCTIONS_ROW_HEIGHT - 2) / 2, column: 7.5 },
           m
         ),
@@ -501,7 +505,7 @@ function HeaderAndInstructions({
         href: '/images/instructions-fill-oval.svg',
       },
       TextBlock({
-        ...gridPosition({ row: 0.5, column: 13 }, m),
+        ...gridPoint({ row: 0.5, column: 13 }, m),
         width: gridWidth(12, m),
         textGroups: [
           {
@@ -519,7 +523,7 @@ function HeaderAndInstructions({
       }),
       {
         type: 'Image',
-        ...gridPosition(
+        ...gridPoint(
           { row: (m.INSTRUCTIONS_ROW_HEIGHT - 1.5) / 2, column: 25.5 },
           m
         ),
@@ -532,7 +536,7 @@ function HeaderAndInstructions({
 
   return {
     type: 'Rectangle',
-    ...gridPosition({ row: m.TIMING_MARKS_ROW_HEIGHT, column: 2 }, m),
+    ...gridPoint({ row: m.TIMING_MARKS_ROW_HEIGHT, column: 2 }, m),
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.HEADER_AND_INSTRUCTIONS_ROW_HEIGHT, m),
     children: [header, instructions],
@@ -629,7 +633,7 @@ export function Footer({
   const continueVoting: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition(
+      ...gridPoint(
         {
           row:
             m.FOOTER_ROW_HEIGHT / 2 -
@@ -650,7 +654,7 @@ export function Footer({
     },
     {
       type: 'Image',
-      ...gridPosition(
+      ...gridPoint(
         {
           row: (m.FOOTER_ROW_HEIGHT - arrowImageHeight) / 2,
           column: m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 2,
@@ -671,7 +675,7 @@ export function Footer({
   const ballotComplete: AnyElement[] = [
     {
       type: 'TextBox',
-      ...gridPosition(
+      ...gridPoint(
         {
           row:
             m.FOOTER_ROW_HEIGHT / 2 -
@@ -707,7 +711,7 @@ export function Footer({
 
   return {
     type: 'Rectangle',
-    ...gridPosition(
+    ...gridPoint(
       {
         row:
           m.TIMING_MARKS_ROW_HEIGHT +
@@ -722,12 +726,12 @@ export function Footer({
     children: [
       ballotMode === 'sample'
         ? PlaceholderQrCode({
-            ...gridPosition({ row: 0, column: 0 }, m),
+            ...gridPoint({ row: 0, column: 0 }, m),
             width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
             height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
           })
         : QrCode({
-            ...gridPosition({ row: 0, column: 0 }, m),
+            ...gridPoint({ row: 0, column: 0 }, m),
             width: gridWidth(m.FOOTER_ROW_HEIGHT, m),
             height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
             qrCodeData,
@@ -736,7 +740,7 @@ export function Footer({
       // Inner footer with gray background
       {
         type: 'Rectangle',
-        ...gridPosition({ row: 0, column: m.FOOTER_ROW_HEIGHT + 0.5 }, m),
+        ...gridPoint({ row: 0, column: m.FOOTER_ROW_HEIGHT + 0.5 }, m),
         width: gridWidth(
           m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 0.5,
           m
@@ -749,7 +753,7 @@ export function Footer({
           // Thicker top border
           {
             type: 'Rectangle',
-            ...gridPosition({ row: 0, column: 0 }, m),
+            ...gridPoint({ row: 0, column: 0 }, m),
             width: gridWidth(
               m.CONTENT_AREA_COLUMN_WIDTH - m.FOOTER_ROW_HEIGHT - 0.5,
               m
@@ -758,7 +762,7 @@ export function Footer({
             fill: 'black',
           },
           TextBlock({
-            ...gridPosition({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
+            ...gridPoint({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
             width: gridWidth(5, m),
             textGroups: [
               {
@@ -808,7 +812,7 @@ function CandidateContest({
     : m.CONTEST_COLUMN_WIDTH;
 
   const heading = TextBlock({
-    ...gridPosition({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
+    ...gridPoint({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
     width: gridWidth(width - 2 * m.CONTEST_PADDING, m),
     textGroups: [
       {
@@ -854,7 +858,7 @@ function CandidateContest({
     const optionRow = rowHeightUsed;
 
     const optionTextBlock = TextBlock({
-      ...gridPosition(
+      ...gridPoint(
         {
           row:
             0.9 -
@@ -889,11 +893,21 @@ function CandidateContest({
       align: optionTextAlign,
     });
 
-    const optionRowHeight = Math.ceil(yToRow(optionTextBlock.height, m));
+    const optionPosition: GridPosition = {
+      type: 'option',
+      sheetNumber,
+      side,
+      contestId: contest.id,
+      column: gridColumn + bubbleColumn - 1,
+      row: gridRow + optionRow,
+      optionId: candidate.id,
+    };
+    optionPositions.push(optionPosition);
 
+    const optionRowHeight = Math.ceil(yToRow(optionTextBlock.height, m));
     options.push({
       type: 'Rectangle',
-      ...gridPosition(
+      ...gridPoint(
         {
           row: optionRow,
           column: 0,
@@ -904,82 +918,25 @@ function CandidateContest({
       height: gridHeight(optionRowHeight, m),
       // fill: 'rgb(0, 255, 0, 0.2)',
       children: [
-        Bubble({
+        OptionBubble({
           row: 1,
           column: bubbleColumn,
           isFilled: false,
           m,
+          gridPosition: optionPosition,
         }),
         optionTextBlock,
       ],
     });
 
     rowHeightUsed += optionRowHeight;
-    optionPositions.push({
-      type: 'option',
-      sheetNumber,
-      side,
-      contestId: contest.id,
-      column: gridColumn + bubbleColumn - 1,
-      row: gridRow + optionRow,
-      optionId: candidate.id,
-    });
   }
 
   if (contest.allowWriteIns) {
     for (const writeInIndex of range(0, contest.seats)) {
       const optionRow = rowHeightUsed;
-      options.push({
-        type: 'Rectangle',
-        ...gridPosition(
-          {
-            row: optionRow,
-            column: 0,
-          },
-          m
-        ),
-        width: gridWidth(width, m),
-        height: gridHeight(m.WRITE_IN_ROW_HEIGHT, m),
-        children: [
-          Bubble({
-            row: 1,
-            column: bubbleColumn,
-            isFilled: false,
-            m,
-          }),
-          {
-            type: 'Rectangle', // Line?
-            ...gridPosition(
-              {
-                row: 1.25,
-                column: optionLabelColumn,
-              },
-              m
-            ),
-            width: gridWidth(width - 2.25, m),
-            height: m.WRITE_IN_ROW_HEIGHT * 0.5,
-            fill: 'black',
-          },
-          {
-            type: 'TextBox',
-            ...gridPosition(
-              {
-                row: 1.3,
-                column: optionLabelColumn,
-              },
-              m
-            ),
-            width: gridWidth(width - 2.5, m),
-            height: gridHeight(1, m),
-            textLines: ['write-in'],
-            ...m.FontStyles.SMALL,
-            align: optionTextAlign,
-          },
-        ],
-      });
 
-      rowHeightUsed += m.WRITE_IN_ROW_HEIGHT;
-      optionPositions.push({
+      const optionPosition: GridPosition = {
         type: 'write-in',
         sheetNumber,
         side,
@@ -997,7 +954,60 @@ function CandidateContest({
           width: width - 2,
           height: 0.45 + (m.WRITE_IN_ROW_HEIGHT - 1) / 2,
         },
+      };
+      optionPositions.push(optionPosition);
+
+      options.push({
+        type: 'Rectangle',
+        ...gridPoint(
+          {
+            row: optionRow,
+            column: 0,
+          },
+          m
+        ),
+        width: gridWidth(width, m),
+        height: gridHeight(m.WRITE_IN_ROW_HEIGHT, m),
+        children: [
+          OptionBubble({
+            row: 1,
+            column: bubbleColumn,
+            isFilled: false,
+            gridPosition: optionPosition,
+            m,
+          }),
+          {
+            type: 'Rectangle', // Line?
+            ...gridPoint(
+              {
+                row: 1.25,
+                column: optionLabelColumn,
+              },
+              m
+            ),
+            width: gridWidth(width - 2.25, m),
+            height: m.WRITE_IN_ROW_HEIGHT * 0.5,
+            fill: 'black',
+          },
+          {
+            type: 'TextBox',
+            ...gridPoint(
+              {
+                row: 1.3,
+                column: optionLabelColumn,
+              },
+              m
+            ),
+            width: gridWidth(width - 2.5, m),
+            height: gridHeight(1, m),
+            textLines: ['write-in'],
+            ...m.FontStyles.SMALL,
+            align: optionTextAlign,
+          },
+        ],
       });
+
+      rowHeightUsed += m.WRITE_IN_ROW_HEIGHT;
     }
   }
 
@@ -1012,7 +1022,7 @@ function CandidateContest({
   return [
     {
       type: 'Rectangle',
-      ...gridPosition({ row, column: 0 }, m),
+      ...gridPoint({ row, column: 0 }, m),
       width: gridWidth(width, m),
       height: contestHeight,
       stroke: 'black',
@@ -1021,7 +1031,7 @@ function CandidateContest({
         // Thicker top border
         {
           type: 'Rectangle',
-          ...gridPosition({ row: 0, column: 0 }, m),
+          ...gridPoint({ row: 0, column: 0 }, m),
           width: gridWidth(width, m),
           height: 2,
           fill: 'black',
@@ -1056,7 +1066,7 @@ function BallotMeasure({
   const width = m.CONTENT_AREA_COLUMN_WIDTH;
 
   const heading = TextBlock({
-    ...gridPosition({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
+    ...gridPoint({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
     width: gridWidth(
       width -
         2 * m.CONTEST_PADDING -
@@ -1102,9 +1112,21 @@ function BallotMeasure({
         ? Math.ceil((headingRowHeight + 1) / 2)
         : 0) +
       index * optionRowHeight;
+
+    const optionPosition: GridPosition = {
+      type: 'option',
+      sheetNumber,
+      side,
+      contestId: contest.id,
+      column: gridColumn + bubbleColumn - 1,
+      row: gridRow + optionRow,
+      optionId: choice.id,
+    };
+    optionPositions.push(optionPosition);
+
     options.push({
       type: 'Rectangle',
-      ...gridPosition(
+      ...gridPoint(
         {
           row: optionRow,
           column: bubbleColumn - 3,
@@ -1115,15 +1137,16 @@ function BallotMeasure({
       height: gridHeight(optionRowHeight, m),
       // fill: 'rgb(0, 255, 0, 0.2)',
       children: [
-        Bubble({
+        OptionBubble({
           row: 1,
           column: 3,
           isFilled: false,
+          gridPosition: optionPosition,
           m,
         }),
         {
           type: 'TextBox',
-          ...gridPosition(
+          ...gridPoint(
             {
               row: 0.7,
               column: optionLabelColumn,
@@ -1139,16 +1162,6 @@ function BallotMeasure({
         },
       ],
     });
-
-    optionPositions.push({
-      type: 'option',
-      sheetNumber,
-      side,
-      contestId: contest.id,
-      column: gridColumn + bubbleColumn - 1,
-      row: gridRow + optionRow,
-      optionId: choice.id,
-    });
   }
 
   const optionsHeight =
@@ -1163,7 +1176,7 @@ function BallotMeasure({
   return [
     {
       type: 'Rectangle',
-      ...gridPosition({ row, column: 0 }, m),
+      ...gridPoint({ row, column: 0 }, m),
       width: gridWidth(width, m),
       height: contestHeight,
       stroke: 'black',
@@ -1172,7 +1185,7 @@ function BallotMeasure({
         // Thicker top border
         {
           type: 'Rectangle',
-          ...gridPosition({ row: 0, column: 0 }, m),
+          ...gridPoint({ row: 0, column: 0 }, m),
           width: gridWidth(width, m),
           height: 2,
           fill: 'black',
@@ -1401,7 +1414,7 @@ function ContestColumn({
 
   const column: Rectangle = {
     type: 'Rectangle',
-    ...gridPosition({ row: gridRow, column: gridColumn }, m),
+    ...gridPoint({ row: gridRow, column: gridColumn }, m),
     width: contestRectangles[0]?.width ?? 0,
     height: gridHeight(lastContestRow, m),
     children: contestRectangles,
@@ -1454,7 +1467,7 @@ function ContestColumnsChunk({
 
   const section: Rectangle = {
     type: 'Rectangle',
-    ...gridPosition({ row: 0, column: 0 }, m),
+    ...gridPoint({ row: 0, column: 0 }, m),
     width: gridWidth(lastColumnColumn - m.GUTTER_WIDTH, m),
     height,
     children: columnRectangles,
@@ -1634,7 +1647,7 @@ function layOutBallotHelper({
       const blankTextWidth = textWidth(blankText, m.FontStyles.H2);
       contestObjects.push({
         type: 'TextBox',
-        ...gridPosition(
+        ...gridPoint(
           {
             row:
               m.TIMING_MARKS_ROW_HEIGHT +

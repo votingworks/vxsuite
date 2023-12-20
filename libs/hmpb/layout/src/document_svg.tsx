@@ -1,6 +1,13 @@
 import React from 'react';
 import { Buffer } from 'buffer';
-import { Color, Image, Page, Rectangle, TextBox } from './document_types';
+import {
+  Bubble,
+  Color,
+  Image,
+  Page,
+  Rectangle,
+  TextBox,
+} from './document_types';
 
 export const FONT_FAMILY = 'HelveticaNeue';
 
@@ -31,6 +38,16 @@ export function SvgRectangle({
       {children}
     </svg>
   );
+}
+
+type SvgBubbleProps = Omit<Bubble, 'type'>;
+
+export function SvgBubble({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  gridPosition,
+  ...props
+}: SvgBubbleProps): JSX.Element {
+  return <SvgRectangle {...props} />;
 }
 
 type SvgTextBoxProps = Omit<TextBox, 'type'>;

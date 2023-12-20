@@ -6,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   AnyElement,
-  gridPosition,
+  gridPoint,
   layOutAllBallotStyles,
   measurements,
   Document,
@@ -95,7 +95,7 @@ export function markBallot({
           );
           // Add offset to get bubble center (since interpreter indexes from
           // timing marks, while layout indexes from ballot edge)
-          const position = gridPosition(
+          const position = gridPoint(
             {
               column: optionPosition.column + 1,
               row: optionPosition.row + 1,
@@ -144,7 +144,7 @@ export function markBallot({
         );
         // Add offset to get bubble center (since interpreter indexes from
         // timing marks, while layout indexes from ballot edge)
-        const position = gridPosition(
+        const position = gridPoint(
           {
             column: optionPosition.column + 1,
             row: optionPosition.row + 1,

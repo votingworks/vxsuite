@@ -1,3 +1,5 @@
+import { GridPosition } from '@votingworks/types';
+
 export type Color = string;
 
 interface ElementBase {
@@ -39,7 +41,13 @@ export interface Image extends ElementBase {
   contents?: string; // SVG text
 }
 
-export type AnyElement = Rectangle | TextBox | Image;
+export interface Bubble extends Shape {
+  type: 'Bubble';
+  borderRadius?: number;
+  gridPosition: GridPosition;
+}
+
+export type AnyElement = Rectangle | TextBox | Image | Bubble;
 
 export interface Page {
   children: AnyElement[];

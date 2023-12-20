@@ -26,6 +26,7 @@ import {
   gridForPaper,
   LayoutOptions,
   BallotMode,
+  SvgBubble,
 } from '@votingworks/hmpb-layout';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -47,6 +48,8 @@ function SvgAnyElement({ element }: { element: AnyElement }) {
           })}
         </SvgRectangle>
       );
+    case 'Bubble':
+      return <SvgBubble {...element} />;
     case 'TextBox':
       return <SvgTextBox {...element} />;
     case 'Image':
