@@ -46,7 +46,7 @@ import {
 
 const debug = makeDebug('layout');
 
-const FontWeights = {
+export const FontWeights = {
   NORMAL: 400,
   SEMIBOLD: 500,
   BOLD: 700,
@@ -54,7 +54,7 @@ const FontWeights = {
 
 type FontWeight = (typeof FontWeights)[keyof typeof FontWeights];
 
-interface FontStyle {
+export interface FontStyle {
   fontSize: number;
   fontWeight: FontWeight;
   lineHeight: number;
@@ -69,7 +69,7 @@ function characterWidth(character: string, fontStyle: FontStyle): number {
   );
 }
 
-function textWidth(text: string, fontStyle: FontStyle): number {
+export function textWidth(text: string, fontStyle: FontStyle): number {
   return iter(text.split('').map((c) => characterWidth(c, fontStyle))).sum();
 }
 
