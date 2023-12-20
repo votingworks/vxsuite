@@ -1,8 +1,8 @@
 import { Optional } from '@votingworks/basics';
 
-function isIterable(
-  value: unknown
-): value is Iterable<unknown> | AsyncIterable<unknown> {
+type MaybeAsyncIterable<T> = Iterable<T> | AsyncIterable<T>;
+
+function isIterable(value: unknown): value is MaybeAsyncIterable<unknown> {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -10,13 +10,13 @@ function isIterable(
   );
 }
 
-type WithArraysAsIterables<T> = {
-  [P in keyof T]: T[P] extends ReadonlyArray<infer U>
-    ? Iterable<U>
-    : T[P] extends Optional<ReadonlyArray<infer U>>
-    ? Optional<Iterable<U>>
-    : T[P];
-};
+type WithArraysAsIterables<T> = T extends ReadonlyArray<infer U>
+  ? MaybeAsyncIterable<WithArraysAsIterables<U>>
+  : T extends Optional<ReadonlyArray<infer U>>
+  ? Optional<MaybeAsyncIterable<WithArraysAsIterables<U>>>
+  : T extends object
+  ? { [P in keyof T]: WithArraysAsIterables<T[P]> }
+  : T;
 
 /**
  * Options for {@link jsonStream}.
