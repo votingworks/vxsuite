@@ -20,6 +20,7 @@ import {
   ModalWidth,
 } from '@votingworks/ui';
 import {
+  generateTestDeckBallots,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -30,10 +31,7 @@ import { AppContext } from '../contexts/app_context';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { TestDeckTallyReport } from '../components/test_deck_tally_report';
-import {
-  generateTestDeckBallots,
-  generateResultsFromTestDeckBallots,
-} from '../utils/election';
+import { generateResultsFromTestDeckBallots } from '../utils/election';
 import { PrintButton } from '../components/print_button';
 import {
   SaveFrontendFileModal,

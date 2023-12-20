@@ -1,40 +1,27 @@
 import {
-  AnyContest,
-  Candidate,
-  CandidateContest,
   Election,
-  getContests,
   Party,
-  VotesDict,
   PartyId,
-  BallotStyleId,
   PrecinctId,
-  WriteInCandidate,
-  YesNoVote,
-  Tabulation,
+  District,
   CandidateVote,
   ElectionDefinition,
-  District,
+  Tabulation,
+  YesNoVote,
 } from '@votingworks/types';
 import { assert, find, unique } from '@votingworks/basics';
 import type {
-  CardCountsByParty,
   TallyReportResults,
+  CardCountsByParty,
 } from '@votingworks/admin-backend';
 import {
+  TestDeckBallot,
   getBallotStyleIdPartyIdLookup,
-  getContestsForPrecinct,
-  getEmptyCardCounts,
   groupMapToGroupList,
   tabulateCastVoteRecords,
+  getContestsForPrecinct,
+  getEmptyCardCounts,
 } from '@votingworks/utils';
-
-export interface TestDeckBallot {
-  ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
-  markingMethod: 'hand' | 'machine';
-  votes: VotesDict;
-}
 
 export function getPartiesWithPrimaryElections(election: Election): Party[] {
   const partyIds = election.ballotStyles
@@ -44,100 +31,13 @@ export function getPartiesWithPrimaryElections(election: Election): Party[] {
 }
 
 /**
- * Returns whether a ballot style ID corresponds to the super ballot, a special ballot only
- * available to system admins that includes all contests across all precincts
+ * Returns all districts that have some ballot style associated with them.
  */
-export function numBallotPositions(contest: AnyContest): number {
-  if (contest.type === 'candidate') {
-    return (
-      contest.candidates.length + (contest.allowWriteIns ? contest.seats : 0)
-    );
-  }
-  return 2;
-}
-
-export function generateTestDeckWriteIn(index: number): WriteInCandidate {
-  return {
-    id: 'write-in',
-    isWriteIn: true,
-    name: 'WRITE-IN',
-    writeInIndex: index,
-  };
-}
-
-export function getTestDeckCandidateAtIndex(
-  contest: CandidateContest,
-  position: number
-): Candidate {
-  assert(position < numBallotPositions(contest)); // safety check
-  if (position < contest.candidates.length) {
-    return contest.candidates[position];
-  }
-  return generateTestDeckWriteIn(position - contest.candidates.length);
-}
-
-interface GenerateTestDeckParams {
-  election: Election;
-  precinctId?: PrecinctId;
-  markingMethod: TestDeckBallot['markingMethod'];
-}
-
-export function generateTestDeckBallots({
-  election,
-  precinctId,
-  markingMethod,
-}: GenerateTestDeckParams): TestDeckBallot[] {
-  const precincts: string[] = precinctId
-    ? [precinctId]
-    : election.precincts.map((p) => p.id);
-
-  const ballots: TestDeckBallot[] = [];
-
-  for (const currentPrecinctId of precincts) {
-    const precinct = find(
-      election.precincts,
-      (p) => p.id === currentPrecinctId
-    );
-    const precinctBallotStyles = election.ballotStyles.filter((bs) =>
-      bs.precincts.includes(precinct.id)
-    );
-
-    for (const ballotStyle of precinctBallotStyles) {
-      const contests = getContests({ election, ballotStyle });
-
-      const numBallots = Math.max(
-        ...contests.map((c) => numBallotPositions(c))
-      );
-
-      for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
-        const votes: VotesDict = {};
-        for (const contest of contests) {
-          if (contest.type === 'yesno') {
-            votes[contest.id] =
-              ballotNum % 2 === 0
-                ? [contest.yesOption.id]
-                : [contest.noOption.id];
-          } else if (
-            contest.type === 'candidate' &&
-            contest.candidates.length > 0 // safety check
-          ) {
-            const choiceIndex = ballotNum % numBallotPositions(contest);
-            votes[contest.id] = [
-              getTestDeckCandidateAtIndex(contest, choiceIndex),
-            ];
-          }
-        }
-        ballots.push({
-          ballotStyleId: ballotStyle.id,
-          precinctId: currentPrecinctId,
-          markingMethod,
-          votes,
-        });
-      }
-    }
-  }
-
-  return ballots;
+export function getValidDistricts(election: Election): District[] {
+  const ids = unique(election.ballotStyles.flatMap((bs) => bs.districts));
+  return ids.map((id) =>
+    find(election.districts, (district) => district.id === id)
+  );
 }
 
 export function testDeckBallotToCastVoteRecord(
@@ -222,14 +122,4 @@ export async function generateResultsFromTestDeckBallots({
     hasPartySplits: true,
     cardCountsByParty,
   };
-}
-
-/**
- * Returns all districts that have some ballot style associated with them.
- */
-export function getValidDistricts(election: Election): District[] {
-  const ids = unique(election.ballotStyles.flatMap((bs) => bs.districts));
-  return ids.map((id) =>
-    find(election.districts, (district) => district.id === id)
-  );
 }

@@ -26,5 +26,6 @@ export * from './Printer';
 export * from './random';
 export * from './sqlite';
 export * from './tabulation';
+export * from './test_deck_ballots';
 export * from './types';
 export * from './votes';

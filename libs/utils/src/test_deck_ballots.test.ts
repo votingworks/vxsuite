@@ -8,17 +8,17 @@ import {
   getContests,
   YesNoVote,
 } from '@votingworks/types';
-import arrayUnique from 'array-unique';
+import { unique } from '@votingworks/basics';
 import {
   generateTestDeckWriteIn,
   numBallotPositions,
   getTestDeckCandidateAtIndex,
   generateTestDeckBallots,
-} from './election';
+} from './test_deck_ballots';
 
 describe('numBallotPositions', () => {
   test('returns 2 for yes-no contests', () => {
-    const yesNoContest = electionGeneral.contests[13];
+    const yesNoContest = electionGeneral.contests[13]!;
     expect(numBallotPositions(yesNoContest)).toEqual(2);
   });
 
@@ -90,7 +90,7 @@ describe('generateTestDeckBallots', () => {
     const allSelections: Dictionary<string[]> = {};
     for (const contest of contests) {
       if (contest.type === 'yesno') {
-        allSelections[contest.id] = arrayUnique(
+        allSelections[contest.id] = unique(
           votes.flatMap((vote) => vote[contest.id] as YesNoVote)
         );
       } else if (contest.type === 'candidate') {
@@ -98,7 +98,7 @@ describe('generateTestDeckBallots', () => {
           (vote) => vote[contest.id] as CandidateVote
         );
 
-        allSelections[contest.id] = arrayUnique(
+        allSelections[contest.id] = unique(
           allCandidateVotes.map((candidate) => {
             if (candidate.id === 'write-in') {
               return `write-in-${candidate.writeInIndex}`;
