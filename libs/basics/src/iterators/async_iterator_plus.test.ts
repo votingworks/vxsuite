@@ -42,6 +42,36 @@ test('filter', async () => {
   ).toEqual([1, 3, 5]);
 });
 
+test('filterMap', async () => {
+  expect(await iter([]).async().filterMap(Boolean).toArray()).toEqual([]);
+  expect(
+    await iter([0, 1, ''])
+      .async()
+      .filterMap((n) => (typeof n === 'number' ? n * 2 : undefined))
+      .toArray()
+  ).toEqual([0, 2]);
+
+  const numbersAsWords = ['one', 'two', 'three', 'four', 'five'];
+  async function getNumberAsWord(n: number): Promise<string | undefined> {
+    return Promise.resolve(numbersAsWords[n - 1]);
+  }
+
+  expect(
+    await naturals()
+      .async()
+      .take(5)
+      .filterMap(async (n) => (n % 2 === 0 ? getNumberAsWord(n) : undefined))
+      .toArray()
+  ).toEqual(['two', 'four']);
+  expect(
+    await naturals()
+      .async()
+      .take(5)
+      .filterMap(async (n) => (n % 2 ? getNumberAsWord(n) : undefined))
+      .toArray()
+  ).toEqual(['one', 'three', 'five']);
+});
+
 test('count', async () => {
   expect(await iter([]).async().count()).toEqual(0);
   expect(await iter([0, 1, '']).async().count()).toEqual(3);
@@ -343,6 +373,57 @@ test('flatMap', async () => {
       .flatMap((a) => Promise.resolve([a, a]))
       .toArray()
   ).toEqual([1, 1, 2, 2, 3, 3]);
+});
+
+test('groupBy', async () => {
+  expect(
+    await iter([])
+      .async()
+      .groupBy(() => true)
+      .toArray()
+  ).toEqual([]);
+  expect(
+    await iter([1, 1, 1, 3, 3, 2, 2, 2])
+      .async()
+      .groupBy((a, b) => Promise.resolve(a === b))
+      .toArray()
+  ).toEqual([
+    [1, 1, 1],
+    [3, 3],
+    [2, 2, 2],
+  ]);
+  expect(
+    await iter([1, 1, 2, 3, 2, 3, 2, 3, 4])
+      .async()
+      .groupBy((a, b) => a <= b)
+      .toArray()
+  ).toEqual([
+    [1, 1, 2, 3],
+    [2, 3],
+    [2, 3, 4],
+  ]);
+
+  await fc.assert(
+    fc.asyncProperty(
+      fc.nat({ max: 100 }).chain((n) =>
+        fc.tuple(
+          // make `n` values to group
+          fc.array(fc.anything(), { minLength: n, maxLength: n }),
+          // decide how to group them randomly
+          fc.array(fc.boolean(), { minLength: n, maxLength: n })
+        )
+      ),
+      fc.array(fc.integer()),
+      async ([values, groupByReturnValues]) => {
+        const groups = await iter(values)
+          .async()
+          .groupBy(() => groupByReturnValues.shift() ?? false)
+          .toArray();
+        // flattening the groups should give us the original list
+        expect(groups.flat()).toEqual(values);
+      }
+    )
+  );
 });
 
 test('isEmpty', async () => {

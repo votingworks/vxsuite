@@ -32,6 +32,33 @@ test('filter', () => {
   ).toEqual([1, 3, 5]);
 });
 
+test('filterMap', () => {
+  expect(iter([]).filterMap(Boolean).toArray()).toEqual([]);
+  expect(
+    iter([0, 1, ''])
+      .filterMap((n) => (typeof n === 'number' ? n * 2 : undefined))
+      .toArray()
+  ).toEqual([0, 2]);
+
+  const numbersAsWords = ['one', 'two', 'three', 'four', 'five'];
+  function getNumberAsWord(n: number): string | undefined {
+    return numbersAsWords[n - 1];
+  }
+
+  expect(
+    naturals()
+      .take(5)
+      .filterMap((n) => (n % 2 === 0 ? getNumberAsWord(n) : undefined))
+      .toArray()
+  ).toEqual(['two', 'four']);
+  expect(
+    naturals()
+      .take(5)
+      .filterMap((n) => (n % 2 ? getNumberAsWord(n) : undefined))
+      .toArray()
+  ).toEqual(['one', 'three', 'five']);
+});
+
 test('count', () => {
   expect(iter([]).count()).toEqual(0);
   expect(iter([0, 1, '']).count()).toEqual(3);
@@ -252,6 +279,53 @@ test('flatMap', () => {
       })
       .toArray()
   ).toEqual([1, 1, 2, 2, 3, 3]);
+});
+
+test('groupBy', () => {
+  expect(
+    iter([])
+      .groupBy(() => true)
+      .toArray()
+  ).toEqual([]);
+  expect(
+    iter([1, 1, 1, 3, 3, 2, 2, 2])
+      .groupBy((a, b) => a === b)
+      .toArray()
+  ).toEqual([
+    [1, 1, 1],
+    [3, 3],
+    [2, 2, 2],
+  ]);
+  expect(
+    iter([1, 1, 2, 3, 2, 3, 2, 3, 4])
+      .groupBy((a, b) => a <= b)
+      .toArray()
+  ).toEqual([
+    [1, 1, 2, 3],
+    [2, 3],
+    [2, 3, 4],
+  ]);
+
+  fc.assert(
+    fc.property(
+      fc.nat({ max: 100 }).chain((n) =>
+        fc.tuple(
+          // make `n` values to group
+          fc.array(fc.anything(), { minLength: n, maxLength: n }),
+          // decide how to group them randomly
+          fc.array(fc.boolean(), { minLength: n, maxLength: n })
+        )
+      ),
+      fc.array(fc.integer()),
+      ([values, groupByReturnValues]) => {
+        const groups = iter(values)
+          .groupBy(() => groupByReturnValues.shift() ?? false)
+          .toArray();
+        // flattening the groups should give us the original list
+        expect(groups.flat()).toEqual(values);
+      }
+    )
+  );
 });
 
 test('isEmpty', () => {

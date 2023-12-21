@@ -148,6 +148,24 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
+  filterMap<U extends NonNullable<unknown>>(
+    fn: (value: T, index: number) => U | null | undefined
+  ): IteratorPlus<U> {
+    const { iterable } = this;
+    return new IteratorPlusImpl(
+      (function* gen() {
+        let index = 0;
+        for (const value of iterable) {
+          const result = fn(value, index);
+          if (result !== null && result !== undefined) {
+            yield result;
+          }
+          index += 1;
+        }
+      })()
+    );
+  }
+
   find(predicate: (item: T) => unknown): T | undefined {
     for (const it of this.iterable) {
       if (predicate(it)) {
@@ -170,6 +188,30 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
         for (const value of iterable) {
           yield* fn(value, index);
           index += 1;
+        }
+      })()
+    );
+  }
+
+  groupBy(predicate: (a: T, b: T) => boolean): IteratorPlus<T[]> {
+    const { iterable } = this;
+    return new IteratorPlusImpl(
+      (function* gen() {
+        let group: T[] = [];
+        let previous: T | undefined;
+        let isFirst = true;
+        for (const value of iterable) {
+          if (isFirst || predicate(previous as T, value)) {
+            group.push(value);
+          } else {
+            yield group;
+            group = [value];
+          }
+          previous = value;
+          isFirst = false;
+        }
+        if (group.length > 0) {
+          yield group;
         }
       })()
     );

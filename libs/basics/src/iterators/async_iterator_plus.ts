@@ -137,6 +137,24 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     ) as AsyncIteratorPlus<T>;
   }
 
+  filterMap<U extends NonNullable<unknown>>(
+    fn: (value: T, index: number) => MaybePromise<U | null | undefined>
+  ): AsyncIteratorPlus<U> {
+    const { iterable } = this;
+    return new AsyncIteratorPlusImpl(
+      (async function* gen() {
+        let index = 0;
+        for await (const value of iterable) {
+          const mapped = await fn(value, index);
+          if (mapped !== null && mapped !== undefined) {
+            yield mapped;
+          }
+          index += 1;
+        }
+      })()
+    ) as AsyncIteratorPlus<U>;
+  }
+
   async find(
     predicate: (item: T) => MaybePromise<unknown>
   ): Promise<T | undefined> {
@@ -169,6 +187,32 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
         }
       })()
     ) as AsyncIteratorPlus<U>;
+  }
+
+  groupBy(
+    predicate: (a: T, b: T) => MaybePromise<boolean>
+  ): AsyncIteratorPlus<T[]> {
+    const { iterable } = this;
+    return new AsyncIteratorPlusImpl(
+      (async function* gen() {
+        let group: T[] = [];
+        let previous: T | undefined;
+        let isFirst = true;
+        for await (const value of iterable) {
+          if (isFirst || (await predicate(previous as T, value))) {
+            group.push(value);
+          } else {
+            yield group;
+            group = [value];
+          }
+          previous = value;
+          isFirst = false;
+        }
+        if (group.length > 0) {
+          yield group;
+        }
+      })()
+    ) as AsyncIteratorPlus<T[]>;
   }
 
   async isEmpty(): Promise<boolean> {
