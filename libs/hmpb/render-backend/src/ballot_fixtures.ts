@@ -5,31 +5,20 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import {
-  AnyElement,
-  gridPoint,
   layOutAllBallotStyles,
-  measurements,
-  Document,
-  Rectangle,
-  LayoutDensity,
   DEFAULT_LAYOUT_OPTIONS,
   BUBBLE_POSITIONS,
   LAYOUT_DENSITIES,
-  TextBox,
-  BubblePosition,
+  markBallot,
+  voteIsCandidate,
 } from '@votingworks/hmpb-layout';
 import {
   BallotPaperSize,
   BallotStyle,
   BallotType,
-  Candidate,
-  ContestId,
   Election,
   getBallotStyle,
   getContests,
-  GridLayout,
-  Id,
-  Vote,
   VotesDict,
 } from '@votingworks/types';
 import { join } from 'path';
@@ -38,143 +27,6 @@ export const fixturesDir = join(__dirname, '../fixtures');
 export const famousNamesDir = join(fixturesDir, 'famous-names');
 export const generalElectionDir = join(fixturesDir, 'general-election');
 export const primaryElectionDir = join(fixturesDir, 'primary-election');
-
-function voteIsCandidate(vote: Vote[number]): vote is Candidate {
-  return typeof vote !== 'string';
-}
-
-export function voteToOptionId(vote: Vote[number]): Id {
-  return voteIsCandidate(vote) ? vote.id : vote;
-}
-
-interface MarkBallotParams {
-  ballot: Document;
-  gridLayout: GridLayout;
-  votes: VotesDict;
-  unmarkedWriteIns: Array<{
-    contestId: ContestId;
-    writeInIndex: number;
-    text: string;
-  }>;
-  paperSize: BallotPaperSize;
-  layoutDensity: LayoutDensity;
-  bubblePosition: BubblePosition;
-}
-
-export function markBallot({
-  ballot,
-  gridLayout,
-  votes,
-  unmarkedWriteIns,
-  paperSize,
-  layoutDensity,
-  bubblePosition,
-}: MarkBallotParams): Document {
-  const m = measurements(paperSize, layoutDensity);
-  function marksForPage(page: number): AnyElement[] {
-    const sheetNumber = Math.ceil(page / 2);
-    const side = page % 2 === 1 ? 'front' : 'back';
-    const pagePositions = gridLayout.gridPositions.filter(
-      (position) =>
-        position.sheetNumber === sheetNumber && position.side === side
-    );
-    const voteMarkContent = Object.entries(votes).flatMap(
-      ([contestId, contestVotes]) => {
-        if (!contestVotes) return [];
-        const contestPositions = pagePositions.filter(
-          (position) => position.contestId === contestId
-        );
-        if (contestPositions.length === 0) return []; // Contest not on this page
-        return contestVotes?.flatMap((vote): AnyElement[] => {
-          const optionPosition = find(contestPositions, (position) =>
-            position.type === 'option'
-              ? position.optionId === voteToOptionId(vote)
-              : voteIsCandidate(vote) &&
-                Boolean(vote.isWriteIn) &&
-                position.writeInIndex === vote.writeInIndex
-          );
-          // Add offset to get bubble center (since interpreter indexes from
-          // timing marks, while layout indexes from ballot edge)
-          const position = gridPoint(
-            {
-              column: optionPosition.column + 1,
-              row: optionPosition.row + 1,
-            },
-            m
-          );
-          const mark: Rectangle = {
-            type: 'Rectangle',
-            // Offset by half mark width/height
-            x: position.x - 5,
-            y: position.y - 4,
-            width: 10,
-            height: 8,
-            fill: 'black',
-          };
-
-          const writeInText: TextBox | undefined =
-            voteIsCandidate(vote) && vote.isWriteIn
-              ? {
-                  type: 'TextBox',
-                  textLines: [vote.name],
-                  x: position.x + (bubblePosition === 'right' ? -100 : 45),
-                  y: position.y - 8,
-                  width: 200,
-                  height: 20,
-                  ...m.FontStyles.BODY,
-                }
-              : undefined;
-
-          return [mark, ...(writeInText ? [writeInText] : [])];
-        });
-      }
-    );
-
-    const unmarkedWriteInContent = unmarkedWriteIns.flatMap(
-      ({ contestId, writeInIndex, text }): AnyElement[] => {
-        const contestPositions = pagePositions.filter(
-          (position) => position.contestId === contestId
-        );
-        if (contestPositions.length === 0) return []; // Contest not on this page
-        const optionPosition = find(
-          contestPositions,
-          (position) =>
-            position.type === 'write-in' &&
-            position.writeInIndex === writeInIndex
-        );
-        // Add offset to get bubble center (since interpreter indexes from
-        // timing marks, while layout indexes from ballot edge)
-        const position = gridPoint(
-          {
-            column: optionPosition.column + 1,
-            row: optionPosition.row + 1,
-          },
-          m
-        );
-        return [
-          {
-            type: 'TextBox',
-            textLines: [text],
-            x: position.x + (bubblePosition === 'right' ? -140 : 45),
-            y: position.y - 8,
-            width: 200,
-            height: 20,
-            ...m.FontStyles.BODY,
-          },
-        ];
-      }
-    );
-
-    return [...voteMarkContent, ...unmarkedWriteInContent];
-  }
-  return {
-    ...ballot,
-    pages: ballot.pages.map((page, i) => ({
-      ...page,
-      children: page.children.concat(marksForPage(i + 1)),
-    })),
-  };
-}
 
 export const famousNamesFixtures = (() => {
   const { electionDefinition, ballots } = layOutAllBallotStyles({
@@ -196,15 +48,7 @@ export const famousNamesFixtures = (() => {
     })
   );
 
-  const markedBallot = markBallot({
-    ballot,
-    gridLayout,
-    votes,
-    unmarkedWriteIns: [],
-    paperSize: BallotPaperSize.Letter,
-    layoutDensity: DEFAULT_LAYOUT_OPTIONS.layoutDensity,
-    bubblePosition: 'left',
-  });
+  const markedBallot = markBallot({ ballot, votes });
 
   // Saved PDFs generated by generate_fixtures.ts
   const blankBallotPath = join(famousNamesDir, 'blank-ballot.pdf');
@@ -301,20 +145,12 @@ export const generalElectionFixtures = (() => {
             {
               contestId: contest.id,
               writeInIndex,
-              text: `Unmarked Write-In #${writeInIndex + 1}`,
+              name: `Unmarked Write-In #${writeInIndex + 1}`,
             },
           ];
         });
 
-        const markedBallot = markBallot({
-          ballot,
-          gridLayout,
-          votes,
-          unmarkedWriteIns,
-          paperSize,
-          layoutDensity,
-          bubblePosition,
-        });
+        const markedBallot = markBallot({ ballot, votes, unmarkedWriteIns });
 
         const electionDir = join(
           generalElectionDir,
@@ -390,15 +226,7 @@ export const primaryElectionFixtures = (() => {
       })
     );
 
-    const markedBallot = markBallot({
-      ballot,
-      gridLayout,
-      votes,
-      unmarkedWriteIns: [],
-      paperSize: BallotPaperSize.Letter,
-      layoutDensity: DEFAULT_LAYOUT_OPTIONS.layoutDensity,
-      bubblePosition: 'left',
-    });
+    const markedBallot = markBallot({ ballot, votes });
 
     // Saved PDFs generated by generate_fixtures.ts
     const blankBallotPath = join(

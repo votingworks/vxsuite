@@ -1,6 +1,7 @@
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import {
   Candidate,
+  ContestId,
   Id,
   Vote,
   VotesDict,
@@ -39,7 +40,7 @@ function mapDocument(
   };
 }
 
-function voteIsCandidate(vote: Vote[number]): vote is Candidate {
+export function voteIsCandidate(vote: Vote[number]): vote is Candidate {
   return typeof vote !== 'string';
 }
 
@@ -50,9 +51,13 @@ export function voteToOptionId(vote: Vote[number]): Id {
 export function markBallot({
   ballot,
   votes,
+  unmarkedWriteIns,
 }: {
   ballot: Document;
   votes: VotesDict;
+  unmarkedWriteIns?: Array<
+    { contestId: ContestId } & Pick<WriteInCandidate, 'writeInIndex' | 'name'>
+  >;
 }): Document {
   return mapDocument(ballot, (element) => {
     // In order to fill bubbles and add text for write-ins, we need the option
@@ -65,12 +70,11 @@ export function markBallot({
     assert(element.children);
 
     const { gridPosition } = bubbleElement;
-    const contestVotes = votes[gridPosition.contestId];
-    if (!contestVotes) return element;
 
+    const contestVotes = votes[gridPosition.contestId];
     switch (gridPosition.type) {
       case 'option': {
-        const optionHasVote = contestVotes.some(
+        const optionHasVote = contestVotes?.some(
           (vote) => gridPosition.optionId === voteToOptionId(vote)
         );
         if (!optionHasVote) return element;
@@ -83,7 +87,7 @@ export function markBallot({
       }
 
       case 'write-in': {
-        const optionVote = contestVotes.find(
+        const markedWriteInVote = contestVotes?.find(
           (vote): vote is WriteInCandidate => {
             const voteWriteInIndex = voteIsCandidate(vote)
               ? vote.writeInIndex
@@ -91,7 +95,14 @@ export function markBallot({
             return gridPosition.writeInIndex === voteWriteInIndex;
           }
         );
+        const unmarkedWriteInVote = unmarkedWriteIns?.find(
+          (uwi) =>
+            uwi.contestId === gridPosition.contestId &&
+            uwi.writeInIndex === gridPosition.writeInIndex
+        );
+        const optionVote = markedWriteInVote ?? unmarkedWriteInVote;
         if (!optionVote) return element;
+
         const writeInLine = find(
           element.children,
           (child) => child.type === 'Rectangle' && child.fill === 'black'
@@ -106,7 +117,11 @@ export function markBallot({
           ...element,
           children: [
             ...element.children.map((child) =>
-              child === bubbleElement ? { ...child, fill: 'black' } : child
+              // Don't fill the bubble if this vote was specified as an unmarked
+              // write-in
+              child === bubbleElement && optionVote === markedWriteInVote
+                ? { ...child, fill: 'black' }
+                : child
             ),
             {
               type: 'TextBox',
