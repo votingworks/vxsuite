@@ -87,7 +87,7 @@ function linesAsync(
  * ```ts
  * const file = fs.createReadStream('file.txt', { encoding: 'utf8' });
  *
- * expect(await iter(file).lines().toArray()).toEqual([
+ * expect(await lines(file).toArray()).toEqual([
  *   'line 1\n',
  *   'line 2\n',
  *   …
