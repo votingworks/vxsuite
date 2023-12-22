@@ -4,11 +4,12 @@ import {
   CandidateContest,
   CandidateVote,
   Dictionary,
+  Election,
   getBallotStyle,
   getContests,
   YesNoVote,
 } from '@votingworks/types';
-import { unique } from '@votingworks/basics';
+import { deepEqual, unique } from '@votingworks/basics';
 import {
   generateTestDeckWriteIn,
   numBallotPositions,
@@ -72,7 +73,7 @@ describe('getTestDeckCandidateAtIndex', () => {
 });
 
 describe('generateTestDeckBallots', () => {
-  test('generates a list of ballots with a vote for every ballot choice', () => {
+  test('generates a list of ballots with a vote for every ballot choice, as well as blank and overvoted ballots', () => {
     // Precinct with id '23' has one ballot style, with id '12', representing
     // races for 'district-2'
     const ballots = generateTestDeckBallots({
@@ -91,11 +92,11 @@ describe('generateTestDeckBallots', () => {
     for (const contest of contests) {
       if (contest.type === 'yesno') {
         allSelections[contest.id] = unique(
-          votes.flatMap((vote) => vote[contest.id] as YesNoVote)
+          votes.flatMap((vote) => (vote[contest.id] ?? []) as YesNoVote)
         );
       } else if (contest.type === 'candidate') {
         const allCandidateVotes = votes.flatMap(
-          (vote) => vote[contest.id] as CandidateVote
+          (vote) => (vote[contest.id] ?? []) as CandidateVote
         );
 
         allSelections[contest.id] = unique(
@@ -173,5 +174,52 @@ describe('generateTestDeckBallots', () => {
       'question-c': ['question-c-option-yes', 'question-c-option-no'],
       'measure-101': ['measure-101-option-yes', 'measure-101-option-no'],
     });
+
+    const blankBallots = ballots.filter((ballot) =>
+      deepEqual(ballot.votes, {})
+    );
+    expect(blankBallots.length).toEqual(2);
+    const overvotedBallots = ballots.filter((ballot) =>
+      Object.entries(ballot.votes).some(([contestId, vote]) => {
+        const contest = contests.find((c) => c.id === contestId)!;
+        return (
+          vote &&
+          vote.length > (contest.type === 'candidate' ? contest.seats : 1)
+        );
+      })
+    );
+    expect(overvotedBallots.length).toEqual(1);
+  });
+
+  test('can generate an overvote for a yes-no contest', () => {
+    const electionWithOnlyYesNoContests: Election = {
+      ...electionGeneral,
+      contests: electionGeneral.contests.filter(
+        (contest) => contest.type === 'yesno'
+      ),
+    };
+    const ballots = generateTestDeckBallots({
+      election: electionWithOnlyYesNoContests,
+      precinctId: electionWithOnlyYesNoContests.precincts[0]!.id,
+      markingMethod: 'hand',
+    });
+    const overvotedBallots = ballots.filter((ballot) =>
+      Object.values(ballot.votes).some((vote) => vote && vote.length > 1)
+    );
+    expect(overvotedBallots.length).toEqual(1);
+  });
+
+  test('generates ballots for all precincts if no precinctId is provided', () => {
+    const ballots = generateTestDeckBallots({
+      election: electionGeneral,
+      markingMethod: 'machine',
+    });
+    const precinctsWithBallotStyles = electionGeneral.precincts.filter((p) =>
+      electionGeneral.ballotStyles.some((bs) => bs.precincts.includes(p.id))
+    );
+    const ballotPrecinctIds = unique(ballots.map((b) => b.precinctId));
+    expect(ballotPrecinctIds).toEqual(
+      precinctsWithBallotStyles.map((p) => p.id)
+    );
   });
 });

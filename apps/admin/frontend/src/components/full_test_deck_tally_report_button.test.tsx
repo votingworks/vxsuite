@@ -50,7 +50,7 @@ test('prints appropriate reports for primary election', async () => {
       'Test Deck Mammal Party Example Primary Election Tally Report'
     );
     expect(mammalReport.getByTestId('total-ballot-count')).toHaveTextContent(
-      '56'
+      '68'
     );
 
     const fishReport = within(reports[1]);
@@ -58,7 +58,7 @@ test('prints appropriate reports for primary election', async () => {
       'Test Deck Fish Party Example Primary Election Tally Report'
     );
     expect(fishReport.getByTestId('total-ballot-count')).toHaveTextContent(
-      '48'
+      '60'
     );
 
     expect(printOptions).toMatchObject({ sides: 'one-sided' });
@@ -87,7 +87,7 @@ test('prints appropriate report for general election', async () => {
       'Test Deck Lincoln Municipal General Election Tally Report'
     );
     expect(printedElement.getByTestId('total-ballot-count')).toHaveTextContent(
-      '208'
+      '232'
     );
 
     expect(printOptions).toMatchObject({ sides: 'one-sided' });

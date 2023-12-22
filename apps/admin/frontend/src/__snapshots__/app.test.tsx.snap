@@ -255,7 +255,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                 <td
                   class="c8"
                 >
-                  4
+                  7
                 </td>
               </tr>
               <tr
@@ -287,7 +287,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   data-testid="total-ballot-count"
                 >
                   <strong>
-                    8
+                    11
                   </strong>
                 </td>
               </tr>
@@ -314,7 +314,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             <span
               class="c13"
             >
-              8 ballots
+              9 ballots
                
               cast /
             </span>
@@ -323,7 +323,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
               class="c13"
             >
                
-              0 overvotes
+              1 overvote
                
               /
             </span>
