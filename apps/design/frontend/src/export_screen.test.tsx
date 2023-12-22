@@ -73,3 +73,22 @@ test('export all ballots', async () => {
     );
   });
 });
+
+test('export test decks', async () => {
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Export' });
+
+  apiMock.exportTestDecks.expectCallWith({ electionId }).resolves({
+    zipContents: Buffer.from('fake-zip-contents'),
+    electionHash: '1234567890abcdef',
+  });
+
+  screen.getButton('Export Test Decks').click();
+
+  await waitFor(() => {
+    expect(fileDownloadMock).toHaveBeenCalledWith(
+      Buffer.from('fake-zip-contents'),
+      'test-decks-1234567890.zip'
+    );
+  });
+});
