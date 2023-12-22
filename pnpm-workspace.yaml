@@ -16,3 +16,6 @@ packages:
   # include top-level development project
   - 'codemods'
   - 'script'
+
+  # code exercises
+  - 'docs/exercises'

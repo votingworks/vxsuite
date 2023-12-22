@@ -417,6 +417,29 @@ jobs:
       - store_test_results:
           path: apps/scan/frontend/reports/
 
+  # @votingworks/exercises
+  test-docs-exercises:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir docs/exercises build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir docs/exercises lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir docs/exercises test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: docs/exercises/reports/
+
   # @votingworks/api
   test-libs-api:
     executor: nodejs
@@ -1186,6 +1209,7 @@ workflows:
       - test-apps-mark-integration-testing
       - test-apps-scan-backend
       - test-apps-scan-frontend
+      - test-docs-exercises
       - test-libs-api
       - test-libs-auth
       - test-libs-backend

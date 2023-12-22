@@ -43,17 +43,18 @@ export type JsonStreamInput<T> =
  * @example
  *
  * ```ts
+ * import { createWriteStream } from 'fs';
+ * import { Readable } from 'stream';
+ *
  * function* generateLargeArray() {
  *   for (let i = 0; i < 1_000_000_000; i++) {
  *     yield i;
  *   }
  * }
  *
- * const stream = jsonStream({ foo: [1, 2, 3], bar: generateLargeArray() });
- * const writer = createWriteStream('output.json');
- * for (const chunk of stream) {
- *  writer.write(chunk);
- * }
+ * Readable.from(jsonStream({ foo: [1, 2, 3], bar: generateLargeArray() })).pipe(
+ *   createWriteStream('output.json')
+ * );
  * ```
  */
 export async function* jsonStream<T>(
