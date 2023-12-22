@@ -272,6 +272,7 @@ function buildApi({ store }: { store: Store }) {
           precinctId: precinct.id,
           ballots,
         });
+        if (!testDeckDocument) continue;
         const pdf = renderDocumentToPdf(testDeckDocument);
         const fileName = `${precinct.name.replaceAll(
           ' ',
