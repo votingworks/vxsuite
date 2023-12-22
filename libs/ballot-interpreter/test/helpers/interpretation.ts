@@ -1,5 +1,5 @@
 import { assertDefined, iter, unique } from '@votingworks/basics';
-import { voteToOptionId } from '@votingworks/hmpb-render-backend';
+import { voteToOptionId } from '@votingworks/hmpb-layout';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
   ContestId,
