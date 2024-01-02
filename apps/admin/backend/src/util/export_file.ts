@@ -1,4 +1,8 @@
-import { ExportDataResult, Exporter } from '@votingworks/backend';
+import {
+  ExportDataResult,
+  ExportableData,
+  Exporter,
+} from '@votingworks/backend';
 import { ADMIN_ALLOWED_EXPORT_PATTERNS } from '../globals';
 import { rootDebug } from './debug';
 
@@ -12,7 +16,7 @@ export function exportFile({
   data,
 }: {
   path: string;
-  data: string | NodeJS.ReadableStream;
+  data: ExportableData;
 }): Promise<ExportDataResult> {
   const exporter = new Exporter({
     allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,

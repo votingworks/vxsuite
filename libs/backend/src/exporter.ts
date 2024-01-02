@@ -18,6 +18,11 @@ import { execFile } from './exec';
 const MAXIMUM_FAT32_FILE_SIZE = 2 ** 32 - 1;
 
 /**
+ * Types that may be exported.
+ */
+export type ExportableData = string | Buffer | NodeJS.ReadableStream;
+
+/**
  * Possible export errors.
  */
 export interface ExportDataError {
@@ -60,7 +65,7 @@ export class Exporter {
    */
   async exportData(
     path: string,
-    data: string | Buffer | NodeJS.ReadableStream,
+    data: ExportableData,
     {
       maximumFileSize,
     }: {
@@ -117,7 +122,7 @@ export class Exporter {
   async exportDataToUsbDrive(
     bucket: string,
     name: string,
-    data: string | Buffer | NodeJS.ReadableStream,
+    data: ExportableData,
     {
       machineDirectoryToWriteToFirst,
       maximumFileSize = MAXIMUM_FAT32_FILE_SIZE,
