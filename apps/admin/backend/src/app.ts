@@ -761,7 +761,7 @@ function buildApi({
       debug('exporting tally report CSV file: %o', input);
       const exportFileResult = await exportFile({
         path: input.path,
-        data: await generateTallyReportCsv({
+        data: generateTallyReportCsv({
           store,
           filter: convertFrontendFilter(input.filter),
           groupBy: input.groupBy,

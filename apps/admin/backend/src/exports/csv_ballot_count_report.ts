@@ -13,7 +13,6 @@ import {
   getHmpbBallotCount,
   groupMapToGroupList,
 } from '@votingworks/utils';
-import { Readable } from 'stream';
 import { Store } from '../store';
 import {
   CsvMetadataStructure,
@@ -146,7 +145,7 @@ function* generateDataRows({
  *
  * Returns the file as a `NodeJS.ReadableStream` emitting line by line.
  */
-export function generateBallotCountReportCsv({
+export function* generateBallotCountReportCsv({
   store,
   filter = {},
   groupBy = {},
@@ -156,7 +155,7 @@ export function generateBallotCountReportCsv({
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
   includeSheetCounts?: boolean;
-}): NodeJS.ReadableStream {
+}): Iterable<string> {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
   const { electionDefinition } = assertDefined(store.getElection(electionId));
@@ -181,7 +180,7 @@ export function generateBallotCountReportCsv({
     ? getMaxSheetsPerBallot(election)
     : undefined;
 
-  const headerRow = stringify([
+  yield stringify([
     generateHeaders({
       election,
       metadataStructure,
@@ -189,23 +188,14 @@ export function generateBallotCountReportCsv({
       maxSheetsPerBallot,
     }),
   ]);
-
-  function* generateAllRows() {
-    yield headerRow;
-
-    for (const dataRow of generateDataRows({
-      electionDefinition,
-      electionId: assertDefined(electionId),
-      overallExportFilter: filter,
-      allCardCounts,
-      metadataStructure,
-      hasManualTallies,
-      maxSheetsPerBallot,
-      store,
-    })) {
-      yield dataRow;
-    }
-  }
-
-  return Readable.from(generateAllRows());
+  yield* generateDataRows({
+    electionDefinition,
+    electionId: assertDefined(electionId),
+    overallExportFilter: filter,
+    allCardCounts,
+    metadataStructure,
+    hasManualTallies,
+    maxSheetsPerBallot,
+    store,
+  });
 }

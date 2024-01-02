@@ -10,11 +10,12 @@ export function parseCsv(fileContents: string): {
   };
 }
 
-export function streamToString(stream: NodeJS.ReadableStream): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: string[] = [];
-    stream.on('data', (chunk: string) => chunks.push(chunk));
-    stream.on('end', () => resolve(chunks.join('')));
-    stream.on('error', reject);
-  });
+export async function iterableToString(
+  iterable: Iterable<string> | AsyncIterable<string>
+): Promise<string> {
+  let result = '';
+  for await (const chunk of iterable) {
+    result += chunk;
+  }
+  return result;
 }
