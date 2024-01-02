@@ -13,7 +13,7 @@ import { TODO } from '../src/todo';
 import { run } from '../src/example';
 import { collecting } from '../src/collecting';
 
-function filterNullish<T>(iterable: Iterable<T>): Iterable<NonNullable<T>> {
+function filterNullish<T>(iterable: Iterable<T>): Array<NonNullable<T>> {
   TODO();
 }
 
@@ -33,8 +33,8 @@ function filterNullishReference<T>(
 
 run({
   makeInput: () => [1, 2, null, 3, undefined, 4],
-  referenceImplementation: filterNullishReference,
-  exerciseImplementation: filterNullish,
+  referenceImplementation: collecting(filterNullishReference),
+  exerciseImplementation: collecting(filterNullish),
   solutionImplementation: collecting(filterNullishSolution),
 });
 
@@ -121,8 +121,8 @@ run({
 
 function filterNullishSolution<T>(
   iterable: Iterable<T>
-): Array<NonNullable<T>> {
-  return iter(iterable)
-    .filter((value): value is NonNullable<T> => value != null)
-    .toArray();
+): Iterable<NonNullable<T>> {
+  return iter(iterable).filter(
+    (value): value is NonNullable<T> => value != null
+  );
 }
