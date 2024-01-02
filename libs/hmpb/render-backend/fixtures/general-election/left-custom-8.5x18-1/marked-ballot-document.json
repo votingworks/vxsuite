@@ -1932,7 +1932,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -1940,7 +1940,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "president",
+                            "column": 2,
+                            "row": 10,
+                            "optionId": "barchi-hallaren"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1990,7 +1999,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -1998,7 +2007,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "president",
+                            "column": 2,
+                            "row": 12,
+                            "optionId": "cramer-vuocolo"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2048,7 +2066,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2056,7 +2074,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "president",
+                            "column": 2,
+                            "row": 14,
+                            "optionId": "court-blumhardt"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2106,7 +2133,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2114,7 +2141,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "president",
+                            "column": 2,
+                            "row": 16,
+                            "optionId": "boone-lian"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2164,7 +2200,7 @@
                       "height": 55.542857142857144,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2172,7 +2208,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "president",
+                            "column": 2,
+                            "row": 18,
+                            "optionId": "hildebrand-garritty"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2223,7 +2268,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2231,7 +2276,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "president",
+                            "column": 2,
+                            "row": 21,
+                            "optionId": "patterson-lariviere"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2335,7 +2389,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2343,7 +2397,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "senator",
+                            "column": 2,
+                            "row": 26,
+                            "optionId": "weiford"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2392,7 +2455,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2400,7 +2463,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "senator",
+                            "column": 2,
+                            "row": 28,
+                            "optionId": "garriss"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2449,7 +2521,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2457,7 +2529,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "senator",
+                            "column": 2,
+                            "row": 30,
+                            "optionId": "wentworthfarthington"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2507,7 +2588,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2515,7 +2596,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "senator",
+                            "column": 2,
+                            "row": 32,
+                            "optionId": "hewetson"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2564,7 +2654,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2572,7 +2662,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "senator",
+                            "column": 2,
+                            "row": 34,
+                            "optionId": "martinez"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2621,7 +2720,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2629,7 +2728,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "senator",
+                            "column": 2,
+                            "row": 36,
+                            "optionId": "brown"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2678,7 +2786,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2686,7 +2794,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "senator",
+                            "column": 2,
+                            "row": 38,
+                            "optionId": "pound"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2790,7 +2907,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2798,7 +2915,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "representative-district-6",
+                            "column": 2,
+                            "row": 43,
+                            "optionId": "plunkard"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2847,7 +2973,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2855,7 +2981,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "representative-district-6",
+                            "column": 2,
+                            "row": 45,
+                            "optionId": "reeder"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2904,7 +3039,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2912,7 +3047,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "representative-district-6",
+                            "column": 2,
+                            "row": 47,
+                            "optionId": "schott"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2961,7 +3105,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -2969,7 +3113,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "representative-district-6",
+                            "column": 2,
+                            "row": 49,
+                            "optionId": "tawney"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3018,7 +3171,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3026,7 +3179,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "representative-district-6",
+                            "column": 2,
+                            "row": 51,
+                            "optionId": "forrest"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3138,7 +3300,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3146,7 +3308,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 10,
+                            "optionId": "franz"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3195,7 +3366,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3203,7 +3374,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 12,
+                            "optionId": "harris"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3252,7 +3432,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3260,7 +3440,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 14,
+                            "optionId": "bargmann"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3309,7 +3498,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3317,7 +3506,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 16,
+                            "optionId": "abcock"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3366,7 +3564,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3374,7 +3572,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 18,
+                            "optionId": "steelloy"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3423,7 +3630,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3431,7 +3638,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 20,
+                            "optionId": "sharp"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3480,7 +3696,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3488,7 +3704,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 22,
+                            "optionId": "wallace"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3537,7 +3762,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3545,7 +3770,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 24,
+                            "optionId": "williams"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3594,7 +3828,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3602,7 +3836,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 26,
+                            "optionId": "sharp-althea"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3651,7 +3894,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3659,7 +3902,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 28,
+                            "optionId": "alpern"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3708,7 +3960,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3716,7 +3968,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 30,
+                            "optionId": "windbeck"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3765,7 +4026,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3773,7 +4034,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 32,
+                            "optionId": "greher"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3822,7 +4092,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3830,7 +4100,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 34,
+                            "optionId": "alexander"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3879,7 +4158,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3887,7 +4166,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 36,
+                            "optionId": "mitchell"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3936,7 +4224,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -3944,7 +4232,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 38,
+                            "optionId": "lee"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3993,7 +4290,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4001,7 +4298,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "governor",
+                            "column": 12,
+                            "row": 40,
+                            "optionId": "ash"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4104,7 +4410,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4112,7 +4418,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 45,
+                            "optionId": "norberg"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4161,7 +4476,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4169,7 +4484,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 47,
+                            "optionId": "parks"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4218,7 +4542,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4226,7 +4550,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 49,
+                            "optionId": "garcia"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4275,7 +4608,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4283,7 +4616,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 51,
+                            "optionId": "qualey"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4332,7 +4674,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4340,7 +4682,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 53,
+                            "optionId": "hovis"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4389,7 +4740,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4397,7 +4748,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 55,
+                            "optionId": "zirkle"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4446,7 +4806,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4454,7 +4814,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 57,
+                            "optionId": "davis-brenda"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4503,7 +4872,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4511,7 +4880,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 59,
+                            "optionId": "freeman"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4560,7 +4938,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4568,7 +4946,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "lieutenant-governor",
+                            "column": 12,
+                            "row": 61,
+                            "optionId": "swan"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4680,7 +5067,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4688,7 +5075,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "secretary-of-state",
+                            "column": 22,
+                            "row": 10,
+                            "optionId": "shamsi"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4737,7 +5133,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4745,7 +5141,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "secretary-of-state",
+                            "column": 22,
+                            "row": 12,
+                            "optionId": "talarico"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4848,7 +5253,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4856,7 +5261,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "state-senator-district-31",
+                            "column": 22,
+                            "row": 17,
+                            "optionId": "shiplett"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -4959,7 +5373,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -4967,7 +5381,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "state-assembly-district-54",
+                            "column": 22,
+                            "row": 22,
+                            "optionId": "solis"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5016,7 +5439,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5024,7 +5447,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "state-assembly-district-54",
+                            "column": 22,
+                            "row": 24,
+                            "optionId": "keller"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5073,7 +5505,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5081,7 +5513,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "state-assembly-district-54",
+                            "column": 22,
+                            "row": 26,
+                            "optionId": "rangel"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5184,7 +5625,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5192,7 +5633,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 31,
+                            "optionId": "argent"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5241,7 +5691,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5249,7 +5699,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 33,
+                            "optionId": "witherspoonsmithson"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5298,7 +5757,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5306,7 +5765,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 35,
+                            "optionId": "bainbridge"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5355,7 +5823,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5363,7 +5831,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 37,
+                            "optionId": "hennessey"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5412,7 +5889,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5420,7 +5897,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 39,
+                            "optionId": "savoy"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5469,7 +5955,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5477,7 +5963,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 41,
+                            "optionId": "tawa"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5526,7 +6021,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5534,7 +6029,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 43,
+                            "optionId": "tawa-mary"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5583,7 +6087,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5591,7 +6095,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 45,
+                            "optionId": "rangel-damian"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5640,7 +6153,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5648,7 +6161,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 47,
+                            "optionId": "altman"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5697,7 +6219,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5705,7 +6227,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 49,
+                            "optionId": "moore"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5754,7 +6285,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5762,7 +6293,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 51,
+                            "optionId": "schreiner"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5811,7 +6351,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5819,7 +6359,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 53,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 52.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5842,6 +6397,19 @@
                           "fontWeight": 400,
                           "lineHeight": 8,
                           "align": "left"
+                        },
+                        {
+                          "type": "TextBox",
+                          "textLines": [
+                            "Write-In #1"
+                          ],
+                          "x": 75.64999999999998,
+                          "y": 10.642857142857146,
+                          "width": 62.89999999999999,
+                          "height": 12.5,
+                          "fontSize": 10,
+                          "fontWeight": 400,
+                          "lineHeight": 10
                         }
                       ]
                     },
@@ -5853,7 +6421,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5861,7 +6429,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 54,
+                            "writeInIndex": 1,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 53.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5895,7 +6478,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5903,7 +6486,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 55,
+                            "writeInIndex": 2,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 54.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -5937,7 +6535,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -5945,7 +6543,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 56,
+                            "writeInIndex": 3,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 55.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -11071,91 +11684,6 @@
               ]
             }
           ]
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 199.65714285714287,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 884.6857142857143,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 222.3142857142857,
-          "y": 995.7714285714287,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 397.1714285714285,
-          "y": 329.25714285714287,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 397.1714285714285,
-          "y": 884.6857142857143,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 397.1714285714285,
-          "y": 921.7142857142858,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 397.1714285714285,
-          "y": 958.7428571428572,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 397.1714285714285,
-          "y": 588.4571428571429,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 397.1714285714285,
-          "y": 995.7714285714287,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "TextBox",
-          "textLines": [
-            "Write-In #1"
-          ],
-          "x": 447.1714285714285,
-          "y": 991.7714285714287,
-          "width": 200,
-          "height": 20,
-          "fontSize": 9,
-          "fontWeight": 400,
-          "lineHeight": 9
         }
       ]
     },
@@ -12892,7 +13420,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -12900,7 +13428,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "county-registrar-of-wills",
+                            "column": 2,
+                            "row": 4,
+                            "optionId": "ramachandrani"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -12949,7 +13486,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -12957,7 +13494,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "county-registrar-of-wills",
+                            "column": 2,
+                            "row": 6,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 2.75,
+                              "y": 5.75,
+                              "width": 7.5,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -12980,6 +13532,19 @@
                           "fontWeight": 400,
                           "lineHeight": 8,
                           "align": "left"
+                        },
+                        {
+                          "type": "TextBox",
+                          "textLines": [
+                            "Unmarked Write-In #1"
+                          ],
+                          "x": 40.585714285714275,
+                          "y": 10.642857142857146,
+                          "width": 106.80000000000001,
+                          "height": 12.5,
+                          "fontSize": 10,
+                          "fontWeight": 400,
+                          "lineHeight": 10
                         }
                       ]
                     }
@@ -13054,7 +13619,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13062,7 +13627,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-mayor",
+                            "column": 12,
+                            "row": 4,
+                            "optionId": "white"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13111,7 +13685,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13119,7 +13693,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-mayor",
+                            "column": 12,
+                            "row": 6,
+                            "optionId": "seldon"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13168,7 +13751,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13176,7 +13759,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-mayor",
+                            "column": 12,
+                            "row": 8,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 12.75,
+                              "y": 7.75,
+                              "width": 7.5,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13199,6 +13797,19 @@
                           "fontWeight": 400,
                           "lineHeight": 8,
                           "align": "left"
+                        },
+                        {
+                          "type": "TextBox",
+                          "textLines": [
+                            "Write-In #1"
+                          ],
+                          "x": 62.535714285714285,
+                          "y": 10.642857142857146,
+                          "width": 62.89999999999999,
+                          "height": 12.5,
+                          "fontSize": 10,
+                          "fontWeight": 400,
+                          "lineHeight": 10
                         }
                       ]
                     }
@@ -13273,7 +13884,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13281,7 +13892,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 4,
+                            "optionId": "eagle"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13330,7 +13950,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13338,7 +13958,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 6,
+                            "optionId": "rupp"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13387,7 +14016,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13395,7 +14024,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 8,
+                            "optionId": "shry"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13444,7 +14082,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13452,7 +14090,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 10,
+                            "optionId": "barker"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13501,7 +14148,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13509,7 +14156,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 12,
+                            "optionId": "davis"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13558,7 +14214,7 @@
                       "height": 37.02857142857143,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13566,7 +14222,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 14,
+                            "optionId": "smith"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13615,7 +14280,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13623,7 +14288,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 16,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 15.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13657,7 +14337,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13665,7 +14345,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 17,
+                            "writeInIndex": 1,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 16.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13699,7 +14394,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13707,7 +14402,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 18,
+                            "writeInIndex": 2,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 17.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -13730,6 +14440,19 @@
                           "fontWeight": 400,
                           "lineHeight": 8,
                           "align": "left"
+                        },
+                        {
+                          "type": "TextBox",
+                          "textLines": [
+                            "Unmarked Write-In #3"
+                          ],
+                          "x": 53.699999999999974,
+                          "y": 10.642857142857146,
+                          "width": 106.80000000000001,
+                          "height": 12.5,
+                          "fontSize": 10,
+                          "fontWeight": 400,
+                          "lineHeight": 10
                         }
                       ]
                     }
@@ -13813,7 +14536,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13821,7 +14544,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "judicial-robert-demergue",
+                            "column": 2,
+                            "row": 23,
+                            "optionId": "judicial-robert-demergue-option-yes"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -13847,7 +14579,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13855,7 +14587,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "judicial-robert-demergue",
+                            "column": 2,
+                            "row": 24,
+                            "optionId": "judicial-robert-demergue-option-no"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -13935,7 +14676,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13943,7 +14684,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "judicial-elmer-hull",
+                            "column": 2,
+                            "row": 30,
+                            "optionId": "judicial-elmer-hull-option-yes"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -13969,7 +14719,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -13977,7 +14727,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "judicial-elmer-hull",
+                            "column": 2,
+                            "row": 31,
+                            "optionId": "judicial-elmer-hull-option-no"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -14059,7 +14818,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -14067,7 +14826,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "question-a",
+                            "column": 2,
+                            "row": 38,
+                            "optionId": "question-a-option-yes"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -14093,7 +14861,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -14101,7 +14869,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "question-a",
+                            "column": 2,
+                            "row": 39,
+                            "optionId": "question-a-option-no"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -14189,7 +14966,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -14197,7 +14974,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "question-b",
+                            "column": 2,
+                            "row": 48,
+                            "optionId": "question-b-option-yes"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -14223,7 +15009,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -14231,7 +15017,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "question-b",
+                            "column": 2,
+                            "row": 49,
+                            "optionId": "question-b-option-no"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -14312,7 +15107,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -14320,7 +15115,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "question-c",
+                            "column": 2,
+                            "row": 54,
+                            "optionId": "question-c-option-yes"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -14346,7 +15150,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -14354,7 +15158,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "question-c",
+                            "column": 2,
+                            "row": 55,
+                            "optionId": "question-c-option-no"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -14437,7 +15250,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -14445,7 +15258,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "proposition-1",
+                            "column": 2,
+                            "row": 62,
+                            "optionId": "proposition-1-option-yes"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -14471,7 +15293,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -14479,7 +15301,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "proposition-1",
+                            "column": 2,
+                            "row": 63,
+                            "optionId": "proposition-1-option-no"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -19597,125 +20428,6 @@
               ]
             }
           ]
-        },
-        {
-          "type": "Rectangle",
-          "x": 222.3142857142857,
-          "y": 88.57142857142858,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 222.3142857142857,
-          "y": 162.62857142857143,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "TextBox",
-          "textLines": [
-            "Write-In #1"
-          ],
-          "x": 272.3142857142857,
-          "y": 158.62857142857143,
-          "width": 200,
-          "height": 20,
-          "fontSize": 9,
-          "fontWeight": 400,
-          "lineHeight": 9
-        },
-        {
-          "type": "Rectangle",
-          "x": 397.1714285714285,
-          "y": 273.7142857142857,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 397.1714285714285,
-          "y": 88.57142857142858,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 440.34285714285716,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 588.4571428571429,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 718.0571428571429,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 921.7142857142858,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 1014.2857142857143,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 1180.9142857142858,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "TextBox",
-          "textLines": [
-            "Unmarked Write-In #1"
-          ],
-          "x": 97.45714285714286,
-          "y": 121.60000000000002,
-          "width": 200,
-          "height": 20,
-          "fontSize": 9,
-          "fontWeight": 400,
-          "lineHeight": 9
-        },
-        {
-          "type": "TextBox",
-          "textLines": [
-            "Unmarked Write-In #3"
-          ],
-          "x": 447.1714285714285,
-          "y": 343.7714285714286,
-          "width": 200,
-          "height": 20,
-          "fontSize": 9,
-          "fontWeight": 400,
-          "lineHeight": 9
         }
       ]
     },
@@ -21652,7 +22364,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -21660,7 +22372,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 2,
+                            "side": "front",
+                            "contestId": "measure-101",
+                            "column": 2,
+                            "row": 12,
+                            "optionId": "measure-101-option-yes"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -21686,7 +22407,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -21694,7 +22415,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 2,
+                            "side": "front",
+                            "contestId": "measure-101",
+                            "column": 2,
+                            "row": 13,
+                            "optionId": "measure-101-option-no"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -21776,7 +22506,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -21784,7 +22514,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 2,
+                            "side": "front",
+                            "contestId": "102",
+                            "column": 2,
+                            "row": 19,
+                            "optionId": "measure-102-option-yes"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -21810,7 +22549,7 @@
                       "height": 18.514285714285716,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 13.834285714285716,
                           "width": 14.4,
@@ -21818,7 +22557,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 2,
+                            "side": "front",
+                            "contestId": "102",
+                            "column": 2,
+                            "row": 20,
+                            "optionId": "measure-102-option-no"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -26936,22 +27684,6 @@
               ]
             }
           ]
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 384.8,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 236.6857142857143,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
         }
       ]
     },

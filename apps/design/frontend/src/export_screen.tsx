@@ -2,13 +2,18 @@ import { H1, P, Button, MainContent, MainHeader } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { getDisplayElectionHash } from '@votingworks/types';
-import { exportAllBallots, exportElectionPackage } from './api';
+import {
+  exportAllBallots,
+  exportElectionPackage,
+  exportTestDecks,
+} from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
 
 export function ExportScreen(): JSX.Element {
   const { electionId } = useParams<ElectionIdParams>();
   const exportAllBallotsMutation = exportAllBallots.useMutation();
+  const exportTestDecksMutation = exportTestDecks.useMutation();
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
 
   function onPressExportAllBallots() {
@@ -19,6 +24,20 @@ export function ExportScreen(): JSX.Element {
           fileDownload(
             zipContents,
             `ballots-${getDisplayElectionHash({ electionHash })}.zip`
+          );
+        },
+      }
+    );
+  }
+
+  function onPressExportTestDecks() {
+    exportTestDecksMutation.mutate(
+      { electionId },
+      {
+        onSuccess: ({ zipContents, electionHash }) => {
+          fileDownload(
+            zipContents,
+            `test-decks-${getDisplayElectionHash({ electionHash })}.zip`
           );
         },
       }
@@ -52,6 +71,15 @@ export function ExportScreen(): JSX.Element {
             disabled={exportAllBallotsMutation.isLoading}
           >
             Export All Ballots
+          </Button>
+        </P>
+        <P>
+          <Button
+            variant="primary"
+            onPress={onPressExportTestDecks}
+            disabled={exportTestDecksMutation.isLoading}
+          >
+            Export Test Decks
           </Button>
         </P>
         <P>

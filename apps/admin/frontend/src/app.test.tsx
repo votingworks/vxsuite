@@ -291,7 +291,7 @@ test('L&A (logic and accuracy) flow', async () => {
   userEvent.click(fullTestDeckButton);
 
   const expectedTallies: { [tally: string]: number } = {
-    '104': 12,
+    '104': 11,
     '52': 12,
     '24': 6,
     '12': 4,
@@ -301,6 +301,9 @@ test('L&A (logic and accuracy) flow', async () => {
   await expectPrint((printedElement, printOptions) => {
     printedElement.getByText(
       'Test Deck Mock General Election Choctaw 2020 Tally Report'
+    );
+    expect(printedElement.getByTestId('total-ballot-count')).toHaveTextContent(
+      '286'
     );
     for (const [tally, times] of Object.entries(expectedTallies)) {
       expect(printedElement.getAllByText(tally).length).toEqual(times);

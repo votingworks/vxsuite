@@ -9,14 +9,14 @@ import { assert, assertDefined } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 
 import { Button, printElement, printElementToPdf } from '@votingworks/ui';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import {
+  generateTestDeckBallots,
+  isElectionManagerAuth,
+} from '@votingworks/utils';
 import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { TestDeckTallyReport } from './test_deck_tally_report';
-import {
-  generateResultsFromTestDeckBallots,
-  generateTestDeckBallots,
-} from '../utils/election';
+import { generateResultsFromTestDeckBallots } from '../utils/election';
 import { generateDefaultReportFilename } from '../utils/save_as_pdf';
 import { SaveFrontendFileModal, FileType } from './save_frontend_file_modal';
 import { PrintButton } from './print_button';

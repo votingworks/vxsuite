@@ -21,6 +21,7 @@ import {
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
 import { ElectionRecord, Precinct, Store } from './store';
+import { createPrecinctTestDeck } from './test_decks';
 
 export function createBlankElection(): Election {
   return {
@@ -245,6 +246,41 @@ function buildApi({ store }: { store: Store }) {
         ElectionPackageFileName.SYSTEM_SETTINGS,
         JSON.stringify(systemSettings, null, 2)
       );
+
+      return {
+        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
+        electionHash: electionDefinition.electionHash,
+      };
+    },
+
+    async exportTestDecks(input: {
+      electionId: Id;
+    }): Promise<{ zipContents: Buffer; electionHash: string }> {
+      const { election, layoutOptions } = store.getElection(input.electionId);
+      const { electionDefinition, ballots } = layOutAllBallotStyles({
+        election,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+        layoutOptions,
+      }).unsafeUnwrap();
+
+      const zip = new JsZip();
+
+      for (const precinct of election.precincts) {
+        const testDeckDocument = createPrecinctTestDeck({
+          election,
+          precinctId: precinct.id,
+          ballots,
+        });
+        if (!testDeckDocument) continue;
+        const pdf = renderDocumentToPdf(testDeckDocument);
+        const fileName = `${precinct.name.replaceAll(
+          ' ',
+          '_'
+        )}-test-ballots.pdf`;
+        zip.file(fileName, pdf);
+        pdf.end();
+      }
 
       return {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),

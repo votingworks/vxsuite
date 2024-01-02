@@ -1485,7 +1485,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1493,7 +1493,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "mayor",
+                            "column": 2,
+                            "row": 11,
+                            "optionId": "sherlock-holmes"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1542,7 +1551,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1550,7 +1559,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "mayor",
+                            "column": 2,
+                            "row": 13,
+                            "optionId": "thomas-edison"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1599,7 +1617,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1607,7 +1625,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "mayor",
+                            "column": 2,
+                            "row": 15,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 2.75,
+                              "y": 14.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1695,7 +1728,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1703,7 +1736,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "controller",
+                            "column": 2,
+                            "row": 20,
+                            "optionId": "winston-churchill"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1752,7 +1794,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1760,7 +1802,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "controller",
+                            "column": 2,
+                            "row": 22,
+                            "optionId": "oprah-winfrey"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1809,7 +1860,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1817,7 +1868,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "controller",
+                            "column": 2,
+                            "row": 24,
+                            "optionId": "louis-armstrong"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1866,7 +1926,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1874,7 +1934,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "controller",
+                            "column": 2,
+                            "row": 26,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 2.75,
+                              "y": 25.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1962,7 +2037,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1970,7 +2045,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "attorney",
+                            "column": 2,
+                            "row": 31,
+                            "optionId": "john-snow"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2019,7 +2103,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2027,7 +2111,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "attorney",
+                            "column": 2,
+                            "row": 33,
+                            "optionId": "mark-twain"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2076,7 +2169,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2084,7 +2177,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "attorney",
+                            "column": 2,
+                            "row": 35,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 2.75,
+                              "y": 34.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2181,7 +2289,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2189,7 +2297,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "public-works-director",
+                            "column": 12,
+                            "row": 11,
+                            "optionId": "benjamin-franklin"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2238,7 +2355,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2246,7 +2363,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "public-works-director",
+                            "column": 12,
+                            "row": 13,
+                            "optionId": "robert-downey-jr"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2295,7 +2421,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2303,7 +2429,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "public-works-director",
+                            "column": 12,
+                            "row": 15,
+                            "optionId": "bill-nye"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2352,7 +2487,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2360,7 +2495,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "public-works-director",
+                            "column": 12,
+                            "row": 17,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 12.75,
+                              "y": 16.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2448,7 +2598,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2456,7 +2606,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "chief-of-police",
+                            "column": 12,
+                            "row": 22,
+                            "optionId": "natalie-portman"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2505,7 +2664,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2513,7 +2672,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "chief-of-police",
+                            "column": 12,
+                            "row": 24,
+                            "optionId": "frank-sinatra"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2562,7 +2730,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2570,7 +2738,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "chief-of-police",
+                            "column": 12,
+                            "row": 26,
+                            "optionId": "andy-warhol"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2619,7 +2796,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2627,7 +2804,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "chief-of-police",
+                            "column": 12,
+                            "row": 28,
+                            "optionId": "alfred-hitchcock"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2676,7 +2862,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2684,7 +2870,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "chief-of-police",
+                            "column": 12,
+                            "row": 30,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 12.75,
+                              "y": 29.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2782,7 +2983,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2790,7 +2991,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "parks-and-recreation-director",
+                            "column": 22,
+                            "row": 12,
+                            "optionId": "charles-darwin"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2839,7 +3049,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2847,7 +3057,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "parks-and-recreation-director",
+                            "column": 22,
+                            "row": 14,
+                            "optionId": "stephen-hawking"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2896,7 +3115,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2904,7 +3123,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "parks-and-recreation-director",
+                            "column": 22,
+                            "row": 16,
+                            "optionId": "johan-sebastian-bach"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -2953,7 +3181,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -2961,7 +3189,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "parks-and-recreation-director",
+                            "column": 22,
+                            "row": 18,
+                            "optionId": "alexander-graham-bell"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -3010,7 +3247,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -3018,7 +3255,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "parks-and-recreation-director",
+                            "column": 22,
+                            "row": 20,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 19.25,
+                              "width": 9,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9432,7 +9684,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9440,7 +9692,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 4,
+                            "optionId": "helen-keller"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9489,7 +9750,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9497,7 +9758,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 6,
+                            "optionId": "steve-jobs"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9546,7 +9816,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9554,7 +9824,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 8,
+                            "optionId": "nikola-tesla"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9603,7 +9882,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9611,7 +9890,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 10,
+                            "optionId": "vincent-van-gogh"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9660,7 +9948,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9668,7 +9956,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 12,
+                            "optionId": "pablo-picasso"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9717,7 +10014,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9725,7 +10022,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 14,
+                            "optionId": "wolfgang-amadeus-mozart"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9774,7 +10080,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9782,7 +10088,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 16,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 2.75,
+                              "y": 15.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9816,7 +10137,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9824,7 +10145,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 18,
+                            "writeInIndex": 1,
+                            "writeInArea": {
+                              "x": 2.75,
+                              "y": 17.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9858,7 +10194,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9866,7 +10202,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 20,
+                            "writeInIndex": 2,
+                            "writeInArea": {
+                              "x": 2.75,
+                              "y": 19.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -9900,7 +10251,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -9908,7 +10259,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "board-of-alderman",
+                            "column": 2,
+                            "row": 22,
+                            "writeInIndex": 3,
+                            "writeInArea": {
+                              "x": 2.75,
+                              "y": 21.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10005,7 +10371,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10013,7 +10379,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 4,
+                            "optionId": "marie-curie"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10062,7 +10437,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10070,7 +10445,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 6,
+                            "optionId": "indiana-jones"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10119,7 +10503,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10127,7 +10511,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 8,
+                            "optionId": "mona-lisa"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10176,7 +10569,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10184,7 +10577,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 10,
+                            "optionId": "jackie-chan"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10233,7 +10635,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10241,7 +10643,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 12,
+                            "optionId": "tim-allen"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10290,7 +10701,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10298,7 +10709,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 14,
+                            "optionId": "mark-antony"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10347,7 +10767,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10355,7 +10775,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 16,
+                            "optionId": "harriet-tubman"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10404,7 +10833,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10412,7 +10841,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 18,
+                            "optionId": "martin-luther-king"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10462,7 +10900,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10470,7 +10908,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 20,
+                            "optionId": "marilyn-monroe"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10519,7 +10966,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10527,7 +10974,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 22,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 12.75,
+                              "y": 21.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10561,7 +11023,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10569,7 +11031,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 24,
+                            "writeInIndex": 1,
+                            "writeInArea": {
+                              "x": 12.75,
+                              "y": 23.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10603,7 +11080,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10611,7 +11088,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 26,
+                            "writeInIndex": 2,
+                            "writeInArea": {
+                              "x": 12.75,
+                              "y": 25.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -10645,7 +11137,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -10653,7 +11145,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "back",
+                            "contestId": "city-council",
+                            "column": 12,
+                            "row": 28,
+                            "writeInIndex": 3,
+                            "writeInArea": {
+                              "x": 12.75,
+                              "y": 27.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",

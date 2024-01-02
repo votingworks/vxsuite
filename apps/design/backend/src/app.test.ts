@@ -1,5 +1,8 @@
 import { assert } from '@votingworks/basics';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  electionTwoPartyPrimaryDefinition,
+} from '@votingworks/fixtures';
 import {
   DEFAULT_LAYOUT_OPTIONS,
   layOutAllBallotStyles,
@@ -23,6 +26,7 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import JsZip from 'jszip';
+import { getBallotStylesByPrecinctId } from '@votingworks/utils';
 import { ApiClient, testSetupHelpers } from '../test/helpers';
 import { hasSplits, Precinct } from './store';
 
@@ -337,6 +341,52 @@ test('Export all ballots', async () => {
       layoutOptions,
     });
   }
+
+  const electionPackageResult = await apiClient.exportElectionPackage({
+    electionId,
+  });
+  expect(electionHash).toEqual(electionPackageResult.electionHash);
+});
+
+test('Export test decks', async () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  const { apiClient } = setupApp();
+
+  const electionId = (
+    await apiClient.createElection({
+      electionData: electionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+  const { election } = await apiClient.getElection({ electionId });
+
+  const { zipContents, electionHash } = await apiClient.exportTestDecks({
+    electionId,
+  });
+  const zip = await JsZip.loadAsync(zipContents);
+
+  const precinctsWithBallots = election.precincts.filter(
+    (precinct) =>
+      getBallotStylesByPrecinctId(electionDefinition, precinct.id).length > 0
+  );
+  expect(Object.keys(zip.files).sort()).toEqual(
+    precinctsWithBallots
+      .map(
+        (precinct) => `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
+      )
+      .sort()
+  );
+
+  // We test the actual test deck content in test_decks.ts
+  for (const file of Object.values(zip.files)) {
+    expect(await file.async('text')).toContain('%PDF');
+  }
+  expect(layOutAllBallotStyles).toHaveBeenCalledTimes(1);
+  expect(layOutAllBallotStyles).toHaveBeenCalledWith({
+    election,
+    ballotType: BallotType.Precinct,
+    ballotMode: 'test',
+    layoutOptions: DEFAULT_LAYOUT_OPTIONS,
+  });
 
   const electionPackageResult = await apiClient.exportElectionPackage({
     electionId,

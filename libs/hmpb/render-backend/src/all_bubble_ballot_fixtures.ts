@@ -9,7 +9,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import {
-  Bubble,
+  OptionBubble,
   Document,
   Footer,
   measurements,
@@ -24,13 +24,17 @@ export const allBubbleBallotDir = join(fixturesDir, 'all-bubble-ballot');
 const m = measurements(BallotPaperSize.Letter, 0);
 const { DOCUMENT_HEIGHT, DOCUMENT_WIDTH, GRID } = m;
 
+function contestId(page: number) {
+  return `test-contest-page-${page}`;
+}
+
+function candidateId(page: number, row: number, column: number) {
+  return `test-candidate-page-${page}-row-${row}-column-${column}`;
+}
+
 function createElection(): Election {
   const districtId = 'test-district' as DistrictId;
   const precinctId = 'test-precinct';
-
-  function candidateId(page: number, row: number, column: number) {
-    return `test-candidate-page-${page}-row-${row}-column-${column}`;
-  }
 
   const gridPositions = range(1, 3).flatMap((page) =>
     range(1, GRID.rows - m.FOOTER_ROW_HEIGHT - 1).flatMap((row) =>
@@ -48,7 +52,7 @@ function createElection(): Election {
       (position) => position.page === page
     );
     return {
-      id: `test-contest-page-${page}`,
+      id: contestId(page),
       type: 'candidate',
       title: `Test Contest - Page ${page}`,
       districtId,
@@ -134,10 +138,19 @@ function createBallotCard({ fillBubble }: AllBubbleBallotOptions): Document {
   function bubbles(page: number) {
     return range(2, GRID.rows - m.FOOTER_ROW_HEIGHT).flatMap((row) =>
       range(2, GRID.columns).map((column) =>
-        Bubble({
+        OptionBubble({
           row,
           column,
           isFilled: fillBubble(page, row, column),
+          gridPosition: {
+            type: 'option',
+            contestId: contestId(page),
+            optionId: candidateId(page, row, column),
+            row,
+            column,
+            sheetNumber: Math.ceil(page / 2),
+            side: page % 2 === 1 ? 'front' : 'back',
+          },
           m,
         })
       )

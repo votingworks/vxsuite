@@ -1485,7 +1485,7 @@
                       "height": 18.857142857142858,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1493,7 +1493,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-leader-fish",
+                            "column": 2,
+                            "row": 11,
+                            "optionId": "seahorse"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1528,7 +1537,7 @@
                       "height": 18.857142857142858,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1536,7 +1545,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-leader-fish",
+                            "column": 2,
+                            "row": 12,
+                            "optionId": "salmon"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1635,7 +1653,7 @@
                       "height": 18.857142857142858,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1643,7 +1661,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "congressional-1-fish",
+                            "column": 12,
+                            "row": 12,
+                            "optionId": "manta-ray-1"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1678,7 +1705,7 @@
                       "height": 18.857142857142858,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1686,7 +1713,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "congressional-1-fish",
+                            "column": 12,
+                            "row": 13,
+                            "optionId": "pufferfish-1"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1721,7 +1757,7 @@
                       "height": 18.857142857142858,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1729,7 +1765,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "congressional-1-fish",
+                            "column": 12,
+                            "row": 14,
+                            "optionId": "rockfish-1"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1764,7 +1809,7 @@
                       "height": 18.857142857142858,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1772,7 +1817,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "congressional-1-fish",
+                            "column": 12,
+                            "row": 15,
+                            "optionId": "triggerfish-1"
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1807,7 +1861,7 @@
                       "height": 37.714285714285715,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 10.285714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1815,7 +1869,22 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "congressional-1-fish",
+                            "column": 12,
+                            "row": 16,
+                            "writeInIndex": 0,
+                            "writeInArea": {
+                              "x": 12.75,
+                              "y": 15.25,
+                              "width": 7.5,
+                              "height": 0.95
+                            }
+                          }
                         },
                         {
                           "type": "Rectangle",
@@ -1929,7 +1998,7 @@
                       "height": 18.857142857142858,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1937,7 +2006,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "black",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "water-1-fishing",
+                            "column": 2,
+                            "row": 21,
+                            "optionId": "water-1-fishing-ban-fishing"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -1963,7 +2041,7 @@
                       "height": 18.857142857142858,
                       "children": [
                         {
-                          "type": "Rectangle",
+                          "type": "Bubble",
                           "x": 45.25714285714285,
                           "y": 14.177142857142858,
                           "width": 14.4,
@@ -1971,7 +2049,16 @@
                           "borderRadius": 5.040000000000001,
                           "stroke": "black",
                           "strokeWidth": 0.5,
-                          "fill": "none"
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "water-1-fishing",
+                            "column": 2,
+                            "row": 22,
+                            "optionId": "water-1-fishing-allow-fishing"
+                          }
                         },
                         {
                           "type": "TextBox",
@@ -7089,30 +7176,6 @@
               ]
             }
           ]
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 222.28571428571428,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 222.3142857142857,
-          "y": 260,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
-        },
-        {
-          "type": "Rectangle",
-          "x": 47.457142857142856,
-          "y": 410.8571428571429,
-          "width": 10,
-          "height": 8,
-          "fill": "black"
         }
       ]
     },
