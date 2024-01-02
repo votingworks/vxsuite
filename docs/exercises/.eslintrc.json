@@ -1,0 +1,14 @@
+{
+  "extends": ["plugin:vx/recommended"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/require-await": "off",
+    "eqeqeq": "off",
+    "import/first": "off",
+    "import/order": "off",
+    "no-console": "off",
+    "vx/gts-jsdoc": "off",
+    "vx/gts-module-snake-case": "off"
+  }
+}

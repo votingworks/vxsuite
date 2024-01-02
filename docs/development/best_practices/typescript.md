@@ -4,7 +4,10 @@ We follow the
 [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
 and parts of [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/),
 with most of it enforced by ESLint rules. This document covers some of the best
-practices that are not automatically enforced by ESLint. We believe our code to meet all of the recommendations in the Google TypeScript Style Guide published as of April 27, 2023, an archived copy of the guide on that date is kept [here](./04-27-2023-Google-TypeScript-Style-Guide.pdf) for reference. 
+practices that are not automatically enforced by ESLint. We believe our code to
+meet all of the recommendations in the Google TypeScript Style Guide published
+as of April 27, 2023, an archived copy of the guide on that date is kept
+[here](./04-27-2023-Google-TypeScript-Style-Guide.pdf) for reference.
 
 ### Feature Flags
 
@@ -104,6 +107,79 @@ settings.testMode = !settings.testMode;
 // PREFERRED: toggle test mode by creating a new object
 settings = { ...settings, testMode: !settings.testMode };
 ```
+
+### Avoid operations that consume a lot of memory
+
+**Example: `fs.readFileSync/fs.readFile`**
+
+These functions read the entire file into memory. If you're reading a file of
+unknown size to parse it, consider using `fs.createReadStream` instead. If you
+are parsing the file line by line, consider using the `lines` helper from
+`@votingworks/basics`:
+
+```ts
+import { lines } from '@votingworks/basics';
+
+async function parseFile(path: string) {
+  for await (const line of lines(path)) {
+    // do something with `line`
+  }
+}
+```
+
+**Example: `JSON.stringify`**
+
+This function serializes an object into a string. If you're serializing a large
+object, this function is not great because it requires you to load all of the
+data to serialize at once. Instead, consider using `jsonStream` from
+`@votingworks/utils`:
+
+```ts
+import { jsonStream } from '@votingworks/utils';
+import { createWriteStream } from 'fs';
+import { Readable } from 'stream';
+
+function* generateLargeArray() {
+  for (let i = 0; i < 1_000_000_000; i++) {
+    yield i;
+  }
+}
+
+Readable.from(jsonStream({ foo: [1, 2, 3], bar: generateLargeArray() })).pipe(
+  createWriteStream('output.json')
+);
+```
+
+**Best practice: do not require `Array` when an `Iterable` will do**
+
+If you're writing a function that takes an array, consider making it take an
+`Iterable` instead. This allows the caller to pass in an array, but also allows
+them to pass in a generator, the result of an `iter` chain, or any other
+iterable data structure. This is especially important when the function is
+called with a large amount of data, because it allows the caller to avoid
+allocating a large array in memory.
+
+```ts
+// BAD: this function requires an array
+function sumArray(arr: number[]): number {
+  return arr.reduce((a, b) => a + b, 0);
+}
+
+// GOOD: this function requires an iterable
+function sumIterable(iterable: Iterable<number>): number {
+  return iter(iterable).sum();
+}
+
+// GOOD: this function is not well suited to taking an iterable because it
+// requires random access. However, it does not require mutability so it can
+// take a readonly array.
+function pickRandom<T>(array: readonly T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+```
+
+For more information on using iterables with `iter`, see the
+[iteration exercises](../../exercises/01-iteration).
 
 ### Avoid exceptions when possible
 
