@@ -52,6 +52,7 @@ import {
   isPaperInInput,
   resetAndReconnect,
   loadAndParkPaper,
+  getSampleBallotFilepaths,
 } from './application_driver';
 import { PatConnectionStatusReader } from '../pat-input/connection_status_reader';
 import {
@@ -67,8 +68,8 @@ interface Context {
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;
   scannedImagePaths?: SheetOf<string>;
-  interpretation?: SheetOf<InterpretFileResult>;
   isPatDeviceConnected: boolean;
+  interpretation?: SheetOf<InterpretFileResult>;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -91,6 +92,7 @@ type PaperHandlerStatusEvent =
   | { type: 'PAPER_IN_INPUT' }
   | { type: 'VOTER_CONFIRMED_INVALIDATED_BALLOT' }
   | { type: 'SCANNING' }
+  | { type: 'SET_INTERPRETATION_FIXTURE' }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' }
   | { type: 'AUTH_STATUS_CARDLESS_VOTER' }
@@ -116,6 +118,7 @@ export interface PaperHandlerStateMachine {
   invalidateBallot(): void;
   confirmInvalidateBallot(): void;
   setPatDeviceIsCalibrated(): void;
+  setInterpretationFixture(): void;
 }
 
 function paperHandlerStatusToEvent(
@@ -266,8 +269,8 @@ function findUsbPatDevice(): Promise<HID.HID | void> {
 function buildPatDeviceConnectionStatusObservable() {
   return ({
     devicePollingIntervalMs,
-    isPatDeviceConnected: oldConnectionStatus,
     patConnectionStatusReader,
+    isPatDeviceConnected: oldConnectionStatus,
   }: Context) => {
     return timer(0, devicePollingIntervalMs).pipe(
       switchMap(async () => {
@@ -280,8 +283,8 @@ function buildPatDeviceConnectionStatusObservable() {
             await patConnectionStatusReader.isPatDeviceConnected();
 
           if (!newConnectionStatus) {
-            const currentPatDevice = await findUsbPatDevice();
-            newConnectionStatus = !!currentPatDevice;
+            const currentUsbPatDevice = await findUsbPatDevice();
+            newConnectionStatus = !!currentUsbPatDevice;
           }
 
           if (oldConnectionStatus && !newConnectionStatus) {
@@ -379,18 +382,26 @@ export function buildMachine(
       PAPER_JAM: 'voting_flow.jammed',
       JAMMED_STATUS_NO_PAPER: 'voting_flow.jam_physically_cleared',
       PAT_DEVICE_CONNECTED: {
+        // Performing the assign here ensures the PAT device observable will
+        // have an updated value for isPatDeviceConnected
         actions: assign({
           isPatDeviceConnected: true,
         }),
         target: 'pat_device_connected',
       },
       PAT_DEVICE_DISCONNECTED: {
+        // Performing the assign here ensures the PAT device observable will
+        // have an updated value for isPatDeviceConnected
         actions: assign({
           isPatDeviceConnected: false,
         }),
-        // Without this target, the PAT device observable won't have an updated value
-        // for context.patDevice
-        target: 'voting_flow.history',
+        target: 'pat_device_disconnected',
+      },
+      SET_INTERPRETATION_FIXTURE: {
+        actions: assign({
+          scannedImagePaths: getSampleBallotFilepaths(),
+        }),
+        target: 'voting_flow.interpreting',
       },
     },
     invoke: [pollPatDeviceConnectionStatus()],
@@ -664,15 +675,14 @@ export function buildMachine(
           },
         },
       },
+      pat_device_disconnected: {
+        always: 'voting_flow.history',
+      },
       pat_device_connected: {
         on: {
           VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
-          PAT_DEVICE_DISCONNECTED: {
-            actions: assign({
-              isPatDeviceConnected: false,
-            }),
-            target: 'voting_flow.history',
-          },
+          PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
+          PAT_DEVICE_CONNECTED: undefined,
         },
       },
     },
@@ -769,10 +779,10 @@ export async function getPaperHandlerStateMachine({
     auth,
     workspace,
     driver,
+    isPatDeviceConnected: false,
     patConnectionStatusReader,
     devicePollingIntervalMs,
     authPollingIntervalMs,
-    isPatDeviceConnected: false,
   };
 
   const machine = buildMachine(initialContext, auth);
@@ -850,6 +860,12 @@ export async function getPaperHandlerStateMachine({
       machineService.send({
         type: 'VOTER_INITIATED_PRINT',
         pdfData,
+      });
+    },
+
+    setInterpretationFixture(): void {
+      machineService.send({
+        type: 'SET_INTERPRETATION_FIXTURE',
       });
     },
 

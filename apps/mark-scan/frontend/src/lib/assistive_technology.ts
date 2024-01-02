@@ -1,15 +1,14 @@
 import { mod } from '../utils/mod';
 
+const querySelector =
+  'button:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"]), [role="button"]:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"])';
+
 export function getActiveElement(): HTMLElement {
   return document.activeElement as HTMLElement;
 }
 
 function getFocusableElements(): HTMLElement[] {
-  const tabbableElements = Array.from(
-    document.querySelectorAll(
-      'button:not([aria-hidden="true"]):not([disabled])'
-    )
-  );
+  const tabbableElements = Array.from(document.querySelectorAll(querySelector));
   const ariaHiddenTabbableElements = Array.from(
     document.querySelectorAll('[aria-hidden="true"] button')
   );

@@ -8,6 +8,7 @@ import {
   appStrings,
   AudioOnly,
   electionStrings,
+  ButtonPressEvent,
 } from '@votingworks/ui';
 
 import {
@@ -17,7 +18,7 @@ import {
   YesNoOption,
 } from '@votingworks/types';
 
-import { UpdateVoteFunction } from '../config/types';
+import { UpdateVoteFunction, getInteractionMethod } from '../config/types';
 import { MsEitherNeitherContest as MsEitherNeitherContestInterface } from '../utils/ms_either_neither_contests';
 import { BreadcrumbMetadata, ContestHeader } from './contest_header';
 
@@ -93,7 +94,10 @@ export function MsEitherNeitherContest({
 }: Props): JSX.Element {
   const [deselectedOptionId, setDeselectedOptionId] = useState<string>();
 
-  function handleUpdateEitherNeither(targetVote: string) {
+  function handleUpdateEitherNeither(
+    event: ButtonPressEvent,
+    targetVote: string
+  ) {
     const currentVote = eitherNeitherContestVote?.[0];
     const newVote = currentVote === targetVote ? [] : [targetVote];
 
@@ -101,9 +105,13 @@ export function MsEitherNeitherContest({
       setDeselectedOptionId(targetVote);
     }
 
-    updateVote(contest.eitherNeitherContestId, newVote);
+    updateVote(
+      contest.eitherNeitherContestId,
+      newVote,
+      getInteractionMethod(event)
+    );
   }
-  function handleUpdatePickOne(targetVote: string) {
+  function handleUpdatePickOne(event: ButtonPressEvent, targetVote: string) {
     const currentVote = pickOneContestVote?.[0];
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
@@ -112,7 +120,7 @@ export function MsEitherNeitherContest({
       setDeselectedOptionId(targetVote);
     }
 
-    updateVote(contest.pickOneContestId, newVote);
+    updateVote(contest.pickOneContestId, newVote, getInteractionMethod(event));
   }
 
   const district = getContestDistrict(election, contest);

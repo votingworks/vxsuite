@@ -105,12 +105,18 @@ it('gamepad controls work', async () => {
   handleGamepadButtonDown('B');
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
 
-  // select and unselect
+  // select candidate
   handleGamepadButtonDown('A');
-  await screen.findByRole('option', {
+  const candidate0Option = await screen.findByRole('option', {
     name: new RegExp(contest0candidate0.name),
     selected: true,
   });
+
+  // Focus should have jumped to the "Next" button because we're using keyboard nav
+  expect(await screen.findByRole('button', { name: 'Next' })).toHaveFocus();
+
+  // Return focus to candidate so we can test unselect
+  candidate0Option.focus();
   handleGamepadButtonDown('A');
   await screen.findByRole('option', {
     name: new RegExp(contest0candidate0.name),

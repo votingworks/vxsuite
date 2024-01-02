@@ -201,6 +201,9 @@ export function buildApi(
       stateMachine.setAcceptingPaper();
     },
 
+    /**
+     * Sets whether the voter has completed the PAT device calibration flow after a device a connected.
+     */
     setPatDeviceIsCalibrated(): void {
       assert(stateMachine, 'No state machine');
 
@@ -209,6 +212,19 @@ export function buildApi(
 
     printBallot(input: { pdfData: Buffer }): void {
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+        )
+      ) {
+        // Mock print behavior when no paper handler is connected.
+        // Skips the print state, sets the scanned ballot filepaths to
+        // a fixture for Sample General Election, North Springfield, ballot style 5,
+        // and continues to the interpretation state.
+        stateMachine?.setInterpretationFixture();
+        return;
+      }
 
       assert(stateMachine);
       void stateMachine.printBallot(input.pdfData);

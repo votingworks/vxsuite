@@ -13,6 +13,7 @@ import {
   MsEitherNeitherContest,
   mergeMsEitherNeitherContests,
 } from '../utils/ms_either_neither_contests';
+import { VoteUpdateInteractionMethod } from '../config/types';
 
 const electionGeneral = electionGeneralDefinition.election;
 
@@ -80,13 +81,17 @@ test('renders ms-either-neither contests', () => {
   userEvent.click(
     screen.getByRole('option', { name: /for approval of either/i })
   );
-  expect(updateVote).toHaveBeenCalledWith('750000015', [
-    msEitherNeitherContest.eitherOption.id,
-  ]);
+  expect(updateVote).toHaveBeenCalledWith(
+    '750000015',
+    [msEitherNeitherContest.eitherOption.id],
+    VoteUpdateInteractionMethod.Mouse
+  );
   userEvent.click(screen.getByRole('option', { name: /for alternative/i }));
-  expect(updateVote).toHaveBeenCalledWith('750000016', [
-    msEitherNeitherContest.secondOption.id,
-  ]);
+  expect(updateVote).toHaveBeenCalledWith(
+    '750000016',
+    [msEitherNeitherContest.secondOption.id],
+    VoteUpdateInteractionMethod.Mouse
+  );
   // Tested further in ms_either_neither_contest.test.tsx
 });
 

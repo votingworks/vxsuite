@@ -492,12 +492,15 @@ export function AppRoot({
           stateMachineState === 'waiting_for_invalidated_ballot_confirmation')
       ) {
         if (
-          stateMachineState === 'ejecting_to_rear' ||
-          stateMachineState === 'resetting_state_machine_after_success' ||
-          // Cardless voter auth is ended in the backend when the voting session ends but the frontend
-          // may have a stale value. Cardless voter auth + 'not_accepting_paper' state means the frontend
-          // is stale, so we want to render the previous loading screen until the frontend auth status updates.
-          stateMachineState === 'not_accepting_paper'
+          !isFeatureFlagEnabled(
+            BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+          ) &&
+          (stateMachineState === 'ejecting_to_rear' ||
+            stateMachineState === 'resetting_state_machine_after_success' ||
+            // Cardless voter auth is ended in the backend when the voting session ends but the frontend
+            // may have a stale value. Cardless voter auth + 'not_accepting_paper' state means the frontend
+            // is stale, so we want to render the previous loading screen until the frontend auth status updates.
+            stateMachineState === 'not_accepting_paper')
         ) {
           return <CastingBallotPage />;
         }

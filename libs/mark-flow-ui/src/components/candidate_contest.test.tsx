@@ -3,9 +3,14 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
 import userEvent from '@testing-library/user-event';
-import { advanceTimers, hasTextAcrossElements } from '@votingworks/test-utils';
+import {
+  advanceTimers,
+  advanceTimersAndPromises,
+  hasTextAcrossElements,
+} from '@votingworks/test-utils';
 import { screen, within, render } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
+import { VoteUpdateInteractionMethod } from '../config/types';
 
 const electionDefinition = electionGeneralDefinition;
 
@@ -116,6 +121,41 @@ describe('supports single-seat contest', () => {
     );
     expect(updateVote).toHaveBeenCalledTimes(3);
 
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+  });
+
+  test('advances focus to "Next" button when selection is made with accessible device', async () => {
+    const updateVote = jest.fn();
+    render(
+      <CandidateContest
+        election={electionDefinition.election}
+        contest={candidateContest}
+        vote={[]}
+        updateVote={updateVote}
+      />
+    );
+
+    const candidateButton = screen
+      .getByText(candidateContest.candidates[0]!.name)
+      .closest('button')!;
+    candidateButton.focus();
+    await advanceTimersAndPromises();
+    expect(candidateButton).toHaveFocus();
+    userEvent.keyboard('[Enter]');
+    expect(updateVote).toHaveBeenCalledTimes(1);
+    expect(updateVote).toHaveBeenCalledWith(
+      candidateContest.id,
+      [
+        {
+          id: candidateContest.candidates[0].id,
+          name: candidateContest.candidates[0].name,
+          partyIds: candidateContest.candidates[0].partyIds,
+        },
+      ],
+      VoteUpdateInteractionMethod.AssistiveTechnologyDevice
+    );
     act(() => {
       jest.runOnlyPendingTimers();
     });
@@ -249,9 +289,11 @@ describe('supports write-in candidates', () => {
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-    expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
-      { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
-    ]);
+    expect(updateVote).toHaveBeenCalledWith(
+      candidateContestWithWriteIns.id,
+      [{ id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' }],
+      VoteUpdateInteractionMethod.Mouse
+    );
 
     act(() => {
       jest.runOnlyPendingTimers();
@@ -282,7 +324,8 @@ describe('supports write-in candidates', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(updateVote).toHaveBeenCalledWith(
       candidateContestWithWriteIns.id,
-      []
+      [],
+      VoteUpdateInteractionMethod.Mouse
     );
   });
 
@@ -371,13 +414,17 @@ describe('supports write-in candidates', () => {
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-    expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
-      {
-        id: 'write-in-jacobJohansonJingleheimmerSchmidttT',
-        isWriteIn: true,
-        name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
-      },
-    ]);
+    expect(updateVote).toHaveBeenCalledWith(
+      candidateContestWithWriteIns.id,
+      [
+        {
+          id: 'write-in-jacobJohansonJingleheimmerSchmidttT',
+          isWriteIn: true,
+          name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
+        },
+      ],
+      VoteUpdateInteractionMethod.Mouse
+    );
 
     act(() => {
       jest.runOnlyPendingTimers();
