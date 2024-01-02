@@ -12,7 +12,7 @@ import {
   ElectionDefinition,
   getContests,
 } from '@votingworks/types';
-import { assert, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
   getBallotStyleById,
   getBallotStylesByPrecinctId,
@@ -35,7 +35,9 @@ function expectedTestDeckPages(
         election: electionDefinition.election,
         ballotStyle,
       });
-      const maxContestOptions = Math.max(...contests.map(numBallotPositions));
+      const maxContestOptions = assertDefined(
+        iter(contests).map(numBallotPositions).max()
+      );
       const blankBallots = 2;
       const overvotedBallots = 1;
       return (
@@ -81,7 +83,7 @@ describe('createPrecinctTestDeck', () => {
       (ballot) => ballot.precinctId === precinctId
     );
     assert(precinctBallots.length === 1);
-    expect(testDeckDocument.pages.length).toEqual(
+    expect(testDeckDocument.pages).toHaveLength(
       expectedTestDeckPages(precinctBallots, electionDefinition)
     );
   });
@@ -111,7 +113,7 @@ describe('createPrecinctTestDeck', () => {
       (ballot) => ballot.precinctId === precinctId
     );
     assert(precinctBallots.length > 1);
-    expect(testDeckDocument.pages.length).toEqual(
+    expect(testDeckDocument.pages).toHaveLength(
       expectedTestDeckPages(precinctBallots, electionDefinition)
     );
   });
