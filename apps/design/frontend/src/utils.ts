@@ -1,7 +1,18 @@
 import type { Precinct, PrecinctWithSplits } from '@votingworks/design-backend';
+import { customAlphabet } from 'nanoid';
 
 export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
   return 'splits' in precinct && precinct.splits !== undefined;
+}
+
+const idGenerator = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
+
+/**
+ * Generates a URL-friendly and double-click-copy-friendly unique ID using a
+ * cryptographically secure RNG.
+ */
+export function generateId(): string {
+  return idGenerator();
 }
 
 /**

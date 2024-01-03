@@ -17,11 +17,15 @@ import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ContestsScreen } from './contests_screen';
 import { routes } from './routes';
+import { makeIdFactory } from '../test/id_helpers';
 
 let apiMock: MockApiClient;
 
+const idFactory = makeIdFactory();
+
 beforeEach(() => {
   apiMock = createMockApiClient();
+  idFactory.reset();
 });
 
 afterEach(() => {
@@ -55,7 +59,7 @@ describe('Contests tab', () => {
   test('adding a candidate contest (general election)', async () => {
     const { election } = electionWithNoContestsRecord;
     const newContest: CandidateContest = {
-      id: 'new-contest-id',
+      id: idFactory.next(),
       type: 'candidate',
       title: 'New Contest',
       districtId: election.districts[0].id,
@@ -64,17 +68,17 @@ describe('Contests tab', () => {
       allowWriteIns: false,
       candidates: [
         {
-          id: 'new-candidate-id-1',
+          id: idFactory.next(),
           name: 'New Candidate 1',
           partyIds: [election.parties[0].id],
         },
         {
-          id: 'new-candidate-id-2',
+          id: idFactory.next(),
           name: 'New Candidate 2',
           partyIds: [election.parties[1].id],
         },
         {
-          id: 'new-candidate-id-3',
+          id: idFactory.next(),
           name: 'New Candidate 3',
         },
       ],
@@ -95,12 +99,6 @@ describe('Contests tab', () => {
 
     // Set title
     userEvent.type(screen.getByLabelText('Title'), newContest.title);
-
-    // Set ID
-    const idInput = screen.getByLabelText('ID');
-    expect(idInput).toHaveValue('contest-1');
-    userEvent.clear(idInput);
-    userEvent.type(idInput, newContest.id);
 
     // Set district
     userEvent.click(screen.getByLabelText('District'));
@@ -136,7 +134,6 @@ describe('Contests tab', () => {
     for (const [i, candidate] of newContest.candidates.entries()) {
       userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
       screen.getByRole('columnheader', { name: 'Name' });
-      screen.getByRole('columnheader', { name: 'ID' });
       screen.getByRole('columnheader', { name: 'Party' });
       const row = screen.getAllByRole('row')[i + 1];
 
@@ -145,16 +142,6 @@ describe('Contests tab', () => {
         within(row).getByLabelText(`Candidate ${i + 1} Name`),
         candidate.name
       );
-
-      // Set ID
-      const candidateIdInput = within(row).getByLabelText(
-        `Candidate ${i + 1} ID`
-      );
-      // Default ID will always end in 1 since we're changing the ID for each
-      // candidate as we go
-      expect(candidateIdInput).toHaveValue(`${newContest.id}-candidate-1`);
-      userEvent.clear(candidateIdInput);
-      userEvent.type(candidateIdInput, candidate.id);
 
       // Set party
       const partySelect = within(row).getByLabelText(
@@ -193,7 +180,6 @@ describe('Contests tab', () => {
     await screen.findByRole('heading', { name: 'Contests' });
     screen.getByRole('tab', { name: 'Contests', selected: true });
     screen.getByRole('columnheader', { name: 'Title' });
-    screen.getByRole('columnheader', { name: 'ID' });
     screen.getByRole('columnheader', { name: 'District' });
     const rows = screen.getAllByRole('row');
     expect(screen.getAllByRole('row')).toHaveLength(2);
@@ -203,7 +189,7 @@ describe('Contests tab', () => {
         .map((cell) => cell.textContent)
     ).toEqual([
       newContest.title,
-      newContest.id,
+      'Candidate Contest',
       election.districts[0].name,
       'Edit',
     ]);
@@ -231,7 +217,6 @@ describe('Contests tab', () => {
     const changedContest: CandidateContest = {
       ...savedContest,
       title: 'Changed Contest Title',
-      id: 'changed-contest-id',
       districtId: changedDistrict.id,
       partyId: changedParty.id,
       seats: savedContest.seats + 1,
@@ -241,7 +226,6 @@ describe('Contests tab', () => {
         {
           ...savedContest.candidates[1],
           name: 'Changed Candidate Name',
-          id: 'changed-candidate-id',
           partyIds: undefined,
         },
         ...savedContest.candidates.slice(2),
@@ -256,14 +240,13 @@ describe('Contests tab', () => {
     await screen.findByRole('heading', { name: 'Contests' });
     screen.getByRole('tab', { name: 'Contests', selected: true });
     screen.getByRole('columnheader', { name: 'Title' });
-    screen.getByRole('columnheader', { name: 'ID' });
     screen.getByRole('columnheader', { name: 'District' });
     screen.getByRole('columnheader', { name: 'Party' });
     const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(election.contests.length + 1);
 
     const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
-    within(savedContestRow).getByText(savedContest.id);
+    within(savedContestRow).getByText('Candidate Contest');
     within(savedContestRow).getByText(savedDistrict.name);
     within(savedContestRow).getByText(savedParty.name);
     userEvent.click(
@@ -277,12 +260,6 @@ describe('Contests tab', () => {
     expect(titleInput).toHaveValue(savedContest.title);
     userEvent.clear(titleInput);
     userEvent.type(titleInput, changedContest.title);
-
-    // Change ID
-    const idInput = screen.getByLabelText('ID');
-    expect(idInput).toHaveValue(savedContest.id);
-    userEvent.clear(idInput);
-    userEvent.type(idInput, 'changed-contest-id');
 
     // Change district
     userEvent.click(screen.getByText(savedDistrict.name));
@@ -326,9 +303,6 @@ describe('Contests tab', () => {
       expect(within(row).getByLabelText(`Candidate ${i + 1} Name`)).toHaveValue(
         candidate.name
       );
-      expect(within(row).getByLabelText(`Candidate ${i + 1} ID`)).toHaveValue(
-        candidate.id
-      );
       const party = election.parties.find(
         (p) => p.id === candidate.partyIds?.[0]
       )!;
@@ -341,11 +315,6 @@ describe('Contests tab', () => {
     );
     userEvent.clear(candidateNameInput);
     userEvent.type(candidateNameInput, changedContest.candidates[0].name);
-    const candidateIdInput = within(candidateRows[2]).getByLabelText(
-      'Candidate 2 ID'
-    );
-    userEvent.clear(candidateIdInput);
-    userEvent.type(candidateIdInput, changedContest.candidates[0].id);
     const partySelect = within(candidateRows[2]).getByLabelText(
       'Candidate 2 Party'
     );
@@ -393,25 +362,27 @@ describe('Contests tab', () => {
     const changedContestRow = screen
       .getByText(changedContest.title)
       .closest('tr')!;
-    within(changedContestRow).getByText(changedContest.id);
+    within(changedContestRow).getByText('Candidate Contest');
     within(changedContestRow).getByText(changedDistrict.name);
     within(changedContestRow).getByText(changedParty.name);
   });
 
   test('adding a ballot measure', async () => {
     const { election } = generalElectionRecord;
+    const id = idFactory.next();
+    idFactory.next(); // Skip over the extra ballot measure ID created when switching to ballot measure type
     const newContest: YesNoContest = {
       type: 'yesno',
       title: 'New Ballot Measure',
-      id: 'new-ballot-measure',
+      id,
       districtId: election.districts[0].id,
       description: 'New Ballot Measure Description',
       yesOption: {
-        id: 'new-ballot-measure-option-yes',
+        id: idFactory.next(),
         label: 'Yes',
       },
       noOption: {
-        id: 'new-ballot-measure-option-no',
+        id: idFactory.next(),
         label: 'No',
       },
     };
@@ -426,12 +397,6 @@ describe('Contests tab', () => {
 
     // Set title
     userEvent.type(screen.getByLabelText('Title'), newContest.title);
-
-    // Set ID
-    const idInput = screen.getByLabelText('ID');
-    expect(idInput).toHaveValue('contest-1');
-    userEvent.clear(idInput);
-    userEvent.type(idInput, newContest.id);
 
     // Set district
     userEvent.click(screen.getByLabelText('District'));
@@ -478,7 +443,7 @@ describe('Contests tab', () => {
         .map((cell) => cell.textContent)
     ).toEqual([
       newContest.title,
-      newContest.id,
+      'Ballot Measure',
       election.districts[0].name,
       'Edit',
     ]);
@@ -498,15 +463,14 @@ describe('Contests tab', () => {
     const changedContest: YesNoContest = {
       ...savedContest,
       title: 'Changed Ballot Measure Title',
-      id: 'changed-ballot-measure-id',
       districtId: changedDistrict.id,
       description: 'Changed Ballot Measure Description',
       yesOption: {
-        id: 'changed-ballot-measure-id-option-yes',
+        ...savedContest.yesOption,
         label: 'Yes',
       },
       noOption: {
-        id: 'changed-ballot-measure-id-option-no',
+        ...savedContest.noOption,
         label: 'No',
       },
     };
@@ -518,8 +482,8 @@ describe('Contests tab', () => {
 
     await screen.findByRole('heading', { name: 'Contests' });
     const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
-    within(savedContestRow).getByText(savedContest.id);
     within(savedContestRow).getByText(savedDistrict.name);
+    within(savedContestRow).getByText('Ballot Measure');
     userEvent.click(
       within(savedContestRow).getByRole('button', { name: 'Edit' })
     );
@@ -531,12 +495,6 @@ describe('Contests tab', () => {
     expect(titleInput).toHaveValue(savedContest.title);
     userEvent.clear(titleInput);
     userEvent.type(titleInput, changedContest.title);
-
-    // Change ID
-    const idInput = screen.getByLabelText('ID');
-    expect(idInput).toHaveValue(savedContest.id);
-    userEvent.clear(idInput);
-    userEvent.type(idInput, changedContest.id);
 
     // Change district
     userEvent.click(screen.getByText(savedDistrict.name));
@@ -574,7 +532,7 @@ describe('Contests tab', () => {
     const changedContestRow = screen
       .getByText(changedContest.title)
       .closest('tr')!;
-    within(changedContestRow).getByText(changedContest.id);
     within(changedContestRow).getByText(changedDistrict.name);
+    within(changedContestRow).getByText('Ballot Measure');
   });
 });
