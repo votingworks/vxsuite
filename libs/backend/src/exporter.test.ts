@@ -1,5 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
-import { err, ok } from '@votingworks/basics';
+import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { readFile, symlink, writeFile } from 'fs/promises';
 import { join } from 'path';
@@ -56,6 +56,22 @@ test('exportData disallowed path', async () => {
   expect(
     (await exporter.exportData('/etc/passwd', 'bar')).err()?.message
   ).toMatch(/Path is not allowed/);
+});
+
+test('exportData with iterable', async () => {
+  const tmpDir = createTmpDir();
+  const path = join(tmpDir, 'test.txt');
+  const result = await exporter.exportData(path, ['foo', 'bar']);
+  expect(result).toEqual(ok([path]));
+  expect(await readFile(path, 'utf-8')).toEqual('foobar');
+});
+
+test('exportData with async iterable', async () => {
+  const tmpDir = createTmpDir();
+  const path = join(tmpDir, 'test.txt');
+  const result = await exporter.exportData(path, iter(['foo', 'bar']).async());
+  expect(result).toEqual(ok([path]));
+  expect(await readFile(path, 'utf-8')).toEqual('foobar');
 });
 
 test('exportData with stream', async () => {

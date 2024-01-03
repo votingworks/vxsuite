@@ -7,7 +7,7 @@ import {
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
 import { generateTallyReportCsv } from './csv_tally_report';
-import { parseCsv, streamToString } from '../../test/csv';
+import { iterableToString, parseCsv } from '../../test/csv';
 import { Store } from '../store';
 
 test('uses appropriate headers', async () => {
@@ -201,12 +201,12 @@ test('uses appropriate headers', async () => {
   ];
 
   for (const testCase of testCases) {
-    const stream = await generateTallyReportCsv({
+    const iterable = generateTallyReportCsv({
       store,
       filter: testCase.filter,
       groupBy: testCase.groupBy,
     });
-    const fileContents = await streamToString(stream);
+    const fileContents = await iterableToString(iterable);
     const { headers, rows } = parseCsv(fileContents);
     expect(headers).toEqual([...testCase.additionalHeaders, ...SHARED_HEADERS]);
 
@@ -235,12 +235,12 @@ test('includes rows for empty but known result groups', async () => {
   store.setCurrentElectionId(electionId);
 
   // no CVRs, so all groups should be empty
-  const stream = await generateTallyReportCsv({
+  const iterable = generateTallyReportCsv({
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
   });
-  const fileContents = await streamToString(stream);
+  const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
 
   find(rows, (r) => r['Precinct'] === 'Precinct 1');
@@ -257,12 +257,12 @@ test('included contests are specific to each results group', async () => {
   });
   store.setCurrentElectionId(electionId);
 
-  const stream = await generateTallyReportCsv({
+  const iterable = generateTallyReportCsv({
     store,
     filter: {},
     groupBy: { groupByBallotStyle: true },
   });
-  const fileContents = await streamToString(stream);
+  const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
 
   function rowExists(contestId: string, ballotStyleId: string) {
@@ -293,11 +293,11 @@ test('included contests are restricted by the overall export filter', async () =
   });
   store.setCurrentElectionId(electionId);
 
-  const stream = await generateTallyReportCsv({
+  const iterable = generateTallyReportCsv({
     store,
     filter: { ballotStyleIds: ['1M'] },
   });
-  const fileContents = await streamToString(stream);
+  const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
 
   function rowExists(contestId: string) {
@@ -321,11 +321,13 @@ test('does not include results groups when they are excluded by the filter', asy
   store.setCurrentElectionId(electionId);
 
   // grouping on voting method should include both precinct and absentee rows
-  const byVotingMethodStream = await generateTallyReportCsv({
+  const byVotingMethodIterable = generateTallyReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
   });
-  const byVotingMethodFileContents = await streamToString(byVotingMethodStream);
+  const byVotingMethodFileContents = await iterableToString(
+    byVotingMethodIterable
+  );
   const { rows: byVotingMethodRows } = parseCsv(byVotingMethodFileContents);
   expect(
     byVotingMethodRows.some((r) => r['Voting Method'] === 'Absentee')
@@ -335,12 +337,12 @@ test('does not include results groups when they are excluded by the filter', asy
   ).toBeTruthy();
 
   // but if we add on a filter that excludes absentee, absentee rows should not be included
-  const precinctStream = await generateTallyReportCsv({
+  const precinctIterable = generateTallyReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
     filter: { votingMethods: ['precinct'] },
   });
-  const precinctFileContests = await streamToString(precinctStream);
+  const precinctFileContests = await iterableToString(precinctIterable);
   const { rows: precinctRows } = parseCsv(precinctFileContests);
   expect(
     precinctRows.some((r) => r['Voting Method'] === 'Absentee')
@@ -409,10 +411,10 @@ test('incorporates manual data', async () => {
     }),
   });
 
-  const stream = await generateTallyReportCsv({
+  const iterable = generateTallyReportCsv({
     store,
   });
-  const fileContents = await streamToString(stream);
+  const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
   expect(
     rows
@@ -502,12 +504,12 @@ test('separate rows for manual data when grouping by an incompatible dimension',
     { groupByBatch: true },
     { groupByBatch: true, groupByScanner: true },
   ]) {
-    const stream = await generateTallyReportCsv({
+    const iterable = generateTallyReportCsv({
       store,
       groupBy,
     });
 
-    const fileContents = await streamToString(stream);
+    const fileContents = await iterableToString(iterable);
     const { rows } = parseCsv(fileContents);
     expect(
       rows
@@ -539,12 +541,12 @@ test('separate rows for manual data when grouping by an incompatible dimension',
     ]);
   }
 
-  const stream = await generateTallyReportCsv({
+  const iterable = generateTallyReportCsv({
     store,
     groupBy: { groupByScanner: true },
   });
 
-  const fileContents = await streamToString(stream);
+  const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
   expect(
     rows

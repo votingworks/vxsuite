@@ -18,6 +18,16 @@ import { execFile } from './exec';
 const MAXIMUM_FAT32_FILE_SIZE = 2 ** 32 - 1;
 
 /**
+ * Types that may be exported.
+ */
+export type ExportableData =
+  | string
+  | Buffer
+  | Iterable<string | Buffer>
+  | AsyncIterable<string | Buffer>
+  | NodeJS.ReadableStream;
+
+/**
  * Possible export errors.
  */
 export interface ExportDataError {
@@ -60,7 +70,7 @@ export class Exporter {
    */
   async exportData(
     path: string,
-    data: string | Buffer | NodeJS.ReadableStream,
+    data: ExportableData,
     {
       maximumFileSize,
     }: {
@@ -78,17 +88,12 @@ export class Exporter {
 
     await mkdir(pathParts.dir, { recursive: true });
 
-    const paths = await splitToFiles(
-      typeof data === 'string' || Buffer.isBuffer(data)
-        ? Readable.from(data)
-        : data,
-      {
-        size: maximumFileSize ?? Infinity,
-        nextPath: (index) =>
-          join(pathParts.dir, `${pathParts.base}-part-${index + 1}`),
-        singleFileName: pathParts.base,
-      }
-    );
+    const paths = await splitToFiles(Readable.from(data), {
+      size: maximumFileSize ?? Infinity,
+      nextPath: (index) =>
+        join(pathParts.dir, `${pathParts.base}-part-${index + 1}`),
+      singleFileName: pathParts.base,
+    });
     // If the data was empty, splitToFiles won't create any files, but we still
     // want to create an empty file.
     if (paths.length === 0) {
@@ -117,7 +122,7 @@ export class Exporter {
   async exportDataToUsbDrive(
     bucket: string,
     name: string,
-    data: string | Buffer | NodeJS.ReadableStream,
+    data: ExportableData,
     {
       machineDirectoryToWriteToFirst,
       maximumFileSize = MAXIMUM_FAT32_FILE_SIZE,

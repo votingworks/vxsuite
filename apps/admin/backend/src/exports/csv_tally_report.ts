@@ -15,7 +15,6 @@ import {
   groupMapToGroupList,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { Readable } from 'stream';
 import { Store } from '../store';
 import { tabulateElectionResults } from '../tabulation/full_results';
 import {
@@ -218,7 +217,7 @@ function* generateDataRows({
  *
  * Returns the file as a `NodeJS.ReadableStream` emitting line by line.
  */
-export async function generateTallyReportCsv({
+export async function* generateTallyReportCsv({
   store,
   filter = {},
   groupBy = {},
@@ -226,7 +225,7 @@ export async function generateTallyReportCsv({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Promise<NodeJS.ReadableStream> {
+}): AsyncGenerator<string> {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
   const { electionDefinition } = assertDefined(store.getElection(electionId));
@@ -270,29 +269,20 @@ export async function generateTallyReportCsv({
       )
     );
 
-  const headerRow = stringify([
+  yield stringify([
     generateHeaders({
       election,
       metadataStructure,
       hasManualResults,
     }),
   ]);
-
-  function* generateAllRows() {
-    yield headerRow;
-
-    for (const dataRow of generateDataRows({
-      electionDefinition,
-      electionId: assertDefined(electionId),
-      overallExportFilter: filter,
-      resultGroups,
-      metadataStructure,
-      store,
-      hasManualResults,
-    })) {
-      yield dataRow;
-    }
-  }
-
-  return Readable.from(generateAllRows());
+  yield* generateDataRows({
+    electionDefinition,
+    electionId: assertDefined(electionId),
+    overallExportFilter: filter,
+    resultGroups,
+    metadataStructure,
+    store,
+    hasManualResults,
+  });
 }

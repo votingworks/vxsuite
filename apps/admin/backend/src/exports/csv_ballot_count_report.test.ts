@@ -9,7 +9,7 @@ import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
-import { parseCsv, streamToString } from '../../test/csv';
+import { iterableToString, parseCsv } from '../../test/csv';
 import { Store } from '../store';
 import { generateBallotCountReportCsv } from './csv_ballot_count_report';
 
@@ -134,13 +134,13 @@ test('uses appropriate headers', async () => {
   ];
 
   for (const testCase of testCases) {
-    const stream = generateBallotCountReportCsv({
+    const iterable = generateBallotCountReportCsv({
       store,
       filter: testCase.filter,
       groupBy: testCase.groupBy,
       includeSheetCounts: false,
     });
-    const fileContents = await streamToString(stream);
+    const fileContents = await iterableToString(iterable);
     const { headers, rows } = parseCsv(fileContents);
     expect(headers).toEqual([...testCase.expectedHeaders]);
 
@@ -166,13 +166,13 @@ test('includes rows for empty but known result groups', async () => {
   store.setCurrentElectionId(electionId);
 
   // no CVRs, so all groups should be empty
-  const stream = generateBallotCountReportCsv({
+  const iterable = generateBallotCountReportCsv({
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
     includeSheetCounts: false,
   });
-  const fileContents = await streamToString(stream);
+  const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
 
   find(rows, (r) => r['Precinct'] === 'Precinct 1');
@@ -190,12 +190,14 @@ test('does not include results groups when they are excluded by the filter', asy
   store.setCurrentElectionId(electionId);
 
   // grouping on voting method should include both precinct and absentee rows
-  const byVotingMethodStream = generateBallotCountReportCsv({
+  const byVotingMethodIterable = generateBallotCountReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
     includeSheetCounts: false,
   });
-  const byVotingMethodFileContents = await streamToString(byVotingMethodStream);
+  const byVotingMethodFileContents = await iterableToString(
+    byVotingMethodIterable
+  );
   const { rows: byVotingMethodRows } = parseCsv(byVotingMethodFileContents);
   expect(
     byVotingMethodRows.some((r) => r['Voting Method'] === 'Absentee')
@@ -205,13 +207,13 @@ test('does not include results groups when they are excluded by the filter', asy
   ).toBeTruthy();
 
   // but if we add on a filter that excludes absentee, absentee rows should not be included
-  const precinctStream = generateBallotCountReportCsv({
+  const precinctIterable = generateBallotCountReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
     filter: { votingMethods: ['precinct'] },
     includeSheetCounts: false,
   });
-  const precinctFileContests = await streamToString(precinctStream);
+  const precinctFileContests = await iterableToString(precinctIterable);
   const { rows: precinctRows } = parseCsv(precinctFileContests);
   expect(
     precinctRows.some((r) => r['Voting Method'] === 'Absentee')
@@ -232,13 +234,13 @@ test('excludes Manual column if no manual data exists', async () => {
   store.setCurrentElectionId(electionId);
 
   // no CVRs, so all groups should be empty
-  const stream = generateBallotCountReportCsv({
+  const iterable = generateBallotCountReportCsv({
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
     includeSheetCounts: false,
   });
-  const fileContents = await streamToString(stream);
+  const fileContents = await iterableToString(iterable);
   const { headers } = parseCsv(fileContents);
 
   expect(headers).not.toContain('Manual');
@@ -316,12 +318,12 @@ test('can include sheet counts', async () => {
   ];
   addMockCvrFileToStore({ electionId, mockCastVoteRecordFile, store });
 
-  const stream = generateBallotCountReportCsv({
+  const iterable = generateBallotCountReportCsv({
     store,
     groupBy: { groupByPrecinct: true },
     includeSheetCounts: true,
   });
-  const fileContents = await streamToString(stream);
+  const fileContents = await iterableToString(iterable);
   const { headers, rows } = parseCsv(fileContents);
   expect(headers).toEqual([
     'Precinct',
