@@ -2,20 +2,19 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimary,
 } from '@votingworks/fixtures';
-import type { TallyReportResults } from '@votingworks/admin-backend';
 import {
   ContestResultsSummary,
   buildElectionResultsFixture,
+  buildSimpleMockTallyReportResults,
   getEmptyCardCounts,
 } from '@votingworks/utils';
-import { ContestId } from '@votingworks/types';
+import { Admin, ContestId } from '@votingworks/types';
 import { typedAs } from '@votingworks/basics';
 import {
   TallyReportWarning,
   getTallyReportWarning,
   getTallyReportWarningText,
 } from './tally_report_warnings';
-import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
 
 describe('getTallyReportWarning', () => {
   test('does give warning when there are no reports', () => {
@@ -34,7 +33,10 @@ describe('getTallyReportWarning', () => {
     expect(
       getTallyReportWarning({
         allTallyReports: [
-          getSimpleMockTallyResults({ election, scannedBallotCount: 0 }),
+          buildSimpleMockTallyReportResults({
+            election,
+            scannedBallotCount: 0,
+          }),
         ],
         election,
       })
@@ -115,7 +117,7 @@ describe('getTallyReportWarning', () => {
     ];
 
     for (const { contestResultsSummaries, expectedContestIds } of testCase) {
-      const tallyReport: TallyReportResults = {
+      const tallyReport: Admin.TallyReportResults = {
         hasPartySplits: true,
         contestIds: [],
         cardCountsByParty: {
@@ -148,7 +150,7 @@ describe('getTallyReportWarning', () => {
 
   test('does give warning when ballot count is low', () => {
     const { election } = electionFamousNames2021Fixtures;
-    const tallyReport: TallyReportResults = {
+    const tallyReport: Admin.TallyReportResults = {
       hasPartySplits: false,
       cardCounts: {
         bmd: 5,

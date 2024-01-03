@@ -16,11 +16,11 @@ import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { Admin } from '@votingworks/types';
 import { act } from 'react-dom/test-utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportViewer } from './tally_report_viewer';
-import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
 
 let apiMock: ApiMock;
 
@@ -68,7 +68,7 @@ test('when auto-generation is on, it loads the preview automatically', async () 
       groupBy: {},
     },
     [
-      getSimpleMockTallyResults({
+      buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 10,
       }),
@@ -127,7 +127,7 @@ test('when auto-generation is off, it requires a button press to load the report
       groupBy: {},
     },
     [
-      getSimpleMockTallyResults({
+      buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 10,
       }),
@@ -186,7 +186,7 @@ test('printing report', async () => {
       groupBy: {},
     },
     [
-      getSimpleMockTallyResults({
+      buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 10,
       }),
@@ -243,7 +243,7 @@ test('print failure logging', async () => {
       groupBy: {},
     },
     [
-      getSimpleMockTallyResults({
+      buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 10,
       }),
@@ -297,7 +297,7 @@ test('displays custom filter rather than specific title when necessary', async (
       groupBy: {},
     },
     [
-      getSimpleMockTallyResults({
+      buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 10,
       }),
@@ -337,7 +337,7 @@ test('exporting report PDF', async () => {
       },
     },
     [
-      getSimpleMockTallyResults({
+      buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 10,
       }),

@@ -17,6 +17,10 @@ import {
 } from '@votingworks/test-utils';
 import { LogEventId } from '@votingworks/logging';
 import {
+  buildMockCardCounts,
+  buildSimpleMockTallyReportResults,
+} from '@votingworks/utils';
+import {
   fireEvent,
   screen,
   waitFor,
@@ -28,10 +32,6 @@ import { buildApp } from '../test/helpers/build_app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
-import {
-  getMockCardCounts,
-  getSimpleMockTallyResults,
-} from '../test/helpers/mock_results';
 import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
 
 jest.mock('@votingworks/ballot-encoder', () => {
@@ -331,17 +331,16 @@ test('marking results as official', async () => {
 
   // unofficial on reports screen
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetCardCounts({}, [getMockCardCounts(0)]);
+  apiMock.expectGetCardCounts({}, [buildMockCardCounts(0)]);
   userEvent.click(screen.getButton('Reports'));
   screen.getByRole('heading', { name: 'Unofficial Tally Reports' });
   screen.getByRole('heading', { name: 'Unofficial Ballot Count Reports' });
 
   // unofficial on report
   apiMock.expectGetResultsForTallyReports({ filter: {}, groupBy: {} }, [
-    getSimpleMockTallyResults({
+    buildSimpleMockTallyReportResults({
       election,
       scannedBallotCount: 100,
-      cardCountsByParty: {},
     }),
   ]);
   apiMock.expectGetScannerBatches([]);
@@ -484,7 +483,7 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([]);
-  apiMock.expectGetCardCounts({}, [getMockCardCounts(100)]);
+  apiMock.expectGetCardCounts({}, [buildMockCardCounts(100)]);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 

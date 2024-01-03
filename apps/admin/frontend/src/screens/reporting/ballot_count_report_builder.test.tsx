@@ -5,10 +5,10 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expectPrint } from '@votingworks/test-utils';
 import { Tabulation } from '@votingworks/types';
+import { buildMockCardCounts } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
-import { getMockCardCounts } from '../../../test/helpers/mock_results';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 import { BallotCountReportBuilder, TITLE } from './ballot_count_report_builder';
 
@@ -32,22 +32,22 @@ test('happy path', async () => {
       {
         precinctId: 'precinct-1',
         partyId: '0',
-        ...getMockCardCounts(1 * multiplier),
+        ...buildMockCardCounts(1 * multiplier),
       },
       {
         precinctId: 'precinct-1',
         partyId: '1',
-        ...getMockCardCounts(2 * multiplier),
+        ...buildMockCardCounts(2 * multiplier),
       },
       {
         precinctId: 'precinct-2',
         partyId: '0',
-        ...getMockCardCounts(3 * multiplier),
+        ...buildMockCardCounts(3 * multiplier),
       },
       {
         precinctId: 'precinct-2',
         partyId: '1',
-        ...getMockCardCounts(4 * multiplier),
+        ...buildMockCardCounts(4 * multiplier),
       },
     ];
   }

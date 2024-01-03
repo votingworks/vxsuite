@@ -1,7 +1,7 @@
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { Logger, fakeLogger } from '@votingworks/logging';
+import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
 import {
@@ -34,7 +34,7 @@ test('displays report', async () => {
     [
       {
         precinctId: 'precinct-1',
-        ...getSimpleMockTallyResults({
+        ...buildSimpleMockTallyReportResults({
           election,
           scannedBallotCount: 25,
           cardCountsByParty: {
@@ -45,7 +45,7 @@ test('displays report', async () => {
       },
       {
         precinctId: 'precinct-2',
-        ...getSimpleMockTallyResults({
+        ...buildSimpleMockTallyReportResults({
           election,
           scannedBallotCount: 40,
           cardCountsByParty: {
