@@ -2,12 +2,24 @@ import { Admin, ElectionDefinition } from '@votingworks/types';
 import React from 'react';
 
 import { find, unique } from '@votingworks/basics';
-import type { TallyReportResults } from '@votingworks/admin-backend';
-import { AdminTallyReport } from '@votingworks/ui';
 import { getContestById, getEmptyCardCounts } from '@votingworks/utils';
+import { AdminTallyReport } from './admin_tally_report';
+
+export interface AdminTallyReportByPartyProps {
+  electionDefinition: ElectionDefinition;
+  tallyReportResults: Admin.TallyReportResults;
+  title?: string;
+  isTest: boolean;
+  isOfficial: boolean;
+  isForLogicAndAccuracyTesting?: boolean;
+  testId: string;
+  generatedAtTime: Date;
+  customFilter?: Admin.FrontendReportingFilter;
+  includeSignatureLines?: boolean;
+}
 
 /**
- * The `AdminTallyReport` in `libs/ui` displays only a single set of election results,
+ * The `AdminTallyReport` component displays only a single set of election results,
  * but for primary elections all of our printed reports are separated by party. This
  * component displays the results by party, if applicable. It also adds a nonpartisan
  * contest page if there are nonpartisan contests in a primary election.
@@ -28,18 +40,7 @@ export function AdminTallyReportByParty({
   generatedAtTime,
   customFilter,
   includeSignatureLines,
-}: {
-  electionDefinition: ElectionDefinition;
-  tallyReportResults: TallyReportResults;
-  title?: string;
-  isTest: boolean;
-  isOfficial: boolean;
-  isForLogicAndAccuracyTesting?: boolean;
-  testId: string;
-  generatedAtTime: Date;
-  customFilter?: Admin.FrontendReportingFilter;
-  includeSignatureLines?: boolean;
-}): JSX.Element {
+}: AdminTallyReportByPartyProps): JSX.Element {
   const { election } = electionDefinition;
   const contests = tallyReportResults.contestIds.map((contestId) =>
     getContestById(electionDefinition, contestId)

@@ -1,5 +1,6 @@
 import React, { useState, useContext, useCallback } from 'react';
 import {
+  Admin,
   Election,
   ElectionDefinition,
   ElementWithCallback,
@@ -26,7 +27,6 @@ import {
 } from '@votingworks/utils';
 
 import styled from 'styled-components';
-import type { TallyReportResults } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
@@ -46,7 +46,7 @@ export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 
 interface PrecinctTallyReportProps {
   electionDefinition: ElectionDefinition;
-  tallyReportResults: TallyReportResults;
+  tallyReportResults: Admin.TallyReportResults;
   precinctId: PrecinctId;
 }
 
@@ -69,7 +69,7 @@ async function generateResultsForPrecinctTallyReport({
 }: {
   electionDefinition: ElectionDefinition;
   precinctId: PrecinctId;
-}): Promise<TallyReportResults> {
+}): Promise<Admin.TallyReportResults> {
   const { election } = electionDefinition;
 
   return generateResultsFromTestDeckBallots({
@@ -329,7 +329,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   const renderLogicAndAccuracyPackageToPdfForSinglePrecinct = useCallback(
     (
       precinctId: PrecinctId,
-      tallyReportResults: TallyReportResults,
+      tallyReportResults: Admin.TallyReportResults,
       bmdPaperBallotCallbacks: ElementWithCallback[],
       onRendered: () => void
     ): JSX.Element => {
@@ -371,7 +371,8 @@ export function PrintTestDeckScreen(): JSX.Element {
         return bmdPaperBallotsWithCallback;
       });
 
-      const allTallyReportResults: Record<string, TallyReportResults> = {};
+      const allTallyReportResults: Record<string, Admin.TallyReportResults> =
+        {};
       for (const precinctId of precinctIds) {
         allTallyReportResults[precinctId] =
           await generateResultsForPrecinctTallyReport({

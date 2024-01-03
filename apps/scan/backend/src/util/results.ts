@@ -1,13 +1,12 @@
 import {
   BallotType,
-  Candidate,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
   Tabulation,
-  VotesDict,
 } from '@votingworks/types';
 import {
+  convertVotesDictToTabulationVotes,
   getBallotStyleIdPartyIdLookup,
   groupMapToGroupList,
   tabulateCastVoteRecords,
@@ -36,32 +35,6 @@ const BALLOT_TYPE_TO_VOTING_METHOD: Record<
   [BallotType.Precinct]: 'precinct',
   [BallotType.Provisional]: 'provisional',
 };
-
-function convertVotesDictToTabulationVotes(
-  votesDict: VotesDict
-): Tabulation.Votes {
-  const tabulationVotes: Tabulation.Votes = {};
-
-  for (const [contestId, vote] of Object.entries(votesDict)) {
-    assert(vote);
-
-    if (vote.length === 0) {
-      tabulationVotes[contestId] = [];
-      continue;
-    }
-
-    const voteOption = vote[0];
-    assert(voteOption !== undefined);
-
-    if (typeof voteOption === 'string') {
-      tabulationVotes[contestId] = vote as unknown as string[];
-    } else {
-      tabulationVotes[contestId] = vote.map((c) => (c as Candidate).id);
-    }
-  }
-
-  return tabulationVotes;
-}
 
 export async function getScannerResults({
   store,

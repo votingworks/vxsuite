@@ -1,5 +1,6 @@
 import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
+  AdminTallyReportByParty,
   Button,
   H6,
   Loading,
@@ -15,10 +16,7 @@ import {
   isFilterEmpty,
   isGroupByEmpty,
 } from '@votingworks/utils';
-import type {
-  ScannerBatch,
-  TallyReportResults,
-} from '@votingworks/admin-backend';
+import type { ScannerBatch } from '@votingworks/admin-backend';
 import { LogEventId } from '@votingworks/logging';
 import {
   getCastVoteRecordFileMode,
@@ -26,7 +24,6 @@ import {
   getScannerBatches,
 } from '../../api';
 import { AppContext } from '../../contexts/app_context';
-import { AdminTallyReportByParty } from '../admin_tally_report_by_party';
 import { PrintButton } from '../print_button';
 import {
   generateTallyReportPdfFilename,
@@ -63,7 +60,7 @@ function Reports({
   electionDefinition: ElectionDefinition;
   isOfficialResults: boolean;
   isTestMode: boolean;
-  allTallyReportResults: Tabulation.GroupList<TallyReportResults>;
+  allTallyReportResults: Tabulation.GroupList<Admin.TallyReportResults>;
   filterUsed: Admin.FrontendReportingFilter;
   generatedAtTime: Date;
   scannerBatches: ScannerBatch[];

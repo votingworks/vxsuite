@@ -7,3 +7,4 @@ export * from './tally_report';
 export * from './admin_tally_report';
 export * from './write_in_adjudication_report';
 export * from './ballot_count_report';
+export * from './admin_tally_report_by_party';

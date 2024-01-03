@@ -65,7 +65,6 @@ import {
   ManualResultsMetadataRecord,
   ManualResultsRecord,
   ScannerBatch,
-  TallyReportResults,
   WriteInAdjudicationAction,
   WriteInAdjudicationQueueMetadata,
   WriteInAdjudicationStatus,
@@ -739,7 +738,7 @@ function buildApi({
         filter?: Admin.FrontendReportingFilter;
         groupBy?: Tabulation.GroupBy;
       } = {}
-    ): Promise<Tabulation.GroupList<TallyReportResults>> {
+    ): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       return tabulateTallyReportResults({
         electionId,

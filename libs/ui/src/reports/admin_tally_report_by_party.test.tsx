@@ -2,9 +2,9 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
+import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { render, screen, within } from '../../test/react_testing_library';
 import { AdminTallyReportByParty } from './admin_tally_report_by_party';
-import { getSimpleMockTallyResults } from '../../test/helpers/mock_results';
 
 test('general election, full election report', () => {
   const { election, electionDefinition } = electionFamousNames2021Fixtures;
@@ -15,7 +15,7 @@ test('general election, full election report', () => {
       isTest={false}
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
-      tallyReportResults={getSimpleMockTallyResults({
+      tallyReportResults={buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 15,
       })}
@@ -47,7 +47,7 @@ test('general election, precinct report with manual results', () => {
       title="Precinct Tally Report"
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
-      tallyReportResults={getSimpleMockTallyResults({
+      tallyReportResults={buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 15,
         manualBallotCount: 1,
@@ -83,7 +83,7 @@ test('primary election, full election report with manual results', () => {
       isTest={false}
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
-      tallyReportResults={getSimpleMockTallyResults({
+      tallyReportResults={buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 25,
         manualBallotCount: 1,
@@ -153,7 +153,7 @@ test('primary election, party report', () => {
       isForLogicAndAccuracyTesting
       testId="tally-report"
       generatedAtTime={new Date('2020-01-01')}
-      tallyReportResults={getSimpleMockTallyResults({
+      tallyReportResults={buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 10,
         cardCountsByParty: {

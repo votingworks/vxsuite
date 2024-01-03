@@ -20,5 +20,6 @@ module.exports = {
     '!src/**/index.ts',
     '!src/env.d.ts',
     '!src/scripts/*.ts',
+    '!src/tabulation/mock_tally_report_results.ts',
   ],
 };

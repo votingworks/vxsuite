@@ -8,12 +8,9 @@ import {
   ElectionDefinition,
   Tabulation,
   YesNoVote,
+  Admin,
 } from '@votingworks/types';
 import { assert, find, unique } from '@votingworks/basics';
-import type {
-  TallyReportResults,
-  CardCountsByParty,
-} from '@votingworks/admin-backend';
 import {
   TestDeckBallot,
   getBallotStyleIdPartyIdLookup,
@@ -81,7 +78,7 @@ export async function generateResultsFromTestDeckBallots({
   electionDefinition: ElectionDefinition;
   testDeckBallots: TestDeckBallot[];
   precinctId?: PrecinctId;
-}): Promise<TallyReportResults> {
+}): Promise<Admin.TallyReportResults> {
   const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
@@ -108,7 +105,7 @@ export async function generateResultsFromTestDeckBallots({
   }
 
   assert(election.type === 'primary');
-  const cardCountsByParty: CardCountsByParty = {};
+  const cardCountsByParty: Admin.CardCountsByParty = {};
   for (const testDeckBallot of testDeckBallots) {
     const partyId = ballotStyleIdPartyIdLookup[testDeckBallot.ballotStyleId];
     const partyCardCounts = cardCountsByParty[partyId] ?? getEmptyCardCounts();

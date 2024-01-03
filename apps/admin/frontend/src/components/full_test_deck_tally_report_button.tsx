@@ -13,7 +13,7 @@ import {
   generateTestDeckBallots,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import type { TallyReportResults } from '@votingworks/admin-backend';
+import { Admin } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { TestDeckTallyReport } from './test_deck_tally_report';
 import { generateResultsFromTestDeckBallots } from '../utils/election';
@@ -25,7 +25,7 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   const { auth, electionDefinition, logger } = useContext(AppContext);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [fullTestDeckTallyReportResults, setFullTestDeckTallyReportResults] =
-    useState<TallyReportResults>();
+    useState<Admin.TallyReportResults>();
   assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 

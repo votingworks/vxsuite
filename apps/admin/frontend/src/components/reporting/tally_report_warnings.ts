@@ -1,6 +1,6 @@
-import type { TallyReportResults } from '@votingworks/admin-backend';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
+  Admin,
   ContestId,
   Election,
   Tabulation,
@@ -71,7 +71,7 @@ function getAllSameVoteContestIds({
   tallyReport,
   election,
 }: {
-  tallyReport: TallyReportResults;
+  tallyReport: Admin.TallyReportResults;
   election: Election;
 }): ContestId[] {
   // The current operating assumption is that the difference between manual and
@@ -102,7 +102,7 @@ export function getTallyReportWarning({
   allTallyReports,
   election,
 }: {
-  allTallyReports: Tabulation.GroupList<TallyReportResults>;
+  allTallyReports: Tabulation.GroupList<Admin.TallyReportResults>;
   election: Election;
 }): TallyReportWarning {
   if (allTallyReports.length === 0) {

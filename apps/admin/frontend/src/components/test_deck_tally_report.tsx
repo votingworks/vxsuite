@@ -1,11 +1,10 @@
-import { ElectionDefinition } from '@votingworks/types';
+import { Admin, ElectionDefinition } from '@votingworks/types';
 import { find } from '@votingworks/basics';
-import type { TallyReportResults } from '@votingworks/admin-backend';
-import { AdminTallyReportByParty } from './admin_tally_report_by_party';
+import { AdminTallyReportByParty } from '@votingworks/ui';
 
 export interface TestDeckTallyReportProps {
   electionDefinition: ElectionDefinition;
-  tallyReportResults: TallyReportResults;
+  tallyReportResults: Admin.TallyReportResults;
   precinctId?: string;
 }
 

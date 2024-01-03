@@ -1,16 +1,11 @@
-import { TallyReportResults } from '@votingworks/admin-backend';
-import { Election, Tabulation } from '@votingworks/types';
+import { Admin, Election, Tabulation } from '@votingworks/types';
+import { mapObject } from '@votingworks/basics';
 import {
   ContestResultsSummaries,
   buildElectionResultsFixture,
-} from '@votingworks/utils';
-import { mapObject } from '@votingworks/basics';
+} from './tabulation';
 
-/**
- * To quickly mock data for tally reports. Simply takes the top-level ballot count and
- * assumes that ballot count applies to every contest, all undervotes.
- */
-export function getSimpleMockElectionResults(
+function buildSimpleMockElectionResults(
   election: Election,
   ballotCount: number
 ): Tabulation.ElectionResults {
@@ -37,17 +32,21 @@ export function getSimpleMockElectionResults(
   });
 }
 
-export function getSimpleMockManualResults(
+function buildSimpleMockManualResults(
   election: Election,
   ballotCount: number
 ): Tabulation.ManualElectionResults {
   return {
     ballotCount,
-    ...getSimpleMockElectionResults(election, ballotCount),
+    ...buildSimpleMockElectionResults(election, ballotCount),
   };
 }
 
-export function getSimpleMockTallyResults({
+/**
+ * To quickly mock data for tally reports. Simply takes the top-level ballot count and
+ * assumes that ballot count applies to every contest, all undervotes.
+ */
+export function buildSimpleMockTallyReportResults({
   election,
   scannedBallotCount,
   manualBallotCount,
@@ -59,24 +58,24 @@ export function getSimpleMockTallyResults({
   manualBallotCount?: number;
   cardCountsByParty?: Record<string, number | Tabulation.CardCounts>;
   contestIds?: string[];
-}): TallyReportResults {
-  const scannedResults = getSimpleMockElectionResults(
+}): Admin.TallyReportResults {
+  const scannedResults = buildSimpleMockElectionResults(
     election,
     scannedBallotCount
   );
   const manualResults =
     manualBallotCount !== undefined
-      ? getSimpleMockManualResults(election, manualBallotCount)
+      ? buildSimpleMockManualResults(election, manualBallotCount)
       : undefined;
   const contestIds = specifiedContestIds ?? election.contests.map((c) => c.id);
 
-  if (cardCountsByParty) {
+  if (election.type === 'primary') {
     return {
       scannedResults,
       manualResults,
       contestIds,
       hasPartySplits: true,
-      cardCountsByParty: mapObject(cardCountsByParty, (count) => {
+      cardCountsByParty: mapObject(cardCountsByParty ?? {}, (count) => {
         if (typeof count === 'number') {
           return {
             bmd: count,
@@ -97,7 +96,7 @@ export function getSimpleMockTallyResults({
   };
 }
 
-export function getMockCardCounts(
+export function buildMockCardCounts(
   bmd: number,
   manual?: number,
   ...hmpb: number[]
