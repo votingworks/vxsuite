@@ -822,10 +822,18 @@ function CandidateContest({
       {
         text:
           contest.seats === 1
-            ? 'Vote for 1'
-            : `Vote for not more than ${contest.seats}`,
+            ? 'Vote for not more than 1'
+            : `Vote for up to ${contest.seats}`,
         fontStyle: m.FontStyles.BODY,
       },
+      ...(contest.seats > 1
+        ? [
+            {
+              text: `${contest.seats} will be elected`,
+              fontStyle: m.FontStyles.BODY,
+            },
+          ]
+        : []),
       ...(contest.termDescription
         ? [
             {
