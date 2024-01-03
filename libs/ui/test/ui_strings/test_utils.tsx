@@ -11,7 +11,7 @@ import {
   useLanguageContext,
 } from '../../src/ui_strings/language_context';
 import {
-  AudioContextInterface,
+  UiStringsAudioContextInterface,
   useAudioContext,
 } from '../../src/ui_strings/audio_context';
 import { UiStringsContextProvider } from '../../src/ui_strings/ui_strings_context';
@@ -19,7 +19,7 @@ import { render, RenderResult } from '../react_testing_library';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '../../src';
 
 export interface UiStringsTestContext {
-  getAudioContext: () => Optional<AudioContextInterface>;
+  getAudioContext: () => Optional<UiStringsAudioContextInterface>;
   getLanguageContext: () => Optional<LanguageContextInterface>;
   mockBackendApi: jest.Mocked<UiStringsApiClient>;
   render: (ui: React.ReactElement) => RenderResult;
@@ -32,7 +32,7 @@ export function newTestContext(
   } = {}
 ): UiStringsTestContext {
   let currentLanguageContext: Optional<LanguageContextInterface>;
-  let currentAudioContext: Optional<AudioContextInterface>;
+  let currentAudioContext: Optional<UiStringsAudioContextInterface>;
 
   function ContextConsumer() {
     currentLanguageContext = useLanguageContext();
