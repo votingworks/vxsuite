@@ -1,9 +1,10 @@
-import { Buffer } from 'buffer';
 import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
 } from '@votingworks/types';
+import { Buffer } from 'buffer';
+import { ResponseApduError } from './apdu';
 
 interface SystemAdministratorCardDetails {
   user: SystemAdministratorUser;
@@ -92,12 +93,18 @@ interface CheckPinResponseIncorrect {
   numIncorrectPinAttempts: number;
 }
 
+interface CheckPinResponseError {
+  response: 'error';
+  error: ResponseApduError;
+}
+
 /**
  * The response to a PIN check
  */
 export type CheckPinResponse =
   | CheckPinResponseCorrect
-  | CheckPinResponseIncorrect;
+  | CheckPinResponseIncorrect
+  | CheckPinResponseError;
 
 /**
  * The base API any card should support

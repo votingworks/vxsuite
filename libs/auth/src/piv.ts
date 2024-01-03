@@ -134,6 +134,20 @@ export function isSecurityConditionNotSatisfiedStatusWord(
 }
 
 /**
+ * When checking the PIN, the card will return this status word if the PIN
+ * length is correct.
+ */
+export function isIncorrectDataFieldParameters(
+  statusWord: [Byte, Byte]
+): boolean {
+  const [sw1, sw2] = statusWord;
+  return (
+    sw1 === STATUS_WORD.INCORRECT_DATA_FIELD_PARAMETERS.SW1 &&
+    sw2 === STATUS_WORD.INCORRECT_DATA_FIELD_PARAMETERS.SW2
+  );
+}
+
+/**
  * See isIncorrectPinStatusWord().
  */
 export function numRemainingPinAttemptsFromIncorrectPinStatusWord(
