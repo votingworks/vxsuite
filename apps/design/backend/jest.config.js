@@ -11,4 +11,6 @@ module.exports = {
       lines: -75,
     },
   },
+  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
+  prettierPath: null,
 };

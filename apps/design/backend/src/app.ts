@@ -20,7 +20,11 @@ import {
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
 import { ElectionPackage, ElectionRecord, Precinct } from './store';
-import { createPrecinctTestDeck } from './test_decks';
+import {
+  createPrecinctTestDeck,
+  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+  createTestDeckTallyReport,
+} from './test_decks';
 import { Workspace } from './workspace';
 
 export function createBlankElection(): Election {
@@ -260,6 +264,11 @@ function buildApi({ workspace }: { workspace: Workspace }) {
         zip.file(fileName, pdf);
         pdf.end();
       }
+
+      zip.file(
+        FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+        createTestDeckTallyReport({ electionDefinition, ballots })
+      );
 
       return {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
