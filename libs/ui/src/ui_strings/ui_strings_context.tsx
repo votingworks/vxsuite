@@ -2,7 +2,7 @@ import React from 'react';
 
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 import { LanguageContextProvider } from './language_context';
-import { AudioContextProvider } from './audio_context';
+import { UiStringsAudioContextProvider } from './audio_context';
 
 export interface UiStringsContextProviderProps {
   api: UiStringsReactQueryApi;
@@ -25,7 +25,9 @@ export function UiStringsContextProvider(
       {noAudio ? (
         children
       ) : (
-        <AudioContextProvider api={api}>{children}</AudioContextProvider>
+        <UiStringsAudioContextProvider api={api}>
+          {children}
+        </UiStringsAudioContextProvider>
       )}
     </LanguageContextProvider>
   );
