@@ -1,4 +1,7 @@
-import { assert } from '@votingworks/basics';
+import fs from 'fs';
+import JsZip from 'jszip';
+import path from 'path';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
@@ -21,14 +24,14 @@ import {
   Parties,
   Party,
   PartyId,
+  SystemSettings,
   safeParseElectionDefinition,
   safeParseSystemSettings,
-  SystemSettings,
 } from '@votingworks/types';
-import JsZip from 'jszip';
 import { getBallotStylesByPrecinctId } from '@votingworks/utils';
 import { ApiClient, testSetupHelpers } from '../test/helpers';
 import { hasSplits, Precinct } from './store';
+import { processNextBackgroundTaskIfAny } from './worker/worker';
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -201,7 +204,82 @@ test('Update layout options', async () => {
   });
 });
 
-test('Export election package', async () => {
+test('Election package management', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.electionDefinition;
+  const { apiClient, workspace } = setupApp();
+
+  const electionId = (
+    await apiClient.createElection({
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+
+  const electionPackageBeforeExport = await apiClient.getElectionPackage({
+    electionId,
+  });
+  expect(electionPackageBeforeExport).toEqual({});
+
+  // Initiate an export
+  await apiClient.exportElectionPackage({ electionId });
+  const electionPackageAfterInitiatingExport =
+    await apiClient.getElectionPackage({ electionId });
+  expect(electionPackageAfterInitiatingExport).toEqual({
+    task: {
+      createdAt: expect.any(Date),
+      id: expect.any(String),
+      payload: `{"electionId":"${electionId}"}`,
+      taskName: 'generate_election_package',
+    },
+  });
+  const taskId = assertDefined(electionPackageAfterInitiatingExport.task).id;
+
+  // Check that initiating an export before a prior has completed doesn't trigger a new background
+  // task
+  await apiClient.exportElectionPackage({ electionId });
+  const electionPackageAfterInitiatingRedundantExport =
+    await apiClient.getElectionPackage({ electionId });
+  expect(electionPackageAfterInitiatingRedundantExport).toEqual(
+    electionPackageAfterInitiatingExport
+  );
+
+  // Complete an export
+  await processNextBackgroundTaskIfAny({ log: jest.fn(), workspace });
+  const electionPackageAfterExport = await apiClient.getElectionPackage({
+    electionId,
+  });
+  expect(electionPackageAfterExport).toEqual({
+    task: {
+      completedAt: expect.any(Date),
+      createdAt: expect.any(Date),
+      id: taskId,
+      payload: `{"electionId":"${electionId}"}`,
+      startedAt: expect.any(Date),
+      taskName: 'generate_election_package',
+    },
+    url: expect.stringMatching(/.*\/election-package-[0-9a-z]{10}\.zip$/),
+  });
+
+  // Check that initiating an export after a prior has completed does trigger a new background task
+  await apiClient.exportElectionPackage({ electionId });
+  const electionPackageAfterInitiatingSecondExport =
+    await apiClient.getElectionPackage({ electionId });
+  expect(electionPackageAfterInitiatingSecondExport).toEqual({
+    task: {
+      createdAt: expect.any(Date),
+      id: expect.any(String),
+      payload: `{"electionId":"${electionId}"}`,
+      taskName: 'generate_election_package',
+    },
+    url: expect.stringMatching(/.*\/election-package-[0-9a-z]{10}\.zip$/),
+  });
+  const secondTaskId = assertDefined(
+    electionPackageAfterInitiatingSecondExport.task
+  ).id;
+  expect(secondTaskId).not.toEqual(taskId);
+});
+
+test('Election package export', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.electionDefinition;
   const mockSystemSettings: SystemSettings = {
@@ -211,7 +289,7 @@ test('Export election package', async () => {
       AdjudicationReason.UnmarkedWriteIn,
     ],
   };
-  const { apiClient } = setupApp();
+  const { apiClient, workspace } = setupApp();
 
   const electionId = (
     await apiClient.createElection({
@@ -224,10 +302,22 @@ test('Export election package', async () => {
   });
   const { election: appElection } = await apiClient.getElection({ electionId });
 
-  const { zipContents, electionHash } = await apiClient.exportElectionPackage({
+  await apiClient.exportElectionPackage({ electionId });
+  await processNextBackgroundTaskIfAny({ log: jest.fn(), workspace });
+
+  const electionPackage = await apiClient.getElectionPackage({
     electionId,
   });
-  const zip = await JsZip.loadAsync(zipContents);
+  const electionPackageFileName = assertDefined(
+    electionPackage.url?.match(/election-package-[0-9a-z]{10}\.zip$/)?.[0]
+  );
+  const electionPackageContents = fs.readFileSync(
+    path.join(workspace.assetDirectoryPath, electionPackageFileName)
+  );
+
+  // Check contents of generated zip file
+
+  const zip = await JsZip.loadAsync(electionPackageContents);
 
   expect(Object.keys(zip.files)).toEqual([
     'election.json',
@@ -235,9 +325,8 @@ test('Export election package', async () => {
   ]);
 
   const electionDefinition = safeParseElectionDefinition(
-    await zip.file('election.json')!.async('text')
+    await assertDefined(zip.file('election.json')).async('text')
   ).unsafeUnwrap();
-  expect(electionHash).toEqual(electionDefinition.electionHash);
 
   expect(electionDefinition.election).toEqual({
     ...baseElectionDefinition.election,
@@ -248,18 +337,17 @@ test('Export election package', async () => {
       '00:00:00Z'
     ),
 
-    // Ballot styles are generated in the app, ignoring the ones in the inputted
-    // election definition.
+    // Ballot styles are generated in the app, ignoring the ones in the inputted election
+    // definition
     ballotStyles: appElection.ballotStyles,
 
-    // The base election definition should have been extended with grid layouts.
-    // The correctness of the grid layouts is tested by libs/ballot-interpreter
-    // tests.
+    // The base election definition should have been extended with grid layouts. The correctness of
+    // the grid layouts is tested by libs/ballot-interpreter tests.
     gridLayouts: expect.any(Array),
   });
 
   const systemSettings = safeParseSystemSettings(
-    await zip.file('systemSettings.json')!.async('text')
+    await assertDefined(zip.file('systemSettings.json')).async('text')
   ).unsafeUnwrap();
   expect(systemSettings).toEqual(mockSystemSettings);
 });
@@ -293,7 +381,7 @@ test('Export all ballots', async () => {
     electionId,
   });
 
-  const { zipContents, electionHash } = await apiClient.exportAllBallots({
+  const { zipContents } = await apiClient.exportAllBallots({
     electionId,
   });
   const zip = await JsZip.loadAsync(zipContents);
@@ -341,11 +429,6 @@ test('Export all ballots', async () => {
       layoutOptions,
     });
   }
-
-  const electionPackageResult = await apiClient.exportElectionPackage({
-    electionId,
-  });
-  expect(electionHash).toEqual(electionPackageResult.electionHash);
 });
 
 test('Export test decks', async () => {
@@ -359,7 +442,7 @@ test('Export test decks', async () => {
   ).unsafeUnwrap();
   const { election } = await apiClient.getElection({ electionId });
 
-  const { zipContents, electionHash } = await apiClient.exportTestDecks({
+  const { zipContents } = await apiClient.exportTestDecks({
     electionId,
   });
   const zip = await JsZip.loadAsync(zipContents);
@@ -387,11 +470,6 @@ test('Export test decks', async () => {
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
   });
-
-  const electionPackageResult = await apiClient.exportElectionPackage({
-    electionId,
-  });
-  expect(electionHash).toEqual(electionPackageResult.electionHash);
 });
 
 describe('Ballot style generation', () => {

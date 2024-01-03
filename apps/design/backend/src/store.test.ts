@@ -1,6 +1,6 @@
 import { LanguageCode } from '@votingworks/types';
 
-import { Store } from './store';
+import { Store, TaskName } from './store';
 
 test('Translation cache', () => {
   const store = Store.memoryStore();
@@ -92,7 +92,7 @@ test('Speech synthesis cache', () => {
 
 test('Background task processing - task creation and retrieval', () => {
   const store = Store.memoryStore();
-  const taskName = 'someTaskName';
+  const taskName = 'some_task_name' as TaskName;
 
   expect(store.getOldestQueuedBackgroundTask()).toEqual(undefined);
 
@@ -127,7 +127,7 @@ test('Background task processing - task creation and retrieval', () => {
 
 test('Background task processing - starting and completing tasks', () => {
   const store = Store.memoryStore();
-  const taskName = 'someTaskName';
+  const taskName = 'some_task_name' as TaskName;
 
   expect(store.getOldestQueuedBackgroundTask()).toEqual(undefined);
 
