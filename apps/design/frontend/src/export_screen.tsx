@@ -1,22 +1,58 @@
-import { H1, P, Button, MainContent, MainHeader } from '@votingworks/ui';
+import { useState } from 'react';
+import {
+  H1,
+  P,
+  Button,
+  MainContent,
+  MainHeader,
+  useQueryChangeListener,
+  LoadingButton,
+  Icons,
+} from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import { getDisplayElectionHash } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 import {
   exportAllBallots,
   exportElectionPackage,
   exportTestDecks,
+  getElectionPackage,
 } from './api';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams } from './routes';
+import { downloadFile } from './utils';
 
-export function ExportScreen(): JSX.Element {
+export function ExportScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
+
+  const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const exportAllBallotsMutation = exportAllBallots.useMutation();
-  const exportTestDecksMutation = exportTestDecks.useMutation();
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
+  const exportTestDecksMutation = exportTestDecks.useMutation();
+
+  const [exportError, setExportError] = useState<string | undefined>(undefined);
+
+  useQueryChangeListener(electionPackageQuery, {
+    onChange: (currentElectionPackage, previousElectionPackage) => {
+      const taskJustCompleted = Boolean(
+        previousElectionPackage?.task &&
+          !previousElectionPackage.task.completedAt &&
+          currentElectionPackage.task?.completedAt
+      );
+      if (taskJustCompleted) {
+        const { error } = assertDefined(currentElectionPackage.task);
+        if (error) {
+          setExportError(error);
+        } else {
+          downloadFile(assertDefined(currentElectionPackage.url));
+        }
+      }
+    },
+  });
 
   function onPressExportAllBallots() {
+    setExportError(undefined);
     exportAllBallotsMutation.mutate(
       { electionId },
       {
@@ -31,6 +67,7 @@ export function ExportScreen(): JSX.Element {
   }
 
   function onPressExportTestDecks() {
+    setExportError(undefined);
     exportTestDecksMutation.mutate(
       { electionId },
       {
@@ -45,18 +82,17 @@ export function ExportScreen(): JSX.Element {
   }
 
   function onPressExportElectionPackage() {
-    exportElectionPackageMutation.mutate(
-      { electionId },
-      {
-        onSuccess: ({ zipContents, electionHash }) => {
-          fileDownload(
-            zipContents,
-            `election-package-${getDisplayElectionHash({ electionHash })}.zip`
-          );
-        },
-      }
-    );
+    setExportError(undefined);
+    exportElectionPackageMutation.mutate({ electionId });
   }
+
+  if (!electionPackageQuery.isSuccess) {
+    return null;
+  }
+  const electionPackage = electionPackageQuery.data;
+  const isElectionPackageExportInProgress =
+    exportElectionPackageMutation.isLoading ||
+    (electionPackage.task && !electionPackage.task.completedAt);
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -83,14 +119,19 @@ export function ExportScreen(): JSX.Element {
           </Button>
         </P>
         <P>
-          <Button
-            variant="primary"
-            onPress={onPressExportElectionPackage}
-            disabled={exportElectionPackageMutation.isLoading}
-          >
-            Export Election Package
-          </Button>
+          {isElectionPackageExportInProgress ? (
+            <LoadingButton>Exporting Election Package...</LoadingButton>
+          ) : (
+            <Button onPress={onPressExportElectionPackage} variant="primary">
+              Export Election Package
+            </Button>
+          )}
         </P>
+        {exportError && (
+          <P>
+            <Icons.Danger /> An unexpected error occurred. Please try again.
+          </P>
+        )}
       </MainContent>
     </ElectionNavScreen>
   );
