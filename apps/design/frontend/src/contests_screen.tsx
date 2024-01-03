@@ -45,7 +45,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
-import { nextId, replaceAtIndex } from './utils';
+import { generateId, replaceAtIndex } from './utils';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -149,7 +149,7 @@ function ContestsTab(): JSX.Element | null {
             <thead>
               <tr>
                 <TH>Title</TH>
-                <TH>ID</TH>
+                <TH>Type</TH>
                 <TH>District</TH>
                 {election.type === 'primary' && <TH>Party</TH>}
                 <TH />
@@ -159,7 +159,11 @@ function ContestsTab(): JSX.Element | null {
               {filteredContests.map((contest) => (
                 <tr key={contest.id}>
                   <TD>{contest.title}</TD>
-                  <TD>{contest.id}</TD>
+                  <TD>
+                    {contest.type === 'candidate'
+                      ? 'Candidate Contest'
+                      : 'Ballot Measure'}
+                  </TD>
                   <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
                   {election.type === 'primary' && (
                     <TD nowrap>
@@ -185,9 +189,9 @@ function ContestsTab(): JSX.Element | null {
   );
 }
 
-function createBlankCandidateContest(id: ContestId): CandidateContest {
+function createBlankCandidateContest(): CandidateContest {
   return {
-    id,
+    id: generateId(),
     type: 'candidate',
     districtId: '' as DistrictId,
     title: '',
@@ -197,27 +201,27 @@ function createBlankCandidateContest(id: ContestId): CandidateContest {
   };
 }
 
-function createBlankYesNoContest(id: ContestId): YesNoContest {
+function createBlankYesNoContest(): YesNoContest {
   return {
-    id,
+    id: generateId(),
     type: 'yesno',
     districtId: '' as DistrictId,
     title: '',
     description: '',
     yesOption: {
-      id: `${id}-option-yes`,
+      id: generateId(),
       label: 'Yes',
     },
     noOption: {
-      id: `${id}-option-no`,
+      id: generateId(),
       label: 'No',
     },
   };
 }
 
-function createBlankCandidate(id: Id): Candidate {
+function createBlankCandidate(): Candidate {
   return {
-    id,
+    id: generateId(),
     name: '',
   };
 }
@@ -232,26 +236,16 @@ function ContestForm({
   savedElection: Election;
 }): JSX.Element | null {
   const savedContests = savedElection.contests;
-  const savedContest = contestId
-    ? savedContests.find((c) => c.id === contestId)
-    : createBlankCandidateContest(
-        nextId(
-          'contest-',
-          savedContests.map((c) => c.id)
-        )
-      );
-  const [contest, setContest] = useState<AnyContest | undefined>(savedContest);
+  const [contest, setContest] = useState<AnyContest>(
+    contestId
+      ? find(savedContests, (c) => c.id === contestId)
+      : // To make mocked IDs predictable in tests, we pass a function here
+        // so it will only be called on intial render.
+        createBlankCandidateContest
+  );
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
-
-  // If the contest ID is edited in the form and then saved, the component may
-  // re-render before we can redirect, and the contest ID in the URL won't match
-  // any contest in the election. Since we're about to redirect back to the
-  // contests list, we can just return null.
-  if (!contest) {
-    return null;
-  }
 
   function onSavePress() {
     assert(contest !== undefined);
@@ -302,25 +296,6 @@ function ContestForm({
           onChange={(e) => setContest({ ...contest, title: e.target.value })}
         />
       </InputGroup>
-      <InputGroup label="ID">
-        <input
-          type="text"
-          value={contest.id}
-          onChange={(e) => {
-            const newId = e.target.value;
-            if (contest.type === 'yesno') {
-              setContest({
-                ...contest,
-                id: newId,
-                yesOption: { ...contest.yesOption, id: `${newId}-option-yes` },
-                noOption: { ...contest.noOption, id: `${newId}-option-no` },
-              });
-            } else {
-              setContest({ ...contest, id: newId });
-            }
-          }}
-        />
-      </InputGroup>
       <InputGroup label="District">
         <SearchSelect
           value={contest.districtId}
@@ -346,8 +321,9 @@ function ContestForm({
         onChange={(type) =>
           setContest({
             ...(type === 'candidate'
-              ? createBlankCandidateContest(contest.id)
-              : createBlankYesNoContest(contest.id)),
+              ? createBlankCandidateContest()
+              : createBlankYesNoContest()),
+            id: contest.id,
             title: contest.title,
             districtId: contest.districtId,
           })
@@ -423,16 +399,13 @@ function ContestForm({
                 <thead>
                   <tr>
                     <TH>Name</TH>
-                    <TH>ID</TH>
                     <TH>Party</TH>
                     <TH />
                   </tr>
                 </thead>
                 <tbody>
                   {contest.candidates.map((candidate, index) => (
-                    // Because we want to be able to edit the ID, we can't use it as a key
-                    // eslint-disable-next-line react/no-array-index-key
-                    <tr key={`candidate-${index}`}>
+                    <tr key={candidate.id}>
                       <TD>
                         <input
                           aria-label={`Candidate ${index + 1} Name`}
@@ -450,23 +423,6 @@ function ContestForm({
                                   ...candidate,
                                   name: e.target.value,
                                 }
-                              ),
-                            })
-                          }
-                        />
-                      </TD>
-                      <TD>
-                        <input
-                          aria-label={`Candidate ${index + 1} ID`}
-                          type="text"
-                          value={candidate.id}
-                          onChange={(e) =>
-                            setContest({
-                              ...contest,
-                              candidates: replaceAtIndex(
-                                contest.candidates,
-                                index,
-                                { ...candidate, id: e.target.value }
                               ),
                             })
                           }
@@ -500,7 +456,7 @@ function ContestForm({
                               ),
                             })
                           }
-                          style={{ minWidth: '8rem !important' }}
+                          style={{ minWidth: '12rem !important' }}
                         />
                       </TD>
                       <TD>
@@ -531,15 +487,7 @@ function ContestForm({
                 onPress={() =>
                   setContest({
                     ...contest,
-                    candidates: [
-                      ...contest.candidates,
-                      createBlankCandidate(
-                        nextId(
-                          `${contest.id}-candidate-`,
-                          contest.candidates.map((c) => c.id)
-                        )
-                      ),
-                    ],
+                    candidates: [...contest.candidates, createBlankCandidate()],
                   })
                 }
               >
@@ -676,7 +624,6 @@ function PartiesTab(): JSX.Element | null {
           <thead>
             <tr>
               <TH>Name</TH>
-              <TH>ID</TH>
               <TH>Abbreviation</TH>
               <TH />
             </tr>
@@ -685,7 +632,6 @@ function PartiesTab(): JSX.Element | null {
             {parties.map((party) => (
               <tr key={party.id}>
                 <TD>{party.fullName}</TD>
-                <TD>{party.id}</TD>
                 <TD>{party.abbrev}</TD>
                 <TD>
                   <LinkButton
@@ -704,9 +650,9 @@ function PartiesTab(): JSX.Element | null {
   );
 }
 
-function createBlankParty(id: string): Party {
+function createBlankParty(): Party {
   return {
-    id: id as PartyId,
+    id: generateId() as PartyId,
     name: '',
     fullName: '',
     abbrev: '',
@@ -723,15 +669,13 @@ function PartyForm({
   savedElection: Election;
 }): JSX.Element {
   const savedParties = savedElection.parties;
-  const savedParty = partyId
-    ? find(savedParties, (p) => p.id === partyId)
-    : createBlankParty(
-        nextId(
-          'party-',
-          savedParties.map((p) => p.id)
-        )
-      );
-  const [party, setParty] = useState<Party>(savedParty);
+  const [party, setParty] = useState<Party>(
+    partyId
+      ? find(savedParties, (p) => p.id === partyId)
+      : // To make mocked IDs predictable in tests, we pass a function here
+        // so it will only be called on intial render.
+        createBlankParty
+  );
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();
   const partyRoutes = routes.election(electionId).contests.parties;
@@ -804,15 +748,6 @@ function PartyForm({
           type="text"
           value={party.fullName}
           onChange={(e) => setParty({ ...party, fullName: e.target.value })}
-        />
-      </InputGroup>
-      <InputGroup label="ID">
-        <input
-          type="text"
-          value={party.id}
-          onChange={(e) =>
-            setParty({ ...party, id: e.target.value as PartyId })
-          }
         />
       </InputGroup>
       <InputGroup label="Short Name">

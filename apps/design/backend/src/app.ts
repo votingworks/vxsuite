@@ -123,7 +123,7 @@ function buildApi({ store }: { store: Store }) {
 
     updateElection(input: { electionId: Id; election: Election }): void {
       const { election } = store.getElection(input.electionId);
-      // TODO validate election
+      // TODO validate election, including global ID uniqueness
       store.updateElection(input.electionId, {
         ...election,
         ...input.election,

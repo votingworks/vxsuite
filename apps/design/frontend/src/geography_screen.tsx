@@ -27,7 +27,7 @@ import {
   Id,
   PrecinctId,
 } from '@votingworks/types';
-import { assert, find, iter } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import type { Precinct } from '@votingworks/design-backend';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -43,7 +43,7 @@ import {
   FieldName,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
-import { hasSplits, nextId, replaceAtIndex } from './utils';
+import { generateId, hasSplits, nextId, replaceAtIndex } from './utils';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -77,7 +77,6 @@ function DistrictsTab(): JSX.Element | null {
           <thead>
             <tr>
               <TH>Name</TH>
-              <TH>ID</TH>
               <TH />
             </tr>
           </thead>
@@ -85,7 +84,6 @@ function DistrictsTab(): JSX.Element | null {
             {districts.map((district) => (
               <tr key={district.id}>
                 <TD>{district.name}</TD>
-                <TD>{district.id}</TD>
                 <TD>
                   <LinkButton
                     icon="Edit"
@@ -103,10 +101,10 @@ function DistrictsTab(): JSX.Element | null {
   );
 }
 
-function createBlankDistrict(id: string): District {
+function createBlankDistrict(): District {
   return {
+    id: generateId() as DistrictId,
     name: '',
-    id: id as DistrictId,
   };
 }
 
@@ -122,15 +120,13 @@ function DistrictForm({
   savedPrecincts?: Precinct[];
 }): JSX.Element {
   const savedDistricts = savedElection.districts;
-  const savedDistrict = districtId
-    ? find(savedDistricts, (d) => d.id === districtId)
-    : createBlankDistrict(
-        nextId(
-          'district-',
-          savedDistricts.map((d) => d.id)
-        )
-      );
-  const [district, setDistrict] = useState<District>(savedDistrict);
+  const [district, setDistrict] = useState<District>(
+    districtId
+      ? find(savedDistricts, (d) => d.id === districtId)
+      : // To make mocked IDs predictable in tests, we pass a function here
+        // so it will only be called on intial render.
+        createBlankDistrict
+  );
   const updateElectionMutation = updateElection.useMutation();
   const updatePrecinctsMutation = updatePrecincts.useMutation();
   const history = useHistory();
@@ -211,15 +207,6 @@ function DistrictForm({
           type="text"
           value={district.name}
           onChange={(e) => setDistrict({ ...district, name: e.target.value })}
-        />
-      </InputGroup>
-      <InputGroup label="ID">
-        <input
-          type="text"
-          value={district.id}
-          onChange={(e) =>
-            setDistrict({ ...district, id: e.target.value as DistrictId })
-          }
         />
       </InputGroup>
       <div>
@@ -350,7 +337,6 @@ function PrecinctsTab(): JSX.Element | null {
           <thead>
             <tr>
               <TH>Name</TH>
-              <TH>ID</TH>
               <TH>Districts</TH>
               <TH />
             </tr>
@@ -360,7 +346,6 @@ function PrecinctsTab(): JSX.Element | null {
               const precinctRow = (
                 <tr key={precinct.id}>
                   <TD>{precinct.name}</TD>
-                  <TD>{precinct.id}</TD>
                   <TD>
                     {'districtIds' in precinct &&
                       precinct.districtIds
@@ -386,7 +371,6 @@ function PrecinctsTab(): JSX.Element | null {
               const splitRows = precinct.splits.map((split) => (
                 <NestedTr key={split.id}>
                   <TD>{split.name}</TD>
-                  <TD>{split.id}</TD>
                   <TD>
                     {split.districtIds
                       .map((districtId) => districtIdToName.get(districtId))
@@ -404,10 +388,10 @@ function PrecinctsTab(): JSX.Element | null {
   );
 }
 
-function createBlankPrecinct(id: string): Precinct {
+function createBlankPrecinct(): Precinct {
   return {
     name: '',
-    id,
+    id: generateId(),
     districtIds: [],
   };
 }
@@ -423,15 +407,13 @@ function PrecinctForm({
   savedPrecincts: Precinct[];
   districts: readonly District[];
 }): JSX.Element {
-  const savedPrecinct = precinctId
-    ? find(savedPrecincts, (p) => p.id === precinctId)
-    : createBlankPrecinct(
-        nextId(
-          'precinct-',
-          savedPrecincts.map((p) => p.id)
-        )
-      );
-  const [precinct, setPrecinct] = useState<Precinct>(savedPrecinct);
+  const [precinct, setPrecinct] = useState<Precinct>(
+    precinctId
+      ? find(savedPrecincts, (p) => p.id === precinctId)
+      : // To make mocked IDs predictable in tests, we pass a function here
+        // so it will only be called on intial render.
+        createBlankPrecinct
+  );
   const updatePrecinctsMutation = updatePrecincts.useMutation();
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
@@ -456,19 +438,14 @@ function PrecinctForm({
   function onAddSplitPress() {
     if (hasSplits(precinct)) {
       const { id, name, splits } = precinct;
-      const nextSplitId = nextId(
-        `${id}-split-`,
-        splits.map((split) => split.id)
-      );
-      const nextSplitNum = iter(nextSplitId.split('-')).last();
       setPrecinct({
         id,
         name,
         splits: [
           ...splits,
           {
-            id: nextSplitId,
-            name: `${name} - Split ${nextSplitNum}`,
+            id: generateId(),
+            name: nextId(`${name} - Split `),
             districtIds: [],
           },
         ],
@@ -536,22 +513,13 @@ function PrecinctForm({
           onChange={(e) => setPrecinct({ ...precinct, name: e.target.value })}
         />
       </InputGroup>
-      <InputGroup label="ID">
-        <input
-          type="text"
-          value={precinct.id}
-          onChange={(e) => setPrecinct({ ...precinct, id: e.target.value })}
-        />
-      </InputGroup>
       <div>
         <FieldName>Districts</FieldName>
         <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
           {hasSplits(precinct) ? (
             <React.Fragment>
               {precinct.splits.map((split, index) => (
-                // Because we want to be able to edit the ID, we can't use it as a key
-                // eslint-disable-next-line react/no-array-index-key
-                <Card key={`split-${index}`}>
+                <Card key={split.id}>
                   <Column style={{ gap: '1rem' }}>
                     <InputGroup label="Name">
                       <input
@@ -563,21 +531,6 @@ function PrecinctForm({
                             splits: replaceAtIndex(precinct.splits, index, {
                               ...split,
                               name: e.target.value,
-                            }),
-                          })
-                        }
-                      />
-                    </InputGroup>
-                    <InputGroup label="ID">
-                      <input
-                        type="text"
-                        value={split.id}
-                        onChange={(e) =>
-                          setPrecinct({
-                            ...precinct,
-                            splits: replaceAtIndex(precinct.splits, index, {
-                              ...split,
-                              id: e.target.value,
                             }),
                           })
                         }
