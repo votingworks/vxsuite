@@ -77,9 +77,11 @@ export interface BallotStyle {
   partyId?: PartyId;
 }
 
+export type TaskName = 'generate_election_package';
+
 export interface BackgroundTask {
   id: Id;
-  taskName: string;
+  taskName: TaskName;
   payload: string;
   createdAt: Date;
   startedAt?: Date;
@@ -114,13 +116,18 @@ function backgroundTaskRowToBackgroundTask(
 ): BackgroundTask {
   return {
     id: row.id,
-    taskName: row.taskName,
+    taskName: row.taskName as TaskName,
     payload: row.payload,
     createdAt: new Date(row.createdAt),
     startedAt: row.startedAt ? new Date(row.startedAt) : undefined,
     completedAt: row.completedAt ? new Date(row.completedAt) : undefined,
     error: row.error ?? undefined,
   };
+}
+
+export interface ElectionPackage {
+  task?: BackgroundTask;
+  url?: string;
 }
 
 /**
@@ -405,6 +412,69 @@ export class Store {
     );
   }
 
+  getElectionPackage(electionId: Id): ElectionPackage {
+    const electionPackage = this.client.one(
+      `
+      select
+        election_package_task_id as taskId,
+        election_package_url as url
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as Optional<{
+      taskId: string | null;
+      url: string | null;
+    }>;
+    return {
+      task: electionPackage?.taskId
+        ? this.getBackgroundTask(electionPackage.taskId)
+        : undefined,
+      url: electionPackage?.url ?? undefined,
+    };
+  }
+
+  createElectionPackageBackgroundTask(electionId: Id): void {
+    this.client.transaction(() => {
+      // If a task is already in progress, don't create a new one
+      const { task } = this.getElectionPackage(electionId);
+      if (task && !task.completedAt) {
+        return;
+      }
+
+      const taskId = this.createBackgroundTask('generate_election_package', {
+        electionId,
+      });
+      this.client.run(
+        `
+        update elections
+        set election_package_task_id = ?
+        where id = ?
+        `,
+        taskId,
+        electionId
+      );
+    });
+  }
+
+  setElectionPackageUrl({
+    electionId,
+    electionPackageUrl,
+  }: {
+    electionId: Id;
+    electionPackageUrl: string;
+  }): void {
+    this.client.run(
+      `
+      update elections
+      set election_package_url = ?
+      where id = ?
+      `,
+      electionPackageUrl,
+      electionId
+    );
+  }
+
   //
   // Language and audio management
   //
@@ -498,7 +568,7 @@ export class Store {
     return row ? backgroundTaskRowToBackgroundTask(row) : undefined;
   }
 
-  createBackgroundTask(taskName: string, payload: unknown): Id {
+  createBackgroundTask(taskName: TaskName, payload: unknown): Id {
     const taskId = uuid();
     this.client.run(
       `
