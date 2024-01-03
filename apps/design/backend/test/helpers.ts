@@ -8,6 +8,7 @@ import { Store } from '../src/store';
 import type { Api } from '../src/app';
 import { MinimalGoogleCloudTranslationClient } from '../src/language_and_audio/translator';
 import { MinimalGoogleCloudTextToSpeechClient } from '../src/language_and_audio/speech_synthesizer';
+import { Workspace } from '../src/workspace';
 
 tmp.setGracefulCleanup();
 
@@ -18,14 +19,16 @@ export function testSetupHelpers() {
   const servers: Server[] = [];
 
   function setupApp() {
+    const assetDirectoryPath = tmp.dirSync().name;
     const store = Store.fileStore(tmp.fileSync().name);
-    const app = buildApp({ store });
+    const workspace: Workspace = { assetDirectoryPath, store };
+    const app = buildApp({ workspace });
     const server = app.listen();
     servers.push(server);
     const { port } = server.address() as AddressInfo;
     const baseUrl = `http://localhost:${port}/api`;
     const apiClient = grout.createClient<Api>({ baseUrl });
-    return { apiClient };
+    return { apiClient, workspace };
   }
 
   function cleanup() {

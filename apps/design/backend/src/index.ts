@@ -1,8 +1,7 @@
-import { join, resolve } from 'path';
-import { ensureDirSync } from 'fs-extra';
+import { resolve } from 'path';
 import { WORKSPACE } from './globals';
 import * as server from './server';
-import { Store } from './store';
+import { createWorkspace } from './workspace';
 
 export type {
   BallotStyle,
@@ -25,12 +24,9 @@ function main(): Promise<number> {
     );
   }
   const workspacePath = resolve(WORKSPACE);
-  ensureDirSync(workspacePath);
+  const workspace = createWorkspace(workspacePath);
 
-  const dbPath = join(workspacePath, 'design-backend.db');
-  const store = Store.fileStore(dbPath);
-
-  server.start({ store });
+  server.start({ workspace });
 
   return Promise.resolve(0);
 }

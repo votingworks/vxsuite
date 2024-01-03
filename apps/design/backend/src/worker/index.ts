@@ -1,17 +1,14 @@
-import { ensureDirSync } from 'fs-extra';
 import path from 'path';
 import { assertDefined } from '@votingworks/basics';
 
 import { WORKSPACE } from '../globals';
-import { Store } from '../store';
 import * as worker from './worker';
+import { createWorkspace } from '../workspace';
 
 async function main(): Promise<void> {
   const workspacePath = path.resolve(assertDefined(WORKSPACE));
-  ensureDirSync(workspacePath);
-  const dbPath = path.join(workspacePath, 'design-backend.db');
-  const store = Store.fileStore(dbPath);
-  worker.start({ store });
+  const workspace = createWorkspace(workspacePath);
+  worker.start({ workspace });
   return Promise.resolve();
 }
 

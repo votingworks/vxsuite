@@ -1,12 +1,12 @@
 import { buildApp } from './app';
 import { PORT } from './globals';
-import { Store } from './store';
+import { Workspace } from './workspace';
 
 /**
  * Starts the server.
  */
-export function start({ store }: { store: Store }): void {
-  const app = buildApp({ store });
+export function start({ workspace }: { workspace: Workspace }): void {
+  const app = buildApp({ workspace });
 
   app.listen(PORT, () => {
     // eslint-disable-next-line no-console
