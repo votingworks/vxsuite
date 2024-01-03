@@ -8,7 +8,6 @@ import {
   BallotPaperSize,
   SystemSettings,
   BallotType,
-  ElectionPackageFileName,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import { assertDefined, find, groupBy, ok, Result } from '@votingworks/basics';
@@ -20,8 +19,9 @@ import {
 } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
-import { ElectionRecord, Precinct, Store } from './store';
+import { ElectionPackage, ElectionRecord, Precinct } from './store';
 import { createPrecinctTestDeck } from './test_decks';
+import { Workspace } from './workspace';
 
 export function createBlankElection(): Election {
   return {
@@ -89,7 +89,9 @@ function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   });
 }
 
-function buildApi({ store }: { store: Store }) {
+function buildApi({ workspace }: { workspace: Workspace }) {
+  const { store } = workspace;
+
   return grout.createApi({
     listElections(): ElectionRecord[] {
       return store.listElections();
@@ -222,35 +224,12 @@ function buildApi({ store }: { store: Store }) {
       return streamToBuffer(pdf);
     },
 
-    async exportElectionPackage(input: {
-      electionId: Id;
-    }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions, systemSettings } = store.getElection(
-        input.electionId
-      );
-      const { electionDefinition } = layOutAllBallotStyles({
-        election,
-        // Ballot type and ballot mode shouldn't change the election definition, so
-        // it doesn't matter what we pass here
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-        layoutOptions,
-      }).unsafeUnwrap();
+    getElectionPackage({ electionId }: { electionId: Id }): ElectionPackage {
+      return store.getElectionPackage(electionId);
+    },
 
-      const zip = new JsZip();
-      zip.file(
-        ElectionPackageFileName.ELECTION,
-        electionDefinition.electionData
-      );
-      zip.file(
-        ElectionPackageFileName.SYSTEM_SETTINGS,
-        JSON.stringify(systemSettings, null, 2)
-      );
-
-      return {
-        zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        electionHash: electionDefinition.electionHash,
-      };
+    exportElectionPackage({ electionId }: { electionId: Id }): void {
+      store.createElectionPackageBackgroundTask(electionId);
     },
 
     async exportTestDecks(input: {
@@ -291,9 +270,10 @@ function buildApi({ store }: { store: Store }) {
 }
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp({ store }: { store: Store }): Application {
+export function buildApp({ workspace }: { workspace: Workspace }): Application {
   const app: Application = express();
-  const api = buildApi({ store });
+  const api = buildApi({ workspace });
   app.use('/api', grout.buildRouter(api, express));
+  app.use(express.static(workspace.assetDirectoryPath));
   return app;
 }
