@@ -5,12 +5,26 @@ export interface AudioControls {
   decreaseVolume: () => void;
   increasePlaybackRate: () => void;
   increaseVolume: () => void;
+  replay: () => void;
   reset: () => void;
   setIsEnabled: (enabled: boolean) => void;
   togglePause: () => void;
 }
 
 function noOp() {}
+
+/**
+ * Replays the current or last-played audio by re-triggering a focus event on
+ * the currently active element, if any.
+ */
+function replay() {
+  const { activeElement } = window.document;
+
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur();
+    activeElement.focus();
+  }
+}
 
 /**
  * Provides an API for modifying UiString screen reader audio settings.
@@ -27,6 +41,7 @@ export function useAudioControls(): AudioControls {
     increasePlaybackRate: audioContext?.increasePlaybackRate || noOp,
     increaseVolume: audioContext?.increaseVolume || noOp,
     reset: audioContext?.reset || noOp,
+    replay,
     setIsEnabled: audioContext?.setIsEnabled || noOp,
     togglePause: audioContext?.togglePause || noOp,
   };
