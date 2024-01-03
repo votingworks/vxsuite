@@ -1,4 +1,10 @@
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  err,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { sha256 } from 'js-sha256';
@@ -14,39 +20,41 @@ import {
 } from '../apdu';
 import { CardStatus, CheckPinResponse } from '../card';
 import { CardReader } from '../card_reader';
-import {
-  parseCardDetailsFromCert,
-  constructCardCertSubject,
-} from './common_access_card_certs';
 import { CERT_EXPIRY_IN_DAYS } from '../certs';
 import {
   certDerToPem,
-  extractPublicKeyFromCert,
-  verifySignature,
-  publicKeyDerToPem,
-  createCert,
   certPemToDer,
+  createCert,
+  extractPublicKeyFromCert,
+  publicKeyDerToPem,
+  verifySignature,
 } from '../cryptography';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
-  GENERATE_ASYMMETRIC_KEY_PAIR,
   GENERAL_AUTHENTICATE,
+  GENERATE_ASYMMETRIC_KEY_PAIR,
+  GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG,
   GET_DATA,
+  isIncorrectDataFieldParameters,
   isIncorrectPinStatusWord,
   isSecurityConditionNotSatisfiedStatusWord,
   pivDataObjectId,
   PUT_DATA,
-  VERIFY,
-  GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG,
-  RSA_PUBLIC_KEY_MODULUS_TAG,
   RSA_PUBLIC_KEY_EXPONENT_TAG,
+  RSA_PUBLIC_KEY_MODULUS_TAG,
   SEQUENCE_TAG,
+  VERIFY,
 } from '../piv';
 import {
   CommonAccessCardCompatibleCard,
   CommonAccessCardDetails,
+  GenerateSignatureError,
 } from './common_access_card_api';
+import {
+  constructCardCertSubject,
+  parseCardDetailsFromCert,
+} from './common_access_card_certs';
 
 /**
  * The standard CAC applet ID.
@@ -120,6 +128,23 @@ export function buildGenerateSignatureCardCommand(
   });
 }
 
+interface VerifyCardPrivateKeyError {
+  type: 'generate_signature_error';
+  error: GenerateSignatureError;
+}
+
+function isIncorrectPinError(error: ResponseApduError): boolean {
+  return (
+    // real CAC cards return 0x6982 for an incorrect PIN
+    isSecurityConditionNotSatisfiedStatusWord(error.statusWord()) ||
+    // our mock CAC cards return 0x63c? for an incorrect PIN
+    isIncorrectPinStatusWord(error.statusWord()) ||
+    // our mock CAC cards have a different incorrect PIN status word
+    // when the length of the PIN is incorrect
+    isIncorrectDataFieldParameters(error.statusWord())
+  );
+}
+
 /**
  * Supports communication with a Common Access Card.
  */
@@ -187,25 +212,28 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
     const cardDodCert = await this.getCertificate({
       objectId: CARD_DOD_CERT.OBJECT_ID,
     });
-    try {
-      await this.verifyCardPrivateKey(
-        CARD_DOD_CERT.PRIVATE_KEY_ID,
-        cardDodCert,
-        pin
-      );
-    } catch (error) {
-      if (
-        error instanceof ResponseApduError &&
-        // real CAC cards return 0x6982 for an incorrect PIN
-        (isSecurityConditionNotSatisfiedStatusWord(error.statusWord()) ||
-          // our mock CAC cards return 0x63c? for an incorrect PIN
-          isIncorrectPinStatusWord(error.statusWord()))
-      ) {
-        return { response: 'incorrect', numIncorrectPinAttempts: -1 };
+    const verifyCardPrivateKeyResult = await this.verifyCardPrivateKey(
+      CARD_DOD_CERT.PRIVATE_KEY_ID,
+      cardDodCert,
+      pin
+    );
+
+    if (verifyCardPrivateKeyResult.isErr()) {
+      const error = verifyCardPrivateKeyResult.err();
+
+      if (error.error.type === 'incorrect_pin') {
+        return {
+          response: 'incorrect',
+          numIncorrectPinAttempts: -1,
+        };
       }
 
-      throw error;
+      return {
+        response: 'error',
+        error: error.error.error,
+      };
     }
+
     return { response: 'correct' };
   }
 
@@ -249,22 +277,34 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
     privateKeyId: Byte,
     cert: Buffer,
     pin?: string
-  ): Promise<void> {
+  ): Promise<Result<void, VerifyCardPrivateKeyError>> {
     // Have the private key sign a "challenge"
     const challenge = this.generateChallenge();
     const challengeBuffer = Buffer.from(challenge, 'utf-8');
-    const challengeSignature = await this.generateSignature(challengeBuffer, {
-      privateKeyId,
-      pin,
-    });
+    const generateSignatureResult = await this.generateSignature(
+      challengeBuffer,
+      {
+        privateKeyId,
+        pin,
+      }
+    );
+
+    if (generateSignatureResult.isErr()) {
+      return err({
+        type: 'generate_signature_error',
+        error: generateSignatureResult.err(),
+      });
+    }
 
     // Use the cert's public key to verify the generated signature
     const certPublicKey = await extractPublicKeyFromCert(cert);
     await verifySignature({
       message: challengeBuffer,
-      messageSignature: challengeSignature,
+      messageSignature: generateSignatureResult.ok(),
       publicKey: certPublicKey,
     });
+
+    return ok();
   }
 
   /**
@@ -274,9 +314,26 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
   async generateSignature(
     message: Buffer,
     { privateKeyId, pin }: { privateKeyId: Byte; pin?: string }
-  ): Promise<Buffer> {
+  ): Promise<Result<Buffer, GenerateSignatureError>> {
     if (pin) {
-      await this.checkPinInternal(pin);
+      const checkPinResult = await this.checkPinInternal(pin);
+      if (checkPinResult.isErr()) {
+        const error = checkPinResult.err();
+
+        if (isIncorrectPinError(error)) {
+          return err({
+            type: 'incorrect_pin',
+            error,
+            message: 'Incorrect PIN',
+          });
+        }
+
+        return err({
+          type: 'card_error',
+          error,
+          message: `Card error: ${error.message}`,
+        });
+      }
     }
 
     const generalAuthenticateResponse = await this.cardReader.transmit(
@@ -294,7 +351,7 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
       dynamicAuthenticationTemplate
     );
 
-    return signatureResponse;
+    return ok(signatureResponse);
   }
 
   /**
@@ -347,19 +404,26 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
 
   /**
    * The underlying call for checking a PIN.
-   *
-   * @throws `ResponseApduError` with a "security condition not satisfied"
-   * status word if the PIN is incorrect
    */
-  private async checkPinInternal(pin: string): Promise<void> {
-    await this.cardReader.transmit(
-      new CardCommand({
-        ins: VERIFY.INS,
-        p1: VERIFY.P1_VERIFY,
-        p2: VERIFY.P2_PIN,
-        data: construct8BytePinBuffer(pin),
-      })
-    );
+  private async checkPinInternal(
+    pin: string
+  ): Promise<Result<void, ResponseApduError>> {
+    try {
+      await this.cardReader.transmit(
+        new CardCommand({
+          ins: VERIFY.INS,
+          p1: VERIFY.P1_VERIFY,
+          p2: VERIFY.P2_PIN,
+          data: construct8BytePinBuffer(pin),
+        })
+      );
+      return ok();
+    } catch (error) {
+      if (error instanceof ResponseApduError) {
+        return err(error);
+      }
+      throw error;
+    }
   }
 
   private async getData(objectId: Buffer): Promise<Buffer> {

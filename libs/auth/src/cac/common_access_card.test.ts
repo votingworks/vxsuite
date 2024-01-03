@@ -1,29 +1,35 @@
+import { assertDefined, err, ok, typedAs } from '@votingworks/basics';
+import { mockOf } from '@votingworks/test-utils';
+import { Byte } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import * as fs from 'fs';
 import { join } from 'path';
-import { mockOf } from '@votingworks/test-utils';
-import { Byte } from '@votingworks/types';
-import { assertDefined, typedAs } from '@votingworks/basics';
 import waitForExpect from 'wait-for-expect';
-import { certPemToDer, createCert, certDerToPem } from '../cryptography';
 import { MockCardReader, getTestFilePath } from '../../test/utils';
+import {
+  CardCommand,
+  ResponseApduError,
+  SELECT,
+  STATUS_WORD,
+  constructTlv,
+} from '../apdu';
+import { CheckPinResponse } from '../card';
 import { CardReader } from '../card_reader';
+import { certDerToPem, certPemToDer, createCert } from '../cryptography';
+import {
+  CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
+  GENERATE_ASYMMETRIC_KEY_PAIR,
+  GET_DATA,
+  PUT_DATA,
+  VERIFY,
+  construct8BytePinBuffer,
+} from '../piv';
 import {
   CARD_DOD_CERT,
   COMMON_ACCESS_CARD_AID,
   CommonAccessCard,
   buildGenerateSignatureCardCommand,
 } from './common_access_card';
-import { CardCommand, ResponseApduError, SELECT, constructTlv } from '../apdu';
-import {
-  GET_DATA,
-  PUT_DATA,
-  VERIFY,
-  construct8BytePinBuffer,
-  GENERATE_ASYMMETRIC_KEY_PAIR,
-  CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
-} from '../piv';
-import { CheckPinResponse } from '../card';
 
 jest.mock('../card_reader');
 jest.mock('../cryptography', (): typeof import('../cryptography') => ({
@@ -291,6 +297,23 @@ test('checkPin: failure with incorrect pin status word', async () => {
   );
 });
 
+test('checkPin: failure with card error', async () => {
+  const cac = new CommonAccessCard();
+
+  mockCardAppletSelectionRequest();
+  mockCardGetCertificateRequest(
+    CARD_DOD_CERT.OBJECT_ID,
+    await certPemToDer(DEV_CERT_PEM)
+  );
+  mockCardPinVerificationRequest('1234', new ResponseApduError([0x6f, 0x00]));
+  expect(await cac.checkPin('1234')).toEqual(
+    typedAs<CheckPinResponse>({
+      response: 'error',
+      error: new ResponseApduError([0x6f, 0x00]),
+    })
+  );
+});
+
 test('checkPin: unexpected error', async () => {
   const cac = new CommonAccessCard();
 
@@ -301,6 +324,154 @@ test('checkPin: unexpected error', async () => {
   );
   mockCardPinVerificationRequest('1234', new Error('unexpected error'));
   await expect(cac.checkPin('1234')).rejects.toThrow('unexpected error');
+});
+
+test('generateSignature: success with PIN', async () => {
+  // hardcode the challenge so that we can use a real signature
+  const challenge =
+    'VotingWorks/2023-10-10T21:10:22.225Z/f3667bb5-9692-43be-8d2d-52934c2a15e4';
+  const cac = new CommonAccessCard({
+    customChallengeGenerator: () => challenge,
+  });
+
+  mockCardPinVerificationRequest('1234');
+  mockCardGenerateSignatureRequest({
+    message: Buffer.from(challenge),
+    privateKeyId: CARD_DOD_CERT.PRIVATE_KEY_ID,
+    // This is the signature of the challenge, signed with the private key corresponding to the
+    // cert we mocked above. We use a real signature here to ensure end-to-end correctness.
+    // This was taken from the communication with a real (dev) CAC.
+    responseData: Buffer.from(
+      '7c820104828201009111311d7c17de05e2b1f5c9f3634c272f979dbbd87b6c6a7458838e9b4b2f7219780f6adabbdf3be8b37bef7579dc80422757851faf0a82b6ffb259ded82cc2d0a7e26df671173d3efa04a407d9d35f944e4a5b8f926e4ad7d6cf3f74671636a6cfbd15aec2700eeefa6f27936762e0c25d2f53954514a7cd228074ffc0dd9fa3eac823e5db00735d96c9b20a2b7c84b1c1540f90f4ad22cefa5ae82d528773f77cb9c4e12a42a2c959cfbb01c42cbb630f9a1e11c3860eed8bd2536c02e3c1cc748ba120dee38e2d29b466d1f2330bcaf74041fca3f6b61ef5c9daa9e39d7dce6f83571f79103fd67a9dce1e3fb2c4b424c7b8d5dcc84e6f2add4dae932bc4',
+      'hex'
+    ),
+  });
+  const result = await cac.generateSignature(Buffer.from(challenge), {
+    privateKeyId: CARD_DOD_CERT.PRIVATE_KEY_ID,
+    pin: '1234',
+  });
+  expect(result).toEqual(
+    ok(
+      Buffer.from(
+        '9111311d7c17de05e2b1f5c9f3634c272f979dbbd87b6c6a7458838e9b4b2f7219780f6adabbdf3be8b37bef7579dc80422757851faf0a82b6ffb259ded82cc2d0a7e26df671173d3efa04a407d9d35f944e4a5b8f926e4ad7d6cf3f74671636a6cfbd15aec2700eeefa6f27936762e0c25d2f53954514a7cd228074ffc0dd9fa3eac823e5db00735d96c9b20a2b7c84b1c1540f90f4ad22cefa5ae82d528773f77cb9c4e12a42a2c959cfbb01c42cbb630f9a1e11c3860eed8bd2536c02e3c1cc748ba120dee38e2d29b466d1f2330bcaf74041fca3f6b61ef5c9daa9e39d7dce6f83571f79103fd67a9dce1e3fb2c4b424c7b8d5dcc84e6f2add4dae932bc4',
+        'hex'
+      )
+    )
+  );
+});
+
+test('generateSignature: success without PIN', async () => {
+  // hardcode the challenge so that we can use a real signature
+  const challenge =
+    'VotingWorks/2023-10-10T21:10:22.225Z/f3667bb5-9692-43be-8d2d-52934c2a15e4';
+  const cac = new CommonAccessCard({
+    customChallengeGenerator: () => challenge,
+  });
+
+  mockCardGenerateSignatureRequest({
+    message: Buffer.from(challenge),
+    privateKeyId: CARD_DOD_CERT.PRIVATE_KEY_ID,
+    // This is the signature of the challenge, signed with the private key corresponding to the
+    // cert we mocked above. We use a real signature here to ensure end-to-end correctness.
+    // This was taken from the communication with a real (dev) CAC.
+    responseData: Buffer.from(
+      '7c820104828201009111311d7c17de05e2b1f5c9f3634c272f979dbbd87b6c6a7458838e9b4b2f7219780f6adabbdf3be8b37bef7579dc80422757851faf0a82b6ffb259ded82cc2d0a7e26df671173d3efa04a407d9d35f944e4a5b8f926e4ad7d6cf3f74671636a6cfbd15aec2700eeefa6f27936762e0c25d2f53954514a7cd228074ffc0dd9fa3eac823e5db00735d96c9b20a2b7c84b1c1540f90f4ad22cefa5ae82d528773f77cb9c4e12a42a2c959cfbb01c42cbb630f9a1e11c3860eed8bd2536c02e3c1cc748ba120dee38e2d29b466d1f2330bcaf74041fca3f6b61ef5c9daa9e39d7dce6f83571f79103fd67a9dce1e3fb2c4b424c7b8d5dcc84e6f2add4dae932bc4',
+      'hex'
+    ),
+  });
+  const result = await cac.generateSignature(Buffer.from(challenge), {
+    privateKeyId: CARD_DOD_CERT.PRIVATE_KEY_ID,
+  });
+  expect(result).toEqual(
+    ok(
+      Buffer.from(
+        '9111311d7c17de05e2b1f5c9f3634c272f979dbbd87b6c6a7458838e9b4b2f7219780f6adabbdf3be8b37bef7579dc80422757851faf0a82b6ffb259ded82cc2d0a7e26df671173d3efa04a407d9d35f944e4a5b8f926e4ad7d6cf3f74671636a6cfbd15aec2700eeefa6f27936762e0c25d2f53954514a7cd228074ffc0dd9fa3eac823e5db00735d96c9b20a2b7c84b1c1540f90f4ad22cefa5ae82d528773f77cb9c4e12a42a2c959cfbb01c42cbb630f9a1e11c3860eed8bd2536c02e3c1cc748ba120dee38e2d29b466d1f2330bcaf74041fca3f6b61ef5c9daa9e39d7dce6f83571f79103fd67a9dce1e3fb2c4b424c7b8d5dcc84e6f2add4dae932bc4',
+        'hex'
+      )
+    )
+  );
+});
+
+test('generateSignature: incorrect PIN (security condition not satisfied response)', async () => {
+  // hardcode the challenge so that we can use a real signature
+  const challenge =
+    'VotingWorks/2023-10-10T21:10:22.225Z/f3667bb5-9692-43be-8d2d-52934c2a15e4';
+  const cac = new CommonAccessCard({
+    customChallengeGenerator: () => challenge,
+  });
+
+  const error = new ResponseApduError([0x69, 0x82]);
+  mockCardPinVerificationRequest('1234', error);
+  const result = await cac.generateSignature(Buffer.from(challenge), {
+    privateKeyId: CARD_DOD_CERT.PRIVATE_KEY_ID,
+    pin: '1234',
+  });
+  expect(result).toEqual(
+    err({
+      type: 'incorrect_pin',
+      error,
+      message: 'Incorrect PIN',
+    })
+  );
+});
+
+test('generateSignature: incorrect PIN (wrong PIN response)', async () => {
+  // hardcode the challenge so that we can use a real signature
+  const cac = new CommonAccessCard();
+
+  const error = new ResponseApduError([STATUS_WORD.VERIFY_FAIL.SW1, 0xc0]);
+  mockCardPinVerificationRequest('1234', error);
+  const result = await cac.generateSignature(Buffer.of(), {
+    privateKeyId: CARD_DOD_CERT.PRIVATE_KEY_ID,
+    pin: '1234',
+  });
+  expect(result).toEqual(
+    err({
+      type: 'incorrect_pin',
+      error,
+      message: 'Incorrect PIN',
+    })
+  );
+});
+
+test('generateSignature: incorrect PIN (incorrect data field parameters response)', async () => {
+  const cac = new CommonAccessCard();
+
+  const error = new ResponseApduError([
+    STATUS_WORD.INCORRECT_DATA_FIELD_PARAMETERS.SW1,
+    STATUS_WORD.INCORRECT_DATA_FIELD_PARAMETERS.SW2,
+  ]);
+  mockCardPinVerificationRequest('1234', error);
+  const result = await cac.generateSignature(Buffer.of(), {
+    privateKeyId: CARD_DOD_CERT.PRIVATE_KEY_ID,
+    pin: '1234',
+  });
+  expect(result).toEqual(
+    err({
+      type: 'incorrect_pin',
+      error,
+      message: 'Incorrect PIN',
+    })
+  );
+});
+
+test('generateSignature: card error', async () => {
+  const cac = new CommonAccessCard();
+
+  const error = new ResponseApduError([0x6f, 0x00]);
+  mockCardPinVerificationRequest('1234', error);
+  const result = await cac.generateSignature(Buffer.of(), {
+    privateKeyId: CARD_DOD_CERT.PRIVATE_KEY_ID,
+    pin: '1234',
+  });
+  expect(result).toEqual(
+    err({
+      type: 'card_error',
+      error,
+      message:
+        'Card error: Received response APDU with error status word: 6f 00',
+    })
+  );
 });
 
 test('create and store cert', async () => {
