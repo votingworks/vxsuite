@@ -57,7 +57,7 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
     render(
       <React.Fragment>
         <Heading>regular heading</Heading>
-        <Heading as="h1">heading with modified semantics</Heading>
+        <Heading as="h3">heading with modified semantics</Heading>
         <Heading italic>italic heading</Heading>
         <Heading align="center">center-aligned heading</Heading>
         <Heading noWrap>no-wrap heading</Heading>
@@ -87,14 +87,26 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
         : 0;
 
     const regularHeading = screen.getByText('regular heading');
-    expect(regularHeading).toHaveStyle({
-      'font-size': `${expectedSizeRem}rem`,
-    });
+    if (Heading === H1) {
+      // H1 receives styling from normalize.css. In production, the styling is
+      // always resolved in favor of our own global styles, but in tests, the
+      // style is resolved in favor of normalize.css.
+      //
+      // TODO: Dedupe normalize.css and our own global styles to avoid
+      // unpredictable styling.
+      expect(regularHeading).toHaveStyle({
+        'font-size': `2em`,
+      });
+    } else {
+      expect(regularHeading).toHaveStyle({
+        'font-size': `${expectedSizeRem}rem`,
+      });
+    }
 
     const modifiedSemanticHeading = screen.getByText(
       'heading with modified semantics'
     );
-    expect(modifiedSemanticHeading.tagName).toEqual('H1');
+    expect(modifiedSemanticHeading.tagName).toEqual('H3');
     expect(modifiedSemanticHeading).toHaveStyle({
       'font-size': `${expectedSizeRem}rem`,
     });

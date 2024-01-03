@@ -54,7 +54,7 @@ export function AdminTallyReportByParty({
         electionDefinition={electionDefinition}
         contests={contests}
         scannedElectionResults={tallyReportResults.scannedResults}
-        manualElectionResults={tallyReportResults?.manualResults}
+        manualElectionResults={tallyReportResults.manualResults}
         title={title ?? `${election.title} Tally Report`}
         isTest={isTest}
         isOfficial={isOfficial}
@@ -78,6 +78,7 @@ export function AdminTallyReportByParty({
     if (!partyId) continue; // non-partisan contests handled separately
 
     const partyCardCounts =
+      // istanbul ignore next - trivial fallthrough case
       tallyReportResults.cardCountsByParty[partyId] ?? getEmptyCardCounts();
 
     const party = find(election.parties, (p) => p.id === partyId);

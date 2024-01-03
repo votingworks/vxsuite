@@ -23,13 +23,15 @@ function createTouchEndEventProperties(x: number, y: number) {
   return { changedTouches: [{ clientX: x, clientY: y }] };
 }
 
-function remToPx(rem: string): number {
-  if (!rem) {
+function percentToPx(percent: string): number {
+  if (!percent) {
     return 0;
   }
 
+  assert(percent.endsWith('%'));
+
   return (
-    Number.parseFloat(rem) *
+    (Number.parseFloat(percent) / 100) *
     Number.parseFloat(
       window.getComputedStyle(document.documentElement).fontSize
     )
@@ -64,7 +66,8 @@ describe('Button', () => {
       });
 
       const button = screen.getButton(`${sizeMode} button`);
-      return remToPx(window.getComputedStyle(button).fontSize);
+
+      return percentToPx(window.getComputedStyle(button).fontSize);
     }
 
     const smallButtonFontSizePx = getButtonFontSizePx('touchSmall');

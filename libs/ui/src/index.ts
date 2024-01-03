@@ -105,3 +105,4 @@ export * from './search_select';
 export * from './checkbox';
 export * from './utils/pin_length';
 export * from './test-utils/mock_usb_drive';
+export * from './fonts/roboto';

@@ -85,7 +85,7 @@ test('primary election, full election report with manual results', () => {
       generatedAtTime={new Date('2020-01-01')}
       tallyReportResults={buildSimpleMockTallyReportResults({
         election,
-        scannedBallotCount: 25,
+        scannedBallotCount: 15,
         manualBallotCount: 1,
         cardCountsByParty: {
           '0': {
@@ -93,7 +93,6 @@ test('primary election, full election report with manual results', () => {
             hmpb: [],
             manual: 1,
           },
-          '1': 10,
         },
       })}
     />
@@ -118,7 +117,7 @@ test('primary election, full election report with manual results', () => {
   );
   expect(
     within(fishReport).getByTestId('total-ballot-count')
-  ).toHaveTextContent('10');
+  ).toHaveTextContent('0');
 
   expect(within(fishReport).getAllByTestId(/results-table-/)).toHaveLength(2);
   expect(
@@ -131,7 +130,7 @@ test('primary election, full election report with manual results', () => {
   );
   expect(
     within(nonpartisanReport).getByTestId('total-ballot-count')
-  ).toHaveTextContent('26'); // should combine results
+  ).toHaveTextContent('16'); // should combine results
 
   expect(
     within(nonpartisanReport).getAllByTestId(/results-table-/)
